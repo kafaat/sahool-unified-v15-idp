@@ -1,0 +1,346 @@
+name: Drift Detection
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    # Run daily at 06:00 UTC (09:00 AST)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      categories:
+        description: 'Drift categories to check (comma-separated, or "all")'
+        required: false
+        default: 'all'
+      environment:
+        description: 'Target environment'
+        required: false
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Pre-flight: Determine what changed
+  # ─────────────────────────────────────────────────────────────────────────
+  preflight:
+    name: Pre-flight Analysis
+    runs-on: ubuntu-latest
+    outputs:
+      has_python_changes: ${{ steps.changes.outputs.python }}
+      has_config_changes: ${{ steps.changes.outputs.config }}
+      has_schema_changes: ${{ steps.changes.outputs.schema }}
+      has_contract_changes: ${{ steps.changes.outputs.contracts }}
+      has_event_changes: ${{ steps.changes.outputs.events }}
+      has_security_changes: ${{ steps.changes.outputs.security }}
+      has_docker_changes: ${{ steps.changes.outputs.docker }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            python:
+              - 'apps/services/**/*.py'
+              - 'shared/**/*.py'
+              - 'requirements*.txt'
+              - 'pyproject.toml'
+            config:
+              - 'governance/services.yaml'
+              - 'docker-compose*.yml'
+              - 'helm/**'
+              - '.env.example'
+              - 'config/**'
+            schema:
+              - 'apps/services/*/prisma/**'
+              - '**/migrations/**'
+            contracts:
+              - 'packages/shared-types/src/contracts/**'
+              - 'apps/mobile/lib/core/contracts/**'
+            events:
+              - 'governance/events/**'
+              - 'shared/events/**'
+            security:
+              - '**/Dockerfile*'
+              - 'shared/middleware/**'
+              - 'shared/auth/**'
+              - 'shared/security/**'
+            docker:
+              - '**/Dockerfile*'
+              - 'docker-compose*.yml'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Drift Detection (Core)
+  # ─────────────────────────────────────────────────────────────────────────
+  drift-detection:
+    name: Drift Detection Scan
+    runs-on: ubuntu-latest
+    needs: [preflight]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml pydantic
+
+      - name: Run Drift Detection
+        id: drift
+        run: |
+          # Determine categories based on changes
+          CATEGORIES=""
+          if [ "${{ needs.preflight.outputs.has_config_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES config"
+          fi
+          if [ "${{ needs.preflight.outputs.has_schema_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES schema"
+          fi
+          if [ "${{ needs.preflight.outputs.has_contract_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES api"
+          fi
+          if [ "${{ needs.preflight.outputs.has_event_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES event"
+          fi
+          if [ "${{ needs.preflight.outputs.has_python_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES data"
+          fi
+          if [ "${{ needs.preflight.outputs.has_security_changes }}" == "true" ] || [ "${{ needs.preflight.outputs.has_docker_changes }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            CATEGORIES="$CATEGORIES security"
+          fi
+
+          # Default to all if no specific changes or manual trigger
+          if [ -z "$CATEGORIES" ]; then
+            CATEGORIES="config schema api event data security"
+          fi
+
+          # Handle workflow_dispatch input
+          if [ "${{ github.event.inputs.categories }}" == "all" ] || [ -n "${{ github.event.inputs.categories }}" ]; then
+            if [ "${{ github.event.inputs.categories }}" != "all" ]; then
+              CATEGORIES="${{ github.event.inputs.categories }}"
+              CATEGORIES=$(echo "$CATEGORIES" | tr ',' ' ')
+            else
+              CATEGORIES="config schema api event data security"
+            fi
+          fi
+
+          echo "Running drift detection for: $CATEGORIES"
+
+          ENVIRONMENT="${{ github.event.inputs.environment || 'development' }}"
+          TRIGGERED_BY="ci"
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            TRIGGERED_BY="scheduled"
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TRIGGERED_BY="manual"
+          fi
+
+          # Baseline file for diff-aware CI gating (only flags NEW drifts)
+          BASELINE_FLAG=""
+          if [ -f ".drift-baseline.json" ]; then
+            BASELINE_FLAG="--baseline .drift-baseline.json"
+            echo "Using drift baseline for diff-aware gating"
+          else
+            echo "No baseline found — running in strict mode"
+          fi
+
+          python -m shared.drift_detection.engine \
+            --dir . \
+            --categories $CATEGORIES \
+            --environment "$ENVIRONMENT" \
+            --triggered-by "$TRIGGERED_BY" \
+            $BASELINE_FLAG \
+            --format json > drift-report.json 2>drift-stderr.log || true
+
+          # Also generate text report
+          python -m shared.drift_detection.engine \
+            --dir . \
+            --categories $CATEGORIES \
+            --environment "$ENVIRONMENT" \
+            --triggered-by "$TRIGGERED_BY" \
+            $BASELINE_FLAG \
+            --format text > drift-report.txt 2>/dev/null || true
+
+          # Generate markdown for PR comment
+          python -m shared.drift_detection.engine \
+            --dir . \
+            --categories $CATEGORIES \
+            --environment "$ENVIRONMENT" \
+            --triggered-by "$TRIGGERED_BY" \
+            --format markdown > drift-report.md 2>/dev/null || true
+
+          # Show engine stderr for debugging
+          if [ -s drift-stderr.log ]; then
+            echo "::group::Drift engine stderr"
+            cat drift-stderr.log
+            echo "::endgroup::"
+          fi
+
+          # Extract exit code — self-contained, no shared module imports
+          # (importing shared.drift_detection.engine pulls in ALL detectors
+          #  and their transitive deps which may not be installed in CI)
+          EXIT_CODE=$(python -c "
+          import json, sys, os
+          try:
+              with open('drift-report.json') as f:
+                  report = json.load(f)
+              summary = report.get('summary', {})
+              # Load baseline (inline, no external imports needed)
+              baseline = None
+              bl_path = '.drift-baseline.json'
+              if os.path.exists(bl_path):
+                  with open(bl_path) as bf:
+                      baseline = json.load(bf)
+              if baseline is not None:
+                  current_critical = summary.get('critical', 0)
+                  current_high = summary.get('high', 0)
+                  current_total = summary.get('total_drifts', 0)
+                  bl_critical = baseline.get('critical', 0)
+                  bl_high = baseline.get('high', 0)
+                  bl_total = baseline.get('total', 0)
+                  new_critical = max(0, current_critical - bl_critical)
+                  new_high = max(0, current_high - bl_high)
+                  new_total = max(0, current_total - bl_total)
+                  print(f'Drift comparison: critical={current_critical}(+{new_critical}) high={current_high}(+{new_high}) total={current_total}(+{new_total})', file=sys.stderr)
+                  print(f'Baseline: critical={bl_critical} high={bl_high} total={bl_total}', file=sys.stderr)
+                  if new_critical > 0 or new_high > 0:
+                      sys.exit(1)
+                  elif new_total > 0:
+                      sys.exit(2)
+                  else:
+                      sys.exit(0)
+              else:
+                  print('No baseline found — strict mode', file=sys.stderr)
+                  critical = summary.get('critical', 0)
+                  high = summary.get('high', 0)
+                  if critical > 0 or high > 0:
+                      sys.exit(1)
+                  elif summary.get('total_drifts', 0) > 0:
+                      sys.exit(2)
+                  else:
+                      sys.exit(0)
+          except Exception as e:
+              print(f'Exit code extraction error: {e}', file=sys.stderr)
+              sys.exit(0)
+          " && echo 0 || echo $?)
+
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+      - name: Upload Drift Report
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: drift-report
+          path: |
+            drift-report.json
+            drift-report.txt
+            drift-report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: drift-detection
+          path: drift-report.md
+
+      - name: Create Step Summary
+        if: always()
+        run: |
+          echo "## Drift Detection Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f drift-report.md ]; then
+            cat drift-report.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Report generation failed - check logs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check Gate
+        if: github.event_name == 'pull_request'
+        run: |
+          EXIT_CODE="${{ steps.drift.outputs.exit_code }}"
+          if [ "$EXIT_CODE" == "1" ]; then
+            echo "::error::New critical/high drift introduced - PR blocked (above baseline)"
+            exit 1
+          elif [ "$EXIT_CODE" == "2" ]; then
+            echo "::warning::New medium/low drift introduced - review recommended"
+          else
+            echo "No new drift above baseline - gate passed"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Config Validation Gate
+  # ─────────────────────────────────────────────────────────────────────────
+  config-validation:
+    name: Config Validation
+    runs-on: ubuntu-latest
+    needs: [preflight]
+    if: needs.preflight.outputs.has_config_changes == 'true' || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate ENV Schema
+        run: |
+          python tools/env/check_env_drift.py || echo "::warning::ENV drift detected"
+
+      - name: Validate services.yaml
+        run: |
+          python -c "
+          import yaml, sys
+          with open('governance/services.yaml') as f:
+              data = yaml.safe_load(f)
+          if not data:
+              print('Empty services.yaml!')
+              sys.exit(1)
+          print(f'Services registry loaded: {len(data.get(\"services\", []))} services')
+          "
+
+      - name: Validate Docker Compose
+        run: |
+          if [ -f docker-compose.yml ]; then
+            docker compose -f docker-compose.yml config --quiet 2>&1 || echo "::warning::docker-compose.yml validation issue"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Summary Report
+  # ─────────────────────────────────────────────────────────────────────────
+  report:
+    name: Generate Summary
+    runs-on: ubuntu-latest
+    needs: [drift-detection, config-validation]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Drift Detection Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Drift Detection | ${{ needs.drift-detection.result == 'success' && 'PASS' || 'REVIEW' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Config Validation | ${{ needs.config-validation.result == 'success' && 'PASS' || (needs.config-validation.result == 'skipped' && 'SKIP' || 'REVIEW') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

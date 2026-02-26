@@ -106,7 +106,8 @@ class RotationTimelineWidget extends StatelessWidget {
                       year.crop!.nameEn,
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                         color: isSelected
                             ? _getYearColor(year)
                             : Colors.grey.shade700,

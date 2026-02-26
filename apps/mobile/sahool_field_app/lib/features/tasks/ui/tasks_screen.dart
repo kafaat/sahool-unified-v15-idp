@@ -29,7 +29,8 @@ class _TasksScreenState extends State<TasksScreen> {
             onSelected: (value) => setState(() => _selectedFilter = value),
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'all', child: Text('جميع المهام')),
-              const PopupMenuItem(value: 'pending', child: Text('قيد الانتظار')),
+              const PopupMenuItem(
+                  value: 'pending', child: Text('قيد الانتظار')),
               const PopupMenuItem(value: 'completed', child: Text('مكتملة')),
               const PopupMenuItem(value: 'high', child: Text('أولوية عالية')),
             ],
@@ -196,9 +197,9 @@ class _TasksScreenState extends State<TasksScreen> {
                       Text(
                         "80%",
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ],
                   ),
@@ -343,10 +344,18 @@ class _TasksScreenState extends State<TasksScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            _DetailRow(icon: Icons.schedule, label: "الوقت", value: "08:00 ص - 10:00 ص"),
-            _DetailRow(icon: Icons.person, label: "المسؤول", value: "أحمد محمد"),
-            _DetailRow(icon: Icons.location_on, label: "الموقع", value: "الحقل الشمالي - القطاع C"),
-            _DetailRow(icon: Icons.water, label: "كمية المياه", value: "500 م³"),
+            _DetailRow(
+                icon: Icons.schedule,
+                label: "الوقت",
+                value: "08:00 ص - 10:00 ص"),
+            _DetailRow(
+                icon: Icons.person, label: "المسؤول", value: "أحمد محمد"),
+            _DetailRow(
+                icon: Icons.location_on,
+                label: "الموقع",
+                value: "الحقل الشمالي - القطاع C"),
+            _DetailRow(
+                icon: Icons.water, label: "كمية المياه", value: "500 م³"),
             const Spacer(),
             Row(
               children: [
@@ -518,7 +527,8 @@ class _TasksScreenState extends State<TasksScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("إضافة المهمة", style: TextStyle(fontSize: 16)),
+                child:
+                    const Text("إضافة المهمة", style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -533,7 +543,16 @@ class _TasksScreenState extends State<TasksScreen> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 enum TaskPriority { high, medium, low }
-enum TaskType { irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest }
+
+enum TaskType {
+  irrigation,
+  fertilization,
+  spraying,
+  scouting,
+  maintenance,
+  sampling,
+  harvest
+}
 
 class _FilterChip extends StatelessWidget {
   final String label;
@@ -558,7 +577,9 @@ class _FilterChip extends StatelessWidget {
           color: isSelected ? SahoolColors.forestGreen : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? SahoolColors.forestGreen : Colors.grey.withOpacity(0.3),
+            color: isSelected
+                ? SahoolColors.forestGreen
+                : Colors.grey.withOpacity(0.3),
           ),
         ),
         child: Row(
@@ -681,7 +702,8 @@ class _TaskCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                      decoration:
+                          isCompleted ? TextDecoration.lineThrough : null,
                       color: isCompleted ? Colors.grey : Colors.black87,
                     ),
                   ),
@@ -727,7 +749,9 @@ class _TaskCard extends StatelessWidget {
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: isCompleted ? SahoolColors.forestGreen : Colors.transparent,
+                  color: isCompleted
+                      ? SahoolColors.forestGreen
+                      : Colors.transparent,
                   border: Border.all(
                     color: isCompleted ? SahoolColors.forestGreen : Colors.grey,
                     width: 2,

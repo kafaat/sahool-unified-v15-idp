@@ -124,7 +124,8 @@ void main() {
       expect(find.text('متصل'), findsOneWidget);
     });
 
-    testWidgets('should show offline indicator when disconnected', (tester) async {
+    testWidgets('should show offline indicator when disconnected',
+        (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -193,13 +194,27 @@ void main() {
                 body: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 1')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 2')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 3')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 4')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 5')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 6')))),
-                      SizedBox(height: 100, child: Card(child: Center(child: Text('بطاقة 7')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 1')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 2')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 3')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 4')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 5')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 6')))),
+                      SizedBox(
+                          height: 100,
+                          child: Card(child: Center(child: Text('بطاقة 7')))),
                     ],
                   ),
                 ),
@@ -211,7 +226,8 @@ void main() {
 
       expect(find.text('بطاقة 1'), findsOneWidget);
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -300));
       await tester.pumpAndSettle();
 
       // After scrolling, card 1 might be off-screen

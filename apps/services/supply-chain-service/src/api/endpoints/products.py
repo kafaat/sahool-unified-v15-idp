@@ -4,9 +4,23 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ..schemas import Product, ProductCategory, ProductListResponse
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 logger = structlog.get_logger()
 
@@ -130,6 +144,7 @@ async def list_products(
     is_available: bool = Query(True, description="Filter by availability"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    _user=Depends(get_current_user),
 ) -> ProductListResponse:
     """List available products with optional filtering."""
     _init_mock_products()

@@ -27,6 +27,7 @@ from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Configure structured logging
 structlog.configure(
@@ -166,6 +167,8 @@ app.add_middleware(
         "X-Request-ID",
     ],
 )
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============================================================================
@@ -532,9 +535,7 @@ async def get_all_health_statuses():
 
         return {
             "status": "success",
-            "health_statuses": {
-                agent_id: health.model_dump() for agent_id, health in health_statuses.items()
-            },
+            "health_statuses": {agent_id: health.model_dump() for agent_id, health in health_statuses.items()},
             "total": len(health_statuses),
         }
 

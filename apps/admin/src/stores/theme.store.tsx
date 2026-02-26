@@ -5,7 +5,7 @@
  * مخزن السمات - دعم الوضع الداكن
  */
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
@@ -114,15 +114,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(newTheme);
   }, [resolvedTheme, setTheme]);
 
-  // Prevent flash of incorrect theme
-  if (!mounted) {
-    return null;
-  }
+  // Memoize context value to prevent unnecessary re-renders of consumers
+  const value = React.useMemo(
+    () => ({ theme, resolvedTheme, setTheme, toggleTheme }),
+    [theme, resolvedTheme, setTheme, toggleTheme],
+  );
 
+  // Render children immediately to avoid blocking the entire app tree.
+  // Previously this returned null before mount, causing a visible flash of
+  // invisible content (FOIC). Theme-dependent styling is handled by the
+  // CSS class on <html>, which is set synchronously in the useEffect above,
+  // so consumers will re-render once with the correct resolved theme.
   return (
-    <ThemeContext.Provider
-      value={{ theme, resolvedTheme, setTheme, toggleTheme }}
-    >
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

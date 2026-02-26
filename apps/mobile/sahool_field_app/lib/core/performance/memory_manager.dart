@@ -137,7 +137,8 @@ enum MemoryPressureLevel {
 }
 
 /// نوع callback لضغط الذاكرة
-typedef MemoryPressureCallback = Future<void> Function(MemoryPressureLevel level);
+typedef MemoryPressureCallback = Future<void> Function(
+    MemoryPressureLevel level);
 
 /// معلومات الذاكرة
 class MemoryInfo {

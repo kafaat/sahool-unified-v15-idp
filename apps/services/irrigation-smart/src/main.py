@@ -55,6 +55,10 @@ except ImportError:
         pass
 
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 try:
     from shared.contracts.actions import (
         ActionTemplate,
@@ -119,6 +123,9 @@ add_request_id_middleware(app)
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # =============================================================================
@@ -468,9 +475,7 @@ async def publish_event(subject: str, data: dict) -> bool:
 # =============================================================================
 
 
-def calculate_et0(
-    temperature: float, humidity: float, wind_speed: float, solar_radiation: float = 20
-) -> float:
+def calculate_et0(temperature: float, humidity: float, wind_speed: float, solar_radiation: float = 20) -> float:
     """Calculate reference evapotranspiration (Hargreaves method)"""
     # Simplified ET0 = 0.0023 * Ra * (T + 17.8) * TD^0.5
     # Where TD = daily temperature range (assumed 10°C)
@@ -623,7 +628,9 @@ def generate_reasoning(
         reason_en = f"🟡 {crop.value} needs irrigation within 24 hours. {stage.value} stage requires {water_need['daily_et_mm']} mm/day."
     else:
         reason_ar = f"🟢 {crop_ar} في حالة جيدة. الري الوقائي مُوصى به للحفاظ على رطوبة مثالية."
-        reason_en = f"🟢 {crop.value} is in good condition. Preventive irrigation recommended to maintain optimal moisture."
+        reason_en = (
+            f"🟢 {crop.value} is in good condition. Preventive irrigation recommended to maintain optimal moisture."
+        )
 
     return reason_ar, reason_en
 
@@ -646,9 +653,7 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = (
-        hasattr(app.state, "nc") and app.state.nc is not None and app.state.nc.is_connected
-    )
+    nats_connected = hasattr(app.state, "nc") and app.state.nc is not None and app.state.nc.is_connected
     return {
         "status": "ready",
         "service": "irrigation-smart",
@@ -819,9 +824,7 @@ async def calculate_irrigation(
         recommendations_en.append("🔴 Soil moisture very low - increase irrigation frequency")
 
     recommendations_ar.append(f"💧 كفاءة الري الحالية: {int(water_need['efficiency'] * 100)}%")
-    recommendations_en.append(
-        f"💧 Current irrigation efficiency: {int(water_need['efficiency'] * 100)}%"
-    )
+    recommendations_en.append(f"💧 Current irrigation efficiency: {int(water_need['efficiency'] * 100)}%")
 
     # Alerts
     alerts_ar = []
@@ -934,9 +937,7 @@ def get_water_balance(
             "cumulative_deficit_mm": round(cumulative_deficit, 2),
         },
         "daily_data": [b.dict() for b in balance_data],
-        "recommendation_ar": (
-            "💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"
-        ),
+        "recommendation_ar": ("💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"),
     }
 
 

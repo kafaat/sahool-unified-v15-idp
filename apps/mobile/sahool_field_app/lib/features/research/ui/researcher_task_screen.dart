@@ -271,12 +271,15 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedCategory = cat['value']!),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.green : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? Colors.green.shade700 : Colors.grey.shade300,
+                    color: isSelected
+                        ? Colors.green.shade700
+                        : Colors.grey.shade300,
                   ),
                 ),
                 child: Row(
@@ -288,7 +291,8 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
                       cat['label']!,
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -314,7 +318,8 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
         fillColor: Colors.grey.shade50,
       ),
       validator: (value) {
-        if (_selectedCategory == 'measurement' && (value == null || value.isEmpty)) {
+        if (_selectedCategory == 'measurement' &&
+            (value == null || value.isEmpty)) {
           return 'يرجى إدخال القيمة المقاسة';
         }
         return null;
@@ -386,7 +391,8 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close, color: Colors.white, size: 16),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 16),
                         ),
                       ),
                     ),
@@ -444,7 +450,8 @@ class _ResearcherTaskScreenState extends State<ResearcherTaskScreen> {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                    color: Colors.white, strokeWidth: 2),
               )
             : const Icon(Icons.save_alt),
         label: Text(_isSaving ? 'جاري الحفظ...' : 'حفظ محلي'),

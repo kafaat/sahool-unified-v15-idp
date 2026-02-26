@@ -178,7 +178,15 @@ class DailyForecast {
   }
 
   String get dayName {
-    final days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    final days = [
+      'الأحد',
+      'الإثنين',
+      'الثلاثاء',
+      'الأربعاء',
+      'الخميس',
+      'الجمعة',
+      'السبت'
+    ];
     return days[date.weekday % 7];
   }
 }
@@ -337,7 +345,8 @@ class AgriculturalImpact {
     return AgriculturalImpact(
       category: json['category'] as String,
       recommendation: json['recommendation'] as String,
-      recommendationAr: json['recommendation_ar'] as String? ?? json['recommendation'],
+      recommendationAr:
+          json['recommendation_ar'] as String? ?? json['recommendation'],
       status: json['status'] as String,
       reasons: List<String>.from(json['reasons'] ?? []),
     );

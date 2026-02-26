@@ -38,8 +38,30 @@ sys.path.insert(0, "/app")
 sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+# ---------------------------------------------------------------------------
+# Authentication dependency
+# ---------------------------------------------------------------------------
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    _AUTH_AVAILABLE = True
+except ImportError:
+    _AUTH_AVAILABLE = False
+
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str = "default"
+
+    async def get_current_user() -> User:  # type: ignore[misc]
+        """Fallback when shared.auth is not importable (dev/test)."""
+        return User()
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"
@@ -377,9 +399,7 @@ class DigitalTwinEngine:
 
             # Water balance
             water_input = irr + rain
-            sm_change = (
-                (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
-            )
+            sm_change = (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
 
             sm += sm_change
 
@@ -609,21 +629,15 @@ class DigitalTwinEngine:
         candidates = []
 
         # Strategy 1: Fixed interval (every 7 days)
-        sched_7 = [
-            {"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)
-        ]
+        sched_7 = [{"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)]
         candidates.append({"name": "Fixed 7-day cycle", "schedule": sched_7})
 
         # Strategy 2: Fixed interval (every 5 days)
-        sched_5 = [
-            {"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)
-        ]
+        sched_5 = [{"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)]
         candidates.append({"name": "Fixed 5-day cycle", "schedule": sched_5})
 
         # Strategy 3: Fixed interval (every 10 days)
-        sched_10 = [
-            {"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)
-        ]
+        sched_10 = [{"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)]
         candidates.append({"name": "Fixed 10-day cycle", "schedule": sched_10})
 
         # Strategy 4: Front-loaded (more water early)
@@ -634,10 +648,7 @@ class DigitalTwinEngine:
         candidates.append({"name": "Front-loaded", "schedule": sched_fl})
 
         # Strategy 5: Minimal water (conservation)
-        sched_min = [
-            {"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)}
-            for d in range(7, days + 1, 7)
-        ]
+        sched_min = [{"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)} for d in range(7, days + 1, 7)]
         candidates.append({"name": "Conservation (60%)", "schedule": sched_min})
 
         return candidates
@@ -733,6 +744,9 @@ try:
 except ImportError:
     pass
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 
 # Health endpoints
 @app.get("/healthz")
@@ -754,7 +768,7 @@ def readiness():
 
 # Simulation endpoints
 @app.post("/api/v1/digital-twin/simulate", response_model=SimulationResult)
-async def simulate_field(req: SimulationRequest):
+async def simulate_field(req: SimulationRequest, user: User = Depends(get_current_user)):
     """
     Simulate field state over time with soil moisture, crop growth,
     and water balance modeling.
@@ -787,7 +801,7 @@ async def simulate_field(req: SimulationRequest):
 
 
 @app.post("/api/v1/digital-twin/scenarios", response_model=ScenarioComparison)
-async def compare_scenarios(req: ScenarioRequest):
+async def compare_scenarios(req: ScenarioRequest, user: User = Depends(get_current_user)):
     """
     Compare multiple irrigation scenarios with what-if analysis.
     Returns comparison metrics and recommendation.
@@ -801,7 +815,7 @@ async def compare_scenarios(req: ScenarioRequest):
 
 
 @app.post("/api/v1/digital-twin/optimize", response_model=OptimizationResult)
-async def optimize_irrigation(req: OptimizationRequest):
+async def optimize_irrigation(req: OptimizationRequest, user: User = Depends(get_current_user)):
     """
     Multi-objective optimization for irrigation scheduling.
     Optimizes across water usage, yield, cost, and environmental impact.
@@ -814,7 +828,7 @@ async def optimize_irrigation(req: OptimizationRequest):
 
 # State management
 @app.post("/api/v1/digital-twin/state/update")
-async def update_field_state(state: FieldState):
+async def update_field_state(state: FieldState, user: User = Depends(get_current_user)):
     """
     Update digital twin state with real-time sensor data.
     Uses Kalman filter for state estimation.
@@ -863,9 +877,7 @@ async def get_dt_info():
             "closed_loop": "Simulate → decide → execute → feedback",
         },
         "supported_crops": list(dt_engine._yemen_crops.keys()) if dt_engine._yemen_crops else [],
-        "supported_climate_zones": list(dt_engine._yemen_climate.keys())
-        if dt_engine._yemen_climate
-        else [],
+        "supported_climate_zones": list(dt_engine._yemen_climate.keys()) if dt_engine._yemen_climate else [],
         "active_twins": len(dt_engine.estimators),
     }
 
@@ -873,4 +885,5 @@ async def get_dt_info():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker
+    uvicorn.run(app, host=host, port=PORT)

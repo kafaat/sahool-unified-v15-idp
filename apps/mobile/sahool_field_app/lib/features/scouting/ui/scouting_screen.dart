@@ -126,8 +126,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
     );
   }
 
-  bool get _canSubmit =>
-      _selectedCategory != null && _selectedIssue != null;
+  bool get _canSubmit => _selectedCategory != null && _selectedIssue != null;
 
   Widget _buildStepHeader(int step, String title, bool isComplete) {
     return Row(
@@ -194,7 +193,9 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                 color: isSelected ? cat.color : Colors.grey[300]!,
                 width: isSelected ? 2 : 1,
               ),
-              boxShadow: isSelected ? SahoolShadows.colored(cat.color) : SahoolShadows.small,
+              boxShadow: isSelected
+                  ? SahoolShadows.colored(cat.color)
+                  : SahoolShadows.small,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -286,7 +287,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             children: [
               const Text('خفيف', style: TextStyle(color: SahoolColors.success)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: severityColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -344,7 +346,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Center(
-                      child: Icon(Icons.image, size: 48, color: SahoolColors.primary),
+                      child: Icon(Icons.image,
+                          size: 48, color: SahoolColors.primary),
                     ),
                   ),
                   Positioned(
@@ -356,7 +359,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                         color: SahoolColors.success,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.check, color: Colors.white, size: 16),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 16),
                     ),
                   ),
                   Positioned(

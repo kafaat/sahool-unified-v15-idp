@@ -11,7 +11,8 @@ export { FieldsList } from "./components/FieldsList";
 export { FieldCard } from "./components/FieldCard";
 export { FieldDetails } from "./components/FieldDetails";
 export { FieldForm } from "./components/FieldForm";
-export { FieldMap } from "./components/FieldMap";
+// Export dynamic (lazy-loaded) FieldMap component by default for optimal bundle size (~50KB saved)
+export { FieldMap } from "./components/FieldMap.dynamic";
 export { TaskMarkers } from "./components/TaskMarkers";
 export { FieldMapWithTasks } from "./components/FieldMapWithTasks";
 export { AstralFieldWidget } from "./components/AstralFieldWidget";

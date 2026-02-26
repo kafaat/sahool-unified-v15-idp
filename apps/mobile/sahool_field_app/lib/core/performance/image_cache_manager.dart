@@ -25,8 +25,8 @@ class SahoolImageCacheManager {
   SahoolImageCacheManager._({
     int maxCacheSizeMB = 200,
     Duration stalePeriod = const Duration(days: 7),
-  }) : _maxCacheSizeMB = maxCacheSizeMB,
-       _stalePeriod = stalePeriod {
+  })  : _maxCacheSizeMB = maxCacheSizeMB,
+        _stalePeriod = stalePeriod {
     _cacheManager = CacheManager(
       Config(
         key,
@@ -55,7 +55,8 @@ class SahoolImageCacheManager {
   }
 
   /// الحصول على ملف من الكاش أو تحميله
-  Future<File> getSingleFile(String url, {
+  Future<File> getSingleFile(
+    String url, {
     String? key,
     Map<String, String>? headers,
   }) async {
@@ -72,7 +73,8 @@ class SahoolImageCacheManager {
   }
 
   /// الحصول على ملف مع استخدام الكاش أولاً
-  Stream<FileResponse> getFileStream(String url, {
+  Stream<FileResponse> getFileStream(
+    String url, {
     String? key,
     Map<String, String>? headers,
   }) {
@@ -95,7 +97,8 @@ class SahoolImageCacheManager {
   }
 
   /// تحميل عدة صور مسبقاً
-  Future<void> preloadImages(List<String> urls, {
+  Future<void> preloadImages(
+    List<String> urls, {
     int concurrency = 3,
     Function(int completed, int total)? onProgress,
   }) async {

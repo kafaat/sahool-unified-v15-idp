@@ -25,12 +25,6 @@ module.exports = {
           900: "#14532d",
           950: "#052e16",
         },
-        // Yemen Flag Colors
-        yemen: {
-          red: "#CE1126",
-          white: "#FFFFFF",
-          black: "#000000",
-        },
         // Semantic Colors
         primary: {
           DEFAULT: "#16a34a",
@@ -68,38 +62,9 @@ module.exports = {
       // Typography - الخطوط العربية
       // ─────────────────────────────────────────────────────────────────────────
       fontFamily: {
-        arabic: ["Tajawal", "Cairo", "IBM Plex Sans Arabic", "sans-serif"],
-        tajawal: ["Tajawal", "Cairo", "sans-serif"],
-        cairo: ["Cairo", "Tajawal", "sans-serif"],
-        ibm: ["IBM Plex Sans Arabic", "Tajawal", "sans-serif"],
-      },
-
-      // ─────────────────────────────────────────────────────────────────────────
-      // Spacing & Layout
-      // ─────────────────────────────────────────────────────────────────────────
-      spacing: {
-        18: "4.5rem",
-        88: "22rem",
-        128: "32rem",
-      },
-
-      // ─────────────────────────────────────────────────────────────────────────
-      // Border Radius
-      // ─────────────────────────────────────────────────────────────────────────
-      borderRadius: {
-        xl: "1rem",
-        "2xl": "1.5rem",
-        "3xl": "2rem",
-      },
-
-      // ─────────────────────────────────────────────────────────────────────────
-      // Box Shadow
-      // ─────────────────────────────────────────────────────────────────────────
-      boxShadow: {
-        card: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
-        "card-hover":
-          "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-        "inner-sm": "inset 0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        arabic: ["var(--font-tajawal)", "Cairo", "sans-serif"],
+        tajawal: ["var(--font-tajawal)", "Cairo", "sans-serif"],
+        cairo: ["Cairo", "var(--font-tajawal)", "sans-serif"],
       },
 
       // ─────────────────────────────────────────────────────────────────────────
@@ -108,7 +73,6 @@ module.exports = {
       animation: {
         "fade-in": "fadeIn 0.3s ease-in-out",
         "slide-up": "slideUp 0.3s ease-out",
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         fadeIn: {

@@ -58,11 +58,14 @@ try:
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
-    User = None
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -104,6 +107,10 @@ except ImportError:
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
+
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Enums & Models
@@ -427,7 +434,7 @@ def seed_demo_data(db: Session):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(user: User = Depends(get_current_user) if AUTH_AVAILABLE else None) -> str:
+def get_tenant_id(user: User | None = Depends(get_current_user)) -> str:
     """Extract tenant ID from authenticated user or header (fallback)"""
     if AUTH_AVAILABLE and user:
         return user.tenant_id
@@ -484,7 +491,7 @@ async def list_equipment(
     field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -519,20 +526,14 @@ async def list_equipment(
                 "field_id": eq.field_id,
                 "location_name": eq.location_name,
                 "horsepower": eq.horsepower,
-                "fuel_capacity_liters": float(eq.fuel_capacity_liters)
-                if eq.fuel_capacity_liters
-                else None,
-                "current_fuel_percent": float(eq.current_fuel_percent)
-                if eq.current_fuel_percent
-                else None,
+                "fuel_capacity_liters": float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
+                "current_fuel_percent": float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
                 "current_hours": float(eq.current_hours) if eq.current_hours else None,
                 "current_lat": float(eq.current_lat) if eq.current_lat else None,
                 "current_lon": float(eq.current_lon) if eq.current_lon else None,
                 "last_maintenance_at": eq.last_maintenance_at,
                 "next_maintenance_at": eq.next_maintenance_at,
-                "next_maintenance_hours": float(eq.next_maintenance_hours)
-                if eq.next_maintenance_hours
-                else None,
+                "next_maintenance_hours": float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
                 "created_at": eq.created_at,
                 "updated_at": eq.updated_at,
                 "metadata": eq.extra_metadata,
@@ -633,9 +634,7 @@ async def get_equipment(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -678,9 +677,7 @@ async def get_equipment_by_qr(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -691,7 +688,7 @@ async def get_equipment_by_qr(
 @app.post("/api/v1/equipment", response_model=Equipment, status_code=201)
 async def create_equipment(
     data: EquipmentCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -742,9 +739,7 @@ async def create_equipment(
         field_id=db_eq.field_id,
         location_name=db_eq.location_name,
         horsepower=db_eq.horsepower,
-        fuel_capacity_liters=float(db_eq.fuel_capacity_liters)
-        if db_eq.fuel_capacity_liters
-        else None,
+        fuel_capacity_liters=float(db_eq.fuel_capacity_liters) if db_eq.fuel_capacity_liters else None,
         current_fuel_percent=None,
         current_hours=None,
         current_lat=None,
@@ -775,9 +770,7 @@ async def update_equipment(
     if "status" in update_data and update_data["status"]:
         update_data["status"] = update_data["status"].value
 
-    eq = repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data
-    )
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
@@ -806,9 +799,7 @@ async def update_equipment(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -824,9 +815,7 @@ async def update_equipment_status(
     db: Session = Depends(get_db),
 ):
     """Update equipment status"""
-    eq = repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, status=status.value
-    )
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, status=status.value)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
@@ -855,9 +844,7 @@ async def update_equipment_status(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -879,9 +866,7 @@ async def update_equipment_location(
     if location_name:
         update_data["location_name"] = location_name
 
-    eq = repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data
-    )
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
@@ -910,9 +895,7 @@ async def update_equipment_location(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -941,9 +924,7 @@ async def update_equipment_telemetry(
     if lon is not None:
         update_data["current_lon"] = lon
 
-    eq = repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data
-    )
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
@@ -972,9 +953,7 @@ async def update_equipment_telemetry(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours)
-        if eq.next_maintenance_hours
-        else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.extra_metadata,
@@ -1062,9 +1041,7 @@ async def add_maintenance_record(
     repository.create_maintenance_record(db, db_record)
 
     # Update equipment last maintenance time
-    repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, last_maintenance_at=now
-    )
+    repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, last_maintenance_at=now)
 
     # Convert to Pydantic model
     return MaintenanceRecord(

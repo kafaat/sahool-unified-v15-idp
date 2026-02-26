@@ -97,22 +97,26 @@ class SprayWindowCard extends StatelessWidget {
                   children: [
                     _buildConditionChip(
                       icon: Icons.thermostat,
-                      label: '${window.weatherCondition.temperature.toStringAsFixed(0)}°C',
+                      label:
+                          '${window.weatherCondition.temperature.toStringAsFixed(0)}°C',
                       theme: theme,
                     ),
                     _buildConditionChip(
                       icon: Icons.water_drop,
-                      label: '${window.weatherCondition.humidity.toStringAsFixed(0)}%',
+                      label:
+                          '${window.weatherCondition.humidity.toStringAsFixed(0)}%',
                       theme: theme,
                     ),
                     _buildConditionChip(
                       icon: Icons.air,
-                      label: '${window.weatherCondition.windSpeed.toStringAsFixed(0)} km/h',
+                      label:
+                          '${window.weatherCondition.windSpeed.toStringAsFixed(0)} km/h',
                       theme: theme,
                     ),
                     _buildConditionChip(
                       icon: Icons.umbrella,
-                      label: '${window.weatherCondition.rainProbability.toStringAsFixed(0)}%',
+                      label:
+                          '${window.weatherCondition.rainProbability.toStringAsFixed(0)}%',
                       theme: theme,
                     ),
                   ],
@@ -274,7 +278,8 @@ class SprayWindowCard extends StatelessWidget {
   }
 
   String _formatTimeRange(bool isArabic) {
-    final dateFormat = DateFormat(isArabic ? 'dd MMM yyyy' : 'MMM dd, yyyy', isArabic ? 'ar' : 'en');
+    final dateFormat = DateFormat(
+        isArabic ? 'dd MMM yyyy' : 'MMM dd, yyyy', isArabic ? 'ar' : 'en');
     final timeFormat = DateFormat('HH:mm');
 
     final startDate = dateFormat.format(window.startTime);
@@ -384,14 +389,20 @@ class SprayWindowTimelineItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.thermostat, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                        Icon(Icons.thermostat,
+                            size: 14,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '${window.weatherCondition.temperature.toStringAsFixed(0)}°C',
                           style: theme.textTheme.bodySmall,
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.air, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                        Icon(Icons.air,
+                            size: 14,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '${window.weatherCondition.windSpeed.toStringAsFixed(0)} km/h',

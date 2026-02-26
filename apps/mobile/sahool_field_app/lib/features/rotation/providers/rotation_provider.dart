@@ -19,7 +19,8 @@ final rotationServiceProvider = Provider<RotationService>((ref) {
 });
 
 /// Rotation local data source provider
-final rotationLocalDataSourceProvider = Provider<RotationLocalDataSource>((ref) {
+final rotationLocalDataSourceProvider =
+    Provider<RotationLocalDataSource>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   return RotationLocalDataSource(prefs);
 });
@@ -49,8 +50,9 @@ final soilHealthTrendProvider =
 });
 
 /// Crop compatibility provider for two crops
-final cropCompatibilityProvider = FutureProvider.family<CompatibilityScore,
-    CropCompatibilityParams>((ref, params) async {
+final cropCompatibilityProvider =
+    FutureProvider.family<CompatibilityScore, CropCompatibilityParams>(
+        (ref, params) async {
   final repository = ref.watch(rotationRepositoryProvider);
   return repository.getCropCompatibility(params.crop1, params.crop2);
 });
@@ -78,8 +80,9 @@ class CropCompatibilityParams {
 }
 
 /// Recommended crops provider for a field and year (with offline caching)
-final recommendedCropsProvider = FutureProvider.family<List<CropRecommendation>,
-    RecommendedCropsParams>((ref, params) async {
+final recommendedCropsProvider =
+    FutureProvider.family<List<CropRecommendation>, RecommendedCropsParams>(
+        (ref, params) async {
   final repository = ref.watch(rotationRepositoryProvider);
   return repository.getRecommendedCrops(params.fieldId, params.year);
 });
@@ -120,8 +123,9 @@ final compatibilityMatrixProvider =
 });
 
 /// Rotation history provider for a field
-final rotationHistoryProvider = FutureProvider.family<List<RotationHistoryEntry>,
-    String>((ref, fieldId) async {
+final rotationHistoryProvider =
+    FutureProvider.family<List<RotationHistoryEntry>, String>(
+        (ref, fieldId) async {
   final repository = ref.watch(rotationRepositoryProvider);
   return repository.getRotationHistory(fieldId);
 });
@@ -172,12 +176,14 @@ class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
     }
   }
 
-  Future<void> updateRotationYear(String fieldId, RotationYear updatedYear) async {
+  Future<void> updateRotationYear(
+      String fieldId, RotationYear updatedYear) async {
     final currentState = state;
     if (currentState is AsyncData<RotationPlan>) {
       state = const AsyncValue.loading();
       try {
-        final updatedPlan = await _repository.updateRotationYear(fieldId, updatedYear);
+        final updatedPlan =
+            await _repository.updateRotationYear(fieldId, updatedYear);
         state = AsyncValue.data(updatedPlan);
       } catch (error, stackTrace) {
         state = currentState; // Revert on error
@@ -196,8 +202,8 @@ class RotationPlanNotifier extends StateNotifier<AsyncValue<RotationPlan>> {
 }
 
 /// Provider for rotation plan notifier - autoDispose for proper cleanup
-final rotationPlanNotifierProvider =
-    StateNotifierProvider.autoDispose<RotationPlanNotifier, AsyncValue<RotationPlan>>((ref) {
+final rotationPlanNotifierProvider = StateNotifierProvider.autoDispose<
+    RotationPlanNotifier, AsyncValue<RotationPlan>>((ref) {
   final repository = ref.watch(rotationRepositoryProvider);
   return RotationPlanNotifier(repository);
 });
@@ -205,10 +211,12 @@ final rotationPlanNotifierProvider =
 /// Selected field ID provider for rotation feature (for UI state)
 /// Note: This is scoped to rotation feature. Use core/providers/selected_field_provider.dart
 /// for app-wide field selection.
-final rotationSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
+final rotationSelectedFieldIdProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
 
 /// Selected year provider (for recommendations) - autoDispose to match
-final selectedYearProvider = StateProvider.autoDispose<int>((ref) => DateTime.now().year);
+final selectedYearProvider =
+    StateProvider.autoDispose<int>((ref) => DateTime.now().year);
 
 /// Rotation preferences provider - autoDispose to match
 final rotationPreferencesProvider =

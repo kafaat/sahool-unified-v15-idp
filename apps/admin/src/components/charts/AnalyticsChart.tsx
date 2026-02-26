@@ -161,7 +161,7 @@ export default function AnalyticsChart({
   const preparedSeries = useMemo(() => {
     return series.map((s, index) => ({
       ...s,
-      color: s.color || defaultColors[index % defaultColors.length],
+      color: s.color || defaultColors[index % defaultColors.length] || "#10B981",
     }));
   }, [series]);
 
@@ -346,7 +346,7 @@ export default function AnalyticsChart({
               nameKey="nameAr"
               label={
                 showLabels
-                  ? ({ name, percent }) =>
+                  ? ({ name, percent }: { name: string; percent: number }) =>
                       `${name} (${(percent * 100).toFixed(0)}%)`
                   : false
               }
@@ -354,7 +354,7 @@ export default function AnalyticsChart({
               {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={defaultColors[index % defaultColors.length]}
+                  fill={defaultColors[index % defaultColors.length] ?? "#10B981"}
                 />
               ))}
             </Pie>

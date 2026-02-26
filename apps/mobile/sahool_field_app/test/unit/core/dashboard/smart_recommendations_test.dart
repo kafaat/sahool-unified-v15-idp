@@ -354,8 +354,7 @@ void main() {
         category: RecommendationCategory.irrigation,
       ));
 
-      expect(
-          engine.byCategory(RecommendationCategory.irrigation).length, 2);
+      expect(engine.byCategory(RecommendationCategory.irrigation).length, 2);
       expect(engine.byCategory(RecommendationCategory.pest).length, 1);
     });
 

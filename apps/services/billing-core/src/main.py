@@ -163,8 +163,8 @@ async def init_nats():
                 name="BILLING",
                 subjects=[
                     "sahool.billing.*",
-                    "sahool.payment.*",
-                    "sahool.subscription.*",
+                    "sahool.billing.payment.*",
+                    "sahool.billing.subscription.*",
                 ],
                 retention=RetentionPolicy.LIMITS,
                 max_age=86400 * 30,  # 30 days
@@ -231,9 +231,7 @@ async def job_generate_invoices():
                     invoice = await generate_invoice_for_subscription(db, sub)
                     if invoice:
                         # Advance next_billing_date
-                        next_date = get_billing_period_end(
-                            sub.next_billing_date, sub.billing_cycle
-                        )
+                        next_date = get_billing_period_end(sub.next_billing_date, sub.billing_cycle)
                         await repo.subscriptions.update(
                             sub.id,
                             next_billing_date=next_date,
@@ -261,9 +259,7 @@ async def job_generate_invoices():
     except Exception as e:
         logger.error(f"Invoice generation job failed: {e}", exc_info=True)
 
-    logger.info(
-        f"Invoice generation complete: {generated} generated, {errors} errors"
-    )
+    logger.info(f"Invoice generation complete: {generated} generated, {errors} errors")
 
 
 async def job_mark_overdue_invoices():
@@ -284,9 +280,7 @@ async def job_mark_overdue_invoices():
 
             for invoice in overdue_invoices:
                 if invoice.status != db_models.InvoiceStatus.OVERDUE:
-                    await repo.invoices.update(
-                        invoice.id, status=db_models.InvoiceStatus.OVERDUE
-                    )
+                    await repo.invoices.update(invoice.id, status=db_models.InvoiceStatus.OVERDUE)
                     marked += 1
 
                     await publish_event(
@@ -327,6 +321,7 @@ async def job_handle_trial_expiry():
 
             # Find trials that have expired
             from sqlalchemy import select as sa_select, and_
+
             result = await db.execute(
                 sa_select(db_models.Subscription).where(
                     and_(
@@ -341,18 +336,14 @@ async def job_handle_trial_expiry():
                 # Check if plan is free - auto-activate. Otherwise suspend.
                 plan = await repo.plans.get_by_plan_id(sub.plan_id)
                 if plan and plan.tier == db_models.PlanTier.FREE:
-                    await repo.subscriptions.update(
-                        sub.id, status=db_models.SubscriptionStatus.ACTIVE
-                    )
+                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.ACTIVE)
                 else:
-                    await repo.subscriptions.update(
-                        sub.id, status=db_models.SubscriptionStatus.SUSPENDED
-                    )
+                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.SUSPENDED)
 
                 expired += 1
 
                 await publish_event(
-                    "sahool.subscription.trial_expired",
+                    "sahool.billing.subscription.trial_expired",
                     {
                         "subscription_id": str(sub.id),
                         "tenant_id": sub.tenant_id,
@@ -391,13 +382,11 @@ async def job_suspend_past_due():
             for tenant_id in tenants_to_suspend:
                 sub = await repo.subscriptions.get_by_tenant(tenant_id)
                 if sub and sub.status == db_models.SubscriptionStatus.ACTIVE:
-                    await repo.subscriptions.update(
-                        sub.id, status=db_models.SubscriptionStatus.PAST_DUE
-                    )
+                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.PAST_DUE)
                     suspended += 1
 
                     await publish_event(
-                        "sahool.subscription.past_due",
+                        "sahool.billing.subscription.past_due",
                         {
                             "subscription_id": str(sub.id),
                             "tenant_id": tenant_id,
@@ -531,6 +520,10 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
+
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
@@ -574,9 +567,7 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     يتطلب أن يكون المستخدم مالك المستأجر أو مسؤول، ورفع 403 إذا لم يكن كذلك
     """
     if not verify_tenant_access(current_user, tenant_id):
-        raise HTTPException(
-            status_code=403, detail="Access denied - cannot access this tenant's data"
-        )
+        raise HTTPException(status_code=403, detail="Access denied - cannot access this tenant's data")
 
 
 # =============================================================================
@@ -948,9 +939,7 @@ async def get_next_invoice_number() -> str:
         import hashlib
 
         unique_suffix = (
-            hashlib.sha256(f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode())
-            .hexdigest()[:8]
-            .upper()
+            hashlib.sha256(f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()).hexdigest()[:8].upper()
         )
         return f"SAH-{year}-{unique_suffix}"
 
@@ -1559,9 +1548,7 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
         return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
     # Calculate current usage for the current month
-    current_month_start = datetime.now(UTC).replace(
-        day=1, hour=0, minute=0, second=0, microsecond=0
-    )
+    current_month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     used = await repo.usage_records.get_metric_count(
         tenant_id=tenant_id,
         metric_type=metric,
@@ -1600,9 +1587,7 @@ async def calculate_overage_charges_db(
         return overage_items
 
     # Get current month usage from database
-    current_month_start = datetime.now(UTC).replace(
-        day=1, hour=0, minute=0, second=0, microsecond=0
-    )
+    current_month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     # Calculate overages for each metered feature
     for metric, limit in plan_limits.items():
@@ -1622,9 +1607,7 @@ async def calculate_overage_charges_db(
             overage_amount = rate * Decimal(str(excess))
 
             # Create human-readable metric name with Arabic translation
-            metric_name = (
-                metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
-            )
+            metric_name = metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
             metric_name_ar = translate_feature_name(metric)
 
             overage_items.append(
@@ -1696,14 +1679,16 @@ async def generate_invoice_for_subscription(
         plan_limits=plan.limits or {},
     )
     for item in overage_items:
-        line_items.append({
-            "description": item.description,
-            "description_ar": item.description_ar,
-            "quantity": item.quantity,
-            "unit_price": float(item.unit_price),
-            "amount": float(item.amount),
-            "is_usage_based": True,
-        })
+        line_items.append(
+            {
+                "description": item.description,
+                "description_ar": item.description_ar,
+                "quantity": item.quantity,
+                "unit_price": float(item.unit_price),
+                "amount": float(item.amount),
+                "is_usage_based": True,
+            }
+        )
 
     subtotal = price + sum(item.amount for item in overage_items)
     tax_amount = Decimal("0")  # Yemen generally has no VAT on agricultural services
@@ -1728,10 +1713,7 @@ async def generate_invoice_for_subscription(
         notes_ar="شكراً لاختياركم منصة سهول الزراعية",
     )
 
-    logger.info(
-        f"Invoice {invoice.invoice_number} generated for tenant {subscription.tenant_id}, "
-        f"total: ${total}"
-    )
+    logger.info(f"Invoice {invoice.invoice_number} generated for tenant {subscription.tenant_id}, total: ${total}")
 
     return invoice
 
@@ -1795,13 +1777,9 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "tier": p.tier.value,
                 "pricing": {
                     "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
-                    "monthly_yer": float(
-                        convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))
-                    ),
+                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
                     "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
-                    "yearly_yer": float(
-                        convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))
-                    ),
+                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -1837,9 +1815,7 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
         },
         "pricing_yer": {
             "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
-            "quarterly": float(
-                convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))
-            ),
+            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
             "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
         },
     }
@@ -1952,9 +1928,7 @@ async def create_tenant(
         billing_cycle=request.billing_cycle,
         start_date=today,
         end_date=get_billing_period_end(today, request.billing_cycle),
-        status=(
-            db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE
-        ),
+        status=(db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE),
         trial_end_date=trial_end,
     )
 
@@ -2053,9 +2027,7 @@ async def get_subscription(
             "start_date": subscription.start_date.isoformat(),
             "end_date": subscription.end_date.isoformat(),
             "next_billing_date": subscription.next_billing_date.isoformat(),
-            "trial_end_date": (
-                subscription.trial_end_date.isoformat() if subscription.trial_end_date else None
-            ),
+            "trial_end_date": (subscription.trial_end_date.isoformat() if subscription.trial_end_date else None),
         },
         "plan": (
             {
@@ -2132,9 +2104,7 @@ async def update_subscription(
 
     if request.billing_cycle and request.billing_cycle != subscription.billing_cycle:
         update_data["billing_cycle"] = request.billing_cycle
-        update_data["end_date"] = get_billing_period_end(
-            subscription.start_date, request.billing_cycle
-        )
+        update_data["end_date"] = get_billing_period_end(subscription.start_date, request.billing_cycle)
         changes.append(f"Billing cycle changed to {request.billing_cycle.value}")
 
     if request.payment_method:
@@ -2151,23 +2121,27 @@ async def update_subscription(
     if net_proration != Decimal("0") and request.plan_id:
         line_items = []
         if proration_credit > 0:
-            line_items.append({
-                "description": f"Credit for unused days on {old_plan.name if old_plan else subscription.plan_id}",
-                "description_ar": f"رصيد الأيام المتبقية من {old_plan.name_ar if old_plan else subscription.plan_id}",
-                "quantity": 1,
-                "unit_price": float(-proration_credit),
-                "amount": float(-proration_credit),
-                "is_usage_based": False,
-            })
+            line_items.append(
+                {
+                    "description": f"Credit for unused days on {old_plan.name if old_plan else subscription.plan_id}",
+                    "description_ar": f"رصيد الأيام المتبقية من {old_plan.name_ar if old_plan else subscription.plan_id}",
+                    "quantity": 1,
+                    "unit_price": float(-proration_credit),
+                    "amount": float(-proration_credit),
+                    "is_usage_based": False,
+                }
+            )
         if proration_charge > 0:
-            line_items.append({
-                "description": f"Charge for remaining days on {new_plan.name if new_plan else request.plan_id}",
-                "description_ar": f"رسوم الأيام المتبقية على {new_plan.name_ar if new_plan else request.plan_id}",
-                "quantity": 1,
-                "unit_price": float(proration_charge),
-                "amount": float(proration_charge),
-                "is_usage_based": False,
-            })
+            line_items.append(
+                {
+                    "description": f"Charge for remaining days on {new_plan.name if new_plan else request.plan_id}",
+                    "description_ar": f"رسوم الأيام المتبقية على {new_plan.name_ar if new_plan else request.plan_id}",
+                    "quantity": 1,
+                    "unit_price": float(proration_charge),
+                    "amount": float(proration_charge),
+                    "is_usage_based": False,
+                }
+            )
 
         if net_proration > 0:
             invoice_number = await get_next_invoice_number()
@@ -2191,7 +2165,7 @@ async def update_subscription(
         # Publish plan change event
         background_tasks.add_task(
             publish_event,
-            "sahool.subscription.plan_changed",
+            "sahool.billing.subscription.plan_changed",
             {
                 "subscription_id": str(subscription.id),
                 "tenant_id": tenant_id,
@@ -2218,7 +2192,9 @@ async def update_subscription(
             "charge": float(proration_charge),
             "net": float(net_proration),
             "invoice_id": str(proration_invoice.id) if proration_invoice else None,
-        } if proration_credit or proration_charge else None,
+        }
+        if proration_credit or proration_charge
+        else None,
         "changes": changes,
     }
 
@@ -2496,9 +2472,7 @@ async def get_invoice(
             else None
         ),
         "amount_yer": (
-            float(convert_to_yer(invoice.total))
-            if invoice.currency == db_models.Currency.USD
-            else float(invoice.total)
+            float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total)
         ),
     }
 
@@ -2695,9 +2669,7 @@ async def create_payment(
             )()
             stripe_response = await call_stripe_api(temp_payment, token)
             if stripe_response.get("status") == "succeeded":
-                await repo.payments.mark_succeeded(
-                    payment.id, external_id=stripe_response.get("stripe_charge_id")
-                )
+                await repo.payments.mark_succeeded(payment.id, external_id=stripe_response.get("stripe_charge_id"))
             else:
                 await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
 
@@ -2735,7 +2707,7 @@ async def create_payment(
     # Publish payment event
     background_tasks.add_task(
         publish_event,
-        "sahool.payment.created",
+        "sahool.billing.payment.created",
         {
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
@@ -2807,6 +2779,7 @@ async def list_payments(
 
 class RefundRequest(BaseModel):
     """طلب استرداد"""
+
     payment_id: str
     amount: Decimal | None = None  # None = full refund
     reason: str
@@ -2850,6 +2823,7 @@ async def create_refund(
         # Stripe refund
         try:
             import stripe
+
             stripe.api_key = STRIPE_API_KEY
             refund = stripe.Refund.create(
                 charge=payment.stripe_payment_id,
@@ -2892,18 +2866,19 @@ async def create_refund(
             raise HTTPException(502, "فشل في معالجة الاسترداد عبر بوابة ثروات")
 
     # Update payment status
+    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
     is_full_refund = refund_amount >= payment.amount
     if is_full_refund:
         await repo.payments.update(
             payment.id,
             status=db_models.PaymentStatus.REFUNDED,
-            failure_reason=f"Refunded: {request.reason}",
+            failure_reason=f"Refunded: {safe_reason}",
         )
     else:
         # Partial refund - record in metadata
         await repo.payments.update(
             payment.id,
-            failure_reason=f"Partial refund ({refund_amount}): {request.reason}",
+            failure_reason=f"Partial refund ({refund_amount}): {safe_reason}",
         )
 
     # Update invoice - reverse the payment
@@ -2922,16 +2897,15 @@ async def create_refund(
 
         await repo.invoices.update(invoice.id, **update_kwargs)
 
-    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
+    safe_refund_amount = str(refund_amount).replace("\n", " ").replace("\r", " ")
     logger.info(
-        f"Refund processed: payment={payment.id}, amount={refund_amount}, "
-        f"full={is_full_refund}, reason={safe_reason}"
+        f"Refund processed: payment={payment.id}, amount={safe_refund_amount}, full={is_full_refund}, reason={safe_reason}"
     )
 
     # Publish refund event
     background_tasks.add_task(
         publish_event,
-        "sahool.payment.refunded",
+        "sahool.billing.payment.refunded",
         {
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
@@ -2956,9 +2930,7 @@ async def create_refund(
             "external_refund_id": refund_external_id,
         },
         "message_ar": (
-            "تم استرداد المبلغ بالكامل بنجاح"
-            if is_full_refund
-            else f"تم استرداد مبلغ {refund_amount} بنجاح"
+            "تم استرداد المبلغ بالكامل بنجاح" if is_full_refund else f"تم استرداد مبلغ {refund_amount} بنجاح"
         ),
     }
 
@@ -3000,9 +2972,7 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
         return False
 
     try:
-        expected_signature = hmac.new(
-            THARWATT_WEBHOOK_SECRET.encode("utf-8"), payload, hashlib.sha256
-        ).hexdigest()
+        expected_signature = hmac.new(THARWATT_WEBHOOK_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()
 
         # Use constant-time comparison to prevent timing attacks
         is_valid = hmac.compare_digest(signature.lower(), expected_signature.lower())
@@ -3078,7 +3048,7 @@ async def tharwatt_webhook(
         # Publish payment success event
         background_tasks.add_task(
             publish_event,
-            "sahool.payment.succeeded",
+            "sahool.billing.payment.succeeded",
             {
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
@@ -3100,7 +3070,7 @@ async def tharwatt_webhook(
         # Publish payment failed event
         background_tasks.add_task(
             publish_event,
-            "sahool.payment.failed",
+            "sahool.billing.payment.failed",
             {
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
@@ -3219,7 +3189,7 @@ async def stripe_webhook(
                 # Publish payment success event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.payment.succeeded",
+                    "sahool.billing.payment.succeeded",
                     {
                         "payment_id": payment_id,
                         "invoice_id": str(payment.invoice_id),
@@ -3246,7 +3216,7 @@ async def stripe_webhook(
                 # Publish payment failed event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.payment.failed",
+                    "sahool.billing.payment.failed",
                     {
                         "payment_id": payment_id,
                         "error": failure_reason,
@@ -3278,7 +3248,7 @@ async def stripe_webhook(
                 # Publish subscription event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.subscription.updated",
+                    "sahool.billing.subscription.updated",
                     {
                         "subscription_id": subscription_id,
                         "tenant_id": subscription.tenant_id,
@@ -3324,14 +3294,8 @@ async def get_revenue_report(
     )
 
     # Count paid invoices in period
-    paid_invoices = await repo.invoices.list_by_tenant(
-        tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000
-    )
-    invoices_in_period = [
-        inv
-        for inv in paid_invoices
-        if inv.paid_date and start_date <= inv.paid_date <= end_date
-    ]
+    paid_invoices = await repo.invoices.list_by_tenant(tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000)
+    invoices_in_period = [inv for inv in paid_invoices if inv.paid_date and start_date <= inv.paid_date <= end_date]
 
     # Revenue by plan
     by_plan: dict[str, Decimal] = {}

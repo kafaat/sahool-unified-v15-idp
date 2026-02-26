@@ -192,7 +192,8 @@ void main() {
         final networkStatus = NetworkStatus();
         final statusChanges = <bool>[];
 
-        final subscription = networkStatus.onlineStream.listen(statusChanges.add);
+        final subscription =
+            networkStatus.onlineStream.listen(statusChanges.add);
 
         // Simulate rapid changes by checking status multiple times
         try {

@@ -41,7 +41,8 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final prescriptionAsync = ref.watch(prescriptionDetailsProvider(widget.prescriptionId));
+    final prescriptionAsync =
+        ref.watch(prescriptionDetailsProvider(widget.prescriptionId));
     final locale = Localizations.localeOf(context).languageCode;
     final isRTL = locale == 'ar';
 
@@ -50,8 +51,9 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
         title: Text(isRTL ? 'تفاصيل الوصفة' : 'Prescription Details'),
         actions: [
           prescriptionAsync.whenOrNull(
-            data: (prescription) => _buildActions(prescription, locale),
-          ) ?? const SizedBox.shrink(),
+                data: (prescription) => _buildActions(prescription, locale),
+              ) ??
+              const SizedBox.shrink(),
         ],
       ),
       body: prescriptionAsync.when(
@@ -155,7 +157,8 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
               children: [
                 const Icon(Icons.delete, color: Colors.red),
                 const SizedBox(width: 8),
-                Text(isRTL ? 'حذف' : 'Delete', style: const TextStyle(color: Colors.red)),
+                Text(isRTL ? 'حذف' : 'Delete',
+                    style: const TextStyle(color: Colors.red)),
               ],
             ),
           ),
@@ -286,7 +289,8 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
       itemCount: prescription.zones.length,
       itemBuilder: (context, index) {
         final zone = prescription.zones[index];
-        final rate = prescription.rates.firstWhere((r) => r.zoneId == zone.zoneId);
+        final rate =
+            prescription.rates.firstWhere((r) => r.zoneId == zone.zoneId);
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
@@ -361,11 +365,16 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
         _buildInfoSection(
           isRTL ? 'معلومات عامة' : 'General Information',
           [
-            _buildInfoRow(isRTL ? 'الاسم' : 'Name', prescription.getDisplayName(locale)),
-            _buildInfoRow(isRTL ? 'الحقل' : 'Field', prescription.getFieldName(locale)),
-            _buildInfoRow(isRTL ? 'النوع' : 'Type', prescription.vraType.getName(locale)),
-            _buildInfoRow(isRTL ? 'طريقة التقسيم' : 'Zoning Method', prescription.zoningMethod.getName(locale)),
-            _buildInfoRow(isRTL ? 'عدد المناطق' : 'Zones Count', prescription.zonesCount.toString()),
+            _buildInfoRow(
+                isRTL ? 'الاسم' : 'Name', prescription.getDisplayName(locale)),
+            _buildInfoRow(
+                isRTL ? 'الحقل' : 'Field', prescription.getFieldName(locale)),
+            _buildInfoRow(
+                isRTL ? 'النوع' : 'Type', prescription.vraType.getName(locale)),
+            _buildInfoRow(isRTL ? 'طريقة التقسيم' : 'Zoning Method',
+                prescription.zoningMethod.getName(locale)),
+            _buildInfoRow(isRTL ? 'عدد المناطق' : 'Zones Count',
+                prescription.zonesCount.toString()),
             _buildInfoRow(
               isRTL ? 'المساحة الإجمالية' : 'Total Area',
               '${prescription.totalArea.toStringAsFixed(2)} ${isRTL ? 'هكتار' : 'ha'}',
@@ -394,7 +403,8 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
         _buildInfoSection(
           isRTL ? 'التواريخ' : 'Dates',
           [
-            _buildInfoRow(isRTL ? 'تاريخ الإنشاء' : 'Created', dateFormat.format(prescription.createdAt)),
+            _buildInfoRow(isRTL ? 'تاريخ الإنشاء' : 'Created',
+                dateFormat.format(prescription.createdAt)),
             if (prescription.scheduledDate != null)
               _buildInfoRow(
                 isRTL ? 'موعد التطبيق' : 'Scheduled',
@@ -501,7 +511,8 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
     return null;
   }
 
-  Future<void> _approvePrescription(VRAPrescription prescription, String locale) async {
+  Future<void> _approvePrescription(
+      VRAPrescription prescription, String locale) async {
     final isRTL = locale == 'ar';
     final confirmed = await showDialog<bool>(
       context: context,
@@ -526,20 +537,25 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
     );
 
     if (confirmed == true && mounted) {
-      final success = await ref.read(vraControllerProvider.notifier).approvePrescription(
-            prescription.prescriptionId,
-          );
+      final success =
+          await ref.read(vraControllerProvider.notifier).approvePrescription(
+                prescription.prescriptionId,
+              );
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isRTL ? 'تم اعتماد الوصفة بنجاح' : 'Prescription approved successfully')),
+          SnackBar(
+              content: Text(isRTL
+                  ? 'تم اعتماد الوصفة بنجاح'
+                  : 'Prescription approved successfully')),
         );
         ref.invalidate(prescriptionDetailsProvider);
       }
     }
   }
 
-  Future<void> _applyPrescription(VRAPrescription prescription, String locale) async {
+  Future<void> _applyPrescription(
+      VRAPrescription prescription, String locale) async {
     final isRTL = locale == 'ar';
     final confirmed = await showDialog<bool>(
       context: context,
@@ -564,40 +580,49 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
     );
 
     if (confirmed == true && mounted) {
-      final success = await ref.read(vraControllerProvider.notifier).applyPrescription(
-            prescription.prescriptionId,
-            appliedDate: DateTime.now(),
-          );
+      final success =
+          await ref.read(vraControllerProvider.notifier).applyPrescription(
+                prescription.prescriptionId,
+                appliedDate: DateTime.now(),
+              );
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isRTL ? 'تم تطبيق الوصفة بنجاح' : 'Prescription applied successfully')),
+          SnackBar(
+              content: Text(isRTL
+                  ? 'تم تطبيق الوصفة بنجاح'
+                  : 'Prescription applied successfully')),
         );
         ref.invalidate(prescriptionDetailsProvider);
       }
     }
   }
 
-  Future<void> _exportPrescription(VRAPrescription prescription, String format, String locale) async {
+  Future<void> _exportPrescription(
+      VRAPrescription prescription, String format, String locale) async {
     final isRTL = locale == 'ar';
 
-    final result = await ref.read(vraControllerProvider.notifier).exportPrescription(
-          prescription.prescriptionId,
-          format: format,
-        );
+    final result =
+        await ref.read(vraControllerProvider.notifier).exportPrescription(
+              prescription.prescriptionId,
+              format: format,
+            );
 
     if (result != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isRTL ? 'تم تصدير الوصفة بنجاح' : 'Prescription exported successfully',
+            isRTL
+                ? 'تم تصدير الوصفة بنجاح'
+                : 'Prescription exported successfully',
           ),
         ),
       );
     }
   }
 
-  Future<void> _deletePrescription(VRAPrescription prescription, String locale) async {
+  Future<void> _deletePrescription(
+      VRAPrescription prescription, String locale) async {
     final isRTL = locale == 'ar';
     final confirmed = await showDialog<bool>(
       context: context,
@@ -623,13 +648,17 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
     );
 
     if (confirmed == true && mounted) {
-      final success = await ref.read(vraControllerProvider.notifier).deletePrescription(
-            prescription.prescriptionId,
-          );
+      final success =
+          await ref.read(vraControllerProvider.notifier).deletePrescription(
+                prescription.prescriptionId,
+              );
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isRTL ? 'تم حذف الوصفة بنجاح' : 'Prescription deleted successfully')),
+          SnackBar(
+              content: Text(isRTL
+                  ? 'تم حذف الوصفة بنجاح'
+                  : 'Prescription deleted successfully')),
         );
         Navigator.pop(context);
       }

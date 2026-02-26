@@ -71,6 +71,31 @@ export interface PreHarvestAlertResponse {
   nats_topic: string;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// Feature Schema Definition (v1.0)
+// تعريف مخطط المدخلات للكشف عن انحراف البيانات
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const FEATURE_SCHEMA = {
+  version: "1.0.0",
+  service: "yield-prediction-service",
+  features: {
+    ndvi: { type: "float", min: -1.0, max: 1.0, unit: "index", typicalHealthy: [0.3, 0.9] },
+    areaHectares: { type: "float", min: 0.01, max: 10000, unit: "ha" },
+    growthStagePercent: { type: "float", min: 0, max: 100, unit: "%" },
+    historicalYieldKgHa: { type: "float", min: 0, max: 50000, unit: "kg/ha", optional: true },
+    waterStressFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    diseaseFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    grainMoisture: { type: "float", min: 0, max: 100, unit: "%" },
+    canopyTemperature: { type: "float", min: -10, max: 60, unit: "°C" },
+    cropType: { type: "enum", values: ["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"] },
+  },
+  qualityRequirements: {
+    minConfidence: 0.5,
+    maxObservationAgeDays: 14,
+  },
+};
+
 // Crop data constants
 const CROP_DATA: Record<
   string,
@@ -774,7 +799,7 @@ export class YieldService {
       },
       action_template: actionTemplate,
       task_card: taskCard,
-      nats_topic: "sahool.alerts.pre_harvest",
+      nats_topic: "sahool.alert.pre_harvest",
     };
   }
 
@@ -782,7 +807,7 @@ export class YieldService {
    * Get harvest readiness with ActionTemplate
    * فحص جاهزية الحصاد مع قالب إجراء
    */
-  async getHarvestReadiness(fieldId: string, farmerId?: string) {
+  async getHarvestReadiness(fieldId: string, farmerId?: string, tenantId?: string) {
     const maturity = await this.getMaturityMonitoring(fieldId);
     const actionId = uuidv4();
 
@@ -880,7 +905,7 @@ export class YieldService {
       maturity,
       action_template: actionTemplate,
       is_ready: isReady,
-      nats_topic: "sahool.alerts.harvest_readiness",
+      nats_topic: "sahool.alert.harvest_readiness",
     };
   }
 }

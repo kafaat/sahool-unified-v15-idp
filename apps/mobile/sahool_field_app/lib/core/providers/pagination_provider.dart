@@ -109,8 +109,7 @@ class PageResult<T> {
 }
 
 /// Generic paginated list controller
-class PaginatedListController<T>
-    extends StateNotifier<PaginatedListState<T>> {
+class PaginatedListController<T> extends StateNotifier<PaginatedListState<T>> {
   /// Function to fetch a page of items
   final Future<PageResult<T>> Function(int page, int limit) fetchPage;
 

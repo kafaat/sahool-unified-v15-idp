@@ -236,7 +236,8 @@ class PolygonEditorState extends ChangeNotifier {
   String toWkt() {
     if (_points.isEmpty) return 'POLYGON EMPTY';
 
-    final coordsStr = _points.map((p) => '${p.longitude} ${p.latitude}').toList();
+    final coordsStr =
+        _points.map((p) => '${p.longitude} ${p.latitude}').toList();
 
     // Close the ring
     if (_isClosed && _points.isNotEmpty) {

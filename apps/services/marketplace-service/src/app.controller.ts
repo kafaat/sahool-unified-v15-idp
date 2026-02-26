@@ -80,16 +80,20 @@ export class AppController {
    */
   @Get("market/products")
   async getProducts(
+    @Req() req: any,
     @Query("category") category?: string,
     @Query("governorate") governorate?: string,
     @Query("sellerId") sellerId?: string,
     @Query("minPrice") minPrice?: string,
     @Query("maxPrice") maxPrice?: string,
+    @Query("tenantId") queryTenantId?: string,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.marketService.findAllProducts({
       category,
       governorate,
       sellerId,
+      tenantId,
       minPrice: minPrice ? parseFloat(minPrice) : undefined,
       maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
     });
@@ -111,8 +115,12 @@ export class AppController {
   @Post("market/products")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createProduct(@Body(ValidationPipe) body: CreateProductDto) {
-    return this.marketService.createProduct(body);
+  async createProduct(
+    @Req() req: any,
+    @Body(ValidationPipe) body: CreateProductDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.marketService.createProduct(body, tenantId);
   }
 
   /**
@@ -122,10 +130,15 @@ export class AppController {
   @Post("market/list-harvest")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async listHarvest(@Body(ValidationPipe) body: ListHarvestDto) {
+  async listHarvest(
+    @Req() req: any,
+    @Body(ValidationPipe) body: ListHarvestDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.marketService.convertYieldToProduct(
       body.userId,
       body.yieldData,
+      tenantId,
     );
   }
 
@@ -136,8 +149,12 @@ export class AppController {
   @Post("market/orders")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createOrder(@Body(ValidationPipe) body: CreateOrderDto) {
-    return this.marketService.createOrder(body);
+  async createOrder(
+    @Req() req: any,
+    @Body(ValidationPipe) body: CreateOrderDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.marketService.createOrder(body, tenantId);
   }
 
   /**
@@ -170,8 +187,9 @@ export class AppController {
    * GET /api/v1/market/stats
    */
   @Get("market/stats")
-  async getMarketStats() {
-    return this.marketService.getMarketStats();
+  async getMarketStats(@Req() req: any, @Query("tenantId") queryTenantId?: string) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    return this.marketService.getMarketStats(tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -248,9 +266,11 @@ export class AppController {
   @Post("fintech/calculate-score")
   @UseGuards(JwtAuthGuard)
   async calculateCreditScore(
+    @Req() req: any,
     @Body(ValidationPipe) body: CalculateCreditScoreDto,
   ) {
-    return this.fintechService.calculateCreditScore(body.userId, body.farmData);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.fintechService.calculateCreditScore(body.userId, body.farmData, tenantId);
   }
 
   /**
@@ -260,11 +280,14 @@ export class AppController {
   @Post("fintech/calculate-advanced-score")
   @UseGuards(JwtAuthGuard)
   async calculateAdvancedCreditScore(
+    @Req() req: any,
     @Body(ValidationPipe) body: CalculateAdvancedCreditScoreDto,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.fintechService.calculateAdvancedCreditScore(
       body.userId,
       body.factors,
+      tenantId,
     );
   }
 
@@ -284,8 +307,12 @@ export class AppController {
   @Post("fintech/credit-history")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async recordCreditEvent(@Body(ValidationPipe) body: RecordCreditEventDto) {
-    return this.fintechService.recordCreditEvent(body);
+  async recordCreditEvent(
+    @Req() req: any,
+    @Body(ValidationPipe) body: RecordCreditEventDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.fintechService.recordCreditEvent(body, tenantId);
   }
 
   /**
@@ -308,8 +335,12 @@ export class AppController {
   @Post("fintech/loans")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async requestLoan(@Body(ValidationPipe) body: RequestLoanDto) {
-    return this.fintechService.requestLoan(body);
+  async requestLoan(
+    @Req() req: any,
+    @Body(ValidationPipe) body: RequestLoanDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.fintechService.requestLoan(body, tenantId);
   }
 
   /**

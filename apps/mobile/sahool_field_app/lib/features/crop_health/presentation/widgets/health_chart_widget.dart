@@ -224,7 +224,8 @@ class _ChartPainter extends CustomPainter {
     final points = <Offset>[];
     for (var i = 0; i < dataPoints.length; i++) {
       final x = (i / (dataPoints.length - 1)) * size.width;
-      final y = size.height - ((dataPoints[i].value - minVal) / range) * size.height;
+      final y =
+          size.height - ((dataPoints[i].value - minVal) / range) * size.height;
       points.add(Offset(x, y));
     }
 

@@ -11,7 +11,8 @@ class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({super.key});
 
   @override
-  ConsumerState<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
+  ConsumerState<HomeDashboardScreen> createState() =>
+      _HomeDashboardScreenState();
 }
 
 class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
@@ -20,7 +21,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
     super.initState();
     // تحميل بيانات الطقس عند بدء الشاشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
+      ref
+          .read(weatherProvider.notifier)
+          .loadWeatherByLocation(15.3694, 44.1910);
     });
   }
 
@@ -40,7 +43,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
       backgroundColor: Colors.grey[50],
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
+          ref
+              .read(weatherProvider.notifier)
+              .loadWeatherByLocation(15.3694, 44.1910);
           ref.invalidate(walletFutureProvider);
         },
         color: SahoolColors.primary,
@@ -56,19 +61,22 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   '${_getGreeting()}، يا مزارع',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 background: _buildHeaderBackground(),
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  icon: const Icon(Icons.notifications_outlined,
+                      color: Colors.white),
                   onPressed: () {
                     // فتح صفحة الإشعارات
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  icon:
+                      const Icon(Icons.settings_outlined, color: Colors.white),
                   onPressed: () {
                     // فتح الإعدادات
                   },
@@ -84,14 +92,16 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // بطاقة الطقس الحية
-                    _buildSectionTitle('حالة الجو اليوم', Icons.wb_sunny_outlined),
+                    _buildSectionTitle(
+                        'حالة الجو اليوم', Icons.wb_sunny_outlined),
                     const SizedBox(height: 12),
                     _buildWeatherSection(weatherState),
 
                     const SizedBox(height: 24),
 
                     // ملخص مالي
-                    _buildSectionTitle('ملخص المحفظة', Icons.account_balance_wallet_outlined),
+                    _buildSectionTitle(
+                        'ملخص المحفظة', Icons.account_balance_wallet_outlined),
                     const SizedBox(height: 12),
                     _buildWalletSection(walletAsync),
 
@@ -105,14 +115,16 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                     const SizedBox(height: 24),
 
                     // التنبيهات الحية (IoT)
-                    _buildSectionTitle('تنبيهات الحقول', Icons.warning_amber_outlined),
+                    _buildSectionTitle(
+                        'تنبيهات الحقول', Icons.warning_amber_outlined),
                     const SizedBox(height: 12),
                     _buildAlertsSection(),
 
                     const SizedBox(height: 24),
 
                     // إحصائيات سريعة
-                    _buildSectionTitle('إحصائيات اليوم', Icons.insights_outlined),
+                    _buildSectionTitle(
+                        'إحصائيات اليوم', Icons.insights_outlined),
                     const SizedBox(height: 12),
                     _buildStatsRow(),
 
@@ -249,11 +261,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                      const Icon(Icons.location_on,
+                          color: Colors.white70, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         city,
-                        style: const TextStyle(color: Colors.white70, fontSize: 14),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
@@ -291,7 +305,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildWeatherDetail(Icons.water_drop, '$humidity%', 'رطوبة'),
-              _buildWeatherDetail(Icons.air, '${windSpeed.toStringAsFixed(1)} م/ث', 'رياح'),
+              _buildWeatherDetail(
+                  Icons.air, '${windSpeed.toStringAsFixed(1)} م/ث', 'رياح'),
               _buildWeatherDetail(Icons.wb_sunny, 'مثالي', 'للزراعة'),
             ],
           ),

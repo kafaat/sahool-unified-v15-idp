@@ -34,9 +34,12 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -52,6 +55,10 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .decision_engine import (
     GrowthStage,
@@ -102,6 +109,33 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Feature Schema Definition (v1.0)
+# تعريف مخطط المدخلات للكشف عن انحراف البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FEATURE_SCHEMA = {
+    "version": "1.0.0",
+    "service": "crop-intelligence-service",
+    "features": {
+        "ndvi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.3, 0.9)},
+        "evi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.2, 0.8)},
+        "ndre": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.1, 0.6)},
+        "lci": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.1, 0.5)},
+        "ndwi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (-0.3, 0.4)},
+        "savi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.2, 0.7)},
+        "crop_type": {"type": "enum", "values": [e.value for e in CropType]},
+        "growth_stage": {"type": "enum", "values": [e.value for e in GrowthStage]},
+        "humidity_pct": {"type": "float", "min": 0, "max": 100, "unit": "%", "optional": True},
+        "temp_c": {"type": "float", "min": -20, "max": 60, "unit": "°C", "optional": True},
+    },
+    "quality_requirements": {
+        "min_cloud_free_pct": 70,
+        "max_observation_age_days": 10,
+    },
+}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Schemas
@@ -542,6 +576,10 @@ async def lifespan(app: FastAPI):
 
     # Initialize PostgreSQL database connection
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
@@ -633,6 +671,44 @@ async def lifespan(app: FastAPI):
             app.state.nc = None
     else:
         logger.info("NATS_URL not configured - event publishing disabled")
+
+    # Ensure JetStream domain streams exist (C1 fix — streams must exist before durable consumers)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            js = app.state.nc.jetstream()
+            from shared.events.streams import ensure_streams
+
+            stream_count = await ensure_streams(js)
+            logger.info("jetstream_streams_ensured", count=stream_count)
+        except Exception as _stream_err:
+            logger.warning("jetstream_streams_ensure_failed", error=str(_stream_err))
+
+    # Register NATS event subscribers (Intelligence→Decision wiring)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            from .event_subscribers import setup_nats_subscriptions
+
+            app.state.nats_subs = await setup_nats_subscriptions(app.state.nc, app.state)
+            logger.info("nats_subscribers_registered", count=len(app.state.nats_subs))
+        except Exception as _sub_err:
+            logger.warning("nats_subscribers_failed", error=str(_sub_err))
+
+    # Initialize calibration worker (processes queued runs on startup)
+    try:
+        from shared.calibration.worker import CalibrationWorker
+
+        cal_worker = CalibrationWorker(
+            db_pool=app.state.db_pool,
+            nats_client=app.state.nc,
+        )
+        app.state.calibration_worker = cal_worker
+        # Process any pending runs from previous shutdown
+        if app.state.db_connected:
+            processed = await cal_worker.process_pending(max_runs=3)
+            if processed:
+                logger.info("calibration_startup_processed", run_ids=processed)
+    except Exception as _cal_err:
+        logger.warning("calibration_worker_init_failed", error=str(_cal_err))
 
     port = os.getenv("PORT", "8095")
     logger.info("Crop Intelligence Service ready", port=port)
@@ -750,10 +826,59 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
+# ── Digital Twin Router ────────────────────────────────────────────────────
+try:
+    from .twin_router import router as twin_router
+
+    app.include_router(twin_router, prefix="/api/v1")
+except Exception as _twin_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning("Digital Twin router not loaded: %s", _twin_import_error)
+
+# ── Process Models Router ──────────────────────────────────────────────────
+try:
+    from .models_router import router as models_router
+
+    app.include_router(models_router, prefix="/api/v1")
+except Exception as _models_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning("Process Models router not loaded: %s", _models_import_error)
+
+# ── Calibration Router ────────────────────────────────────────────────────
+try:
+    from .calibration_router import router as calibration_router
+
+    app.include_router(calibration_router, prefix="/api/v1")
+except Exception as _cal_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning("Calibration router not loaded: %s", _cal_import_error)
+
+# ── Soil & Fertility Router ──────────────────────────────────────────────
+try:
+    from .soil_fertility_router import router as soil_fertility_router
+
+    app.include_router(soil_fertility_router, prefix="/api/v1")
+except Exception as _sf_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning("Soil & Fertility router not loaded: %s", _sf_import_error)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/v1/feature-schema")
+def get_feature_schema():
+    """Return the ML feature schema for data drift monitoring."""
+    return FEATURE_SCHEMA
 
 
 @app.get("/healthz")
@@ -930,7 +1055,7 @@ async def get_zones_data(field_id: str) -> dict[str, dict[str, Any]]:
 async def create_zone(
     field_id: str,
     zone: ZoneCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """إنشاء منطقة جديدة في الحقل"""
     zone_id = f"zone_{uuid4().hex[:8]}"
@@ -961,7 +1086,7 @@ async def create_zone(
 @app.get("/api/v1/fields/{field_id}/zones")
 async def list_zones(
     field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """قائمة المناطق في الحقل"""
     # Try to get from database first
@@ -981,7 +1106,7 @@ async def list_zones(
 @app.get("/api/v1/fields/{field_id}/zones.geojson")
 async def get_zones_geojson(
     field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """تصدير المناطق كـ GeoJSON"""
     # Try to get from database first
@@ -1026,7 +1151,7 @@ async def ingest_observation(
     field_id: str,
     zone_id: str,
     body: ObservationIn,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     تسجيل رصد جديد لمؤشرات الغطاء النباتي
@@ -1073,7 +1198,7 @@ async def list_observations(
     field_id: str,
     zone_id: str,
     limit: int = Query(default=50, le=200),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """قائمة الأرصاد للمنطقة"""
     # Try to get from database first
@@ -1098,7 +1223,7 @@ async def list_observations(
 async def get_field_diagnosis(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     تشخيص كامل للحقل - "الطبيب الزراعي"
@@ -1202,7 +1327,7 @@ async def get_zone_timeline(
     zone_id: str,
     from_date: str = Query(..., alias="from", description="من تاريخ (YYYY-MM-DD)"),
     to_date: str = Query(..., alias="to", description="إلى تاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     السلسلة الزمنية لمؤشرات المنطقة
@@ -2137,5 +2262,6 @@ async def comprehensive_analysis(
 if __name__ == "__main__":
     import uvicorn
 
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker
     port = int(os.getenv("PORT", 8095))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)

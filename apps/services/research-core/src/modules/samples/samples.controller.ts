@@ -32,8 +32,10 @@ export class SamplesController {
   create(
     @Param("experimentId") experimentId: string,
     @Body() dto: CreateSampleDto,
+    @Request() req: any,
   ) {
-    return this.service.create({ ...dto, experimentId });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.create({ ...dto, experimentId }, tenantId);
   }
 
   @Get()
@@ -48,6 +50,7 @@ export class SamplesController {
   @ApiQuery({ name: "limit", required: false, type: Number })
   findAll(
     @Param("experimentId") experimentId: string,
+    @Request() req: any,
     @Query("plotId") plotId?: string,
     @Query("type") type?: string,
     @Query("analysisStatus") analysisStatus?: string,
@@ -57,7 +60,8 @@ export class SamplesController {
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    return this.service.findAll(experimentId, {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findAll(experimentId, tenantId, {
       plotId,
       type,
       analysisStatus,
@@ -71,20 +75,23 @@ export class SamplesController {
 
   @Get("code/:sampleCode")
   @ApiOperation({ summary: "Get sample by code - الحصول على عينة بالرمز" })
-  findBySampleCode(@Param("sampleCode") sampleCode: string) {
-    return this.service.findBySampleCode(sampleCode);
+  findBySampleCode(@Param("sampleCode") sampleCode: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findBySampleCode(sampleCode, tenantId);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get sample details - تفاصيل العينة" })
-  findOne(@Param("id") id: string) {
-    return this.service.findOne(id);
+  findOne(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findOne(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update sample - تحديث العينة" })
-  update(@Param("id") id: string, @Body() dto: UpdateSampleDto) {
-    return this.service.update(id, dto);
+  update(@Param("id") id: string, @Body() dto: UpdateSampleDto, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.update(id, dto, tenantId);
   }
 
   @Put(":id/analysis")
@@ -99,9 +106,11 @@ export class SamplesController {
     },
     @Request() req: any,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.service.updateAnalysisStatus(
       id,
       body.status,
+      tenantId,
       body.analyzedBy || req.user?.id || "system",
       body.analysisResults,
     );
@@ -109,7 +118,8 @@ export class SamplesController {
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete sample - حذف العينة" })
-  delete(@Param("id") id: string) {
-    return this.service.delete(id);
+  delete(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.delete(id, tenantId);
   }
 }

@@ -7,7 +7,8 @@
 
 import React from "react";
 import { BarChart3, Droplets, MapPin, AlertTriangle } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useStats } from "../hooks/useStats";
+import { useWeather } from "../hooks/useWeather";
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -51,7 +52,10 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 export const DashboardStats: React.FC = () => {
-  const { data, isLoading } = useDashboardData();
+  const { data: statsData, isLoading: statsLoading } = useStats();
+  const { data: weatherData, isLoading: weatherLoading } = useWeather();
+
+  const isLoading = statsLoading || weatherLoading;
 
   if (isLoading) {
     return (
@@ -68,7 +72,7 @@ export const DashboardStats: React.FC = () => {
       icon: <MapPin className="w-6 h-6 text-blue-600" />,
       label: "Total Fields",
       labelAr: "إجمالي الحقول",
-      value: data?.stats?.totalFields || 0,
+      value: statsData?.totalFields || 0,
       trend: 5,
       color: "border-blue-200",
     },
@@ -76,7 +80,7 @@ export const DashboardStats: React.FC = () => {
       icon: <BarChart3 className="w-6 h-6 text-green-600" />,
       label: "Active Tasks",
       labelAr: "المهام النشطة",
-      value: data?.stats?.activeTasks || 0,
+      value: statsData?.activeTasks || 0,
       trend: -2,
       color: "border-green-200",
     },
@@ -84,14 +88,14 @@ export const DashboardStats: React.FC = () => {
       icon: <AlertTriangle className="w-6 h-6 text-orange-600" />,
       label: "Alerts",
       labelAr: "التنبيهات",
-      value: data?.stats?.activeAlerts || 0,
+      value: statsData?.activeAlerts || 0,
       color: "border-orange-200",
     },
     {
       icon: <Droplets className="w-6 h-6 text-cyan-600" />,
       label: "Avg Humidity",
       labelAr: "متوسط الرطوبة",
-      value: data?.weather?.humidity ? `${data.weather.humidity}%` : "N/A",
+      value: weatherData?.humidity ? `${weatherData.humidity}%` : "N/A",
       color: "border-cyan-200",
     },
   ];

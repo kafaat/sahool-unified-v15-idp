@@ -54,15 +54,15 @@ final providersConfigProvider = StateProvider<ProvidersConfig>((ref) {
 
     // Provider priority (most preferred first)
     mapProviderPriority: [
-      MapProviderType.openStreetMap,  // Free, no API key
-      MapProviderType.esri,           // Free, no API key
-      MapProviderType.mapbox,         // Paid, needs API key
-      MapProviderType.googleMaps,     // Paid, needs API key
+      MapProviderType.openStreetMap, // Free, no API key
+      MapProviderType.esri, // Free, no API key
+      MapProviderType.mapbox, // Paid, needs API key
+      MapProviderType.googleMaps, // Paid, needs API key
     ],
     weatherProviderPriority: [
-      WeatherProviderType.openMeteo,       // Free, no API key
-      WeatherProviderType.openWeatherMap,  // Free tier available
-      WeatherProviderType.weatherApi,      // Free tier available
+      WeatherProviderType.openMeteo, // Free, no API key
+      WeatherProviderType.openWeatherMap, // Free tier available
+      WeatherProviderType.weatherApi, // Free tier available
     ],
   );
 });
@@ -72,7 +72,8 @@ final providersConfigProvider = StateProvider<ProvidersConfig>((ref) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Map provider service with fallback support
-final mapProviderServiceProvider = ChangeNotifierProvider<MapProviderService>((ref) {
+final mapProviderServiceProvider =
+    ChangeNotifierProvider<MapProviderService>((ref) {
   final config = ref.watch(providersConfigProvider);
   return MapProviderService(config: config);
 });
@@ -112,13 +113,17 @@ final weatherProviderServiceProvider = Provider<WeatherProviderService>((ref) {
 });
 
 /// Current weather for location
-final currentWeatherProvider = FutureProvider.family<WeatherResult<WeatherData>, LatLng>((ref, location) async {
+final currentWeatherProvider =
+    FutureProvider.family<WeatherResult<WeatherData>, LatLng>(
+        (ref, location) async {
   final service = ref.watch(weatherProviderServiceProvider);
   return service.getCurrentWeather(location.lat, location.lng);
 });
 
 /// Weather forecast for location
-final weatherForecastProvider = FutureProvider.family<WeatherResult<List<ForecastDay>>, WeatherForecastParams>((ref, params) async {
+final weatherForecastProvider = FutureProvider.family<
+    WeatherResult<List<ForecastDay>>,
+    WeatherForecastParams>((ref, params) async {
   final service = ref.watch(weatherProviderServiceProvider);
   return service.getForecast(params.lat, params.lng, days: params.days);
 });
@@ -143,7 +148,9 @@ final providerHealthProvider = Provider<ProviderHealth>((ref) {
 /// Premium features availability
 final hasPremiumFeaturesProvider = Provider<bool>((ref) {
   final health = ref.watch(providerHealthProvider);
-  return health.hasPremiumMaps || health.hasPremiumWeather || health.hasSatelliteImagery;
+  return health.hasPremiumMaps ||
+      health.hasPremiumWeather ||
+      health.hasSatelliteImagery;
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -204,7 +211,8 @@ class ProviderHealth {
     required this.configuredWeatherProviders,
   });
 
-  bool get allFree => !hasPremiumMaps && !hasPremiumWeather && !hasSatelliteImagery;
+  bool get allFree =>
+      !hasPremiumMaps && !hasPremiumWeather && !hasSatelliteImagery;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -212,7 +220,8 @@ class ProviderHealth {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Update providers configuration with new API keys
-void updateProvidersConfig(WidgetRef ref, {
+void updateProvidersConfig(
+  WidgetRef ref, {
   String? googleMapsApiKey,
   String? mapboxApiKey,
   String? openWeatherMapApiKey,
@@ -231,7 +240,8 @@ void updateProvidersConfig(WidgetRef ref, {
 }
 
 /// Update provider priority order
-void updateProviderPriority(WidgetRef ref, {
+void updateProviderPriority(
+  WidgetRef ref, {
   List<MapProviderType>? mapPriority,
   List<WeatherProviderType>? weatherPriority,
 }) {

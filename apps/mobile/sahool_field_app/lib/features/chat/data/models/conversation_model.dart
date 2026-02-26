@@ -7,9 +7,9 @@ import 'message_model.dart';
 
 /// Conversation type
 enum ConversationType {
-  direct,    // محادثة مباشرة (بين مستخدمين)
-  group,     // محادثة جماعية
-  support,   // دعم فني
+  direct, // محادثة مباشرة (بين مستخدمين)
+  group, // محادثة جماعية
+  support, // دعم فني
 }
 
 /// Participant in conversation
@@ -166,13 +166,15 @@ class Conversation {
   });
 
   /// Create from JSON
-  factory Conversation.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
+  factory Conversation.fromJson(Map<String, dynamic> json,
+      {String? currentUserId}) {
     return Conversation(
       id: json['id'] as String? ?? json['_id'] as String,
       type: _parseConversationType(json['type'] as String?),
       title: json['title'] as String?,
       participants: (json['participants'] as List<dynamic>?)
-              ?.map((p) => ConversationParticipant.fromJson(p as Map<String, dynamic>))
+              ?.map((p) =>
+                  ConversationParticipant.fromJson(p as Map<String, dynamic>))
               .toList() ??
           [],
       lastMessage: json['lastMessage'] != null

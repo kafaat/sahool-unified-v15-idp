@@ -24,16 +24,14 @@ from .models import (
     ZoneChange,
 )
 
-# ============== Mock Data Store (in-memory, dev/test only) ==============
-# NOTE: This module provides a mock, in-memory implementation intended for
-# development and testing. State does not persist across restarts and results
-# are non-deterministic. For production use, replace with database-backed
-# storage and real satellite processing pipelines.
+# ============== Persistent Store (DB + in-memory fallback) ================
+# In-memory dicts are owned by store.py and shared here by reference.
+# When a DB pool and/or NATS client have been injected via store.configure(),
+# saves are automatically persisted and events published.
+# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
 
-_jobs: dict[str, dict] = {}
-_results: dict[str, list[dict]] = {}  # field_id -> [NDVIResult]
-_composites: dict[str, dict] = {}
-
+from . import store as ndvi_store  # production persistence (DB + NATS)
+from .store import _jobs, _results, _composites  # noqa: E402  (re-exported)
 
 # ============== Job Management ==============
 
@@ -97,7 +95,9 @@ def update_job_status(
 
     if status in [JobStatus.COMPLETED, JobStatus.FAILED]:
         job["completed_at"] = datetime.now(UTC).isoformat()
-        job["progress_percent"] = 100 if status == JobStatus.COMPLETED else job["progress_percent"]
+        job["progress_percent"] = (
+            100 if status == JobStatus.COMPLETED else job["progress_percent"]
+        )
 
     if result:
         job["result"] = result
@@ -124,7 +124,9 @@ def cancel_job(job_id: str) -> bool:
     return True
 
 
-def list_jobs(tenant_id: str = None, field_id: str = None, status: str = None) -> list[dict]:
+def list_jobs(
+    tenant_id: str = None, field_id: str = None, status: str = None
+) -> list[dict]:
     """قائمة المهام"""
     jobs = list(_jobs.values())
 
@@ -178,7 +180,9 @@ def process_ndvi_mock(
 
     # معلومات المعالجة
     processing_info = ProcessingInfo(
-        atmospheric_correction=("sen2cor" if options.get("atmospheric_correction", True) else None),
+        atmospheric_correction=(
+            "sen2cor" if options.get("atmospheric_correction", True) else None
+        ),
         cloud_mask="s2cloudless" if options.get("cloud_masking", True) else None,
         processed_at=now.isoformat(),
     )
@@ -226,10 +230,14 @@ def process_ndvi_mock(
         files=files,
     )
 
-    # تخزين النتيجة
+    # تخزين النتيجة – delegate to store (persists to DB + NATS when configured)
+    # The tenant_id is unknown at this synchronous call site; we store in-memory
+    # here. The async background task in main.py calls store.save_result() with
+    # the full tenant context after this function returns.
+    result_data = result.model_dump()
     if field_id not in _results:
         _results[field_id] = []
-    _results[field_id].append(result.model_dump())
+    _results[field_id].append(result_data)
 
     return result
 
@@ -253,7 +261,9 @@ def get_field_ndvi(field_id: str, date: str = None) -> dict | None:
     return sorted(results, key=lambda x: x["date"], reverse=True)[0]
 
 
-def get_ndvi_timeseries(field_id: str, start_date: str, end_date: str) -> list[TimeseriesPoint]:
+def get_ndvi_timeseries(
+    field_id: str, start_date: str, end_date: str
+) -> list[TimeseriesPoint]:
     """جلب السلسلة الزمنية"""
     if field_id not in _results:
         # توليد بيانات محاكاة
@@ -318,7 +328,9 @@ def _generate_mock_timeseries(
 # ============== Change Analysis ==============
 
 
-def analyze_change(field_id: str, date1: str, date2: str, include_zones: bool = True) -> dict:
+def analyze_change(
+    field_id: str, date1: str, date2: str, include_zones: bool = True
+) -> dict:
     """تحليل التغير بين تاريخين"""
     from datetime import datetime
 
@@ -371,7 +383,9 @@ def analyze_change(field_id: str, date1: str, date2: str, include_zones: bool = 
                 change=round(random.uniform(-0.15, 0.05), 3),
                 change_percent=round(random.uniform(-20, 10), 1),
                 trend=(
-                    TrendDirection.DECLINING if random.random() > 0.5 else TrendDirection.STABLE
+                    TrendDirection.DECLINING
+                    if random.random() > 0.5
+                    else TrendDirection.STABLE
                 ),
             ),
             ZoneChange(
@@ -468,7 +482,9 @@ def detect_anomaly(field_id: str, date: str, current_ndvi: float = None) -> dict
     historical_mean = random.uniform(0.5, 0.7)
     historical_std = random.uniform(0.05, 0.1)
 
-    z_score = (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
+    z_score = (
+        (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
+    )
     is_anomaly = abs(z_score) > 2.0
 
     anomaly_type = None
@@ -498,7 +514,8 @@ def detect_anomaly(field_id: str, date: str, current_ndvi: float = None) -> dict
 # ============== Compositing ==============
 
 
-def create_composite(
+async def create_composite(
+    tenant_id: str,
     field_id: str,
     year: int,
     month: int,
@@ -543,7 +560,12 @@ def create_composite(
         "created_at": now,
     }
 
-    _composites[composite_id] = composite
+    # Persist via store (in-memory always; DB + NATS when configured)
+    await ndvi_store.save_composite(
+        composite_id=composite_id,
+        tenant_id=tenant_id,
+        composite_dict=composite,
+    )
     return composite
 
 

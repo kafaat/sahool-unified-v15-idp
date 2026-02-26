@@ -227,9 +227,7 @@ class OfflineReadinessReport {
 
   /// Whether all critical features are ready
   bool get criticalFeaturesReady {
-    return results
-        .where((r) => r.feature.isCritical)
-        .every((r) => r.isReady);
+    return results.where((r) => r.feature.isCritical).every((r) => r.isReady);
   }
 
   /// Whether the app is ready for full offline operation

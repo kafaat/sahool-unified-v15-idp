@@ -198,7 +198,8 @@ class SendOTPResponse {
       message: json['message'] as String?,
       expiresInSeconds: json['expires_in'] ?? json['expiresIn'] ?? 300,
       cooldownSeconds: json['cooldown'] ?? json['resend_cooldown'] ?? 60,
-      maskedDestination: json['masked_destination'] ?? json['maskedDestination'],
+      maskedDestination:
+          json['masked_destination'] ?? json['maskedDestination'],
     );
   }
 }
@@ -219,10 +220,13 @@ class VerifyOTPResponse {
 
   factory VerifyOTPResponse.fromJson(Map<String, dynamic> json) {
     return VerifyOTPResponse(
-      success: json['success'] ?? json['status'] == 'success' ?? json['valid'] == true,
+      success: json['success'] ??
+          json['status'] == 'success' ??
+          json['valid'] == true,
       message: json['message'] as String?,
       resetToken: json['reset_token'] ?? json['resetToken'] ?? json['token'],
-      remainingAttempts: json['remaining_attempts'] ?? json['remainingAttempts'],
+      remainingAttempts:
+          json['remaining_attempts'] ?? json['remainingAttempts'],
     );
   }
 }
@@ -363,7 +367,8 @@ class OTPService {
         statusCode: 429,
       );
     } catch (e, stackTrace) {
-      AppLogger.e('OTP send error', tag: 'OTP', error: e, stackTrace: stackTrace);
+      AppLogger.e('OTP send error',
+          tag: 'OTP', error: e, stackTrace: stackTrace);
       return Failure('حدث خطأ غير متوقع');
     }
   }
@@ -438,7 +443,8 @@ class OTPService {
 
     // Validate OTP format
     if (!_isValidOTPFormat(otp)) {
-      return const Failure('رمز التحقق يجب أن يتكون من 6 أرقام', statusCode: 400);
+      return const Failure('رمز التحقق يجب أن يتكون من 6 أرقام',
+          statusCode: 400);
     }
 
     try {
@@ -458,7 +464,8 @@ class OTPService {
         AppLogger.i('OTP verified successfully', tag: 'OTP');
 
         // Securely store reset token if provided (for password reset flow)
-        if (verifyResponse.resetToken != null && purpose == OTPPurpose.passwordReset) {
+        if (verifyResponse.resetToken != null &&
+            purpose == OTPPurpose.passwordReset) {
           await _storeResetToken(verifyResponse.resetToken!);
         }
 
@@ -483,7 +490,8 @@ class OTPService {
         statusCode: 429,
       );
     } catch (e, stackTrace) {
-      AppLogger.e('OTP verify error', tag: 'OTP', error: e, stackTrace: stackTrace);
+      AppLogger.e('OTP verify error',
+          tag: 'OTP', error: e, stackTrace: stackTrace);
       return Failure('حدث خطأ غير متوقع');
     }
   }
@@ -510,7 +518,8 @@ class OTPService {
     if (token == null) return null;
 
     // Check expiry
-    final expiryStr = await secureStorage.read(_OTPStorageKeys.resetTokenExpiryKey);
+    final expiryStr =
+        await secureStorage.read(_OTPStorageKeys.resetTokenExpiryKey);
     if (expiryStr != null) {
       final expiry = DateTime.parse(expiryStr);
       if (DateTime.now().isAfter(expiry)) {
@@ -546,13 +555,16 @@ class OTPService {
     OTPChannel channel,
     OTPPurpose purpose,
   ) async {
-    final key = '${_OTPStorageKeys.lastSendTimeKey}_${channel.apiValue}_${purpose.apiValue}';
+    final key =
+        '${_OTPStorageKeys.lastSendTimeKey}_${channel.apiValue}_${purpose.apiValue}';
     await secureStorage.write(key, DateTime.now().toIso8601String());
   }
 
   /// Get cooldown remaining seconds
-  Future<int> getCooldownRemaining(OTPChannel channel, OTPPurpose purpose) async {
-    final key = '${_OTPStorageKeys.lastSendTimeKey}_${channel.apiValue}_${purpose.apiValue}';
+  Future<int> getCooldownRemaining(
+      OTPChannel channel, OTPPurpose purpose) async {
+    final key =
+        '${_OTPStorageKeys.lastSendTimeKey}_${channel.apiValue}_${purpose.apiValue}';
     final lastSendStr = await secureStorage.read(key);
 
     if (lastSendStr == null) return 0;
@@ -747,7 +759,9 @@ class OTPStateNotifier extends StateNotifier<OTPState> {
     return result.when(
       success: (response) {
         final expiresAt = DateTime.now().add(
-          Duration(seconds: response.expiresInSeconds ?? OTPService.otpValiditySeconds),
+          Duration(
+              seconds:
+                  response.expiresInSeconds ?? OTPService.otpValiditySeconds),
         );
 
         state = state.copyWith(
@@ -755,7 +769,8 @@ class OTPStateNotifier extends StateNotifier<OTPState> {
           sentAt: DateTime.now(),
           expiresAt: expiresAt,
           sendAttempts: state.sendAttempts + 1,
-          cooldownSeconds: response.cooldownSeconds ?? OTPService.defaultCooldownSeconds,
+          cooldownSeconds:
+              response.cooldownSeconds ?? OTPService.defaultCooldownSeconds,
           clearError: true,
         );
 
@@ -790,7 +805,9 @@ class OTPStateNotifier extends StateNotifier<OTPState> {
     return result.when(
       success: (response) {
         final expiresAt = DateTime.now().add(
-          Duration(seconds: response.expiresInSeconds ?? OTPService.otpValiditySeconds),
+          Duration(
+              seconds:
+                  response.expiresInSeconds ?? OTPService.otpValiditySeconds),
         );
 
         state = state.copyWith(
@@ -799,7 +816,8 @@ class OTPStateNotifier extends StateNotifier<OTPState> {
           expiresAt: expiresAt,
           sendAttempts: state.sendAttempts + 1,
           verifyAttempts: 0, // Reset verify attempts on resend
-          cooldownSeconds: response.cooldownSeconds ?? OTPService.defaultCooldownSeconds,
+          cooldownSeconds:
+              response.cooldownSeconds ?? OTPService.defaultCooldownSeconds,
           clearError: true,
         );
 

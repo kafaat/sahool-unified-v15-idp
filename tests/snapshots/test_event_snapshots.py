@@ -16,6 +16,7 @@ import os
 from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 import pytest
 
@@ -27,6 +28,11 @@ from shared.events.contracts import (
     DiseaseDetectedEvent,
     AgentExecutionCompletedEvent,
 )
+
+# Deterministic UUIDs for reproducible snapshots
+_FIELD_UUID = UUID("00000000-0000-0000-0000-000000000001")
+_FARM_UUID = UUID("00000000-0000-0000-0000-000000000002")
+_TENANT_UUID = UUID("00000000-0000-0000-0000-000000000003")
 
 
 # =============================================================================
@@ -73,7 +79,7 @@ def normalize_for_snapshot(data: dict) -> dict:
     Normalize data for snapshot comparison.
     Remove volatile fields like timestamps and IDs.
     """
-    volatile_fields = ["event_id", "timestamp", "created_at", "updated_at"]
+    volatile_fields = ["event_id", "timestamp", "created_at", "updated_at", "processing_date", "detection_id"]
 
     def normalize(obj: Any) -> Any:
         if isinstance(obj, dict):
@@ -149,11 +155,12 @@ class TestFieldEventSnapshots:
     def test_field_created_snapshot(self, update_snapshots):
         """Test FieldCreatedEvent schema stability."""
         event = FieldCreatedEvent(
-            field_id="field-snapshot-001",
-            farm_id="farm-snapshot-001",
+            field_id=_FIELD_UUID,
+            farm_id=_FARM_UUID,
+            tenant_id=_TENANT_UUID,
             name="Snapshot Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=50.0,
-            crop_type="wheat",
         )
 
         data = json.loads(event.model_dump_json())
@@ -170,9 +177,9 @@ class TestFieldEventSnapshots:
     def test_field_updated_snapshot(self, update_snapshots):
         """Test FieldUpdatedEvent schema stability."""
         event = FieldUpdatedEvent(
-            field_id="field-snapshot-001",
-            farm_id="farm-snapshot-001",
-            changes={"name": "Updated Field", "area_hectares": 55.0},
+            field_id=_FIELD_UUID,
+            name="Updated Field",
+            area_hectares=55.0,
         )
 
         data = json.loads(event.model_dump_json())
@@ -198,13 +205,14 @@ class TestWeatherEventSnapshots:
     def test_weather_forecast_snapshot(self, update_snapshots, fixed_timestamp):
         """Test WeatherForecastEvent schema stability."""
         event = WeatherForecastEvent(
-            field_id="field-snapshot-001",
+            field_id=_FIELD_UUID,
+            location_lat=24.7,
+            location_lon=46.7,
             forecast_date=fixed_timestamp,
-            temperature_min=15.0,
-            temperature_max=28.0,
-            precipitation_mm=5.0,
-            humidity_percent=65.0,
-            wind_speed_kmh=12.0,
+            temperature=28.0,
+            precipitation=5.0,
+            humidity=65.0,
+            wind_speed=12.0,
         )
 
         data = json.loads(event.model_dump_json())
@@ -230,11 +238,12 @@ class TestSatelliteEventSnapshots:
     def test_satellite_data_ready_snapshot(self, update_snapshots, fixed_timestamp):
         """Test SatelliteDataReadyEvent schema stability."""
         event = SatelliteDataReadyEvent(
-            field_id="field-snapshot-001",
-            satellite_id="sentinel-2a",
-            image_date=fixed_timestamp,
-            cloud_cover_percent=10.5,
-            ndvi_available=True,
+            field_id=_FIELD_UUID,
+            tenant_id=_TENANT_UUID,
+            satellite_source="sentinel-2a",
+            capture_date=fixed_timestamp,
+            cloud_coverage=10.5,
+            ndvi_mean=0.72,
         )
 
         data = json.loads(event.model_dump_json())
@@ -260,13 +269,13 @@ class TestHealthEventSnapshots:
     def test_disease_detected_snapshot(self, update_snapshots):
         """Test DiseaseDetectedEvent schema stability."""
         event = DiseaseDetectedEvent(
-            field_id="field-snapshot-001",
-            disease_type="wheat_rust",
+            field_id=_FIELD_UUID,
+            tenant_id=_TENANT_UUID,
             disease_name="Wheat Leaf Rust",
             disease_name_ar="صدأ أوراق القمح",
-            severity="moderate",
+            severity="medium",
             confidence_score=0.87,
-            affected_area_percent=15.0,
+            affected_area_hectares=15.0,
         )
 
         data = json.loads(event.model_dump_json())
@@ -294,12 +303,9 @@ class TestAgentEventSnapshots:
         event = AgentExecutionCompletedEvent(
             execution_id="exec-snapshot-001",
             agent_type="farm_advisor",
-            output_data={
-                "recommendation": "Irrigate in 2 days",
-                "confidence": 0.92,
-            },
+            tenant_id="tenant-snapshot-001",
             duration_ms=1500,
-            success=True,
+            result_summary="Irrigate in 2 days",
         )
 
         data = json.loads(event.model_dump_json())
@@ -325,16 +331,22 @@ class TestEventSchemaStructure:
     def test_all_events_have_required_base_fields(self):
         """Test that all events have required base fields."""
         events = [
-            FieldCreatedEvent(field_id="f1", farm_id="farm1", name="Field"),
-            FieldUpdatedEvent(field_id="f1", farm_id="farm1", changes={}),
+            FieldCreatedEvent(
+                field_id=_FIELD_UUID,
+                farm_id=_FARM_UUID,
+                tenant_id=_TENANT_UUID,
+                name="Field",
+                geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
+            ),
+            FieldUpdatedEvent(field_id=_FIELD_UUID),
             WeatherForecastEvent(
-                field_id="f1",
+                location_lat=24.7,
+                location_lon=46.7,
                 forecast_date=datetime.now(UTC),
-                temperature_min=10,
-                temperature_max=20,
-                precipitation_mm=0,
-                humidity_percent=50,
-                wind_speed_kmh=10,
+                temperature=20.0,
+                precipitation=0.0,
+                humidity=50.0,
+                wind_speed=10.0,
             ),
         ]
 
@@ -348,14 +360,19 @@ class TestEventSchemaStructure:
     def test_field_events_have_field_id(self):
         """Test that field events have field_id."""
         field_events = [
-            FieldCreatedEvent(field_id="f1", farm_id="farm1", name="Field"),
-            FieldUpdatedEvent(field_id="f1", farm_id="farm1", changes={}),
+            FieldCreatedEvent(
+                field_id=_FIELD_UUID,
+                farm_id=_FARM_UUID,
+                tenant_id=_TENANT_UUID,
+                name="Field",
+                geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
+            ),
+            FieldUpdatedEvent(field_id=_FIELD_UUID),
         ]
 
         for event in field_events:
             data = event.model_dump()
             assert "field_id" in data
-            assert "farm_id" in data
 
 
 if __name__ == "__main__":

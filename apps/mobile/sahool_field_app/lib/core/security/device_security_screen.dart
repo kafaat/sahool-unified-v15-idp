@@ -185,7 +185,8 @@ class DeviceSecurityScreen extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: _getThreatLevelColor(securityResult.threatLevel),
+                        foregroundColor:
+                            _getThreatLevelColor(securityResult.threatLevel),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -209,7 +210,8 @@ class DeviceSecurityScreen extends StatelessWidget {
                       onPressed: onContinueAnyway,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: _getThreatLevelColor(securityResult.threatLevel),
+                        foregroundColor:
+                            _getThreatLevelColor(securityResult.threatLevel),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

@@ -15,7 +15,8 @@ class InventoryListScreen extends ConsumerStatefulWidget {
   const InventoryListScreen({super.key});
 
   @override
-  ConsumerState<InventoryListScreen> createState() => _InventoryListScreenState();
+  ConsumerState<InventoryListScreen> createState() =>
+      _InventoryListScreenState();
 }
 
 class _InventoryListScreenState extends ConsumerState<InventoryListScreen> {
@@ -52,7 +53,9 @@ class _InventoryListScreenState extends ConsumerState<InventoryListScreen> {
         actions: [
           // تبديل وضع العرض
           IconButton(
-            icon: Icon(viewMode == InventoryViewMode.grid ? Icons.list : Icons.grid_view),
+            icon: Icon(viewMode == InventoryViewMode.grid
+                ? Icons.list
+                : Icons.grid_view),
             onPressed: () {
               ref.read(inventoryViewModeProvider.notifier).state =
                   viewMode == InventoryViewMode.grid
@@ -178,7 +181,8 @@ class _InventoryListScreenState extends ConsumerState<InventoryListScreen> {
                   if (viewMode == InventoryViewMode.grid) {
                     return GridView.builder(
                       padding: const EdgeInsets.all(16),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 0.75,
                         crossAxisSpacing: 12,
@@ -213,7 +217,8 @@ class _InventoryListScreenState extends ConsumerState<InventoryListScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                      Icon(Icons.error_outline,
+                          size: 64, color: Colors.red.shade300),
                       const SizedBox(height: 16),
                       Text(
                         'فشل في تحميل المخزون',

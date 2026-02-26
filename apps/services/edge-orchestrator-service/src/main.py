@@ -24,6 +24,7 @@ import uvicorn
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from src.api.endpoints import devices, jobs, sync
 from src.api.schemas import HealthStatus, ReadinessStatus
@@ -183,10 +184,34 @@ async def lifespan(app: FastAPI):
 async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
     """Setup NATS subscriptions for edge events."""
 
+    # Idempotency: track processed event IDs to prevent duplicate handling
+    _processed_ids: dict[str, float] = {}
+    _DEDUP_MAX = 10_000
+
+    def _is_duplicate(event_id: str | None) -> bool:
+        """Check if event was already processed (idempotency guard)."""
+        if not event_id:
+            return False
+        import time
+
+        now = time.monotonic()
+        if event_id in _processed_ids:
+            return True
+        # Evict expired entries (older than 1 hour)
+        if len(_processed_ids) >= _DEDUP_MAX:
+            cutoff = now - 3600
+            expired = [k for k, v in _processed_ids.items() if v < cutoff]
+            for k in expired:
+                del _processed_ids[k]
+        _processed_ids[event_id] = now
+        return False
+
     async def handle_device_metrics(msg):
         """Handle device metrics event from NATS."""
         try:
             data = json.loads(msg.data.decode())
+            if _is_duplicate(data.get("event_id")):
+                return
             device_id = UUID(data.get("device_id"))
             await ws_manager.broadcast_device_metrics(device_id, data.get("metrics", {}))
         except Exception as e:
@@ -196,12 +221,14 @@ async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
         """Handle detection result event from NATS."""
         try:
             data = json.loads(msg.data.decode())
+            if _is_duplicate(data.get("event_id")):
+                return
             device_id = UUID(data.get("device_id"))
             await ws_manager.broadcast_detection_result(device_id, data)
         except Exception as e:
             logger.error("nats_detection_handler_error", error=str(e))
 
-    # Subscribe to edge events
+    # Subscribe to edge events (tenant-scoped wildcard)
     await nc.subscribe("sahool.*.edge.metrics", cb=handle_device_metrics)
     await nc.subscribe("sahool.*.edge.detection", cb=handle_detection_result)
     logger.info("nats_subscriptions_setup")
@@ -265,6 +292,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # =============================================================================

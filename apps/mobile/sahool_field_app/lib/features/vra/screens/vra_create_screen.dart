@@ -58,20 +58,27 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // معلومات أساسية
-              _buildSectionTitle(isRTL ? 'معلومات أساسية' : 'Basic Information', isRTL),
+              _buildSectionTitle(
+                  isRTL ? 'معلومات أساسية' : 'Basic Information', isRTL),
               const SizedBox(height: 16),
 
               // اسم الوصفة
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: isRTL ? 'اسم الوصفة (English)' : 'Prescription Name (English)',
-                  hintText: isRTL ? 'مثال: Fertilizer Application Q1 2024' : 'Example: Fertilizer Application Q1 2024',
+                  labelText: isRTL
+                      ? 'اسم الوصفة (English)'
+                      : 'Prescription Name (English)',
+                  hintText: isRTL
+                      ? 'مثال: Fertilizer Application Q1 2024'
+                      : 'Example: Fertilizer Application Q1 2024',
                   border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return isRTL ? 'الرجاء إدخال اسم الوصفة' : 'Please enter prescription name';
+                    return isRTL
+                        ? 'الرجاء إدخال اسم الوصفة'
+                        : 'Please enter prescription name';
                   }
                   return null;
                 },
@@ -82,8 +89,12 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
               TextFormField(
                 controller: _nameArController,
                 decoration: InputDecoration(
-                  labelText: isRTL ? 'اسم الوصفة (العربية)' : 'Prescription Name (Arabic)',
-                  hintText: isRTL ? 'مثال: تطبيق الأسمدة - الربع الأول 2024' : 'Example: تطبيق الأسمدة - الربع الأول 2024',
+                  labelText: isRTL
+                      ? 'اسم الوصفة (العربية)'
+                      : 'Prescription Name (Arabic)',
+                  hintText: isRTL
+                      ? 'مثال: تطبيق الأسمدة - الربع الأول 2024'
+                      : 'Example: تطبيق الأسمدة - الربع الأول 2024',
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -97,14 +108,19 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                   border: const OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'field_1', child: Text('Field 1 - حقل رقم 1')),
-                  DropdownMenuItem(value: 'field_2', child: Text('Field 2 - حقل رقم 2')),
-                  DropdownMenuItem(value: 'field_3', child: Text('Field 3 - حقل رقم 3')),
+                  DropdownMenuItem(
+                      value: 'field_1', child: Text('Field 1 - حقل رقم 1')),
+                  DropdownMenuItem(
+                      value: 'field_2', child: Text('Field 2 - حقل رقم 2')),
+                  DropdownMenuItem(
+                      value: 'field_3', child: Text('Field 3 - حقل رقم 3')),
                 ],
                 onChanged: (value) => setState(() => _selectedFieldId = value),
                 validator: (value) {
                   if (value == null) {
-                    return isRTL ? 'الرجاء اختيار الحقل' : 'Please select a field';
+                    return isRTL
+                        ? 'الرجاء اختيار الحقل'
+                        : 'Please select a field';
                   }
                   return null;
                 },
@@ -112,7 +128,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
               const SizedBox(height: 24),
 
               // إعدادات VRA
-              _buildSectionTitle(isRTL ? 'إعدادات التطبيق المتغير' : 'VRA Settings', isRTL),
+              _buildSectionTitle(
+                  isRTL ? 'إعدادات التطبيق المتغير' : 'VRA Settings', isRTL),
               const SizedBox(height: 16),
 
               // نوع VRA
@@ -148,7 +165,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  if (value != null) setState(() => _selectedZoningMethod = value);
+                  if (value != null)
+                    setState(() => _selectedZoningMethod = value);
                 },
               ),
               const SizedBox(height: 16),
@@ -158,7 +176,9 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      isRTL ? 'عدد المناطق: $_zonesCount' : 'Number of Zones: $_zonesCount',
+                      isRTL
+                          ? 'عدد المناطق: $_zonesCount'
+                          : 'Number of Zones: $_zonesCount',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -182,7 +202,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                 max: 10,
                 divisions: 8,
                 label: _zonesCount.toString(),
-                onChanged: (value) => setState(() => _zonesCount = value.toInt()),
+                onChanged: (value) =>
+                    setState(() => _zonesCount = value.toInt()),
               ),
               const SizedBox(height: 16),
 
@@ -203,12 +224,14 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                           ),
                         ),
                         FilledButton.tonalIcon(
-                          onPressed: _isGeneratingZones ? null : _generatePreviewZones,
+                          onPressed:
+                              _isGeneratingZones ? null : _generatePreviewZones,
                           icon: _isGeneratingZones
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Icon(Icons.refresh),
                           label: Text(isRTL ? 'توليد' : 'Generate'),
@@ -243,7 +266,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.map_outlined, size: 64, color: Colors.grey[400]),
+                              Icon(Icons.map_outlined,
+                                  size: 64, color: Colors.grey[400]),
                               const SizedBox(height: 8),
                               Text(
                                 isRTL
@@ -260,7 +284,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
               const SizedBox(height: 24),
 
               // معلومات إضافية
-              _buildSectionTitle(isRTL ? 'معلومات إضافية' : 'Additional Information', isRTL),
+              _buildSectionTitle(
+                  isRTL ? 'معلومات إضافية' : 'Additional Information', isRTL),
               const SizedBox(height: 16),
 
               // موعد التطبيق
@@ -396,7 +421,9 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                Text(isRTL ? 'جارٍ إنشاء الوصفة...' : 'Creating prescription...'),
+                Text(isRTL
+                    ? 'جارٍ إنشاء الوصفة...'
+                    : 'Creating prescription...'),
               ],
             ),
           ),
@@ -405,16 +432,20 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
     );
 
     // إنشاء الوصفة
-    final prescription = await ref.read(vraControllerProvider.notifier).generatePrescription(
+    final prescription = await ref
+        .read(vraControllerProvider.notifier)
+        .generatePrescription(
           fieldId: _selectedFieldId!,
           vraType: _selectedVraType,
           zoningMethod: _selectedZoningMethod,
           zonesCount: _zonesCount,
           name: _nameController.text,
-          nameAr: _nameArController.text.isEmpty ? null : _nameArController.text,
+          nameAr:
+              _nameArController.text.isEmpty ? null : _nameArController.text,
           scheduledDate: _scheduledDate,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
-          notesAr: _notesArController.text.isEmpty ? null : _notesArController.text,
+          notesAr:
+              _notesArController.text.isEmpty ? null : _notesArController.text,
         );
 
     if (!mounted) return;
@@ -426,7 +457,9 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
       // عرض رسالة نجاح
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isRTL ? 'تم إنشاء الوصفة بنجاح' : 'Prescription created successfully'),
+          content: Text(isRTL
+              ? 'تم إنشاء الوصفة بنجاح'
+              : 'Prescription created successfully'),
           backgroundColor: Colors.green,
         ),
       );
@@ -435,7 +468,8 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => VRADetailScreen(prescriptionId: prescription.prescriptionId),
+          builder: (_) =>
+              VRADetailScreen(prescriptionId: prescription.prescriptionId),
         ),
       );
     } else {
@@ -443,7 +477,10 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
       final error = ref.read(vraControllerProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error?.toString() ?? (isRTL ? 'فشل في إنشاء الوصفة' : 'Failed to create prescription')),
+          content: Text(error?.toString() ??
+              (isRTL
+                  ? 'فشل في إنشاء الوصفة'
+                  : 'Failed to create prescription')),
           backgroundColor: Colors.red,
         ),
       );

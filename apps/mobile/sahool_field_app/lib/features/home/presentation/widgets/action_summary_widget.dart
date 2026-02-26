@@ -59,7 +59,8 @@ class ActionSummaryWidget extends StatelessWidget {
         Card(
           color: const Color(0xFF367C2B).withOpacity(0.1),
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(

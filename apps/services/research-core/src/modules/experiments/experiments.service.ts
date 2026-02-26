@@ -10,7 +10,7 @@ export class ExperimentsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateExperimentDto, userId: string) {
+  async create(dto: CreateExperimentDto, userId: string, tenantId: string) {
     this.logger.log(`Creating experiment: ${dto.title}`);
 
     const { metadata, ...restDto } = dto;
@@ -22,11 +22,12 @@ export class ExperimentsService {
         startDate: new Date(dto.startDate),
         endDate: dto.endDate ? new Date(dto.endDate) : null,
         metadata: metadata as Prisma.InputJsonValue | undefined,
+        tenantId,
       },
     });
   }
 
-  async findAll(filters?: {
+  async findAll(tenantId: string, filters?: {
     status?: string;
     researcherId?: string;
     farmId?: string;
@@ -38,7 +39,7 @@ export class ExperimentsService {
     const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: any = { tenantId };
 
     if (filters?.status) {
       where.status = filters.status;
@@ -82,9 +83,9 @@ export class ExperimentsService {
     };
   }
 
-  async findOne(id: string) {
-    const experiment = await this.prisma.experiment.findUnique({
-      where: { id },
+  async findOne(id: string, tenantId: string) {
+    const experiment = await this.prisma.experiment.findFirst({
+      where: { id, tenantId },
       include: {
         protocols: true,
         plots: true,
@@ -106,8 +107,8 @@ export class ExperimentsService {
     return experiment;
   }
 
-  async update(id: string, dto: UpdateExperimentDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateExperimentDto, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     const { metadata, ...restDto } = dto;
 
@@ -126,16 +127,16 @@ export class ExperimentsService {
     });
   }
 
-  async delete(id: string) {
-    await this.findOne(id);
+  async delete(id: string, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     return this.prisma.experiment.delete({
       where: { id },
     });
   }
 
-  async lock(id: string, userId: string) {
-    await this.findOne(id);
+  async lock(id: string, userId: string, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     return this.prisma.experiment.update({
       where: { id },
@@ -147,8 +148,8 @@ export class ExperimentsService {
     });
   }
 
-  async getSummary(id: string) {
-    const experiment = await this.findOne(id);
+  async getSummary(id: string, tenantId: string) {
+    const experiment = await this.findOne(id, tenantId);
 
     const [logsCount, samplesCount, lastLog] = await Promise.all([
       this.prisma.researchDailyLog.count({

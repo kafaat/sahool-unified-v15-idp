@@ -160,7 +160,8 @@ class _SplashScreenState extends State<SplashScreen>
                           child: LinearProgressIndicator(
                             value: _loadingAnimation.value,
                             backgroundColor: Colors.white.withOpacity(0.3),
-                            valueColor: const AlwaysStoppedAnimation(Colors.white),
+                            valueColor:
+                                const AlwaysStoppedAnimation(Colors.white),
                             minHeight: 6,
                           ),
                         ),
@@ -240,13 +241,16 @@ class _PlantGrowthPainter extends CustomPainter {
 
     // Draw leaves based on progress
     if (progress > 0.3) {
-      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.3, -1, (progress - 0.3) / 0.7);
+      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.3, -1,
+          (progress - 0.3) / 0.7);
     }
     if (progress > 0.5) {
-      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.5, 1, (progress - 0.5) / 0.5);
+      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.5, 1,
+          (progress - 0.5) / 0.5);
     }
     if (progress > 0.7) {
-      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.7, -1, (progress - 0.7) / 0.3);
+      _drawLeaf(canvas, paint, centerX, bottomY - stemHeight * 0.7, -1,
+          (progress - 0.7) / 0.3);
     }
     if (progress > 0.9) {
       // Draw flower/top
@@ -259,7 +263,8 @@ class _PlantGrowthPainter extends CustomPainter {
     }
   }
 
-  void _drawLeaf(Canvas canvas, Paint paint, double x, double y, int direction, double leafProgress) {
+  void _drawLeaf(Canvas canvas, Paint paint, double x, double y, int direction,
+      double leafProgress) {
     final path = Path();
     final leafLength = 15 * leafProgress;
     path.moveTo(x, y);

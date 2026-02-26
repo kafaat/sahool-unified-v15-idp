@@ -213,11 +213,15 @@ class ConflictHandler {
     Map<String, dynamic> local,
     Map<String, dynamic> server,
   ) {
-    final localUpdatedAt = _parseDateTime(local['updated_at'] ?? local['updatedAt']);
-    final serverUpdatedAt = _parseDateTime(server['updated_at'] ?? server['updatedAt']);
+    final localUpdatedAt =
+        _parseDateTime(local['updated_at'] ?? local['updatedAt']);
+    final serverUpdatedAt =
+        _parseDateTime(server['updated_at'] ?? server['updatedAt']);
 
     if (localUpdatedAt != null && serverUpdatedAt != null) {
-      return localUpdatedAt.isAfter(serverUpdatedAt) ? Map.from(local) : Map.from(server);
+      return localUpdatedAt.isAfter(serverUpdatedAt)
+          ? Map.from(local)
+          : Map.from(server);
     }
 
     // Fallback to server if timestamps unavailable

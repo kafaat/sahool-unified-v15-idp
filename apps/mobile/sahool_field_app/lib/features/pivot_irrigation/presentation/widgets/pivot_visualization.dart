@@ -47,7 +47,8 @@ class _PivotVisualizationState extends State<PivotVisualization>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 60), // Full rotation in 60s for animation
+      duration:
+          const Duration(seconds: 60), // Full rotation in 60s for animation
       vsync: this,
     );
 
@@ -100,9 +101,10 @@ class _PivotVisualizationState extends State<PivotVisualization>
                 showNDVI: widget.showNDVI,
                 showArm: widget.showArm,
                 armAngle: widget.status?.currentAngle ?? 0,
-                animatedAngle: widget.animate && widget.status?.isIrrigating == true
-                    ? _armAnimation.value
-                    : null,
+                animatedAngle:
+                    widget.animate && widget.status?.isIrrigating == true
+                        ? _armAnimation.value
+                        : null,
               ),
             ),
           );
@@ -114,7 +116,9 @@ class _PivotVisualizationState extends State<PivotVisualization>
   void _handleTap(TapUpDetails details, double size) {
     final center = Offset(size / 2, size / 2);
     final tapOffset = details.localPosition - center;
-    final angle = (math.atan2(tapOffset.dy, tapOffset.dx) * 180 / math.pi + 90 + 360) % 360;
+    final angle =
+        (math.atan2(tapOffset.dy, tapOffset.dx) * 180 / math.pi + 90 + 360) %
+            360;
     final distance = tapOffset.distance;
     final radius = size / 2 * 0.9;
 
@@ -291,8 +295,10 @@ class _PivotPainter extends CustomPainter {
     }
   }
 
-  void _drawSectorLabel(Canvas canvas, Offset center, double radius, PivotSector sector) {
-    final midAngle = _degreesToRadians((sector.startAngle + sector.endAngle) / 2 - 90);
+  void _drawSectorLabel(
+      Canvas canvas, Offset center, double radius, PivotSector sector) {
+    final midAngle =
+        _degreesToRadians((sector.startAngle + sector.endAngle) / 2 - 90);
     final labelRadius = radius * 0.65;
 
     final labelOffset = Offset(
@@ -454,7 +460,8 @@ class _PivotPainter extends CustomPainter {
     }
   }
 
-  void _drawWaterSpray(Canvas canvas, Offset center, Offset armEnd, double radius, double angle) {
+  void _drawWaterSpray(Canvas canvas, Offset center, Offset armEnd,
+      double radius, double angle) {
     if (status?.isIrrigating != true) return;
 
     final sprayPaint = Paint()

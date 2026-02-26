@@ -4,7 +4,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
 import 'package:sahool_field_app/features/field/data/repo/fields_repo.dart';
 import 'package:sahool_field_app/features/field/data/remote/fields_api.dart';
-import 'package:sahool_field_app/features/field/domain/entities/field.dart' as domain;
+import 'package:sahool_field_app/features/field/domain/entities/field.dart'
+    as domain;
 import '../../../mocks/mock_app_database.dart';
 import '../../../mocks/mock_network_status.dart';
 import '../../../fixtures/sample_fields.dart';
@@ -63,8 +64,10 @@ void main() {
 
       test('should only return fields for specified tenant', () async {
         // Arrange
-        final field1 = SampleFields.createWheatField(id: 'field_t1', tenantId: 'tenant_1');
-        final field2 = SampleFields.createWheatField(id: 'field_t2', tenantId: 'tenant_2');
+        final field1 =
+            SampleFields.createWheatField(id: 'field_t1', tenantId: 'tenant_1');
+        final field2 =
+            SampleFields.createWheatField(id: 'field_t2', tenantId: 'tenant_2');
 
         mockDatabase.seedField(field1);
         mockDatabase.seedField(field2);
@@ -108,7 +111,8 @@ void main() {
         const farmId = 'farm_001';
         final field1 = SampleFields.createWheatField(farmId: farmId);
         final field2 = SampleFields.createDatePalmField(farmId: farmId);
-        final field3 = SampleFields.createWheatField(id: 'field_f2', farmId: 'farm_002');
+        final field3 =
+            SampleFields.createWheatField(id: 'field_f2', farmId: 'farm_002');
 
         mockDatabase.seedField(field1);
         mockDatabase.seedField(field2);
@@ -289,7 +293,8 @@ void main() {
 
         // Assert
         expect(count, serverFields.length);
-        verify(() => mockApi.fetchFields(tenantId: any(named: 'tenantId'))).called(1);
+        verify(() => mockApi.fetchFields(tenantId: any(named: 'tenantId')))
+            .called(1);
       });
     });
 

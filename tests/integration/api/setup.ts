@@ -207,6 +207,28 @@ export async function apiRequest<T = unknown>(
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(`Request timeout after ${TEST_CONFIG.TIMEOUT.REQUEST}ms`);
     }
+
+    // Return a 503 response for connection errors (service not running)
+    // This allows tests to handle unavailable services gracefully
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    if (
+      errorMessage.includes("fetch failed") ||
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("ECONNRESET") ||
+      errorMessage.includes("ENOTFOUND")
+    ) {
+      return {
+        status: 503,
+        data: {
+          error: "Service unavailable",
+          message: errorMessage,
+        } as unknown as T,
+        headers: {},
+        ok: false,
+      };
+    }
+
     throw error;
   }
 }

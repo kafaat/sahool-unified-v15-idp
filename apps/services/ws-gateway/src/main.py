@@ -29,6 +29,14 @@ from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+
+def sanitize_log_input(value: str) -> str:
+    """Sanitize user input for safe logging to prevent log injection attacks."""
+    if not isinstance(value, str):
+        value = str(value)
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
 from .rooms import RoomManager
@@ -170,6 +178,9 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
 
 # ============== Health Check ==============
 
@@ -268,9 +279,7 @@ def metrics():
             ]
         )
         for room_type, count in connections_by_type.items():
-            metrics_lines.append(
-                f'ws_gateway_connections_by_room_type{{room_type="{room_type}"}} {count}'
-            )
+            metrics_lines.append(f'ws_gateway_connections_by_room_type{{room_type="{room_type}"}} {count}')
         metrics_lines.append("")
 
     from fastapi.responses import PlainTextResponse
@@ -311,8 +320,7 @@ async def websocket_endpoint(
     # JWT authentication is always required
     if not token:
         logger.warning(
-            f"WebSocket connection attempt without token. "
-            f"Connection ID: {connection_id}, Tenant: {tenant_id}"
+            f"WebSocket connection attempt without token. Connection ID: {connection_id}, Tenant: {sanitize_log_input(tenant_id)}"
         )
         await websocket.close(code=4001, reason="Authentication required")
         return
@@ -327,27 +335,23 @@ async def websocket_endpoint(
         if token_tenant and token_tenant != tenant_id:
             logger.error(
                 f"Tenant mismatch for connection {connection_id}. "
-                f"Token tenant: {token_tenant}, Requested tenant: {tenant_id}, "
-                f"User: {user_id}"
+                f"Token tenant: {sanitize_log_input(token_tenant)}, Requested tenant: {sanitize_log_input(tenant_id)}, "
+                f"User: {sanitize_log_input(user_id or '')}"
             )
             await websocket.close(code=4003, reason="Tenant mismatch")
             return
 
         logger.info(
             f"WebSocket authenticated successfully. "
-            f"Connection ID: {connection_id}, User: {user_id}, Tenant: {tenant_id}"
+            f"Connection ID: {connection_id}, User: {sanitize_log_input(user_id or '')}, Tenant: {sanitize_log_input(tenant_id)}"
         )
     except ValueError as e:
-        logger.error(
-            f"JWT validation failed for connection {connection_id}. "
-            f"Error: {str(e)}, Tenant: {tenant_id}"
-        )
+        logger.error(f"JWT validation failed for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}")
         await websocket.close(code=4001, reason="Invalid authentication token")
         return
     except Exception as e:
         logger.error(
-            f"Unexpected authentication error for connection {connection_id}. "
-            f"Error: {str(e)}, Tenant: {tenant_id}"
+            f"Unexpected authentication error for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}"
         )
         await websocket.close(code=4001, reason="Authentication failed")
         return
@@ -381,8 +385,7 @@ async def websocket_endpoint(
             # Validate message size
             if len(raw_message) > MAX_MESSAGE_SIZE_BYTES:
                 logger.warning(
-                    f"Message too large from {connection_id}: "
-                    f"{len(raw_message)} bytes (max: {MAX_MESSAGE_SIZE_BYTES})"
+                    f"Message too large from {connection_id}: {len(raw_message)} bytes (max: {MAX_MESSAGE_SIZE_BYTES})"
                 )
                 await websocket.send_json(
                     {
@@ -476,20 +479,16 @@ async def broadcast_message(
 
         # Both tenant IDs must be present for authorization check
         if not token_tenant_id or not req.tenant_id:
-            raise HTTPException(
-                status_code=403, detail="tenant_id is required for broadcast"
-            )
+            raise HTTPException(status_code=403, detail="tenant_id is required for broadcast")
 
         # Ensure user can only broadcast to their own tenant
         if token_tenant_id != req.tenant_id:
             # Allow super_admin to broadcast to any tenant
             roles = payload.get("roles", [])
             if "super_admin" not in roles:
-                raise HTTPException(
-                    status_code=403, detail="Cannot broadcast to a different tenant"
-                )
+                raise HTTPException(status_code=403, detail="Cannot broadcast to a different tenant")
 
-        logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
+        logger.info(f"Broadcast by user {sanitize_log_input(payload.get('sub', ''))} to tenant {sanitize_log_input(req.tenant_id)}")
 
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e)) from e

@@ -53,7 +53,8 @@ class WeatherCard extends StatelessWidget {
                   ),
                 ),
                 if (onTap != null)
-                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+                  const Icon(Icons.arrow_forward_ios,
+                      size: 16, color: Colors.white70),
               ],
             ),
             const SizedBox(height: 12),

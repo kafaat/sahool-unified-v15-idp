@@ -86,8 +86,7 @@ class FieldTask {
   });
 
   /// هل المهمة متأخرة؟
-  bool get isOverdue =>
-      !isCompleted && dueTime.isBefore(DateTime.now());
+  bool get isOverdue => !isCompleted && dueTime.isBefore(DateTime.now());
 
   /// هل المهمة عاجلة؟
   bool get isUrgent => priority == TaskPriority.urgent;
@@ -167,9 +166,7 @@ class FieldTask {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FieldTask &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+      other is FieldTask && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

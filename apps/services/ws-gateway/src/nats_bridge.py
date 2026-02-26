@@ -74,7 +74,7 @@ class NATSBridge:
         """Subscribe to all relevant NATS subjects"""
 
         # Subscribe to field events
-        await self._subscribe("sahool.fields.>", self._handle_field_event)
+        await self._subscribe("sahool.field.>", self._handle_field_event)
 
         # Subscribe to weather events
         await self._subscribe("sahool.weather.>", self._handle_weather_event)
@@ -82,14 +82,14 @@ class NATSBridge:
         # Subscribe to satellite events
         await self._subscribe("sahool.satellite.>", self._handle_satellite_event)
 
-        # Subscribe to NDVI events
-        await self._subscribe("sahool.ndvi.>", self._handle_ndvi_event)
+        # Subscribe to NDVI events (under satellite domain)
+        await self._subscribe("sahool.satellite.ndvi.>", self._handle_ndvi_event)
 
         # Subscribe to inventory events
         await self._subscribe("sahool.inventory.>", self._handle_inventory_event)
 
         # Subscribe to crop health events
-        await self._subscribe("sahool.crop.>", self._handle_crop_event)
+        await self._subscribe("sahool.health.>", self._handle_crop_event)
 
         # Subscribe to spray events
         await self._subscribe("sahool.spray.>", self._handle_spray_event)
@@ -98,13 +98,13 @@ class NATSBridge:
         await self._subscribe("sahool.chat.>", self._handle_chat_event)
 
         # Subscribe to task events
-        await self._subscribe("sahool.tasks.>", self._handle_task_event)
+        await self._subscribe("sahool.task.>", self._handle_task_event)
 
         # Subscribe to IoT events
         await self._subscribe("sahool.iot.>", self._handle_iot_event)
 
         # Subscribe to alerts
-        await self._subscribe("sahool.alerts.>", self._handle_alert_event)
+        await self._subscribe("sahool.alert.>", self._handle_alert_event)
 
         logger.info(f"Subscribed to {len(self.subscriptions)} NATS subjects")
 
@@ -126,7 +126,7 @@ class NATSBridge:
             data = json.loads(msg.data.decode())
             subject_parts = msg.subject.split(".")
 
-            # Extract field_id from subject (sahool.fields.{field_id}.updated)
+            # Extract field_id from subject (sahool.field.{field_id}.updated)
             if len(subject_parts) >= 3:
                 field_id = subject_parts[2]
                 event_action = subject_parts[3] if len(subject_parts) > 3 else "updated"

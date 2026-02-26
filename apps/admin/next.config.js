@@ -1,10 +1,15 @@
+const { withSentryConfig } = require("@sentry/nextjs");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   output: "standalone",
+
+  // Security: Remove X-Powered-By header
+  poweredByHeader: false,
 
   // Transpile workspace packages so Next.js compiles them from source
   // This avoids dependency on pre-built dist/ directories from build:packages
@@ -62,17 +67,27 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.sahool.io",
+        hostname: "**.sahool.ye",
       },
       {
         protocol: "https",
-        hostname: "api.sahool.app",
+        hostname: "**.sahool.io",
+      },
+      {
+        protocol: "https",
+        hostname: "**.sahool.app",
       },
       {
         protocol: "http",
         hostname: "localhost",
       },
     ],
+    // Serve modern formats for smaller image payloads
+    formats: ["image/avif", "image/webp"],
+    // Breakpoints for srcset generation matching common device widths
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Sizes for images rendered smaller than the viewport (icons, thumbnails, avatars)
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   // RTL support is handled in layout.tsx via lang="ar" dir="rtl"
   // For full i18n with App Router, use next-intl or similar library
@@ -94,6 +109,19 @@ const nextConfig = {
   // See: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
 
   // Note: swcMinify is enabled by default in Next.js 15+
+
+  // Compiler optimizations
+  compiler: {
+    // Strip console.log in production (keep error/warn for debugging)
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
+  },
+
+  // Performance optimizations
+  compress: true,
+  productionBrowserSourceMaps: false,
 
   // Turbopack configuration (Next.js 16 default bundler)
   turbopack: {
@@ -135,18 +163,96 @@ const nextConfig = {
       },
     ];
 
+    // Optimize chunk splitting for better caching and smaller bundles
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization?.splitChunks,
+          cacheGroups: {
+            ...config.optimization?.splitChunks?.cacheGroups,
+            // Separate heavy visualization libs into their own chunk
+            charts: {
+              test: /[\\/]node_modules[\\/](recharts|d3-.*|victory.*)[\\/]/,
+              name: "charts",
+              chunks: "all",
+              priority: 30,
+            },
+            // Separate mapping libraries (leaflet) into their own chunk
+            maps: {
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
+              name: "maps",
+              chunks: "all",
+              priority: 30,
+            },
+            // Group framework-level dependencies that rarely change
+            framework: {
+              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
+              name: "framework",
+              chunks: "all",
+              priority: 40,
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+
     return config;
   },
 
   // Experimental features
   experimental: {
+    // Tree-shake barrel exports for these packages to reduce bundle size
     optimizePackageImports: [
       "lucide-react",
-      "@tanstack/react-query",
       "recharts",
+      "date-fns",
+      "clsx",
+      "tailwind-merge",
+      "@sahool/shared-ui",
+      "@sahool/shared-utils",
+      "@sahool/shared-hooks",
+      "@sahool/shared-types",
+      "@sahool/api-client",
+      "react-leaflet",
+      "jose",
+      "axios",
     ],
   },
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
+  // Sentry Build-Time Optimizations
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+
+  // Suppress source map upload logs during build
+  silent: !process.env.CI,
+
+  // Upload source maps to Sentry for production builds only
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+
+  // Tree-shake Sentry debug logger statements from the client bundle (~10KB savings)
+  disableLogger: true,
+
+  // Automatically tree-shake unused Sentry client code
+  // Removes code for features not used (e.g., Profiling, Feedback widget)
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true,
+  },
+
+  // Tunnel Sentry events through the Next.js server to avoid ad-blockers and CSP issues
+  tunnelRoute: "/monitoring",
+
+  // Hides Sentry source maps from client-side devtools
+  hideSourceMaps: true,
+
+  // Widen file upload scope so Sentry can match source maps across chunks
+  widenClientFileUpload: true,
+});

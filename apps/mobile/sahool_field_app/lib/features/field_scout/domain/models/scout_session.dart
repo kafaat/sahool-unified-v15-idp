@@ -87,42 +87,46 @@ class ScoutSession {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'fieldId': fieldId,
-    'fieldName': fieldName,
-    'scouterId': scouterId,
-    'scouterName': scouterName,
-    'startedAt': startedAt.toIso8601String(),
-    'endedAt': endedAt?.toIso8601String(),
-    'status': status.name,
-    'checkpoints': checkpoints.map((c) => c.toJson()).toList(),
-    'trackPoints': trackPoints.map((p) => p.toJson()).toList(),
-    'summary': summary?.toJson(),
-    'metadata': metadata,
-  };
+        'id': id,
+        'fieldId': fieldId,
+        'fieldName': fieldName,
+        'scouterId': scouterId,
+        'scouterName': scouterName,
+        'startedAt': startedAt.toIso8601String(),
+        'endedAt': endedAt?.toIso8601String(),
+        'status': status.name,
+        'checkpoints': checkpoints.map((c) => c.toJson()).toList(),
+        'trackPoints': trackPoints.map((p) => p.toJson()).toList(),
+        'summary': summary?.toJson(),
+        'metadata': metadata,
+      };
 
   factory ScoutSession.fromJson(Map<String, dynamic> json) => ScoutSession(
-    id: json['id'] as String,
-    fieldId: json['fieldId'] as String,
-    fieldName: json['fieldName'] as String,
-    scouterId: json['scouterId'] as String,
-    scouterName: json['scouterName'] as String,
-    startedAt: DateTime.parse(json['startedAt'] as String),
-    endedAt: json['endedAt'] != null
-        ? DateTime.parse(json['endedAt'] as String)
-        : null,
-    status: ScoutSessionStatus.values.byName(json['status'] as String),
-    checkpoints: (json['checkpoints'] as List?)
-        ?.map((c) => ScoutCheckpoint.fromJson(c as Map<String, dynamic>))
-        .toList() ?? [],
-    trackPoints: (json['trackPoints'] as List?)
-        ?.map((p) => GeoPoint.fromJson(p as Map<String, dynamic>))
-        .toList() ?? [],
-    summary: json['summary'] != null
-        ? ScoutSessionSummary.fromJson(json['summary'] as Map<String, dynamic>)
-        : null,
-    metadata: json['metadata'] as Map<String, dynamic>?,
-  );
+        id: json['id'] as String,
+        fieldId: json['fieldId'] as String,
+        fieldName: json['fieldName'] as String,
+        scouterId: json['scouterId'] as String,
+        scouterName: json['scouterName'] as String,
+        startedAt: DateTime.parse(json['startedAt'] as String),
+        endedAt: json['endedAt'] != null
+            ? DateTime.parse(json['endedAt'] as String)
+            : null,
+        status: ScoutSessionStatus.values.byName(json['status'] as String),
+        checkpoints: (json['checkpoints'] as List?)
+                ?.map(
+                    (c) => ScoutCheckpoint.fromJson(c as Map<String, dynamic>))
+                .toList() ??
+            [],
+        trackPoints: (json['trackPoints'] as List?)
+                ?.map((p) => GeoPoint.fromJson(p as Map<String, dynamic>))
+                .toList() ??
+            [],
+        summary: json['summary'] != null
+            ? ScoutSessionSummary.fromJson(
+                json['summary'] as Map<String, dynamic>)
+            : null,
+        metadata: json['metadata'] as Map<String, dynamic>?,
+      );
 }
 
 /// حالة جلسة المسح
@@ -162,42 +166,43 @@ class ScoutCheckpoint {
   bool get hasAIAnalysis => aiAnalysis != null;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'location': location.toJson(),
-    'timestamp': timestamp.toIso8601String(),
-    'type': type.name,
-    'note': note,
-    'photoUrls': photoUrls,
-    'issue': issue?.toJson(),
-    'aiAnalysis': aiAnalysis?.toJson(),
-    'measurements': measurements,
-  };
+        'id': id,
+        'location': location.toJson(),
+        'timestamp': timestamp.toIso8601String(),
+        'type': type.name,
+        'note': note,
+        'photoUrls': photoUrls,
+        'issue': issue?.toJson(),
+        'aiAnalysis': aiAnalysis?.toJson(),
+        'measurements': measurements,
+      };
 
-  factory ScoutCheckpoint.fromJson(Map<String, dynamic> json) => ScoutCheckpoint(
-    id: json['id'] as String,
-    location: GeoPoint.fromJson(json['location'] as Map<String, dynamic>),
-    timestamp: DateTime.parse(json['timestamp'] as String),
-    type: CheckpointType.values.byName(json['type'] as String),
-    note: json['note'] as String?,
-    photoUrls: (json['photoUrls'] as List?)?.cast<String>() ?? [],
-    issue: json['issue'] != null
-        ? IssueDetails.fromJson(json['issue'] as Map<String, dynamic>)
-        : null,
-    aiAnalysis: json['aiAnalysis'] != null
-        ? AIAnalysis.fromJson(json['aiAnalysis'] as Map<String, dynamic>)
-        : null,
-    measurements: json['measurements'] as Map<String, dynamic>?,
-  );
+  factory ScoutCheckpoint.fromJson(Map<String, dynamic> json) =>
+      ScoutCheckpoint(
+        id: json['id'] as String,
+        location: GeoPoint.fromJson(json['location'] as Map<String, dynamic>),
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        type: CheckpointType.values.byName(json['type'] as String),
+        note: json['note'] as String?,
+        photoUrls: (json['photoUrls'] as List?)?.cast<String>() ?? [],
+        issue: json['issue'] != null
+            ? IssueDetails.fromJson(json['issue'] as Map<String, dynamic>)
+            : null,
+        aiAnalysis: json['aiAnalysis'] != null
+            ? AIAnalysis.fromJson(json['aiAnalysis'] as Map<String, dynamic>)
+            : null,
+        measurements: json['measurements'] as Map<String, dynamic>?,
+      );
 }
 
 /// نوع نقطة التفتيش
 enum CheckpointType {
-  routine,       // فحص روتيني
-  issue,         // مشكلة مكتشفة
-  sample,        // عينة
-  measurement,   // قياس
-  photo,         // صورة فقط
-  boundary,      // حدود الحقل
+  routine, // فحص روتيني
+  issue, // مشكلة مكتشفة
+  sample, // عينة
+  measurement, // قياس
+  photo, // صورة فقط
+  boundary, // حدود الحقل
 }
 
 /// تفاصيل المشكلة
@@ -217,33 +222,34 @@ class IssueDetails {
   });
 
   Map<String, dynamic> toJson() => {
-    'category': category.name,
-    'severity': severity.name,
-    'description': description,
-    'affectedAreaPercent': affectedAreaPercent,
-    'recommendations': recommendations,
-  };
+        'category': category.name,
+        'severity': severity.name,
+        'description': description,
+        'affectedAreaPercent': affectedAreaPercent,
+        'recommendations': recommendations,
+      };
 
   factory IssueDetails.fromJson(Map<String, dynamic> json) => IssueDetails(
-    category: IssueCategory.values.byName(json['category'] as String),
-    severity: IssueSeverity.values.byName(json['severity'] as String),
-    description: json['description'] as String,
-    affectedAreaPercent: json['affectedAreaPercent'] as double?,
-    recommendations: (json['recommendations'] as List?)?.cast<String>() ?? [],
-  );
+        category: IssueCategory.values.byName(json['category'] as String),
+        severity: IssueSeverity.values.byName(json['severity'] as String),
+        description: json['description'] as String,
+        affectedAreaPercent: json['affectedAreaPercent'] as double?,
+        recommendations:
+            (json['recommendations'] as List?)?.cast<String>() ?? [],
+      );
 }
 
 /// فئة المشكلة
 enum IssueCategory {
-  pest,           // آفة
-  disease,        // مرض
-  weed,           // أعشاب ضارة
-  nutrient,       // نقص غذائي
-  water,          // مشكلة مائية
-  soil,           // مشكلة تربة
-  weather,        // ضرر مناخي
-  mechanical,     // ضرر ميكانيكي
-  other,          // أخرى
+  pest, // آفة
+  disease, // مرض
+  weed, // أعشاب ضارة
+  nutrient, // نقص غذائي
+  water, // مشكلة مائية
+  soil, // مشكلة تربة
+  weather, // ضرر مناخي
+  mechanical, // ضرر ميكانيكي
+  other, // أخرى
 }
 
 /// شدة المشكلة
@@ -275,28 +281,28 @@ class AIAnalysis {
   });
 
   Map<String, dynamic> toJson() => {
-    'modelVersion': modelVersion,
-    'confidence': confidence,
-    'detectedIssue': detectedIssue,
-    'category': category?.name,
-    'severity': severity?.name,
-    'suggestions': suggestions,
-    'analyzedAt': analyzedAt.toIso8601String(),
-  };
+        'modelVersion': modelVersion,
+        'confidence': confidence,
+        'detectedIssue': detectedIssue,
+        'category': category?.name,
+        'severity': severity?.name,
+        'suggestions': suggestions,
+        'analyzedAt': analyzedAt.toIso8601String(),
+      };
 
   factory AIAnalysis.fromJson(Map<String, dynamic> json) => AIAnalysis(
-    modelVersion: json['modelVersion'] as String,
-    confidence: (json['confidence'] as num).toDouble(),
-    detectedIssue: json['detectedIssue'] as String?,
-    category: json['category'] != null
-        ? IssueCategory.values.byName(json['category'] as String)
-        : null,
-    severity: json['severity'] != null
-        ? IssueSeverity.values.byName(json['severity'] as String)
-        : null,
-    suggestions: (json['suggestions'] as List?)?.cast<String>() ?? [],
-    analyzedAt: DateTime.parse(json['analyzedAt'] as String),
-  );
+        modelVersion: json['modelVersion'] as String,
+        confidence: (json['confidence'] as num).toDouble(),
+        detectedIssue: json['detectedIssue'] as String?,
+        category: json['category'] != null
+            ? IssueCategory.values.byName(json['category'] as String)
+            : null,
+        severity: json['severity'] != null
+            ? IssueSeverity.values.byName(json['severity'] as String)
+            : null,
+        suggestions: (json['suggestions'] as List?)?.cast<String>() ?? [],
+        analyzedAt: DateTime.parse(json['analyzedAt'] as String),
+      );
 }
 
 /// نقطة جغرافية
@@ -322,7 +328,8 @@ class GeoPoint {
     final double lat1Rad = latitude * (3.14159265359 / 180);
     final double lat2Rad = other.latitude * (3.14159265359 / 180);
     final double deltaLat = (other.latitude - latitude) * (3.14159265359 / 180);
-    final double deltaLon = (other.longitude - longitude) * (3.14159265359 / 180);
+    final double deltaLon =
+        (other.longitude - longitude) * (3.14159265359 / 180);
 
     final double a = (sin(deltaLat / 2) * sin(deltaLat / 2)) +
         (cos(lat1Rad) * cos(lat2Rad) * sin(deltaLon / 2) * sin(deltaLon / 2));
@@ -381,22 +388,22 @@ class GeoPoint {
   }
 
   Map<String, dynamic> toJson() => {
-    'latitude': latitude,
-    'longitude': longitude,
-    'altitude': altitude,
-    'accuracy': accuracy,
-    'timestamp': timestamp?.toIso8601String(),
-  };
+        'latitude': latitude,
+        'longitude': longitude,
+        'altitude': altitude,
+        'accuracy': accuracy,
+        'timestamp': timestamp?.toIso8601String(),
+      };
 
   factory GeoPoint.fromJson(Map<String, dynamic> json) => GeoPoint(
-    latitude: (json['latitude'] as num).toDouble(),
-    longitude: (json['longitude'] as num).toDouble(),
-    altitude: (json['altitude'] as num?)?.toDouble(),
-    accuracy: (json['accuracy'] as num?)?.toDouble(),
-    timestamp: json['timestamp'] != null
-        ? DateTime.parse(json['timestamp'] as String)
-        : null,
-  );
+        latitude: (json['latitude'] as num).toDouble(),
+        longitude: (json['longitude'] as num).toDouble(),
+        altitude: (json['altitude'] as num?)?.toDouble(),
+        accuracy: (json['accuracy'] as num?)?.toDouble(),
+        timestamp: json['timestamp'] != null
+            ? DateTime.parse(json['timestamp'] as String)
+            : null,
+      );
 }
 
 /// ملخص جلسة المسح
@@ -426,30 +433,36 @@ class ScoutSessionSummary {
   });
 
   Map<String, dynamic> toJson() => {
-    'totalCheckpoints': totalCheckpoints,
-    'issuesFound': issuesFound,
-    'photosCount': photosCount,
-    'distanceMeters': distanceMeters,
-    'durationMinutes': duration.inMinutes,
-    'fieldCoveragePercent': fieldCoveragePercent,
-    'issuesByCategory': issuesByCategory.map((k, v) => MapEntry(k.name, v)),
-    'issuesBySeverity': issuesBySeverity.map((k, v) => MapEntry(k.name, v)),
-    'overallHealthStatus': overallHealthStatus,
-    'recommendations': recommendations,
-  };
+        'totalCheckpoints': totalCheckpoints,
+        'issuesFound': issuesFound,
+        'photosCount': photosCount,
+        'distanceMeters': distanceMeters,
+        'durationMinutes': duration.inMinutes,
+        'fieldCoveragePercent': fieldCoveragePercent,
+        'issuesByCategory': issuesByCategory.map((k, v) => MapEntry(k.name, v)),
+        'issuesBySeverity': issuesBySeverity.map((k, v) => MapEntry(k.name, v)),
+        'overallHealthStatus': overallHealthStatus,
+        'recommendations': recommendations,
+      };
 
-  factory ScoutSessionSummary.fromJson(Map<String, dynamic> json) => ScoutSessionSummary(
-    totalCheckpoints: json['totalCheckpoints'] as int,
-    issuesFound: json['issuesFound'] as int,
-    photosCount: json['photosCount'] as int,
-    distanceMeters: (json['distanceMeters'] as num).toDouble(),
-    duration: Duration(minutes: json['durationMinutes'] as int),
-    fieldCoveragePercent: (json['fieldCoveragePercent'] as num).toDouble(),
-    issuesByCategory: (json['issuesByCategory'] as Map<String, dynamic>?)
-        ?.map((k, v) => MapEntry(IssueCategory.values.byName(k), v as int)) ?? {},
-    issuesBySeverity: (json['issuesBySeverity'] as Map<String, dynamic>?)
-        ?.map((k, v) => MapEntry(IssueSeverity.values.byName(k), v as int)) ?? {},
-    overallHealthStatus: json['overallHealthStatus'] as String?,
-    recommendations: (json['recommendations'] as List?)?.cast<String>() ?? [],
-  );
+  factory ScoutSessionSummary.fromJson(Map<String, dynamic> json) =>
+      ScoutSessionSummary(
+        totalCheckpoints: json['totalCheckpoints'] as int,
+        issuesFound: json['issuesFound'] as int,
+        photosCount: json['photosCount'] as int,
+        distanceMeters: (json['distanceMeters'] as num).toDouble(),
+        duration: Duration(minutes: json['durationMinutes'] as int),
+        fieldCoveragePercent: (json['fieldCoveragePercent'] as num).toDouble(),
+        issuesByCategory: (json['issuesByCategory'] as Map<String, dynamic>?)
+                ?.map((k, v) =>
+                    MapEntry(IssueCategory.values.byName(k), v as int)) ??
+            {},
+        issuesBySeverity: (json['issuesBySeverity'] as Map<String, dynamic>?)
+                ?.map((k, v) =>
+                    MapEntry(IssueSeverity.values.byName(k), v as int)) ??
+            {},
+        overallHealthStatus: json['overallHealthStatus'] as String?,
+        recommendations:
+            (json['recommendations'] as List?)?.cast<String>() ?? [],
+      );
 }

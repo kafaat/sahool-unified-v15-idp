@@ -53,7 +53,8 @@ class SahoolMetricsCard extends StatelessWidget {
                 const Spacer(),
                 if (subValue != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -270,10 +271,13 @@ class SahoolFieldStatusCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildActionButton(Icons.insights, 'تحليل', SahoolProColors.johnGreen),
+                  _buildActionButton(
+                      Icons.insights, 'تحليل', SahoolProColors.johnGreen),
                   _buildActionButton(Icons.water_drop, 'ري', Colors.blue),
-                  _buildActionButton(Icons.bug_report, 'فحص', SahoolProColors.warningOrange),
-                  _buildActionButton(Icons.edit, 'تعديل', SahoolProColors.textMedium),
+                  _buildActionButton(
+                      Icons.bug_report, 'فحص', SahoolProColors.warningOrange),
+                  _buildActionButton(
+                      Icons.edit, 'تعديل', SahoolProColors.textMedium),
                 ],
               ),
             ],

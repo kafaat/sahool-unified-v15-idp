@@ -174,7 +174,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -219,7 +219,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: (needs.changes.outputs.node == 'true' || needs.changes.outputs.packages == 'true') && github.event.inputs.skip_cache != 'true'
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.npm
@@ -269,7 +269,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -449,26 +449,19 @@ jobs:
       max-parallel: 6  # Limit parallel jobs to avoid resource contention
       matrix:
         service:
-          # Active Python services
-          - apps/services/crop-growth-model
+          # Active Python services with tests
           - apps/services/indicators-service
-          - apps/services/iot-service
           - apps/services/crop-intelligence-service
           - apps/services/irrigation-smart
-          - apps/services/yield-engine
           - apps/services/vegetation-analysis-service
           - apps/services/advisory-service
           - apps/services/weather-service
-          # Note: field-management-service is Node.js, not Python
           # ─────────────────────────────────────────────────────────────
-          # DEPRECATED services (kept for backward compatibility)
-          # See docs/DEPRECATED_SERVICES.md for migration guide
+          # Removed from Python matrix:
+          # - crop-growth-model  → Node.js service (in test-node matrix)
+          # - iot-service        → Node.js service (in test-node matrix)
+          # - yield-engine       → Archived (→ yield-prediction-service)
           # ─────────────────────────────────────────────────────────────
-          # - apps/services/satellite-service      # → vegetation-analysis-service
-          # - apps/services/weather-advanced       # → weather-service
-          # - apps/services/crop-health-ai         # → crop-intelligence-service
-          # - apps/services/fertilizer-advisor     # → advisory-service
-          # - apps/services/field-ops              # → field-management-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -480,7 +473,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -492,8 +485,21 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel --quiet
+          # Install service requirements with mirror fallback
           if [ -f "${{ matrix.service }}/requirements.txt" ]; then
-            pip install -r ${{ matrix.service }}/requirements.txt --quiet
+            pip install --timeout=300 --retries=5 \
+              --index-url https://pypi.org/simple \
+              --trusted-host pypi.org \
+              --trusted-host files.pythonhosted.org \
+              -r ${{ matrix.service }}/requirements.txt --quiet || \
+            pip install --timeout=300 --retries=5 \
+              -i https://mirrors.aliyun.com/pypi/simple/ \
+              --trusted-host mirrors.aliyun.com \
+              -r ${{ matrix.service }}/requirements.txt --quiet || \
+            pip install --timeout=300 --retries=5 \
+              -i https://mirrors.cloud.tencent.com/pypi/simple \
+              --trusted-host mirrors.cloud.tencent.com \
+              -r ${{ matrix.service }}/requirements.txt --quiet
           fi
           # Pin pytest-asyncio to compatible version (0.23.x for asyncio_mode support)
           pip install pytest "pytest-asyncio>=0.23.0,<1.0.0" pytest-cov pytest-timeout httpx fastapi pydantic "cryptography>=42.0.0" --quiet
@@ -545,7 +551,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.npm
@@ -566,12 +572,34 @@ jobs:
             npm install --legacy-peer-deps --quiet 2>/dev/null || true
           fi
 
+      - name: Build workspace packages
+        run: |
+          # Build shared workspace packages that services depend on
+          for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
+            if [ -f "$pkg/package.json" ] && grep -q '"build"' "$pkg/package.json"; then
+              echo "Building $pkg..."
+              npm run build --workspace=$pkg 2>/dev/null || true
+            fi
+          done
+
+      - name: Generate Prisma client
+        run: |
+          if [ -f "${{ matrix.service }}/prisma/schema.prisma" ]; then
+            echo "Prisma schema found in ${{ matrix.service }}, generating client..."
+            cd ${{ matrix.service }}
+            npx prisma generate
+          else
+            echo "No Prisma schema in ${{ matrix.service }} - skipping"
+          fi
+
+
+
       - name: Run tests
         run: |
           if [ -f "${{ matrix.service }}/package.json" ]; then
             cd ${{ matrix.service }}
             if grep -q '"test"' package.json; then
-              npm test 2>&1 || echo "::warning::Tests failed or not configured for ${{ matrix.service }}"
+              npm test -- --passWithNoTests 2>&1 || echo "::warning::Tests failed or not configured for ${{ matrix.service }}"
             else
               echo "No test script found in ${{ matrix.service }}/package.json - skipping tests"
             fi
@@ -749,6 +777,9 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: lint
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -789,7 +820,6 @@ jobs:
           echo "🔍 Running Trivy filesystem scan..."
           mkdir -p trivy-results
           trivy fs \
-            --skip-db-update \
             --skip-version-check \
             --scanners vuln \
             --severity CRITICAL \

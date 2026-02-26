@@ -57,6 +57,12 @@ except ImportError:
         _logger.debug("Request ID middleware not configured (module unavailable)")
 
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -152,6 +158,10 @@ async def lifespan(app: FastAPI):
     else:
         # Fallback to direct asyncpg if database module not available
         db_url = os.getenv("DATABASE_URL")
+        # Enforce sslmode for non-development database connections
+        if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+            if "sslmode" not in db_url:
+                db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
         if db_url:
             try:
                 import asyncpg
@@ -259,6 +269,8 @@ setup_cors_middleware(app)
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 # تضمين المسارات
 app.include_router(router, prefix="/api/v1", tags=["Field Intelligence"])

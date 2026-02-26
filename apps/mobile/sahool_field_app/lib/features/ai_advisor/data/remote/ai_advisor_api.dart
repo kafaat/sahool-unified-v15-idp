@@ -336,7 +336,8 @@ class RecommendationsResponse {
   });
 
   factory RecommendationsResponse.fromJson(Map<String, dynamic> json) {
-    final recs = json['recommendations'] as List? ?? json['result'] as List? ?? [];
+    final recs =
+        json['recommendations'] as List? ?? json['result'] as List? ?? [];
     return RecommendationsResponse(
       recommendations: recs
           .cast<Map<String, dynamic>>()
@@ -375,9 +376,8 @@ class Recommendation {
       description: json['description'] ?? '',
       descriptionAr: json['description_ar'] ?? json['description'] ?? '',
       priority: json['priority'] ?? 'medium',
-      dueDate: json['due_date'] != null
-          ? DateTime.tryParse(json['due_date'])
-          : null,
+      dueDate:
+          json['due_date'] != null ? DateTime.tryParse(json['due_date']) : null,
     );
   }
 }

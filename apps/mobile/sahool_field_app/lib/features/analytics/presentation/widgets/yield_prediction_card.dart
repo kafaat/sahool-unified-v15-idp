@@ -75,7 +75,8 @@ class YieldPredictionCard extends StatelessWidget {
               context,
               icon: Icons.scale,
               label: isRtl ? 'الإنتاجية المتوقعة' : 'Predicted Yield',
-              value: '${numberFormat.format(prediction.predictedYield)} ${isRtl ? 'كجم' : 'kg'}',
+              value:
+                  '${numberFormat.format(prediction.predictedYield)} ${isRtl ? 'كجم' : 'kg'}',
               color: Colors.green,
             ),
 

@@ -33,12 +33,14 @@ class AiMemoryTable extends Table {
 
   // Request/Response data
   TextColumn get request => text()(); // JSON: { query, context, params }
-  TextColumn get response => text().nullable()(); // JSON: { result, confidence, sources }
+  TextColumn get response =>
+      text().nullable()(); // JSON: { result, confidence, sources }
 
   // Execution metrics
   IntColumn get executionTimeMs => integer().nullable()();
   RealColumn get confidence => real().nullable()(); // 0.0 - 1.0
-  TextColumn get status => text().withDefault(const Constant('pending'))(); // pending, success, error
+  TextColumn get status => text()
+      .withDefault(const Constant('pending'))(); // pending, success, error
 
   // Error tracking
   TextColumn get errorMessage => text().nullable()();
@@ -99,7 +101,8 @@ class AiKnowledgeBaseTable extends Table {
 
   // Knowledge classification
   TextColumn get knowledgeType => text()(); // pattern, recommendation, warning
-  TextColumn get domain => text().nullable()(); // field_health, irrigation, fertilizer
+  TextColumn get domain =>
+      text().nullable()(); // field_health, irrigation, fertilizer
 
   // Knowledge content
   TextColumn get condition => text()(); // JSON: triggers/conditions
@@ -116,7 +119,8 @@ class AiKnowledgeBaseTable extends Table {
   TextColumn get metadata => text().nullable()(); // Additional JSON metadata
 
   // Timestamps
-  DateTimeColumn get discoveredAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get discoveredAt =>
+      dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get lastValidatedAt => dateTime().nullable()();
 
   @override
@@ -168,22 +172,22 @@ class FarmMemoryService {
     final checksum = _calculateChecksum(response ?? request);
 
     final result = await _db.into(_db.aiMemoryTable).insert(
-      AiMemoryTableCompanion.insert(
-        tenantId: tenantId,
-        fieldId: Value(fieldId),
-        farmId: Value(farmId),
-        skillName: skillName,
-        request: jsonEncode(request),
-        response: Value(response != null ? jsonEncode(response) : null),
-        executionTimeMs: Value(executionTime.inMilliseconds),
-        confidence: Value(confidence),
-        status: Value(response != null ? 'success' : 'error'),
-        errorMessage: Value(errorMessage),
-        errorStack: Value(errorStack),
-        completedAt: Value(response != null ? DateTime.now() : null),
-        syncChecksum: Value(checksum),
-      ),
-    );
+          AiMemoryTableCompanion.insert(
+            tenantId: tenantId,
+            fieldId: Value(fieldId),
+            farmId: Value(farmId),
+            skillName: skillName,
+            request: jsonEncode(request),
+            response: Value(response != null ? jsonEncode(response) : null),
+            executionTimeMs: Value(executionTime.inMilliseconds),
+            confidence: Value(confidence),
+            status: Value(response != null ? 'success' : 'error'),
+            errorMessage: Value(errorMessage),
+            errorStack: Value(errorStack),
+            completedAt: Value(response != null ? DateTime.now() : null),
+            syncChecksum: Value(checksum),
+          ),
+        );
 
     return result;
   }
@@ -238,7 +242,8 @@ class FarmMemoryService {
   }
 
   /// Clean up old memory entries
-  Future<int> cleanupOldMemory({Duration olderThan = const Duration(days: 30)}) async {
+  Future<int> cleanupOldMemory(
+      {Duration olderThan = const Duration(days: 30)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
     return (_db.delete(_db.aiMemoryTable)
           ..where((m) => m.createdAt.isSmallerThanValue(cutoff)))
@@ -269,16 +274,16 @@ class FarmMemoryService {
     }
 
     return _db.into(_db.aiContextCacheTable).insert(
-      AiContextCacheTableCompanion.insert(
-        tenantId: tenantId,
-        fieldId: fieldId,
-        context: jsonEncode(context),
-        contextHash: hash,
-        sizeBytes: sizeBytes,
-        compressionRatio: Value(compressionRatio),
-        expiresAt: DateTime.now().add(ttl),
-      ),
-    );
+          AiContextCacheTableCompanion.insert(
+            tenantId: tenantId,
+            fieldId: fieldId,
+            context: jsonEncode(context),
+            contextHash: hash,
+            sizeBytes: sizeBytes,
+            compressionRatio: Value(compressionRatio),
+            expiresAt: DateTime.now().add(ttl),
+          ),
+        );
   }
 
   /// Get cached context
@@ -294,11 +299,11 @@ class FarmMemoryService {
 
     // Update access metadata
     await _db.update(_db.aiContextCacheTable).replace(
-      item.copyWith(
-        accessCount: item.accessCount + 1,
-        lastAccessedAt: DateTime.now(),
-      ),
-    );
+          item.copyWith(
+            accessCount: item.accessCount + 1,
+            lastAccessedAt: DateTime.now(),
+          ),
+        );
 
     return jsonDecode(item.context) as Map<String, dynamic>;
   }
@@ -320,9 +325,13 @@ class FarmMemoryService {
 
     return {
       'total_entries': items.length,
-      'total_size_bytes': items.fold<int>(0, (sum, item) => sum + item.sizeBytes),
-      'avg_compression_ratio':
-          items.isEmpty ? 0 : items.fold<double>(0, (sum, item) => sum + (item.compressionRatio ?? 1)) / items.length,
+      'total_size_bytes':
+          items.fold<int>(0, (sum, item) => sum + item.sizeBytes),
+      'avg_compression_ratio': items.isEmpty
+          ? 0
+          : items.fold<double>(
+                  0, (sum, item) => sum + (item.compressionRatio ?? 1)) /
+              items.length,
       'hot_fields': items.map((i) => i.fieldId).toSet().length,
     };
   }
@@ -350,18 +359,18 @@ class FarmMemoryService {
     }
 
     return _db.into(_db.aiKnowledgeBaseTable).insert(
-      AiKnowledgeBaseTableCompanion.insert(
-        tenantId: tenantId,
-        knowledgeType: knowledgeType,
-        domain: Value(domain),
-        condition: jsonEncode(condition),
-        recommendation: recommendation,
-        reasoning: Value(reasoning),
-        accuracy: accuracy,
-        sourceSkill: sourceSkill,
-        metadata: Value(metadata != null ? jsonEncode(metadata) : null),
-      ),
-    );
+          AiKnowledgeBaseTableCompanion.insert(
+            tenantId: tenantId,
+            knowledgeType: knowledgeType,
+            domain: Value(domain),
+            condition: jsonEncode(condition),
+            recommendation: recommendation,
+            reasoning: Value(reasoning),
+            accuracy: accuracy,
+            sourceSkill: sourceSkill,
+            metadata: Value(metadata != null ? jsonEncode(metadata) : null),
+          ),
+        );
   }
 
   /// Get applicable knowledge for a condition
@@ -403,13 +412,13 @@ class FarmMemoryService {
         : item.accuracy;
 
     await _db.update(_db.aiKnowledgeBaseTable).replace(
-      item.copyWith(
-        applicableCount: newApplicableCount,
-        successCount: newSuccessCount,
-        accuracy: newAccuracy,
-        lastValidatedAt: DateTime.now(),
-      ),
-    );
+          item.copyWith(
+            applicableCount: newApplicableCount,
+            successCount: newSuccessCount,
+            accuracy: newAccuracy,
+            lastValidatedAt: DateTime.now(),
+          ),
+        );
   }
 
   // ============================================================

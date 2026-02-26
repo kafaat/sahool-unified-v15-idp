@@ -217,11 +217,10 @@ class CertificatePinningService {
       for (final pin in entry.value) {
         if (placeholderValues.contains(pin.value.toLowerCase())) {
           throw Exception(
-            '⛔ SECURITY ERROR: Placeholder certificate pin detected for ${entry.key}!\n'
-            'You MUST replace placeholder values with actual certificate fingerprints before production deployment.\n'
-            'Use: ./scripts/generate_cert_pins.sh ${entry.key}\n'
-            'Or: final fingerprint = await getCertificateFingerprintFromUrl("https://${entry.key}");'
-          );
+              '⛔ SECURITY ERROR: Placeholder certificate pin detected for ${entry.key}!\n'
+              'You MUST replace placeholder values with actual certificate fingerprints before production deployment.\n'
+              'Use: ./scripts/generate_cert_pins.sh ${entry.key}\n'
+              'Or: final fingerprint = await getCertificateFingerprintFromUrl("https://${entry.key}");');
         }
       }
     }
@@ -261,21 +260,24 @@ class CertificatePinningService {
         // Primary certificate pin - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Production primary certificate',
         ),
         // Backup pin for certificate rotation - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Production backup certificate for rotation',
         ),
         // Additional backup for seamless rotation - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+          value:
+              'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
           expiryDate: DateTime(2027, 12, 31),
           description: 'Production tertiary certificate',
         ),
@@ -285,14 +287,16 @@ class CertificatePinningService {
         // Wildcard certificate - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Wildcard certificate for *.sahool.io',
         ),
         // Backup for wildcard certificate rotation - Using same cert for redundancy
         CertificatePin(
           type: PinType.sha256,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Wildcard backup certificate',
         ),
@@ -305,13 +309,15 @@ class CertificatePinningService {
       'api-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Staging primary certificate (using production cert)',
         ),
         CertificatePin(
           type: PinType.sha256,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Staging backup certificate (using production cert)',
         ),
@@ -331,8 +337,11 @@ class CertificatePinningService {
     // In debug mode, optionally bypass pinning for development
     if (kDebugMode && allowDebugBypass) {
       if (kDebugMode) {
-        AppLogger.w('Certificate pinning bypassed in debug mode', tag: 'CertificatePinning');
-        AppLogger.w('Set allowDebugBypass=false to test pinning in debug builds', tag: 'CertificatePinning');
+        AppLogger.w('Certificate pinning bypassed in debug mode',
+            tag: 'CertificatePinning');
+        AppLogger.w(
+            'Set allowDebugBypass=false to test pinning in debug builds',
+            tag: 'CertificatePinning');
       }
       return;
     }
@@ -351,8 +360,14 @@ class CertificatePinningService {
 
             if (kDebugMode) {
               if (!isValid) {
-                AppLogger.e('Certificate validation failed', tag: 'CertificatePinning', data: {'host': host, 'port': port});
-                AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {'pins': _getPinsForHost(host).map((p) => p.value.substring(0, 16)).join(", ")});
+                AppLogger.e('Certificate validation failed',
+                    tag: 'CertificatePinning',
+                    data: {'host': host, 'port': port});
+                AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {
+                  'pins': _getPinsForHost(host)
+                      .map((p) => p.value.substring(0, 16))
+                      .join(", ")
+                });
               }
             }
 
@@ -363,17 +378,23 @@ class CertificatePinningService {
         };
 
         if (kDebugMode) {
-          AppLogger.i('Certificate pinning configured for Dio HTTP client', tag: 'CertificatePinning');
-          AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(", ")});
+          AppLogger.i('Certificate pinning configured for Dio HTTP client',
+              tag: 'CertificatePinning');
+          AppLogger.i('Configured domains',
+              tag: 'CertificatePinning',
+              data: {'domains': getConfiguredDomains().join(", ")});
         }
       } else {
         if (kDebugMode) {
-          AppLogger.w('Cannot configure certificate pinning: adapter is not IOHttpClientAdapter', tag: 'CertificatePinning');
+          AppLogger.w(
+              'Cannot configure certificate pinning: adapter is not IOHttpClientAdapter',
+              tag: 'CertificatePinning');
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        AppLogger.e('Error configuring certificate pinning', tag: 'CertificatePinning', error: e);
+        AppLogger.e('Error configuring certificate pinning',
+            tag: 'CertificatePinning', error: e);
       }
       // In production, we might want to throw here to ensure security
       if (!kDebugMode && enforceStrict) {
@@ -391,7 +412,8 @@ class CertificatePinningService {
       if (pins.isEmpty) {
         if (enforceStrict) {
           if (kDebugMode) {
-            AppLogger.e('No certificate pins configured for host', tag: 'CertificatePinning', data: {'host': host});
+            AppLogger.e('No certificate pins configured for host',
+                tag: 'CertificatePinning', data: {'host': host});
           }
           return false;
         }
@@ -403,27 +425,33 @@ class CertificatePinningService {
       for (final pin in pins) {
         if (pin.isExpired) {
           if (kDebugMode) {
-            AppLogger.w('Pin expired for host', tag: 'CertificatePinning', data: {'host': host});
+            AppLogger.w('Pin expired for host',
+                tag: 'CertificatePinning', data: {'host': host});
           }
           continue;
         }
 
         if (_matchPin(cert, pin)) {
           if (kDebugMode) {
-            AppLogger.d('Certificate pin matched for host', tag: 'CertificatePinning', data: {'host': host});
+            AppLogger.d('Certificate pin matched for host',
+                tag: 'CertificatePinning', data: {'host': host});
           }
           return true;
         }
       }
 
       if (kDebugMode) {
-        AppLogger.e('Certificate validation failed for host', tag: 'CertificatePinning', data: {'host': host});
-        AppLogger.e('Certificate fingerprint', tag: 'CertificatePinning', data: {'fingerprint': _getCertificateFingerprint(cert)});
+        AppLogger.e('Certificate validation failed for host',
+            tag: 'CertificatePinning', data: {'host': host});
+        AppLogger.e('Certificate fingerprint',
+            tag: 'CertificatePinning',
+            data: {'fingerprint': _getCertificateFingerprint(cert)});
       }
       return false;
     } catch (e) {
       if (kDebugMode) {
-        AppLogger.e('Error validating certificate', tag: 'CertificatePinning', error: e);
+        AppLogger.e('Error validating certificate',
+            tag: 'CertificatePinning', error: e);
       }
       return false;
     }
@@ -474,7 +502,8 @@ class CertificatePinningService {
     final publicKeyHash = sha256.convert(publicKeyBytes);
     final publicKeyFingerprint = publicKeyHash.toString();
 
-    return publicKeyFingerprint.toLowerCase() == expectedPublicKey.toLowerCase();
+    return publicKeyFingerprint.toLowerCase() ==
+        expectedPublicKey.toLowerCase();
   }
 
   /// Get certificate SHA256 fingerprint
@@ -573,7 +602,8 @@ Certificate Info:
         // Validate public key format
         if (pin.type == PinType.publicKey) {
           if (!_isValidSha256Format(pin.value)) {
-            errors.add('$pinId has invalid public key hash format: "${pin.value}"');
+            errors.add(
+                '$pinId has invalid public key hash format: "${pin.value}"');
             errors.add('  Expected: 64 hexadecimal characters (a-f, A-F, 0-9)');
           }
         }
@@ -584,7 +614,9 @@ Certificate Info:
         }
 
         // Warn about pins expiring soon
-        if (pin.daysUntilExpiry != null && pin.daysUntilExpiry! < 30 && !pin.isExpired) {
+        if (pin.daysUntilExpiry != null &&
+            pin.daysUntilExpiry! < 30 &&
+            !pin.isExpired) {
           errors.add('$pinId expires soon (in ${pin.daysUntilExpiry} days)');
         }
       }
@@ -606,18 +638,25 @@ Certificate Info:
 
     if (errors.isEmpty) {
       if (kDebugMode) {
-        AppLogger.i('Certificate pin configuration is valid', tag: 'CertificatePinning');
-        AppLogger.i('Configured domains', tag: 'CertificatePinning', data: {'domains': getConfiguredDomains().join(", ")});
+        AppLogger.i('Certificate pin configuration is valid',
+            tag: 'CertificatePinning');
+        AppLogger.i('Configured domains',
+            tag: 'CertificatePinning',
+            data: {'domains': getConfiguredDomains().join(", ")});
         for (final domain in getConfiguredDomains()) {
           final pins = _certificatePins[domain]!;
-          AppLogger.d('Domain pins', tag: 'CertificatePinning', data: {'domain': domain, 'count': pins.length});
+          AppLogger.d('Domain pins',
+              tag: 'CertificatePinning',
+              data: {'domain': domain, 'count': pins.length});
         }
       }
     } else {
       if (kDebugMode) {
-        AppLogger.w('Certificate pin configuration has issues', tag: 'CertificatePinning', data: {'issueCount': errors.length});
+        AppLogger.w('Certificate pin configuration has issues',
+            tag: 'CertificatePinning', data: {'issueCount': errors.length});
         for (final error in errors) {
-          AppLogger.w('Configuration issue', tag: 'CertificatePinning', data: {'error': error});
+          AppLogger.w('Configuration issue',
+              tag: 'CertificatePinning', data: {'error': error});
         }
       }
     }
@@ -722,7 +761,8 @@ Future<String?> getCertificateFingerprintFromUrl(String url) async {
     return fingerprint;
   } catch (e) {
     if (kDebugMode) {
-      AppLogger.e('Error getting certificate fingerprint', tag: 'CertificatePinning', error: e);
+      AppLogger.e('Error getting certificate fingerprint',
+          tag: 'CertificatePinning', error: e);
     }
     return null;
   }

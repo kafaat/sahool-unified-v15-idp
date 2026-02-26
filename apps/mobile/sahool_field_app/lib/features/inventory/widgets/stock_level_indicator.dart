@@ -24,8 +24,10 @@ class StockLevelIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percentage = maxCapacity > 0 ? (current / maxCapacity).clamp(0.0, 1.0) : 0.0;
-    final reorderPercentage = maxCapacity > 0 ? (reorderLevel / maxCapacity).clamp(0.0, 1.0) : 0.0;
+    final percentage =
+        maxCapacity > 0 ? (current / maxCapacity).clamp(0.0, 1.0) : 0.0;
+    final reorderPercentage =
+        maxCapacity > 0 ? (reorderLevel / maxCapacity).clamp(0.0, 1.0) : 0.0;
 
     // تحديد اللون بناءً على المستوى
     Color getColor() {
@@ -74,7 +76,8 @@ class StockLevelIndicator extends StatelessWidget {
             // خط مستوى إعادة الطلب
             if (reorderPercentage > 0)
               Positioned(
-                left: reorderPercentage * MediaQuery.of(context).size.width * 0.9,
+                left:
+                    reorderPercentage * MediaQuery.of(context).size.width * 0.9,
                 top: 0,
                 bottom: 0,
                 child: Container(

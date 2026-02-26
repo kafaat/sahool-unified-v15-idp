@@ -154,8 +154,7 @@ class LunarMansionCard extends StatelessWidget {
                     children: mansion.crops
                         .map((crop) => Chip(
                               label: Text(crop),
-                              backgroundColor:
-                                  Colors.green.withOpacity(0.1),
+                              backgroundColor: Colors.green.withOpacity(0.1),
                             ))
                         .toList(),
                   ),

@@ -10,7 +10,8 @@ import '../../../mocks/mock_network_status.dart';
 import '../../../fixtures/sample_tasks.dart';
 
 // Import NotFoundException for tests
-export 'package:sahool_field_app/core/error_handling/app_exceptions.dart' show NotFoundException;
+export 'package:sahool_field_app/core/error_handling/app_exceptions.dart'
+    show NotFoundException;
 
 /// Mock TasksApi for testing
 class MockTasksApi extends Mock implements TasksApi {}
@@ -66,8 +67,10 @@ void main() {
 
       test('should only return tasks for specified tenant', () async {
         // Arrange
-        final task1 = SampleTasks.createPendingTask(id: 'task_t1', tenantId: 'tenant_1');
-        final task2 = SampleTasks.createPendingTask(id: 'task_t2', tenantId: 'tenant_2');
+        final task1 =
+            SampleTasks.createPendingTask(id: 'task_t1', tenantId: 'tenant_1');
+        final task2 =
+            SampleTasks.createPendingTask(id: 'task_t2', tenantId: 'tenant_2');
 
         mockDatabase.seedTask(task1);
         mockDatabase.seedTask(task2);
@@ -87,7 +90,8 @@ void main() {
         const fieldId = 'field_001';
         final task1 = SampleTasks.createPendingTask(fieldId: fieldId);
         final task2 = SampleTasks.createCompletedTask(fieldId: fieldId);
-        final task3 = SampleTasks.createPendingTask(id: 'task_f2', fieldId: 'field_002');
+        final task3 =
+            SampleTasks.createPendingTask(id: 'task_f2', fieldId: 'field_002');
 
         mockDatabase.seedTask(task1);
         mockDatabase.seedTask(task2);
@@ -107,8 +111,10 @@ void main() {
         // Arrange
         const tenantId = 'tenant_test';
         final pendingTask = SampleTasks.createPendingTask(tenantId: tenantId);
-        final inProgressTask = SampleTasks.createInProgressTask(tenantId: tenantId);
-        final completedTask = SampleTasks.createCompletedTask(tenantId: tenantId);
+        final inProgressTask =
+            SampleTasks.createInProgressTask(tenantId: tenantId);
+        final completedTask =
+            SampleTasks.createCompletedTask(tenantId: tenantId);
 
         mockDatabase.seedTask(pendingTask);
         mockDatabase.seedTask(inProgressTask);
@@ -330,7 +336,8 @@ void main() {
         );
       });
 
-      test('should throw ValidationException for whitespace-only title', () async {
+      test('should throw ValidationException for whitespace-only title',
+          () async {
         // Act & Assert
         await expectLater(
           tasksRepo.createTask(
@@ -381,7 +388,8 @@ void main() {
 
         // Assert
         expect(count, serverTasks.length);
-        verify(() => mockApi.fetchTasks(fieldId: any(named: 'fieldId'))).called(1);
+        verify(() => mockApi.fetchTasks(fieldId: any(named: 'fieldId')))
+            .called(1);
       });
     });
 
@@ -453,10 +461,12 @@ void main() {
 
         // Assert
         final outboxItems = await mockDatabase.getPendingOutbox();
-        expect(outboxItems.any((item) =>
-            item.entityType == 'task' &&
-            item.entityId == taskId &&
-            item.method == 'PUT'), isTrue);
+        expect(
+            outboxItems.any((item) =>
+                item.entityType == 'task' &&
+                item.entityId == taskId &&
+                item.method == 'PUT'),
+            isTrue);
       });
 
       test('should throw NotFoundException for nonexistent task', () async {
@@ -495,10 +505,12 @@ void main() {
 
         // Assert
         final outboxItems = await mockDatabase.getPendingOutbox();
-        expect(outboxItems.any((item) =>
-            item.entityType == 'task' &&
-            item.entityId == taskId &&
-            item.method == 'DELETE'), isTrue);
+        expect(
+            outboxItems.any((item) =>
+                item.entityType == 'task' &&
+                item.entityId == taskId &&
+                item.method == 'DELETE'),
+            isTrue);
       });
 
       test('should throw NotFoundException for nonexistent task', () async {

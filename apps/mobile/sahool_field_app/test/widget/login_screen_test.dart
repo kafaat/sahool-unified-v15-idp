@@ -79,7 +79,8 @@ void main() {
       expect(find.text('رقم الهاتف يجب أن يكون 9 أرقام'), findsNothing);
     });
 
-    testWidgets('should show loading indicator when submitting', (tester) async {
+    testWidgets('should show loading indicator when submitting',
+        (tester) async {
       bool isLoading = false;
 
       await tester.pumpWidget(
@@ -102,7 +103,8 @@ void main() {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Text('تسجيل الدخول'),
                       ),
@@ -140,10 +142,12 @@ void main() {
       expect(finder, findsOneWidget);
 
       final widget = tester.widget<Directionality>(
-        find.ancestor(
-          of: finder,
-          matching: find.byType(Directionality),
-        ).first,
+        find
+            .ancestor(
+              of: finder,
+              matching: find.byType(Directionality),
+            )
+            .first,
       );
       expect(widget.textDirection, TextDirection.rtl);
     });

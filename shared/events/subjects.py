@@ -104,6 +104,50 @@ SAHOOL_HEALTH_STRESS_ALL = "sahool.health.stress.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Digital Twin Subjects - موضوعات التوأم الرقمي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted when a new field observation (NDVI, LAI, sensor) is ingested
+SAHOOL_FIELD_OBSERVATION_INGESTED = "sahool.field.observation.ingested.v1"
+
+# Emitted after the daily twin step (pipeline + optional assimilation)
+SAHOOL_FIELD_STATE_UPDATED = "sahool.field.state.updated.v1"
+
+# Emitted when an irrigation recommendation is ready
+SAHOOL_IRRIGATION_RECOMMENDATION_READY = "sahool.irrigation.recommendation.ready.v1"
+
+# Wildcards
+SAHOOL_DIGITAL_TWIN_ALL = "sahool.field.state.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Calibration Subjects - موضوعات المعايرة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted when a calibration run is queued
+SAHOOL_CALIBRATION_RUN_QUEUED = "sahool.calibration.run.queued.v1"
+
+# Emitted when a calibration run starts processing
+SAHOOL_CALIBRATION_RUN_STARTED = "sahool.calibration.run.started.v1"
+
+# Emitted when a calibration run succeeds
+SAHOOL_CALIBRATION_RUN_SUCCEEDED = "sahool.calibration.run.succeeded.v1"
+
+# Emitted when a calibration run fails
+SAHOOL_CALIBRATION_RUN_FAILED = "sahool.calibration.run.failed.v1"
+
+# Emitted when a parameter set is promoted to active
+SAHOOL_CALIBRATION_PARAMS_ACTIVATED = "sahool.calibration.parameters.activated.v1"
+
+# Emitted when a parameter set is deprecated (replaced by a new active set)
+SAHOOL_CALIBRATION_PARAMS_DEPRECATED = "sahool.calibration.parameters.deprecated.v1"
+
+# Wildcards
+SAHOOL_CALIBRATION_ALL = "sahool.calibration.>"
+SAHOOL_CALIBRATION_RUN_ALL = "sahool.calibration.run.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Inventory Subjects - موضوعات المخزون
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -113,6 +157,7 @@ SAHOOL_INVENTORY_BATCH_EXPIRED = "sahool.inventory.batch.expired"
 SAHOOL_INVENTORY_BATCH_EXPIRING = "sahool.inventory.batch.expiring"
 SAHOOL_INVENTORY_RESTOCKED = "sahool.inventory.restocked"
 SAHOOL_INVENTORY_ADJUSTED = "sahool.inventory.adjusted"
+SAHOOL_INVENTORY_ALERT = "sahool.inventory.alert"
 
 # Product events
 SAHOOL_INVENTORY_PRODUCT_CREATED = "sahool.inventory.product.created"
@@ -387,6 +432,167 @@ SAHOOL_SYSTEM_ALL = "sahool.system.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Indicators Subjects - موضوعات المؤشرات
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_INDICATORS_COMPUTED = "sahool.indicators.computed"
+SAHOOL_INDICATORS_STORED = "sahool.indicators.stored"
+SAHOOL_INDICATORS_DELETED = "sahool.indicators.deleted"
+SAHOOL_INDICATORS_FIELD_SUMMARY = "sahool.indicators.field_summary"
+SAHOOL_INDICATORS_DASHBOARD_COMPUTED = "sahool.indicators.dashboard_computed"
+SAHOOL_INDICATORS_ALERTS_RETRIEVED = "sahool.indicators.alerts_retrieved"
+SAHOOL_INDICATORS_TREND_ANALYZED = "sahool.indicators.trend_analyzed"
+
+SAHOOL_INDICATORS_ALL = "sahool.indicators.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Skills Subjects - موضوعات المهارات
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_SKILLS_EVALUATED = "sahool.skills.evaluated"
+SAHOOL_SKILLS_ASSESSED = "sahool.skills.assessed"
+SAHOOL_SKILLS_LEARNING_PATH_CREATED = "sahool.skills.learning_path_created"
+
+SAHOOL_SKILLS_ALL = "sahool.skills.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cooperative Subjects - موضوعات التعاونيات
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_COOPERATIVE_CREATED = "sahool.cooperative.created"
+SAHOOL_COOPERATIVE_MEMBER_ADDED = "sahool.cooperative.member_added"
+
+SAHOOL_COOPERATIVE_ALL = "sahool.cooperative.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Drone Subjects - موضوعات الطائرات بدون طيار
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_DRONE_FLIGHT_PLANNED = "sahool.drone.flight_planned"
+SAHOOL_DRONE_MISSION_CREATED = "sahool.drone.mission_created"
+SAHOOL_DRONE_MISSION_STARTED = "sahool.drone.mission_started"
+SAHOOL_DRONE_MISSION_ABORTED = "sahool.drone.mission_aborted"
+
+SAHOOL_DRONE_ALL = "sahool.drone.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Traceability Subjects - موضوعات التتبع
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_TRACEABILITY_BATCH_CREATED = "sahool.traceability.batch_created"
+SAHOOL_TRACEABILITY_HARVEST_RECORDED = "sahool.traceability.harvest_recorded"
+
+SAHOOL_TRACEABILITY_ALL = "sahool.traceability.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Compliance Subjects - موضوعات الامتثال
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_COMPLIANCE_UPDATED = "sahool.compliance.updated"
+SAHOOL_COMPLIANCE_AUDIT_COMPLETED = "sahool.compliance.audit.completed"
+SAHOOL_COMPLIANCE_NON_CONFORMITY_CREATED = "sahool.compliance.non_conformity.created"
+SAHOOL_COMPLIANCE_NON_CONFORMITY_RESOLVED = "sahool.compliance.non_conformity.resolved"
+SAHOOL_COMPLIANCE_CERTIFICATE_CREATED = "sahool.compliance.certificate.created"
+SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED = "sahool.compliance.certificate.renewed"
+SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED = "sahool.compliance.certificate.expired"
+
+SAHOOL_COMPLIANCE_ALL = "sahool.compliance.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Copilot Subjects - موضوعات المساعد الذكي
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_COPILOT_CHAT_STARTED = "sahool.copilot.chat_started"
+SAHOOL_COPILOT_CHAT_COMPLETED = "sahool.copilot.chat_completed"
+SAHOOL_COPILOT_CHAT_FAILED = "sahool.copilot.chat_failed"
+SAHOOL_COPILOT_TOOL_EXECUTED = "sahool.copilot.tool_executed"
+SAHOOL_COPILOT_TOOL_BLOCKED = "sahool.copilot.tool_blocked"
+SAHOOL_COPILOT_PROMPT_INJECTION = "sahool.copilot.prompt_injection_detected"
+SAHOOL_COPILOT_RATE_LIMIT = "sahool.copilot.rate_limit_exceeded"
+
+SAHOOL_COPILOT_ALL = "sahool.copilot.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Soil Subjects - موضوعات التربة
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_SOIL_TEST_CREATED = "sahool.soil.test_created"
+SAHOOL_SOIL_TEST_INTERPRETED = "sahool.soil.test_interpreted"
+SAHOOL_SOIL_AMENDMENT_PLAN_GENERATED = "sahool.soil.amendment_plan_generated"
+SAHOOL_SOIL_TRENDS_ANALYZED = "sahool.soil.trends_analyzed"
+
+SAHOOL_SOIL_ALL = "sahool.soil.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Crop Intelligence Subjects - موضوعات ذكاء المحاصيل
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_CROP_DISEASE_DETECTED = "sahool.crop.disease_detected"
+SAHOOL_CROP_HEALTH_ASSESSED = "sahool.crop.health_assessed"
+
+SAHOOL_CROP_ALL = "sahool.crop.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Config Subjects - موضوعات التكوين
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_CONFIG_UPDATED = "sahool.config.updated"
+SAHOOL_CONFIG_PROVIDER_STATUS_CHANGED = "sahool.config.provider_status_changed"
+
+SAHOOL_CONFIG_ALL = "sahool.config.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Lowcode Subjects - موضوعات المحرك منخفض الكود
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_LOWCODE_MODEL_UPDATED = "sahool.lowcode.model_updated"
+SAHOOL_LOWCODE_PAGE_UPDATED = "sahool.lowcode.page_updated"
+
+SAHOOL_LOWCODE_ALL = "sahool.lowcode.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Chat Subjects - موضوعات المحادثات
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_CHAT_AI_QUERY = "sahool.chat.ai_query"
+SAHOOL_CHAT_AI_RESPONSE = "sahool.chat.ai_response"
+
+SAHOOL_CHAT_ALL = "sahool.chat.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Irrigation Extended Subjects - موضوعات الري الإضافية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
+SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
+
+SAHOOL_IRRIGATION_ALL = "sahool.irrigation.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Spray Subjects - موضوعات الرش
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_SPRAY_SCHEDULED = "sahool.spray.scheduled"
+SAHOOL_SPRAY_WINDOW = "sahool.spray.window"
+SAHOOL_SPRAY_WARNING = "sahool.spray.warning"
+
+SAHOOL_SPRAY_ALL = "sahool.spray.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Utility Functions
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -528,6 +734,78 @@ SUBJECT_REGISTRY = {
     "edge.model_deployment_failed": SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED,
     "edge.firmware_update_available": SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
     "edge.data_collected": SAHOOL_EDGE_DATA_COLLECTED,
+    # Digital Twin
+    "field.observation.ingested": SAHOOL_FIELD_OBSERVATION_INGESTED,
+    "field.state.updated": SAHOOL_FIELD_STATE_UPDATED,
+    "irrigation.recommendation.ready": SAHOOL_IRRIGATION_RECOMMENDATION_READY,
+    # Calibration
+    "calibration.run.queued": SAHOOL_CALIBRATION_RUN_QUEUED,
+    "calibration.run.started": SAHOOL_CALIBRATION_RUN_STARTED,
+    "calibration.run.succeeded": SAHOOL_CALIBRATION_RUN_SUCCEEDED,
+    "calibration.run.failed": SAHOOL_CALIBRATION_RUN_FAILED,
+    "calibration.parameters.activated": SAHOOL_CALIBRATION_PARAMS_ACTIVATED,
+    "calibration.parameters.deprecated": SAHOOL_CALIBRATION_PARAMS_DEPRECATED,
+    # Indicators
+    "indicators.computed": SAHOOL_INDICATORS_COMPUTED,
+    "indicators.stored": SAHOOL_INDICATORS_STORED,
+    "indicators.deleted": SAHOOL_INDICATORS_DELETED,
+    "indicators.field_summary": SAHOOL_INDICATORS_FIELD_SUMMARY,
+    "indicators.dashboard_computed": SAHOOL_INDICATORS_DASHBOARD_COMPUTED,
+    "indicators.alerts_retrieved": SAHOOL_INDICATORS_ALERTS_RETRIEVED,
+    "indicators.trend_analyzed": SAHOOL_INDICATORS_TREND_ANALYZED,
+    # Skills
+    "skills.evaluated": SAHOOL_SKILLS_EVALUATED,
+    "skills.assessed": SAHOOL_SKILLS_ASSESSED,
+    "skills.learning_path_created": SAHOOL_SKILLS_LEARNING_PATH_CREATED,
+    # Cooperative
+    "cooperative.created": SAHOOL_COOPERATIVE_CREATED,
+    "cooperative.member_added": SAHOOL_COOPERATIVE_MEMBER_ADDED,
+    # Drone
+    "drone.flight_planned": SAHOOL_DRONE_FLIGHT_PLANNED,
+    "drone.mission_created": SAHOOL_DRONE_MISSION_CREATED,
+    "drone.mission_started": SAHOOL_DRONE_MISSION_STARTED,
+    "drone.mission_aborted": SAHOOL_DRONE_MISSION_ABORTED,
+    # Traceability
+    "traceability.batch_created": SAHOOL_TRACEABILITY_BATCH_CREATED,
+    "traceability.harvest_recorded": SAHOOL_TRACEABILITY_HARVEST_RECORDED,
+    # Compliance
+    "compliance.updated": SAHOOL_COMPLIANCE_UPDATED,
+    "compliance.audit.completed": SAHOOL_COMPLIANCE_AUDIT_COMPLETED,
+    "compliance.non_conformity.created": SAHOOL_COMPLIANCE_NON_CONFORMITY_CREATED,
+    "compliance.non_conformity.resolved": SAHOOL_COMPLIANCE_NON_CONFORMITY_RESOLVED,
+    "compliance.certificate.created": SAHOOL_COMPLIANCE_CERTIFICATE_CREATED,
+    "compliance.certificate.renewed": SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED,
+    "compliance.certificate.expired": SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED,
+    # Copilot
+    "copilot.chat_started": SAHOOL_COPILOT_CHAT_STARTED,
+    "copilot.chat_completed": SAHOOL_COPILOT_CHAT_COMPLETED,
+    "copilot.chat_failed": SAHOOL_COPILOT_CHAT_FAILED,
+    "copilot.tool_executed": SAHOOL_COPILOT_TOOL_EXECUTED,
+    "copilot.tool_blocked": SAHOOL_COPILOT_TOOL_BLOCKED,
+    # Soil
+    "soil.test_created": SAHOOL_SOIL_TEST_CREATED,
+    "soil.test_interpreted": SAHOOL_SOIL_TEST_INTERPRETED,
+    "soil.amendment_plan_generated": SAHOOL_SOIL_AMENDMENT_PLAN_GENERATED,
+    "soil.trends_analyzed": SAHOOL_SOIL_TRENDS_ANALYZED,
+    # Crop Intelligence
+    "crop.disease_detected": SAHOOL_CROP_DISEASE_DETECTED,
+    "crop.health_assessed": SAHOOL_CROP_HEALTH_ASSESSED,
+    # Config
+    "config.updated": SAHOOL_CONFIG_UPDATED,
+    "config.provider_status_changed": SAHOOL_CONFIG_PROVIDER_STATUS_CHANGED,
+    # Lowcode
+    "lowcode.model_updated": SAHOOL_LOWCODE_MODEL_UPDATED,
+    "lowcode.page_updated": SAHOOL_LOWCODE_PAGE_UPDATED,
+    # Chat
+    "chat.ai_query": SAHOOL_CHAT_AI_QUERY,
+    "chat.ai_response": SAHOOL_CHAT_AI_RESPONSE,
+    # Irrigation (extended)
+    "irrigation.applied": SAHOOL_IRRIGATION_APPLIED,
+    "irrigation.alert": SAHOOL_IRRIGATION_ALERT,
+    # Spray
+    "spray.scheduled": SAHOOL_SPRAY_SCHEDULED,
+    "spray.window": SAHOOL_SPRAY_WINDOW,
+    "spray.warning": SAHOOL_SPRAY_WARNING,
 }
 
 

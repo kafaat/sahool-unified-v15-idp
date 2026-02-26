@@ -119,7 +119,8 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   backgroundColor: Colors.orange,
-                  avatar: const Icon(Icons.cloud_off, color: Colors.white, size: 16),
+                  avatar: const Icon(Icons.cloud_off,
+                      color: Colors.white, size: 16),
                 ),
               ),
             // Toggle view
@@ -139,7 +140,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.sort_by_alpha,
-                          color: _sortBy == 'name' ? const Color(0xFF367C2B) : null),
+                          color: _sortBy == 'name'
+                              ? const Color(0xFF367C2B)
+                              : null),
                       const SizedBox(width: 8),
                       const Text('الاسم'),
                     ],
@@ -150,7 +153,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.square_foot,
-                          color: _sortBy == 'area' ? const Color(0xFF367C2B) : null),
+                          color: _sortBy == 'area'
+                              ? const Color(0xFF367C2B)
+                              : null),
                       const SizedBox(width: 8),
                       const Text('المساحة'),
                     ],
@@ -161,7 +166,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.favorite,
-                          color: _sortBy == 'health' ? const Color(0xFF367C2B) : null),
+                          color: _sortBy == 'health'
+                              ? const Color(0xFF367C2B)
+                              : null),
                       const SizedBox(width: 8),
                       const Text('الصحة'),
                     ],
@@ -185,13 +192,19 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                   leading: const Icon(Icons.error_outline, color: Colors.red),
                   actions: [
                     TextButton(
-                      onPressed: () => ref.read(fieldControllerProvider(_tenantId).notifier).clearError(),
+                      onPressed: () => ref
+                          .read(fieldControllerProvider(_tenantId).notifier)
+                          .clearError(),
                       child: const Text('إغلاق'),
                     ),
                     TextButton(
                       onPressed: () {
-                        ref.read(fieldControllerProvider(_tenantId).notifier).clearError();
-                        ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
+                        ref
+                            .read(fieldControllerProvider(_tenantId).notifier)
+                            .clearError();
+                        ref
+                            .read(fieldControllerProvider(_tenantId).notifier)
+                            .loadFields();
                       },
                       child: const Text('إعادة المحاولة'),
                     ),
@@ -477,7 +490,8 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
   void _addField() {
     // Navigate to map screen for drawing field boundary
-    context.push('/map', extra: {'mode': 'draw', 'tenantId': _tenantId}).then((_) {
+    context
+        .push('/map', extra: {'mode': 'draw', 'tenantId': _tenantId}).then((_) {
       // Refresh fields after returning from map
       ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
     });

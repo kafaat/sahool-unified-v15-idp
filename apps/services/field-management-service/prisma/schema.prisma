@@ -141,6 +141,9 @@ model Field {
 model FieldBoundaryHistory {
   id String @id @default(uuid()) @db.Uuid
 
+  // Tenant Isolation
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
   // Field Reference
   fieldId         String @map("field_id") @db.Uuid
   versionAtChange Int    @map("version_at_change")
@@ -165,6 +168,7 @@ model FieldBoundaryHistory {
   field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   // Indexes
+  @@index([tenantId], name: "idx_history_tenant")
   @@index([fieldId], name: "idx_history_field")
   @@index([createdAt], name: "idx_history_date")
   @@map("field_boundary_history")
@@ -217,6 +221,9 @@ model SyncStatus {
 model Task {
   id String @id @default(uuid()) @db.Uuid
 
+  // Tenant Isolation
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
   // Task Info
   title       String    @db.VarChar(255)
   titleAr     String?   @map("title_ar") @db.VarChar(255)
@@ -254,6 +261,8 @@ model Task {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
+  @@index([tenantId], name: "idx_task_tenant")
+  @@index([tenantId, status], name: "idx_task_tenant_status")
   @@index([fieldId], name: "idx_task_field")
   @@index([status], name: "idx_task_status")
   @@index([dueDate], name: "idx_task_due")
@@ -276,6 +285,9 @@ model Task {
 model NdviReading {
   id String @id @default(uuid()) @db.Uuid
 
+  // Tenant Isolation
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
   // Field Reference
   fieldId String @map("field_id") @db.Uuid
   field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
@@ -295,6 +307,7 @@ model NdviReading {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   // Indexes
+  @@index([tenantId], name: "idx_ndvi_tenant")
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
   @@map("ndvi_readings")
 }

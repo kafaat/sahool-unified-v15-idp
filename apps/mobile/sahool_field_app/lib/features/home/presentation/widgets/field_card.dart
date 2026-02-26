@@ -68,7 +68,8 @@ class FieldCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.straighten, size: 14, color: Colors.grey[600]),
+                        Icon(Icons.straighten,
+                            size: 14, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
                           '${areaHectares.toStringAsFixed(1)} هكتار',

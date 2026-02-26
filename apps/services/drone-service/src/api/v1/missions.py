@@ -7,10 +7,24 @@ import uuid
 from datetime import datetime
 
 import structlog
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 logger = structlog.get_logger()
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/missions", tags=["missions"])
 
@@ -43,7 +57,7 @@ class MissionResponse(BaseModel):
 
 
 @router.get("/", response_model=list[MissionResponse])
-async def list_missions():
+async def list_missions(_user=Depends(get_current_user)):
     """List all missions - قائمة بجميع المهام"""
     return [MissionResponse(**{k: m[k] for k in MissionResponse.model_fields}) for m in _missions.values()]
 

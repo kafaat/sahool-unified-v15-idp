@@ -356,18 +356,18 @@ class TestEventSubscriber:
 
     @pytest.mark.asyncio
     @patch("shared.events.subscriber._nats_available", True)
-    @patch("nats.connect")
-    async def test_subscriber_connect_success(self, mock_connect, subscriber):
+    @patch("shared.events.subscriber.nats")
+    async def test_subscriber_connect_success(self, mock_nats, subscriber):
         """Test successful connection to NATS"""
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_connect.return_value = mock_nc
+        mock_nats.connect = AsyncMock(return_value=mock_nc)
 
         result = await subscriber.connect()
 
         assert result is True
         assert subscriber.is_connected is True
-        mock_connect.assert_called_once()
+        mock_nats.connect.assert_called_once()
 
     @pytest.mark.asyncio
     @patch("shared.events.subscriber._nats_available", False)
@@ -380,10 +380,10 @@ class TestEventSubscriber:
 
     @pytest.mark.asyncio
     @patch("shared.events.subscriber._nats_available", True)
-    @patch("nats.connect")
-    async def test_subscriber_connect_failure(self, mock_connect, subscriber):
+    @patch("shared.events.subscriber.nats")
+    async def test_subscriber_connect_failure(self, mock_nats, subscriber):
         """Test connection failure"""
-        mock_connect.side_effect = Exception("Connection failed")
+        mock_nats.connect = AsyncMock(side_effect=Exception("Connection failed"))
 
         result = await subscriber.connect()
 
@@ -392,12 +392,12 @@ class TestEventSubscriber:
 
     @pytest.mark.asyncio
     @patch("shared.events.subscriber._nats_available", True)
-    @patch("nats.connect")
-    async def test_subscriber_close(self, mock_connect, subscriber):
+    @patch("shared.events.subscriber.nats")
+    async def test_subscriber_close(self, mock_nats, subscriber):
         """Test closing subscriber connection"""
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_connect.return_value = mock_nc
+        mock_nats.connect = AsyncMock(return_value=mock_nc)
 
         await subscriber.connect()
         await subscriber.close()
@@ -428,12 +428,12 @@ class TestSubscriberContextManager:
 
     @pytest.mark.asyncio
     @patch("shared.events.subscriber._nats_available", True)
-    @patch("nats.connect")
-    async def test_context_manager(self, mock_connect):
+    @patch("shared.events.subscriber.nats")
+    async def test_context_manager(self, mock_nats):
         """Test using subscriber as async context manager"""
         mock_nc = AsyncMock()
         mock_nc.jetstream = MagicMock()
-        mock_connect.return_value = mock_nc
+        mock_nats.connect = AsyncMock(return_value=mock_nc)
 
         config = SubscriberConfig(servers=["nats://localhost:4222"])
 

@@ -36,15 +36,12 @@ from starlette import status
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
 sys.path.insert(
     0,
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        )
-    ),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),
 )
 
 from shared.crm import (
@@ -427,9 +424,7 @@ async def lifespan(app: FastAPI):
         try:
             from shared.events.publisher import get_publisher
 
-            app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
-            )
+            app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
         except Exception as e:
@@ -442,6 +437,10 @@ async def lifespan(app: FastAPI):
 
     # Initialize database connection (if available)
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             from pathlib import Path
@@ -831,9 +830,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
-).split(",")
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -842,6 +839,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1073,9 +1073,7 @@ async def list_farmers(
             results = [
                 f
                 for f in results
-                if search_lower in f.name.lower()
-                or (f.name_ar and search_lower in f.name_ar)
-                or search in f.phone
+                if search_lower in f.name.lower() or (f.name_ar and search_lower in f.name_ar) or search in f.phone
             ]
 
         # Paginate
@@ -1560,11 +1558,7 @@ async def list_deals(
     else:
         # Fallback to in-memory
         # Filter deals by tenant_id (via farmer's tenant_id)
-        results = [
-            d
-            for d in deals.values()
-            if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
-        ]
+        results = [d for d in deals.values() if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id]
 
         if farmer_id:
             results = [d for d in results if d.farmer_id == farmer_id]
@@ -1767,17 +1761,13 @@ async def get_pipeline_stats(
         # Fallback to in-memory
         # Filter deals by tenant_id (via farmer's tenant_id)
         all_deals = [
-            d
-            for d in deals.values()
-            if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
+            d for d in deals.values() if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
         ]
 
         by_stage: dict[str, dict[str, Any]] = {}
         for stage in list(DealStage):
             stage_deals = [d for d in all_deals if d.stage == stage]
-            total_value = sum(
-                (d.price_per_ton or 0) * d.expected_quantity_tons for d in stage_deals
-            )
+            total_value = sum((d.price_per_ton or 0) * d.expected_quantity_tons for d in stage_deals)
             by_stage[stage.value] = {
                 "count": len(stage_deals),
                 "total_value": total_value,
@@ -1821,9 +1811,7 @@ async def log_interaction(
         # Use database - first verify farmer exists
         farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id)
         if not farmer_data:
-            raise ResourceNotFoundError(
-                resource_type="Farmer", resource_id=interaction_data.farmer_id
-            )
+            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
 
         # Validate tenant access via farmer's tenant_id
         validate_tenant_access(user, farmer_data["tenant_id"])
@@ -1841,9 +1829,7 @@ async def log_interaction(
         )
 
         # Update farmer's last interaction
-        await crm_repo.farmers.update(
-            interaction_data.farmer_id, {"last_interaction_at": datetime.now(UTC)}
-        )
+        await crm_repo.farmers.update(interaction_data.farmer_id, {"last_interaction_at": datetime.now(UTC)})
 
         # Publish interaction logged event
         await publish_event(
@@ -1857,9 +1843,7 @@ async def log_interaction(
                 "subject": data["subject"],
                 "subject_ar": data["subject_ar"],
                 "outcome": data["outcome"],
-                "follow_up_date": data["follow_up_date"].isoformat()
-                if data["follow_up_date"]
-                else None,
+                "follow_up_date": data["follow_up_date"].isoformat() if data["follow_up_date"] else None,
                 "timestamp": datetime.now(UTC).isoformat(),
             },
         )
@@ -1880,9 +1864,7 @@ async def log_interaction(
     else:
         # Fallback to in-memory
         if interaction_data.farmer_id not in farmers:
-            raise ResourceNotFoundError(
-                resource_type="Farmer", resource_id=interaction_data.farmer_id
-            )
+            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
 
         # Validate tenant access via farmer's tenant_id
         farmer = farmers[interaction_data.farmer_id]
@@ -1921,9 +1903,7 @@ async def log_interaction(
                 "subject": interaction.subject,
                 "subject_ar": interaction.subject_ar,
                 "outcome": interaction.outcome,
-                "follow_up_date": interaction.follow_up_date.isoformat()
-                if interaction.follow_up_date
-                else None,
+                "follow_up_date": interaction.follow_up_date.isoformat() if interaction.follow_up_date else None,
                 "timestamp": datetime.now(UTC).isoformat(),
             },
         )

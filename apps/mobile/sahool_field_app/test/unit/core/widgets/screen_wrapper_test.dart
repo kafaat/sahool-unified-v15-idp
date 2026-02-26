@@ -70,7 +70,8 @@ void main() {
 
       // The loading overlay should show with the message
       expect(find.text('Saving...'), findsOneWidget);
-      expect(find.text('Content'), findsOneWidget); // Content still visible under overlay
+      expect(find.text('Content'),
+          findsOneWidget); // Content still visible under overlay
     });
 
     testWidgets('should not show loading overlay when not loading',
@@ -167,8 +168,7 @@ void main() {
       expect(appBar.backgroundColor, const Color(0xFF367C2B));
     });
 
-    testWidgets('should use custom AppBar color when provided',
-        (tester) async {
+    testWidgets('should use custom AppBar color when provided', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: SahoolScreenWrapper(

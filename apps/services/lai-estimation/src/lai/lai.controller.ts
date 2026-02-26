@@ -3,8 +3,8 @@
 // Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from "@nestjs/common";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { LAIService, StressDetectionResponse } from "./lai.service";
 import {
@@ -149,11 +149,13 @@ export class LAIController {
     description: "Stress detection with ActionTemplate",
   })
   async detectStress(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
-    @Query("tenantId") tenantId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ): Promise<StressDetectionResponse> {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.laiService.detectStressWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,
@@ -174,14 +176,18 @@ export class LAIController {
   })
   @ApiQuery({ name: "cropType", enum: CropType, required: false })
   async checkAnomaly(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("cropType") cropType?: CropType,
     @Query("farmerId") farmerId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.laiService.checkAnomalyWithAction(
       fieldId,
       cropType || CropType.SOYBEAN,
       farmerId,
+      tenantId,
     );
   }
 

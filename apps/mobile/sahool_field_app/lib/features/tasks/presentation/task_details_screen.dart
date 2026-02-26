@@ -64,7 +64,8 @@ class _TaskDetailsBody extends ConsumerWidget {
               ),
             ),
           // Delete button (only for non-completed tasks)
-          if (task.status != TaskStatus.done && task.status != TaskStatus.cancelled)
+          if (task.status != TaskStatus.done &&
+              task.status != TaskStatus.cancelled)
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               onSelected: (value) async {
@@ -317,7 +318,8 @@ class _TaskDetailsBody extends ConsumerWidget {
     );
   }
 
-  Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref) async {
+  Future<void> _showDeleteConfirmation(
+      BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -370,8 +372,10 @@ class _TaskDetailsBody extends ConsumerWidget {
     }
   }
 
-  Future<void> _showRescheduleDialog(BuildContext context, WidgetRef ref) async {
-    DateTime? newDate = task.dueDate ?? DateTime.now().add(const Duration(days: 1));
+  Future<void> _showRescheduleDialog(
+      BuildContext context, WidgetRef ref) async {
+    DateTime? newDate =
+        task.dueDate ?? DateTime.now().add(const Duration(days: 1));
     TimeOfDay? newTime = task.dueDate != null
         ? TimeOfDay.fromDateTime(task.dueDate!)
         : const TimeOfDay(hour: 9, minute: 0);
@@ -388,7 +392,8 @@ class _TaskDetailsBody extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Icons.calendar_today),
                 title: const Text('التاريخ'),
-                subtitle: Text('${newDate!.day}/${newDate!.month}/${newDate!.year}'),
+                subtitle:
+                    Text('${newDate!.day}/${newDate!.month}/${newDate!.year}'),
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
@@ -405,7 +410,8 @@ class _TaskDetailsBody extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Icons.access_time),
                 title: const Text('الوقت'),
-                subtitle: Text('${newTime!.hour.toString().padLeft(2, '0')}:${newTime!.minute.toString().padLeft(2, '0')}'),
+                subtitle: Text(
+                    '${newTime!.hour.toString().padLeft(2, '0')}:${newTime!.minute.toString().padLeft(2, '0')}'),
                 onTap: () async {
                   final picked = await showTimePicker(
                     context: context,
@@ -444,9 +450,9 @@ class _TaskDetailsBody extends ConsumerWidget {
       try {
         // Update task with new due date
         final updatedTask = await ref.read(tasksProvider.notifier).updateTask(
-          taskId: task.id,
-          dueDate: newDueDate,
-        );
+              taskId: task.id,
+              dueDate: newDueDate,
+            );
 
         // Reschedule reminder
         try {

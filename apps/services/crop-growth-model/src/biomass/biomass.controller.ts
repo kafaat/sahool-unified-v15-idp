@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -13,30 +13,35 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
+import { IsNumber, IsString, IsOptional, IsArray, IsObject, Min, Max, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 import { BiomassService } from "./biomass.service";
 
+class ExistingBiomassInput {
+  @IsNumber() root: number;
+  @IsNumber() stem: number;
+  @IsNumber() leaf: number;
+  @IsNumber() storage: number;
+}
+
 class BiomassProductionInput {
-  par: number;
-  fpar: number;
-  cropType: string;
-  temperature: number;
-  existingBiomass?: {
-    root: number;
-    stem: number;
-    leaf: number;
-    storage: number;
-  };
+  @IsNumber() @Min(0) par: number;
+  @IsNumber() @Min(0) @Max(1) fpar: number;
+  @IsString() cropType: string;
+  @IsNumber() temperature: number;
+  @IsOptional() @IsObject() @ValidateNested() @Type(() => ExistingBiomassInput)
+  existingBiomass?: ExistingBiomassInput;
 }
 
 class AssimilateDistributionInput {
-  netProduction: number;
-  cropType: string;
-  dvs: number;
+  @IsNumber() @Min(0) netProduction: number;
+  @IsString() cropType: string;
+  @IsNumber() @Min(0) @Max(2) dvs: number;
 }
 
 class BiomassSimulationInput {
-  cropType: string;
-  dailyData: Array<{
+  @IsString() cropType: string;
+  @IsArray() dailyData: Array<{
     date: string;
     par: number;
     fpar: number;
@@ -46,9 +51,9 @@ class BiomassSimulationInput {
 }
 
 class YieldInput {
-  totalAbovegroundBiomass: number;
-  cropType: string;
-  moistureContent?: number;
+  @IsNumber() @Min(0) totalAbovegroundBiomass: number;
+  @IsString() cropType: string;
+  @IsOptional() @IsNumber() @Min(0) @Max(1) moistureContent?: number;
 }
 
 @ApiTags("biomass")

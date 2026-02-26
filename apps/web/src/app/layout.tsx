@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
+import { Tajawal } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { getDirection, type Locale } from "@sahool/i18n";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-tajawal",
+});
 
 export const metadata: Metadata = {
   title: "سهول | SAHOOL - Smart Agriculture Platform",
@@ -41,33 +49,30 @@ export default async function RootLayout({
   const direction = getDirection(locale);
 
   return (
-    <html lang={locale} dir={direction}>
+    <html lang={locale} dir={direction} className={tajawal.variable}>
       <head>
-        {/* Font preload for better performance */}
-        <link
-          rel="preconnect"
-          href="https://fonts.googleapis.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-        {/* Preload Leaflet CSS for non-blocking load */}
-        <link
-          rel="preload"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          as="style"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin="anonymous"
-        />
+        {/*
+          Leaflet CSS loaded asynchronously - not render-blocking.
+          Uses media="print" with onLoad swap trick for non-blocking CSS.
+          This avoids delaying first paint on non-map pages (login, settings, etc.).
+        */}
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin="anonymous"
+          media="print"
+          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
+          onLoad="this.media='all'"
         />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossOrigin="anonymous"
+          />
+        </noscript>
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen">
         <a

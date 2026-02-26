@@ -73,222 +73,31 @@ export const ERROR_MESSAGES = {
   },
 };
 
-// Mock data for fallback
-const MOCK_POSTS: Post[] = [
-  {
-    id: "1",
-    userId: "user1",
-    userName: "Ahmed Al-Malki",
-    userNameAr: "أحمد المالكي",
-    userAvatar: "/avatars/user1.jpg",
-    userBadge: "farmer",
-    type: "question",
-    title: "Best irrigation method for wheat in summer?",
-    titleAr: "أفضل طريقة ري للقمح في الصيف؟",
-    content:
-      "I am looking for efficient irrigation methods for my wheat farm during the hot summer months.",
-    contentAr:
-      "أبحث عن طرق ري فعالة لمزرعة القمح الخاصة بي خلال أشهر الصيف الحارة.",
-    status: "active",
-    tags: ["irrigation", "wheat", "summer"],
-    tagsAr: ["ري", "قمح", "صيف"],
-    location: {
-      city: "Riyadh",
-      cityAr: "الرياض",
-      region: "Central",
-      regionAr: "الوسطى",
-    },
-    likes: 12,
-    comments: 5,
-    shares: 2,
-    views: 45,
-    isLiked: false,
-    isSaved: false,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "2",
-    userId: "user2",
-    userName: "Fatima Hassan",
-    userNameAr: "فاطمة حسن",
-    userAvatar: "/avatars/user2.jpg",
-    userBadge: "expert",
-    type: "tip",
-    title: "Organic pest control for tomatoes",
-    titleAr: "مكافحة آفات الطماطم بطريقة عضوية",
-    content:
-      "Share my experience with natural pest control methods that work great for tomatoes.",
-    contentAr:
-      "أشارك تجربتي مع طرق مكافحة الآفات الطبيعية التي تعمل بشكل رائع للطماطم.",
-    status: "active",
-    images: ["/posts/tomato-pest-control.jpg"],
-    tags: ["organic", "tomatoes", "pest-control"],
-    tagsAr: ["عضوي", "طماطم", "مكافحة الآفات"],
-    location: {
-      city: "Jeddah",
-      cityAr: "جدة",
-      region: "Western",
-      regionAr: "الغربية",
-    },
-    likes: 28,
-    comments: 8,
-    shares: 6,
-    views: 120,
-    isLiked: true,
-    isSaved: true,
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "3",
-    userId: "user3",
-    userName: "Mohammed Ali",
-    userNameAr: "محمد علي",
-    userAvatar: "/avatars/user3.jpg",
-    userBadge: "verified",
-    type: "experience",
-    title: "My journey with drip irrigation system",
-    titleAr: "تجربتي مع نظام الري بالتنقيط",
-    content:
-      "After installing drip irrigation, I reduced water consumption by 40% and increased yield by 25%.",
-    contentAr:
-      "بعد تركيب الري بالتنقيط، قللت استهلاك المياه بنسبة 40% وزادت الإنتاجية بنسبة 25%.",
-    status: "active",
-    images: ["/posts/drip-irrigation-1.jpg", "/posts/drip-irrigation-2.jpg"],
-    tags: ["irrigation", "technology", "water-saving"],
-    tagsAr: ["ري", "تقنية", "توفير المياه"],
-    location: {
-      city: "Dammam",
-      cityAr: "الدمام",
-      region: "Eastern",
-      regionAr: "الشرقية",
-    },
-    likes: 45,
-    comments: 12,
-    shares: 15,
-    views: 230,
-    isLiked: false,
-    isSaved: true,
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+// Mock data helpers - dynamic import for dead-code elimination in production builds.
+// In production, mock modules are never bundled because the import() is unreachable.
+async function getMockPosts() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_POSTS } = await import("./api.mock");
+    return MOCK_POSTS;
+  }
+  return [];
+}
 
-const MOCK_GROUPS: Group[] = [
-  {
-    id: "group1",
-    name: "Wheat Farmers Saudi Arabia",
-    nameAr: "مزارعو القمح في السعودية",
-    description:
-      "Community for wheat farmers to share experiences and best practices",
-    descriptionAr: "مجتمع لمزارعي القمح لمشاركة الخبرات وأفضل الممارسات",
-    image: "/groups/wheat-farmers.jpg",
-    coverImage: "/groups/wheat-cover.jpg",
-    category: "crops",
-    privacy: "public",
-    memberCount: 450,
-    postCount: 128,
-    isJoined: true,
-    isModerator: false,
-    createdBy: "admin1",
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ["wheat", "crops", "farming"],
-    tagsAr: ["قمح", "محاصيل", "زراعة"],
-  },
-  {
-    id: "group2",
-    name: "Organic Farming Enthusiasts",
-    nameAr: "عشاق الزراعة العضوية",
-    description:
-      "For farmers interested in organic and sustainable farming methods",
-    descriptionAr: "لمزارعين المهتمين بطرق الزراعة العضوية والمستدامة",
-    image: "/groups/organic-farming.jpg",
-    category: "organic",
-    privacy: "public",
-    memberCount: 320,
-    postCount: 89,
-    isJoined: false,
-    isModerator: false,
-    createdBy: "admin2",
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ["organic", "sustainable", "eco-friendly"],
-    tagsAr: ["عضوي", "مستدام", "صديق للبيئة"],
-  },
-  {
-    id: "group3",
-    name: "Smart Irrigation Technology",
-    nameAr: "تقنية الري الذكي",
-    description:
-      "Discussing latest irrigation technologies and water conservation",
-    descriptionAr: "مناقشة أحدث تقنيات الري والحفاظ على المياه",
-    image: "/groups/irrigation-tech.jpg",
-    category: "irrigation",
-    privacy: "public",
-    memberCount: 280,
-    postCount: 65,
-    isJoined: true,
-    isModerator: false,
-    createdBy: "admin3",
-    createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ["irrigation", "technology", "water"],
-    tagsAr: ["ري", "تقنية", "مياه"],
-  },
-];
+async function getMockGroups() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_GROUPS } = await import("./api.mock");
+    return MOCK_GROUPS;
+  }
+  return [];
+}
 
-const MOCK_EXPERTS: Expert[] = [
-  {
-    id: "expert1",
-    name: "Dr. Abdullah Al-Rashid",
-    nameAr: "د. عبدالله الراشد",
-    avatar: "/experts/expert1.jpg",
-    title: "Agricultural Engineer",
-    titleAr: "مهندس زراعي",
-    specialization: ["Irrigation Systems", "Water Management", "Crop Planning"],
-    specializationAr: ["نظم الري", "إدارة المياه", "تخطيط المحاصيل"],
-    bio: "15+ years of experience in agricultural engineering and water management systems",
-    bioAr: "أكثر من 15 عاماً من الخبرة في الهندسة الزراعية ونظم إدارة المياه",
-    rating: 4.8,
-    totalAnswers: 234,
-    verifiedAnswers: 198,
-    availability: "available",
-    responseTime: 2.5,
-  },
-  {
-    id: "expert2",
-    name: "Dr. Sarah Al-Mutairi",
-    nameAr: "د. سارة المطيري",
-    avatar: "/experts/expert2.jpg",
-    title: "Plant Pathologist",
-    titleAr: "أخصائية أمراض النبات",
-    specialization: ["Plant Diseases", "Pest Control", "Organic Farming"],
-    specializationAr: ["أمراض النبات", "مكافحة الآفات", "الزراعة العضوية"],
-    bio: "Expert in plant diseases and sustainable pest management solutions",
-    bioAr: "خبيرة في أمراض النبات وحلول إدارة الآفات المستدامة",
-    rating: 4.9,
-    totalAnswers: 312,
-    verifiedAnswers: 287,
-    availability: "available",
-    responseTime: 1.8,
-  },
-  {
-    id: "expert3",
-    name: "Eng. Khalid Al-Dosari",
-    nameAr: "م. خالد الدوسري",
-    avatar: "/experts/expert3.jpg",
-    title: "Agricultural Technology Specialist",
-    titleAr: "أخصائي التقنية الزراعية",
-    specialization: ["Smart Farming", "IoT in Agriculture", "Automation"],
-    specializationAr: ["الزراعة الذكية", "إنترنت الأشياء الزراعي", "الأتمتة"],
-    bio: "Specialist in implementing modern agricultural technologies and automation",
-    bioAr: "متخصص في تنفيذ التقنيات الزراعية الحديثة والأتمتة",
-    rating: 4.7,
-    totalAnswers: 189,
-    verifiedAnswers: 156,
-    availability: "busy",
-    responseTime: 4.2,
-  },
-];
+async function getMockExperts() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_EXPERTS } = await import("./api.mock");
+    return MOCK_EXPERTS;
+  }
+  return [];
+}
 
 // API Functions
 export const communityApi = {
@@ -322,10 +131,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS;
+      return getMockPosts();
     } catch (error) {
       logger.warn("Failed to fetch posts from API, using mock data:", error);
-      return MOCK_POSTS;
+      return getMockPosts();
     }
   },
 
@@ -342,13 +151,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.slice(0, 2);
+      return (await getMockPosts()).slice(0, 2);
     } catch (error) {
       logger.warn(
         "Failed to fetch trending posts from API, using mock data:",
         error,
       );
-      return MOCK_POSTS.slice(0, 2);
+      return (await getMockPosts()).slice(0, 2);
     }
   },
 
@@ -365,13 +174,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.filter((p) => p.isSaved);
+      return (await getMockPosts()).filter((p) => p.isSaved);
     } catch (error) {
       logger.warn(
         "Failed to fetch saved posts from API, using mock data:",
         error,
       );
-      return MOCK_POSTS.filter((p) => p.isSaved);
+      return (await getMockPosts()).filter((p) => p.isSaved);
     }
   },
 
@@ -388,10 +197,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.slice(0, 1);
+      return (await getMockPosts()).slice(0, 1);
     } catch (error) {
       logger.warn("Failed to fetch my posts from API, using mock data:", error);
-      return MOCK_POSTS.slice(0, 1);
+      return (await getMockPosts()).slice(0, 1);
     }
   },
 
@@ -410,7 +219,8 @@ export const communityApi = {
       );
 
       // Fallback to mock data
-      const mockPost = MOCK_POSTS.find((p) => p.id === id);
+      const mockPosts = await getMockPosts();
+      const mockPost = mockPosts.find((p) => p.id === id);
       if (mockPost) {
         return mockPost;
       }
@@ -661,10 +471,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_GROUPS;
+      return getMockGroups();
     } catch (error) {
       logger.warn("Failed to fetch groups from API, using mock data:", error);
-      return MOCK_GROUPS;
+      return getMockGroups();
     }
   },
 
@@ -683,7 +493,8 @@ export const communityApi = {
       );
 
       // Fallback to mock data
-      const mockGroup = MOCK_GROUPS.find((g) => g.id === id);
+      const mockGroups = await getMockGroups();
+      const mockGroup = mockGroups.find((g) => g.id === id);
       if (mockGroup) {
         return mockGroup;
       }
@@ -705,13 +516,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_GROUPS.filter((g) => g.isJoined);
+      return (await getMockGroups()).filter((g) => g.isJoined);
     } catch (error) {
       logger.warn(
         "Failed to fetch my groups from API, using mock data:",
         error,
       );
-      return MOCK_GROUPS.filter((g) => g.isJoined);
+      return (await getMockGroups()).filter((g) => g.isJoined);
     }
   },
 
@@ -916,10 +727,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_EXPERTS;
+      return getMockExperts();
     } catch (error) {
       logger.warn("Failed to fetch experts from API, using mock data:", error);
-      return MOCK_EXPERTS;
+      return getMockExperts();
     }
   },
 

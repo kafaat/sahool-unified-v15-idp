@@ -194,8 +194,7 @@ class ReleaseReport {
       items.where((i) => i.status == ChecklistStatus.notChecked).length;
 
   /// Overall pass rate
-  double get passRate =>
-      totalItems > 0 ? (passedItems / totalItems) * 100 : 0;
+  double get passRate => totalItems > 0 ? (passedItems / totalItems) * 100 : 0;
 
   /// Whether all items pass (release-ready)
   bool get isReleaseReady => failedItems == 0 && uncheckedItems == 0;
@@ -217,9 +216,8 @@ class ReleaseReport {
     final rates = <ChecklistCategory, double>{};
     for (final entry in itemsByCategory.entries) {
       final passed = entry.value.where((i) => i.isPassing).length;
-      rates[entry.key] = entry.value.isNotEmpty
-          ? (passed / entry.value.length) * 100
-          : 0;
+      rates[entry.key] =
+          entry.value.isNotEmpty ? (passed / entry.value.length) * 100 : 0;
     }
     return rates;
   }

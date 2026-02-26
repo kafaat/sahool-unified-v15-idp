@@ -280,16 +280,15 @@ class SyncEngine {
     // Validate endpoint before making API call
     if (item.apiEndpoint.isEmpty) {
       AppLogger.e('Invalid outbox item: empty apiEndpoint',
-          tag: 'SyncEngine',
-          data: {'itemId': item.id, 'method': item.method});
-      throw ArgumentError('API endpoint cannot be empty for outbox item ${item.id}');
+          tag: 'SyncEngine', data: {'itemId': item.id, 'method': item.method});
+      throw ArgumentError(
+          'API endpoint cannot be empty for outbox item ${item.id}');
     }
 
     // Validate endpoint format
     if (!item.apiEndpoint.startsWith('/')) {
       AppLogger.w('Endpoint does not start with /, adding prefix',
-          tag: 'SyncEngine',
-          data: {'endpoint': item.apiEndpoint});
+          tag: 'SyncEngine', data: {'endpoint': item.apiEndpoint});
     }
 
     final payload = jsonDecode(item.payload) as Map<String, dynamic>;
@@ -346,7 +345,8 @@ class SyncEngine {
     await database.addSyncEvent(
       tenantId: _tenantId,
       type: 'CONFLICT',
-      message: 'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
+      message:
+          'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
       entityType: item.entityType,
       entityId: item.entityId,
     );
@@ -354,7 +354,8 @@ class SyncEngine {
     await database.logSync(
       type: 'conflict',
       status: 'resolved',
-      message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+      message:
+          'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
     );
   }
 
@@ -400,15 +401,18 @@ class SyncEngine {
             'ndvi_current': props['ndvi_current'],
             'ndvi_updated_at': props['ndvi_updated_at'],
             'etag': props['etag'],
-            'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
-            'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+            'created_at':
+                props['created_at'] ?? DateTime.now().toIso8601String(),
+            'updated_at':
+                props['updated_at'] ?? DateTime.now().toIso8601String(),
           };
         } else {
           fieldData = response;
         }
 
         await database.upsertFieldsFromServer([fieldData]);
-        AppLogger.i('Server field version applied', tag: 'SyncEngine', data: {'fieldId': fieldId});
+        AppLogger.i('Server field version applied',
+            tag: 'SyncEngine', data: {'fieldId': fieldId});
       }
     } catch (e) {
       AppLogger.e('Failed to fetch field from server',
@@ -427,7 +431,8 @@ class SyncEngine {
 
       if (response is Map<String, dynamic>) {
         await database.upsertTasksFromServer([response]);
-        AppLogger.i('Server task version applied', tag: 'SyncEngine', data: {'taskId': taskId});
+        AppLogger.i('Server task version applied',
+            tag: 'SyncEngine', data: {'taskId': taskId});
       }
     } catch (e) {
       AppLogger.e('Failed to fetch task from server',
@@ -469,7 +474,8 @@ class SyncEngine {
       'total': count,
     });
 
-    return PullResult(count: count, fieldsCount: fieldsCount, tasksCount: tasksCount);
+    return PullResult(
+        count: count, fieldsCount: fieldsCount, tasksCount: tasksCount);
   }
 
   /// Pull fields from server
@@ -479,10 +485,12 @@ class SyncEngine {
     // Check if fields endpoint can be accessed
     if (!_retryTracker.canRetryNow(fieldsEndpoint)) {
       final status = _retryTracker.getEndpointStatus(fieldsEndpoint);
-      AppLogger.d('Skipping fields pull - endpoint in backoff', tag: 'SyncEngine', data: {
-        'endpoint': fieldsEndpoint,
-        'status': status.statusDescription
-      });
+      AppLogger.d('Skipping fields pull - endpoint in backoff',
+          tag: 'SyncEngine',
+          data: {
+            'endpoint': fieldsEndpoint,
+            'status': status.statusDescription
+          });
       return 0;
     }
 
@@ -496,7 +504,8 @@ class SyncEngine {
         // GeoJSON FeatureCollection response
         final features = fieldsResponse['features'] as List;
         final fieldMaps = features.map((feature) {
-          final props = (feature as Map<String, dynamic>)['properties'] as Map<String, dynamic>;
+          final props = (feature as Map<String, dynamic>)['properties']
+              as Map<String, dynamic>;
           return {
             'id': feature['id'] ?? props['local_id'],
             'remote_id': feature['id'],
@@ -510,12 +519,15 @@ class SyncEngine {
             'ndvi_current': props['ndvi_current'],
             'ndvi_updated_at': props['ndvi_updated_at'],
             'etag': props['etag'],
-            'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
-            'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+            'created_at':
+                props['created_at'] ?? DateTime.now().toIso8601String(),
+            'updated_at':
+                props['updated_at'] ?? DateTime.now().toIso8601String(),
           };
         }).toList();
 
-        await database.upsertFieldsFromServer(fieldMaps.cast<Map<String, dynamic>>());
+        await database
+            .upsertFieldsFromServer(fieldMaps.cast<Map<String, dynamic>>());
         _retryTracker.recordSuccess(fieldsEndpoint);
         return fieldMaps.length;
       } else if (fieldsResponse is List) {
@@ -530,11 +542,13 @@ class SyncEngine {
       _retryTracker.recordSuccess(fieldsEndpoint);
       return 0;
     } catch (e) {
-      AppLogger.w('Failed to pull fields', tag: 'SyncEngine', data: {'error': e.toString()});
+      AppLogger.w('Failed to pull fields',
+          tag: 'SyncEngine', data: {'error': e.toString()});
       final currentRetry = _retryTracker.getRetryCount(fieldsEndpoint);
       _retryTracker.recordFailure(fieldsEndpoint, currentRetry + 1);
 
-      if (e.toString().contains('RateLimitException') || e.toString().contains('429')) {
+      if (e.toString().contains('RateLimitException') ||
+          e.toString().contains('429')) {
         rethrow;
       }
       return 0;
@@ -548,10 +562,12 @@ class SyncEngine {
     // Check if tasks endpoint can be accessed
     if (!_retryTracker.canRetryNow(tasksEndpoint)) {
       final status = _retryTracker.getEndpointStatus(tasksEndpoint);
-      AppLogger.d('Skipping tasks pull - endpoint in backoff', tag: 'SyncEngine', data: {
-        'endpoint': tasksEndpoint,
-        'status': status.statusDescription
-      });
+      AppLogger.d('Skipping tasks pull - endpoint in backoff',
+          tag: 'SyncEngine',
+          data: {
+            'endpoint': tasksEndpoint,
+            'status': status.statusDescription
+          });
       return 0;
     }
 
@@ -572,11 +588,13 @@ class SyncEngine {
       _retryTracker.recordSuccess(tasksEndpoint);
       return 0;
     } catch (e) {
-      AppLogger.w('Failed to pull tasks', tag: 'SyncEngine', data: {'error': e.toString()});
+      AppLogger.w('Failed to pull tasks',
+          tag: 'SyncEngine', data: {'error': e.toString()});
       final currentRetry = _retryTracker.getRetryCount(tasksEndpoint);
       _retryTracker.recordFailure(tasksEndpoint, currentRetry + 1);
 
-      if (e.toString().contains('RateLimitException') || e.toString().contains('429')) {
+      if (e.toString().contains('RateLimitException') ||
+          e.toString().contains('429')) {
         rethrow;
       }
       return 0;
@@ -728,7 +746,8 @@ class PullResult {
   });
 
   @override
-  String toString() => 'PullResult(total: $count, fields: $fieldsCount, tasks: $tasksCount)';
+  String toString() =>
+      'PullResult(total: $count, fields: $fieldsCount, tasks: $tasksCount)';
 }
 
 /// Internal item processing result

@@ -198,32 +198,43 @@ class ConsoleCrashReportingProvider implements CrashReportingProvider {
     final timestamp = report.timestamp.toIso8601String();
 
     debugPrint('');
-    debugPrint('╔════════════════════════════════════════════════════════════╗');
+    debugPrint(
+        '╔════════════════════════════════════════════════════════════╗');
     debugPrint('║  CRASH REPORT [$severity]${' ' * (44 - severity.length)}║');
-    debugPrint('╠════════════════════════════════════════════════════════════╣');
+    debugPrint(
+        '╠════════════════════════════════════════════════════════════╣');
     debugPrint('║ Time: ${timestamp.padRight(51)}║');
     if (report.reason != null) {
       debugPrint('║ Reason: ${report.reason!.padRight(49)}║');
     }
-    debugPrint('╠════════════════════════════════════════════════════════════╣');
-    debugPrint('║ Error: ${report.error.toString().substring(0, report.error.toString().length > 50 ? 50 : report.error.toString().length).padRight(50)}║');
+    debugPrint(
+        '╠════════════════════════════════════════════════════════════╣');
+    debugPrint(
+        '║ Error: ${report.error.toString().substring(0, report.error.toString().length > 50 ? 50 : report.error.toString().length).padRight(50)}║');
     if (report.stackTrace != null) {
-      debugPrint('╠════════════════════════════════════════════════════════════╣');
-      debugPrint('║ Stack Trace:                                               ║');
+      debugPrint(
+          '╠════════════════════════════════════════════════════════════╣');
+      debugPrint(
+          '║ Stack Trace:                                               ║');
       final stackLines = report.stackTrace.toString().split('\n');
-      for (var i = 0; i < (stackLines.length < 10 ? stackLines.length : 10); i++) {
-        final line = stackLines[i].substring(0, stackLines[i].length > 56 ? 56 : stackLines[i].length);
+      for (var i = 0;
+          i < (stackLines.length < 10 ? stackLines.length : 10);
+          i++) {
+        final line = stackLines[i].substring(
+            0, stackLines[i].length > 56 ? 56 : stackLines[i].length);
         debugPrint('║ $line${' ' * (58 - line.length)}║');
       }
     }
-    debugPrint('╚════════════════════════════════════════════════════════════╝');
+    debugPrint(
+        '╚════════════════════════════════════════════════════════════╝');
     debugPrint('');
   }
 
   @override
   Future<void> recordBreadcrumb(Breadcrumb breadcrumb) async {
     if (!_enabled) return;
-    debugPrint('🍞 Breadcrumb: [${breadcrumb.category ?? 'general'}] ${breadcrumb.message}');
+    debugPrint(
+        '🍞 Breadcrumb: [${breadcrumb.category ?? 'general'}] ${breadcrumb.message}');
   }
 
   @override
@@ -239,7 +250,8 @@ class ConsoleCrashReportingProvider implements CrashReportingProvider {
   @override
   Future<void> setAppContext(AppContext context) async {
     if (!_enabled) return;
-    debugPrint('📱 App context: ${context.appVersion} (${context.environment})');
+    debugPrint(
+        '📱 App context: ${context.appVersion} (${context.environment})');
   }
 
   @override
@@ -296,7 +308,8 @@ class PIISanitizer {
     // Keep IP addresses but mask last octet (for debugging purposes)
     sanitized = sanitized.replaceAllMapped(
       _ipPattern,
-      (match) => '${match.group(0)!.substring(0, match.group(0)!.lastIndexOf('.'))}.XXX',
+      (match) =>
+          '${match.group(0)!.substring(0, match.group(0)!.lastIndexOf('.'))}.XXX',
     );
 
     return sanitized;
@@ -371,7 +384,8 @@ class PIISanitizer {
 
 /// Main crash reporting service with multiple provider support
 class CrashReportingService {
-  static final CrashReportingService _instance = CrashReportingService._internal();
+  static final CrashReportingService _instance =
+      CrashReportingService._internal();
   factory CrashReportingService() => _instance;
   CrashReportingService._internal();
 
@@ -430,7 +444,8 @@ class CrashReportingService {
     await _setupAppContext();
 
     _initialized = true;
-    debugPrint('✅ Crash reporting service initialized (${_providers.length} providers)');
+    debugPrint(
+        '✅ Crash reporting service initialized (${_providers.length} providers)');
   }
 
   /// Set up app context with device and package info
@@ -482,7 +497,8 @@ class CrashReportingService {
     if (!_initialized || !_enabled) return;
 
     // Apply sampling rate
-    if (_samplingRate < 1.0 && _samplingRate < (DateTime.now().millisecondsSinceEpoch % 100) / 100) {
+    if (_samplingRate < 1.0 &&
+        _samplingRate < (DateTime.now().millisecondsSinceEpoch % 100) / 100) {
       return;
     }
 
@@ -494,11 +510,11 @@ class CrashReportingService {
     // Sanitize error data
     final sanitizedError = _sanitizeError(error);
     final sanitizedStackTrace = stackTrace != null
-        ? StackTrace.fromString(PIISanitizer.sanitizeStackTrace(stackTrace.toString()))
+        ? StackTrace.fromString(
+            PIISanitizer.sanitizeStackTrace(stackTrace.toString()))
         : null;
-    final sanitizedCustomData = customData != null
-        ? PIISanitizer.sanitizeMap(customData)
-        : null;
+    final sanitizedCustomData =
+        customData != null ? PIISanitizer.sanitizeMap(customData) : null;
 
     final report = ErrorReport(
       error: sanitizedError,
@@ -511,7 +527,8 @@ class CrashReportingService {
 
     // Add breadcrumb for this error
     recordBreadcrumb(
-      message: 'Error: ${sanitizedError.toString().substring(0, sanitizedError.toString().length > 50 ? 50 : sanitizedError.toString().length)}',
+      message:
+          'Error: ${sanitizedError.toString().substring(0, sanitizedError.toString().length > 50 ? 50 : sanitizedError.toString().length)}',
       category: 'error',
       level: BreadcrumbLevel.error,
     );
@@ -572,9 +589,8 @@ class CrashReportingService {
     if (!_initialized || !_enabled) return;
 
     // Sanitize metadata
-    final sanitizedMetadata = metadata != null
-        ? PIISanitizer.sanitizeMap(metadata)
-        : null;
+    final sanitizedMetadata =
+        metadata != null ? PIISanitizer.sanitizeMap(metadata) : null;
 
     _userContext = UserContext(
       anonymousId: anonymousId,

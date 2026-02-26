@@ -23,15 +23,18 @@ class ErrorHandler {
   ErrorHandler._internal();
 
   /// Error listeners for reporting
-  final List<void Function(AppException error, StackTrace? stackTrace)> _listeners = [];
+  final List<void Function(AppException error, StackTrace? stackTrace)>
+      _listeners = [];
 
   /// Register an error listener (e.g., for crash reporting)
-  void addListener(void Function(AppException error, StackTrace? stackTrace) listener) {
+  void addListener(
+      void Function(AppException error, StackTrace? stackTrace) listener) {
     _listeners.add(listener);
   }
 
   /// Remove an error listener
-  void removeListener(void Function(AppException error, StackTrace? stackTrace) listener) {
+  void removeListener(
+      void Function(AppException error, StackTrace? stackTrace) listener) {
     _listeners.remove(listener);
   }
 
@@ -45,7 +48,8 @@ class ErrorHandler {
   }) {
     // Convert to AppException
     final appException = error is AppException
-        ? error.copyWith(originalStackTrace: stackTrace ?? error.originalStackTrace)
+        ? error.copyWith(
+            originalStackTrace: stackTrace ?? error.originalStackTrace)
         : error.toAppException().copyWith(originalStackTrace: stackTrace);
 
     // Log if requested
@@ -60,7 +64,8 @@ class ErrorHandler {
           listener(appException, stackTrace);
         } catch (e) {
           if (kDebugMode) {
-            AppLogger.w('Error listener threw an exception', tag: 'ErrorHandler', data: {'error': e.toString()});
+            AppLogger.w('Error listener threw an exception',
+                tag: 'ErrorHandler', data: {'error': e.toString()});
           }
         }
       }
@@ -111,7 +116,8 @@ class ErrorHandler {
         return await action();
       } catch (e, stackTrace) {
         attempt++;
-        final appException = handle(e, stackTrace: stackTrace, tag: tag, log: attempt == 1);
+        final appException =
+            handle(e, stackTrace: stackTrace, tag: tag, log: attempt == 1);
 
         // Check if we should retry
         final canRetry = attempt < maxRetries &&
@@ -130,7 +136,9 @@ class ErrorHandler {
 
         // Wait before retrying (exponential backoff)
         await Future.delayed(delay);
-        delay = Duration(milliseconds: (delay.inMilliseconds * 2).clamp(0, maxDelay.inMilliseconds));
+        delay = Duration(
+            milliseconds:
+                (delay.inMilliseconds * 2).clamp(0, maxDelay.inMilliseconds));
       }
     }
   }
@@ -165,13 +173,16 @@ enum RecoveryStrategy {
 RecoveryStrategy getRecoveryStrategy(AppException exception) {
   switch (exception.type) {
     case ErrorType.network:
-      return exception.isRetryable ? RecoveryStrategy.retry : RecoveryStrategy.useCache;
+      return exception.isRetryable
+          ? RecoveryStrategy.retry
+          : RecoveryStrategy.useCache;
 
     case ErrorType.server:
       return RecoveryStrategy.retry;
 
     case ErrorType.auth:
-      if (exception.code == 'SESSION_EXPIRED' || exception.code == 'UNAUTHORIZED') {
+      if (exception.code == 'SESSION_EXPIRED' ||
+          exception.code == 'UNAUTHORIZED') {
         return RecoveryStrategy.reAuthenticate;
       }
       return RecoveryStrategy.manualRetry;
@@ -197,7 +208,9 @@ RecoveryStrategy getRecoveryStrategy(AppException exception) {
       return RecoveryStrategy.none;
 
     case ErrorType.unknown:
-      return exception.isRetryable ? RecoveryStrategy.retry : RecoveryStrategy.manualRetry;
+      return exception.isRetryable
+          ? RecoveryStrategy.retry
+          : RecoveryStrategy.manualRetry;
   }
 }
 
@@ -283,7 +296,9 @@ class Success<T> extends Result<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Success<T> && runtimeType == other.runtimeType && value == other.value;
+      other is Success<T> &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
 
   @override
   int get hashCode => value.hashCode;
@@ -302,7 +317,9 @@ class Failure<T> extends Result<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Failure<T> && runtimeType == other.runtimeType && error.code == other.error.code;
+      other is Failure<T> &&
+          runtimeType == other.runtimeType &&
+          error.code == other.error.code;
 
   @override
   int get hashCode => error.code.hashCode;
@@ -315,18 +332,21 @@ extension ResultFuture<T> on Future<T> {
     try {
       return Success(await this);
     } catch (e, stackTrace) {
-      final appException = ErrorHandler().handle(e, stackTrace: stackTrace, tag: tag);
+      final appException =
+          ErrorHandler().handle(e, stackTrace: stackTrace, tag: tag);
       return Failure(appException, stackTrace);
     }
   }
 }
 
 /// Execute a function and wrap in Result
-Future<Result<T>> runCatching<T>(Future<T> Function() action, {String? tag}) async {
+Future<Result<T>> runCatching<T>(Future<T> Function() action,
+    {String? tag}) async {
   try {
     return Success(await action());
   } catch (e, stackTrace) {
-    final appException = ErrorHandler().handle(e, stackTrace: stackTrace, tag: tag);
+    final appException =
+        ErrorHandler().handle(e, stackTrace: stackTrace, tag: tag);
     return Failure(appException, stackTrace);
   }
 }

@@ -51,7 +51,8 @@ class NdviValue {
   String get labelEn => category.labelEn;
 
   @override
-  String toString() => 'NDVI: ${value.toStringAsFixed(2)} (${category.labelEn})';
+  String toString() =>
+      'NDVI: ${value.toStringAsFixed(2)} (${category.labelEn})';
 }
 
 /// NDVI Health Categories
@@ -178,7 +179,8 @@ class NdviStatistics {
   }
 
   /// Current health category
-  NdviHealthCategory get currentCategory => NdviHealthCategory.fromValue(current);
+  NdviHealthCategory get currentCategory =>
+      NdviHealthCategory.fromValue(current);
 
   /// Days since last update
   int get daysSinceUpdate => DateTime.now().difference(lastUpdated).inDays;
@@ -227,9 +229,21 @@ class NdviStatistics {
 
 /// Trend direction enum
 enum TrendDirection {
-  improving(labelAr: 'تحسن', labelEn: 'Improving', icon: Icons.trending_up, color: Color(0xFF4CAF50)),
-  stable(labelAr: 'مستقر', labelEn: 'Stable', icon: Icons.trending_flat, color: Color(0xFFFFC107)),
-  declining(labelAr: 'تراجع', labelEn: 'Declining', icon: Icons.trending_down, color: Color(0xFFF44336));
+  improving(
+      labelAr: 'تحسن',
+      labelEn: 'Improving',
+      icon: Icons.trending_up,
+      color: Color(0xFF4CAF50)),
+  stable(
+      labelAr: 'مستقر',
+      labelEn: 'Stable',
+      icon: Icons.trending_flat,
+      color: Color(0xFFFFC107)),
+  declining(
+      labelAr: 'تراجع',
+      labelEn: 'Declining',
+      icon: Icons.trending_down,
+      color: Color(0xFFF44336));
 
   final String labelAr;
   final String labelEn;

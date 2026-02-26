@@ -413,17 +413,19 @@ IRRIGATION_EFFICIENCY = {
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
 
-    temperature_max: float = Field(..., description="Maximum temperature (°C)")
-    temperature_min: float = Field(..., description="Minimum temperature (°C)")
+    temperature_max: float = Field(..., ge=-50, le=65, description="Maximum temperature (°C)")
+    temperature_min: float = Field(..., ge=-90, le=60, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
-    wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
-    solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
+    wind_speed: float = Field(..., ge=0, le=100, description="Wind speed at 2m height (m/s)")
+    solar_radiation: float | None = Field(None, ge=0, le=50, description="Solar radiation (MJ/m²/day)")
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
-    altitude: float = Field(0, description="Altitude above sea level (m)")
-    calculation_date: date = Field(
-        default_factory=lambda: date.today(), description="Date for calculation"
-    )
+    altitude: float = Field(0, ge=-500, le=5000, description="Altitude above sea level (m)")
+    calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.temperature_max < self.temperature_min:
+            raise ValueError("temperature_max must be >= temperature_min")
 
 
 class ET0Response(BaseModel):
@@ -469,9 +471,9 @@ class SoilMoistureInput(BaseModel):
     soil_type: SoilType
     root_depth: float = Field(0.6, gt=0, le=3.0, description="Root depth (m)")
     last_irrigation_date: date
-    last_irrigation_amount: float = Field(..., description="Irrigation amount (mm)")
-    rainfall_since: float = Field(0, ge=0, description="Rainfall since last irrigation (mm)")
-    daily_etc: float = Field(..., description="Daily crop ET (mm/day)")
+    last_irrigation_amount: float = Field(..., ge=0, le=500, description="Irrigation amount (mm)")
+    rainfall_since: float = Field(0, ge=0, le=500, description="Rainfall since last irrigation (mm)")
+    daily_etc: float = Field(..., ge=0, le=25, description="Daily crop ET (mm/day)")
 
 
 class VirtualSoilMoistureResponse(BaseModel):
@@ -498,10 +500,8 @@ class IrrigationRecommendationInput(BaseModel):
     irrigation_method: IrrigationMethod
     field_area_hectares: float = Field(1.0, gt=0)
     last_irrigation_date: date | None = None
-    last_irrigation_amount: float | None = None
-    current_soil_moisture: float | None = Field(
-        None, description="Current moisture if known (m³/m³)"
-    )
+    last_irrigation_amount: float | None = Field(None, ge=0, le=500)
+    current_soil_moisture: float | None = Field(None, ge=0, le=1, description="Current moisture if known (m³/m³)")
     weather: WeatherInput
 
 
@@ -619,9 +619,7 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     vpd = es - ea
 
     # Slope of saturation vapor pressure curve (kPa/°C)
-    delta = (4098 * (0.6108 * math.exp((17.27 * T_mean) / (T_mean + 237.3)))) / (
-        (T_mean + 237.3) ** 2
-    )
+    delta = (4098 * (0.6108 * math.exp((17.27 * T_mean) / (T_mean + 237.3)))) / ((T_mean + 237.3) ** 2)
 
     # Atmospheric pressure (kPa)
     P = 101.3 * ((293 - 0.0065 * weather.altitude) / 293) ** 5.26
@@ -650,10 +648,7 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
         (24 * 60 / math.pi)
         * Gsc
         * dr
-        * (
-            ws * math.sin(lat_rad) * math.sin(solar_dec)
-            + math.cos(lat_rad) * math.cos(solar_dec) * math.sin(ws)
-        )
+        * (ws * math.sin(lat_rad) * math.sin(solar_dec) + math.cos(lat_rad) * math.cos(solar_dec) * math.sin(ws))
     )
 
     # Solar radiation
@@ -899,7 +894,9 @@ def calculate_irrigation_recommendation(
 
     # Generate advice
     if not irrigation_needed:
-        advice = f"No irrigation needed. Soil moisture is adequate. Next irrigation expected in {days_until_needed} days."
+        advice = (
+            f"No irrigation needed. Soil moisture is adequate. Next irrigation expected in {days_until_needed} days."
+        )
         advice_ar = f"لا حاجة للري حالياً. رطوبة التربة كافية. الري القادم متوقع خلال {days_until_needed} أيام."
     else:
         advice = f"Irrigation recommended. Apply {gross_mm:.1f} mm ({recommended_m3:.1f} m³) using {irrigation_method.value} method."
@@ -1001,6 +998,15 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
+
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1284,7 +1290,9 @@ async def get_irrigation_methods():
 
 
 @app.post("/v1/irrigation/recommend", response_model=IrrigationRecommendation)
-async def get_irrigation_recommendation(input_data: IrrigationRecommendationInput, user: User = Depends(get_current_user)):
+async def get_irrigation_recommendation(
+    input_data: IrrigationRecommendationInput, user: User = Depends(get_current_user)
+):
     """
     Get complete irrigation recommendation.
     الحصول على توصية ري شاملة
@@ -1375,7 +1383,7 @@ async def quick_irrigation_check(
     growth_stage: GrowthStage = Query(..., description="Growth stage"),
     soil_type: SoilType = Query(SoilType.LOAM, description="Soil type"),
     days_since_irrigation: int = Query(..., ge=0, description="Days since last irrigation"),
-    temperature: float = Query(..., description="Average temperature (°C)"),
+    temperature: float = Query(..., ge=-50, le=65, description="Average temperature (°C)"),
     humidity: float = Query(50, ge=0, le=100, description="Relative humidity (%)"),
 ):
     """
@@ -1640,9 +1648,7 @@ async def get_irrigation_recommendation_with_action(
         "action_template": action_template,
         "task_card": task_card,
         "is_virtual": True,
-        "nats_published": request.publish_event
-        and _nats_available
-        and recommendation.irrigation_needed,
+        "nats_published": request.publish_event and _nats_available and recommendation.irrigation_needed,
     }
 
 
@@ -1654,7 +1660,7 @@ async def quick_check_with_action(
     growth_stage: GrowthStage = Query(..., description="مرحلة النمو"),
     soil_type: SoilType = Query(SoilType.LOAM, description="نوع التربة"),
     days_since_irrigation: int = Query(..., ge=0, description="أيام منذ آخر ري"),
-    temperature: float = Query(..., description="درجة الحرارة"),
+    temperature: float = Query(..., ge=-50, le=65, description="درجة الحرارة"),
     humidity: float = Query(50, ge=0, le=100, description="الرطوبة النسبية"),
 ):
     """

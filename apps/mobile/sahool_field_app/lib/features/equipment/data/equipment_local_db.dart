@@ -51,13 +51,13 @@ class PendingOperation {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'entity': entity,
-    'type': type,
-    'data': data,
-    'created_at': createdAt.toIso8601String(),
-    'retry_count': retryCount,
-  };
+        'id': id,
+        'entity': entity,
+        'type': type,
+        'data': data,
+        'created_at': createdAt.toIso8601String(),
+        'retry_count': retryCount,
+      };
 
   PendingOperation copyWith({
     String? id,
@@ -122,19 +122,15 @@ class EquipmentLocalDb {
 
       // Apply filters
       if (type != null) {
-        equipmentList = equipmentList
-            .where((e) => e.equipmentType == type)
-            .toList();
+        equipmentList =
+            equipmentList.where((e) => e.equipmentType == type).toList();
       }
       if (status != null) {
-        equipmentList = equipmentList
-            .where((e) => e.status == status)
-            .toList();
+        equipmentList = equipmentList.where((e) => e.status == status).toList();
       }
       if (fieldId != null) {
-        equipmentList = equipmentList
-            .where((e) => e.fieldId == fieldId)
-            .toList();
+        equipmentList =
+            equipmentList.where((e) => e.fieldId == fieldId).toList();
       }
       if (search != null && search.isNotEmpty) {
         final searchLower = search.toLowerCase();
@@ -217,7 +213,8 @@ class EquipmentLocalDb {
   /// Save equipment stats
   Future<void> saveStats(EquipmentStats stats) async {
     final prefs = await _preferences;
-    await prefs.setString(_StorageKeys.equipmentStats, jsonEncode(stats.toJson()));
+    await prefs.setString(
+        _StorageKeys.equipmentStats, jsonEncode(stats.toJson()));
   }
 
   /// Get equipment stats from local storage
@@ -319,7 +316,8 @@ class EquipmentLocalDb {
   }
 
   /// Get maintenance records from local storage
-  Future<List<MaintenanceRecord>> getMaintenanceRecords(String equipmentId) async {
+  Future<List<MaintenanceRecord>> getMaintenanceRecords(
+      String equipmentId) async {
     final prefs = await _preferences;
     final jsonString = prefs.getString(
       '${_StorageKeys.maintenanceRecords}$equipmentId',
@@ -505,7 +503,8 @@ class EquipmentLocalDb {
     if (index >= 0) {
       operations[index] = operation;
       final jsonList = operations.map((o) => o.toJson()).toList();
-      await prefs.setString(_StorageKeys.pendingOperations, jsonEncode(jsonList));
+      await prefs.setString(
+          _StorageKeys.pendingOperations, jsonEncode(jsonList));
     }
   }
 

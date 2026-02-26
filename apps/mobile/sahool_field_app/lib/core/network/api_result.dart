@@ -24,7 +24,8 @@ sealed class ApiResult<T> {
   ApiResult<R> map<R>(R Function(T data) transform) {
     return switch (this) {
       Success<T>(data: final d) => Success(transform(d)),
-      Failure<T>(message: final m, statusCode: final c) => Failure(m, statusCode: c),
+      Failure<T>(message: final m, statusCode: final c) =>
+        Failure(m, statusCode: c),
     };
   }
 
@@ -36,15 +37,15 @@ sealed class ApiResult<T> {
 
   /// الحصول على البيانات (null إذا فشل)
   T? get dataOrNull => switch (this) {
-    Success<T>(data: final d) => d,
-    Failure<T>() => null,
-  };
+        Success<T>(data: final d) => d,
+        Failure<T>() => null,
+      };
 
   /// الحصول على رسالة الخطأ (null إذا نجح)
   String? get errorOrNull => switch (this) {
-    Success<T>() => null,
-    Failure<T>(message: final m) => m,
-  };
+        Success<T>() => null,
+        Failure<T>(message: final m) => m,
+      };
 }
 
 /// حالة النجاح مع البيانات
@@ -58,7 +59,9 @@ class Success<T> extends ApiResult<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Success<T> && runtimeType == other.runtimeType && data == other.data;
+      other is Success<T> &&
+          runtimeType == other.runtimeType &&
+          data == other.data;
 
   @override
   int get hashCode => data.hashCode;
@@ -93,13 +96,13 @@ class Failure<T> extends ApiResult<T> {
 
 /// أنواع الأخطاء الشائعة
 enum ApiErrorType {
-  network,       // لا يوجد اتصال
-  timeout,       // انتهت المهلة
-  server,        // خطأ السيرفر (5xx)
-  unauthorized,  // غير مصرح (401)
-  notFound,      // غير موجود (404)
-  badRequest,    // طلب خاطئ (400)
-  unknown,       // خطأ غير معروف
+  network, // لا يوجد اتصال
+  timeout, // انتهت المهلة
+  server, // خطأ السيرفر (5xx)
+  unauthorized, // غير مصرح (401)
+  notFound, // غير موجود (404)
+  badRequest, // طلب خاطئ (400)
+  unknown, // خطأ غير معروف
 }
 
 /// Extension للحصول على نوع الخطأ

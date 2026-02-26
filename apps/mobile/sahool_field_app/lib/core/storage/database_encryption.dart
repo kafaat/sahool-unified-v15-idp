@@ -18,18 +18,20 @@ class DatabaseEncryption {
   final FlutterSecureStorage _secureStorage;
 
   DatabaseEncryption({FlutterSecureStorage? secureStorage})
-      : _secureStorage = secureStorage ?? const FlutterSecureStorage(
-          aOptions: AndroidOptions(
-            encryptedSharedPreferences: true,
-            // Use AES encryption for the key
-            keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_PKCS1Padding,
-            storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
-          ),
-          iOptions: IOSOptions(
-            // Use keychain access control
-            accessibility: KeychainAccessibility.first_unlock_this_device,
-          ),
-        );
+      : _secureStorage = secureStorage ??
+            const FlutterSecureStorage(
+              aOptions: AndroidOptions(
+                encryptedSharedPreferences: true,
+                // Use AES encryption for the key
+                keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_PKCS1Padding,
+                storageCipherAlgorithm:
+                    StorageCipherAlgorithm.AES_GCM_NoPadding,
+              ),
+              iOptions: IOSOptions(
+                // Use keychain access control
+                accessibility: KeychainAccessibility.first_unlock_this_device,
+              ),
+            );
 
   /// Generate a new random encryption key (256-bit)
   String _generateKey() {
@@ -52,7 +54,8 @@ class DatabaseEncryption {
           return existingKey;
         }
         // If invalid, generate new key (shouldn't happen in normal operation)
-        AppLogger.w('Invalid encryption key found, generating new one', tag: 'DatabaseEncryption');
+        AppLogger.w('Invalid encryption key found, generating new one',
+            tag: 'DatabaseEncryption');
       }
 
       // Generate new key
@@ -144,7 +147,8 @@ class DatabaseEncryption {
   String getSqlCipherPragma(String base64Key) {
     try {
       final keyBytes = base64Url.decode(base64Key);
-      final hexKey = keyBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      final hexKey =
+          keyBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
       // Use hex literal format which is safer (no escaping issues)
       return "PRAGMA key = \"x'$hexKey'\";";
     } catch (e) {

@@ -7,6 +7,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from src.config import settings
 from src.cache import cache_manager
@@ -77,6 +78,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints

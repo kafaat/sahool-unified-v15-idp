@@ -25,17 +25,21 @@ class ChatApi {
 
   // Stream controllers for real-time events
   final _messageStreamController = StreamController<Message>.broadcast();
-  final _typingStreamController = StreamController<Map<String, dynamic>>.broadcast();
-  final _onlineStatusStreamController = StreamController<Map<String, dynamic>>.broadcast();
+  final _typingStreamController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _onlineStatusStreamController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   /// Stream of incoming messages
   Stream<Message> get messageStream => _messageStreamController.stream;
 
   /// Stream of typing indicators
-  Stream<Map<String, dynamic>> get typingStream => _typingStreamController.stream;
+  Stream<Map<String, dynamic>> get typingStream =>
+      _typingStreamController.stream;
 
   /// Stream of online status updates
-  Stream<Map<String, dynamic>> get onlineStatusStream => _onlineStatusStreamController.stream;
+  Stream<Map<String, dynamic>> get onlineStatusStream =>
+      _onlineStatusStreamController.stream;
 
   ChatApi({
     required String baseUrl,
@@ -243,7 +247,8 @@ class ChatApi {
   }
 
   /// Mute a conversation
-  Future<void> muteConversation(String conversationId, {bool mute = true}) async {
+  Future<void> muteConversation(String conversationId,
+      {bool mute = true}) async {
     try {
       await _dio.put('/api/v1/conversations/$conversationId/mute', data: {
         'muted': mute,

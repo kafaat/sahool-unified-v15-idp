@@ -74,9 +74,10 @@ class InventoryCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.category.getName(locale),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey.shade600,
+                                    ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -89,17 +90,19 @@ class InventoryCard extends StatelessWidget {
                       children: [
                         Text(
                           item.currentStock.toStringAsFixed(1),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: _getStockColor(item),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getStockColor(item),
+                                  ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           item.unit.getName(locale),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey.shade600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
                         ),
                         const Spacer(),
                         StockStatusIndicator(
@@ -152,7 +155,10 @@ class InventoryCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.getDisplayName(locale),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                             maxLines: 1,
@@ -178,9 +184,10 @@ class InventoryCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           item.category.getName(locale),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey.shade600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
                         ),
                       ],
                     ),
@@ -199,10 +206,11 @@ class InventoryCard extends StatelessWidget {
                       children: [
                         Text(
                           '${item.currentStock.toStringAsFixed(1)} ${item.unit.getName(locale)}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: _getStockColor(item),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getStockColor(item),
+                                  ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(child: _buildBadges(context, locale)),
@@ -223,7 +231,8 @@ class InventoryCard extends StatelessWidget {
       return Image.network(
         item.imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildIconPlaceholder(context),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildIconPlaceholder(context),
       );
     }
     return _buildIconPlaceholder(context);

@@ -208,17 +208,17 @@ enum ThreatType {
 
 /// Severity level of threat
 enum ThreatSeverity {
-  low,      // Warning only
-  medium,   // Warn but allow
-  high,     // Recommend blocking
+  low, // Warning only
+  medium, // Warn but allow
+  high, // Recommend blocking
   critical, // Must block
 }
 
 /// Recommended action for security threat
 enum SecurityAction {
-  allow,    // No action needed
-  warn,     // Show warning but continue
-  block,    // Block app usage
+  allow, // No action needed
+  warn, // Show warning but continue
+  block, // Block app usage
 }
 
 /// Device Security Service
@@ -743,7 +743,8 @@ final deviceSecurityServiceProvider = Provider<DeviceSecurityService>((ref) {
 });
 
 /// Provider for device security check result (cached)
-final deviceSecurityCheckProvider = FutureProvider<DeviceSecurityResult>((ref) async {
+final deviceSecurityCheckProvider =
+    FutureProvider<DeviceSecurityResult>((ref) async {
   final service = ref.watch(deviceSecurityServiceProvider);
   return service.checkDeviceSecurity();
 });

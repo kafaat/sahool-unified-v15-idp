@@ -1,12 +1,28 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+/**
+ * Web Dashboard Header
+ * رأس الصفحة للوحة التحكم
+ *
+ * Optimized: User menu dropdown is lazy-loaded via next/dynamic since it is
+ * hidden by default and only shown after the user clicks their profile button.
+ */
+
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Bell, User, LogOut, Settings, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import { Badge } from "@/components/ui/badge";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
 import { clsx } from "clsx";
+import dynamic from "next/dynamic";
+
+// Lazy-load the user menu dropdown -- only shown on click interaction
+const UserMenuDropdown = dynamic(
+  () => import("@/components/layouts/UserMenuDropdown"),
+  { ssr: false },
+);
 
 export const Header = React.memo(function Header() {
   const router = useRouter();
@@ -92,76 +108,27 @@ export const Header = React.memo(function Header() {
             />
           </button>
 
-          {/* Dropdown Menu */}
+          {/* Dropdown Menu - lazy loaded */}
           {showUserMenu && (
-            <>
-              {/* Overlay */}
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowUserMenu(false)}
-                aria-hidden="true"
+            <Suspense fallback={null}>
+              <UserMenuDropdown
+                userName={user?.name_ar || user?.name}
+                userEmail={user?.email}
+                onProfileClick={() => {
+                  setShowUserMenu(false);
+                  router.push("/dashboard/profile");
+                }}
+                onSettingsClick={() => {
+                  setShowUserMenu(false);
+                  router.push("/dashboard/settings");
+                }}
+                onLogout={handleLogout}
+                onClose={() => setShowUserMenu(false)}
+                profileLabel={t("profile")}
+                settingsLabel={t("settings")}
+                logoutLabel={t("logout")}
               />
-
-              {/* Menu */}
-              <div
-                className="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
-                role="menu"
-                aria-label="قائمة خيارات المستخدم"
-              >
-                <div className="px-4 py-3 border-b border-gray-200">
-                  <div className="font-medium text-gray-900">
-                    {user?.name_ar || user?.name}
-                  </div>
-                  <div className="text-sm text-gray-500">{user?.email}</div>
-                </div>
-
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      router.push("/dashboard/profile");
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
-                    role="menuitem"
-                    aria-label={t("profile")}
-                  >
-                    <User className="w-4 h-4" />
-                    <div className="text-start">
-                      <div className="text-sm font-medium">{t("profile")}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      router.push("/dashboard/settings");
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
-                    role="menuitem"
-                    aria-label={t("settings")}
-                  >
-                    <Settings className="w-4 h-4" />
-                    <div className="text-start">
-                      <div className="text-sm font-medium">{t("settings")}</div>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="border-t border-gray-200 pt-2">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:bg-red-50"
-                    role="menuitem"
-                    aria-label={t("logout")}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <div className="text-start">
-                      <div className="text-sm font-medium">{t("logout")}</div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </>
+            </Suspense>
           )}
         </div>
       </div>

@@ -136,9 +136,7 @@ class MockDatabase {
   }
 
   Future<List<MockField>> getAllFields(String tenantId) async {
-    return _fields.values
-        .where((f) => f.tenantId == tenantId)
-        .toList()
+    return _fields.values.where((f) => f.tenantId == tenantId).toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 
@@ -181,7 +179,8 @@ class MockDatabase {
     return _outboxIdCounter;
   }
 
-  Future<List<MockOutboxEntry>> getPendingOutboxItems(String tenantId, {int limit = 10}) async {
+  Future<List<MockOutboxEntry>> getPendingOutboxItems(String tenantId,
+      {int limit = 10}) async {
     return _outbox
         .where((e) => e.tenantId == tenantId && !e.isDone)
         .take(limit)
@@ -303,7 +302,8 @@ void main() {
 
     test('should get all fields for tenant', () async {
       await db.insertField(testField);
-      await db.insertField(testField.copyWith(id: 'field-124', name: 'South Field'));
+      await db.insertField(
+          testField.copyWith(id: 'field-124', name: 'South Field'));
 
       final results = await db.getAllFields('tenant-456');
 
@@ -532,7 +532,8 @@ void main() {
     });
 
     test('should store centroid GeoJSON', () async {
-      const centroidGeoJson = '{"type": "Point", "coordinates": [46.75, 24.75]}';
+      const centroidGeoJson =
+          '{"type": "Point", "coordinates": [46.75, 24.75]}';
 
       final field = MockField(
         id: 'field-centroid',

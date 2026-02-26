@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 try:
     from cors_config import setup_cors_middleware
@@ -31,9 +32,7 @@ except ImportError:
         from fastapi.middleware.cors import CORSMiddleware
 
         # Get allowed origins from environment or use safe defaults
-        cors_origins = os.getenv(
-            "CORS_ORIGINS", "http://localhost:3000,http://localhost:8080"
-        ).split(",")
+        cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
         app.add_middleware(
             CORSMiddleware,
             allow_origins=cors_origins,  # nosemgrep: python.fastapi.security.wildcard-cors
@@ -174,6 +173,8 @@ add_request_id_middleware(app)
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)
 
+app.add_middleware(TenantContextMiddleware)
+
 
 # ============== Health Endpoints ==============
 
@@ -190,9 +191,7 @@ def health():
         nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
 
     # Check in-memory store status | فحص حالة التخزين المؤقت
-    storage_records = (
-        len(_compliance_records) + len(_checklists) + len(_assessments) + len(_certificates)
-    )
+    storage_records = len(_compliance_records) + len(_checklists) + len(_assessments) + len(_certificates)
 
     return {
         "status": "healthy",
@@ -352,11 +351,7 @@ async def get_checklists(
     الحصول على قوائم المراجعة المتاحة
     """
     # Filter checklists | تصفية قوائم المراجعة
-    filtered = [
-        c
-        for c in _checklists.values()
-        if c.get("ifa_version") == ifa_version and c.get("is_active", True)
-    ]
+    filtered = [c for c in _checklists.values() if c.get("ifa_version") == ifa_version and c.get("is_active", True)]
 
     if checklist_type:
         filtered = [c for c in filtered if c.get("checklist_type") == checklist_type]
@@ -382,9 +377,7 @@ async def get_checklist_items(
         filtered = [item for item in filtered if item.get("category") == category.value]
 
     if compliance_level:
-        filtered = [
-            item for item in filtered if item.get("compliance_level") == compliance_level.value
-        ]
+        filtered = [item for item in filtered if item.get("compliance_level") == compliance_level.value]
 
     return {"checklist_id": checklist_id, "items": filtered, "total": len(filtered)}
 
@@ -430,11 +423,7 @@ async def get_farm_assessments(
     الحصول على جميع التقييمات للمزرعة
     """
     # Filter assessments | تصفية التقييمات
-    filtered = [
-        a
-        for a in _assessments.values()
-        if a.get("farm_id") == farm_id and a.get("tenant_id") == tenant_id
-    ]
+    filtered = [a for a in _assessments.values() if a.get("farm_id") == farm_id and a.get("tenant_id") == tenant_id]
 
     if status:
         filtered = [a for a in filtered if a.get("status") == status.value]
@@ -578,9 +567,7 @@ async def get_farm_non_conformities(
 
 
 @app.post("/non-conformities", status_code=201)
-async def create_non_conformity(
-    non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id)
-):
+async def create_non_conformity(non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id)):
     """
     Create a new non-conformity record
     إنشاء سجل عدم مطابقة جديد
@@ -628,9 +615,7 @@ async def get_farm_certificates(
     """
     # Filter certificates | تصفية الشهادات
     filtered = [
-        cert
-        for cert in _certificates.values()
-        if cert.get("farm_id") == farm_id and cert.get("tenant_id") == tenant_id
+        cert for cert in _certificates.values() if cert.get("farm_id") == farm_id and cert.get("tenant_id") == tenant_id
     ]
 
     if status:

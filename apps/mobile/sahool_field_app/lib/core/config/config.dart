@@ -22,10 +22,12 @@ class AppConfig {
   static String get appName => env.EnvConfig.appName;
   static bool get enableOfflineMode => env.EnvConfig.enableOfflineMode;
   static bool get enablePhotoCapture => env.EnvConfig.enableCamera;
-  static bool get enablePushNotifications => env.EnvConfig.enablePushNotifications;
+  static bool get enablePushNotifications =>
+      env.EnvConfig.enablePushNotifications;
   static bool get enableBackgroundSync => env.EnvConfig.enableBackgroundSync;
   static bool get isDebug => env.EnvConfig.isDebugMode;
   static String get defaultTenantId => env.EnvConfig.defaultTenantId;
-  static Duration get backgroundSyncInterval => env.EnvConfig.backgroundSyncInterval;
+  static Duration get backgroundSyncInterval =>
+      env.EnvConfig.backgroundSyncInterval;
   static const int backgroundSyncBatchSize = 25;
 }

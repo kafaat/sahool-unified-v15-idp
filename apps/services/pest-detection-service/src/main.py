@@ -15,6 +15,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from src.api.v1 import pests, scouts, thresholds, treatments
 
 # Configure structured logging
@@ -37,6 +39,34 @@ logger = structlog.get_logger(__name__)
 SERVICE_NAME = "pest-detection-service"
 SERVICE_VERSION = "16.0.0"
 SERVICE_NAME_AR = "خدمة كشف الآفات"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Feature Schema Definition (v1.0)
+# تعريف مخطط المدخلات للكشف عن انحراف البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FEATURE_SCHEMA = {
+    "version": "1.0.0",
+    "service": SERVICE_NAME,
+    "features": {
+        "image": {"type": "binary", "formats": ["jpeg", "png", "webp"], "max_size_mb": 50},
+        "temperature_c": {"type": "float", "min": -10, "max": 60, "unit": "°C"},
+        "humidity_pct": {"type": "float", "min": 0, "max": 100, "unit": "%"},
+        "ndvi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "optional": True},
+        "crop_type": {"type": "enum", "values": [
+            "wheat", "sorghum", "tomato", "date_palm", "coffee",
+            "mango", "citrus", "grape", "cotton", "sesame", "alfalfa",
+        ]},
+        "season": {"type": "enum", "values": ["spring", "summer", "fall", "winter"]},
+        "latitude": {"type": "float", "min": -90, "max": 90, "unit": "degrees"},
+        "longitude": {"type": "float", "min": -180, "max": 180, "unit": "degrees"},
+        "confidence_threshold": {"type": "float", "min": 0.0, "max": 1.0, "default": 0.25},
+    },
+    "quality_requirements": {
+        "min_image_resolution_px": 320,
+        "max_detection_latency_ms": 5000,
+    },
+}
 
 
 @asynccontextmanager
@@ -125,6 +155,15 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
 )
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
+
+@app.get("/v1/feature-schema", tags=["Schema"])
+async def get_feature_schema():
+    """Return the ML feature schema for data drift monitoring."""
+    return FEATURE_SCHEMA
+
 
 # Health endpoints
 @app.get("/healthz", tags=["Health"])
@@ -192,8 +231,8 @@ async def metrics():
         "# HELP pest_detection_up Service is up\n"
         "# TYPE pest_detection_up gauge\n"
         "pest_detection_up 1\n"
-        f'# HELP pest_detection_info Service version info\n'
-        f'# TYPE pest_detection_info gauge\n'
+        f"# HELP pest_detection_info Service version info\n"
+        f"# TYPE pest_detection_info gauge\n"
         f'pest_detection_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
     )
     return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")

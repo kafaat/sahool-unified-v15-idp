@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timezone
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import unified error handling
 try:
@@ -79,6 +80,10 @@ async def lifespan(app: FastAPI):
 
     # Initialize database connection
     database_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if database_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in database_url:
+            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
     if database_url:
         try:
             import asyncpg
@@ -213,6 +218,8 @@ if HAS_ERROR_HANDLERS:
     add_request_id_middleware(app)
     logger.info("Unified error handling configured")
 
+app.add_middleware(TenantContextMiddleware)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
@@ -306,11 +313,23 @@ async def register_camera(request: CameraRegistration):
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
                    ON CONFLICT (camera_id) DO UPDATE SET
                    name=$3, name_ar=$4, status=$16""",
-                request.camera_id, request.tower_id, request.name, request.name_ar,
-                request.latitude, request.longitude, request.altitude_m,
-                request.focal_length_mm, request.sensor_width_mm, request.sensor_height_mm,
-                request.image_width_px, request.image_height_px,
-                request.zoom_min, request.zoom_max, request.tenant_id, "online", created_at,
+                request.camera_id,
+                request.tower_id,
+                request.name,
+                request.name_ar,
+                request.latitude,
+                request.longitude,
+                request.altitude_m,
+                request.focal_length_mm,
+                request.sensor_width_mm,
+                request.sensor_height_mm,
+                request.image_width_px,
+                request.image_height_px,
+                request.zoom_min,
+                request.zoom_max,
+                request.tenant_id,
+                "online",
+                created_at,
             )
         except Exception as e:
             logger.warning(f"Failed to store camera in database: {e}")
@@ -357,7 +376,8 @@ async def list_cameras(
                 rows = await state.db_pool.fetch(
                     "SELECT camera_id, tower_id, name, name_ar, status, created_at "
                     "FROM cameras WHERE tenant_id=$1 AND tower_id=$2 ORDER BY created_at DESC",
-                    tenant_id, tower_id,
+                    tenant_id,
+                    tower_id,
                 )
             else:
                 rows = await state.db_pool.fetch(
@@ -383,7 +403,8 @@ async def get_camera(camera_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM cameras WHERE camera_id=$1", camera_id,
+                "SELECT * FROM cameras WHERE camera_id=$1",
+                camera_id,
             )
             if row:
                 return dict(row)
@@ -467,8 +488,12 @@ async def process_frame(request: FrameProcessRequest):
                 """INSERT INTO frame_results (frame_id, camera_id, field_id, tenant_id,
                    detections_count, anomalies_count, processed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7)""",
-                request.frame_id, request.camera_id, request.field_id,
-                request.tenant_id, detections_count, anomalies_count,
+                request.frame_id,
+                request.camera_id,
+                request.field_id,
+                request.tenant_id,
+                detections_count,
+                anomalies_count,
                 datetime.now(UTC).isoformat(),
             )
         except Exception as e:
@@ -547,7 +572,8 @@ async def list_detections(
                 idx += 1
 
             count_row = await state.db_pool.fetchrow(
-                query.replace("SELECT *", "SELECT COUNT(*) as cnt"), *params,
+                query.replace("SELECT *", "SELECT COUNT(*) as cnt"),
+                *params,
             )
             total = count_row["cnt"] if count_row else 0
 
@@ -576,7 +602,8 @@ async def get_detection(detection_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM detections WHERE detection_id=$1", detection_id,
+                "SELECT * FROM detections WHERE detection_id=$1",
+                detection_id,
             )
             if row:
                 return dict(row)
@@ -665,8 +692,13 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
                 """INSERT INTO timeline_analyses (analysis_id, field_id, tenant_id,
                    crop_type, growth_stage, confidence, processing_time_ms, analyzed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
-                analysis_id, request.field_id, request.tenant_id,
-                crop_type, growth_stage, confidence, processing_time,
+                analysis_id,
+                request.field_id,
+                request.tenant_id,
+                crop_type,
+                growth_stage,
+                confidence,
+                processing_time,
                 datetime.now(UTC).isoformat(),
             )
         except Exception as e:
@@ -689,18 +721,21 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
             import json
 
             subject = f"sahool.{request.tenant_id}.ground_vision.timeline_updated"
-            payload = json.dumps({
-                "analysis_id": analysis_id,
-                "field_id": request.field_id,
-                "tenant_id": request.tenant_id,
-                "crop_type": "wheat",
-                "growth_stage": "tillering",
-                "confidence": 0.85,
-                "processing_time_ms": processing_time,
-                "timestamp": datetime.now(UTC).isoformat(),
-            }, default=str).encode()
+            payload = json.dumps(
+                {
+                    "analysis_id": analysis_id,
+                    "field_id": request.field_id,
+                    "tenant_id": request.tenant_id,
+                    "crop_type": "wheat",
+                    "growth_stage": "tillering",
+                    "confidence": 0.85,
+                    "processing_time_ms": processing_time,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                },
+                default=str,
+            ).encode()
             await state.nc.publish(subject, payload)
-            safe_field_id = str(request.field_id).replace('\r', '').replace('\n', '')
+            safe_field_id = str(request.field_id).replace("\r", "").replace("\n", "")
             logger.info("Published timeline_updated for %s", safe_field_id)
         except Exception as e:
             logger.warning("Failed to publish timeline_updated event: %s", str(e))
@@ -722,9 +757,7 @@ async def get_field_timeline(
     """
     if state.db_pool:
         try:
-            query = (
-                "SELECT * FROM timeline_analyses WHERE field_id=$1 AND tenant_id=$2"
-            )
+            query = "SELECT * FROM timeline_analyses WHERE field_id=$1 AND tenant_id=$2"
             params: list = [field_id, tenant_id]
             idx = 3
             if from_date:
@@ -789,7 +822,8 @@ async def list_anomalies(
                 idx += 1
 
             count_row = await state.db_pool.fetchrow(
-                query.replace("SELECT *", "SELECT COUNT(*) as cnt"), *params,
+                query.replace("SELECT *", "SELECT COUNT(*) as cnt"),
+                *params,
             )
             total = count_row["cnt"] if count_row else 0
 
@@ -818,7 +852,8 @@ async def get_anomaly(anomaly_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM anomalies WHERE anomaly_id=$1", anomaly_id,
+                "SELECT * FROM anomalies WHERE anomaly_id=$1",
+                anomaly_id,
             )
             if row:
                 return dict(row)
@@ -851,7 +886,10 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
                 """UPDATE anomalies SET status='acknowledged',
                    acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
                    WHERE anomaly_id=$4""",
-                request.acknowledged_by, request.notes, acknowledged_at, anomaly_id,
+                request.acknowledged_by,
+                request.notes,
+                acknowledged_at,
+                anomaly_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
@@ -891,8 +929,11 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
                 """UPDATE anomalies SET status='resolved',
                    resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
                    WHERE anomaly_id=$5""",
-                request.resolved_by, request.resolution_notes,
-                request.resolution_notes_ar, resolved_at, anomaly_id,
+                request.resolved_by,
+                request.resolution_notes,
+                request.resolution_notes_ar,
+                resolved_at,
+                anomaly_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
@@ -926,8 +967,8 @@ async def metrics():
         "# HELP ground_vision_up Service is up\n"
         "# TYPE ground_vision_up gauge\n"
         "ground_vision_up 1\n"
-        '# HELP ground_vision_info Service version info\n'
-        '# TYPE ground_vision_info gauge\n'
+        "# HELP ground_vision_info Service version info\n"
+        "# TYPE ground_vision_info gauge\n"
         f'ground_vision_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
         "# HELP ground_vision_db_up Database connection status\n"
         "# TYPE ground_vision_db_up gauge\n"

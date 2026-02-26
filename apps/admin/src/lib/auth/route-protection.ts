@@ -73,8 +73,9 @@ export function getRequiredRoles(pathname: string): UserRole[] | null {
   }
 
   // Check for exact match first
-  if (PROTECTED_ROUTES[pathname]) {
-    return PROTECTED_ROUTES[pathname];
+  const exactMatch = PROTECTED_ROUTES[pathname];
+  if (exactMatch) {
+    return exactMatch;
   }
 
   // Check for prefix match (e.g., /settings/security matches /settings)

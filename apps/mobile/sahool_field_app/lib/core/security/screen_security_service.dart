@@ -20,7 +20,8 @@ export 'security_config.dart' show securityConfigProvider, SecurityConfig;
 
 /// Screen security service class
 class ScreenSecurityService {
-  static final ScreenSecurityService _instance = ScreenSecurityService._internal();
+  static final ScreenSecurityService _instance =
+      ScreenSecurityService._internal();
   factory ScreenSecurityService() => _instance;
   ScreenSecurityService._internal();
 
@@ -188,7 +189,8 @@ class SecureScreen extends ConsumerStatefulWidget {
 }
 
 class _SecureScreenState extends ConsumerState<SecureScreen> {
-  final _secureApplicationController = SecureApplicationController(SecureApplicationState());
+  final _secureApplicationController =
+      SecureApplicationController(SecureApplicationState());
   bool _isSecured = false;
 
   @override
@@ -349,10 +351,12 @@ class ScreenRecordingDetector extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ScreenRecordingDetector> createState() => _ScreenRecordingDetectorState();
+  ConsumerState<ScreenRecordingDetector> createState() =>
+      _ScreenRecordingDetectorState();
 }
 
-class _ScreenRecordingDetectorState extends ConsumerState<ScreenRecordingDetector> {
+class _ScreenRecordingDetectorState
+    extends ConsumerState<ScreenRecordingDetector> {
   bool _isRecording = false;
   StreamSubscription? _recordingSubscription;
 

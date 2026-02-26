@@ -5,6 +5,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { useEquipmentDetails } from "../hooks/useEquipment";
 import {
   Loader2,
@@ -111,11 +112,16 @@ export function EquipmentDetails({ equipmentId }: EquipmentDetailsProps) {
       {/* Image */}
       {equipment.imageUrl && (
         <div className="bg-white rounded-lg shadow p-6">
-          <img
-            src={equipment.imageUrl}
-            alt={equipment.nameAr}
-            className="w-full h-96 object-cover rounded-lg"
-          />
+          <div className="relative w-full h-96">
+            <Image
+              src={equipment.imageUrl}
+              alt={equipment.nameAr}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
         </div>
       )}
 

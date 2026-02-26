@@ -20,20 +20,20 @@ enum DiseaseSeverity {
   critical;
 
   String get arabicName => switch (this) {
-    healthy => 'سليم',
-    low => 'منخفض',
-    medium => 'متوسط',
-    high => 'مرتفع',
-    critical => 'حرج',
-  };
+        healthy => 'سليم',
+        low => 'منخفض',
+        medium => 'متوسط',
+        high => 'مرتفع',
+        critical => 'حرج',
+      };
 
   String get color => switch (this) {
-    healthy => '#22C55E',  // green
-    low => '#84CC16',      // lime
-    medium => '#EAB308',   // yellow
-    high => '#F97316',     // orange
-    critical => '#EF4444', // red
-  };
+        healthy => '#22C55E', // green
+        low => '#84CC16', // lime
+        medium => '#EAB308', // yellow
+        high => '#F97316', // orange
+        critical => '#EF4444', // red
+      };
 }
 
 /// نموذج العلاج المقترح
@@ -73,7 +73,9 @@ class DiagnosisModel with _$DiagnosisModel {
     // الثقة والشدة
     required double confidence,
     required DiseaseSeverity severity,
-    @JsonKey(name: 'affected_area_percent') @Default(0) double affectedAreaPercent,
+    @JsonKey(name: 'affected_area_percent')
+    @Default(0)
+    double affectedAreaPercent,
 
     // المحصول
     @JsonKey(name: 'detected_crop') String? detectedCrop,
@@ -81,16 +83,22 @@ class DiagnosisModel with _$DiagnosisModel {
 
     // العلاج
     @Default([]) List<TreatmentModel> treatments,
-    @JsonKey(name: 'urgent_action_required') @Default(false) bool urgentActionRequired,
+    @JsonKey(name: 'urgent_action_required')
+    @Default(false)
+    bool urgentActionRequired,
 
     // مراجعة الخبير
-    @JsonKey(name: 'needs_expert_review') @Default(false) bool needsExpertReview,
+    @JsonKey(name: 'needs_expert_review')
+    @Default(false)
+    bool needsExpertReview,
     @JsonKey(name: 'expert_review_reason') String? expertReviewReason,
 
     // نصائح إضافية
     @JsonKey(name: 'weather_consideration') String? weatherConsideration,
     @JsonKey(name: 'prevention_tips') @Default([]) List<String> preventionTips,
-    @JsonKey(name: 'prevention_tips_ar') @Default([]) List<String> preventionTipsAr,
+    @JsonKey(name: 'prevention_tips_ar')
+    @Default([])
+    List<String> preventionTipsAr,
 
     // الصورة المحفوظة
     @JsonKey(name: 'image_url') String? imageUrl,

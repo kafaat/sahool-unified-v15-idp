@@ -37,6 +37,13 @@ shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."
 sys.path.insert(0, shared_path)
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+
+def sanitize_log_input(value: str) -> str:
+    """Sanitize user input for safe logging to prevent log injection attacks."""
+    if not isinstance(value, str):
+        value = str(value)
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -49,6 +56,10 @@ except ImportError:
         pass
 
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # Import authentication dependencies
 try:
     from shared.auth.dependencies import get_current_user
@@ -58,9 +69,12 @@ try:
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -386,9 +400,7 @@ async def create_notification(
         )
 
         if not should_send:
-            logger.debug(
-                f"Skipping notification for user {farmer_id} - event type disabled in preferences"
-            )
+            logger.debug(f"Skipping notification for user {sanitize_log_input(farmer_id)} - event type disabled in preferences")
             continue
 
         # Use preferred channels if available, otherwise use provided channels
@@ -413,9 +425,7 @@ async def create_notification(
                 "priority_ar": PRIORITY_AR[priority],
                 "channels": final_channels,
             },
-            target_governorates=(
-                [g.value for g in target_governorates] if target_governorates else None
-            ),
+            target_governorates=([g.value for g in target_governorates] if target_governorates else None),
             target_crops=[c.value for c in target_crops] if target_crops else None,
             expires_in_hours=expires_in_hours,
         )
@@ -426,12 +436,17 @@ async def create_notification(
             try:
                 # Convert channel name string to enum
                 channel_enum = NotificationChannel(channel_name)
-                asyncio.create_task(
+                task = asyncio.create_task(
                     send_notification_via_channel(
                         notification=notification,
                         channel=channel_enum,
                         farmer_id=notification.user_id,
-                    )
+                    ),
+                    name=f"send_{channel_name}_{notification.id}",
+                )
+                # Prevent unhandled exception warnings on fire-and-forget tasks
+                task.add_done_callback(
+                    lambda t: logger.error(f"Background send failed: {t.exception()}") if t.exception() else None
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")
@@ -480,7 +495,7 @@ async def send_sms_notification(notification, farmer_id: str):
         # Get farmer profile from database to get phone number
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
-            logger.warning(f"No phone number for farmer {farmer_id}")
+            logger.warning(f"No phone number for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="sms",
@@ -540,7 +555,7 @@ async def send_email_notification(notification, farmer_id: str):
         # Get farmer profile from database to get email address
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.email:
-            logger.warning(f"No email address for farmer {farmer_id}")
+            logger.warning(f"No email address for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="email",
@@ -618,7 +633,7 @@ async def send_push_notification(notification, farmer_id: str):
         # Get farmer profile from database to get FCM token
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.fcm_token:
-            logger.warning(f"No FCM token for farmer {farmer_id}")
+            logger.warning(f"No FCM token for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="push",
@@ -671,7 +686,7 @@ async def send_push_notification(notification, farmer_id: str):
                 status="sent",
                 provider_message_id=message_id,
             )
-            logger.info(f"✅ Push notification sent to {farmer_id}: {message_id}")
+            logger.info(f"Push notification sent to {sanitize_log_input(farmer_id)}: {sanitize_log_input(str(message_id))}")
         else:
             raise Exception("Failed to send push notification")
 
@@ -691,7 +706,7 @@ async def send_whatsapp_notification(notification, farmer_id: str):
         # Get farmer profile from database to get WhatsApp number
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
-            logger.warning(f"No WhatsApp number for farmer {farmer_id}")
+            logger.warning(f"No WhatsApp number for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="whatsapp",
@@ -887,12 +902,9 @@ async def create_notification_from_nats(notification_data: dict[str, Any]):
         }
 
         ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
-        priority = priority_mapping.get(
-            notification_data.get("priority", "medium"), NotificationPriority.MEDIUM
-        )
+        priority = priority_mapping.get(notification_data.get("priority", "medium"), NotificationPriority.MEDIUM)
         channels = [
-            channel_mapping.get(ch, NotificationChannel.IN_APP)
-            for ch in notification_data.get("channels", ["in_app"])
+            channel_mapping.get(ch, NotificationChannel.IN_APP) for ch in notification_data.get("channels", ["in_app"])
         ]
 
         await create_notification(
@@ -964,9 +976,7 @@ async def lifespan(app: FastAPI):
         if whatsapp_client._initialized:
             logger.info("✅ WhatsApp client initialized")
         else:
-            logger.info(
-                "ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)"
-            )
+            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
 
@@ -1094,6 +1104,9 @@ except ImportError as e:
 except Exception as e:
     logger.warning(f"Failed to setup rate limiting: {e}")
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 
 # =============================================================================
 # API Endpoints
@@ -1161,7 +1174,7 @@ async def readiness_check():
 @app.post("/")
 async def create_custom_notification(
     request: CreateNotificationRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """إنشاء إشعار مخصص"""
     notification = await create_notification(
@@ -1205,9 +1218,7 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
-    title, title_ar, body, body_ar = get_weather_alert_message(
-        request.alert_type, request.governorates[0]
-    )
+    title, title_ar, body, body_ar = get_weather_alert_message(request.alert_type, request.governorates[0])
 
     notification = await create_notification(
         type=NotificationType.WEATHER_ALERT,
@@ -1319,7 +1330,7 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """الحصول على إشعارات مزارع معين"""
     # Security: Verify the authenticated user can only access their own notifications
@@ -1377,7 +1388,7 @@ async def get_farmer_notifications(
 async def mark_notification_read(
     notification_id: str,
     farmer_id: str = Query(...),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """تحديد إشعار كمقروء"""
     try:
@@ -1477,7 +1488,7 @@ async def register_farmer(profile: FarmerProfile):
             language=profile.language,
         )
 
-        logger.info(f"👨‍🌾 Farmer registered: {profile.farmer_id} ({profile.name_ar})")
+        logger.info(f"Farmer registered: {sanitize_log_input(profile.farmer_id)} ({sanitize_log_input(profile.name_ar or '')})")
 
         return {
             "success": True,
@@ -1516,9 +1527,7 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
                 else None
             ),
             quiet_hours_end=(
-                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time()
-                if preferences.quiet_hours_end
-                else None
+                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time() if preferences.quiet_hours_end else None
             ),
             metadata={
                 "min_priority": preferences.min_priority.value,

@@ -1016,7 +1016,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
 | `package.json`                  | Node.js root workspace (25 packages + services) |
-| `.env.example`                  | Environment template                         |
+| `.env.example`                  | Environment template (copy of `.env.development.template`) |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
 | `shared/errors_py.py`           | Unified error handling for FastAPI            |

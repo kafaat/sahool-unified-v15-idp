@@ -1,11 +1,18 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { AuthModule, TenantGuard } from "@sahool/nestjs-auth";
+import { HealthController } from "./health/health.controller";
 import { YieldController } from "./yield/yield.controller";
 import { YieldService } from "./yield/yield.service";
 
 @Module({
   imports: [
+    // Shared JWT authentication (replaces local custom guard)
+    AuthModule.forRoot({
+      enableUserValidation: false,
+      enableTokenRevocation: false,
+    }),
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {
@@ -25,13 +32,18 @@ import { YieldService } from "./yield/yield.service";
       },
     ]),
   ],
-  controllers: [YieldController],
+  controllers: [HealthController, YieldController],
   providers: [
     YieldService,
     // Global rate limiting guard
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

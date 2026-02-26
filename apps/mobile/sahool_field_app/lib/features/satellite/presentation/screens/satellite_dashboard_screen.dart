@@ -26,21 +26,27 @@ class SatelliteDashboardScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SatelliteDashboardScreen> createState() => _SatelliteDashboardScreenState();
+  ConsumerState<SatelliteDashboardScreen> createState() =>
+      _SatelliteDashboardScreenState();
 }
 
-class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScreen> {
+class _SatelliteDashboardScreenState
+    extends ConsumerState<SatelliteDashboardScreen> {
   @override
   void initState() {
     super.initState();
     // Load dashboard data on init
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(satelliteDashboardProvider.notifier).loadDashboard(widget.fieldId);
+      ref
+          .read(satelliteDashboardProvider.notifier)
+          .loadDashboard(widget.fieldId);
     });
   }
 
   Future<void> _refreshDashboard() async {
-    await ref.read(satelliteDashboardProvider.notifier).refreshDashboard(widget.fieldId);
+    await ref
+        .read(satelliteDashboardProvider.notifier)
+        .refreshDashboard(widget.fieldId);
   }
 
   @override
@@ -92,7 +98,9 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
           ),
           const SizedBox(height: 16),
           Text(
-            isArabic ? 'جاري تحميل بيانات الأقمار الصناعية...' : 'Loading satellite data...',
+            isArabic
+                ? 'جاري تحميل بيانات الأقمار الصناعية...'
+                : 'Loading satellite data...',
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
@@ -130,7 +138,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildDashboardContent(BuildContext context, SatelliteDashboardState state, bool isArabic) {
+  Widget _buildDashboardContent(
+      BuildContext context, SatelliteDashboardState state, bool isArabic) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -168,10 +177,12 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
 
         // Recommendations Section
         if (state.fieldHealth?.recommendations.isNotEmpty ?? false)
-          _buildRecommendationsSection(state.fieldHealth!.recommendations, isArabic),
+          _buildRecommendationsSection(
+              state.fieldHealth!.recommendations, isArabic),
 
         // Last update info
-        if (state.lastUpdate != null) _buildLastUpdateInfo(state.lastUpdate!, isArabic),
+        if (state.lastUpdate != null)
+          _buildLastUpdateInfo(state.lastUpdate!, isArabic),
       ],
     );
   }
@@ -218,7 +229,9 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isArabic ? 'المراقبة بالأقمار الصناعية' : 'Satellite Monitoring',
+                  isArabic
+                      ? 'المراقبة بالأقمار الصناعية'
+                      : 'Satellite Monitoring',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -232,7 +245,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildHealthScoreCard(dynamic fieldHealth, BuildContext context, bool isArabic) {
+  Widget _buildHealthScoreCard(
+      dynamic fieldHealth, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () {
         // Show health details dialog
@@ -270,7 +284,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildNdviCard(dynamic ndviAnalysis, BuildContext context, bool isArabic) {
+  Widget _buildNdviCard(
+      dynamic ndviAnalysis, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToNdviDetail(context),
       child: Container(
@@ -356,7 +371,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildGrowthStageCard(dynamic phenologyData, BuildContext context, bool isArabic) {
+  Widget _buildGrowthStageCard(
+      dynamic phenologyData, BuildContext context, bool isArabic) {
     return GestureDetector(
       onTap: () => _navigateToPhenology(context),
       child: Container(
@@ -452,7 +468,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     );
   }
 
-  Widget _buildRecommendationsSection(List<dynamic> recommendations, bool isArabic) {
+  Widget _buildRecommendationsSection(
+      List<dynamic> recommendations, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -495,11 +512,16 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     String timeText;
 
     if (timeAgo.inMinutes < 60) {
-      timeText = isArabic ? 'منذ ${timeAgo.inMinutes} دقيقة' : '${timeAgo.inMinutes} minutes ago';
+      timeText = isArabic
+          ? 'منذ ${timeAgo.inMinutes} دقيقة'
+          : '${timeAgo.inMinutes} minutes ago';
     } else if (timeAgo.inHours < 24) {
-      timeText = isArabic ? 'منذ ${timeAgo.inHours} ساعة' : '${timeAgo.inHours} hours ago';
+      timeText = isArabic
+          ? 'منذ ${timeAgo.inHours} ساعة'
+          : '${timeAgo.inHours} hours ago';
     } else {
-      timeText = isArabic ? 'منذ ${timeAgo.inDays} يوم' : '${timeAgo.inDays} days ago';
+      timeText =
+          isArabic ? 'منذ ${timeAgo.inDays} يوم' : '${timeAgo.inDays} days ago';
     }
 
     return Padding(
@@ -603,7 +625,9 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isArabic ? 'لا توجد بيانات للتصدير' : 'No data available to export',
+              isArabic
+                  ? 'لا توجد بيانات للتصدير'
+                  : 'No data available to export',
             ),
           ),
         );
@@ -651,7 +675,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('NDWI: ${health.ndwi.toStringAsFixed(3)}');
         buffer.writeln('EVI: ${health.evi.toStringAsFixed(3)}');
         if (health.soilMoisture != null) {
-          buffer.writeln('رطوبة التربة: ${health.soilMoisture!.toStringAsFixed(1)}%');
+          buffer.writeln(
+              'رطوبة التربة: ${health.soilMoisture!.toStringAsFixed(1)}%');
         }
         buffer.writeln();
       } else {
@@ -664,7 +689,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('NDWI: ${health.ndwi.toStringAsFixed(3)}');
         buffer.writeln('EVI: ${health.evi.toStringAsFixed(3)}');
         if (health.soilMoisture != null) {
-          buffer.writeln('Soil Moisture: ${health.soilMoisture!.toStringAsFixed(1)}%');
+          buffer.writeln(
+              'Soil Moisture: ${health.soilMoisture!.toStringAsFixed(1)}%');
         }
         buffer.writeln();
       }
@@ -695,9 +721,12 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('-' * 40);
         buffer.writeln('تحليل NDVI');
         buffer.writeln('-' * 40);
-        buffer.writeln('القيمة الحالية: ${ndvi.currentNdvi.toStringAsFixed(3)}');
-        buffer.writeln('القيمة السابقة: ${ndvi.previousNdvi.toStringAsFixed(3)}');
-        buffer.writeln('نسبة التغيير: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
+        buffer
+            .writeln('القيمة الحالية: ${ndvi.currentNdvi.toStringAsFixed(3)}');
+        buffer
+            .writeln('القيمة السابقة: ${ndvi.previousNdvi.toStringAsFixed(3)}');
+        buffer.writeln(
+            'نسبة التغيير: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
         buffer.writeln('حالة الغطاء النباتي: ${ndvi.health.getLabel(true)}');
         buffer.writeln();
       } else {
@@ -705,15 +734,19 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('NDVI Analysis');
         buffer.writeln('-' * 40);
         buffer.writeln('Current Value: ${ndvi.currentNdvi.toStringAsFixed(3)}');
-        buffer.writeln('Previous Value: ${ndvi.previousNdvi.toStringAsFixed(3)}');
-        buffer.writeln('Change Rate: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
+        buffer
+            .writeln('Previous Value: ${ndvi.previousNdvi.toStringAsFixed(3)}');
+        buffer.writeln(
+            'Change Rate: ${ndvi.changeRate >= 0 ? '+' : ''}${ndvi.changeRate.toStringAsFixed(1)}%');
         buffer.writeln('Vegetation Health: ${ndvi.health.getLabel(false)}');
         buffer.writeln();
       }
 
       // NDVI Time Series Summary
       if (ndvi.timeSeries.isNotEmpty) {
-        buffer.writeln(isArabic ? 'السلسلة الزمنية (آخر ${ndvi.timeSeries.length} قراءة):' : 'Time Series (last ${ndvi.timeSeries.length} readings):');
+        buffer.writeln(isArabic
+            ? 'السلسلة الزمنية (آخر ${ndvi.timeSeries.length} قراءة):'
+            : 'Time Series (last ${ndvi.timeSeries.length} readings):');
         for (final point in ndvi.timeSeries.take(10)) {
           final dateStr = DateFormat('yyyy-MM-dd').format(point.date);
           buffer.writeln('  $dateStr: ${point.value.toStringAsFixed(3)}');
@@ -741,7 +774,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('-' * 40);
         buffer.writeln('مراحل النمو');
         buffer.writeln('-' * 40);
-        buffer.writeln('المرحلة الحالية: ${phenology.currentStage.getLabel(true)}');
+        buffer.writeln(
+            'المرحلة الحالية: ${phenology.currentStage.getLabel(true)}');
         if (phenology.daysToHarvest != null) {
           buffer.writeln('أيام حتى الحصاد: ${phenology.daysToHarvest}');
         }
@@ -750,7 +784,8 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
         buffer.writeln('-' * 40);
         buffer.writeln('Growth Stage');
         buffer.writeln('-' * 40);
-        buffer.writeln('Current Stage: ${phenology.currentStage.getLabel(false)}');
+        buffer.writeln(
+            'Current Stage: ${phenology.currentStage.getLabel(false)}');
         if (phenology.daysToHarvest != null) {
           buffer.writeln('Days to Harvest: ${phenology.daysToHarvest}');
         }
@@ -761,13 +796,16 @@ class _SatelliteDashboardScreenState extends ConsumerState<SatelliteDashboardScr
     // Last update info
     if (state.lastUpdate != null) {
       final lastUpdateStr = dateFormatter.format(state.lastUpdate!);
-      buffer.writeln(isArabic ? 'آخر تحديث: $lastUpdateStr' : 'Last Updated: $lastUpdateStr');
+      buffer.writeln(isArabic
+          ? 'آخر تحديث: $lastUpdateStr'
+          : 'Last Updated: $lastUpdateStr');
     }
 
     // Footer
     buffer.writeln();
     buffer.writeln('=' * 40);
-    buffer.writeln(isArabic ? 'تم إنشاؤه بواسطة تطبيق SAHOOL' : 'Generated by SAHOOL App');
+    buffer.writeln(
+        isArabic ? 'تم إنشاؤه بواسطة تطبيق SAHOOL' : 'Generated by SAHOOL App');
     buffer.writeln('=' * 40);
 
     // Share the report

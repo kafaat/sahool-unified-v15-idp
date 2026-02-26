@@ -118,9 +118,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.existingPivot != null
-                ? 'تعديل المحوري'
-                : 'إعداد محوري جديد',
+            widget.existingPivot != null ? 'تعديل المحوري' : 'إعداد محوري جديد',
           ),
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
@@ -454,7 +452,8 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected ? const Color(0xFF367C2B) : Colors.grey[600],
+                  color:
+                      isSelected ? const Color(0xFF367C2B) : Colors.grey[600],
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
                 textAlign: TextAlign.center,
@@ -630,7 +629,8 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: value ? const Color(0xFF367C2B).withOpacity(0.1) : Colors.grey[100],
+        color:
+            value ? const Color(0xFF367C2B).withOpacity(0.1) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value ? const Color(0xFF367C2B) : Colors.grey[300]!,
@@ -1065,7 +1065,8 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
     }
 
     return PivotConfiguration(
-      id: widget.existingPivot?.id ?? 'pivot_${DateTime.now().millisecondsSinceEpoch}',
+      id: widget.existingPivot?.id ??
+          'pivot_${DateTime.now().millisecondsSinceEpoch}',
       fieldId: widget.fieldId,
       name: _nameController.text,
       nameAr: _nameController.text,
@@ -1089,8 +1090,17 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
   }
 
   static const List<String> _defaultColors = [
-    '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-    '#FF9800', '#FF5722', '#E91E63', '#9C27B0',
-    '#673AB7', '#3F51B5', '#2196F3', '#00BCD4',
+    '#4CAF50',
+    '#8BC34A',
+    '#CDDC39',
+    '#FFC107',
+    '#FF9800',
+    '#FF5722',
+    '#E91E63',
+    '#9C27B0',
+    '#673AB7',
+    '#3F51B5',
+    '#2196F3',
+    '#00BCD4',
   ];
 }

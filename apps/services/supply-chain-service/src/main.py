@@ -13,6 +13,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .api.endpoints import (
     auto_purchase_router,
     orders_router,
@@ -59,6 +61,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Initialize database connection
     db_url = settings.DATABASE_URL
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             import asyncpg
@@ -181,6 +187,9 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
 
 # Request ID middleware
 @app.middleware("http")
@@ -227,8 +236,7 @@ async def health() -> dict[str, str]:
     "/readyz",
     tags=["health"],
     summary="Readiness Probe | فحص الجاهزية",
-    description="Check if the service is ready to accept traffic. "
-    "فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
+    description="Check if the service is ready to accept traffic. فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
 )
 @app.get("/health/ready", tags=["health"], include_in_schema=False)
 async def readiness(request: Request) -> dict[str, Any]:

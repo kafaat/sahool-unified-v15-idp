@@ -17,18 +17,33 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
+# Copy nestjs-auth package (workspace dependency: @sahool/nestjs-auth)
+COPY packages/nestjs-auth ./nestjs-auth/
+
+# Copy root tsconfig.base.json (nestjs-auth tsconfig extends ../../tsconfig.base.json)
+COPY tsconfig.base.json /tsconfig.base.json
+
 # Copy service to maintain relative path: ../../shared/ from yield-prediction-service/src/
-COPY apps/services/yield-prediction-service ./yield-prediction-service/
+COPY apps/services/yield-prediction-service /workspace/yield-prediction-service/
 
 WORKDIR /workspace/yield-prediction-service
 
 # Install dependencies with retry for network resilience
-# Suppress deprecation warnings from transitive dependencies (they're non-blocking, from old packages like glob@7)
-RUN npm config set registry https://registry.npmmirror.com && \
+# Replace workspace dependency with local file path for Docker build
+RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json && \
+    npm config set registry https://registry.npmmirror.com; \
     (npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
     (echo "Retrying npm install..." && npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
+
+# Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
+# Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
+RUN cd /workspace/nestjs-auth && \
+    ln -sf /workspace/yield-prediction-service/node_modules ./node_modules && \
+    npx tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    echo "WARN: nestjs-auth build failed"
 
 # Build the application
 RUN npm run build
@@ -43,6 +58,11 @@ WORKDIR /app
 
 # Install curl for health checks
 RUN apk add --no-cache curl
+
+# Copy only nestjs-auth dist + package.json for runtime (avoid builder's node_modules symlink)
+# Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
+COPY --from=builder /workspace/nestjs-auth/dist /nestjs-auth/dist/
+COPY --from=builder /workspace/nestjs-auth/package.json /nestjs-auth/package.json
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: reflect-metadata MUST be in dependencies (not devDependencies) for NestJS to work
@@ -59,6 +79,10 @@ RUN npm config set registry https://registry.npmmirror.com && \
     (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit))
 
+# Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
+# (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)
+RUN ln -s /app/node_modules /nestjs-auth/node_modules
+
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist
 
@@ -67,7 +91,7 @@ COPY --from=builder /workspace/yield-prediction-service/dist ./dist
 EXPOSE 8152
 
 # Set ownership and switch to non-root user (use existing node user)
-RUN chown -R node:node /app
+RUN chown -R node:node /app /nestjs-auth
 USER node
 
 # Health check

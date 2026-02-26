@@ -172,7 +172,8 @@ class ImageCompressionUtil {
       // فك تشفير الصورة - Decode image
       final image = img.decodeImage(imageData);
       if (image == null) {
-        AppLogger.e('Failed to decode image for resizing', tag: 'IMAGE_COMPRESSION');
+        AppLogger.e('Failed to decode image for resizing',
+            tag: 'IMAGE_COMPRESSION');
         return null;
       }
 

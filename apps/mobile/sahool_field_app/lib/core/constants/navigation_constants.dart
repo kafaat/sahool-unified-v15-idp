@@ -248,7 +248,14 @@ class NavigationConstants {
     FeatureGroup(
       title: 'precision_agriculture',
       icon: Icons.agriculture_rounded,
-      features: ['vra', 'gdd', 'spray', 'rotation', 'profitability', 'pivot_irrigation'],
+      features: [
+        'vra',
+        'gdd',
+        'spray',
+        'rotation',
+        'profitability',
+        'pivot_irrigation'
+      ],
     ),
     FeatureGroup(
       title: 'field_management',
@@ -279,7 +286,8 @@ class NavigationConstants {
   static IconData getIcon(String key) => featureIcons[key] ?? Icons.circle;
 
   // Helper method to get color
-  static Color getColor(String key) => featureColors[key] ?? const Color(0xFF2E7D32);
+  static Color getColor(String key) =>
+      featureColors[key] ?? const Color(0xFF2E7D32);
 }
 
 /// Feature Group for organizing features in drawer

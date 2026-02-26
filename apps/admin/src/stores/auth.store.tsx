@@ -1,6 +1,5 @@
 "use client";
 import * as React from "react";
-import { apiClient } from "@/lib/api-client";
 import { logger } from "@/lib/logger";
 
 interface User {
@@ -39,14 +38,11 @@ const AuthContext = React.createContext<AuthState | null>(null);
 const IDLE_TIMEOUT = 30 * 60 * 1000;
 // Token refresh interval: check every 5 minutes
 const REFRESH_CHECK_INTERVAL = 5 * 60 * 1000;
-// Activity tracking interval: update every 30 seconds when active
-const ACTIVITY_UPDATE_INTERVAL = 30 * 1000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const lastActivityRef = React.useRef<number>(Date.now());
-  const activityTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const idleCheckTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const refreshTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -60,7 +56,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       logger.error("Logout error:", error);
     } finally {
-      apiClient.clearToken();
       setUser(null);
       // Redirect to login
       if (typeof window !== "undefined") {
@@ -69,9 +64,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Update last activity timestamp
+  // Track last time we notified the server of activity
+  const lastServerPingRef = React.useRef<number>(0);
+  // Minimum interval between server activity pings (5 minutes)
+  const SERVER_PING_INTERVAL = 5 * 60 * 1000;
+
+  // Update last activity timestamp locally, and notify server at most once
+  // every 5 minutes. Previously this sent a network request on every user
+  // interaction AND every 30 seconds via a redundant timer, generating
+  // excessive traffic for the /api/auth/activity endpoint.
   const updateActivity = React.useCallback(async () => {
     lastActivityRef.current = Date.now();
+
+    // Throttle server-side activity updates
+    const now = Date.now();
+    if (now - lastServerPingRef.current < SERVER_PING_INTERVAL) {
+      return;
+    }
+    lastServerPingRef.current = now;
 
     // Update server-side activity timestamp
     try {
@@ -116,13 +126,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!user) {
       // Clear all timers if not authenticated
-      if (activityTimerRef.current) clearInterval(activityTimerRef.current);
       if (idleCheckTimerRef.current) clearInterval(idleCheckTimerRef.current);
       if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
       return;
     }
 
-    // Track user activity
+    // Track user activity via DOM events. The updateActivity callback
+    // throttles server pings internally (at most once per 5 minutes),
+    // so attaching to frequent events like scroll is safe.
     const events = ["mousedown", "keydown", "scroll", "touchstart", "click"];
     const handleActivity = () => {
       updateActivity();
@@ -131,11 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     events.forEach((event) => {
       window.addEventListener(event, handleActivity, { passive: true });
     });
-
-    // Periodic activity update (every 30 seconds if active)
-    activityTimerRef.current = setInterval(() => {
-      updateActivity();
-    }, ACTIVITY_UPDATE_INTERVAL);
 
     // Check for idle timeout every minute
     idleCheckTimerRef.current = setInterval(() => {
@@ -151,7 +157,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       events.forEach((event) => {
         window.removeEventListener(event, handleActivity);
       });
-      if (activityTimerRef.current) clearInterval(activityTimerRef.current);
       if (idleCheckTimerRef.current) clearInterval(idleCheckTimerRef.current);
       if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
     };

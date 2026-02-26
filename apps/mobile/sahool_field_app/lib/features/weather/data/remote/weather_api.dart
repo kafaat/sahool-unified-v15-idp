@@ -100,7 +100,8 @@ class WeatherApi {
 
   /// Get 7-day forecast for a location
   /// جلب توقعات 7 أيام لموقع
-  Future<List<DailyForecast>> getForecast(String location, {int days = 7}) async {
+  Future<List<DailyForecast>> getForecast(String location,
+      {int days = 7}) async {
     final uri = Uri.parse(ApiConfig.forecastByLocation(location)).replace(
       queryParameters: {'days': days.toString()},
     );
@@ -255,7 +256,8 @@ class WeatherApi {
 
   /// Get agricultural impacts for a field
   /// جلب التأثيرات الزراعية للحقل
-  Future<List<AgriculturalImpact>> getAgriculturalImpacts(String fieldId) async {
+  Future<List<AgriculturalImpact>> getAgriculturalImpacts(
+      String fieldId) async {
     final uri = Uri.parse(ApiConfig.agriculturalCalendar).replace(
       queryParameters: {'field_id': fieldId},
     );

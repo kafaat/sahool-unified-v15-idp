@@ -31,6 +31,7 @@ from fastapi import FastAPI
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.endpoints.hydrology import router as hydrology_router
 from .core.config import get_settings
@@ -74,10 +75,15 @@ async def lifespan(app: FastAPI):
     )
 
     # Database connection
-    if settings.database_url:
+    # Enforce sslmode for non-development database connections
+    db_url = settings.database_url
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
+    if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(
-                settings.database_url,
+                db_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
             )
@@ -184,6 +190,7 @@ Agricultural hydrological analysis service for the SAHOOL platform.
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+app.add_middleware(TenantContextMiddleware)
 
 # Include routers
 app.include_router(hydrology_router)
@@ -379,9 +386,7 @@ async def save_analysis(
     return False
 
 
-async def get_analysis(
-    field_id: str, analysis_type: str, tenant_id: str | None = None
-) -> dict | None:
+async def get_analysis(field_id: str, analysis_type: str, tenant_id: str | None = None) -> dict | None:
     """
     Retrieve analysis result from database.
     استرجاع نتيجة التحليل من قاعدة البيانات

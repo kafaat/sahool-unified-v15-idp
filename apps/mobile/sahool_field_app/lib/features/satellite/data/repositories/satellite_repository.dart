@@ -32,7 +32,8 @@ class SatelliteRepository {
 
   /// Get field health with caching
   /// جلب صحة الحقل مع التخزين المؤقت
-  Future<FieldHealth> getFieldHealth(String fieldId, {bool forceRefresh = false}) async {
+  Future<FieldHealth> getFieldHealth(String fieldId,
+      {bool forceRefresh = false}) async {
     final cacheKey = 'field_health_$fieldId';
 
     // Check cache first
@@ -68,7 +69,8 @@ class SatelliteRepository {
 
   /// Get NDVI analysis with caching
   /// جلب تحليل NDVI مع التخزين المؤقت
-  Future<NdviAnalysis> getNdviAnalysis(String fieldId, {bool forceRefresh = false}) async {
+  Future<NdviAnalysis> getNdviAnalysis(String fieldId,
+      {bool forceRefresh = false}) async {
     final cacheKey = 'ndvi_analysis_$fieldId';
 
     if (!forceRefresh) {
@@ -113,7 +115,8 @@ class SatelliteRepository {
 
     try {
       final timeSeries = await _api.getNdviTimeSeries(fieldId, days: days);
-      _cacheListData(cacheKey, timeSeries.map((point) => point.toJson()).toList());
+      _cacheListData(
+          cacheKey, timeSeries.map((point) => point.toJson()).toList());
       return timeSeries;
     } catch (e) {
       final cached = _getCachedListData<NdviDataPoint>(
@@ -143,7 +146,8 @@ class SatelliteRepository {
           final cacheTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
           if (DateTime.now().difference(cacheTime) < _cacheDuration) {
             final data = jsonDecode(cachedJson) as Map<String, dynamic>;
-            return data.map((key, value) => MapEntry(key, (value as num).toDouble()));
+            return data
+                .map((key, value) => MapEntry(key, (value as num).toDouble()));
           }
         }
       }
@@ -152,13 +156,15 @@ class SatelliteRepository {
     try {
       final indices = await _api.getVegetationIndices(fieldId);
       await _prefs.setString(cacheKey, jsonEncode(indices));
-      await _prefs.setInt('${cacheKey}_timestamp', DateTime.now().millisecondsSinceEpoch);
+      await _prefs.setInt(
+          '${cacheKey}_timestamp', DateTime.now().millisecondsSinceEpoch);
       return indices;
     } catch (e) {
       final cachedJson = _prefs.getString(cacheKey);
       if (cachedJson != null) {
         final data = jsonDecode(cachedJson) as Map<String, dynamic>;
-        return data.map((key, value) => MapEntry(key, (value as num).toDouble()));
+        return data
+            .map((key, value) => MapEntry(key, (value as num).toDouble()));
       }
       rethrow;
     }
@@ -171,9 +177,11 @@ class SatelliteRepository {
 
   /// Get weather forecast with caching (shorter cache duration for weather)
   /// جلب توقعات الطقس مع التخزين المؤقت
-  Future<WeatherSummary> getWeatherForecast(String fieldId, {bool forceRefresh = false}) async {
+  Future<WeatherSummary> getWeatherForecast(String fieldId,
+      {bool forceRefresh = false}) async {
     final cacheKey = 'weather_forecast_$fieldId';
-    final weatherCacheDuration = const Duration(hours: 3); // Weather updates more frequently
+    final weatherCacheDuration =
+        const Duration(hours: 3); // Weather updates more frequently
 
     if (!forceRefresh) {
       final cached = _getCachedData<WeatherSummary>(
@@ -238,7 +246,8 @@ class SatelliteRepository {
 
   /// Get phenology data with caching
   /// جلب بيانات مراحل النمو مع التخزين المؤقت
-  Future<PhenologyData> getPhenologyData(String fieldId, {bool forceRefresh = false}) async {
+  Future<PhenologyData> getPhenologyData(String fieldId,
+      {bool forceRefresh = false}) async {
     final cacheKey = 'phenology_data_$fieldId';
 
     if (!forceRefresh) {
@@ -352,7 +361,9 @@ class SatelliteRepository {
 
     try {
       final list = jsonDecode(cachedJson) as List<dynamic>;
-      return list.map((item) => fromJson(item as Map<String, dynamic>)).toList();
+      return list
+          .map((item) => fromJson(item as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       return null;
     }
@@ -360,12 +371,15 @@ class SatelliteRepository {
 
   Future<void> _cacheData(String key, Map<String, dynamic> data) async {
     await _prefs.setString(key, jsonEncode(data));
-    await _prefs.setInt('${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
+    await _prefs.setInt(
+        '${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
   }
 
-  Future<void> _cacheListData(String key, List<Map<String, dynamic>> data) async {
+  Future<void> _cacheListData(
+      String key, List<Map<String, dynamic>> data) async {
     await _prefs.setString(key, jsonEncode(data));
-    await _prefs.setInt('${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
+    await _prefs.setInt(
+        '${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Clear all cached satellite data

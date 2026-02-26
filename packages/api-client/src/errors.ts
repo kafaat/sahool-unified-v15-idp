@@ -5,6 +5,11 @@
 
 import { AxiosError } from "axios";
 
+/** V8-specific captureStackTrace (available in Node.js and Chrome) */
+interface ErrorWithCaptureStackTrace extends ErrorConstructor {
+  captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+}
+
 /**
  * Base API Error class
  * All custom API errors extend from this
@@ -40,8 +45,8 @@ export class ApiError extends Error {
     this.context = options.context;
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
+    if (typeof (Error as ErrorWithCaptureStackTrace).captureStackTrace === "function") {
+      (Error as ErrorWithCaptureStackTrace).captureStackTrace(this, this.constructor);
     }
   }
 
@@ -361,9 +366,10 @@ export function parseAxiosError(
         context: { statusCode },
       });
 
-    case 429:
-      const retryAfter = response.headers["retry-after"]
-        ? parseInt(response.headers["retry-after"], 10)
+    case 429: {
+      const retryAfterHeader = response.headers["retry-after"];
+      const retryAfter = typeof retryAfterHeader === "string"
+        ? parseInt(retryAfterHeader, 10)
         : undefined;
       return new RateLimitError(errorMessage || "Rate limit exceeded", {
         retryAfter,
@@ -372,6 +378,7 @@ export function parseAxiosError(
         originalError: error,
         context: { statusCode },
       });
+    }
 
     case 500:
     case 502:

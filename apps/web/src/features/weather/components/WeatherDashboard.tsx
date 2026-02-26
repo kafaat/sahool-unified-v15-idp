@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * SAHOOL Weather Dashboard Component
  * مكون لوحة الطقس

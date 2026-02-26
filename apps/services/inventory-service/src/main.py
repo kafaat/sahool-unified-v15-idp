@@ -29,12 +29,13 @@ try:
 except ImportError:
     AUTH_AVAILABLE = False
 
-    def get_current_user():
+    async def get_current_user():
         return None
 
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
         tenant_id: str = ""
+
 
 # Security headers middleware
 try:
@@ -47,6 +48,10 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
+from shared.middleware.tenant_context import TenantContextMiddleware
+
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -82,8 +87,7 @@ if not DATABASE_URL:
         logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
     else:
         raise ValueError(
-            "DATABASE_URL environment variable is required. "
-            "Set ALLOW_DEV_DEFAULTS=true for local development only."
+            "DATABASE_URL environment variable is required. Set ALLOW_DEV_DEFAULTS=true for local development only."
         )
 
 # Fix: Convert postgres:// to postgresql+asyncpg:// for SQLAlchemy
@@ -92,6 +96,11 @@ if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
 elif DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+# Enforce sslmode for non-development database connections
+if DATABASE_URL and os.getenv("ENVIRONMENT", "development") != "development":
+    if "sslmode" not in DATABASE_URL:
+        DATABASE_URL += "?sslmode=require" if "?" not in DATABASE_URL else "&sslmode=require"
 
 engine = create_async_engine(
     DATABASE_URL,
@@ -176,6 +185,9 @@ except Exception as e:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 
 @app.get("/health")
 async def health(db: AsyncSession = Depends(get_db)):
@@ -237,7 +249,7 @@ class ItemCategoryResponse(BaseModel):
 async def create_category(
     category: ItemCategoryCreate,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     db_category = ItemCategory(
         name_en=category.name_en,
@@ -271,7 +283,7 @@ async def get_forecast(
     tenant_id: str = Query(...),
     forecast_days: int = Query(90, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -287,7 +299,7 @@ async def get_all_forecasts(
     category: str | None = None,
     low_stock_only: bool = False,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -299,7 +311,7 @@ async def get_all_forecasts(
 async def get_reorder_recommendations(
     tenant_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -316,7 +328,7 @@ async def get_valuation(
     tenant_id: str = Query(...),
     warehouse_id: str | None = None,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -329,7 +341,7 @@ async def get_turnover(
     tenant_id: str = Query(...),
     period_days: int = Query(365, ge=30, le=730),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -346,7 +358,7 @@ async def get_slow_moving(
     tenant_id: str = Query(...),
     days_threshold: int = Query(90, ge=30, le=365),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -365,7 +377,7 @@ async def get_dead_stock(
     tenant_id: str = Query(...),
     days_threshold: int = Query(180, ge=90, le=730),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -383,7 +395,7 @@ async def get_dead_stock(
 async def get_abc_analysis(
     tenant_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -396,15 +408,13 @@ async def get_seasonal_patterns(
     item_id: str,
     tenant_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
     pattern = await analytics.get_seasonal_patterns(item_id)
     if not pattern:
-        raise HTTPException(
-            status_code=404, detail="Item not found or insufficient historical data"
-        )
+        raise HTTPException(status_code=404, detail="Item not found or insufficient historical data")
     return pattern.to_dict()
 
 
@@ -416,7 +426,7 @@ async def get_cost_analysis(
     start_date: date | None = None,
     end_date: date | None = None,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -434,7 +444,7 @@ async def get_waste_analysis(
     tenant_id: str = Query(...),
     period_days: int = Query(365, ge=30, le=730),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)
@@ -446,7 +456,7 @@ async def get_waste_analysis(
 async def get_dashboard_metrics(
     tenant_id: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     verified_tenant = _get_tenant_id(user, tenant_id)
     analytics = InventoryAnalytics(db, verified_tenant)

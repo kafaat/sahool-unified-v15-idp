@@ -54,7 +54,8 @@ class ItemDetailScreen extends ConsumerWidget {
               Text(error.toString()),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.invalidate(inventoryItemDetailsProvider(itemId)),
+                onPressed: () =>
+                    ref.invalidate(inventoryItemDetailsProvider(itemId)),
                 child: const Text('إعادة المحاولة'),
               ),
             ],
@@ -83,7 +84,8 @@ class ItemDetailScreen extends ConsumerWidget {
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(context, item),
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildImagePlaceholder(context, item),
             )
           else
             _buildImagePlaceholder(context, item),
@@ -217,15 +219,18 @@ class ItemDetailScreen extends ConsumerWidget {
                             const Divider(height: 16),
                           ],
                           if (item.supplierName != null) ...[
-                            _buildInfoRow(context, 'المورد', item.supplierName!),
+                            _buildInfoRow(
+                                context, 'المورد', item.supplierName!),
                             const Divider(height: 16),
                           ],
                           if (item.batchNumber != null) ...[
-                            _buildInfoRow(context, 'رقم الدفعة', item.batchNumber!),
+                            _buildInfoRow(
+                                context, 'رقم الدفعة', item.batchNumber!),
                             const Divider(height: 16),
                           ],
                           if (item.lotNumber != null) ...[
-                            _buildInfoRow(context, 'رقم اللوت', item.lotNumber!),
+                            _buildInfoRow(
+                                context, 'رقم اللوت', item.lotNumber!),
                             const Divider(height: 16),
                           ],
                           if (item.expiryDate != null) ...[

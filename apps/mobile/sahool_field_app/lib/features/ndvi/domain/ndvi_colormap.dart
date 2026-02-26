@@ -9,24 +9,24 @@ class NdviColormap {
   static const List<ColorStop> defaultStops = [
     ColorStop(-1.0, Color(0xFF0000FF)), // Water - Blue
     ColorStop(-0.2, Color(0xFF87CEEB)), // Light water - Sky Blue
-    ColorStop(0.0, Color(0xFFD2B48C)),  // Bare soil - Tan
-    ColorStop(0.1, Color(0xFFC19A6B)),  // Dry soil - Camel
-    ColorStop(0.2, Color(0xFFFFE4B5)),  // Sparse - Moccasin
-    ColorStop(0.3, Color(0xFFEEE8AA)),  // Low veg - Pale Goldenrod
-    ColorStop(0.4, Color(0xFFBDB76B)),  // Medium-low - Dark Khaki
-    ColorStop(0.5, Color(0xFF9ACD32)),  // Medium - Yellow Green
-    ColorStop(0.6, Color(0xFF7CFC00)),  // Medium-high - Lawn Green
-    ColorStop(0.7, Color(0xFF32CD32)),  // High - Lime Green
-    ColorStop(0.8, Color(0xFF228B22)),  // Very high - Forest Green
-    ColorStop(0.9, Color(0xFF006400)),  // Dense - Dark Green
-    ColorStop(1.0, Color(0xFF004400)),  // Maximum - Very Dark Green
+    ColorStop(0.0, Color(0xFFD2B48C)), // Bare soil - Tan
+    ColorStop(0.1, Color(0xFFC19A6B)), // Dry soil - Camel
+    ColorStop(0.2, Color(0xFFFFE4B5)), // Sparse - Moccasin
+    ColorStop(0.3, Color(0xFFEEE8AA)), // Low veg - Pale Goldenrod
+    ColorStop(0.4, Color(0xFFBDB76B)), // Medium-low - Dark Khaki
+    ColorStop(0.5, Color(0xFF9ACD32)), // Medium - Yellow Green
+    ColorStop(0.6, Color(0xFF7CFC00)), // Medium-high - Lawn Green
+    ColorStop(0.7, Color(0xFF32CD32)), // High - Lime Green
+    ColorStop(0.8, Color(0xFF228B22)), // Very high - Forest Green
+    ColorStop(0.9, Color(0xFF006400)), // Dense - Dark Green
+    ColorStop(1.0, Color(0xFF004400)), // Maximum - Very Dark Green
   ];
 
   /// Yemen/Arabia agriculture colormap (optimized for arid regions)
   static const List<ColorStop> yemenStops = [
     ColorStop(-1.0, Color(0xFF0066CC)), // Water - Deep Blue
     ColorStop(-0.1, Color(0xFF66B2FF)), // Shallow water - Light Blue
-    ColorStop(0.0, Color(0xFFE6D5AC)),  // Desert - Sand
+    ColorStop(0.0, Color(0xFFE6D5AC)), // Desert - Sand
     ColorStop(0.15, Color(0xFFD4A76A)), // Dry land - Buff
     ColorStop(0.25, Color(0xFFCD853F)), // Bare soil - Peru
     ColorStop(0.35, Color(0xFFDAA520)), // Stressed - Goldenrod
@@ -35,7 +35,7 @@ class NdviColormap {
     ColorStop(0.65, Color(0xFF32CD32)), // Healthy - Lime Green
     ColorStop(0.75, Color(0xFF228B22)), // Dense - Forest Green
     ColorStop(0.85, Color(0xFF006400)), // Very Dense - Dark Green
-    ColorStop(1.0, Color(0xFF003300)),  // Peak - Very Dark Green
+    ColorStop(1.0, Color(0xFF003300)), // Peak - Very Dark Green
   ];
 
   /// Get color for NDVI value using linear interpolation

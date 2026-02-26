@@ -25,7 +25,8 @@ class TharwattPaymentService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 if (config.apiKey != null) 'X-API-Key': config.apiKey,
-                if (config.merchantId != null) 'X-Merchant-Id': config.merchantId,
+                if (config.merchantId != null)
+                  'X-Merchant-Id': config.merchantId,
               },
             ));
 

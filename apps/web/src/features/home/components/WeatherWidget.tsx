@@ -7,7 +7,7 @@
 
 import React from "react";
 import { Cloud, CloudRain, Sun, Wind, Droplets } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useWeather } from "../hooks/useWeather";
 
 const getWeatherIcon = (condition?: string) => {
   if (!condition) return <Cloud className="w-8 h-8" />;
@@ -21,7 +21,7 @@ const getWeatherIcon = (condition?: string) => {
 };
 
 export const WeatherWidget: React.FC = () => {
-  const { data, isLoading } = useDashboardData();
+  const { data: weather, isLoading } = useWeather();
 
   if (isLoading) {
     return (
@@ -32,8 +32,6 @@ export const WeatherWidget: React.FC = () => {
       </div>
     );
   }
-
-  const weather = data?.weather;
 
   if (!weather) {
     return (

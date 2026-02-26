@@ -19,11 +19,14 @@ class WeatherColor {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WeatherColor && runtimeType == other.runtimeType && value == other.value;
+      other is WeatherColor &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
 
   @override
   int get hashCode => value.hashCode;
 
   @override
-  String toString() => 'WeatherColor(0x${value.toRadixString(16).padLeft(8, '0').toUpperCase()})';
+  String toString() =>
+      'WeatherColor(0x${value.toRadixString(16).padLeft(8, '0').toUpperCase()})';
 }

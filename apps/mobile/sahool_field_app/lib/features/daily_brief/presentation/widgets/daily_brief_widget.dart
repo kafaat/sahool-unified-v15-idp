@@ -172,7 +172,9 @@ class _DailyBriefContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ...brief.priorityItems.take(3).map((item) => _buildPriorityItem(item)),
+          ...brief.priorityItems
+              .take(3)
+              .map((item) => _buildPriorityItem(item)),
         ],
       ),
     );
@@ -207,7 +209,8 @@ class _DailyBriefContent extends StatelessWidget {
                 // Handle action
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 backgroundColor: Colors.white.withOpacity(0.2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -243,7 +246,9 @@ class _DailyBriefContent extends StatelessWidget {
             child: _QuickActionButton(
               icon: Icons.task_alt_rounded,
               label: 'المهام',
-              badge: brief.pendingTasksCount > 0 ? '${brief.pendingTasksCount}' : null,
+              badge: brief.pendingTasksCount > 0
+                  ? '${brief.pendingTasksCount}'
+                  : null,
               onTap: () {},
             ),
           ),

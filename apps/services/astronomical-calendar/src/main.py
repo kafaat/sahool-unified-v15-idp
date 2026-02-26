@@ -66,6 +66,13 @@ try:
 except ImportError:
     pass  # Shared module not available in standalone mode
 
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    _has_tenant_middleware = True
+except ImportError:
+    _has_tenant_middleware = False
+
 # CORS middleware - secure origins from environment
 CORS_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
@@ -84,6 +91,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
+
+if _has_tenant_middleware:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3062,9 +3072,7 @@ def get_current_season(month: int) -> SeasonInfo:
             )
 
     # افتراضي
-    return SeasonInfo(
-        name="غير محدد", name_en="Unknown", description="", main_crops=[], activities=[]
-    )
+    return SeasonInfo(name="غير محدد", name_en="Unknown", description="", main_crops=[], activities=[])
 
 
 def calculate_farming_recommendations(
@@ -3105,9 +3113,7 @@ def calculate_farming_recommendations(
     recommendations.append(
         FarmingRecommendation(
             activity="ري",
-            suitability=(
-                "ممتازة" if irrigation_score >= 8 else "جيدة" if irrigation_score >= 6 else "متوسطة"
-            ),
+            suitability=("ممتازة" if irrigation_score >= 8 else "جيدة" if irrigation_score >= 6 else "متوسطة"),
             suitability_score=irrigation_score,
             reason=f"عنصر البرج: {zodiac.element}, عنصر المنزلة: {lunar_mansion.element}",
             best_time="الفجر أو المغرب",
@@ -3125,9 +3131,7 @@ def calculate_farming_recommendations(
     recommendations.append(
         FarmingRecommendation(
             activity="حصاد",
-            suitability=(
-                "ممتازة" if harvest_score >= 8 else "جيدة" if harvest_score >= 6 else "متوسطة"
-            ),
+            suitability=("ممتازة" if harvest_score >= 8 else "جيدة" if harvest_score >= 6 else "متوسطة"),
             suitability_score=harvest_score,
             reason=f"القمر {'متناقص' if not moon_phase.is_waxing else 'متزايد'} - {'مناسب' if not moon_phase.is_waxing else 'غير مثالي'} للحصاد",
             best_time="منتصف النهار" if harvest_score >= 6 else None,
@@ -3145,9 +3149,7 @@ def calculate_farming_recommendations(
     recommendations.append(
         FarmingRecommendation(
             activity="تقليم",
-            suitability=(
-                "ممتازة" if pruning_score >= 8 else "جيدة" if pruning_score >= 6 else "متوسطة"
-            ),
+            suitability=("ممتازة" if pruning_score >= 8 else "جيدة" if pruning_score >= 6 else "متوسطة"),
             suitability_score=pruning_score,
             reason="القمر المتناقص أفضل للتقليم",
             best_time="الصباح",
@@ -3157,9 +3159,7 @@ def calculate_farming_recommendations(
     return recommendations
 
 
-def calculate_overall_score(
-    moon_phase: MoonPhase, lunar_mansion: LunarMansion, zodiac: ZodiacInfo
-) -> int:
+def calculate_overall_score(moon_phase: MoonPhase, lunar_mansion: LunarMansion, zodiac: ZodiacInfo) -> int:
     """حساب الدرجة الإجمالية للزراعة"""
     base_score = lunar_mansion.farming_score
 
@@ -3690,12 +3690,8 @@ def get_region(region_id: str):
         "current_recommendations": {
             "month": current_month_name,
             "season": current_season if current_season else "غير محدد",
-            "recommended_crops": recommended_crops
-            if recommended_crops
-            else ["لا توجد توصيات لهذا الشهر"],
-            "note": f"الموسم الحالي: {current_season}"
-            if current_season
-            else "خارج المواسم الرئيسية",
+            "recommended_crops": recommended_crops if recommended_crops else ["لا توجد توصيات لهذا الشهر"],
+            "note": f"الموسم الحالي: {current_season}" if current_season else "خارج المواسم الرئيسية",
         },
     }
 
@@ -3852,9 +3848,7 @@ async def get_integrated_data(
         if weather_data and "temperature" in weather_data:
             temp = weather_data.get("temperature", 25)
             if rec.activity == "ري" and temp > 35:
-                integrated_rec["weather_note"] = (
-                    "⚠️ درجة الحرارة مرتفعة - يُنصح بالري في الصباح الباكر أو المساء"
-                )
+                integrated_rec["weather_note"] = "⚠️ درجة الحرارة مرتفعة - يُنصح بالري في الصباح الباكر أو المساء"
             elif rec.activity == "زراعة" and temp < 10:
                 integrated_rec["weather_note"] = "⚠️ درجة الحرارة منخفضة - قد تؤثر على الإنبات"
 
@@ -3924,9 +3918,7 @@ def get_crop_details(crop_id: str):
     - الأمثال الشعبية
     """
     if crop_id not in DETAILED_CROP_CALENDAR:
-        raise HTTPException(
-            status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
-        )
+        raise HTTPException(status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي")
 
     crop_data = DETAILED_CROP_CALENDAR[crop_id]
 
@@ -3950,9 +3942,7 @@ def get_crop_details(crop_id: str):
     if today.lunar_mansion.number in crop_data["planting"]["lunar_mansions"]:
         planting_suitability["score"] += 2
         planting_suitability["suitable_now"] = True
-        planting_suitability["reason"].append(
-            f"المنزلة الحالية ({today.lunar_mansion.name}) مناسبة"
-        )
+        planting_suitability["reason"].append(f"المنزلة الحالية ({today.lunar_mansion.name}) مناسبة")
 
     # Check moon phase
     required_phase = crop_data["planting"]["moon_phase"]
@@ -3985,9 +3975,7 @@ def get_planting_guide(crop_id: str):
     يرجع دليل خطوة بخطوة لزراعة المحصول المحدد
     """
     if crop_id not in DETAILED_CROP_CALENDAR:
-        raise HTTPException(
-            status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
-        )
+        raise HTTPException(status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي")
 
     crop_data = DETAILED_CROP_CALENDAR[crop_id]
 
@@ -4006,9 +3994,7 @@ def get_planting_guide(crop_id: str):
         "timing": {
             "best_hijri_months": crop_data["planting"]["hijri_months"],
             "best_gregorian_months": crop_data["planting"]["gregorian_months"],
-            "best_lunar_mansions": [
-                LUNAR_MANSIONS[m]["name"] for m in crop_data["planting"]["lunar_mansions"]
-            ],
+            "best_lunar_mansions": [LUNAR_MANSIONS[m]["name"] for m in crop_data["planting"]["lunar_mansions"]],
             "required_moon_phase": crop_data["planting"]["moon_phase"],
         },
         "planting": {
@@ -4095,9 +4081,7 @@ def what_to_plant_now(
 
         # Filter by region if specified
         if region:
-            if region in crop_data["regions"] or any(
-                region.lower() in r.lower() for r in crop_data["regions"]
-            ):
+            if region in crop_data["regions"] or any(region.lower() in r.lower() for r in crop_data["regions"]):
                 score += 2
                 reasons.append(f"مناسب لمنطقة {region}")
             else:
@@ -4257,9 +4241,7 @@ def get_mansion_proverbs(mansion_name: str):
     """
     الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
     """
-    matching_proverbs = [
-        p for p in YEMENI_FARMING_PROVERBS["general"] if p.get("mansion") == mansion_name
-    ]
+    matching_proverbs = [p for p in YEMENI_FARMING_PROVERBS["general"] if p.get("mansion") == mansion_name]
 
     # البحث في المنازل للحصول على معلومات إضافية
     mansion_info = None
@@ -4320,11 +4302,7 @@ def get_star_info(star_name: str):
         "star": star,
         "is_currently_rising": is_rising,
         "rising_month_name": HIJRI_MONTHS.get(star["rising_month"], {}).get("name", ""),
-        "advice": (
-            star["farming_impact"]
-            if is_rising
-            else f"سيطلع هذا النجم في شهر {star['rising_month']}"
-        ),
+        "advice": (star["farming_impact"] if is_rising else f"سيطلع هذا النجم في شهر {star['rising_month']}"),
     }
 
 
@@ -4470,14 +4448,10 @@ def get_daily_wisdom():
     # نصائح المنزلة
     mansion_tips = []
     if astro_data.lunar_mansion.farming_score >= 7:
-        mansion_tips.append(
-            f"🌟 اليوم مناسب للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
-        )
+        mansion_tips.append(f"🌟 اليوم مناسب للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10")
         mansion_tips.append(f"المحاصيل المقترحة: {', '.join(astro_data.lunar_mansion.crops[:3])}")
     else:
-        mansion_tips.append(
-            f"⚠️ اليوم غير مثالي للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
-        )
+        mansion_tips.append(f"⚠️ اليوم غير مثالي للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10")
         if astro_data.lunar_mansion.avoid:
             mansion_tips.append(f"تجنب: {', '.join(astro_data.lunar_mansion.avoid)}")
 

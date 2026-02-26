@@ -450,6 +450,7 @@ export class FieldsService {
       // Create history entry
       await tx.fieldBoundaryHistory.create({
         data: {
+          tenantId: field.tenantId,
           fieldId: id,
           versionAtChange: field.version,
           changedBy: dto.userId,
@@ -561,6 +562,7 @@ export class FieldsService {
       // Create history entry for the rollback
       await tx.fieldBoundaryHistory.create({
         data: {
+          tenantId: field.tenantId,
           fieldId: id,
           versionAtChange: field.version,
           changedBy: dto.userId,

@@ -39,8 +39,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SamplesPageResponse Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SamplesPageResponse Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
 
@@ -64,8 +64,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SamplesPageResponse Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SamplesPageResponse Function(dynamic);
           return ApiResponse.success(fromJson({
             'samples': [],
             'total': 0,
@@ -102,13 +102,14 @@ void main() {
       test('should handle API error', () async {
         // Arrange
         when(() => mockGateway.get<SamplesPageResponse>(
-              any(),
-              any(),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
-                errorResponse<SamplesPageResponse>('NO_CONNECTION', 'لا يوجد اتصال'));
+                  any(),
+                  any(),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async => errorResponse<SamplesPageResponse>(
+                'NO_CONNECTION', 'لا يوجد اتصال'));
 
         // Act
         final result = await api.getSamples();
@@ -129,8 +130,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SoilSampleModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SoilSampleModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleSoilJson()));
         });
 
@@ -155,9 +156,10 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SoilSampleModel Function(dynamic);
-          return ApiResponse.success(fromJson(sampleSoilJson(id: 'new-sample')));
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SoilSampleModel Function(dynamic);
+          return ApiResponse.success(
+              fromJson(sampleSoilJson(id: 'new-sample')));
         });
 
         // Act
@@ -200,8 +202,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SoilSampleModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SoilSampleModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleSoilJson()));
         });
 
@@ -240,8 +242,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SoilSampleModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SoilSampleModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleSoilJson(status: 'in_transit')));
         });
@@ -285,8 +287,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AnalysisResultModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AnalysisResultModel Function(dynamic);
           return ApiResponse.success(fromJson(analysisData));
         });
 
@@ -322,8 +324,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as LabStats Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as LabStats Function(dynamic);
           return ApiResponse.success(fromJson(statsData));
         });
 
@@ -351,8 +353,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as SoilSampleModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as SoilSampleModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleSoilJson(barcode: 'BC-2026-042')));
         });
@@ -376,13 +378,14 @@ void main() {
       test('should return error when barcode not found', () async {
         // Arrange
         when(() => mockGateway.get<SoilSampleModel>(
-              any(),
-              any(),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
-                errorResponse<SoilSampleModel>('NOT_FOUND', 'Sample not found'));
+                  any(),
+                  any(),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async => errorResponse<SoilSampleModel>(
+                'NOT_FOUND', 'Sample not found'));
 
         // Act
         final result = await api.searchByBarcode(barcode: 'INVALID');

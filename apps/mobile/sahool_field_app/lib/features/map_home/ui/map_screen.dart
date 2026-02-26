@@ -285,7 +285,8 @@ class _MapScreenState extends State<MapScreen> {
                   if (field.pendingTasks > 0) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.white : Colors.orange,
                         borderRadius: BorderRadius.circular(8),
@@ -374,7 +375,8 @@ class _MapScreenState extends State<MapScreen> {
                       _isSearchExpanded ? Icons.close : Icons.filter_list,
                       color: SahoolColors.primary,
                     ),
-                    onPressed: () => setState(() => _isSearchExpanded = !_isSearchExpanded),
+                    onPressed: () =>
+                        setState(() => _isSearchExpanded = !_isSearchExpanded),
                   ),
                 ],
               ),
@@ -420,7 +422,8 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.remove, 'تصغير', () {}),
           const SizedBox(height: 16),
-          _buildMapControlButton(Icons.my_location, 'موقعي', () {}, highlight: true),
+          _buildMapControlButton(Icons.my_location, 'موقعي', () {},
+              highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {}),
           const SizedBox(height: 8),
@@ -430,7 +433,9 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {
+  Widget _buildMapControlButton(
+      IconData icon, String tooltip, VoidCallback onPressed,
+      {bool highlight = false}) {
     return Container(
       decoration: BoxDecoration(
         color: highlight ? SahoolColors.primary : Colors.white,
@@ -480,12 +485,16 @@ class _MapScreenState extends State<MapScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isSelected ? SahoolColors.primary.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected
+                        ? SahoolColors.primary.withOpacity(0.1)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     layer.icon,
-                    color: isSelected ? SahoolColors.primary : SahoolColors.textSecondary,
+                    color: isSelected
+                        ? SahoolColors.primary
+                        : SahoolColors.textSecondary,
                     size: 24,
                   ),
                 ),
@@ -526,16 +535,24 @@ class _MapScreenState extends State<MapScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildStatItem('مهام', '${_getTotalTasks()}', SahoolColors.info, Icons.task_alt)),
-                Expanded(child: _buildStatItem('تنبيهات', '${_getCriticalCount()}', SahoolColors.danger, Icons.warning_amber)),
-                Expanded(child: _buildStatItem('حقول', '${_mockFields.length}', SahoolColors.success, Icons.grass)),
+                Expanded(
+                    child: _buildStatItem('مهام', '${_getTotalTasks()}',
+                        SahoolColors.info, Icons.task_alt)),
+                Expanded(
+                    child: _buildStatItem('تنبيهات', '${_getCriticalCount()}',
+                        SahoolColors.danger, Icons.warning_amber)),
+                Expanded(
+                    child: _buildStatItem('حقول', '${_mockFields.length}',
+                        SahoolColors.success, Icons.grass)),
               ],
             ),
             const SizedBox(height: 16),
             // شريط التقدم
             Row(
               children: [
-                const Text('صحة الحقول', style: TextStyle(fontSize: 12, color: SahoolColors.textSecondary)),
+                const Text('صحة الحقول',
+                    style: TextStyle(
+                        fontSize: 12, color: SahoolColors.textSecondary)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ClipRRect(
@@ -543,13 +560,15 @@ class _MapScreenState extends State<MapScreen> {
                     child: LinearProgressIndicator(
                       value: _getAverageHealth(),
                       backgroundColor: Colors.grey[200],
-                      valueColor: const AlwaysStoppedAnimation(SahoolColors.primary),
+                      valueColor:
+                          const AlwaysStoppedAnimation(SahoolColors.primary),
                       minHeight: 8,
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text('${(_getAverageHealth() * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('${(_getAverageHealth() * 100).toInt()}%',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -564,7 +583,8 @@ class _MapScreenState extends State<MapScreen> {
 
   double _getAverageHealth() {
     if (_mockFields.isEmpty) return 0;
-    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _mockFields.length;
+    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) /
+        _mockFields.length;
   }
 
   Widget _buildWeatherBadge() {
@@ -582,14 +602,16 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(width: 6),
           Text(
             '32°C',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange[900]),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.orange[900]),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color, IconData icon) {
+  Widget _buildStatItem(
+      String label, String value, Color color, IconData icon) {
     return Column(
       children: [
         Container(
@@ -603,7 +625,8 @@ class _MapScreenState extends State<MapScreen> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: color),
         ),
         Text(
           label,
@@ -682,9 +705,12 @@ class _MapScreenState extends State<MapScreen> {
         ),
         content: const Text('هل تريد الإبلاغ عن حالة طوارئ في الحقل؟'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('إلغاء')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
             onPressed: () => Navigator.pop(context),
             child: const Text('إبلاغ'),
           ),
@@ -725,5 +751,6 @@ class _TrianglePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _TrianglePainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) =>
+      color != oldDelegate.color;
 }

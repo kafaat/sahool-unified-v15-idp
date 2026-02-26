@@ -61,10 +61,9 @@ from .processing import (
     process_ndvi_mock,
     update_job_status,
 )
+from . import store as ndvi_store  # production persistence layer
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -75,8 +74,46 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """إدارة دورة حياة التطبيق"""
     logger.info("Starting NDVI Processor Service...")
+
+    # ── Database connection (optional) ────────────────────────────────────────
+    db_pool = None
+    db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
+    if db_url:
+        try:
+            import asyncpg
+
+            db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+            await ndvi_store.ensure_tables(db_pool)
+            logger.info("NDVI Processor: DB pool connected")
+        except Exception:
+            logger.exception("NDVI Processor: could not connect to DB – using in-memory fallback")
+
+    # ── NATS connection (optional) ─────────────────────────────────────────────
+    nats_client = None
+    nats_url = os.getenv("NATS_URL")
+    if nats_url:
+        try:
+            import nats
+
+            nats_client = await nats.connect(nats_url)
+            logger.info("NDVI Processor: NATS client connected")
+        except Exception:
+            logger.exception("NDVI Processor: could not connect to NATS – events disabled")
+
+    # Inject into store so that subsequent saves are persisted
+    ndvi_store.configure(db_pool=db_pool, nats_client=nats_client)
     logger.info("NDVI Processor ready on port 8118")
     yield
+
+    # ── Shutdown ───────────────────────────────────────────────────────────────
+    if db_pool:
+        await db_pool.close()
+    if nats_client:
+        await nats_client.close()
     logger.info("NDVI Processor shutting down")
 
 
@@ -133,6 +170,15 @@ else:
         ],
     )
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ============== Background Processing ==============
 
@@ -167,9 +213,16 @@ async def process_job_background(job_id: str, request: ProcessRequest):
             options=options,
         )
 
-        # حفظ النتيجة
+        # حفظ النتيجة – persist to DB + publish NATS events when available
         update_job_status(job_id, JobStatus.PROCESSING, progress=90)
-        await asyncio.sleep(0.3)
+        await ndvi_store.save_result(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            result_dict=result.model_dump(),
+        )
+        # Yield briefly to allow the event loop to process other pending tasks
+        # (e.g. flush NATS publish buffers) before marking the job complete.
+        await asyncio.sleep(0)
 
         update_job_status(
             job_id,
@@ -384,7 +437,11 @@ async def get_change_analysis(
 
 
 @app.post("/fields/{field_id}/ndvi/change", response_model=ChangeAnalysisResponse)
-async def post_change_analysis(field_id: str, request: ChangeAnalysisRequest, user: User = Depends(get_current_user)):
+async def post_change_analysis(
+    field_id: str,
+    request: ChangeAnalysisRequest,
+    user: User = Depends(get_current_user),
+):
     """تحليل التغير (POST)"""
     result = analyze_change(
         field_id,
@@ -477,7 +534,8 @@ async def export_ndvi(
 @app.post("/composites/monthly", response_model=CompositeResponse, status_code=201)
 async def create_monthly_composite(request: CompositeRequest, user: User = Depends(get_current_user)):
     """إنشاء مركب شهري"""
-    composite = create_composite(
+    composite = await create_composite(
+        tenant_id=request.tenant_id,
         field_id=request.field_id,
         year=request.year,
         month=request.month,

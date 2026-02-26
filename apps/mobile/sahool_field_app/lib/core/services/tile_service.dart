@@ -371,8 +371,7 @@ class TileResult {
   double get sizeMB => sizeBytes / (1024 * 1024);
 
   @override
-  String toString() =>
-      'TileResult($tileKey, ${sizeKB.toStringAsFixed(1)} KB, '
+  String toString() => 'TileResult($tileKey, ${sizeKB.toStringAsFixed(1)} KB, '
       'cached: $fromCache, format: ${format.name})';
 }
 
@@ -400,8 +399,7 @@ class PrefetchResult {
       successfulTiles > 0 ? (cachedTiles / successfulTiles) * 100 : 0;
 
   @override
-  String toString() =>
-      'PrefetchResult($successfulTiles/$totalTiles tiles, '
+  String toString() => 'PrefetchResult($successfulTiles/$totalTiles tiles, '
       '${successRate.toStringAsFixed(1)}% success, '
       '${cacheHitRate.toStringAsFixed(1)}% cached, '
       '${duration.inSeconds}s)';

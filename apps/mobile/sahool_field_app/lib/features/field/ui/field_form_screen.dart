@@ -152,7 +152,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
         actions: [
           if (isEditing)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: SahoolColors.danger),
+              icon:
+                  const Icon(Icons.delete_outline, color: SahoolColors.danger),
               onPressed: _showDeleteConfirmation,
             ),
         ],
@@ -214,7 +215,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                   DropdownMenuItem(value: "sprinkler", child: Text("رشاشات")),
                   DropdownMenuItem(value: "flood", child: Text("غمر")),
                   DropdownMenuItem(value: "pivot", child: Text("محوري")),
-                  DropdownMenuItem(value: "none", child: Text("بدون ري (مطري)")),
+                  DropdownMenuItem(
+                      value: "none", child: Text("بدون ري (مطري)")),
                 ],
                 onChanged: (v) => setState(() => _selectedIrrigation = v),
               ),
@@ -519,20 +521,26 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
 
   Widget _buildMapCard() {
     return OrganicCard(
-      color: _hasBoundary ? SahoolColors.sageGreen.withOpacity(0.1) : SahoolColors.paleOlive.withOpacity(0.5),
+      color: _hasBoundary
+          ? SahoolColors.sageGreen.withOpacity(0.1)
+          : SahoolColors.paleOlive.withOpacity(0.5),
       child: Column(
         children: [
           Icon(
             _hasBoundary ? Icons.check_circle : Icons.map_outlined,
             size: 48,
-            color: _hasBoundary ? SahoolColors.sageGreen : SahoolColors.forestGreen,
+            color: _hasBoundary
+                ? SahoolColors.sageGreen
+                : SahoolColors.forestGreen,
           ),
           const SizedBox(height: 12),
           Text(
             _hasBoundary ? "تم تحديد الحدود" : "لم يتم تحديد الحدود",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: _hasBoundary ? SahoolColors.sageGreen : SahoolColors.forestGreen,
+              color: _hasBoundary
+                  ? SahoolColors.sageGreen
+                  : SahoolColors.forestGreen,
             ),
           ),
           const SizedBox(height: 8),
@@ -571,7 +579,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
               }
             },
             icon: Icon(_hasBoundary ? Icons.edit : Icons.draw),
-            label: Text(_hasBoundary ? "تعديل الحدود" : "رسم الحدود على الخريطة"),
+            label:
+                Text(_hasBoundary ? "تعديل الحدود" : "رسم الحدود على الخريطة"),
             style: OutlinedButton.styleFrom(
               foregroundColor: SahoolColors.forestGreen,
             ),
@@ -698,7 +707,8 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text("حذف الحقل"),
-        content: const Text("هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء."),
+        content: const Text(
+            "هل أنت متأكد من حذف هذا الحقل؟ لا يمكن التراجع عن هذا الإجراء."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),

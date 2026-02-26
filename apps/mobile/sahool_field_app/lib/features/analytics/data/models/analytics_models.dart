@@ -82,7 +82,8 @@ class FieldHealthScore {
       ),
       calculatedAt: DateTime.parse(json['calculated_at'] as String),
       recommendations: (json['recommendations'] as List<dynamic>?)
-              ?.map((r) => HealthRecommendation.fromJson(r as Map<String, dynamic>))
+              ?.map((r) =>
+                  HealthRecommendation.fromJson(r as Map<String, dynamic>))
               .toList() ??
           [],
     );
@@ -140,7 +141,8 @@ class HealthRecommendation {
       title: json['title'] as String,
       titleAr: json['title_ar'] as String? ?? json['title'] as String,
       description: json['description'] as String,
-      descriptionAr: json['description_ar'] as String? ?? json['description'] as String,
+      descriptionAr:
+          json['description_ar'] as String? ?? json['description'] as String,
       priority: RecommendationPriority.values.firstWhere(
         (p) => p.name == json['priority'],
         orElse: () => RecommendationPriority.medium,
@@ -224,7 +226,8 @@ class YieldPrediction {
     return YieldPrediction(
       fieldId: json['field_id'] as String,
       cropType: json['crop_type'] as String,
-      cropTypeAr: json['crop_type_ar'] as String? ?? json['crop_type'] as String,
+      cropTypeAr:
+          json['crop_type_ar'] as String? ?? json['crop_type'] as String,
       predictedYield: (json['predicted_yield'] as num).toDouble(),
       minYield: (json['min_yield'] as num).toDouble(),
       maxYield: (json['max_yield'] as num).toDouble(),
@@ -278,7 +281,8 @@ class YieldFactor {
       nameAr: json['name_ar'] as String? ?? json['name'] as String,
       impact: (json['impact'] as num).toDouble(),
       description: json['description'] as String,
-      descriptionAr: json['description_ar'] as String? ?? json['description'] as String,
+      descriptionAr:
+          json['description_ar'] as String? ?? json['description'] as String,
     );
   }
 
@@ -375,7 +379,8 @@ class Risk {
       name: json['name'] as String,
       nameAr: json['name_ar'] as String? ?? json['name'] as String,
       description: json['description'] as String,
-      descriptionAr: json['description_ar'] as String? ?? json['description'] as String,
+      descriptionAr:
+          json['description_ar'] as String? ?? json['description'] as String,
       level: RiskLevel.values.firstWhere(
         (l) => l.name == json['level'],
         orElse: () => RiskLevel.moderate,
@@ -478,7 +483,8 @@ class AnalyticsSummary {
         'total_revenue_estimate': totalRevenueEstimate,
         'high_risk_fields': highRiskFields,
         'fields_needing_attention': fieldsNeedingAttention,
-        'top_performing_fields': topPerformingFields.map((f) => f.toJson()).toList(),
+        'top_performing_fields':
+            topPerformingFields.map((f) => f.toJson()).toList(),
         'fields_at_risk': fieldsAtRisk.map((f) => f.toJson()).toList(),
         'generated_at': generatedAt.toIso8601String(),
       };
@@ -535,7 +541,8 @@ class HistoricalTrend {
   factory HistoricalTrend.fromJson(Map<String, dynamic> json) {
     return HistoricalTrend(
       metricName: json['metric_name'] as String,
-      metricNameAr: json['metric_name_ar'] as String? ?? json['metric_name'] as String,
+      metricNameAr:
+          json['metric_name_ar'] as String? ?? json['metric_name'] as String,
       dataPoints: (json['data_points'] as List<dynamic>)
           .map((d) => HistoricalDataPoint.fromJson(d as Map<String, dynamic>))
           .toList(),

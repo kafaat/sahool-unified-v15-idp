@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from ...training import (
@@ -20,6 +20,20 @@ from ...training import (
 )
 from ...training.agl_trainer import OptimizationAlgorithm, TrainingStatus
 from ...training.feedback_collector import FeedbackType, OutcomeStatus
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 logger = structlog.get_logger()
 
@@ -178,7 +192,7 @@ class StatisticsResponse(BaseModel):
 
 
 @router.post("/start", response_model=TrainingResponse)
-async def start_training(request: TrainingRequest) -> TrainingResponse:
+async def start_training(request: TrainingRequest, _user=Depends(get_current_user)) -> TrainingResponse:
     """
     Start a training job for specified agents.
     بدء مهمة تدريب للوكلاء المحددين

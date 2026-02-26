@@ -82,8 +82,10 @@ def app():
 
 @pytest.fixture
 def client(app):
-    """Create test client"""
-    return TestClient(app)
+    """Create test client with tenant context"""
+    c = TestClient(app)
+    c.headers["X-Tenant-ID"] = "tenant-123"
+    return c
 
 
 class TestHealthEndpoint:

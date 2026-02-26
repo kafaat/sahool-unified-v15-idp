@@ -45,7 +45,7 @@ import "leaflet/dist/leaflet.css";
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-interface ScoutingModeProps {
+export interface ScoutingModeProps {
   fieldId: string;
   fieldBoundary?: {
     type: "Polygon";

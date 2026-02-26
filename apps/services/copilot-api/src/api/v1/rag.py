@@ -13,10 +13,11 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...models.schemas import RAGDocument, RAGSearchResult
 from ...rag import get_rag_service
+from ..deps import get_current_user
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/rag", tags=["RAG"])
@@ -28,6 +29,7 @@ async def search(
     k: int = Query(default=5, ge=1, le=50, description="Number of results"),
     category: str | None = Query(default=None, description="Filter by category"),
     tenant_id: str | None = Query(default=None, description="Tenant ID"),
+    user: dict = Depends(get_current_user),
 ):
     """
     Search the knowledge base.
@@ -76,6 +78,7 @@ async def add_document(
     category: str | None = None,
     tenant_id: str | None = None,
     metadata: dict[str, Any] | None = None,
+    user: dict = Depends(get_current_user),
 ):
     """
     Add a document to the knowledge base.
@@ -107,6 +110,7 @@ async def add_document(
 @router.post("/documents/batch")
 async def add_documents_batch(
     documents: list[dict[str, Any]],
+    user: dict = Depends(get_current_user),
 ):
     """
     Add multiple documents in batch.
@@ -128,6 +132,7 @@ async def list_documents(
     tenant_id: str | None = Query(default=None, description="Tenant ID"),
     limit: int = Query(default=100, ge=1, le=1000, description="Limit"),
     offset: int = Query(default=0, ge=0, description="Offset"),
+    user: dict = Depends(get_current_user),
 ):
     """
     List documents in the knowledge base.
@@ -151,7 +156,7 @@ async def list_documents(
 
 
 @router.delete("/documents/{doc_id}")
-async def delete_document(doc_id: str):
+async def delete_document(doc_id: str, user: dict = Depends(get_current_user)):
     """
     Delete a document from the knowledge base.
     حذف وثيقة من قاعدة المعرفة
@@ -168,7 +173,7 @@ async def delete_document(doc_id: str):
 
 
 @router.get("/stats")
-async def get_stats():
+async def get_stats(user: dict = Depends(get_current_user)):
     """
     Get RAG service statistics.
     الحصول على إحصائيات خدمة RAG
@@ -181,7 +186,7 @@ async def get_stats():
 
 
 @router.post("/index/sahool-docs")
-async def index_sahool_docs():
+async def index_sahool_docs(user: dict = Depends(get_current_user)):
     """
     Index SAHOOL documentation for RAG.
     فهرسة وثائق SAHOOL للـ RAG

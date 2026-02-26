@@ -45,7 +45,8 @@ class GrowthStageTimeline extends ConsumerWidget {
         final index = entry.key;
         final stage = entry.value;
         final isCompleted = currentGDD >= stage.gddEnd;
-        final isCurrent = currentGDD >= stage.gddStart && currentGDD < stage.gddEnd;
+        final isCurrent =
+            currentGDD >= stage.gddStart && currentGDD < stage.gddEnd;
         final isLast = index == stages.length - 1;
 
         return _buildStageItem(

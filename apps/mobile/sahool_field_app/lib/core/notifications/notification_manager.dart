@@ -32,7 +32,8 @@ import 'notification_preferences.dart';
 /// Background notification tap handler - must be top-level
 @pragma('vm:entry-point')
 void _onBackgroundNotificationTap(NotificationResponse response) {
-  AppLogger.d('Background notification tapped: ${response.payload}', tag: 'NOTIFICATIONS');
+  AppLogger.d('Background notification tapped: ${response.payload}',
+      tag: 'NOTIFICATIONS');
 }
 
 /// SAHOOL Notification Manager
@@ -172,7 +173,8 @@ class NotificationManager {
   /// تهيئة إضافة الإشعارات المحلية
   Future<void> _initializeLocalNotifications() async {
     // Android initialization
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
     final darwinSettings = DarwinInitializationSettings(
@@ -197,8 +199,9 @@ class NotificationManager {
   /// Create Android notification channels
   /// إنشاء قنوات إشعارات أندرويد
   Future<void> _createNotificationChannels() async {
-    final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin =
+        _localNotifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin == null) return;
 
@@ -218,7 +221,8 @@ class NotificationManager {
       await androidPlugin.createNotificationChannel(channel);
     }
 
-    AppLogger.d('Created ${channels.length} notification channels', tag: 'NOTIFICATIONS');
+    AppLogger.d('Created ${channels.length} notification channels',
+        tag: 'NOTIFICATIONS');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -230,8 +234,9 @@ class NotificationManager {
   /// طلب إذن الإشعارات
   Future<bool> requestPermission() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         final granted = await androidPlugin.requestNotificationsPermission();
@@ -243,8 +248,9 @@ class NotificationManager {
       }
       return true;
     } else if (Platform.isIOS) {
-      final iosPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final iosPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
 
       if (iosPlugin != null) {
         final granted = await iosPlugin.requestPermissions(
@@ -266,8 +272,9 @@ class NotificationManager {
   /// التحقق من تفعيل الإشعارات
   Future<bool> areNotificationsEnabled() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         return await androidPlugin.areNotificationsEnabled() ?? false;
@@ -302,7 +309,8 @@ class NotificationManager {
     // Check if notification should be shown based on preferences
     final prefs = _preferencesService.getPreferences();
     if (!prefs.shouldShowNotification(type, priority)) {
-      AppLogger.d('Notification blocked by preferences: $type', tag: 'NOTIFICATIONS');
+      AppLogger.d('Notification blocked by preferences: $type',
+          tag: 'NOTIFICATIONS');
       return;
     }
 
@@ -313,7 +321,8 @@ class NotificationManager {
       importance: _getImportance(type, priority),
       priority: _getPriority(type, priority),
       icon: '@mipmap/ic_launcher',
-      largeIcon: largeIcon != null ? DrawableResourceAndroidBitmap(largeIcon) : null,
+      largeIcon:
+          largeIcon != null ? DrawableResourceAndroidBitmap(largeIcon) : null,
       styleInformation: bigPicture != null
           ? BigPictureStyleInformation(
               FilePathAndroidBitmap(bigPicture),
@@ -321,14 +330,17 @@ class NotificationManager {
               summaryText: body,
             )
           : BigTextStyleInformation(body),
-      enableVibration: prefs.enableVibration && (type.isUrgent || priority == NotificationPriority.critical),
-      playSound: prefs.enableSound && (type.isUrgent || priority == NotificationPriority.critical),
+      enableVibration: prefs.enableVibration &&
+          (type.isUrgent || priority == NotificationPriority.critical),
+      playSound: prefs.enableSound &&
+          (type.isUrgent || priority == NotificationPriority.critical),
     );
 
     final iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: prefs.showBadge,
-      presentSound: prefs.enableSound && (type.isUrgent || priority == NotificationPriority.critical),
+      presentSound: prefs.enableSound &&
+          (type.isUrgent || priority == NotificationPriority.critical),
       subtitle: body,
     );
 
@@ -337,7 +349,8 @@ class NotificationManager {
       iOS: iosDetails,
     );
 
-    final notificationId = id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
+    final notificationId =
+        id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
 
     // Prepare payload
     final payload = <String, dynamic>{
@@ -357,7 +370,8 @@ class NotificationManager {
       payload: jsonEncode(payload),
     );
 
-    AppLogger.d('Notification shown: $title (${type.value})', tag: 'NOTIFICATIONS');
+    AppLogger.d('Notification shown: $title (${type.value})',
+        tag: 'NOTIFICATIONS');
   }
 
   /// Show a scheduled notification
@@ -379,7 +393,8 @@ class NotificationManager {
     // Ensure scheduled time is in the future
     final now = DateTime.now();
     if (scheduledTime.isBefore(now)) {
-      AppLogger.w('Scheduled time is in the past, showing immediately', tag: 'NOTIFICATIONS');
+      AppLogger.w('Scheduled time is in the past, showing immediately',
+          tag: 'NOTIFICATIONS');
       await showNotification(
         title: title,
         body: body,
@@ -412,7 +427,8 @@ class NotificationManager {
       iOS: iosDetails,
     );
 
-    final notificationId = id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
+    final notificationId =
+        id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
 
     // Prepare payload
     final payload = <String, dynamic>{
@@ -432,11 +448,13 @@ class NotificationManager {
       _toTZDateTime(scheduledTime),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       payload: jsonEncode(payload),
     );
 
-    AppLogger.d('Notification scheduled: $title at $scheduledTime', tag: 'NOTIFICATIONS');
+    AppLogger.d('Notification scheduled: $title at $scheduledTime',
+        tag: 'NOTIFICATIONS');
   }
 
   /// Show a progress notification (for sync, downloads, etc.)
@@ -508,8 +526,9 @@ class NotificationManager {
   /// الحصول على الإشعارات النشطة (أندرويد فقط)
   Future<List<ActiveNotification>> getActiveNotifications() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         return await androidPlugin.getActiveNotifications();
@@ -542,9 +561,11 @@ class NotificationManager {
       // Forward to notification handler
       NotificationHandler.instance.handleIncomingNotification(payload);
 
-      AppLogger.d('Notification tapped: ${payload.type.value}', tag: 'NOTIFICATIONS');
+      AppLogger.d('Notification tapped: ${payload.type.value}',
+          tag: 'NOTIFICATIONS');
     } catch (e) {
-      AppLogger.e('Failed to parse notification payload', tag: 'NOTIFICATIONS', error: e);
+      AppLogger.e('Failed to parse notification payload',
+          tag: 'NOTIFICATIONS', error: e);
     }
   }
 
@@ -554,7 +575,8 @@ class NotificationManager {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Get Android importance based on notification type and priority
-  Importance _getImportance(SAHOOLNotificationType type, NotificationPriority priority) {
+  Importance _getImportance(
+      SAHOOLNotificationType type, NotificationPriority priority) {
     if (priority == NotificationPriority.critical || type.isUrgent) {
       return Importance.max;
     }
@@ -568,7 +590,8 @@ class NotificationManager {
   }
 
   /// Get Android priority based on notification type and priority
-  Priority _getPriority(SAHOOLNotificationType type, NotificationPriority priority) {
+  Priority _getPriority(
+      SAHOOLNotificationType type, NotificationPriority priority) {
     if (priority == NotificationPriority.critical || type.isUrgent) {
       return Priority.high;
     }

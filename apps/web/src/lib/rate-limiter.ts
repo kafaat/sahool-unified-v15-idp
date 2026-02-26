@@ -1,8 +1,10 @@
 /**
- * SAHOOL Rate Limiter Utility
- * أداة تحديد المعدل
+ * SAHOOL Rate Limiter Utility (Server-Only)
+ * أداة تحديد المعدل (للخادم فقط)
  *
- * Provides rate limiting with Redis support and in-memory fallback
+ * Provides rate limiting with Redis support and in-memory fallback.
+ * This module must only be imported from server-side code (API routes, middleware).
+ * Do NOT import this from client components - ioredis is a Node.js-only module (~45KB).
  * يوفر تحديد المعدل مع دعم Redis والتراجع إلى الذاكرة
  */
 

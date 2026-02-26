@@ -26,6 +26,11 @@ export {
   SKIP_REVOCATION_CHECK_KEY,
 } from "./guards/token-revocation.guard";
 
+export { TenantGuard, SkipTenantCheck } from "./guards/tenant.guard";
+
+// Export tenant middleware
+export { createTenantExtension } from "./middleware/prisma-tenant.middleware";
+
 // Export strategy
 export { JwtStrategy } from "./strategies/jwt.strategy";
 export type { JwtPayload, AuthenticatedUser } from "./strategies/jwt.strategy";

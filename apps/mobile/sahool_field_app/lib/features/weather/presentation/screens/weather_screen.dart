@@ -230,7 +230,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
           const SizedBox(width: 8),
           _buildFilterChip('حذر', 'caution', currentFilter, Colors.orange),
           const SizedBox(width: 8),
-          _buildFilterChip('غير مناسب', 'unfavorable', currentFilter, Colors.red),
+          _buildFilterChip(
+              'غير مناسب', 'unfavorable', currentFilter, Colors.red),
         ],
       ),
     );

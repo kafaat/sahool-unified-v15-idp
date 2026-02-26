@@ -65,13 +65,16 @@ final fieldZonesProvider = FutureProvider.autoDispose
 });
 
 /// حالة الفلتر المحددة
-final selectedPrescriptionFilterProvider = StateProvider<PrescriptionFilter?>((ref) => null);
+final selectedPrescriptionFilterProvider =
+    StateProvider<PrescriptionFilter?>((ref) => null);
 
 /// الوصفة الحالية (للتعديل)
-final currentPrescriptionProvider = StateProvider<VRAPrescription?>((ref) => null);
+final currentPrescriptionProvider =
+    StateProvider<VRAPrescription?>((ref) => null);
 
 /// الوصفة المعاينة (عند الإنشاء)
-final prescriptionPreviewProvider = StateProvider<VRAPrescription?>((ref) => null);
+final prescriptionPreviewProvider =
+    StateProvider<VRAPrescription?>((ref) => null);
 
 /// المنطقة المختارة
 final selectedZoneProvider = StateProvider<ManagementZone?>((ref) => null);
@@ -114,7 +117,11 @@ class PrescriptionFilter {
   }
 
   bool get hasFilters =>
-      fieldId != null || vraType != null || status != null || startDate != null || endDate != null;
+      fieldId != null ||
+      vraType != null ||
+      status != null ||
+      startDate != null ||
+      endDate != null;
 }
 
 /// معاملات جلب مناطق الحقل

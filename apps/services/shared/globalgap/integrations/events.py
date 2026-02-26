@@ -44,11 +44,11 @@ class GlobalGAPTopics:
 
     # الاشتراكات الواردة - Incoming Subscriptions
     IRRIGATION_APPLIED = "sahool.irrigation.applied"
-    PEST_DETECTED = "sahool.crop_health.pest.detected"
-    DISEASE_DETECTED = "sahool.crop_health.disease.detected"
+    PEST_DETECTED = "sahool.health.pest.detected"
+    DISEASE_DETECTED = "sahool.health.disease.detected"
     FERTILIZER_APPLIED = "sahool.fertilizer.applied"
-    HARVEST_COMPLETED = "sahool.field_ops.harvest.completed"
-    FIELD_ACTIVITY_RECORDED = "sahool.field_ops.activity.recorded"
+    HARVEST_COMPLETED = "sahool.field.harvest.completed"
+    FIELD_ACTIVITY_RECORDED = "sahool.field.activity.recorded"
 
 
 class GlobalGAPEventPublisher:

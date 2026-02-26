@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * SAHOOL Alert Panel Component
  * لوحة التنبيهات

@@ -16,6 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .agent import CodeFixAgent
 
@@ -54,9 +55,7 @@ class AnalyzeCodeRequest(BaseModel):
     """طلب تحليل الكود"""
 
     code: str = Field(..., description="Code snippet to analyze")
-    language: str = Field(
-        default="python", description="Programming language (python, typescript, dart)"
-    )
+    language: str = Field(default="python", description="Programming language (python, typescript, dart)")
     file_path: str | None = Field(default=None, description="Optional file path")
     context: dict[str, Any] | None = Field(default=None, description="Additional context")
 
@@ -67,9 +66,7 @@ class FixCodeRequest(BaseModel):
     code: str = Field(..., description="Code with issue to fix")
     errors: list[dict[str, Any]] = Field(..., description="Error information")
     language: str = Field(default="python", description="Programming language")
-    strategy: str = Field(
-        default="minimal", description="Fix strategy (minimal, comprehensive, refactor)"
-    )
+    strategy: str = Field(default="minimal", description="Fix strategy (minimal, comprehensive, refactor)")
 
 
 class ReviewPRRequest(BaseModel):
@@ -77,9 +74,7 @@ class ReviewPRRequest(BaseModel):
 
     diff: str = Field(..., description="PR diff content")
     context_files: list[str] | None = Field(default=None, description="Related files")
-    review_focus: list[str] | None = Field(
-        default=None, description="Focus areas (security, performance, style)"
-    )
+    review_focus: list[str] | None = Field(default=None, description="Focus areas (security, performance, style)")
 
 
 class GenerateTestsRequest(BaseModel):
@@ -168,9 +163,7 @@ app = FastAPI(
 )
 
 # CORS middleware - use environment variable for origins
-CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080"
-).split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -178,6 +171,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
 )
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============================================================================

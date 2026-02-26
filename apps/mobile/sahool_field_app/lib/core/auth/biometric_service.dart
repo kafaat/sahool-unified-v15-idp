@@ -259,7 +259,8 @@ class BiometricService {
         default:
           // Check if we should lock out
           if (remainingAttempts <= 0) {
-            final lockoutRemaining = await secureStorage.getBiometricLockoutRemaining();
+            final lockoutRemaining =
+                await secureStorage.getBiometricLockoutRemaining();
             return BiometricResult.failed(
               code: 'LOCKED_OUT',
               message: 'تم قفل البصمة بعد محاولات فاشلة متعددة',
@@ -303,7 +304,8 @@ class BiometricService {
     try {
       await _localAuth.stopAuthentication();
     } catch (e) {
-      AppLogger.e('Failed to cancel authentication', error: e, tag: 'BIOMETRIC');
+      AppLogger.e('Failed to cancel authentication',
+          error: e, tag: 'BIOMETRIC');
     }
   }
 

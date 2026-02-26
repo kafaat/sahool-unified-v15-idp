@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/storage/database.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/queue_manager.dart';
-import '../../../core/sync/sync_metrics_providers.dart' show queueManagerProvider;
+import '../../../core/sync/sync_metrics_providers.dart'
+    show queueManagerProvider;
 import '../../../core/config/env_config.dart';
 import '../../../main.dart' show databaseProvider, syncEngineProvider;
 
@@ -115,7 +116,8 @@ class SyncEventsNotifier extends StateNotifier<SyncEventsState> {
 /// Uses autoDispose with keepAlive for critical sync data
 /// Stays alive for 5 minutes after last use since sync events are important
 final syncEventsProvider =
-    StateNotifierProvider.autoDispose<SyncEventsNotifier, SyncEventsState>((ref) {
+    StateNotifierProvider.autoDispose<SyncEventsNotifier, SyncEventsState>(
+        (ref) {
   final database = ref.watch(databaseProvider);
 
   // Keep alive for sync critical operations
@@ -252,7 +254,8 @@ class SyncStatusNotifier extends StateNotifier<SyncStatusState> {
 /// Uses autoDispose with keepAlive for critical sync status
 /// Stays alive for 5 minutes after last use
 final syncStatusProvider =
-    StateNotifierProvider.autoDispose<SyncStatusNotifier, SyncStatusState>((ref) {
+    StateNotifierProvider.autoDispose<SyncStatusNotifier, SyncStatusState>(
+        (ref) {
   final syncEngine = ref.watch(syncEngineProvider);
   final queueManager = ref.watch(queueManagerProvider);
 

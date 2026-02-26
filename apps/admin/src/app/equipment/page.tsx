@@ -56,8 +56,8 @@ interface CreateEquipmentPayload {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Constants
-// الثوابت
+// Constants (inline - always needed for UI rendering)
+// الثوابت (مضمنة - مطلوبة دائماً لعرض الواجهة)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const EQUIPMENT_TYPES: { value: EquipmentType; label: string; labelEn: string }[] = [
@@ -83,25 +83,15 @@ const MOCK_FARMS_LIST = [
   { id: "farm-5", name: "مزرعة ٥" },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Mock Data
-// بيانات وهمية ثابتة للتطوير
-// ═══════════════════════════════════════════════════════════════════════════
-
-const MOCK_EQUIPMENT: EquipmentItem[] = [
-  { id: "eq-1", name: "John Deere 5075E", nameAr: "جرار جون ديري 5075E", type: "tractor", status: "operational", farm_name: "مزرعة ١", farm_id: "farm-1", lastMaintenance: "2025-12-20T00:00:00Z", nextMaintenance: "2026-03-20T00:00:00Z", last_maintenance_date: "2025-12-20T00:00:00Z", next_maintenance_date: "2026-03-20T00:00:00Z", fuelLevel: 75, hoursUsed: 1240 },
-  { id: "eq-2", name: "Kubota M7060", nameAr: "جرار كوبوتا M7060", type: "tractor", status: "operational", farm_name: "مزرعة ٣", farm_id: "farm-3", lastMaintenance: "2025-11-15T00:00:00Z", nextMaintenance: "2026-02-15T00:00:00Z", last_maintenance_date: "2025-11-15T00:00:00Z", next_maintenance_date: "2026-02-15T00:00:00Z", fuelLevel: 60, hoursUsed: 890 },
-  { id: "eq-3", name: "CLAAS Lexion 770", nameAr: "حصادة كلاس لكسيون 770", type: "harvester", status: "idle", farm_name: "مزرعة ١", farm_id: "farm-1", lastMaintenance: "2025-10-05T00:00:00Z", nextMaintenance: "2026-04-05T00:00:00Z", last_maintenance_date: "2025-10-05T00:00:00Z", next_maintenance_date: "2026-04-05T00:00:00Z", fuelLevel: 90, hoursUsed: 560 },
-  { id: "eq-4", name: "Grundfos SP 30-8", nameAr: "مضخة جروندفوس SP 30-8", type: "pump", status: "operational", farm_name: "مزرعة ٢", farm_id: "farm-2", lastMaintenance: "2026-01-10T00:00:00Z", nextMaintenance: "2026-04-10T00:00:00Z", last_maintenance_date: "2026-01-10T00:00:00Z", next_maintenance_date: "2026-04-10T00:00:00Z", hoursUsed: 3200 },
-  { id: "eq-5", name: "DJI Agras T40", nameAr: "طائرة دي جي آي أجراس T40", type: "drone", status: "maintenance", farm_name: "مزرعة ٤", farm_id: "farm-4", lastMaintenance: "2026-02-01T00:00:00Z", nextMaintenance: "2026-02-20T00:00:00Z", last_maintenance_date: "2026-02-01T00:00:00Z", next_maintenance_date: "2026-02-20T00:00:00Z", hoursUsed: 120 },
-  { id: "eq-6", name: "STIHL SR 450", nameAr: "رشاش شتيل SR 450", type: "sprayer", status: "operational", farm_name: "مزرعة ٥", farm_id: "farm-5", lastMaintenance: "2025-12-28T00:00:00Z", nextMaintenance: "2026-03-28T00:00:00Z", last_maintenance_date: "2025-12-28T00:00:00Z", next_maintenance_date: "2026-03-28T00:00:00Z", hoursUsed: 450 },
-  { id: "eq-7", name: "New Holland T6.180", nameAr: "جرار نيو هولاند T6.180", type: "tractor", status: "broken", farm_name: "مزرعة ٢", farm_id: "farm-2", lastMaintenance: "2025-09-15T00:00:00Z", nextMaintenance: "2025-12-15T00:00:00Z", last_maintenance_date: "2025-09-15T00:00:00Z", next_maintenance_date: "2025-12-15T00:00:00Z", fuelLevel: 20, hoursUsed: 2800 },
-  { id: "eq-8", name: "Hardi Commander 6600", nameAr: "رشاش هاردي كوماندر 6600", type: "sprayer", status: "operational", farm_name: "مزرعة ١", farm_id: "farm-1", lastMaintenance: "2026-01-20T00:00:00Z", nextMaintenance: "2026-04-20T00:00:00Z", last_maintenance_date: "2026-01-20T00:00:00Z", next_maintenance_date: "2026-04-20T00:00:00Z", hoursUsed: 680 },
-  { id: "eq-9", name: "Submersible Pump 15HP", nameAr: "مضخة غاطسة 15 حصان", type: "pump", status: "maintenance", farm_name: "مزرعة ٣", farm_id: "farm-3", lastMaintenance: "2026-02-05T00:00:00Z", nextMaintenance: "2026-02-25T00:00:00Z", last_maintenance_date: "2026-02-05T00:00:00Z", next_maintenance_date: "2026-02-25T00:00:00Z", hoursUsed: 5100 },
-  { id: "eq-10", name: "DJI Matrice 350 RTK", nameAr: "طائرة دي جي آي ماتريس 350", type: "drone", status: "operational", farm_name: "مزرعة ٥", farm_id: "farm-5", lastMaintenance: "2026-01-25T00:00:00Z", nextMaintenance: "2026-04-25T00:00:00Z", last_maintenance_date: "2026-01-25T00:00:00Z", next_maintenance_date: "2026-04-25T00:00:00Z", hoursUsed: 85 },
-  { id: "eq-11", name: "Case IH 2150", nameAr: "حصادة كيس 2150", type: "harvester", status: "idle", farm_name: "مزرعة ٤", farm_id: "farm-4", lastMaintenance: "2025-11-20T00:00:00Z", nextMaintenance: "2026-05-20T00:00:00Z", last_maintenance_date: "2025-11-20T00:00:00Z", next_maintenance_date: "2026-05-20T00:00:00Z", fuelLevel: 85, hoursUsed: 420 },
-  { id: "eq-12", name: "Grundfos CR 32-6", nameAr: "مضخة جروندفوس CR 32-6", type: "pump", status: "operational", farm_name: "مزرعة ٤", farm_id: "farm-4", lastMaintenance: "2026-01-05T00:00:00Z", nextMaintenance: "2026-04-05T00:00:00Z", last_maintenance_date: "2026-01-05T00:00:00Z", next_maintenance_date: "2026-04-05T00:00:00Z", hoursUsed: 2100 },
-];
+// Mock equipment data - dynamic import for dead-code elimination in production builds.
+// In production, the .mock module is never bundled because the import() is unreachable.
+async function getMockEquipment(): Promise<EquipmentItem[]> {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_EQUIPMENT } = await import("./equipment.mock");
+    return MOCK_EQUIPMENT;
+  }
+  return [];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
@@ -186,7 +176,7 @@ async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
     return response.data;
   } catch {
     logger.log("Falling back to static mock equipment data");
-    return MOCK_EQUIPMENT;
+    return getMockEquipment();
   }
 }
 

@@ -112,7 +112,8 @@ class Field {
 
   /// هل الحقل يحتاج انتباه عاجل؟
   bool get needsAttention =>
-      healthStatus == FieldStatus.critical || healthStatus == FieldStatus.stressed;
+      healthStatus == FieldStatus.critical ||
+      healthStatus == FieldStatus.stressed;
 
   /// هل الحقل في حالة حرجة؟
   bool get isCritical => healthStatus == FieldStatus.critical;

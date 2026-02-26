@@ -5,9 +5,8 @@
 
 import type { Config } from "tailwindcss";
 
-// Use relative import to avoid module resolution issues in CI
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const sharedConfig = require("../../packages/tailwind-config");
+// Use relative import to load shared config
+import sharedConfig from "../../packages/tailwind-config";
 
 const config: Config = {
   // Use shared config as base
@@ -17,11 +16,12 @@ const config: Config = {
   darkMode: "class",
 
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    // Include shared UI components
-    "../packages/shared-ui/src/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/hooks/**/*.{ts,tsx}",
+    "./src/stores/**/*.{ts,tsx}",
+    // Include shared UI components (two levels up from apps/admin/)
+    "../../packages/shared-ui/src/**/*.{js,ts,jsx,tsx}",
   ],
 
   // App-specific theme extensions
@@ -42,24 +42,13 @@ const config: Config = {
           900: "#064E3B",
         },
       },
-      // Animation extensions
       animation: {
         "fade-in": "fadeIn 0.2s ease-out",
-        "slide-in-from-top": "slideInFromTop 0.2s ease-out",
-        "slide-in-from-right": "slideInFromRight 0.3s ease-out",
       },
       keyframes: {
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
-        },
-        slideInFromTop: {
-          "0%": { opacity: "0", transform: "translateY(-10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        slideInFromRight: {
-          "0%": { opacity: "0", transform: "translateX(100%)" },
-          "100%": { opacity: "1", transform: "translateX(0)" },
         },
       },
     },

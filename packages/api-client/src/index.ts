@@ -3,7 +3,7 @@
 // عميل API الموحد لمنصة سهول
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, type AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import type {
   ApiClientConfig,
   ServicePorts,
@@ -89,7 +89,7 @@ export class SahoolApiClient {
 
   private setupInterceptors(): void {
     // Request interceptor - add auth token
-    this.client.interceptors.request.use((config) => {
+    this.client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       const token = this.config.getToken?.();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -99,7 +99,7 @@ export class SahoolApiClient {
 
     // Response interceptor - handle errors
     this.client.interceptors.response.use(
-      (response) => response,
+      (response: AxiosResponse) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401) {
           this.config.onUnauthorized?.();
@@ -229,10 +229,9 @@ export class SahoolApiClient {
           );
         }
         return fallback;
-      } else {
-        // In throw mode, let handleError do its job
-        this.handleError(error, context?.endpoint, context?.method);
       }
+      // In throw mode, let handleError do its job
+      return this.handleError(error, context?.endpoint, context?.method);
     }
   }
 
@@ -296,7 +295,7 @@ export class SahoolApiClient {
 
       return response.data;
     } catch (error) {
-      this.handleError(error, url, options.method?.toUpperCase() || "GET");
+      return this.handleError(error, url, options.method?.toUpperCase() || "GET");
     }
   }
 

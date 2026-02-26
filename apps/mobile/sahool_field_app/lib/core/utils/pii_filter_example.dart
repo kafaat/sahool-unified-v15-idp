@@ -20,7 +20,8 @@ void exampleBasicLogging() {
   AppLogger.w('Token expired: Bearer eyJhbGc...');
   // Output: 'Token expired: Bearer [REDACTED]'
 
-  AppLogger.e('Credit card: 4532-1234-5678-9010', error: Exception('Payment failed'));
+  AppLogger.e('Credit card: 4532-1234-5678-9010',
+      error: Exception('Payment failed'));
   // Output: 'Credit card: ****-****-****-9010'
 }
 
@@ -110,7 +111,8 @@ Dio exampleDioSetup() {
 Future<void> exampleErrorHandling() async {
   try {
     // Some operation that might fail
-    throw Exception('Authentication failed for user ahmed@example.com with token: Bearer abc123');
+    throw Exception(
+        'Authentication failed for user ahmed@example.com with token: Bearer abc123');
   } catch (e, stackTrace) {
     // Error messages are automatically sanitized
     AppLogger.e(
@@ -268,7 +270,8 @@ class UserService {
 
   UserService(this._dio);
 
-  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
+  Future<void> updateUserProfile(
+      String userId, Map<String, dynamic> data) async {
     try {
       AppLogger.d('Updating user profile', tag: 'USER', data: {
         'userId': userId,

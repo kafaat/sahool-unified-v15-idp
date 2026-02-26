@@ -3,13 +3,14 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
+  FEATURE_SCHEMA,
 } from "./yield.service";
 
 @ApiTags("yield")
@@ -17,6 +18,15 @@ import {
 @UseGuards(JwtAuthGuard)
 export class YieldController {
   constructor(private readonly yieldService: YieldService) {}
+
+  @Get("feature-schema")
+  @ApiOperation({
+    summary: "Get ML feature schema",
+    description: "Return the feature schema definition for data drift monitoring",
+  })
+  getFeatureSchema() {
+    return FEATURE_SCHEMA;
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Predict Field Yield - التنبؤ بإنتاجية الحقل
@@ -124,10 +134,12 @@ export class YieldController {
     description: "Pre-harvest alert with ActionTemplate",
   })
   async predictWithAction(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("farmerId") farmerId?: string,
-    @Query("tenantId") tenantId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ): Promise<PreHarvestAlertResponse> {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
   }
 
@@ -142,10 +154,13 @@ export class YieldController {
     description: "فحص جاهزية الحصاد مع توصيات عملية",
   })
   async getHarvestReadiness(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("farmerId") farmerId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ) {
-    return this.yieldService.getHarvestReadiness(fieldId, farmerId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    return this.yieldService.getHarvestReadiness(fieldId, farmerId, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

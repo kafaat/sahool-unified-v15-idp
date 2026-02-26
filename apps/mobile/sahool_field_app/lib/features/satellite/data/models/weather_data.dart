@@ -47,10 +47,13 @@ class WeatherSummary extends Equatable {
       condition: json['condition'] ?? json['weather'] ?? 'clear',
       conditionAr: json['condition_ar'] ?? json['conditionAr'] ?? 'صافي',
       updatedAt: DateTime.parse(
-        json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String(),
+        json['updated_at'] ??
+            json['updatedAt'] ??
+            DateTime.now().toIso8601String(),
       ),
       forecast: (forecastData as List)
-          .map((item) => DailyForecastSummary.fromJson(item as Map<String, dynamic>))
+          .map((item) =>
+              DailyForecastSummary.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -188,7 +191,8 @@ class DailyForecastSummary extends Equatable {
   }
 
   @override
-  List<Object?> get props => [date, tempMin, tempMax, precipitation, condition, conditionAr, icon];
+  List<Object?> get props =>
+      [date, tempMin, tempMax, precipitation, condition, conditionAr, icon];
 }
 
 /// Weather Alert for Satellite Feature
@@ -220,7 +224,9 @@ class WeatherAlertSummary extends Equatable {
       message: json['message'] ?? '',
       messageAr: json['message_ar'] ?? json['messageAr'] ?? '',
       startsAt: DateTime.parse(
-        json['starts_at'] ?? json['startsAt'] ?? DateTime.now().toIso8601String(),
+        json['starts_at'] ??
+            json['startsAt'] ??
+            DateTime.now().toIso8601String(),
       ),
       endsAt: json['ends_at'] != null ? DateTime.parse(json['ends_at']) : null,
     );
@@ -259,7 +265,8 @@ class WeatherAlertSummary extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, type, severity, message, messageAr, startsAt, endsAt];
+  List<Object?> get props =>
+      [id, type, severity, message, messageAr, startsAt, endsAt];
 }
 
 /// Weather Alert Type

@@ -67,9 +67,7 @@ from .registry import (
 )
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("iot-gateway")
 
 # Redis imports
@@ -125,8 +123,7 @@ async def handle_mqtt_message(msg: MqttMessage):
 
             if auto_register_enabled:
                 logger.warning(
-                    f"Auto-registering device {reading.device_id} from MQTT. "
-                    f"This should be disabled in production."
+                    f"Auto-registering device {reading.device_id} from MQTT. This should be disabled in production."
                 )
                 # Use async auto-register if Redis-backed registry is available
                 if isinstance(registry, RedisDeviceRegistry):
@@ -144,10 +141,7 @@ async def handle_mqtt_message(msg: MqttMessage):
                         sensor_type=reading.sensor_type,
                     )
             else:
-                logger.error(
-                    f"MQTT message rejected: Device {reading.device_id} not registered. "
-                    f"Topic: {msg.topic}"
-                )
+                logger.error(f"MQTT message rejected: Device {reading.device_id} not registered. Topic: {msg.topic}")
                 return
 
         # Validate sensor value range
@@ -191,15 +185,11 @@ async def handle_mqtt_message(msg: MqttMessage):
         )
 
         logger.debug(
-            f"MQTT message processed. Device: {reading.device_id}, "
-            f"Type: {reading.sensor_type}, Value: {reading.value}"
+            f"MQTT message processed. Device: {reading.device_id}, Type: {reading.sensor_type}, Value: {reading.value}"
         )
 
     except Exception as e:
-        logger.error(
-            f"Error processing MQTT message: {e}. "
-            f"Topic: {msg.topic}, Payload: {msg.payload[:200]}..."
-        )
+        logger.error(f"Error processing MQTT message: {e}. Topic: {msg.topic}, Payload: {msg.payload[:200]}...")
 
 
 async def check_offline_devices():
@@ -352,6 +342,15 @@ add_request_id_middleware(app)
 # Setup CORS
 setup_cors(app)
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
     from fastapi import Request
@@ -395,9 +394,7 @@ async def global_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     from fastapi.responses import JSONResponse
 
-    return JSONResponse(
-        status_code=500, content={"detail": "Internal server error", "service": "iot-gateway"}
-    )
+    return JSONResponse(status_code=500, content={"detail": "Internal server error", "service": "iot-gateway"})
 
 
 # ============== Health Check ==============
@@ -556,26 +553,22 @@ def validate_device_authorization(device_id: str, tenant_id: str, field_id: str)
     if device.tenant_id != tenant_id:
         logger.error(
             f"Tenant isolation violation. "
-            f"Device: {device_id}, Device tenant: {device.tenant_id}, "
-            f"Requested tenant: {tenant_id}"
+            f"Device: {sanitize_log_value(device_id)}, Device tenant: {sanitize_log_value(device.tenant_id)}, "
+            f"Requested tenant: {sanitize_log_value(tenant_id)}"
         )
         return False
 
     # Check field association
     if device.field_id != field_id:
         logger.error(
-            f"Field mismatch. "
-            f"Device: {device_id}, Device field: {device.field_id}, "
-            f"Requested field: {field_id}"
+            f"Field mismatch. Device: {sanitize_log_value(device_id)}, Device field: {sanitize_log_value(device.field_id)}, Requested field: {sanitize_log_value(field_id)}"
         )
         return False
 
     return True
 
 
-def validate_sensor_reading(
-    device_id: str, tenant_id: str, field_id: str, sensor_type: str, value: float
-) -> None:
+def validate_sensor_reading(device_id: str, tenant_id: str, field_id: str, sensor_type: str, value: float) -> None:
     """
     Comprehensive validation for sensor reading
     Raises HTTPException if validation fails
@@ -584,9 +577,7 @@ def validate_sensor_reading(
     device = registry.get(device_id)
     if not device:
         safe_device_id = sanitize_log_value(device_id)
-        logger.error(
-            f"Sensor reading rejected: Device {safe_device_id} not registered"
-        )
+        logger.error(f"Sensor reading rejected: Device {safe_device_id} not registered")
         raise HTTPException(
             status_code=404,
             detail=f"Device {device_id} not registered. Please register device first.",
@@ -594,9 +585,7 @@ def validate_sensor_reading(
 
     # 2. Validate device authorization
     if not validate_device_authorization(device_id, tenant_id, field_id):
-        raise HTTPException(
-            status_code=403, detail="Device not authorized for this tenant or field"
-        )
+        raise HTTPException(status_code=403, detail="Device not authorized for this tenant or field")
     safe_device_id = sanitize_log_value(device_id)
     safe_tenant_id = sanitize_log_value(tenant_id)
     safe_sensor_type = sanitize_log_value(sensor_type)
@@ -673,10 +662,7 @@ async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(ge
     safe_device_id = sanitize_log_value(req.device_id)
     safe_sensor_type = sanitize_log_value(req.sensor_type)
 
-    logger.info(
-        f"Sensor reading published. "
-        f"Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}"
-    )
+    logger.info(f"Sensor reading published. Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}")
 
     return {
         "status": "ok",
@@ -709,16 +695,14 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
     # First, validate device exists and authorization (once for all readings)
     device = registry.get(req.device_id)
     if not device:
-        logger.error(f"Batch reading rejected: Device {req.device_id} not registered")
+        logger.error(f"Batch reading rejected: Device {sanitize_log_value(req.device_id)} not registered")
         raise HTTPException(
             status_code=404,
             detail=f"Device {req.device_id} not registered. Please register device first.",
         )
 
     if not validate_device_authorization(req.device_id, req.tenant_id, req.field_id):
-        raise HTTPException(
-            status_code=403, detail="Device not authorized for this tenant or field"
-        )
+        raise HTTPException(status_code=403, detail="Device not authorized for this tenant or field")
 
     event_ids = []
     validated_count = 0
@@ -730,9 +714,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
             unit = reading.get("unit") or reading.get("u") or ""
 
             if not sensor_type or value is None:
-                logger.warning(
-                    f"Skipping reading {idx}: missing sensor_type or value. Device: {req.device_id}"
-                )
+                logger.warning(f"Skipping reading {idx}: missing sensor_type or value. Device: {sanitize_log_value(req.device_id)}")
                 continue
 
             # Validate value range
@@ -765,7 +747,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
         except HTTPException:
             raise  # Re-raise HTTP exceptions
         except Exception as e:
-            logger.error(f"Error processing batch reading {idx} for device {req.device_id}: {e}")
+            logger.error(f"Error processing batch reading {idx} for device {sanitize_log_value(req.device_id)}: {e}")
             raise HTTPException(status_code=400, detail=f"Error processing reading {idx}: {str(e)}")
 
     # Update device status - use async method if Redis-backed registry is available
@@ -774,10 +756,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
     else:
         registry.update_status(device_id=req.device_id)
 
-    logger.info(
-        f"Batch reading published. "
-        f"Device: {req.device_id}, Count: {validated_count}, Events: {len(event_ids)}"
-    )
+    logger.info(f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}")
 
     return {
         "status": "ok",

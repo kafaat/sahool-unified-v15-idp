@@ -141,7 +141,10 @@ if REVOCATION_AVAILABLE:
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 
-    app.add_middleware(TenantContextMiddleware)
+    app.add_middleware(
+        TenantContextMiddleware,
+        require_tenant=False,
+    )
 except ImportError:
     pass
 

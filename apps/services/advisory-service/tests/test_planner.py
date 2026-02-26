@@ -24,12 +24,23 @@ from shared.auth.models import User
 
 
 def _fake_current_user():
-    return User(
-        id="test-user-001",
-        email="test@sahool.sa",
-        roles=["farmer"],
-        tenant_id="test_tenant",
-    )
+    # User model may require hashed_password depending on which shared/auth/
+    # module is resolved (apps/services/shared/ vs root shared/)
+    try:
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            roles=["farmer"],
+            tenant_id="test_tenant",
+        )
+    except TypeError:
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            hashed_password="fake-hash",
+            roles=[],
+            tenant_id="test_tenant",
+        )
 
 
 @pytest.fixture
@@ -170,15 +181,8 @@ class TestPlannerAPI:
 
     def test_create_plan_all_crops(self, client):
         """Test plan generation for all supported crops"""
-        crops = client.get("/crops").json()["crops"]
-
-        for crop in crops:
-            # Get first stage
-            stages_resp = client.get(f"/crops/{crop}/stages")
-            if stages_resp.status_code != 200:
-                continue
-
-            stages = stages_resp.json().get("stages", [])
+        for crop in CROP_REQUIREMENTS:
+            stages = get_stage_timeline(crop)
             if not stages:
                 continue
 
@@ -187,7 +191,7 @@ class TestPlannerAPI:
             response = client.post(
                 "/fertilizer/plan",
                 json={
-                    "tenant_id": "test",
+                    "tenant_id": "test_tenant",
                     "field_id": "test_field",
                     "crop": crop,
                     "stage": first_stage,
@@ -201,7 +205,7 @@ class TestPlannerAPI:
         response = client.post(
             "/fertilizer/plan",
             json={
-                "tenant_id": "test",
+                "tenant_id": "test_tenant",
                 "field_id": "field_123",
                 "crop": "tomato",
                 "stage": "invalid_stage",

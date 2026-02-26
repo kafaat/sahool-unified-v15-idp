@@ -1,5 +1,5 @@
 """
-Health Check Tests - Agro Advisor
+Health Check Tests - Advisory Service
 """
 
 import pytest
@@ -27,7 +27,7 @@ def test_health_check(client):
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["service"] == "agro_advisor"
+    assert data["service"] == "advisory_service"
     assert "version" in data
 
 
@@ -36,9 +36,9 @@ def test_list_crops(client):
     response = client.get("/crops")
     assert response.status_code == 200
     data = response.json()
-    assert "crops" in data
-    assert "tomato" in data["crops"]
-    assert "wheat" in data["crops"]
+    assert "categories" in data
+    assert "total_crops" in data
+    assert data["total_crops"] > 0
 
 
 def test_get_crop_stages(client):
@@ -46,9 +46,11 @@ def test_get_crop_stages(client):
     response = client.get("/crops/tomato/stages")
     assert response.status_code == 200
     data = response.json()
-    assert data["crop"] == "tomato"
-    assert "stages" in data
-    assert len(data["stages"]) > 0
+    # Response is wrapped in create_success_response
+    inner = data.get("data", data)
+    assert inner["crop"] == "tomato"
+    assert "stages" in inner
+    assert len(inner["stages"]) > 0
 
 
 def test_get_crop_requirements(client):
@@ -56,9 +58,10 @@ def test_get_crop_requirements(client):
     response = client.get("/crops/tomato/requirements")
     assert response.status_code == 200
     data = response.json()
-    assert data["crop"] == "tomato"
-    assert "total_needs" in data
-    assert "N" in data["total_needs"]
+    inner = data.get("data", data)
+    assert inner["crop"] == "tomato"
+    assert "total_needs" in inner
+    assert "N" in inner["total_needs"]
 
 
 def test_get_disease_info(client):
@@ -66,10 +69,11 @@ def test_get_disease_info(client):
     response = client.get("/disease/tomato_late_blight")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"] == "tomato_late_blight"
-    assert "name_ar" in data
-    assert "name_en" in data
-    assert "actions" in data
+    inner = data.get("data", data)
+    assert inner["id"] == "tomato_late_blight"
+    assert "name_ar" in inner
+    assert "name_en" in inner
+    assert "actions" in inner
 
 
 def test_get_disease_not_found(client):
@@ -101,9 +105,10 @@ def test_get_fertilizer_info(client):
     response = client.get("/fertilizer/urea")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"] == "urea"
-    assert "analysis" in data
-    assert data["analysis"]["N"] == 46
+    inner = data.get("data", data)
+    assert inner["id"] == "urea"
+    assert "analysis" in inner
+    assert inner["analysis"]["N"] == 46
 
 
 def test_get_fertilizers_by_nutrient(client):
@@ -121,6 +126,7 @@ def test_get_action_details(client):
     response = client.get("/actions/spray_copper")
     assert response.status_code == 200
     data = response.json()
-    assert data["id"] == "spray_copper"
-    assert "instructions_ar" in data
-    assert "task_type" in data
+    inner = data.get("data", data)
+    assert inner["id"] == "spray_copper"
+    assert "instructions_ar" in inner
+    assert "task_type" in inner

@@ -413,15 +413,19 @@ IRRIGATION_EFFICIENCY = {
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
 
-    temperature_max: float = Field(..., description="Maximum temperature (°C)")
-    temperature_min: float = Field(..., description="Minimum temperature (°C)")
+    temperature_max: float = Field(..., ge=-50, le=65, description="Maximum temperature (°C)")
+    temperature_min: float = Field(..., ge=-90, le=60, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
-    wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
-    solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
+    wind_speed: float = Field(..., ge=0, le=100, description="Wind speed at 2m height (m/s)")
+    solar_radiation: float | None = Field(None, ge=0, le=50, description="Solar radiation (MJ/m²/day)")
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
-    altitude: float = Field(0, description="Altitude above sea level (m)")
+    altitude: float = Field(0, ge=-500, le=5000, description="Altitude above sea level (m)")
     calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.temperature_max < self.temperature_min:
+            raise ValueError("temperature_max must be >= temperature_min")
 
 
 class ET0Response(BaseModel):
@@ -467,9 +471,9 @@ class SoilMoistureInput(BaseModel):
     soil_type: SoilType
     root_depth: float = Field(0.6, gt=0, le=3.0, description="Root depth (m)")
     last_irrigation_date: date
-    last_irrigation_amount: float = Field(..., description="Irrigation amount (mm)")
-    rainfall_since: float = Field(0, ge=0, description="Rainfall since last irrigation (mm)")
-    daily_etc: float = Field(..., description="Daily crop ET (mm/day)")
+    last_irrigation_amount: float = Field(..., ge=0, le=500, description="Irrigation amount (mm)")
+    rainfall_since: float = Field(0, ge=0, le=500, description="Rainfall since last irrigation (mm)")
+    daily_etc: float = Field(..., ge=0, le=25, description="Daily crop ET (mm/day)")
 
 
 class VirtualSoilMoistureResponse(BaseModel):
@@ -496,8 +500,8 @@ class IrrigationRecommendationInput(BaseModel):
     irrigation_method: IrrigationMethod
     field_area_hectares: float = Field(1.0, gt=0)
     last_irrigation_date: date | None = None
-    last_irrigation_amount: float | None = None
-    current_soil_moisture: float | None = Field(None, description="Current moisture if known (m³/m³)")
+    last_irrigation_amount: float | None = Field(None, ge=0, le=500)
+    current_soil_moisture: float | None = Field(None, ge=0, le=1, description="Current moisture if known (m³/m³)")
     weather: WeatherInput
 
 
@@ -1379,7 +1383,7 @@ async def quick_irrigation_check(
     growth_stage: GrowthStage = Query(..., description="Growth stage"),
     soil_type: SoilType = Query(SoilType.LOAM, description="Soil type"),
     days_since_irrigation: int = Query(..., ge=0, description="Days since last irrigation"),
-    temperature: float = Query(..., description="Average temperature (°C)"),
+    temperature: float = Query(..., ge=-50, le=65, description="Average temperature (°C)"),
     humidity: float = Query(50, ge=0, le=100, description="Relative humidity (%)"),
 ):
     """
@@ -1656,7 +1660,7 @@ async def quick_check_with_action(
     growth_stage: GrowthStage = Query(..., description="مرحلة النمو"),
     soil_type: SoilType = Query(SoilType.LOAM, description="نوع التربة"),
     days_since_irrigation: int = Query(..., ge=0, description="أيام منذ آخر ري"),
-    temperature: float = Query(..., description="درجة الحرارة"),
+    temperature: float = Query(..., ge=-50, le=65, description="درجة الحرارة"),
     humidity: float = Query(50, ge=0, le=100, description="الرطوبة النسبية"),
 ):
     """

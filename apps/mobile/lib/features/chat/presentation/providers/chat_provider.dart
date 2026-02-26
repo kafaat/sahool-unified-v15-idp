@@ -587,13 +587,13 @@ final chatApiProvider = Provider.autoDispose<ChatApi>((ref) {
 });
 
 /// Chat repository provider
-final chatRepositoryProvider = Provider<ChatRepository>((ref) {
+final chatRepositoryProvider = Provider.autoDispose<ChatRepository>((ref) {
   final api = ref.watch(chatApiProvider);
   return ChatRepository(api);
 });
 
 /// Chat notifier provider
-final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
+final chatProvider = StateNotifierProvider.autoDispose<ChatNotifier, ChatState>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   final userId = ref.watch(chatUserIdProvider);
 
@@ -604,22 +604,22 @@ final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
 });
 
 /// Unread count provider
-final unreadCountProvider = Provider<int>((ref) {
+final unreadCountProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(chatProvider).unreadCount;
 });
 
 /// Active conversation provider
-final activeConversationProvider = Provider<Conversation?>((ref) {
+final activeConversationProvider = Provider.autoDispose<Conversation?>((ref) {
   return ref.watch(chatProvider).activeConversation;
 });
 
 /// Active messages provider
-final activeMessagesProvider = Provider<List<Message>>((ref) {
+final activeMessagesProvider = Provider.autoDispose<List<Message>>((ref) {
   return ref.watch(chatProvider).activeMessages;
 });
 
 /// Typing status for active conversation
-final activeConversationTypingProvider = Provider<bool>((ref) {
+final activeConversationTypingProvider = Provider.autoDispose<bool>((ref) {
   final state = ref.watch(chatProvider);
   if (state.activeConversationId == null) return false;
   return state.typingStatus[state.activeConversationId] ?? false;

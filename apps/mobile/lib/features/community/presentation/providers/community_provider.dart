@@ -339,6 +339,6 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
 /// Main community state provider
 /// الموفر الرئيسي لحالة المجتمع
 final communityProvider =
-    StateNotifierProvider<CommunityNotifier, CommunityState>((ref) {
+    StateNotifierProvider.autoDispose<CommunityNotifier, CommunityState>((ref) {
   return CommunityNotifier();
 });

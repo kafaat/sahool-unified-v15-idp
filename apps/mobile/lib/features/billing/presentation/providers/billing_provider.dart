@@ -406,12 +406,12 @@ class BillingNotifier extends StateNotifier<BillingState> {
 /// Billing state notifier provider
 /// مزود متحكم حالة الفوترة
 final billingProvider =
-    StateNotifierProvider<BillingNotifier, BillingState>((ref) {
+    StateNotifierProvider.autoDispose<BillingNotifier, BillingState>((ref) {
   return BillingNotifier();
 });
 
 /// Available plans provider
 /// مزود الخطط المتاحة
-final availablePlansProvider = Provider<List<BillingPlan>>((ref) {
+final availablePlansProvider = Provider.autoDispose<List<BillingPlan>>((ref) {
   return _mockPlans;
 });

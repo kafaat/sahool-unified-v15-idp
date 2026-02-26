@@ -556,17 +556,17 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
 // =============================================================================
 
 /// مزود معرف المستخدم
-final marketUserIdProvider = StateProvider<String>((ref) => '');
+final marketUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API
-final marketApiUrlProvider = Provider<String>((ref) {
+final marketApiUrlProvider = Provider.autoDispose<String>((ref) {
   const isProduction = bool.fromEnvironment('dart.vm.product');
   return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
 });
 
 /// مزود السوق الرئيسي
 final marketplaceProvider =
-    StateNotifierProvider<MarketplaceNotifier, MarketplaceState>((ref) {
+    StateNotifierProvider.autoDispose<MarketplaceNotifier, MarketplaceState>((ref) {
   final baseUrl = ref.watch(marketApiUrlProvider);
   final userId = ref.watch(marketUserIdProvider);
 
@@ -577,22 +577,22 @@ final marketplaceProvider =
 });
 
 /// عدد عناصر السلة
-final cartItemCountProvider = Provider<int>((ref) {
+final cartItemCountProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(marketplaceProvider).cartItemCount;
 });
 
 /// إجمالي السلة
-final cartTotalProvider = Provider<double>((ref) {
+final cartTotalProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(marketplaceProvider).cartTotal;
 });
 
 /// المنتجات المميزة
-final featuredProductsProvider = Provider<List<Product>>((ref) {
+final featuredProductsProvider = Provider.autoDispose<List<Product>>((ref) {
   return ref.watch(marketplaceProvider).featuredProducts;
 });
 
 /// منتجات المحاصيل
-final harvestProductsProvider = Provider<List<Product>>((ref) {
+final harvestProductsProvider = Provider.autoDispose<List<Product>>((ref) {
   return ref.watch(marketplaceProvider).products
       .where((p) => p.category == ProductCategory.harvest)
       .toList();

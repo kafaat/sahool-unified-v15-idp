@@ -508,17 +508,17 @@ class WalletNotifier extends StateNotifier<WalletState> {
 // =============================================================================
 
 /// مزود معرف المستخدم
-final userIdProvider = StateProvider<String>((ref) => '');
+final userIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API - Marketplace API URL Provider
 /// Uses EnvConfig for environment-specific URLs
-final marketplaceApiUrlProvider = Provider<String>((ref) {
+final marketplaceApiUrlProvider = Provider.autoDispose<String>((ref) {
   return EnvConfig.marketplaceUrl;
 });
 
 /// مزود المحفظة الرئيسي
 final walletProvider =
-    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+    StateNotifierProvider.autoDispose<WalletNotifier, WalletState>((ref) {
   final baseUrl = ref.watch(marketplaceApiUrlProvider);
   final userId = ref.watch(userIdProvider);
 
@@ -529,16 +529,16 @@ final walletProvider =
 });
 
 /// الرصيد الحالي
-final balanceProvider = Provider<double>((ref) {
+final balanceProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.balance ?? 0;
 });
 
 /// التصنيف الائتماني
-final creditScoreProvider = Provider<int>((ref) {
+final creditScoreProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(walletProvider).wallet?.creditScore ?? 300;
 });
 
 /// الرصيد المتاح للتمويل
-final availableCreditProvider = Provider<double>((ref) {
+final availableCreditProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.availableCredit ?? 0;
 });

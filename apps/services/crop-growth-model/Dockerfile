@@ -38,9 +38,9 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# Install redis (nestjs-auth devDep) - required for token-revocation.ts compilation
+# Install nestjs-auth peer deps needed for tsc compilation
 RUN cd /workspace/crop-growth-model && \
-    npm install --no-save redis 2>/dev/null || true
+    npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \

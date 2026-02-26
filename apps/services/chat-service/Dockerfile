@@ -56,7 +56,7 @@ RUN npx prisma generate && \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build nestjs-auth package (dist/ is gitignored)
-RUN npm install --no-save redis 2>/dev/null || true
+RUN npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/chat-service/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \

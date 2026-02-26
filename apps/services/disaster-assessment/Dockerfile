@@ -44,7 +44,7 @@ RUN npx prisma generate
 COPY apps/services/disaster-assessment/ .
 
 # Build nestjs-auth package (dist/ is gitignored)
-RUN npm install --no-save redis 2>/dev/null || true
+RUN npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
 RUN cd /nestjs-auth && \
     ln -sf /app/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \

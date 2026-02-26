@@ -35,7 +35,8 @@ class SatelliteApi {
   /// Get NDVI analysis for a field
   /// جلب تحليل NDVI للحقل
   Future<NdviAnalysis> getNdviAnalysis(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/analyze/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/analyze/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
@@ -56,7 +57,9 @@ class SatelliteApi {
     String fieldId, {
     int days = 30,
   }) async {
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/timeseries/$fieldId').replace(
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/timeseries/$fieldId')
+            .replace(
       queryParameters: {'days': days.toString()},
     );
 
@@ -64,8 +67,11 @@ class SatelliteApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> timeSeries = data['time_series'] ?? data['timeseries'] ?? data;
-      return timeSeries.map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>)).toList();
+      final List<dynamic> timeSeries =
+          data['time_series'] ?? data['timeseries'] ?? data;
+      return timeSeries
+          .map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>))
+          .toList();
     } else {
       throw SatelliteApiException(
         'فشل جلب السلسلة الزمنية لـ NDVI',
@@ -82,7 +88,8 @@ class SatelliteApi {
   /// Get all vegetation indices for a field
   /// جلب جميع المؤشرات النباتية للحقل
   Future<Map<String, double>> getVegetationIndices(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
@@ -109,7 +116,8 @@ class SatelliteApi {
   /// Get field health assessment
   /// جلب تقييم صحة الحقل
   Future<FieldHealth> getFieldHealth(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/health/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/health/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
@@ -132,7 +140,8 @@ class SatelliteApi {
   /// Get weather forecast for a field (integrated with weather service)
   /// جلب توقعات الطقس للحقل
   Future<WeatherSummary> getWeatherForecast(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.weatherServiceUrl}/v1/forecast/field/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.weatherServiceUrl}/v1/forecast/field/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
@@ -150,14 +159,18 @@ class SatelliteApi {
   /// Get weather alerts for a field
   /// جلب تنبيهات الطقس للحقل
   Future<List<WeatherAlertSummary>> getWeatherAlerts(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.weatherServiceUrl}/v1/alerts/field/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.weatherServiceUrl}/v1/alerts/field/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List<dynamic> alerts = data['alerts'] ?? data;
-      return alerts.map((item) => WeatherAlertSummary.fromJson(item as Map<String, dynamic>)).toList();
+      return alerts
+          .map((item) =>
+              WeatherAlertSummary.fromJson(item as Map<String, dynamic>))
+          .toList();
     } else {
       throw SatelliteApiException(
         'فشل جلب تنبيهات الطقس',
@@ -174,7 +187,8 @@ class SatelliteApi {
   /// Get phenology data for a field
   /// جلب بيانات مراحل النمو للحقل
   Future<PhenologyData> getPhenologyData(String fieldId) async {
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/phenology/$fieldId');
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/phenology/$fieldId');
 
     final response = await _client.get(uri, headers: _headers);
 
@@ -206,7 +220,9 @@ class SatelliteApi {
       if (date != null) 'date': date.toIso8601String(),
     };
 
-    final uri = Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/imagery/$fieldId').replace(
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/imagery/$fieldId')
+            .replace(
       queryParameters: queryParams,
     );
 

@@ -208,8 +208,7 @@ class IrrigationApiException implements Exception {
   IrrigationApiException(this.message, {this.statusCode});
 
   @override
-  String toString() =>
-      'IrrigationApiException: $message (status: $statusCode)';
+  String toString() => 'IrrigationApiException: $message (status: $statusCode)';
 }
 
 /// Irrigation Smart API Client

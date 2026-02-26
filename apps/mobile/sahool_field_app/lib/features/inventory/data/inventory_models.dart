@@ -64,7 +64,8 @@ enum Unit {
 enum MovementType {
   stockIn('stock_in', 'إدخال', 'Stock In'),
   stockOut('stock_out', 'إخراج', 'Stock Out'),
-  fieldApplication('field_application', 'استخدام في الحقل', 'Field Application'),
+  fieldApplication(
+      'field_application', 'استخدام في الحقل', 'Field Application'),
   adjustment('adjustment', 'تعديل', 'Adjustment'),
   damaged('damaged', 'تالف', 'Damaged'),
   expired('expired', 'منتهي الصلاحية', 'Expired'),
@@ -183,7 +184,9 @@ class InventoryItem {
 
   /// Get description based on locale
   String? getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr
+        : description;
   }
 
   /// حساب حالة المخزون

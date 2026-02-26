@@ -29,7 +29,8 @@ class OutboxRepository {
     await _load();
     _isInitialized = true;
 
-    AppLogger.d('Outbox repository initialized with ${_entries.length} items', tag: 'OUTBOX');
+    AppLogger.d('Outbox repository initialized with ${_entries.length} items',
+        tag: 'OUTBOX');
   }
 
   /// تحميل من التخزين
@@ -67,14 +68,13 @@ class OutboxRepository {
     _sortByPriority();
     await _save();
 
-    AppLogger.d('Added to outbox: ${entry.entityType}/${entry.operation.name}', tag: 'OUTBOX');
+    AppLogger.d('Added to outbox: ${entry.entityType}/${entry.operation.name}',
+        tag: 'OUTBOX');
   }
 
   /// الحصول على العناصر المعلقة
   Future<List<OutboxEntry>> getPending() async {
-    return _entries
-        .where((e) => e.status == OutboxStatus.pending)
-        .toList();
+    return _entries.where((e) => e.status == OutboxStatus.pending).toList();
   }
 
   /// الحصول على كل العناصر
@@ -197,9 +197,8 @@ class OutboxRepository {
 
   /// تنظيف العناصر المكتملة الزائدة
   Future<void> _cleanupCompleted() async {
-    final completed = _entries
-        .where((e) => e.status == OutboxStatus.completed)
-        .toList();
+    final completed =
+        _entries.where((e) => e.status == OutboxStatus.completed).toList();
 
     if (completed.length > _maxCompletedItems) {
       // Sort by creation date and remove oldest
@@ -211,7 +210,8 @@ class OutboxRepository {
       }
 
       await _save();
-      AppLogger.d('Cleaned up ${toRemove.length} old completed items', tag: 'OUTBOX');
+      AppLogger.d('Cleaned up ${toRemove.length} old completed items',
+          tag: 'OUTBOX');
     }
   }
 
@@ -249,7 +249,8 @@ class OutboxRepository {
   /// الحصول على العناصر التي تجاوزت الحد الأقصى للمحاولات
   Future<List<OutboxEntry>> getExceededRetries(int maxRetries) async {
     return _entries
-        .where((e) => e.status == OutboxStatus.failed && e.retryCount >= maxRetries)
+        .where((e) =>
+            e.status == OutboxStatus.failed && e.retryCount >= maxRetries)
         .toList();
   }
 
@@ -258,16 +259,19 @@ class OutboxRepository {
     return _entries.any((e) =>
         e.entityType == entityType &&
         e.entityId == entityId &&
-        (e.status == OutboxStatus.pending || e.status == OutboxStatus.processing));
+        (e.status == OutboxStatus.pending ||
+            e.status == OutboxStatus.processing));
   }
 
   /// دمج التغييرات المعلقة لنفس الكيان
   Future<void> mergeUpdates(String entityType, String entityId) async {
-    final pending = _entries.where((e) =>
-        e.entityType == entityType &&
-        e.entityId == entityId &&
-        e.operation == SyncOperation.update &&
-        e.status == OutboxStatus.pending).toList();
+    final pending = _entries
+        .where((e) =>
+            e.entityType == entityType &&
+            e.entityId == entityId &&
+            e.operation == SyncOperation.update &&
+            e.status == OutboxStatus.pending)
+        .toList();
 
     if (pending.length <= 1) return;
 
@@ -294,6 +298,7 @@ class OutboxRepository {
     }
 
     await _save();
-    AppLogger.d('Merged ${pending.length} updates for $entityType/$entityId', tag: 'OUTBOX');
+    AppLogger.d('Merged ${pending.length} updates for $entityType/$entityId',
+        tag: 'OUTBOX');
   }
 }

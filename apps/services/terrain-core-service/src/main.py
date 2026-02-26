@@ -35,6 +35,8 @@ try:
 except ImportError:
     SHARED_ERRORS_AVAILABLE = False
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # Local imports
 from .algorithms.dem_processor import DEMProcessor, DEMSource
 from .algorithms.terrain_indicators import TerrainIndicatorCalculator
@@ -121,6 +123,10 @@ async def lifespan(app: FastAPI):
 
     # Database connection (optional for caching terrain results)
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             import asyncpg
@@ -249,6 +255,11 @@ if SHARED_ERRORS_AVAILABLE:
 else:
     logger.warning("shared.errors_py not available, using basic error handling")
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
+if not SHARED_ERRORS_AVAILABLE:
+
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         logger.error("Unhandled exception", error=str(exc), path=request.url.path)
@@ -296,12 +307,8 @@ def readiness():
     Kubernetes readiness probe - is the service ready to accept traffic?
     فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الطلبات؟
     """
-    dem_processor_ready = (
-        hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
-    )
-    terrain_calc_ready = (
-        hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
-    )
+    dem_processor_ready = hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
+    terrain_calc_ready = hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
     nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
     db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
 
@@ -354,12 +361,8 @@ def metrics():
     from fastapi.responses import PlainTextResponse
 
     # Basic service metrics in Prometheus format
-    dem_processor_ready = (
-        1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
-    )
-    terrain_calc_ready = (
-        1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
-    )
+    dem_processor_ready = 1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
+    terrain_calc_ready = 1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
     nats_connected = 1 if (hasattr(app.state, "nc") and app.state.nc) else 0
     db_connected = 1 if (hasattr(app.state, "db_pool") and app.state.db_pool) else 0
 

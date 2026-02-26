@@ -303,7 +303,8 @@ class OutboxEntry {
       apiEndpoint: apiEndpoint,
       httpMethod: 'POST',
       payload: payload,
-      idempotencyKey: 'create_${entityType}_${entityId}_${now.millisecondsSinceEpoch}',
+      idempotencyKey:
+          'create_${entityType}_${entityId}_${now.millisecondsSinceEpoch}',
       priority: priority,
       createdAt: now,
       updatedAt: now,
@@ -339,7 +340,8 @@ class OutboxEntry {
       payload: payload,
       previousData: previousData,
       ifMatch: ifMatch,
-      idempotencyKey: 'update_${entityType}_${entityId}_${now.millisecondsSinceEpoch}',
+      idempotencyKey:
+          'update_${entityType}_${entityId}_${now.millisecondsSinceEpoch}',
       priority: priority,
       createdAt: now,
       updatedAt: now,
@@ -538,8 +540,7 @@ class OutboxEntry {
         'api_endpoint': apiEndpoint,
         'http_method': httpMethod,
         'payload': jsonEncode(payload),
-        'previous_data':
-            previousData != null ? jsonEncode(previousData) : null,
+        'previous_data': previousData != null ? jsonEncode(previousData) : null,
         'if_match': ifMatch,
         'idempotency_key': idempotencyKey,
         'priority': priority.value,

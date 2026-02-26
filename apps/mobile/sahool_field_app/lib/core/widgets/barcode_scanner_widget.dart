@@ -220,8 +220,10 @@ class _ScannerOverlayPainter extends CustomPainter {
     // Dark overlay
     final backgroundPath = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    final scanPath = Path()..addRRect(RRect.fromRectAndRadius(scanRect, const Radius.circular(16)));
-    final overlayPath = Path.combine(PathOperation.difference, backgroundPath, scanPath);
+    final scanPath = Path()
+      ..addRRect(RRect.fromRectAndRadius(scanRect, const Radius.circular(16)));
+    final overlayPath =
+        Path.combine(PathOperation.difference, backgroundPath, scanPath);
 
     canvas.drawPath(
       overlayPath,
@@ -243,7 +245,8 @@ class _ScannerOverlayPainter extends CustomPainter {
       Path()
         ..moveTo(left, top + cornerLength)
         ..lineTo(left, top + cornerRadius)
-        ..arcToPoint(Offset(left + cornerRadius, top), radius: const Radius.circular(cornerRadius))
+        ..arcToPoint(Offset(left + cornerRadius, top),
+            radius: const Radius.circular(cornerRadius))
         ..lineTo(left + cornerLength, top),
       cornerPaint,
     );
@@ -253,7 +256,8 @@ class _ScannerOverlayPainter extends CustomPainter {
       Path()
         ..moveTo(left + scanAreaSize - cornerLength, top)
         ..lineTo(left + scanAreaSize - cornerRadius, top)
-        ..arcToPoint(Offset(left + scanAreaSize, top + cornerRadius), radius: const Radius.circular(cornerRadius))
+        ..arcToPoint(Offset(left + scanAreaSize, top + cornerRadius),
+            radius: const Radius.circular(cornerRadius))
         ..lineTo(left + scanAreaSize, top + cornerLength),
       cornerPaint,
     );
@@ -263,7 +267,8 @@ class _ScannerOverlayPainter extends CustomPainter {
       Path()
         ..moveTo(left, top + scanAreaSize - cornerLength)
         ..lineTo(left, top + scanAreaSize - cornerRadius)
-        ..arcToPoint(Offset(left + cornerRadius, top + scanAreaSize), radius: const Radius.circular(cornerRadius))
+        ..arcToPoint(Offset(left + cornerRadius, top + scanAreaSize),
+            radius: const Radius.circular(cornerRadius))
         ..lineTo(left + cornerLength, top + scanAreaSize),
       cornerPaint,
     );
@@ -273,7 +278,9 @@ class _ScannerOverlayPainter extends CustomPainter {
       Path()
         ..moveTo(left + scanAreaSize - cornerLength, top + scanAreaSize)
         ..lineTo(left + scanAreaSize - cornerRadius, top + scanAreaSize)
-        ..arcToPoint(Offset(left + scanAreaSize, top + scanAreaSize - cornerRadius), radius: const Radius.circular(cornerRadius))
+        ..arcToPoint(
+            Offset(left + scanAreaSize, top + scanAreaSize - cornerRadius),
+            radius: const Radius.circular(cornerRadius))
         ..lineTo(left + scanAreaSize, top + scanAreaSize - cornerLength),
       cornerPaint,
     );

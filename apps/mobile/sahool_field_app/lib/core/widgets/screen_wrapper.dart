@@ -85,9 +85,10 @@ class SahoolScreenWrapper extends StatelessWidget {
     // Wrap with error boundary if enabled
     if (enableErrorBoundary) {
       content = SahoolErrorBoundary(
-        onError: onError ?? (error, stackTrace) {
-          debugPrint('SahoolScreenWrapper error: $error');
-        },
+        onError: onError ??
+            (error, stackTrace) {
+              debugPrint('SahoolScreenWrapper error: $error');
+            },
         errorBuilder: errorBuilder,
         child: content,
       );

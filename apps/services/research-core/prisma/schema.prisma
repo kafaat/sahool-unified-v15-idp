@@ -78,6 +78,7 @@ enum SeedQualityGrade {
 // الأصول الوراثية - Germplasm Accession
 model Germplasm {
   id                    String            @id @default(uuid())
+  tenantId              String            @map("tenant_id")
   accessionNumber       String            @unique @map("accession_number") @db.VarChar(50)
   commonName            String            @map("common_name") @db.VarChar(255)
   commonNameAr          String?           @map("common_name_ar") @db.VarChar(255)
@@ -130,6 +131,8 @@ model Germplasm {
   seedLots              SeedLot[]
   plantings             Planting[]
 
+  @@index([tenantId], name: "idx_germplasm_tenant")
+  @@index([tenantId, isAvailable], name: "idx_germplasm_tenant_available")
   @@index([isAvailable], name: "idx_germplasm_available")
   @@index([type], name: "idx_germplasm_type")
   @@index([commonName], name: "idx_germplasm_common_name")
@@ -139,6 +142,7 @@ model Germplasm {
 // دفعات البذور - Seed Lots
 model SeedLot {
   id                    String            @id @default(uuid())
+  tenantId              String            @map("tenant_id")
   germplasmId           String            @map("germplasm_id")
   lotNumber             String            @unique @map("lot_number") @db.VarChar(50)
 
@@ -191,6 +195,7 @@ model SeedLot {
   germplasm             Germplasm         @relation(fields: [germplasmId], references: [id], onDelete: Cascade)
   plantings             Planting[]
 
+  @@index([tenantId], name: "idx_seed_lot_tenant")
   @@index([germplasmId], name: "idx_seed_lot_germplasm")
   @@index([qualityGrade], name: "idx_seed_lot_quality")
   @@index([expiryDate], name: "idx_seed_lot_expiry")
@@ -201,6 +206,7 @@ model SeedLot {
 // الزراعة/البذر - Planting Event
 model Planting {
   id                    String            @id @default(uuid())
+  tenantId              String            @map("tenant_id")
   experimentId          String            @map("experiment_id")
   plotId                String?           @map("plot_id")
   germplasmId           String            @map("germplasm_id")
@@ -249,6 +255,7 @@ model Planting {
   germplasm             Germplasm         @relation(fields: [germplasmId], references: [id])
   seedLot               SeedLot?          @relation(fields: [seedLotId], references: [id])
 
+  @@index([tenantId], name: "idx_planting_tenant")
   @@index([experimentId], name: "idx_planting_experiment")
   @@index([plotId], name: "idx_planting_plot")
   @@index([germplasmId], name: "idx_planting_germplasm")
@@ -260,6 +267,7 @@ model Planting {
 
 model Experiment {
   id                    String           @id @default(uuid())
+  tenantId              String           @map("tenant_id")
   title                 String           @db.VarChar(255)
   titleAr               String?          @map("title_ar") @db.VarChar(255)
   description           String?          @db.Text
@@ -289,6 +297,8 @@ model Experiment {
   auditLogs     ExperimentAuditLog[]
   plantings     Planting[]
 
+  @@index([tenantId], name: "idx_experiment_tenant")
+  @@index([tenantId, status], name: "idx_experiment_tenant_status")
   @@index([status], name: "idx_experiment_status")
   @@index([principalResearcherId], name: "idx_experiment_pi")
   @@index([organizationId], name: "idx_experiment_org")
@@ -301,6 +311,7 @@ model Experiment {
 
 model ResearchProtocol {
   id                  String      @id @default(uuid())
+  tenantId            String      @map("tenant_id")
   experimentId        String      @map("experiment_id")
   name                String      @db.VarChar(255)
   nameAr              String?     @map("name_ar") @db.VarChar(255)
@@ -320,12 +331,14 @@ model ResearchProtocol {
 
   experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId], name: "idx_protocol_tenant")
   @@index([experimentId], name: "idx_protocol_experiment")
   @@map("research_protocols")
 }
 
 model ResearchPlot {
   id              String     @id @default(uuid())
+  tenantId        String     @map("tenant_id")
   experimentId    String     @map("experiment_id")
   plotCode        String     @map("plot_code") @db.VarChar(50)
   name            String?    @db.VarChar(255)
@@ -347,12 +360,14 @@ model ResearchPlot {
   logs       ResearchDailyLog[]
   samples    LabSample[]
 
+  @@index([tenantId], name: "idx_plot_tenant")
   @@unique([experimentId, plotCode])
   @@map("research_plots")
 }
 
 model Treatment {
   id                   String        @id @default(uuid())
+  tenantId             String        @map("tenant_id")
   experimentId         String        @map("experiment_id")
   plotId               String?       @map("plot_id")
   treatmentCode        String        @map("treatment_code") @db.VarChar(50)
@@ -376,6 +391,7 @@ model Treatment {
   plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: SetNull)
   logs       ResearchDailyLog[]
 
+  @@index([tenantId], name: "idx_treatment_tenant")
   @@index([experimentId], name: "idx_treatment_experiment")
   @@index([plotId], name: "idx_treatment_plot")
   @@index([type], name: "idx_treatment_type")
@@ -385,6 +401,7 @@ model Treatment {
 
 model ResearchDailyLog {
   id                String      @id @default(uuid())
+  tenantId          String      @map("tenant_id")
   experimentId      String      @map("experiment_id")
   plotId            String?     @map("plot_id")
   treatmentId       String?     @map("treatment_id")
@@ -412,6 +429,7 @@ model ResearchDailyLog {
   treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
   samples    LabSample[]
 
+  @@index([tenantId], name: "idx_daily_log_tenant")
   @@index([experimentId], name: "idx_daily_log_experiment")
   @@index([plotId], name: "idx_daily_log_plot")
   @@index([treatmentId], name: "idx_daily_log_treatment")
@@ -424,6 +442,7 @@ model ResearchDailyLog {
 
 model LabSample {
   id                 String     @id @default(uuid())
+  tenantId           String     @map("tenant_id")
   experimentId       String     @map("experiment_id")
   plotId             String?    @map("plot_id")
   logId              String?    @map("log_id")
@@ -451,6 +470,7 @@ model LabSample {
   plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
   log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
 
+  @@index([tenantId], name: "idx_lab_sample_tenant")
   @@index([experimentId], name: "idx_lab_sample_experiment")
   @@index([plotId], name: "idx_lab_sample_plot")
   @@index([logId], name: "idx_lab_sample_log")
@@ -463,6 +483,7 @@ model LabSample {
 
 model DigitalSignature {
   id                 String    @id @default(uuid())
+  tenantId           String    @map("tenant_id")
   entityType         String    @map("entity_type") @db.VarChar(50)
   entityId           String    @map("entity_id")
   signerId           String    @map("signer_id")
@@ -479,6 +500,7 @@ model DigitalSignature {
   createdAt          DateTime  @default(now()) @map("created_at")
 
   @@unique([entityType, entityId, signerId, purpose])
+  @@index([tenantId], name: "idx_signature_tenant")
   @@index([entityType, entityId], name: "idx_signature_entity")
   @@index([signerId], name: "idx_signature_signer")
   @@index([isValid], name: "idx_signature_valid")
@@ -487,6 +509,7 @@ model DigitalSignature {
 
 model ExperimentCollaborator {
   id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
   experimentId String    @map("experiment_id")
   userId       String    @map("user_id")
   role         String    @db.VarChar(50)
@@ -497,12 +520,14 @@ model ExperimentCollaborator {
 
   experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId], name: "idx_collaborator_tenant")
   @@unique([experimentId, userId])
   @@map("experiment_collaborators")
 }
 
 model ExperimentAuditLog {
   id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
   experimentId String?   @map("experiment_id")
   entityType   String    @map("entity_type") @db.VarChar(50)
   entityId     String    @map("entity_id")
@@ -516,6 +541,7 @@ model ExperimentAuditLog {
 
   experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
 
+  @@index([tenantId], name: "idx_audit_log_tenant")
   @@index([experimentId], name: "idx_audit_log_experiment")
   @@index([entityType, entityId], name: "idx_audit_log_entity")
   @@index([changedBy], name: "idx_audit_log_user")

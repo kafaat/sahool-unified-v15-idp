@@ -25,7 +25,8 @@ class UserContext extends ChangeNotifier {
   DateTime? get sessionStartTime => _sessionStartTime;
 
   /// Check if user is authenticated
-  bool get isAuthenticated => _currentUserId != null && _currentUserId!.isNotEmpty;
+  bool get isAuthenticated =>
+      _currentUserId != null && _currentUserId!.isNotEmpty;
 
   /// Get session duration
   Duration? get sessionDuration {
@@ -69,7 +70,8 @@ class UserContext extends ChangeNotifier {
     }
 
     _currentTenantId = tenantId;
-    AppLogger.d('Tenant ID updated', tag: 'USER_CONTEXT', data: {'tenantId': tenantId});
+    AppLogger.d('Tenant ID updated',
+        tag: 'USER_CONTEXT', data: {'tenantId': tenantId});
     notifyListeners();
   }
 

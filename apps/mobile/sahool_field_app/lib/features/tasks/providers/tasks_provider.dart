@@ -12,7 +12,8 @@ import '../domain/entities/task.dart';
 
 // Re-export for use in other files
 export '../../../core/http/api_client.dart' show ApiClient;
-export '../../../core/notifications/notification_manager.dart' show notificationManagerProvider;
+export '../../../core/notifications/notification_manager.dart'
+    show notificationManagerProvider;
 
 // Note: databaseProvider is imported from main.dart (canonical source)
 // Note: apiClientProvider is imported from core/di/providers.dart (with security config)
@@ -135,8 +136,8 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<FieldTask>>> {
 /// Tasks provider
 /// Uses autoDispose with ref.keepAlive() for critical data that should persist
 /// but still clean up properly when app navigates away from tasks feature
-final tasksProvider =
-    StateNotifierProvider.autoDispose<TasksNotifier, AsyncValue<List<FieldTask>>>((ref) {
+final tasksProvider = StateNotifierProvider.autoDispose<TasksNotifier,
+    AsyncValue<List<FieldTask>>>((ref) {
   final repo = ref.watch(tasksRepoProvider);
   final client = ref.watch(apiClientProvider);
 

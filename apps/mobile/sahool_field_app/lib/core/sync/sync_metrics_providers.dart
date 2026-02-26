@@ -254,7 +254,8 @@ class MetricsAwareQueueManager {
 }
 
 /// Provide MetricsAwareQueueManager with composition pattern
-final metricsAwareQueueManagerProvider = Provider<MetricsAwareQueueManager>((ref) {
+final metricsAwareQueueManagerProvider =
+    Provider<MetricsAwareQueueManager>((ref) {
   final manager = ref.watch(queueManagerProvider);
   final metrics = ref.watch(syncMetricsServiceProvider);
   return MetricsAwareQueueManager(manager, metrics);

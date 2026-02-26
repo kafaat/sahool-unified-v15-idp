@@ -42,7 +42,8 @@ class EnhancedFieldCard extends StatelessWidget {
                     const Color(0xFF4A9A3D),
                   ],
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
                 children: [
@@ -88,7 +89,8 @@ class EnhancedFieldCard extends StatelessWidget {
                   ),
                   // Status badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -172,7 +174,8 @@ class EnhancedFieldCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: _getHealthColor(field.healthScore).withOpacity(0.1),
+                              color: _getHealthColor(field.healthScore)
+                                  .withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -202,7 +205,8 @@ class EnhancedFieldCard extends StatelessWidget {
                   ),
 
                   // Additional info
-                  if (field.irrigationType != null || field.soilType != null) ...[
+                  if (field.irrigationType != null ||
+                      field.soilType != null) ...[
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -212,7 +216,8 @@ class EnhancedFieldCard extends StatelessWidget {
                             field.irrigationType!,
                             Colors.blue,
                           ),
-                        if (field.irrigationType != null && field.soilType != null)
+                        if (field.irrigationType != null &&
+                            field.soilType != null)
                           const SizedBox(width: 8),
                         if (field.soilType != null)
                           _buildInfoChip(
@@ -225,19 +230,23 @@ class EnhancedFieldCard extends StatelessWidget {
                   ],
 
                   // Harvest countdown
-                  if (field.daysUntilHarvest != null && field.daysUntilHarvest! > 0) ...[
+                  if (field.daysUntilHarvest != null &&
+                      field.daysUntilHarvest! > 0) ...[
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.orange.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                        border:
+                            Border.all(color: Colors.orange.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.schedule, size: 16, color: Colors.orange),
+                          const Icon(Icons.schedule,
+                              size: 16, color: Colors.orange),
                           const SizedBox(width: 6),
                           Text(
                             '${field.daysUntilHarvest} يوم للحصاد',
@@ -382,7 +391,8 @@ class EnhancedFieldCard extends StatelessWidget {
             value: field.healthScore,
             strokeWidth: 4,
             backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation(_getHealthColor(field.healthScore)),
+            valueColor:
+                AlwaysStoppedAnimation(_getHealthColor(field.healthScore)),
           ),
           Icon(
             Icons.eco,

@@ -59,7 +59,15 @@ void main() {
       test('should parse items key as fallback for alerts', () {
         final json = {
           'items': [
-            {'id': 'a1', 'field_id': 'f1', 'type': 'pest', 'severity': 'warning', 'title': 'آفة', 'status': 'active', 'created_at': '2026-01-01T00:00:00Z'},
+            {
+              'id': 'a1',
+              'field_id': 'f1',
+              'type': 'pest',
+              'severity': 'warning',
+              'title': 'آفة',
+              'status': 'active',
+              'created_at': '2026-01-01T00:00:00Z'
+            },
           ],
           'total': 1,
         };
@@ -72,7 +80,8 @@ void main() {
 
     group('status getters', () {
       test('isActive returns true for active status', () {
-        final model = AlertModel.fromJson({'status': 'active', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'status': 'active', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isActive, isTrue);
         expect(model.isAcknowledged, isFalse);
         expect(model.isResolved, isFalse);
@@ -80,29 +89,34 @@ void main() {
       });
 
       test('isAcknowledged returns true for acknowledged status', () {
-        final model = AlertModel.fromJson({'status': 'acknowledged', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'status': 'acknowledged', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isActive, isFalse);
         expect(model.isAcknowledged, isTrue);
       });
 
       test('isResolved returns true for resolved status', () {
-        final model = AlertModel.fromJson({'status': 'resolved', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'status': 'resolved', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isResolved, isTrue);
       });
 
       test('isDismissed returns true for dismissed status', () {
-        final model = AlertModel.fromJson({'status': 'dismissed', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'status': 'dismissed', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isDismissed, isTrue);
       });
 
       test('isCritical returns true for critical severity', () {
-        final model = AlertModel.fromJson({'severity': 'critical', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'severity': 'critical', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isCritical, isTrue);
         expect(model.isWarning, isFalse);
       });
 
       test('isWarning returns true for warning severity', () {
-        final model = AlertModel.fromJson({'severity': 'warning', 'created_at': '2026-01-01T00:00:00Z'});
+        final model = AlertModel.fromJson(
+            {'severity': 'warning', 'created_at': '2026-01-01T00:00:00Z'});
         expect(model.isWarning, isTrue);
         expect(model.isCritical, isFalse);
       });

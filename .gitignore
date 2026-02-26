@@ -234,6 +234,7 @@ config/nats/generated/
 analysis_report.txt
 analysis_report.json
 audit_report.json
+api/validation-report.json
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CodeQL Analysis

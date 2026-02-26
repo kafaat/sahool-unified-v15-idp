@@ -50,9 +50,12 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final isRunning = widget.status.operatingStatus == PivotOperatingStatus.running;
-    final isPaused = widget.status.operatingStatus == PivotOperatingStatus.paused;
-    final hasFault = widget.status.operatingStatus == PivotOperatingStatus.fault;
+    final isRunning =
+        widget.status.operatingStatus == PivotOperatingStatus.running;
+    final isPaused =
+        widget.status.operatingStatus == PivotOperatingStatus.paused;
+    final hasFault =
+        widget.status.operatingStatus == PivotOperatingStatus.fault;
 
     return Card(
       margin: const EdgeInsets.all(8),
@@ -179,9 +182,8 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
           labelEn: 'Pause',
           color: Colors.orange,
           isActive: isPaused,
-          onPressed: !isRunning
-              ? null
-              : () => _sendCommand(PivotCommandType.pause),
+          onPressed:
+              !isRunning ? null : () => _sendCommand(PivotCommandType.pause),
         ),
 
         // Stop button
@@ -385,7 +387,8 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
             ),
           ],
@@ -515,7 +518,9 @@ class _PivotControlPanelState extends State<PivotControlPanel> {
           ],
         ),
         const SizedBox(height: 8),
-        ...widget.status.activeAlerts.take(3).map((alert) => _AlertTile(alert: alert)),
+        ...widget.status.activeAlerts
+            .take(3)
+            .map((alert) => _AlertTile(alert: alert)),
       ],
     );
   }
@@ -715,7 +720,9 @@ class _DirectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+      color: isSelected
+          ? Colors.blue.withOpacity(0.1)
+          : Colors.grey.withOpacity(0.05),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onPressed,

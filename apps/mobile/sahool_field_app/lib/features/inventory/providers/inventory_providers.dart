@@ -25,18 +25,22 @@ final inventoryItemsProvider = FutureProvider.autoDispose
 });
 
 /// مزود العناصر ذات المخزون المنخفض
-final lowStockItemsProvider = FutureProvider.autoDispose<List<InventoryItem>>((ref) async {
+final lowStockItemsProvider =
+    FutureProvider.autoDispose<List<InventoryItem>>((ref) async {
   final repo = ref.watch(inventoryRepositoryProvider);
   final result = await repo.getLowStockItems();
 
   if (result.isSuccess) {
     return result.data ?? [];
   }
-  throw Exception(result.errorAr ?? result.error ?? 'فشل في جلب العناصر ذات المخزون المنخفض');
+  throw Exception(result.errorAr ??
+      result.error ??
+      'فشل في جلب العناصر ذات المخزون المنخفض');
 });
 
 /// مزود إحصائيات المخزون
-final inventoryStatsProvider = FutureProvider.autoDispose<InventoryStats>((ref) async {
+final inventoryStatsProvider =
+    FutureProvider.autoDispose<InventoryStats>((ref) async {
   final repo = ref.watch(inventoryRepositoryProvider);
   final result = await repo.getStats();
 
@@ -71,8 +75,8 @@ final inventoryItemByBarcodeProvider = FutureProvider.autoDispose
 });
 
 /// مزود البحث عبر SKU
-final inventoryItemBySkuProvider = FutureProvider.autoDispose
-    .family<InventoryItem, String>((ref, sku) async {
+final inventoryItemBySkuProvider =
+    FutureProvider.autoDispose.family<InventoryItem, String>((ref, sku) async {
   final repo = ref.watch(inventoryRepositoryProvider);
   final result = await repo.getItemBySku(sku);
 
@@ -95,7 +99,8 @@ final stockMovementsProvider = FutureProvider.autoDispose
 });
 
 /// مزود المستودعات
-final warehousesProvider = FutureProvider.autoDispose<List<Warehouse>>((ref) async {
+final warehousesProvider =
+    FutureProvider.autoDispose<List<Warehouse>>((ref) async {
   final repo = ref.watch(inventoryRepositoryProvider);
   final result = await repo.getWarehouses();
 
@@ -106,7 +111,8 @@ final warehousesProvider = FutureProvider.autoDispose<List<Warehouse>>((ref) asy
 });
 
 /// مزود الموردين
-final suppliersProvider = FutureProvider.autoDispose<List<Supplier>>((ref) async {
+final suppliersProvider =
+    FutureProvider.autoDispose<List<Supplier>>((ref) async {
   final repo = ref.watch(inventoryRepositoryProvider);
   final result = await repo.getSuppliers();
 
@@ -117,10 +123,12 @@ final suppliersProvider = FutureProvider.autoDispose<List<Supplier>>((ref) async
 });
 
 /// حالة الفلتر المحددة
-final selectedInventoryFilterProvider = StateProvider<InventoryFilter?>((ref) => null);
+final selectedInventoryFilterProvider =
+    StateProvider<InventoryFilter?>((ref) => null);
 
 /// حالة عرض القائمة (grid/list)
-final inventoryViewModeProvider = StateProvider<InventoryViewMode>((ref) => InventoryViewMode.grid);
+final inventoryViewModeProvider =
+    StateProvider<InventoryViewMode>((ref) => InventoryViewMode.grid);
 
 /// فلتر المخزون
 class InventoryFilter {
@@ -149,8 +157,10 @@ class InventoryFilter {
     return InventoryFilter(
       category: clearCategory ? null : (category ?? this.category),
       search: clearSearch ? null : (search ?? this.search),
-      lowStockOnly: clearLowStockOnly ? null : (lowStockOnly ?? this.lowStockOnly),
-      expiringOnly: clearExpiringOnly ? null : (expiringOnly ?? this.expiringOnly),
+      lowStockOnly:
+          clearLowStockOnly ? null : (lowStockOnly ?? this.lowStockOnly),
+      expiringOnly:
+          clearExpiringOnly ? null : (expiringOnly ?? this.expiringOnly),
     );
   }
 
@@ -172,7 +182,8 @@ class InventoryController extends StateNotifier<AsyncValue<void>> {
   final InventoryRepository _repo;
   final Ref _ref;
 
-  InventoryController(this._repo, this._ref) : super(const AsyncValue.data(null));
+  InventoryController(this._repo, this._ref)
+      : super(const AsyncValue.data(null));
 
   /// إدخال مخزون
   Future<bool> stockIn({

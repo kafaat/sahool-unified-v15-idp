@@ -10,6 +10,7 @@ import {
   Body,
   Param,
   Query,
+  Req,
   HttpStatus,
   HttpCode,
   UnauthorizedException,
@@ -41,9 +42,10 @@ export class ChatController {
   private async verifyConversationAccess(
     conversationId: string,
     userId: string,
+    tenantId: string,
   ) {
     const conversation =
-      await this.chatService.getConversationById(conversationId);
+      await this.chatService.getConversationById(conversationId, tenantId);
     if (!conversation.participantIds.includes(userId)) {
       throw new UnauthorizedException("Access denied to this conversation");
     }
@@ -91,14 +93,16 @@ export class ChatController {
   async createConversation(
     @Body() createConversationDto: CreateConversationDto,
     @UserId() userId: string,
+    @Req() req: any,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     // Security: Ensure the authenticated user is one of the participants
     if (!createConversationDto.participantIds.includes(userId)) {
       throw new UnauthorizedException(
         "User must be a participant in the conversation",
       );
     }
-    return this.chatService.createConversation(createConversationDto);
+    return this.chatService.createConversation(createConversationDto, tenantId);
   }
 
   /**
@@ -120,8 +124,9 @@ export class ChatController {
     status: 401,
     description: "Unauthorized - Valid JWT token required",
   })
-  async getUserConversations(@UserId() userId: string) {
-    return this.chatService.getUserConversations(userId);
+  async getUserConversations(@UserId() userId: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.chatService.getUserConversations(userId, tenantId);
   }
 
   /**
@@ -152,9 +157,10 @@ export class ChatController {
     status: 404,
     description: "Conversation not found",
   })
-  async getConversation(@Param("id") id: string, @UserId() userId: string) {
-    await this.verifyConversationAccess(id, userId);
-    return this.chatService.getConversationById(id);
+  async getConversation(@Param("id") id: string, @UserId() userId: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    await this.verifyConversationAccess(id, userId, tenantId);
+    return this.chatService.getConversationById(id, tenantId);
   }
 
   /**
@@ -198,12 +204,15 @@ export class ChatController {
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "50",
     @UserId() userId: string,
+    @Req() req: any,
   ) {
-    await this.verifyConversationAccess(conversationId, userId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    await this.verifyConversationAccess(conversationId, userId, tenantId);
     return this.chatService.getMessages(
       conversationId,
       parseInt(page, 10),
       parseInt(limit, 10),
+      tenantId,
     );
   }
 
@@ -238,10 +247,12 @@ export class ChatController {
   async sendMessage(
     @Body() sendMessageDto: SendMessageDto,
     @UserId() userId: string,
+    @Req() req: any,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     // Ensure the senderId matches the authenticated user
     sendMessageDto.senderId = userId;
-    return this.chatService.sendMessage(sendMessageDto);
+    return this.chatService.sendMessage(sendMessageDto, tenantId);
   }
 
   /**
@@ -272,8 +283,10 @@ export class ChatController {
   async markMessageAsRead(
     @Param("messageId") messageId: string,
     @UserId() userId: string,
+    @Req() req: any,
   ) {
-    return this.chatService.markMessageAsRead(messageId, userId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.chatService.markMessageAsRead(messageId, userId, tenantId);
   }
 
   /**
@@ -304,9 +317,11 @@ export class ChatController {
   async markConversationAsRead(
     @Param("id") conversationId: string,
     @UserId() userId: string,
+    @Req() req: any,
   ) {
-    await this.verifyConversationAccess(conversationId, userId);
-    return this.chatService.markConversationAsRead(conversationId, userId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    await this.verifyConversationAccess(conversationId, userId, tenantId);
+    return this.chatService.markConversationAsRead(conversationId, userId, tenantId);
   }
 
   /**
@@ -328,8 +343,9 @@ export class ChatController {
     status: 401,
     description: "Unauthorized - Valid JWT token required",
   })
-  async getUnreadCount(@UserId() userId: string) {
-    const count = await this.chatService.getUnreadCount(userId);
+  async getUnreadCount(@UserId() userId: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const count = await this.chatService.getUnreadCount(userId, tenantId);
     return { userId, unreadCount: count };
   }
 }

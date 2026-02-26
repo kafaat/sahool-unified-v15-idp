@@ -39,8 +39,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertsPageResponse Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertsPageResponse Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
 
@@ -73,8 +73,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertsPageResponse Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertsPageResponse Function(dynamic);
           return ApiResponse.success(fromJson({
             'alerts': [],
             'total': 0,
@@ -112,12 +112,13 @@ void main() {
       test('should return error on API failure', () async {
         // Arrange
         when(() => mockGateway.get<AlertsPageResponse>(
-              any(),
-              any(),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
+                  any(),
+                  any(),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async =>
                 errorResponse<AlertsPageResponse>('ERR_500', 'Server error'));
 
         // Act
@@ -139,8 +140,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleAlertJson()));
         });
 
@@ -165,9 +166,10 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertModel Function(dynamic);
-          return ApiResponse.success(fromJson(sampleAlertJson(id: 'new-alert')));
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertModel Function(dynamic);
+          return ApiResponse.success(
+              fromJson(sampleAlertJson(id: 'new-alert')));
         });
 
         // Act
@@ -212,8 +214,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'acknowledged')));
         });
@@ -242,8 +244,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'resolved')));
         });
@@ -283,8 +285,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertModel Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'dismissed')));
         });
@@ -348,8 +350,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as AlertStats Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as AlertStats Function(dynamic);
           return ApiResponse.success(fromJson(statsData));
         });
 
@@ -373,7 +375,11 @@ void main() {
             'id': 'rule-001',
             'field_id': 'field-001',
             'name': 'قاعدة رطوبة التربة',
-            'condition': {'metric': 'soil_moisture', 'operator': '<', 'value': 30},
+            'condition': {
+              'metric': 'soil_moisture',
+              'operator': '<',
+              'value': 30
+            },
             'alert_config': {'severity': 'warning', 'type': 'irrigation'},
             'enabled': true,
             'cooldown_minutes': 120,
@@ -387,13 +393,14 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as List<AlertRule> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as List<AlertRule> Function(dynamic);
           return ApiResponse.success(fromJson(rulesData));
         });
 
         // Act
-        final result = await api.getAlertRules(fieldId: 'field-001', enabled: true);
+        final result =
+            await api.getAlertRules(fieldId: 'field-001', enabled: true);
 
         // Assert
         expect(result.success, isTrue);

@@ -137,7 +137,9 @@ class WeatherCondition {
 
   /// Get wind direction based on locale
   String getWindDirection(String locale) {
-    return locale == 'ar' && windDirectionAr != null ? windDirectionAr! : windDirection;
+    return locale == 'ar' && windDirectionAr != null
+        ? windDirectionAr!
+        : windDirection;
   }
 
   /// Get condition based on locale
@@ -380,12 +382,16 @@ class SprayProduct {
 
   /// Get manufacturer based on locale
   String getManufacturer(String locale) {
-    return locale == 'ar' && manufacturerAr != null ? manufacturerAr! : manufacturer;
+    return locale == 'ar' && manufacturerAr != null
+        ? manufacturerAr!
+        : manufacturer;
   }
 
   /// Get active ingredient based on locale
   String getActiveIngredient(String locale) {
-    return locale == 'ar' && activeIngredientAr != null ? activeIngredientAr! : activeIngredient;
+    return locale == 'ar' && activeIngredientAr != null
+        ? activeIngredientAr!
+        : activeIngredient;
   }
 
   /// Get unit based on locale
@@ -398,7 +404,9 @@ class SprayProduct {
     if (type == SprayType.insecticide || type == SprayType.herbicide) {
       return locale == 'ar' && targetPestAr != null ? targetPestAr : targetPest;
     } else {
-      return locale == 'ar' && targetDiseaseAr != null ? targetDiseaseAr : targetDisease;
+      return locale == 'ar' && targetDiseaseAr != null
+          ? targetDiseaseAr
+          : targetDisease;
     }
   }
 
@@ -592,12 +600,16 @@ class SprayWindow {
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
       status: SprayWindowStatus.fromString(json['status'] as String),
-      weatherCondition: WeatherCondition.fromJson(json['weather_condition'] as Map<String, dynamic>),
+      weatherCondition: WeatherCondition.fromJson(
+          json['weather_condition'] as Map<String, dynamic>),
       confidenceScore: json['confidence_score'] as int,
       reason: json['reason'] as String?,
       reasonAr: json['reason_ar'] as String?,
-      warnings: (json['warnings'] as List?)?.map((e) => e as String).toList() ?? [],
-      warningsAr: (json['warnings_ar'] as List?)?.map((e) => e as String).toList() ?? [],
+      warnings:
+          (json['warnings'] as List?)?.map((e) => e as String).toList() ?? [],
+      warningsAr:
+          (json['warnings_ar'] as List?)?.map((e) => e as String).toList() ??
+              [],
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -719,7 +731,9 @@ class SprayRecommendation {
 
   /// Get description based on locale
   String getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr! : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr!
+        : description;
   }
 
   /// Get field name based on locale
@@ -778,7 +792,8 @@ class SprayRecommendation {
       sprayType: SprayType.fromString(json['spray_type'] as String),
       status: RecommendationStatus.fromString(json['status'] as String),
       recommendedProduct: json['recommended_product'] != null
-          ? SprayProduct.fromJson(json['recommended_product'] as Map<String, dynamic>)
+          ? SprayProduct.fromJson(
+              json['recommended_product'] as Map<String, dynamic>)
           : null,
       alternativeProducts: (json['alternative_products'] as List?)
               ?.map((e) => SprayProduct.fromJson(e as Map<String, dynamic>))
@@ -794,9 +809,12 @@ class SprayRecommendation {
               ?.map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      targetDate: json['target_date'] != null ? DateTime.parse(json['target_date'] as String) : null,
-      completedDate:
-          json['completed_date'] != null ? DateTime.parse(json['completed_date'] as String) : null,
+      targetDate: json['target_date'] != null
+          ? DateTime.parse(json['target_date'] as String)
+          : null,
+      completedDate: json['completed_date'] != null
+          ? DateTime.parse(json['completed_date'] as String)
+          : null,
       createdBy: json['created_by'] as String?,
       createdByName: json['created_by_name'] as String?,
       priority: json['priority'] as int? ?? 3,
@@ -821,7 +839,8 @@ class SprayRecommendation {
         'spray_type': sprayType.value,
         'status': status.value,
         'recommended_product': recommendedProduct?.toJson(),
-        'alternative_products': alternativeProducts.map((e) => e.toJson()).toList(),
+        'alternative_products':
+            alternativeProducts.map((e) => e.toJson()).toList(),
         'recommended_rate': recommendedRate,
         'unit': unit,
         'unit_ar': unitAr,
@@ -979,7 +998,9 @@ class SprayApplicationLog {
 
   /// Get equipment based on locale
   String? getEquipment(String locale) {
-    return locale == 'ar' && equipmentUsedAr != null ? equipmentUsedAr : equipmentUsed;
+    return locale == 'ar' && equipmentUsedAr != null
+        ? equipmentUsedAr
+        : equipmentUsed;
   }
 
   /// Get notes based on locale
@@ -1003,11 +1024,13 @@ class SprayApplicationLog {
       area: (json['area'] as num).toDouble(),
       totalQuantity: (json['total_quantity'] as num).toDouble(),
       applicationDate: DateTime.parse(json['application_date'] as String),
-      weatherCondition: WeatherCondition.fromJson(json['weather_condition'] as Map<String, dynamic>),
+      weatherCondition: WeatherCondition.fromJson(
+          json['weather_condition'] as Map<String, dynamic>),
       applicatorName: json['applicator_name'] as String?,
       equipmentUsed: json['equipment_used'] as String?,
       equipmentUsedAr: json['equipment_used_ar'] as String?,
-      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList() ?? [],
+      photoUrls:
+          (json['photo_urls'] as List?)?.map((e) => e as String).toList() ?? [],
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       createdBy: json['created_by'] as String,

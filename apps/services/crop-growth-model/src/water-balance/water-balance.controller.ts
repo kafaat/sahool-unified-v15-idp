@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -13,29 +13,30 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
+import { IsNumber, IsString, IsOptional, IsArray, IsObject, IsDateString, Min, Max } from "class-validator";
 import { WaterBalanceService } from "./water-balance.service";
 
 class KcInput {
-  cropType: string;
-  daysAfterPlanting: number;
+  @IsString() cropType: string;
+  @IsNumber() @Min(0) daysAfterPlanting: number;
 }
 
 class ETcInput {
-  cropType: string;
-  et0: number;
-  daysAfterPlanting: number;
-  waterStress?: number;
+  @IsString() cropType: string;
+  @IsNumber() @Min(0) et0: number;
+  @IsNumber() @Min(0) daysAfterPlanting: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1) waterStress?: number;
 }
 
 class WaterBalanceInput {
-  cropType: string;
-  rootingDepth: number;
-  soilParams: {
+  @IsString() cropType: string;
+  @IsNumber() @Min(0) rootingDepth: number;
+  @IsObject() soilParams: {
     fieldCapacity: number;
     wiltingPoint: number;
     currentWaterContent: number;
   };
-  dailyInputs: {
+  @IsObject() dailyInputs: {
     et0: number;
     precipitation: number;
     irrigation: number;
@@ -44,19 +45,19 @@ class WaterBalanceInput {
 }
 
 class IrrigationScheduleInput {
-  cropType: string;
-  sowingDate: string;
-  weatherForecast: Array<{
+  @IsString() cropType: string;
+  @IsDateString() sowingDate: string;
+  @IsArray() weatherForecast: Array<{
     date: string;
     et0: number;
     precipitation: number;
   }>;
-  soilParams: {
+  @IsObject() soilParams: {
     fieldCapacity: number;
     wiltingPoint: number;
     initialWaterContent: number;
   };
-  irrigationSystem: {
+  @IsObject() irrigationSystem: {
     type: "drip" | "sprinkler" | "furrow" | "flood";
     efficiency: number;
     maxDailyApplication: number;

@@ -35,7 +35,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final prescriptionsAsync = ref.watch(prescriptionListProvider(_currentFilter));
+    final prescriptionsAsync =
+        ref.watch(prescriptionListProvider(_currentFilter));
     final statsAsync = ref.watch(vraStatsProvider);
     final locale = Localizations.localeOf(context).languageCode;
     final isRTL = locale == 'ar';
@@ -90,7 +91,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                      Icon(Icons.error_outline,
+                          size: 64, color: Colors.red[300]),
                       const SizedBox(height: 16),
                       Text(
                         error.toString(),
@@ -99,7 +101,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
-                        onPressed: () => ref.invalidate(prescriptionListProvider),
+                        onPressed: () =>
+                            ref.invalidate(prescriptionListProvider),
                         icon: const Icon(Icons.refresh),
                         label: Text(isRTL ? 'إعادة المحاولة' : 'Retry'),
                       ),
@@ -233,7 +236,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => VRADetailScreen(prescriptionId: prescription.prescriptionId),
+              builder: (_) =>
+                  VRADetailScreen(prescriptionId: prescription.prescriptionId),
             ),
           );
         },
@@ -376,7 +380,9 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            isRTL ? 'اضغط على الزر أدناه لإنشاء وصفة جديدة' : 'Tap the button below to create a new prescription',
+            isRTL
+                ? 'اضغط على الزر أدناه لإنشاء وصفة جديدة'
+                : 'Tap the button below to create a new prescription',
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
@@ -399,7 +405,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isRTL ? 'النوع' : 'Type', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(isRTL ? 'النوع' : 'Type',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -414,7 +421,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 16),
-                Text(isRTL ? 'الحالة' : 'Status', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(isRTL ? 'الحالة' : 'Status',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -423,7 +431,8 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
                       label: Text(status.getName(locale)),
                       selected: _selectedStatus == status,
                       onSelected: (selected) {
-                        setState(() => _selectedStatus = selected ? status : null);
+                        setState(
+                            () => _selectedStatus = selected ? status : null);
                       },
                     );
                   }).toList(),

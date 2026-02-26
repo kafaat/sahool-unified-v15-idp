@@ -149,7 +149,8 @@ final weatherProvider =
 /// Selected Field Provider for Weather feature
 /// Note: This is scoped to weather feature. Use core/providers/selected_field_provider.dart
 /// for app-wide field selection.
-final weatherSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
+final weatherSelectedFieldIdProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
 
 /// حالة التنبيهات
 class AlertsState {
@@ -178,8 +179,8 @@ class AlertsState {
   int get activeAlerts =>
       alerts.where((a) => a.endTime.isAfter(DateTime.now())).length;
 
-  bool get hasWarnings =>
-      alerts.any((a) => a.severity == 'warning' && a.endTime.isAfter(DateTime.now()));
+  bool get hasWarnings => alerts
+      .any((a) => a.severity == 'warning' && a.endTime.isAfter(DateTime.now()));
 }
 
 /// Alerts State Notifier - Updated to use repository with offline caching
@@ -325,7 +326,8 @@ final impactsProvider =
 final impactFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// Filtered Impacts Provider (حسب الحالة) - autoDispose to match parent
-final filteredImpactsProvider = Provider.autoDispose<List<AgriculturalImpact>>((ref) {
+final filteredImpactsProvider =
+    Provider.autoDispose<List<AgriculturalImpact>>((ref) {
   final impacts = ref.watch(impactsProvider).impacts;
   final filter = ref.watch(impactFilterProvider);
 
@@ -374,7 +376,8 @@ class ForecastNotifier extends StateNotifier<ForecastState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final forecasts = await _repo.getDailyForecastForField(fieldId, days: days);
+      final forecasts =
+          await _repo.getDailyForecastForField(fieldId, days: days);
       state = state.copyWith(isLoading: false, forecasts: forecasts);
     } catch (e) {
       state = state.copyWith(
@@ -412,7 +415,8 @@ class ForecastNotifier extends StateNotifier<ForecastState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final forecasts = await _repo.getForecastByCoordinates(lat, lon, days: days);
+      final forecasts =
+          await _repo.getForecastByCoordinates(lat, lon, days: days);
       state = state.copyWith(isLoading: false, forecasts: forecasts);
     } catch (e) {
       state = state.copyWith(
@@ -489,8 +493,8 @@ class HourlyForecastNotifier extends StateNotifier<HourlyForecastState> {
 }
 
 /// Hourly Forecast Provider - autoDispose for proper cleanup
-final hourlyForecastProvider =
-    StateNotifierProvider.autoDispose<HourlyForecastNotifier, HourlyForecastState>((ref) {
+final hourlyForecastProvider = StateNotifierProvider.autoDispose<
+    HourlyForecastNotifier, HourlyForecastState>((ref) {
   final repo = ref.watch(weatherRepositoryProvider);
   return HourlyForecastNotifier(repo);
 });

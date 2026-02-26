@@ -164,6 +164,8 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       "https://sentinel-hub.com",
       "https://*.sentinel-hub.com",
       "https://*.sahool.ye",
+      // ESRI satellite tiles (loaded via fetch by maplibre-gl in MapView)
+      "https://server.arcgisonline.com",
     ],
 
     // Media sources

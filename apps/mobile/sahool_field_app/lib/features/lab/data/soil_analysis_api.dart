@@ -222,7 +222,8 @@ class SoilSampleModel {
       collectedBy: json['collected_by'] ?? '',
       fieldId: json['field_id'],
       notes: json['notes'],
-      collectedAt: DateTime.tryParse(json['collected_at'] ?? '') ?? DateTime.now(),
+      collectedAt:
+          DateTime.tryParse(json['collected_at'] ?? '') ?? DateTime.now(),
       receivedAt: json['received_at'] != null
           ? DateTime.tryParse(json['received_at'])
           : null,
@@ -294,8 +295,7 @@ class AnalysisResultModel {
       results: json['results'] ?? {},
       interpretation: json['interpretation'],
       interpretationAr: json['interpretation_ar'],
-      recommendations:
-          (json['recommendations'] as List?)?.cast<String>() ?? [],
+      recommendations: (json['recommendations'] as List?)?.cast<String>() ?? [],
       analyzedAt:
           DateTime.tryParse(json['analyzed_at'] ?? '') ?? DateTime.now(),
     );
@@ -326,8 +326,7 @@ class LabStats {
       inTransitSamples: json['in_transit'] ?? 0,
       processingSamples: json['processing'] ?? 0,
       analyzedSamples: json['analyzed'] ?? 0,
-      averageProcessingDays:
-          (json['avg_processing_days'] ?? 0.0).toDouble(),
+      averageProcessingDays: (json['avg_processing_days'] ?? 0.0).toDouble(),
     );
   }
 }

@@ -165,7 +165,9 @@ class SahoolErrorView extends StatelessWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  isArabic ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred',
+                  isArabic
+                      ? 'حدث خطأ غير متوقع'
+                      : 'An unexpected error occurred',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: SahoolColors.textDark,
@@ -192,7 +194,9 @@ class SahoolErrorView extends StatelessWidget {
               if (showDetails) ...[
                 const SizedBox(height: 16),
                 Semantics(
-                  label: isArabic ? 'تفاصيل الخطأ الفنية' : 'Technical error details',
+                  label: isArabic
+                      ? 'تفاصيل الخطأ الفنية'
+                      : 'Technical error details',
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -353,7 +357,8 @@ class SahoolNetworkError extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Semantics(
-                label: isArabic ? 'لا يوجد اتصال واي فاي' : 'No WiFi connection',
+                label:
+                    isArabic ? 'لا يوجد اتصال واي فاي' : 'No WiFi connection',
                 child: Icon(
                   Icons.wifi_off_rounded,
                   size: 80,
@@ -364,7 +369,9 @@ class SahoolNetworkError extends StatelessWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  isArabic ? 'لا يوجد اتصال بالإنترنت' : 'No internet connection',
+                  isArabic
+                      ? 'لا يوجد اتصال بالإنترنت'
+                      : 'No internet connection',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

@@ -14,7 +14,7 @@ export class LogsService {
     private readonly signatureService: SignatureService,
   ) {}
 
-  async create(dto: CreateLogDto, userId: string) {
+  async create(dto: CreateLogDto, userId: string, tenantId: string) {
     this.logger.log(
       `Creating research log for experiment: ${dto.experimentId}`,
     );
@@ -51,12 +51,14 @@ export class LogsService {
         deviceId: dto.deviceId,
         offlineId: dto.offlineId,
         hash,
+        tenantId,
       },
     });
   }
 
   async findAll(
     experimentId: string,
+    tenantId: string,
     filters?: {
       plotId?: string;
       category?: string;
@@ -71,7 +73,7 @@ export class LogsService {
     const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
-    const where: any = { experimentId };
+    const where: any = { experimentId, tenantId };
 
     if (filters?.plotId) where.plotId = filters.plotId;
     if (filters?.category) where.category = filters.category;
@@ -101,9 +103,9 @@ export class LogsService {
     };
   }
 
-  async findOne(id: string) {
-    const log = await this.prisma.researchDailyLog.findUnique({
-      where: { id },
+  async findOne(id: string, tenantId: string) {
+    const log = await this.prisma.researchDailyLog.findFirst({
+      where: { id, tenantId },
       include: {
         experiment: { select: { title: true, status: true } },
         plot: true,
@@ -118,8 +120,8 @@ export class LogsService {
     return log;
   }
 
-  async update(id: string, dto: UpdateLogDto, userId: string) {
-    const existing = await this.findOne(id);
+  async update(id: string, dto: UpdateLogDto, userId: string, tenantId: string) {
+    const existing = await this.findOne(id, tenantId);
 
     // Regenerate hash if data fields changed
     const hash = this.signatureService.hashResearchLog({
@@ -153,8 +155,8 @@ export class LogsService {
     });
   }
 
-  async delete(id: string) {
-    await this.findOne(id);
+  async delete(id: string, tenantId: string) {
+    await this.findOne(id, tenantId);
     return this.prisma.researchDailyLog.delete({ where: { id } });
   }
 
@@ -162,7 +164,7 @@ export class LogsService {
    * Sync offline logs
    * مزامنة السجلات غير المتصلة
    */
-  async syncOfflineLogs(logs: SyncLogDto[], userId: string) {
+  async syncOfflineLogs(logs: SyncLogDto[], userId: string, tenantId: string) {
     const results = {
       synced: [] as string[],
       skipped: [] as string[],
@@ -171,9 +173,9 @@ export class LogsService {
 
     for (const log of logs) {
       try {
-        // Check if already synced
+        // Check if already synced (scoped to tenant)
         const existing = await this.prisma.researchDailyLog.findFirst({
-          where: { offlineId: log.offlineId },
+          where: { offlineId: log.offlineId, tenantId },
         });
 
         if (existing) {
@@ -181,9 +183,9 @@ export class LogsService {
           continue;
         }
 
-        // Verify experiment exists
-        const experiment = await this.prisma.experiment.findUnique({
-          where: { id: log.experimentId },
+        // Verify experiment exists and belongs to tenant
+        const experiment = await this.prisma.experiment.findFirst({
+          where: { id: log.experimentId, tenantId },
           select: { id: true, status: true },
         });
 
@@ -210,6 +212,7 @@ export class LogsService {
             offlineId: log.offlineId,
           },
           userId,
+          tenantId,
         );
 
         // Update sync timestamp
@@ -240,8 +243,9 @@ export class LogsService {
    */
   async verifyLogIntegrity(
     id: string,
+    tenantId: string,
   ): Promise<{ isValid: boolean; message: string }> {
-    const log = await this.findOne(id);
+    const log = await this.findOne(id, tenantId);
 
     const expectedHash = this.signatureService.hashResearchLog({
       experimentId: log.experimentId,

@@ -489,16 +489,19 @@ export class ContextCompressor {
 
   private _extractiveCompressFields(
     fields: Array<Record<string, unknown>>,
-    targetRatio: number,
+    _targetRatio: number,
   ): Array<Record<string, unknown>> {
     // Start with selective compression
     const compressed = this._selectiveCompressFields(fields);
 
     // Add additional important fields based on target ratio
     for (let i = 0; i < fields.length; i++) {
-      for (const [key, value] of Object.entries(fields[i])) {
-        if (!(key in compressed[i]) && this._isImportantValue(value)) {
-          compressed[i][key] = value;
+      const field = fields[i];
+      const comp = compressed[i];
+      if (!field || !comp) continue;
+      for (const [key, value] of Object.entries(field)) {
+        if (!(key in comp) && this._isImportantValue(value)) {
+          comp[key] = value;
         }
       }
     }
@@ -527,7 +530,7 @@ export class ContextCompressor {
 
   private _hybridCompressFields(
     fields: Array<Record<string, unknown>>,
-    targetRatio: number,
+    _targetRatio: number,
   ): Array<Record<string, unknown>> {
     const compressed: Array<Record<string, unknown>> = [];
     for (const fieldData of fields) {
@@ -663,7 +666,7 @@ export class ContextCompressor {
     // Create summary entries
     const summaries: Array<Record<string, unknown>> = [];
     for (const [action, entries] of Object.entries(actionGroups)) {
-      if (entries.length === 1) {
+      if (entries.length === 1 && entries[0]) {
         summaries.push(this._compressHistoryEntry(entries[0]));
       } else {
         summaries.push({
@@ -706,9 +709,10 @@ export class ContextCompressor {
       return "unknown";
     }
 
-    const first = sortedEntries[sortedEntries.length - 1].date ||
-      sortedEntries[sortedEntries.length - 1].timestamp || "?";
-    const last = sortedEntries[0].date || sortedEntries[0].timestamp || "?";
+    const firstEntry = sortedEntries[sortedEntries.length - 1];
+    const lastEntry = sortedEntries[0];
+    const first = firstEntry?.date || firstEntry?.timestamp || "?";
+    const last = lastEntry?.date || lastEntry?.timestamp || "?";
 
     return `${first} to ${last}`;
   }

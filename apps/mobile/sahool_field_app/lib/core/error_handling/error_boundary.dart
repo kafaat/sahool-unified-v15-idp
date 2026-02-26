@@ -295,8 +295,7 @@ class _DefaultErrorWidget extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     // Copy to clipboard
-                    final text =
-                        'Error: $error\n\nStack Trace:\n$stackTrace';
+                    final text = 'Error: $error\n\nStack Trace:\n$stackTrace';
                     // Clipboard.setData(ClipboardData(text: text));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Error details copied')),
@@ -378,8 +377,7 @@ class AsyncErrorBoundary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (snapshot.connectionState == ConnectionState.waiting) {
-      return loadingWidget ??
-          const Center(child: CircularProgressIndicator());
+      return loadingWidget ?? const Center(child: CircularProgressIndicator());
     }
 
     if (snapshot.hasError) {

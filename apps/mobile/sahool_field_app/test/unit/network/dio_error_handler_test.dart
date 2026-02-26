@@ -7,7 +7,9 @@ import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
 
 /// Mock dependencies
 class MockDioException extends Mock implements DioException {}
+
 class MockResponse extends Mock implements Response {}
+
 class MockRequestOptions extends Mock implements RequestOptions {}
 
 void main() {

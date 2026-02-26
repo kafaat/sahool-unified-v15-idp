@@ -78,7 +78,15 @@ void main() {
   group('Notification Types', () {
     test('Should correctly identify notification types', () {
       // Arrange
-      const types = ['irrigation', 'weather', 'task', 'sensor', 'ndvi', 'system', 'critical'];
+      const types = [
+        'irrigation',
+        'weather',
+        'task',
+        'sensor',
+        'ndvi',
+        'system',
+        'critical'
+      ];
 
       // Assert
       expect(types.contains('irrigation'), isTrue);

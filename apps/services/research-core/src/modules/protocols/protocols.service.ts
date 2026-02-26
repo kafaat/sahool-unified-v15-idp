@@ -18,7 +18,7 @@ export class ProtocolsService {
     return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
   }
 
-  async create(dto: CreateProtocolDto) {
+  async create(dto: CreateProtocolDto, tenantId: string) {
     this.logger.log("Creating protocol", { name: this.sanitizeForLog(dto.name) });
 
     const { variables, measurementSchedule, ...restDto } = dto;
@@ -31,6 +31,7 @@ export class ProtocolsService {
         measurementSchedule: measurementSchedule as
           | Prisma.InputJsonValue
           | undefined,
+        tenantId,
       },
       include: {
         experiment: {
@@ -46,6 +47,7 @@ export class ProtocolsService {
 
   async findAll(
     experimentId: string,
+    tenantId: string,
     filters?: {
       page?: number;
       limit?: number;
@@ -56,7 +58,7 @@ export class ProtocolsService {
     const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
-    const where = { experimentId };
+    const where = { experimentId, tenantId };
 
     const [data, total] = await Promise.all([
       this.prisma.researchProtocol.findMany({
@@ -88,9 +90,9 @@ export class ProtocolsService {
     };
   }
 
-  async findOne(id: string) {
-    const protocol = await this.prisma.researchProtocol.findUnique({
-      where: { id },
+  async findOne(id: string, tenantId: string) {
+    const protocol = await this.prisma.researchProtocol.findFirst({
+      where: { id, tenantId },
       include: {
         experiment: {
           select: {
@@ -111,8 +113,8 @@ export class ProtocolsService {
     return protocol;
   }
 
-  async update(id: string, dto: UpdateProtocolDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateProtocolDto, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     const { variables, measurementSchedule, ...restDto } = dto;
 
@@ -142,16 +144,16 @@ export class ProtocolsService {
     });
   }
 
-  async delete(id: string) {
-    await this.findOne(id);
+  async delete(id: string, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     return this.prisma.researchProtocol.delete({
       where: { id },
     });
   }
 
-  async approve(id: string, approvedBy: string) {
-    await this.findOne(id);
+  async approve(id: string, approvedBy: string, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     return this.prisma.researchProtocol.update({
       where: { id },

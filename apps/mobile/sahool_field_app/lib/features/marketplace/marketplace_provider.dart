@@ -18,19 +18,19 @@ import 'package:http/http.dart' as http;
 
 /// تصنيف المنتج
 enum ProductCategory {
-  harvest,    // محصول
-  seeds,      // بذور
+  harvest, // محصول
+  seeds, // بذور
   fertilizer, // أسمدة
-  pesticide,  // مبيدات
-  equipment,  // معدات
+  pesticide, // مبيدات
+  equipment, // معدات
   irrigation, // أدوات ري
-  other,      // أخرى
+  other, // أخرى
 }
 
 /// نوع البائع
 enum SellerType {
-  farmer,     // مزارع
-  company,    // شركة
+  farmer, // مزارع
+  company, // شركة
   cooperative, // تعاونية
 }
 
@@ -308,7 +308,8 @@ class MarketplaceState {
       featuredProducts: featuredProducts ?? this.featuredProducts,
       cart: cart ?? this.cart,
       orders: orders ?? this.orders,
-      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      selectedCategory:
+          clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -433,9 +434,11 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
 
   /// إزالة من السلة
   void removeFromCart(String productId) {
-    final newCart = state.cart.where(
-      (item) => item.product.id != productId,
-    ).toList();
+    final newCart = state.cart
+        .where(
+          (item) => item.product.id != productId,
+        )
+        .toList();
 
     state = state.copyWith(cart: newCart);
   }
@@ -453,10 +456,12 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     if (state.isCartEmpty) return null;
 
     try {
-      final items = state.cart.map((item) => {
-        'productId': item.product.id,
-        'quantity': item.quantity,
-      }).toList();
+      final items = state.cart
+          .map((item) => {
+                'productId': item.product.id,
+                'quantity': item.quantity,
+              })
+          .toList();
 
       final response = await http.post(
         Uri.parse('$_baseUrl/api/v1/market/orders'),
@@ -593,7 +598,9 @@ final featuredProductsProvider = Provider<List<Product>>((ref) {
 
 /// منتجات المحاصيل
 final harvestProductsProvider = Provider<List<Product>>((ref) {
-  return ref.watch(marketplaceProvider).products
+  return ref
+      .watch(marketplaceProvider)
+      .products
       .where((p) => p.category == ProductCategory.harvest)
       .toList();
 });

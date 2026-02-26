@@ -286,10 +286,9 @@ class Yolo26Service {
     // Calculate average confidence
     double avgConfidence = 0.0;
     if (detections.isNotEmpty) {
-      avgConfidence = detections
-              .map((d) => d.confidence)
-              .reduce((a, b) => a + b) /
-          detections.length;
+      avgConfidence =
+          detections.map((d) => d.confidence).reduce((a, b) => a + b) /
+              detections.length;
     }
 
     // Calculate plants per hectare if area is known

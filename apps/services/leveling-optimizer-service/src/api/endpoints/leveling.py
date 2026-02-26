@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Path, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 
 from ...core.config import settings
 from ...utils.leveling_algorithms import (
@@ -35,6 +35,20 @@ from ..schemas import (
 )
 
 logger = structlog.get_logger()
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/leveling", tags=["Leveling | التسوية"])
 
@@ -251,7 +265,7 @@ def _get_equipment_recommendations(
         500: {"model": ErrorResponse, "description": "Analysis failed"},
     },
 )
-async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request: Request):
+async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request: Request, _user=Depends(get_current_user)):
     """
     Analyze a field for leveling requirements and generate an optimal plan.
 

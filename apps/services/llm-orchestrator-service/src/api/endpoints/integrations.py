@@ -9,10 +9,24 @@ from datetime import UTC, datetime
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from ...integrations import CrewService, MLService, NLPService, SatelliteService
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 logger = structlog.get_logger()
 
@@ -157,7 +171,7 @@ def get_crew_service() -> CrewService:
 
 
 @router.post("/nlp/process", response_model=NLPResponse)
-async def process_nlp(request: NLPRequest) -> NLPResponse:
+async def process_nlp(request: NLPRequest, _user=Depends(get_current_user)) -> NLPResponse:
     """
     Process text with Arabic NLP (AraBERT).
     معالجة النص باستخدام NLP العربية (AraBERT)

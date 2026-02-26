@@ -12,7 +12,8 @@ import 'astronomical_task_widget.dart';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// عرض ويدجت المهام الفلكية كـ Bottom Sheet
-void showAstronomicalTaskSheet(BuildContext context, {String? fieldId, String? fieldName}) {
+void showAstronomicalTaskSheet(BuildContext context,
+    {String? fieldId, String? fieldName}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -79,7 +80,8 @@ class TasksScreenWithAstronomical extends ConsumerWidget {
               label: const Text('إنشاء مهمة حسب التقويم الفلكي'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF367C2B),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
           ],
@@ -266,7 +268,8 @@ class CreateTaskScreenWithAstro extends ConsumerWidget {
               label: const Text('عرض التقويم الفلكي'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF367C2B),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
             ),
           ],

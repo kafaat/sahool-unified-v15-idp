@@ -354,7 +354,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
       await _cameraController!.initialize();
 
       if (mounted) {
-        ref.read(detectionScreenStateProvider.notifier).setCameraInitialized(true);
+        ref
+            .read(detectionScreenStateProvider.notifier)
+            .setCameraInitialized(true);
         setState(() {});
       }
     } catch (e) {
@@ -463,7 +465,8 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
 
             // Detection type selector
             PopupMenuButton<DetectionType>(
-              icon: Text(state.selectedType.icon, style: const TextStyle(fontSize: 20)),
+              icon: Text(state.selectedType.icon,
+                  style: const TextStyle(fontSize: 20)),
               tooltip: 'نوع الكشف',
               onSelected: (type) {
                 ref
@@ -668,7 +671,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
               data: (available) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: available ? Colors.green.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+                  color: available
+                      ? Colors.green.withOpacity(0.3)
+                      : Colors.orange.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -978,8 +983,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                   ),
                   SwitchListTile(
                     title: const Text('تفضيل الاستدلال على الجهاز'),
-                    subtitle:
-                        const Text('أسرع ويعمل بدون اتصال'),
+                    subtitle: const Text('أسرع ويعمل بدون اتصال'),
                     value: settings.preferOnDevice,
                     onChanged: (value) {
                       ref.read(detectionSettingsProvider.notifier).state =
@@ -1003,8 +1007,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                       min: 0.1,
                       max: 0.9,
                       divisions: 8,
-                      label:
-                          '${(settings.confidenceThreshold * 100).toInt()}%',
+                      label: '${(settings.confidenceThreshold * 100).toInt()}%',
                       onChanged: (value) {
                         ref.read(detectionSettingsProvider.notifier).state =
                             settings.copyWith(confidenceThreshold: value);

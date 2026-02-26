@@ -108,7 +108,8 @@ extension DioExtension on Dio {
     required T Function(dynamic data) fromJson,
   }) async {
     try {
-      final response = await get(path, queryParameters: queryParameters, options: options);
+      final response =
+          await get(path, queryParameters: queryParameters, options: options);
       return Success(fromJson(response.data));
     } on DioException catch (e) {
       return DioErrorHandler.handle(e);
@@ -127,7 +128,8 @@ extension DioExtension on Dio {
     required T Function(dynamic data) fromJson,
   }) async {
     try {
-      final response = await post(path, data: data, queryParameters: queryParameters, options: options);
+      final response = await post(path,
+          data: data, queryParameters: queryParameters, options: options);
       return Success(fromJson(response.data));
     } on DioException catch (e) {
       return DioErrorHandler.handle(e);
@@ -146,7 +148,8 @@ extension DioExtension on Dio {
     required T Function(dynamic data) fromJson,
   }) async {
     try {
-      final response = await put(path, data: data, queryParameters: queryParameters, options: options);
+      final response = await put(path,
+          data: data, queryParameters: queryParameters, options: options);
       return Success(fromJson(response.data));
     } on DioException catch (e) {
       return DioErrorHandler.handle(e);
@@ -164,7 +167,8 @@ extension DioExtension on Dio {
     required T Function(dynamic data) fromJson,
   }) async {
     try {
-      final response = await delete(path, queryParameters: queryParameters, options: options);
+      final response = await delete(path,
+          queryParameters: queryParameters, options: options);
       return Success(fromJson(response.data));
     } on DioException catch (e) {
       return DioErrorHandler.handle(e);

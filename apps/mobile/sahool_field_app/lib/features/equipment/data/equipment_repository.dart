@@ -37,10 +37,10 @@ class ApiResult<T> {
   });
 
   factory ApiResult.success(T data, {int? statusCode}) => ApiResult._(
-    data: data,
-    isSuccess: true,
-    statusCode: statusCode,
-  );
+        data: data,
+        isSuccess: true,
+        statusCode: statusCode,
+      );
 
   factory ApiResult.failure(String error, [String? errorAr, int? statusCode]) =>
       ApiResult._(
@@ -52,7 +52,9 @@ class ApiResult<T> {
 
   /// Get localized error message
   String getError(String locale) {
-    return locale == 'ar' && errorAr != null ? errorAr! : (error ?? 'Unknown error');
+    return locale == 'ar' && errorAr != null
+        ? errorAr!
+        : (error ?? 'Unknown error');
   }
 }
 
@@ -144,7 +146,8 @@ class EquipmentRepository {
   Future<ApiResult<Equipment>> getEquipmentById(String equipmentId) async {
     try {
       final response = await _dio.get('/api/v1/equipment/$equipmentId');
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -152,7 +155,8 @@ class EquipmentRepository {
       return ApiResult.success(equipment, statusCode: response.statusCode);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Equipment not found', 'المعدة غير موجودة', 404);
+        return ApiResult.failure(
+            'Equipment not found', 'المعدة غير موجودة', 404);
       }
       // Fallback to local cache
       final cached = await _localDb.getEquipmentById(equipmentId);
@@ -178,7 +182,8 @@ class EquipmentRepository {
   Future<ApiResult<Equipment>> getEquipmentByQrCode(String qrCode) async {
     try {
       final response = await _dio.get('/api/v1/equipment/qr/$qrCode');
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -186,7 +191,8 @@ class EquipmentRepository {
       return ApiResult.success(equipment, statusCode: response.statusCode);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Equipment not found', 'المعدة غير موجودة', 404);
+        return ApiResult.failure(
+            'Equipment not found', 'المعدة غير موجودة', 404);
       }
       // Fallback to local cache
       final cached = await _localDb.getEquipmentByQrCode(qrCode);
@@ -248,7 +254,8 @@ class EquipmentRepository {
         },
       );
 
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -276,7 +283,8 @@ class EquipmentRepository {
         data: updates,
       );
 
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -284,7 +292,8 @@ class EquipmentRepository {
       return ApiResult.success(equipment, statusCode: response.statusCode);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Equipment not found', 'المعدة غير موجودة', 404);
+        return ApiResult.failure(
+            'Equipment not found', 'المعدة غير موجودة', 404);
       }
       return ApiResult.failure(
         e.message ?? 'Failed to update equipment',
@@ -307,7 +316,8 @@ class EquipmentRepository {
         queryParameters: {'status': status.value},
       );
 
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -341,7 +351,8 @@ class EquipmentRepository {
         },
       );
 
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -377,7 +388,8 @@ class EquipmentRepository {
         },
       );
 
-      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+      final equipment =
+          Equipment.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveEquipment(equipment);
@@ -406,7 +418,8 @@ class EquipmentRepository {
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Equipment not found', 'المعدة غير موجودة', 404);
+        return ApiResult.failure(
+            'Equipment not found', 'المعدة غير موجودة', 404);
       }
       return ApiResult.failure(
         e.message ?? 'Failed to delete equipment',
@@ -426,7 +439,8 @@ class EquipmentRepository {
   Future<ApiResult<EquipmentStats>> getStats() async {
     try {
       final response = await _dio.get('/api/v1/equipment/stats');
-      final stats = EquipmentStats.fromJson(response.data as Map<String, dynamic>);
+      final stats =
+          EquipmentStats.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.saveStats(stats);
@@ -558,7 +572,8 @@ class EquipmentRepository {
         },
       );
 
-      final record = MaintenanceRecord.fromJson(response.data as Map<String, dynamic>);
+      final record =
+          MaintenanceRecord.fromJson(response.data as Map<String, dynamic>);
 
       // Cache to local DB
       await _localDb.addMaintenanceRecord(record);
@@ -655,7 +670,8 @@ class EquipmentRepository {
       return ApiResult.success(logs, statusCode: response.statusCode);
     } on DioException catch (e) {
       // Fallback to local cache
-      final cached = await _localDb.getFuelLogs(equipmentId, from: from, to: to);
+      final cached =
+          await _localDb.getFuelLogs(equipmentId, from: from, to: to);
       if (cached.isNotEmpty) {
         return ApiResult.success(cached);
       }
@@ -665,7 +681,8 @@ class EquipmentRepository {
         e.response?.statusCode,
       );
     } catch (e) {
-      final cached = await _localDb.getFuelLogs(equipmentId, from: from, to: to);
+      final cached =
+          await _localDb.getFuelLogs(equipmentId, from: from, to: to);
       if (cached.isNotEmpty) {
         return ApiResult.success(cached);
       }

@@ -20,7 +20,8 @@ class ApiResult<T> {
   final String? errorAr;
   final bool isSuccess;
 
-  const ApiResult._({this.data, this.error, this.errorAr, required this.isSuccess});
+  const ApiResult._(
+      {this.data, this.error, this.errorAr, required this.isSuccess});
 
   factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
   factory ApiResult.failure(String error, [String? errorAr]) =>
@@ -63,7 +64,8 @@ class VRAService {
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (vraType != null) queryParams['vra_type'] = vraType.value;
       if (status != null) queryParams['status'] = status.value;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String();
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
@@ -88,7 +90,8 @@ class VRAService {
   }
 
   /// جلب وصفة محددة
-  Future<ApiResult<VRAPrescription>> getPrescriptionById(String prescriptionId) async {
+  Future<ApiResult<VRAPrescription>> getPrescriptionById(
+      String prescriptionId) async {
     try {
       final response = await _dio.get('/v1/vra/prescriptions/$prescriptionId');
       return ApiResult.success(
@@ -413,7 +416,8 @@ class VRAService {
   }) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (zoningMethod != null) queryParams['zoning_method'] = zoningMethod.value;
+      if (zoningMethod != null)
+        queryParams['zoning_method'] = zoningMethod.value;
       if (zonesCount != null) queryParams['zones_count'] = zonesCount;
 
       final response = await _dio.get(

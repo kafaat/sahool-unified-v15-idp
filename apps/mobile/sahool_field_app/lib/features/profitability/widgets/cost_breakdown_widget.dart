@@ -57,7 +57,8 @@ class _CostBreakdownWidgetState extends State<CostBreakdownWidget> {
                     child: PieChart(
                       PieChartData(
                         pieTouchData: PieTouchData(
-                          touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          touchCallback:
+                              (FlTouchEvent event, pieTouchResponse) {
                             setState(() {
                               if (!event.isInterestedForInteractions ||
                                   pieTouchResponse == null ||
@@ -65,8 +66,8 @@ class _CostBreakdownWidgetState extends State<CostBreakdownWidget> {
                                 touchedIndex = -1;
                                 return;
                               }
-                              touchedIndex =
-                                  pieTouchResponse.touchedSection!.touchedSectionIndex;
+                              touchedIndex = pieTouchResponse
+                                  .touchedSection!.touchedSectionIndex;
                             });
                           },
                         ),

@@ -110,13 +110,11 @@ jobs:
         run: |
           echo "✅ Validating OpenAPI specifications..."
 
-          # Install Spectral OpenAPI validator (replacement for deprecated @ibm/openapi-validator)
-          npm install -g @stoplight/spectral-cli
-
           for spec in ${{ env.DOCS_DIR }}/openapi/*.json; do
             if [ -f "$spec" ]; then
               echo "Validating: $spec"
-              spectral lint "$spec" --ruleset spectral:oas || true
+              # Use npx to avoid global install permission issues in CI
+              npx --yes @stoplight/spectral-cli lint "$spec" --ruleset spectral:oas 2>&1 || true
             fi
           done
 

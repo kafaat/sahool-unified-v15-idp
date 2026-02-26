@@ -112,7 +112,8 @@ void printCertificateConfigCode(CertificateInfo info) {
     debugPrint('  CertificatePin(');
     debugPrint('    type: PinType.sha256,');
     debugPrint("    value: '${info.sha256Fingerprint}',");
-    debugPrint('    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
+    debugPrint(
+        '    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
     debugPrint("    description: 'Certificate for ${info.host}',");
     debugPrint('  ),');
     debugPrint('],');
@@ -132,7 +133,8 @@ void generateBulkConfiguration(List<CertificateInfo> certificates) {
       debugPrint('    CertificatePin(');
       debugPrint('      type: PinType.sha256,');
       debugPrint("      value: '${cert.sha256Fingerprint}',");
-      debugPrint('      expiryDate: DateTime(${cert.validUntil.year}, ${cert.validUntil.month}, ${cert.validUntil.day}),');
+      debugPrint(
+          '      expiryDate: DateTime(${cert.validUntil.year}, ${cert.validUntil.month}, ${cert.validUntil.day}),');
       debugPrint("      description: 'Certificate for ${cert.host}',");
       debugPrint('    ),');
       debugPrint('  ],');
@@ -149,8 +151,8 @@ Future<bool> verifyCertificateFingerprint({
   final info = await getCertificateInfo(url);
   if (info == null) return false;
 
-  final matches = info.sha256Fingerprint.toLowerCase() ==
-      expectedFingerprint.toLowerCase();
+  final matches =
+      info.sha256Fingerprint.toLowerCase() == expectedFingerprint.toLowerCase();
 
   if (kDebugMode) {
     if (matches) {

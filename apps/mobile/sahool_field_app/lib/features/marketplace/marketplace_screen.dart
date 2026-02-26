@@ -186,7 +186,8 @@ class _MarketplaceAppBar extends StatelessWidget {
         Stack(
           children: [
             IconButton(
-              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
+              icon: const Icon(Icons.shopping_cart_outlined,
+                  color: Colors.black87),
               onPressed: () => _showCart(context),
             ),
             if (cartCount > 0)
@@ -292,8 +293,8 @@ class _CategoriesSection extends ConsumerWidget {
           return GestureDetector(
             onTap: () {
               ref.read(marketplaceProvider.notifier).filterByCategory(
-                isSelected ? null : category,
-              );
+                    isSelected ? null : category,
+                  );
             },
             child: Container(
               width: 80,
@@ -444,7 +445,9 @@ class _FeaturedProductCard extends ConsumerWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        ref.read(marketplaceProvider.notifier).addToCart(product);
+                        ref
+                            .read(marketplaceProvider.notifier)
+                            .addToCart(product);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('تمت إضافة ${product.nameAr} للسلة'),
@@ -625,10 +628,13 @@ class _ProductCard extends ConsumerWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          ref.read(marketplaceProvider.notifier).addToCart(product);
+                          ref
+                              .read(marketplaceProvider.notifier)
+                              .addToCart(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('تمت إضافة ${product.nameAr} للسلة'),
+                              content:
+                                  Text('تمت إضافة ${product.nameAr} للسلة'),
                               duration: const Duration(seconds: 1),
                               behavior: SnackBarBehavior.floating,
                             ),
@@ -876,7 +882,8 @@ class _CartBottomSheet extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('رسوم التوصيل'),
-                      Text('500 ر.ي', style: TextStyle(color: Colors.grey.shade600)),
+                      Text('500 ر.ي',
+                          style: TextStyle(color: Colors.grey.shade600)),
                     ],
                   ),
                   const Divider(height: 24),
@@ -967,7 +974,8 @@ class _CartBottomSheet extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('حسناً', style: TextStyle(color: Colors.white)),
+                child:
+                    const Text('حسناً', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -1040,13 +1048,13 @@ class _CartItemTile extends ConsumerWidget {
                 onPressed: () {
                   if (item.quantity > 1) {
                     ref.read(marketplaceProvider.notifier).updateCartQuantity(
-                      item.product.id,
-                      item.quantity - 1,
-                    );
+                          item.product.id,
+                          item.quantity - 1,
+                        );
                   } else {
                     ref.read(marketplaceProvider.notifier).removeFromCart(
-                      item.product.id,
-                    );
+                          item.product.id,
+                        );
                   }
                 },
                 iconSize: 20,
@@ -1060,9 +1068,9 @@ class _CartItemTile extends ConsumerWidget {
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed: () {
                   ref.read(marketplaceProvider.notifier).updateCartQuantity(
-                    item.product.id,
-                    item.quantity + 1,
-                  );
+                        item.product.id,
+                        item.quantity + 1,
+                      );
                 },
                 iconSize: 20,
                 color: Colors.green,

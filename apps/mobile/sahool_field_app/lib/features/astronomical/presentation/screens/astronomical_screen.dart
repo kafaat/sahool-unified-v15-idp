@@ -82,7 +82,8 @@ class AstronomicalScreen extends ConsumerWidget {
                 ],
               ),
               onSelected: (_) {
-                ref.read(selectedAstronomicalTabProvider.notifier).state = index;
+                ref.read(selectedAstronomicalTabProvider.notifier).state =
+                    index;
               },
               selectedColor: Theme.of(context).colorScheme.primary,
               labelStyle: TextStyle(

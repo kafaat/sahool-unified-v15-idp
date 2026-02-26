@@ -111,8 +111,7 @@ class AsyncStateBuilder<T> extends StatelessWidget {
 
     // Initial loading state (no data yet)
     if (isLoading && (data == null || _isDataEmpty)) {
-      return loadingBuilder?.call() ??
-          const SahoolShimmerList();
+      return loadingBuilder?.call() ?? const SahoolShimmerList();
     }
 
     // Data available
@@ -138,8 +137,7 @@ class AsyncStateBuilder<T> extends StatelessWidget {
     }
 
     // Empty state
-    return emptyBuilder?.call() ??
-        const NoDataEmptyState();
+    return emptyBuilder?.call() ?? const NoDataEmptyState();
   }
 
   bool get _isDataEmpty {

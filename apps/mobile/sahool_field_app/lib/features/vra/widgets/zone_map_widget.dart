@@ -177,66 +177,80 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
 
             // طبقة المناطق
             PolygonLayer(
-              polygons: widget.zones.asMap().entries.map((entry) {
-                final index = entry.key;
-                final zone = entry.value;
-                final coordinates = _extractCoordinates(zone.geometry);
+              polygons: widget.zones
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                    final index = entry.key;
+                    final zone = entry.value;
+                    final coordinates = _extractCoordinates(zone.geometry);
 
-                final isSelected = widget.selectedZone?.zoneId == zone.zoneId;
-                final isHovered = _hoveredZone?.zoneId == zone.zoneId;
+                    final isSelected =
+                        widget.selectedZone?.zoneId == zone.zoneId;
+                    final isHovered = _hoveredZone?.zoneId == zone.zoneId;
 
-                return Polygon(
-                  points: coordinates,
-                  color: _getZoneColor(zone, index),
-                  borderColor: isSelected
-                      ? Colors.blue
-                      : isHovered
-                          ? Colors.black
-                          : Colors.white,
-                  borderStrokeWidth: isSelected ? 3 : isHovered ? 2 : 1,
-                );
-              }).toList().cast<Polygon>(),
+                    return Polygon(
+                      points: coordinates,
+                      color: _getZoneColor(zone, index),
+                      borderColor: isSelected
+                          ? Colors.blue
+                          : isHovered
+                              ? Colors.black
+                              : Colors.white,
+                      borderStrokeWidth: isSelected
+                          ? 3
+                          : isHovered
+                              ? 2
+                              : 1,
+                    );
+                  })
+                  .toList()
+                  .cast<Polygon>(),
             ),
 
             // طبقة التسميات
             MarkerLayer(
-              markers: widget.zones.map((zone) {
-                final coordinates = _extractCoordinates(zone.geometry);
-                if (coordinates.isEmpty) return null;
+              markers: widget.zones
+                  .map((zone) {
+                    final coordinates = _extractCoordinates(zone.geometry);
+                    if (coordinates.isEmpty) return null;
 
-                // حساب مركز المنطقة
-                final center = _calculateCentroid(coordinates);
+                    // حساب مركز المنطقة
+                    final center = _calculateCentroid(coordinates);
 
-                return Marker(
-                  point: center,
-                  width: 80,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (widget.onZoneSelected != null) {
-                        widget.onZoneSelected!(zone);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.black54),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Zone ${zone.zoneNumber}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                    return Marker(
+                      point: center,
+                      width: 80,
+                      height: 40,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (widget.onZoneSelected != null) {
+                            widget.onZoneSelected!(zone);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.black54),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Zone ${zone.zoneNumber}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              }).whereType<Marker>().toList(),
+                    );
+                  })
+                  .whereType<Marker>()
+                  .toList(),
             ),
           ],
         ),

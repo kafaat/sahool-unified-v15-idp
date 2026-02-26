@@ -774,7 +774,7 @@ export class YieldService {
       },
       action_template: actionTemplate,
       task_card: taskCard,
-      nats_topic: "sahool.alerts.pre_harvest",
+      nats_topic: "sahool.alert.pre_harvest",
     };
   }
 
@@ -782,7 +782,7 @@ export class YieldService {
    * Get harvest readiness with ActionTemplate
    * فحص جاهزية الحصاد مع قالب إجراء
    */
-  async getHarvestReadiness(fieldId: string, farmerId?: string) {
+  async getHarvestReadiness(fieldId: string, farmerId?: string, tenantId?: string) {
     const maturity = await this.getMaturityMonitoring(fieldId);
     const actionId = uuidv4();
 
@@ -880,7 +880,7 @@ export class YieldService {
       maturity,
       action_template: actionTemplate,
       is_ready: isReady,
-      nats_topic: "sahool.alerts.harvest_readiness",
+      nats_topic: "sahool.alert.harvest_readiness",
     };
   }
 }

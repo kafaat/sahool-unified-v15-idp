@@ -10,7 +10,8 @@ import '../../domain/entities/astronomical_entities.dart';
 
 /// API Provider (Legacy)
 /// Note: Renamed from astronomicalApiProvider to avoid conflict with features/astronomical version
-final astronomicalCalendarApiProvider = Provider<AstronomicalCalendarApi>((ref) {
+final astronomicalCalendarApiProvider =
+    Provider<AstronomicalCalendarApi>((ref) {
   return AstronomicalCalendarApi();
 });
 
@@ -255,20 +256,23 @@ final astronomicalCalendarBestDaysProvider =
 
 /// Moon Phase Provider (FutureProvider) - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical version
-final astronomicalCalendarMoonPhaseProvider = FutureProvider.family<MoonPhase, String?>((ref, dateStr) async {
+final astronomicalCalendarMoonPhaseProvider =
+    FutureProvider.family<MoonPhase, String?>((ref, dateStr) async {
   final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getMoonPhase(dateStr: dateStr);
 });
 
 /// Lunar Mansion Provider - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical version
-final astronomicalCalendarLunarMansionProvider = FutureProvider.family<LunarMansion, String?>((ref, dateStr) async {
+final astronomicalCalendarLunarMansionProvider =
+    FutureProvider.family<LunarMansion, String?>((ref, dateStr) async {
   final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getLunarMansion(dateStr: dateStr);
 });
 
 /// Hijri Date Provider
-final hijriDateProvider = FutureProvider.family<HijriDate, String?>((ref, dateStr) async {
+final hijriDateProvider =
+    FutureProvider.family<HijriDate, String?>((ref, dateStr) async {
   final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getHijriDate(dateStr: dateStr);
 });
@@ -281,25 +285,30 @@ final currentSeasonProvider = FutureProvider<SeasonInfo>((ref) async {
 
 /// Supported Crops Provider - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical and other versions
-final astronomicalCalendarSupportedCropsProvider = FutureProvider<List<Map<String, String>>>((ref) async {
+final astronomicalCalendarSupportedCropsProvider =
+    FutureProvider<List<Map<String, String>>>((ref) async {
   final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getSupportedCrops();
 });
 
 /// Lunar Mansions List Provider - Legacy
-final astronomicalCalendarLunarMansionsListProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final astronomicalCalendarLunarMansionsListProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final api = ref.watch(astronomicalCalendarApiProvider);
   return api.getLunarMansions();
 });
 
 /// التاريخ المحدد - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical version
-final astronomicalCalendarSelectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final astronomicalCalendarSelectedDateProvider =
+    StateProvider<DateTime>((ref) => DateTime.now());
 
 /// النشاط المحدد للبحث - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical version
-final astronomicalCalendarSelectedActivityProvider = StateProvider<String>((ref) => 'زراعة');
+final astronomicalCalendarSelectedActivityProvider =
+    StateProvider<String>((ref) => 'زراعة');
 
 /// المحصول المحدد - Legacy
 /// Note: Renamed to avoid conflict with features/astronomical version
-final astronomicalCalendarSelectedCropProvider = StateProvider<String?>((ref) => null);
+final astronomicalCalendarSelectedCropProvider =
+    StateProvider<String?>((ref) => null);

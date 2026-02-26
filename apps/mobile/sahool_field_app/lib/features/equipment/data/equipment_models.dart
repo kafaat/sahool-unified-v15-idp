@@ -350,7 +350,8 @@ class Equipment {
 
   /// Get fuel level category
   String getFuelLevelCategory(String locale) {
-    if (currentFuelPercent == null) return locale == 'ar' ? 'غير معروف' : 'Unknown';
+    if (currentFuelPercent == null)
+      return locale == 'ar' ? 'غير معروف' : 'Unknown';
     if (currentFuelPercent! >= 75) return locale == 'ar' ? 'ممتلئ' : 'Full';
     if (currentFuelPercent! >= 50) return locale == 'ar' ? 'جيد' : 'Good';
     if (currentFuelPercent! >= 25) return locale == 'ar' ? 'متوسط' : 'Medium';
@@ -416,7 +417,8 @@ class Equipment {
       nextMaintenanceAt: json['next_maintenance_at'] != null
           ? DateTime.parse(json['next_maintenance_at'] as String)
           : null,
-      nextMaintenanceHours: (json['next_maintenance_hours'] as num?)?.toDouble(),
+      nextMaintenanceHours:
+          (json['next_maintenance_hours'] as num?)?.toDouble(),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -432,42 +434,42 @@ class Equipment {
   }
 
   Map<String, dynamic> toJson() => {
-    'equipment_id': equipmentId,
-    'tenant_id': tenantId,
-    'name': name,
-    'name_ar': nameAr,
-    'equipment_type': equipmentType.value,
-    'status': status.value,
-    'brand': brand,
-    'model': model,
-    'serial_number': serialNumber,
-    'year': year,
-    'purchase_date': purchaseDate?.toIso8601String(),
-    'purchase_price': purchasePrice,
-    'field_id': fieldId,
-    'location_name': locationName,
-    'horsepower': horsepower,
-    'fuel_type': fuelType.value,
-    'fuel_capacity_liters': fuelCapacityLiters,
-    'current_fuel_percent': currentFuelPercent,
-    'current_fuel_liters': currentFuelLiters,
-    'current_hours': currentHours,
-    'total_hours': totalHours,
-    'current_lat': currentLat,
-    'current_lon': currentLon,
-    'last_maintenance_at': lastMaintenanceAt?.toIso8601String(),
-    'next_maintenance_at': nextMaintenanceAt?.toIso8601String(),
-    'next_maintenance_hours': nextMaintenanceHours,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
-    'metadata': metadata,
-    'qr_code': qrCode,
-    'image_url': imageUrl,
-    'attached_field_ids': attachedFieldIds,
-    'daily_rental_cost': dailyRentalCost,
-    'assigned_to': assignedTo,
-    'is_tracked': isTracked,
-  };
+        'equipment_id': equipmentId,
+        'tenant_id': tenantId,
+        'name': name,
+        'name_ar': nameAr,
+        'equipment_type': equipmentType.value,
+        'status': status.value,
+        'brand': brand,
+        'model': model,
+        'serial_number': serialNumber,
+        'year': year,
+        'purchase_date': purchaseDate?.toIso8601String(),
+        'purchase_price': purchasePrice,
+        'field_id': fieldId,
+        'location_name': locationName,
+        'horsepower': horsepower,
+        'fuel_type': fuelType.value,
+        'fuel_capacity_liters': fuelCapacityLiters,
+        'current_fuel_percent': currentFuelPercent,
+        'current_fuel_liters': currentFuelLiters,
+        'current_hours': currentHours,
+        'total_hours': totalHours,
+        'current_lat': currentLat,
+        'current_lon': currentLon,
+        'last_maintenance_at': lastMaintenanceAt?.toIso8601String(),
+        'next_maintenance_at': nextMaintenanceAt?.toIso8601String(),
+        'next_maintenance_hours': nextMaintenanceHours,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'metadata': metadata,
+        'qr_code': qrCode,
+        'image_url': imageUrl,
+        'attached_field_ids': attachedFieldIds,
+        'daily_rental_cost': dailyRentalCost,
+        'assigned_to': assignedTo,
+        'is_tracked': isTracked,
+      };
 
   Equipment copyWith({
     String? equipmentId,
@@ -586,7 +588,9 @@ class MaintenanceAlert {
   });
 
   String getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr! : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr!
+        : description;
   }
 
   factory MaintenanceAlert.fromJson(Map<String, dynamic> json) {
@@ -594,11 +598,14 @@ class MaintenanceAlert {
       alertId: json['alert_id'] as String,
       equipmentId: json['equipment_id'] as String,
       equipmentName: json['equipment_name'] as String,
-      maintenanceType: MaintenanceType.fromString(json['maintenance_type'] as String),
+      maintenanceType:
+          MaintenanceType.fromString(json['maintenance_type'] as String),
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
       priority: MaintenancePriority.fromString(json['priority'] as String),
-      dueAt: json['due_at'] != null ? DateTime.parse(json['due_at'] as String) : null,
+      dueAt: json['due_at'] != null
+          ? DateTime.parse(json['due_at'] as String)
+          : null,
       dueHours: (json['due_hours'] as num?)?.toDouble(),
       isOverdue: json['is_overdue'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -606,18 +613,18 @@ class MaintenanceAlert {
   }
 
   Map<String, dynamic> toJson() => {
-    'alert_id': alertId,
-    'equipment_id': equipmentId,
-    'equipment_name': equipmentName,
-    'maintenance_type': maintenanceType.value,
-    'description': description,
-    'description_ar': descriptionAr,
-    'priority': priority.value,
-    'due_at': dueAt?.toIso8601String(),
-    'due_hours': dueHours,
-    'is_overdue': isOverdue,
-    'created_at': createdAt.toIso8601String(),
-  };
+        'alert_id': alertId,
+        'equipment_id': equipmentId,
+        'equipment_name': equipmentName,
+        'maintenance_type': maintenanceType.value,
+        'description': description,
+        'description_ar': descriptionAr,
+        'priority': priority.value,
+        'due_at': dueAt?.toIso8601String(),
+        'due_hours': dueHours,
+        'is_overdue': isOverdue,
+        'created_at': createdAt.toIso8601String(),
+      };
 }
 
 /// سجل صيانة
@@ -652,14 +659,17 @@ class MaintenanceRecord {
   });
 
   String getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr! : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr!
+        : description;
   }
 
   factory MaintenanceRecord.fromJson(Map<String, dynamic> json) {
     return MaintenanceRecord(
       recordId: json['record_id'] as String? ?? json['id'] as String? ?? '',
       equipmentId: json['equipment_id'] as String,
-      maintenanceType: MaintenanceType.fromString(json['maintenance_type'] as String),
+      maintenanceType:
+          MaintenanceType.fromString(json['maintenance_type'] as String),
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
       performedBy: json['performed_by'] as String?,
@@ -677,19 +687,19 @@ class MaintenanceRecord {
   }
 
   Map<String, dynamic> toJson() => {
-    'record_id': recordId,
-    'equipment_id': equipmentId,
-    'maintenance_type': maintenanceType.value,
-    'description': description,
-    'description_ar': descriptionAr,
-    'performed_by': performedBy,
-    'cost': cost,
-    'notes': notes,
-    'parts_replaced': partsReplaced,
-    'hours_at_maintenance': hoursAtMaintenance,
-    'performed_at': performedAt.toIso8601String(),
-    'created_at': createdAt.toIso8601String(),
-  };
+        'record_id': recordId,
+        'equipment_id': equipmentId,
+        'maintenance_type': maintenanceType.value,
+        'description': description,
+        'description_ar': descriptionAr,
+        'performed_by': performedBy,
+        'cost': cost,
+        'notes': notes,
+        'parts_replaced': partsReplaced,
+        'hours_at_maintenance': hoursAtMaintenance,
+        'performed_at': performedAt.toIso8601String(),
+        'created_at': createdAt.toIso8601String(),
+      };
 }
 
 /// صيانة مجدولة
@@ -728,7 +738,9 @@ class ScheduledMaintenance {
   });
 
   String getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr! : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr!
+        : description;
   }
 
   factory ScheduledMaintenance.fromJson(Map<String, dynamic> json) {
@@ -736,7 +748,8 @@ class ScheduledMaintenance {
       scheduleId: json['schedule_id'] as String,
       equipmentId: json['equipment_id'] as String,
       equipmentName: json['equipment_name'] as String? ?? '',
-      maintenanceType: MaintenanceType.fromString(json['maintenance_type'] as String),
+      maintenanceType:
+          MaintenanceType.fromString(json['maintenance_type'] as String),
       priority: MaintenancePriority.fromString(json['priority'] as String),
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
@@ -751,21 +764,21 @@ class ScheduledMaintenance {
   }
 
   Map<String, dynamic> toJson() => {
-    'schedule_id': scheduleId,
-    'equipment_id': equipmentId,
-    'equipment_name': equipmentName,
-    'maintenance_type': maintenanceType.value,
-    'priority': priority.value,
-    'description': description,
-    'description_ar': descriptionAr,
-    'scheduled_date': scheduledDate.toIso8601String(),
-    'scheduled_at_hours': scheduledAtHours,
-    'is_recurring': isRecurring,
-    'recurring_interval_days': recurringIntervalDays,
-    'recurring_interval_hours': recurringIntervalHours,
-    'is_completed': isCompleted,
-    'created_at': createdAt.toIso8601String(),
-  };
+        'schedule_id': scheduleId,
+        'equipment_id': equipmentId,
+        'equipment_name': equipmentName,
+        'maintenance_type': maintenanceType.value,
+        'priority': priority.value,
+        'description': description,
+        'description_ar': descriptionAr,
+        'scheduled_date': scheduledDate.toIso8601String(),
+        'scheduled_at_hours': scheduledAtHours,
+        'is_recurring': isRecurring,
+        'recurring_interval_days': recurringIntervalDays,
+        'recurring_interval_hours': recurringIntervalHours,
+        'is_completed': isCompleted,
+        'created_at': createdAt.toIso8601String(),
+      };
 }
 
 /// سجل الوقود
@@ -821,7 +834,8 @@ class FuelLog {
     return FuelLog(
       logId: json['log_id'] as String? ?? json['id'] as String? ?? '',
       equipmentId: json['equipment_id'] as String,
-      operationType: FuelOperationType.fromString(json['operation_type'] as String),
+      operationType:
+          FuelOperationType.fromString(json['operation_type'] as String),
       fuelType: json['fuel_type'] != null
           ? FuelType.fromString(json['fuel_type'] as String)
           : null,
@@ -846,26 +860,26 @@ class FuelLog {
   }
 
   Map<String, dynamic> toJson() => {
-    'log_id': logId,
-    'equipment_id': equipmentId,
-    'operation_type': operationType.value,
-    'fuel_type': fuelType?.value,
-    'quantity': quantity,
-    'price_per_liter': pricePerLiter,
-    'total_cost': totalCost,
-    'odometer_reading': odometerReading,
-    'odometer_unit': odometerUnit,
-    'fuel_level_before': fuelLevelBefore,
-    'fuel_level_after': fuelLevelAfter,
-    'station_name': stationName,
-    'receipt_number': receiptNumber,
-    'notes': notes,
-    'notes_ar': notesAr,
-    'lat': lat,
-    'lon': lon,
-    'timestamp': timestamp.toIso8601String(),
-    'created_at': createdAt.toIso8601String(),
-  };
+        'log_id': logId,
+        'equipment_id': equipmentId,
+        'operation_type': operationType.value,
+        'fuel_type': fuelType?.value,
+        'quantity': quantity,
+        'price_per_liter': pricePerLiter,
+        'total_cost': totalCost,
+        'odometer_reading': odometerReading,
+        'odometer_unit': odometerUnit,
+        'fuel_level_before': fuelLevelBefore,
+        'fuel_level_after': fuelLevelAfter,
+        'station_name': stationName,
+        'receipt_number': receiptNumber,
+        'notes': notes,
+        'notes_ar': notesAr,
+        'lat': lat,
+        'lon': lon,
+        'timestamp': timestamp.toIso8601String(),
+        'created_at': createdAt.toIso8601String(),
+      };
 }
 
 /// سجل الاستخدام
@@ -952,25 +966,25 @@ class UsageLog {
   }
 
   Map<String, dynamic> toJson() => {
-    'log_id': logId,
-    'equipment_id': equipmentId,
-    'usage_type': usageType.value,
-    'activity_type': activityType?.value,
-    'field_id': fieldId,
-    'operator_id': operatorId,
-    'operator_name': operatorName,
-    'start_time': startTime.toIso8601String(),
-    'end_time': endTime?.toIso8601String(),
-    'start_hour_reading': startHourReading,
-    'end_hour_reading': endHourReading,
-    'hours_used': hoursUsed,
-    'fuel_used': fuelUsed,
-    'area_worked': areaWorked,
-    'distance_traveled': distanceTraveled,
-    'notes': notes,
-    'notes_ar': notesAr,
-    'created_at': createdAt.toIso8601String(),
-  };
+        'log_id': logId,
+        'equipment_id': equipmentId,
+        'usage_type': usageType.value,
+        'activity_type': activityType?.value,
+        'field_id': fieldId,
+        'operator_id': operatorId,
+        'operator_name': operatorName,
+        'start_time': startTime.toIso8601String(),
+        'end_time': endTime?.toIso8601String(),
+        'start_hour_reading': startHourReading,
+        'end_hour_reading': endHourReading,
+        'hours_used': hoursUsed,
+        'fuel_used': fuelUsed,
+        'area_worked': areaWorked,
+        'distance_traveled': distanceTraveled,
+        'notes': notes,
+        'notes_ar': notesAr,
+        'created_at': createdAt.toIso8601String(),
+      };
 }
 
 /// ملخص استهلاك الوقود
@@ -1004,21 +1018,22 @@ class FuelConsumptionSummary {
       totalConsumed: (json['total_consumed'] as num).toDouble(),
       totalCost: (json['total_cost'] as num).toDouble(),
       averagePricePerLiter: (json['average_price_per_liter'] as num).toDouble(),
-      averageConsumptionPerHour: (json['average_consumption_per_hour'] as num).toDouble(),
+      averageConsumptionPerHour:
+          (json['average_consumption_per_hour'] as num).toDouble(),
       refillCount: json['refill_count'] as int,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'equipment_id': equipmentId,
-    'from': from.toIso8601String(),
-    'to': to.toIso8601String(),
-    'total_consumed': totalConsumed,
-    'total_cost': totalCost,
-    'average_price_per_liter': averagePricePerLiter,
-    'average_consumption_per_hour': averageConsumptionPerHour,
-    'refill_count': refillCount,
-  };
+        'equipment_id': equipmentId,
+        'from': from.toIso8601String(),
+        'to': to.toIso8601String(),
+        'total_consumed': totalConsumed,
+        'total_cost': totalCost,
+        'average_price_per_liter': averagePricePerLiter,
+        'average_consumption_per_hour': averageConsumptionPerHour,
+        'refill_count': refillCount,
+      };
 }
 
 /// ملخص الاستخدام
@@ -1056,29 +1071,32 @@ class UsageSummary {
       totalHours: (json['total_hours'] as num).toDouble(),
       totalFuelUsed: (json['total_fuel_used'] as num).toDouble(),
       totalAreaWorked: (json['total_area_worked'] as num).toDouble(),
-      totalDistanceTraveled: (json['total_distance_traveled'] as num).toDouble(),
+      totalDistanceTraveled:
+          (json['total_distance_traveled'] as num).toDouble(),
       sessionCount: json['session_count'] as int,
       byUsageType: Map<String, double>.from(
-        (json['by_usage_type'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
+        (json['by_usage_type'] as Map)
+            .map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
       ),
       byActivityType: Map<String, double>.from(
-        (json['by_activity_type'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
+        (json['by_activity_type'] as Map)
+            .map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
       ),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'equipment_id': equipmentId,
-    'from': from.toIso8601String(),
-    'to': to.toIso8601String(),
-    'total_hours': totalHours,
-    'total_fuel_used': totalFuelUsed,
-    'total_area_worked': totalAreaWorked,
-    'total_distance_traveled': totalDistanceTraveled,
-    'session_count': sessionCount,
-    'by_usage_type': byUsageType,
-    'by_activity_type': byActivityType,
-  };
+        'equipment_id': equipmentId,
+        'from': from.toIso8601String(),
+        'to': to.toIso8601String(),
+        'total_hours': totalHours,
+        'total_fuel_used': totalFuelUsed,
+        'total_area_worked': totalAreaWorked,
+        'total_distance_traveled': totalDistanceTraveled,
+        'session_count': sessionCount,
+        'by_usage_type': byUsageType,
+        'by_activity_type': byActivityType,
+      };
 }
 
 /// إحصائيات المعدات
@@ -1129,16 +1147,16 @@ class EquipmentStats {
   }
 
   Map<String, dynamic> toJson() => {
-    'total': total,
-    'by_type': byType,
-    'by_status': byStatus,
-    'operational': operational,
-    'maintenance': maintenance,
-    'inactive': inactive,
-    'low_fuel': lowFuel,
-    'needs_maintenance': needsMaintenance,
-    'total_value': totalValue,
-    'total_hours': totalHours,
-    'last_updated': lastUpdated?.toIso8601String(),
-  };
+        'total': total,
+        'by_type': byType,
+        'by_status': byStatus,
+        'operational': operational,
+        'maintenance': maintenance,
+        'inactive': inactive,
+        'low_fuel': lowFuel,
+        'needs_maintenance': needsMaintenance,
+        'total_value': totalValue,
+        'total_hours': totalHours,
+        'last_updated': lastUpdated?.toIso8601String(),
+      };
 }

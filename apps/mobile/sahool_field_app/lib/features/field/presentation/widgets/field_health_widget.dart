@@ -123,7 +123,8 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'صحة الحقل / Field Health',
@@ -341,7 +342,8 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
     );
   }
 
-  Widget _buildTrendIndicator(FieldHealthData healthData, {bool small = false}) {
+  Widget _buildTrendIndicator(FieldHealthData healthData,
+      {bool small = false}) {
     IconData icon;
     Color color;
 
@@ -580,7 +582,8 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getRecommendationColor(recommendation).withOpacity(0.15),
+                  color:
+                      _getRecommendationColor(recommendation).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -602,11 +605,13 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : SahoolColors.textDark,
+                              color:
+                                  isDark ? Colors.white : SahoolColors.textDark,
                             ),
                           ),
                         ),
-                        if (recommendation.priority == RecommendationPriority.high)
+                        if (recommendation.priority ==
+                            RecommendationPriority.high)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -646,10 +651,12 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
           if (recommendation.canCreateTask) ...[
             const SizedBox(height: 10),
             InkWell(
-              onTap: () => _createTaskFromRecommendation(context, recommendation),
+              onTap: () =>
+                  _createTaskFromRecommendation(context, recommendation),
               borderRadius: BorderRadius.circular(8),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: SahoolColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -752,7 +759,8 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
       if (result == true && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('تم إنشاء المهمة بنجاح / Task created successfully'),
+            content:
+                const Text('تم إنشاء المهمة بنجاح / Task created successfully'),
             backgroundColor: SahoolColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -785,9 +793,11 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
     final weatherScore = _getWeatherScore();
 
     // Weighted average: NDVI 50%, Tasks 20%, Irrigation 15%, Weather 15%
-    final overallScore =
-        (ndviScore * 0.5 + tasksScore * 0.2 + irrigationScore * 0.15 + weatherScore * 0.15)
-            .round();
+    final overallScore = (ndviScore * 0.5 +
+            tasksScore * 0.2 +
+            irrigationScore * 0.15 +
+            weatherScore * 0.15)
+        .round();
 
     // Determine status
     final status = _getHealthStatus(overallScore);
@@ -935,7 +945,8 @@ class _FieldHealthWidgetState extends ConsumerState<FieldHealthWidget>
     return count;
   }
 
-  List<HealthRecommendation> _generateRecommendations(Field field, int healthScore) {
+  List<HealthRecommendation> _generateRecommendations(
+      Field field, int healthScore) {
     final recommendations = <HealthRecommendation>[];
 
     // NDVI-based recommendations

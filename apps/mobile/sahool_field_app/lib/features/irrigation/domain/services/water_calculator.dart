@@ -132,7 +132,8 @@ class WaterCalculator {
         dailyETc: etc,
         madFraction: crop.madFraction,
       );
-      nextIrrigationDate = DateTime.now().add(Duration(days: daysUntil.toInt()));
+      nextIrrigationDate =
+          DateTime.now().add(Duration(days: daysUntil.toInt()));
     }
 
     return IrrigationRequirement(

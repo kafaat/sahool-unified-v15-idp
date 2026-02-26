@@ -15,7 +15,8 @@ class SyncMetricsDemoScreen extends ConsumerStatefulWidget {
   const SyncMetricsDemoScreen({super.key});
 
   @override
-  ConsumerState<SyncMetricsDemoScreen> createState() => _SyncMetricsDemoScreenState();
+  ConsumerState<SyncMetricsDemoScreen> createState() =>
+      _SyncMetricsDemoScreenState();
 }
 
 class _SyncMetricsDemoScreenState extends ConsumerState<SyncMetricsDemoScreen> {
@@ -58,13 +59,15 @@ class _SyncMetricsDemoScreenState extends ConsumerState<SyncMetricsDemoScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    onPressed: _isSimulating ? null : () => _simulateSuccessfulSync(),
+                    onPressed:
+                        _isSimulating ? null : () => _simulateSuccessfulSync(),
                     icon: const Icon(Icons.check_circle),
                     label: const Text('محاكاة مزامنة ناجحة'),
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
-                    onPressed: _isSimulating ? null : () => _simulateFailedSync(),
+                    onPressed:
+                        _isSimulating ? null : () => _simulateFailedSync(),
                     icon: const Icon(Icons.error),
                     label: const Text('محاكاة مزامنة فاشلة'),
                     style: ElevatedButton.styleFrom(
@@ -84,13 +87,16 @@ class _SyncMetricsDemoScreenState extends ConsumerState<SyncMetricsDemoScreen> {
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
-                    onPressed: _isSimulating ? null : () => _simulateMultipleOperations(),
+                    onPressed: _isSimulating
+                        ? null
+                        : () => _simulateMultipleOperations(),
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('محاكاة عمليات متعددة (10)'),
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
-                    onPressed: _isSimulating ? null : () => _simulateQueueBuildup(),
+                    onPressed:
+                        _isSimulating ? null : () => _simulateQueueBuildup(),
                     icon: const Icon(Icons.queue),
                     label: const Text('محاكاة تراكم قائمة الانتظار'),
                   ),
@@ -230,7 +236,8 @@ class _SyncMetricsDemoScreenState extends ConsumerState<SyncMetricsDemoScreen> {
     final metricsService = ref.read(syncMetricsServiceProvider);
 
     for (int i = 0; i < 10; i++) {
-      final type = i.isEven ? SyncOperationType.upload : SyncOperationType.download;
+      final type =
+          i.isEven ? SyncOperationType.upload : SyncOperationType.download;
       final entityType = i % 3 == 0 ? 'task' : 'field';
       final success = i != 5; // Make 6th operation fail
 

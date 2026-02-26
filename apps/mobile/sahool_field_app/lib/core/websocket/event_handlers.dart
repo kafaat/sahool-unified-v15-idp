@@ -16,7 +16,8 @@ class WebSocketEventHandler {
   /// Handle WebSocket event
   /// معالجة حدث WebSocket
   Future<void> handleEvent(WebSocketEvent event) async {
-    AppLogger.info('Handling WebSocket event: ${event.eventType ?? event.type}');
+    AppLogger.info(
+        'Handling WebSocket event: ${event.eventType ?? event.type}');
 
     switch (event.eventType) {
       // Field events

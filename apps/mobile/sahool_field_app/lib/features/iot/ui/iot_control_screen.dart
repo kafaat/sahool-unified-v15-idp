@@ -220,12 +220,14 @@ class IoTControlScreen extends ConsumerWidget {
                     value: '${iotState.sensors['soil_moisture']?.value ?? 0}',
                     unit: '%',
                     color: Colors.blue,
-                    isWarning: (iotState.sensors['soil_moisture']?.value ?? 0) < 40,
+                    isWarning:
+                        (iotState.sensors['soil_moisture']?.value ?? 0) < 40,
                   ),
                   _SensorCard(
                     icon: Icons.thermostat,
                     label: 'درجة حرارة التربة',
-                    value: '${iotState.sensors['soil_temperature']?.value ?? 0}',
+                    value:
+                        '${iotState.sensors['soil_temperature']?.value ?? 0}',
                     unit: '°C',
                     color: Colors.brown,
                   ),
@@ -235,7 +237,8 @@ class IoTControlScreen extends ConsumerWidget {
                     value: '${iotState.sensors['air_temperature']?.value ?? 0}',
                     unit: '°C',
                     color: Colors.orange,
-                    isWarning: (iotState.sensors['air_temperature']?.value ?? 0) > 35,
+                    isWarning:
+                        (iotState.sensors['air_temperature']?.value ?? 0) > 35,
                   ),
                   _SensorCard(
                     icon: Icons.cloud,
@@ -254,7 +257,8 @@ class IoTControlScreen extends ConsumerWidget {
                   _SensorCard(
                     icon: Icons.wb_sunny,
                     label: 'شدة الإضاءة',
-                    value: '${((iotState.sensors['light_intensity']?.value ?? 0) / 1000).toStringAsFixed(0)}K',
+                    value:
+                        '${((iotState.sensors['light_intensity']?.value ?? 0) / 1000).toStringAsFixed(0)}K',
                     unit: 'lux',
                     color: Colors.amber,
                   ),
@@ -621,9 +625,7 @@ class _SensorCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: isWarning
-            ? Border.all(color: Colors.orange, width: 2)
-            : null,
+        border: isWarning ? Border.all(color: Colors.orange, width: 2) : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),

@@ -56,6 +56,8 @@ except ImportError:
         pass
 
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .decision_engine import (
     GrowthStage,
     Indices,
@@ -545,6 +547,10 @@ async def lifespan(app: FastAPI):
 
     # Initialize PostgreSQL database connection
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
@@ -791,6 +797,9 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 # ── Digital Twin Router ────────────────────────────────────────────────────
 try:
     from .twin_router import router as twin_router
@@ -799,9 +808,7 @@ try:
 except Exception as _twin_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Digital Twin router not loaded: %s", _twin_import_error
-    )
+    logging.getLogger(__name__).warning("Digital Twin router not loaded: %s", _twin_import_error)
 
 # ── Process Models Router ──────────────────────────────────────────────────
 try:
@@ -811,9 +818,7 @@ try:
 except Exception as _models_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Process Models router not loaded: %s", _models_import_error
-    )
+    logging.getLogger(__name__).warning("Process Models router not loaded: %s", _models_import_error)
 
 # ── Calibration Router ────────────────────────────────────────────────────
 try:
@@ -823,9 +828,7 @@ try:
 except Exception as _cal_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Calibration router not loaded: %s", _cal_import_error
-    )
+    logging.getLogger(__name__).warning("Calibration router not loaded: %s", _cal_import_error)
 
 # ── Soil & Fertility Router ──────────────────────────────────────────────
 try:
@@ -835,9 +838,7 @@ try:
 except Exception as _sf_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Soil & Fertility router not loaded: %s", _sf_import_error
-    )
+    logging.getLogger(__name__).warning("Soil & Fertility router not loaded: %s", _sf_import_error)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

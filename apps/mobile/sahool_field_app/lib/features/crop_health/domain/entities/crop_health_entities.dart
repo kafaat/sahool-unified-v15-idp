@@ -215,7 +215,8 @@ class DiagnosisAction {
       reason: reason ?? this.reason,
       reasonEn: reasonEn ?? this.reasonEn,
       evidence: evidence ?? this.evidence,
-      recommendedWindowHours: recommendedWindowHours ?? this.recommendedWindowHours,
+      recommendedWindowHours:
+          recommendedWindowHours ?? this.recommendedWindowHours,
       recommendedDoseHint: recommendedDoseHint ?? this.recommendedDoseHint,
       severity: severity ?? this.severity,
     );

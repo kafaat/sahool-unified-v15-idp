@@ -87,6 +87,7 @@ class DrawingNotifier extends StateNotifier<DrawingState> {
 }
 
 /// Provider للرسم
-final drawingProvider = StateNotifierProvider<DrawingNotifier, DrawingState>((ref) {
+final drawingProvider =
+    StateNotifierProvider<DrawingNotifier, DrawingState>((ref) {
   return DrawingNotifier();
 });

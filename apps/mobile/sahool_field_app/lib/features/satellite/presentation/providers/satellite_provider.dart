@@ -5,7 +5,8 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../../../../core/sync/sync_metrics_providers.dart' show sharedPreferencesProvider;
+import '../../../../core/sync/sync_metrics_providers.dart'
+    show sharedPreferencesProvider;
 import '../../data/remote/satellite_api.dart';
 import '../../data/repositories/satellite_repository.dart';
 import '../../data/models/ndvi_data.dart';
@@ -107,7 +108,8 @@ class NdviDetailState {
 
 /// Satellite Dashboard Notifier
 /// مزود لوحة الأقمار الصناعية
-class SatelliteDashboardNotifier extends StateNotifier<SatelliteDashboardState> {
+class SatelliteDashboardNotifier
+    extends StateNotifier<SatelliteDashboardState> {
   final SatelliteRepository _repository;
 
   SatelliteDashboardNotifier({
@@ -117,7 +119,8 @@ class SatelliteDashboardNotifier extends StateNotifier<SatelliteDashboardState> 
 
   /// Load complete dashboard data
   /// تحميل بيانات لوحة المعلومات الكاملة
-  Future<void> loadDashboard(String fieldId, {bool forceRefresh = false}) async {
+  Future<void> loadDashboard(String fieldId,
+      {bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
@@ -150,9 +153,11 @@ class SatelliteDashboardNotifier extends StateNotifier<SatelliteDashboardState> 
 
   /// Load field health only
   /// تحميل صحة الحقل فقط
-  Future<void> loadFieldHealth(String fieldId, {bool forceRefresh = false}) async {
+  Future<void> loadFieldHealth(String fieldId,
+      {bool forceRefresh = false}) async {
     try {
-      final health = await _repository.getFieldHealth(fieldId, forceRefresh: forceRefresh);
+      final health =
+          await _repository.getFieldHealth(fieldId, forceRefresh: forceRefresh);
       state = state.copyWith(fieldHealth: health);
     } catch (e) {
       state = state.copyWith(error: 'فشل في تحميل صحة الحقل');
@@ -178,13 +183,15 @@ class NdviDetailNotifier extends StateNotifier<NdviDetailState> {
 
   /// Load NDVI details
   /// تحميل تفاصيل NDVI
-  Future<void> loadNdviDetails(String fieldId, {int days = 30, bool forceRefresh = false}) async {
+  Future<void> loadNdviDetails(String fieldId,
+      {int days = 30, bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final results = await Future.wait([
         _repository.getNdviAnalysis(fieldId, forceRefresh: forceRefresh),
-        _repository.getNdviTimeSeries(fieldId, days: days, forceRefresh: forceRefresh),
+        _repository.getNdviTimeSeries(fieldId,
+            days: days, forceRefresh: forceRefresh),
         _repository.getVegetationIndices(fieldId, forceRefresh: forceRefresh),
       ]);
 
@@ -216,7 +223,8 @@ class NdviDetailNotifier extends StateNotifier<NdviDetailState> {
 
 /// Weather Notifier
 /// مزود الطقس
-class SatelliteWeatherNotifier extends StateNotifier<AsyncValue<WeatherSummary>> {
+class SatelliteWeatherNotifier
+    extends StateNotifier<AsyncValue<WeatherSummary>> {
   final SatelliteRepository _repository;
 
   SatelliteWeatherNotifier({
@@ -230,7 +238,8 @@ class SatelliteWeatherNotifier extends StateNotifier<AsyncValue<WeatherSummary>>
     state = const AsyncValue.loading();
 
     try {
-      final weather = await _repository.getWeatherForecast(fieldId, forceRefresh: forceRefresh);
+      final weather = await _repository.getWeatherForecast(fieldId,
+          forceRefresh: forceRefresh);
       state = AsyncValue.data(weather);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -256,11 +265,13 @@ class PhenologyNotifier extends StateNotifier<AsyncValue<PhenologyData>> {
 
   /// Load phenology data
   /// تحميل بيانات مراحل النمو
-  Future<void> loadPhenology(String fieldId, {bool forceRefresh = false}) async {
+  Future<void> loadPhenology(String fieldId,
+      {bool forceRefresh = false}) async {
     state = const AsyncValue.loading();
 
     try {
-      final phenology = await _repository.getPhenologyData(fieldId, forceRefresh: forceRefresh);
+      final phenology = await _repository.getPhenologyData(fieldId,
+          forceRefresh: forceRefresh);
       state = AsyncValue.data(phenology);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -308,14 +319,16 @@ final satelliteRepositoryProvider = Provider<SatelliteRepository>((ref) {
 
 /// Satellite Dashboard Provider
 final satelliteDashboardProvider =
-    StateNotifierProvider<SatelliteDashboardNotifier, SatelliteDashboardState>((ref) {
+    StateNotifierProvider<SatelliteDashboardNotifier, SatelliteDashboardState>(
+        (ref) {
   final repository = ref.watch(satelliteRepositoryProvider);
 
   return SatelliteDashboardNotifier(repository: repository);
 });
 
 /// NDVI Detail Provider
-final ndviDetailProvider = StateNotifierProvider<NdviDetailNotifier, NdviDetailState>((ref) {
+final ndviDetailProvider =
+    StateNotifierProvider<NdviDetailNotifier, NdviDetailState>((ref) {
   final repository = ref.watch(satelliteRepositoryProvider);
 
   return NdviDetailNotifier(repository: repository);
@@ -323,7 +336,8 @@ final ndviDetailProvider = StateNotifierProvider<NdviDetailNotifier, NdviDetailS
 
 /// Satellite Weather Provider
 final satelliteWeatherProvider =
-    StateNotifierProvider<SatelliteWeatherNotifier, AsyncValue<WeatherSummary>>((ref) {
+    StateNotifierProvider<SatelliteWeatherNotifier, AsyncValue<WeatherSummary>>(
+        (ref) {
   final repository = ref.watch(satelliteRepositoryProvider);
 
   return SatelliteWeatherNotifier(repository: repository);

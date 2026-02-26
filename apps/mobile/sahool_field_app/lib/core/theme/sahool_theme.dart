@@ -169,7 +169,8 @@ class SahoolTheme {
           shadowColor: SahoolColors.primary.withOpacity(0.4),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           minimumSize: const Size(120, 56), // حجم أدنى كبير
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -184,7 +185,8 @@ class SahoolTheme {
           side: const BorderSide(color: SahoolColors.primary, width: 2),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           minimumSize: const Size(120, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
 
@@ -218,7 +220,8 @@ class SahoolTheme {
         unselectedItemColor: SahoolColors.textSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 12,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        selectedLabelStyle:
+            TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       ),
 
       // FAB كبير
@@ -233,7 +236,8 @@ class SahoolTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.grey[100],
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -297,25 +301,21 @@ class SahoolTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: SahoolColors.backgroundDark,
       primaryColor: SahoolColors.secondary,
-
       colorScheme: const ColorScheme.dark(
         primary: SahoolColors.secondary,
         secondary: SahoolColors.primary,
         surface: SahoolColors.surfaceDark,
         error: SahoolColors.danger,
       ),
-
       fontFamily: 'IBMPlexSansArabic',
       textTheme: ThemeData.dark().textTheme.apply(
-        fontFamily: 'IBMPlexSansArabic',
-      ),
-
+            fontFamily: 'IBMPlexSansArabic',
+          ),
       cardTheme: CardThemeData(
         elevation: 4,
         color: SahoolColors.surfaceDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-
       appBarTheme: const AppBarTheme(
         backgroundColor: SahoolColors.surfaceDark,
         elevation: 0,
@@ -334,36 +334,36 @@ class SahoolTheme {
 /// Shadow Presets - ظلال جاهزة
 class SahoolShadows {
   static List<BoxShadow> get small => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.08),
-      blurRadius: 8,
-      offset: const Offset(0, 2),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   static List<BoxShadow> get medium => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.12),
-      blurRadius: 16,
-      offset: const Offset(0, 4),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.12),
+          blurRadius: 16,
+          offset: const Offset(0, 4),
+        ),
+      ];
 
   static List<BoxShadow> get large => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.16),
-      blurRadius: 24,
-      offset: const Offset(0, 8),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.16),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
+        ),
+      ];
 
   static List<BoxShadow> colored(Color color) => [
-    BoxShadow(
-      color: color.withOpacity(0.3),
-      blurRadius: 12,
-      offset: const Offset(0, 6),
-    ),
-  ];
+        BoxShadow(
+          color: color.withOpacity(0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
+        ),
+      ];
 }
 
 /// Border Radius Presets - زوايا جاهزة

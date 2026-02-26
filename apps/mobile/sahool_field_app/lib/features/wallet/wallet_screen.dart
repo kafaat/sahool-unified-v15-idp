@@ -345,7 +345,8 @@ class _CreditScoreCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _getTierColor(wallet?.creditTier),
                   borderRadius: BorderRadius.circular(20),
@@ -427,11 +428,21 @@ class _CreditScoreCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('300', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('500', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('650', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('750', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
-              Text('850', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('300',
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('500',
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('650',
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('750',
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.5), fontSize: 10)),
+              Text('850',
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.5), fontSize: 10)),
             ],
           ),
         ],
@@ -757,7 +768,8 @@ class _DepositBottomSheet extends ConsumerStatefulWidget {
   const _DepositBottomSheet();
 
   @override
-  ConsumerState<_DepositBottomSheet> createState() => _DepositBottomSheetState();
+  ConsumerState<_DepositBottomSheet> createState() =>
+      _DepositBottomSheetState();
 }
 
 class _DepositBottomSheetState extends ConsumerState<_DepositBottomSheet> {
@@ -860,7 +872,8 @@ class _WithdrawBottomSheet extends ConsumerStatefulWidget {
   const _WithdrawBottomSheet();
 
   @override
-  ConsumerState<_WithdrawBottomSheet> createState() => _WithdrawBottomSheetState();
+  ConsumerState<_WithdrawBottomSheet> createState() =>
+      _WithdrawBottomSheetState();
 }
 
 class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
@@ -934,7 +947,8 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
             controller: _accountController,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              labelText: _selectedMethod == 'bank' ? 'رقم الحساب' : 'رقم الموبايل',
+              labelText:
+                  _selectedMethod == 'bank' ? 'رقم الحساب' : 'رقم الموبايل',
               labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -979,7 +993,9 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
+            color: isSelected
+                ? Colors.orange.withOpacity(0.2)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected ? Colors.orange : Colors.white.withOpacity(0.3),
@@ -988,7 +1004,8 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: isSelected ? Colors.orange : Colors.white70, size: 20),
+              Icon(icon,
+                  color: isSelected ? Colors.orange : Colors.white70, size: 20),
               const SizedBox(width: 8),
               Text(
                 label,
@@ -1150,10 +1167,14 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+                          color: isSelected
+                              ? Colors.blue.withOpacity(0.2)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.white.withOpacity(0.3),
+                            color: isSelected
+                                ? Colors.blue
+                                : Colors.white.withOpacity(0.3),
                           ),
                         ),
                         child: Center(
@@ -1161,7 +1182,9 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
                             '$months شهور',
                             style: TextStyle(
                               color: isSelected ? Colors.blue : Colors.white70,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),

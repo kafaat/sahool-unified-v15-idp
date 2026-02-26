@@ -8,7 +8,8 @@ import '../../../core/ui/sync_indicator.dart';
 import '../../../core/sync/queue_manager.dart';
 import '../../../core/storage/database.dart';
 import '../../../main.dart';
-import '../../../core/sync/sync_metrics_providers.dart' show queueManagerProvider;
+import '../../../core/sync/sync_metrics_providers.dart'
+    show queueManagerProvider;
 import '../providers/sync_events_provider.dart';
 import 'conflict_resolution_dialog.dart';
 
@@ -58,8 +59,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.success ? 'تمت المزامنة بنجاح' : 'فشل في المزامنة: ${result.message}'),
-          backgroundColor: result.success ? SahoolColors.success : SahoolColors.danger,
+          content: Text(result.success
+              ? 'تمت المزامنة بنجاح'
+              : 'فشل في المزامنة: ${result.message}'),
+          backgroundColor:
+              result.success ? SahoolColors.success : SahoolColors.danger,
         ),
       );
     }
@@ -167,7 +171,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Widget _buildConflictsSection(SyncEventsState eventsState) {
-    final conflicts = eventsState.events.where((e) => e.type == 'CONFLICT').toList();
+    final conflicts =
+        eventsState.events.where((e) => e.type == 'CONFLICT').toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +182,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.amber[700], size: 20),
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.amber[700], size: 20),
                 const SizedBox(width: 8),
                 const Text(
                   'التعارضات',
@@ -187,7 +193,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             ),
             if (conflicts.isNotEmpty)
               TextButton(
-                onPressed: () => ref.read(syncEventsProvider.notifier).markAllAsRead(),
+                onPressed: () =>
+                    ref.read(syncEventsProvider.notifier).markAllAsRead(),
                 child: const Text('تجاهل الكل'),
               ),
           ],
@@ -198,7 +205,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
               child: ConflictListItem(
                 conflict: conflict,
                 onTap: () => _showConflictDialog(conflict),
-                onDismiss: () => ref.read(syncEventsProvider.notifier).markAsRead(conflict.id),
+                onDismiss: () => ref
+                    .read(syncEventsProvider.notifier)
+                    .markAsRead(conflict.id),
               ),
             )),
       ],
@@ -221,7 +230,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             ),
             if (stats.totalPending > 0)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: SahoolColors.warning.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -248,7 +258,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.check_circle, size: 48, color: SahoolColors.success),
+                  Icon(Icons.check_circle,
+                      size: 48, color: SahoolColors.success),
                   const SizedBox(height: 12),
                   const Text('لا توجد عمليات معلقة'),
                   const SizedBox(height: 4),
@@ -295,7 +306,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                             final retried = await queueManager.retryFailed();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('تم إعادة محاولة $retried عنصر')),
+                                SnackBar(
+                                    content:
+                                        Text('تم إعادة محاولة $retried عنصر')),
                               );
                             }
                           },
@@ -399,7 +412,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
               OutlinedButton(
                 onPressed: _showClearMapCacheDialog,
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   foregroundColor: SahoolColors.danger,
                   side: const BorderSide(color: SahoolColors.danger),
                 ),

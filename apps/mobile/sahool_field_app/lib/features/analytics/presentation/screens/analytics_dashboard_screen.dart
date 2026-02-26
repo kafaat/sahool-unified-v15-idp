@@ -25,10 +25,12 @@ class AnalyticsDashboardScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
+  ConsumerState<AnalyticsDashboardScreen> createState() =>
+      _AnalyticsDashboardScreenState();
 }
 
-class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScreen>
+class _AnalyticsDashboardScreenState
+    extends ConsumerState<AnalyticsDashboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -149,7 +151,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     );
   }
 
-  Widget _buildHealthTab(AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
+  Widget _buildHealthTab(
+      AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
     final health = state.selectedFieldHealth;
 
     if (health == null) {
@@ -197,7 +200,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                 ),
               ),
               const SizedBox(height: 12),
-              ...health.recommendations.map((rec) => _buildRecommendationCard(rec, isRtl)),
+              ...health.recommendations
+                  .map((rec) => _buildRecommendationCard(rec, isRtl)),
             ],
 
             const SizedBox(height: 24),
@@ -389,7 +393,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     }
   }
 
-  Widget _buildYieldTab(AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
+  Widget _buildYieldTab(
+      AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
     final yield = state.selectedYieldPrediction;
 
     if (yield == null) {
@@ -400,7 +405,9 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
             const Icon(Icons.agriculture, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              isRtl ? 'حدد نوع المحصول ومساحة الحقل' : 'Select crop type and field area',
+              isRtl
+                  ? 'حدد نوع المحصول ومساحة الحقل'
+                  : 'Select crop type and field area',
               style: const TextStyle(color: Colors.grey),
             ),
           ],
@@ -529,7 +536,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                 toY: yield.minYield,
                 color: Colors.red.shade300,
                 width: 40,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ],
           ),
@@ -540,7 +548,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                 toY: yield.predictedYield,
                 color: Colors.green,
                 width: 40,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ],
           ),
@@ -551,14 +560,17 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                 toY: yield.maxYield,
                 color: Colors.blue.shade300,
                 width: 40,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ],
           ),
         ],
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -581,7 +593,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
     );
   }
 
-  Widget _buildRisksTab(AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
+  Widget _buildRisksTab(
+      AnalyticsDashboardState state, ThemeData theme, bool isRtl) {
     final assessment = state.selectedRiskAssessment;
 
     if (assessment == null) {
@@ -728,7 +741,8 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.check_circle, size: 16, color: Colors.green),
+                        const Icon(Icons.check_circle,
+                            size: 16, color: Colors.green),
                         const SizedBox(width: 8),
                         Expanded(child: Text(step)),
                       ],

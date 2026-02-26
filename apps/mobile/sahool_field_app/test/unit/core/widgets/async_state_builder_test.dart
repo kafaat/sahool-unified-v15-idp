@@ -77,8 +77,7 @@ void main() {
       expect(find.text('No data found'), findsOneWidget);
     });
 
-    testWidgets('should show data over error when data exists',
-        (tester) async {
+    testWidgets('should show data over error when data exists', (tester) async {
       await tester.pumpWidget(_wrapWithApp(
         AsyncStateBuilder<List<String>>(
           isLoading: false,
@@ -145,8 +144,7 @@ void main() {
       expect(find.byType(AsyncStateBuilder<String>), findsOneWidget);
     });
 
-    testWidgets('should pass retry callback to error builder',
-        (tester) async {
+    testWidgets('should pass retry callback to error builder', (tester) async {
       bool retried = false;
 
       await tester.pumpWidget(_wrapWithApp(
@@ -214,8 +212,7 @@ void main() {
             AsyncStateSliver<String>(
               isLoading: true,
               data: null,
-              dataBuilder: (data) =>
-                  SliverToBoxAdapter(child: Text(data)),
+              dataBuilder: (data) => SliverToBoxAdapter(child: Text(data)),
               loadingBuilder: () => const Text('Sliver Loading'),
             ),
           ],
@@ -233,8 +230,7 @@ void main() {
               isLoading: false,
               error: 'Sliver error',
               data: null,
-              dataBuilder: (data) =>
-                  SliverToBoxAdapter(child: Text(data)),
+              dataBuilder: (data) => SliverToBoxAdapter(child: Text(data)),
               errorBuilder: (error, retry) => Text('Error: $error'),
             ),
           ],

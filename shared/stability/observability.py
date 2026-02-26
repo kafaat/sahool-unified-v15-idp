@@ -25,7 +25,6 @@ Usage:
 from __future__ import annotations
 
 import logging
-import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -37,6 +36,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class StabilityStatus:
     """Aggregated stability status for a service."""
+
     service_name: str
     status: str = "healthy"  # healthy, degraded, unhealthy
     config_policy: str = "pass"
@@ -301,11 +301,15 @@ def run_startup_stability_checks(
                 config_result.summary(),
             )
             if fail_on_critical:
-                raise SystemExit(f"[{service_name}] Config policy has {config_result.critical_count} critical violations")
+                raise SystemExit(
+                    f"[{service_name}] Config policy has {config_result.critical_count} critical violations"
+                )
         elif config_result.has_warnings:
             status.config_policy = "warn"
             status.details["config_warnings"] = config_result.warning_count
-            logger.warning("Config policy warnings: service=%s warnings=%s", service_name, config_result.warnings_summary())
+            logger.warning(
+                "Config policy warnings: service=%s warnings=%s", service_name, config_result.warnings_summary()
+            )
         else:
             status.config_policy = "pass"
             logger.info("Config policy validation passed: service=%s", service_name)
@@ -325,9 +329,7 @@ def run_startup_stability_checks(
 
         if drift_result.has_critical:
             status.drift_checks = "fail"
-            status.details["drift_critical"] = sum(
-                1 for d in drift_result.items if d.severity.value == "critical"
-            )
+            status.details["drift_critical"] = sum(1 for d in drift_result.items if d.severity.value == "critical")
         elif len(drift_result.items) > 0:
             status.drift_checks = "warn"
             status.details["drift_items"] = len(drift_result.items)

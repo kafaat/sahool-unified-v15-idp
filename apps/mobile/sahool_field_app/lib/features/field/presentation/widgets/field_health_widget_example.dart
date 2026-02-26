@@ -234,7 +234,8 @@ class DashboardScreenExample extends ConsumerWidget {
       body: fieldsState.when(
         data: (fields) {
           // Get fields that need attention
-          final fieldsNeedingAttention = fields.where((f) => f.needsAttention).toList();
+          final fieldsNeedingAttention =
+              fields.where((f) => f.needsAttention).toList();
 
           return SingleChildScrollView(
             child: Column(
@@ -256,9 +257,10 @@ class DashboardScreenExample extends ConsumerWidget {
                         const SizedBox(width: 8),
                         Text(
                           'حقول تحتاج انتباه / Fields Need Attention',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ],
                     ),
@@ -303,7 +305,8 @@ class DashboardScreenExample extends ConsumerWidget {
                   child: GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,

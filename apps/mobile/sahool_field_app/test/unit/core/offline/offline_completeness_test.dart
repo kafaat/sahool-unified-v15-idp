@@ -33,7 +33,9 @@ void main() {
       expect(OfflineFeature.databaseIntegrity.nameEn, 'Database Integrity');
     });
 
-    test('critical features should be fieldData, taskManagement, syncOutbox, databaseIntegrity', () {
+    test(
+        'critical features should be fieldData, taskManagement, syncOutbox, databaseIntegrity',
+        () {
       expect(OfflineFeature.fieldData.isCritical, true);
       expect(OfflineFeature.taskManagement.isCritical, true);
       expect(OfflineFeature.syncOutbox.isCritical, true);
@@ -53,10 +55,14 @@ void main() {
   group('OfflineReadinessStatus', () {
     test('should have 4 statuses', () {
       expect(OfflineReadinessStatus.values.length, 4);
-      expect(OfflineReadinessStatus.values, contains(OfflineReadinessStatus.ready));
-      expect(OfflineReadinessStatus.values, contains(OfflineReadinessStatus.partial));
-      expect(OfflineReadinessStatus.values, contains(OfflineReadinessStatus.notReady));
-      expect(OfflineReadinessStatus.values, contains(OfflineReadinessStatus.unchecked));
+      expect(OfflineReadinessStatus.values,
+          contains(OfflineReadinessStatus.ready));
+      expect(OfflineReadinessStatus.values,
+          contains(OfflineReadinessStatus.partial));
+      expect(OfflineReadinessStatus.values,
+          contains(OfflineReadinessStatus.notReady));
+      expect(OfflineReadinessStatus.values,
+          contains(OfflineReadinessStatus.unchecked));
     });
   });
 

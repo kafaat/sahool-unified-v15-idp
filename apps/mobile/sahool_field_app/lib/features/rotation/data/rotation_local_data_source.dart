@@ -170,8 +170,8 @@ class RotationLocalDataSource {
   }
 
   /// Cache crop recommendations
-  Future<void> cacheRecommendations(
-      String fieldId, int year, List<CropRecommendation> recommendations) async {
+  Future<void> cacheRecommendations(String fieldId, int year,
+      List<CropRecommendation> recommendations) async {
     final key = 'rotation_recommendations_${fieldId}_$year';
     final jsonList = recommendations.map((e) => e.toJson()).toList();
     await _prefs.setString(key, jsonEncode(jsonList));

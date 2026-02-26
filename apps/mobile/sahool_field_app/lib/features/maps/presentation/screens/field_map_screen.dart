@@ -60,7 +60,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       final geometry = widget.initialCenter!['geometry'];
       if (geometry != null && geometry['type'] == 'Polygon') {
         try {
-          _fieldBoundary = GeoJson.parsePolygon(geometry as Map<String, dynamic>);
+          _fieldBoundary =
+              GeoJson.parsePolygon(geometry as Map<String, dynamic>);
         } catch (_) {
           // Fallback: use center point to create a small bounding area
           _createBoundaryFromCenter();
@@ -196,7 +197,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(20),
@@ -213,19 +215,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   runSpacing: 8,
                   children: [
                     if (_showZones)
-                      _buildActiveLayerChip('المناطق', Icons.crop_square, Colors.blue),
+                      _buildActiveLayerChip(
+                          'المناطق', Icons.crop_square, Colors.blue),
                     if (_showNdvi)
                       _buildActiveLayerChip('NDVI', Icons.grass, Colors.green),
                     if (_showNdwi)
-                      _buildActiveLayerChip('NDWI', Icons.water_drop, Colors.cyan),
+                      _buildActiveLayerChip(
+                          'NDWI', Icons.water_drop, Colors.cyan),
                     if (_showGpsTrack)
-                      _buildActiveLayerChip('GPS', Icons.gps_fixed, Colors.orange),
+                      _buildActiveLayerChip(
+                          'GPS', Icons.gps_fixed, Colors.orange),
                   ],
                 ),
                 const SizedBox(height: 24),
                 if (_isTracking)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.blue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -349,7 +355,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         ),
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          backgroundColor: isActive ? color.withOpacity(0.1) : Colors.transparent,
+          backgroundColor:
+              isActive ? color.withOpacity(0.1) : Colors.transparent,
         ),
       ),
     );

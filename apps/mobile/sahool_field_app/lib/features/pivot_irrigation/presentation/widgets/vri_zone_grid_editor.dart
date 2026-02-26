@@ -126,7 +126,8 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _getRateColor(_currentRate),
                   borderRadius: BorderRadius.circular(12),
@@ -167,9 +168,12 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
               return GestureDetector(
                 onTap: () => setState(() => _currentRate = rate.toDouble()),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? _getRateColor(rate.toDouble()) : Colors.white,
+                    color: isSelected
+                        ? _getRateColor(rate.toDouble())
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _getRateColor(rate.toDouble()),
@@ -179,8 +183,11 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
                     rate == 0 ? 'إيقاف' : '$rate%',
                     style: TextStyle(
                       fontSize: 11,
-                      color: isSelected ? Colors.white : _getRateColor(rate.toDouble()),
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? Colors.white
+                          : _getRateColor(rate.toDouble()),
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -361,7 +368,8 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
     if (spanIndex < 0 || spanIndex >= widget.spanCount) return null;
 
     // Calculate angle
-    final angle = (math.atan2(offset.dy, offset.dx) * 180 / math.pi + 90 + 360) % 360;
+    final angle =
+        (math.atan2(offset.dy, offset.dx) * 180 / math.pi + 90 + 360) % 360;
 
     // Find zone at this angle
     if (spanIndex < _grid.grid.length) {
@@ -400,16 +408,18 @@ class _VRIZoneGridEditorState extends State<VRIZoneGridEditor> {
     if (_selectedZones.isEmpty) return;
 
     final newGrid = List<List<SpanZone>>.from(
-      _grid.grid.map((span) => span.map((z) {
-        final zoneId = '${z.spanNumber - 1}_${z.zoneNumber - 1}';
-        if (_selectedZones.contains(zoneId)) {
-          return z.copyWith(
-            applicationRatePercent: _currentRate,
-            color: _getRateColorHex(_currentRate),
-          );
-        }
-        return z;
-      }).toList()).toList(),
+      _grid.grid
+          .map((span) => span.map((z) {
+                final zoneId = '${z.spanNumber - 1}_${z.zoneNumber - 1}';
+                if (_selectedZones.contains(zoneId)) {
+                  return z.copyWith(
+                    applicationRatePercent: _currentRate,
+                    color: _getRateColorHex(_currentRate),
+                  );
+                }
+                return z;
+              }).toList())
+          .toList(),
     );
 
     setState(() {
@@ -516,7 +526,8 @@ class _VRIGridPainter extends CustomPainter {
     canvas.drawCircle(center, radius, bgPaint);
   }
 
-  void _drawZones(Canvas canvas, Offset center, double minRadius, double maxRadius) {
+  void _drawZones(
+      Canvas canvas, Offset center, double minRadius, double maxRadius) {
     final spanWidth = (maxRadius - minRadius) / grid.spanCount;
 
     for (int spanIndex = 0; spanIndex < grid.grid.length; spanIndex++) {
@@ -586,7 +597,8 @@ class _VRIGridPainter extends CustomPainter {
     double outerRadius,
     SpanZone zone,
   ) {
-    final midAngle = _degreesToRadians((zone.startAngle + zone.endAngle) / 2 - 90);
+    final midAngle =
+        _degreesToRadians((zone.startAngle + zone.endAngle) / 2 - 90);
     final midRadius = (innerRadius + outerRadius) / 2;
 
     final labelOffset = Offset(
@@ -629,7 +641,8 @@ class _VRIGridPainter extends CustomPainter {
     canvas.drawCircle(center, 8, dotPaint);
   }
 
-  void _drawSpanLabels(Canvas canvas, Offset center, double minRadius, double maxRadius) {
+  void _drawSpanLabels(
+      Canvas canvas, Offset center, double minRadius, double maxRadius) {
     final spanWidth = (maxRadius - minRadius) / grid.spanCount;
 
     for (int i = 0; i < grid.spanCount; i++) {
@@ -682,7 +695,8 @@ class _VRIGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _VRIGridPainter oldDelegate) {
-    return oldDelegate.grid != grid || oldDelegate.selectedZones != selectedZones;
+    return oldDelegate.grid != grid ||
+        oldDelegate.selectedZones != selectedZones;
   }
 }
 

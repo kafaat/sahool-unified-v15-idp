@@ -18,11 +18,12 @@ export 'domain/ndvi_colormap.dart';
 
 // UI
 export 'ui/ndvi_health_indicator.dart';
-export 'ui/ndvi_tile_layer.dart' show
-    NdviTileConfig,
-    NdviTileLayerWidget,
-    NdviPolygonLayer,
-    NdviFieldData,
-    NdviLayerControl,
-    NdviImageCacheManager,
-    CachedNdviTileProvider;
+export 'ui/ndvi_tile_layer.dart'
+    show
+        NdviTileConfig,
+        NdviTileLayerWidget,
+        NdviPolygonLayer,
+        NdviFieldData,
+        NdviLayerControl,
+        NdviImageCacheManager,
+        CachedNdviTileProvider;

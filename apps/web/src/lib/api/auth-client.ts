@@ -101,7 +101,6 @@ class AuthApiClient {
 
       clearTimeout(timeoutId);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data: any;
       const contentType = response.headers.get("content-type");
 

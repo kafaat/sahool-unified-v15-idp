@@ -212,7 +212,8 @@ class OfflineSyncEngine {
       }
 
       _retryCount = 0;
-      _updateStatus(failCount > 0 ? SyncStatus.partialSuccess : SyncStatus.success);
+      _updateStatus(
+          failCount > 0 ? SyncStatus.partialSuccess : SyncStatus.success);
 
       final result = SyncResult(
         success: failCount == 0,
@@ -222,7 +223,8 @@ class OfflineSyncEngine {
         message: 'Synced $successCount items, $failCount failed',
       );
 
-      AppLogger.sync('Sync completed', success: result.success, details: result.message);
+      AppLogger.sync('Sync completed',
+          success: result.success, details: result.message);
 
       return result;
     } catch (e) {
@@ -299,18 +301,21 @@ class OfflineSyncEngine {
 
     // Simulate API call
     await Future.delayed(const Duration(milliseconds: 100));
-    AppLogger.d('Processed UPDATE: ${entry.entityType}/${entry.entityId}', tag: 'SYNC');
+    AppLogger.d('Processed UPDATE: ${entry.entityType}/${entry.entityId}',
+        tag: 'SYNC');
   }
 
   /// معالجة عملية حذف
   Future<void> _processDelete(OutboxEntry entry) async {
     // Simulate API call
     await Future.delayed(const Duration(milliseconds: 100));
-    AppLogger.d('Processed DELETE: ${entry.entityType}/${entry.entityId}', tag: 'SYNC');
+    AppLogger.d('Processed DELETE: ${entry.entityType}/${entry.entityId}',
+        tag: 'SYNC');
   }
 
   /// جلب بيانات الخادم (للمقارنة)
-  Future<Map<String, dynamic>?> _fetchServerData(String entityType, String entityId) async {
+  Future<Map<String, dynamic>?> _fetchServerData(
+      String entityType, String entityId) async {
     // In real implementation, fetch from API
     return null;
   }
@@ -326,11 +331,13 @@ class OfflineSyncEngine {
     // Proper exponential backoff: 2^retryCount seconds with jitter
     // Retry 1: ~2s, Retry 2: ~4s, Retry 3: ~8s, Retry 4: ~16s, Retry 5: ~32s
     final baseDelaySeconds = pow(2, _retryCount).toInt();
-    final jitterMs = Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
+    final jitterMs =
+        Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
     final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
     Timer(delay, _checkAndSync);
-    AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)', tag: 'SYNC');
+    AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)',
+        tag: 'SYNC');
   }
 
   /// تحديث الحالة
@@ -464,34 +471,34 @@ class OutboxEntry {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'entityType': entityType,
-    'entityId': entityId,
-    'operation': operation.name,
-    'data': data,
-    'previousData': previousData,
-    'priority': priority.index,
-    'createdAt': createdAt.toIso8601String(),
-    'status': status.name,
-    'retryCount': retryCount,
-    'lastError': lastError,
-  };
+        'id': id,
+        'entityType': entityType,
+        'entityId': entityId,
+        'operation': operation.name,
+        'data': data,
+        'previousData': previousData,
+        'priority': priority.index,
+        'createdAt': createdAt.toIso8601String(),
+        'status': status.name,
+        'retryCount': retryCount,
+        'lastError': lastError,
+      };
 
   factory OutboxEntry.fromJson(Map<String, dynamic> json) => OutboxEntry(
-    id: json['id'] as String,
-    entityType: json['entityType'] as String,
-    entityId: json['entityId'] as String?,
-    operation: SyncOperation.values.byName(json['operation'] as String),
-    data: Map<String, dynamic>.from(json['data'] as Map),
-    previousData: json['previousData'] != null
-        ? Map<String, dynamic>.from(json['previousData'] as Map)
-        : null,
-    priority: SyncPriority.values[json['priority'] as int],
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    status: OutboxStatus.values.byName(json['status'] as String),
-    retryCount: json['retryCount'] as int? ?? 0,
-    lastError: json['lastError'] as String?,
-  );
+        id: json['id'] as String,
+        entityType: json['entityType'] as String,
+        entityId: json['entityId'] as String?,
+        operation: SyncOperation.values.byName(json['operation'] as String),
+        data: Map<String, dynamic>.from(json['data'] as Map),
+        previousData: json['previousData'] != null
+            ? Map<String, dynamic>.from(json['previousData'] as Map)
+            : null,
+        priority: SyncPriority.values[json['priority'] as int],
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        status: OutboxStatus.values.byName(json['status'] as String),
+        retryCount: json['retryCount'] as int? ?? 0,
+        lastError: json['lastError'] as String?,
+      );
 }
 
 /// نتيجة المزامنة

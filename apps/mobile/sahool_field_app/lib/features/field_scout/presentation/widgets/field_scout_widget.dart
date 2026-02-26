@@ -65,15 +65,15 @@ class _StartSessionView extends ConsumerWidget {
           Text(
             'مسح الحقل الذكي',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             fieldName,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
           ),
           const SizedBox(height: 24),
           const Text(
@@ -102,11 +102,11 @@ class _StartSessionView extends ConsumerWidget {
 
   void _startSession(BuildContext context, WidgetRef ref) {
     ref.read(fieldScoutProvider.notifier).startSession(
-      fieldId: fieldId,
-      fieldName: fieldName,
-      scouterId: 'current_user_id', // Get from auth
-      scouterName: 'المستخدم الحالي', // Get from auth
-    );
+          fieldId: fieldId,
+          fieldName: fieldName,
+          scouterId: 'current_user_id', // Get from auth
+          scouterName: 'المستخدم الحالي', // Get from auth
+        );
   }
 }
 
@@ -379,8 +379,8 @@ class _QuickActions extends ConsumerWidget {
   void _addQuickCheckpoint(WidgetRef ref) {
     if (state.currentLocation == null) return;
     ref.read(fieldScoutProvider.notifier).addQuickCheckpoint(
-      state.currentLocation!,
-    );
+          state.currentLocation!,
+        );
   }
 
   void _showIssueDialog(BuildContext context, WidgetRef ref) {
@@ -472,7 +472,8 @@ class _ControlButtons extends ConsumerWidget {
           Expanded(
             child: isPaused
                 ? ElevatedButton.icon(
-                    onPressed: () => ref.read(fieldScoutProvider.notifier).resumeSession(),
+                    onPressed: () =>
+                        ref.read(fieldScoutProvider.notifier).resumeSession(),
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('استئناف'),
                     style: ElevatedButton.styleFrom(
@@ -481,7 +482,8 @@ class _ControlButtons extends ConsumerWidget {
                     ),
                   )
                 : OutlinedButton.icon(
-                    onPressed: () => ref.read(fieldScoutProvider.notifier).pauseSession(),
+                    onPressed: () =>
+                        ref.read(fieldScoutProvider.notifier).pauseSession(),
                     icon: const Icon(Icons.pause),
                     label: const Text('إيقاف'),
                   ),
@@ -590,7 +592,8 @@ class _IssueReportSheetState extends ConsumerState<_IssueReportSheet> {
                   label: Text(_getCategoryLabel(category)),
                   selected: isSelected,
                   onSelected: (selected) {
-                    setState(() => _selectedCategory = selected ? category : null);
+                    setState(
+                        () => _selectedCategory = selected ? category : null);
                   },
                 );
               }).toList(),
@@ -664,11 +667,11 @@ class _IssueReportSheetState extends ConsumerState<_IssueReportSheet> {
     if (widget.state.currentLocation == null) return;
 
     ref.read(fieldScoutProvider.notifier).addIssueCheckpoint(
-      location: widget.state.currentLocation!,
-      category: _selectedCategory!,
-      severity: _selectedSeverity,
-      description: _descriptionController.text,
-    );
+          location: widget.state.currentLocation!,
+          category: _selectedCategory!,
+          severity: _selectedSeverity,
+          description: _descriptionController.text,
+        );
 
     Navigator.pop(context);
   }
@@ -725,7 +728,8 @@ class _SessionSummarySheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _getHealthColor(summary.overallHealthStatus).withOpacity(0.1),
+                color: _getHealthColor(summary.overallHealthStatus)
+                    .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -779,7 +783,8 @@ class _SessionSummarySheet extends StatelessWidget {
                 _SummaryStatCard(
                   icon: Icons.straighten,
                   label: 'المسافة',
-                  value: '${(summary.distanceMeters / 1000).toStringAsFixed(2)} كم',
+                  value:
+                      '${(summary.distanceMeters / 1000).toStringAsFixed(2)} كم',
                 ),
                 _SummaryStatCard(
                   icon: Icons.location_on,
@@ -807,15 +812,15 @@ class _SessionSummarySheet extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               ...summary.recommendations.map((rec) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check, color: Colors.green, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(rec)),
-                  ],
-                ),
-              )),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check, color: Colors.green, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(rec)),
+                      ],
+                    ),
+                  )),
             ],
             const SizedBox(height: 20),
 

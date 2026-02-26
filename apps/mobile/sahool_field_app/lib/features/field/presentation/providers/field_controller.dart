@@ -49,7 +49,8 @@ class FieldControllerState {
       isDeleting: isDeleting ?? this.isDeleting,
       isRefreshing: isRefreshing ?? this.isRefreshing,
       error: clearError ? null : (error ?? this.error),
-      selectedField: clearSelectedField ? null : (selectedField ?? this.selectedField),
+      selectedField:
+          clearSelectedField ? null : (selectedField ?? this.selectedField),
       fields: fields ?? this.fields,
       unsyncedCount: unsyncedCount ?? this.unsyncedCount,
     );
@@ -63,8 +64,7 @@ class FieldControllerState {
       fields.where((f) => f.needsAttention).toList();
 
   /// Critical fields only
-  List<Field> get criticalFields =>
-      fields.where((f) => f.isCritical).toList();
+  List<Field> get criticalFields => fields.where((f) => f.isCritical).toList();
 
   /// Total area in hectares
   double get totalAreaHectares =>
@@ -74,7 +74,8 @@ class FieldControllerState {
   double get averageNdvi {
     final fieldsWithNdvi = fields.where((f) => f.ndviCurrent != null).toList();
     if (fieldsWithNdvi.isEmpty) return 0.0;
-    return fieldsWithNdvi.fold(0.0, (sum, f) => sum + f.ndvi) / fieldsWithNdvi.length;
+    return fieldsWithNdvi.fold(0.0, (sum, f) => sum + f.ndvi) /
+        fieldsWithNdvi.length;
   }
 }
 
@@ -134,9 +135,11 @@ class FieldController extends StateNotifier<FieldControllerState> {
 
       state = state.copyWith(isRefreshing: false);
 
-      AppLogger.i('Fields refreshed from server', tag: 'FieldController', data: {
-        'synced': count,
-      });
+      AppLogger.i('Fields refreshed from server',
+          tag: 'FieldController',
+          data: {
+            'synced': count,
+          });
     } catch (e) {
       state = state.copyWith(
         isRefreshing: false,
@@ -225,7 +228,8 @@ class FieldController extends StateNotifier<FieldControllerState> {
         isSaving: false,
         error: 'فشل تحديث حدود الحقل: $e',
       );
-      AppLogger.e('Failed to update field boundary', tag: 'FieldController', error: e);
+      AppLogger.e('Failed to update field boundary',
+          tag: 'FieldController', error: e);
       return false;
     }
   }
@@ -270,7 +274,8 @@ class FieldController extends StateNotifier<FieldControllerState> {
         isSaving: false,
         error: 'فشل تحديث بيانات الحقل: $e',
       );
-      AppLogger.e('Failed to update field properties', tag: 'FieldController', error: e);
+      AppLogger.e('Failed to update field properties',
+          tag: 'FieldController', error: e);
       return false;
     }
   }
@@ -359,8 +364,8 @@ class FieldController extends StateNotifier<FieldControllerState> {
 /// Creates a FieldController scoped to a tenant
 /// Uses autoDispose with keepAlive for critical field data
 /// Stays alive for 15 minutes after last use since fields are core data
-final fieldControllerProvider = StateNotifierProvider.autoDispose.family<
-    FieldController, FieldControllerState, String>((ref, tenantId) {
+final fieldControllerProvider = StateNotifierProvider.autoDispose
+    .family<FieldController, FieldControllerState, String>((ref, tenantId) {
   final repo = ref.watch(fieldsRepoProvider);
 
   // Keep alive for 15 minutes - fields are critical app data
@@ -373,25 +378,29 @@ final fieldControllerProvider = StateNotifierProvider.autoDispose.family<
 
 /// Selected Field Provider - autoDispose to match parent
 /// Convenience provider to get the currently selected field
-final selectedFieldProvider = Provider.autoDispose.family<Field?, String>((ref, tenantId) {
+final selectedFieldProvider =
+    Provider.autoDispose.family<Field?, String>((ref, tenantId) {
   final state = ref.watch(fieldControllerProvider(tenantId));
   return state.selectedField;
 });
 
 /// Fields Needing Attention Provider - autoDispose to match parent
-final fieldsNeedingAttentionProvider = Provider.autoDispose.family<List<Field>, String>((ref, tenantId) {
+final fieldsNeedingAttentionProvider =
+    Provider.autoDispose.family<List<Field>, String>((ref, tenantId) {
   final state = ref.watch(fieldControllerProvider(tenantId));
   return state.fieldsNeedingAttention;
 });
 
 /// Critical Fields Provider - autoDispose to match parent
-final criticalFieldsProvider = Provider.autoDispose.family<List<Field>, String>((ref, tenantId) {
+final criticalFieldsProvider =
+    Provider.autoDispose.family<List<Field>, String>((ref, tenantId) {
   final state = ref.watch(fieldControllerProvider(tenantId));
   return state.criticalFields;
 });
 
 /// Field Statistics Provider - autoDispose to match parent
-final fieldStatsProvider = Provider.autoDispose.family<FieldStats, String>((ref, tenantId) {
+final fieldStatsProvider =
+    Provider.autoDispose.family<FieldStats, String>((ref, tenantId) {
   final state = ref.watch(fieldControllerProvider(tenantId));
   return FieldStats(
     totalFields: state.fields.length,
@@ -423,16 +432,19 @@ class FieldStats {
 }
 
 /// Field Loading State Provider - convenient access to loading state
-final fieldLoadingProvider = Provider.autoDispose.family<bool, String>((ref, tenantId) {
+final fieldLoadingProvider =
+    Provider.autoDispose.family<bool, String>((ref, tenantId) {
   return ref.watch(fieldControllerProvider(tenantId)).isLoading;
 });
 
 /// Field Error State Provider - convenient access to error state
-final fieldErrorProvider = Provider.autoDispose.family<String?, String>((ref, tenantId) {
+final fieldErrorProvider =
+    Provider.autoDispose.family<String?, String>((ref, tenantId) {
   return ref.watch(fieldControllerProvider(tenantId)).error;
 });
 
 /// Field Is Busy Provider - check if any operation is in progress
-final fieldIsBusyProvider = Provider.autoDispose.family<bool, String>((ref, tenantId) {
+final fieldIsBusyProvider =
+    Provider.autoDispose.family<bool, String>((ref, tenantId) {
   return ref.watch(fieldControllerProvider(tenantId)).isBusy;
 });

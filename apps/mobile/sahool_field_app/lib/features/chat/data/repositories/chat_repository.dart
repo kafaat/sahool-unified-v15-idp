@@ -23,7 +23,8 @@ class ChatRepository {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /// Get all conversations
-  Future<List<Conversation>> getConversations({bool forceRefresh = false}) async {
+  Future<List<Conversation>> getConversations(
+      {bool forceRefresh = false}) async {
     if (!forceRefresh && _conversationsCache.isNotEmpty) {
       return _conversationsCache.values.toList()
         ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -84,7 +85,8 @@ class ChatRepository {
     // Update cache
     if (_conversationsCache.containsKey(conversationId)) {
       final conversation = _conversationsCache[conversationId]!;
-      _conversationsCache[conversationId] = conversation.copyWith(unreadCount: 0);
+      _conversationsCache[conversationId] =
+          conversation.copyWith(unreadCount: 0);
     }
   }
 
@@ -103,13 +105,15 @@ class ChatRepository {
   }
 
   /// Mute a conversation
-  Future<void> muteConversation(String conversationId, {bool mute = true}) async {
+  Future<void> muteConversation(String conversationId,
+      {bool mute = true}) async {
     await _api.muteConversation(conversationId, mute: mute);
 
     // Update cache
     if (_conversationsCache.containsKey(conversationId)) {
       final conversation = _conversationsCache[conversationId]!;
-      _conversationsCache[conversationId] = conversation.copyWith(isMuted: mute);
+      _conversationsCache[conversationId] =
+          conversation.copyWith(isMuted: mute);
     }
   }
 
@@ -240,7 +244,9 @@ class ChatRepository {
       _conversationsCache[message.conversationId] = conversation.copyWith(
         lastMessage: message,
         updatedAt: DateTime.now(),
-        unreadCount: message.isMine ? conversation.unreadCount : conversation.unreadCount + 1,
+        unreadCount: message.isMine
+            ? conversation.unreadCount
+            : conversation.unreadCount + 1,
       );
     }
   }
@@ -290,7 +296,8 @@ class ChatRepository {
   void updateTypingStatus(String conversationId, bool isTyping) {
     if (_conversationsCache.containsKey(conversationId)) {
       final conversation = _conversationsCache[conversationId]!;
-      _conversationsCache[conversationId] = conversation.copyWith(isTyping: isTyping);
+      _conversationsCache[conversationId] =
+          conversation.copyWith(isTyping: isTyping);
     }
   }
 
@@ -303,7 +310,8 @@ class ChatRepository {
 
       if (participantIndex != -1) {
         final updatedParticipants = [...conversation.participants];
-        updatedParticipants[participantIndex] = updatedParticipants[participantIndex].copyWith(
+        updatedParticipants[participantIndex] =
+            updatedParticipants[participantIndex].copyWith(
           isOnline: isOnline,
           lastSeen: isOnline ? null : DateTime.now(),
         );
@@ -326,7 +334,8 @@ class ChatRepository {
   Stream<Map<String, dynamic>> get typingStream => _api.typingStream;
 
   /// Stream of online status updates
-  Stream<Map<String, dynamic>> get onlineStatusStream => _api.onlineStatusStream;
+  Stream<Map<String, dynamic>> get onlineStatusStream =>
+      _api.onlineStatusStream;
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Cache Management

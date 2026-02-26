@@ -246,8 +246,7 @@ class ApiResult<T> {
 
   ApiResult._({this.data, this.error, required this.isSuccess});
 
-  factory ApiResult.success(T data) =>
-      ApiResult._(data: data, isSuccess: true);
+  factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
 
   factory ApiResult.failure(String error) =>
       ApiResult._(error: error, isSuccess: false);
@@ -375,8 +374,10 @@ class NdviStatistics {
   factory NdviStatistics.fromJson(Map<String, dynamic> json) {
     return NdviStatistics(
       fieldId: json['field_id'] ?? '',
-      startDate: DateTime.parse(json['start_date'] ?? DateTime.now().toIso8601String()),
-      endDate: DateTime.parse(json['end_date'] ?? DateTime.now().toIso8601String()),
+      startDate: DateTime.parse(
+          json['start_date'] ?? DateTime.now().toIso8601String()),
+      endDate:
+          DateTime.parse(json['end_date'] ?? DateTime.now().toIso8601String()),
       average: (json['average'] ?? 0).toDouble(),
       min: (json['min'] ?? 0).toDouble(),
       max: (json['max'] ?? 0).toDouble(),
@@ -415,7 +416,9 @@ class NdviZone {
       areaHectares: (json['area_hectares'] ?? 0).toDouble(),
       percentOfField: (json['percent_of_field'] ?? 0).toDouble(),
       coordinates: (json['coordinates'] as List<dynamic>?)
-              ?.map((e) => (e as List<dynamic>).map((c) => (c as num).toDouble()).toList())
+              ?.map((e) => (e as List<dynamic>)
+                  .map((c) => (c as num).toDouble())
+                  .toList())
               .toList() ??
           [],
       recommendation: json['recommendation'] ?? '',
@@ -482,7 +485,8 @@ class CropHealthAnalysis {
   factory CropHealthAnalysis.fromJson(Map<String, dynamic> json) {
     return CropHealthAnalysis(
       fieldId: json['field_id'] ?? '',
-      analysisDate: DateTime.parse(json['analysis_date'] ?? DateTime.now().toIso8601String()),
+      analysisDate: DateTime.parse(
+          json['analysis_date'] ?? DateTime.now().toIso8601String()),
       overallHealth: (json['overall_health'] ?? 0).toDouble(),
       healthGrade: json['health_grade'] ?? 'C',
       issues: List<String>.from(json['issues'] ?? []),
@@ -519,7 +523,8 @@ class AcquisitionRequest {
       id: json['id'] ?? '',
       fieldId: json['field_id'] ?? '',
       status: json['status'] ?? 'pending',
-      requestedAt: DateTime.parse(json['requested_at'] ?? DateTime.now().toIso8601String()),
+      requestedAt: DateTime.parse(
+          json['requested_at'] ?? DateTime.now().toIso8601String()),
       scheduledFor: json['scheduled_for'] != null
           ? DateTime.parse(json['scheduled_for'])
           : null,

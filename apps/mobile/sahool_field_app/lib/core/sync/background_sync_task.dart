@@ -56,7 +56,8 @@ Future<bool> _executeBackgroundSync() async {
       return true;
     }
 
-    await _logBackgroundInfo('Starting background sync: ${pendingItems.length} items');
+    await _logBackgroundInfo(
+        'Starting background sync: ${pendingItems.length} items');
 
     int synced = 0;
     int failed = 0;
@@ -64,7 +65,8 @@ Future<bool> _executeBackgroundSync() async {
 
     for (final item in pendingItems) {
       try {
-        final result = await _processSyncItem(item, apiClient, database, tenantId);
+        final result =
+            await _processSyncItem(item, apiClient, database, tenantId);
 
         switch (result) {
           case _SyncItemResult.success:
@@ -91,11 +93,13 @@ Future<bool> _executeBackgroundSync() async {
     await database.logSync(
       type: 'background_sync',
       status: failed == 0 ? 'success' : 'partial',
-      message: 'Background: synced=$synced, conflicts=$conflicts, failed=$failed',
+      message:
+          'Background: synced=$synced, conflicts=$conflicts, failed=$failed',
     );
 
     // Update last sync timestamp
-    await prefs.setInt('last_background_sync', DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(
+        'last_background_sync', DateTime.now().millisecondsSinceEpoch);
 
     return true;
   } catch (e) {
@@ -170,7 +174,8 @@ Future<void> _handleConflict(
   await database.addSyncEvent(
     tenantId: tenantId,
     type: 'CONFLICT',
-    message: 'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
+    message:
+        'Server version applied due to conflict in ${_getEntityTypeAr(item.entityType)}',
     entityType: item.entityType,
     entityId: item.entityId,
   );
@@ -178,7 +183,8 @@ Future<void> _handleConflict(
   await database.logSync(
     type: 'conflict',
     status: 'resolved',
-    message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+    message:
+        'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
   );
 }
 
@@ -191,10 +197,12 @@ Future<void> _fetchAndApplyServerVersion(
 ) async {
   switch (item.entityType) {
     case 'field':
-      await _fetchAndApplyFieldFromServer(item.entityId, database, apiClient, tenantId);
+      await _fetchAndApplyFieldFromServer(
+          item.entityId, database, apiClient, tenantId);
       break;
     case 'task':
-      await _fetchAndApplyTaskFromServer(item.entityId, database, apiClient, tenantId);
+      await _fetchAndApplyTaskFromServer(
+          item.entityId, database, apiClient, tenantId);
       break;
     default:
       await _logBackgroundInfo(

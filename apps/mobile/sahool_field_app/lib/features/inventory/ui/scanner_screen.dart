@@ -35,11 +35,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         title: const Text('مسح الباركود'),
         actions: [
           IconButton(
-            icon: Icon(_cameraController.torchEnabled ? Icons.flash_on : Icons.flash_off),
+            icon: Icon(_cameraController.torchEnabled
+                ? Icons.flash_on
+                : Icons.flash_off),
             onPressed: () => _cameraController.toggleTorch(),
           ),
           IconButton(
-            icon: Icon(_showManualInput ? Icons.qr_code_scanner : Icons.keyboard),
+            icon:
+                Icon(_showManualInput ? Icons.qr_code_scanner : Icons.keyboard),
             onPressed: () {
               setState(() {
                 _showManualInput = !_showManualInput;
@@ -85,7 +88,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _onManualInput(_manualInputController.text),
+                      onPressed: () =>
+                          _onManualInput(_manualInputController.text),
                       child: const Text('بحث'),
                     ),
                   ),
@@ -120,7 +124,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(24),

@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -667,9 +667,7 @@ class AppDatabase extends _$AppDatabase {
     final query = selectOnly(outbox)
       ..where(outbox.isSynced.equals(false))
       ..addColumns([outbox.id.count()]);
-    return query
-        .map((row) => row.read(outbox.id.count()) ?? 0)
-        .watchSingle();
+    return query.map((row) => row.read(outbox.id.count()) ?? 0).watchSingle();
   }
 
   /// Watch sync logs (live stream)
@@ -753,9 +751,11 @@ class AppDatabase extends _$AppDatabase {
       await (delete(tasks)..where((t) => t.tenantId.equals(tenantId))).go();
       await (delete(fields)..where((f) => f.tenantId.equals(tenantId))).go();
       await (delete(outbox)..where((o) => o.tenantId.equals(tenantId))).go();
-      await (delete(syncEvents)..where((e) => e.tenantId.equals(tenantId))).go();
+      await (delete(syncEvents)..where((e) => e.tenantId.equals(tenantId)))
+          .go();
     });
-    AppLogger.i('Cleared tenant data', tag: 'Database', data: {'tenantId': tenantId});
+    AppLogger.i('Cleared tenant data',
+        tag: 'Database', data: {'tenantId': tenantId});
   }
 
   /// Get database statistics
@@ -807,7 +807,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Delete all synced outbox items older than specified duration
-  Future<int> pruneOldOutboxItems({Duration olderThan = const Duration(days: 7)}) async {
+  Future<int> pruneOldOutboxItems(
+      {Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
     return await (delete(outbox)
           ..where((o) => o.isSynced.equals(true))
@@ -892,7 +893,8 @@ Future<QueryExecutor> _initializeDatabase() async {
 
   // Check if we need to migrate from unencrypted database
   if (!await encryption.hasKey() && dbFile.existsSync()) {
-    AppLogger.i('Migrating from unencrypted to encrypted database', tag: 'Database');
+    AppLogger.i('Migrating from unencrypted to encrypted database',
+        tag: 'Database');
 
     // Backup unencrypted database
     await dbFile.copy(oldDbPath);
@@ -1003,7 +1005,9 @@ Future<void> _migrateToEncryptedDatabase(
 
   // Check for existing migration lock (crash recovery)
   if (lockFile.existsSync()) {
-    AppLogger.w('Found migration lock file - previous migration may have failed', tag: 'Database');
+    AppLogger.w(
+        'Found migration lock file - previous migration may have failed',
+        tag: 'Database');
     // Clean up any partial migration
     if (tempNewFile.existsSync()) {
       await tempNewFile.delete();
@@ -1029,14 +1033,16 @@ Future<void> _migrateToEncryptedDatabase(
     try {
       // Attach new encrypted database using hex key format (safer than string escaping)
       // The x'...' format is a SQLite blob literal which is safe from injection
-      oldDb.execute("ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"x'$hexKey'\";");
+      oldDb.execute(
+          "ATTACH DATABASE '$tempNewPath' AS encrypted KEY \"x'$hexKey'\";");
 
       // Configure SQLCipher settings for the attached database
       oldDb.execute('PRAGMA encrypted.cipher_compatibility = 4;');
       oldDb.execute('PRAGMA encrypted.cipher_page_size = 4096;');
       oldDb.execute('PRAGMA encrypted.kdf_iter = 64000;');
       oldDb.execute('PRAGMA encrypted.cipher_hmac_algorithm = HMAC_SHA512;');
-      oldDb.execute('PRAGMA encrypted.cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
+      oldDb.execute(
+          'PRAGMA encrypted.cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
 
       // Export all data to encrypted database
       // Use sqlcipher_export() if available, otherwise use table-by-table copy
@@ -1045,7 +1051,8 @@ Future<void> _migrateToEncryptedDatabase(
         AppLogger.i('Used sqlcipher_export for migration', tag: 'Database');
       } catch (e) {
         // Fallback: Copy schema and data manually with transaction
-        AppLogger.i('Using manual migration (sqlcipher_export not available)', tag: 'Database');
+        AppLogger.i('Using manual migration (sqlcipher_export not available)',
+            tag: 'Database');
 
         // Begin transaction for data integrity
         oldDb.execute('BEGIN EXCLUSIVE TRANSACTION;');
@@ -1063,7 +1070,8 @@ Future<void> _migrateToEncryptedDatabase(
             if (createSql != null && createSql.isNotEmpty) {
               // Validate table name to prevent injection (alphanumeric and underscore only)
               if (!RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$').hasMatch(tableName)) {
-                AppLogger.w('Skipping table with invalid name', tag: 'Database', data: {'table': tableName});
+                AppLogger.w('Skipping table with invalid name',
+                    tag: 'Database', data: {'table': tableName});
                 continue;
               }
 
@@ -1075,9 +1083,11 @@ Future<void> _migrateToEncryptedDatabase(
               oldDb.execute(encryptedCreateSql);
 
               // Copy data
-              oldDb.execute('INSERT OR REPLACE INTO encrypted."$tableName" SELECT * FROM main."$tableName";');
+              oldDb.execute(
+                  'INSERT OR REPLACE INTO encrypted."$tableName" SELECT * FROM main."$tableName";');
 
-              AppLogger.d('Migrated table', tag: 'Database', data: {'table': tableName});
+              AppLogger.d('Migrated table',
+                  tag: 'Database', data: {'table': tableName});
             }
           }
 
@@ -1129,19 +1139,24 @@ Future<void> _migrateToEncryptedDatabase(
       verifyDb.execute('PRAGMA cipher_compatibility = 4;');
 
       // Test query to verify encryption worked
-      final result = verifyDb.select('SELECT COUNT(*) as count FROM sqlite_master WHERE type="table";');
+      final result = verifyDb.select(
+          'SELECT COUNT(*) as count FROM sqlite_master WHERE type="table";');
       final tableCount = result.first['count'] as int;
 
       if (tableCount == 0) {
-        throw StateError('Migration verification failed: no tables found in encrypted database');
+        throw StateError(
+            'Migration verification failed: no tables found in encrypted database');
       }
 
-      AppLogger.d('Verification: Found tables', tag: 'Database', data: {'count': tableCount});
+      AppLogger.d('Verification: Found tables',
+          tag: 'Database', data: {'count': tableCount});
 
       // Verify data integrity
       final integrityResult = verifyDb.select('PRAGMA integrity_check;');
-      if (integrityResult.isEmpty || integrityResult.first['integrity_check'] != 'ok') {
-        throw StateError('Migration verification failed: integrity check failed');
+      if (integrityResult.isEmpty ||
+          integrityResult.first['integrity_check'] != 'ok') {
+        throw StateError(
+            'Migration verification failed: integrity check failed');
       }
     } finally {
       verifyDb.dispose();
@@ -1162,11 +1177,14 @@ Future<void> _migrateToEncryptedDatabase(
     AppLogger.i('Encrypted database is now active', tag: 'Database');
 
     // Keep backup for safety (can be deleted manually later)
-    AppLogger.i('Unencrypted backup kept', tag: 'Database', data: {'path': oldDbPath});
-    AppLogger.i('You can delete the backup manually after verifying the app works correctly', tag: 'Database');
-
+    AppLogger.i('Unencrypted backup kept',
+        tag: 'Database', data: {'path': oldDbPath});
+    AppLogger.i(
+        'You can delete the backup manually after verifying the app works correctly',
+        tag: 'Database');
   } catch (e, stackTrace) {
-    AppLogger.e('Error during migration', tag: 'Database', error: e, stackTrace: stackTrace);
+    AppLogger.e('Error during migration',
+        tag: 'Database', error: e, stackTrace: stackTrace);
 
     // Clean up temporary file on error
     if (tempNewFile.existsSync()) {

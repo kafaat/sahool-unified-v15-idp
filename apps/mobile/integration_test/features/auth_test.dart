@@ -414,11 +414,12 @@ void main() {
       await helpers.login();
       await helpers.wait(TestConfig.shortDelay);
 
-      // Restart app (simulate)
-      await tester.restartAndRestore();
+      // Simulate app restart by re-pumping the app widget
+      // Note: restartAndRestore() is not available in Flutter integration tests
+      app.main();
       await helpers.pumpAndSettle();
 
-      // Should still be logged in
+      // Should still be logged in (session persisted via secure storage)
       helpers.verifyTextExists(ArabicStrings.home);
       helpers.debug('✓ Session persisted across restart');
     });

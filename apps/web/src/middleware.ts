@@ -97,7 +97,7 @@ function detectLocale(request: NextRequest): (typeof locales)[number] {
   // 2. Parse Accept-Language header (first match wins)
   const acceptLang = request.headers.get("accept-language") ?? "";
   for (const part of acceptLang.split(",")) {
-    const lang = part.split(";")[0]?.trim().toLowerCase() ?? "";
+    const lang = (part.split(";")[0] ?? "").trim().toLowerCase();
     // Match exact ("ar", "en") or prefix ("ar-SA" -> "ar", "en-US" -> "en")
     const prefix = lang.split("-")[0] ?? "";
     if (prefix && (locales as readonly string[]).includes(prefix)) {

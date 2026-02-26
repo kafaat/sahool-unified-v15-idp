@@ -46,8 +46,9 @@ class PaymentState {
     return PaymentState(
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
-      currentTransaction:
-          clearTransaction ? null : (currentTransaction ?? this.currentTransaction),
+      currentTransaction: clearTransaction
+          ? null
+          : (currentTransaction ?? this.currentTransaction),
       transactions: transactions ?? this.transactions,
       balance: balance ?? this.balance,
     );
@@ -319,7 +320,8 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   }
 
   /// التحقق من حالة معاملة
-  Future<PaymentTransaction?> checkTransactionStatus(String transactionId) async {
+  Future<PaymentTransaction?> checkTransactionStatus(
+      String transactionId) async {
     final result = await _service.checkTransactionStatus(transactionId);
     return result.when(
       success: (transaction) {
@@ -379,7 +381,8 @@ final paymentProvider =
 );
 
 /// مزود المشغلين
-final mobileOperatorsProvider = FutureProvider<List<MobileOperator>>((ref) async {
+final mobileOperatorsProvider =
+    FutureProvider<List<MobileOperator>>((ref) async {
   final service = ref.watch(tharwattServiceProvider);
   final result = await service.getSupportedOperators();
 

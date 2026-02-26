@@ -133,10 +133,13 @@ class RotationService {
 
     final currentYear = DateTime.now().year;
     final rotationYears = <RotationYear>[];
-    final availableCrops = YemenCrops.crops.where((c) => !c.isPerennial).toList();
+    final availableCrops =
+        YemenCrops.crops.where((c) => !c.isPerennial).toList();
 
-    final prioritizeSoilHealth = preferences['prioritizeSoilHealth'] as bool? ?? true;
-    final includeNitrogenFixers = preferences['includeNitrogenFixers'] as bool? ?? true;
+    final prioritizeSoilHealth =
+        preferences['prioritizeSoilHealth'] as bool? ?? true;
+    final includeNitrogenFixers =
+        preferences['includeNitrogenFixers'] as bool? ?? true;
 
     // Generate rotation ensuring family diversity
     final usedFamilies = <CropFamily>[];
@@ -166,8 +169,9 @@ class RotationService {
       // If no legume selected, pick best available crop
       if (selectedCrop == null) {
         selectedCrop = availableCrops
-            .where((c) => !usedFamilies.contains(c.family))
-            .firstOrNull ?? availableCrops.first;
+                .where((c) => !usedFamilies.contains(c.family))
+                .firstOrNull ??
+            availableCrops.first;
       }
 
       // Update used families (keep last 3 years)
@@ -182,13 +186,16 @@ class RotationService {
 
       if (selectedCrop.season == 'Winter') {
         plantingDate = DateTime(currentYear + i, 11, 1);
-        harvestDate = plantingDate.add(Duration(days: selectedCrop.growingDays));
+        harvestDate =
+            plantingDate.add(Duration(days: selectedCrop.growingDays));
       } else if (selectedCrop.season == 'Spring') {
         plantingDate = DateTime(currentYear + i, 3, 15);
-        harvestDate = plantingDate.add(Duration(days: selectedCrop.growingDays));
+        harvestDate =
+            plantingDate.add(Duration(days: selectedCrop.growingDays));
       } else if (selectedCrop.season == 'Summer') {
         plantingDate = DateTime(currentYear + i, 5, 1);
-        harvestDate = plantingDate.add(Duration(days: selectedCrop.growingDays));
+        harvestDate =
+            plantingDate.add(Duration(days: selectedCrop.growingDays));
       }
 
       // Simulate soil health changes
@@ -283,7 +290,8 @@ class RotationService {
   }
 
   /// Get compatibility score between two crops
-  Future<CompatibilityScore> getCropCompatibility(Crop crop1, Crop crop2) async {
+  Future<CompatibilityScore> getCropCompatibility(
+      Crop crop1, Crop crop2) async {
     await _simulateDelay();
 
     double score = 1.0; // Start with perfect score
@@ -367,9 +375,11 @@ class RotationService {
 
       trend.add(SoilHealth(
         nitrogen: (60 + improvement + Random().nextDouble() * 5).clamp(0, 100),
-        phosphorus: (55 + improvement + Random().nextDouble() * 5).clamp(0, 100),
+        phosphorus:
+            (55 + improvement + Random().nextDouble() * 5).clamp(0, 100),
         potassium: (58 + improvement + Random().nextDouble() * 5).clamp(0, 100),
-        organicMatter: (45 + improvement + Random().nextDouble() * 5).clamp(0, 100),
+        organicMatter:
+            (45 + improvement + Random().nextDouble() * 5).clamp(0, 100),
         ph: 6.8 + Random().nextDouble() * 0.3,
         waterRetention:
             (50 + improvement + Random().nextDouble() * 5).clamp(0, 100),
@@ -403,7 +413,8 @@ class RotationService {
         .lastOrNull;
 
     final recommendations = <CropRecommendation>[];
-    final availableCrops = YemenCrops.crops.where((c) => !c.isPerennial).toList();
+    final availableCrops =
+        YemenCrops.crops.where((c) => !c.isPerennial).toList();
 
     for (final crop in availableCrops) {
       double score = 70.0; // Base score
@@ -457,7 +468,8 @@ class RotationService {
     }
 
     // Sort by suitability score
-    recommendations.sort((a, b) => b.suitabilityScore.compareTo(a.suitabilityScore));
+    recommendations
+        .sort((a, b) => b.suitabilityScore.compareTo(a.suitabilityScore));
 
     return recommendations;
   }
@@ -477,7 +489,8 @@ class RotationService {
       matrix[crop1.id] = {};
       for (final crop2 in crops) {
         if (crop1.id != crop2.id) {
-          matrix[crop1.id]![crop2.id] = await getCropCompatibility(crop1, crop2);
+          matrix[crop1.id]![crop2.id] =
+              await getCropCompatibility(crop1, crop2);
         }
       }
     }

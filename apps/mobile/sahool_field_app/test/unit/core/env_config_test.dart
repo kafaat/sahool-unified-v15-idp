@@ -82,7 +82,8 @@ void main() {
       });
 
       test('background sync interval should be at least 1 minute', () {
-        expect(EnvConfig.backgroundSyncInterval.inMinutes, greaterThanOrEqualTo(1));
+        expect(EnvConfig.backgroundSyncInterval.inMinutes,
+            greaterThanOrEqualTo(1));
       });
 
       test('max retry count should be positive', () {

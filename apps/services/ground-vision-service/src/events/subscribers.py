@@ -8,6 +8,7 @@ ground vision data with satellite imagery, weather, and field updates.
 
 import json
 import logging
+import time
 from datetime import UTC, datetime, timezone
 from typing import Callable, Optional
 
@@ -24,12 +25,16 @@ class GroundVisionSubscriber:
     - sahool.*.fields.boundary_updated - Update camera-field mapping
     """
 
-    # Subscription subjects
+    # Subscription subjects (tenant-scoped wildcard)
     SUBJECT_NDVI_COMPUTED = "sahool.*.satellite.ndvi_computed"
     SUBJECT_WEATHER_UPDATED = "sahool.*.weather.forecast_updated"
-    SUBJECT_FIELD_BOUNDARY = "sahool.*.fields.boundary_updated"
-    SUBJECT_FIELD_CREATED = "sahool.*.fields.created"
+    SUBJECT_FIELD_BOUNDARY = "sahool.*.field.boundary_updated"
+    SUBJECT_FIELD_CREATED = "sahool.*.field.created"
     SUBJECT_IOT_READING = "sahool.*.iot.sensor_reading"
+
+    # Idempotency configuration
+    _DEDUP_MAX_SIZE = 50_000
+    _DEDUP_TTL_SECONDS = 3600  # 1 hour
 
     def __init__(self, nc=None):
         """
@@ -41,6 +46,10 @@ class GroundVisionSubscriber:
         self.nc = nc
         self.subscriptions = []
 
+        # Idempotency: track processed event IDs to prevent duplicate handling
+        self._processed_event_ids: dict[str, float] = {}
+        self._dedup_hit_count: int = 0
+
         # Callback handlers
         self._ndvi_handlers: list[Callable] = []
         self._weather_handlers: list[Callable] = []
@@ -50,6 +59,40 @@ class GroundVisionSubscriber:
     def set_connection(self, nc):
         """Set NATS connection after initialization."""
         self.nc = nc
+
+    def _is_duplicate(self, event_id: str | None) -> bool:
+        """
+        Check if event was already processed (idempotency guard).
+
+        Uses in-memory LRU cache with TTL eviction.
+        Pattern from: shared/events/subscriber.py
+        """
+        if not event_id:
+            return False
+
+        now = time.monotonic()
+
+        # Check if already processed
+        if event_id in self._processed_event_ids:
+            self._dedup_hit_count += 1
+            logger.debug(f"Duplicate event skipped: {event_id} (total skipped: {self._dedup_hit_count})")
+            return True
+
+        # Evict oldest entries if cache is full
+        if len(self._processed_event_ids) >= self._DEDUP_MAX_SIZE:
+            cutoff = now - self._DEDUP_TTL_SECONDS
+            expired = [k for k, v in self._processed_event_ids.items() if v < cutoff]
+            for k in expired:
+                del self._processed_event_ids[k]
+            # If still full after TTL eviction, remove oldest 10%
+            if len(self._processed_event_ids) >= self._DEDUP_MAX_SIZE:
+                sorted_keys = sorted(self._processed_event_ids, key=self._processed_event_ids.get)
+                for k in sorted_keys[: self._DEDUP_MAX_SIZE // 10]:
+                    del self._processed_event_ids[k]
+
+        # Mark as processed
+        self._processed_event_ids[event_id] = now
+        return False
 
     def on_ndvi_computed(self, handler: Callable):
         """Register handler for NDVI computed events."""
@@ -135,7 +178,11 @@ class GroundVisionSubscriber:
         """
         try:
             data = json.loads(msg.data.decode())
-            logger.debug(f"Received NDVI event: {data.get('event_id', 'unknown')}")
+            event_id = data.get("event_id")
+            if self._is_duplicate(event_id):
+                return
+
+            logger.debug(f"Received NDVI event: {event_id or 'unknown'}")
 
             for handler in self._ndvi_handlers:
                 try:
@@ -157,7 +204,11 @@ class GroundVisionSubscriber:
         """
         try:
             data = json.loads(msg.data.decode())
-            logger.debug(f"Received weather event: {data.get('event_id', 'unknown')}")
+            event_id = data.get("event_id")
+            if self._is_duplicate(event_id):
+                return
+
+            logger.debug(f"Received weather event: {event_id or 'unknown'}")
 
             for handler in self._weather_handlers:
                 try:
@@ -176,7 +227,11 @@ class GroundVisionSubscriber:
         """
         try:
             data = json.loads(msg.data.decode())
-            logger.debug(f"Received field event: {data.get('event_id', 'unknown')}")
+            event_id = data.get("event_id")
+            if self._is_duplicate(event_id):
+                return
+
+            logger.debug(f"Received field event: {event_id or 'unknown'}")
 
             for handler in self._field_handlers:
                 try:
@@ -198,6 +253,10 @@ class GroundVisionSubscriber:
         """
         try:
             data = json.loads(msg.data.decode())
+            event_id = data.get("event_id")
+            if self._is_duplicate(event_id):
+                return
+
             logger.debug(f"Received IoT event: {data.get('sensor_id', 'unknown')}")
 
             for handler in self._iot_handlers:

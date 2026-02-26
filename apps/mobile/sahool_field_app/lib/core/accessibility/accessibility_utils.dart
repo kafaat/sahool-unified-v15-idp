@@ -221,7 +221,8 @@ class SahoolScalableText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final textScaleFactor = mediaQuery.textScaler.scale(1.0).clamp(minScale, maxScale);
+    final textScaleFactor =
+        mediaQuery.textScaler.scale(1.0).clamp(minScale, maxScale);
 
     return MediaQuery(
       data: mediaQuery.copyWith(
@@ -309,6 +310,7 @@ class SahoolLiveRegion extends StatelessWidget {
 enum Assertiveness {
   /// Polite announcements that don't interrupt
   polite,
+
   /// Assertive announcements that interrupt
   assertive,
 }
@@ -368,7 +370,8 @@ class SahoolAccessibilityProvider extends InheritedWidget {
   });
 
   static SahoolAccessibilityProvider? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<SahoolAccessibilityProvider>();
+    return context
+        .dependOnInheritedWidgetOfExactType<SahoolAccessibilityProvider>();
   }
 
   @override

@@ -122,7 +122,8 @@ class SecurityHeaderException implements Exception {
   });
 
   @override
-  String toString() => 'SecurityHeaderException($code): $message\n${violations.join('\n')}';
+  String toString() =>
+      'SecurityHeaderException($code): $message\n${violations.join('\n')}';
 }
 
 /// Interceptor for validating security headers on responses
@@ -173,9 +174,7 @@ class SecurityHeadersInterceptor extends Interceptor {
       }
     } catch (e) {
       AppLogger.e('Error in security header validation',
-        tag: 'SecurityHeaders',
-        error: e
-      );
+          tag: 'SecurityHeaders', error: e);
       // Don't block request on validation errors in warn/info modes
       if (config.mode == SecurityHeaderMode.strict) {
         handler.reject(
@@ -213,10 +212,10 @@ class SecurityHeadersInterceptor extends Interceptor {
 
       if (headers.containsKey(headerKey)) {
         final actualValue = headers[headerKey]?.first.toLowerCase();
-        if (expectedValue != null && actualValue != expectedValue.toLowerCase()) {
+        if (expectedValue != null &&
+            actualValue != expectedValue.toLowerCase()) {
           violations.add(
-            'Header $headerKey has unexpected value: $actualValue (expected: $expectedValue)'
-          );
+              'Header $headerKey has unexpected value: $actualValue (expected: $expectedValue)');
         }
       }
     }
@@ -227,9 +226,8 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (headers.containsKey('x-content-type-options')) {
       final value = headers['x-content-type-options']?.first.toLowerCase();
       if (value != 'nosniff') {
-        violations.add(
-          'X-Content-Type-Options should be "nosniff", got: $value'
-        );
+        violations
+            .add('X-Content-Type-Options should be "nosniff", got: $value');
       }
     }
 
@@ -238,8 +236,7 @@ class SecurityHeadersInterceptor extends Interceptor {
       final value = headers['x-frame-options']?.first.toLowerCase();
       if (!['deny', 'sameorigin'].contains(value)) {
         violations.add(
-          'X-Frame-Options should be "DENY" or "SAMEORIGIN", got: $value'
-        );
+            'X-Frame-Options should be "DENY" or "SAMEORIGIN", got: $value');
       }
     }
 
@@ -247,9 +244,8 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (headers.containsKey('strict-transport-security')) {
       final value = headers['strict-transport-security']?.first ?? '';
       if (!value.contains('max-age=')) {
-        violations.add(
-          'Strict-Transport-Security must include max-age directive'
-        );
+        violations
+            .add('Strict-Transport-Security must include max-age directive');
       }
     }
 
@@ -257,9 +253,7 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (headers.containsKey('x-xss-protection')) {
       final value = headers['x-xss-protection']?.first ?? '';
       if (!value.startsWith('1')) {
-        violations.add(
-          'X-XSS-Protection should be enabled (1), got: $value'
-        );
+        violations.add('X-XSS-Protection should be enabled (1), got: $value');
       }
     }
 
@@ -288,7 +282,8 @@ class SecurityHeadersInterceptor extends Interceptor {
       'application/octet-stream',
     ];
 
-    final isValid = validPrefixes.any((prefix) => contentType.startsWith(prefix));
+    final isValid =
+        validPrefixes.any((prefix) => contentType.startsWith(prefix));
     if (!isValid) {
       violations.add('Unexpected Content-Type: $contentType');
     }
@@ -297,7 +292,8 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (contentType.startsWith('application/json') ||
         contentType.startsWith('text/')) {
       if (!contentType.contains('charset')) {
-        violations.add('Content-Type missing charset specification: $contentType');
+        violations
+            .add('Content-Type missing charset specification: $contentType');
       }
     }
 
@@ -320,8 +316,7 @@ class SecurityHeadersInterceptor extends Interceptor {
 
       if (declaredLength != actualLength) {
         violations.add(
-          'Content-Length mismatch: declared=$declaredLength, actual=$actualLength'
-        );
+            'Content-Length mismatch: declared=$declaredLength, actual=$actualLength');
       }
     } catch (e) {
       violations.add('Invalid Content-Length header: ${e.toString()}');
@@ -343,8 +338,8 @@ class SecurityHeadersInterceptor extends Interceptor {
     }
 
     // Get version from either header
-    final version = headers['x-api-version']?.first ??
-                   headers['api-version']?.first;
+    final version =
+        headers['x-api-version']?.first ?? headers['api-version']?.first;
 
     if (version == null || version.isEmpty) {
       violations.add('Empty API version header');
@@ -355,8 +350,7 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (config.expectedApiVersion != null &&
         version != config.expectedApiVersion) {
       violations.add(
-        'API version mismatch: expected=${config.expectedApiVersion}, got=$version'
-      );
+          'API version mismatch: expected=${config.expectedApiVersion}, got=$version');
     }
 
     // Validate version format (e.g., v1, 1.0, 2023-01-01)
@@ -406,8 +400,7 @@ class SecurityHeadersInterceptor extends Interceptor {
     final size = _calculateResponseSize(response);
     if (size > config.maxResponseSize) {
       violations.add(
-        'Response size ($size bytes) exceeds maximum (${config.maxResponseSize} bytes)'
-      );
+          'Response size ($size bytes) exceeds maximum (${config.maxResponseSize} bytes)');
     }
 
     return violations;
@@ -428,19 +421,22 @@ class SecurityHeadersInterceptor extends Interceptor {
           try {
             jsonDecode(response.data as String);
           } catch (e) {
-            violations.add('Content-Type claims JSON but body is not valid JSON');
+            violations
+                .add('Content-Type claims JSON but body is not valid JSON');
           }
         }
       }
     }
 
     // 2. Multiple Content-Type headers (possible HTTP response splitting)
-    if (headers['content-type'] != null && headers['content-type']!.length > 1) {
+    if (headers['content-type'] != null &&
+        headers['content-type']!.length > 1) {
       violations.add('Multiple Content-Type headers detected');
     }
 
     // 3. Multiple Content-Length headers
-    if (headers['content-length'] != null && headers['content-length']!.length > 1) {
+    if (headers['content-length'] != null &&
+        headers['content-length']!.length > 1) {
       violations.add('Multiple Content-Length headers detected');
     }
 
@@ -448,9 +444,8 @@ class SecurityHeadersInterceptor extends Interceptor {
     if (response.statusCode == 204 || response.statusCode == 304) {
       final size = _calculateResponseSize(response);
       if (size > 0) {
-        violations.add(
-          'Status ${response.statusCode} should not have response body'
-        );
+        violations
+            .add('Status ${response.statusCode} should not have response body');
       }
     }
 
@@ -521,7 +516,8 @@ class SecurityHeadersInterceptor extends Interceptor {
   }
 
   /// Normalize headers to lowercase keys for case-insensitive comparison
-  Map<String, List<String>> _normalizeHeaders(Map<String, List<String>> headers) {
+  Map<String, List<String>> _normalizeHeaders(
+      Map<String, List<String>> headers) {
     return Map.fromEntries(
       headers.entries.map(
         (entry) => MapEntry(entry.key.toLowerCase(), entry.value),

@@ -5,29 +5,29 @@ import 'package:equatable/equatable.dart';
 
 /// حالة المعاملة
 enum PaymentStatus {
-  pending,    // قيد الانتظار
+  pending, // قيد الانتظار
   processing, // قيد المعالجة
-  completed,  // مكتملة
-  failed,     // فاشلة
-  cancelled,  // ملغية
-  refunded,   // مستردة
+  completed, // مكتملة
+  failed, // فاشلة
+  cancelled, // ملغية
+  refunded, // مستردة
 }
 
 /// نوع المعاملة
 enum PaymentType {
-  deposit,    // إيداع
-  withdraw,   // سحب
-  transfer,   // تحويل
-  payment,    // دفع
-  topup,      // شحن رصيد
+  deposit, // إيداع
+  withdraw, // سحب
+  transfer, // تحويل
+  payment, // دفع
+  topup, // شحن رصيد
 }
 
 /// طريقة الدفع
 enum PaymentMethod {
-  tharwatt,   // ثروات
+  tharwatt, // ثروات
   bankTransfer, // تحويل بنكي
-  mobileMoney,  // محفظة موبايل
-  cash,         // نقدي
+  mobileMoney, // محفظة موبايل
+  cash, // نقدي
 }
 
 /// معاملة الدفع
@@ -257,7 +257,8 @@ class TharwattPaymentResponse {
 
   factory TharwattPaymentResponse.fromJson(Map<String, dynamic> json) {
     return TharwattPaymentResponse(
-      transactionId: json['transactionId'] ?? json['transaction_id'] ?? json['id'] ?? '',
+      transactionId:
+          json['transactionId'] ?? json['transaction_id'] ?? json['id'] ?? '',
       reference: json['reference'] ?? json['ref'],
       status: json['status'] ?? 'pending',
       message: json['message'] ?? json['msg'],

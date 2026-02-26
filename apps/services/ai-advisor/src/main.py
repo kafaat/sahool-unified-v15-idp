@@ -524,7 +524,7 @@ async def ask_question(request: QuestionRequest, user: User = Depends(get_curren
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory and request.context:
             try:
-                tenant_id = request.context.get("tenant_id", request.context.get("field_id", "default"))
+                tenant_id = request.context.get("tenant_id") or user.tenant_id
                 field_id = request.context.get("field_id")
 
                 farm_memory.store(
@@ -693,7 +693,7 @@ async def get_recommendations(request: RecommendationRequest, user: User = Depen
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
             try:
-                tenant_id = request.field_data.get("tenant_id", "default") if request.field_data else "default"
+                tenant_id = (request.field_data.get("tenant_id") if request.field_data else None) or user.tenant_id
                 field_id = request.field_data.get("field_id") if request.field_data else None
 
                 # Determine relevance based on evaluation
@@ -841,7 +841,7 @@ async def analyze_field(request: FieldAnalysisRequest, user: User = Depends(get_
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
             try:
                 farm_memory.store(
-                    tenant_id=user.tenant_id or "default",
+                    tenant_id=user.tenant_id,
                     content={
                         "crop_type": request.crop_type,
                         "ndvi": satellite_data.get("ndvi") if isinstance(satellite_data, dict) else None,
@@ -976,7 +976,7 @@ async def get_memory_context(
             )
 
         if not tenant_id:
-            tenant_id = user.tenant_id or "default"
+            tenant_id = user.tenant_id
         else:
             # Enforce tenant isolation if tenant_id is provided
             _enforce_tenant(user, tenant_id)

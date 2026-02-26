@@ -22,6 +22,7 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   ValidationPipe,
+  Req,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import {
@@ -283,7 +284,11 @@ export class FieldsController {
   })
   @ApiParam({ name: "tenantId", type: String })
   @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(@Param("tenantId") tenantId: string) {
+  async getStats(
+    @Req() req: any,
+    @Param("tenantId") paramTenantId: string,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || paramTenantId;
     const stats = await this.fieldsService.getStats(tenantId);
     return {
       success: true,

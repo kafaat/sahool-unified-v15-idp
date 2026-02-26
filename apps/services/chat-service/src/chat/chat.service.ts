@@ -27,10 +27,11 @@ export class ChatService {
    * Create a new conversation
    * إنشاء محادثة جديدة
    */
-  async createConversation(dto: CreateConversationDto) {
+  async createConversation(dto: CreateConversationDto, tenantId: string) {
     // Check if conversation already exists between these participants
     const existingConversation = await this.prisma.conversation.findFirst({
       where: {
+        tenantId,
         participantIds: {
           hasEvery: dto.participantIds,
         },
@@ -53,11 +54,13 @@ export class ChatService {
     // Create new conversation
     const conversation = await this.prisma.conversation.create({
       data: {
+        tenantId,
         participantIds: dto.participantIds,
         productId: dto.productId,
         orderId: dto.orderId,
         participants: {
           create: dto.participantIds.map((userId, index) => ({
+            tenantId,
             userId,
             role: index === 0 ? "BUYER" : "SELLER",
           })),
@@ -76,9 +79,10 @@ export class ChatService {
    * Get user's conversations
    * الحصول على محادثات المستخدم
    */
-  async getUserConversations(userId: string) {
+  async getUserConversations(userId: string, tenantId: string) {
     const conversations = await this.prisma.conversation.findMany({
       where: {
+        tenantId,
         participantIds: {
           has: userId,
         },
@@ -129,9 +133,9 @@ export class ChatService {
    * Get conversation by ID
    * الحصول على محادثة بواسطة المعرف
    */
-  async getConversationById(conversationId: string) {
-    const conversation = await this.prisma.conversation.findUnique({
-      where: { id: conversationId },
+  async getConversationById(conversationId: string, tenantId: string) {
+    const conversation = await this.prisma.conversation.findFirst({
+      where: { id: conversationId, tenantId },
       include: {
         participants: true,
       },
@@ -152,18 +156,19 @@ export class ChatService {
     conversationId: string,
     page: number = 1,
     limit: number = 50,
+    tenantId: string,
   ) {
     const skip = (page - 1) * limit;
 
     const [messages, total] = await Promise.all([
       this.prisma.message.findMany({
-        where: { conversationId },
+        where: { conversationId, tenantId },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
       this.prisma.message.count({
-        where: { conversationId },
+        where: { conversationId, tenantId },
       }),
     ]);
 
@@ -184,9 +189,10 @@ export class ChatService {
     conversationId: string,
     cursor?: string,
     limit: number = 50,
+    tenantId?: string,
   ) {
     const messages = await this.prisma.message.findMany({
-      where: { conversationId },
+      where: { conversationId, ...(tenantId && { tenantId }) },
       orderBy: { createdAt: "desc" },
       take: limit + 1, // Fetch one extra to determine if there are more
       ...(cursor && {
@@ -210,11 +216,11 @@ export class ChatService {
    * Send a message
    * إرسال رسالة
    */
-  async sendMessage(dto: SendMessageDto) {
+  async sendMessage(dto: SendMessageDto, tenantId: string) {
     try {
-      // Verify conversation exists
-      const conversation = await this.prisma.conversation.findUnique({
-        where: { id: dto.conversationId },
+      // Verify conversation exists within tenant
+      const conversation = await this.prisma.conversation.findFirst({
+        where: { id: dto.conversationId, tenantId },
       });
 
       if (!conversation) {
@@ -233,6 +239,7 @@ export class ChatService {
         // Create message
         const newMessage = await tx.message.create({
           data: {
+            tenantId,
             conversationId: dto.conversationId,
             senderId: dto.senderId,
             content: dto.content,
@@ -284,9 +291,9 @@ export class ChatService {
    * Mark message as read
    * تحديد الرسالة كمقروءة
    */
-  async markMessageAsRead(messageId: string, userId: string) {
-    const message = await this.prisma.message.findUnique({
-      where: { id: messageId },
+  async markMessageAsRead(messageId: string, userId: string, tenantId: string) {
+    const message = await this.prisma.message.findFirst({
+      where: { id: messageId, tenantId },
       include: { conversation: true },
     });
 
@@ -324,12 +331,13 @@ export class ChatService {
    * Mark all messages in conversation as read
    * تحديد جميع الرسائل في المحادثة كمقروءة
    */
-  async markConversationAsRead(conversationId: string, userId: string) {
-    const conversation = await this.getConversationById(conversationId);
+  async markConversationAsRead(conversationId: string, userId: string, tenantId: string) {
+    const conversation = await this.getConversationById(conversationId, tenantId);
 
     // Update all unread messages
     await this.prisma.message.updateMany({
       where: {
+        tenantId,
         conversationId,
         senderId: { not: userId },
         isRead: false,
@@ -343,6 +351,7 @@ export class ChatService {
     // Update participant's last read time and reset unread count
     await this.prisma.participant.updateMany({
       where: {
+        tenantId,
         conversationId,
         userId,
       },
@@ -363,9 +372,11 @@ export class ChatService {
     conversationId: string,
     userId: string,
     isTyping: boolean,
+    tenantId: string,
   ) {
     await this.prisma.participant.updateMany({
       where: {
+        tenantId,
         conversationId,
         userId,
       },
@@ -381,9 +392,9 @@ export class ChatService {
    * Update user online status
    * تحديث حالة الاتصال
    */
-  async updateOnlineStatus(userId: string, isOnline: boolean) {
+  async updateOnlineStatus(userId: string, isOnline: boolean, tenantId?: string) {
     await this.prisma.participant.updateMany({
-      where: { userId },
+      where: { userId, ...(tenantId && { tenantId }) },
       data: {
         isOnline,
         lastSeenAt: new Date(),
@@ -397,9 +408,9 @@ export class ChatService {
    * Get unread message count for user
    * الحصول على عدد الرسائل غير المقروءة للمستخدم
    */
-  async getUnreadCount(userId: string): Promise<number> {
+  async getUnreadCount(userId: string, tenantId?: string): Promise<number> {
     const participants = await this.prisma.participant.findMany({
-      where: { userId },
+      where: { userId, ...(tenantId && { tenantId }) },
       select: { unreadCount: true },
     });
 

@@ -132,7 +132,8 @@ class TrendChart extends ConsumerWidget {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
-                                DateFormat('d/M').format(dataPoints[index].date),
+                                DateFormat('d/M')
+                                    .format(dataPoints[index].date),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   color: Colors.grey,
@@ -198,7 +199,8 @@ class TrendChart extends ConsumerWidget {
     );
   }
 
-  Widget _buildChangeIndicator(double changePercent, dynamic trend, bool isRtl) {
+  Widget _buildChangeIndicator(
+      double changePercent, dynamic trend, bool isRtl) {
     final isPositive = changePercent >= 0;
     final color = _getTrendColor(trend);
     final icon = isPositive ? Icons.arrow_upward : Icons.arrow_downward;

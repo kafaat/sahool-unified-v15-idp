@@ -143,11 +143,14 @@ class Crop {
       growingSeasonDays: json['growing_season_days'] as int,
       optimalTempMin: (json['optimal_temp_min'] as num).toDouble(),
       optimalTempMax: (json['optimal_temp_max'] as num).toDouble(),
-      waterRequirement: _parseWaterRequirement(json['water_requirement'] as String),
+      waterRequirement:
+          _parseWaterRequirement(json['water_requirement'] as String),
       baseYieldTonHa: (json['base_yield_ton_ha'] as num).toDouble(),
       yieldUnit: json['yield_unit'] as String? ?? 'ton/ha',
-      yemenRegions: (json['yemen_regions'] as List?)?.map((e) => e.toString()).toList(),
-      localVarieties: (json['local_varieties'] as List?)?.map((e) => e.toString()).toList(),
+      yemenRegions:
+          (json['yemen_regions'] as List?)?.map((e) => e.toString()).toList(),
+      localVarieties:
+          (json['local_varieties'] as List?)?.map((e) => e.toString()).toList(),
       kcIni: (json['kc_ini'] as num?)?.toDouble(),
       kcMid: (json['kc_mid'] as num?)?.toDouble(),
       kcEnd: (json['kc_end'] as num?)?.toDouble(),

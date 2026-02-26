@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generated_at": "2026-02-24T13:48:12.660395+00:00",
+  "environment": "development",
+  "total": 194,
+  "critical": 12,
+  "high": 67,
+  "by_category": {
+    "config": {
+      "medium": 1
+    },
+    "schema": {
+      "critical": 6,
+      "high": 35,
+      "medium": 6,
+      "info": 1
+    },
+    "api": {
+      "critical": 1,
+      "high": 5
+    },
+    "event": {
+      "high": 4,
+      "medium": 82
+    },
+    "data": {
+      "high": 4,
+      "medium": 3
+    },
+    "security": {
+      "critical": 5,
+      "high": 19,
+      "medium": 22
+    }
+  }
+}

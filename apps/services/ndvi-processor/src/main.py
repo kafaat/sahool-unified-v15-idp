@@ -63,9 +63,7 @@ from .processing import (
 )
 from . import store as ndvi_store  # production persistence layer
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -80,6 +78,10 @@ async def lifespan(app: FastAPI):
     # ── Database connection (optional) ────────────────────────────────────────
     db_pool = None
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             import asyncpg
@@ -88,9 +90,7 @@ async def lifespan(app: FastAPI):
             await ndvi_store.ensure_tables(db_pool)
             logger.info("NDVI Processor: DB pool connected")
         except Exception:
-            logger.exception(
-                "NDVI Processor: could not connect to DB – using in-memory fallback"
-            )
+            logger.exception("NDVI Processor: could not connect to DB – using in-memory fallback")
 
     # ── NATS connection (optional) ─────────────────────────────────────────────
     nats_client = None
@@ -102,9 +102,7 @@ async def lifespan(app: FastAPI):
             nats_client = await nats.connect(nats_url)
             logger.info("NDVI Processor: NATS client connected")
         except Exception:
-            logger.exception(
-                "NDVI Processor: could not connect to NATS – events disabled"
-            )
+            logger.exception("NDVI Processor: could not connect to NATS – events disabled")
 
     # Inject into store so that subsequent saves are persisted
     ndvi_store.configure(db_pool=db_pool, nats_client=nats_client)
@@ -171,6 +169,14 @@ else:
             "X-Tenant-ID",
         ],
     )
+
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
 
 
 # ============== Background Processing ==============
@@ -241,9 +247,7 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 @app.get("/health")
 def health():
     """فحص الصحة - Health check with metrics"""
-    active_jobs = len(
-        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
-    )
+    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -256,9 +260,7 @@ def health():
 @app.get("/healthz")
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
-    active_jobs = len(
-        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
-    )
+    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -484,9 +486,7 @@ async def export_ndvi(
     """تصدير NDVI"""
     if format == ExportFormat.CSV:
         if not start or not end:
-            raise HTTPException(
-                status_code=400, detail="start و end مطلوبان لتصدير CSV"
-            )
+            raise HTTPException(status_code=400, detail="start و end مطلوبان لتصدير CSV")
 
         data = get_ndvi_timeseries(field_id, start, end)
         csv_content = "date,ndvi_mean,ndvi_min,ndvi_max,cloud_cover_percent,source\n"
@@ -496,9 +496,7 @@ async def export_ndvi(
         return Response(
             content=csv_content,
             media_type="text/csv",
-            headers={
-                "Content-Disposition": f'attachment; filename="{field_id}_ndvi.csv"'
-            },
+            headers={"Content-Disposition": f'attachment; filename="{field_id}_ndvi.csv"'},
         )
 
     elif format == ExportFormat.JSON:
@@ -533,9 +531,7 @@ async def export_ndvi(
 
 
 @app.post("/composites/monthly", response_model=CompositeResponse, status_code=201)
-async def create_monthly_composite(
-    request: CompositeRequest, user: User = Depends(get_current_user)
-):
+async def create_monthly_composite(request: CompositeRequest, user: User = Depends(get_current_user)):
     """إنشاء مركب شهري"""
     composite = await create_composite(
         tenant_id=request.tenant_id,
@@ -604,8 +600,6 @@ async def download_composite(
 if __name__ == "__main__":
     import uvicorn
 
-    host = os.getenv(
-        "HOST", "0.0.0.0"
-    )  # noqa: S104 -- Binding to all interfaces required for Docker
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- Binding to all interfaces required for Docker
     port = int(os.getenv("PORT", 8118))
     uvicorn.run(app, host=host, port=port)

@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pydantic import BaseModel
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 logger = structlog.get_logger()
 
@@ -35,6 +36,10 @@ async def lifespan(app: FastAPI):
 
     # Database connection
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
@@ -104,6 +109,7 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+app.add_middleware(TenantContextMiddleware)
 
 
 async def publish_event(subject: str, data: dict):
@@ -121,9 +127,7 @@ async def publish_event(subject: str, data: dict):
 # =============================================================================
 
 
-async def save_indicator(
-    field_id: str, indicator_type: str, value: dict, tenant_id: str | None = None
-) -> bool:
+async def save_indicator(field_id: str, indicator_type: str, value: dict, tenant_id: str | None = None) -> bool:
     """Save indicator value to database.
 
     Args:
@@ -595,9 +599,7 @@ INDICATOR_DEFINITIONS = {
 # =============================================================================
 
 
-def determine_status(
-    value: float, optimal_min: float, optimal_max: float, min_val: float, max_val: float
-) -> str:
+def determine_status(value: float, optimal_min: float, optimal_max: float, min_val: float, max_val: float) -> str:
     """Determine indicator status based on value and thresholds"""
     if optimal_min is None or optimal_max is None:
         return "info"
@@ -612,9 +614,7 @@ def determine_status(
         return "critical" if distance > 0.5 else "warning"
 
 
-def generate_indicator_value(
-    definition: dict, base_health: float = 0.7
-) -> tuple[float, TrendDirection, float]:
+def generate_indicator_value(definition: dict, base_health: float = 0.7) -> tuple[float, TrendDirection, float]:
     """Generate realistic indicator value based on definition and base health"""
     import random
 
@@ -643,9 +643,7 @@ def generate_indicator_value(
     trend_options = [TrendDirection.UP, TrendDirection.DOWN, TrendDirection.STABLE]
     weights = [0.4, 0.3, 0.3] if base_health > 0.6 else [0.2, 0.5, 0.3]
     trend = random.choices(trend_options, weights=weights)[0]
-    trend_percent = (
-        random.uniform(0, 15) if trend != TrendDirection.STABLE else random.uniform(0, 3)
-    )
+    trend_percent = random.uniform(0, 15) if trend != TrendDirection.STABLE else random.uniform(0, 3)
 
     return round(value, 2), trend, round(trend_percent, 1)
 
@@ -798,9 +796,7 @@ async def get_field_indicators(
     use_stored = False
     if stored_indicators and not force_refresh:
         try:
-            first_calc = datetime.fromisoformat(
-                stored_indicators[0].get("calculated_at", "").replace("Z", "+00:00")
-            )
+            first_calc = datetime.fromisoformat(stored_indicators[0].get("calculated_at", "").replace("Z", "+00:00"))
             age = datetime.now(UTC).replace(tzinfo=first_calc.tzinfo) - first_calc
             use_stored = age.total_seconds() < 3600  # Use if less than 1 hour old
         except (ValueError, TypeError):
@@ -927,9 +923,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     """
     # Validate indicator type
     if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid indicator type: {indicator_input.indicator_type}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_input.indicator_type}")
 
     defn = INDICATOR_DEFINITIONS[indicator_input.indicator_type]
 
@@ -952,22 +946,16 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     # Prepare indicator data
     indicator_data = {
         "value": indicator_input.value,
-        "trend": indicator_input.trend.value
-        if indicator_input.trend
-        else TrendDirection.STABLE.value,
+        "trend": indicator_input.trend.value if indicator_input.trend else TrendDirection.STABLE.value,
         "trend_percent": indicator_input.trend_percent or 0.0,
         "status": status,
     }
 
     # Save to database
-    success = await save_indicator(
-        field_id, indicator_input.indicator_type, indicator_data, indicator_input.tenant_id
-    )
+    success = await save_indicator(field_id, indicator_input.indicator_type, indicator_data, indicator_input.tenant_id)
 
     if not success:
-        raise HTTPException(
-            status_code=503, detail="Failed to save indicator. Database may not be available."
-        )
+        raise HTTPException(status_code=503, detail="Failed to save indicator. Database may not be available.")
 
     # Publish event
     timestamp = datetime.now(UTC).isoformat()
@@ -1045,9 +1033,7 @@ async def delete_field_indicators_endpoint(field_id: str):
     success = await delete_field_indicators(field_id)
 
     if not success:
-        raise HTTPException(
-            status_code=503, detail="Failed to delete indicators. Database may not be available."
-        )
+        raise HTTPException(status_code=503, detail="Failed to delete indicators. Database may not be available.")
 
     # Publish event
     timestamp = datetime.now(UTC).isoformat()
@@ -1095,11 +1081,7 @@ async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=
 
         if cat_indicators:
             avg_value = sum(ind.value for ind in cat_indicators) / len(cat_indicators)
-            optimal_pct = (
-                sum(1 for ind in cat_indicators if ind.status == "optimal")
-                / len(cat_indicators)
-                * 100
-            )
+            optimal_pct = sum(1 for ind in cat_indicators if ind.status == "optimal") / len(cat_indicators) * 100
             category_summary[cat.value] = {
                 "average_value": round(avg_value, 2),
                 "optimal_percentage": round(optimal_pct, 1),
@@ -1184,9 +1166,7 @@ async def get_tenant_alerts(
                 "severity": sev.value,
                 "message_ar": f"تنبيه: {defn['name_ar']} خارج النطاق المثالي",
                 "message_en": f"Alert: {defn['name_en']} outside optimal range",
-                "created_at": (
-                    datetime.now(UTC) - timedelta(hours=random.randint(0, 48))
-                ).isoformat(),
+                "created_at": (datetime.now(UTC) - timedelta(hours=random.randint(0, 48))).isoformat(),
             }
         )
 
@@ -1208,9 +1188,7 @@ async def get_tenant_alerts(
 
 
 @app.get("/v1/trends/{field_id}/{indicator_id}")
-async def get_indicator_trends(
-    field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)
-):
+async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)):
     """الحصول على اتجاهات مؤشر معين"""
     import random
 
@@ -1238,9 +1216,7 @@ async def get_indicator_trends(
             {
                 "date": date_point.date().isoformat(),
                 "value": round(current_value, 2),
-                "status": determine_status(
-                    current_value, opt_min, opt_max, defn["min"], defn["max"]
-                ),
+                "status": determine_status(current_value, opt_min, opt_max, defn["min"], defn["max"]),
             }
         )
 

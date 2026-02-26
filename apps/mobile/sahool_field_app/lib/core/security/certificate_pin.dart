@@ -423,7 +423,8 @@ class CertificatePinManager {
         // PRIMARY CERTIFICATE PIN
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
           description: 'Production API primary certificate',
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
@@ -433,7 +434,8 @@ class CertificatePinManager {
         // BACKUP/FALLBACK CERTIFICATE PIN #1
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           description: 'Production API backup certificate #1',
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
@@ -443,7 +445,8 @@ class CertificatePinManager {
         // BACKUP/FALLBACK CERTIFICATE PIN #2
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+          value:
+              'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
           description: 'Production API backup certificate #2',
           expiryDate: DateTime(2027, 12, 31),
           isPrimary: false,
@@ -457,7 +460,8 @@ class CertificatePinManager {
       'ws.sahool.app': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           description: 'Production WebSocket primary certificate',
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
@@ -465,7 +469,8 @@ class CertificatePinManager {
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           description: 'Production WebSocket backup certificate',
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
@@ -479,7 +484,8 @@ class CertificatePinManager {
       '*.sahool.io': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           description: 'Wildcard *.sahool.io primary certificate',
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
@@ -487,7 +493,8 @@ class CertificatePinManager {
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           description: 'Wildcard *.sahool.io backup certificate',
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
@@ -503,15 +510,18 @@ class CertificatePinManager {
       'api-staging.sahool.app': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
-          description: 'Staging API primary certificate (using production cert)',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          description:
+              'Staging API primary certificate (using production cert)',
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
           addedDate: DateTime(2025, 1, 1),
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           description: 'Staging API backup certificate (using production cert)',
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
@@ -555,7 +565,8 @@ class CertificatePinManager {
       for (final pin in pins) {
         // Check format
         if (!pin.isValidFormat) {
-          errors.add('Invalid pin format for "$domain": ${pin.value.substring(0, 16)}...');
+          errors.add(
+              'Invalid pin format for "$domain": ${pin.value.substring(0, 16)}...');
         }
 
         // Check for known placeholders in release mode
@@ -776,7 +787,8 @@ class CertificatePinManager {
       );
 
       return CertificatePinValidationResult.failure(
-        errorMessage: 'Certificate fingerprint does not match any configured pin for $host',
+        errorMessage:
+            'Certificate fingerprint does not match any configured pin for $host',
         errorCode: CertificatePinError.pinMismatch,
         actualFingerprint: certFingerprint,
       );
@@ -931,7 +943,8 @@ class CertificatePinManager {
 
       // Check for issues
       if (pins.length < kMinPinsPerDomain) {
-        issues.add('Insufficient pins (has ${pins.length}, need $kMinPinsPerDomain)');
+        issues.add(
+            'Insufficient pins (has ${pins.length}, need $kMinPinsPerDomain)');
         warnings.add('$domain: Insufficient backup pins for safe rotation');
       }
 
@@ -941,12 +954,14 @@ class CertificatePinManager {
       }
 
       if (soonExpiring.isNotEmpty) {
-        issues.add('${soonExpiring.length} pin(s) expiring within $kExpiryWarningDays days');
+        issues.add(
+            '${soonExpiring.length} pin(s) expiring within $kExpiryWarningDays days');
         warnings.add('$domain: ${soonExpiring.length} pin(s) expiring soon');
       }
 
       // Check for placeholders
-      final placeholders = pins.where((p) => _isPlaceholderPin(p.value)).toList();
+      final placeholders =
+          pins.where((p) => _isPlaceholderPin(p.value)).toList();
       if (placeholders.isNotEmpty) {
         issues.add('${placeholders.length} placeholder pin(s) detected');
         errors.add('$domain: Contains placeholder pins that must be replaced');

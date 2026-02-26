@@ -262,13 +262,19 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       // Parse topic: sahool/{tenant}/farm/{farmId}/field/{fieldId}/sensor/{sensorType}
       const parts = topic.split("/");
+      // Extract tenantId from topic (parts[1] after "sahool/")
+      const tenantId = parts[1];
+      if (!tenantId) {
+        this.logger.warn("Missing tenantId in MQTT topic, skipping", { topic: this.sanitizeForLog(topic) });
+        return;
+      }
 
       if (parts.includes("sensor")) {
-        this.handleSensorData(parts, payload);
+        this.handleSensorData(parts, payload, tenantId);
       } else if (parts.includes("actuator")) {
         this.handleActuatorStatus(parts, payload);
       } else if (parts.includes("status")) {
-        this.handleDeviceStatus(parts, payload);
+        this.handleDeviceStatus(parts, payload, tenantId);
       }
     } catch (error) {
       this.logger.error("Error processing message", { topic: this.sanitizeForLog(topic) }, error);
@@ -278,6 +284,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private async handleSensorData(
     topicParts: string[],
     payload: string,
+    tenantId: string,
   ): Promise<void> {
     const fieldId = topicParts[5];
     const sensorType = topicParts[7] as SensorType;
@@ -304,14 +311,14 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     await this.cacheSensorReading(key, reading);
 
     // Persist to database for historical queries
-    await this.persistSensorReading(reading);
+    await this.persistSensorReading(reading, tenantId);
 
     this.logger.debug(
       `📊 Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
     );
 
     // Check for alerts
-    this.checkSensorAlerts(reading);
+    this.checkSensorAlerts(reading, tenantId);
   }
 
   private async handleActuatorStatus(
@@ -334,6 +341,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private async handleDeviceStatus(
     topicParts: string[],
     payload: string,
+    tenantId: string,
   ): Promise<void> {
     const data = JSON.parse(payload);
 
@@ -350,7 +358,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     await this.cacheDeviceStatus(status);
 
     // Persist to database
-    await this.persistDeviceStatus(status);
+    await this.persistDeviceStatus(status, tenantId);
 
     if (status.batteryLevel && status.batteryLevel < 20) {
       this.logger.warn(
@@ -372,7 +380,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     status: "ON" | "OFF",
     options?: { duration?: number; tenantId?: string; farmId?: string },
   ): Promise<{ success: boolean; message: string }> {
-    const tenantId = options?.tenantId || process.env.DEFAULT_TENANT_ID || "default";
+    const tenantId = options?.tenantId;
+    if (!tenantId) {
+      return { success: false, message: "tenantId is required" };
+    }
     const farmId = options?.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
     const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/actuator/pump/command`;
 
@@ -411,7 +422,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     status: "ON" | "OFF",
     options?: { tenantId?: string; farmId?: string },
   ): Promise<{ success: boolean; message: string }> {
-    const tenantId = options?.tenantId || process.env.DEFAULT_TENANT_ID || "default";
+    const tenantId = options?.tenantId;
+    if (!tenantId) {
+      return { success: false, message: "tenantId is required" };
+    }
     const farmId = options?.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
     const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/actuator/valve/${valveId}/command`;
 
@@ -447,7 +461,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       farmId?: string;
     },
   ): { success: boolean; message: string } {
-    const tenantId = schedule.tenantId || process.env.DEFAULT_TENANT_ID || "default";
+    const tenantId = schedule.tenantId;
+    if (!tenantId) {
+      return { success: false, message: "tenantId is required" };
+    }
     const farmId = schedule.farmId || process.env.DEFAULT_FARM_ID || "farm-1";
     const topic = `sahool/${tenantId}/farm/${farmId}/field/${fieldId}/irrigation/schedule`;
 
@@ -469,7 +486,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get latest sensor readings for a field
    */
-  async getFieldSensorData(fieldId: string): Promise<SensorReading[]> {
+  async getFieldSensorData(fieldId: string, tenantId?: string): Promise<SensorReading[]> {
     if (!this.redis || !this.redisConnected) return [];
     const readings: SensorReading[] = [];
     const pattern = `sensor:${fieldId}:*`;
@@ -506,6 +523,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   async getSensorReading(
     fieldId: string,
     sensorType: SensorType,
+    tenantId?: string,
   ): Promise<SensorReading | null> {
     if (!this.redis || !this.redisConnected) return null;
     const key = `sensor:${fieldId}:${sensorType}`;
@@ -524,6 +542,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getFieldActuatorStates(
     fieldId: string,
+    tenantId?: string,
   ): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
     if (!this.redis || !this.redisConnected) return states;
@@ -559,7 +578,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get all connected devices
    */
-  async getConnectedDevices(): Promise<DeviceStatus[]> {
+  async getConnectedDevices(tenantId?: string): Promise<DeviceStatus[]> {
     if (!this.redis || !this.redisConnected) return [];
     const devices: DeviceStatus[] = [];
     const pattern = "device:*";
@@ -593,7 +612,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get device count by status
    */
-  async getDeviceStats(): Promise<{
+  async getDeviceStats(tenantId?: string): Promise<{
     online: number;
     offline: number;
     error: number;
@@ -603,7 +622,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       error = 0;
 
     try {
-      const devices = await this.getConnectedDevices();
+      const devices = await this.getConnectedDevices(tenantId);
       devices.forEach((device) => {
         if (device.status === "online") online++;
         else if (device.status === "offline") offline++;
@@ -688,14 +707,14 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Persist sensor reading to database for historical queries
    */
-  private async persistSensorReading(reading: SensorReading): Promise<void> {
+  private async persistSensorReading(reading: SensorReading, tenantId: string): Promise<void> {
     if (!this.dbConnected) return;
     try {
       // Upsert device
       const device = await this.prisma.device.upsert({
         where: {
           tenantId_deviceId: {
-            tenantId: "default",
+            tenantId,
             deviceId: reading.deviceId,
           },
         },
@@ -704,7 +723,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
           status: "ONLINE",
         },
         create: {
-          tenantId: "default",
+          tenantId,
           deviceId: reading.deviceId,
           name: reading.deviceId,
           type: "SOIL_MOISTURE_SENSOR",
@@ -724,7 +743,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
           lastReadingAt: reading.timestamp,
         },
         create: {
-          tenantId: "default",
+          tenantId,
           deviceId: device.id,
           sensorType: this.mapSensorType(reading.sensorType),
           unit: reading.unit,
@@ -736,7 +755,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       // Create reading record
       await this.prisma.sensorReading.create({
         data: {
-          tenantId: "default",
+          tenantId,
           sensorId: sensor.id,
           deviceId: device.id,
           value: reading.value,
@@ -753,13 +772,13 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Persist device status to database
    */
-  private async persistDeviceStatus(status: DeviceStatus): Promise<void> {
+  private async persistDeviceStatus(status: DeviceStatus, tenantId: string): Promise<void> {
     if (!this.dbConnected) return;
     try {
       await this.prisma.device.upsert({
         where: {
           tenantId_deviceId: {
-            tenantId: "default",
+            tenantId,
             deviceId: status.deviceId,
           },
         },
@@ -769,7 +788,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
           metadata: status.batteryLevel ? { batteryLevel: status.batteryLevel } : undefined,
         },
         create: {
-          tenantId: "default",
+          tenantId,
           deviceId: status.deviceId,
           name: status.name,
           type: status.type === "sensor" ? "SOIL_MOISTURE_SENSOR" : "PUMP_CONTROLLER",
@@ -787,18 +806,18 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Create alert in database when sensor thresholds exceeded
    */
-  private async persistAlert(reading: SensorReading, alertType: "low" | "high", threshold: number): Promise<void> {
+  private async persistAlert(reading: SensorReading, alertType: "low" | "high", threshold: number, tenantId: string): Promise<void> {
     if (!this.dbConnected) return;
     try {
       const device = await this.prisma.device.findFirst({
-        where: { deviceId: reading.deviceId },
+        where: { deviceId: reading.deviceId, tenantId },
       });
       if (!device) return;
 
       await this.prisma.deviceAlert.create({
         data: {
           deviceId: device.id,
-          tenantId: "default",
+          tenantId,
           alertType: `${reading.sensorType}_${alertType}`,
           severity: "WARNING",
           message: `${reading.sensorType} ${alertType === "low" ? "below" : "above"} threshold: ${reading.value}${reading.unit} (threshold: ${threshold}${reading.unit})`,
@@ -822,6 +841,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getHistoricalReadings(
     fieldId: string,
+    tenantId?: string,
     sensorType?: string,
     hours: number = 24,
   ): Promise<any[]> {
@@ -832,6 +852,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         timestamp: { gte: since },
         device: { fieldId },
       };
+      if (tenantId) {
+        where.tenantId = tenantId;
+      }
       if (sensorType) {
         where.sensor = { sensorType: this.mapSensorType(sensorType as SensorType) };
       }
@@ -916,7 +939,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     return "good";
   }
 
-  private checkSensorAlerts(reading: SensorReading): void {
+  private checkSensorAlerts(reading: SensorReading, tenantId: string): void {
     // Alert thresholds
     const alerts: Partial<Record<SensorType, { low?: number; high?: number }>> =
       {
@@ -933,7 +956,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         `⚠️ Low ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
       this.sendSensorAlertNotification(reading, "low", threshold.low);
-      void this.persistAlert(reading, "low", threshold.low);
+      void this.persistAlert(reading, "low", threshold.low, tenantId);
     }
 
     if (threshold.high && reading.value > threshold.high) {
@@ -941,7 +964,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         `⚠️ High ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
       this.sendSensorAlertNotification(reading, "high", threshold.high);
-      void this.persistAlert(reading, "high", threshold.high);
+      void this.persistAlert(reading, "high", threshold.high, tenantId);
     }
   }
 

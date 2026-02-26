@@ -180,7 +180,8 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Success(BatchDiagnosisResult.fromJson(json.decode(response.body)));
+        return Success(
+            BatchDiagnosisResult.fromJson(json.decode(response.body)));
       }
 
       return Failure(
@@ -248,7 +249,8 @@ class CropHealthRepository {
 
   /// Get treatment details for a disease
   /// الحصول على تفاصيل العلاج لمرض معين
-  Future<ApiResult<Map<String, dynamic>>> getTreatmentDetails(String diseaseId) async {
+  Future<ApiResult<Map<String, dynamic>>> getTreatmentDetails(
+      String diseaseId) async {
     try {
       final response = await _client.get(
         Uri.parse('$_baseUrl/v1/treatment/$diseaseId'),
@@ -300,7 +302,8 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return Success(ExpertReviewResponse.fromJson(json.decode(response.body)));
+        return Success(
+            ExpertReviewResponse.fromJson(json.decode(response.body)));
       }
 
       return Failure(
@@ -321,10 +324,12 @@ class CropHealthRepository {
   /// التحقق من توفر خدمة الذكاء الاصطناعي
   Future<bool> isServiceAvailable() async {
     try {
-      final response = await _client.get(
-        Uri.parse('$_baseUrl/healthz'),
-        headers: _headers,
-      ).timeout(const Duration(seconds: 5));
+      final response = await _client
+          .get(
+            Uri.parse('$_baseUrl/healthz'),
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 5));
 
       return response.statusCode == 200;
     } catch (e) {

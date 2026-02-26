@@ -132,6 +132,10 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       ...(isDevelopment
         ? ["ws://localhost:*", "http://localhost:*", "http://localhost:8000"]
         : ["wss:"]),
+      // Map tile servers (ESRI satellite, OpenStreetMap)
+      "https://server.arcgisonline.com",
+      "https://tile.openstreetmap.org",
+      "https://*.tile.openstreetmap.org",
     ],
 
     // Media sources

@@ -19,11 +19,13 @@ typedef NotificationTapCallback = void Function(Map<String, dynamic>? payload);
 
 /// Local Notification Service for in-app alerts
 class LocalNotificationService {
-  static final LocalNotificationService _instance = LocalNotificationService._internal();
+  static final LocalNotificationService _instance =
+      LocalNotificationService._internal();
   factory LocalNotificationService() => _instance;
   LocalNotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   NotificationTapCallback? _onTapCallback;
 
@@ -84,7 +86,8 @@ class LocalNotificationService {
     _onTapCallback = onTap;
 
     // Android initialization
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
     final darwinSettings = DarwinInitializationSettings(
@@ -108,13 +111,15 @@ class LocalNotificationService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _handleNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: _handleBackgroundNotificationTap,
+      onDidReceiveBackgroundNotificationResponse:
+          _handleBackgroundNotificationTap,
     );
 
     // Create notification channels on Android
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         await androidPlugin.createNotificationChannel(_alertsChannel);
@@ -159,8 +164,9 @@ class LocalNotificationService {
   /// طلب إذن الإشعارات
   Future<bool> requestPermission() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         final granted = await androidPlugin.requestNotificationsPermission();
@@ -168,8 +174,9 @@ class LocalNotificationService {
       }
       return true;
     } else if (Platform.isIOS) {
-      final iosPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final iosPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
 
       if (iosPlugin != null) {
         final granted = await iosPlugin.requestPermissions(
@@ -203,10 +210,12 @@ class LocalNotificationService {
       type.channelId,
       type.channelName,
       channelDescription: type.channelDescription,
-      importance: type.isUrgent ? Importance.high : Importance.defaultImportance,
+      importance:
+          type.isUrgent ? Importance.high : Importance.defaultImportance,
       priority: type.isUrgent ? Priority.high : Priority.defaultPriority,
       icon: '@mipmap/ic_launcher',
-      largeIcon: largeIcon != null ? DrawableResourceAndroidBitmap(largeIcon) : null,
+      largeIcon:
+          largeIcon != null ? DrawableResourceAndroidBitmap(largeIcon) : null,
       styleInformation: bigPicture != null
           ? BigPictureStyleInformation(
               FilePathAndroidBitmap(bigPicture),
@@ -265,7 +274,8 @@ class LocalNotificationService {
       type.channelId,
       type.channelName,
       channelDescription: type.channelDescription,
-      importance: type.isUrgent ? Importance.high : Importance.defaultImportance,
+      importance:
+          type.isUrgent ? Importance.high : Importance.defaultImportance,
       priority: type.isUrgent ? Priority.high : Priority.defaultPriority,
       icon: '@mipmap/ic_launcher',
       styleInformation: BigTextStyleInformation(body),
@@ -284,7 +294,8 @@ class LocalNotificationService {
       iOS: iosDetails,
     );
 
-    final notificationId = id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
+    final notificationId =
+        id ?? DateTime.now().millisecondsSinceEpoch % 2147483647;
 
     // Note: For full timezone support, add the timezone package
     // For now, using simple DateTime scheduling
@@ -299,7 +310,8 @@ class LocalNotificationService {
       TZDateTime.from(scheduledDate, local),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       payload: data != null ? jsonEncode(data) : null,
     );
 
@@ -369,8 +381,9 @@ class LocalNotificationService {
   /// الحصول على الإشعارات النشطة
   Future<List<ActiveNotification>> getActiveNotifications() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         return await androidPlugin.getActiveNotifications();
@@ -382,8 +395,9 @@ class LocalNotificationService {
   /// مسح بادج الإشعارات على iOS
   Future<void> clearBadge() async {
     if (Platform.isIOS) {
-      final iosPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final iosPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
 
       if (iosPlugin != null) {
         // Clear badge count
@@ -404,7 +418,8 @@ class LocalNotificationService {
 /// Simple TZDateTime implementation for scheduling
 /// In production, use the timezone package for proper timezone handling
 class TZDateTime extends DateTime {
-  TZDateTime(super.year, [
+  TZDateTime(
+    super.year, [
     super.month,
     super.day,
     super.hour,

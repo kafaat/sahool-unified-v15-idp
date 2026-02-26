@@ -5,19 +5,19 @@
 
 /// Provider priority levels
 enum ProviderPriority {
-  primary,   // الأساسي - يُستخدم أولاً
+  primary, // الأساسي - يُستخدم أولاً
   secondary, // الثانوي - يُستخدم عند فشل الأساسي
-  tertiary,  // الثالث - آخر خيار
-  disabled,  // معطل
+  tertiary, // الثالث - آخر خيار
+  disabled, // معطل
 }
 
 /// Provider status
 enum ProviderStatus {
-  available,    // متاح
-  unavailable,  // غير متاح
-  rateLimited,  // تجاوز الحد
-  error,        // خطأ
-  checking,     // جاري الفحص
+  available, // متاح
+  unavailable, // غير متاح
+  rateLimited, // تجاوز الحد
+  error, // خطأ
+  checking, // جاري الفحص
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,100 +93,109 @@ class MapProviders {
 
   // Google Maps - يحتاج مفتاح API
   static MapProviderConfig googleMaps({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.googleMaps,
-    name: 'Google Maps',
-    nameAr: 'خرائط جوجل',
-    urlTemplate: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    maxZoom: 21,
-    attribution: '© Google',
-    supportsOffline: false,
-    costPerRequest: 7.0, // $7 per 1000 requests
-  );
+        type: MapProviderType.googleMaps,
+        name: 'Google Maps',
+        nameAr: 'خرائط جوجل',
+        urlTemplate:
+            'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        maxZoom: 21,
+        attribution: '© Google',
+        supportsOffline: false,
+        costPerRequest: 7.0, // $7 per 1000 requests
+      );
 
   // Google Satellite
-  static MapProviderConfig googleSatellite({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.googleMaps,
-    name: 'Google Satellite',
-    nameAr: 'جوجل القمر الصناعي',
-    urlTemplate: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    maxZoom: 21,
-    attribution: '© Google',
-    supportsOffline: false,
-    costPerRequest: 7.0,
-  );
+  static MapProviderConfig googleSatellite({String? apiKey}) =>
+      MapProviderConfig(
+        type: MapProviderType.googleMaps,
+        name: 'Google Satellite',
+        nameAr: 'جوجل القمر الصناعي',
+        urlTemplate:
+            'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        maxZoom: 21,
+        attribution: '© Google',
+        supportsOffline: false,
+        costPerRequest: 7.0,
+      );
 
   // Google Hybrid (Satellite + Roads)
   static MapProviderConfig googleHybrid({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.googleMaps,
-    name: 'Google Hybrid',
-    nameAr: 'جوجل هجين',
-    urlTemplate: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.tertiary,
-    requiresApiKey: true,
-    maxZoom: 21,
-    attribution: '© Google',
-    supportsOffline: false,
-    costPerRequest: 7.0,
-  );
+        type: MapProviderType.googleMaps,
+        name: 'Google Hybrid',
+        nameAr: 'جوجل هجين',
+        urlTemplate:
+            'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.tertiary,
+        requiresApiKey: true,
+        maxZoom: 21,
+        attribution: '© Google',
+        supportsOffline: false,
+        costPerRequest: 7.0,
+      );
 
   // Mapbox Streets
   static MapProviderConfig mapboxStreets({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.mapbox,
-    name: 'Mapbox Streets',
-    nameAr: 'ماب بوكس شوارع',
-    urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    maxZoom: 22,
-    attribution: '© Mapbox © OpenStreetMap',
-    supportsOffline: true,
-    costPerRequest: 0.5, // $0.50 per 1000 requests
-  );
+        type: MapProviderType.mapbox,
+        name: 'Mapbox Streets',
+        nameAr: 'ماب بوكس شوارع',
+        urlTemplate:
+            'https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        maxZoom: 22,
+        attribution: '© Mapbox © OpenStreetMap',
+        supportsOffline: true,
+        costPerRequest: 0.5, // $0.50 per 1000 requests
+      );
 
   // Mapbox Satellite
-  static MapProviderConfig mapboxSatellite({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.mapbox,
-    name: 'Mapbox Satellite',
-    nameAr: 'ماب بوكس قمر صناعي',
-    urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    maxZoom: 22,
-    attribution: '© Mapbox © Maxar',
-    supportsOffline: true,
-    costPerRequest: 0.5,
-  );
+  static MapProviderConfig mapboxSatellite({String? apiKey}) =>
+      MapProviderConfig(
+        type: MapProviderType.mapbox,
+        name: 'Mapbox Satellite',
+        nameAr: 'ماب بوكس قمر صناعي',
+        urlTemplate:
+            'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        maxZoom: 22,
+        attribution: '© Mapbox © Maxar',
+        supportsOffline: true,
+        costPerRequest: 0.5,
+      );
 
   // Mapbox Satellite Streets (Hybrid)
   static MapProviderConfig mapboxHybrid({String? apiKey}) => MapProviderConfig(
-    type: MapProviderType.mapbox,
-    name: 'Mapbox Hybrid',
-    nameAr: 'ماب بوكس هجين',
-    urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token={apiKey}',
-    apiKey: apiKey,
-    priority: ProviderPriority.tertiary,
-    requiresApiKey: true,
-    maxZoom: 22,
-    attribution: '© Mapbox © Maxar © OpenStreetMap',
-    supportsOffline: true,
-    costPerRequest: 0.5,
-  );
+        type: MapProviderType.mapbox,
+        name: 'Mapbox Hybrid',
+        nameAr: 'ماب بوكس هجين',
+        urlTemplate:
+            'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token={apiKey}',
+        apiKey: apiKey,
+        priority: ProviderPriority.tertiary,
+        requiresApiKey: true,
+        maxZoom: 22,
+        attribution: '© Mapbox © Maxar © OpenStreetMap',
+        supportsOffline: true,
+        costPerRequest: 0.5,
+      );
 
   // ESRI World Imagery
   static const esriSatellite = MapProviderConfig(
     type: MapProviderType.esri,
     name: 'ESRI Satellite',
     nameAr: 'ESRI قمر صناعي',
-    urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    urlTemplate:
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     priority: ProviderPriority.tertiary,
     requiresApiKey: false,
     maxZoom: 19,
@@ -200,7 +209,8 @@ class MapProviders {
     type: MapProviderType.esri,
     name: 'ESRI Streets',
     nameAr: 'ESRI شوارع',
-    urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    urlTemplate:
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
     priority: ProviderPriority.tertiary,
     requiresApiKey: false,
     maxZoom: 18,
@@ -289,52 +299,56 @@ class WeatherProviders {
   );
 
   // OpenWeatherMap - يحتاج مفتاح API (مجاني محدود)
-  static WeatherProviderConfig openWeatherMap({String? apiKey}) => WeatherProviderConfig(
-    type: WeatherProviderType.openWeatherMap,
-    name: 'OpenWeatherMap',
-    nameAr: 'أوبن ويذر ماب',
-    baseUrl: 'https://api.openweathermap.org/data/2.5',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    forecastDays: 8,
-    supportsHistorical: false,
-    supportsAlerts: true,
-    costPerRequest: 0, // Free tier: 1000 calls/day
-    rateLimit: 60,
-  );
+  static WeatherProviderConfig openWeatherMap({String? apiKey}) =>
+      WeatherProviderConfig(
+        type: WeatherProviderType.openWeatherMap,
+        name: 'OpenWeatherMap',
+        nameAr: 'أوبن ويذر ماب',
+        baseUrl: 'https://api.openweathermap.org/data/2.5',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        forecastDays: 8,
+        supportsHistorical: false,
+        supportsAlerts: true,
+        costPerRequest: 0, // Free tier: 1000 calls/day
+        rateLimit: 60,
+      );
 
   // WeatherAPI - يحتاج مفتاح API
-  static WeatherProviderConfig weatherApi({String? apiKey}) => WeatherProviderConfig(
-    type: WeatherProviderType.weatherApi,
-    name: 'WeatherAPI',
-    nameAr: 'ويذر API',
-    baseUrl: 'https://api.weatherapi.com/v1',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    forecastDays: 14,
-    supportsHistorical: true,
-    supportsAlerts: true,
-    costPerRequest: 0, // Free tier: 1M calls/month
-    rateLimit: 100,
-  );
+  static WeatherProviderConfig weatherApi({String? apiKey}) =>
+      WeatherProviderConfig(
+        type: WeatherProviderType.weatherApi,
+        name: 'WeatherAPI',
+        nameAr: 'ويذر API',
+        baseUrl: 'https://api.weatherapi.com/v1',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        forecastDays: 14,
+        supportsHistorical: true,
+        supportsAlerts: true,
+        costPerRequest: 0, // Free tier: 1M calls/month
+        rateLimit: 100,
+      );
 
   // Visual Crossing - يحتاج مفتاح API
-  static WeatherProviderConfig visualCrossing({String? apiKey}) => WeatherProviderConfig(
-    type: WeatherProviderType.visualCrossing,
-    name: 'Visual Crossing',
-    nameAr: 'فيجوال كروسينج',
-    baseUrl: 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline',
-    apiKey: apiKey,
-    priority: ProviderPriority.tertiary,
-    requiresApiKey: true,
-    forecastDays: 15,
-    supportsHistorical: true,
-    supportsAlerts: true,
-    costPerRequest: 0.0001, // $0.0001 per request
-    rateLimit: 1000,
-  );
+  static WeatherProviderConfig visualCrossing({String? apiKey}) =>
+      WeatherProviderConfig(
+        type: WeatherProviderType.visualCrossing,
+        name: 'Visual Crossing',
+        nameAr: 'فيجوال كروسينج',
+        baseUrl:
+            'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline',
+        apiKey: apiKey,
+        priority: ProviderPriority.tertiary,
+        requiresApiKey: true,
+        forecastDays: 15,
+        supportsHistorical: true,
+        supportsAlerts: true,
+        costPerRequest: 0.0001, // $0.0001 per request
+        rateLimit: 1000,
+      );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -385,49 +399,52 @@ class SatelliteProviderConfig {
 /// All available satellite providers
 class SatelliteProviders {
   // Sentinel Hub (Sentinel-2)
-  static SatelliteProviderConfig sentinelHub({String? apiKey}) => SatelliteProviderConfig(
-    type: SatelliteProviderType.sentinelHub,
-    name: 'Sentinel Hub',
-    nameAr: 'سنتينيل هب',
-    baseUrl: 'https://services.sentinel-hub.com',
-    apiKey: apiKey,
-    priority: ProviderPriority.primary,
-    requiresApiKey: true,
-    resolution: 10,
-    revisitDays: 5,
-    indices: ['NDVI', 'NDWI', 'EVI', 'SAVI', 'NDMI', 'LAI'],
-    costPerKm2: 0.001, // ~$0.001 per km²
-  );
+  static SatelliteProviderConfig sentinelHub({String? apiKey}) =>
+      SatelliteProviderConfig(
+        type: SatelliteProviderType.sentinelHub,
+        name: 'Sentinel Hub',
+        nameAr: 'سنتينيل هب',
+        baseUrl: 'https://services.sentinel-hub.com',
+        apiKey: apiKey,
+        priority: ProviderPriority.primary,
+        requiresApiKey: true,
+        resolution: 10,
+        revisitDays: 5,
+        indices: ['NDVI', 'NDWI', 'EVI', 'SAVI', 'NDMI', 'LAI'],
+        costPerKm2: 0.001, // ~$0.001 per km²
+      );
 
   // Planet Labs
-  static SatelliteProviderConfig planetLabs({String? apiKey}) => SatelliteProviderConfig(
-    type: SatelliteProviderType.planetLabs,
-    name: 'Planet Labs',
-    nameAr: 'بلانيت لابس',
-    baseUrl: 'https://api.planet.com/data/v1',
-    apiKey: apiKey,
-    priority: ProviderPriority.secondary,
-    requiresApiKey: true,
-    resolution: 3,
-    revisitDays: 1,
-    indices: ['NDVI', 'NDWI', 'EVI', 'GNDVI'],
-    costPerKm2: 0.10, // ~$0.10 per km²
-  );
+  static SatelliteProviderConfig planetLabs({String? apiKey}) =>
+      SatelliteProviderConfig(
+        type: SatelliteProviderType.planetLabs,
+        name: 'Planet Labs',
+        nameAr: 'بلانيت لابس',
+        baseUrl: 'https://api.planet.com/data/v1',
+        apiKey: apiKey,
+        priority: ProviderPriority.secondary,
+        requiresApiKey: true,
+        resolution: 3,
+        revisitDays: 1,
+        indices: ['NDVI', 'NDWI', 'EVI', 'GNDVI'],
+        costPerKm2: 0.10, // ~$0.10 per km²
+      );
 
   // Maxar (DigitalGlobe)
-  static SatelliteProviderConfig maxar({String? apiKey}) => SatelliteProviderConfig(
-    type: SatelliteProviderType.maxar,
-    name: 'Maxar',
-    nameAr: 'ماكسار',
-    baseUrl: 'https://api.maxar.com/streaming/v1',
-    apiKey: apiKey,
-    priority: ProviderPriority.tertiary,
-    requiresApiKey: true,
-    resolution: 0, // 30cm - 50cm
-    revisitDays: 3,
-    indices: ['NDVI'],
-    costPerKm2: 15.0, // ~$15 per km²
-  );
+  static SatelliteProviderConfig maxar({String? apiKey}) =>
+      SatelliteProviderConfig(
+        type: SatelliteProviderType.maxar,
+        name: 'Maxar',
+        nameAr: 'ماكسار',
+        baseUrl: 'https://api.maxar.com/streaming/v1',
+        apiKey: apiKey,
+        priority: ProviderPriority.tertiary,
+        requiresApiKey: true,
+        resolution: 0, // 30cm - 50cm
+        revisitDays: 3,
+        indices: ['NDVI'],
+        costPerKm2: 15.0, // ~$15 per km²
+      );
 
   // Landsat (Free via USGS)
   static const landsat = SatelliteProviderConfig(
@@ -493,11 +510,16 @@ class ProvidersConfig {
   List<MapProviderConfig> get mapProviders {
     final providers = <MapProviderConfig>[
       MapProviders.openStreetMap,
-      if (googleMapsApiKey != null) MapProviders.googleMaps(apiKey: googleMapsApiKey),
-      if (googleMapsApiKey != null) MapProviders.googleSatellite(apiKey: googleMapsApiKey),
-      if (googleMapsApiKey != null) MapProviders.googleHybrid(apiKey: googleMapsApiKey),
-      if (mapboxApiKey != null) MapProviders.mapboxStreets(apiKey: mapboxApiKey),
-      if (mapboxApiKey != null) MapProviders.mapboxSatellite(apiKey: mapboxApiKey),
+      if (googleMapsApiKey != null)
+        MapProviders.googleMaps(apiKey: googleMapsApiKey),
+      if (googleMapsApiKey != null)
+        MapProviders.googleSatellite(apiKey: googleMapsApiKey),
+      if (googleMapsApiKey != null)
+        MapProviders.googleHybrid(apiKey: googleMapsApiKey),
+      if (mapboxApiKey != null)
+        MapProviders.mapboxStreets(apiKey: mapboxApiKey),
+      if (mapboxApiKey != null)
+        MapProviders.mapboxSatellite(apiKey: mapboxApiKey),
       if (mapboxApiKey != null) MapProviders.mapboxHybrid(apiKey: mapboxApiKey),
       MapProviders.esriSatellite,
       MapProviders.esriStreets,
@@ -508,7 +530,8 @@ class ProvidersConfig {
     providers.sort((a, b) {
       final aIndex = mapProviderPriority.indexOf(a.type);
       final bIndex = mapProviderPriority.indexOf(b.type);
-      return (aIndex == -1 ? 999 : aIndex).compareTo(bIndex == -1 ? 999 : bIndex);
+      return (aIndex == -1 ? 999 : aIndex)
+          .compareTo(bIndex == -1 ? 999 : bIndex);
     });
 
     return providers;
@@ -518,14 +541,17 @@ class ProvidersConfig {
   List<WeatherProviderConfig> get weatherProviders {
     final providers = <WeatherProviderConfig>[
       WeatherProviders.openMeteo,
-      if (openWeatherMapApiKey != null) WeatherProviders.openWeatherMap(apiKey: openWeatherMapApiKey),
-      if (weatherApiKey != null) WeatherProviders.weatherApi(apiKey: weatherApiKey),
+      if (openWeatherMapApiKey != null)
+        WeatherProviders.openWeatherMap(apiKey: openWeatherMapApiKey),
+      if (weatherApiKey != null)
+        WeatherProviders.weatherApi(apiKey: weatherApiKey),
     ];
 
     providers.sort((a, b) {
       final aIndex = weatherProviderPriority.indexOf(a.type);
       final bIndex = weatherProviderPriority.indexOf(b.type);
-      return (aIndex == -1 ? 999 : aIndex).compareTo(bIndex == -1 ? 999 : bIndex);
+      return (aIndex == -1 ? 999 : aIndex)
+          .compareTo(bIndex == -1 ? 999 : bIndex);
     });
 
     return providers;
@@ -540,16 +566,19 @@ class ProvidersConfig {
   /// Get satellite map provider (first available satellite/aerial)
   MapProviderConfig? get satelliteMapProvider {
     return mapProviders.firstWhere(
-      (p) => p.name.toLowerCase().contains('satellite') ||
-             p.name.toLowerCase().contains('hybrid'),
+      (p) =>
+          p.name.toLowerCase().contains('satellite') ||
+          p.name.toLowerCase().contains('hybrid'),
       orElse: () => MapProviders.esriSatellite,
     );
   }
 
   /// Check if premium features are available
   bool get hasPremiumMaps => googleMapsApiKey != null || mapboxApiKey != null;
-  bool get hasPremiumWeather => openWeatherMapApiKey != null || weatherApiKey != null;
-  bool get hasSatelliteImagery => sentinelHubApiKey != null || planetLabsApiKey != null;
+  bool get hasPremiumWeather =>
+      openWeatherMapApiKey != null || weatherApiKey != null;
+  bool get hasSatelliteImagery =>
+      sentinelHubApiKey != null || planetLabsApiKey != null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

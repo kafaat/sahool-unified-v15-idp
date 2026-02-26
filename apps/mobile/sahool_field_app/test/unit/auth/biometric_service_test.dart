@@ -7,6 +7,7 @@ import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 
 /// Mock dependencies
 class MockLocalAuthentication extends Mock implements LocalAuthentication {}
+
 class MockSecureStorageService extends Mock implements SecureStorageService {}
 
 void main() {
@@ -75,7 +76,8 @@ void main() {
     });
 
     group('isFingerprintAvailable', () {
-      test('should return true if fingerprint is in available biometrics', () async {
+      test('should return true if fingerprint is in available biometrics',
+          () async {
         try {
           final result = await biometricService.isFingerprintAvailable();
           // expect(result, isA<bool>());
@@ -86,7 +88,8 @@ void main() {
     });
 
     group('isFaceIdAvailable', () {
-      test('should return true if face ID is in available biometrics', () async {
+      test('should return true if face ID is in available biometrics',
+          () async {
         try {
           final result = await biometricService.isFaceIdAvailable();
           // expect(result, isA<bool>());
@@ -140,7 +143,8 @@ void main() {
     group('getBiometricTypeName', () {
       test('should return Arabic name for fingerprint', () {
         // Act
-        final name = biometricService.getBiometricTypeName(BiometricType.fingerprint);
+        final name =
+            biometricService.getBiometricTypeName(BiometricType.fingerprint);
 
         // Assert
         expect(name, 'بصمة الإصبع');
@@ -164,7 +168,8 @@ void main() {
 
       test('should return Arabic name for strong biometric', () {
         // Act
-        final name = biometricService.getBiometricTypeName(BiometricType.strong);
+        final name =
+            biometricService.getBiometricTypeName(BiometricType.strong);
 
         // Assert
         expect(name, 'مصادقة قوية');

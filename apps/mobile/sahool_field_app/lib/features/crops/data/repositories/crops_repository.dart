@@ -47,7 +47,8 @@ class CropsRepository {
       final cachedCrops = await _loadFromCache();
       if (cachedCrops != null && cachedCrops.isNotEmpty) {
         _cachedCrops = cachedCrops;
-        AppLogger.d('Returning crops from local cache', tag: 'CropsRepository', data: {'count': cachedCrops.length});
+        AppLogger.d('Returning crops from local cache',
+            tag: 'CropsRepository', data: {'count': cachedCrops.length});
         return cachedCrops;
       }
     }
@@ -62,21 +63,25 @@ class CropsRepository {
       await _saveToCache(crops);
       _cachedCrops = crops;
 
-      AppLogger.i('Fetched crops from API', tag: 'CropsRepository', data: {'count': crops.length});
+      AppLogger.i('Fetched crops from API',
+          tag: 'CropsRepository', data: {'count': crops.length});
       return crops;
     } catch (e) {
-      AppLogger.e('Failed to fetch crops from API', tag: 'CropsRepository', error: e);
+      AppLogger.e('Failed to fetch crops from API',
+          tag: 'CropsRepository', error: e);
 
       // Try to return stale cache as fallback
       final cachedCrops = await _loadFromCache();
       if (cachedCrops != null && cachedCrops.isNotEmpty) {
         _cachedCrops = cachedCrops;
-        AppLogger.w('Returning stale cached crops', tag: 'CropsRepository', data: {'count': cachedCrops.length});
+        AppLogger.w('Returning stale cached crops',
+            tag: 'CropsRepository', data: {'count': cachedCrops.length});
         return cachedCrops;
       }
 
       // If all fails, return empty list
-      AppLogger.w('No cached crops available, returning empty list', tag: 'CropsRepository');
+      AppLogger.w('No cached crops available, returning empty list',
+          tag: 'CropsRepository');
       return [];
     }
   }
@@ -143,9 +148,12 @@ class CropsRepository {
       if (cachedJson == null) return null;
 
       final List<dynamic> decoded = jsonDecode(cachedJson);
-      return decoded.map((json) => Crop.fromJson(json as Map<String, dynamic>)).toList();
+      return decoded
+          .map((json) => Crop.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      AppLogger.e('Failed to load crops from cache', tag: 'CropsRepository', error: e);
+      AppLogger.e('Failed to load crops from cache',
+          tag: 'CropsRepository', error: e);
       return null;
     }
   }
@@ -157,11 +165,14 @@ class CropsRepository {
       final encoded = jsonEncode(cropsJson);
 
       await _prefs.setString(_cacheKey, encoded);
-      await _prefs.setString(_cacheTimestampKey, DateTime.now().toIso8601String());
+      await _prefs.setString(
+          _cacheTimestampKey, DateTime.now().toIso8601String());
 
-      AppLogger.d('Saved crops to cache', tag: 'CropsRepository', data: {'count': crops.length});
+      AppLogger.d('Saved crops to cache',
+          tag: 'CropsRepository', data: {'count': crops.length});
     } catch (e) {
-      AppLogger.e('Failed to save crops to cache', tag: 'CropsRepository', error: e);
+      AppLogger.e('Failed to save crops to cache',
+          tag: 'CropsRepository', error: e);
     }
   }
 

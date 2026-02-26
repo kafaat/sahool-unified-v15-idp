@@ -87,7 +87,8 @@ class SecureStorageService {
       _hasStorageError = false;
       AppLogger.i('Secure storage initialized', tag: 'STORAGE');
     } catch (e) {
-      AppLogger.e('Secure storage initialization failed', error: e, tag: 'STORAGE');
+      AppLogger.e('Secure storage initialization failed',
+          error: e, tag: 'STORAGE');
       _hasStorageError = true;
       rethrow;
     }
@@ -124,12 +125,16 @@ class SecureStorageService {
   Future<void> _migrateStorageIfNeeded() async {
     try {
       final versionStr = await _storage.read(key: _keyStorageVersion);
-      final currentVersion = versionStr != null ? int.tryParse(versionStr) ?? 0 : 0;
+      final currentVersion =
+          versionStr != null ? int.tryParse(versionStr) ?? 0 : 0;
 
       if (currentVersion < _currentStorageVersion) {
-        AppLogger.i('Migrating storage from version $currentVersion to $_currentStorageVersion', tag: 'STORAGE');
+        AppLogger.i(
+            'Migrating storage from version $currentVersion to $_currentStorageVersion',
+            tag: 'STORAGE');
         // Add migration logic here as needed
-        await _storage.write(key: _keyStorageVersion, value: _currentStorageVersion.toString());
+        await _storage.write(
+            key: _keyStorageVersion, value: _currentStorageVersion.toString());
       }
     } catch (e) {
       AppLogger.e('Storage migration failed', error: e, tag: 'STORAGE');
@@ -150,7 +155,8 @@ class SecureStorageService {
       final token = await _storage.read(key: _keyAccessToken);
       // Validate token format (basic sanity check)
       if (token != null && token.isEmpty) {
-        AppLogger.w('Empty access token found, treating as null', tag: 'STORAGE');
+        AppLogger.w('Empty access token found, treating as null',
+            tag: 'STORAGE');
         return null;
       }
       return token;
@@ -164,7 +170,8 @@ class SecureStorageService {
   /// Set access token
   Future<void> setAccessToken(String token) async {
     if (token.isEmpty) {
-      throw StorageException('Cannot store empty access token', code: 'INVALID_TOKEN');
+      throw StorageException('Cannot store empty access token',
+          code: 'INVALID_TOKEN');
     }
     try {
       await _storage.write(key: _keyAccessToken, value: token);
@@ -182,7 +189,8 @@ class SecureStorageService {
       final token = await _storage.read(key: _keyRefreshToken);
       // Validate token format (basic sanity check)
       if (token != null && token.isEmpty) {
-        AppLogger.w('Empty refresh token found, treating as null', tag: 'STORAGE');
+        AppLogger.w('Empty refresh token found, treating as null',
+            tag: 'STORAGE');
         return null;
       }
       return token;
@@ -196,7 +204,8 @@ class SecureStorageService {
   /// Set refresh token
   Future<void> setRefreshToken(String token) async {
     if (token.isEmpty) {
-      throw StorageException('Cannot store empty refresh token', code: 'INVALID_TOKEN');
+      throw StorageException('Cannot store empty refresh token',
+          code: 'INVALID_TOKEN');
     }
     try {
       await _storage.write(key: _keyRefreshToken, value: token);
@@ -215,7 +224,8 @@ class SecureStorageService {
       if (value == null) return null;
       final expiry = DateTime.tryParse(value);
       if (expiry == null) {
-        AppLogger.w('Invalid token expiry format, treating as null', tag: 'STORAGE');
+        AppLogger.w('Invalid token expiry format, treating as null',
+            tag: 'STORAGE');
         return null;
       }
       return expiry;
@@ -305,7 +315,8 @@ class SecureStorageService {
   Future<void> setUserData(Map<String, dynamic> data) async {
     // Validate required fields
     if (!data.containsKey('id') || !data.containsKey('email')) {
-      throw StorageException('Invalid user data - missing required fields', code: 'INVALID_USER_DATA');
+      throw StorageException('Invalid user data - missing required fields',
+          code: 'INVALID_USER_DATA');
     }
     try {
       await _storage.write(
@@ -386,7 +397,8 @@ class SecureStorageService {
 
       return newCount;
     } catch (e) {
-      AppLogger.e('Failed to record biometric failure', error: e, tag: 'STORAGE');
+      AppLogger.e('Failed to record biometric failure',
+          error: e, tag: 'STORAGE');
       return 0;
     }
   }
@@ -404,7 +416,8 @@ class SecureStorageService {
   /// Check if biometric is locked out
   Future<bool> isBiometricLockedOut() async {
     try {
-      final lockoutUntilStr = await _storage.read(key: _keyBiometricLockoutUntil);
+      final lockoutUntilStr =
+          await _storage.read(key: _keyBiometricLockoutUntil);
       if (lockoutUntilStr == null) return false;
 
       final lockoutUntil = DateTime.tryParse(lockoutUntilStr);
@@ -425,7 +438,8 @@ class SecureStorageService {
   /// Get time remaining for biometric lockout
   Future<Duration?> getBiometricLockoutRemaining() async {
     try {
-      final lockoutUntilStr = await _storage.read(key: _keyBiometricLockoutUntil);
+      final lockoutUntilStr =
+          await _storage.read(key: _keyBiometricLockoutUntil);
       if (lockoutUntilStr == null) return null;
 
       final lockoutUntil = DateTime.tryParse(lockoutUntilStr);
@@ -444,7 +458,8 @@ class SecureStorageService {
       await _storage.delete(key: _keyBiometricFailureCount);
       await _storage.delete(key: _keyBiometricLockoutUntil);
     } catch (e) {
-      AppLogger.e('Failed to reset biometric failure count', error: e, tag: 'STORAGE');
+      AppLogger.e('Failed to reset biometric failure count',
+          error: e, tag: 'STORAGE');
     }
   }
 
@@ -471,7 +486,8 @@ class SecureStorageService {
   /// Set current tenant ID
   Future<void> setTenantId(String tenantId) async {
     if (tenantId.isEmpty) {
-      throw StorageException('Cannot store empty tenant ID', code: 'INVALID_TENANT_ID');
+      throw StorageException('Cannot store empty tenant ID',
+          code: 'INVALID_TENANT_ID');
     }
     try {
       await _storage.write(key: _keyTenantId, value: tenantId);
@@ -601,11 +617,13 @@ class SecureStorageService {
   /// Validate key format
   void _validateKey(String key) {
     if (key.isEmpty) {
-      throw StorageException('Storage key cannot be empty', code: 'INVALID_KEY');
+      throw StorageException('Storage key cannot be empty',
+          code: 'INVALID_KEY');
     }
     // Prevent potential injection by limiting key characters
     if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(key)) {
-      throw StorageException('Invalid storage key format', code: 'INVALID_KEY_FORMAT');
+      throw StorageException('Invalid storage key format',
+          code: 'INVALID_KEY_FORMAT');
     }
   }
 
@@ -615,11 +633,13 @@ class SecureStorageService {
 
     try {
       final keys = await getAllKeys();
-      AppLogger.d('Secure storage contains ${keys.length} keys', tag: 'STORAGE');
+      AppLogger.d('Secure storage contains ${keys.length} keys',
+          tag: 'STORAGE');
       for (final key in keys) {
         // Don't print actual values for security
         final hasValue = await containsKey(key);
-        AppLogger.d('  - $key: ${hasValue ? "has value" : "empty"}', tag: 'STORAGE');
+        AppLogger.d('  - $key: ${hasValue ? "has value" : "empty"}',
+            tag: 'STORAGE');
       }
     } catch (e) {
       AppLogger.e('Failed to print storage info', error: e, tag: 'STORAGE');

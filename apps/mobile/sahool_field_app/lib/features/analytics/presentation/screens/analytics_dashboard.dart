@@ -257,8 +257,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
     );
   }
 
-  Widget _buildFieldRow(
-      String name, String area, double health, String crop) {
+  Widget _buildFieldRow(String name, String area, double health, String crop) {
     final healthColor = _getHealthColor(health);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -419,8 +418,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
     );
   }
 
-  Widget _buildTaskTypeRow(
-      String type, int count, IconData icon, Color color) {
+  Widget _buildTaskTypeRow(String type, int count, IconData icon, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -505,7 +503,8 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildProductionStat('الإنتاج المتوقع', '2,450 طن', Icons.inventory),
+                _buildProductionStat(
+                    'الإنتاج المتوقع', '2,450 طن', Icons.inventory),
                 _buildProductionStat('المحصود', '1,200 طن', Icons.agriculture),
                 _buildProductionStat('الباقي', '1,250 طن', Icons.schedule),
               ],

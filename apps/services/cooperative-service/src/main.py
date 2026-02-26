@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 logger = structlog.get_logger()
 
@@ -20,6 +21,10 @@ async def lifespan(app: FastAPI):
 
     # Database connection
     db_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             import asyncpg
@@ -94,6 +99,8 @@ try:
 except ImportError:
     logger.warning("shared.errors_py not available, using default error handling")
 
+app.add_middleware(TenantContextMiddleware)
+
 # Include API routers
 try:
     from src.api.v1 import cooperatives
@@ -149,8 +156,8 @@ async def metrics():
         "# HELP cooperative_service_up Service is up\n"
         "# TYPE cooperative_service_up gauge\n"
         "cooperative_service_up 1\n"
-        '# HELP cooperative_service_info Service version info\n'
-        '# TYPE cooperative_service_info gauge\n'
+        "# HELP cooperative_service_info Service version info\n"
+        "# TYPE cooperative_service_info gauge\n"
         'cooperative_service_info{service="cooperative-service",version="16.0.0"} 1\n'
         "# HELP cooperative_service_db_up Database connection status\n"
         "# TYPE cooperative_service_db_up gauge\n"

@@ -66,7 +66,8 @@ void main() async {
 
       AppLogger.i('Crash reporting initialized', tag: 'Main');
     } catch (e) {
-      AppLogger.w('Crash reporting init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Crash reporting init failed (non-critical): $e',
+          tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
@@ -75,7 +76,8 @@ void main() async {
     AppLogger.d('Security config: $securityConfig', tag: 'Security');
 
     // Perform device integrity check if enabled
-    if (securityConfig.deviceIntegrityPolicy != DeviceIntegrityPolicy.disabled) {
+    if (securityConfig.deviceIntegrityPolicy !=
+        DeviceIntegrityPolicy.disabled) {
       try {
         crashReporting.recordBreadcrumb(
           message: 'Starting device integrity check',
@@ -103,13 +105,15 @@ void main() async {
         }
 
         // Check if app should be blocked
-        final shouldBlock = deviceIntegrity.shouldBlockApp(securityResult, securityConfig);
+        final shouldBlock =
+            deviceIntegrity.shouldBlockApp(securityResult, securityConfig);
 
         if (shouldBlock ||
-            (securityConfig.deviceIntegrityPolicy == DeviceIntegrityPolicy.warn &&
-             securityResult.hasSecurityIssues)) {
-
-          AppLogger.w('Security check failed - showing security screen', tag: 'Security');
+            (securityConfig.deviceIntegrityPolicy ==
+                    DeviceIntegrityPolicy.warn &&
+                securityResult.hasSecurityIssues)) {
+          AppLogger.w('Security check failed - showing security screen',
+              tag: 'Security');
           crashReporting.recordBreadcrumb(
             message: 'Security check failed - blocking app',
             category: 'security',
@@ -127,7 +131,8 @@ void main() async {
                     ? null
                     : () {
                         // User chose to continue anyway
-                        AppLogger.w('User bypassed security warning', tag: 'Security');
+                        AppLogger.w('User bypassed security warning',
+                            tag: 'Security');
                         crashReporting.recordBreadcrumb(
                           message: 'User bypassed security warning',
                           category: 'security',
@@ -149,7 +154,8 @@ void main() async {
           level: BreadcrumbLevel.info,
         );
       } catch (e, stackTrace) {
-        AppLogger.w('Device integrity check failed (non-critical): $e', tag: 'Security');
+        AppLogger.w('Device integrity check failed (non-critical): $e',
+            tag: 'Security');
         // Continue anyway - don't block app if security check fails
         crashReporting.reportError(
           e,
@@ -183,7 +189,8 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      AppLogger.critical('Database initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
+      AppLogger.critical('Database initialization failed: $e',
+          tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
@@ -209,7 +216,8 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
     } catch (e, stackTrace) {
-      AppLogger.critical('SyncEngine initialization failed: $e', tag: 'Main', error: e, stackTrace: stackTrace);
+      AppLogger.critical('SyncEngine initialization failed: $e',
+          tag: 'Main', error: e, stackTrace: stackTrace);
       crashReporting.reportError(
         e,
         stackTrace,
@@ -237,7 +245,8 @@ void main() async {
       );
     } catch (e, stackTrace) {
       // Non-critical - app can work without background sync
-      AppLogger.w('Background sync init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Background sync init failed (non-critical): $e',
+          tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
@@ -256,7 +265,8 @@ void main() async {
         level: BreadcrumbLevel.info,
       );
       await NotificationManager.instance.initialize();
-      final permissionGranted = await NotificationManager.instance.requestPermission();
+      final permissionGranted =
+          await NotificationManager.instance.requestPermission();
       AppLogger.i(
         'Notification system initialized (permission: ${permissionGranted ? "granted" : "denied"})',
         tag: 'Main',
@@ -269,7 +279,8 @@ void main() async {
       );
     } catch (e, stackTrace) {
       // Non-critical - app can work without notifications
-      AppLogger.w('Notification system init failed (non-critical): $e', tag: 'Main');
+      AppLogger.w('Notification system init failed (non-critical): $e',
+          tag: 'Main');
       crashReporting.reportError(
         e,
         stackTrace,
@@ -316,7 +327,8 @@ void main() async {
     }
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
-    AppLogger.critical('Uncaught error: $error', tag: 'Main', error: error, stackTrace: stackTrace);
+    AppLogger.critical('Uncaught error: $error',
+        tag: 'Main', error: error, stackTrace: stackTrace);
 
     // Report to crash reporting service
     crashReporting.reportError(

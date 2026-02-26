@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/di/providers.dart';
-import '../../../core/sync/sync_metrics_providers.dart' show sharedPreferencesProvider;
+import '../../../core/sync/sync_metrics_providers.dart'
+    show sharedPreferencesProvider;
 import '../../../core/http/api_client.dart';
 import '../../../core/utils/app_logger.dart';
 import '../ui/otp_verification_screen.dart';
@@ -440,10 +441,12 @@ class OTPConfig {
       resendCooldownSeconds: json['resend_cooldown_seconds'] as int? ?? 60,
       maxAttempts: json['max_attempts'] as int? ?? 3,
       enableAutoVerify: json['enable_auto_verify'] as bool? ?? true,
-      enableBiometricFallback: json['enable_biometric_fallback'] as bool? ?? false,
+      enableBiometricFallback:
+          json['enable_biometric_fallback'] as bool? ?? false,
       channels: channels,
       rateLimit: json['rate_limit'] != null
-          ? OTPRateLimitConfig.fromJson(json['rate_limit'] as Map<String, dynamic>)
+          ? OTPRateLimitConfig.fromJson(
+              json['rate_limit'] as Map<String, dynamic>)
           : const OTPRateLimitConfig(),
       providerConfigs: providerConfigs,
       featureFlags: featureFlags,
@@ -476,9 +479,8 @@ class OTPConfig {
 
   /// Get enabled channels sorted by priority
   List<MapEntry<String, OTPChannelConfig>> getEnabledChannels() {
-    final enabled = channels.entries
-        .where((entry) => entry.value.enabled)
-        .toList();
+    final enabled =
+        channels.entries.where((entry) => entry.value.enabled).toList();
     enabled.sort((a, b) => a.value.priority.compareTo(b.value.priority));
     return enabled;
   }
@@ -504,7 +506,8 @@ class OTPConfig {
   Duration get expirationDuration => Duration(seconds: expirationSeconds);
 
   /// Resend cooldown duration
-  Duration get resendCooldownDuration => Duration(seconds: resendCooldownSeconds);
+  Duration get resendCooldownDuration =>
+      Duration(seconds: resendCooldownSeconds);
 
   /// Copy with modifications
   OTPConfig copyWith({
@@ -604,8 +607,7 @@ class OTPConfigRepository {
 
       final cacheTimestamp = _prefs.getInt(_cacheTimestampKey);
       if (cacheTimestamp != null) {
-        final cacheTime =
-            DateTime.fromMillisecondsSinceEpoch(cacheTimestamp);
+        final cacheTime = DateTime.fromMillisecondsSinceEpoch(cacheTimestamp);
         if (DateTime.now().difference(cacheTime) > _cacheExpiry) {
           AppLogger.d('OTP config cache expired', tag: 'OTPConfig');
           return null;
@@ -615,7 +617,8 @@ class OTPConfigRepository {
       final json = jsonDecode(cachedJson) as Map<String, dynamic>;
       return OTPConfig.fromJson(json);
     } catch (e) {
-      AppLogger.e('Failed to read cached OTP config', error: e, tag: 'OTPConfig');
+      AppLogger.e('Failed to read cached OTP config',
+          error: e, tag: 'OTPConfig');
     }
     return null;
   }
@@ -689,7 +692,8 @@ class OTPConfigRepository {
   void _fetchInBackground() {
     fetchRemoteConfig().then((_) {
       if (kDebugMode) {
-        AppLogger.d('Background OTP config refresh completed', tag: 'OTPConfig');
+        AppLogger.d('Background OTP config refresh completed',
+            tag: 'OTPConfig');
       }
     }).catchError((e) {
       AppLogger.e('Background OTP config refresh failed',

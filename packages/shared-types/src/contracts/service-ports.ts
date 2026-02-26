@@ -82,8 +82,8 @@ export const SERVICE_PORTS = {
   // ── Communication ────────────────────────────────────────────────────
   /** WebSocket gateway - بوابة WebSocket */
   WS_GATEWAY: 8081,
-  /** Real-time messaging - الرسائل الفورية */
-  CHAT_SERVICE: 8000,
+  /** Real-time messaging - الرسائل الفورية (host port 8115, container 8000) */
+  CHAT_SERVICE: 8115,
   /** Field-level chat - دردشة الحقل */
   FIELD_CHAT: 8099,
   /** Community features (deprecated → chat-service) */

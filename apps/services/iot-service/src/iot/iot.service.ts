@@ -36,6 +36,34 @@ export interface SensorReading {
   quality: "good" | "warning" | "error";
 }
 
+/** Sensor value bounds for data validation - حدود قيم المستشعرات */
+export const SENSOR_VALUE_BOUNDS: Record<SensorType, { min: number; max: number; unit: string }> = {
+  [SensorType.SOIL_MOISTURE]: { min: 0, max: 100, unit: "%" },
+  [SensorType.SOIL_TEMPERATURE]: { min: -10, max: 70, unit: "°C" },
+  [SensorType.AIR_TEMPERATURE]: { min: -50, max: 60, unit: "°C" },
+  [SensorType.AIR_HUMIDITY]: { min: 0, max: 100, unit: "%" },
+  [SensorType.LIGHT_INTENSITY]: { min: 0, max: 200000, unit: "lux" },
+  [SensorType.WATER_LEVEL]: { min: 0, max: 1000, unit: "cm" },
+  [SensorType.WATER_FLOW]: { min: 0, max: 10000, unit: "L/h" },
+  [SensorType.PH_LEVEL]: { min: 0, max: 14, unit: "pH" },
+  [SensorType.EC_LEVEL]: { min: 0, max: 20, unit: "dS/m" },
+  [SensorType.WIND_SPEED]: { min: 0, max: 200, unit: "km/h" },
+  [SensorType.RAIN_GAUGE]: { min: 0, max: 500, unit: "mm" },
+};
+
+/** Validate sensor reading value is within expected bounds */
+export function validateSensorValue(sensorType: SensorType, value: number): { valid: boolean; message?: string } {
+  const bounds = SENSOR_VALUE_BOUNDS[sensorType];
+  if (!bounds) return { valid: true };
+  if (typeof value !== "number" || isNaN(value)) {
+    return { valid: false, message: `Invalid value: must be a number` };
+  }
+  if (value < bounds.min || value > bounds.max) {
+    return { valid: false, message: `Value ${value} out of range [${bounds.min}, ${bounds.max}] for ${sensorType}` };
+  }
+  return { valid: true };
+}
+
 export enum SensorType {
   SOIL_MOISTURE = "soil_moisture",
   SOIL_TEMPERATURE = "soil_temperature",

@@ -413,10 +413,10 @@ IRRIGATION_EFFICIENCY = {
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
 
-    temperature_max: float = Field(..., description="Maximum temperature (°C)")
-    temperature_min: float = Field(..., description="Minimum temperature (°C)")
+    temperature_max: float = Field(..., ge=-50, le=60, description="Maximum temperature (°C)")
+    temperature_min: float = Field(..., ge=-50, le=60, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
-    wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
+    wind_speed: float = Field(..., ge=0, le=200, description="Wind speed at 2m height (m/s)")
     solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")

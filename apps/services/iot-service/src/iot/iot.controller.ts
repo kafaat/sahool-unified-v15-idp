@@ -31,6 +31,7 @@ import {
   IsString,
   IsArray,
   IsBoolean,
+  Max,
 } from "class-validator";
 import { Throttle } from "@nestjs/throttler";
 import { IotService, SensorType, SensorReading } from "./iot.service";
@@ -47,6 +48,7 @@ class TogglePumpDto {
   @IsNumber()
   @IsOptional()
   @IsPositive()
+  @Max(1440) // Max 24 hours in minutes
   duration?: number;
 }
 

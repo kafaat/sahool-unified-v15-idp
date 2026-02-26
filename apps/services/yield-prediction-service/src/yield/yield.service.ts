@@ -597,12 +597,15 @@ export class YieldService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   private calculateNDVIFactor(ndvi: number): number {
+    // Validate NDVI range: must be between -1 and 1
+    if (typeof ndvi !== "number" || isNaN(ndvi)) return 0.7;
+    const clampedNdvi = Math.max(-1, Math.min(1, ndvi));
     // NDVI to yield factor mapping
-    if (ndvi >= 0.8) return 1.15;
-    if (ndvi >= 0.7) return 1.05;
-    if (ndvi >= 0.6) return 1.0;
-    if (ndvi >= 0.5) return 0.9;
-    if (ndvi >= 0.4) return 0.8;
+    if (clampedNdvi >= 0.8) return 1.15;
+    if (clampedNdvi >= 0.7) return 1.05;
+    if (clampedNdvi >= 0.6) return 1.0;
+    if (clampedNdvi >= 0.5) return 0.9;
+    if (clampedNdvi >= 0.4) return 0.8;
     return 0.7;
   }
 

@@ -186,7 +186,7 @@ async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
 
     # Idempotency: track processed event IDs to prevent duplicate handling
     _processed_ids: dict[str, float] = {}
-    _DEDUP_MAX = 10_000
+    _DEDUP_MAX = 50_000  # Aligned with shared/events/subscriber.py standard
 
     def _is_duplicate(event_id: str | None) -> bool:
         """Check if event was already processed (idempotency guard)."""

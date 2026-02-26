@@ -296,14 +296,32 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       data = { value: parseFloat(payload) };
     }
 
+    // Validate sensor value is a finite number
+    const numValue = Number(data.value);
+    if (!Number.isFinite(numValue)) {
+      this.logger.warn(
+        `Rejected non-numeric sensor reading: ${sensorType} @ ${fieldId}: ${data.value}`,
+      );
+      return;
+    }
+
+    // Validate sensor value is within physical bounds
+    const quality = this.assessReadingQuality(sensorType, numValue);
+    if (quality === "error") {
+      this.logger.warn(
+        `Rejected out-of-bounds sensor reading: ${sensorType} @ ${fieldId}: ${numValue} (bounds violation)`,
+      );
+      return;
+    }
+
     const reading: SensorReading = {
       deviceId: data.deviceId || `sensor-${fieldId}-${sensorType}`,
       fieldId,
       sensorType,
-      value: data.value,
+      value: numValue,
       unit: this.getUnitForSensorType(sensorType),
       timestamp: new Date(),
-      quality: this.assessReadingQuality(sensorType, data.value),
+      quality,
     };
 
     // Cache latest reading in Redis
@@ -314,7 +332,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     await this.persistSensorReading(reading, tenantId);
 
     this.logger.debug(
-      `📊 Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
+      `Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
     );
 
     // Check for alerts
@@ -940,12 +958,20 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   }
 
   private checkSensorAlerts(reading: SensorReading, tenantId: string): void {
-    // Alert thresholds
+    // Alert thresholds for agricultural operations
     const alerts: Partial<Record<SensorType, { low?: number; high?: number }>> =
       {
-        [SensorType.SOIL_MOISTURE]: { low: 30, high: 85 },
-        [SensorType.AIR_TEMPERATURE]: { high: 40 },
-        [SensorType.WATER_LEVEL]: { low: 10 },
+        [SensorType.SOIL_MOISTURE]: { low: 20, high: 85 },
+        [SensorType.SOIL_TEMPERATURE]: { low: 5, high: 40 },
+        [SensorType.AIR_TEMPERATURE]: { low: 0, high: 45 },
+        [SensorType.AIR_HUMIDITY]: { low: 15, high: 95 },
+        [SensorType.LIGHT_INTENSITY]: { high: 120000 },
+        [SensorType.WATER_LEVEL]: { low: 10, high: 900 },
+        [SensorType.WATER_FLOW]: { high: 800 },
+        [SensorType.PH_LEVEL]: { low: 4.5, high: 9.5 },
+        [SensorType.EC_LEVEL]: { high: 6 },
+        [SensorType.WIND_SPEED]: { high: 60 },
+        [SensorType.RAIN_GAUGE]: { high: 100 },
       };
 
     const threshold = alerts[reading.sensorType];

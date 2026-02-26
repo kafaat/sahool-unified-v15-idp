@@ -78,8 +78,17 @@ class NDVIResult:
     health_status_ar: str = ""  # الحالة الصحية
 
     def __post_init__(self):
-        """Determine health status from NDVI."""
+        """Validate NDVI range and determine health status."""
         if self.index_type == VegetationIndex.NDVI:
+            # Validate NDVI values are within physical range [-1.0, 1.0]
+            for attr in ("mean_value", "min_value", "max_value"):
+                val = getattr(self, attr)
+                if not (-1.0 <= val <= 1.0):
+                    raise ValueError(
+                        f"NDVI {attr} ({val}) outside valid range [-1.0, 1.0] | "
+                        f"قيمة NDVI {attr} ({val}) خارج النطاق الصالح"
+                    )
+
             if self.mean_value >= 0.6:
                 self.health_status = "healthy"
                 self.health_status_ar = "صحي"

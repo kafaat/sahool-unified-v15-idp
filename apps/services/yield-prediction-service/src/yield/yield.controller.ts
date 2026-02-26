@@ -3,7 +3,7 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
+import { Controller, Get, Post, Param, Query, Body, UseGuards, Req } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
@@ -11,6 +11,7 @@ import {
   ActionTemplate,
   PreHarvestAlertResponse,
   FEATURE_SCHEMA,
+  validateFeatureInput,
 } from "./yield.service";
 
 @ApiTags("yield")
@@ -26,6 +27,20 @@ export class YieldController {
   })
   getFeatureSchema() {
     return FEATURE_SCHEMA;
+  }
+
+  @Post("validate-input")
+  @ApiOperation({
+    summary: "Validate ML input data",
+    description: "التحقق من صحة بيانات الإدخال مقابل مخطط المدخلات لكشف انحراف البيانات",
+  })
+  @ApiResponse({ status: 200, description: "Validation result" })
+  validateInput(@Body() data: Record<string, unknown>) {
+    const result = validateFeatureInput(data);
+    return {
+      ...result,
+      schema_version: FEATURE_SCHEMA.version,
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

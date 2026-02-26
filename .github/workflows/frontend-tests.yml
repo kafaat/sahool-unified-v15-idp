@@ -1135,6 +1135,52 @@ jobs:
         with:
           working-directory: apps/mobile
           clean-first: 'true'
+          verify-files: 'lib/core/storage/database.g.dart'
+
+      - name: Verify all generated files
+        run: |
+          echo "=== Checking all generated files ==="
+          missing=0
+          for f in \
+            lib/core/storage/database.g.dart \
+            lib/features/auth/config/otp_config.g.dart \
+            lib/features/advisor/data/models/irrigation_models.freezed.dart \
+            lib/features/advisor/data/models/irrigation_models.g.dart \
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart \
+            lib/features/advisor/data/models/fertilizer_models.g.dart \
+            lib/features/astronomical/models/astronomical_models.freezed.dart \
+            lib/features/astronomical/models/astronomical_models.g.dart \
+            lib/features/community/data/models/chat_models.freezed.dart \
+            lib/features/community/data/models/chat_models.g.dart \
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart \
+            lib/features/crop_health/data/models/diagnosis_models.g.dart \
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart \
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart \
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart \
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart; do
+            if [ -f "$f" ]; then
+              echo "  ✅ $f"
+            else
+              echo "  ❌ MISSING: $f"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ $missing -gt 0 ]; then
+            echo ""
+            echo "⚠️ $missing generated files are missing — build_runner may have failed for some generators"
+            echo "=== All generated files in lib/ ==="
+            find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | sort
+          else
+            echo "✅ All generated files verified"
+          fi
+
+      - name: Pre-compile integration test
+        run: |
+          echo "=== Pre-compiling integration test to catch errors early ==="
+          flutter analyze integration_test/app_test.dart 2>&1 || true
+        continue-on-error: true
 
       - name: Enable KVM (for Android Emulator)
         id: kvm
@@ -1162,7 +1208,13 @@ jobs:
           emulator-boot-timeout: 300
           disable-animations: true
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -memory 2048
-          script: cd apps/mobile && flutter test integration_test/app_test.dart --timeout 180s 2>&1 | tee integration_test_output.txt; echo "✅ Integration tests completed"
+          script: |
+            cd apps/mobile
+            echo "=== Generated files present ==="
+            find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | sort || echo "No generated files found"
+            echo "=== Running integration tests ==="
+            flutter test integration_test/app_test.dart --verbose --timeout 180s 2>&1 | tee integration_test_output.txt
+            echo "✅ Integration tests completed"
         continue-on-error: true
 
       - name: Report Skipped Integration Tests

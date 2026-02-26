@@ -8,10 +8,13 @@
  * - User status validation (active, verified, deleted, suspended)
  */
 
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { InjectRedis } from "@liaoliaots/nestjs-redis";
-import Redis from "ioredis";
+import { Inject, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { AuthErrors } from "../config/jwt.config";
+
+// Use @Inject with the default ioredis token instead of @InjectRedis
+// to avoid a hard dependency on @liaoliaots/nestjs-redis at import time.
+// Services that set enableUserValidation: false won't need ioredis at runtime.
+const REDIS_CLIENT_TOKEN = "default";
 
 /**
  * User validation data interface
@@ -53,7 +56,7 @@ export class UserValidationService {
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
-    @InjectRedis() private readonly redis: Redis,
+    @Inject(REDIS_CLIENT_TOKEN) private readonly redis: any,
     private readonly userRepository?: IUserRepository,
   ) {}
 

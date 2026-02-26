@@ -17,8 +17,18 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from "@nestjs/common";
-import { createClient, RedisClientType } from "redis";
 import { JWTConfig } from "../config/jwt.config";
+
+// Lazy-load redis to avoid requiring the module when token revocation is disabled.
+// Services that set enableTokenRevocation: false should not need redis at runtime.
+let _createClient: any = null;
+async function getCreateClient(): Promise<any> {
+  if (!_createClient) {
+    const redis = await import("redis");
+    _createClient = redis.createClient;
+  }
+  return _createClient;
+}
 
 /**
  * Revocation information interface
@@ -78,7 +88,7 @@ export class RedisTokenRevocationStore
   private readonly USER_PREFIX = "revoked:user:";
   private readonly TENANT_PREFIX = "revoked:tenant:";
 
-  private redis: RedisClientType | null = null;
+  private redis: any | null = null;
   private initialized = false;
 
   constructor(private readonly redisUrl?: string) {}
@@ -132,6 +142,7 @@ export class RedisTokenRevocationStore
 
     try {
       const url = this.buildRedisUrl();
+      const createClient = await getCreateClient();
 
       this.redis = createClient({
         url,

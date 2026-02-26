@@ -9,6 +9,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -355,10 +356,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        final products = data
-            .map((json) => Product.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final products = await compute(_parseProductList, response.body);
 
         final featured = products.where((p) => p.featured).toList();
 
@@ -495,10 +493,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        final orders = data
-            .map((json) => Order.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final orders = await compute(_parseOrderList, response.body);
 
         state = state.copyWith(orders: orders);
       }
@@ -556,6 +551,22 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
 // =============================================================================
 
 /// مزود معرف المستخدم
+/// Top-level function for compute() isolate - parses products on background isolate
+List<Product> _parseProductList(String jsonStr) {
+  final data = jsonDecode(jsonStr) as List<dynamic>;
+  return data
+      .map((json) => Product.fromJson(json as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses orders on background isolate
+List<Order> _parseOrderList(String jsonStr) {
+  final data = jsonDecode(jsonStr) as List<dynamic>;
+  return data
+      .map((json) => Order.fromJson(json as Map<String, dynamic>))
+      .toList();
+}
+
 final marketUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API

@@ -28,6 +28,8 @@ class ChatState {
   final Map<String, bool> typingStatus;
   final int unreadCount;
   final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMoreMessages;
   final String? error;
 
   const ChatState({
@@ -37,6 +39,8 @@ class ChatState {
     this.typingStatus = const {},
     this.unreadCount = 0,
     this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasMoreMessages = true,
     this.error,
   });
 
@@ -48,6 +52,8 @@ class ChatState {
     Map<String, bool>? typingStatus,
     int? unreadCount,
     bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMoreMessages,
     String? error,
     bool clearError = false,
   }) {
@@ -60,6 +66,8 @@ class ChatState {
       typingStatus: typingStatus ?? this.typingStatus,
       unreadCount: unreadCount ?? this.unreadCount,
       isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -348,11 +356,18 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // Messages
   // ───────────────────────────────────────────────────────────────────────────
 
+  /// Initial page size for messages
+  static const int _initialPageSize = 30;
+
+  /// Page size for load-more pagination
+  static const int _pageSize = 20;
+
   /// Open conversation (set as active and load messages)
   Future<void> openConversation(String conversationId) async {
     state = state.copyWith(
       activeConversationId: conversationId,
       isLoading: true,
+      hasMoreMessages: true,
       clearError: true,
     );
 
@@ -360,8 +375,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
       // Join conversation room for real-time updates
       _repository.joinConversation(conversationId);
 
-      // Load messages
-      final messages = await _repository.getMessages(conversationId);
+      // Load only the most recent messages (paginated)
+      final messages = await _repository.getMessages(
+        conversationId,
+        limit: _initialPageSize,
+      );
 
       // Update state
       final updatedMessagesMap = {...state.messagesMap};
@@ -370,6 +388,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(
         messagesMap: updatedMessagesMap,
         isLoading: false,
+        hasMoreMessages: messages.length >= _initialPageSize,
       );
 
       // Mark as read
@@ -393,29 +412,46 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// Load more messages (pagination)
   Future<void> loadMoreMessages(String conversationId) async {
+    if (state.isLoadingMore || !state.hasMoreMessages) return;
+
     final existingMessages = state.messagesMap[conversationId] ?? [];
     if (existingMessages.isEmpty) return;
 
     final oldestMessage = existingMessages.last;
 
+    state = state.copyWith(isLoadingMore: true);
+
     try {
       final messages = await _repository.getMessages(
         conversationId,
         before: oldestMessage.id,
-        limit: 20,
+        limit: _pageSize,
       );
 
       if (messages.isNotEmpty) {
         final updatedMessagesMap = {...state.messagesMap};
+        // Deduplicate: filter out messages that already exist
+        final existingIds = existingMessages.map((m) => m.id).toSet();
+        final newMessages = messages.where((m) => !existingIds.contains(m.id)).toList();
+
         updatedMessagesMap[conversationId] = [
           ...existingMessages,
-          ...messages,
+          ...newMessages,
         ];
 
-        state = state.copyWith(messagesMap: updatedMessagesMap);
+        state = state.copyWith(
+          messagesMap: updatedMessagesMap,
+          isLoadingMore: false,
+          hasMoreMessages: messages.length >= _pageSize,
+        );
+      } else {
+        state = state.copyWith(
+          isLoadingMore: false,
+          hasMoreMessages: false,
+        );
       }
     } catch (e) {
-      // Silent fail
+      state = state.copyWith(isLoadingMore: false);
     }
   }
 

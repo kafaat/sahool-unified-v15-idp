@@ -174,7 +174,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -219,7 +219,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: (needs.changes.outputs.node == 'true' || needs.changes.outputs.packages == 'true') && github.event.inputs.skip_cache != 'true'
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.npm
@@ -269,7 +269,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -472,7 +472,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -550,7 +550,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.npm

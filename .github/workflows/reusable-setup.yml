@@ -150,7 +150,7 @@ jobs:
       - name: Cache pip dependencies
         id: pip-cache
         if: inputs.setup-python && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.cache/pip
@@ -194,7 +194,7 @@ jobs:
       - name: Cache npm dependencies
         id: npm-cache
         if: inputs.setup-node && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.npm
@@ -233,7 +233,7 @@ jobs:
       - name: Cache Flutter dependencies
         id: flutter-cache
         if: inputs.setup-flutter && !inputs.skip-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache

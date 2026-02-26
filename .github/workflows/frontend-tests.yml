@@ -59,7 +59,7 @@ jobs:
 
       - name: Restore packages build cache
         id: packages-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -97,7 +97,7 @@ jobs:
           done
 
       - name: Save packages build cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.3
         continue-on-error: true
         with:
           path: |
@@ -130,7 +130,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -142,7 +142,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -210,7 +210,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -221,7 +221,7 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -281,7 +281,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -367,7 +367,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -379,7 +379,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -447,7 +447,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -458,7 +458,7 @@ jobs:
             ${{ runner.os }}-admin-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -517,7 +517,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -602,7 +602,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -666,7 +666,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -774,7 +774,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -856,7 +856,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -934,7 +934,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -1105,7 +1105,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -1408,7 +1408,7 @@ jobs:
           cache: 'npm'
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist

@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
@@ -47,11 +48,13 @@ export class DisasterController {
   })
   @ApiResponse({ status: 200, description: "List of active disasters" })
   async getActiveDisasters(
+    @Req() req: any,
     @Query("type") type?: DisasterType,
     @Query("governorate") governorate?: string,
     @Query("severity") severity?: string,
   ) {
-    return this.disasterService.getActiveDisasters({
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.getActiveDisasters(tenantId, {
       type,
       governorate,
       severity,
@@ -68,8 +71,9 @@ export class DisasterController {
     description: "الحصول على تفاصيل كارثة محددة",
   })
   @ApiResponse({ status: 200, description: "Disaster details" })
-  async getDisasterById(@Param("id") id: string) {
-    return this.disasterService.getDisasterById(id);
+  async getDisasterById(@Param("id") id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.getDisasterById(id, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -84,8 +88,9 @@ export class DisasterController {
     description: "الإبلاغ عن كارثة جديدة",
   })
   @ApiResponse({ status: 201, description: "Disaster reported successfully" })
-  async reportDisaster(@Body() dto: CreateDisasterReportDto) {
-    return this.disasterService.reportDisaster(dto);
+  async reportDisaster(@Body() dto: CreateDisasterReportDto, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.reportDisaster(dto, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -102,8 +107,10 @@ export class DisasterController {
   async assessFieldDamage(
     @Param("fieldId") fieldId: string,
     @Body() dto: DisasterAssessmentDto,
+    @Req() req: any,
   ) {
-    return this.disasterService.assessFieldDamage(fieldId, dto);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.assessFieldDamage(fieldId, dto, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -116,8 +123,9 @@ export class DisasterController {
     description: "الحصول على بيانات خريطة مخاطر الفيضانات",
   })
   @ApiQuery({ name: "governorate", required: true })
-  async getFloodRiskMap(@Query("governorate") governorate: string) {
-    return this.disasterService.getFloodRiskMap(governorate);
+  async getFloodRiskMap(@Query("governorate") governorate: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.getFloodRiskMap(governorate, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -130,8 +138,9 @@ export class DisasterController {
     description: "الحصول على مؤشر الجفاف للمنطقة",
   })
   @ApiQuery({ name: "governorate", required: true })
-  async getDroughtIndex(@Query("governorate") governorate: string) {
-    return this.disasterService.getDroughtIndex(governorate);
+  async getDroughtIndex(@Query("governorate") governorate: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.getDroughtIndex(governorate, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -146,10 +155,12 @@ export class DisasterController {
   @ApiQuery({ name: "year", required: false })
   @ApiQuery({ name: "governorate", required: false })
   async getStatistics(
+    @Req() req: any,
     @Query("year") year?: number,
     @Query("governorate") governorate?: string,
   ) {
-    return this.disasterService.getStatistics({ year, governorate });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.disasterService.getStatistics(tenantId, { year, governorate });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

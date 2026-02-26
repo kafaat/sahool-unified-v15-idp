@@ -6,6 +6,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD, APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { TenantGuard } from "@sahool/nestjs-auth";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { AppController } from "./app.controller";
 import { PrismaService } from "./prisma/prisma.service";
@@ -69,6 +70,11 @@ import { CacheModule } from "./cache/cache.module";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
     // Global exception filter
     {

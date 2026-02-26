@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 logger = structlog.get_logger()
 
@@ -98,6 +99,8 @@ try:
 except ImportError:
     logger.warning("shared.errors_py not available, using default error handling")
 
+app.add_middleware(TenantContextMiddleware)
+
 # Include API routers
 try:
     from src.api.v1 import drones, flights, missions, vra
@@ -156,8 +159,8 @@ async def metrics():
         "# HELP drone_service_up Service is up\n"
         "# TYPE drone_service_up gauge\n"
         "drone_service_up 1\n"
-        '# HELP drone_service_info Service version info\n'
-        '# TYPE drone_service_info gauge\n'
+        "# HELP drone_service_info Service version info\n"
+        "# TYPE drone_service_info gauge\n"
         'drone_service_info{service="drone-service",version="16.0.0"} 1\n'
         "# HELP drone_service_db_up Database connection status\n"
         "# TYPE drone_service_db_up gauge\n"

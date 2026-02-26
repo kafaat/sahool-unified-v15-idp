@@ -134,6 +134,7 @@ export class NdviService {
     // Create NDVI reading
     await this.prisma.ndviReading.create({
       data: {
+        tenantId: field.tenantId,
         fieldId,
         value,
         capturedAt: new Date(),

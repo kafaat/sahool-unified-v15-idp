@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { AuthModule } from "@sahool/nestjs-auth";
+import { AuthModule, TenantGuard } from "@sahool/nestjs-auth";
 import { HealthController } from "./health/health.controller";
 import { PhenologyController } from "./phenology/phenology.controller";
 import { PhenologyService } from "./phenology/phenology.service";
@@ -98,6 +98,11 @@ import { GISIntegrationService } from "./gis-integration/gis-integration.service
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

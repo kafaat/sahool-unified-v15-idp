@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   ParseBoolPipe,
+  Request,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -32,8 +33,10 @@ export class TreatmentsController {
   create(
     @Param("experimentId") experimentId: string,
     @Body() dto: CreateTreatmentDto,
+    @Request() req: any,
   ) {
-    return this.service.create({ ...dto, experimentId });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.create({ ...dto, experimentId }, tenantId);
   }
 
   @Get()
@@ -45,13 +48,15 @@ export class TreatmentsController {
   @ApiQuery({ name: "limit", required: false, type: Number })
   findAll(
     @Param("experimentId") experimentId: string,
+    @Request() req: any,
     @Query("plotId") plotId?: string,
     @Query("type") type?: string,
     @Query("isControl") isControl?: boolean,
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    return this.service.findAll(experimentId, {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findAll(experimentId, tenantId, {
       plotId,
       type,
       isControl,
@@ -62,19 +67,22 @@ export class TreatmentsController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get treatment details - تفاصيل المعالجة" })
-  findOne(@Param("id") id: string) {
-    return this.service.findOne(id);
+  findOne(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findOne(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update treatment - تحديث المعالجة" })
-  update(@Param("id") id: string, @Body() dto: UpdateTreatmentDto) {
-    return this.service.update(id, dto);
+  update(@Param("id") id: string, @Body() dto: UpdateTreatmentDto, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.update(id, dto, tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete treatment - حذف المعالجة" })
-  delete(@Param("id") id: string) {
-    return this.service.delete(id);
+  delete(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.delete(id, tenantId);
   }
 }

@@ -24,6 +24,7 @@ generator client {
 
 model Conversation {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
 
   // المشاركون (مصفوفة من معرفات المستخدمين)
   participantIds String[] @map("participant_ids")
@@ -47,6 +48,8 @@ model Conversation {
   participants Participant[]
 
   @@map("conversations")
+  @@index([tenantId], name: "idx_conversation_tenant")
+  @@index([tenantId, isActive], name: "idx_conversation_tenant_active")
   @@index([productId])
   @@index([orderId])
   @@index([isActive, lastMessageAt], name: "idx_conversation_active_updated")
@@ -60,6 +63,7 @@ model Conversation {
 
 model Message {
   id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id")
   conversationId String   @map("conversation_id")
 
   // المرسل
@@ -88,6 +92,7 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
+  @@index([tenantId], name: "idx_message_tenant")
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
@@ -109,6 +114,7 @@ enum MessageType {
 
 model Participant {
   id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id")
   conversationId String   @map("conversation_id")
   userId         String   @map("user_id")
 
@@ -136,6 +142,7 @@ model Participant {
 
   @@unique([conversationId, userId])
   @@map("participants")
+  @@index([tenantId], name: "idx_participant_tenant")
   @@index([userId])
   @@index([conversationId])
   @@index([userId, isOnline], name: "idx_participant_user_online")

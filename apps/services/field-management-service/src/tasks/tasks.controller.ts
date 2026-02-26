@@ -14,6 +14,7 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  Req,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { TasksService } from "./tasks.service";
@@ -166,7 +167,11 @@ export class TasksController {
   @ApiOperation({ summary: "Get overdue tasks" })
   @ApiQuery({ name: "tenantId", required: false })
   @ApiResponse({ status: 200, description: "Overdue tasks retrieved" })
-  async getOverdueTasks(@Query("tenantId") tenantId?: string) {
+  async getOverdueTasks(
+    @Req() req: any,
+    @Query("tenantId") queryTenantId?: string,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     const tasks = await this.tasksService.getOverdueTasks(tenantId);
     return {
       success: true,

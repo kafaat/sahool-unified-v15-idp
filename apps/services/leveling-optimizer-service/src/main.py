@@ -24,6 +24,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .api.endpoints import leveling
 from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse
 from .core.config import settings
@@ -179,6 +181,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
 )
+
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID middleware

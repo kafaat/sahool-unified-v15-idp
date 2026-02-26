@@ -26,6 +26,7 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.v1 import chat_router, health_router, rag_router, tools_router
 from .core.config import Settings, get_settings
@@ -179,6 +180,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.add_middleware(TenantContextMiddleware)
 
     # Request ID middleware
     @app.middleware("http")

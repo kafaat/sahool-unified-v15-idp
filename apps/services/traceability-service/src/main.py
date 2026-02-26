@@ -10,6 +10,8 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 logger = structlog.get_logger()
 
 
@@ -99,6 +101,9 @@ try:
 except ImportError:
     logger.warning("shared.errors_py not available, using default error handling")
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
 
 # Include API routers
 try:
@@ -155,8 +160,8 @@ async def metrics():
         "# HELP traceability_service_up Service is up\n"
         "# TYPE traceability_service_up gauge\n"
         "traceability_service_up 1\n"
-        '# HELP traceability_service_info Service version info\n'
-        '# TYPE traceability_service_info gauge\n'
+        "# HELP traceability_service_info Service version info\n"
+        "# TYPE traceability_service_info gauge\n"
         'traceability_service_info{service="traceability-service",version="16.0.0"} 1\n'
         "# HELP traceability_service_db_up Database connection status\n"
         "# TYPE traceability_service_db_up gauge\n"

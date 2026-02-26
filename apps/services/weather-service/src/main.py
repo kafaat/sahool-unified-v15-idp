@@ -131,6 +131,14 @@ add_request_id_middleware(app)
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ============== Tenant Isolation ==============
 
@@ -354,9 +362,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_daily_forecast(
-                req.lat, req.lon, min(days, 16)
-            )
+            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -368,9 +374,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_daily_forecast(
-                req.lat, req.lon, min(days, 16)
-            )
+            forecast = await app.state.weather_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
             provider = "Open-Meteo"
 
         # Publish forecast issued event
@@ -737,9 +741,7 @@ class HeatStressRequest(BaseModel):
     field_id: str
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
-    solar_radiation_mj: float = Field(
-        default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day"
-    )
+    solar_radiation_mj: float = Field(default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day")
     wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
 
 

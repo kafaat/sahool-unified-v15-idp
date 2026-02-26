@@ -12,6 +12,7 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  Req,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { SyncService } from "./sync.service";
@@ -117,9 +118,11 @@ export class SyncController {
   @ApiQuery({ name: "limit", required: false })
   @ApiResponse({ status: 200, description: "Sync data retrieved" })
   async deltaSync(
+    @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: DeltaSyncQueryDto,
   ) {
-    const result = await this.syncService.deltaSync(query);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    const result = await this.syncService.deltaSync({ ...query, tenantId });
     return {
       success: true,
       ...result,
@@ -137,9 +140,11 @@ export class SyncController {
   })
   @ApiResponse({ status: 200, description: "Batch sync completed" })
   async batchSync(
+    @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: BatchSyncDto,
   ) {
-    const result = await this.syncService.batchSync(dto);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || dto.tenantId;
+    const result = await this.syncService.batchSync({ ...dto, tenantId });
     return {
       success: true,
       ...result,
@@ -159,11 +164,13 @@ export class SyncController {
   @ApiQuery({ name: "userId", required: false })
   @ApiResponse({ status: 200, description: "Sync status retrieved" })
   async getSyncStatus(
+    @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: SyncStatusQueryDto,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
     const status = await this.syncService.getSyncStatus(
       query.deviceId,
-      query.tenantId,
+      tenantId,
       query.userId,
     );
     return {
@@ -182,9 +189,11 @@ export class SyncController {
   })
   @ApiResponse({ status: 200, description: "Sync status updated" })
   async updateSyncStatus(
+    @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateSyncStatusDto,
   ) {
-    const status = await this.syncService.updateDeviceSyncStatus(dto);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || dto.tenantId;
+    const status = await this.syncService.updateDeviceSyncStatus({ ...dto, tenantId });
     return {
       success: true,
       data: status,

@@ -8,6 +8,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { TenantGuard } from "@sahool/nestjs-auth";
 
 // Core modules
 import { PrismaModule } from "./prisma/prisma.module";
@@ -61,6 +62,11 @@ import { HealthModule } from "./health/health.module";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
     // Global cache interceptor
     {

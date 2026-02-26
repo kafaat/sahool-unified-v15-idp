@@ -10,10 +10,12 @@ import {
   Body,
   Param,
   Query,
+  Req,
   HttpCode,
   HttpStatus,
   UseGuards,
 } from "@nestjs/common";
+import { Request } from "express";
 import {
   ApiTags,
   ApiOperation,
@@ -78,6 +80,14 @@ class IrrigationScheduleDto {
 export class IotController {
   constructor(private readonly iotService: IotService) {}
 
+  /**
+   * Extract tenantId from authenticated request
+   * استخراج معرف المستأجر من الطلب المصادق عليه
+   */
+  private getTenantId(req: Request): string {
+    return (req as any).user?.tenantId || req.headers['x-tenant-id'] as string || 'default';
+  }
+
   // ==========================================================================
   // Health Check
   // ==========================================================================
@@ -104,8 +114,9 @@ export class IotController {
   @ApiResponse({ status: 200, description: "Sensor readings retrieved" })
   async getFieldSensors(
     @Param("fieldId") fieldId: string,
+    @Req() req: Request,
   ): Promise<SensorReading[]> {
-    return this.iotService.getFieldSensorData(fieldId);
+    return this.iotService.getFieldSensorData(fieldId, this.getTenantId(req));
   }
 
   @Get("field/:fieldId/sensor/:sensorType")
@@ -121,8 +132,9 @@ export class IotController {
   async getSensorReading(
     @Param("fieldId") fieldId: string,
     @Param("sensorType") sensorType: SensorType,
+    @Req() req: Request,
   ): Promise<SensorReading | null> {
-    return this.iotService.getSensorReading(fieldId, sensorType);
+    return this.iotService.getSensorReading(fieldId, sensorType, this.getTenantId(req));
   }
 
   // ==========================================================================
@@ -139,9 +151,11 @@ export class IotController {
   async togglePump(
     @Param("fieldId") fieldId: string,
     @Body() dto: TogglePumpDto,
+    @Req() req: Request,
   ): Promise<{ success: boolean; message: string }> {
     return this.iotService.togglePump(fieldId, dto.status, {
       duration: dto.duration,
+      tenantId: this.getTenantId(req),
     });
   }
 
@@ -157,8 +171,11 @@ export class IotController {
     @Param("fieldId") fieldId: string,
     @Param("valveId") valveId: string,
     @Body() dto: ToggleValveDto,
+    @Req() req: Request,
   ): Promise<{ success: boolean; message: string }> {
-    return this.iotService.toggleValve(fieldId, valveId, dto.status);
+    return this.iotService.toggleValve(fieldId, valveId, dto.status, {
+      tenantId: this.getTenantId(req),
+    });
   }
 
   @Post("field/:fieldId/irrigation/schedule")
@@ -171,8 +188,12 @@ export class IotController {
   setIrrigationSchedule(
     @Param("fieldId") fieldId: string,
     @Body() dto: IrrigationScheduleDto,
+    @Req() req: Request,
   ): { success: boolean; message: string } {
-    return this.iotService.setIrrigationSchedule(fieldId, dto);
+    return this.iotService.setIrrigationSchedule(fieldId, {
+      ...dto,
+      tenantId: this.getTenantId(req),
+    });
   }
 
   // ==========================================================================
@@ -186,8 +207,9 @@ export class IotController {
   @ApiResponse({ status: 200, description: "Actuator states retrieved" })
   async getFieldActuators(
     @Param("fieldId") fieldId: string,
+    @Req() req: Request,
   ): Promise<Record<string, boolean>> {
-    return this.iotService.getFieldActuatorStates(fieldId);
+    return this.iotService.getFieldActuatorStates(fieldId, this.getTenantId(req));
   }
 
   // ==========================================================================
@@ -198,10 +220,11 @@ export class IotController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get all connected devices" })
   @ApiResponse({ status: 200, description: "Device list retrieved" })
-  async getDevices() {
+  async getDevices(@Req() req: Request) {
+    const tenantId = this.getTenantId(req);
     return {
-      devices: await this.iotService.getConnectedDevices(),
-      stats: await this.iotService.getDeviceStats(),
+      devices: await this.iotService.getConnectedDevices(tenantId),
+      stats: await this.iotService.getDeviceStats(tenantId),
     };
   }
 
@@ -214,9 +237,10 @@ export class IotController {
   @ApiOperation({ summary: "Get IoT dashboard data for a field" })
   @ApiParam({ name: "fieldId", description: "Field identifier" })
   @ApiResponse({ status: 200, description: "Dashboard data retrieved" })
-  async getDashboard(@Param("fieldId") fieldId: string) {
-    const sensors = await this.iotService.getFieldSensorData(fieldId);
-    const actuators = await this.iotService.getFieldActuatorStates(fieldId);
+  async getDashboard(@Param("fieldId") fieldId: string, @Req() req: Request) {
+    const tenantId = this.getTenantId(req);
+    const sensors = await this.iotService.getFieldSensorData(fieldId, tenantId);
+    const actuators = await this.iotService.getFieldActuatorStates(fieldId, tenantId);
 
     // Transform to dashboard format
     const sensorData: Record<string, any> = {};
@@ -248,11 +272,13 @@ export class IotController {
   @ApiResponse({ status: 200, description: "Historical readings retrieved" })
   async getHistoricalReadings(
     @Param("fieldId") fieldId: string,
+    @Req() req: Request,
     @Query("sensorType") sensorType?: string,
     @Query("hours") hours?: string,
   ) {
     return this.iotService.getHistoricalReadings(
       fieldId,
+      this.getTenantId(req),
       sensorType,
       hours ? parseInt(hours, 10) : 24,
     );

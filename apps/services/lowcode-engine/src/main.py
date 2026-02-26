@@ -39,11 +39,7 @@ from shared.auth.models import User
 # Add project root to path
 sys.path.insert(
     0,
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        )
-    ),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),
 )
 
 from shared.lowcode import (
@@ -479,11 +475,7 @@ async def db_update_page(
 def _row_to_page(row) -> InternalPage:
     """Convert a database row to an InternalPage."""
     layout = row["layout"] if isinstance(row["layout"], dict) else json.loads(row["layout"] or "{}")
-    components = (
-        row["components"]
-        if isinstance(row["components"], list)
-        else json.loads(row["components"] or "[]")
-    )
+    components = row["components"] if isinstance(row["components"], list) else json.loads(row["components"] or "[]")
 
     blocks = []
     for comp in components:
@@ -607,9 +599,7 @@ async def db_list_models(
 
 def _row_to_model(row) -> InternalDataModel:
     """Convert a database row to an InternalDataModel."""
-    fields_data = (
-        row["fields"] if isinstance(row["fields"], dict) else json.loads(row["fields"] or "{}")
-    )
+    fields_data = row["fields"] if isinstance(row["fields"], dict) else json.loads(row["fields"] or "{}")
 
     return InternalDataModel(
         id=str(row["id"]),
@@ -655,9 +645,7 @@ async def lifespan(app: FastAPI):
         try:
             from shared.events.publisher import get_publisher
 
-            app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
-            )
+            app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
         except Exception as e:
@@ -902,9 +890,7 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 
 
 @app.exception_handler(TenantAccessDeniedError)
-async def tenant_access_denied_handler(
-    request: Request, exc: TenantAccessDeniedError
-) -> JSONResponse:
+async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError) -> JSONResponse:
     """Handle tenant access denied errors (403)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -926,9 +912,7 @@ async def tenant_access_denied_handler(
 
 
 @app.exception_handler(InvalidBlockConfigError)
-async def invalid_block_config_handler(
-    request: Request, exc: InvalidBlockConfigError
-) -> JSONResponse:
+async def invalid_block_config_handler(request: Request, exc: InvalidBlockConfigError) -> JSONResponse:
     """Handle invalid block configuration errors (400)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -951,9 +935,7 @@ async def invalid_block_config_handler(
 
 
 @app.exception_handler(ServiceUnavailableError)
-async def service_unavailable_handler(
-    request: Request, exc: ServiceUnavailableError
-) -> JSONResponse:
+async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError) -> JSONResponse:
     """Handle service unavailable errors (503)"""
     request_id = get_request_id(request)
     logger.error(
@@ -1045,9 +1027,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
-).split(",")
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -1056,6 +1036,14 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1233,9 +1221,7 @@ def list_categories():
     ]
 
 
-@app.get(
-    "/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"]
-)
+@app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
 def get_component(component_name: str):
     """Get component by name | الحصول على مكون بالاسم"""
     component = lowcode_engine.get_component(component_name)
@@ -1947,9 +1933,7 @@ async def metrics():
     pages_count = db_pages_count if db_pages_count > 0 else len(pages)
     models_count = db_models_count if db_models_count > 0 else len(data_models)
     published_count = (
-        db_published_count
-        if db_published_count > 0
-        else len([p for p in pages.values() if p.is_published])
+        db_published_count if db_published_count > 0 else len([p for p in pages.values() if p.is_published])
     )
 
     return f"""# HELP lowcode_components_total Total number of registered components

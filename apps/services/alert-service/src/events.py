@@ -33,10 +33,10 @@ class AlertTopics:
     ALERT_EXPIRED = "sahool.alert.expired"
 
     # استقبال من خدمات أخرى
-    NDVI_ANOMALY = "sahool.ndvi.anomaly"
+    NDVI_ANOMALY = "sahool.satellite.ndvi.anomaly"
     WEATHER_ALERT = "sahool.weather.alert"
     IOT_THRESHOLD = "sahool.iot.threshold"
-    CROP_HEALTH_ALERT = "sahool.crop_health.alert"
+    CROP_HEALTH_ALERT = "sahool.health.crop.alert"
     IRRIGATION_ALERT = "sahool.irrigation.alert"
 
 

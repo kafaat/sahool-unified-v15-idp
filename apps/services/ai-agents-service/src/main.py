@@ -48,6 +48,7 @@ from shared.ai.agents import (
 )
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.events.contracts import (
     AgentExecutionCompletedEvent,
     AgentExecutionFailedEvent,
@@ -596,6 +597,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

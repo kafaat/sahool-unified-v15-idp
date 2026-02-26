@@ -65,11 +65,9 @@ export class ReviewsController {
     description: "Review already exists for this product and order",
   })
   async createProductReview(
-    @Req() req: any,
     @Body(ValidationPipe) dto: CreateProductReviewDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.reviewsService.createProductReview(dto, tenantId);
+    return this.reviewsService.createProductReview(dto);
   }
 
   /**

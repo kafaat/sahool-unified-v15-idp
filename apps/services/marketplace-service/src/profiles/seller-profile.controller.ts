@@ -55,11 +55,9 @@ export class SellerProfileController {
   })
   @ApiResponse({ status: 409, description: "Seller profile already exists" })
   async createSellerProfile(
-    @Req() req: any,
     @Body(ValidationPipe) dto: CreateSellerProfileDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.profilesService.createSellerProfile(dto, tenantId);
+    return this.profilesService.createSellerProfile(dto);
   }
 
   /**

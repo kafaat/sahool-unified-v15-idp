@@ -83,20 +83,16 @@ export class AppController {
    */
   @Get("market/products")
   async getProducts(
-    @Req() req: any,
     @Query("category") category?: string,
     @Query("governorate") governorate?: string,
     @Query("sellerId") sellerId?: string,
     @Query("minPrice") minPrice?: string,
     @Query("maxPrice") maxPrice?: string,
-    @Query("tenantId") queryTenantId?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.marketService.findAllProducts({
       category,
       governorate,
       sellerId,
-      tenantId,
       minPrice: minPrice ? parseFloat(minPrice) : undefined,
       maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
     });
@@ -119,11 +115,9 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createProduct(
-    @Req() req: any,
     @Body(ValidationPipe) body: CreateProductDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.marketService.createProduct(body, tenantId);
+    return this.marketService.createProduct(body);
   }
 
   /**
@@ -134,14 +128,11 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async listHarvest(
-    @Req() req: any,
     @Body(ValidationPipe) body: ListHarvestDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.marketService.convertYieldToProduct(
       body.userId,
       body.yieldData,
-      tenantId,
     );
   }
 
@@ -153,11 +144,9 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createOrder(
-    @Req() req: any,
     @Body(ValidationPipe) body: CreateOrderDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.marketService.createOrder(body, tenantId);
+    return this.marketService.createOrder(body);
   }
 
   /**
@@ -190,9 +179,8 @@ export class AppController {
    * GET /api/v1/market/stats
    */
   @Get("market/stats")
-  async getMarketStats(@Req() req: any, @Query("tenantId") queryTenantId?: string) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
-    return this.marketService.getMarketStats(tenantId);
+  async getMarketStats() {
+    return this.marketService.getMarketStats();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -269,11 +257,9 @@ export class AppController {
   @Post("fintech/calculate-score")
   @UseGuards(JwtAuthGuard)
   async calculateCreditScore(
-    @Req() req: any,
     @Body(ValidationPipe) body: CalculateCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.fintechService.calculateCreditScore(body.userId, body.farmData, tenantId);
+    return this.fintechService.calculateCreditScore(body.userId, body.farmData);
   }
 
   /**
@@ -283,14 +269,11 @@ export class AppController {
   @Post("fintech/calculate-advanced-score")
   @UseGuards(JwtAuthGuard)
   async calculateAdvancedCreditScore(
-    @Req() req: any,
     @Body(ValidationPipe) body: CalculateAdvancedCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.fintechService.calculateAdvancedCreditScore(
       body.userId,
       body.factors,
-      tenantId,
     );
   }
 
@@ -311,11 +294,9 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async recordCreditEvent(
-    @Req() req: any,
     @Body(ValidationPipe) body: RecordCreditEventDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.fintechService.recordCreditEvent(body, tenantId);
+    return this.fintechService.recordCreditEvent(body);
   }
 
   /**
@@ -339,11 +320,9 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async requestLoan(
-    @Req() req: any,
     @Body(ValidationPipe) body: RequestLoanDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.fintechService.requestLoan(body, tenantId);
+    return this.fintechService.requestLoan(body);
   }
 
   /**

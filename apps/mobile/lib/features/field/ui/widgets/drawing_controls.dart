@@ -28,6 +28,8 @@ class DrawingControls extends ConsumerWidget {
         ? GeoUtils.calculateAreaHectares(drawingState.points)
         : 0.0;
 
+    final perimeterM = ref.read(drawingProvider.notifier).perimeterMeters;
+
     return Positioned(
       bottom: 40,
       left: 20,
@@ -53,6 +55,14 @@ class DrawingControls extends ConsumerWidget {
                     label: '${areaHa.toStringAsFixed(2)} هكتار',
                     color: SahoolColors.success,
                   ),
+                if (perimeterM > 0) ...[
+                  const SizedBox(width: 16),
+                  _buildInfoChip(
+                    icon: Icons.square_foot,
+                    label: '${perimeterM.toStringAsFixed(0)} م',
+                    color: SahoolColors.info,
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 16),
@@ -77,6 +87,16 @@ class DrawingControls extends ConsumerWidget {
                   onPressed: drawingState.points.isEmpty
                       ? null
                       : () => ref.read(drawingProvider.notifier).undoLastPoint(),
+                ),
+
+                // زر الإعادة
+                _ControlButton(
+                  icon: Icons.redo,
+                  label: 'إعادة',
+                  color: SahoolColors.warning,
+                  onPressed: ref.read(drawingProvider.notifier).canRedo
+                      ? () => ref.read(drawingProvider.notifier).redoPoint()
+                      : null,
                 ),
 
                 // زر المسح

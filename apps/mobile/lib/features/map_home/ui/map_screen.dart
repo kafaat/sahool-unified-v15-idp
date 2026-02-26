@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/map/sahool_tile_provider.dart';
@@ -14,20 +15,24 @@ import 'widgets/field_context_panel.dart';
 /// شاشة الخريطة الاحترافية بأسلوب غرفة العمليات
 ///
 /// مستوحاة من John Deere Ops Center و Trimble
-class MapScreen extends StatefulWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
   // حالة الاتصال (للتجربة)
   bool _isOnline = true;
   int _pendingSync = 3;
+
+  late final MapController _mapController;
+  String _searchQuery = '';
+  String _activeFilter = 'الكل';
 
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
@@ -38,6 +43,18 @@ class _MapScreenState extends State<MapScreen> {
     MapLayerOption('NDVI', Icons.grass, false),
     MapLayerOption('الرطوبة', Icons.water_drop, false),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   // بيانات وهمية للحقول (Mock Data)
   final List<Field> _mockFields = [
@@ -96,6 +113,25 @@ class _MapScreenState extends State<MapScreen> {
       pendingTasks: 1,
     ),
   ];
+
+  List<Field> get _filteredFields {
+    var fields = _mockFields;
+    // Apply status filter
+    if (_activeFilter == 'نشط') {
+      fields = fields.where((f) => f.status == FieldStatus.healthy).toList();
+    } else if (_activeFilter == 'تنبيه') {
+      fields = fields.where((f) => f.needsAttention).toList();
+    } else if (_activeFilter == 'حصاد') {
+      fields = fields.where((f) => f.ndvi >= 0.7).toList();
+    }
+    // Apply search query
+    if (_searchQuery.isNotEmpty) {
+      fields = fields.where((f) =>
+          f.name.contains(_searchQuery) ||
+          f.cropType.contains(_searchQuery)).toList();
+    }
+    return fields;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,27 +215,66 @@ class _MapScreenState extends State<MapScreen> {
 
   /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
+    // Determine tile URL based on selected layer
+    final String tileUrl;
+    switch (_selectedLayerIndex) {
+      case 0: // Satellite
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        break;
+      case 2: // NDVI - use satellite as base
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        break;
+      default: // Map / Moisture
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
         initialZoom: 12,
         onTap: (tapPosition, point) {
-          // إلغاء التحديد عند الضغط على مكان فارغ
           if (_selectedField != null) {
             setState(() => _selectedField = null);
           }
         },
       ),
       children: [
-        // طبقة الخرائط الأساسية مع التخزين المحلي (offline-ready)
+        // Base tile layer - switches based on selected layer
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: tileUrl,
           userAgentPackageName: 'com.sahool.field',
           maxZoom: 19,
           tileProvider: SahoolTileProvider(),
         ),
 
-        // طبقة علامات الحقول (مع RepaintBoundary لتحسين الأداء)
+        // NDVI colored polygons overlay (when NDVI layer selected)
+        if (_selectedLayerIndex == 2)
+          PolygonLayer(
+            polygons: _filteredFields.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final field = entry.value;
+              if (idx >= _fieldLocations.length) return null;
+              final loc = _fieldLocations[idx];
+              final color = _getNdviColor(field.ndvi);
+              // Create a small polygon around each field location
+              const offset = 0.005;
+              return Polygon(
+                points: [
+                  LatLng(loc.latitude - offset, loc.longitude - offset),
+                  LatLng(loc.latitude - offset, loc.longitude + offset),
+                  LatLng(loc.latitude + offset, loc.longitude + offset),
+                  LatLng(loc.latitude + offset, loc.longitude - offset),
+                ],
+                color: color.withOpacity(0.4),
+                borderColor: color,
+                borderStrokeWidth: 2,
+                isFilled: true,
+              );
+            }).whereType<Polygon>().toList(),
+          ),
+
+        // Field markers
         MarkerLayer(
           markers: _buildFieldMarkers(),
         ),
@@ -209,8 +284,10 @@ class _MapScreenState extends State<MapScreen> {
 
   /// بناء قائمة markers محسّنة (تُحسب مرة واحدة ما لم يتغير التحديد)
   List<Marker> _buildFieldMarkers() {
-    return List.generate(_mockFields.length, (index) {
-      final field = _mockFields[index];
+    final fields = _filteredFields;
+    return List.generate(fields.length, (index) {
+      final field = fields[index];
+      if (index >= _fieldLocations.length) return null;
       final location = _fieldLocations[index];
       return Marker(
         point: location,
@@ -225,7 +302,14 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
       );
-    });
+    }).whereType<Marker>().toList();
+  }
+
+  Color _getNdviColor(double ndvi) {
+    if (ndvi >= 0.7) return Colors.green[700]!;
+    if (ndvi >= 0.5) return Colors.lightGreen;
+    if (ndvi >= 0.3) return Colors.orange;
+    return Colors.red;
   }
 
   /// تحديد حقل
@@ -280,6 +364,7 @@ class _MapScreenState extends State<MapScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       onTap: () => setState(() => _isSearchExpanded = true),
+                      onChanged: (value) => setState(() => _searchQuery = value),
                     ),
                   ),
                   IconButton(
@@ -315,8 +400,8 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildQuickFilter(String label, bool isSelected) {
     return FilterChip(
       label: Text(label),
-      selected: isSelected,
-      onSelected: (_) {},
+      selected: _activeFilter == label,
+      onSelected: (_) => setState(() => _activeFilter = label),
       selectedColor: SahoolColors.primary.withOpacity(0.2),
       checkmarkColor: SahoolColors.primary,
     );
@@ -329,13 +414,31 @@ class _MapScreenState extends State<MapScreen> {
       top: MediaQuery.of(context).padding.top + 90,
       child: Column(
         children: [
-          _buildMapControlButton(Icons.add, 'تكبير', () {}),
+          _buildMapControlButton(Icons.add, 'تكبير', () {
+            final zoom = _mapController.camera.zoom;
+            _mapController.move(_mapController.camera.center, zoom + 1);
+          }),
           const SizedBox(height: 8),
-          _buildMapControlButton(Icons.remove, 'تصغير', () {}),
+          _buildMapControlButton(Icons.remove, 'تصغير', () {
+            final zoom = _mapController.camera.zoom;
+            _mapController.move(_mapController.camera.center, zoom - 1);
+          }),
           const SizedBox(height: 16),
-          _buildMapControlButton(Icons.my_location, 'موقعي', () {}, highlight: true),
+          _buildMapControlButton(Icons.my_location, 'موقعي', () {
+            _mapController.move(const LatLng(15.3694, 44.1910), 14);
+          }, highlight: true),
           const SizedBox(height: 8),
-          _buildMapControlButton(Icons.crop_free, 'إطار', () {}),
+          _buildMapControlButton(Icons.crop_free, 'إطار', () {
+            // Fit all field markers into view
+            if (_fieldLocations.isNotEmpty) {
+              _mapController.fitCamera(
+                CameraFit.coordinates(
+                  coordinates: _fieldLocations,
+                  padding: const EdgeInsets.all(50),
+                ),
+              );
+            }
+          }),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.route, 'مسار', () {}),
         ],

@@ -75,8 +75,9 @@ class NdviTileLayerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
 
-    return Opacity(
+    return AnimatedOpacity(
       opacity: config.opacity,
+      duration: const Duration(milliseconds: 300),
       child: TileLayer(
         urlTemplate: config.urlTemplate,
         additionalOptions: {
@@ -143,15 +144,15 @@ class NdviPolygonLayer extends StatelessWidget {
           }).toList(),
         ),
 
-        // Tap detection layer (using markers at centroids)
+        // Tap detection layer (using sized markers at centroids)
         if (onTap != null)
           MarkerLayer(
             markers: fields.map((field) {
               final centroid = _calculateCentroid(field.boundary);
               return Marker(
                 point: centroid,
-                width: 1,
-                height: 1,
+                width: 80,
+                height: 80,
                 child: GestureDetector(
                   onTap: () => onTap!(field.id),
                   behavior: HitTestBehavior.translucent,

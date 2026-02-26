@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/map/sahool_tile_provider.dart';
+
 import '../../../../core/geo/geojson.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
@@ -150,122 +152,147 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   Widget _buildMapView() {
-    // Placeholder for MapLibre map
-    // In production, use maplibre_gl package
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.green[100]!,
-            Colors.green[200]!,
+    // Determine center point
+    final center = _fieldBoundary.isNotEmpty
+        ? GeoJson.calculateCentroid(_fieldBoundary)
+        : (widget.initialCenter != null
+            ? LatLng(
+                (widget.initialCenter!['lat'] as num?)?.toDouble() ?? 15.3694,
+                (widget.initialCenter!['lng'] as num?)?.toDouble() ?? 44.1910,
+              )
+            : const LatLng(15.3694, 44.1910));
+
+    // Determine tile URL based on selected layer
+    final String tileUrl;
+    switch (_selectedLayer) {
+      case 'satellite':
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        break;
+      case 'terrain':
+        tileUrl = 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+        break;
+      default:
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: center,
+        initialZoom: _currentZoom,
+        onPositionChanged: (position, hasGesture) {
+          if (hasGesture && mounted) {
+            setState(() => _currentZoom = position.zoom ?? _currentZoom);
+          }
+        },
+        onTap: (tapPosition, point) {
+          if (_selectedZoneId != null) {
+            setState(() => _selectedZoneId = null);
+          }
+        },
+      ),
+      children: [
+        // Base tile layer
+        TileLayer(
+          urlTemplate: tileUrl,
+          userAgentPackageName: 'com.sahool.field',
+          maxZoom: 19,
+          tileProvider: SahoolTileProvider(),
+        ),
+
+        // Field boundary polygon
+        if (_fieldBoundary.isNotEmpty)
+          PolygonLayer(
+            polygons: [
+              Polygon(
+                points: _fieldBoundary,
+                color: _showNdvi
+                    ? Colors.green.withOpacity(0.3)
+                    : const Color(0xFF367C2B).withOpacity(0.15),
+                borderColor: const Color(0xFF367C2B),
+                borderStrokeWidth: 3,
+                isFilled: true,
+              ),
+            ],
+          ),
+
+        // NDVI colored overlay (mock zones for visualization)
+        if (_showNdvi && _fieldBoundary.isNotEmpty)
+          PolygonLayer(
+            polygons: [
+              Polygon(
+                points: _fieldBoundary,
+                color: Colors.green.withOpacity(0.35),
+                borderColor: Colors.green[700]!,
+                borderStrokeWidth: 2,
+                isFilled: true,
+                label: 'NDVI: 0.72',
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                ),
+              ),
+            ],
+          ),
+
+        // NDWI overlay
+        if (_showNdwi && _fieldBoundary.isNotEmpty)
+          PolygonLayer(
+            polygons: [
+              Polygon(
+                points: _fieldBoundary,
+                color: Colors.blue.withOpacity(0.3),
+                borderColor: Colors.blue[700]!,
+                borderStrokeWidth: 2,
+                isFilled: true,
+                label: 'NDWI: -0.05',
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                ),
+              ),
+            ],
+          ),
+
+        // Center marker
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: center,
+              width: 40,
+              height: 40,
+              child: Icon(
+                _isTracking ? Icons.my_location : Icons.location_on,
+                size: 36,
+                color: _isTracking ? Colors.blue : const Color(0xFF367C2B),
+              ),
+            ),
           ],
         ),
-      ),
-      child: Stack(
-        children: [
-          // خلفية محاكاة للخريطة
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _MapGridPainter(),
-            ),
-          ),
-          // محتوى الخريطة
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // أيقونة الموقع مع حركة
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  child: Icon(
-                    _isTracking ? Icons.my_location : Icons.location_on,
-                    size: 60,
-                    color: _isTracking ? Colors.blue : const Color(0xFF367C2B),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.fieldName ?? 'خريطة الحقل',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Color(0xFF367C2B),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'تكبير: ${_currentZoom.toStringAsFixed(1)}x',
-                    style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // عرض الطبقات النشطة
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (_showZones)
-                      _buildActiveLayerChip('المناطق', Icons.crop_square, Colors.blue),
-                    if (_showNdvi)
-                      _buildActiveLayerChip('NDVI', Icons.grass, Colors.green),
-                    if (_showNdwi)
-                      _buildActiveLayerChip('NDWI', Icons.water_drop, Colors.cyan),
-                    if (_showGpsTrack)
-                      _buildActiveLayerChip('GPS', Icons.gps_fixed, Colors.orange),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                if (_isTracking)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.blue),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'جاري تتبع الموقع...',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildActiveLayerChip(String label, IconData icon, Color color) {
-    return Chip(
-      avatar: Icon(icon, size: 16, color: color),
-      label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        // Tracking indicator
+        if (_isTracking)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: center,
+                width: 100,
+                height: 100,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue.withOpacity(0.15),
+                    border: Border.all(color: Colors.blue.withOpacity(0.4), width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 
@@ -280,16 +307,18 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           children: [
             _buildToolButton(
               icon: Icons.add,
-              onPressed: () => setState(() {
-                if (_currentZoom < 20) _currentZoom += 1;
-              }),
+              onPressed: () {
+                final zoom = _mapController.camera.zoom;
+                _mapController.move(_mapController.camera.center, zoom + 1);
+              },
               tooltip: 'تكبير',
             ),
             _buildToolButton(
               icon: Icons.remove,
-              onPressed: () => setState(() {
-                if (_currentZoom > 5) _currentZoom -= 1;
-              }),
+              onPressed: () {
+                final zoom = _mapController.camera.zoom;
+                _mapController.move(_mapController.camera.center, zoom - 1);
+              },
               tooltip: 'تصغير',
             ),
             const Divider(height: 16),
@@ -693,60 +722,4 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       'fieldName': widget.fieldName,
     });
   }
-}
-
-/// رسام شبكة الخريطة
-class _MapGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.green.withOpacity(0.1)
-      ..strokeWidth = 1;
-
-    // رسم خطوط أفقية
-    for (var i = 0; i < size.height; i += 30) {
-      canvas.drawLine(
-        Offset(0, i.toDouble()),
-        Offset(size.width, i.toDouble()),
-        paint,
-      );
-    }
-
-    // رسم خطوط عمودية
-    for (var i = 0; i < size.width; i += 30) {
-      canvas.drawLine(
-        Offset(i.toDouble(), 0),
-        Offset(i.toDouble(), size.height),
-        paint,
-      );
-    }
-
-    // رسم بعض المربعات لمحاكاة الحقول
-    final fieldPaint = Paint()
-      ..color = Colors.green.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    final fieldRects = [
-      Rect.fromLTWH(size.width * 0.2, size.height * 0.3, 100, 80),
-      Rect.fromLTWH(size.width * 0.5, size.height * 0.2, 120, 100),
-      Rect.fromLTWH(size.width * 0.3, size.height * 0.6, 90, 70),
-    ];
-
-    for (final rect in fieldRects) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        fieldPaint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        Paint()
-          ..color = Colors.green
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -51,6 +51,8 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base

@@ -63,6 +63,8 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # NATS import
 _nats_client = None
 _nats_available = False

@@ -90,6 +90,11 @@ class NDVIPoint:
     quality: float = 1.0  # Quality score (0-1), جودة القياس
     cloud_coverage: float = 0.0  # Cloud coverage percentage, نسبة الغيوم
 
+    def __post_init__(self) -> None:
+        self.value = max(-1.0, min(1.0, self.value))
+        self.quality = max(0.0, min(1.0, self.quality))
+        self.cloud_coverage = max(0.0, min(100.0, self.cloud_coverage))
+
 
 @dataclass
 class AnomalyResult:

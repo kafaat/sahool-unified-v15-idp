@@ -21,7 +21,8 @@ RUN npm install -g npm@11.7.0
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
 COPY packages/nestjs-auth ./packages/nestjs-auth
-COPY tsconfig.base.json /tsconfig.base.json
+# tsconfig.base.json at /app/ so packages/nestjs-auth/../../tsconfig.base.json resolves correctly
+COPY tsconfig.base.json ./tsconfig.base.json
 
 # Build field-shared package first (needed for TypeScript compilation)
 WORKDIR /app/packages/field-shared

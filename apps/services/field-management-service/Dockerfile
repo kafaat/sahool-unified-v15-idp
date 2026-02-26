@@ -83,8 +83,8 @@ COPY apps/services/field-management-service/src ./src
 # Build nestjs-auth package (dist/ is gitignored, peer deps needed for tsc)
 RUN npm install --no-save \
     @nestjs/common @nestjs/core rxjs \
-    @nestjs/passport passport passport-jwt @nestjs/jwt \
-    redis ioredis @liaoliaots/nestjs-redis \
+    @nestjs/passport@^10.0.0 passport@^0.7.0 passport-jwt@^4.0.0 @nestjs/jwt@^10.0.0 \
+    redis@^4.0.0 ioredis@^5.0.0 "@liaoliaots/nestjs-redis@^9.0.0" \
     --legacy-peer-deps || true
 RUN cd /app/packages/nestjs-auth && \
     ln -sf /app/node_modules ./node_modules && \

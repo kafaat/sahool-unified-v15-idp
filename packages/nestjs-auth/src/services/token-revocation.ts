@@ -300,7 +300,7 @@ export class RedisTokenRevocationStore
       const key = `${this.TOKEN_PREFIX}${jti}`;
       const value = await this.redis!.get(key);
 
-      if (value) {
+      if (value && typeof value === "string") {
         return JSON.parse(value) as RevocationInfo;
       }
 
@@ -392,7 +392,7 @@ export class RedisTokenRevocationStore
       const key = `${this.USER_PREFIX}${userId}`;
       const value = await this.redis!.get(key);
 
-      if (value) {
+      if (value && typeof value === "string") {
         const data: RevocationInfo = JSON.parse(value);
         const revokedAt = data.revokedAt || 0;
 
@@ -513,7 +513,7 @@ export class RedisTokenRevocationStore
       const key = `${this.TENANT_PREFIX}${tenantId}`;
       const value = await this.redis!.get(key);
 
-      if (value) {
+      if (value && typeof value === "string") {
         const data: RevocationInfo = JSON.parse(value);
         const revokedAt = data.revokedAt || 0;
 

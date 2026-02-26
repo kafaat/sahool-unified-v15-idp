@@ -40,12 +40,14 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
 # Install nestjs-auth peer deps needed for tsc compilation
 RUN cd /workspace/lai-estimation && \
-    npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
+    npm install --no-save \
+    @nestjs/common @nestjs/core rxjs \
+    @nestjs/passport@^10.0.0 passport@^0.7.0 passport-jwt@^4.0.0 @nestjs/jwt@^10.0.0 \
+    redis@^4.0.0 ioredis@^5.0.0 "@liaoliaots/nestjs-redis@^9.0.0" \
+    --legacy-peer-deps || true
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+    npx tsc --skipLibCheck
 
 # Build the application
 RUN npm run build

@@ -324,7 +324,7 @@ class DeviceSecurityService {
         isInitialized: true,
         isSecure: false,
         threats: ['Security check failed: unable to verify device integrity'],
-        threatLevel: ThreatLevel.medium,
+        threatLevel: SecurityThreatLevel.medium,
         lastCheckTime: DateTime.now(),
         errorMessage: e.toString(),
         deviceInfo: deviceInfo,

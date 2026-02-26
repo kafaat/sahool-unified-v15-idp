@@ -426,10 +426,10 @@ class WeatherInput(BaseModel):
     temperature_min: float = Field(..., ge=-50, le=65, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
     wind_speed: float = Field(..., ge=0, le=75, description="Wind speed at 2m height (m/s)")
-    solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
+    solar_radiation: float | None = Field(None, ge=0, le=50, description="Solar radiation (MJ/m²/day)")
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
-    altitude: float = Field(0, description="Altitude above sea level (m)")
+    altitude: float = Field(0, ge=-500, le=9000, description="Altitude above sea level (m)")
     calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
 
 
@@ -476,9 +476,9 @@ class SoilMoistureInput(BaseModel):
     soil_type: SoilType
     root_depth: float = Field(0.6, gt=0, le=3.0, description="Root depth (m)")
     last_irrigation_date: date
-    last_irrigation_amount: float = Field(..., description="Irrigation amount (mm)")
-    rainfall_since: float = Field(0, ge=0, description="Rainfall since last irrigation (mm)")
-    daily_etc: float = Field(..., description="Daily crop ET (mm/day)")
+    last_irrigation_amount: float = Field(..., ge=0, le=500, description="Irrigation amount (mm)")
+    rainfall_since: float = Field(0, ge=0, le=500, description="Rainfall since last irrigation (mm)")
+    daily_etc: float = Field(..., ge=0, le=30, description="Daily crop ET (mm/day)")
 
 
 class VirtualSoilMoistureResponse(BaseModel):
@@ -505,8 +505,8 @@ class IrrigationRecommendationInput(BaseModel):
     irrigation_method: IrrigationMethod
     field_area_hectares: float = Field(1.0, gt=0)
     last_irrigation_date: date | None = None
-    last_irrigation_amount: float | None = None
-    current_soil_moisture: float | None = Field(None, description="Current moisture if known (m³/m³)")
+    last_irrigation_amount: float | None = Field(None, ge=0, le=500, description="Irrigation amount (mm)")
+    current_soil_moisture: float | None = Field(None, ge=0, le=1, description="Current moisture if known (m³/m³)")
     weather: WeatherInput
 
 

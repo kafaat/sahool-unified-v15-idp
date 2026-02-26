@@ -129,9 +129,9 @@ class DetectionResult(BaseModel):
 class IdentifyRequest(BaseModel):
     """Request for symptom-based identification."""
 
-    crop: str
-    symptoms: list[str]
-    region: str | None = "middle_east"
+    crop: str = Field(..., min_length=1, max_length=100, description="Crop type for pest context")
+    symptoms: list[str] = Field(..., min_length=1, max_length=20, description="Observed symptoms")
+    region: str | None = Field("middle_east", max_length=50, description="Geographic region")
 
 
 # ============================================================================

@@ -71,6 +71,22 @@ export interface PreHarvestAlertResponse {
   nats_topic: string;
 }
 
+// ML feature schema for yield prediction pipeline
+export const FEATURE_SCHEMA = {
+  prediction_inputs: {
+    ndvi: { type: "float", range: [-1, 1], description: "Normalized Difference Vegetation Index" },
+    weather_factor: { type: "float", range: [0, 1], description: "Weather quality factor" },
+    soil_factor: { type: "float", range: [0, 1], description: "Soil quality factor" },
+    crop_type: { type: "enum", values: ["wheat", "coffee", "sorghum", "tomato"] },
+    area_hectares: { type: "float", range: [0.01, 10000], description: "Field area in hectares" },
+    growth_days: { type: "int", range: [1, 365], description: "Days since planting" },
+  },
+  prediction_outputs: {
+    yield_per_hectare_kg: { type: "float", range: [0, 100000], description: "Predicted yield (kg/ha)" },
+    confidence_percent: { type: "float", range: [0, 100], description: "Prediction confidence" },
+  },
+} as const;
+
 // Crop data constants
 const CROP_DATA: Record<
   string,

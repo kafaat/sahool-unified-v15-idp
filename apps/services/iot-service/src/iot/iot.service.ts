@@ -296,6 +296,24 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       data = { value: parseFloat(payload) };
     }
 
+    // Validate sensor value is a finite number
+    if (typeof data.value !== "number" || !isFinite(data.value)) {
+      this.logger.warn(
+        `⚠️ Invalid sensor value for ${sensorType} @ ${fieldId}: ${data.value} (not a finite number)`,
+      );
+      return;
+    }
+
+    const quality = this.assessReadingQuality(sensorType, data.value);
+
+    // Reject readings with values outside acceptable physical bounds
+    if (quality === "error") {
+      this.logger.warn(
+        `⚠️ Out-of-bounds sensor value rejected for ${sensorType} @ ${fieldId}: ${data.value}`,
+      );
+      return;
+    }
+
     const reading: SensorReading = {
       deviceId: data.deviceId || `sensor-${fieldId}-${sensorType}`,
       fieldId,
@@ -303,7 +321,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       value: data.value,
       unit: this.getUnitForSensorType(sensorType),
       timestamp: new Date(),
-      quality: this.assessReadingQuality(sensorType, data.value),
+      quality,
     };
 
     // Cache latest reading in Redis

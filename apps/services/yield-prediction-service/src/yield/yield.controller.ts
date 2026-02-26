@@ -3,7 +3,16 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  BadRequestException,
+  ParseUUIDPipe,
+} from "@nestjs/common";
 import { JwtAuthGuard, SkipTenantCheck } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
@@ -11,6 +20,19 @@ import {
   ActionTemplate,
   PreHarvestAlertResponse,
 } from "./yield.service";
+
+const VALID_GOVERNORATES = [
+  "sanaa",
+  "aden",
+  "taiz",
+  "hodeidah",
+  "ibb",
+  "dhamar",
+  "hadramaut",
+  "marib",
+] as const;
+
+const VALID_CROP_TYPES = ["wheat", "coffee", "sorghum", "tomato"] as const;
 
 @ApiTags("yield")
 @Controller("api/v1/yield")
@@ -28,7 +50,10 @@ export class YieldController {
     description: "التنبؤ بإنتاجية حقل معين بناءً على بيانات الاستشعار عن بُعد",
   })
   @ApiResponse({ status: 200, description: "Yield prediction result" })
-  async predictFieldYield(@Param("fieldId") fieldId: string) {
+  @ApiResponse({ status: 400, description: "Invalid fieldId format" })
+  async predictFieldYield(
+    @Param("fieldId", new ParseUUIDPipe({ optional: true })) fieldId: string,
+  ) {
     return this.yieldService.predictFieldYield(fieldId);
   }
 
@@ -41,7 +66,7 @@ export class YieldController {
     summary: "Get crop growth stage",
     description: "الحصول على مرحلة نمو المحصول الحالية",
   })
-  async getGrowthStage(@Param("fieldId") fieldId: string) {
+  async getGrowthStage(@Param("fieldId", new ParseUUIDPipe({ optional: true })) fieldId: string) {
     return this.yieldService.getGrowthStage(fieldId);
   }
 
@@ -54,7 +79,7 @@ export class YieldController {
     summary: "Predict harvest date",
     description: "التنبؤ بموعد الحصاد الأمثل",
   })
-  async predictHarvestDate(@Param("fieldId") fieldId: string) {
+  async predictHarvestDate(@Param("fieldId", new ParseUUIDPipe({ optional: true })) fieldId: string) {
     return this.yieldService.predictHarvestDate(fieldId);
   }
 
@@ -67,14 +92,28 @@ export class YieldController {
     summary: "Get regional yield statistics",
     description: "الحصول على إحصائيات الإنتاجية للمنطقة",
   })
-  @ApiQuery({ name: "cropType", required: false })
-  @ApiQuery({ name: "year", required: false })
+  @ApiQuery({ name: "cropType", required: false, enum: VALID_CROP_TYPES })
+  @ApiQuery({ name: "year", required: false, type: Number })
+  @ApiResponse({ status: 400, description: "Invalid governorate, cropType, or year" })
   async getRegionalStats(
     @Param("governorate") governorate: string,
     @Query("cropType") cropType?: string,
     @Query("year") year?: string,
   ) {
+    if (!VALID_GOVERNORATES.includes(governorate as any)) {
+      throw new BadRequestException(
+        `Invalid governorate "${governorate}". Valid values: ${VALID_GOVERNORATES.join(", ")}`,
+      );
+    }
+    if (cropType && !VALID_CROP_TYPES.includes(cropType as any)) {
+      throw new BadRequestException(
+        `Invalid cropType "${cropType}". Valid values: ${VALID_CROP_TYPES.join(", ")}`,
+      );
+    }
     const parsedYear = year ? parseInt(year, 10) : undefined;
+    if (parsedYear !== undefined && (isNaN(parsedYear) || parsedYear < 2000 || parsedYear > 2100)) {
+      throw new BadRequestException("Year must be a number between 2000 and 2100");
+    }
     return this.yieldService.getRegionalStats({ governorate, cropType, year: parsedYear });
   }
 
@@ -88,11 +127,15 @@ export class YieldController {
     description: "الحصول على بيانات الإنتاجية التاريخية للحقل",
   })
   @ApiQuery({ name: "years", required: false, type: Number })
+  @ApiResponse({ status: 400, description: "Invalid years parameter" })
   async getHistoricalYields(
-    @Param("fieldId") fieldId: string,
+    @Param("fieldId", new ParseUUIDPipe({ optional: true })) fieldId: string,
     @Query("years") years?: string,
   ) {
     const parsedYears = years ? parseInt(years, 10) : 5;
+    if (isNaN(parsedYears) || parsedYears < 1 || parsedYears > 50) {
+      throw new BadRequestException("Years must be a number between 1 and 50");
+    }
     return this.yieldService.getHistoricalYields(fieldId, parsedYears);
   }
 
@@ -105,7 +148,7 @@ export class YieldController {
     summary: "Get maturity monitoring data",
     description: "مراقبة نضج المحصول",
   })
-  async getMaturityMonitoring(@Param("fieldId") fieldId: string) {
+  async getMaturityMonitoring(@Param("fieldId", new ParseUUIDPipe({ optional: true })) fieldId: string) {
     return this.yieldService.getMaturityMonitoring(fieldId);
   }
 

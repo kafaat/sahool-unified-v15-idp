@@ -157,6 +157,27 @@ class BandData:
     B_700nm: float | None = None  # 700nm - For ARI (anthocyanin)
     B_800nm: float | None = None  # 800nm - For PSRI reference
 
+    def __post_init__(self):
+        """Validate that reflectance values are within 0-1 range"""
+        for field_name in [
+            "B02_blue", "B03_green", "B04_red",
+            "B05_red_edge1", "B06_red_edge2", "B07_red_edge3",
+            "B08_nir", "B8A_nir_narrow", "B11_swir1", "B12_swir2",
+        ]:
+            value = getattr(self, field_name)
+            if not (0.0 <= value <= 1.0):
+                raise ValueError(
+                    f"Band {field_name} value {value} out of valid range [0, 1]"
+                )
+        for field_name in [
+            "B_531nm", "B_550nm", "B_570nm", "B_680nm", "B_700nm", "B_800nm",
+        ]:
+            value = getattr(self, field_name)
+            if value is not None and not (0.0 <= value <= 1.0):
+                raise ValueError(
+                    f"Band {field_name} value {value} out of valid range [0, 1]"
+                )
+
 
 @dataclass
 class IndexInterpretation:
@@ -340,7 +361,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red == 0:
             return 0.0
-        return round((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red), 4)
+        value = (b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red)
+        return round(max(-1.0, min(1.0, value)), 4)
 
     def ndwi(self, b: BandData) -> float:
         """
@@ -350,7 +372,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B11_swir1 == 0:
             return 0.0
-        return round((b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1), 4)
+        value = (b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1)
+        return round(max(-1.0, min(1.0, value)), 4)
 
     def evi(self, b: BandData) -> float:
         """

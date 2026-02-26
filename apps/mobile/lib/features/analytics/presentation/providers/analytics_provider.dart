@@ -91,7 +91,7 @@ class AnalyticsDashboardData {
 /// Provider for analytics dashboard data
 /// موفر بيانات لوحة التحليلات
 final analyticsDashboardProvider =
-    FutureProvider<AnalyticsDashboardData>((ref) async {
+    FutureProvider.autoDispose<AnalyticsDashboardData>((ref) async {
   // In production, fetch from API
   await Future.delayed(const Duration(milliseconds: 500));
 

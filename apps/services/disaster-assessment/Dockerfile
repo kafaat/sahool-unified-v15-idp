@@ -44,12 +44,15 @@ RUN npx prisma generate
 COPY apps/services/disaster-assessment/ .
 
 # Build nestjs-auth package (dist/ is gitignored)
-RUN npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
-RUN cd /nestjs-auth && \
-    ln -sf /app/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+RUN npm install --no-save \
+    @nestjs/common@^10.0.0 @nestjs/core@^10.0.0 rxjs@^7.0.0 \
+    @nestjs/passport@^10.0.0 passport@^0.7.0 passport-jwt@^4.0.0 @nestjs/jwt@^10.0.0 \
+    redis@^4.0.0 ioredis@^5.0.0 "@liaoliaots/nestjs-redis@^9.0.0" \
+    --legacy-peer-deps || true
+WORKDIR /nestjs-auth
+RUN ln -sf /app/node_modules ./node_modules && \
+    npx tsc --skipLibCheck
+WORKDIR /app
 
 # Build the application
 RUN npm run build

@@ -57,12 +57,15 @@ RUN npx prisma generate && \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build nestjs-auth package (dist/ is gitignored)
-RUN npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
-RUN cd /workspace/nestjs-auth && \
-    ln -sf /workspace/marketplace-service/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+RUN npm install --no-save \
+    @nestjs/common@^10.0.0 @nestjs/core@^10.0.0 rxjs@^7.0.0 \
+    @nestjs/passport@^10.0.0 passport@^0.7.0 passport-jwt@^4.0.0 @nestjs/jwt@^10.0.0 \
+    redis@^4.0.0 ioredis@^5.0.0 "@liaoliaots/nestjs-redis@^9.0.0" \
+    --legacy-peer-deps || true
+WORKDIR /workspace/nestjs-auth
+RUN ln -sf /workspace/marketplace-service/node_modules ./node_modules && \
+    npx tsc --skipLibCheck
+WORKDIR /workspace/marketplace-service
 
 # Build the application using nest build directly (skip prebuild to avoid
 # re-running prisma generate which can resolve paths differently in Docker)

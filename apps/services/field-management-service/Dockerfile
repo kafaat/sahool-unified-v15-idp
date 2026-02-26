@@ -82,13 +82,14 @@ COPY apps/services/field-management-service/nest-cli.json ./
 COPY apps/services/field-management-service/src ./src
 # Build nestjs-auth package (dist/ is gitignored, peer deps needed for tsc)
 RUN npm install --no-save \
-    @nestjs/common @nestjs/core rxjs \
+    @nestjs/common@^10.0.0 @nestjs/core@^10.0.0 rxjs@^7.0.0 \
     @nestjs/passport@^10.0.0 passport@^0.7.0 passport-jwt@^4.0.0 @nestjs/jwt@^10.0.0 \
     redis@^4.0.0 ioredis@^5.0.0 "@liaoliaots/nestjs-redis@^9.0.0" \
     --legacy-peer-deps || true
-RUN cd /app/packages/nestjs-auth && \
-    ln -sf /app/node_modules ./node_modules && \
+WORKDIR /app/packages/nestjs-auth
+RUN ln -sf /app/node_modules ./node_modules && \
     npx tsc --skipLibCheck
+WORKDIR /app
 
 # Prisma already generated above; run nest build directly to avoid re-running prisma generate
 RUN npx nest build

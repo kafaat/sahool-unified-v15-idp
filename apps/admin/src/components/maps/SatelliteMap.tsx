@@ -331,7 +331,7 @@ export default function SatelliteMap({
   );
 }
 
-function getNDVIColor(ndvi: number): string {
+export function getNDVIColor(ndvi: number): string {
   if (ndvi >= 0.7) return "#1B5E20"; // Dark green - excellent
   if (ndvi >= 0.5) return "#4CAF50"; // Green - good
   if (ndvi >= 0.3) return "#FDD835"; // Yellow - moderate
@@ -339,7 +339,7 @@ function getNDVIColor(ndvi: number): string {
   return "#F44336"; // Red - critical
 }
 
-function getHealthLabel(ndvi: number): string {
+export function getHealthLabel(ndvi: number): string {
   if (ndvi >= 0.7) return "ممتاز";
   if (ndvi >= 0.5) return "جيد";
   if (ndvi >= 0.3) return "متوسط";

@@ -82,7 +82,7 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
  * - Yellow (0.4-0.6): Moderate health - صحة متوسطة
  * - Red (<0.4): Poor health - صحة ضعيفة
  */
-const getNDVIColor = (ndviValue: number): string => {
+export const getNDVIColor = (ndviValue: number): string => {
   if (ndviValue >= 0.7) return "#1B5E20"; // Dark green - أخضر داكن (ممتاز)
   if (ndviValue >= 0.5) return "#4CAF50"; // Green - أخضر (جيد)
   if (ndviValue >= 0.3) return "#FDD835"; // Yellow - أصفر (متوسط)
@@ -94,7 +94,7 @@ const getNDVIColor = (ndviValue: number): string => {
  * الحصول على لون الحدود بناءً على قيمة NDVI (ظل أغمق)
  * Get border color based on NDVI value (darker shade)
  */
-const getNDVIBorderColor = (ndviValue: number): string => {
+export const getNDVIBorderColor = (ndviValue: number): string => {
   if (ndviValue >= 0.7) return "#0D3311"; // Darker green
   if (ndviValue >= 0.5) return "#2E7D32"; // Dark green
   if (ndviValue >= 0.3) return "#F9A825"; // Dark yellow
@@ -106,7 +106,7 @@ const getNDVIBorderColor = (ndviValue: number): string => {
  * الحصول على النص العربي لحالة الصحة
  * Get Arabic text for health status
  */
-const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
+export const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
   const statusMap = {
     excellent: "ممتازة",
     good: "جيدة",
@@ -121,7 +121,7 @@ const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
  * التحقق من صحة إحداثيات المنطقة
  * Validate zone boundary coordinates
  */
-const isValidBoundary = (boundary: [number, number][]): boolean => {
+export const isValidBoundary = (boundary: [number, number][]): boolean => {
   if (!boundary || !Array.isArray(boundary) || boundary.length < 3) {
     return false;
   }

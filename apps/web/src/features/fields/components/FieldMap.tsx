@@ -34,7 +34,7 @@ const YEMEN_CENTER: LatLngTuple = [15.5527, 48.5164];
 /**
  * Get NDVI-based color for field display
  */
-const getNDVIColor = (ndvi?: number): string => {
+export const getNDVIColor = (ndvi?: number): string => {
   if (ndvi === undefined || ndvi === null) return "#9ca3af"; // Gray for no data
   if (ndvi >= 0.7) return "#1B5E20"; // Dark green (excellent - ممتاز)
   if (ndvi >= 0.5) return "#4CAF50"; // Green (good - جيد)
@@ -46,7 +46,7 @@ const getNDVIColor = (ndvi?: number): string => {
 /**
  * Get Arabic health status label
  */
-const getHealthLabel = (ndvi?: number): string => {
+export const getHealthLabel = (ndvi?: number): string => {
   if (ndvi === undefined || ndvi === null) return "غير معروف";
   if (ndvi >= 0.7) return "ممتاز";
   if (ndvi >= 0.5) return "جيد";

@@ -765,8 +765,7 @@ jobs:
 
       - name: Install required Android SDK components
         run: |
-          sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
-          sdkmanager --licenses <<< "$(yes)" || true
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
         working-directory: .
 
       - name: Setup Flutter
@@ -1104,8 +1103,7 @@ jobs:
 
       - name: Install required Android SDK components
         run: |
-          sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
-          sdkmanager --licenses <<< "$(yes)" || true
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
         working-directory: .
 
       - name: Setup Flutter

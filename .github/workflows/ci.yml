@@ -14,7 +14,7 @@
 #                    ├─> security
 #                    └─> governance
 #
-# COVERAGE THRESHOLD: 10% (see MIN_COVERAGE in test-unified job)
+# COVERAGE THRESHOLD: 5% (see MIN_COVERAGE in test-unified job)
 #
 # OPTIMIZATIONS (2026-02):
 #   - Path-based change detection for targeted builds
@@ -336,10 +336,9 @@ jobs:
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
           # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Reverted to 1% after coverage scope expanded from shared/ai to shared+apps/services
-          # (PR #992 raised to 25% but the broader --cov scope dropped measured coverage to ~2%)
-          # TODO: Gradually increase as more tests are added for the expanded scope
-          MIN_COVERAGE=1
+          # Raised from 1% to 5% as test coverage improved across shared+apps/services
+          # TODO: Continue raising toward 10%, then 25%, as more tests are added
+          MIN_COVERAGE=5
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

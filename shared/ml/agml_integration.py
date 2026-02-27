@@ -13,6 +13,12 @@ Uses AgML (https://github.com/Project-AgML/AgML) for:
 AgML provides standardized access to 30+ agricultural ML datasets.
 """
 
+# ⚠️ INTEGRATION STATUS: STATIC CATALOG ONLY
+# The `agml` package is not installed in any active service's requirements.txt.
+# All functions return hardcoded dataset metadata and disease class dictionaries.
+# No actual ML dataset loading or model inference occurs.
+# To enable real AgML integration, add `agml>=0.4.0` to requirements.
+
 import os
 from dataclasses import dataclass
 from enum import StrEnum

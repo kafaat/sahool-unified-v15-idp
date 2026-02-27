@@ -124,8 +124,10 @@ class TestAIMetricsCollector:
             tenant_id="tenant-1",
         )
 
-        # Should not raise, metrics should be recorded internally
-        assert True
+        # Verify metrics were recorded internally
+        key = "test-agent:tenant-1"
+        assert metrics_collector._agent_invocations[key] == 1
+        assert 150.5 in metrics_collector._agent_latencies[key]
 
     def test_record_agent_invocation_failure(self, metrics_collector: AIMetricsCollector):
         """Test recording failed agent invocation."""
@@ -136,7 +138,9 @@ class TestAIMetricsCollector:
             tenant_id="tenant-1",
         )
 
-        assert True  # Should not raise
+        key = "test-agent:tenant-1"
+        assert metrics_collector._agent_invocations[key] == 1
+        assert metrics_collector._agent_errors[key] == 1
 
     def test_record_llm_call(self, metrics_collector: AIMetricsCollector):
         """Test recording LLM call metrics."""
@@ -149,7 +153,11 @@ class TestAIMetricsCollector:
             cost_usd=0.0005,
         )
 
-        assert True  # Should not raise
+        key = "anthropic:claude-3-haiku"
+        assert metrics_collector._llm_calls[key] == 1
+        assert metrics_collector._tokens_input[key] == 100
+        assert metrics_collector._tokens_output[key] == 50
+        assert metrics_collector._costs[key] == pytest.approx(0.0005)
 
     def test_record_llm_fallback(self, metrics_collector: AIMetricsCollector):
         """Test recording LLM fallback."""
@@ -159,7 +167,8 @@ class TestAIMetricsCollector:
             reason="timeout",
         )
 
-        assert True  # Should not raise
+        key = "ollama:anthropic:timeout"
+        assert metrics_collector._llm_fallbacks[key] == 1
 
     def test_record_safety_violation(self, metrics_collector: AIMetricsCollector):
         """Test recording safety violation."""
@@ -169,7 +178,8 @@ class TestAIMetricsCollector:
             agent_id="test-agent",
         )
 
-        assert True  # Should not raise
+        key = "test-agent:prompt_injection:high"
+        assert metrics_collector._safety_violations[key] == 1
 
     def test_update_circuit_breaker_state(self, metrics_collector: AIMetricsCollector):
         """Test updating circuit breaker state."""
@@ -178,7 +188,7 @@ class TestAIMetricsCollector:
             state="open",
         )
 
-        assert True  # Should not raise
+        assert metrics_collector._circuit_breaker_states["ollama"] == 1  # 1 = open
 
     def test_get_prometheus_metrics(self, metrics_collector: AIMetricsCollector):
         """Test getting Prometheus-formatted metrics."""
@@ -236,8 +246,11 @@ class TestAggregation:
             success=True,
         )
 
-        # Should track both without error
-        assert True
+        # Should track both agents separately
+        assert metrics_collector._agent_invocations["agent-a:default"] == 1
+        assert metrics_collector._agent_invocations["agent-b:default"] == 1
+        assert metrics_collector._agent_latencies["agent-a:default"] == [100]
+        assert metrics_collector._agent_latencies["agent-b:default"] == [200]
 
     def test_provider_metrics_aggregation(self, metrics_collector: AIMetricsCollector):
         """Test metrics aggregation by provider."""
@@ -259,7 +272,11 @@ class TestAggregation:
             cost_usd=0.0,
         )
 
-        assert True  # Should track both
+        # Verify both providers tracked separately
+        assert metrics_collector._llm_calls["anthropic:claude-3-haiku"] == 1
+        assert metrics_collector._llm_calls["ollama:codellama:7b"] == 1
+        assert metrics_collector._tokens_input["anthropic:claude-3-haiku"] == 50
+        assert metrics_collector._tokens_input["ollama:codellama:7b"] == 100
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -278,7 +295,9 @@ class TestEdgeCases:
             success=True,
         )
 
-        assert True  # Should handle without error
+        key = "fast-agent:default"
+        assert metrics_collector._agent_invocations[key] == 1
+        assert 0.0 in metrics_collector._agent_latencies[key]
 
     def test_very_large_values(self, metrics_collector: AIMetricsCollector):
         """Test recording very large values."""
@@ -291,7 +310,11 @@ class TestEdgeCases:
             cost_usd=10_000.0,
         )
 
-        assert True  # Should handle without error
+        key = "anthropic:claude-3-opus"
+        assert metrics_collector._llm_calls[key] == 1
+        assert metrics_collector._tokens_input[key] == 1_000_000
+        assert metrics_collector._tokens_output[key] == 500_000
+        assert metrics_collector._costs[key] == pytest.approx(10_000.0)
 
 
 if __name__ == "__main__":

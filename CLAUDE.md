@@ -735,7 +735,7 @@ lib/
 
 ### Coverage Requirements
 
-- **Minimum**: 25% code coverage (enforced in CI via `fail_under = 25`)
+- **Minimum**: 5% code coverage (incrementally raising; enforced in CI via `fail_under = 5`)
 - Coverage report: `coverage.xml` and `coverage_html/`
 
 ### Test Environment Variables

@@ -13,6 +13,12 @@ Uses sentinelhub-py (https://github.com/sentinel-hub/sentinelhub-py) for:
 Copernicus Open Access Hub: Free registration at https://scihub.copernicus.eu
 """
 
+# ⚠️ INTEGRATION STATUS: PROTOTYPE
+# The `sentinelhub` package is not installed in any active service's requirements.txt.
+# All API calls fall back to `_get_mock_ndvi()` which returns randomized demo data.
+# To enable real Sentinel Hub integration, add `sentinelhub>=3.10.0` to the consuming
+# service's requirements.txt and provide SENTINEL_HUB_CLIENT_ID/SECRET env vars.
+
 import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta

@@ -453,28 +453,3 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture
-def event_loop():
-    """Create event loop for async tests."""
-    import asyncio
-
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Marker Registration
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line("markers", "unit: Unit tests (fast, no I/O)")
-    config.addinivalue_line("markers", "integration: Integration tests (API, database)")
-    config.addinivalue_line("markers", "smoke: Smoke tests (import verification)")
-    config.addinivalue_line("markers", "slow: Slow running tests")
-    config.addinivalue_line("markers", "e2e: End-to-end tests")
-    config.addinivalue_line("markers", "security: Security tests")
-    config.addinivalue_line("markers", "snapshot: Snapshot tests")
-    config.addinivalue_line("markers", "arabic: Tests with Arabic content")

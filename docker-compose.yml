@@ -1274,7 +1274,7 @@ services:
       dockerfile: apps/services/chat-service/Dockerfile
     container_name: sahool-chat-service
     environment:
-      - PORT=8000
+      - PORT=8115
       - NODE_ENV=production
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
@@ -1283,7 +1283,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8115:8000"
+      - "127.0.0.1:8115:8115"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -1292,7 +1292,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8115/api/v1/health" ]
       interval: 30s
       timeout: 10s
       retries: 3

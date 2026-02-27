@@ -439,8 +439,9 @@ async def test_billing_field_ops_integration(
     print("✓ Premium subscription created")
 
     # Step 2: Try to create field (should be allowed with premium subscription)
+    # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
     field_response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=test_field_data
+        "http://localhost:3000/api/v1/fields", headers=e2e_headers, json=test_field_data
     )
 
     # Field creation should work with active subscription

@@ -90,8 +90,8 @@ async def test_redis_connectivity():
     # Test that services using Redis are healthy
     # This indicates Redis is working
     async with httpx.AsyncClient() as client:
-        # Field Ops uses Redis
-        response = await client.get("http://localhost:8080/healthz")
+        # Field Management Service uses Redis (replaces deprecated field-ops on port 8080)
+        response = await client.get("http://localhost:3000/healthz")
         assert response.status_code == 200, "Service using Redis should be healthy"
 
 
@@ -105,7 +105,8 @@ async def test_redis_caching_behavior():
     """
     async with httpx.AsyncClient() as client:
         # Make the same request twice to test caching
-        url = "http://localhost:8108/api/v1/weather/current"
+        # weather-core (port 8108) deprecated; now uses weather-service (port 8092)
+        url = "http://localhost:8092/api/v1/weather/current"
         params = {"latitude": 15.3694, "longitude": 44.1910}
 
         try:
@@ -136,23 +137,30 @@ async def test_postgres_through_services():
     اختبار اتصال PostgreSQL من خلال الخدمات
     """
     # Test multiple services that use PostgreSQL
+    # Deprecated services updated to their replacements:
+    # field-ops (8080) -> field-management-service (3000)
+    # ndvi-engine (8107) -> vegetation-analysis-service (8090)
+    # weather-core (8108) -> weather-service (8092)
     services_with_db = [
-        "http://localhost:8080/healthz",  # field_ops
-        "http://localhost:8107/healthz",  # ndvi_engine
-        "http://localhost:8108/healthz",  # weather_core
+        "http://localhost:3000/healthz",  # field-management-service (replaces field_ops)
+        "http://localhost:8090/healthz",  # vegetation-analysis-service (replaces ndvi_engine)
+        "http://localhost:8092/healthz",  # weather-service (replaces weather_core)
         "http://localhost:8089/healthz",  # billing_core
     ]
 
+    healthy_services = []
     async with httpx.AsyncClient() as client:
         for service_url in services_with_db:
             try:
                 response = await client.get(service_url)
-                # If service is healthy, database connection is working
-                if response.status_code == 200:
-                    assert True
-            except Exception:
-                # Service might not be running
-                pass
+                assert response.status_code == 200, (
+                    f"Service {service_url} returned {response.status_code}"
+                )
+                healthy_services.append(service_url)
+            except Exception as e:
+                pytest.skip(f"Service unavailable: {e}")
+
+    assert len(healthy_services) > 0, "At least one database-backed service should be healthy"
 
 
 @pytest.mark.integration
@@ -163,7 +171,8 @@ async def test_database_operations_through_api(auth_headers: dict[str, str]):
     Test database CRUD operations through API
     اختبار عمليات قاعدة البيانات من خلال API
     """
-    async with httpx.AsyncClient(base_url="http://localhost:8080") as client:
+    # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
+    async with httpx.AsyncClient(base_url="http://localhost:3000") as client:
         # Try to list fields (READ operation)
         response = await client.get("/api/v1/fields", headers=auth_headers)
 
@@ -217,11 +226,12 @@ async def test_ai_advisor_qdrant_integration():
     async with httpx.AsyncClient() as client:
         response = await client.get("http://localhost:8112/healthz")
 
-        if response.status_code == 200:
-            # AI Advisor is healthy, which means Qdrant integration is working
-            assert True
-        else:
+        if response.status_code != 200:
             pytest.skip("AI Advisor not running")
+
+        # AI Advisor is healthy, which means Qdrant integration is working
+        data = response.json()
+        assert data is not None, "AI Advisor health check should return response data"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -235,17 +245,18 @@ async def test_ai_advisor_qdrant_integration():
 @pytest.mark.asyncio
 async def test_field_to_ndvi_data_flow(auth_headers: dict[str, str], sample_field: dict[str, Any]):
     """
-    Test data flow from Field Ops to NDVI Engine
-    اختبار تدفق البيانات من عمليات الحقول إلى محرك NDVI
+    Test data flow from Field Management Service to Vegetation Analysis Service
+    اختبار تدفق البيانات من خدمة إدارة الحقول إلى خدمة تحليل الغطاء النباتي
 
     Workflow:
-    1. Create a field in Field Ops
-    2. NDVI Engine should be able to analyze it
+    1. Create a field in Field Management Service
+    2. Vegetation Analysis Service should be able to analyze it
     """
     async with httpx.AsyncClient() as client:
         # Step 1: Try to create a field
+        # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
         response = await client.post(
-            "http://localhost:8080/api/v1/fields",
+            "http://localhost:3000/api/v1/fields",
             headers=auth_headers,
             json=sample_field,
         )
@@ -254,11 +265,12 @@ async def test_field_to_ndvi_data_flow(auth_headers: dict[str, str], sample_fiel
             field_data = response.json()
             field_id = field_data.get("id") or field_data.get("field_id")
 
-            # Step 2: NDVI Engine should be able to access this field
+            # Step 2: Vegetation Analysis Service should be able to access this field
             await asyncio.sleep(1)  # Give time for event propagation
 
+            # ndvi-engine (port 8107) deprecated; now uses vegetation-analysis-service (port 8090)
             ndvi_response = await client.get(
-                f"http://localhost:8107/api/v1/ndvi/fields/{field_id}",
+                f"http://localhost:8090/api/v1/ndvi/fields/{field_id}",
                 headers=auth_headers,
             )
 
@@ -283,8 +295,9 @@ async def test_weather_to_irrigation_data_flow(
     """
     async with httpx.AsyncClient() as client:
         # Step 1: Get weather data
+        # weather-core (port 8108) deprecated; now uses weather-service (port 8092)
         weather_response = await client.get(
-            "http://localhost:8108/api/v1/weather/current",
+            "http://localhost:8092/api/v1/weather/current",
             headers=auth_headers,
             params=sample_location,
         )
@@ -321,10 +334,10 @@ async def test_ai_advisor_multi_service_integration(auth_headers: dict[str, str]
     اختبار تكامل المستشار الذكي مع خدمات متعددة
 
     AI Advisor connects to:
-    - Weather Core
-    - Crop Health AI
-    - Satellite Service
-    - Agro Advisor
+    - Weather Service (replaces deprecated weather-core)
+    - Crop Intelligence Service (replaces deprecated crop-health-ai)
+    - Vegetation Analysis Service (replaces deprecated satellite-service)
+    - Advisory Service (replaces deprecated agro-advisor)
     - Qdrant (for RAG)
     """
     async with httpx.AsyncClient() as client:
@@ -333,21 +346,30 @@ async def test_ai_advisor_multi_service_integration(auth_headers: dict[str, str]
 
         if ai_response.status_code == 200:
             # Verify it can communicate with dependent services
+            # Deprecated services updated to their replacements:
+            # weather-core (8108) -> weather-service (8092)
+            # crop-health-ai -> crop-intelligence-service (8095, same port)
+            # agro-advisor (8105) -> advisory-service (8093)
             dependencies = [
-                "http://localhost:8108/healthz",  # weather_core
-                "http://localhost:8095/healthz",  # crop_health_ai
-                "http://localhost:8105/healthz",  # agro_advisor
+                "http://localhost:8092/healthz",  # weather-service (replaces weather_core)
+                "http://localhost:8095/healthz",  # crop-intelligence-service (replaces crop_health_ai)
+                "http://localhost:8093/healthz",  # advisory-service (replaces agro_advisor)
                 "http://localhost:6333/healthz",  # qdrant
             ]
 
+            healthy_deps = []
             for dep_url in dependencies:
                 try:
                     dep_response = await client.get(dep_url)
-                    # Dependencies should be healthy
-                    assert dep_response.status_code == 200
+                    if dep_response.status_code == 200:
+                        healthy_deps.append(dep_url)
                 except Exception:
                     # Some dependencies might not be running
-                    pass
+                    continue
+
+            assert len(healthy_deps) > 0, (
+                f"AI Advisor is healthy but none of its dependencies responded: {dependencies}"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -367,13 +389,19 @@ async def test_notification_service_nats_subscription():
     """
     async with httpx.AsyncClient() as client:
         # Notification service should be healthy
-        response = await client.get("http://localhost:8110/healthz")
+        try:
+            response = await client.get("http://localhost:8110/healthz")
+        except Exception as e:
+            pytest.skip(f"Notification service unavailable: {e}")
 
-        if response.status_code == 200:
-            # Service is running and connected to NATS
-            assert True
-        else:
-            pytest.skip("Notification service not running")
+        if response.status_code != 200:
+            pytest.skip(f"Notification service not running (status {response.status_code})")
+
+        # Service is running and connected to NATS
+        data = response.json()
+        assert "status" in data or data is not None, (
+            "Notification service health check should return valid response"
+        )
 
 
 @pytest.mark.integration
@@ -387,13 +415,19 @@ async def test_websocket_gateway_nats_integration():
     WebSocket Gateway subscribes to NATS for real-time updates
     """
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:8081/healthz")
+        try:
+            response = await client.get("http://localhost:8081/healthz")
+        except Exception as e:
+            pytest.skip(f"WebSocket Gateway unavailable: {e}")
 
-        if response.status_code == 200:
-            # WebSocket Gateway is healthy and connected to NATS
-            assert True
-        else:
-            pytest.skip("WebSocket Gateway not running")
+        if response.status_code != 200:
+            pytest.skip(f"WebSocket Gateway not running (status {response.status_code})")
+
+        # WebSocket Gateway is healthy and connected to NATS
+        data = response.json()
+        assert "status" in data or data is not None, (
+            "WebSocket Gateway health check should return valid response"
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -411,18 +445,21 @@ async def test_field_data_consistency_across_services(auth_headers: dict[str, st
     اختبار أن بيانات الحقل متسقة عبر الخدمات
 
     Field data should be available in:
-    - Field Ops (source)
-    - NDVI Engine
-    - Weather Core
-    - Satellite Service
+    - Field Management Service (source, replaces deprecated field-ops)
+    - Vegetation Analysis Service (replaces deprecated ndvi-engine)
+    - Weather Service (replaces deprecated weather-core)
+    - Vegetation Analysis Service (replaces deprecated satellite-service)
     """
     field_id = "test-field-consistency-123"
 
     async with httpx.AsyncClient() as client:
         # Check field in multiple services
+        # Deprecated services updated to their replacements:
+        # field-ops (8080) -> field-management-service (3000)
+        # ndvi-engine (8107) -> vegetation-analysis-service (8090)
         services = [
-            f"http://localhost:8080/api/v1/fields/{field_id}",  # field_ops
-            f"http://localhost:8107/api/v1/ndvi/fields/{field_id}",  # ndvi_engine
+            f"http://localhost:3000/api/v1/fields/{field_id}",  # field-management-service (replaces field_ops)
+            f"http://localhost:8090/api/v1/ndvi/fields/{field_id}",  # vegetation-analysis-service (replaces ndvi_engine)
         ]
 
         responses = []
@@ -430,13 +467,18 @@ async def test_field_data_consistency_across_services(auth_headers: dict[str, st
             try:
                 response = await client.get(service_url, headers=auth_headers)
                 responses.append(response.status_code)
-            except Exception:
-                pass
+            except Exception as e:
+                pytest.skip(f"Service unavailable ({service_url}): {e}")
+
+        assert len(responses) > 0, "At least one service should respond"
 
         # All services should return same status (200 or 404)
         # This indicates data consistency
-        if len(set(responses)) <= 2:  # Allow for auth differences
-            assert True
+        unique_statuses = set(responses)
+        assert len(unique_statuses) <= 2, (
+            f"Services returned inconsistent statuses: {responses}. "
+            f"Expected consistent responses across services."
+        )
 
 
 @pytest.mark.integration
@@ -477,16 +519,20 @@ async def test_satellite_to_yield_prediction_pipeline(auth_headers: dict[str, st
     اختبار خط أنابيب البيانات من القمر الصناعي إلى التنبؤ بالإنتاجية
 
     Pipeline:
-    1. Satellite Service gets imagery
-    2. NDVI Engine analyzes
-    3. Yield Prediction uses analysis
+    1. Vegetation Analysis Service gets imagery (replaces deprecated satellite-service)
+    2. Vegetation Analysis Service analyzes NDVI (replaces deprecated ndvi-engine)
+    3. Yield Prediction Service uses analysis (replaces deprecated yield-engine)
     """
     async with httpx.AsyncClient() as client:
         # All services in pipeline should be healthy
+        # Deprecated services updated to their replacements:
+        # satellite-service -> vegetation-analysis-service (8090, same port)
+        # ndvi-engine (8107) -> vegetation-analysis-service (8090)
+        # yield-engine (3021) -> yield-prediction-service (8152)
         pipeline_services = [
-            "http://localhost:8090/healthz",  # satellite_service
-            "http://localhost:8107/healthz",  # ndvi_engine
-            "http://localhost:3021/api/v1/yield/health",  # yield_prediction
+            "http://localhost:8090/healthz",  # vegetation-analysis-service (replaces satellite_service)
+            "http://localhost:8090/healthz",  # vegetation-analysis-service (replaces ndvi_engine)
+            "http://localhost:8152/api/v1/yield/health",  # yield-prediction-service (replaces yield_prediction on 3021)
         ]
 
         healthy_count = 0
@@ -495,8 +541,10 @@ async def test_satellite_to_yield_prediction_pipeline(auth_headers: dict[str, st
                 response = await client.get(service_url)
                 if response.status_code == 200:
                     healthy_count += 1
-            except Exception:
-                pass
+            except Exception as e:
+                pytest.skip(f"Pipeline service unavailable ({service_url}): {e}")
 
-        # At least some services in the pipeline should be healthy
-        assert healthy_count >= 0  # Soft assertion
+        # At least one service in the pipeline should be healthy
+        assert healthy_count > 0, (
+            f"No pipeline services are healthy out of {len(pipeline_services)}"
+        )

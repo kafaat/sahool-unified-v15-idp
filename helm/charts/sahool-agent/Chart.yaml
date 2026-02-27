@@ -1,0 +1,15 @@
+apiVersion: v2
+name: sahool-agent
+description: SAHOOL Argo Rollouts Agent for canary and blue-green deployments
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - agent
+  - canary
+  - blue-green
+  - argo-rollouts
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

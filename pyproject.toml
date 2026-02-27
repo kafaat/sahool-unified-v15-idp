@@ -42,7 +42,7 @@ observability = [
 testing = [
     "pytest==8.4.2",
     "pytest-asyncio==0.26.0",
-    "pytest-cov==4.1.0",
+    "pytest-cov>=6.0.0",
     "pytest-mock==3.15.1",
     "pytest-xdist==3.8.0",
 ]
@@ -159,11 +159,15 @@ line-ending = "lf"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-addopts = "-q --cov=shared --cov-report=term-missing --cov-report=html:coverage_html"
+addopts = "-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html"
 testpaths = ["tests", "apps/services"]
 python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
+asyncio_mode = "auto"
 filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
     "ignore::DeprecationWarning:tortoise.*",
     "ignore::DeprecationWarning:pydantic.*",
 ]
@@ -171,7 +175,20 @@ markers = [
     "unit: Unit tests (fast, no I/O)",
     "integration: Integration tests (API, database)",
     "smoke: Smoke tests (import verification)",
-    "slow: Slow running tests",
+    "slow: Slow running tests (deselect with '-m \"not slow\"')",
+    "e2e: End-to-end workflow tests (requires full stack)",
+    "health: Health check tests",
+    "api: API endpoint tests",
+    "dataflow: Data flow tests",
+    "workflow: Workflow tests",
+    "security: Security tests",
+    "snapshot: Snapshot tests",
+    "arabic: Tests with Arabic content",
+    "evaluation: Agent evaluation suite tests",
+    "golden: Tests using golden dataset",
+    "english: Tests for English language support",
+    "latency: Tests for latency measurement",
+    "safety: Tests for safety checking",
 ]
 
 [tool.coverage.run]
@@ -192,7 +209,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 1
+fail_under = 5
 show_missing = true
 skip_empty = true
 

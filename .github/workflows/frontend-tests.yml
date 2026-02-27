@@ -163,15 +163,13 @@ jobs:
         run: |
           echo "Running ESLint on Web App..."
           cd apps/web && npm run lint
-        continue-on-error: true
 
       - name: Report Lint Failure
-        if: matrix.check == 'lint' && steps.lint.outcome == 'failure'
+        if: matrix.check == 'lint' && failure()
         run: |
           echo "::error::ESLint found issues in Web App. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/web. Run \`cd apps/web && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -179,15 +177,13 @@ jobs:
         run: |
           echo "Running TypeScript type check on Web App..."
           cd apps/web && npm run type-check
-        continue-on-error: true
 
       - name: Report Type Check Failure
-        if: matrix.check == 'typecheck' && steps.typecheck.outcome == 'failure'
+        if: matrix.check == 'typecheck' && failure()
         run: |
           echo "::error::TypeScript found type errors in Web App. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -241,15 +237,13 @@ jobs:
         run: |
           echo "Running Vitest unit tests on Web App..."
           cd apps/web && npm run test:coverage
-        continue-on-error: true
 
       - name: Report Test Failure
-        if: steps.tests.outcome == 'failure'
+        if: failure()
         run: |
           echo "::error::Web App unit tests failed. Please fix failing tests."
           echo "## ❌ Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
           echo "Unit tests failed in apps/web. Run \`cd apps/web && npm run test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Upload Coverage Report
         if: always()
@@ -400,15 +394,13 @@ jobs:
         run: |
           echo "Running ESLint on Admin Dashboard..."
           cd apps/admin && npm run lint
-        continue-on-error: true
 
       - name: Report Lint Failure
-        if: matrix.check == 'lint' && steps.lint.outcome == 'failure'
+        if: matrix.check == 'lint' && failure()
         run: |
           echo "::error::ESLint found issues in Admin Dashboard. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/admin. Run \`cd apps/admin && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -416,15 +408,13 @@ jobs:
         run: |
           echo "Running TypeScript type check on Admin Dashboard..."
           cd apps/admin && npm run type-check
-        continue-on-error: true
 
       - name: Report Type Check Failure
-        if: matrix.check == 'typecheck' && steps.typecheck.outcome == 'failure'
+        if: matrix.check == 'typecheck' && failure()
         run: |
           echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests
@@ -485,7 +475,6 @@ jobs:
           else
             echo "⚠️ No test script found - skipping"
           fi
-        continue-on-error: true
 
       - name: Upload Admin Coverage Report
         if: always()

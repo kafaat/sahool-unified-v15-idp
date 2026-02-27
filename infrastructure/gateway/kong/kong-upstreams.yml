@@ -1016,7 +1016,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: chat-service:8000
+      - target: chat-service:8115
         weight: 100
         tags:
           - community

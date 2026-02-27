@@ -605,16 +605,21 @@ def service_urls() -> dict[str, str]:
     """
     return {
         # Starter Package
-        "field_core": "http://localhost:3000",
-        "field_ops": "http://localhost:8080",
-        "weather_core": "http://localhost:8108",
+        # field-core and field-ops are deprecated; replaced by field-management-service (port 3000)
+        "field_management": "http://localhost:3000",
+        # weather-core is deprecated; replaced by weather-service (port 8092)
+        "weather_service": "http://localhost:8092",
         "astronomical_calendar": "http://localhost:8111",
-        "agro_advisor": "http://localhost:8105",
+        # agro-advisor is deprecated; replaced by advisory-service (port 8093)
+        "advisory_service": "http://localhost:8093",
         "notification_service": "http://localhost:8110",
         # Professional Package
-        "satellite_service": "http://localhost:8090",
-        "ndvi_engine": "http://localhost:8107",
-        "crop_health_ai": "http://localhost:8095",
+        # satellite-service is deprecated; replaced by vegetation-analysis-service (port 8090)
+        "vegetation_analysis_service": "http://localhost:8090",
+        # ndvi-engine is deprecated; replaced by vegetation-analysis-service (port 8090)
+        "vegetation_analysis_ndvi": "http://localhost:8090",
+        # crop-health-ai is deprecated; replaced by crop-intelligence-service (port 8095)
+        "crop_intelligence_service": "http://localhost:8095",
         "irrigation_smart": "http://localhost:8094",
         "inventory_service": "http://localhost:8116",
         # Enterprise Package
@@ -628,7 +633,8 @@ def service_urls() -> dict[str, str]:
         "task_service": "http://localhost:8103",
         "ws_gateway": "http://localhost:8081",
         "equipment_service": "http://localhost:8101",
-        "yield_engine": "http://localhost:3021",
+        # yield-engine is deprecated; replaced by yield-prediction-service (port 8152)
+        "yield_prediction_service": "http://localhost:8152",
         "provider_config": "http://localhost:8104",
         # Platform Integration Services
         "ai_agents_service": "http://localhost:8130",
@@ -906,8 +912,9 @@ def sample_payment(payment_factory: PaymentFactory) -> dict[str, Any]:
 
 @pytest.fixture
 async def field_ops_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
-    """HTTP client for field operations service - عميل HTTP لخدمة عمليات الحقول"""
-    base_url = service_urls.get("field_core", "http://localhost:3000")
+    """HTTP client for field management service - عميل HTTP لخدمة إدارة الحقول"""
+    # field-core/field-ops deprecated; now uses field-management-service (port 3000)
+    base_url = service_urls.get("field_management", "http://localhost:3000")
     http_client.base_url = base_url
     return http_client
 
@@ -915,15 +922,17 @@ async def field_ops_client(http_client: AsyncClient, service_urls: dict[str, str
 @pytest.fixture
 async def weather_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for weather service - عميل HTTP لخدمة الطقس"""
-    base_url = service_urls.get("weather_core", "http://localhost:8108")
+    # weather-core deprecated; now uses weather-service (port 8092)
+    base_url = service_urls.get("weather_service", "http://localhost:8092")
     http_client.base_url = base_url
     return http_client
 
 
 @pytest.fixture
 async def ndvi_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
-    """HTTP client for NDVI engine - عميل HTTP لمحرك NDVI"""
-    base_url = service_urls.get("ndvi_engine", "http://localhost:8107")
+    """HTTP client for vegetation analysis service - عميل HTTP لخدمة تحليل الغطاء النباتي"""
+    # ndvi-engine deprecated; now uses vegetation-analysis-service (port 8090)
+    base_url = service_urls.get("vegetation_analysis_service", "http://localhost:8090")
     http_client.base_url = base_url
     return http_client
 

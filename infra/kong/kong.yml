@@ -2186,7 +2186,7 @@ services:
   # خدمة المحادثة - Chat Service
   # ============================================================================
   - name: chat-service
-    url: http://chat-service:8000
+    url: http://chat-service:8115
     tags:
       - shared
       - chat

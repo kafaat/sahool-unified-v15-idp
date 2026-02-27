@@ -6,13 +6,16 @@ list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   connectivity_plus
   file_selector_windows
+  firebase_core
   flutter_secure_storage_windows
+  flutter_tts
   geolocator_windows
   local_auth_windows
   permission_handler_windows
   record_windows
   secure_application
   share_plus
+  speech_to_text_windows
   sqlcipher_flutter_libs
   url_launcher_windows
 )

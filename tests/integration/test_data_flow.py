@@ -393,6 +393,7 @@ async def test_notification_service_nats_subscription():
             response = await client.get("http://localhost:8110/healthz")
         except Exception as e:
             pytest.skip(f"Notification service unavailable: {e}")
+            return  # unreachable, satisfies static analysis
 
         if response.status_code != 200:
             pytest.skip(f"Notification service not running (status {response.status_code})")
@@ -419,6 +420,7 @@ async def test_websocket_gateway_nats_integration():
             response = await client.get("http://localhost:8081/healthz")
         except Exception as e:
             pytest.skip(f"WebSocket Gateway unavailable: {e}")
+            return  # unreachable, satisfies static analysis
 
         if response.status_code != 200:
             pytest.skip(f"WebSocket Gateway not running (status {response.status_code})")

@@ -7,8 +7,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/equipment.dart';
-import 'package:sahool_field_app/features/equipment/domain/models/equipment_status.dart';
+import 'package:sahool_field_app/features/equipment/data/equipment_models.dart';
 
 void main() {
   group('Equipment JSON parsing (compute isolate pattern)', () {
@@ -23,21 +22,28 @@ void main() {
     });
 
     test('should parse equipment list with valid data', () {
+      final now = DateTime.now().toIso8601String();
       final equipmentJson = [
         {
           'equipment_id': 'eq-001',
+          'tenant_id': 'tenant-001',
           'name': 'Test Tractor',
           'name_ar': 'جرار اختبار',
           'equipment_type': 'tractor',
           'status': 'operational',
           'field_id': 'field-001',
+          'created_at': now,
+          'updated_at': now,
         },
         {
           'equipment_id': 'eq-002',
+          'tenant_id': 'tenant-001',
           'name': 'Test Pump',
           'name_ar': 'مضخة اختبار',
           'equipment_type': 'pump',
           'status': 'maintenance',
+          'created_at': now,
+          'updated_at': now,
         },
       ];
 
@@ -56,13 +62,17 @@ void main() {
     });
 
     test('should round-trip equipment through toJson/fromJson', () {
+      final now = DateTime.now();
       final original = Equipment(
         equipmentId: 'eq-round-trip',
+        tenantId: 'tenant-001',
         name: 'Round Trip Test',
         nameAr: 'اختبار الرحلة',
         equipmentType: EquipmentType.drone,
         status: EquipmentStatus.operational,
         fieldId: 'field-test',
+        createdAt: now,
+        updatedAt: now,
       );
 
       final json = original.toJson();
@@ -76,12 +86,16 @@ void main() {
     });
 
     test('should handle large list parsing efficiently', () {
+      final now = DateTime.now().toIso8601String();
       // Generate a list of 100 equipment items
       final items = List.generate(100, (i) => {
             'equipment_id': 'eq-$i',
+            'tenant_id': 'tenant-001',
             'name': 'Equipment $i',
             'equipment_type': 'tractor',
             'status': 'operational',
+            'created_at': now,
+            'updated_at': now,
           });
 
       final jsonStr = jsonEncode(items);
@@ -100,27 +114,37 @@ void main() {
     late List<Equipment> equipment;
 
     setUp(() {
+      final now = DateTime.now();
       equipment = [
         Equipment(
           equipmentId: 'eq-1',
+          tenantId: 'tenant-001',
           name: 'Tractor Alpha',
           equipmentType: EquipmentType.tractor,
           status: EquipmentStatus.operational,
           fieldId: 'field-A',
+          createdAt: now,
+          updatedAt: now,
         ),
         Equipment(
           equipmentId: 'eq-2',
+          tenantId: 'tenant-001',
           name: 'Pump Beta',
           equipmentType: EquipmentType.pump,
           status: EquipmentStatus.maintenance,
           fieldId: 'field-B',
+          createdAt: now,
+          updatedAt: now,
         ),
         Equipment(
           equipmentId: 'eq-3',
+          tenantId: 'tenant-001',
           name: 'Drone Gamma',
           equipmentType: EquipmentType.drone,
           status: EquipmentStatus.operational,
           fieldId: 'field-A',
+          createdAt: now,
+          updatedAt: now,
         ),
       ];
     });

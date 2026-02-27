@@ -224,7 +224,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                     : const Color(0xFF367C2B).withOpacity(0.15),
                 borderColor: const Color(0xFF367C2B),
                 borderStrokeWidth: 3,
-                isFilled: true,
               ),
             ],
           ),
@@ -297,7 +296,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               color: color.withOpacity(0.35),
               borderColor: color,
               borderStrokeWidth: 2,
-              isFilled: true,
               label: '${idx.code}: ${value.toStringAsFixed(2)}',
               labelStyle: const TextStyle(
                 color: Colors.white,

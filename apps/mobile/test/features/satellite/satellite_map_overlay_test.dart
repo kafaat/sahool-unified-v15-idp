@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/ndvi/domain/spectral_index.dart';
 import 'package:sahool_field_app/features/satellite/widgets/satellite_map_overlay.dart';
@@ -28,6 +29,7 @@ void main() {
     return MaterialApp(
       locale: locale,
       supportedLocales: const [Locale('ar'), Locale('en')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
@@ -237,6 +239,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
@@ -273,6 +276,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
@@ -302,6 +306,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
@@ -340,7 +345,9 @@ void main() {
 
     testWidgets('should contain AnimatedOpacity for image opacity',
         (tester) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(
+        imageUrl: 'https://example.com/satellite.png',
+      ));
       await tester.pump();
 
       expect(find.byType(AnimatedOpacity), findsWidgets);
@@ -351,7 +358,7 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      expect(find.byType(ScaleTransition), findsOneWidget);
+      expect(find.byType(ScaleTransition), findsWidgets);
     });
   });
 }

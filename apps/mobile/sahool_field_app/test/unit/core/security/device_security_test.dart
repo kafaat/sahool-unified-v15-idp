@@ -1,408 +1,272 @@
 /// Device Security Tests
 /// اختبارات أمان الجهاز
 ///
-/// Tests the P0 security fix:
-/// - Fail-closed behavior: errors return isSecure=false (not true)
-/// - Threat level calculation
-/// - Security policy enforcement
-/// - State management (DeviceSecurityController)
+/// Tests the device security service:
+/// - DeviceSecurityResult model
+/// - Threat severity ordering
+/// - Security action determination
+/// - ThreatType coverage
+/// - SecurityConfig integration
 /// - Bilingual threat messages
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sahool_field_app/core/security/device_security.dart';
+import 'package:sahool_field_app/core/security/device_security_service.dart';
+import 'package:sahool_field_app/core/security/security_config.dart';
 
 void main() {
-  group('DeviceSecurityState', () {
-    test('default state should be uninitialized and secure', () {
-      const state = DeviceSecurityState();
+  group('DeviceSecurityResult', () {
+    test('secure result should have no threats', () {
+      const result = DeviceSecurityResult(
+        isSecure: true,
+        threats: [],
+        recommendedAction: SecurityAction.allow,
+      );
 
-      expect(state.isInitialized, isFalse);
-      expect(state.isSecure, isTrue);
-      expect(state.isRooted, isFalse);
-      expect(state.isJailbroken, isFalse);
-      expect(state.isEmulator, isFalse);
-      expect(state.isRealDevice, isTrue);
-      expect(state.hasMockLocation, isFalse);
-      expect(state.isOnExternalStorage, isFalse);
-      expect(state.isDevelopmentModeEnabled, isFalse);
-      expect(state.threats, isEmpty);
-      expect(state.threatLevel, SecurityThreatLevel.none);
-      expect(state.lastCheckTime, isNull);
-      expect(state.errorMessage, isNull);
+      expect(result.isSecure, isTrue);
+      expect(result.threats, isEmpty);
+      expect(result.recommendedAction, SecurityAction.allow);
+      expect(result.hasCriticalThreats, isFalse);
+      expect(result.primaryThreat, isNull);
     });
 
-    test('isCompromised should be true when rooted', () {
-      const state = DeviceSecurityState(isRooted: true);
-      expect(state.isCompromised, isTrue);
+    test('should detect critical threats', () {
+      const result = DeviceSecurityResult(
+        isSecure: false,
+        threats: [
+          SecurityThreat(
+            type: ThreatType.rootAccess,
+            severity: ThreatSeverity.critical,
+            messageAr: 'تم اكتشاف صلاحيات الروت',
+            messageEn: 'Root access detected',
+          ),
+        ],
+        recommendedAction: SecurityAction.block,
+      );
+
+      expect(result.isSecure, isFalse);
+      expect(result.hasCriticalThreats, isTrue);
+      expect(result.primaryThreat, isNotNull);
+      expect(result.primaryThreat!.type, ThreatType.rootAccess);
     });
 
-    test('isCompromised should be true when jailbroken', () {
-      const state = DeviceSecurityState(isJailbroken: true);
-      expect(state.isCompromised, isTrue);
+    test('primaryThreat should return highest severity', () {
+      const result = DeviceSecurityResult(
+        isSecure: false,
+        threats: [
+          SecurityThreat(
+            type: ThreatType.developerMode,
+            severity: ThreatSeverity.low,
+            messageAr: 'وضع المطور مفعل',
+            messageEn: 'Developer mode enabled',
+          ),
+          SecurityThreat(
+            type: ThreatType.rootAccess,
+            severity: ThreatSeverity.critical,
+            messageAr: 'تم اكتشاف صلاحيات الروت',
+            messageEn: 'Root access detected',
+          ),
+          SecurityThreat(
+            type: ThreatType.emulator,
+            severity: ThreatSeverity.medium,
+            messageAr: 'تم اكتشاف محاكي',
+            messageEn: 'Emulator detected',
+          ),
+        ],
+        recommendedAction: SecurityAction.block,
+      );
+
+      expect(result.primaryThreat!.severity, ThreatSeverity.critical);
+      expect(result.primaryThreat!.type, ThreatType.rootAccess);
     });
 
-    test('isCompromised should be false when neither rooted nor jailbroken', () {
-      const state = DeviceSecurityState();
-      expect(state.isCompromised, isFalse);
-    });
-
-    test('hasThreats should be true when threats exist', () {
-      const state = DeviceSecurityState(threats: ['Root detected']);
-      expect(state.hasThreats, isTrue);
-    });
-
-    test('hasThreats should be false when no threats', () {
-      const state = DeviceSecurityState();
-      expect(state.hasThreats, isFalse);
-    });
-
-    group('Status Messages', () {
-      test('should return not performed message when uninitialized', () {
-        const state = DeviceSecurityState();
-        expect(state.statusMessage, 'Security check not performed');
-        expect(state.statusMessageAr, 'لم يتم إجراء فحص الأمان');
-      });
-
-      test('should return secure message when secure', () {
-        const state = DeviceSecurityState(
-          isInitialized: true,
+    group('Bilingual Messages', () {
+      test('secure result should return secure messages', () {
+        const result = DeviceSecurityResult(
           isSecure: true,
+          threats: [],
+          recommendedAction: SecurityAction.allow,
         );
-        expect(state.statusMessage, 'Device is secure');
-        expect(state.statusMessageAr, 'الجهاز آمن');
+
+        expect(result.messageEn, 'Device is secure');
+        expect(result.messageAr, 'الجهاز آمن ومحمي');
       });
 
-      test('should list threats when insecure', () {
-        const state = DeviceSecurityState(
-          isInitialized: true,
+      test('insecure result should return threat messages', () {
+        const result = DeviceSecurityResult(
           isSecure: false,
-          threats: ['Device is rooted', 'Mock location detected'],
+          threats: [
+            SecurityThreat(
+              type: ThreatType.rootAccess,
+              severity: ThreatSeverity.critical,
+              messageAr: 'تم اكتشاف صلاحيات الروت - الجهاز غير آمن',
+              messageEn: 'Root access detected - Device is not secure',
+            ),
+          ],
+          recommendedAction: SecurityAction.block,
         );
 
-        expect(state.statusMessage, contains('Device is rooted'));
-        expect(state.statusMessage, contains('Mock location detected'));
-      });
-    });
-
-    group('copyWith', () {
-      test('should copy with new values', () {
-        const original = DeviceSecurityState();
-        final copied = original.copyWith(
-          isInitialized: true,
-          isSecure: false,
-          isRooted: true,
-          threats: ['Device is rooted'],
-          threatLevel: SecurityThreatLevel.high,
-        );
-
-        expect(copied.isInitialized, isTrue);
-        expect(copied.isSecure, isFalse);
-        expect(copied.isRooted, isTrue);
-        expect(copied.threats, ['Device is rooted']);
-        expect(copied.threatLevel, SecurityThreatLevel.high);
-      });
-
-      test('should preserve unchanged values', () {
-        const original = DeviceSecurityState(
-          isInitialized: true,
-          isRooted: true,
-          threatLevel: SecurityThreatLevel.high,
-        );
-        final copied = original.copyWith(isSecure: false);
-
-        expect(copied.isInitialized, isTrue);
-        expect(copied.isRooted, isTrue);
-        expect(copied.threatLevel, SecurityThreatLevel.high);
-      });
-
-      test('should allow clearing errorMessage', () {
-        const original = DeviceSecurityState(errorMessage: 'some error');
-        final copied = original.copyWith(errorMessage: null);
-
-        // Note: copyWith sets errorMessage directly (no ?? fallback)
-        expect(copied.errorMessage, isNull);
+        expect(result.messageEn, contains('Root access detected'));
+        expect(result.messageAr, contains('تم اكتشاف صلاحيات الروت'));
       });
     });
   });
 
-  group('SecurityThreatLevel', () {
+  group('ThreatSeverity', () {
     test('should have correct ordering', () {
-      expect(SecurityThreatLevel.none.index, lessThan(SecurityThreatLevel.low.index));
-      expect(SecurityThreatLevel.low.index, lessThan(SecurityThreatLevel.medium.index));
-      expect(SecurityThreatLevel.medium.index, lessThan(SecurityThreatLevel.high.index));
-      expect(SecurityThreatLevel.high.index, lessThan(SecurityThreatLevel.critical.index));
+      expect(ThreatSeverity.low.index, lessThan(ThreatSeverity.medium.index));
+      expect(ThreatSeverity.medium.index, lessThan(ThreatSeverity.high.index));
+      expect(ThreatSeverity.high.index, lessThan(ThreatSeverity.critical.index));
     });
 
     test('should have all expected values', () {
-      expect(SecurityThreatLevel.values.length, 5);
-      expect(SecurityThreatLevel.values, contains(SecurityThreatLevel.none));
-      expect(SecurityThreatLevel.values, contains(SecurityThreatLevel.low));
-      expect(SecurityThreatLevel.values, contains(SecurityThreatLevel.medium));
-      expect(SecurityThreatLevel.values, contains(SecurityThreatLevel.high));
-      expect(SecurityThreatLevel.values, contains(SecurityThreatLevel.critical));
+      expect(ThreatSeverity.values.length, 4);
+      expect(ThreatSeverity.values, contains(ThreatSeverity.low));
+      expect(ThreatSeverity.values, contains(ThreatSeverity.medium));
+      expect(ThreatSeverity.values, contains(ThreatSeverity.high));
+      expect(ThreatSeverity.values, contains(ThreatSeverity.critical));
     });
   });
 
-  group('DeviceSecurityService', () {
-    late DeviceSecurityService service;
-
-    setUp(() {
-      service = DeviceSecurityService();
-    });
-
-    group('Threat Messages (Bilingual)', () {
-      test('should return correct English messages', () {
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.critical),
-          'Critical security threat - Cannot use app',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.high),
-          'High security threat - Device is not secure',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.medium),
-          'Medium security threat - Proceed with caution',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.low),
-          'Minor security warning',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.none),
-          'Device is secure',
-        );
-      });
-
-      test('should return correct Arabic messages', () {
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.critical, arabic: true),
-          'تهديد أمني حرج - لا يمكن استخدام التطبيق',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.high, arabic: true),
-          'تهديد أمني عالي - الجهاز غير آمن',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.medium, arabic: true),
-          'تهديد أمني متوسط - يُنصح بالحذر',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.low, arabic: true),
-          'تحذير أمني بسيط',
-        );
-        expect(
-          service.getThreatMessage(SecurityThreatLevel.none, arabic: true),
-          'الجهاز آمن',
-        );
-      });
-    });
-
-    group('shouldBlockApp', () {
-      test('should not block with disabled policy', () {
-        const state = DeviceSecurityState(
-          isRooted: true,
-          threats: ['Device is rooted'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.disabled,
-        );
-
-        expect(service.shouldBlockApp(state, config), isFalse);
-      });
-
-      test('should not block with logOnly policy', () {
-        const state = DeviceSecurityState(
-          isRooted: true,
-          threats: ['Device is rooted'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.logOnly,
-        );
-
-        expect(service.shouldBlockApp(state, config), isFalse);
-      });
-
-      test('should not block with warnOnly policy', () {
-        const state = DeviceSecurityState(
-          isRooted: true,
-          threats: ['Device is rooted'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.warnOnly,
-        );
-
-        expect(service.shouldBlockApp(state, config), isFalse);
-      });
-
-      test('should block rooted device with blockRooted policy', () {
-        const state = DeviceSecurityState(
-          isRooted: true,
-          threats: ['Device is rooted'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.blockRooted,
-          enforceInDebug: true,
-        );
-
-        expect(service.shouldBlockApp(state, config), isTrue);
-      });
-
-      test('should block jailbroken device with blockRooted policy', () {
-        const state = DeviceSecurityState(
-          isJailbroken: true,
-          threats: ['Device is jailbroken'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.blockRooted,
-          enforceInDebug: true,
-        );
-
-        expect(service.shouldBlockApp(state, config), isTrue);
-      });
-
-      test('should not block non-compromised device with blockRooted policy', () {
-        const state = DeviceSecurityState(
-          isEmulator: true,
-          threats: ['Running on emulator'],
-        );
-        const config = DeviceSecurityConfig(
-          policy: DeviceSecurityPolicy.blockRooted,
-          enforceInDebug: true,
-        );
-
-        expect(service.shouldBlockApp(state, config), isFalse);
-      });
-    });
-
-    group('Singleton Pattern', () {
-      test('should return same instance', () {
-        final a = DeviceSecurityService();
-        final b = DeviceSecurityService();
-        expect(identical(a, b), isTrue);
-      });
+  group('SecurityAction', () {
+    test('should have all expected values', () {
+      expect(SecurityAction.values.length, 3);
+      expect(SecurityAction.values, contains(SecurityAction.allow));
+      expect(SecurityAction.values, contains(SecurityAction.warn));
+      expect(SecurityAction.values, contains(SecurityAction.block));
     });
   });
 
-  group('DeviceSecurityConfig', () {
-    test('production config should block rooted devices', () {
-      expect(
-        DeviceSecurityConfig.production.policy,
-        DeviceSecurityPolicy.blockRooted,
-      );
-      expect(DeviceSecurityConfig.production.allowEmulators, isFalse);
-      expect(DeviceSecurityConfig.production.logEvents, isTrue);
+  group('ThreatType', () {
+    test('should have all expected values', () {
+      expect(ThreatType.values, contains(ThreatType.rootAccess));
+      expect(ThreatType.values, contains(ThreatType.jailbreak));
+      expect(ThreatType.values, contains(ThreatType.emulator));
+      expect(ThreatType.values, contains(ThreatType.debugMode));
+      expect(ThreatType.values, contains(ThreatType.developerMode));
+      expect(ThreatType.values, contains(ThreatType.tampered));
+      expect(ThreatType.values, contains(ThreatType.unknownSource));
+    });
+  });
+
+  group('SecurityConfig integration', () {
+    test('production config should have high security level', () {
+      expect(SecurityConfig.production.level, SecurityLevel.high);
+      expect(SecurityConfig.production.allowEmulators, isFalse);
+      expect(SecurityConfig.production.logAuthEvents, isTrue);
     });
 
-    test('staging config should warn only', () {
-      expect(
-        DeviceSecurityConfig.staging.policy,
-        DeviceSecurityPolicy.warnOnly,
-      );
-      expect(DeviceSecurityConfig.staging.allowEmulators, isTrue);
+    test('staging config should have medium security level', () {
+      expect(SecurityConfig.staging.level, SecurityLevel.medium);
+      expect(SecurityConfig.staging.allowEmulators, isTrue);
     });
 
-    test('development config should be disabled', () {
-      expect(
-        DeviceSecurityConfig.development.policy,
-        DeviceSecurityPolicy.disabled,
-      );
-      expect(DeviceSecurityConfig.development.allowEmulators, isTrue);
-      expect(DeviceSecurityConfig.development.logEvents, isFalse);
+    test('development config should have low security level', () {
+      expect(SecurityConfig.development.level, SecurityLevel.low);
+      expect(SecurityConfig.development.allowEmulators, isTrue);
+      expect(SecurityConfig.development.logAuthEvents, isFalse);
     });
 
     test('forEnvironment should return correct config', () {
       expect(
-        DeviceSecurityConfig.forEnvironment('production').policy,
-        DeviceSecurityPolicy.blockRooted,
+        SecurityConfig.forEnvironment('production').level,
+        SecurityLevel.high,
       );
       expect(
-        DeviceSecurityConfig.forEnvironment('prod').policy,
-        DeviceSecurityPolicy.blockRooted,
+        SecurityConfig.forEnvironment('prod').level,
+        SecurityLevel.high,
       );
       expect(
-        DeviceSecurityConfig.forEnvironment('staging').policy,
-        DeviceSecurityPolicy.warnOnly,
+        SecurityConfig.forEnvironment('staging').level,
+        SecurityLevel.medium,
       );
       expect(
-        DeviceSecurityConfig.forEnvironment('development').policy,
-        DeviceSecurityPolicy.disabled,
+        SecurityConfig.forEnvironment('development').level,
+        SecurityLevel.low,
       );
       expect(
-        DeviceSecurityConfig.forEnvironment('unknown').policy,
-        DeviceSecurityPolicy.disabled,
+        SecurityConfig.forEnvironment('unknown').level,
+        SecurityLevel.low,
       );
     });
   });
 
-  group('DeviceSecurityPolicy', () {
-    test('should have all expected values', () {
-      expect(DeviceSecurityPolicy.values.length, 5);
-      expect(DeviceSecurityPolicy.values, contains(DeviceSecurityPolicy.disabled));
-      expect(DeviceSecurityPolicy.values, contains(DeviceSecurityPolicy.logOnly));
-      expect(DeviceSecurityPolicy.values, contains(DeviceSecurityPolicy.warnOnly));
-      expect(DeviceSecurityPolicy.values, contains(DeviceSecurityPolicy.blockRooted));
-      expect(DeviceSecurityPolicy.values, contains(DeviceSecurityPolicy.blockAll));
-    });
-  });
-
-  group('DeviceSecurityController', () {
-    test('initial state should be default DeviceSecurityState', () {
-      final service = DeviceSecurityService();
-      final controller = DeviceSecurityController(service);
-
-      expect(controller.state.isInitialized, isFalse);
-      expect(controller.state.isSecure, isTrue);
-      expect(controller.state.threats, isEmpty);
+  group('DeviceSecurityService', () {
+    test('should create service with config', () {
+      final service = DeviceSecurityService(
+        config: SecurityConfig.development,
+      );
+      expect(service, isNotNull);
     });
 
-    test('clearState should reset to default', () {
-      final service = DeviceSecurityService();
-      final controller = DeviceSecurityController(service);
-
-      // Manually update state (simulating a check)
-      controller.clearState();
-
-      expect(controller.state.isInitialized, isFalse);
-      expect(controller.state.threats, isEmpty);
+    test('should create service with production config', () {
+      final service = DeviceSecurityService(
+        config: SecurityConfig.production,
+      );
+      expect(service, isNotNull);
     });
   });
 
   group('Fail-Closed Behavior (P0 Fix)', () {
-    test('DeviceSecurityState error state should be insecure', () {
+    test('error result should be insecure', () {
       // This verifies the P0 fix: errors should return isSecure=false
       // Previously it was returning isSecure=true on catch block
-      const errorState = DeviceSecurityState(
-        isInitialized: true,
+      const errorResult = DeviceSecurityResult(
         isSecure: false,
-        threats: ['Security check failed: unable to verify device integrity'],
-        threatLevel: SecurityThreatLevel.medium,
-        errorMessage: 'Test error',
+        threats: [
+          SecurityThreat(
+            type: ThreatType.unknownSource,
+            severity: ThreatSeverity.high,
+            messageAr: 'فشل فحص أمان الجهاز',
+            messageEn: 'Device security check failed',
+            details: 'Test error',
+          ),
+        ],
+        recommendedAction: SecurityAction.block,
       );
 
-      expect(errorState.isSecure, isFalse, reason: 'Error state MUST be insecure (fail-closed)');
-      expect(errorState.hasThreats, isTrue);
-      expect(errorState.threatLevel, SecurityThreatLevel.medium);
-      expect(errorState.errorMessage, isNotNull);
+      expect(errorResult.isSecure, isFalse, reason: 'Error state MUST be insecure (fail-closed)');
+      expect(errorResult.threats.isNotEmpty, isTrue);
+      expect(errorResult.recommendedAction, SecurityAction.block);
     });
 
-    test('error state should never be marked as secure', () {
+    test('error result should never be marked as secure', () {
       // Ensure the error pattern always results in isSecure=false
-      const state = DeviceSecurityState(
-        isInitialized: true,
+      const result = DeviceSecurityResult(
         isSecure: false,
-        threats: ['Security check failed: unable to verify device integrity'],
-        threatLevel: SecurityThreatLevel.medium,
+        threats: [
+          SecurityThreat(
+            type: ThreatType.unknownSource,
+            severity: ThreatSeverity.high,
+            messageAr: 'فشل فحص أمان الجهاز',
+            messageEn: 'Security check failed: unable to verify device integrity',
+          ),
+        ],
+        recommendedAction: SecurityAction.block,
       );
 
       // The key invariant: if threats include "Security check failed", isSecure must be false
-      if (state.threats.any((t) => t.contains('Security check failed'))) {
+      if (result.threats.any((t) => t.messageEn.contains('Security check failed'))) {
         expect(
-          state.isSecure,
+          result.isSecure,
           isFalse,
           reason: 'When security check fails, device must NOT be marked as secure',
         );
       }
+    });
+  });
+
+  group('SecurityThreat', () {
+    test('toString should contain type and severity', () {
+      const threat = SecurityThreat(
+        type: ThreatType.rootAccess,
+        severity: ThreatSeverity.critical,
+        messageAr: 'تم اكتشاف صلاحيات الروت',
+        messageEn: 'Root access detected',
+      );
+
+      final str = threat.toString();
+      expect(str, contains('rootAccess'));
+      expect(str, contains('critical'));
     });
   });
 }

@@ -1,82 +1,81 @@
 /// Chat Pagination Tests
 /// اختبارات ترقيم صفحات المحادثات
 ///
-/// Tests for chat pagination, deduplication, and loading state management
+/// Tests for chat state management including loading state, unread count,
+/// and state immutability via copyWith
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/chat/presentation/providers/chat_provider.dart';
 
 void main() {
   group('ChatState', () {
-    test('should have default values for pagination fields', () {
+    test('should have default values', () {
       const state = ChatState();
 
-      expect(state.isLoadingMore, isFalse);
-      expect(state.hasMoreMessages, isTrue);
       expect(state.isLoading, isFalse);
+      expect(state.unreadCount, 0);
       expect(state.conversations, isEmpty);
       expect(state.messagesMap, isEmpty);
+      expect(state.activeConversationId, isNull);
+      expect(state.error, isNull);
     });
 
-    test('copyWith should update isLoadingMore', () {
+    test('copyWith should update isLoading', () {
       const state = ChatState();
-      final updated = state.copyWith(isLoadingMore: true);
+      final updated = state.copyWith(isLoading: true);
 
-      expect(updated.isLoadingMore, isTrue);
-      expect(updated.hasMoreMessages, isTrue); // unchanged
+      expect(updated.isLoading, isTrue);
+      expect(updated.unreadCount, 0); // unchanged
     });
 
-    test('copyWith should update hasMoreMessages', () {
+    test('copyWith should update unreadCount', () {
       const state = ChatState();
-      final updated = state.copyWith(hasMoreMessages: false);
+      final updated = state.copyWith(unreadCount: 5);
 
-      expect(updated.hasMoreMessages, isFalse);
-      expect(updated.isLoadingMore, isFalse); // unchanged
+      expect(updated.unreadCount, 5);
+      expect(updated.isLoading, isFalse); // unchanged
     });
 
-    test('copyWith should preserve other fields when updating pagination', () {
+    test('copyWith should preserve other fields when updating', () {
       const state = ChatState(
         isLoading: true,
         unreadCount: 5,
       );
       final updated = state.copyWith(
-        isLoadingMore: true,
-        hasMoreMessages: false,
+        error: 'test error',
       );
 
       expect(updated.isLoading, isTrue);
       expect(updated.unreadCount, 5);
-      expect(updated.isLoadingMore, isTrue);
-      expect(updated.hasMoreMessages, isFalse);
+      expect(updated.error, 'test error');
     });
 
     test('copyWith should not mutate original state', () {
       const original = ChatState(
-        isLoadingMore: false,
-        hasMoreMessages: true,
+        isLoading: false,
+        unreadCount: 0,
       );
       final copy = original.copyWith(
-        isLoadingMore: true,
-        hasMoreMessages: false,
+        isLoading: true,
+        unreadCount: 10,
       );
 
-      expect(original.isLoadingMore, isFalse);
-      expect(original.hasMoreMessages, isTrue);
-      expect(copy.isLoadingMore, isTrue);
-      expect(copy.hasMoreMessages, isFalse);
+      expect(original.isLoading, isFalse);
+      expect(original.unreadCount, 0);
+      expect(copy.isLoading, isTrue);
+      expect(copy.unreadCount, 10);
     });
 
     test('copyWith with no args should return equivalent state', () {
       const state = ChatState(
-        isLoadingMore: true,
-        hasMoreMessages: false,
+        isLoading: true,
         unreadCount: 3,
       );
       final copy = state.copyWith();
 
-      expect(copy.isLoadingMore, state.isLoadingMore);
-      expect(copy.hasMoreMessages, state.hasMoreMessages);
+      expect(copy.isLoading, state.isLoading);
       expect(copy.unreadCount, state.unreadCount);
+      expect(copy.error, state.error);
     });
   });
 }

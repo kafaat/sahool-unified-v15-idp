@@ -6,6 +6,7 @@
 /// - Cached tile image equality and hashing
 /// - toString representation
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/map/sahool_tile_provider.dart';
 
@@ -30,7 +31,7 @@ void main() {
         y: 340,
         z: 10,
         storeName: 'cache',
-        dio: null!, // Not used in equality check
+        dio: Dio(), // Not used in equality check
       );
 
       final b = SahoolCachedTileImage(
@@ -39,7 +40,7 @@ void main() {
         y: 340,
         z: 10,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       expect(a, equals(b));
@@ -53,7 +54,7 @@ void main() {
         y: 340,
         z: 10,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       final b = SahoolCachedTileImage(
@@ -62,7 +63,7 @@ void main() {
         y: 341,
         z: 10,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       expect(a, isNot(equals(b)));
@@ -75,7 +76,7 @@ void main() {
         y: 340,
         z: 10,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       final b = SahoolCachedTileImage(
@@ -84,7 +85,7 @@ void main() {
         y: 340,
         z: 11,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       expect(a, isNot(equals(b)));
@@ -97,7 +98,7 @@ void main() {
         y: 340,
         z: 10,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       expect(tile.toString(), 'SahoolCachedTileImage(10/512/340)');
@@ -110,7 +111,7 @@ void main() {
         y: 11,
         z: 5,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       final tile2 = SahoolCachedTileImage(
@@ -119,7 +120,7 @@ void main() {
         y: 11,
         z: 5,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       // Equal objects must have equal hash codes
@@ -134,7 +135,7 @@ void main() {
         y: 11,
         z: 5,
         storeName: 'cache',
-        dio: null!,
+        dio: Dio(),
       );
 
       expect(tile == tile, isTrue);

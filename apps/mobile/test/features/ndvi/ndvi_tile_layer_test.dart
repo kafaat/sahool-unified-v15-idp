@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sahool_field_app/features/ndvi/ui/ndvi_tile_layer.dart';
@@ -224,12 +225,17 @@ void main() {
     testWidgets('should use AnimatedOpacity when visible', (tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: NdviTileLayerWidget(
-            config: const NdviTileConfig(
-              urlTemplate: 'https://example.com/{z}/{x}/{y}.png',
-              opacity: 0.5,
-            ),
-            visible: true,
+          body: FlutterMap(
+            options: const MapOptions(),
+            children: [
+              NdviTileLayerWidget(
+                config: const NdviTileConfig(
+                  urlTemplate: 'https://example.com/{z}/{x}/{y}.png',
+                  opacity: 0.5,
+                ),
+                visible: true,
+              ),
+            ],
           ),
         ),
       ));

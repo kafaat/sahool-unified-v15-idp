@@ -192,11 +192,18 @@ class APIDriftDetector(BaseDriftDetector):
 
         service_dirs = list(root.glob("apps/services/*/src"))
 
+        # Services that are CLI tools or non-HTTP agents (no server to health-check)
+        _CLI_ONLY_SERVICES = {"code-review-agent"}
+
         for src_dir in service_dirs:
             service_name = src_dir.parent.name
 
             # Skip archived/deprecated
             if "archive" in str(src_dir):
+                continue
+
+            # Skip CLI-only services that don't run an HTTP server
+            if service_name in _CLI_ONLY_SERVICES:
                 continue
 
             main_files = (
@@ -207,14 +214,29 @@ class APIDriftDetector(BaseDriftDetector):
                 continue
 
             has_health = False
+
+            # Check main entry files first
             for mf in main_files:
                 try:
                     content = mf.read_text(errors="ignore")
-                    if any(ep in content for ep in ["/healthz", "/health", "/readyz"]):
+                    if any(ep in content for ep in ["/healthz", "/health", "/readyz", "healthz", "readyz"]):
                         has_health = True
                         break
                 except (OSError, UnicodeDecodeError):
                     continue
+
+            # Also check controller files (NestJS pattern: AppController with @Get("healthz"))
+            if not has_health:
+                controller_files = list(src_dir.glob("app.controller.ts")) + list(src_dir.glob("**/health*.ts"))
+                controller_files += list(src_dir.glob("**/health*.py"))
+                for cf in controller_files:
+                    try:
+                        content = cf.read_text(errors="ignore")
+                        if any(ep in content for ep in ["healthz", "readyz", "/health"]):
+                            has_health = True
+                            break
+                    except (OSError, UnicodeDecodeError):
+                        continue
 
             if not has_health:
                 self.add_result(

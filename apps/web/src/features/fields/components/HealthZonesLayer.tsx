@@ -82,27 +82,31 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
  * - Yellow (0.4-0.6): Moderate health - صحة متوسطة
  * - Red (<0.4): Poor health - صحة ضعيفة
  */
-const getNDVIColor = (ndviValue: number): string => {
-  if (ndviValue > 0.6) return "#22c55e"; // Green - أخضر
-  if (ndviValue >= 0.4) return "#eab308"; // Yellow - أصفر
-  return "#ef4444"; // Red - أحمر
+export const getNDVIColor = (ndviValue: number): string => {
+  if (ndviValue >= 0.7) return "#1B5E20"; // Dark green - أخضر داكن (ممتاز)
+  if (ndviValue >= 0.5) return "#4CAF50"; // Green - أخضر (جيد)
+  if (ndviValue >= 0.3) return "#FDD835"; // Yellow - أصفر (متوسط)
+  if (ndviValue >= 0.15) return "#FF9800"; // Orange - برتقالي (ضعيف)
+  return "#F44336"; // Red - أحمر (حرج)
 };
 
 /**
  * الحصول على لون الحدود بناءً على قيمة NDVI (ظل أغمق)
  * Get border color based on NDVI value (darker shade)
  */
-const getNDVIBorderColor = (ndviValue: number): string => {
-  if (ndviValue > 0.6) return "#16a34a"; // Dark green - أخضر داكن
-  if (ndviValue >= 0.4) return "#ca8a04"; // Dark yellow - أصفر داكن
-  return "#dc2626"; // Dark red - أحمر داكن
+export const getNDVIBorderColor = (ndviValue: number): string => {
+  if (ndviValue >= 0.7) return "#0D3311"; // Darker green
+  if (ndviValue >= 0.5) return "#2E7D32"; // Dark green
+  if (ndviValue >= 0.3) return "#F9A825"; // Dark yellow
+  if (ndviValue >= 0.15) return "#E65100"; // Dark orange
+  return "#C62828"; // Dark red
 };
 
 /**
  * الحصول على النص العربي لحالة الصحة
  * Get Arabic text for health status
  */
-const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
+export const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
   const statusMap = {
     excellent: "ممتازة",
     good: "جيدة",
@@ -117,7 +121,7 @@ const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
  * التحقق من صحة إحداثيات المنطقة
  * Validate zone boundary coordinates
  */
-const isValidBoundary = (boundary: [number, number][]): boolean => {
+export const isValidBoundary = (boundary: [number, number][]): boolean => {
   if (!boundary || !Array.isArray(boundary) || boundary.length < 3) {
     return false;
   }

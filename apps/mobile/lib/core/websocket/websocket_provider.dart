@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
 import '../auth/auth_service.dart';
@@ -198,10 +199,11 @@ final highPriorityAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((r
 /// مدير اتصال WebSocket
 class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
   final WebSocketService _service;
+  StreamSubscription<ConnectionState>? _connectionStateSubscription;
 
   WebSocketConnectionNotifier(this._service) : super(ConnectionState.disconnected) {
     // Listen to connection state changes
-    _service.connectionState.listen((newState) {
+    _connectionStateSubscription = _service.connectionState.listen((newState) {
       state = newState;
     });
   }
@@ -231,6 +233,12 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
       AppLogger.i('Refreshing WebSocket connection with new token', tag: 'WS');
       await reconnect();
     }
+  }
+
+  @override
+  void dispose() {
+    _connectionStateSubscription?.cancel();
+    super.dispose();
   }
 }
 

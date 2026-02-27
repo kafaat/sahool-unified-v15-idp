@@ -1,4 +1,5 @@
 import '../../../../core/http/api_client.dart';
+import '../../../../core/utils/app_logger.dart';
 
 /// Fields API - GeoJSON communication with PostGIS backend
 class FieldsApi {
@@ -13,26 +14,31 @@ class FieldsApi {
     required String tenantId,
     String? farmId,
   }) async {
-    final response = await _client.get(
-      '/fields',
-      queryParameters: {
-        'tenant_id': tenantId,
-        if (farmId != null) 'farm_id': farmId,
-        'format': 'geojson',
-      },
-    );
+    try {
+      final response = await _client.get(
+        '/fields',
+        queryParameters: {
+          'tenant_id': tenantId,
+          if (farmId != null) 'farm_id': farmId,
+          'format': 'geojson',
+        },
+      );
 
-    // Handle FeatureCollection response
-    if (response is Map && response['type'] == 'FeatureCollection') {
-      return List<Map<String, dynamic>>.from(response['features'] ?? []);
+      // Handle FeatureCollection response
+      if (response is Map && response['type'] == 'FeatureCollection') {
+        return List<Map<String, dynamic>>.from(response['features'] ?? []);
+      }
+
+      // Handle array of features
+      if (response is List) {
+        return List<Map<String, dynamic>>.from(response);
+      }
+
+      return [];
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to fetch fields', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
     }
-
-    // Handle array of features
-    if (response is List) {
-      return List<Map<String, dynamic>>.from(response);
-    }
-
-    return [];
   }
 
   /// Fetch single field by ID
@@ -40,7 +46,8 @@ class FieldsApi {
     try {
       final response = await _client.get('/fields/$fieldId');
       return response as Map<String, dynamic>;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to fetch field $fieldId', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
       return null;
     }
   }
@@ -51,8 +58,13 @@ class FieldsApi {
   Future<Map<String, dynamic>> createField(
     Map<String, dynamic> geoJsonFeature,
   ) async {
-    final response = await _client.post('/fields', geoJsonFeature);
-    return response as Map<String, dynamic>;
+    try {
+      final response = await _client.post('/fields', geoJsonFeature);
+      return response as Map<String, dynamic>;
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to create field', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Update field boundary
@@ -61,14 +73,19 @@ class FieldsApi {
     required Map<String, dynamic> geometry,
     required double areaHectares,
   }) async {
-    final response = await _client.put(
-      '/fields/$fieldId/geometry',
-      {
-        'geometry': geometry,
-        'area_hectares': areaHectares,
-      },
-    );
-    return response as Map<String, dynamic>;
+    try {
+      final response = await _client.put(
+        '/fields/$fieldId/geometry',
+        {
+          'geometry': geometry,
+          'area_hectares': areaHectares,
+        },
+      );
+      return response as Map<String, dynamic>;
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to update field boundary $fieldId', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Update field properties
@@ -78,20 +95,30 @@ class FieldsApi {
     String? cropType,
     String? status,
   }) async {
-    final response = await _client.put(
-      '/fields/$fieldId',
-      {
-        if (name != null) 'name': name,
-        if (cropType != null) 'crop_type': cropType,
-        if (status != null) 'status': status,
-      },
-    );
-    return response as Map<String, dynamic>;
+    try {
+      final response = await _client.put(
+        '/fields/$fieldId',
+        {
+          if (name != null) 'name': name,
+          if (cropType != null) 'crop_type': cropType,
+          if (status != null) 'status': status,
+        },
+      );
+      return response as Map<String, dynamic>;
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to update field properties $fieldId', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Delete field (soft delete)
   Future<void> deleteField(String fieldId) async {
-    await _client.delete('/fields/$fieldId');
+    try {
+      await _client.delete('/fields/$fieldId');
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to delete field $fieldId', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Get field NDVI history
@@ -100,17 +127,22 @@ class FieldsApi {
     DateTime? from,
     DateTime? to,
   }) async {
-    final response = await _client.get(
-      '/fields/$fieldId/ndvi-history',
-      queryParameters: {
-        if (from != null) 'from': from.toIso8601String(),
-        if (to != null) 'to': to.toIso8601String(),
-      },
-    );
+    try {
+      final response = await _client.get(
+        '/fields/$fieldId/ndvi-history',
+        queryParameters: {
+          if (from != null) 'from': from.toIso8601String(),
+          if (to != null) 'to': to.toIso8601String(),
+        },
+      );
 
-    if (response is List) {
-      return List<Map<String, dynamic>>.from(response);
+      if (response is List) {
+        return List<Map<String, dynamic>>.from(response);
+      }
+      return [];
+    } catch (e, stackTrace) {
+      AppLogger.e('Failed to fetch NDVI history for field $fieldId', tag: 'FieldsApi', error: e, stackTrace: stackTrace);
+      rethrow;
     }
-    return [];
   }
 }

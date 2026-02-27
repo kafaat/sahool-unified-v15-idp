@@ -9,6 +9,8 @@ const indexTypes: Array<{ value: IndexType; label: string; labelAr: string }> = 
   { value: "ndvi", label: "NDVI", labelAr: "مؤشر الغطاء النباتي" },
   { value: "ndwi", label: "NDWI", labelAr: "مؤشر المياه" },
   { value: "evi", label: "EVI", labelAr: "مؤشر الغطاء المحسن" },
+  { value: "savi", label: "SAVI", labelAr: "مؤشر الغطاء المعدل للتربة" },
+  { value: "ndre", label: "NDRE", labelAr: "مؤشر الحافة الحمراء" },
   { value: "lai", label: "LAI", labelAr: "مؤشر مساحة الأوراق" },
 ];
 
@@ -22,11 +24,11 @@ export default function SatelliteClient() {
 
   const getHealthColor = (status: SatelliteField["healthStatus"]) => {
     const colors: Record<SatelliteField["healthStatus"], string> = {
-      excellent: "text-green-600 bg-green-100",
-      good: "text-blue-600 bg-blue-100",
+      excellent: "text-green-700 bg-green-100",
+      good: "text-green-600 bg-green-50",
       moderate: "text-yellow-600 bg-yellow-100",
-      poor: "text-red-600 bg-red-100",
-      critical: "text-purple-600 bg-purple-100",
+      poor: "text-orange-600 bg-orange-100",
+      critical: "text-red-600 bg-red-100",
     };
     return colors[status];
   };
@@ -163,18 +165,26 @@ export default function SatelliteClient() {
           </div>
           <div className="p-4 flex justify-between items-center text-sm">
             <span className="text-gray-500">المصدر: Sentinel-2 L2A</span>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
-                <span>NDVI &lt; 0.3</span>
+                <span>&lt; 0.15</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                <span>0.15 - 0.3</span>
+              </div>
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <span>0.3 - 0.5</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span>&gt; 0.5</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+                <span>0.5 - 0.7</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-green-600" />
+                <span>&gt; 0.7</span>
               </div>
             </div>
           </div>
@@ -226,9 +236,9 @@ export default function SatelliteClient() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          field.indices.ndvi > 0.6 ? "bg-green-500" : field.indices.ndvi > 0.4 ? "bg-yellow-500" : "bg-red-500"
+                          field.indices.ndvi >= 0.7 ? "bg-green-600" : field.indices.ndvi >= 0.5 ? "bg-green-400" : field.indices.ndvi >= 0.3 ? "bg-yellow-500" : field.indices.ndvi >= 0.15 ? "bg-orange-500" : "bg-red-500"
                         }`}
-                        style={{ width: `${field.indices.ndvi * 100}%` }}
+                        style={{ width: `${Math.max(field.indices.ndvi, 0) * 100}%` }}
                       />
                     </div>
                   </div>

@@ -8,6 +8,7 @@
 /// - Timestamp
 /// - Status indicator (sent/delivered/read)
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/config/theme.dart';
@@ -156,11 +157,12 @@ class MessageBubble extends StatelessWidget {
         if (message.attachmentUrl != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              message.attachmentUrl!,
+            child: CachedNetworkImage(
+              imageUrl: message.attachmentUrl!,
               width: 200,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
+              placeholder: (_, __) => const SizedBox(width: 200, height: 150, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+              errorWidget: (context, _, __) => Container(
                 width: 200,
                 height: 150,
                 color: Colors.grey[300],

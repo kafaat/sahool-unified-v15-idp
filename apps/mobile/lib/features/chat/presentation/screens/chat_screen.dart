@@ -32,7 +32,6 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool _isLoadingMore = false;
 
   @override
   void initState() {
@@ -59,30 +58,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _onScroll() {
+    // Load more when scrolling near the end (older messages)
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      if (!_isLoadingMore) {
-        _loadMoreMessages();
-      }
-    }
-  }
-
-  Future<void> _loadMoreMessages() async {
-    setState(() => _isLoadingMore = true);
-
-    await ref.read(chatProvider.notifier).loadMoreMessages(widget.conversationId);
-
-    if (mounted) {
-      setState(() => _isLoadingMore = false);
+      ref.read(chatProvider.notifier).loadMoreMessages(widget.conversationId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatState = ref.watch(chatProvider);
     final conversation = ref.watch(activeConversationProvider);
     final messages = ref.watch(activeMessagesProvider);
     final currentUserId = ref.watch(chatUserIdProvider);
     final isTyping = ref.watch(activeConversationTypingProvider);
+    final isLoadingMore = chatState.isLoadingMore;
 
     if (conversation == null) {
       return Scaffold(
@@ -241,10 +231,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     controller: _scrollController,
                     reverse: true,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount: messages.length + (_isLoadingMore ? 1 : 0),
+                    itemCount: messages.length + (isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       // Loading indicator at the end
-                      if (_isLoadingMore && index == messages.length) {
+                      if (isLoadingMore && index == messages.length) {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(16),

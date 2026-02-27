@@ -45,16 +45,21 @@ EXCLUDE_SECRET_PATHS = {
     "tests",
     "fixtures",
     "mock",
+    "mocks",
     "example",
+    "examples",
     "__pycache__",
+    "__tests__",
+    "__mocks__",
     "node_modules",
     ".venv",
     "archive",
     ".github",
+    "dist",
 }
 
 # File name patterns that indicate test files (regardless of directory)
-_TEST_FILE_PATTERNS = (".spec.", ".test.", "_test.", "_spec.")
+_TEST_FILE_PATTERNS = (".spec.", ".test.", "_test.", "_spec.", "conftest.")
 
 # Known security utility directories whose files contain secret detection patterns
 # (regex patterns for masking, vault path registries, etc. — NOT actual secrets)
@@ -331,7 +336,7 @@ class SecurityDriftDetector(BaseDriftDetector):
                 if not has_routes:
                     continue
 
-                # Check for auth
+                # Check for auth (including try/except imported guards)
                 has_auth = any(
                     pat in content
                     for pat in [
@@ -344,6 +349,9 @@ class SecurityDriftDetector(BaseDriftDetector):
                         "authenticate",
                         "verify_token",
                         "require_auth",
+                        "HTTPBearer",
+                        "OAuth2PasswordBearer",
+                        "shared.auth",
                     ]
                 )
 

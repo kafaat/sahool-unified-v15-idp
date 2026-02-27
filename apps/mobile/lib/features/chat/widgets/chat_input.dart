@@ -14,6 +14,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1212,10 +1213,10 @@ class _ProductListTile extends StatelessWidget {
                 child: product.imageUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          product.imageUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: product.imageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Icon(
+                          errorWidget: (_, __, ___) => Icon(
                             _getCategoryIcon(product.category),
                             color: categoryColor,
                             size: 28,

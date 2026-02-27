@@ -3,6 +3,7 @@
 ///
 /// Displays chat messages from user and AI assistant
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/config/theme.dart';
@@ -370,10 +371,11 @@ class ImageMessageBubble extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
-                  child: Image.network(
-                    imagePath,
+                  child: CachedNetworkImage(
+                    imageUrl: imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
+                    placeholder: (_, __) => const SizedBox(height: 150, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                    errorWidget: (context, _, __) => Container(
                       height: 150,
                       color: Colors.grey[300],
                       child: const Center(

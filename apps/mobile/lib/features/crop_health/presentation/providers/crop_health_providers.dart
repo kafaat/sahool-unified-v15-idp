@@ -13,7 +13,7 @@ import '../../data/repositories/crop_health_repository.dart';
 
 /// Provider for CropHealthRepository instance
 /// موفر لنسخة مستودع صحة المحاصيل
-final cropHealthRepositoryProvider = Provider<CropHealthRepository>((ref) {
+final cropHealthRepositoryProvider = Provider.autoDispose<CropHealthRepository>((ref) {
   final repository = CropHealthRepository();
   ref.onDispose(() => repository.dispose());
   return repository;
@@ -26,7 +26,7 @@ final cropHealthRepositoryProvider = Provider<CropHealthRepository>((ref) {
 
 /// Provider for checking AI service availability
 /// موفر للتحقق من توفر خدمة الذكاء الاصطناعي
-final aiServiceAvailableProvider = FutureProvider<bool>((ref) async {
+final aiServiceAvailableProvider = FutureProvider.autoDispose<bool>((ref) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return repository.isServiceAvailable();
 });
@@ -38,7 +38,7 @@ final aiServiceAvailableProvider = FutureProvider<bool>((ref) async {
 
 /// Provider for supported crops
 /// موفر المحاصيل المدعومة
-final supportedCropsProvider = FutureProvider<List<CropOption>>((ref) async {
+final supportedCropsProvider = FutureProvider.autoDispose<List<CropOption>>((ref) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return repository.getSupportedCrops();
 });
@@ -46,7 +46,7 @@ final supportedCropsProvider = FutureProvider<List<CropOption>>((ref) async {
 /// Provider for diseases list
 /// موفر قائمة الأمراض
 final diseasesProvider =
-    FutureProvider.family<List<DiseaseInfo>, String?>((ref, cropType) async {
+    FutureProvider.autoDispose.family<List<DiseaseInfo>, String?>((ref, cropType) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return repository.getDiseases(cropType: cropType);
 });
@@ -54,7 +54,7 @@ final diseasesProvider =
 /// Provider for treatment details
 /// موفر تفاصيل العلاج
 final treatmentDetailsProvider =
-    FutureProvider.family<Map<String, dynamic>, String>((ref, diseaseId) async {
+    FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, diseaseId) async {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return repository.getTreatmentDetails(diseaseId);
 });
@@ -266,7 +266,7 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
 /// Provider for diagnosis state
 /// موفر حالة التشخيص
 final diagnosisProvider =
-    StateNotifierProvider<DiagnosisNotifier, DiagnosisState>((ref) {
+    StateNotifierProvider.autoDispose<DiagnosisNotifier, DiagnosisState>((ref) {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return DiagnosisNotifier(repository);
 });
@@ -380,7 +380,7 @@ class BatchDiagnosisNotifier extends StateNotifier<BatchDiagnosisState> {
 /// Provider for batch diagnosis
 /// موفر التشخيص الدفعي
 final batchDiagnosisProvider =
-    StateNotifierProvider<BatchDiagnosisNotifier, BatchDiagnosisState>((ref) {
+    StateNotifierProvider.autoDispose<BatchDiagnosisNotifier, BatchDiagnosisState>((ref) {
   final repository = ref.watch(cropHealthRepositoryProvider);
   return BatchDiagnosisNotifier(repository);
 });
@@ -392,7 +392,7 @@ final batchDiagnosisProvider =
 
 /// Provider for requesting expert review
 /// موفر لطلب مراجعة الخبير
-final expertReviewProvider = FutureProvider.family<ExpertReviewResponse,
+final expertReviewProvider = FutureProvider.autoDispose.family<ExpertReviewResponse,
     ({String diagnosisId, File image, String? notes, String urgency})>(
   (ref, params) async {
     final repository = ref.watch(cropHealthRepositoryProvider);

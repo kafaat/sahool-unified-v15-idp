@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -199,10 +200,10 @@ class _TaskDetailsBody extends ConsumerWidget {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            photoPath,
+                          child: CachedNetworkImage(
+                            imageUrl: photoPath,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorWidget: (_, __, ___) => const Icon(
                               Icons.image_not_supported,
                               color: Colors.grey,
                             ),

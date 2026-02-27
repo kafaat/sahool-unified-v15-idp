@@ -297,24 +297,9 @@ class CertificatePinningService {
         ),
       ],
       // Staging API domain
-      'api-staging.sahool.app': [
-        // TODO: CRITICAL - Replace with actual staging certificate fingerprint
-        // Generate using: ./scripts/generate_cert_pins.sh api-staging.sahool.app
-        CertificatePin(
-          type: PinType.sha256,
-          value: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2026, 12, 31),
-          description: 'Staging primary certificate',
-        ),
-        // Staging backup pin
-        // TODO: CRITICAL - Replace with actual staging backup fingerprint
-        CertificatePin(
-          type: PinType.sha256,
-          value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2027, 3, 31),
-          description: 'Staging backup certificate',
-        ),
-      ],
+      // Staging pins are loaded at runtime via configureStagingPins()
+      // to prevent placeholder values from reaching any build.
+      // Generate pins: ./scripts/generate_cert_pins.sh api-staging.sahool.app
     };
   }
 
@@ -327,12 +312,16 @@ class CertificatePinningService {
   /// is bypassed to facilitate development with self-signed certificates
   /// or local servers.
   void configureDio(Dio dio) {
-    // In debug mode, optionally bypass pinning for development
+    // In debug mode, optionally bypass pinning for LOCAL development only
     if (kDebugMode && allowDebugBypass) {
-      if (kDebugMode) {
-        AppLogger.w('Certificate pinning bypassed in debug mode', tag: 'CertificatePinning');
-        AppLogger.w('Set allowDebugBypass=false to test pinning in debug builds', tag: 'CertificatePinning');
-      }
+      AppLogger.w(
+        'Certificate pinning bypassed in debug mode. '
+        'Only localhost/10.0.x.x connections are exempt. '
+        'Set allowDebugBypass=false to enforce pinning in debug builds.',
+        tag: 'CertificatePinning',
+      );
+      // Still configure pinning but allow local connections through
+      _configureWithLocalBypass(dio);
       return;
     }
 
@@ -378,6 +367,80 @@ class CertificatePinningService {
       if (!kDebugMode && enforceStrict) {
         throw Exception('Failed to configure certificate pinning: $e');
       }
+    }
+  }
+
+  /// Configure Dio with pinning but allow local connections in debug mode
+  void _configureWithLocalBypass(Dio dio) {
+    try {
+      final adapter = dio.httpClientAdapter;
+      if (adapter is IOHttpClientAdapter) {
+        adapter.createHttpClient = () {
+          final client = HttpClient();
+          client.badCertificateCallback = (cert, host, port) {
+            // Allow localhost and private network IPs in debug mode
+            if (_isLocalHost(host)) {
+              return true;
+            }
+            // Enforce pinning for all other hosts (including staging/production)
+            return _validateCertificate(cert, host);
+          };
+          return client;
+        };
+      }
+    } catch (e) {
+      AppLogger.e('Error configuring local bypass', tag: 'CertificatePinning', error: e);
+    }
+  }
+
+  /// Check if host is localhost or private network
+  bool _isLocalHost(String host) {
+    return host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host.startsWith('10.0.') ||
+        host.startsWith('192.168.') ||
+        host.startsWith('172.') ||
+        host == '::1';
+  }
+
+  /// Configure staging certificate pins at runtime
+  ///
+  /// Call this after obtaining actual staging certificate fingerprints.
+  /// This prevents placeholder values from ever being compiled into the app.
+  ///
+  /// Usage:
+  /// ```dart
+  /// pinningService.configureStagingPins(
+  ///   primaryFingerprint: await getCertificateFingerprintFromUrl('https://api-staging.sahool.app'),
+  /// );
+  /// ```
+  void configureStagingPins({
+    required String primaryFingerprint,
+    String? backupFingerprint,
+    DateTime? primaryExpiry,
+    DateTime? backupExpiry,
+  }) {
+    final pins = <CertificatePin>[
+      CertificatePin(
+        type: PinType.sha256,
+        value: primaryFingerprint,
+        expiryDate: primaryExpiry ?? DateTime(2026, 12, 31),
+        description: 'Staging primary certificate',
+      ),
+    ];
+
+    if (backupFingerprint != null) {
+      pins.add(CertificatePin(
+        type: PinType.sha256,
+        value: backupFingerprint,
+        expiryDate: backupExpiry ?? DateTime(2027, 3, 31),
+        description: 'Staging backup certificate',
+      ));
+    }
+
+    _certificatePins['api-staging.sahool.app'] = pins;
+    if (kDebugMode) {
+      AppLogger.i('Staging pins configured', tag: 'CertificatePinning');
     }
   }
 

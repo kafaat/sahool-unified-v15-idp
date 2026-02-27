@@ -218,6 +218,6 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
 
 /// Provider - المزود
 final gamificationProvider =
-    StateNotifierProvider<GamificationNotifier, GamificationState>(
+    StateNotifierProvider.autoDispose<GamificationNotifier, GamificationState>(
   (ref) => GamificationNotifier(),
 );

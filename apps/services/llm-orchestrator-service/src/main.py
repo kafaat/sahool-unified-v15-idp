@@ -89,7 +89,6 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Authentication imports
 try:

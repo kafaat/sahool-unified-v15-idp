@@ -1,30 +1,38 @@
 # SAHOOL Crop Rotation Service Dockerfile
 # Multi-stage build for Python service
+# NOTE: Build context must be project root
+#   docker build -f apps/services/field-management-service/rotation-Dockerfile -t sahool-crop-rotation:16.0.0 .
 
-FROM python:3.11-slim as base
+FROM python:3.11-slim AS base
 
 # Set working directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
-COPY rotation-requirements.txt .
+COPY apps/services/field-management-service/rotation-requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r rotation-requirements.txt
+# Install Python dependencies with mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
+    -r rotation-requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+    -r rotation-requirements.txt
 
 # Create non-root user for security
 RUN groupadd --gid 1000 sahool && \
     useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Copy source code
-COPY --chown=sahool:sahool src/ ./src/
-COPY --chown=sahool:sahool ../shared/ ./shared/
+# Copy shared modules and source code
+COPY --chown=sahool:sahool shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/field-management-service/src/ ./src/
 
 # Switch to non-root user
 USER sahool
@@ -34,7 +42,7 @@ EXPOSE 8099
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8099/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8099/healthz')" || exit 1
 
 # Run the application
 CMD ["python", "-m", "src.rotation_main"]

@@ -16,10 +16,24 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY shared ./shared/
 
+# Copy nestjs-auth package (required for @sahool/nestjs-auth dependency)
+COPY packages/nestjs-auth ./packages/nestjs-auth/
+
+# Pre-build nestjs-auth package (install its deps and compile TypeScript)
+WORKDIR /workspace/packages/nestjs-auth
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null || true && \
+    npx tsc --skipLibCheck 2>/dev/null || true
+
 # Copy service to maintain relative path
+WORKDIR /workspace
 COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
+
+# Fix the file: path reference for Docker build context
+RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:../packages/nestjs-auth|g' package.json || true
 
 # Install dependencies with retry loop for network resilience
 RUN --mount=type=cache,target=/root/.npm \
@@ -68,9 +82,16 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends openssl && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy nestjs-auth package (needed for file: dependency resolution)
+COPY --from=builder /workspace/packages ./packages
+
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
+
+# Fix the file: path reference for production stage
+RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:./packages/nestjs-auth|g' package.json || true
+
 # Install production dependencies with retry loop
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

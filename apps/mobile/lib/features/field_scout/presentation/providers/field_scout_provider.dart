@@ -461,14 +461,14 @@ class FieldScoutState {
 // Providers
 // ═══════════════════════════════════════════════════════════════════════════
 
-final fieldScoutProvider = StateNotifierProvider<FieldScoutNotifier, FieldScoutState>((ref) {
+final fieldScoutProvider = StateNotifierProvider.autoDispose<FieldScoutNotifier, FieldScoutState>((ref) {
   return FieldScoutNotifier(ref);
 });
 
-final currentScoutSessionProvider = Provider<ScoutSession?>((ref) {
+final currentScoutSessionProvider = Provider.autoDispose<ScoutSession?>((ref) {
   return ref.watch(fieldScoutProvider).currentSession;
 });
 
-final isScoutingProvider = Provider<bool>((ref) {
+final isScoutingProvider = Provider.autoDispose<bool>((ref) {
   return ref.watch(fieldScoutProvider).hasActiveSession;
 });

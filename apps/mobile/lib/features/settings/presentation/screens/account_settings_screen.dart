@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/theme.dart';
@@ -566,10 +567,10 @@ class _ProfilePictureTile extends StatelessWidget {
                 ),
                 child: avatarUrl != null
                     ? ClipOval(
-                        child: Image.network(
-                          avatarUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: avatarUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                          errorWidget: (_, __, ___) => _buildPlaceholder(),
                         ),
                       )
                     : _buildPlaceholder(),

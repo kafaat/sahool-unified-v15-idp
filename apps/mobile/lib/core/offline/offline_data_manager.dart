@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/app_logger.dart';
+
 /// حالة البيانات المحلية
 enum LocalDataStatus {
   synced,      // متزامنة مع السيرفر
@@ -308,17 +310,20 @@ class OfflineDataManager {
   void _onConnectionRestored() {
     // تأخير قصير للتأكد من استقرار الاتصال
     Future.delayed(const Duration(seconds: 2), () {
-      _trySyncNow();
+      _trySyncNow().catchError((e) {
+        AppLogger.e('Sync after connection restored failed', tag: 'OfflineSync', error: e);
+      });
     });
   }
 
-  /// محاولة المزامنة الفورية
+  /// محاولة المزامنة الفورية مع حماية من التزامن المتعدد
   Future<void> _trySyncNow() async {
+    if (_isSyncing) return;
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOnline = connectivityResults.isNotEmpty &&
                      !connectivityResults.every((r) => r == ConnectivityResult.none);
-    if (isOnline && !_isSyncing) {
-      syncNow();
+    if (isOnline) {
+      await syncNow();
     }
   }
 
@@ -327,7 +332,9 @@ class OfflineDataManager {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(
       const Duration(minutes: 5),
-      (_) => _trySyncNow(),
+      (_) => _trySyncNow().catchError((e) {
+        AppLogger.e('Periodic sync failed', tag: 'OfflineSync', error: e);
+      }),
     );
   }
 
@@ -345,7 +352,8 @@ class OfflineDataManager {
     try {
       final List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((json) => LocalDataItem.fromJson(json)).toList();
-    } catch (_) {
+    } catch (e) {
+      AppLogger.e('Failed to parse local items', tag: 'OfflineSync', error: e);
       return [];
     }
   }

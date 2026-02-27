@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../polygon_editor/utils/geo_utils.dart';
 
 /// حالة الرسم - Drawing State
 class DrawingState {
@@ -36,6 +37,8 @@ class DrawingState {
 class DrawingNotifier extends StateNotifier<DrawingState> {
   DrawingNotifier() : super(const DrawingState());
 
+  final List<LatLng> _redoStack = [];
+
   /// بدء وضع الرسم
   void startDrawing() {
     state = state.copyWith(isDrawing: true, points: []);
@@ -44,15 +47,38 @@ class DrawingNotifier extends StateNotifier<DrawingState> {
   /// إضافة نقطة
   void addPoint(LatLng point) {
     if (!state.isDrawing) return;
+    _redoStack.clear();
     state = state.copyWith(points: [...state.points, point]);
   }
 
   /// تراجع عن آخر نقطة
   void undoLastPoint() {
     if (state.points.isNotEmpty) {
-      final newPoints = List<LatLng>.from(state.points)..removeLast();
-      state = state.copyWith(points: newPoints);
+      final removed = state.points.last;
+      _redoStack.add(removed);
+      state = state.copyWith(
+        points: state.points.sublist(0, state.points.length - 1),
+      );
     }
+  }
+
+  /// إعادة آخر نقطة تم التراجع عنها - Redo last undone point
+  void redoPoint() {
+    if (_redoStack.isNotEmpty) {
+      final point = _redoStack.removeLast();
+      state = state.copyWith(
+        points: [...state.points, point],
+      );
+    }
+  }
+
+  /// هل يمكن الإعادة؟ - Whether redo is available
+  bool get canRedo => _redoStack.isNotEmpty;
+
+  /// حساب المحيط بالأمتار - Calculate perimeter in meters
+  double get perimeterMeters {
+    if (state.points.length < 2) return 0;
+    return GeoUtils.calculatePerimeter(state.points);
   }
 
   /// تحديث نقطة (للسحب)
@@ -70,6 +96,7 @@ class DrawingNotifier extends StateNotifier<DrawingState> {
 
   /// إلغاء الرسم
   void cancelDrawing() {
+    _redoStack.clear();
     state = const DrawingState(isDrawing: false, points: []);
   }
 
@@ -82,6 +109,7 @@ class DrawingNotifier extends StateNotifier<DrawingState> {
 
   /// مسح جميع النقاط
   void clearPoints() {
+    _redoStack.clear();
     state = state.copyWith(points: []);
   }
 }

@@ -258,12 +258,22 @@ class EventDriftDetector(BaseDriftDetector):
         handler_files += list(root.glob("apps/services/*/src/events/**/*.py"))
 
         for hf in handler_files:
+            # Skip __init__.py files and WebSocket-only files (not NATS handlers)
+            if hf.name == "__init__.py":
+                continue
+            if "websocket" in hf.name.lower():
+                continue
+
             try:
                 content = hf.read_text(errors="ignore")
             except (OSError, UnicodeDecodeError):
                 continue
 
-            # Check for subscribe/handler patterns
+            # Skip files that are explicitly WebSocket managers, not NATS handlers
+            if "WebSocketManager" in content or "WebSocket" in content and "nats" not in content.lower():
+                continue
+
+            # Check for subscribe/handler patterns (NATS-specific)
             has_handler = any(
                 pat in content
                 for pat in [

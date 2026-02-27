@@ -752,6 +752,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -810,6 +815,8 @@ jobs:
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
+          # Override Gradle JVM args for CI (runners have ~7GB RAM)
+          export GRADLE_OPTS="-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError"
           flutter build apk --debug --no-shrink
 
       - name: Upload APK
@@ -1082,6 +1089,11 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+        working-directory: .
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

@@ -4,6 +4,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -73,6 +74,46 @@ class PendingOperation {
   }
 }
 
+/// Top-level function for compute() isolate - parses equipment JSON on background isolate
+List<Equipment> _parseEquipmentList(String jsonStr) {
+  final jsonList = jsonDecode(jsonStr) as List;
+  return jsonList
+      .map((e) => Equipment.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses maintenance records on background isolate
+List<MaintenanceRecord> _parseMaintenanceRecords(String jsonStr) {
+  final jsonList = jsonDecode(jsonStr) as List;
+  return jsonList
+      .map((e) => MaintenanceRecord.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses fuel logs on background isolate
+List<FuelLog> _parseFuelLogs(String jsonStr) {
+  final jsonList = jsonDecode(jsonStr) as List;
+  return jsonList
+      .map((e) => FuelLog.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses usage logs on background isolate
+List<UsageLog> _parseUsageLogs(String jsonStr) {
+  final jsonList = jsonDecode(jsonStr) as List;
+  return jsonList
+      .map((e) => UsageLog.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses pending operations on background isolate
+List<PendingOperation> _parsePendingOperations(String jsonStr) {
+  final jsonList = jsonDecode(jsonStr) as List;
+  return jsonList
+      .map((e) => PendingOperation.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
 /// Equipment Local Database
 /// Uses SharedPreferences for simple offline storage
 /// For production, should use Drift with SQLCipher
@@ -122,10 +163,8 @@ class EquipmentLocalDb {
     if (jsonStr == null) return [];
 
     try {
-      final jsonList = jsonDecode(jsonStr) as List;
-      var equipment = jsonList
-          .map((e) => Equipment.fromJson(e as Map<String, dynamic>))
-          .toList();
+      // Parse on isolate to avoid blocking UI during app startup
+      var equipment = await compute(_parseEquipmentList, jsonStr);
 
       // Apply filters
       if (type != null) {
@@ -217,10 +256,7 @@ class EquipmentLocalDb {
     if (jsonStr == null) return [];
 
     try {
-      final jsonList = jsonDecode(jsonStr) as List;
-      return jsonList
-          .map((e) => MaintenanceRecord.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return await compute(_parseMaintenanceRecords, jsonStr);
     } catch (e) {
       return [];
     }
@@ -258,10 +294,7 @@ class EquipmentLocalDb {
     if (jsonStr == null) return [];
 
     try {
-      final jsonList = jsonDecode(jsonStr) as List;
-      var logs = jsonList
-          .map((e) => FuelLog.fromJson(e as Map<String, dynamic>))
-          .toList();
+      var logs = await compute(_parseFuelLogs, jsonStr);
 
       // Apply date filters
       if (from != null) {
@@ -310,10 +343,7 @@ class EquipmentLocalDb {
     if (jsonStr == null) return [];
 
     try {
-      final jsonList = jsonDecode(jsonStr) as List;
-      var logs = jsonList
-          .map((e) => UsageLog.fromJson(e as Map<String, dynamic>))
-          .toList();
+      var logs = await compute(_parseUsageLogs, jsonStr);
 
       // Apply filters
       if (from != null) {
@@ -467,10 +497,7 @@ class EquipmentLocalDb {
     if (jsonStr == null) return [];
 
     try {
-      final jsonList = jsonDecode(jsonStr) as List;
-      return jsonList
-          .map((e) => PendingOperation.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return await compute(_parsePendingOperations, jsonStr);
     } catch (e) {
       return [];
     }

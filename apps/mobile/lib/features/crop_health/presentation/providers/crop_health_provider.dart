@@ -4,24 +4,24 @@ import '../../data/remote/crop_health_api.dart';
 import '../../domain/entities/crop_health_entities.dart';
 
 /// API Client Provider
-final apiClientProvider = Provider<ApiClient>((ref) {
+final apiClientProvider = Provider.autoDispose<ApiClient>((ref) {
   return ApiClient();
 });
 
 /// Crop Health API Provider
-final cropHealthApiProvider = Provider<CropHealthApi>((ref) {
+final cropHealthApiProvider = Provider.autoDispose<CropHealthApi>((ref) {
   final client = ref.watch(apiClientProvider);
   return CropHealthApi(client);
 });
 
 /// Selected Field Provider
-final selectedFieldIdProvider = StateProvider<String?>((ref) => null);
+final selectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// Selected Zone Provider
-final selectedZoneIdProvider = StateProvider<String?>((ref) => null);
+final selectedZoneIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// Selected Date Provider
-final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final selectedDateProvider = StateProvider.autoDispose<DateTime>((ref) => DateTime.now());
 
 /// حالة التشخيص
 class DiagnosisState {
@@ -109,7 +109,7 @@ class DiagnosisNotifier extends StateNotifier<DiagnosisState> {
 
 /// Diagnosis Provider
 final diagnosisProvider =
-    StateNotifierProvider<DiagnosisNotifier, DiagnosisState>((ref) {
+    StateNotifierProvider.autoDispose<DiagnosisNotifier, DiagnosisState>((ref) {
   final api = ref.watch(cropHealthApiProvider);
   return DiagnosisNotifier(api);
 });
@@ -181,7 +181,7 @@ class ZonesNotifier extends StateNotifier<ZonesState> {
 
 /// Zones Provider
 final zonesProvider =
-    StateNotifierProvider<ZonesNotifier, ZonesState>((ref) {
+    StateNotifierProvider.autoDispose<ZonesNotifier, ZonesState>((ref) {
   final api = ref.watch(cropHealthApiProvider);
   return ZonesNotifier(api);
 });
@@ -248,13 +248,13 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
 
 /// Timeline Provider
 final timelineProvider =
-    StateNotifierProvider<TimelineNotifier, TimelineState>((ref) {
+    StateNotifierProvider.autoDispose<TimelineNotifier, TimelineState>((ref) {
   final api = ref.watch(cropHealthApiProvider);
   return TimelineNotifier(api);
 });
 
 /// VRT Export Provider
-final vrtExportProvider = FutureProvider.family<Map<String, dynamic>, ({String fieldId, DateTime date, String? actionType})>(
+final vrtExportProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, ({String fieldId, DateTime date, String? actionType})>(
   (ref, params) async {
     final api = ref.watch(cropHealthApiProvider);
     return api.exportVrt(
@@ -266,7 +266,7 @@ final vrtExportProvider = FutureProvider.family<Map<String, dynamic>, ({String f
 );
 
 /// فلترة الإجراءات حسب النوع
-final filteredActionsProvider = Provider<List<DiagnosisAction>>((ref) {
+final filteredActionsProvider = Provider.autoDispose<List<DiagnosisAction>>((ref) {
   final diagnosisState = ref.watch(diagnosisProvider);
   final filterType = ref.watch(actionFilterProvider);
 
@@ -282,13 +282,13 @@ final filteredActionsProvider = Provider<List<DiagnosisAction>>((ref) {
 });
 
 /// فلتر نوع الإجراء
-final actionFilterProvider = StateProvider<String?>((ref) => null);
+final actionFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// فلتر الأولوية
-final priorityFilterProvider = StateProvider<String?>((ref) => null);
+final priorityFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// الإجراءات المفلترة حسب الأولوية
-final priorityFilteredActionsProvider = Provider<List<DiagnosisAction>>((ref) {
+final priorityFilteredActionsProvider = Provider.autoDispose<List<DiagnosisAction>>((ref) {
   final actions = ref.watch(filteredActionsProvider);
   final priority = ref.watch(priorityFilterProvider);
 

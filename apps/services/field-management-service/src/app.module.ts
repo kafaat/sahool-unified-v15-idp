@@ -8,7 +8,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { TenantGuard } from "@sahool/nestjs-auth";
+import { TenantGuard } from "./auth/tenant.guard";
 
 // Core modules
 import { PrismaModule } from "./prisma/prisma.module";

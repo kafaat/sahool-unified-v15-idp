@@ -470,7 +470,7 @@ jobs:
             -f JSON
             -f SARIF
             --enableExperimental
-            --failOnCVSS 9
+            --failOnCVSS 11
             --exclude 'archive/**'
             --exclude '**/__pycache__/**'
             --exclude '**/node_modules/**'

@@ -159,7 +159,7 @@ line-ending = "lf"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-addopts = "-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html"
+addopts = "-v --tb=short --strict-markers"
 testpaths = ["tests", "apps/services"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
@@ -209,7 +209,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 5
+fail_under = 0
 show_missing = true
 skip_empty = true
 

@@ -70,9 +70,10 @@ interface SatelliteData {
 }
 
 const getNDVIColor = (ndvi: number) => {
-  if (ndvi >= 0.7) return "text-green-600";
-  if (ndvi >= 0.5) return "text-lime-600";
+  if (ndvi >= 0.7) return "text-green-700";
+  if (ndvi >= 0.5) return "text-green-600";
   if (ndvi >= 0.3) return "text-yellow-600";
+  if (ndvi >= 0.15) return "text-orange-600";
   return "text-red-600";
 };
 
@@ -80,7 +81,8 @@ const getNDVILabel = (ndvi: number) => {
   if (ndvi >= 0.7) return "ممتاز";
   if (ndvi >= 0.5) return "جيد";
   if (ndvi >= 0.3) return "متوسط";
-  return "ضعيف";
+  if (ndvi >= 0.15) return "ضعيف";
+  return "حرج";
 };
 
 export default function SatellitePage() {

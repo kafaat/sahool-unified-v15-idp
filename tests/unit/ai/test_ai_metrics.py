@@ -443,12 +443,13 @@ class TestLatencyMetrics:
         # Verify it completes successfully without raising exceptions
 
         # Execute operation within async context manager
+        operation_completed = False
         async with track_operation_async("test_operation"):
             await asyncio.sleep(0.01)
+            operation_completed = True
 
-        # If we reach here, the context manager worked correctly
-        # The function logs latency but doesn't record to histograms
-        assert True, "Context manager should complete without errors"
+        # Verify the context manager ran the body and exited cleanly
+        assert operation_completed, "Context manager should execute the body block to completion"
 
     @pytest.mark.asyncio
     async def test_track_operation_async_error_handling(self):

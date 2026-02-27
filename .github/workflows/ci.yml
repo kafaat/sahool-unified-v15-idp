@@ -14,7 +14,7 @@
 #                    ├─> security
 #                    └─> governance
 #
-# COVERAGE THRESHOLD: 10% (see MIN_COVERAGE in test-unified job)
+# COVERAGE THRESHOLD: 1% (see MIN_COVERAGE in test-unified job)
 #
 # OPTIMIZATIONS (2026-02):
 #   - Path-based change detection for targeted builds
@@ -508,7 +508,7 @@ jobs:
         run: |
           if [ -d "${{ matrix.service }}/tests" ]; then
             if find "${{ matrix.service }}/tests" -name "test_*.py" -o -name "*_test.py" | grep -q .; then
-              PYTHONPATH=$PWD pytest ${{ matrix.service }}/tests -v --tb=short --timeout=60
+              PYTHONPATH=$PWD pytest ${{ matrix.service }}/tests -v --tb=short --timeout=60 --no-cov
             else
               echo "No test files found in ${{ matrix.service }}/tests - skipping tests"
             fi

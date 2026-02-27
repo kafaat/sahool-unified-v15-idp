@@ -19,7 +19,7 @@ serviceAccount:
 
 service:
   type: ClusterIP
-  port: 8190
+  port: 8180
 
 resources:
   limits:
@@ -108,7 +108,7 @@ affinity:
 # Pod annotations
 podAnnotations:
   prometheus.io/scrape: "true"
-  prometheus.io/port: "8190"
+  prometheus.io/port: "8180"
   prometheus.io/path: "/metrics"
 
 # Security context

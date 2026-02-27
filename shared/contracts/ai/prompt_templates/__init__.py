@@ -1,0 +1,1 @@
+"""AI prompt template contracts."""

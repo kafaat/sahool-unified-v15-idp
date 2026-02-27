@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "irrigation-smart.name" -}}
+{{- define "sahool-agent.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "irrigation-smart.fullname" -}}
+{{- define "sahool-agent.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,28 +24,40 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "irrigation-smart.chart" -}}
+{{- define "sahool-agent.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "irrigation-smart.labels" -}}
-helm.sh/chart: {{ include "irrigation-smart.chart" . }}
-{{ include "irrigation-smart.selectorLabels" . }}
+{{- define "sahool-agent.labels" -}}
+helm.sh/chart: {{ include "sahool-agent.chart" . }}
+{{ include "sahool-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: agent
+app.kubernetes.io/part-of: sahool
 environment: {{ .Values.environment }}
-deploymentSlot: {{ .Values.deploymentSlot }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "irrigation-smart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "irrigation-smart.name" . }}
+{{- define "sahool-agent.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "sahool-agent.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "sahool-agent.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "sahool-agent.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
 {{- end }}

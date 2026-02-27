@@ -153,7 +153,7 @@ class DriftDetector:
         - Variables with values that differ from example defaults
         """
         report = DriftReport()
-        env = env_override or dict(os.environ)
+        env = dict(os.environ) if env_override is None else env_override
         env_example = self.project_root / ".env.example"
 
         if not env_example.is_file():

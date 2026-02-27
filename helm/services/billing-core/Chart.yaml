@@ -1,6 +1,0 @@
-apiVersion: v2
-name: billing-core
-description: SAHOOL Billing Core Service
-type: application
-version: 1.0.0
-appVersion: "15.3.2"

@@ -239,7 +239,7 @@ discovery = get_service_discovery()
 await discovery.start_health_checks()
 
 # فحص صحة خدمة
-health = discovery.get_service_health("weather-advanced")
+health = discovery.get_service_health("weather-service")
 
 # ملخص
 summary = discovery.get_summary()
@@ -254,10 +254,10 @@ print(f"Healthy: {summary['healthy']}/{summary['total_services']}")
 from shared.versions import VERSIONS, SERVICE_PORTS, get_service_url
 
 # إصدار مكتبة
-print(VERSIONS["fastapi"])  # "0.126.0"
+print(VERSIONS["fastapi"])  # "0.128.5"
 
 # منفذ خدمة
-print(SERVICE_PORTS["weather-advanced"])  # 8092
+print(SERVICE_PORTS["weather-service"])  # 8092
 
 # URL خدمة
 url = get_service_url("billing-core")  # "http://localhost:8089"

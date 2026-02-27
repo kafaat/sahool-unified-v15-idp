@@ -11,6 +11,13 @@ Uses AraBERT (https://github.com/aub-mind/arabert) for:
 - Text preprocessing (Arabic normalization)
 """
 
+# ⚠️ INTEGRATION STATUS: KEYWORD-BASED FALLBACK ONLY
+# The `transformers` and `torch` packages are not installed in any active service.
+# Intent classification uses keyword matching, NOT AraBERT ML inference.
+# The AraBERT model loading code exists but the model is never actually used for inference.
+# The ArabicTextPreprocessor (normalization, diacritics) works without external deps.
+# To enable real AraBERT, add `transformers>=4.35.0` and `torch>=2.1.0` to requirements.
+
 import os
 import re
 from dataclasses import dataclass, field

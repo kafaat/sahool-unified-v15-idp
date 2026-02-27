@@ -137,10 +137,12 @@ async def test_complete_ai_advisor_workflow(
     print("\n[Step 2] Verifying multi-agent coordination...")
 
     # Check that dependent services are healthy
+    # weather-core replaced by weather-service (8092), crop-health-ai replaced by crop-intelligence-service (8095),
+    # agro-advisor replaced by advisory-service (8093)
     dependent_services = [
-        ("Weather Core", "http://localhost:8108/healthz"),
-        ("Crop Health AI", "http://localhost:8095/healthz"),
-        ("Agro Advisor", "http://localhost:8105/healthz"),
+        ("Weather Service", "http://localhost:8092/healthz"),
+        ("Crop Intelligence Service", "http://localhost:8095/healthz"),
+        ("Advisory Service", "http://localhost:8093/healthz"),
         ("Qdrant Vector DB", "http://localhost:6333/healthz"),
     ]
 
@@ -201,7 +203,7 @@ async def test_weather_agent_integration(
 
     # Weather agent should provide current weather
     weather_response = await workflow_client.get(
-        "http://localhost:8108/api/v1/weather/current",
+        "http://localhost:8092/api/v1/weather/current",
         headers=e2e_headers,
         params=test_location_yemen,
     )
@@ -271,19 +273,19 @@ async def test_agro_advisor_agent_integration(
     ensure_ai_advisor_ready,
 ):
     """
-    Test Agro Advisor Agent integration
-    اختبار تكامل وكيل المستشار الزراعي
+    Test Advisory Service Agent integration (replaces deprecated agro-advisor)
+    اختبار تكامل وكيل خدمة الاستشارات (بديل المستشار الزراعي المتوقف)
     """
 
-    print("\n[Agro Advisor Agent Test]")
+    print("\n[Advisory Service Agent Test]")
 
-    # Check agro advisor service
-    health_response = await workflow_client.get("http://localhost:8105/healthz")
+    # Check advisory service (replaces deprecated agro-advisor)
+    health_response = await workflow_client.get("http://localhost:8093/healthz")
 
-    assert health_response.status_code in (200, 503), "Agro Advisor should respond"
+    assert health_response.status_code in (200, 503), "Advisory Service should respond"
 
     if health_response.status_code == 200:
-        print("✓ Agro Advisor agent operational")
+        print("✓ Advisory Service agent operational")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

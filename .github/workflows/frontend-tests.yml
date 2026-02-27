@@ -171,7 +171,6 @@ jobs:
           echo "::error::ESLint found issues in Web App. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/web. Run \`cd apps/web && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -187,7 +186,6 @@ jobs:
           echo "::error::TypeScript found type errors in Web App. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -249,7 +247,6 @@ jobs:
           echo "::error::Web App unit tests failed. Please fix failing tests."
           echo "## ❌ Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
           echo "Unit tests failed in apps/web. Run \`cd apps/web && npm run test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Upload Coverage Report
         if: always()
@@ -408,7 +405,6 @@ jobs:
           echo "::error::ESLint found issues in Admin Dashboard. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/admin. Run \`cd apps/admin && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -424,7 +420,6 @@ jobs:
           echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests

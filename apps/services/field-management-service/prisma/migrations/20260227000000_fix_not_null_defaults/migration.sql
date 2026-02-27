@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Fix NOT NULL columns without DEFAULT values
--- إصلاح أعمدة NOT NULL بدون قيم افتراضية
--- Purpose: Prevent breaking deployments when inserting into NOT NULL columns
+-- إصلاح أعمدة بدون قيم افتراضية (إضافة DEFAULT للأعمدة الإلزامية)
+-- Purpose: Prevent breaking deployments by adding DEFAULT to mandatory columns
 -- Drift Report: 7d5dc4c6-bc6
 -- ═══════════════════════════════════════════════════════════════════════════════
 

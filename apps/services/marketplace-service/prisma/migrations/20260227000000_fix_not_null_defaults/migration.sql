@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Fix NOT NULL columns without DEFAULT values
--- إصلاح أعمدة NOT NULL بدون قيم افتراضية
--- Purpose: Replace 'default' sentinel with 'unassigned' and ensure all NOT NULL
+-- إصلاح أعمدة بدون قيم افتراضية (إضافة DEFAULT للأعمدة الإلزامية)
+-- Purpose: Replace 'default' sentinel with 'unassigned' and ensure all mandatory
 --          tenant_id columns have a safe DEFAULT for direct SQL inserts.
 -- Drift Report: 7d5dc4c6-bc6
 -- ═══════════════════════════════════════════════════════════════════════════════

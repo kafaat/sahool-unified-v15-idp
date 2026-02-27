@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Fix NOT NULL columns without DEFAULT values
--- إصلاح أعمدة NOT NULL بدون قيم افتراضية
+-- إصلاح أعمدة بدون قيم افتراضية (إضافة DEFAULT للأعمدة الإلزامية)
 -- Purpose: Add DEFAULT now() to updatedAt columns that Prisma @updatedAt leaves
 --          without a SQL-level default. Prevents INSERT failures outside ORM.
 -- Drift Report: 7d5dc4c6-bc6

@@ -3,6 +3,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart';
 
+/// Test subclass that skips auto-loading products in constructor.
+/// Dart polymorphism ensures the overridden loadProducts() is called
+/// even from the superclass constructor.
+class _TestableMarketplaceNotifier extends MarketplaceNotifier {
+  _TestableMarketplaceNotifier({
+    required super.baseUrl,
+    required super.userId,
+  });
+
+  @override
+  Future<void> loadProducts({ProductCategory? category}) async {
+    // No-op: skip HTTP call in tests
+  }
+}
+
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════
   // ProductCategory Enum Tests
@@ -392,8 +407,8 @@ void main() {
     setUp(() {
       // Create notifier - loadProducts will fail (no real server)
       // but we can still test cart operations
-      notifier = MarketplaceNotifier(
-        baseUrl: 'http://localhost:9999', // Non-existent
+      notifier = _TestableMarketplaceNotifier(
+        baseUrl: 'http://localhost:9999',
         userId: 'test-user',
       );
     });

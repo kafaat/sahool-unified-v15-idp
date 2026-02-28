@@ -18,6 +18,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeUri());
     registerFallbackValue(<String, String>{});
+    registerFallbackValue(''); // Fallback for http body (String) parameters
   });
 
   // ═══════════════════════════════════════════════════════════════════════════

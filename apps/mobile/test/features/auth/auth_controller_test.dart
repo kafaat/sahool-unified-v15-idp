@@ -17,6 +17,19 @@ import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 import 'auth_fixtures.dart';
 import 'auth_mocks.dart';
 
+/// Wait for AuthStateNotifier initialization to complete.
+/// Polls state until it transitions away from loading/initial status.
+/// More reliable than fixed Future.delayed() durations in CI.
+Future<void> _waitForInit(AuthStateNotifier notifier) async {
+  for (var i = 0; i < 100; i++) {
+    await Future.delayed(const Duration(milliseconds: 10));
+    if (notifier.state.status != AuthStatus.loading &&
+        notifier.state.status != AuthStatus.initial) {
+      return;
+    }
+  }
+}
+
 void main() {
   late AuthService authService;
   late MockSecureStorageService mockSecureStorage;
@@ -71,7 +84,7 @@ void main() {
 
         // Assert - state transitions through loading
         // Note: Due to async nature, we verify the final state
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
         expect(notifier.state.status, AuthStatus.unauthenticated);
       });
 
@@ -82,7 +95,7 @@ void main() {
 
         // Act
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Assert
         expect(notifier.state.status, AuthStatus.unauthenticated);
@@ -102,7 +115,7 @@ void main() {
 
         // Act
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Assert
         expect(notifier.state.status, AuthStatus.authenticated);
@@ -122,7 +135,7 @@ void main() {
 
         // Act
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 200));
+        await _waitForInit(notifier);
 
         // Assert - expired token triggers refreshToken() via tokenManager, which succeeds
         expect(notifier.state.status, AuthStatus.authenticated);
@@ -136,7 +149,7 @@ void main() {
 
         // Act
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Assert
         expect(notifier.state.status, AuthStatus.unauthenticated);
@@ -161,7 +174,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await _waitForInit(notifier);
 
         // Act
         final result = await notifier.login(
@@ -195,7 +208,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await _waitForInit(notifier);
 
         // Act - check state during login
         final loginFuture = notifier.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
@@ -216,7 +229,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await _waitForInit(notifier);
 
         // Act
         await notifier.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
@@ -245,7 +258,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await _waitForInit(notifier);
 
         // Act
         await notifier.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
@@ -267,7 +280,7 @@ void main() {
         )).thenThrow(Exception('Storage error'));
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 100));
+        await _waitForInit(notifier);
 
         // Act
         final result = await notifier.login(
@@ -293,7 +306,7 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validUserData);
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
         expect(notifier.state.status, AuthStatus.authenticated);
 
         // Act
@@ -318,7 +331,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Act
         await notifier.logout();
@@ -340,7 +353,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Act
         await notifier.logout();
@@ -369,7 +382,7 @@ void main() {
             .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Act
         final result = await notifier.refreshSession();
@@ -392,7 +405,7 @@ void main() {
             .thenThrow(Exception('Refresh failed'));
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Act
         final result = await notifier.refreshSession();
@@ -412,7 +425,7 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validUserData);
 
         final notifier = AuthStateNotifier(authService);
-        await Future.delayed(const Duration(milliseconds: 150));
+        await _waitForInit(notifier);
 
         // Act
         await notifier.refreshSession();

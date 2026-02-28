@@ -1,0 +1,2778 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>خطة التحسين الشاملة لمنصة سهول | SAHOOL Comprehensive Improvement Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-comprehensive-improvement-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة التحسين الشاملة لمنصة سهول | SAHOOL Comprehensive Improvement Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-comprehensive-improvement-plan">خطة التحسين الشاملة لمنصة سهول | SAHOOL Comprehensive Improvement Plan<a class="headerlink" href="#sahool-comprehensive-improvement-plan" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>الإصدار</strong>: 2.0.0
+<strong>تاريخ الإنشاء</strong>: فبراير 2026
+<strong>الحالة</strong>: جاهزة للتنفيذ
+<strong>المنصة</strong>: SAHOOL v16.0.0</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">الفهرس | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-المقارنة-المعيارية">المقارنة المعيارية مع 12 منصة زراعية عالمية</a></li>
+<li><a href="#2-المرحلة-0">المرحلة 0: تفعيل 4 ميزات موجودة (أسبوعين)</a></li>
+<li><a href="#3-المرحلة-1">المرحلة 1: 5 تحسينات سريعة + UI (1-3 أشهر)</a></li>
+<li><a href="#4-المرحلة-2">المرحلة 2: 6 تحسينات متوسطة المدى (3-6 أشهر)</a></li>
+<li><a href="#5-المرحلة-3">المرحلة 3: 5 تحسينات استراتيجية (6-12 شهر)</a></li>
+<li><a href="#6-المرحلة-4">المرحلة 4: 4 تحسينات رؤيوية (12-18 شهر)</a></li>
+<li><a href="#7-تحسينات-الهاتف">20 تحسين لتطبيق الهاتف</a></li>
+<li><a href="#8-مبادئ-التصميم">10 مبادئ تصميم عالمية</a></li>
+<li><a href="#9-مقاييس-النجاح">مقاييس النجاح</a></li>
+</ol>
+<hr />
+<h2 id="1-12-1-">1. المقارنة المعيارية مع 12 منصة زراعية عالمية {#1-المقارنة-المعيارية}<a class="headerlink" href="#1-12-1-" title="Permanent link">&para;</a></h2>
+<h3 id="11-benchmark-platforms">1.1 المنصات المرجعية | Benchmark Platforms<a class="headerlink" href="#11-benchmark-platforms" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المنصة</th>
+<th>البلد</th>
+<th>التخصص</th>
+<th>نقاط القوة الرئيسية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Climate FieldView</strong> (Bayer)</td>
+<td>أمريكا</td>
+<td>تحليلات المحاصيل</td>
+<td>250M+ فدان، تنبؤ الإنتاج بالـ ML، توافق متعدد المعدات</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Trimble Ag Software</strong></td>
+<td>أمريكا</td>
+<td>زراعة دقيقة</td>
+<td>GPS + توجيه ذاتي، خرائط VRA، إدارة الأسطول</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>CropX</strong></td>
+<td>إسرائيل</td>
+<td>ري ذكي وتربة</td>
+<td>مستشعرات تربة متقدمة، توفير 20% سماد، ري دقيق</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>CropIn (Cropwise)</strong></td>
+<td>الهند</td>
+<td>رقمنة المزارع</td>
+<td>SaaS للمزارع الصغيرة، شراكة PepsiCo، تغطية أفريقيا</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Plantix</strong></td>
+<td>ألمانيا</td>
+<td>تشخيص أمراض</td>
+<td>100M+ تشخيص، كشف AI من الصور، مجاني بالكامل</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Agworld</strong></td>
+<td>أستراليا</td>
+<td>إدارة تعاونية</td>
+<td>عمل جماعي، offline، بيانات ملك المزارع</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>AgriWebb</strong></td>
+<td>أستراليا</td>
+<td>ثروة حيوانية</td>
+<td>offline-first، تتبع وتتبع، مزامنة كل 30 دقيقة</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Cropio (Cropwise Ops)</strong></td>
+<td>أوكرانيا</td>
+<td>أقمار صناعية</td>
+<td>مراقبة فضائية أسبوعية، توقع مراحل النمو</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>FarmLogs</strong></td>
+<td>أمريكا</td>
+<td>مزارع صغيرة</td>
+<td>مجاني، بسيط، تتبع تكاليف، رطوبة التربة</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Farmonaut</strong></td>
+<td>الهند</td>
+<td>استشعار عن بعد</td>
+<td>NDVI مجاني، API مفتوح، تغطية عالمية</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>OneSoil</strong></td>
+<td>بيلاروسيا</td>
+<td>خرائط دقيقة</td>
+<td>خرائط VRA مجانية، تحليل 200M+ حقل</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Farmers Edge</strong></td>
+<td>كندا</td>
+<td>بيانات متكاملة</td>
+<td>IoT + أقمار + طقس، تأمين محاصيل ذكي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-detailed-feature-matrix">1.2 مصفوفة المقارنة التفصيلية | Detailed Feature Matrix<a class="headerlink" href="#12-detailed-feature-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>سهول</th>
+<th>FieldView</th>
+<th>CropX</th>
+<th>CropIn</th>
+<th>Plantix</th>
+<th>Agworld</th>
+<th>المتوسط</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Offline-First</strong></td>
+<td>✅ كامل</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>⚠️ جزئي</td>
+<td>✅</td>
+<td>✅</td>
+<td>50%</td>
+</tr>
+<tr>
+<td><strong>NDVI/أقمار صناعية</strong></td>
+<td>✅ Sentinel</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>33%</td>
+</tr>
+<tr>
+<td><strong>كشف أمراض AI</strong></td>
+<td>✅ YOLO26</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>❌</td>
+<td>25%</td>
+</tr>
+<tr>
+<td><strong>ري ذكي</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>17%</td>
+</tr>
+<tr>
+<td><strong>IoT/مستشعرات</strong></td>
+<td>✅ MQTT</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>25%</td>
+</tr>
+<tr>
+<td><strong>عربي أصلي</strong></td>
+<td>✅ AraBERT</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>Multi-tenant</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>25%</td>
+</tr>
+<tr>
+<td><strong>تتبع سلسلة التوريد</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>17%</td>
+</tr>
+<tr>
+<td><strong>AI متعدد الوكلاء</strong></td>
+<td>✅ CrewAI</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>Edge Computing</strong></td>
+<td>✅ Jetson</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>VRA (خرائط تطبيق)</strong></td>
+<td>⚠️ مخطط</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>25%</td>
+</tr>
+<tr>
+<td><strong>سوق إلكتروني</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>❌</td>
+<td>8%</td>
+</tr>
+<tr>
+<td><strong>تقويم زراعي</strong></td>
+<td>✅ هجري</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>GlobalGAP</strong></td>
+<td>✅ IFA v6</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>0%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-competitive-summary">1.3 الخلاصة التنافسية | Competitive Summary<a class="headerlink" href="#13-competitive-summary" title="Permanent link">&para;</a></h3>
+<p><strong>نقاط قوة سهول الفريدة (لا يوجد منافس مماثل):</strong>
+- العربية كلغة أصلية مع AraBERT
+- نظام وكلاء ذكيين متعددين (25+ وكيل)
+- Edge Computing على أجهزة Jetson Orin
+- تقويم زراعي هجري/إسلامي
+- امتثال GlobalGAP IFA v6</p>
+<p><strong>فجوات تحتاج سدها (موجودة عند المنافسين):</strong>
+- واجهة مستخدم بسيطة مثل FarmLogs/Plantix
+- خرائط VRA تفاعلية مثل Trimble/OneSoil
+- تقارير مالية مبسطة مثل Agworld
+- مزامنة سلسة كل 30 دقيقة مثل AgriWebb</p>
+<hr />
+<h2 id="2-0-4-2-0">2. المرحلة 0: تفعيل 4 ميزات موجودة فعلاً في الكود (أسبوعين) {#2-المرحلة-0}<a class="headerlink" href="#2-0-4-2-0" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الهدف</strong>: الاستفادة من كود جاهز لم يُفعَّل بعد - أسرع عائد بأقل جهد</p>
+</blockquote>
+<h3 id="1-feature-flags">الميزة 1: تفعيل Feature Flags الخمسة المعطلة<a class="headerlink" href="#1-feature-flags" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>gitops/feature-flags/flagd/configmap.yaml</code>
+<strong>الحالة الحالية</strong>: 5 فلاغات موجودة لكن <code>defaultVariant</code> = <code>off</code>/<code>disabled</code></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>الحالي</th>
+<th>المطلوب</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ndvi.newPipeline</code></td>
+<td><code>off</code> (beta فقط)</td>
+<td><code>on</code> لجميع المستأجرين</td>
+<td>خط أنابيب NDVI محسّن</td>
+</tr>
+<tr>
+<td><code>advisor.promptV2</code></td>
+<td><code>v1</code> (70%)</td>
+<td><code>v2</code> (100%)</td>
+<td>مستشار AI أفضل</td>
+</tr>
+<tr>
+<td><code>irrigation.smartScheduling</code></td>
+<td><code>disabled</code> (منطقتين)</td>
+<td><code>enabled</code> لجميع المناطق</td>
+<td>ري ذكي للجميع</td>
+</tr>
+<tr>
+<td><code>marketplace.newUI</code></td>
+<td><code>disabled</code> (score≥80)</td>
+<td><code>enabled</code> للجميع</td>
+<td>واجهة سوق جديدة</td>
+</tr>
+<tr>
+<td><code>ai.ragEnabled</code></td>
+<td><code>off</code> (enterprise)</td>
+<td><code>on</code> لـ professional+</td>
+<td>RAG لمزيد من المستخدمين</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الجهد</strong>: 2 ساعات | <strong>المخاطر</strong>: منخفضة (rollback فوري عبر flagd)</p>
+<h3 id="2-4-optional-profile">الميزة 2: تفعيل 4 خدمات Optional Profile<a class="headerlink" href="#2-4-optional-profile" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>docker-compose.yml</code>
+<strong>الحالة الحالية</strong>: خدمات كاملة الكود لكن تحت <code>profiles: ["optional"]</code></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+<th>التغيير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ai-chat-assistant</code></td>
+<td>8260</td>
+<td>محادثة ذكية مع LLM</td>
+<td>إزالة profile أو إضافة لـ <code>make dev</code></td>
+</tr>
+<tr>
+<td><code>whatsapp-bot-service</code></td>
+<td>8240</td>
+<td>تكامل واتساب</td>
+<td>تفعيل مع إعدادات WhatsApp Business API</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>8183</td>
+<td>بوابة USSD للهواتف البسيطة</td>
+<td>تفعيل لدعم المزارعين بدون هواتف ذكية</td>
+</tr>
+<tr>
+<td><code>demo-data</code></td>
+<td>8261</td>
+<td>بيانات تجريبية</td>
+<td>تفعيل في بيئة التطوير</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الجهد</strong>: 4 ساعات | <strong>المخاطر</strong>: منخفضة</p>
+<h3 id="3">الميزة 3: تفعيل تقارير الخدمات اللوجستية<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/logistics-service/src/api/v1/__init__.py</code>
+<strong>الحالة الحالية</strong>: Endpoints موجودة لكن معلّقة (commented-out)</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الكود الموجود فعلاً (معلّق):</span>
+<span class="c1"># @router.get(&quot;/reports/daily&quot;)</span>
+<span class="c1"># async def get_daily_report(...)</span>
+
+<span class="c1"># @router.get(&quot;/reports/weekly&quot;)</span>
+<span class="c1"># async def get_weekly_report(...)</span>
+</code></pre></div>
+
+<p><strong>المطلوب</strong>: إزالة التعليقات وتنفيذ المنطق (query + aggregation)</p>
+<p><strong>الجهد</strong>: 8 ساعات | <strong>المخاطر</strong>: منخفضة</p>
+<h3 id="4-kong-phase-4">الميزة 4: إزالة خدمات Kong الوهمية (Phase 4 من الخطة السابقة)<a class="headerlink" href="#4-kong-phase-4" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>الحالة الحالية</strong>: 10 خدمات معرّفة في Kong بدون backend (تُرجع 502)</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة الوهمية</th>
+<th>المنفذ</th>
+<th>الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>analytics-service</td>
+<td>8154</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>reporting-service</td>
+<td>8155</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>integration-service</td>
+<td>8156</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>export-service</td>
+<td>8158</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>import-service</td>
+<td>8159</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>monitoring-service</td>
+<td>8160</td>
+<td>حذف (تعارض مع agent-registry)</td>
+</tr>
+<tr>
+<td>logging-service</td>
+<td>8162</td>
+<td>حذف (تعارض مع code-fix-agent)</td>
+</tr>
+<tr>
+<td>tracing-service</td>
+<td>8162</td>
+<td>حذف (تعارض مع code-review-agent)</td>
+</tr>
+<tr>
+<td>cache-service</td>
+<td>8163</td>
+<td>حذف من kong.yml</td>
+</tr>
+<tr>
+<td>search-service</td>
+<td>8164</td>
+<td>حذف من kong.yml</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الجهد</strong>: 3 ساعات | <strong>المخاطر</strong>: منخفضة (لا يوجد backend أصلاً)</p>
+<h3 id="0">ملخص المرحلة 0<a class="headerlink" href="#0" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الجهد</th>
+<th>التأثير</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature Flags</td>
+<td>2 ساعات</td>
+<td>عالي - 5 ميزات للمستخدمين</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Optional Services</td>
+<td>4 ساعات</td>
+<td>عالي - 4 خدمات جديدة</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Logistics Reports</td>
+<td>8 ساعات</td>
+<td>متوسط - تقارير يومية/أسبوعية</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Kong Cleanup</td>
+<td>3 ساعات</td>
+<td>متوسط - إزالة أخطاء 502</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>17 ساعة (~أسبوعين)</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-1-5-ui-1-3-3-1">3. المرحلة 1: 5 تحسينات سريعة + UI (1-3 أشهر) {#3-المرحلة-1}<a class="headerlink" href="#3-1-5-ui-1-3-3-1" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الهدف</strong>: تحسينات ملموسة للمستخدم النهائي مع تحسين تجربة المطورين</p>
+</blockquote>
+<h3 id="1-unified-dashboard">التحسين 1: لوحة بيانات تفاعلية موحدة | Unified Dashboard<a class="headerlink" href="#1-unified-dashboard" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة</strong>: لا توجد لوحة بيانات واحدة تجمع كل المعلومات
+<strong>الحل</strong>: إنشاء Farm Overview Dashboard في <code>apps/web/</code></p>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────┐
+│<span class="w">  </span>🌾<span class="w"> </span>نظرة<span class="w"> </span>عامة<span class="w"> </span>على<span class="w"> </span>المزرعة<span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nv">Farm</span><span class="w"> </span><span class="nv">Overview</span><span class="w">               </span>│
+├──────────────┬──────────────┬──────────────┬────────────┤
+│<span class="w">  </span>📊<span class="w"> </span><span class="nv">NDVI</span><span class="w">     </span>│<span class="w">  </span>💧<span class="w"> </span>الري<span class="w">     </span>│<span class="w">  </span>🌡️<span class="w"> </span>الطقس<span class="w">   </span>│<span class="w">  </span>🐛<span class="w"> </span>الآفات<span class="w"> </span>│
+│<span class="w">  </span><span class="nv">Map</span><span class="w"> </span><span class="nv">View</span><span class="w">    </span>│<span class="w">  </span><span class="nv">Schedule</span><span class="w">    </span>│<span class="w">  </span><span class="nv">Forecast</span><span class="w">    </span>│<span class="w">  </span><span class="nv">Alerts</span><span class="w">    </span>│
+│<span class="w">  </span><span class="mi">0</span>.<span class="mi">72</span><span class="w"> </span><span class="nv">avg</span><span class="w">    </span>│<span class="w">  </span><span class="k">Next</span>:<span class="w"> </span><span class="mi">2</span><span class="nv">d</span><span class="w">    </span>│<span class="w">  </span><span class="mi">28</span>°<span class="nv">C</span><span class="w">        </span>│<span class="w">  </span><span class="mi">2</span><span class="w"> </span><span class="nv">active</span><span class="w">  </span>│
+├──────────────┴──────────────┴──────────────┴────────────┤
+│<span class="w">  </span>📈<span class="w"> </span>الإنتاجية<span class="w"> </span>المتوقعة<span class="w">    </span>│<span class="w">  </span>💰<span class="w"> </span>التكاليف<span class="w"> </span><span class="nv">vs</span><span class="w"> </span>العائد<span class="w">      </span>│
+│<span class="w">  </span><span class="nv">Wheat</span>:<span class="w"> </span><span class="mi">4</span>.<span class="mi">8</span><span class="w"> </span><span class="nv">t</span><span class="o">/</span><span class="nv">ha</span><span class="w"> </span><span class="ss">(</span><span class="o">+</span><span class="mi">12</span><span class="o">%</span><span class="ss">)</span><span class="w">   </span>│<span class="w">  </span><span class="nv">Revenue</span>:<span class="w"> </span><span class="mi">185</span><span class="nv">K</span><span class="w"> </span><span class="nv">SAR</span><span class="w">          </span>│
+│<span class="w">  </span>████████████░░<span class="w"> </span><span class="mi">78</span><span class="o">%</span><span class="w">        </span>│<span class="w">  </span><span class="nv">Costs</span>:<span class="w"> </span><span class="mi">42</span><span class="nv">K</span><span class="w"> </span><span class="nv">SAR</span><span class="w">             </span>│
+├────────────────────────────┴────────────────────────────┤
+│<span class="w">  </span>⏰<span class="w"> </span>المهام<span class="w"> </span>القادمة<span class="w">                                      </span>│
+│<span class="w">  </span><span class="o">-</span><span class="w"> </span>[<span class="w"> </span>]<span class="w"> </span>تسميد<span class="w"> </span>الحقل<span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="ss">(</span>غداً<span class="ss">)</span><span class="w">                            </span>│
+│<span class="w">  </span><span class="o">-</span><span class="w"> </span>[<span class="w"> </span>]<span class="w"> </span>فحص<span class="w"> </span>الآفات<span class="w"> </span>الحقل<span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="ss">(</span>بعد<span class="w"> </span><span class="mi">3</span><span class="w"> </span>أيام<span class="ss">)</span><span class="w">                </span>│
+│<span class="w">  </span><span class="o">-</span><span class="w"> </span>[<span class="w"> </span>]<span class="w"> </span>حصاد<span class="w"> </span>الحقل<span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="ss">(</span>الأسبوع<span class="w"> </span>القادم<span class="ss">)</span><span class="w">                  </span>│
+└─────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<p><strong>التقنيات</strong>: React 19 + Recharts + react-map-gl
+<strong>الجهد</strong>: 3 أسابيع | <strong>التأثير</strong>: عالي جداً</p>
+<h3 id="2">التحسين 2: نظام إشعارات ذكي متعدد القنوات<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة</strong>: الإشعارات عبر Push فقط، لا يوجد واتساب أو SMS
+<strong>الحل</strong>: ربط <code>notification-service</code> مع <code>whatsapp-bot-service</code> و <code>ussd-gateway</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">قنوات الإشعارات</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">✅ موجود - apps/mobile (FCM)</span>
+<span class="w">  </span><span class="nt">whatsapp</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">⚠️ كود جاهز - يحتاج تفعيل WhatsApp Business API</span>
+<span class="w">  </span><span class="nt">ussd/sms</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">⚠️ كود جاهز - يحتاج ربط مع مزود SMS</span>
+<span class="w">  </span><span class="nt">email</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">📋 يحتاج إنشاء قالب + SMTP</span>
+<span class="w">  </span><span class="nt">in_app</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">✅ موجود - ws-gateway (WebSocket)</span>
+
+<span class="nt">تصنيف الإشعارات</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">critical</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">push + whatsapp + sms</span><span class="w">    </span><span class="c1"># سوسة النخيل، صقيع</span>
+<span class="w">  </span><span class="nt">warning</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">push + whatsapp</span><span class="w">          </span><span class="c1"># آفات، نقص مغذيات</span>
+<span class="w">  </span><span class="nt">advisory</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">push + in_app</span><span class="w">            </span><span class="c1"># نصائح ري، تسميد</span>
+<span class="w">  </span><span class="nt">info</span><span class="p">:</span><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">in_app فقط</span><span class="w">              </span><span class="c1"># تحديثات السوق</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 2 أسابيع | <strong>التأثير</strong>: عالي</p>
+<h3 id="3_1">التحسين 3: تحسين أداء قاعدة البيانات<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة</strong>: فهارس مفقودة، استعلامات PostGIS بطيئة
+<strong>الحل</strong>: إضافة فهارس + تحسين Connection Pooling</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- فهارس مقترحة (بناءً على أنماط الاستعلام)</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_fields_tenant_id</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_fields_geom</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="p">(</span><span class="n">geometry</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_tasks_status_due</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">tasks</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">due_date</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_ndvi_field_date</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">ndvi_readings</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span><span class="w"> </span><span class="n">reading_date</span><span class="w"> </span><span class="k">DESC</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_events_tenant_created</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">events</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">);</span>
+
+<span class="c1">-- PgBouncer: تحسين من transaction → session mode للاستعلامات الطويلة</span>
+<span class="c1">-- Redis: إضافة cache invalidation patterns</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 1 أسبوع | <strong>التأثير</strong>: عالي (تسريع 3-5x)</p>
+<h3 id="4-cicd">التحسين 4: اختبارات شاملة + CI/CD محسّن<a class="headerlink" href="#4-cicd" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة</strong>: تغطية 20% فقط، اختبارات بطيئة
+<strong>الحل</strong>: رفع التغطية لـ 50% + تسريع CI</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">الأهداف</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">coverage</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">20% → 50%</span>
+<span class="w">  </span><span class="nt">ci_time</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">~15 min → ~8 min (parallel jobs)</span>
+<span class="w">  </span><span class="nt">flaky_tests</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">تحديد وإصلاح الاختبارات غير المستقرة</span>
+
+<span class="nt">الإضافات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختبارات smoke لكل خدمة (71 خدمة)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختبارات integration لـ Kong routes</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختبارات E2E لسيناريوهات المزارع الأساسية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">اختبارات أداء baseline مع k6</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 3 أسابيع | <strong>التأثير</strong>: متوسط-عالي</p>
+<h3 id="5-dx">التحسين 5: تجربة المطور (DX) المحسّنة<a class="headerlink" href="#5-dx" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة</strong>: بدء التطوير معقد، 280+ متغير بيئة
+<strong>الحل</strong>: <code>make quickstart</code> محسّن + أدوات تطوير أفضل</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الوضع الحالي: ~30 دقيقة لإعداد بيئة التطوير</span>
+<span class="c1"># الهدف: ~5 دقائق</span>
+
+make<span class="w"> </span>quickstart-enhanced<span class="w">  </span><span class="c1"># يشمل:</span>
+<span class="w">  </span><span class="c1"># 1. نسخ .env.development.template → .env</span>
+<span class="w">  </span><span class="c1"># 2. docker compose up -d (infrastructure only)</span>
+<span class="w">  </span><span class="c1"># 3. تشغيل migrations</span>
+<span class="w">  </span><span class="c1"># 4. seed بيانات تجريبية</span>
+<span class="w">  </span><span class="c1"># 5. فتح متصفح على http://localhost:3000</span>
+
+<span class="c1"># أدوات إضافية:</span>
+make<span class="w"> </span>doctor<span class="w">           </span><span class="c1"># تشخيص مشاكل البيئة</span>
+make<span class="w"> </span>dev-hot<span class="w">          </span><span class="c1"># hot-reload لجميع الخدمات</span>
+make<span class="w"> </span>logs-pretty<span class="w">      </span><span class="c1"># سجلات ملونة ومنسقة</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 1 أسبوع | <strong>التأثير</strong>: متوسط</p>
+<h3 id="1">ملخص المرحلة 1<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التحسين</th>
+<th>الجهد</th>
+<th>التأثير</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>لوحة بيانات موحدة</td>
+<td>3 أسابيع</td>
+<td>عالي جداً</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>إشعارات متعددة القنوات</td>
+<td>2 أسابيع</td>
+<td>عالي</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>أداء قاعدة البيانات</td>
+<td>1 أسبوع</td>
+<td>عالي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>اختبارات + CI/CD</td>
+<td>3 أسابيع</td>
+<td>متوسط-عالي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>تجربة المطور</td>
+<td>1 أسبوع</td>
+<td>متوسط</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>~10 أسابيع</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-2-6-3-6-4-2">4. المرحلة 2: 6 تحسينات متوسطة المدى (3-6 أشهر) {#4-المرحلة-2}<a class="headerlink" href="#4-2-6-3-6-4-2" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الهدف</strong>: ميزات تنافسية تضع سهول على مستوى أفضل المنصات العالمية</p>
+</blockquote>
+<h3 id="1-vra-variable-rate-application-maps">التحسين 1: خرائط VRA تفاعلية | Variable Rate Application Maps<a class="headerlink" href="#1-vra-variable-rate-application-maps" title="Permanent link">&para;</a></h3>
+<p><strong>المرجع التنافسي</strong>: Trimble، OneSoil، Climate FieldView</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خرائط تطبيق متغيرة المعدل</span>
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل NDVI + بيانات التربة → خريطة VRA</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقسيم الحقل إلى مناطق إدارية (3-7 مناطق)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">وصفة تسميد/بذر مخصصة لكل منطقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تصدير بصيغة Shapefile/GeoJSON للمعدات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دعم معدات John Deere, AGCO, CNH</span>
+
+<span class="nt">الخدمات المعنية</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vegetation-analysis-service (NDVI)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soil-analysis-service (تحليل التربة)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">terrain-core-service (DEM + انحدار)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">advisory-service (توصيات)</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6 أسابيع</span>
+</code></pre></div>
+
+<h3 id="2-interactive-digital-twin">التحسين 2: التوأم الرقمي التفاعلي | Interactive Digital Twin<a class="headerlink" href="#2-interactive-digital-twin" title="Permanent link">&para;</a></h3>
+<p><strong>المرجع التنافسي</strong>: Farmers Edge، حصري لسهول</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محاكاة &quot;ماذا لو&quot; للمزرعة</span>
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">digital-twin-engine (خدمة موجودة - port 8253)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تصور ثلاثي الأبعاد للحقول (Three.js)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">محاكاة سيناريوهات</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;ماذا</span><span class="nv"> </span><span class="s">لو</span><span class="nv"> </span><span class="s">زدت</span><span class="nv"> </span><span class="s">الري</span><span class="nv"> </span><span class="s">20%؟&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;ماذا</span><span class="nv"> </span><span class="s">لو</span><span class="nv"> </span><span class="s">تأخرت</span><span class="nv"> </span><span class="s">في</span><span class="nv"> </span><span class="s">التسميد</span><span class="nv"> </span><span class="s">أسبوع؟&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;ماذا</span><span class="nv"> </span><span class="s">لو</span><span class="nv"> </span><span class="s">زرعت</span><span class="nv"> </span><span class="s">صنف</span><span class="nv"> </span><span class="s">مختلف؟&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير التأثير على الإنتاجية والتكلفة</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8 أسابيع</span>
+</code></pre></div>
+
+<h3 id="3-enhanced-marketplace">التحسين 3: سوق إلكتروني محسّن | Enhanced Marketplace<a class="headerlink" href="#3-enhanced-marketplace" title="Permanent link">&para;</a></h3>
+<p><strong>المرجع التنافسي</strong>: CropIn، FarmLogs</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">سوق B2B/B2C متكامل</span>
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ربط marketplace-service مع market-prices</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أسعار حية من السوق المحلي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام عروض وطلبات (bid/ask)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع الشحنات (traceability-service)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم البائعين والمشترين</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دفع إلكتروني (Stripe + بوابات محلية)</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6 أسابيع</span>
+</code></pre></div>
+
+<h3 id="4-smart-financial-reports">التحسين 4: نظام تقارير مالية ذكي | Smart Financial Reports<a class="headerlink" href="#4-smart-financial-reports" title="Permanent link">&para;</a></h3>
+<p><strong>المرجع التنافسي</strong>: Agworld، FarmLogs</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير مالية لكل حقل</span>
+<span class="nt">المكونات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تكلفة الإنتاج لكل هكتار</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحليل الربحية (عائد - تكاليف)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مقارنة مواسم</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقدير ROI للتوصيات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تصدير PDF/Excel مع رسوم بيانية</span>
+
+<span class="nt">الخدمات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">billing-core (فواتير)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">advisory-service (توصيات + تكاليف)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yield-prediction-service (إنتاجية متوقعة)</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4 أسابيع</span>
+</code></pre></div>
+
+<h3 id="5-nlp-arabic-nlp-enhancement">التحسين 5: تحسين NLP العربي | Arabic NLP Enhancement<a class="headerlink" href="#5-nlp-arabic-nlp-enhancement" title="Permanent link">&para;</a></h3>
+<p><strong>ميزة حصرية لسهول - لا منافس</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دعم اللهجات (يمنية، سعودية، عراقية، مصرية)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فهم الأوامر الصوتية الزراعية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ترجمة تلقائية للمصطلحات الفنية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chatbot عربي ذكي (ai-chat-assistant)</span>
+
+<span class="nt">النماذج</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AraBERT v2 (موجود في shared/nlp/)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Whisper API (تحويل صوت → نص)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة قاموس زراعي عربي (500+ مصطلح)</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5 أسابيع</span>
+</code></pre></div>
+
+<h3 id="6-advanced-security-compliance">التحسين 6: أمان متقدم وامتثال | Advanced Security &amp; Compliance<a class="headerlink" href="#6-advanced-security-compliance" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل TLS لـ Redis (كود جاهز في docker-compose.yml - معلّق)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل Vault لإدارة الأسرار (موجود - يحتاج ربط)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير امتثال GlobalGAP تلقائية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تدقيق أمني دوري آلي (Bandit + CodeQL)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تشفير البيانات at-rest لقاعدة البيانات</span>
+
+<span class="nt">الجهد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4 أسابيع</span>
+</code></pre></div>
+
+<h3 id="2_1">ملخص المرحلة 2<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التحسين</th>
+<th>الجهد</th>
+<th>التأثير</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خرائط VRA</td>
+<td>6 أسابيع</td>
+<td>عالي جداً</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>التوأم الرقمي</td>
+<td>8 أسابيع</td>
+<td>عالي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>سوق محسّن</td>
+<td>6 أسابيع</td>
+<td>عالي</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>تقارير مالية</td>
+<td>4 أسابيع</td>
+<td>عالي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>NLP عربي</td>
+<td>5 أسابيع</td>
+<td>متوسط-عالي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>أمان متقدم</td>
+<td>4 أسابيع</td>
+<td>عالي</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>~33 أسبوع (~6 أشهر بفريق 2-3)</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-3-5-6-12-5-3">5. المرحلة 3: 5 تحسينات استراتيجية (6-12 شهر) {#5-المرحلة-3}<a class="headerlink" href="#5-3-5-6-12-5-3" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الهدف</strong>: بناء خندق تنافسي عميق يصعب تقليده</p>
+</blockquote>
+<h3 id="1-full-ai-agent-ecosystem">التحسين 1: نظام وكلاء ذكيين كامل | Full AI Agent Ecosystem<a class="headerlink" href="#1-full-ai-agent-ecosystem" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25+ وكيل ذكي متخصص</span>
+<span class="nt">المكونات الموجودة</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent-registry (port 8160)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-agents-core (port 8161)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-agents-service (port 8130)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CrewAI orchestrator (shared/agents/)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">governance/agents.yaml (11 فئة معرّفة)</span>
+
+<span class="nt">المطلوب</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل 25 وكيل من agents.yaml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ربط A2A protocol (shared/a2a/)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">واجهة محادثة موحدة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقييم جودة (shared/ai/context_engineering/evaluation.md)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ذاكرة مستمرة (shared/ai/context_engineering/memory.md)</span>
+
+<span class="nt">الفئات</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">إنتاج (5)</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">crop_advisor, irrigation_expert, plant_doctor, fertilizer_specialist, yield_analyst</span>
+<span class="w">  </span><span class="nt">مراقبة (5)</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">satellite_analyst, weather_monitor, sensor_analyst, pest_scout, soil_monitor</span>
+<span class="w">  </span><span class="nt">تخطيط (4)</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">season_planner, inventory_manager, task_coordinator, farm_accountant</span>
+<span class="w">  </span><span class="nt">سوق (3)</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">price_analyst, sales_broker, procurement_advisor</span>
+<span class="w">  </span><span class="nt">دعم (3)</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">voice_assistant, content_translator, report_generator</span>
+<span class="w">  </span><span class="nt">متقدم (5)</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">master_orchestrator, risk_analyst, farmer_trainer, compliance_agent, sustainability_agent</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 12 أسبوع | <strong>التأثير</strong>: تحويلي</p>
+<h3 id="2-iot-full-iot-ecosystem">التحسين 2: منظومة IoT متكاملة | Full IoT Ecosystem<a class="headerlink" href="#2-iot-full-iot-ecosystem" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">المكونات الموجودة</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot-service (port 8117)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot-gateway (port 8106)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot-sensor-hub (port 8251)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">virtual-sensors (port 8119)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MQTT broker (Mosquitto)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge-orchestrator-service (port 8180)</span>
+
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لوحة تحكم IoT في الوقت الفعلي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة 10+ أنواع مستشعرات جديدة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تنبيهات تلقائية عند تجاوز العتبات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تكامل مع أجهزة Jetson Orin للمعالجة المحلية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard مستشعرات في تطبيق الهاتف</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 10 أسابيع</p>
+<h3 id="3-smart-crop-insurance">التحسين 3: نظام تأمين محاصيل ذكي | Smart Crop Insurance<a class="headerlink" href="#3-smart-crop-insurance" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">المكون الموجود</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared/crop_insurance/</span>
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حساب أقساط مبني على بيانات فعلية (NDVI + طقس + تاريخي)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقارير مطالبات تلقائية مع أدلة فضائية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شراكة مع شركات تأمين محلية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parametric insurance (دفع تلقائي عند أحداث طقس)</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 8 أسابيع</p>
+<h3 id="4-farmer-education-platform">التحسين 4: منصة تعليم المزارعين | Farmer Education Platform<a class="headerlink" href="#4-farmer-education-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">المكون الموجود</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared/learning_marketplace/</span>
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">محتوى تعليمي بالعربية (فيديو + نص + صوت)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مسارات تعلم حسب المحصول والمنطقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شهادات رقمية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مجتمع مزارعين تفاعلي (chat-service)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">نظام نقاط ومكافآت</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 8 أسابيع</p>
+<h3 id="5-drone-integration">التحسين 5: دعم الطائرات بدون طيار | Drone Integration<a class="headerlink" href="#5-drone-integration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">المكون الموجود</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared/drone_integration/ + drone-service (port 8126 - skeleton)</span>
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تخطيط مسارات الطيران التلقائي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خرائط NDVI عالية الدقة من الدرون</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">رش متغير المعدل (VRA spraying)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تكامل مع DJI و Parrot SDKs</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">معالجة الصور على Edge (Jetson)</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 10 أسابيع</p>
+<hr />
+<h2 id="6-4-4-12-18-6-4">6. المرحلة 4: 4 تحسينات رؤيوية (12-18 شهر) {#6-المرحلة-4}<a class="headerlink" href="#6-4-4-12-18-6-4" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الهدف</strong>: ريادة عالمية في التقنية الزراعية للمنطقة العربية</p>
+</blockquote>
+<h3 id="1-dialect-voice-assistant">التحسين 1: مساعد صوتي بالعامية | Dialect Voice Assistant<a class="headerlink" href="#1-dialect-voice-assistant" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;يا</span><span class="nv"> </span><span class="s">سهول،</span><span class="nv"> </span><span class="s">ورق</span><span class="nv"> </span><span class="s">القمح</span><span class="nv"> </span><span class="s">عندي</span><span class="nv"> </span><span class="s">اصفر</span><span class="nv"> </span><span class="s">شو</span><span class="nv"> </span><span class="s">السبب؟&quot;</span>
+<span class="nt">التقنيات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Whisper fine-tuned على اللهجات الزراعية العربية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TTS بأصوات محلية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فهم السياق الزراعي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">عمل بدون إنترنت (Ollama on-device)</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 16 أسبوع | <strong>التأثير</strong>: تحويلي - تمكين المزارعين غير المتعلمين</p>
+<h3 id="2-blockchain">التحسين 2: Blockchain للتتبع والشفافية<a class="headerlink" href="#2-blockchain" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">المكون الموجود</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared/smart_agriculture/ (blockchain module)</span>
+<span class="nt">التحسينات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تتبع المنتج من المزرعة للمستهلك</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QR codes مع تاريخ كامل</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شهادات أصل رقمية</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تكامل مع أسواق التصدير</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 12 أسبوع</p>
+<h3 id="3-6">التحسين 3: توسع إقليمي (6 دول)<a class="headerlink" href="#3-6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الدول المستهدفة</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">1. اليمن (shared/yemen/ - بيانات جاهزة)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">2. السعودية</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">3. عُمان</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">4. العراق</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">5. الأردن</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">6. مصر</span>
+
+<span class="nt">المتطلبات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">بيانات محاصيل وتربة لكل دولة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تقويم زراعي محلي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لهجات محلية في NLP</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">شراكات مع وزارات الزراعة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">امتثال تنظيمي محلي</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 20 أسبوع (بالتوازي مع التطوير)</p>
+<h3 id="4-ar-field-overlay">التحسين 4: واقع معزز للحقل | AR Field Overlay<a class="headerlink" href="#4-ar-field-overlay" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الميزة: توجيه الكاميرا للحقل ورؤية</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حالة NDVI مباشرة على النباتات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مناطق الإجهاد المائي</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">كثافة النباتات</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توصيات مرئية (أين يحتاج سماد/ماء)</span>
+
+<span class="nt">التقنيات</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ARCore/ARKit</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flutter AR plugins</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Edge processing (YOLO26 real-time)</span>
+</code></pre></div>
+
+<p><strong>الجهد</strong>: 16 أسبوع</p>
+<hr />
+<h2 id="7-20-7-">7. 20 تحسين لتطبيق الهاتف {#7-تحسينات-الهاتف}<a class="headerlink" href="#7-20-7-" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>مقسمة إلى</strong>: UI/UX (8) + أداء (6) + ميزات جديدة (6)</p>
+</blockquote>
+<h3 id="uiux-8">UI/UX (8 تحسينات)<a class="headerlink" href="#uiux-8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>الوصف</th>
+<th>الجهد</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>واجهة مبسطة للصفحة الرئيسية</strong></td>
+<td>بطاقات كبيرة بأيقونات واضحة بدلاً من القوائم المعقدة (مستوحاة من Plantix)</td>
+<td>2 أسابيع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>وضع الشمس (Sunlight Mode)</strong></td>
+<td>ألوان عالية التباين للاستخدام في الحقل تحت الشمس</td>
+<td>1 أسبوع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>أيقونات زراعية محلية</strong></td>
+<td>أيقونات مخصصة (سنبلة قمح، نخلة، مِحراث) بدل الأيقونات العامة</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>تنقل بإيماءات (Gesture Nav)</strong></td>
+<td>سحب يمين/يسار بين الحقول، سحب لأسفل للتحديث</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>خريطة الحقول كصفحة رئيسية</strong></td>
+<td>خريطة تفاعلية تعرض جميع الحقول مع ألوان NDVI (مستوحاة من OneSoil)</td>
+<td>3 أسابيع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Dark Mode زراعي</strong></td>
+<td>ثيم ليلي بألوان خضراء/ترابية مريحة</td>
+<td>3 أيام</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Onboarding تفاعلي</strong></td>
+<td>تعليمات أولى بالعربية مع رسوم متحركة للمزارع الجديد</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>ويدجت الشاشة الرئيسية</strong></td>
+<td>Widget على الهاتف يعرض الطقس + المهمة القادمة</td>
+<td>1 أسبوع</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6">أداء (6 تحسينات)<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>الوصف</th>
+<th>الجهد</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td><strong>مزامنة Delta ذكية</strong></td>
+<td>مزامنة التغييرات فقط (delta sync) بدل البيانات الكاملة</td>
+<td>2 أسابيع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>ضغط الصور التلقائي</strong></td>
+<td>ضغط صور الحقل قبل الرفع (80% تقليل حجم)</td>
+<td>3 أيام</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>تحميل كسول (Lazy Loading)</strong></td>
+<td>تحميل الصفحات عند الحاجة فقط لتسريع بدء التطبيق</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>قاعدة بيانات محلية محسّنة</strong></td>
+<td>تحسين استعلامات Drift + فهارس SQLite</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>تخزين مؤقت للخرائط</strong></td>
+<td>حفظ tiles الخرائط للعمل بدون إنترنت (مستوحاة من AgriWebb)</td>
+<td>1 أسبوع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>تقليل استهلاك البطارية</strong></td>
+<td>تحسين GPS polling + تقليل background tasks</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6_1">ميزات جديدة (6 تحسينات)<a class="headerlink" href="#6_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>الوصف</th>
+<th>الجهد</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td><strong>كاميرا ذكية (AI Scan)</strong></td>
+<td>تصوير النبات → كشف المرض فوراً (YOLO26 on-device أو cloud)</td>
+<td>3 أسابيع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>مذكرة حقلية صوتية</strong></td>
+<td>تسجيل ملاحظات صوتية تُحفظ مع إحداثيات GPS</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>مشاركة الحقل مع فريق</strong></td>
+<td>دعوة عمال/مهندسين للوصول لبيانات حقل محدد</td>
+<td>2 أسابيع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>حاسبة تكلفة الإنتاج</strong></td>
+<td>حاسبة سريعة: مساحة + محصول + مدخلات = تكلفة متوقعة</td>
+<td>1 أسبوع</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>تنبيهات طقس ذكية</strong></td>
+<td>إشعارات استباقية: "مطر خلال 6 ساعات - لا تسمّد اليوم"</td>
+<td>1 أسبوع</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>تقرير حصاد مصوّر</strong></td>
+<td>تقرير نهاية الموسم بالصور والإحصائيات والتوصيات</td>
+<td>2 أسابيع</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_1">ملخص تحسينات الهاتف<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>العدد</th>
+<th>المجموع</th>
+<th>أعلى أولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI/UX</td>
+<td>8</td>
+<td>~11 أسبوع</td>
+<td>خريطة الحقول، واجهة مبسطة، وضع الشمس</td>
+</tr>
+<tr>
+<td>أداء</td>
+<td>6</td>
+<td>~7 أسابيع</td>
+<td>Delta sync، ضغط صور، خرائط offline</td>
+</tr>
+<tr>
+<td>ميزات جديدة</td>
+<td>6</td>
+<td>~11 أسبوع</td>
+<td>كاميرا ذكية، تنبيهات طقس</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>20</strong></td>
+<td><strong>~29 أسبوع</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-10-8-">8. 10 مبادئ تصميم مستوحاة من أفضل الممارسات العالمية {#8-مبادئ-التصميم}<a class="headerlink" href="#8-10-8-" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>مستوحاة من: Plantix (بساطة)، AgriWebb (offline)، CropIn (شمولية)، OneSoil (خرائط)</p>
+</blockquote>
+<h3 id="1-field-first">المبدأ 1: الحقل أولاً (Field-First) 🌾<a class="headerlink" href="#1-field-first" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;كل شيء يبدأ وينتهي بالحقل&quot;
+
+- الخريطة هي الشاشة الرئيسية (ليس قائمة)
+- النقر على الحقل يفتح كل البيانات المتعلقة به
+- لا حاجة لتنقل معقد بين أقسام
+
+مرجع: OneSoil - خريطة تفاعلية كنقطة دخول
+</code></pre></div>
+
+<h3 id="2-offline-native">المبدأ 2: العمل بدون إنترنت (Offline-Native) 📴<a class="headerlink" href="#2-offline-native" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;الإنترنت ميزة إضافية، وليس متطلباً&quot;
+
+- كل العمليات الأساسية تعمل offline
+- مزامنة ذكية عند عودة الاتصال
+- لا رسائل خطأ - بل إشعار &quot;سيتم المزامنة لاحقاً&quot;
+- تخزين خرائط وبيانات محلياً
+
+مرجع: AgriWebb - مزامنة كل 30 دقيقة
+</code></pre></div>
+
+<h3 id="3-visual-first">المبدأ 3: صورة واحدة تساوي ألف كلمة (Visual-First) 📸<a class="headerlink" href="#3-visual-first" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;الصور والألوان والخرائط أولاً، النصوص ثانياً&quot;
+
+- NDVI = ألوان على الخريطة (أحمر → أخضر)
+- حالة المحصول = أيقونة ملونة (❤️ → 💚)
+- الطقس = رسوم بيانية بسيطة
+- الإشعارات = أيقونات كبيرة واضحة
+
+مرجع: Plantix - تشخيص بصري فوري
+</code></pre></div>
+
+<h3 id="4-3-3-tap-rule">المبدأ 4: 3 نقرات كحد أقصى (3-Tap Rule) ☝️<a class="headerlink" href="#4-3-3-tap-rule" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;أي مهمة يجب أن تُنجز في 3 نقرات أو أقل&quot;
+
+1. نقرة: اختيار الحقل
+2. نقرة: اختيار الإجراء (ري، تسميد، فحص)
+3. نقرة: تأكيد
+
+مرجع: FarmLogs - بساطة مطلقة
+</code></pre></div>
+
+<h3 id="5-arabic-native">المبدأ 5: عربي أولاً، إنجليزي متاح (Arabic-Native) 🇾🇪<a class="headerlink" href="#5-arabic-native" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;التصميم يبدأ بالعربية، لا يُترجم إليها&quot;
+
+- تخطيط RTL أصلي (ليس معكوس)
+- مصطلحات زراعية محلية (ليست ترجمة حرفية)
+- دعم اللهجات في البحث والأوامر
+- أرقام عربية وتاريخ هجري كخيار
+
+مرجع: حصري لسهول - لا منافس عالمي يقدم هذا
+</code></pre></div>
+
+<h3 id="6-invisible-ai">المبدأ 6: ذكاء بدون تعقيد (Invisible AI) 🤖<a class="headerlink" href="#6-invisible-ai" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;الذكاء الاصطناعي يعمل في الخلفية، المزارع يرى نتائج فقط&quot;
+
+- لا يحتاج المزارع لفهم NDVI - بل &quot;حقلك بصحة جيدة&quot;
+- لا يحتاج لقراءة تحليل تربة - بل &quot;أضف 46 كيلو يوريا&quot;
+- التوصيات بلغة بسيطة مع تكلفة وعائد متوقع
+
+مرجع: CropIn - توصيات مبسطة للمزارعين الصغار
+</code></pre></div>
+
+<h3 id="7-field-tested-design">المبدأ 7: قابل للقراءة تحت الشمس (Field-Tested Design) ☀️<a class="headerlink" href="#7-field-tested-design" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;التصميم يُختبر في الحقل، لا في المكتب&quot;
+
+- ألوان عالية التباين
+- خطوط كبيرة (16px minimum)
+- أزرار بحجم الإبهام (48dp minimum)
+- لا gradients خفيفة أو ألوان باهتة
+
+مرجع: أفضل ممارسات تصميم AgTech (Gapsy Studio, f1studioz)
+</code></pre></div>
+
+<h3 id="8-data-sovereignty">المبدأ 8: بيانات المزارع ملكه (Data Sovereignty) 🔒<a class="headerlink" href="#8-data-sovereignty" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;بياناتك لا تُباع ولا تُشارك بدون إذنك&quot;
+
+- تشفير البيانات محلياً (SQLCipher)
+- المزارع يتحكم في من يرى بياناته
+- تصدير البيانات بضغطة زر
+- حذف الحساب = حذف كل البيانات
+
+مرجع: Agworld - &quot;Users own their data&quot;
+</code></pre></div>
+
+<h3 id="9-continuous-learning">المبدأ 9: تعلّم من كل تفاعل (Continuous Learning) 📈<a class="headerlink" href="#9-continuous-learning" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;المنصة تتعلم من كل قرار وكل نتيجة&quot;
+
+- ردود فعل المزارعين تحسّن التوصيات
+- نتائج الحصاد تُدرّب النماذج
+- أنماط النجاح تُشارك (مجهولة) مع مزارعين مشابهين
+
+مرجع: Climate FieldView - تحسين مستمر من بيانات 250M فدان
+</code></pre></div>
+
+<h3 id="10-community-platform">المبدأ 10: مجتمع لا أداة (Community Platform) 🤝<a class="headerlink" href="#10-community-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>&quot;سهول ليس أداة - هو مجتمع مزارعين&quot;
+
+- مزارعون يشاركون خبراتهم
+- نظام نقاط للمساهمة
+- سوق محلي للتبادل
+- مجموعات حسب المحصول والمنطقة
+
+مرجع: CropIn - شبكة مزارعين متصلة
+</code></pre></div>
+
+<hr />
+<h2 id="9-9-">9. مقاييس النجاح القابلة للقياس {#9-مقاييس-النجاح}<a class="headerlink" href="#9-9-" title="Permanent link">&para;</a></h2>
+<h3 id="91-technical-kpis">9.1 مقاييس تقنية | Technical KPIs<a class="headerlink" href="#91-technical-kpis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>الحالي</th>
+<th>بعد م0</th>
+<th>بعد م1</th>
+<th>بعد م2</th>
+<th>بعد م3</th>
+<th>بعد م4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature Flags مفعّلة</strong></td>
+<td>0/5</td>
+<td>5/5</td>
+<td>5/5</td>
+<td>5/5</td>
+<td>5/5</td>
+<td>5/5</td>
+</tr>
+<tr>
+<td><strong>خدمات نشطة</strong></td>
+<td>~40</td>
+<td>~45</td>
+<td>~50</td>
+<td>~55</td>
+<td>~65</td>
+<td>~71</td>
+</tr>
+<tr>
+<td><strong>أخطاء Kong 502</strong></td>
+<td>~10</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>تغطية الاختبارات</strong></td>
+<td>20%</td>
+<td>25%</td>
+<td>50%</td>
+<td>65%</td>
+<td>75%</td>
+<td>80%</td>
+</tr>
+<tr>
+<td><strong>وقت CI/CD</strong></td>
+<td>~15 min</td>
+<td>~15 min</td>
+<td>~8 min</td>
+<td>~8 min</td>
+<td>~7 min</td>
+<td>~7 min</td>
+</tr>
+<tr>
+<td><strong>وقت بدء التطوير</strong></td>
+<td>~30 min</td>
+<td>~20 min</td>
+<td>~5 min</td>
+<td>~5 min</td>
+<td>~5 min</td>
+<td>~5 min</td>
+</tr>
+<tr>
+<td><strong>وقت استجابة API (p95)</strong></td>
+<td>~500ms</td>
+<td>~400ms</td>
+<td>~200ms</td>
+<td>~150ms</td>
+<td>~100ms</td>
+<td>~100ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-product-kpis">9.2 مقاييس المنتج | Product KPIs<a class="headerlink" href="#92-product-kpis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>الحالي</th>
+<th>هدف م1</th>
+<th>هدف م2</th>
+<th>هدف م3</th>
+<th>هدف م4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>مزارعون نشطون</strong></td>
+<td>-</td>
+<td>500</td>
+<td>5,000</td>
+<td>20,000</td>
+<td>100,000</td>
+</tr>
+<tr>
+<td><strong>حقول مسجلة</strong></td>
+<td>-</td>
+<td>1,000</td>
+<td>10,000</td>
+<td>50,000</td>
+<td>250,000</td>
+</tr>
+<tr>
+<td><strong>هكتارات</strong></td>
+<td>-</td>
+<td>5,000</td>
+<td>50,000</td>
+<td>200,000</td>
+<td>1,000,000</td>
+</tr>
+<tr>
+<td><strong>رضا المستخدم (NPS)</strong></td>
+<td>-</td>
+<td>40</td>
+<td>55</td>
+<td>65</td>
+<td>75</td>
+</tr>
+<tr>
+<td><strong>معدل الاحتفاظ (30 يوم)</strong></td>
+<td>-</td>
+<td>40%</td>
+<td>55%</td>
+<td>65%</td>
+<td>75%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-agricultural-impact">9.3 مقاييس التأثير الزراعي | Agricultural Impact<a class="headerlink" href="#93-agricultural-impact" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>هدف م1</th>
+<th>هدف م2</th>
+<th>هدف م3</th>
+<th>هدف م4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>زيادة الإنتاجية</strong></td>
+<td>+5%</td>
+<td>+12%</td>
+<td>+18%</td>
+<td>+25%</td>
+</tr>
+<tr>
+<td><strong>توفير المياه</strong></td>
+<td>+8%</td>
+<td>+15%</td>
+<td>+22%</td>
+<td>+30%</td>
+</tr>
+<tr>
+<td><strong>تقليل المبيدات</strong></td>
+<td>+5%</td>
+<td>+12%</td>
+<td>+20%</td>
+<td>+30%</td>
+</tr>
+<tr>
+<td><strong>تقليل خسائر الآفات</strong></td>
+<td>+10%</td>
+<td>+20%</td>
+<td>+30%</td>
+<td>+40%</td>
+</tr>
+<tr>
+<td><strong>ROI للمزارع</strong></td>
+<td>2x</td>
+<td>4x</td>
+<td>6x</td>
+<td>10x</td>
+</tr>
+</tbody>
+</table>
+<h3 id="94-mobile-app-kpis">9.4 مقاييس التطبيق المحمول | Mobile App KPIs<a class="headerlink" href="#94-mobile-app-kpis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>الحالي</th>
+<th>هدف م1</th>
+<th>هدف م2</th>
+<th>هدف م3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>حجم التطبيق (APK)</strong></td>
+<td>-</td>
+<td>&lt;50 MB</td>
+<td>&lt;45 MB</td>
+<td>&lt;40 MB</td>
+</tr>
+<tr>
+<td><strong>وقت بدء التطبيق</strong></td>
+<td>-</td>
+<td>&lt;3s</td>
+<td>&lt;2s</td>
+<td>&lt;1.5s</td>
+</tr>
+<tr>
+<td><strong>استهلاك البطارية (يومي)</strong></td>
+<td>-</td>
+<td>&lt;8%</td>
+<td>&lt;5%</td>
+<td>&lt;3%</td>
+</tr>
+<tr>
+<td><strong>وقت المزامنة</strong></td>
+<td>-</td>
+<td>&lt;30s</td>
+<td>&lt;15s</td>
+<td>&lt;10s</td>
+</tr>
+<tr>
+<td><strong>تقييم المتجر</strong></td>
+<td>-</td>
+<td>4.0+</td>
+<td>4.3+</td>
+<td>4.6+</td>
+</tr>
+<tr>
+<td><strong>دول متاحة</strong></td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>المرحلة 0 (أسبوعين):    تفعيل 4 ميزات جاهزة في الكود        → 17 ساعة عمل
+المرحلة 1 (1-3 أشهر):   5 تحسينات سريعة + واجهة مستخدم      → 10 أسابيع
+المرحلة 2 (3-6 أشهر):   6 تحسينات متوسطة المدى              → 33 أسبوع
+المرحلة 3 (6-12 شهر):   5 تحسينات استراتيجية                → 48 أسبوع
+المرحلة 4 (12-18 شهر):  4 تحسينات رؤيوية                   → 64 أسبوع
+تحسينات الهاتف:          20 تحسين (UI/UX + أداء + ميزات)      → 29 أسبوع (بالتوازي)
+─────────────────────────────────────────────────────
+المجموع: 20 تحسين أساسي + 20 تحسين هاتف = 40 بند قابل للقياس
+</code></pre></div>
+
+<h3 id="_2">الاستثمار المطلوب (تقديري)<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>الفريق</th>
+<th>المدة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>م0</td>
+<td>مطور واحد</td>
+<td>أسبوعين</td>
+<td>فوري</td>
+</tr>
+<tr>
+<td>م1</td>
+<td>2 مطورين + مصمم</td>
+<td>3 أشهر</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>م2</td>
+<td>3 مطورين + مصمم</td>
+<td>6 أشهر</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>م3</td>
+<td>4 مطورين + ML engineer</td>
+<td>6 أشهر</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>م4</td>
+<td>5 مطورين + فريق AI</td>
+<td>6 أشهر</td>
+<td>استراتيجية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<h3 id="_3">منصات زراعية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://climate.com">Climate FieldView</a> - 250M+ acres platform</li>
+<li><a href="https://agriculture.trimble.com">Trimble Ag</a> - Precision agriculture</li>
+<li><a href="https://cropx.com">CropX</a> - Soil intelligence</li>
+<li><a href="https://cropin.com">CropIn</a> - Farm digitization (SaaS)</li>
+<li><a href="https://plantix.net">Plantix</a> - AI crop diagnosis (free)</li>
+<li><a href="https://agworld.com">Agworld</a> - Collaborative farm management</li>
+<li><a href="https://agriwebb.com">AgriWebb</a> - Livestock &amp; offline-first</li>
+<li><a href="https://cropwise.com">Cropio/Cropwise</a> - Satellite monitoring</li>
+<li><a href="https://farmlogs.com">FarmLogs</a> - Simple farm management</li>
+<li><a href="https://farmonaut.com">Farmonaut</a> - Remote sensing (affordable)</li>
+<li><a href="https://onesoil.ai">OneSoil</a> - Free VRA maps</li>
+<li><a href="https://farmersedge.ca">Farmers Edge</a> - Integrated data platform</li>
+</ul>
+<h3 id="_4">مبادئ التصميم<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://gapsystudio.com/blog/agriculture-app-design/">Gapsy Studio - Agriculture App Design Guide</a></li>
+<li><a href="https://f1studioz.com/blog/from-seed-to-screen-ux-in-agriculture/">f1studioz - From Seed to Screen: UX in Agriculture</a></li>
+<li><a href="https://www.gate39media.com/blog/the-evolution-of-ux-design-in-agricultural-applications">Gate 39 - Evolution of UX in Agricultural Applications</a></li>
+<li><a href="https://qaltivate.com/blog/mobile-apps-for-farmers/">Qaltivate - Mobile Apps for Farmers Guide</a></li>
+</ul>
+<h3 id="_5">أبحاث السوق<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://www.globenewswire.com/news-release/2025/09/12/3149077/28124/en/">Agritech Data Management Market Report 2025-2035</a></li>
+<li><a href="https://www.global-agriculture.com/ag-tech-research-news/top-10-farm-management-software-platforms-in-2025/">Top 10 Farm Management Software 2025</a></li>
+<li><a href="https://www.cropin.com/blogs/7-agri-tech-trends-for-2026/">7 Agri-Tech Trends for 2026</a></li>
+</ul>
+<hr />
+<p><em>آخر تحديث: فبراير 2026</em>
+<em>الإصدار: 2.0.0</em>
+<em>المؤلف: فريق تطوير سهول</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

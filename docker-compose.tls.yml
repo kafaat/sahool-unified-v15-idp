@@ -61,9 +61,12 @@ services:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # NATS with TLS
+  # Uses nats-secure.conf which enforces mTLS, TLS 1.2+, and modern cipher suites
   # ─────────────────────────────────────────────────────────────────────────────
   nats:
+    command: [ "-c", "/etc/nats/nats-secure.conf" ]
     volumes:
+      - ./config/nats/nats-secure.conf:/etc/nats/nats-secure.conf:ro
       - ./config/certs/nats:/etc/nats/certs:ro
 
   # ─────────────────────────────────────────────────────────────────────────────

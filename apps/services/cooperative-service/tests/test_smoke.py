@@ -6,10 +6,13 @@ Tests basic import and module structure
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
+@pytest.mark.smoke
 def test_main_module_structure():
     """Test that main.py has expected attributes"""
     try:
@@ -26,6 +29,7 @@ def test_main_module_structure():
         raise
 
 
+@pytest.mark.smoke
 def test_api_routers_exist():
     """Test that API router files exist"""
     api_path = Path(__file__).parent.parent / "src" / "api" / "v1"
@@ -34,6 +38,7 @@ def test_api_routers_exist():
     print("✓ All API router files exist")
 
 
+@pytest.mark.smoke
 def test_migrations_exist():
     """Test that SQL migration files exist"""
     migrations_path = Path(__file__).parent.parent / "migrations"

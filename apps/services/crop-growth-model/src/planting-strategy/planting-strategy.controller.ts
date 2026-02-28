@@ -10,10 +10,24 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsIn,
+  Min,
+} from "class-validator";
 import { PlantingStrategyService } from "./planting-strategy.service";
 
+// Shared enum-like constants for reuse
+const CROP_TYPES = ["wheat", "barley", "corn", "rice", "sorghum", "date_palm", "alfalfa"] as const;
+const SOIL_TYPES = ["sandy", "loamy", "clay", "silty", "saline"] as const;
+const CLIMATE_ZONES = ["arid", "semi_arid", "mediterranean", "continental", "tropical"] as const;
+const PLANTING_METHODS = ["equal_row", "wide_strip", "space_broadcasting", "small_basin"] as const;
+
 // Request DTOs
-interface OptimizeStrategyDto {
+class OptimizeStrategyDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -22,24 +36,52 @@ interface OptimizeStrategyDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsNumber()
+  @Min(0)
   fieldArea: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+
+  @IsIn(CLIMATE_ZONES)
   climateZone:
     | "arid"
     | "semi_arid"
     | "mediterranean"
     | "continental"
     | "tropical";
+
+  @IsNumber()
+  @Min(0)
   availableWater: number;
+
+  @IsOptional()
+  @IsNumber()
   soilMoisture?: number;
+
+  @IsOptional()
+  @IsNumber()
   organicMatter?: number;
+
+  @IsOptional()
+  @IsString()
   previousCrop?: string;
+
+  @IsOptional()
+  @IsString()
   plantingDate?: string;
 }
 
-interface GeneratePlanDto {
+class GeneratePlanDto {
+  @IsString()
   fieldId: string;
+
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -48,22 +90,44 @@ interface GeneratePlanDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsNumber()
+  @Min(0)
   fieldArea: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+
+  @IsIn(CLIMATE_ZONES)
   climateZone:
     | "arid"
     | "semi_arid"
     | "mediterranean"
     | "continental"
     | "tropical";
+
+  @IsNumber()
+  @Min(0)
   availableWater: number;
+
+  @IsString()
   plantingDate: string;
+
+  @IsOptional()
+  @IsNumber()
   soilMoisture?: number;
+
+  @IsOptional()
+  @IsNumber()
   organicMatter?: number;
 }
 
-interface CalculateDensityDto {
+class CalculateDensityDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -72,12 +136,20 @@ interface CalculateDensityDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsIn(PLANTING_METHODS)
   method: "equal_row" | "wide_strip" | "space_broadcasting" | "small_basin";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
 }
 
-interface CalculateFertilizerDto {
+class CalculateFertilizerDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -86,12 +158,21 @@ interface CalculateFertilizerDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+
+  @IsNumber()
+  @Min(0)
   organicMatterContent: number;
 }
 
-interface CalculateIrrigationDto {
+class CalculateIrrigationDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -100,25 +181,42 @@ interface CalculateIrrigationDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsIn(PLANTING_METHODS)
   method: "equal_row" | "wide_strip" | "space_broadcasting" | "small_basin";
+
+  @IsIn(CLIMATE_ZONES)
   climateZone:
     | "arid"
     | "semi_arid"
     | "mediterranean"
     | "continental"
     | "tropical";
+
+  @IsNumber()
+  @Min(0)
   availableWater: number;
 }
 
-interface DigitalTwinIntegrationDto {
+class DigitalTwinIntegrationDto {
+  @IsString()
   fieldId: string;
+
+  @IsNumber()
   soilMoisture: number;
+
+  @IsNumber()
   temperature: number;
+
+  @IsString()
   growthStage: string;
+
+  @IsNumber()
   ndvi: number;
 }
 
-interface CompareMethodsDto {
+class CompareMethodsDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -127,8 +225,15 @@ interface CompareMethodsDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+
+  @IsIn(CLIMATE_ZONES)
   climateZone:
     | "arid"
     | "semi_arid"
@@ -137,7 +242,8 @@ interface CompareMethodsDto {
     | "tropical";
 }
 
-interface AnalyzeFieldDto {
+class AnalyzeFieldDto {
+  @IsIn(CROP_TYPES)
   cropType:
     | "wheat"
     | "barley"
@@ -146,17 +252,36 @@ interface AnalyzeFieldDto {
     | "sorghum"
     | "date_palm"
     | "alfalfa";
+
+  @IsNumber()
+  @Min(0)
   targetYield: number;
+
+  @IsNumber()
+  @Min(0)
   fieldArea: number;
+
+  @IsIn(SOIL_TYPES)
   soilType: "sandy" | "loamy" | "clay" | "silty" | "saline";
+
+  @IsIn(CLIMATE_ZONES)
   climateZone:
     | "arid"
     | "semi_arid"
     | "mediterranean"
     | "continental"
     | "tropical";
+
+  @IsNumber()
+  @Min(0)
   availableWater: number;
+
+  @IsOptional()
+  @IsNumber()
   soilMoisture?: number;
+
+  @IsOptional()
+  @IsNumber()
   organicMatter?: number;
 }
 

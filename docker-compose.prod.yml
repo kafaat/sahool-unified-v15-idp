@@ -70,6 +70,13 @@ services:
         max-file: "3"
 
   nats:
+    # SECURITY: Use hardened TLS-enforced config for production
+    # nats-secure.conf enforces TLS, encryption at rest, rate limiting, and mTLS
+    command: [ "-c", "/etc/nats/nats-secure.conf" ]
+    volumes:
+      - nats_data:/data
+      - ./config/nats/nats-secure.conf:/etc/nats/nats-secure.conf:ro
+      - ./config/certs/nats:/etc/nats/certs:ro
     deploy:
       resources:
         limits:

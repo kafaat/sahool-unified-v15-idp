@@ -504,6 +504,7 @@ model ScheduledPayment {
   @@index([walletId])
   @@index([nextPaymentDate])
   @@index([isActive])
+  @@index([loanId])
   @@map("scheduled_payments")
 }
 

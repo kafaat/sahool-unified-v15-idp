@@ -31,6 +31,10 @@ export default defineConfig({
         __dirname,
         "../../packages/shared-types/src",
       ),
+      "@sahool/api-client": path.resolve(
+        __dirname,
+        "../../packages/api-client/src",
+      ),
       "@": path.resolve(__dirname, "./src"),
     },
   },

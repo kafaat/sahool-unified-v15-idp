@@ -60,6 +60,11 @@ vi.mock("@sahool/shared-types/contracts", () => ({
   },
 }));
 
+// Ensure global.fetch is always a vi.fn() mock before each test
+beforeEach(() => {
+  global.fetch = vi.fn() as typeof fetch;
+});
+
 function mockFetch(data: unknown, ok = true, status = 200) {
   (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok,

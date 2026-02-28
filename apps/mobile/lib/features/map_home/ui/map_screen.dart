@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
@@ -64,59 +64,77 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   // بيانات وهمية للحقول (Mock Data)
   final List<Field> _mockFields = [
-    const Field(
+    Field(
       id: '1',
       name: 'القطعة الشمالية',
+      tenantId: 'mock',
       cropType: 'قمح',
-      areaHa: 2.4,
-      ndvi: 0.78,
-      status: FieldStatus.healthy,
+      areaHectares: 2.4,
+      ndviCurrent: 0.78,
+      status: 'healthy',
       pendingTasks: 1,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '2',
       name: 'حقل الذرة',
+      tenantId: 'mock',
       cropType: 'ذرة',
-      areaHa: 3.1,
-      ndvi: 0.65,
-      status: FieldStatus.healthy,
+      areaHectares: 3.1,
+      ndviCurrent: 0.65,
+      status: 'healthy',
       pendingTasks: 0,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '3',
       name: 'البستان الغربي',
+      tenantId: 'mock',
       cropType: 'عنب',
-      areaHa: 1.8,
-      ndvi: 0.52,
-      status: FieldStatus.stressed,
+      areaHectares: 1.8,
+      ndviCurrent: 0.52,
+      status: 'stressed',
       pendingTasks: 2,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '4',
       name: 'حقل الطماطم',
+      tenantId: 'mock',
       cropType: 'طماطم',
-      areaHa: 0.9,
-      ndvi: 0.35,
-      status: FieldStatus.critical,
+      areaHectares: 0.9,
+      ndviCurrent: 0.35,
+      status: 'critical',
       pendingTasks: 4,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '5',
       name: 'المنطقة الجنوبية',
+      tenantId: 'mock',
       cropType: 'برسيم',
-      areaHa: 4.2,
-      ndvi: 0.71,
-      status: FieldStatus.healthy,
+      areaHectares: 4.2,
+      ndviCurrent: 0.71,
+      status: 'healthy',
       pendingTasks: 0,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '6',
       name: 'حقل البطاطا',
+      tenantId: 'mock',
       cropType: 'بطاطا',
-      areaHa: 1.5,
-      ndvi: 0.48,
-      status: FieldStatus.stressed,
+      areaHectares: 1.5,
+      ndviCurrent: 0.48,
+      status: 'stressed',
       pendingTasks: 1,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
   ];
 
@@ -124,7 +142,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     var fields = _mockFields;
     // Apply status filter
     if (_activeFilter == 'نشط') {
-      fields = fields.where((f) => f.status == FieldStatus.healthy).toList();
+      fields = fields.where((f) => f.healthStatus == FieldStatus.healthy).toList();
     } else if (_activeFilter == 'تنبيه') {
       fields = fields.where((f) => f.needsAttention).toList();
     } else if (_activeFilter == 'حصاد') {
@@ -134,7 +152,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (_searchQuery.isNotEmpty) {
       fields = fields.where((f) =>
           f.name.contains(_searchQuery) ||
-          f.cropType.contains(_searchQuery)).toList();
+          (f.cropType?.contains(_searchQuery) ?? false)).toList();
     }
     return fields;
   }
@@ -289,7 +307,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 color: color.withOpacity(0.4),
                 borderColor: color,
                 borderStrokeWidth: 2,
-                isFilled: true,
                 label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
                 labelStyle: const TextStyle(
                   color: Colors.white,

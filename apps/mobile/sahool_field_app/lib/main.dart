@@ -174,157 +174,7 @@ void main() async {
       );
     }
 
-    // Initialize database
-    late AppDatabase database;
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing database',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-      database = AppDatabase();
-      crashReporting.recordBreadcrumb(
-        message: 'Database initialized successfully',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      AppLogger.critical('Database initialization failed: $e',
-          tag: 'Main', error: e, stackTrace: stackTrace);
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: ErrorSeverity.fatal,
-        reason: 'Database initialization failed',
-        fatal: true,
-      );
-      rethrow;
-    }
-
-    // Initialize sync engine
-    late SyncEngine syncEngine;
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing sync engine',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-      syncEngine = SyncEngine(database: database);
-      crashReporting.recordBreadcrumb(
-        message: 'Sync engine initialized successfully',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      AppLogger.critical('SyncEngine initialization failed: $e',
-          tag: 'Main', error: e, stackTrace: stackTrace);
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: ErrorSeverity.fatal,
-        reason: 'SyncEngine initialization failed',
-        fatal: true,
-      );
-      rethrow;
-    }
-
-    // Initialize background sync with Workmanager (non-critical)
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing background sync',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-      await BackgroundSyncManager.initialize();
-      await BackgroundSyncManager.registerPeriodicSync();
-      AppLogger.i('Background sync initialized', tag: 'Main');
-      crashReporting.recordBreadcrumb(
-        message: 'Background sync initialized successfully',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-    } catch (e, stackTrace) {
-      // Non-critical - app can work without background sync
-      AppLogger.w('Background sync init failed (non-critical): $e',
-          tag: 'Main');
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: ErrorSeverity.warning,
-        reason: 'Background sync initialization failed (non-critical)',
-        fatal: false,
-      );
-    }
-
-    // Initialize notification system (non-critical)
-    // تهيئة نظام الإشعارات (غير حرج)
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Initializing notification system',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-      await NotificationManager.instance.initialize();
-      final permissionGranted =
-          await NotificationManager.instance.requestPermission();
-      AppLogger.i(
-        'Notification system initialized (permission: ${permissionGranted ? "granted" : "denied"})',
-        tag: 'Main',
-      );
-      crashReporting.recordBreadcrumb(
-        message: 'Notification system initialized',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-        data: {'permission_granted': permissionGranted},
-      );
-    } catch (e, stackTrace) {
-      // Non-critical - app can work without notifications
-      AppLogger.w('Notification system init failed (non-critical): $e',
-          tag: 'Main');
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: ErrorSeverity.warning,
-        reason: 'Notification system initialization failed (non-critical)',
-        fatal: false,
-      );
-    }
-
-    // Run the app
-    crashReporting.recordBreadcrumb(
-      message: 'Starting Flutter app',
-      category: 'lifecycle',
-      level: BreadcrumbLevel.info,
-    );
-
-    runApp(
-      ProviderScope(
-        overrides: [
-          databaseProvider.overrideWithValue(database),
-          syncEngineProvider.overrideWithValue(syncEngine),
-        ],
-        child: const SahoolFieldApp(),
-      ),
-    );
-
-    // Start foreground sync when app is active (non-blocking)
-    try {
-      crashReporting.recordBreadcrumb(
-        message: 'Starting foreground sync',
-        category: 'lifecycle',
-        level: BreadcrumbLevel.info,
-      );
-      syncEngine.startPeriodic();
-    } catch (e, stackTrace) {
-      AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
-      crashReporting.reportError(
-        e,
-        stackTrace,
-        severity: ErrorSeverity.warning,
-        reason: 'Foreground sync start failed (non-critical)',
-        fatal: false,
-      );
-    }
+    await _initializeApp(crashReporting);
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
     AppLogger.critical('Uncaught error: $error',
@@ -342,6 +192,161 @@ void main() async {
     // In release mode, the error has been reported
     // In debug mode, the error is logged and the app may continue or crash
   });
+}
+
+/// Initialize the app - extracted to allow calling from security bypass flow
+Future<void> _initializeApp(CrashReportingService crashReporting) async {
+  // Initialize database
+  late AppDatabase database;
+  try {
+    crashReporting.recordBreadcrumb(
+      message: 'Initializing database',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+    database = AppDatabase();
+    crashReporting.recordBreadcrumb(
+      message: 'Database initialized successfully',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+  } catch (e, stackTrace) {
+    AppLogger.critical('Database initialization failed: $e',
+        tag: 'Main', error: e, stackTrace: stackTrace);
+    crashReporting.reportError(
+      e,
+      stackTrace,
+      severity: ErrorSeverity.fatal,
+      reason: 'Database initialization failed',
+      fatal: true,
+    );
+    rethrow;
+  }
+
+  // Initialize sync engine
+  late SyncEngine syncEngine;
+  try {
+    crashReporting.recordBreadcrumb(
+      message: 'Initializing sync engine',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+    syncEngine = SyncEngine(database: database);
+    crashReporting.recordBreadcrumb(
+      message: 'Sync engine initialized successfully',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+  } catch (e, stackTrace) {
+    AppLogger.critical('SyncEngine initialization failed: $e',
+        tag: 'Main', error: e, stackTrace: stackTrace);
+    crashReporting.reportError(
+      e,
+      stackTrace,
+      severity: ErrorSeverity.fatal,
+      reason: 'SyncEngine initialization failed',
+      fatal: true,
+    );
+    rethrow;
+  }
+
+  // Initialize background sync with Workmanager (non-critical)
+  try {
+    crashReporting.recordBreadcrumb(
+      message: 'Initializing background sync',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+    await BackgroundSyncManager.initialize();
+    await BackgroundSyncManager.registerPeriodicSync();
+    AppLogger.i('Background sync initialized', tag: 'Main');
+    crashReporting.recordBreadcrumb(
+      message: 'Background sync initialized successfully',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+  } catch (e, stackTrace) {
+    // Non-critical - app can work without background sync
+    AppLogger.w('Background sync init failed (non-critical): $e',
+        tag: 'Main');
+    crashReporting.reportError(
+      e,
+      stackTrace,
+      severity: ErrorSeverity.warning,
+      reason: 'Background sync initialization failed (non-critical)',
+      fatal: false,
+    );
+  }
+
+  // Initialize notification system (non-critical)
+  // تهيئة نظام الإشعارات (غير حرج)
+  try {
+    crashReporting.recordBreadcrumb(
+      message: 'Initializing notification system',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+    await NotificationManager.instance.initialize();
+    final permissionGranted =
+        await NotificationManager.instance.requestPermission();
+    AppLogger.i(
+      'Notification system initialized (permission: ${permissionGranted ? "granted" : "denied"})',
+      tag: 'Main',
+    );
+    crashReporting.recordBreadcrumb(
+      message: 'Notification system initialized',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+      data: {'permission_granted': permissionGranted},
+    );
+  } catch (e, stackTrace) {
+    // Non-critical - app can work without notifications
+    AppLogger.w('Notification system init failed (non-critical): $e',
+        tag: 'Main');
+    crashReporting.reportError(
+      e,
+      stackTrace,
+      severity: ErrorSeverity.warning,
+      reason: 'Notification system initialization failed (non-critical)',
+      fatal: false,
+    );
+  }
+
+  // Run the app
+  crashReporting.recordBreadcrumb(
+    message: 'Starting Flutter app',
+    category: 'lifecycle',
+    level: BreadcrumbLevel.info,
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(database),
+        syncEngineProvider.overrideWithValue(syncEngine),
+      ],
+      child: const SahoolFieldApp(),
+    ),
+  );
+
+  // Start foreground sync when app is active (non-blocking)
+  try {
+    crashReporting.recordBreadcrumb(
+      message: 'Starting foreground sync',
+      category: 'lifecycle',
+      level: BreadcrumbLevel.info,
+    );
+    syncEngine.startPeriodic();
+  } catch (e, stackTrace) {
+    AppLogger.w('Foreground sync start failed: $e', tag: 'Main');
+    crashReporting.reportError(
+      e,
+      stackTrace,
+      severity: ErrorSeverity.warning,
+      reason: 'Foreground sync start failed (non-critical)',
+      fatal: false,
+    );
+  }
 }
 
 // Global providers

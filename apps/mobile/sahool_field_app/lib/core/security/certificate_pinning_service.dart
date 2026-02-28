@@ -301,27 +301,8 @@ class CertificatePinningService {
           description: 'Wildcard backup certificate',
         ),
       ],
-      // Staging: mirrors production certificates until staging has dedicated certs
-      // NOTE: When staging environment is deployed with its own TLS certificate,
-      // extract the SHA256 fingerprint using:
-      //   openssl s_client -connect api-staging.sahool.app:443 | openssl x509 -pubkey -noout | \
-      //   openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64
-      'api-staging.sahool.app': [
-        CertificatePin(
-          type: PinType.sha256,
-          value:
-              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
-          expiryDate: DateTime(2026, 12, 31),
-          description: 'Staging primary certificate (using production cert)',
-        ),
-        CertificatePin(
-          type: PinType.sha256,
-          value:
-              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
-          expiryDate: DateTime(2027, 6, 30),
-          description: 'Staging backup certificate (using production cert)',
-        ),
-      ],
+      // NOTE: Staging pins are NOT included in the default config.
+      // Use configureStagingPins() at runtime to add staging certificates.
     };
   }
 
@@ -511,6 +492,38 @@ class CertificatePinningService {
     final certBytes = cert.der;
     final digest = sha256.convert(certBytes);
     return digest.toString();
+  }
+
+  /// Configure staging certificate pins at runtime
+  /// تكوين شهادات التثبيت للمرحلة التجريبية أثناء التشغيل
+  ///
+  /// Staging pins should NOT be hardcoded in default config.
+  /// Call this method at runtime to configure staging pins.
+  void configureStagingPins({
+    required String primaryFingerprint,
+    String? backupFingerprint,
+    DateTime? primaryExpiry,
+    DateTime? backupExpiry,
+  }) {
+    final pins = <CertificatePin>[
+      CertificatePin(
+        type: PinType.sha256,
+        value: primaryFingerprint,
+        expiryDate: primaryExpiry ?? DateTime.now().add(const Duration(days: 365)),
+        description: 'Staging primary certificate',
+      ),
+    ];
+
+    if (backupFingerprint != null) {
+      pins.add(CertificatePin(
+        type: PinType.sha256,
+        value: backupFingerprint,
+        expiryDate: backupExpiry ?? DateTime.now().add(const Duration(days: 540)),
+        description: 'Staging backup certificate',
+      ));
+    }
+
+    _certificatePins['api-staging.sahool.app'] = pins;
   }
 
   /// Add or update pins for a domain

@@ -87,7 +87,6 @@ class NdviTileLayerWidget extends StatelessWidget {
         tileDimension: config.tileSize,  // Updated from deprecated tileSize
         minZoom: config.minZoom.toDouble(),
         maxZoom: config.maxZoom.toDouble(),
-        backgroundColor: Colors.transparent,
         errorTileCallback: (tile, error, stackTrace) {
           // Silent fail for missing tiles
         },
@@ -117,7 +116,7 @@ class NdviPolygonLayer extends StatelessWidget {
       children: [
         // Polygon layer
         PolygonLayer(
-          polygons: fields.map((field) {
+          polygons: fields.map<Polygon>((field) {
             final color = NdviColormap.getColor(
               field.ndviValue,
               stops: NdviColormap.yemenStops,
@@ -128,7 +127,6 @@ class NdviPolygonLayer extends StatelessWidget {
               color: color.withOpacity(0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
-              isFilled: true,
               label: showLabels ? field.name : null,
               labelStyle: const TextStyle(
                 color: Colors.white,
@@ -216,7 +214,7 @@ class IndexPolygonLayer extends StatelessWidget {
     return Stack(
       children: [
         PolygonLayer(
-          polygons: fields.map((field) {
+          polygons: fields.map<Polygon>((field) {
             final value = field.values[index] ?? 0.0;
             final color = SpectralColormap.getColor(index, value);
 
@@ -225,7 +223,6 @@ class IndexPolygonLayer extends StatelessWidget {
               color: color.withOpacity(0.4),
               borderColor: color,
               borderStrokeWidth: borderWidth,
-              isFilled: true,
               label: showLabels
                   ? '${index.code}: ${value.toStringAsFixed(2)}'
                   : null,

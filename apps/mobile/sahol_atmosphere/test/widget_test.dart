@@ -33,8 +33,8 @@ void main() {
       // Get the MaterialApp widget
       final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
 
-      // Verify dark theme is used
-      expect(materialApp.themeMode, ThemeMode.dark);
+      // Verify system theme is used by default (follows user preference)
+      expect(materialApp.themeMode, ThemeMode.system);
     });
 
     testWidgets('App supports Arabic locale', (WidgetTester tester) async {

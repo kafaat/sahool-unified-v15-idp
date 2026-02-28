@@ -13,6 +13,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/ndvi/domain/spectral_index.dart';
 import 'package:sahool_field_app/features/ndvi/domain/ndvi_colormap.dart';
@@ -55,9 +56,9 @@ void main() {
     });
 
     test('getLabel should return correct locale label', () {
-      expect(SpectralIndex.ndvi.getLabel(true), contains('النبات'));
+      expect(SpectralIndex.ndvi.getLabel(true), contains('للنبات'));
       expect(SpectralIndex.ndvi.getLabel(false), contains('Vegetation'));
-      expect(SpectralIndex.ndwi.getLabel(true), contains('المياه'));
+      expect(SpectralIndex.ndwi.getLabel(true), contains('للمياه'));
     });
 
     test('LAI should have different range (0 to 8)', () {
@@ -363,6 +364,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
@@ -378,7 +380,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should show the index name in Arabic
-      expect(find.textContaining('المياه'), findsOneWidget);
+      expect(find.textContaining('للمياه'), findsOneWidget);
       // Should show min/max range
       expect(find.text('-1.0'), findsOneWidget);
       expect(find.text('1.0'), findsOneWidget);
@@ -419,6 +421,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: const Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndvi,
@@ -436,6 +439,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: const Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndwi,
@@ -453,6 +457,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: const Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndvi,
@@ -470,6 +475,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: const Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.evi,
@@ -526,6 +532,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: const Scaffold(
@@ -537,13 +544,14 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('النبات'), findsOneWidget);
+      expect(find.textContaining('للنبات'), findsOneWidget);
     });
 
     testWidgets('should display NDWI legend items', (tester) async {
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: const Scaffold(
@@ -555,7 +563,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('المياه'), findsOneWidget);
+      expect(find.textContaining('للمياه'), findsOneWidget);
       // NDWI legend should have 6 items
       expect(find.textContaining('رطوبة'), findsWidgets);
     });

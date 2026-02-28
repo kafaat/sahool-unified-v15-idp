@@ -1,17 +1,17 @@
 /// Notification Preferences Tests
 /// اختبارات تفضيلات الإشعارات
 ///
-/// Tests for NotificationPreferences model, Riverpod provider, and filtering logic
+/// Tests for NotificationPreferences model, filtering logic, and serialization
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/notifications/notification_preferences.dart';
-import 'package:sahool_field_app/core/notifications/firebase_messaging_service.dart';
+import 'package:sahool_field_app/core/notifications/notification_types.dart';
 
 void main() {
   group('NotificationPreferences model', () {
     test('should have sensible defaults', () {
-      const prefs = NotificationPreferences();
+      final prefs = NotificationPreferences();
 
       expect(prefs.weatherAlerts, isTrue);
       expect(prefs.diseaseDetection, isTrue);
@@ -24,16 +24,16 @@ void main() {
       expect(prefs.showBadge, isTrue);
     });
 
-    test('should be immutable (const)', () {
-      const prefs1 = NotificationPreferences();
-      const prefs2 = NotificationPreferences();
+    test('should support constructor with named parameters', () {
+      final prefs1 = NotificationPreferences();
+      final prefs2 = NotificationPreferences();
 
-      // Both should be valid const instances
+      // Both should have the same default values
       expect(prefs1.weatherAlerts, prefs2.weatherAlerts);
     });
 
     test('copyWith should create modified copy without mutating original', () {
-      const original = NotificationPreferences();
+      final original = NotificationPreferences();
       final modified = original.copyWith(
         weatherAlerts: false,
         enableQuietHours: true,
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('copyWith with no arguments should preserve all values', () {
-      const original = NotificationPreferences(
+      final original = NotificationPreferences(
         weatherAlerts: false,
         enableQuietHours: true,
         minimumPriority: NotificationPriority.high,
@@ -64,12 +64,12 @@ void main() {
 
   group('NotificationPreferences JSON serialization', () {
     test('should round-trip through toJson/fromJson', () {
-      const original = NotificationPreferences(
+      final original = NotificationPreferences(
         weatherAlerts: false,
         diseaseDetection: true,
         enableQuietHours: true,
-        quietHoursStart: TimeOfDay(hour: 23, minute: 30),
-        quietHoursEnd: TimeOfDay(hour: 5, minute: 0),
+        quietHoursStart: const TimeOfDay(hour: 23, minute: 30),
+        quietHoursEnd: const TimeOfDay(hour: 5, minute: 0),
         minimumPriority: NotificationPriority.high,
         enableSound: false,
       );
@@ -109,7 +109,7 @@ void main() {
 
   group('NotificationPreferences isTypeEnabled', () {
     test('should return correct values for each type', () {
-      const prefs = NotificationPreferences(
+      final prefs = NotificationPreferences(
         weatherAlerts: true,
         diseaseDetection: false,
         pestOutbreak: true,
@@ -123,7 +123,7 @@ void main() {
 
   group('NotificationPreferences priority filtering', () {
     test('low minimum should allow all priorities', () {
-      const prefs = NotificationPreferences(
+      final prefs = NotificationPreferences(
         minimumPriority: NotificationPriority.low,
       );
 
@@ -134,7 +134,7 @@ void main() {
     });
 
     test('high minimum should block low and medium', () {
-      const prefs = NotificationPreferences(
+      final prefs = NotificationPreferences(
         minimumPriority: NotificationPriority.high,
       );
 
@@ -147,7 +147,7 @@ void main() {
 
   group('NotificationPreferences shouldShowNotification', () {
     test('should block disabled types', () {
-      const prefs = NotificationPreferences(weatherAlerts: false);
+      final prefs = NotificationPreferences(weatherAlerts: false);
 
       expect(
         prefs.shouldShowNotification(
@@ -159,7 +159,7 @@ void main() {
     });
 
     test('should block below-priority notifications', () {
-      const prefs = NotificationPreferences(
+      final prefs = NotificationPreferences(
         minimumPriority: NotificationPriority.high,
         weatherAlerts: true,
       );
@@ -174,7 +174,7 @@ void main() {
     });
 
     test('should allow enabled type with sufficient priority', () {
-      const prefs = NotificationPreferences(
+      final prefs = NotificationPreferences(
         weatherAlerts: true,
         minimumPriority: NotificationPriority.low,
       );

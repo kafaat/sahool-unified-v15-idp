@@ -22,38 +22,48 @@ void main() {
         expect(userId, isEmpty);
       });
 
-      test('cartItemCountProvider should start at zero', () {
+      test('cartItemCountProvider should start at zero', () async {
         final container = ProviderContainer();
-        addTearDown(container.dispose);
 
         final count = container.read(cartItemCountProvider);
         expect(count, 0);
+
+        // Allow async initialization to settle before disposal
+        await Future.delayed(const Duration(milliseconds: 50));
+        container.dispose();
       });
 
-      test('cartTotalProvider should start at zero', () {
+      test('cartTotalProvider should start at zero', () async {
         final container = ProviderContainer();
-        addTearDown(container.dispose);
 
         final total = container.read(cartTotalProvider);
         expect(total, 0.0);
+
+        await Future.delayed(const Duration(milliseconds: 50));
+        container.dispose();
       });
 
-      test('featuredProductsProvider should start empty', () {
+      test('featuredProductsProvider should start empty', () async {
         final container = ProviderContainer();
-        addTearDown(container.dispose);
 
         final products = container.read(featuredProductsProvider);
         expect(products, isEmpty);
+
+        await Future.delayed(const Duration(milliseconds: 50));
+        container.dispose();
       });
 
-      test('harvestProductsProvider should start empty', () {
+      test('harvestProductsProvider should start empty', () async {
         final container = ProviderContainer();
-        addTearDown(container.dispose);
+
         final products = container.read(harvestProductsProvider);
         expect(products, isEmpty);
+
+        await Future.delayed(const Duration(milliseconds: 50));
+        container.dispose();
       });
 
-      test('provider container disposal should not throw', () {
+      test('provider container disposal should not throw', () async {
         final container = ProviderContainer();
 
         // Read providers to initialize them
@@ -61,6 +71,9 @@ void main() {
         container.read(cartItemCountProvider);
         container.read(cartTotalProvider);
         container.read(featuredProductsProvider);
+
+        // Allow async initialization to settle before disposal
+        await Future.delayed(const Duration(milliseconds: 50));
 
         // Disposing should work cleanly with autoDispose
         expect(() => container.dispose(), returnsNormally);
@@ -95,9 +108,8 @@ void main() {
         expect(container2.read(marketUserIdProvider), isEmpty);
       });
 
-      test('multiple provider reads should not leak', () {
+      test('multiple provider reads should not leak', () async {
         final container = ProviderContainer();
-        addTearDown(container.dispose);
 
         // Read multiple times - should be stable
         for (int i = 0; i < 100; i++) {
@@ -108,6 +120,9 @@ void main() {
         // Should still return correct values
         expect(container.read(cartItemCountProvider), 0);
         expect(container.read(cartTotalProvider), 0.0);
+
+        await Future.delayed(const Duration(milliseconds: 50));
+        container.dispose();
       });
     });
   });

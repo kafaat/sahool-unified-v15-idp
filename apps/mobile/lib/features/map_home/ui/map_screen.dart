@@ -382,6 +382,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       right: 16,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
+        clipBehavior: Clip.hardEdge,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: _isSearchExpanded ? 120 : 56,
         decoration: BoxDecoration(
@@ -389,50 +390,55 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           borderRadius: BorderRadius.circular(28),
           boxShadow: SahoolShadows.large,
         ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 56,
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: SahoolColors.textSecondary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'ابحث عن حقل أو منطقة...',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      onTap: () => setState(() => _isSearchExpanded = true),
-                      onChanged: (value) => setState(() => _searchQuery = value),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      _isSearchExpanded ? Icons.close : Icons.filter_list,
-                      color: SahoolColors.primary,
-                    ),
-                    onPressed: () => setState(() => _isSearchExpanded = !_isSearchExpanded),
-                  ),
-                ],
-              ),
-            ),
-            if (_isSearchExpanded) ...[
-              const Divider(height: 1),
-              Expanded(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 56,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildQuickFilter('الكل', true),
-                    _buildQuickFilter('نشط', false),
-                    _buildQuickFilter('تنبيه', false),
-                    _buildQuickFilter('حصاد', false),
+                    const Icon(Icons.search, color: SahoolColors.textSecondary),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'ابحث عن حقل أو منطقة...',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        onTap: () => setState(() => _isSearchExpanded = true),
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isSearchExpanded ? Icons.close : Icons.filter_list,
+                        color: SahoolColors.primary,
+                      ),
+                      onPressed: () => setState(() => _isSearchExpanded = !_isSearchExpanded),
+                    ),
                   ],
                 ),
               ),
+              if (_isSearchExpanded) ...[
+                const Divider(height: 1),
+                SizedBox(
+                  height: 63,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildQuickFilter('الكل', true),
+                      _buildQuickFilter('نشط', false),
+                      _buildQuickFilter('تنبيه', false),
+                      _buildQuickFilter('حصاد', false),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -803,12 +809,15 @@ class _FieldMarkerWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    field.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : Colors.black87,
+                  Flexible(
+                    child: Text(
+                      field.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: isSelected ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
                   if (field.pendingTasks > 0) ...[

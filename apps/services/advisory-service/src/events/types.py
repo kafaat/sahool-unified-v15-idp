@@ -1,7 +1,7 @@
 """
 Event Types - SAHOOL Agro Advisor
 Event type constants and subjects
-Unified namespace: sahool.advisor.*
+Unified namespace: sahool.advisory.*
 """
 
 # Event Types
@@ -11,7 +11,7 @@ NUTRIENT_ASSESSMENT_ISSUED = "nutrient_assessment_issued"
 DISEASE_DETECTED = "disease_detected"
 
 # Subject prefix (unified with sahool.* namespace)
-SUBJECT_PREFIX = "sahool.advisor"
+SUBJECT_PREFIX = "sahool.advisory"
 
 # NATS Subjects
 SUBJECTS = {

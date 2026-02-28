@@ -3,8 +3,8 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "3.2.0"
-last_updated: "2026-01-25"
+version: "3.3.0"
+last_updated: "2026-02-28"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers

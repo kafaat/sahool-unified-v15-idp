@@ -1006,7 +1006,7 @@ async def fetch_messages(
 
     # Publish event
     await publish_event(
-        f"sahool.{fetch_request.tenant_id}.wechat.messages.fetched",
+        f"sahool.tenant.{fetch_request.tenant_id}.wechat.messages_fetched",
         {
             "event_type": "messages.fetched",
             "chat_id": chat_id,
@@ -1082,7 +1082,7 @@ async def send_message(
 
     # Publish event
     await publish_event(
-        f"sahool.{send_request.tenant_id}.wechat.message.sent",
+        f"sahool.tenant.{send_request.tenant_id}.wechat.message_sent",
         {
             "event_type": "message.sent",
             "message_id": message_id,
@@ -1166,7 +1166,7 @@ async def add_contact(
 
     # Publish event
     await publish_event(
-        f"sahool.{add_request.tenant_id}.wechat.contact.added",
+        f"sahool.tenant.{add_request.tenant_id}.wechat.contact_added",
         {
             "event_type": "contact.added",
             "contact_id": contact_id,
@@ -1249,7 +1249,7 @@ async def publish_moment(
 
     # Publish event
     await publish_event(
-        f"sahool.{publish_request.tenant_id}.wechat.moment.published",
+        f"sahool.tenant.{publish_request.tenant_id}.wechat.moment_published",
         {
             "event_type": "moment.published",
             "moment_id": moment_id,
@@ -1363,7 +1363,7 @@ async def summarize_chat(
 
     # Publish event
     await publish_event(
-        f"sahool.{summarize_request.tenant_id}.wechat.chat.summarized",
+        f"sahool.tenant.{summarize_request.tenant_id}.wechat.chat_summarized",
         {
             "event_type": "chat.summarized",
             "chat_id": chat_id,
@@ -1500,7 +1500,7 @@ async def get_chat_insights(
 
     # Publish event
     await publish_event(
-        f"sahool.{insights_request.tenant_id}.wechat.chat.insights_extracted",
+        f"sahool.tenant.{insights_request.tenant_id}.wechat.chat_insights_extracted",
         {
             "event_type": "chat.insights_extracted",
             "chat_id": chat_id,

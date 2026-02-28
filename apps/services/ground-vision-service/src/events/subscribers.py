@@ -26,11 +26,11 @@ class GroundVisionSubscriber:
     """
 
     # Subscription subjects (tenant-scoped wildcard)
-    SUBJECT_NDVI_COMPUTED = "sahool.*.satellite.ndvi_computed"
-    SUBJECT_WEATHER_UPDATED = "sahool.*.weather.forecast_updated"
-    SUBJECT_FIELD_BOUNDARY = "sahool.*.field.boundary_updated"
-    SUBJECT_FIELD_CREATED = "sahool.*.field.created"
-    SUBJECT_IOT_READING = "sahool.*.iot.sensor_reading"
+    SUBJECT_NDVI_COMPUTED = "sahool.tenant.*.satellite.ndvi_computed"
+    SUBJECT_WEATHER_UPDATED = "sahool.tenant.*.weather.forecast_updated"
+    SUBJECT_FIELD_BOUNDARY = "sahool.tenant.*.field.boundary_updated"
+    SUBJECT_FIELD_CREATED = "sahool.tenant.*.field.created"
+    SUBJECT_IOT_READING = "sahool.tenant.*.iot.sensor_reading"
 
     # Idempotency configuration
     _DEDUP_MAX_SIZE = 50_000

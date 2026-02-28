@@ -54,6 +54,10 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
+      // Tap filter button to expand search panel and reveal filter chips
+      await tester.tap(find.byIcon(Icons.filter_list));
+      await tester.pumpAndSettle();
+
       // Quick filter labels
       expect(find.text('الكل'), findsWidgets);
       expect(find.text('نشط'), findsWidgets);

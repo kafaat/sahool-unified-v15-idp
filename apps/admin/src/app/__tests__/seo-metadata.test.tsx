@@ -12,10 +12,22 @@ import path from "path";
 const APP_DIR = path.resolve(__dirname, "..");
 
 /**
+ * Validate that a resolved path stays within the base directory.
+ * Prevents path traversal (e.g., via "../" segments).
+ */
+function safePath(base: string, relative: string): string {
+  const resolved = path.resolve(base, relative);
+  if (!resolved.startsWith(base + path.sep) && resolved !== base) {
+    throw new Error(`Path traversal detected: ${relative}`);
+  }
+  return resolved;
+}
+
+/**
  * Helper: Read and return file content
  */
 function readFile(relativePath: string): string {
-  const fullPath = path.join(APP_DIR, relativePath);
+  const fullPath = safePath(APP_DIR, relativePath);
   if (!fs.existsSync(fullPath)) {
     throw new Error(`File not found: ${fullPath}`);
   }
@@ -118,7 +130,7 @@ describe("Root Layout SEO", () => {
 
 describe("Global Styles", () => {
   it("has globals.css file", () => {
-    const cssPath = path.join(APP_DIR, "globals.css");
+    const cssPath = safePath(APP_DIR, "globals.css");
     expect(fs.existsSync(cssPath)).toBe(true);
   });
 
@@ -134,7 +146,7 @@ describe("Global Styles", () => {
 
 describe("Auth Layout", () => {
   it("has auth layout file", () => {
-    const authLayoutPath = path.join(APP_DIR, "(auth)", "layout.tsx");
+    const authLayoutPath = safePath(APP_DIR, path.join("(auth)", "layout.tsx"));
     expect(fs.existsSync(authLayoutPath)).toBe(true);
   });
 
@@ -150,7 +162,7 @@ describe("Auth Layout", () => {
 
 describe("Providers", () => {
   it("has providers file", () => {
-    const providersPath = path.join(APP_DIR, "providers.tsx");
+    const providersPath = safePath(APP_DIR, "providers.tsx");
     expect(fs.existsSync(providersPath)).toBe(true);
   });
 
@@ -165,22 +177,23 @@ describe("Providers", () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe("Component File Existence", () => {
-  const COMPONENTS_DIR = path.resolve(APP_DIR, "..", "components");
+  const SRC_DIR = path.resolve(APP_DIR, "..");
+  const COMPONENTS_DIR = path.join(SRC_DIR, "components");
 
   it("has dashboard components directory", () => {
-    expect(fs.existsSync(path.join(COMPONENTS_DIR, "dashboard"))).toBe(true);
+    expect(fs.existsSync(safePath(COMPONENTS_DIR, "dashboard"))).toBe(true);
   });
 
   it("has ui components directory", () => {
-    expect(fs.existsSync(path.join(COMPONENTS_DIR, "ui"))).toBe(true);
+    expect(fs.existsSync(safePath(COMPONENTS_DIR, "ui"))).toBe(true);
   });
 
   it("has layout components directory", () => {
-    expect(fs.existsSync(path.join(COMPONENTS_DIR, "layout"))).toBe(true);
+    expect(fs.existsSync(safePath(COMPONENTS_DIR, "layout"))).toBe(true);
   });
 
   it("has auth components directory", () => {
-    expect(fs.existsSync(path.join(COMPONENTS_DIR, "auth"))).toBe(true);
+    expect(fs.existsSync(safePath(COMPONENTS_DIR, "auth"))).toBe(true);
   });
 
   const uiComponents = [
@@ -199,7 +212,7 @@ describe("Component File Existence", () => {
 
   uiComponents.forEach((component) => {
     it(`has UI component: ${component}`, () => {
-      const componentPath = path.join(COMPONENTS_DIR, "ui", component);
+      const componentPath = safePath(COMPONENTS_DIR, path.join("ui", component));
       expect(
         fs.existsSync(componentPath),
         `Missing UI component: ${component}`
@@ -216,7 +229,7 @@ describe("Component File Existence", () => {
 
   dashboardComponents.forEach((component) => {
     it(`has dashboard component: ${component}`, () => {
-      const componentPath = path.join(COMPONENTS_DIR, "dashboard", component);
+      const componentPath = safePath(COMPONENTS_DIR, path.join("dashboard", component));
       expect(
         fs.existsSync(componentPath),
         `Missing dashboard component: ${component}`
@@ -230,19 +243,20 @@ describe("Component File Existence", () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe("Store Files", () => {
-  const STORES_DIR = path.resolve(APP_DIR, "..", "stores");
+  const SRC_DIR = path.resolve(APP_DIR, "..");
+  const STORES_DIR = path.join(SRC_DIR, "stores");
 
   it("has auth store", () => {
-    expect(fs.existsSync(path.join(STORES_DIR, "auth.store.tsx"))).toBe(true);
+    expect(fs.existsSync(safePath(STORES_DIR, "auth.store.tsx"))).toBe(true);
   });
 
   it("has theme store", () => {
-    expect(fs.existsSync(path.join(STORES_DIR, "theme.store.tsx"))).toBe(true);
+    expect(fs.existsSync(safePath(STORES_DIR, "theme.store.tsx"))).toBe(true);
   });
 
   it("auth store exports AuthProvider and useAuth", () => {
     const content = fs.readFileSync(
-      path.join(STORES_DIR, "auth.store.tsx"),
+      safePath(STORES_DIR, "auth.store.tsx"),
       "utf-8"
     );
     expect(content).toContain("AuthProvider");
@@ -255,17 +269,18 @@ describe("Store Files", () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe("Custom Hooks", () => {
-  const HOOKS_DIR = path.resolve(APP_DIR, "..", "hooks");
+  const SRC_DIR = path.resolve(APP_DIR, "..");
+  const HOOKS_DIR = path.join(SRC_DIR, "hooks");
 
   it("has useWebSocket hook", () => {
-    expect(fs.existsSync(path.join(HOOKS_DIR, "useWebSocket.ts"))).toBe(true);
+    expect(fs.existsSync(safePath(HOOKS_DIR, "useWebSocket.ts"))).toBe(true);
   });
 
   it("has useRealTimeAlerts hook", () => {
-    expect(fs.existsSync(path.join(HOOKS_DIR, "useRealTimeAlerts.ts"))).toBe(true);
+    expect(fs.existsSync(safePath(HOOKS_DIR, "useRealTimeAlerts.ts"))).toBe(true);
   });
 
   it("has useCsrf hook", () => {
-    expect(fs.existsSync(path.join(HOOKS_DIR, "useCsrf.ts"))).toBe(true);
+    expect(fs.existsSync(safePath(HOOKS_DIR, "useCsrf.ts"))).toBe(true);
   });
 });

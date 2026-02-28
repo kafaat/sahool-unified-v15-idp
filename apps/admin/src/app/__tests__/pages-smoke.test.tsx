@@ -13,12 +13,24 @@ import path from "path";
 const APP_DIR = path.resolve(__dirname, "..");
 
 /**
+ * Validate that a resolved path stays within the base directory.
+ * Prevents path traversal (e.g., via "../" segments).
+ */
+function safePath(base: string, relative: string): string {
+  const resolved = path.resolve(base, relative);
+  if (!resolved.startsWith(base + path.sep) && resolved !== base) {
+    throw new Error(`Path traversal detected: ${relative}`);
+  }
+  return resolved;
+}
+
+/**
  * Helper: check that a page file exists and contains a default export
  */
 function verifyPageFile(relativePath: string) {
   // Try .tsx then .ts extensions
-  const tsxPath = path.join(APP_DIR, relativePath + ".tsx");
-  const tsPath = path.join(APP_DIR, relativePath + ".ts");
+  const tsxPath = safePath(APP_DIR, relativePath + ".tsx");
+  const tsPath = safePath(APP_DIR, relativePath + ".ts");
 
   const filePath = fs.existsSync(tsxPath)
     ? tsxPath
@@ -227,20 +239,31 @@ describe("Layout File Existence", () => {
 });
 
 describe("Page Structure Validation", () => {
-  it("all pages use React component pattern", () => {
-    const pageFiles: string[] = [];
-    function findPages(dir: string) {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory() && entry.name !== "__tests__" && entry.name !== "node_modules") {
-          findPages(fullPath);
-        } else if (entry.name === "page.tsx" || entry.name === "page.ts") {
-          pageFiles.push(fullPath);
-        }
+  /**
+   * Recursively find page files within APP_DIR.
+   * Validates each resolved path stays within APP_DIR to prevent traversal.
+   */
+  function findPages(dir: string): string[] {
+    const results: string[] = [];
+    const resolvedDir = path.resolve(dir);
+    if (!resolvedDir.startsWith(APP_DIR)) return results;
+
+    const entries = fs.readdirSync(resolvedDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.resolve(resolvedDir, entry.name);
+      if (!fullPath.startsWith(APP_DIR)) continue;
+
+      if (entry.isDirectory() && entry.name !== "__tests__" && entry.name !== "node_modules") {
+        results.push(...findPages(fullPath));
+      } else if (entry.name === "page.tsx" || entry.name === "page.ts") {
+        results.push(fullPath);
       }
     }
-    findPages(APP_DIR);
+    return results;
+  }
+
+  it("all pages use React component pattern", () => {
+    const pageFiles = findPages(APP_DIR);
 
     expect(pageFiles.length).toBeGreaterThanOrEqual(30);
 
@@ -258,19 +281,7 @@ describe("Page Structure Validation", () => {
   });
 
   it("no page file exceeds 2000 lines", () => {
-    const pageFiles: string[] = [];
-    function findPages(dir: string) {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory() && entry.name !== "__tests__" && entry.name !== "node_modules") {
-          findPages(fullPath);
-        } else if (entry.name === "page.tsx" || entry.name === "page.ts") {
-          pageFiles.push(fullPath);
-        }
-      }
-    }
-    findPages(APP_DIR);
+    const pageFiles = findPages(APP_DIR);
 
     for (const file of pageFiles) {
       const content = fs.readFileSync(file, "utf-8");

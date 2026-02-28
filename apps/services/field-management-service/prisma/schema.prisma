@@ -142,11 +142,11 @@ model FieldBoundaryHistory {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Field Reference
   fieldId         String @map("field_id") @db.Uuid
-  versionAtChange Int    @map("version_at_change")
+  versionAtChange Int    @default(1) @map("version_at_change")
 
   // Boundary Snapshots (PostGIS)
   previousBoundary Unsupported("geometry(Polygon, 4326)")? @map("previous_boundary")
@@ -222,7 +222,7 @@ model Task {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Task Info
   title       String    @db.VarChar(255)
@@ -239,7 +239,7 @@ model Task {
 
   // Assignment
   assignedTo String? @map("assigned_to") @db.VarChar(100)
-  createdBy  String  @map("created_by") @db.VarChar(100)
+  createdBy  String  @default("system") @map("created_by") @db.VarChar(100)
 
   // Field Reference
   fieldId String? @map("field_id") @db.Uuid
@@ -286,7 +286,7 @@ model NdviReading {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Field Reference
   fieldId String @map("field_id") @db.Uuid

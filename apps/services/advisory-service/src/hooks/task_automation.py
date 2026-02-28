@@ -143,19 +143,19 @@ class TaskAutomationHook:
 
         # Subscribe to recommendation events
         await self.nc.subscribe(
-            "sahool.advisor.recommendation_issued",
+            "sahool.advisory.recommendation_issued",
             cb=self._handle_recommendation,
         )
 
         # Subscribe to fertilizer plan events
         await self.nc.subscribe(
-            "sahool.advisor.fertilizer_plan_issued",
+            "sahool.advisory.fertilizer_plan_issued",
             cb=self._handle_fertilizer_plan,
         )
 
         # Subscribe to nutrient assessment events
         await self.nc.subscribe(
-            "sahool.advisor.nutrient_assessment_issued",
+            "sahool.advisory.nutrient_assessment_issued",
             cb=self._handle_nutrient_assessment,
         )
 

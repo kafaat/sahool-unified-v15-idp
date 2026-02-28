@@ -466,8 +466,8 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
                     "plan_id": plan.plan_id,
                     "timestamp": datetime.utcnow().isoformat(),
                 }, default=str).encode()
-                await nc.publish("sahool.terrain.leveling_analyzed", event_payload)
-                logger.info("nats_event_published", subject="sahool.terrain.leveling_analyzed", field_id=request.field_id)
+                await nc.publish("sahool.terrain.leveling_recommended", event_payload)
+                logger.info("nats_event_published", subject="sahool.terrain.leveling_recommended", field_id=request.field_id)
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 
@@ -815,8 +815,8 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
                     "uniformity_improvement": round(uniformity_improvement, 2),
                     "timestamp": datetime.utcnow().isoformat(),
                 }, default=str).encode()
-                await nc.publish("sahool.terrain.leveling_simulated", event_payload)
-                logger.info("nats_event_published", subject="sahool.terrain.leveling_simulated", field_id=request.field_id)
+                await nc.publish("sahool.terrain.simulation_completed", event_payload)
+                logger.info("nats_event_published", subject="sahool.terrain.simulation_completed", field_id=request.field_id)
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 

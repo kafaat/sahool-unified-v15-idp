@@ -68,7 +68,7 @@ model DisasterReport {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   alerts            DisasterAlert[]
@@ -133,7 +133,7 @@ model DisasterAlert {
   // Timestamps
   sentAt    DateTime @default(now()) @map("sent_at") @db.Timestamptz
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   subscriptions AlertSubscription[]
@@ -226,7 +226,7 @@ model AlertSubscription {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@unique([userId, governorate], name: "idx_subscription_user_gov")

@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generated_at": "2026-02-27T04:03:31.258365+00:00",
+  "generated_at": "2026-03-01T04:03:34.740613+00:00",
   "environment": "development",
-  "total": 105,
-  "critical": 6,
+  "total": 106,
+  "critical": 7,
   "high": 3,
   "by_category": {
     "schema": {
-      "critical": 6,
+      "critical": 7,
       "high": 1,
       "medium": 6,
       "info": 1

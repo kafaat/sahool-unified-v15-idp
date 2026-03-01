@@ -37,10 +37,13 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-        {{- $selectorLabels := include "admin.selectorLabels" . | fromYaml }}
-        {{- $labelSelector := dict "matchLabels" $selectorLabels }}
         {{- range .Values.topologySpreadConstraints }}
-        - {{- mergeOverwrite (deepCopy .) (dict "labelSelector" $labelSelector) | toYaml | nindent 10 }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "admin.selectorLabels" $ | nindent 14 }}
         {{- end }}
       {{- end }}
       containers:

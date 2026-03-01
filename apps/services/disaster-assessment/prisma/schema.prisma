@@ -190,7 +190,7 @@ model FieldAssessment {
   // Timestamps
   assessedAt DateTime @default(now()) @map("assessed_at") @db.Timestamptz
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@index([fieldId], name: "idx_assessment_field")

@@ -1,5 +1,4 @@
 """Health endpoint tests for cooperative-service."""
-import pytest
 
 
 class TestHealthEndpoints:

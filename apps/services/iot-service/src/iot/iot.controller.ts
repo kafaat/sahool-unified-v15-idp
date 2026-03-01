@@ -14,6 +14,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  BadRequestException,
 } from "@nestjs/common";
 import { Request } from "express";
 import {
@@ -194,11 +195,12 @@ export class IotController {
   ): Promise<{ success: boolean; quality: string; message: string }> {
     const bounds = SENSOR_BOUNDS[dto.sensorType];
     if (bounds && (dto.value < bounds.min || dto.value > bounds.max)) {
-      return {
-        success: false,
-        quality: "error",
+      throw new BadRequestException({
+        statusCode: 400,
+        error: "Bad Request",
         message: `Value ${dto.value} out of bounds for ${dto.sensorType} [${bounds.min}, ${bounds.max}] ${bounds.unit}`,
-      };
+        message_ar: `القيمة ${dto.value} خارج النطاق المسموح لـ ${dto.sensorType} [${bounds.min}, ${bounds.max}] ${bounds.unit}`,
+      });
     }
     return this.iotService.ingestReading(fieldId, dto, this.getTenantId(req));
   }

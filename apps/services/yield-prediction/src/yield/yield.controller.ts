@@ -6,11 +6,43 @@
 import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
+import { IsOptional, IsString, IsIn, Matches } from "class-validator";
+import { Type } from "class-transformer";
 import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
 } from "./yield.service";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Query Parameter DTOs - التحقق من معلمات الاستعلام
+// ─────────────────────────────────────────────────────────────────────────────
+
+class RegionalStatsQueryDto {
+  @IsOptional()
+  @IsIn(["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"])
+  cropType?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}$/, { message: "year must be a 4-digit number" })
+  year?: string;
+}
+
+class HistoricalYieldsQueryDto {
+  @IsOptional()
+  @Matches(/^\d{1,2}$/, { message: "years must be a number between 1-99" })
+  years?: string;
+}
+
+class ActionQueryDto {
+  @IsOptional()
+  @IsString()
+  farmerId?: string;
+
+  @IsOptional()
+  @IsString()
+  tenantId?: string;
+}
 
 @ApiTags("yield")
 @Controller("api/v1/yield")
@@ -71,11 +103,10 @@ export class YieldController {
   @ApiQuery({ name: "year", required: false })
   async getRegionalStats(
     @Param("governorate") governorate: string,
-    @Query("cropType") cropType?: string,
-    @Query("year") year?: string,
+    @Query() query: RegionalStatsQueryDto,
   ) {
-    const parsedYear = year ? parseInt(year, 10) : undefined;
-    return this.yieldService.getRegionalStats({ governorate, cropType, year: parsedYear });
+    const parsedYear = query.year ? parseInt(query.year, 10) : undefined;
+    return this.yieldService.getRegionalStats({ governorate, cropType: query.cropType, year: parsedYear });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -90,9 +121,9 @@ export class YieldController {
   @ApiQuery({ name: "years", required: false, type: Number })
   async getHistoricalYields(
     @Param("fieldId") fieldId: string,
-    @Query("years") years?: string,
+    @Query() query: HistoricalYieldsQueryDto,
   ) {
-    const parsedYears = years ? parseInt(years, 10) : 5;
+    const parsedYears = query.years ? parseInt(query.years, 10) : 5;
     return this.yieldService.getHistoricalYields(fieldId, parsedYears);
   }
 
@@ -126,11 +157,10 @@ export class YieldController {
   async predictWithAction(
     @Req() req: any,
     @Param("fieldId") fieldId: string,
-    @Query("farmerId") farmerId?: string,
-    @Query("tenantId") queryTenantId?: string,
+    @Query() query: ActionQueryDto,
   ): Promise<PreHarvestAlertResponse> {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
-    return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    return this.yieldService.predictWithAction(fieldId, query.farmerId, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -146,11 +176,10 @@ export class YieldController {
   async getHarvestReadiness(
     @Req() req: any,
     @Param("fieldId") fieldId: string,
-    @Query("farmerId") farmerId?: string,
-    @Query("tenantId") queryTenantId?: string,
+    @Query() query: ActionQueryDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
-    return this.yieldService.getHarvestReadiness(fieldId, farmerId, tenantId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    return this.yieldService.getHarvestReadiness(fieldId, query.farmerId, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

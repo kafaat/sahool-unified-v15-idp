@@ -27,7 +27,7 @@ model WeatherObservation {
 
   // الموقع
   locationId  String   @map("location_id")
-  tenantId    String?  @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
   latitude    Float
   longitude   Float
 
@@ -75,7 +75,7 @@ model WeatherForecast {
 
   // الموقع
   locationId  String   @map("location_id")
-  tenantId    String?  @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
 
   // التوقيت
   forecastFor DateTime @map("forecast_for") // التاريخ المتنبأ له
@@ -90,7 +90,7 @@ model WeatherForecast {
 
   // التوقيت
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("weather_forecasts")
   @@index([locationId, forecastFor(sort: Desc)]) // للاستعلام عن التنبؤات لموقع معين
@@ -110,7 +110,7 @@ model WeatherAlert {
 
   // الموقع
   locationId  String   @map("location_id")
-  tenantId    String?  @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
 
   // نوع التنبيه
   alertType   AlertType @map("alert_type")
@@ -129,7 +129,7 @@ model WeatherAlert {
 
   // التوقيت
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("weather_alerts")
   @@index([locationId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات موقع معين
@@ -181,7 +181,7 @@ model LocationConfig {
 
   // التوقيت
   createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("location_configs")
   @@index([tenantId, isActive])                    // للاستعلام عن المواقع النشطة لمستأجر

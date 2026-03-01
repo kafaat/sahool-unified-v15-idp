@@ -40,6 +40,8 @@ from .circuit_breaker import (
 )
 from .metrics import get_metrics_collector
 
+logger = logging.getLogger(__name__)
+
 
 class LLMProvider(StrEnum):
     """Supported LLM providers."""

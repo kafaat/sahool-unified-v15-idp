@@ -36,6 +36,18 @@ ALTER TABLE "wallet_audit_logs" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned
 ALTER TABLE "product_reviews"   ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "review_responses"  ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
+-- Step 3: Add DEFAULT now() to updatedAt columns (Prisma @updatedAt lacks SQL default)
+-- الخطوة 3: إضافة DEFAULT now() لأعمدة updatedAt
+ALTER TABLE "products"          ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "orders"            ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "wallets"           ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "loans"             ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "scheduled_payments" ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "seller_profiles"   ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "buyer_profiles"    ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "product_reviews"   ALTER COLUMN "updated_at" SET DEFAULT now();
+ALTER TABLE "review_responses"  ALTER COLUMN "updated_at" SET DEFAULT now();
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note on non-concurrent indexes from initial migrations:
 -- idx_products_deleted_at, idx_orders_deleted_at, idx_audit_tenant_created

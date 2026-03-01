@@ -281,9 +281,14 @@ class TestConnectionRetry:
             nonlocal attempts
             for i in range(max_retries):
                 attempts += 1
-                if attempts < max_retries:
-                    raise ConnectionError("Connection failed")
-                return MockAsyncConnection()
+                try:
+                    if attempts < max_retries:
+                        raise ConnectionError("Connection failed")
+                    return MockAsyncConnection()
+                except ConnectionError:
+                    if attempts >= max_retries:
+                        raise
+                    continue
 
         conn = await connect_with_retry()
         assert conn is not None

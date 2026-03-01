@@ -105,7 +105,7 @@ class GeometryValidator:
 def sample_polygon():
     """Create sample field polygon."""
     return GeoJSONPolygon(
-        coordinates=[[[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]]
+        coordinates=[[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]
     )
 
 

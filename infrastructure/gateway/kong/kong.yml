@@ -738,18 +738,48 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # REMOVED: ussd-gateway - service does not exist in docker-compose.yml
-  # Port 8163 is now exclusively used by copilot-api
-  # If ussd-gateway is needed, add it to docker-compose.yml with a different port (e.g., 8169)
-  # - name: ussd-gateway
-  #   host: ussd-gateway
-  #   port: 8163
-  #   protocol: http
-  #   routes:
-  #     - name: ussd-gateway-route
-  #       paths: ["/api/v1/ussd", "/ussd"]
-  #       strip_path: true
-  #       protocols: ["http", "https"]
+  # USSD Gateway - SMS/USSD support for basic phones
+  # بوابة USSD - دعم الرسائل القصيرة للهواتف البسيطة
+  # ACTIVATED: Phase 0 improvement plan (corrected port from 8163 to 8183)
+  - name: ussd-gateway
+    host: ussd-gateway
+    port: 8183
+    protocol: http
+    routes:
+      - name: ussd-gateway-route
+        paths: ["/api/v1/ussd", "/ussd"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # AI Chat Assistant - LLM-powered conversational interface
+  # مساعد الشات الذكي - واجهة محادثة مدعومة بالذكاء الاصطناعي
+  # ACTIVATED: Phase 0 improvement plan
+  - name: ai-chat-assistant
+    host: ai-chat-assistant
+    port: 8260
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ai-chat-assistant-route
+        paths: ["/api/v1/ai-chat", "/ai-chat"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
 
   # Agent Registry - AI agent management
   # FIX: Corrected port from 8185 to 8160 (matching docker-compose.yml)
@@ -1146,14 +1176,8 @@ services:
             headers:
               - "X-Service: yolo26-vision-service"
               - "X-Rate-Limit-Tier: premium"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist, was causing 502)
+      # أُزيل: إضافة http-log (خدمة logging-service غير موجودة، كانت تسبب أخطاء 502)
 
   # -----------------------------
   # Terrain API - Terrain Analysis Service
@@ -1213,14 +1237,7 @@ services:
           add:
             headers:
               - "X-Service: terrain-core-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Hydrology API - Hydrology Analysis Service
@@ -1270,14 +1287,7 @@ services:
           add:
             headers:
               - "X-Service: hydrology-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Leveling API - Land Leveling Optimizer Service
@@ -1327,14 +1337,7 @@ services:
           add:
             headers:
               - "X-Service: leveling-optimizer-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Edge API - Edge Orchestrator Service
@@ -1384,14 +1387,7 @@ services:
           add:
             headers:
               - "X-Service: edge-orchestrator-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
 # ==============================================================================
 # Additional Services - Added 2026-02-07

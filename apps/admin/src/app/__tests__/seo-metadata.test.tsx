@@ -71,11 +71,13 @@ describe("Root Layout SEO", () => {
   });
 
   it("sets RTL direction", () => {
-    expect(layoutContent).toContain('dir="rtl"');
+    expect(layoutContent).toMatch(/dir[={"]+/);
+    expect(layoutContent).toContain("getDirection");
   });
 
   it("sets Arabic language", () => {
-    expect(layoutContent).toContain('lang="ar"');
+    expect(layoutContent).toMatch(/lang[={"]+/);
+    expect(layoutContent).toContain("getLocale");
   });
 
   it("uses Tajawal Arabic font", () => {

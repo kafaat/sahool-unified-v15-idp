@@ -1,19 +1,15 @@
-"use client";
+import type { Metadata } from "next";
+import DashboardShell from "@/components/layout/DashboardShell";
 
-import Sidebar from "@/components/layout/Sidebar";
-import { AuthGuard } from "@/components/auth/AuthGuard";
+export const metadata: Metadata = {
+  title: "SAHOOL - Settings",
+  description: "Platform configuration and administration settings",
+};
 
 export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <AuthGuard requiredRole="admin">
-      <div className="min-h-screen bg-gray-50">
-        <Sidebar />
-        <main className="mr-64 min-h-screen">{children}</main>
-      </div>
-    </AuthGuard>
-  );
+  return <DashboardShell requiredRole="admin">{children}</DashboardShell>;
 }

@@ -221,7 +221,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               className="w-12 h-12 text-blue-600 animate-spin"
               aria-hidden="true"
             />
-            <p className="text-gray-600" dir="rtl">
+            <p className="text-gray-600">
               جاري تحميل نوافذ الري...
             </p>
           </div>
@@ -242,7 +242,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               aria-hidden="true"
             />
             <div className="text-center">
-              <p className="text-red-700 font-medium mb-2" dir="rtl">
+              <p className="text-red-700 font-medium mb-2">
                 حدث خطأ أثناء تحميل نوافذ الري
               </p>
               <p className="text-sm text-red-600 mb-4" dir="ltr">
@@ -257,7 +257,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                   className={`w-4 h-4 inline mr-2 ${isRefetching ? "animate-spin" : ""}`}
                   aria-hidden="true"
                 />
-                <span dir="rtl">إعادة المحاولة</span>
+                <span>إعادة المحاولة</span>
               </button>
             </div>
           </div>
@@ -275,10 +275,10 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
           <div className="flex flex-col items-center justify-center space-y-4">
             <Droplets className="w-12 h-12 text-gray-400" aria-hidden="true" />
             <div className="text-center">
-              <p className="text-gray-700 font-medium mb-2" dir="rtl">
+              <p className="text-gray-700 font-medium mb-2">
                 لا توجد نوافذ ري متاحة
               </p>
-              <p className="text-sm text-gray-500" dir="rtl">
+              <p className="text-sm text-gray-500">
                 تحقق من بيانات رطوبة التربة أو توقعات الطقس
               </p>
             </div>
@@ -292,7 +292,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3" dir="rtl">
+            <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Droplets
                   className="w-6 h-6 text-blue-700"
@@ -323,7 +323,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
           {/* Summary Stats */}
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-white rounded-lg p-3 border border-blue-200">
-              <p className="text-sm text-gray-600 mb-1" dir="rtl">
+              <p className="text-sm text-gray-600 mb-1">
                 إجمالي النوافذ
               </p>
               <p className="text-2xl font-bold text-gray-900">
@@ -331,7 +331,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               </p>
             </div>
             <div className="bg-red-50 rounded-lg p-3 border border-red-300">
-              <p className="text-sm text-red-700 mb-1" dir="rtl">
+              <p className="text-sm text-red-700 mb-1">
                 عاجل
               </p>
               <p className="text-2xl font-bold text-red-700">
@@ -339,7 +339,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               </p>
             </div>
             <div className="bg-orange-50 rounded-lg p-3 border border-orange-300">
-              <p className="text-sm text-orange-700 mb-1" dir="rtl">
+              <p className="text-sm text-orange-700 mb-1">
                 عالي
               </p>
               <p className="text-2xl font-bold text-orange-700">
@@ -347,7 +347,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-3 border border-green-300">
-              <p className="text-sm text-green-700 mb-1" dir="rtl">
+              <p className="text-sm text-green-700 mb-1">
                 متوسط/منخفض
               </p>
               <p className="text-2xl font-bold text-green-700">
@@ -374,7 +374,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
 
         {/* Window Cards List */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900" dir="rtl">
+          <h3 className="text-lg font-semibold text-gray-900">
             توصيات الري ({prioritizedWindows.length})
           </h3>
 
@@ -389,7 +389,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
             >
               {/* Window Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex-1" dir="rtl">
+                <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar
                       className="w-5 h-5 text-gray-500"
@@ -404,7 +404,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     {formatDateTime(window.startTime)} -{" "}
                     {formatDateTime(window.endTime)}
                   </p>
-                  <p className="text-sm text-gray-700 font-medium" dir="rtl">
+                  <p className="text-sm text-gray-700 font-medium">
                     كمية الماء: {window.waterAmount} ملم | المدة:{" "}
                     {window.duration} ساعة
                   </p>
@@ -419,7 +419,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     aria-label="إنشاء مهمة ري"
                   >
                     <Plus className="w-4 h-4" aria-hidden="true" />
-                    <span dir="rtl">إنشاء مهمة</span>
+                    <span>إنشاء مهمة</span>
                   </button>
                 )}
               </div>
@@ -428,8 +428,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-4">
                 <div
                   className="flex items-center justify-between mb-3"
-                  dir="rtl"
-                >
+                                 >
                   <h4 className="font-semibold text-gray-900 flex items-center gap-2">
                     <TrendingDown className="w-4 h-4" aria-hidden="true" />
                     حالة رطوبة التربة
@@ -439,7 +438,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-xs text-gray-600 mb-1" dir="rtl">
+                    <p className="text-xs text-gray-600 mb-1">
                       الحالي
                     </p>
                     <p className="text-lg font-bold text-gray-900">
@@ -447,7 +446,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600 mb-1" dir="rtl">
+                    <p className="text-xs text-gray-600 mb-1">
                       المستهدف
                     </p>
                     <p className="text-lg font-bold text-blue-600">
@@ -455,7 +454,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600 mb-1" dir="rtl">
+                    <p className="text-xs text-gray-600 mb-1">
                       العجز
                     </p>
                     <p className="text-lg font-bold text-red-600">
@@ -489,13 +488,12 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               <div className="bg-blue-50 rounded-lg border border-blue-200 p-3 mb-4">
                 <h4
                   className="font-medium text-blue-900 mb-2 text-sm"
-                  dir="rtl"
-                >
+                                 >
                   معدل التبخر والنتح (ET)
                 </h4>
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div>
-                    <p className="text-xs text-blue-700 mb-1" dir="rtl">
+                    <p className="text-xs text-blue-700 mb-1">
                       ET₀
                     </p>
                     <p className="font-semibold text-blue-900">
@@ -503,7 +501,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-blue-700 mb-1" dir="rtl">
+                    <p className="text-xs text-blue-700 mb-1">
                       ETc
                     </p>
                     <p className="font-semibold text-blue-900">
@@ -511,7 +509,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-blue-700 mb-1" dir="rtl">
+                    <p className="text-xs text-blue-700 mb-1">
                       Kc
                     </p>
                     <p className="font-semibold text-blue-900">
@@ -588,11 +586,10 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
                 <h4
                   className="font-medium text-yellow-900 mb-2 text-sm"
-                  dir="rtl"
-                >
+                                 >
                   السبب:
                 </h4>
-                <p className="text-sm text-yellow-800" dir="rtl">
+                <p className="text-sm text-yellow-800">
                   {window.reasonAr}
                 </p>
               </div>
@@ -602,8 +599,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <h4
                     className="font-medium text-green-900 mb-2 text-sm"
-                    dir="rtl"
-                  >
+                                     >
                     توصيات:
                   </h4>
                   <ul className="space-y-1">
@@ -611,8 +607,7 @@ export const IrrigationWindowsPanel = React.memo<IrrigationWindowsPanelProps>(
                       <li
                         key={idx}
                         className="text-sm text-green-800"
-                        dir="rtl"
-                      >
+                                             >
                         • {rec}
                       </li>
                     ))}

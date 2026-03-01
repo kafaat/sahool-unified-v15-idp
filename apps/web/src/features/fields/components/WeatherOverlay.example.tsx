@@ -190,8 +190,7 @@ export function FieldMapWithWeatherAndDetails({
       {/* Field details panel in bottom-left outside map */}
       <div
         className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-xs z-[1000]"
-        dir="rtl"
-      >
+             >
         <h3 className="text-lg font-bold mb-2">{field.nameAr || field.name}</h3>
         <div className="space-y-1 text-sm text-gray-600">
           <p>المساحة: {field.area} هكتار</p>

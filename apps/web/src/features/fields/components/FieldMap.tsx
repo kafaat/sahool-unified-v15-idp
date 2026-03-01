@@ -174,7 +174,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]" dir="rtl">
+                  <div className="p-2 min-w-[200px]">
                     <h3 className="font-bold text-gray-900 mb-2">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>
@@ -240,7 +240,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[180px]" dir="rtl">
+                  <div className="p-2 min-w-[180px]">
                     <h3 className="font-bold text-gray-900 mb-1">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>

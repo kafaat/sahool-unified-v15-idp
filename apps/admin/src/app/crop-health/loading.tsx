@@ -7,7 +7,7 @@
 
 export default function CropHealthLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" dir="rtl">
+    <div className="p-6 space-y-6 animate-pulse">
       {/* Header skeleton */}
       <div>
         <div className="h-8 w-40 bg-gray-200 dark:bg-gray-700 rounded" />

@@ -60,9 +60,9 @@ const eslintConfig = [
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-empty-object-type": "off",
 
-      // React hooks rules (react plugin not imported - using TypeScript for JSX/props)
-      "react-hooks/exhaustive-deps": "off", // Allow disable comments to work
-      "react-hooks/rules-of-hooks": "off", // Allow disable comments to work
+      // React hooks rules
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "error",
 
       // Next.js rules (defined so eslint-disable comments work)
       "@next/next/no-page-custom-font": "off",

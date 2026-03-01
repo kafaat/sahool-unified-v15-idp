@@ -683,7 +683,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]" dir="rtl">
+                  <div className="p-2 min-w-[200px]">
                     <h4 className="font-bold text-gray-900 mb-2">منطقة صحة</h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
@@ -738,7 +738,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]" dir="rtl">
+                  <div className="p-2 min-w-[200px]">
                     <h4 className="font-bold text-gray-900 mb-2">
                       {task.title_ar || task.title}
                     </h4>

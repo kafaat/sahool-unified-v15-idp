@@ -175,7 +175,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
           role="alert"
         >
           <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-          <p className="text-green-800 font-medium" dir="rtl">
+          <p className="text-green-800 font-medium">
             {successMessage}
           </p>
         </div>
@@ -187,7 +187,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
           role="alert"
         >
           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-          <p className="text-red-800 font-medium" dir="rtl">
+          <p className="text-red-800 font-medium">
             {errorMessage}
           </p>
         </div>
@@ -203,8 +203,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
                 ? "bg-blue-600 text-white"
                 : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
-            dir="rtl"
-          >
+                     >
             نوافذ الرش
           </button>
           <button
@@ -214,8 +213,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
                 ? "bg-blue-600 text-white"
                 : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
-            dir="rtl"
-          >
+                     >
             نوافذ الري
           </button>
           <button
@@ -225,8 +223,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
                 ? "bg-blue-600 text-white"
                 : "bg-transparent text-gray-700 hover:bg-gray-100"
             }`}
-            dir="rtl"
-          >
+                     >
             التوصيات
           </button>
         </div>
@@ -266,7 +263,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
               ))
             ) : (
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-8 text-center">
-                <p className="text-gray-600" dir="rtl">
+                <p className="text-gray-600">
                   لا توجد توصيات متاحة
                 </p>
               </div>
@@ -278,8 +275,7 @@ export const ActionWindowsDemo: React.FC<ActionWindowsDemoProps> = ({
       {/* Usage Instructions */}
       <div
         className="bg-blue-50 border border-blue-200 rounded-lg p-6"
-        dir="rtl"
-      >
+             >
         <h3 className="font-semibold text-blue-900 mb-3">كيفية الاستخدام:</h3>
         <ul className="space-y-2 text-sm text-blue-800">
           <li>• اختر علامة التبويب (الرش، الري، أو التوصيات)</li>

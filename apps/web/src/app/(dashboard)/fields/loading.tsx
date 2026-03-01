@@ -5,7 +5,8 @@
 
 export default function Loading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse">
+    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل الحقول - Loading fields">
+      <span className="sr-only">جاري تحميل الحقول - Loading fields</span>
       {/* Header with action button skeleton */}
       <div className="flex items-center justify-between">
         <div>

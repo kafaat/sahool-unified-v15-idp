@@ -97,6 +97,7 @@ function AlertsPanelInner({
               aria-label="فلترة التنبيهات"
             >
               <button
+                type="button"
                 onClick={() => setFilter("all")}
                 aria-pressed={filter === "all"}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 ${
@@ -108,6 +109,7 @@ function AlertsPanelInner({
                 الكل ({alerts.length})
               </button>
               <button
+                type="button"
                 onClick={() => setFilter("critical")}
                 aria-pressed={filter === "critical"}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
@@ -119,6 +121,7 @@ function AlertsPanelInner({
                 حرجة ({criticalCount})
               </button>
               <button
+                type="button"
                 onClick={() => setFilter("unread")}
                 aria-pressed={filter === "unread"}
                 className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
@@ -217,6 +220,7 @@ function AlertsPanelInner({
                         )}
                         {onMarkAsRead && !alert.read && (
                           <button
+                            type="button"
                             onClick={() => onMarkAsRead(alert.id)}
                             className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
                             aria-label="وضع علامة كمقروء"
@@ -230,6 +234,7 @@ function AlertsPanelInner({
                         )}
                         {onDismiss && (
                           <button
+                            type="button"
                             onClick={() => onDismiss(alert.id)}
                             className="text-xs text-gray-400 hover:text-gray-600"
                             aria-label="إخفاء التنبيه"

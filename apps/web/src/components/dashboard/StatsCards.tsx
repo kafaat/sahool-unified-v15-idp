@@ -69,8 +69,7 @@ const StatsCard = React.memo<StatsCardProps>(function StatsCard({
       className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none"
       role="article"
       aria-label={`${title}: ${value}${progress !== undefined ? `, ${progressDescription}` : ""}`}
-      dir="rtl"
-    >
+         >
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <h3
@@ -209,8 +208,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
         aria-busy="true"
         aria-label="جاري تحميل الإحصائيات"
-        dir="rtl"
-      >
+             >
         {[...Array(6)].map((_, i) => (
           <SkeletonCard key={i} />
         ))}
@@ -224,14 +222,14 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
         role="alert"
         aria-live="assertive"
-        dir="rtl"
-      >
+             >
         <div className="flex flex-col items-center gap-3">
           <span className="text-4xl" role="img" aria-label="خطأ">
             ⚠️
           </span>
           <p className="text-red-700 font-medium text-sm">{error}</p>
           <button
+            type="button"
             onClick={handleRetry}
             disabled={retrying}
             className="mt-2 px-6 py-2.5 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
@@ -276,8 +274,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
         className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center"
         role="status"
         aria-live="polite"
-        dir="rtl"
-      >
+             >
         <p className="text-gray-500 text-sm">لا توجد بيانات متاحة</p>
       </section>
     );
@@ -289,8 +286,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({
       role="region"
       aria-label="إحصائيات لوحة التحكم"
       aria-live="polite"
-      dir="rtl"
-    >
+         >
       <StatsCard
         title="إجمالي الحقول"
         value={stats.totalFields}

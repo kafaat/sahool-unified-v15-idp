@@ -48,3 +48,8 @@ export * from "./edge";
 export * from "./contracts/service-ports";
 export * from "./contracts/error-codes";
 export * from "./contracts/api-endpoints";
+
+// Zod Validation Schemas - مخططات التحقق باستخدام Zod
+// Import via "@sahool/shared-types/schemas" subpath for runtime validation.
+// NOTE: Requires `zod` package to be installed as a dependency.
+export * from "./schemas";

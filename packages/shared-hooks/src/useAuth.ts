@@ -3,7 +3,7 @@
 // خطاف التوثيق الموحد
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -86,6 +86,20 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
+
+  // Cleanup: abort in-flight requests and track mounted state
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, []);
 
   // Initialize user from storage
   useEffect(() => {
@@ -134,6 +148,13 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
   const login = useCallback(
     async (credentials: LoginCredentials): Promise<AuthResponse> => {
+      // Abort any previous in-flight login request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
       setIsLoading(true);
       setError(null);
 
@@ -144,6 +165,7 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(credentials),
+          signal: abortController.signal,
         });
 
         if (!response.ok) {
@@ -161,19 +183,32 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
         const data: AuthResponse = await response.json();
 
-        setToken(data.access_token);
-        setUserData(data.user);
+        if (mountedRef.current) {
+          setToken(data.access_token);
+          setUserData(data.user);
+        }
 
         return data;
       } catch (err) {
+        // Don't update state if the request was aborted
+        if (err instanceof DOMException && err.name === "AbortError") {
+          throw err;
+        }
         const message = err instanceof Error ? err.message : "فشل تسجيل الدخول";
-        setError(message);
+        if (mountedRef.current) {
+          setError(message);
+        }
         throw err;
       } finally {
-        setIsLoading(false);
+        if (mountedRef.current) {
+          setIsLoading(false);
+        }
+        if (abortControllerRef.current === abortController) {
+          abortControllerRef.current = null;
+        }
       }
     },
-    [apiUrl, setToken, setUserData],
+    [apiUrl, setToken, setUserData, onUnauthorized],
   );
 
   const logout = useCallback((): void => {

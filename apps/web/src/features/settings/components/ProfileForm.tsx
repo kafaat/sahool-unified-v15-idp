@@ -90,7 +90,7 @@ export const ProfileForm: React.FC = () => {
   const isSaving = updateProfile.isPending || uploadAvatar.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8" dir="rtl">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Avatar Upload */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-4">

@@ -164,6 +164,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
       {/* Filter tabs */}
       <div className="flex gap-2 mb-4" role="tablist" aria-label="تصفية المهام">
         <button
+          type="button"
           onClick={() => setFilter("all")}
           role="tab"
           aria-selected={filter === "all"}
@@ -177,6 +178,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
           الكل ({tasks.length})
         </button>
         <button
+          type="button"
           onClick={() => setFilter("pending")}
           role="tab"
           aria-selected={filter === "pending"}
@@ -190,6 +192,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
           معلقة ({pendingCount})
         </button>
         <button
+          type="button"
           onClick={() => setFilter("completed")}
           role="tab"
           aria-selected={filter === "completed"}

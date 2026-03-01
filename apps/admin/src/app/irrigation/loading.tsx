@@ -7,7 +7,8 @@
 
 export default function IrrigationLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" dir="rtl">
+    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل الري - Loading irrigation">
+      <span className="sr-only">جاري تحميل الري - Loading irrigation</span>
       {/* Header skeleton */}
       <div>
         <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded" />

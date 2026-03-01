@@ -53,7 +53,7 @@ const MetricCard = React.memo<MetricCardProps>(
         role="region"
         aria-label={ariaLabel}
       >
-        <div className="flex items-center gap-2 mb-2" dir="rtl">
+        <div className="flex items-center gap-2 mb-2">
           {icon}
           <p className="text-sm text-gray-600">{label}</p>
         </div>
@@ -187,7 +187,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
           aria-busy="true"
         >
           <div className="h-64 flex items-center justify-center">
-            <div className="animate-pulse text-gray-400" dir="rtl">
+            <div className="animate-pulse text-gray-400">
               جاري تحميل بيانات الطقس...
             </div>
           </div>
@@ -208,7 +208,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
               className="w-16 h-16 mx-auto mb-4 text-red-300"
               aria-hidden="true"
             />
-            <p className="text-gray-700 mb-2" dir="rtl">
+            <p className="text-gray-700 mb-2">
               عذراً، حدث خطأ أثناء تحميل بيانات الطقس
             </p>
             <p className="text-sm text-gray-500 mb-4" dir="ltr">
@@ -224,7 +224,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
                 className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
                 aria-hidden="true"
               />
-              <span dir="rtl">
+              <span>
                 {isRefetching ? "جاري المحاولة..." : "إعادة المحاولة"}
               </span>
             </button>
@@ -246,7 +246,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
               className="w-16 h-16 mx-auto mb-4 opacity-20"
               aria-hidden="true"
             />
-            <p dir="rtl">بيانات الطقس غير متوفرة</p>
+            <p>بيانات الطقس غير متوفرة</p>
             <p className="text-sm mt-2" dir="ltr">
               Weather data not available
             </p>
@@ -263,7 +263,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
         aria-label="معلومات الطقس الحالي"
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6" dir="rtl">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">الطقس الحالي</h2>
           <span className="text-sm text-gray-600" dir="ltr">
             Current Weather
@@ -272,7 +272,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
 
         {/* Main Weather Display */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-6" dir="rtl">
+          <div className="flex items-center gap-6">
             {weatherIcon}
             <div>
               <p
@@ -281,11 +281,11 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
               >
                 {Math.round(weather.temperature)}°C
               </p>
-              <p className="text-xl text-gray-600 mt-2" dir="rtl">
+              <p className="text-xl text-gray-600 mt-2">
                 {weather.conditionAr || weather.condition}
               </p>
               {weather.location && (
-                <p className="text-sm text-gray-500 mt-1" dir="rtl">
+                <p className="text-sm text-gray-500 mt-1">
                   {weather.location}
                 </p>
               )}
@@ -316,8 +316,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(
         {formattedTimestamp && (
           <div
             className="mt-6 text-center text-sm text-gray-500"
-            dir="rtl"
-            role="status"
+                       role="status"
             aria-live="polite"
             aria-label={`آخر تحديث ${formattedTimestamp}`}
           >

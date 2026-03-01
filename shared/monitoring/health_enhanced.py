@@ -13,6 +13,7 @@ Provides comprehensive health monitoring with:
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import time
 from collections.abc import Callable
@@ -20,6 +21,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 try:
     from fastapi import APIRouter
@@ -537,8 +540,8 @@ class EnhancedHealthChecker:
             cpu_percent = process.cpu_percent()
         except ImportError:
             pass
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to get process metrics: {e}")
 
         return memory_mb, cpu_percent
 

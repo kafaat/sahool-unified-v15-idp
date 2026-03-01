@@ -124,7 +124,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
             className="w-12 h-12 mx-auto mb-3 text-gray-400"
             aria-hidden="true"
           />
-          <p className="text-gray-600" dir="rtl">
+          <p className="text-gray-600">
             لا توجد نوافذ متاحة
           </p>
           <p className="text-sm text-gray-500 mt-1" dir="ltr">
@@ -140,7 +140,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
         {showDetails && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-white rounded-lg border border-gray-200 p-3">
-              <p className="text-xs text-gray-600 mb-1" dir="rtl">
+              <p className="text-xs text-gray-600 mb-1">
                 إجمالي النوافذ
               </p>
               <p className="text-2xl font-bold text-gray-900">
@@ -149,7 +149,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
             </div>
 
             <div className="bg-green-50 rounded-lg border border-green-200 p-3">
-              <p className="text-xs text-green-700 mb-1" dir="rtl">
+              <p className="text-xs text-green-700 mb-1">
                 مثالي
               </p>
               <p className="text-2xl font-bold text-green-700">
@@ -158,7 +158,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
             </div>
 
             <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-3">
-              <p className="text-xs text-yellow-700 mb-1" dir="rtl">
+              <p className="text-xs text-yellow-700 mb-1">
                 هامشي
               </p>
               <p className="text-2xl font-bold text-yellow-700">
@@ -167,7 +167,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
             </div>
 
             <div className="bg-red-50 rounded-lg border border-red-200 p-3">
-              <p className="text-xs text-red-700 mb-1" dir="rtl">
+              <p className="text-xs text-red-700 mb-1">
                 تجنب
               </p>
               <p className="text-2xl font-bold text-red-700">
@@ -181,8 +181,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <h3
             className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2"
-            dir="rtl"
-          >
+                     >
             <TrendingUp className="w-4 h-4" aria-hidden="true" />
             الجدول الزمني للنوافذ
           </h3>
@@ -216,7 +215,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
                   aria-label={`${statusLabel.ar}: ${block.labelAr} من ${formatTime(block.startTime)} إلى ${formatTime(block.endTime)}`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex-1" dir="rtl">
+                    <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Clock className="w-4 h-4" aria-hidden="true" />
                         <span className="font-semibold text-sm">
@@ -276,8 +275,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
         {selectedBlock && (
           <div
             className="bg-blue-50 rounded-lg border border-blue-200 p-4"
-            dir="rtl"
-          >
+                     >
             <h4 className="font-semibold text-blue-900 mb-2">
               تفاصيل النافذة المحددة
             </h4>
@@ -313,8 +311,7 @@ export const WindowTimeline = React.memo<WindowTimelineProps>(
         {/* Legend */}
         <div
           className="flex items-center justify-center gap-6 text-sm"
-          dir="rtl"
-        >
+                 >
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
             <span className="text-gray-700">مثالي</span>

@@ -132,7 +132,6 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div
           className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
-          dir="rtl"
         >
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl w-full">
             <div className="flex items-center gap-3 mb-4">
@@ -203,12 +202,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div className="flex gap-3 justify-end pt-4 border-t">
               <button
+                type="button"
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                aria-label="تحديث الصفحة"
               >
                 تحديث الصفحة
               </button>
               <button
+                type="button"
                 onClick={this.handleRetry}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >

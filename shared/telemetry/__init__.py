@@ -12,6 +12,28 @@ Modules:
 
 Author: SAHOOL Platform Team
 Date: 2025-12-26
+
+.. note:: Tracing Module Overlap
+   This package (``shared.telemetry``) and ``shared.observability`` both provide
+   distributed tracing, metrics collection, and structured logging. The two
+   packages evolved independently and have significant overlap:
+
+   - **shared.telemetry** (this package): Uses direct OpenTelemetry SDK imports.
+     All submodules require ``opentelemetry-*`` packages to be installed.
+     Best suited for services that already have the full OTel SDK in their
+     requirements and need low-level OTel control (custom samplers, baggage, etc.).
+
+   - **shared.observability**: Wraps OpenTelemetry behind ``try/except`` guards
+     so it degrades gracefully when OTel packages are absent. Also includes
+     additional features: sensitive-data masking in logs, agent/cost metrics,
+     FastAPI middleware, and health check utilities.
+
+   **Preferred module for new services**: ``shared.observability``
+   It is the more defensive and feature-complete option. Services that need the
+   full OTel SDK surface can import ``shared.telemetry`` as a supplement.
+
+   A future consolidation effort may unify these into a single package.
+   See: docs/adr/ for related Architecture Decision Records.
 """
 
 from .logging import (

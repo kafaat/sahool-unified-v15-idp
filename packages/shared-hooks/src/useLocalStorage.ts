@@ -35,22 +35,25 @@ export function useLocalStorage<T>(
       }
 
       try {
-        const newValue = value instanceof Function ? value(storedValue) : value;
-        window.localStorage.setItem(key, JSON.stringify(newValue));
-        setStoredValue(newValue);
+        setStoredValue((prev) => {
+          const newValue = value instanceof Function ? value(prev) : value;
+          window.localStorage.setItem(key, JSON.stringify(newValue));
 
-        // Dispatch storage event for other tabs
-        window.dispatchEvent(
-          new StorageEvent("storage", {
-            key,
-            newValue: JSON.stringify(newValue),
-          }),
-        );
+          // Dispatch storage event for other tabs
+          window.dispatchEvent(
+            new StorageEvent("storage", {
+              key,
+              newValue: JSON.stringify(newValue),
+            }),
+          );
+
+          return newValue;
+        });
       } catch (error) {
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue],
+    [key],
   );
 
   // Remove value

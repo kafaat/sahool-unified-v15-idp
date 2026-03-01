@@ -115,7 +115,7 @@ export class ChatService {
     });
 
     // Map conversations with unread count from _count
-    const conversationsWithUnread = conversations.map((conv) => {
+    const conversationsWithUnread = conversations.map((conv: any) => {
       const participant = conv.participants[0];
       const { _count, ...conversationData } = conv;
 

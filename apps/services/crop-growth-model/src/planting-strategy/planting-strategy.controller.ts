@@ -479,7 +479,7 @@ export class PlantingStrategyController {
         guidance,
       };
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error instanceof Error ? error.message : String(error), HttpStatus.BAD_REQUEST);
     }
   }
 

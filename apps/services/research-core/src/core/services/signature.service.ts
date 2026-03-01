@@ -124,10 +124,10 @@ export class SignatureService {
         message: "Signature verified successfully",
       };
     } catch (error) {
-      this.logger.error(`Signature verification error: ${error.message}`);
+      this.logger.error(`Signature verification error: ${error instanceof Error ? error.message : String(error)}`);
       return {
         isValid: false,
-        message: `Verification error: ${error.message}`,
+        message: `Verification error: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
   }

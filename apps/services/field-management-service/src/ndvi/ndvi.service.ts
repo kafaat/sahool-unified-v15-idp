@@ -58,7 +58,7 @@ export class NdviService {
       },
     });
 
-    const values = readings.map((r) => Number(r.value));
+    const values = readings.map((r: any) => Number(r.value));
     const current = field.ndviValue ? Number(field.ndviValue) : values[0] || 0;
 
     // Calculate statistics

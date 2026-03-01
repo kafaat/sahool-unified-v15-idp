@@ -35,9 +35,16 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 30 }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- with .Values.topologySpreadConstraints }}
+      {{- if .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-        {{- toYaml . | nindent 8 }}
+        {{- range .Values.topologySpreadConstraints }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "admin.selectorLabels" $ | nindent 14 }}
+        {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}

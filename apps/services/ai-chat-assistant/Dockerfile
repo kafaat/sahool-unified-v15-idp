@@ -66,6 +66,9 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
+# Copy shared libraries
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+
 # Copy source code
 COPY --chown=sahool:sahool apps/services/ai-chat-assistant/src/ ./src/
 

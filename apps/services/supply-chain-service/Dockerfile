@@ -52,6 +52,9 @@ WORKDIR /app
 # Copy installed packages from builder
 COPY --from=builder /root/.local /home/appuser/.local
 
+# Copy shared libraries
+COPY --chown=appuser:appgroup apps/services/shared/ ./shared/
+
 # Copy application code
 COPY --chown=appuser:appgroup apps/services/supply-chain-service/src ./src
 

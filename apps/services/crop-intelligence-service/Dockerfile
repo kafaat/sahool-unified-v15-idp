@@ -95,8 +95,9 @@ ENV VIRTUAL_ENV=/home/sahool/venv \
 
 WORKDIR /app
 
-# Copy shared libraries
-COPY --chown=sahool:sahool apps/services/shared ./shared/
+# Copy shared libraries (root shared first, then service-shared overlay)
+COPY --chown=sahool:sahool shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy source
 COPY --chown=sahool:sahool apps/services/crop-intelligence-service/src/ ./src/

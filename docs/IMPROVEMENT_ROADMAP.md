@@ -17,8 +17,10 @@
 | إصلاحات حرجة | 21 | 0 | عالية ✅ |
 | التوثيق | 16 ملف | 0 | متوسطة ✅ |
 | تنظيف الكود | 10 | 0 | منخفضة ✅ |
+| خدمات Kong الوهمية | 15 | 0 | متوسطة ✅ |
 | تحسينات الأداء | 0 | 5 | متوسطة |
 
+> **تحديث 2026-03-01**: تم إكمال المراحل 1-5 بنجاح + المرحلة 4 (Kong cleanup) مكتملة
 > **تحديث 2026-01-25**: تم إكمال المراحل 1-5 بنجاح
 
 ---
@@ -108,34 +110,33 @@ infrastructure/gateway/kong/kong.yml
 
 ---
 
-## المرحلة 4: الخدمات الوهمية في Kong (متبقية ⏳)
+## المرحلة 4: الخدمات الوهمية في Kong (مكتملة ✅)
 
-### 4.1 الخدمات الوهمية المكتشفة
+> **تحديث 2026-03-01**: تم تنظيف جميع الخدمات الوهمية والمراجع المعطلة
 
-| الخدمة | المنفذ | الحالة |
-|--------|--------|--------|
-| analytics-service | 8154 | غير موجودة |
-| reporting-service | 8155 | غير موجودة |
-| integration-service | 8156 | غير موجودة |
-| export-service | 8158 | غير موجودة |
-| import-service | 8159 | غير موجودة |
-| monitoring-service | 8160 | تعارض مع agent-registry |
-| logging-service | 8162 | تعارض مع code-fix-agent |
-| tracing-service | 8162 | تعارض مع code-review-agent |
-| cache-service | 8163 | غير موجودة |
-| search-service | 8164 | غير موجودة |
+### 4.1 الخدمات الوهمية - تم الإزالة ✅
 
-### 4.2 الخيارات
+| الخدمة | المنفذ | الإجراء |
+|--------|--------|---------|
+| analytics-service | 8154 | ✅ أُزيلت من kong.yml |
+| reporting-service | 8155 | ✅ أُزيلت من kong.yml |
+| integration-service | 8156 | ✅ أُزيلت من kong.yml |
+| export-service | 8158 | ✅ أُزيلت من kong.yml |
+| import-service | 8159 | ✅ أُزيلت من kong.yml |
+| monitoring-service | 8160 | ✅ أُزيلت (agent-registry يستخدم المنفذ) |
+| logging-service | 8162 | ✅ أُزيلت (code-fix-agent يستخدم المنفذ) |
+| tracing-service | 8162 | ✅ أُزيلت (code-review-agent يستخدم المنفذ) |
+| cache-service | 8163 | ✅ أُزيلت من kong.yml |
+| search-service | 8164 | ✅ أُزيلت من kong.yml |
 
-**الخيار أ: الإزالة** (موصى به)
-- حذف هذه الخدمات من kong.yml
-- تقليل الأخطاء 502 Bad Gateway
+### 4.2 مراجع logging-service الوهمية - تم التنظيف ✅
 
-**الخيار ب: التعليق**
-- تحويلها إلى تعليقات للتطوير المستقبلي
-
-**الخيار ج: الإنشاء**
-- إنشاء stubs لهذه الخدمات
+أُزيلت 5 إضافات `http-log` كانت تشير إلى `logging-service:8080` غير الموجود من:
+- yolo26-vision-service
+- terrain-core-service
+- hydrology-service
+- leveling-optimizer-service
+- edge-orchestrator-service
 
 ---
 

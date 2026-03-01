@@ -3907,16 +3907,15 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Optional Services (4) - Activate with: docker compose --profile optional up
-  # خدمات اختيارية - تفعيل بـ: docker compose --profile optional up
+  # Previously Optional Services - Now Active (Phase 0 Improvement Plan)
+  # خدمات كانت اختيارية - أصبحت نشطة (خطة التحسين المرحلة 0)
+  # Remaining optional: code-review-agent only
   # ─────────────────────────────────────────────────────────────────────────────
 
   # AI Chat Assistant - LLM-powered conversational interface
   # مساعد الشات الذكي - واجهة محادثة مدعومة بالذكاء الاصطناعي
+  # ACTIVATED: Removed from optional profile (Phase 0 improvement plan)
   ai-chat-assistant:
-    profiles:
-      - optional
-      - ai
     build:
       context: .
       dockerfile: apps/services/ai-chat-assistant/Dockerfile
@@ -3926,7 +3925,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
@@ -3987,10 +3986,8 @@ services:
 
   # USSD Gateway - SMS/USSD support for basic phones
   # بوابة USSD - دعم الرسائل القصيرة للهواتف البسيطة
+  # ACTIVATED: Removed from optional profile (Phase 0 improvement plan)
   ussd-gateway:
-    profiles:
-      - optional
-      - integrations
     build:
       context: .
       dockerfile: apps/services/ussd-gateway/Dockerfile
@@ -4033,10 +4030,8 @@ services:
 
   # WhatsApp Bot Service - WhatsApp messaging integration
   # خدمة روبوت واتساب - تكامل رسائل واتساب
+  # ACTIVATED: Removed from optional profile (Phase 0 improvement plan)
   whatsapp-bot-service:
-    profiles:
-      - optional
-      - integrations
     build:
       context: .
       dockerfile: apps/services/whatsapp-bot-service/Dockerfile
@@ -4046,6 +4041,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:

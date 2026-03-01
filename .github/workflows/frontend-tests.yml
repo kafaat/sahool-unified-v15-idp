@@ -59,7 +59,7 @@ jobs:
 
       - name: Restore packages build cache
         id: packages-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -97,7 +97,7 @@ jobs:
           done
 
       - name: Save packages build cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.3
         continue-on-error: true
         with:
           path: |
@@ -130,7 +130,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -142,7 +142,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -171,7 +171,6 @@ jobs:
           echo "::error::ESLint found issues in Web App. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/web. Run \`cd apps/web && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -187,7 +186,6 @@ jobs:
           echo "::error::TypeScript found type errors in Web App. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -210,7 +208,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -221,7 +219,7 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -249,7 +247,6 @@ jobs:
           echo "::error::Web App unit tests failed. Please fix failing tests."
           echo "## ❌ Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
           echo "Unit tests failed in apps/web. Run \`cd apps/web && npm run test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Upload Coverage Report
         if: always()
@@ -281,7 +278,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -367,7 +364,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -379,7 +376,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -408,7 +405,6 @@ jobs:
           echo "::error::ESLint found issues in Admin Dashboard. Please fix lint errors."
           echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
           echo "ESLint found issues in apps/admin. Run \`cd apps/admin && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Run Type Check
         id: typecheck
@@ -424,7 +420,6 @@ jobs:
           echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
           echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests
@@ -447,7 +442,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -458,7 +453,7 @@ jobs:
             ${{ runner.os }}-admin-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist
@@ -517,7 +512,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -602,7 +597,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -666,7 +661,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -763,6 +758,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -774,7 +774,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -821,6 +821,8 @@ jobs:
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
+          # Override Gradle JVM args for CI (runners have ~7GB RAM)
+          export GRADLE_OPTS="-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError"
           flutter build apk --debug --no-shrink
 
       - name: Upload APK
@@ -856,7 +858,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -934,7 +936,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             node_modules
@@ -1094,6 +1096,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -1105,7 +1112,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.3
         with:
           path: |
             ~/.pub-cache
@@ -1408,7 +1415,7 @@ jobs:
           cache: 'npm'
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.3
         with:
           path: |
             packages/*/dist

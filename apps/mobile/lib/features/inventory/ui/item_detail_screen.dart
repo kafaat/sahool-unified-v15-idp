@@ -1,6 +1,7 @@
 /// Item Detail Screen - شاشة تفاصيل العنصر
 library;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -78,12 +79,13 @@ class ItemDetailScreen extends ConsumerWidget {
         children: [
           // صورة العنصر
           if (item.imageUrl != null)
-            Image.network(
-              item.imageUrl!,
+            CachedNetworkImage(
+              imageUrl: item.imageUrl!,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(context, item),
+              placeholder: (_, __) => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+              errorWidget: (context, _, __) => _buildImagePlaceholder(context, item),
             )
           else
             _buildImagePlaceholder(context, item),

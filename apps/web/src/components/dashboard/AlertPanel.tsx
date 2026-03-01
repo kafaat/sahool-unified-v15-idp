@@ -58,6 +58,7 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setFilter(filter === "all" ? "unread" : "all")}
               className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label={
@@ -70,6 +71,7 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
 
             {unreadCount > 0 && onDismissAll && (
               <button
+                type="button"
                 onClick={onDismissAll}
                 className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="تعيين جميع التنبيهات كمقروءة"
@@ -111,6 +113,7 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
       {filteredAlerts.length > maxVisible && (
         <div className="p-3 border-t border-gray-100 text-center">
           <button
+            type="button"
             className="text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`عرض جميع التنبيهات - ${filteredAlerts.length} تنبيه`}
           >

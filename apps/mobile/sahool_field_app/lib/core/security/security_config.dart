@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Device Integrity Policy
 /// سياسة سلامة الجهاز
@@ -22,6 +23,61 @@ enum DeviceIntegrityPolicy {
   /// Block all security issues (including emulators, debug mode)
   /// حظر جميع المشاكل الأمنية (بما في ذلك المحاكيات، وضع التطوير)
   blockAll,
+}
+
+/// Session Security Policy
+/// سياسة أمان الجلسة
+enum SessionSecurityPolicy {
+  /// Disabled - no session timeout
+  /// معطل - لا انتهاء للجلسة
+  disabled,
+
+  /// Relaxed - long session timeout (2 hours)
+  /// مرن - انتهاء جلسة طويل
+  relaxed,
+
+  /// Standard - configurable session timeout (default 15 minutes)
+  /// قياسي - انتهاء جلسة قابل للتخصيص
+  standard,
+
+  /// Strict - short session timeout (5 minutes)
+  /// صارم - انتهاء جلسة قصير
+  strict,
+}
+
+/// Screenshot Prevention Policy
+/// سياسة منع لقطات الشاشة
+enum ScreenshotPolicy {
+  /// Disabled - screenshots allowed everywhere
+  /// معطل - مسموح بلقطات الشاشة في كل مكان
+  disabled,
+
+  /// Sensitive screens only - prevent screenshots on sensitive screens
+  /// الشاشات الحساسة فقط - منع لقطات الشاشة على الشاشات الحساسة
+  sensitiveOnly,
+
+  /// All screens - prevent screenshots everywhere
+  /// كل الشاشات - منع لقطات الشاشة في كل مكان
+  allScreens,
+}
+
+/// Security Level
+/// مستوى الأمان
+enum SecurityLevel {
+  /// Low security
+  low('low'),
+
+  /// Medium security (default)
+  medium('medium'),
+
+  /// High security
+  high('high'),
+
+  /// Maximum security
+  maximum('maximum');
+
+  final String code;
+  const SecurityLevel(this.code);
 }
 
 /// Security Configuration
@@ -58,6 +114,34 @@ class SecurityConfig {
   /// Whether to log security events to analytics
   final bool logSecurityEvents;
 
+  /// Whether to block mock locations
+  /// حظر المواقع الوهمية
+  final bool blockMockLocation;
+
+  /// Session security policy
+  /// سياسة أمان الجلسة
+  final SessionSecurityPolicy sessionPolicy;
+
+  /// Session timeout duration (used with SessionSecurityPolicy.standard)
+  /// مدة انتهاء الجلسة
+  final Duration sessionTimeout;
+
+  /// Screenshot prevention policy
+  /// سياسة منع لقطات الشاشة
+  final ScreenshotPolicy screenshotPolicy;
+
+  /// Security level (used by device security service)
+  /// مستوى الأمان
+  final SecurityLevel level;
+
+  /// Whether to log authentication events
+  /// تسجيل أحداث المصادقة
+  final bool logAuthEvents;
+
+  /// Whether to show screen security warning
+  /// إظهار تحذير أمان الشاشة
+  final bool showScreenSecurityWarning;
+
   const SecurityConfig({
     this.enableCertificatePinning = false,
     this.strictCertificatePinning = false,
@@ -67,6 +151,13 @@ class SecurityConfig {
     this.enforceSecurityInDebug = false,
     this.allowEmulators = true,
     this.logSecurityEvents = true,
+    this.blockMockLocation = false,
+    this.sessionPolicy = SessionSecurityPolicy.disabled,
+    this.sessionTimeout = const Duration(minutes: 15),
+    this.screenshotPolicy = ScreenshotPolicy.disabled,
+    this.level = SecurityLevel.low,
+    this.logAuthEvents = true,
+    this.showScreenSecurityWarning = false,
   });
 
   /// Production security configuration
@@ -81,6 +172,13 @@ class SecurityConfig {
     enforceSecurityInDebug: false,
     allowEmulators: false,
     logSecurityEvents: true,
+    blockMockLocation: true,
+    sessionPolicy: SessionSecurityPolicy.standard,
+    sessionTimeout: Duration(minutes: 15),
+    screenshotPolicy: ScreenshotPolicy.sensitiveOnly,
+    level: SecurityLevel.high,
+    logAuthEvents: true,
+    showScreenSecurityWarning: true,
   );
 
   /// Staging security configuration
@@ -95,6 +193,13 @@ class SecurityConfig {
     enforceSecurityInDebug: false,
     allowEmulators: true,
     logSecurityEvents: true,
+    blockMockLocation: false,
+    sessionPolicy: SessionSecurityPolicy.relaxed,
+    sessionTimeout: Duration(minutes: 30),
+    screenshotPolicy: ScreenshotPolicy.disabled,
+    level: SecurityLevel.medium,
+    logAuthEvents: true,
+    showScreenSecurityWarning: false,
   );
 
   /// Development security configuration
@@ -110,6 +215,13 @@ class SecurityConfig {
     enforceSecurityInDebug: false,
     allowEmulators: true,
     logSecurityEvents: false,
+    blockMockLocation: false,
+    sessionPolicy: SessionSecurityPolicy.disabled,
+    sessionTimeout: Duration(minutes: 15),
+    screenshotPolicy: ScreenshotPolicy.disabled,
+    level: SecurityLevel.low,
+    logAuthEvents: false,
+    showScreenSecurityWarning: false,
   );
 
   /// Get security configuration based on environment
@@ -139,6 +251,31 @@ class SecurityConfig {
     }
   }
 
+  /// Get effective session timeout based on policy
+  /// الحصول على مهلة الجلسة الفعلية بناءً على السياسة
+  Duration getEffectiveSessionTimeout() {
+    switch (sessionPolicy) {
+      case SessionSecurityPolicy.disabled:
+        return const Duration(days: 365);
+      case SessionSecurityPolicy.relaxed:
+        return const Duration(hours: 2);
+      case SessionSecurityPolicy.standard:
+        return sessionTimeout;
+      case SessionSecurityPolicy.strict:
+        return const Duration(minutes: 5);
+    }
+  }
+
+  /// Whether screenshot prevention is enabled
+  /// هل منع لقطات الشاشة مفعل
+  bool get isScreenshotPreventionEnabled =>
+      screenshotPolicy != ScreenshotPolicy.disabled;
+
+  /// Whether session timeout is enabled
+  /// هل انتهاء الجلسة مفعل
+  bool get isSessionTimeoutEnabled =>
+      sessionPolicy != SessionSecurityPolicy.disabled;
+
   /// Copy configuration with updated values
   SecurityConfig copyWith({
     bool? enableCertificatePinning,
@@ -149,6 +286,13 @@ class SecurityConfig {
     bool? enforceSecurityInDebug,
     bool? allowEmulators,
     bool? logSecurityEvents,
+    bool? blockMockLocation,
+    SessionSecurityPolicy? sessionPolicy,
+    Duration? sessionTimeout,
+    ScreenshotPolicy? screenshotPolicy,
+    SecurityLevel? level,
+    bool? logAuthEvents,
+    bool? showScreenSecurityWarning,
   }) {
     return SecurityConfig(
       enableCertificatePinning:
@@ -164,6 +308,14 @@ class SecurityConfig {
           enforceSecurityInDebug ?? this.enforceSecurityInDebug,
       allowEmulators: allowEmulators ?? this.allowEmulators,
       logSecurityEvents: logSecurityEvents ?? this.logSecurityEvents,
+      blockMockLocation: blockMockLocation ?? this.blockMockLocation,
+      sessionPolicy: sessionPolicy ?? this.sessionPolicy,
+      sessionTimeout: sessionTimeout ?? this.sessionTimeout,
+      screenshotPolicy: screenshotPolicy ?? this.screenshotPolicy,
+      level: level ?? this.level,
+      logAuthEvents: logAuthEvents ?? this.logAuthEvents,
+      showScreenSecurityWarning:
+          showScreenSecurityWarning ?? this.showScreenSecurityWarning,
     );
   }
 
@@ -178,3 +330,12 @@ class SecurityConfig {
         ')';
   }
 }
+
+/// Riverpod provider for security configuration
+/// مزود Riverpod لإعدادات الأمان
+final securityConfigProvider = StateProvider<SecurityConfig>((ref) {
+  if (kReleaseMode) {
+    return SecurityConfig.production;
+  }
+  return SecurityConfig.development;
+});

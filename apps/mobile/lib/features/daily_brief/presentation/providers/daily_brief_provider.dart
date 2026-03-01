@@ -5,9 +5,9 @@ import '../../../../core/http/api_client.dart';
 /// موفر بيانات الملخص اليومي
 
 /// API client provider for daily brief
-final _apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
+final _apiClientProvider = Provider.autoDispose<ApiClient>((ref) => ApiClient());
 
-final dailyBriefProvider = FutureProvider<DailyBrief>((ref) async {
+final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
   final apiClient = ref.watch(_apiClientProvider);
 
   try {

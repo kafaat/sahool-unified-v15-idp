@@ -1,23 +1,25 @@
-"""Health endpoint tests for demo-data."""
+"""Health check tests for demo-data.
+
+Note: demo-data is a standalone data generation script, not a FastAPI service.
+These tests verify the module structure rather than HTTP endpoints.
+"""
 import pytest
 
 
-class TestHealthEndpoints:
-    """Test health check endpoints."""
+@pytest.mark.smoke
+def test_main_module_loadable():
+    """Verify main module file can be located."""
+    from pathlib import Path
 
-    def test_healthz(self, client):
-        """Test liveness probe returns 200."""
-        response = client.get("/healthz")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "ok"
+    main_path = Path(__file__).parent.parent / "main.py"
+    assert main_path.exists(), "main.py should exist at the service root"
+    assert main_path.stat().st_size > 0, "main.py should not be empty"
 
-    def test_readyz(self, client):
-        """Test readiness probe returns 200."""
-        response = client.get("/readyz")
-        assert response.status_code == 200
 
-    def test_health(self, client):
-        """Test comprehensive health check."""
-        response = client.get("/health")
-        assert response.status_code == 200
+@pytest.mark.smoke
+def test_dockerfile_exists():
+    """Verify Dockerfile exists for container deployment."""
+    from pathlib import Path
+
+    dockerfile = Path(__file__).parent.parent / "Dockerfile"
+    assert dockerfile.exists(), "Dockerfile should exist"

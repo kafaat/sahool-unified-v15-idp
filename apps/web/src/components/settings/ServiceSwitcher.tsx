@@ -114,8 +114,7 @@ export const ServiceSwitcher = React.memo(function ServiceSwitcher() {
   return (
     <div
       className="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto"
-      dir="rtl"
-    >
+         >
       {/* Header */}
       <div className="flex items-center justify-between mb-6 border-b pb-4">
         <div>

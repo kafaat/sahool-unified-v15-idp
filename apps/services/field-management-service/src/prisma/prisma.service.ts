@@ -12,7 +12,7 @@ import {
   OnModuleDestroy,
   Logger,
 } from "@nestjs/common";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma } from "../../prisma/generated/client";
 
 // Slow query threshold in milliseconds
 const SLOW_QUERY_THRESHOLD = 1000;

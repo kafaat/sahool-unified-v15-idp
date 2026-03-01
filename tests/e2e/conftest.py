@@ -199,26 +199,26 @@ def e2e_headers(test_token: str) -> dict[str, str]:
 
 @pytest.fixture(scope="session")
 async def ensure_field_ops_ready():
-    """Ensure Field Ops service is ready"""
+    """Ensure Field Management service is ready (replaces deprecated field-ops)"""
     async with httpx.AsyncClient() as client:
         for _ in range(10):
             try:
-                response = await client.get("http://localhost:8080/healthz")
+                response = await client.get("http://localhost:3000/healthz")
                 if response.status_code == 200:
                     return True
             except Exception:
                 pass
             await asyncio.sleep(2)
-        pytest.skip("Field Ops service not ready")
+        pytest.skip("Field Management service not ready")
 
 
 @pytest.fixture(scope="session")
 async def ensure_weather_ready():
-    """Ensure Weather service is ready"""
+    """Ensure Weather service is ready (replaces deprecated weather-core)"""
     async with httpx.AsyncClient() as client:
         for _ in range(10):
             try:
-                response = await client.get("http://localhost:8108/healthz")
+                response = await client.get("http://localhost:8092/healthz")
                 if response.status_code == 200:
                     return True
             except Exception:
@@ -229,17 +229,17 @@ async def ensure_weather_ready():
 
 @pytest.fixture(scope="session")
 async def ensure_ndvi_ready():
-    """Ensure NDVI Engine is ready"""
+    """Ensure Vegetation Analysis service is ready (replaces deprecated ndvi-engine)"""
     async with httpx.AsyncClient() as client:
         for _ in range(10):
             try:
-                response = await client.get("http://localhost:8107/healthz")
+                response = await client.get("http://localhost:8090/healthz")
                 if response.status_code == 200:
                     return True
             except Exception:
                 pass
             await asyncio.sleep(2)
-        pytest.skip("NDVI Engine not ready")
+        pytest.skip("Vegetation Analysis service not ready")
 
 
 @pytest.fixture(scope="session")

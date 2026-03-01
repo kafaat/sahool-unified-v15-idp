@@ -35,7 +35,7 @@
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "type-check": "npm run typecheck --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "vitest run",
+    "test": "vitest run && npm run test --workspace=apps/admin",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "clean": "rm -rf node_modules **/node_modules **/dist",

@@ -225,7 +225,7 @@ export class LogsService {
       } catch (error) {
         results.failed.push({
           offlineId: log.offlineId,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }

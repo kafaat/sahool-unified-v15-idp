@@ -82,6 +82,9 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+# Copy shared modules (required for shared.middleware, shared.auth, etc.)
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+
 # Copy application code
 # Note: Build context is repo root, so use full path
 COPY --chown=sahool:sahool apps/services/edge-orchestrator-service/src ./src

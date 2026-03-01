@@ -1,0 +1,250 @@
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Migration: 002_pgbouncer_optimization.sql
+-- تحسين PgBouncer - PgBouncer Optimization
+-- ═══════════════════════════════════════════════════════════════════════════════
+--
+-- Description (EN): PgBouncer connection pooling tuning for the SAHOOL platform.
+--   This file contains PostgreSQL server-side settings that complement PgBouncer
+--   configuration, plus detailed tuning recommendations as comments.
+--
+-- الوصف (AR): ضبط تجمع اتصالات PgBouncer لمنصة سهول.
+--   يحتوي هذا الملف على إعدادات PostgreSQL من جانب الخادم التي تكمّل
+--   تكوين PgBouncer، بالإضافة إلى توصيات ضبط مفصلة كتعليقات.
+--
+-- Version: 16.0.0
+-- Date: 2026-03-01
+-- Author: SAHOOL Platform Team
+--
+-- IMPORTANT / مهم:
+--   PgBouncer operates in TRANSACTION pooling mode for SAHOOL.
+--   يعمل PgBouncer في وضع تجمع المعاملات لمنصة سهول.
+--
+--   PgBouncer configuration file: config/pgbouncer/pgbouncer.ini
+--   ملف تكوين PgBouncer: config/pgbouncer/pgbouncer.ini
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- PgBouncer Configuration Recommendations (pgbouncer.ini)
+-- توصيات تكوين PgBouncer
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- [pgbouncer]
+--
+-- ;; Pool mode: transaction (recommended for microservices)
+-- ;; وضع التجمع: المعاملات (موصى به للخدمات المصغرة)
+-- pool_mode = transaction
+--
+-- ;; Maximum client connections (across all pools)
+-- ;; الحد الأقصى لاتصالات العملاء (عبر جميع التجمعات)
+-- max_client_conn = 1000
+--
+-- ;; Default pool size per database/user pair
+-- ;; حجم التجمع الافتراضي لكل زوج قاعدة بيانات/مستخدم
+-- default_pool_size = 25
+--
+-- ;; Minimum pool size (keep connections warm)
+-- ;; الحد الأدنى لحجم التجمع (إبقاء الاتصالات جاهزة)
+-- min_pool_size = 5
+--
+-- ;; Reserve connections for superuser
+-- ;; اتصالات احتياطية للمستخدم المميز
+-- reserve_pool_size = 5
+-- reserve_pool_timeout = 3
+--
+-- ;; Connection lifetime (seconds) - rotate to prevent stale connections
+-- ;; عمر الاتصال (ثوانٍ) - التدوير لمنع الاتصالات القديمة
+-- server_lifetime = 3600
+--
+-- ;; Idle timeout (seconds) - close idle server connections
+-- ;; مهلة الخمول (ثوانٍ) - إغلاق اتصالات الخادم الخاملة
+-- server_idle_timeout = 600
+--
+-- ;; Client idle timeout (seconds) - disconnect idle clients
+-- ;; مهلة خمول العميل (ثوانٍ) - فصل العملاء الخاملين
+-- client_idle_timeout = 300
+--
+-- ;; Client login timeout (seconds)
+-- ;; مهلة تسجيل دخول العميل (ثوانٍ)
+-- client_login_timeout = 60
+--
+-- ;; Query timeout (seconds) - prevent runaway queries
+-- ;; مهلة الاستعلام (ثوانٍ) - منع الاستعلامات المتسربة
+-- query_timeout = 120
+--
+-- ;; Query wait timeout (seconds) - max time to wait for a connection from pool
+-- ;; مهلة انتظار الاستعلام (ثوانٍ) - أقصى وقت للانتظار للحصول على اتصال
+-- query_wait_timeout = 30
+--
+-- ;; Disable query cancellation in transaction mode (prevents issues)
+-- ;; تعطيل إلغاء الاستعلام في وضع المعاملات (يمنع المشاكل)
+-- cancel_wait_timeout = 10
+--
+-- ;; TCP keepalive settings - اتصال TCP الحي
+-- tcp_keepalive = 1
+-- tcp_keepidle = 30
+-- tcp_keepintvl = 10
+-- tcp_keepcnt = 3
+--
+-- ;; Logging - التسجيل
+-- log_connections = 0
+-- log_disconnections = 0
+-- log_pooler_errors = 1
+-- stats_period = 60
+--
+-- ;; Authentication - المصادقة
+-- auth_type = md5
+-- auth_file = /etc/pgbouncer/userlist.txt
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Connection Pool Sizing Guide - دليل تحديد حجم تجمع الاتصالات
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- Formula / المعادلة:
+--   max_connections (PostgreSQL) >= default_pool_size * number_of_databases + reserve_pool_size
+--   For SAHOOL: 250 >= 25 * 8 + 50 = 250 (matching current config)
+--
+-- Service connection estimates / تقديرات اتصالات الخدمات:
+--   field-management-service:     pool_size=10  (high traffic)
+--   user-service:                 pool_size=10  (auth, high traffic)
+--   vegetation-analysis-service:  pool_size=5   (batch processing)
+--   advisory-service:             pool_size=5   (moderate traffic)
+--   notification-service:         pool_size=5   (burst traffic)
+--   task-service:                 pool_size=5   (moderate traffic)
+--   iot-service:                  pool_size=8   (sensor data ingestion)
+--   weather-service:              pool_size=3   (periodic updates)
+--   marketplace-service:          pool_size=5   (moderate traffic)
+--   billing-core:                 pool_size=3   (low traffic)
+--   Other services:               pool_size=3   (low traffic each)
+--
+-- Total estimated: ~70 server connections (within 250 max)
+-- إجمالي التقدير: ~70 اتصال خادم (ضمن الحد الأقصى 250)
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- PostgreSQL Server-Side Settings
+-- إعدادات جانب خادم PostgreSQL
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- These settings optimize PostgreSQL to work well with PgBouncer.
+-- هذه الإعدادات تحسّن PostgreSQL للعمل بشكل جيد مع PgBouncer.
+--
+-- NOTE: Some settings require superuser and a server restart.
+--       بعض الإعدادات تتطلب مستخدماً مميزاً وإعادة تشغيل الخادم.
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Session-level optimizations (safe to run via PgBouncer in transaction mode)
+-- تحسينات مستوى الجلسة (آمنة للتشغيل عبر PgBouncer في وضع المعاملات)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Statement timeout: prevent long-running queries from blocking connections
+-- مهلة العبارة: منع الاستعلامات طويلة التشغيل من حجب الاتصالات
+-- Applied per-transaction; PgBouncer resets between transactions
+SET statement_timeout = '120s';
+
+-- Lock wait timeout: fail fast if waiting for locks
+-- مهلة انتظار القفل: الفشل بسرعة إذا كان ينتظر الأقفال
+SET lock_timeout = '30s';
+
+-- Idle-in-transaction timeout: close transactions left idle too long
+-- مهلة الخمول في المعاملة: إغلاق المعاملات المتروكة خاملة لفترة طويلة
+SET idle_in_transaction_session_timeout = '60s';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Query planner optimizations for indexed lookups
+-- تحسينات مخطط الاستعلام لعمليات البحث المفهرسة
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Encourage index scans for tenant-scoped queries
+-- تشجيع عمليات المسح بالفهرس للاستعلامات المحددة بالمستأجر
+SET random_page_cost = 1.1;
+
+-- Effective cache size: hint to planner about available memory
+-- حجم ذاكرة التخزين المؤقت الفعال: تلميح للمخطط حول الذاكرة المتاحة
+-- Adjust to ~75% of available RAM on database server
+-- اضبط إلى ~75% من الذاكرة المتاحة على خادم قاعدة البيانات
+SET effective_cache_size = '2GB';
+
+-- Work memory for sorting/hashing operations
+-- ذاكرة العمل لعمليات الفرز/التجزئة
+SET work_mem = '64MB';
+
+-- Maintenance work memory for index creation and VACUUM
+-- ذاكرة عمل الصيانة لإنشاء الفهارس و VACUUM
+SET maintenance_work_mem = '256MB';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- PostgreSQL Server Configuration Recommendations (postgresql.conf)
+-- توصيات تكوين خادم PostgreSQL
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- These settings should be applied in postgresql.conf (require restart).
+-- يجب تطبيق هذه الإعدادات في postgresql.conf (تتطلب إعادة التشغيل).
+--
+-- # Maximum connections - align with PgBouncer pool sizing
+-- # الحد الأقصى للاتصالات - التوافق مع تحجيم تجمع PgBouncer
+-- max_connections = 250
+--
+-- # Shared buffers: ~25% of RAM
+-- # المخازن المشتركة: ~25% من الذاكرة
+-- shared_buffers = '1GB'
+--
+-- # WAL configuration for write performance
+-- # تكوين WAL لأداء الكتابة
+-- wal_buffers = '64MB'
+-- max_wal_size = '4GB'
+-- min_wal_size = '1GB'
+-- checkpoint_completion_target = 0.9
+--
+-- # Parallel query settings
+-- # إعدادات الاستعلام المتوازي
+-- max_parallel_workers_per_gather = 2
+-- max_parallel_workers = 4
+-- max_worker_processes = 8
+--
+-- # Connection timeout settings
+-- # إعدادات مهلة الاتصال
+-- tcp_keepalives_idle = 30
+-- tcp_keepalives_interval = 10
+-- tcp_keepalives_count = 3
+--
+-- # Logging for slow queries
+-- # تسجيل الاستعلامات البطيئة
+-- log_min_duration_statement = 1000  -- Log queries > 1 second
+-- log_checkpoints = on
+-- log_lock_waits = on
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Monitoring Queries - استعلامات المراقبة
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- Check active connections per database:
+-- فحص الاتصالات النشطة لكل قاعدة بيانات:
+-- SELECT datname, count(*) FROM pg_stat_activity GROUP BY datname;
+--
+-- Check connection states:
+-- فحص حالات الاتصال:
+-- SELECT state, count(*) FROM pg_stat_activity GROUP BY state;
+--
+-- Find long-running queries:
+-- البحث عن الاستعلامات طويلة التشغيل:
+-- SELECT pid, now() - pg_stat_activity.query_start AS duration, query, state
+-- FROM pg_stat_activity
+-- WHERE (now() - pg_stat_activity.query_start) > interval '2 minutes'
+-- ORDER BY duration DESC;
+--
+-- Check index usage statistics:
+-- فحص إحصائيات استخدام الفهارس:
+-- SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
+-- FROM pg_stat_user_indexes
+-- ORDER BY idx_scan DESC;
+--
+-- Find unused indexes (candidates for removal):
+-- البحث عن الفهارس غير المستخدمة (مرشحة للإزالة):
+-- SELECT schemaname, tablename, indexname, idx_scan
+-- FROM pg_stat_user_indexes
+-- WHERE idx_scan = 0
+-- AND indexrelid NOT IN (SELECT conindid FROM pg_constraint)
+-- ORDER BY pg_relation_size(indexrelid) DESC;
+--
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- End of Migration 002 - نهاية الترحيل 002
+-- ═══════════════════════════════════════════════════════════════════════════════

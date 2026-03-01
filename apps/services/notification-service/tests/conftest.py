@@ -276,10 +276,3 @@ def sample_notification_request():
     }
 
 
-# Pytest markers
-def pytest_configure(config):
-    """Configure custom pytest markers"""
-    config.addinivalue_line("markers", "integration: mark test as integration test")
-    config.addinivalue_line("markers", "unit: mark test as unit test")
-    config.addinivalue_line("markers", "smoke: mark test as smoke test")
-    config.addinivalue_line("markers", "slow: mark test as slow running")

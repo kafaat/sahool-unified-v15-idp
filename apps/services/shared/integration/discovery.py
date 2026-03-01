@@ -51,7 +51,7 @@ class ServiceDiscovery:
         discovery = ServiceDiscovery()
         await discovery.start_health_checks()
 
-        health = await discovery.get_service_health("weather-advanced")
+        health = await discovery.get_service_health("weather-service")
         all_health = discovery.get_all_health()
     """
 

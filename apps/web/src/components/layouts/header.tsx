@@ -72,6 +72,7 @@ export const Header = React.memo(function Header() {
 
         {/* Notifications */}
         <button
+          type="button"
           className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={t("notifications") || "Notifications"}
         >
@@ -85,6 +86,7 @@ export const Header = React.memo(function Header() {
         {/* User Menu */}
         <div className="relative" data-user-menu>
           <button
+            type="button"
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="قائمة المستخدم"

@@ -24,7 +24,8 @@ export default function TablePageSkeleton({
   showAddButton = false,
 }: TablePageSkeletonProps) {
   return (
-    <div className="p-6 space-y-6 animate-pulse" dir="rtl">
+    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="Loading page">
+      <span className="sr-only">Loading page...</span>
       {/* Header skeleton */}
       <div>
         <div className="h-8 w-40 bg-gray-200 dark:bg-gray-700 rounded" />

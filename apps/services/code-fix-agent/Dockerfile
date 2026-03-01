@@ -53,7 +53,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # Production Image
 # ============================================================================
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 WORKDIR /app
 

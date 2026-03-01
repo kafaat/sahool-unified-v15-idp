@@ -3,6 +3,7 @@ import { Tajawal } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
+import { getDirection, getLocale } from "@/lib/i18n";
 
 const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
@@ -37,10 +38,13 @@ export default async function RootLayout({
   const headersList = await headers();
   const nonce = headersList.get("X-Nonce") || "";
 
+  const locale = getLocale();
+  const direction = getDirection(locale);
+
   return (
     // suppressHydrationWarning prevents errors from browser extensions (e.g., Dark Reader)
     // that modify DOM attributes during hydration
-    <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
+    <html lang={locale} dir={direction} className={tajawal.variable} suppressHydrationWarning>
       <head suppressHydrationWarning>
         {/*
           Always render nonce attribute to prevent hydration mismatch.

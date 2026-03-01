@@ -9,6 +9,23 @@ Provides comprehensive observability infrastructure:
 - FastAPI middleware for auto-instrumentation
 - Health checks
 - Agent-specific metrics and cost tracking
+
+.. note:: Preferred Tracing/Observability Package
+   This package (``shared.observability``) is the **preferred** module for new
+   services that need tracing, metrics, and structured logging. It wraps all
+   OpenTelemetry imports in ``try/except`` guards, so services can function
+   even if OTel packages are not installed (e.g., lightweight edge services).
+
+   ``shared.telemetry`` provides a similar set of capabilities but requires all
+   ``opentelemetry-*`` SDK packages to be present and will fail at import time
+   if they are missing. Use ``shared.telemetry`` only when you need low-level
+   OTel SDK access (custom samplers, baggage propagation, manual span creation
+   with the raw OTel API).
+
+   Both packages can coexist in the same service. They share the global OTel
+   TracerProvider, so spans created by either package appear in the same trace.
+
+   A future consolidation effort may merge these into a single package.
 """
 
 # Logging

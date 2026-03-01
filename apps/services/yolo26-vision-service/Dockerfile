@@ -133,6 +133,9 @@ WORKDIR /app
 RUN mkdir -p /app/src /app/models /app/logs /app/data \
     && chown -R sahool:sahool /app
 
+# Copy shared modules (required for shared.middleware, shared.auth, etc.)
+COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
+
 # Copy application code
 # Note: Build context is repo root, so use full path
 COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/
@@ -280,6 +283,9 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
 # Create directories
 RUN mkdir -p /app/src /app/models /app/logs /app/data \
     && chown -R sahool:sahool /app
+
+# Copy shared modules (required for shared.middleware, shared.auth, etc.)
+COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
 # Copy application code
 # Note: Build context is repo root, so use full path

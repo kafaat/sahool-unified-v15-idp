@@ -1442,7 +1442,7 @@ components:
         startDate:
           type: string
           format: date
-          description: Subscription start date (default: today)
+          description: "Subscription start date (default: today)"
         metadata:
           type: object
           additionalProperties: true

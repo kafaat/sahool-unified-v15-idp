@@ -256,7 +256,7 @@ export class DisasterService {
       // Include affected fields from assessments or generate mock
       affectedFields:
         disaster.fieldAssessments.length > 0
-          ? disaster.fieldAssessments.map((a) => ({
+          ? disaster.fieldAssessments.map((a: any) => ({
               fieldId: a.fieldId,
               areaHectares: a.affectedAreaHectares,
               damagePercentage: a.damagePercentage,

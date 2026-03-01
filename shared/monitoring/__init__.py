@@ -115,6 +115,13 @@ from .agricultural_metrics import (
     get_agricultural_metrics,
 )
 
+# Infrastructure Metrics (DB pool, NATS events, performance analytics)
+from .metrics import (
+    DatabasePoolMetrics,
+    NATSEventMetrics,
+    PerformanceMetrics,
+)
+
 # Structured Logging
 from .structured_logging import (
     LogCategory,
@@ -207,6 +214,10 @@ __all__ = [
     "AgriculturalMetrics",
     "get_agricultural_metrics",
     "CropType",
+    # Infrastructure Metrics
+    "DatabasePoolMetrics",
+    "NATSEventMetrics",
+    "PerformanceMetrics",
     # Structured Logging
     "StructuredLogger",
     "LogCategory",

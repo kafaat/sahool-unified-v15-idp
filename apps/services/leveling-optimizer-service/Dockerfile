@@ -66,6 +66,9 @@ FROM base AS production
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+# Copy shared modules (required for shared.middleware, shared.auth, etc.)
+COPY --chown=appuser:appgroup apps/services/shared/ ./shared/
+
 # Copy application code
 # Note: Build context is repo root, so use full path
 COPY --chown=appuser:appgroup apps/services/leveling-optimizer-service/src ./src

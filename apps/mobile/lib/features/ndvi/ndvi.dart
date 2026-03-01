@@ -1,12 +1,14 @@
-/// SAHOOL NDVI Analysis Module
+/// SAHOOL NDVI & Spectral Index Analysis Module
 ///
-/// تحليل مؤشر صحة النباتات (NDVI)
+/// تحليل مؤشرات الأقمار الصناعية الطيفية (NDVI, NDWI, EVI, SAVI, NDRE, LAI)
 ///
 /// Features:
+/// - Multi-index support (SpectralIndex enum, SpectralColormap)
 /// - NDVI value classification (NdviValue, NdviHealthCategory)
-/// - Professional colormap (NdviColormap) for visualization
+/// - Professional colormaps for all indices
 /// - Health indicator widgets (circular gauge, badge, legend)
-/// - Map tile layer integration
+/// - Multi-index map tile layer and polygon overlay
+/// - Index selector and layer control widgets
 /// - Time series trend analysis
 
 library ndvi;
@@ -14,6 +16,7 @@ library ndvi;
 // Domain
 export 'domain/ndvi_value.dart';
 export 'domain/ndvi_colormap.dart';
+export 'domain/spectral_index.dart';
 
 // UI
 export 'ui/ndvi_health_indicator.dart';

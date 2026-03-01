@@ -50,6 +50,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className = "",
       disabled,
       children,
+      type = "button",
       ...props
     },
     ref,
@@ -67,6 +68,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           sizeClasses[size],
           className,
         )}
+        type={type}
         disabled={isDisabled}
         {...props}
       >

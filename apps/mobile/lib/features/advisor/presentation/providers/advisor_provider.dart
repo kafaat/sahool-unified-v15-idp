@@ -359,7 +359,7 @@ class AdvisorDashboardNotifier extends StateNotifier<AdvisorDashboardState> {
 /// Main advisor dashboard provider
 /// الموفر الرئيسي للوحة المستشار
 final advisorDashboardProvider =
-    StateNotifierProvider<AdvisorDashboardNotifier, AdvisorDashboardState>(
+    StateNotifierProvider.autoDispose<AdvisorDashboardNotifier, AdvisorDashboardState>(
         (ref) {
   return AdvisorDashboardNotifier();
 });

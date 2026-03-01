@@ -245,8 +245,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             <div className="mb-4">
               <h3
                 className="text-lg font-bold text-gray-900"
-                dir="rtl"
-                lang="ar"
+                               lang="ar"
               >
                 {column.title_ar}
               </h3>
@@ -254,7 +253,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                 {column.title}
               </p>
               <div className="mt-2 text-sm font-medium text-gray-600">
-                <span dir="rtl" lang="ar">
+                <span lang="ar">
                   {column.tasks.length}{" "}
                   {column.tasks.length === 1 ? "مهمة" : "مهام"}
                 </span>
@@ -268,7 +267,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                 role="status"
                 aria-live="polite"
               >
-                <p className="text-sm font-medium text-blue-700" dir="rtl">
+                <p className="text-sm font-medium text-blue-700">
                   أفلت المهمة هنا
                 </p>
                 <p className="text-xs text-blue-600" dir="ltr">
@@ -299,7 +298,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                       d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                     />
                   </svg>
-                  <p className="text-sm font-medium" dir="rtl">
+                  <p className="text-sm font-medium">
                     لا توجد مهام
                   </p>
                   <p className="text-xs mt-1" dir="ltr">

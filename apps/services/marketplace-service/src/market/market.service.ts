@@ -88,6 +88,7 @@ export class MarketService {
       category?: string;
       governorate?: string;
       sellerId?: string;
+      tenantId?: string;
       minPrice?: number;
       maxPrice?: number;
     } & PaginationParams,
@@ -175,7 +176,7 @@ export class MarketService {
   /**
    * إنشاء منتج جديد (مع إبطال التخزين المؤقت)
    */
-  async createProduct(data: CreateProductDto) {
+  async createProduct(data: CreateProductDto, tenantId?: string) {
     const product = await this.prisma.product.create({
       data: {
         name: data.name,
@@ -205,7 +206,7 @@ export class MarketService {
    * ⭐ الميزة الذكية: تحويل توقع الحصاد إلى منتج
    * يتم استدعاء هذا عندما يوافق المزارع على توقع yield-engine
    */
-  async convertYieldToProduct(userId: string, yieldData: YieldData) {
+  async convertYieldToProduct(userId: string, yieldData: YieldData, tenantId?: string) {
     const currentYear = new Date().getFullYear();
 
     return this.prisma.product.create({
@@ -260,7 +261,7 @@ export class MarketService {
    * إنشاء طلب جديد
    * Uses transaction to prevent race conditions in stock management
    */
-  async createOrder(data: CreateOrderDto) {
+  async createOrder(data: CreateOrderDto, tenantId?: string) {
     // Use transaction with timeout to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
       // Batch fetch all products at once to avoid N+1 queries
@@ -272,7 +273,7 @@ export class MarketService {
       // Create a typed map for quick lookup
       type ProductType = (typeof products)[number];
       const productMap = new Map<string, ProductType>(
-        products.map((p) => [p.id, p]),
+        products.map((p: ProductType): [string, ProductType] => [p.id, p]),
       );
 
       // حساب المبالغ
@@ -322,7 +323,7 @@ export class MarketService {
       // Check for low stock after update (outside transaction to avoid blocking)
       // We'll do this in a non-blocking way after the transaction completes
       Promise.all(
-        updatedProducts.map(async (product) => {
+        updatedProducts.map(async (product: ProductType) => {
           const LOW_STOCK_THRESHOLD = 10;
           if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
             await this.eventsService.publishInventoryLowStock({
@@ -459,7 +460,7 @@ export class MarketService {
   /**
    * الحصول على إحصائيات السوق (مع التخزين المؤقت)
    */
-  async getMarketStats() {
+  async getMarketStats(tenantId?: string) {
     const cacheKey = CACHE_KEYS.MARKET_STATS();
 
     // Try cache first

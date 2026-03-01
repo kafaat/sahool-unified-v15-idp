@@ -34,6 +34,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --trusted-host mirrors.cloud.tencent.com \
     -c constraints.txt -r requirements.txt
 
+# Copy shared libraries
+COPY apps/services/shared/ ./shared/
+
 # Copy application
 COPY apps/services/traceability-service/src/ ./src/
 

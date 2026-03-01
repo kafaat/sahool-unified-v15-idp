@@ -406,6 +406,43 @@ IRRIGATION_EFFICIENCY = {
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Sensor Value Bounds - حدود قيم المستشعرات
+# Physical bounds for validating virtual sensor computed outputs
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SENSOR_VALUE_BOUNDS: dict[str, dict[str, float]] = {
+    "temperature": {"min": -50.0, "max": 65.0, "unit_ar": "°س"},
+    "humidity": {"min": 0.0, "max": 100.0, "unit_ar": "%"},
+    "soil_moisture": {"min": 0.0, "max": 1.0, "unit_ar": "م³/م³"},
+    "soil_moisture_percent": {"min": 0.0, "max": 100.0, "unit_ar": "%"},
+    "et0": {"min": 0.0, "max": 25.0, "unit_ar": "مم/يوم"},
+    "etc": {"min": 0.0, "max": 30.0, "unit_ar": "مم/يوم"},
+    "kc": {"min": 0.0, "max": 2.0, "unit_ar": "معامل"},
+    "wind_speed": {"min": 0.0, "max": 100.0, "unit_ar": "م/ث"},
+    "solar_radiation": {"min": 0.0, "max": 50.0, "unit_ar": "MJ/م²/يوم"},
+    "water_amount_mm": {"min": 0.0, "max": 500.0, "unit_ar": "مم"},
+    "ph": {"min": 0.0, "max": 14.0, "unit_ar": "pH"},
+    "ec": {"min": 0.0, "max": 20.0, "unit_ar": "dS/م"},
+}
+
+
+def validate_sensor_value(sensor_type: str, value: float) -> tuple[bool, str | None]:
+    """
+    Validate a computed sensor value against physical bounds.
+    Returns (is_valid, error_message).
+    """
+    bounds = SENSOR_VALUE_BOUNDS.get(sensor_type)
+    if bounds is None:
+        return True, None
+    if not (bounds["min"] <= value <= bounds["max"]):
+        return False, (
+            f"{sensor_type} value {value} out of bounds [{bounds['min']}, {bounds['max']}] | "
+            f"قيمة {sensor_type} خارج الحدود المسموحة"
+        )
+    return True, None
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Models
 # ═══════════════════════════════════════════════════════════════════════════════
 

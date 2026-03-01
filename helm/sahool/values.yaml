@@ -221,12 +221,12 @@ services:
   # 🌱 STARTER PACKAGE - Basic Services
   # ═════════════════════════════════════════════════════════════════════════════
 
-  fieldCore:
+  fieldManagementService:
     enabled: true
-    name: field-core
+    name: field-management-service
     package: starter
     image:
-      repository: field-core
+      repository: field-management-service
       tag: "16.0.0"
     port: 3000
     replicaCount: 2
@@ -250,21 +250,21 @@ services:
         value: production
       - name: PORT
         value: "3000"
-    # VPA Configuration for Field Core (Database-connected service)
+    # VPA Configuration for Field Management Service (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
       updateMode: "Initial"  # Only update on pod creation
       controlledValues: "RequestsAndLimits"
 
-  weatherCore:
+  weatherService:
     enabled: true
-    name: weather-core
+    name: weather-service
     package: starter
     image:
-      repository: weather-core
+      repository: weather-service
       tag: "16.0.0"
-    port: 8108
+    port: 8092
     replicaCount: 2
     resources:
       limits:
@@ -281,7 +281,7 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
-    # VPA Configuration for Weather Core (Stateless service)
+    # VPA Configuration for Weather Service (Stateless service)
     # "Auto" mode - Safe for stateless services without persistent connections
     vpa:
       enabled: true
@@ -313,14 +313,14 @@ services:
       updateMode: "Auto"  # Can safely auto-update stateless pods
       controlledValues: "RequestsAndLimits"
 
-  agroAdvisor:
+  advisoryService:
     enabled: true
-    name: agro-advisor
+    name: advisory-service
     package: starter
     image:
-      repository: agro-advisor
+      repository: advisory-service
       tag: "16.0.0"
-    port: 8105
+    port: 8093
     replicaCount: 2
     resources:
       limits:
@@ -337,7 +337,7 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
-    # VPA Configuration for Agro Advisor (Database-connected service)
+    # VPA Configuration for Advisory Service (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
@@ -379,12 +379,12 @@ services:
   # 🚜 PROFESSIONAL PACKAGE - Additional Services
   # ═════════════════════════════════════════════════════════════════════════════
 
-  satelliteService:
+  vegetationAnalysisService:
     enabled: false  # Enable when packageTier >= professional
-    name: satellite-service
+    name: vegetation-analysis-service
     package: professional
     image:
-      repository: satellite-service
+      repository: vegetation-analysis-service
       tag: "16.0.0"
     port: 8090
     replicaCount: 2
@@ -403,50 +403,19 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
-    # VPA Configuration for Satellite Service (Database-connected service)
+    # VPA Configuration for Vegetation Analysis Service (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
       updateMode: "Initial"  # Only update on pod creation
       controlledValues: "RequestsAndLimits"
 
-  ndviEngine:
+  cropIntelligenceService:
     enabled: false
-    name: ndvi-engine
+    name: crop-intelligence-service
     package: professional
     image:
-      repository: ndvi-engine
-      tag: "16.0.0"
-    port: 8107
-    replicaCount: 2
-    resources:
-      limits:
-        cpu: 1000m
-        memory: 1Gi
-      requests:
-        cpu: 250m
-        memory: 512Mi
-    autoscaling:
-      enabled: true
-      minReplicas: 2
-      maxReplicas: 5
-      targetCPUUtilization: 70
-    pdb:
-      enabled: true
-      minAvailable: 1
-    # VPA Configuration for NDVI Engine (Database-connected service)
-    # "Initial" mode - Safe for services with persistent database connections
-    vpa:
-      enabled: true
-      updateMode: "Initial"  # Only update on pod creation
-      controlledValues: "RequestsAndLimits"
-
-  cropHealthAi:
-    enabled: false
-    name: crop-health-ai
-    package: professional
-    image:
-      repository: crop-health-ai
+      repository: crop-intelligence-service
       tag: "16.0.0"
     port: 8095
     replicaCount: 2
@@ -465,7 +434,7 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
-    # VPA Configuration for Crop Health AI (Database-connected service)
+    # VPA Configuration for Crop Intelligence Service (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
@@ -522,14 +491,14 @@ services:
       updateMode: "Initial"  # Only update on pod creation
       controlledValues: "RequestsAndLimits"
 
-  yieldEngine:
+  yieldPredictionService:
     enabled: false
-    name: yield-engine
+    name: yield-prediction-service
     package: professional
     image:
-      repository: yield-engine
+      repository: yield-prediction-service
       tag: "16.0.0"
-    port: 8098
+    port: 8152
     replicaCount: 1
     resources:
       limits:
@@ -540,32 +509,7 @@ services:
         memory: 512Mi
     autoscaling:
       enabled: false
-    # VPA Configuration for Yield Engine (Database-connected service)
-    # "Initial" mode - Safe for services with persistent database connections
-    vpa:
-      enabled: true
-      updateMode: "Initial"  # Only update on pod creation
-      controlledValues: "RequestsAndLimits"
-
-  fertilizerAdvisor:
-    enabled: false
-    name: fertilizer-advisor
-    package: professional
-    image:
-      repository: fertilizer-advisor
-      tag: "16.0.0"
-    port: 8093
-    replicaCount: 1
-    resources:
-      limits:
-        cpu: 500m
-        memory: 512Mi
-      requests:
-        cpu: 100m
-        memory: 256Mi
-    autoscaling:
-      enabled: false
-    # VPA Configuration for Fertilizer Advisor (Database-connected service)
+    # VPA Configuration for Yield Prediction Service (Database-connected service)
     # "Initial" mode - Safe for services with persistent database connections
     vpa:
       enabled: true
@@ -965,7 +909,7 @@ services:
     image:
       repository: edge-orchestrator-service
       tag: "16.0.0"
-    port: 8190
+    port: 8180
     replicaCount: 2
     resources:
       limits:
@@ -1009,20 +953,20 @@ ingress:
         # Starter Package Routes
         - path: /api/v1/fields
           pathType: Prefix
-          service: field-core
+          service: field-management-service
           port: 3000
         - path: /api/v1/weather
           pathType: Prefix
-          service: weather-core
-          port: 8108
+          service: weather-service
+          port: 8092
         - path: /api/v1/calendar
           pathType: Prefix
           service: astronomical-calendar
           port: 8111
         - path: /api/v1/advisory
           pathType: Prefix
-          service: agro-advisor
-          port: 8105
+          service: advisory-service
+          port: 8093
         - path: /api/v1/notifications
           pathType: Prefix
           service: notification-service
@@ -1030,15 +974,15 @@ ingress:
         # Professional Package Routes
         - path: /api/v1/satellite
           pathType: Prefix
-          service: satellite-service
+          service: vegetation-analysis-service
           port: 8090
         - path: /api/v1/ndvi
           pathType: Prefix
-          service: ndvi-engine
-          port: 8107
+          service: vegetation-analysis-service
+          port: 8090
         - path: /api/v1/crop-health
           pathType: Prefix
-          service: crop-health-ai
+          service: crop-intelligence-service
           port: 8095
         - path: /api/v1/inventory
           pathType: Prefix
@@ -1081,7 +1025,7 @@ ingress:
         - path: /api/v1/edge
           pathType: Prefix
           service: edge-orchestrator-service
-          port: 8190
+          port: 8180
   tls:
     - secretName: sahool-tls-prod
       hosts:

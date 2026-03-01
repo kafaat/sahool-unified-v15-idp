@@ -19,7 +19,9 @@ import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
+  ValidationError,
   FEATURE_SCHEMA,
+  validateFeatureInput,
 } from "./yield.service";
 
 const VALID_GOVERNORATES = [
@@ -48,6 +50,22 @@ export class YieldController {
   })
   getFeatureSchema() {
     return FEATURE_SCHEMA;
+  }
+
+  @Post("validate-input")
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ApiOperation({
+    summary: "Validate ML input data",
+    description: "التحقق من صحة بيانات الإدخال مقابل مخطط المدخلات لكشف انحراف البيانات",
+  })
+  @ApiResponse({ status: 200, description: "Validation result" })
+  @ApiResponse({ status: 400, description: "Invalid input data" })
+  validateInput(@Body() data: ValidateInputDto): { valid: boolean; errors: ValidationError[]; schema_version: string } {
+    const result = validateFeatureInput(data as Record<string, unknown>);
+    return {
+      ...result,
+      schema_version: FEATURE_SCHEMA.version,
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

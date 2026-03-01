@@ -8,6 +8,8 @@
  * Must include its own <html> and <body> tags.
  */
 
+import { getDirection, getLocale } from "@/lib/i18n";
+
 export default function GlobalError({
   error,
   reset,
@@ -15,8 +17,11 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const locale = getLocale();
+  const direction = getDirection(locale);
+
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={locale} dir={direction}>
       <body className="bg-gray-50 text-gray-900">
         <div className="flex min-h-screen items-center justify-center p-4">
           <div className="max-w-md w-full text-center space-y-6">

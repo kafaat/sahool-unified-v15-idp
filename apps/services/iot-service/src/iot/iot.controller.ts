@@ -14,6 +14,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  BadRequestException,
 } from "@nestjs/common";
 import { Request } from "express";
 import {
@@ -31,11 +32,33 @@ import {
   IsString,
   IsArray,
   IsBoolean,
+  IsEnum,
+  Min,
+  Max,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { Throttle } from "@nestjs/throttler";
 import { IotService, SensorType, SensorReading } from "./iot.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { SkipTenantCheck } from "@sahool/nestjs-auth";
+
+// =============================================================================
+// Sensor Value Bounds - حدود قيم المستشعرات
+// =============================================================================
+
+const SENSOR_BOUNDS: Record<string, { min: number; max: number; unit: string }> = {
+  [SensorType.SOIL_MOISTURE]: { min: 0, max: 100, unit: "%" },
+  [SensorType.SOIL_TEMPERATURE]: { min: -10, max: 60, unit: "°C" },
+  [SensorType.AIR_TEMPERATURE]: { min: -20, max: 60, unit: "°C" },
+  [SensorType.AIR_HUMIDITY]: { min: 0, max: 100, unit: "%" },
+  [SensorType.LIGHT_INTENSITY]: { min: 0, max: 150000, unit: "lux" },
+  [SensorType.WATER_LEVEL]: { min: 0, max: 1000, unit: "cm" },
+  [SensorType.WATER_FLOW]: { min: 0, max: 1000, unit: "L/min" },
+  [SensorType.PH_LEVEL]: { min: 0, max: 14, unit: "pH" },
+  [SensorType.EC_LEVEL]: { min: 0, max: 10, unit: "mS/cm" },
+  [SensorType.WIND_SPEED]: { min: 0, max: 200, unit: "km/h" },
+  [SensorType.RAIN_GAUGE]: { min: 0, max: 500, unit: "mm" },
+};
 
 // =============================================================================
 // DTOs
@@ -70,6 +93,22 @@ class IrrigationScheduleDto {
 
   @IsBoolean()
   enabled: boolean;
+}
+
+class IngestSensorReadingDto {
+  @IsString()
+  deviceId: string;
+
+  @IsEnum(SensorType)
+  sensorType: SensorType;
+
+  @IsNumber()
+  @Type(() => Number)
+  value: number;
+
+  @IsOptional()
+  @IsString()
+  timestamp?: string;
 }
 
 // =============================================================================
@@ -137,6 +176,42 @@ export class IotController {
     @Req() req: Request,
   ): Promise<SensorReading | null> {
     return this.iotService.getSensorReading(fieldId, sensorType, this.getTenantId(req));
+  }
+
+  // ==========================================================================
+  // Sensor Data Ingestion (REST API)
+  // ==========================================================================
+
+  @Post("field/:fieldId/sensor/reading")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Ingest a sensor reading via REST API" })
+  @ApiParam({ name: "fieldId", description: "Field identifier" })
+  @ApiBody({ type: IngestSensorReadingDto })
+  @ApiResponse({ status: 200, description: "Sensor reading accepted" })
+  @ApiResponse({ status: 400, description: "Invalid sensor value or out of bounds" })
+  async ingestSensorReading(
+    @Param("fieldId") fieldId: string,
+    @Body() dto: IngestSensorReadingDto,
+    @Req() req: Request,
+  ): Promise<{ success: boolean; quality: string; message: string }> {
+    const bounds = SENSOR_BOUNDS[dto.sensorType];
+    if (bounds && (dto.value < bounds.min || dto.value > bounds.max)) {
+      throw new BadRequestException({
+        statusCode: 400,
+        error: "Bad Request",
+        message: `Value ${dto.value} out of bounds for ${dto.sensorType} [${bounds.min}, ${bounds.max}] ${bounds.unit}`,
+        message_ar: `القيمة ${dto.value} خارج النطاق المسموح لـ ${dto.sensorType} [${bounds.min}, ${bounds.max}] ${bounds.unit}`,
+      });
+    }
+    return this.iotService.ingestReading(fieldId, dto, this.getTenantId(req));
+  }
+
+  @Get("sensor-bounds")
+  @ApiOperation({ summary: "Get sensor value bounds for all sensor types" })
+  @ApiResponse({ status: 200, description: "Sensor bounds retrieved" })
+  getSensorBounds() {
+    return { bounds: SENSOR_BOUNDS };
   }
 
   // ==========================================================================

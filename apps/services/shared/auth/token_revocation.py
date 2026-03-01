@@ -156,8 +156,12 @@ class RedisTokenRevocationStore:
                 url,
                 encoding="utf-8",
                 decode_responses=True,
+                max_connections=20,
+                socket_timeout=5,
                 socket_connect_timeout=5,
                 socket_keepalive=True,
+                health_check_interval=30,
+                retry_on_timeout=True,
             )
 
             # Test connection
@@ -550,19 +554,28 @@ class RedisTokenRevocationStore:
             return RevocationStats(initialized=False)
 
         try:
-            # Count keys by prefix (this can be expensive on large datasets)
-            revoked_tokens = len(await self._redis.keys(f"{self.TOKEN_PREFIX}*") or [])
-            revoked_users = len(await self._redis.keys(f"{self.USER_PREFIX}*") or [])
-            revoked_tenants = len(await self._redis.keys(f"{self.TENANT_PREFIX}*") or [])
+            # Count keys by prefix using SCAN (safe for production)
+            async def _count_keys(pattern: str) -> int:
+                count = 0
+                cursor = 0
+                while True:
+                    cursor, keys = await self._redis.scan(cursor, match=pattern, count=100)
+                    count += len(keys)
+                    if cursor == 0:
+                        break
+                return count
 
+            revoked_tokens = await _count_keys(f"{self.TOKEN_PREFIX}*")
+            revoked_users = await _count_keys(f"{self.USER_PREFIX}*")
+            revoked_tenants = await _count_keys(f"{self.TENANT_PREFIX}*")
+
+            redis_url = self._build_redis_url()
             return RevocationStats(
                 initialized=True,
                 revoked_tokens=revoked_tokens,
                 revoked_users=revoked_users,
                 revoked_tenants=revoked_tenants,
-                redis_url=self._build_redis_url().split("@")[-1]
-                if "@" in self._build_redis_url()
-                else self._build_redis_url(),
+                redis_url=redis_url.split("@")[-1] if "@" in redis_url else redis_url,
             )
 
         except Exception as e:

@@ -8,7 +8,7 @@ SAHOOL - Provider Configuration Database Service
 import json
 import logging
 
-import redis
+import redis.asyncio as aioredis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class CacheManager:
-    """Redis cache manager for provider configurations"""
+    """Async Redis cache manager for provider configurations"""
 
     def __init__(self, redis_url: str, cache_ttl: int = 300):
         """
@@ -34,15 +34,31 @@ class CacheManager:
             cache_ttl: Cache TTL in seconds (default: 5 minutes)
         """
         self.cache_ttl = cache_ttl
+        self.redis_client: aioredis.Redis | None = None
+        self._redis_url = redis_url
+
+    async def initialize(self) -> None:
+        """Initialize async Redis connection"""
         try:
-            self.redis_client = redis.from_url(
-                redis_url, decode_responses=True, socket_connect_timeout=5
+            self.redis_client = aioredis.from_url(
+                self._redis_url,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5,
+                socket_keepalive=True,
+                max_connections=20,
+                retry_on_timeout=True,
             )
-            # Test connection
-            self.redis_client.ping()
+            await self.redis_client.ping()
             logger.info("Redis cache connected successfully")
         except Exception as e:
             logger.warning(f"Redis cache connection failed: {e}. Caching disabled.")
+            self.redis_client = None
+
+    async def close(self) -> None:
+        """Close Redis connection"""
+        if self.redis_client:
+            await self.redis_client.close()
             self.redis_client = None
 
     def _get_key(self, tenant_id: str, provider_type: str | None = None) -> str:
@@ -51,14 +67,14 @@ class CacheManager:
             return f"provider_config:{tenant_id}:{provider_type}"
         return f"provider_config:{tenant_id}:all"
 
-    def get(self, tenant_id: str, provider_type: str | None = None) -> dict | None:
+    async def get(self, tenant_id: str, provider_type: str | None = None) -> dict | None:
         """Get cached configuration"""
         if not self.redis_client:
             return None
 
         try:
             key = self._get_key(tenant_id, provider_type)
-            data = self.redis_client.get(key)
+            data = await self.redis_client.get(key)
             if data:
                 logger.debug(f"Cache hit for {key}")
                 return json.loads(data)
@@ -68,21 +84,21 @@ class CacheManager:
             logger.error(f"Cache get error: {e}")
             return None
 
-    def set(self, tenant_id: str, data: dict, provider_type: str | None = None) -> bool:
+    async def set(self, tenant_id: str, data: dict, provider_type: str | None = None) -> bool:
         """Set cached configuration"""
         if not self.redis_client:
             return False
 
         try:
             key = self._get_key(tenant_id, provider_type)
-            self.redis_client.setex(key, self.cache_ttl, json.dumps(data))
+            await self.redis_client.setex(key, self.cache_ttl, json.dumps(data))
             logger.debug(f"Cache set for {key}")
             return True
         except Exception as e:
             logger.error(f"Cache set error: {e}")
             return False
 
-    def invalidate(self, tenant_id: str, provider_type: str | None = None):
+    async def invalidate(self, tenant_id: str, provider_type: str | None = None):
         """Invalidate cache for tenant"""
         if not self.redis_client:
             return
@@ -91,13 +107,19 @@ class CacheManager:
             if provider_type:
                 # Invalidate specific provider type
                 key = self._get_key(tenant_id, provider_type)
-                self.redis_client.delete(key)
+                await self.redis_client.delete(key)
             else:
-                # Invalidate all provider types for tenant
+                # Invalidate all provider types for tenant using SCAN
                 pattern = f"provider_config:{tenant_id}:*"
-                keys = self.redis_client.keys(pattern)
-                if keys:
-                    self.redis_client.delete(*keys)
+                cursor = 0
+                while True:
+                    cursor, keys = await self.redis_client.scan(
+                        cursor, match=pattern, count=100
+                    )
+                    if keys:
+                        await self.redis_client.delete(*keys)
+                    if cursor == 0:
+                        break
             logger.debug(f"Cache invalidated for tenant {tenant_id}")
         except Exception as e:
             logger.error(f"Cache invalidation error: {e}")

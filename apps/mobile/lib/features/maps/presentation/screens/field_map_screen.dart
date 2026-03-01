@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/map/sahool_tile_provider.dart';
 import '../../../../core/geo/geojson.dart';
+import '../../../ndvi/domain/spectral_index.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -29,10 +31,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _showZones = true;
   bool _showNdvi = false;
   bool _showNdwi = false;
+  bool _showEvi = false;
+  bool _showSavi = false;
+  bool _showNdre = false;
   bool _showGpsTrack = false;
   bool _isTracking = false;
   String? _selectedZoneId;
   double _currentZoom = 15.0;
+
+  /// Currently active spectral index for legend display
+  SpectralIndex? get _activeIndex {
+    if (_showNdvi) return SpectralIndex.ndvi;
+    if (_showNdwi) return SpectralIndex.ndwi;
+    if (_showEvi) return SpectralIndex.evi;
+    if (_showSavi) return SpectralIndex.savi;
+    if (_showNdre) return SpectralIndex.ndre;
+    return null;
+  }
 
   /// Map controller for programmatic camera control
   late final MapController _mapController;
@@ -150,123 +165,151 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   Widget _buildMapView() {
-    // Placeholder for MapLibre map
-    // In production, use maplibre_gl package
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.green[100]!,
-            Colors.green[200]!,
+    // Determine center point
+    final center = _fieldBoundary.isNotEmpty
+        ? GeoJson.calculateCentroid(_fieldBoundary)
+        : (widget.initialCenter != null
+            ? LatLng(
+                (widget.initialCenter!['lat'] as num?)?.toDouble() ?? 15.3694,
+                (widget.initialCenter!['lng'] as num?)?.toDouble() ?? 44.1910,
+              )
+            : const LatLng(15.3694, 44.1910));
+
+    // Determine tile URL based on selected layer
+    final String tileUrl;
+    switch (_selectedLayer) {
+      case 'satellite':
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        break;
+      case 'terrain':
+        tileUrl = 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+        break;
+      default:
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: center,
+        initialZoom: _currentZoom,
+        onPositionChanged: (position, hasGesture) {
+          if (hasGesture && mounted) {
+            setState(() => _currentZoom = position.zoom ?? _currentZoom);
+          }
+        },
+        onTap: (tapPosition, point) {
+          if (_selectedZoneId != null) {
+            setState(() => _selectedZoneId = null);
+          }
+        },
+      ),
+      children: [
+        // Base tile layer
+        TileLayer(
+          urlTemplate: tileUrl,
+          userAgentPackageName: 'com.sahool.field',
+          maxZoom: 19,
+          tileProvider: SahoolTileProvider(),
+        ),
+
+        // Field boundary polygon
+        if (_fieldBoundary.isNotEmpty)
+          PolygonLayer(
+            polygons: [
+              Polygon(
+                points: _fieldBoundary,
+                color: _showNdvi
+                    ? Colors.green.withOpacity(0.3)
+                    : const Color(0xFF367C2B).withOpacity(0.15),
+                borderColor: const Color(0xFF367C2B),
+                borderStrokeWidth: 3,
+              ),
+            ],
+          ),
+
+        // Spectral index overlays using SpectralColormap
+        if (_fieldBoundary.isNotEmpty)
+          ..._buildSpectralOverlays(),
+
+        // Center marker
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: center,
+              width: 40,
+              height: 40,
+              child: Icon(
+                _isTracking ? Icons.my_location : Icons.location_on,
+                size: 36,
+                color: _isTracking ? Colors.blue : const Color(0xFF367C2B),
+              ),
+            ),
           ],
         ),
-      ),
-      child: Stack(
-        children: [
-          // خلفية محاكاة للخريطة
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _MapGridPainter(),
-            ),
-          ),
-          // محتوى الخريطة
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // أيقونة الموقع مع حركة
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  child: Icon(
-                    _isTracking ? Icons.my_location : Icons.location_on,
-                    size: 60,
-                    color: _isTracking ? Colors.blue : const Color(0xFF367C2B),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.fieldName ?? 'خريطة الحقل',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Color(0xFF367C2B),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+
+        // Tracking indicator
+        if (_isTracking)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: center,
+                width: 100,
+                height: 100,
+                child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'تكبير: ${_currentZoom.toStringAsFixed(1)}x',
-                    style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                    shape: BoxShape.circle,
+                    color: Colors.blue.withOpacity(0.15),
+                    border: Border.all(color: Colors.blue.withOpacity(0.4), width: 2),
                   ),
                 ),
-                const SizedBox(height: 16),
-                // عرض الطبقات النشطة
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (_showZones)
-                      _buildActiveLayerChip('المناطق', Icons.crop_square, Colors.blue),
-                    if (_showNdvi)
-                      _buildActiveLayerChip('NDVI', Icons.grass, Colors.green),
-                    if (_showNdwi)
-                      _buildActiveLayerChip('NDWI', Icons.water_drop, Colors.cyan),
-                    if (_showGpsTrack)
-                      _buildActiveLayerChip('GPS', Icons.gps_fixed, Colors.orange),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                if (_isTracking)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.blue),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'جاري تتبع الموقع...',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+      ],
     );
   }
 
-  Widget _buildActiveLayerChip(String label, IconData icon, Color color) {
-    return Chip(
-      avatar: Icon(icon, size: 16, color: color),
-      label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
+  /// Build spectral index polygon overlays using SpectralColormap
+  List<Widget> _buildSpectralOverlays() {
+    final overlays = <Widget>[];
+
+    // Map of active toggles to their index and mock values
+    final activeIndices = <SpectralIndex, double>{
+      if (_showNdvi) SpectralIndex.ndvi: 0.72,
+      if (_showNdwi) SpectralIndex.ndwi: -0.05,
+      if (_showEvi) SpectralIndex.evi: 0.58,
+      if (_showSavi) SpectralIndex.savi: 0.45,
+      if (_showNdre) SpectralIndex.ndre: 0.35,
+    };
+
+    for (final entry in activeIndices.entries) {
+      final idx = entry.key;
+      final value = entry.value;
+      final color = SpectralColormap.getColor(idx, value);
+
+      overlays.add(
+        PolygonLayer(
+          polygons: [
+            Polygon(
+              points: _fieldBoundary,
+              color: color.withOpacity(0.35),
+              borderColor: color,
+              borderStrokeWidth: 2,
+              label: '${idx.code}: ${value.toStringAsFixed(2)}',
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return overlays;
   }
 
   Widget _buildToolbar() {
@@ -280,16 +323,18 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           children: [
             _buildToolButton(
               icon: Icons.add,
-              onPressed: () => setState(() {
-                if (_currentZoom < 20) _currentZoom += 1;
-              }),
+              onPressed: () {
+                final zoom = _mapController.camera.zoom;
+                _mapController.move(_mapController.camera.center, zoom + 1);
+              },
               tooltip: 'تكبير',
             ),
             _buildToolButton(
               icon: Icons.remove,
-              onPressed: () => setState(() {
-                if (_currentZoom > 5) _currentZoom -= 1;
-              }),
+              onPressed: () {
+                final zoom = _mapController.camera.zoom;
+                _mapController.move(_mapController.camera.center, zoom - 1);
+              },
               tooltip: 'تصغير',
             ),
             const Divider(height: 16),
@@ -299,17 +344,41 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               onPressed: () => setState(() => _showZones = !_showZones),
               tooltip: 'المناطق',
             ),
+            // Spectral index toggles
             _buildToolButton(
-              icon: Icons.grass,
+              icon: SpectralIndex.ndvi.icon,
               isActive: _showNdvi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndvi, 0.6),
               onPressed: () => setState(() => _showNdvi = !_showNdvi),
               tooltip: 'NDVI',
             ),
             _buildToolButton(
-              icon: Icons.water_drop,
+              icon: SpectralIndex.ndwi.icon,
               isActive: _showNdwi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndwi, 0.4),
               onPressed: () => setState(() => _showNdwi = !_showNdwi),
               tooltip: 'NDWI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.evi.icon,
+              isActive: _showEvi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.evi, 0.5),
+              onPressed: () => setState(() => _showEvi = !_showEvi),
+              tooltip: 'EVI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.savi.icon,
+              isActive: _showSavi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.savi, 0.5),
+              onPressed: () => setState(() => _showSavi = !_showSavi),
+              tooltip: 'SAVI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.ndre.icon,
+              isActive: _showNdre,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndre, 0.4),
+              onPressed: () => setState(() => _showNdre = !_showNdre),
+              tooltip: 'NDRE',
             ),
             const Divider(height: 16),
             _buildToolButton(
@@ -407,9 +476,24 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildIndicator('NDVI', '0.72', Colors.green),
-                _buildIndicator('NDWI', '-0.05', Colors.blue),
-                _buildIndicator('NDRE', '0.28', Colors.orange),
+                _buildIndicator('NDVI', '0.72',
+                    SpectralColormap.getColor(SpectralIndex.ndvi, 0.72)),
+                _buildIndicator('NDWI', '-0.05',
+                    SpectralColormap.getColor(SpectralIndex.ndwi, -0.05)),
+                _buildIndicator('NDRE', '0.28',
+                    SpectralColormap.getColor(SpectralIndex.ndre, 0.28)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildIndicator('EVI', '0.58',
+                    SpectralColormap.getColor(SpectralIndex.evi, 0.58)),
+                _buildIndicator('SAVI', '0.45',
+                    SpectralColormap.getColor(SpectralIndex.savi, 0.45)),
+                _buildIndicator('LAI', '3.2',
+                    SpectralColormap.getColor(SpectralIndex.lai, 3.2)),
               ],
             ),
             const SizedBox(height: 16),
@@ -465,7 +549,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   Widget _buildLegend() {
-    if (!_showNdvi && !_showNdwi) return const SizedBox.shrink();
+    final idx = _activeIndex;
+    if (idx == null) return const SizedBox.shrink();
 
     return Card(
       elevation: 4,
@@ -476,9 +561,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(idx.icon, size: 16,
+                    color: SpectralColormap.getColor(idx, 0.6)),
+                const SizedBox(width: 6),
+                Text(
+                  idx.code,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             Text(
-              _showNdvi ? 'NDVI' : 'NDWI',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              idx.nameAr,
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Container(
@@ -487,35 +585,26 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 gradient: LinearGradient(
-                  colors: _showNdvi
-                      ? [
-                          Colors.red,
-                          Colors.yellow,
-                          Colors.green,
-                          Colors.green[800]!,
-                        ]
-                      : [
-                          Colors.brown,
-                          Colors.yellow,
-                          Colors.blue,
-                          Colors.blue[800]!,
-                        ],
+                  colors: SpectralColormap.generateGradient(idx, steps: 20),
                 ),
               ),
             ),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _showNdvi ? '0' : '-1',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  _showNdvi ? '1' : '1',
-                  style: const TextStyle(fontSize: 10),
-                ),
-              ],
+            SizedBox(
+              width: 150,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    idx.minValue.toStringAsFixed(1),
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  Text(
+                    idx.maxValue.toStringAsFixed(1),
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -586,23 +675,41 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 },
                 activeColor: const Color(0xFF367C2B),
               ),
+              // Spectral index toggles
               SwitchListTile(
-                secondary: const Icon(Icons.grass),
-                title: const Text('طبقة NDVI'),
+                secondary: Icon(SpectralIndex.ndvi.icon),
+                title: const Text('طبقة NDVI - الغطاء النباتي'),
                 value: _showNdvi,
-                onChanged: (v) {
-                  setState(() => _showNdvi = v);
-                },
+                onChanged: (v) => setState(() => _showNdvi = v),
                 activeColor: const Color(0xFF367C2B),
               ),
               SwitchListTile(
-                secondary: const Icon(Icons.water_drop),
-                title: const Text('طبقة NDWI'),
+                secondary: Icon(SpectralIndex.ndwi.icon),
+                title: const Text('طبقة NDWI - محتوى المياه'),
                 value: _showNdwi,
-                onChanged: (v) {
-                  setState(() => _showNdwi = v);
-                },
-                activeColor: const Color(0xFF367C2B),
+                onChanged: (v) => setState(() => _showNdwi = v),
+                activeColor: const Color(0xFF1E90FF),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.evi.icon),
+                title: const Text('طبقة EVI - النبات المحسّن'),
+                value: _showEvi,
+                onChanged: (v) => setState(() => _showEvi = v),
+                activeColor: const Color(0xFF2E8B57),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.savi.icon),
+                title: const Text('طبقة SAVI - المعدّل للتربة'),
+                value: _showSavi,
+                onChanged: (v) => setState(() => _showSavi = v),
+                activeColor: const Color(0xFF6B8E23),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.ndre.icon),
+                title: const Text('طبقة NDRE - النيتروجين'),
+                value: _showNdre,
+                onChanged: (v) => setState(() => _showNdre = v),
+                activeColor: const Color(0xFF32CD32),
               ),
               const SizedBox(height: 16),
             ],
@@ -693,60 +800,4 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       'fieldName': widget.fieldName,
     });
   }
-}
-
-/// رسام شبكة الخريطة
-class _MapGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.green.withOpacity(0.1)
-      ..strokeWidth = 1;
-
-    // رسم خطوط أفقية
-    for (var i = 0; i < size.height; i += 30) {
-      canvas.drawLine(
-        Offset(0, i.toDouble()),
-        Offset(size.width, i.toDouble()),
-        paint,
-      );
-    }
-
-    // رسم خطوط عمودية
-    for (var i = 0; i < size.width; i += 30) {
-      canvas.drawLine(
-        Offset(i.toDouble(), 0),
-        Offset(i.toDouble(), size.height),
-        paint,
-      );
-    }
-
-    // رسم بعض المربعات لمحاكاة الحقول
-    final fieldPaint = Paint()
-      ..color = Colors.green.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    final fieldRects = [
-      Rect.fromLTWH(size.width * 0.2, size.height * 0.3, 100, 80),
-      Rect.fromLTWH(size.width * 0.5, size.height * 0.2, 120, 100),
-      Rect.fromLTWH(size.width * 0.3, size.height * 0.6, 90, 70),
-    ];
-
-    for (final rect in fieldRects) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        fieldPaint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        Paint()
-          ..color = Colors.green
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

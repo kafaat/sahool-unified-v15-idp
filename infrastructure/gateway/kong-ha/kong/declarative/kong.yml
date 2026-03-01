@@ -1047,7 +1047,7 @@ services:
   # Chat Service - Real-time messaging
   # خدمة الدردشة - المراسلة في الوقت الحقيقي
   - name: chat-service
-    url: http://chat-service:8000
+    url: http://chat-service:8115
     connect_timeout: 3000
     read_timeout: 10000
     retries: 2
@@ -1069,7 +1069,7 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # DEPRECATED: community-chat → chat-service (SERVICE_PORTS.CHAT_SERVICE = 8000)
+  # DEPRECATED: community-chat → chat-service (SERVICE_PORTS.CHAT_SERVICE = 8115)
   # Archived. Remove in v17.0.0.
   - name: community-chat
     url: http://community-chat:8097

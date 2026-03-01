@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SAHOOL IoT Sensor Value Bounds",
+  "title_ar": "حدود قيم مستشعرات إنترنت الأشياء",
+  "description": "Defines valid value ranges for each sensor type. Used for ingestion validation and data quality checks.",
+  "version": "16.0.0",
+  "driftReport": "7d5dc4c6-bc6",
+  "sensorBounds": {
+    "SOIL_MOISTURE": {
+      "min": 0,
+      "max": 100,
+      "unit": "%",
+      "description": "Volumetric water content in soil",
+      "description_ar": "محتوى الماء الحجمي في التربة"
+    },
+    "SOIL_TEMPERATURE": {
+      "min": -10,
+      "max": 60,
+      "unit": "°C",
+      "description": "Soil temperature at root zone depth",
+      "description_ar": "درجة حرارة التربة في منطقة الجذور"
+    },
+    "AIR_TEMPERATURE": {
+      "min": -20,
+      "max": 60,
+      "unit": "°C",
+      "description": "Ambient air temperature",
+      "description_ar": "درجة حرارة الهواء المحيط"
+    },
+    "AIR_HUMIDITY": {
+      "min": 0,
+      "max": 100,
+      "unit": "%",
+      "description": "Relative humidity",
+      "description_ar": "الرطوبة النسبية"
+    },
+    "LIGHT_INTENSITY": {
+      "min": 0,
+      "max": 150000,
+      "unit": "lux",
+      "description": "Photosynthetically active radiation",
+      "description_ar": "الإشعاع النشط ضوئياً"
+    },
+    "WATER_LEVEL": {
+      "min": 0,
+      "max": 1000,
+      "unit": "cm",
+      "description": "Water level in reservoir or canal",
+      "description_ar": "مستوى المياه في الخزان أو القناة"
+    },
+    "WATER_FLOW": {
+      "min": 0,
+      "max": 1000,
+      "unit": "L/min",
+      "description": "Water flow rate",
+      "description_ar": "معدل تدفق المياه"
+    },
+    "PH_LEVEL": {
+      "min": 0,
+      "max": 14,
+      "unit": "pH",
+      "description": "Soil or water acidity/alkalinity",
+      "description_ar": "حموضة/قلوية التربة أو المياه"
+    },
+    "EC_LEVEL": {
+      "min": 0,
+      "max": 10,
+      "unit": "mS/cm",
+      "description": "Electrical conductivity (salinity indicator)",
+      "description_ar": "التوصيل الكهربائي (مؤشر الملوحة)"
+    },
+    "WIND_SPEED": {
+      "min": 0,
+      "max": 200,
+      "unit": "km/h",
+      "description": "Wind speed at station height",
+      "description_ar": "سرعة الرياح عند ارتفاع المحطة"
+    },
+    "RAIN_GAUGE": {
+      "min": 0,
+      "max": 500,
+      "unit": "mm",
+      "description": "Accumulated rainfall",
+      "description_ar": "هطول الأمطار المتراكم"
+    }
+  },
+  "qualityRules": {
+    "description": "Data quality assessment rules applied during ingestion",
+    "levels": {
+      "good": "Value within normal operating range",
+      "warning": "Value near boundary (within 10% of min/max)",
+      "error": "Value outside defined bounds"
+    }
+  },
+  "validationEndpoint": "POST /iot/field/:fieldId/sensor/reading",
+  "boundsEndpoint": "GET /iot/sensor-bounds"
+}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL Tile Provider - مزود بلاطات الخريطة مع التخزين المحلي
 ///
@@ -119,14 +120,14 @@ class SahoolCachedTileImage extends ImageProvider<SahoolCachedTileImage> {
       // 4. حفظ الملف للمستقبل (Caching)
       // نحفظ بشكل غير متزامن لتجنب التأخير
       file.writeAsBytes(bytes).catchError((e) {
-        debugPrint('Failed to cache tile: $e');
+        AppLogger.w('Failed to cache tile $z/$x/$y', tag: 'TileProvider');
       });
 
       final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
       return await decode(buffer);
     } catch (e) {
       // في حالة الخطأ (لا نت ولا كاش)، نرجع صورة شفافة
-      debugPrint('Tile load failed ($z/$x/$y): $e');
+      AppLogger.w('Tile load failed $z/$x/$y: $e', tag: 'TileProvider');
       return _transparentTile(decode);
     }
   }

@@ -181,8 +181,7 @@ export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="ابحث في التقارير... Search reports..."
               className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              dir="rtl"
-            />
+                         />
           </div>
 
           {/* Filter Panel */}

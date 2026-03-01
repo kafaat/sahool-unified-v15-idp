@@ -130,10 +130,11 @@ COPY --from=builder /workspace/chat-service/node_modules/@prisma/client ./node_m
 COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
-ENV PORT=8000
+ENV PORT=8115
+ENV NODE_ENV=production
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8115
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app /nestjs-auth
@@ -141,7 +142,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD curl -f http://localhost:8115/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

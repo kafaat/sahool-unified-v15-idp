@@ -74,7 +74,8 @@ const getHealthLabel = (score: number): string => {
   if (score >= 80) return "ممتاز";
   if (score >= 60) return "جيد";
   if (score >= 40) return "متوسط";
-  return "ضعيف";
+  if (score >= 20) return "ضعيف";
+  return "حرج";
 };
 
 export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
@@ -120,10 +121,11 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   }, []);
 
   const getMarkerColor = (healthScore: number): string => {
-    if (healthScore >= 80) return "#22c55e"; // green
-    if (healthScore >= 60) return "#eab308"; // yellow
-    if (healthScore >= 40) return "#f97316"; // orange
-    return "#ef4444"; // red
+    if (healthScore >= 80) return "#1B5E20"; // dark green - excellent
+    if (healthScore >= 60) return "#4CAF50"; // green - good
+    if (healthScore >= 40) return "#FDD835"; // yellow - moderate
+    if (healthScore >= 20) return "#FF9800"; // orange - poor
+    return "#F44336"; // red - critical
   };
 
   if (!isMounted) {
@@ -236,7 +238,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
                 }}
               >
                 <Popup>
-                  <div className="text-right font-arabic" dir="rtl">
+                  <div className="text-right font-arabic">
                     <h3 className="font-bold text-lg mb-2">
                       {farm.nameAr || farm.name || "مزرعة"}
                     </h3>
@@ -297,7 +299,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
               }}
             >
               <Popup>
-                <div className="text-right font-arabic" dir="rtl">
+                <div className="text-right font-arabic">
                   <h3 className="font-bold text-lg mb-2">
                     {farm.nameAr || farm.name || "مزرعة"}
                   </h3>

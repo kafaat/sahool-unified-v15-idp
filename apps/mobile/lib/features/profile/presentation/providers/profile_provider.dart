@@ -157,6 +157,6 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 /// Provider for profile state
 /// موفر حالة الملف الشخصي
 final profileProvider =
-    StateNotifierProvider<ProfileNotifier, ProfileState>((ref) {
+    StateNotifierProvider.autoDispose<ProfileNotifier, ProfileState>((ref) {
   return ProfileNotifier();
 });

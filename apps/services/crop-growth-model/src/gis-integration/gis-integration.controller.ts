@@ -11,6 +11,19 @@ import {
 } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsIn,
+  IsObject,
+  ValidateNested,
+  ArrayNotEmpty,
+  Min,
+} from "class-validator";
+import { Type } from "class-transformer";
+import {
   GISIntegrationService,
   GeoJSONFeatureCollection,
   GeoJSONGeometry,
@@ -19,38 +32,133 @@ import {
   RouteRequest,
 } from "./gis-integration.service";
 
+// Nested DTOs
+class BBoxDto {
+  @IsNumber()
+  minX: number;
+
+  @IsNumber()
+  minY: number;
+
+  @IsNumber()
+  maxX: number;
+
+  @IsNumber()
+  maxY: number;
+}
+
+class PointDto {
+  @IsNumber()
+  x: number;
+
+  @IsNumber()
+  y: number;
+}
+
+class LatLngDto {
+  @IsNumber()
+  lat: number;
+
+  @IsNumber()
+  lng: number;
+}
+
 // Request DTOs
-interface GetMapDto {
+class GetMapDto {
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
   layers: string[];
-  bbox: { minX: number; minY: number; maxX: number; maxY: number };
+
+  @ValidateNested()
+  @Type(() => BBoxDto)
+  bbox: BBoxDto;
+
+  @IsNumber()
+  @Min(1)
   width: number;
+
+  @IsNumber()
+  @Min(1)
   height: number;
+
+  @IsOptional()
+  @IsString()
   format?: string;
+
+  @IsOptional()
+  @IsString()
   srs?: string;
+
+  @IsOptional()
+  @IsBoolean()
   transparent?: boolean;
 }
 
-interface GetFeatureInfoDto {
+class GetFeatureInfoDto {
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
   layers: string[];
-  point: { x: number; y: number };
-  bbox: { minX: number; minY: number; maxX: number; maxY: number };
+
+  @ValidateNested()
+  @Type(() => PointDto)
+  point: PointDto;
+
+  @ValidateNested()
+  @Type(() => BBoxDto)
+  bbox: BBoxDto;
+
+  @IsNumber()
+  @Min(1)
   width: number;
+
+  @IsNumber()
+  @Min(1)
   height: number;
+
+  @IsOptional()
+  @IsString()
   srs?: string;
 }
 
-interface GetFeaturesDto {
+class GetFeaturesDto {
+  @IsString()
   typeName: string;
-  bbox?: { minX: number; minY: number; maxX: number; maxY: number };
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BBoxDto)
+  bbox?: BBoxDto;
+
+  @IsOptional()
+  @IsString()
   filter?: string;
+
+  @IsOptional()
+  @IsNumber()
   maxFeatures?: number;
+
+  @IsOptional()
+  @IsNumber()
   startIndex?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   propertyName?: string[];
+
+  @IsOptional()
+  @IsString()
   sortBy?: string;
+
+  @IsOptional()
+  @IsString()
   outputFormat?: string;
 }
 
-interface SpatialQueryDto {
+class SpatialQueryDto {
+  @IsIn(["intersects", "contains", "within", "overlaps", "touches", "buffer", "union"])
   operation:
     | "intersects"
     | "contains"
@@ -59,55 +167,138 @@ interface SpatialQueryDto {
     | "touches"
     | "buffer"
     | "union";
+
+  @IsOptional()
+  @IsObject()
   geometry?: GeoJSONGeometry;
+
+  @IsOptional()
+  @IsNumber()
   distance?: number;
+
+  @IsOptional()
+  @IsIn(["meters", "kilometers", "miles"])
   unit?: "meters" | "kilometers" | "miles";
+
+  @IsOptional()
+  @IsString()
   targetLayer?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   properties?: string[];
 }
 
-interface CreateFieldDto {
+class CreateFieldDto {
+  @IsString()
   farmId: string;
+
+  @IsString()
   name: string;
+
+  @IsString()
   nameAr: string;
+
+  @IsObject()
   geometry: GeoJSONGeometry;
+
+  @IsOptional()
+  @IsString()
   soilType?: string;
+
+  @IsOptional()
+  @IsString()
   irrigationType?: string;
+
+  @IsOptional()
+  @IsString()
   currentCrop?: string;
 }
 
-interface ZonalStatsDto {
+class ZonalStatsDto {
+  @IsObject()
   zones: GeoJSONFeatureCollection;
+
+  @IsString()
   rasterLayer: string;
+
+  @IsArray()
+  @IsIn(["count", "sum", "mean", "min", "max", "std"], { each: true })
   statistics: ("count" | "sum" | "mean" | "min" | "max" | "std")[];
 }
 
-interface RouteRequestDto {
-  origin: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
-  waypoints?: { lat: number; lng: number }[];
+class RouteRequestDto {
+  @ValidateNested()
+  @Type(() => LatLngDto)
+  origin: LatLngDto;
+
+  @ValidateNested()
+  @Type(() => LatLngDto)
+  destination: LatLngDto;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LatLngDto)
+  waypoints?: LatLngDto[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   avoid?: string[];
+
+  @IsOptional()
+  @IsBoolean()
   optimize?: boolean;
 }
 
-interface CreateProjectDto {
+class CreateProjectDto {
+  @IsString()
   name: string;
+
+  @IsString()
   nameAr: string;
+
+  @IsString()
   description: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
   layers: string[];
+
+  @IsOptional()
+  @IsString()
   basemap?: string;
-  center?: { lat: number; lng: number };
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LatLngDto)
+  center?: LatLngDto;
+
+  @IsOptional()
+  @IsNumber()
   zoom?: number;
+
+  @IsString()
   owner: string;
 }
 
-interface TransformDto {
+class TransformDto {
+  @IsArray()
+  @IsNumber({}, { each: true })
   coordinates: number[];
+
+  @IsString()
   fromSRS: string;
+
+  @IsString()
   toSRS: string;
 }
 
-interface ValidateGeoJSONDto {
+class ValidateGeoJSONDto {
+  @IsObject()
   geojson: any;
 }
 

@@ -151,7 +151,7 @@ export class ScientificLockGuard implements CanActivate {
       };
     } catch (error) {
       this.logger.error(
-        `Error checking experiment lock status: ${error.message}`,
+        `Error checking experiment lock status: ${error instanceof Error ? error.message : String(error)}`,
       );
       // On error, default to allowing the operation
       // but log for investigation

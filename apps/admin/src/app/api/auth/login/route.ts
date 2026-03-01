@@ -68,22 +68,31 @@ export async function POST(request: NextRequest) {
     // Set secure httpOnly cookies
     const cookieStore = await cookies();
 
-    // Access token - 1 day expiry
+    // Access token - aligned with JWT expiry (default 30 min)
+    // SECURITY FIX: Cookie maxAge must match JWT expiry to prevent stale tokens
+    const accessTokenMaxAge = parseInt(
+      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
+      10,
+    ); // 30 minutes default
     cookieStore.set("sahool_admin_token", data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 86400, // 1 day in seconds
+      maxAge: accessTokenMaxAge,
       path: "/",
     });
 
-    // Refresh token if provided - 7 days expiry
+    // Refresh token if provided - aligned with refresh token expiry (default 7 days)
     if (data.refresh_token) {
+      const refreshTokenMaxAge = parseInt(
+        process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
+        10,
+      ); // 7 days default
       cookieStore.set("sahool_admin_refresh_token", data.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 604800, // 7 days in seconds
+        maxAge: refreshTokenMaxAge,
         path: "/",
       });
     }
@@ -93,7 +102,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 86400, // 1 day
+      maxAge: accessTokenMaxAge,
       path: "/",
     });
 

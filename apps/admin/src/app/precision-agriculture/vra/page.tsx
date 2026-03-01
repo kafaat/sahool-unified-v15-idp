@@ -3,7 +3,7 @@
 // VRA (Variable Rate Application) Management
 // إدارة التطبيق المتغير
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -50,12 +50,7 @@ export default function VRAPage() {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedFarm, _setSelectedFarm] = useState<string>("all");
 
-  useEffect(() => {
-    loadPrescriptions();
-     
-  }, [selectedStatus, selectedType, selectedFarm]);
-
-  async function loadPrescriptions() {
+  const loadPrescriptions = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchVRAPrescriptions({
@@ -69,7 +64,11 @@ export default function VRAPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [selectedStatus, selectedType, selectedFarm]);
+
+  useEffect(() => {
+    loadPrescriptions();
+  }, [loadPrescriptions]);
 
   async function handleApprove(id: string) {
     try {

@@ -58,6 +58,12 @@ pdb:
 
 # Health probes
 probes:
+  startup:
+    path: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 30
   liveness:
     path: /api/healthz
     initialDelaySeconds: 30
@@ -106,3 +112,13 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+
+# Topology spread constraints for even distribution
+# labelSelector is automatically set to the chart's selector labels by the deployment template
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+# Graceful shutdown
+terminationGracePeriodSeconds: 30

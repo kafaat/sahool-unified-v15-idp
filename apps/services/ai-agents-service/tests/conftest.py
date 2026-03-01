@@ -498,9 +498,3 @@ def populated_executions(client):
     main_module.executions.clear()
 
 
-# Environment markers for different test types
-def pytest_configure(config):
-    """Configure custom pytest markers."""
-    config.addinivalue_line("markers", "unit: mark test as a unit test")
-    config.addinivalue_line("markers", "integration: mark test as an integration test")
-    config.addinivalue_line("markers", "smoke: mark test as a smoke test")

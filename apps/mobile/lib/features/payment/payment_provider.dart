@@ -7,13 +7,13 @@ import 'data/tharwatt_service.dart';
 import '../../core/network/api_result.dart';
 
 /// تكوين Tharwatt
-final tharwattConfigProvider = Provider<TharwattConfig>((ref) {
+final tharwattConfigProvider = Provider.autoDispose<TharwattConfig>((ref) {
   // استخدام وضع الاختبار افتراضياً
   return TharwattConfig.test();
 });
 
 /// خدمة Tharwatt
-final tharwattServiceProvider = Provider<TharwattPaymentService>((ref) {
+final tharwattServiceProvider = Provider.autoDispose<TharwattPaymentService>((ref) {
   final config = ref.watch(tharwattConfigProvider);
   return TharwattPaymentService(config: config);
 });
@@ -368,7 +368,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
 /// مزود حالة المدفوعات
 final paymentProvider =
-    StateNotifierProvider.family<PaymentNotifier, PaymentState, String>(
+    StateNotifierProvider.autoDispose.family<PaymentNotifier, PaymentState, String>(
   (ref, walletId) {
     final service = ref.watch(tharwattServiceProvider);
     return PaymentNotifier(
@@ -379,7 +379,7 @@ final paymentProvider =
 );
 
 /// مزود المشغلين
-final mobileOperatorsProvider = FutureProvider<List<MobileOperator>>((ref) async {
+final mobileOperatorsProvider = FutureProvider.autoDispose<List<MobileOperator>>((ref) async {
   final service = ref.watch(tharwattServiceProvider);
   final result = await service.getSupportedOperators();
 
@@ -391,7 +391,7 @@ final mobileOperatorsProvider = FutureProvider<List<MobileOperator>>((ref) async
 
 /// مزود التحقق من رقم الهاتف
 final validatePhoneProvider =
-    FutureProvider.family<bool, String>((ref, phoneNumber) async {
+    FutureProvider.autoDispose.family<bool, String>((ref, phoneNumber) async {
   final service = ref.watch(tharwattServiceProvider);
   final result = await service.validatePhoneNumber(phoneNumber);
 

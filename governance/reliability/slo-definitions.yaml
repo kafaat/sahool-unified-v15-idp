@@ -3,8 +3,8 @@
 # Service Level Objectives and Indicators for all services
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "1.0.0"
-last_updated: "2025-12-19"
+version: "1.1.0"
+last_updated: "2026-02-28"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global SLO Targets
@@ -246,6 +246,1762 @@ services:
         sli: |
           sum(rate(transactions_completed_total[5m])) /
           sum(rate(transactions_initiated_total[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Field Management Service - خدمة إدارة الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-management-service:
+    tier: critical
+    slos:
+      availability:
+        target: 99.95%
+        sli: |
+          sum(rate(http_requests_total{service="field-management-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="field-management-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="field-management-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.05%
+        sli: |
+          sum(rate(http_requests_total{service="field-management-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="field-management-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # User Service - خدمة المستخدمين
+  # ═══════════════════════════════════════════════════════════════════════════
+  user-service:
+    tier: critical
+    slos:
+      availability:
+        target: 99.99%
+        description: "Authentication must be highly available"
+        sli: |
+          sum(rate(http_requests_total{service="user-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="user-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        description: "Auth endpoints must be fast"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="user-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.01%
+        sli: |
+          sum(rate(http_requests_total{service="user-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="user-service"}[5m]))
+
+      login_success:
+        target: 99.9%
+        description: "Successful login rate (excluding invalid credentials)"
+        sli: |
+          sum(rate(auth_login_success_total[5m])) /
+          sum(rate(auth_login_attempts_total{reason!="invalid_credentials"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Advisory Service - خدمة الاستشارات
+  # ═══════════════════════════════════════════════════════════════════════════
+  advisory-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="advisory-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="advisory-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        description: "Advisory generation may involve AI inference"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="advisory-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="advisory-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="advisory-service"}[5m]))
+
+      advisory_quality:
+        target: 85%
+        description: "Advisory recommendations rated 4+ by users"
+        sli: |
+          sum(rate(advisory_feedback_positive_total[24h])) /
+          sum(rate(advisory_feedback_total[24h]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Billing Core - خدمة الفوترة
+  # ═══════════════════════════════════════════════════════════════════════════
+  billing-core:
+    tier: critical
+    slos:
+      availability:
+        target: 99.95%
+        sli: |
+          sum(rate(http_requests_total{service="billing-core",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="billing-core"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="billing-core"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.05%
+        description: "Financial operations require high reliability"
+        sli: |
+          sum(rate(http_requests_total{service="billing-core",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="billing-core"}[5m]))
+
+      invoice_processing:
+        target: 99.9%
+        description: "Invoice generation success rate"
+        sli: |
+          sum(rate(invoices_generated_total[5m])) /
+          sum(rate(invoice_requests_total[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  # ═══════════════════════════════════════════════════════════════════════════
+  vegetation-analysis-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="vegetation-analysis-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="vegetation-analysis-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 2000ms
+        p99: 5000ms
+        description: "Satellite imagery processing latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="vegetation-analysis-service"}[5m])) by (le)
+          )
+
+      ndvi_accuracy:
+        target: 95%
+        description: "NDVI computation accuracy vs ground truth"
+        sli: |
+          sum(ndvi_validation_accurate_total) /
+          sum(ndvi_validation_total)
+
+      imagery_freshness:
+        target: 95%
+        description: "Imagery available within 24 hours of acquisition"
+        sli: |
+          sum(imagery_delivery_within_sla_total) /
+          sum(imagery_requests_total)
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Crop Intelligence Service - خدمة ذكاء المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-intelligence-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="crop-intelligence-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crop-intelligence-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        description: "AI inference latency for crop analysis"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="crop-intelligence-service"}[5m])) by (le)
+          )
+
+      detection_accuracy:
+        target: 90%
+        description: "Disease/pest detection accuracy (F1 score)"
+        sli: |
+          sum(disease_detection_true_positives) /
+          (sum(disease_detection_true_positives) + 0.5 * sum(disease_detection_false_positives) + 0.5 * sum(disease_detection_false_negatives))
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="crop-intelligence-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crop-intelligence-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Weather Service - خدمة الطقس
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="weather-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="weather-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="weather-service"}[5m])) by (le)
+          )
+
+      data_freshness:
+        target: 99%
+        description: "Weather data updated within 1 hour"
+        sli: |
+          (time() - weather_last_update_timestamp) < 3600
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="weather-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="weather-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Irrigation Smart - الري الذكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  irrigation-smart:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="irrigation-smart",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="irrigation-smart"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="irrigation-smart"}[5m])) by (le)
+          )
+
+      scheduling_accuracy:
+        target: 90%
+        description: "Irrigation schedule recommendations within 10% of optimal"
+        sli: |
+          sum(rate(irrigation_schedule_accurate_total[24h])) /
+          sum(rate(irrigation_schedule_total[24h]))
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="irrigation-smart",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="irrigation-smart"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Task Service - خدمة المهام
+  # ═══════════════════════════════════════════════════════════════════════════
+  task-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="task-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="task-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="task-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="task-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="task-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Equipment Service - خدمة المعدات
+  # ═══════════════════════════════════════════════════════════════════════════
+  equipment-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="equipment-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="equipment-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="equipment-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="equipment-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="equipment-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Alert Service - خدمة التنبيهات
+  # ═══════════════════════════════════════════════════════════════════════════
+  alert-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.95%
+        description: "Alerts are safety-critical for pest/weather events"
+        sli: |
+          sum(rate(http_requests_total{service="alert-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="alert-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="alert-service"}[5m])) by (le)
+          )
+
+      alert_delivery:
+        target: 99.5%
+        description: "Critical alerts delivered within 60 seconds"
+        sli: |
+          sum(rate(alerts_delivered_within_sla_total[5m])) /
+          sum(rate(alerts_triggered_total[5m]))
+
+      error_rate:
+        target: 0.05%
+        sli: |
+          sum(rate(http_requests_total{service="alert-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="alert-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Audit Service - خدمة التدقيق والمراجعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  audit-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.95%
+        description: "Audit trail must be reliably recorded"
+        sli: |
+          sum(rate(http_requests_total{service="audit-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="audit-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="audit-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.05%
+        sli: |
+          sum(rate(http_requests_total{service="audit-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="audit-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WebSocket Gateway - بوابة WebSocket
+  # ═══════════════════════════════════════════════════════════════════════════
+  ws-gateway:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(websocket_connections_active[5m])) > 0
+
+      connection_success:
+        target: 99.5%
+        description: "WebSocket connection success rate"
+        sli: |
+          sum(rate(ws_connections_established_total[5m])) /
+          sum(rate(ws_connection_attempts_total[5m]))
+
+      message_latency:
+        p50: 20ms
+        p95: 100ms
+        p99: 200ms
+        description: "Real-time message delivery latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(ws_message_latency_seconds_bucket[5m])) by (le)
+          )
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
+  # ═══════════════════════════════════════════════════════════════════════════
+  yolo26-vision-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="yolo26-vision-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="yolo26-vision-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        description: "GPU inference latency for image detection"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(inference_duration_seconds_bucket{service="yolo26-vision-service"}[5m])) by (le)
+          )
+
+      detection_accuracy:
+        target: 88%
+        description: "Detection mAP@0.5 for medium model variant"
+        sli: |
+          sum(detection_true_positives) /
+          (sum(detection_true_positives) + 0.5 * sum(detection_false_positives) + 0.5 * sum(detection_false_negatives))
+
+      processing_throughput:
+        target: 10
+        unit: "images/second"
+        sli: |
+          rate(images_processed_total{service="yolo26-vision-service"}[5m])
+
+      gpu_utilization:
+        target: 80%
+        description: "GPU utilization below 80% to prevent OOM"
+        sli: |
+          gpu_memory_used_bytes / gpu_memory_total_bytes < 0.8
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Terrain Core Service - خدمة تحليل التضاريس
+  # ═══════════════════════════════════════════════════════════════════════════
+  terrain-core-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="terrain-core-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="terrain-core-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 5000ms
+        description: "DEM processing is computationally intensive"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="terrain-core-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="terrain-core-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="terrain-core-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Hydrology Service - خدمة الهيدرولوجيا
+  # ═══════════════════════════════════════════════════════════════════════════
+  hydrology-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="hydrology-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="hydrology-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 5000ms
+        description: "Drainage and watershed analysis latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="hydrology-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="hydrology-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="hydrology-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Leveling Optimizer Service - خدمة تحسين التسوية
+  # ═══════════════════════════════════════════════════════════════════════════
+  leveling-optimizer-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="leveling-optimizer-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="leveling-optimizer-service"}[5m]))
+
+      latency:
+        p50: 1000ms
+        p95: 5000ms
+        p99: 10000ms
+        description: "Cut-fill optimization is computationally intensive"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="leveling-optimizer-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="leveling-optimizer-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="leveling-optimizer-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Edge Orchestrator Service - خدمة إدارة الأجهزة الطرفية
+  # ═══════════════════════════════════════════════════════════════════════════
+  edge-orchestrator-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="edge-orchestrator-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="edge-orchestrator-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="edge-orchestrator-service"}[5m])) by (le)
+          )
+
+      device_sync_success:
+        target: 95%
+        description: "Edge device synchronization success rate"
+        sli: |
+          sum(rate(edge_sync_success_total[5m])) /
+          sum(rate(edge_sync_attempts_total[5m]))
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="edge-orchestrator-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="edge-orchestrator-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LLM Orchestrator Service - خدمة تنسيق نماذج اللغة
+  # ═══════════════════════════════════════════════════════════════════════════
+  llm-orchestrator-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="llm-orchestrator-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="llm-orchestrator-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 10000ms
+        description: "LLM inference latency varies by model and query complexity"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="llm-orchestrator-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        description: "LLM calls may fail due to model availability"
+        sli: |
+          sum(rate(http_requests_total{service="llm-orchestrator-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="llm-orchestrator-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Indicators Service - خدمة المؤشرات
+  # ═══════════════════════════════════════════════════════════════════════════
+  indicators-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="indicators-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="indicators-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="indicators-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="indicators-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="indicators-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Virtual Sensors - المستشعرات الافتراضية
+  # ═══════════════════════════════════════════════════════════════════════════
+  virtual-sensors:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="virtual-sensors",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="virtual-sensors"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="virtual-sensors"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="virtual-sensors",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="virtual-sensors"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IoT Gateway - بوابة إنترنت الأشياء
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-gateway:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="iot-gateway",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="iot-gateway"}[5m]))
+
+      message_latency:
+        p50: 20ms
+        p95: 100ms
+        p99: 200ms
+        description: "Protocol translation latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(gateway_message_latency_seconds_bucket[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="iot-gateway",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="iot-gateway"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Chat Service - خدمة الدردشة
+  # ═══════════════════════════════════════════════════════════════════════════
+  chat-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="chat-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="chat-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="chat-service"}[5m])) by (le)
+          )
+
+      message_delivery:
+        target: 99.5%
+        description: "Message delivery success rate"
+        sli: |
+          sum(rate(messages_delivered_total[5m])) /
+          sum(rate(messages_sent_total[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Research Core - نواة البحث العلمي
+  # ═══════════════════════════════════════════════════════════════════════════
+  research-core:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="research-core",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="research-core"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="research-core"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="research-core",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="research-core"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Disaster Assessment - تقييم الكوارث
+  # ═══════════════════════════════════════════════════════════════════════════
+  disaster-assessment:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        description: "Disaster risk assessment must be highly available"
+        sli: |
+          sum(rate(http_requests_total{service="disaster-assessment",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="disaster-assessment"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="disaster-assessment"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.1%
+        sli: |
+          sum(rate(http_requests_total{service="disaster-assessment",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="disaster-assessment"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LAI Estimation - تقدير مؤشر مساحة الأوراق
+  # ═══════════════════════════════════════════════════════════════════════════
+  lai-estimation:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="lai-estimation",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="lai-estimation"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="lai-estimation"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="lai-estimation",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="lai-estimation"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Skills Service - خدمة المهارات
+  # ═══════════════════════════════════════════════════════════════════════════
+  skills-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="skills-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="skills-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="skills-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="skills-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="skills-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Agro Rules - القواعد الزراعية
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-rules:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="agro-rules",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="agro-rules"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="agro-rules"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="agro-rules",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="agro-rules"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Field Intelligence - ذكاء الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-intelligence:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="field-intelligence",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="field-intelligence"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="field-intelligence"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="field-intelligence",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="field-intelligence"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Ground Vision Service - خدمة الرؤية الأرضية
+  # ═══════════════════════════════════════════════════════════════════════════
+  ground-vision-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="ground-vision-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ground-vision-service"}[5m]))
+
+      latency:
+        p50: 300ms
+        p95: 1500ms
+        p99: 3000ms
+        description: "Image processing latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ground-vision-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="ground-vision-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ground-vision-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Soil Analysis Service - خدمة تحليل التربة
+  # ═══════════════════════════════════════════════════════════════════════════
+  soil-analysis-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="soil-analysis-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="soil-analysis-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="soil-analysis-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="soil-analysis-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="soil-analysis-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Pest Detection Service - خدمة كشف الآفات
+  # ═══════════════════════════════════════════════════════════════════════════
+  pest-detection-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="pest-detection-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="pest-detection-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="pest-detection-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="pest-detection-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="pest-detection-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Yield Prediction Service - خدمة تنبؤ الإنتاجية
+  # ═══════════════════════════════════════════════════════════════════════════
+  yield-prediction-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="yield-prediction-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="yield-prediction-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        description: "ML model inference latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="yield-prediction-service"}[5m])) by (le)
+          )
+
+      prediction_accuracy:
+        target: 85%
+        description: "Yield predictions within 15% of actual"
+        sli: |
+          sum(rate(yield_predictions_accurate_total[24h])) /
+          sum(rate(yield_predictions_total[24h]))
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="yield-prediction-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="yield-prediction-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Copilot API - المساعد الذكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  copilot-api:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="copilot-api",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="copilot-api"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 10000ms
+        description: "LLM + RAG inference latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="copilot-api"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="copilot-api",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="copilot-api"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Supply Chain Service - خدمة سلسلة التوريد
+  # ═══════════════════════════════════════════════════════════════════════════
+  supply-chain-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="supply-chain-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="supply-chain-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="supply-chain-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="supply-chain-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="supply-chain-service"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Digital Twin Engine - محاكاة التوأم الرقمي
+  # ═══════════════════════════════════════════════════════════════════════════
+  digital-twin-engine:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="digital-twin-engine",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="digital-twin-engine"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 5000ms
+        description: "Simulation computation latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="digital-twin-engine"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="digital-twin-engine",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="digital-twin-engine"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Fertigation Engine - محرك التسميد بالري
+  # ═══════════════════════════════════════════════════════════════════════════
+  fertigation-engine:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="fertigation-engine",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="fertigation-engine"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="fertigation-engine"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="fertigation-engine",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="fertigation-engine"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Irrigation Cycle Engine - محرك دورات الري
+  # ═══════════════════════════════════════════════════════════════════════════
+  irrigation-cycle-engine:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="irrigation-cycle-engine",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="irrigation-cycle-engine"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="irrigation-cycle-engine"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="irrigation-cycle-engine",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="irrigation-cycle-engine"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IoT Sensor Hub - مركز أجهزة الاستشعار
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-sensor-hub:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="iot-sensor-hub",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="iot-sensor-hub"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        description: "Sensor data aggregation latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="iot-sensor-hub"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="iot-sensor-hub",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="iot-sensor-hub"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Astronomical Calendar - التقويم الفلكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  astronomical-calendar:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="astronomical-calendar",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="astronomical-calendar"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="astronomical-calendar"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="astronomical-calendar",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="astronomical-calendar"}[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Remaining Business Services (Standard SLOs)
+  # Inventory, CRM, Lowcode, WeChat, GlobaGAP, Logistics, etc.
+  # ═══════════════════════════════════════════════════════════════════════════
+  inventory-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="inventory-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="inventory-service"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="inventory-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="inventory-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="inventory-service"}[5m]))
+
+  crm-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="crm-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crm-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="crm-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="crm-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crm-service"}[5m]))
+
+  globalgap-compliance:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="globalgap-compliance",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="globalgap-compliance"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="globalgap-compliance"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="globalgap-compliance",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="globalgap-compliance"}[5m]))
+
+  logistics-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="logistics-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="logistics-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="logistics-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="logistics-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="logistics-service"}[5m]))
+
+  provider-config:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="provider-config",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="provider-config"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="provider-config"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="provider-config",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="provider-config"}[5m]))
+
+  ai-advisor:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="ai-advisor",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-advisor"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 10000ms
+        description: "AI inference latency varies by query complexity"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ai-advisor"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-advisor",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-advisor"}[5m]))
+
+  knowledge-graph:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="knowledge-graph",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="knowledge-graph"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="knowledge-graph"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="knowledge-graph",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="knowledge-graph"}[5m]))
+
+  drone-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="drone-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="drone-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="drone-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="drone-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="drone-service"}[5m]))
+
+  whatsapp-bot-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="whatsapp-bot-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="whatsapp-bot-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="whatsapp-bot-service"}[5m])) by (le)
+          )
+
+      message_delivery:
+        target: 99%
+        description: "WhatsApp message delivery success rate"
+        sli: |
+          sum(rate(whatsapp_messages_delivered_total[5m])) /
+          sum(rate(whatsapp_messages_sent_total[5m]))
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="whatsapp-bot-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="whatsapp-bot-service"}[5m]))
+
+  ussd-gateway:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="ussd-gateway",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ussd-gateway"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ussd-gateway"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 0.5%
+        sli: |
+          sum(rate(http_requests_total{service="ussd-gateway",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ussd-gateway"}[5m]))
+
+  mcp-server:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="mcp-server",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="mcp-server"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="mcp-server"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="mcp-server",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="mcp-server"}[5m]))
+
+  wechat-service:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="wechat-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="wechat-service"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="wechat-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="wechat-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="wechat-service"}[5m]))
+
+  lowcode-engine:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="lowcode-engine",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="lowcode-engine"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="lowcode-engine"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="lowcode-engine",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="lowcode-engine"}[5m]))
+
+  cooperative-service:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="cooperative-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="cooperative-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="cooperative-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="cooperative-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="cooperative-service"}[5m]))
+
+  traceability-service:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="traceability-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="traceability-service"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="traceability-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="traceability-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="traceability-service"}[5m]))
+
+  agent-registry:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="agent-registry",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="agent-registry"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="agent-registry"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="agent-registry",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="agent-registry"}[5m]))
+
+  code-review-service:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-review-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-review-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 10000ms
+        description: "Code review involves LLM inference"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="code-review-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-review-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-review-service"}[5m]))
+
+  ai-agents-service:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-agents-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-agents-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 5000ms
+        p99: 15000ms
+        description: "Multi-agent orchestration can take significant time"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ai-agents-service"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 2.0%
+        description: "Agent tasks may fail due to model/tool dependencies"
+        sli: |
+          sum(rate(http_requests_total{service="ai-agents-service",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-agents-service"}[5m]))
+
+  ai-agents-core:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-agents-core",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-agents-core"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ai-agents-core"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-agents-core",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-agents-core"}[5m]))
+
+  code-fix-agent:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-fix-agent",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-fix-agent"}[5m]))
+
+      latency:
+        p50: 1000ms
+        p95: 5000ms
+        p99: 15000ms
+        description: "Code analysis and fixing involves multiple LLM calls"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="code-fix-agent"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 2.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-fix-agent",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-fix-agent"}[5m]))
+
+  code-review-agent:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-review-agent",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-review-agent"}[5m]))
+
+      latency:
+        p50: 1000ms
+        p95: 5000ms
+        p99: 15000ms
+        description: "PR review involves multiple LLM calls"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="code-review-agent"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 2.0%
+        sli: |
+          sum(rate(http_requests_total{service="code-review-agent",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="code-review-agent"}[5m]))
+
+  ai-chat-assistant:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-chat-assistant",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-chat-assistant"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 3000ms
+        p99: 10000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="ai-chat-assistant"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 1.0%
+        sli: |
+          sum(rate(http_requests_total{service="ai-chat-assistant",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="ai-chat-assistant"}[5m]))
+
+  demo-data:
+    tier: low
+    slos:
+      availability:
+        target: 99.0%
+        sli: |
+          sum(rate(http_requests_total{service="demo-data",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="demo-data"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 2000ms
+        p99: 5000ms
+        description: "Data generation can be slow for large datasets"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="demo-data"}[5m])) by (le)
+          )
+
+      error_rate:
+        target: 2.0%
+        sli: |
+          sum(rate(http_requests_total{service="demo-data",code=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="demo-data"}[5m]))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure SLOs

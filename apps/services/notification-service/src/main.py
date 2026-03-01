@@ -58,8 +58,6 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-from shared.middleware.tenant_context import TenantContextMiddleware
-
 # Import authentication dependencies
 try:
     from shared.auth.dependencies import get_current_user

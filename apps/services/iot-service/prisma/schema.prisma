@@ -6,6 +6,7 @@
 
 generator client {
   provider      = "prisma-client-js"
+  output        = "./generated/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
 
@@ -113,7 +114,7 @@ model Device {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   sensors        Sensor[]
@@ -155,7 +156,7 @@ model Sensor {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
@@ -223,7 +224,7 @@ model Actuator {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   device   Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
@@ -261,7 +262,7 @@ model ActuatorCommand {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   actuator Actuator @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
@@ -301,7 +302,7 @@ model DeviceAlert {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)

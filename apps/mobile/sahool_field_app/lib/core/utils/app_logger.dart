@@ -72,6 +72,21 @@ class AppLogger {
     _log(LogLevel.warning, message, tag: tag, data: data);
   }
 
+  /// Info log alias (for backward compatibility)
+  static void info(String message, [Object? error]) {
+    _log(LogLevel.info, message, error: error);
+  }
+
+  /// Warning log alias (for backward compatibility)
+  static void warning(String message, [Object? error]) {
+    _log(LogLevel.warning, message, error: error);
+  }
+
+  /// Error log alias (for backward compatibility)
+  static void error(String message, [Object? error]) {
+    _log(LogLevel.error, message, error: error);
+  }
+
   /// Error log - أخطاء
   static void e(
     String message, {

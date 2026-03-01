@@ -54,6 +54,11 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   bool _isAddingNewSector = false;
   double? _newSectorStartAngle;
 
+  // Undo/redo stacks store full sector list snapshots
+  final List<List<PivotSector>> _undoStack = [];
+  final List<List<PivotSector>> _redoStack = [];
+  static const int _maxUndoHistory = 30;
+
   // Default sector colors
   static const List<String> _defaultColors = [
     '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
@@ -65,6 +70,13 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   void initState() {
     super.initState();
     _sectors = widget.initialSectors?.toList() ?? [];
+  }
+
+  /// Save current state snapshot before a destructive operation
+  void _saveSnapshot() {
+    _undoStack.add(_sectors.map((s) => s.copyWith()).toList());
+    if (_undoStack.length > _maxUndoHistory) _undoStack.removeAt(0);
+    _redoStack.clear();
   }
 
   @override
@@ -156,7 +168,14 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
           _ControlButton(
             icon: Icons.undo,
             label: 'تراجع',
-            onPressed: _sectors.isEmpty ? null : _undoLastSector,
+            onPressed: _undoStack.isEmpty ? null : _undoLastSector,
+          ),
+
+          // Redo button
+          _ControlButton(
+            icon: Icons.redo,
+            label: 'إعادة',
+            onPressed: _redoStack.isEmpty ? null : _redoSector,
           ),
         ],
       ),
@@ -285,14 +304,17 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
     final startDiff = _angleDifference(angle, sector.startAngle).abs();
     final endDiff = _angleDifference(angle, sector.endAngle).abs();
 
+    int? handleIndex;
     if (startDiff < handleThreshold) {
-      setState(() {
-        _draggingHandleIndex = 0;
-        _dragStart = details.localPosition;
-      });
+      handleIndex = 0;
     } else if (endDiff < handleThreshold) {
+      handleIndex = 1;
+    }
+
+    if (handleIndex != null) {
+      _saveSnapshot(); // Save state before drag begins
       setState(() {
-        _draggingHandleIndex = 1;
+        _draggingHandleIndex = handleIndex;
         _dragStart = details.localPosition;
       });
     }
@@ -306,29 +328,24 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
     final dragOffset = details.localPosition - center;
     final newAngle = _offsetToAngle(dragOffset);
 
-    setState(() {
-      final sector = _sectors[_selectedSectorIndex!];
+    final sector = _sectors[_selectedSectorIndex!];
+    final snappedAngle = _snapAngle(newAngle);
 
-      if (_draggingHandleIndex == 0) {
-        // Dragging start handle
-        final newStartAngle = _snapAngle(newAngle);
-        if (_isValidAngleChange(sector, newStartAngle, sector.endAngle)) {
-          _sectors[_selectedSectorIndex!] = sector.copyWith(
-            startAngle: newStartAngle,
-          );
-        }
-      } else {
-        // Dragging end handle
-        final newEndAngle = _snapAngle(newAngle);
-        if (_isValidAngleChange(sector, sector.startAngle, newEndAngle)) {
-          _sectors[_selectedSectorIndex!] = sector.copyWith(
-            endAngle: newEndAngle,
-          );
-        }
+    PivotSector? updated;
+    if (_draggingHandleIndex == 0) {
+      if (_isValidAngleChange(sector, snappedAngle, sector.endAngle)) {
+        updated = sector.copyWith(startAngle: snappedAngle);
       }
-    });
+    } else {
+      if (_isValidAngleChange(sector, sector.startAngle, snappedAngle)) {
+        updated = sector.copyWith(endAngle: snappedAngle);
+      }
+    }
 
-    widget.onSectorsChanged(_sectors);
+    if (updated != null) {
+      setState(() => _sectors[_selectedSectorIndex!] = updated!);
+      widget.onSectorsChanged(_sectors);
+    }
   }
 
   void _handlePanEnd(DragEndDetails details) {
@@ -357,7 +374,6 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   void _createSector(double startAngle, double endAngle) {
     // Normalize angles
     if (endAngle < startAngle) {
-      // Swap if end is before start
       final temp = startAngle;
       startAngle = endAngle;
       endAngle = temp;
@@ -377,6 +393,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
       color: _defaultColors[_sectors.length % _defaultColors.length],
     );
 
+    _saveSnapshot();
     setState(() {
       _sectors.add(newSector);
       _selectedSectorIndex = _sectors.length - 1;
@@ -399,6 +416,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
+              _saveSnapshot();
               setState(() {
                 _sectors.removeAt(index);
                 _renumberSectors();
@@ -434,6 +452,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
       builder: (context) => _SectorEditSheet(
         sector: sector,
         onSave: (updatedSector) {
+          _saveSnapshot();
           setState(() {
             _sectors[index] = updatedSector;
           });
@@ -458,6 +477,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
+              _saveSnapshot();
               setState(() {
                 _sectors.clear();
                 _selectedSectorIndex = null;
@@ -476,16 +496,27 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   }
 
   void _undoLastSector() {
-    if (_sectors.isEmpty) return;
+    if (_undoStack.isEmpty) return;
 
+    _redoStack.add(_sectors.map((s) => s.copyWith()).toList());
     setState(() {
-      _sectors.removeLast();
-      if (_selectedSectorIndex != null &&
-          _selectedSectorIndex! >= _sectors.length) {
-        _selectedSectorIndex = _sectors.isEmpty ? null : _sectors.length - 1;
-      }
+      _sectors = _undoStack.removeLast();
+      _selectedSectorIndex = null;
     });
     widget.onSectorsChanged(_sectors);
+    HapticFeedback.lightImpact();
+  }
+
+  void _redoSector() {
+    if (_redoStack.isEmpty) return;
+
+    _undoStack.add(_sectors.map((s) => s.copyWith()).toList());
+    setState(() {
+      _sectors = _redoStack.removeLast();
+      _selectedSectorIndex = null;
+    });
+    widget.onSectorsChanged(_sectors);
+    HapticFeedback.lightImpact();
   }
 
   void _showEqualDivisionDialog() {
@@ -568,6 +599,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   void _createEqualSectors(int count) {
     final sectorAngle = 360.0 / count;
 
+    _saveSnapshot();
     setState(() {
       _sectors = List.generate(count, (i) {
         return PivotSector(
@@ -587,19 +619,16 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
   }
 
   void _selectSectorAtAngle(double angle) {
+    int? newSelection;
     for (int i = 0; i < _sectors.length; i++) {
       final sector = _sectors[i];
       if (angle >= sector.startAngle && angle <= sector.endAngle) {
-        setState(() {
-          _selectedSectorIndex = (_selectedSectorIndex == i) ? null : i;
-        });
-        HapticFeedback.selectionClick();
-        return;
+        newSelection = (_selectedSectorIndex == i) ? null : i;
+        break;
       }
     }
-    setState(() {
-      _selectedSectorIndex = null;
-    });
+    setState(() => _selectedSectorIndex = newSelection);
+    if (newSelection != null) HapticFeedback.selectionClick();
   }
 
   void _renumberSectors() {

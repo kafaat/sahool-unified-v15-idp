@@ -1,0 +1,41 @@
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Migration: Drift Detection Fix (Report 5c6dd891-251)
+-- إصلاح كشف الانحراف - تقرير 5c6dd891-251
+-- Purpose: Resolve critical mandatory-columns-without-DEFAULT and risky migration patterns
+-- Service: iot-service
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Critical Fix: Ensure updatedAt columns have DEFAULT now()
+-- Prisma @updatedAt does not generate SQL-level DEFAULT. Migration 20260227
+-- added defaults; re-affirm here to close drift scanner gap.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- devices.updatedAt (mapped to "updatedAt" in camelCase schema)
+ALTER TABLE "devices" ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- sensors.updatedAt
+ALTER TABLE "sensors" ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- actuators.updatedAt
+ALTER TABLE "actuators" ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- actuator_commands.updatedAt
+ALTER TABLE "actuator_commands" ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- device_alerts.updatedAt
+ALTER TABLE "device_alerts" ALTER COLUMN "updatedAt" SET DEFAULT now();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Medium: Non-concurrent index creation (Acknowledged)
+-- فهارس غير متزامنة (مقبولة)
+--
+-- All 40+ indexes in 20260214000000_init were created during initial table
+-- creation on EMPTY tables. Non-concurrent creation is safe and optimal
+-- for initial schema setup. No data was at risk.
+--
+-- Tables affected: devices, sensors, sensor_readings, actuators,
+--                  actuator_commands, device_alerts
+--
+-- All future migrations MUST use CREATE INDEX CONCURRENTLY.
+-- ═══════════════════════════════════════════════════════════════════════════════

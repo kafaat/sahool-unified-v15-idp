@@ -35,9 +35,7 @@ COPY apps/admin/package.json ./apps/admin/
 
 # Copy service workspaces (needed for npm workspace resolution)
 COPY apps/services/field-management-service/package.json ./apps/services/field-management-service/
-COPY apps/services/field-core/package.json ./apps/services/field-core/
 COPY apps/services/chat-service/package.json ./apps/services/chat-service/
-COPY apps/services/community-chat/package.json ./apps/services/community-chat/
 COPY apps/services/crop-growth-model/package.json ./apps/services/crop-growth-model/
 COPY apps/services/disaster-assessment/package.json ./apps/services/disaster-assessment/
 COPY apps/services/iot-service/package.json ./apps/services/iot-service/
@@ -109,6 +107,18 @@ EXPOSE 3001
 
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
+
+# Runtime API Gateway URL (overrides build-time NEXT_PUBLIC_API_URL for server-side rewrites)
+# In K8s: set to http://kong.kong.svc.cluster.local:8000
+# In Docker Compose: set to http://kong-gateway:8000
+ENV API_GATEWAY_URL=""
+
+LABEL org.opencontainers.image.title="SAHOOL Admin Dashboard" \
+      org.opencontainers.image.description="Admin portal for SAHOOL National Agricultural Intelligence Platform" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-v15-idp" \
+      org.opencontainers.image.base.name="node:20-alpine"
 
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

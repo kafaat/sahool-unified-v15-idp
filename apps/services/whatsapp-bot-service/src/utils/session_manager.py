@@ -345,8 +345,16 @@ class SessionManager:
         """
         try:
             if self.has_redis:
-                keys = await self.redis_client.keys(f"{self.SESSION_PREFIX}*")
-                return len(keys)
+                count = 0
+                cursor = 0
+                while True:
+                    cursor, keys = await self.redis_client.scan(
+                        cursor, match=f"{self.SESSION_PREFIX}*", count=100
+                    )
+                    count += len(keys)
+                    if cursor == 0:
+                        break
+                return count
             else:
                 # Clean expired sessions
                 now = datetime.now(UTC)

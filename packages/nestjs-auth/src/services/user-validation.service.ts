@@ -156,7 +156,7 @@ export class UserValidationService {
 
       return null;
     } catch (error) {
-      this.logger.warn(`Cache get error for user ${userId}: ${error.message}`);
+      this.logger.warn(`Cache get error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -173,7 +173,7 @@ export class UserValidationService {
       this.logger.debug(`Cached user ${userData.userId}`);
     } catch (error) {
       this.logger.warn(
-        `Cache set error for user ${userData.userId}: ${error.message}`,
+        `Cache set error for user ${userData.userId}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -190,7 +190,7 @@ export class UserValidationService {
       this.logger.debug(`Invalidated cache for user ${userId}`);
     } catch (error) {
       this.logger.warn(
-        `Cache invalidate error for user ${userId}: ${error.message}`,
+        `Cache invalidate error for user ${userId}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -213,7 +213,7 @@ export class UserValidationService {
 
       return 0;
     } catch (error) {
-      this.logger.error(`Cache clear error: ${error.message}`);
+      this.logger.error(`Cache clear error: ${error instanceof Error ? error.message : String(error)}`);
       return 0;
     }
   }

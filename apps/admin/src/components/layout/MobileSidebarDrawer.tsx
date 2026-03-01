@@ -36,6 +36,7 @@ export default function MobileSidebarDrawer({ onClose }: MobileSidebarDrawerProp
 export function MobileSidebarCloseButton({ onClose }: { onClose: () => void }) {
   return (
     <button
+      type="button"
       onClick={onClose}
       className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
       aria-label="إغلاق القائمة"

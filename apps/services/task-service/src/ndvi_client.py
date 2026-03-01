@@ -85,6 +85,16 @@ class FieldHealthData:
     needs_attention: bool
     suggested_actions: list[str]
 
+    def __post_init__(self):
+        """Validate NDVI values are within physical range [-1.0, 1.0]."""
+        for attr in ("ndvi_mean", "ndvi_min", "ndvi_max"):
+            val = getattr(self, attr)
+            if not (-1.0 <= val <= 1.0):
+                raise ValueError(
+                    f"{attr} ({val}) outside valid NDVI range [-1.0, 1.0] | "
+                    f"قيمة {attr} ({val}) خارج نطاق NDVI الصالح"
+                )
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {

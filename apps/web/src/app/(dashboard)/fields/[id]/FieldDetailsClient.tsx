@@ -166,7 +166,7 @@ export default function FieldDetailsClient({
   const HealthIcon = currentHealth.icon;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       {/* Breadcrumb & Actions */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
         <div className="flex items-center justify-between flex-wrap gap-4">

@@ -63,7 +63,6 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-from shared.middleware.tenant_context import TenantContextMiddleware
 
 # NATS import
 _nats_client = None
@@ -1509,6 +1508,19 @@ async def get_logistics_stats(
             "message_ar": f"{active_shipments} شحنة نشطة",
         },
     }
+
+
+# ==============================================================================
+# Include Report Routes from api/v1/
+# تضمين مسارات التقارير من api/v1/
+# ==============================================================================
+try:
+    from api.v1 import router as reports_router
+
+    app.include_router(reports_router)
+    logger.info("Logistics report routes included successfully")
+except ImportError:
+    logger.warning("Could not import report routes from api.v1")
 
 
 # ==============================================================================

@@ -32,6 +32,16 @@ function DataTableInner<T>({
   className = "",
   isLoading = false,
 }: DataTableProps<T>) {
+  const handleRowKeyDown = useCallback(
+    (e: React.KeyboardEvent, item: T) => {
+      if (onRowClick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        onRowClick(item);
+      }
+    },
+    [onRowClick],
+  );
+
   if (isLoading) {
     return (
       <div
@@ -65,16 +75,6 @@ function DataTableInner<T>({
       </div>
     );
   }
-
-  const handleRowKeyDown = useCallback(
-    (e: React.KeyboardEvent, item: T) => {
-      if (onRowClick && (e.key === "Enter" || e.key === " ")) {
-        e.preventDefault();
-        onRowClick(item);
-      }
-    },
-    [onRowClick],
-  );
 
   return (
     <div

@@ -58,12 +58,12 @@ export class NdviService {
       },
     });
 
-    const values = readings.map((r) => Number(r.value));
+    const values: number[] = readings.map((r) => Number((r as { value: unknown }).value));
     const current = field.ndviValue ? Number(field.ndviValue) : values[0] || 0;
 
     // Calculate statistics
     const average = values.length > 0
-      ? values.reduce((a, b) => a + b, 0) / values.length
+      ? values.reduce((a: number, b: number) => a + b, 0) / values.length
       : 0;
     const min = values.length > 0 ? Math.min(...values) : 0;
     const max = values.length > 0 ? Math.max(...values) : 0;
@@ -73,8 +73,8 @@ export class NdviService {
     if (values.length >= 4) {
       const firstHalf = values.slice(0, Math.floor(values.length / 2));
       const secondHalf = values.slice(Math.floor(values.length / 2));
-      const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
-      const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+      const firstAvg = firstHalf.reduce((a: number, b: number) => a + b, 0) / firstHalf.length;
+      const secondAvg = secondHalf.reduce((a: number, b: number) => a + b, 0) / secondHalf.length;
       trend = secondAvg - firstAvg;
     }
 
@@ -94,7 +94,7 @@ export class NdviService {
         trendDirection:
           trend > 0.05 ? "improving" : trend < -0.05 ? "declining" : "stable",
       },
-      history: readings.map((r) => ({
+      history: readings.map((r: { capturedAt: Date; value: unknown; source: string; quality: string | null; cloudCover: unknown }) => ({
         date: r.capturedAt,
         value: Number(r.value),
         source: r.source,

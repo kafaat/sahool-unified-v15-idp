@@ -3,7 +3,7 @@
 // Profitability Analytics
 // تحليل الربحية
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import { fetchProfitabilityData } from "@/lib/api/analytics";
@@ -69,12 +69,7 @@ export default function ProfitabilityPage() {
     "month" | "quarter" | "year"
   >("month");
 
-  useEffect(() => {
-    loadData();
-
-  }, [selectedPeriod]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const profitData = await fetchProfitabilityData({
@@ -86,7 +81,11 @@ export default function ProfitabilityPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [selectedPeriod]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (isLoading || !data) {
     return (

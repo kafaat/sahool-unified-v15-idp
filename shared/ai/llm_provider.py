@@ -22,11 +22,14 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from .audit import calculate_cost, get_audit_logger
 from .circuit_breaker import (
@@ -36,6 +39,8 @@ from .circuit_breaker import (
     get_circuit_breaker,
 )
 from .metrics import get_metrics_collector
+
+logger = logging.getLogger(__name__)
 
 
 class LLMProvider(StrEnum):
@@ -239,8 +244,8 @@ class LLMProviderManager:
             try:
                 config = LLMConfig.from_env(provider)
                 configs[provider] = config
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Provider {provider.value} not configured: {e}")
         return configs
 
     @property

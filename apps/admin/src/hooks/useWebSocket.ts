@@ -208,15 +208,15 @@ export function useWebSocket(
 export function useWebSocketEvent<T = unknown>(
   event: EventType,
   handler: (data: T) => void,
-  deps: React.DependencyList = [],
 ): void {
   const { subscribe } = useWebSocket({ autoConnect: false });
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
 
   useEffect(() => {
-    const unsubscribe = subscribe<T>(event, handler);
+    const unsubscribe = subscribe<T>(event, (data) => handlerRef.current(data));
     return unsubscribe;
-     
-  }, [event, subscribe, ...deps]);
+  }, [event, subscribe]);
 }
 
 /**

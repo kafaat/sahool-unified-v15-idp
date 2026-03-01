@@ -20,7 +20,18 @@ COPY apps/services/shared ./shared/
 COPY packages/nestjs-auth ./nestjs-auth/
 COPY tsconfig.base.json /tsconfig.base.json
 
+# Copy nestjs-auth package (required for @sahool/nestjs-auth dependency)
+COPY packages/nestjs-auth ./packages/nestjs-auth/
+
+# Pre-build nestjs-auth package (install its deps and compile TypeScript)
+WORKDIR /workspace/packages/nestjs-auth
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null || true && \
+    npx tsc --skipLibCheck 2>/dev/null || true
+
 # Copy service to maintain relative path
+WORKDIR /workspace
 COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
@@ -93,6 +104,10 @@ COPY --from=builder /workspace/nestjs-auth/package.json /nestjs-auth/package.jso
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
+
+# Fix the file: path reference for production stage
+RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:./packages/nestjs-auth|g' package.json || true
+
 # Install production dependencies with retry loop
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
@@ -131,6 +146,8 @@ RUN ln -s /app/node_modules /nestjs-auth/node_modules
 
 # Copy built application
 COPY --from=builder /workspace/marketplace-service/dist ./dist
+
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 3010

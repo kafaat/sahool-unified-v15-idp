@@ -9,6 +9,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../../core/config/env_config.dart';
@@ -279,6 +280,27 @@ class WalletState {
 }
 
 // =============================================================================
+// Compute Isolate Parsers
+// =============================================================================
+
+/// Top-level function for compute() isolate - parses transactions on background isolate
+List<WalletTransaction> _parseTransactionList(String jsonStr) {
+  final data = jsonDecode(jsonStr) as List<dynamic>;
+  return data
+      .map((json) =>
+          WalletTransaction.fromJson(json as Map<String, dynamic>))
+      .toList();
+}
+
+/// Top-level function for compute() isolate - parses loans on background isolate
+List<Loan> _parseLoanList(String jsonStr) {
+  final data = jsonDecode(jsonStr) as List<dynamic>;
+  return data
+      .map((json) => Loan.fromJson(json as Map<String, dynamic>))
+      .toList();
+}
+
+// =============================================================================
 // Provider
 // =============================================================================
 
@@ -345,11 +367,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        final transactions = data
-            .map((json) =>
-                WalletTransaction.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final transactions = await compute(_parseTransactionList, response.body);
 
         state = state.copyWith(transactions: transactions);
       }
@@ -368,10 +386,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        final loans = data
-            .map((json) => Loan.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final loans = await compute(_parseLoanList, response.body);
 
         state = state.copyWith(loans: loans);
       }
@@ -508,17 +523,17 @@ class WalletNotifier extends StateNotifier<WalletState> {
 // =============================================================================
 
 /// مزود معرف المستخدم
-final userIdProvider = StateProvider<String>((ref) => '');
+final userIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// مزود رابط API - Marketplace API URL Provider
 /// Uses EnvConfig for environment-specific URLs
-final marketplaceApiUrlProvider = Provider<String>((ref) {
+final marketplaceApiUrlProvider = Provider.autoDispose<String>((ref) {
   return EnvConfig.marketplaceUrl;
 });
 
 /// مزود المحفظة الرئيسي
 final walletProvider =
-    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+    StateNotifierProvider.autoDispose<WalletNotifier, WalletState>((ref) {
   final baseUrl = ref.watch(marketplaceApiUrlProvider);
   final userId = ref.watch(userIdProvider);
 
@@ -529,16 +544,16 @@ final walletProvider =
 });
 
 /// الرصيد الحالي
-final balanceProvider = Provider<double>((ref) {
+final balanceProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.balance ?? 0;
 });
 
 /// التصنيف الائتماني
-final creditScoreProvider = Provider<int>((ref) {
+final creditScoreProvider = Provider.autoDispose<int>((ref) {
   return ref.watch(walletProvider).wallet?.creditScore ?? 300;
 });
 
 /// الرصيد المتاح للتمويل
-final availableCreditProvider = Provider<double>((ref) {
+final availableCreditProvider = Provider.autoDispose<double>((ref) {
   return ref.watch(walletProvider).wallet?.availableCredit ?? 0;
 });

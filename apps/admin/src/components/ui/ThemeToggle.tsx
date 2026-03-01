@@ -63,6 +63,7 @@ export default function ThemeToggle({
   if (variant === "icon") {
     return (
       <button
+        type="button"
         onClick={toggleTheme}
         className={cn(
           "p-2 rounded-lg transition-colors",
@@ -85,12 +86,14 @@ export default function ThemeToggle({
   if (variant === "button") {
     return (
       <button
+        type="button"
         onClick={toggleTheme}
         className={cn(
           "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium",
           "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800",
           className
         )}
+        aria-label={resolvedTheme === "dark" ? "تبديل للوضع الفاتح" : "تبديل للوضع الداكن"}
       >
         {resolvedTheme === "dark" ? (
           <>
@@ -111,6 +114,7 @@ export default function ThemeToggle({
   return (
     <div ref={dropdownRef} className={cn("relative", className)}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "flex items-center gap-2 p-2 rounded-lg transition-colors",
@@ -138,6 +142,7 @@ export default function ThemeToggle({
 
             return (
               <button
+                type="button"
                 key={t.value}
                 onClick={() => {
                   setTheme(t.value);

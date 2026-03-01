@@ -118,55 +118,86 @@ export function usePaginatedApi<T>(
   const [error, setError] = useState<Error | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const isLoadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const pageRef = useRef(1);
+  // Generation counter to invalidate stale in-flight loadMore responses after refresh
+  const generationRef = useRef(0);
 
   const loadMore = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+    if (isLoadingRef.current || !hasMoreRef.current) return;
 
+    const generation = generationRef.current;
+    isLoadingRef.current = true;
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await fetcher(page, pageSize);
+      const result = await fetcher(pageRef.current, pageSize);
+      // Discard result if a refresh happened while this request was in-flight
+      if (generationRef.current !== generation) return;
       setData((prev) => [...prev, ...result.data]);
+      hasMoreRef.current = result.hasMore;
       setHasMore(result.hasMore);
-      setPage((prev) => prev + 1);
+      pageRef.current += 1;
+      setPage(pageRef.current);
       onSuccess?.(result.data);
     } catch (err) {
+      if (generationRef.current !== generation) return;
       const error = err instanceof Error ? err : new Error("Unknown error");
       setError(error);
       onError?.(error);
     } finally {
-      setIsLoading(false);
+      if (generationRef.current === generation) {
+        isLoadingRef.current = false;
+        setIsLoading(false);
+      }
     }
-  }, [fetcher, page, pageSize, isLoading, hasMore, onSuccess, onError]);
+  }, [fetcher, pageSize, onSuccess, onError]);
 
   const refresh = useCallback(async () => {
+    // Increment generation to invalidate any in-flight loadMore requests
+    generationRef.current += 1;
+    const generation = generationRef.current;
+    pageRef.current = 1;
     setPage(1);
     setData([]);
+    hasMoreRef.current = true;
     setHasMore(true);
+    isLoadingRef.current = true;
     setIsLoading(true);
     setError(null);
 
     try {
       const result = await fetcher(1, pageSize);
+      if (generationRef.current !== generation) return;
       setData(result.data);
+      hasMoreRef.current = result.hasMore;
       setHasMore(result.hasMore);
+      pageRef.current = 2;
       setPage(2);
       onSuccess?.(result.data);
     } catch (err) {
+      if (generationRef.current !== generation) return;
       const error = err instanceof Error ? err : new Error("Unknown error");
       setError(error);
       onError?.(error);
     } finally {
-      setIsLoading(false);
+      if (generationRef.current === generation) {
+        isLoadingRef.current = false;
+        setIsLoading(false);
+      }
     }
   }, [fetcher, pageSize, onSuccess, onError]);
 
   const reset = useCallback(() => {
     setData(initialData);
     setError(null);
+    isLoadingRef.current = false;
     setIsLoading(false);
+    pageRef.current = 1;
     setPage(1);
+    hasMoreRef.current = true;
     setHasMore(true);
   }, [initialData]);
 

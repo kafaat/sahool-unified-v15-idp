@@ -257,7 +257,7 @@ export class FieldsService {
 
     const totalPages = Math.ceil(total / limit);
 
-    const data: FieldResponseDto[] = fields.map((f) => ({
+    const data: FieldResponseDto[] = fields.map((f: any) => ({
       id: f.id,
       name: f.name,
       tenantId: f.tenantId,
@@ -501,7 +501,7 @@ export class FieldsService {
 
     // Fetch GeoJSON for boundaries
     if (history.length > 0) {
-      const historyIds = history.map((h) => h.id);
+      const historyIds = history.map((h: any) => h.id);
       const geoJsonResults = await this.prisma.$queryRaw<any[]>`
         SELECT
           id,
@@ -515,7 +515,7 @@ export class FieldsService {
         geoJsonResults.map((r) => [r.id, r]),
       );
 
-      return history.map((entry) => {
+      return history.map((entry: any) => {
         const geoJson = geoJsonMap.get(entry.id);
         return {
           ...entry,

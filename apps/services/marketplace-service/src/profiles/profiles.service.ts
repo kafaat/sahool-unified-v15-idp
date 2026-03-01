@@ -32,7 +32,7 @@ export class ProfilesService {
   /**
    * إنشاء ملف تعريف بائع جديد
    */
-  async createSellerProfile(dto: CreateSellerProfileDto) {
+  async createSellerProfile(dto: CreateSellerProfileDto, tenantId?: string) {
     // Check if seller profile already exists
     const existing = await this.prisma.sellerProfile.findUnique({
       where: { userId: dto.userId },
@@ -47,7 +47,7 @@ export class ProfilesService {
     return this.prisma.sellerProfile.create({
       data: {
         userId: dto.userId,
-        tenantId: dto.tenantId,
+        tenantId: tenantId || dto.tenantId,
         businessName: dto.businessName,
         businessType: dto.businessType,
         taxId: dto.taxId,
@@ -227,7 +227,7 @@ export class ProfilesService {
   /**
    * إنشاء ملف تعريف مشتري جديد
    */
-  async createBuyerProfile(dto: CreateBuyerProfileDto) {
+  async createBuyerProfile(dto: CreateBuyerProfileDto, tenantId?: string) {
     // Check if buyer profile already exists
     const existing = await this.prisma.buyerProfile.findUnique({
       where: { userId: dto.userId },
@@ -240,7 +240,7 @@ export class ProfilesService {
     return this.prisma.buyerProfile.create({
       data: {
         userId: dto.userId,
-        tenantId: dto.tenantId,
+        tenantId: tenantId || dto.tenantId,
         shippingAddresses: (dto.shippingAddresses || []) as any,
         preferredPayment: dto.preferredPayment,
       },

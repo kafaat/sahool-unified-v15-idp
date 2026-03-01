@@ -388,4 +388,221 @@ describe("API Client Configuration", () => {
 
     expect(client).toBeDefined();
   });
+
+  it("should support custom timeout", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      timeout: 60000,
+    });
+
+    expect(axios.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        timeout: 60000,
+      }),
+    );
+  });
+
+  it("should use default timeout of 30000 when not specified", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+    });
+
+    expect(axios.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        timeout: 30000,
+      }),
+    );
+  });
+});
+
+describe("HTTPS Enforcement", () => {
+  it("should upgrade HTTP to HTTPS in production", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://api.sahool.app",
+    });
+
+    const urls = client.urls;
+    // In production, getServiceUrl uses baseUrl/api, and baseUrl is upgraded
+    expect(urls.fieldCore).toContain("https://api.sahool.app");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should not upgrade localhost in development", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("http://localhost");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should not upgrade private IPs in development", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://192.168.1.100",
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("http://192.168.1.100");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should not upgrade 127.0.0.1 in development", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://127.0.0.1",
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("http://127.0.0.1");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should upgrade non-local HTTP URLs in development", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://api.example.com",
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("https://api.example.com");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should skip HTTPS enforcement when enforceHttps is false", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://api.sahool.app",
+      enforceHttps: false,
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("http://api.sahool.app");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should leave HTTPS URLs unchanged", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    const client = new SahoolApiClient({
+      baseUrl: "https://api.sahool.app",
+    });
+
+    const urls = client.urls;
+    expect(urls.fieldCore).toContain("https://api.sahool.app");
+
+    process.env.NODE_ENV = originalEnv;
+  });
+});
+
+describe("Retry Configuration", () => {
+  it("should accept custom retry configuration", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      retry: {
+        maxRetries: 5,
+        baseDelay: 500,
+        maxDelay: 10000,
+      },
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it("should allow disabling retries entirely", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      retry: false,
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it("should use default retry config when not specified", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+    });
+
+    // Client is created with default retry config (maxRetries: 3)
+    expect(client).toBeDefined();
+  });
+
+  it("should accept custom retryable status codes", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      retry: {
+        retryableStatuses: [502, 503],
+        retryOnNetworkError: false,
+      },
+    });
+
+    expect(client).toBeDefined();
+  });
+});
+
+describe("Token Refresh Configuration", () => {
+  it("should accept token refresh config", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      tokenRefresh: {
+        refreshToken: async () => "new-token",
+        maxRefreshAttempts: 2,
+      },
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it("should work without token refresh config", () => {
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it("should setup response interceptor for token refresh", () => {
+    const mockAxiosInstance = {
+      request: vi.fn(),
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() },
+      },
+    };
+
+    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as never);
+
+    const client = new SahoolApiClient({
+      baseUrl: "http://localhost",
+      tokenRefresh: {
+        refreshToken: async () => "new-token",
+      },
+    });
+
+    // Both request and response interceptors should be set up
+    expect(mockAxiosInstance.interceptors.request.use).toHaveBeenCalled();
+    expect(mockAxiosInstance.interceptors.response.use).toHaveBeenCalled();
+  });
 });

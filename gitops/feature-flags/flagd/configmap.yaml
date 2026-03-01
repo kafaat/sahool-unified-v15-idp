@@ -10,12 +10,27 @@ data:
         "ndvi.newPipeline": {
           "state": "ENABLED",
           "variants": { "on": true, "off": false },
-          "defaultVariant": "off"
+          "defaultVariant": "on"
         },
         "advisor.promptV2": {
           "state": "ENABLED",
           "variants": { "v1": "v1", "v2": "v2" },
-          "defaultVariant": "v1"
+          "defaultVariant": "v2"
+        },
+        "irrigation.smartScheduling": {
+          "state": "ENABLED",
+          "variants": { "enabled": true, "disabled": false },
+          "defaultVariant": "enabled"
+        },
+        "marketplace.newUI": {
+          "state": "ENABLED",
+          "variants": { "enabled": true, "disabled": false },
+          "defaultVariant": "enabled"
+        },
+        "ai.ragEnabled": {
+          "state": "ENABLED",
+          "variants": { "on": true, "off": false },
+          "defaultVariant": "on"
         }
       }
     }

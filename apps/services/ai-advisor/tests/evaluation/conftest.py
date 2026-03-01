@@ -8,14 +8,6 @@ import os
 import pytest
 
 
-def pytest_configure(config):
-    """Configure pytest for evaluation tests"""
-    config.addinivalue_line(
-        "markers",
-        "evaluation: marks tests as evaluation tests (deselect with '-m \"not evaluation\"')",
-    )
-    config.addinivalue_line("markers", "slow: marks tests as slow running")
-
 
 @pytest.fixture(scope="session")
 def evaluation_mode():

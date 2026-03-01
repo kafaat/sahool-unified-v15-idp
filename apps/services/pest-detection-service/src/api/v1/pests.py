@@ -536,8 +536,8 @@ async def identify_pest_from_image(
                     "source": "pest-detection-service",
                     "timestamp": datetime.now(UTC).isoformat(),
                 }, default=str).encode()
-                await nc.publish("sahool.health.pest_detected", event_payload)
-                logger.info("nats_event_published", subject="sahool.health.pest_detected", pest_id=result.pest_id)
+                await nc.publish("sahool.vision.pest_detected", event_payload)
+                logger.info("nats_event_published", subject="sahool.vision.pest_detected", pest_id=result.pest_id)
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 

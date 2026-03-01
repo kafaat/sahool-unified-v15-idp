@@ -547,16 +547,3 @@ def save_evaluation_metrics(request, evaluation_metrics_tracker):
     print(f"\n✅ Evaluation results saved to: {output_path}")
 
 
-# ============================================================================
-# PYTEST CONFIGURATION
-# ============================================================================
-
-
-def pytest_configure(config):
-    """Configure pytest with custom markers"""
-    config.addinivalue_line("markers", "evaluation: mark test as part of agent evaluation suite")
-    config.addinivalue_line("markers", "golden: mark test as using golden dataset")
-    config.addinivalue_line("markers", "arabic: mark test for Arabic language support")
-    config.addinivalue_line("markers", "english: mark test for English language support")
-    config.addinivalue_line("markers", "latency: mark test for latency measurement")
-    config.addinivalue_line("markers", "safety: mark test for safety checking")

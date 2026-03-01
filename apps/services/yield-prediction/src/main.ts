@@ -56,6 +56,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, document);
 
+  // Health endpoints (/healthz, /readyz) are registered at root level
+  // via AppController, outside any global prefix
+
   const port = process.env.PORT || 3021;
   await app.listen(port);
 

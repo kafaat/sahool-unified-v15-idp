@@ -3,20 +3,16 @@
 ///
 /// Fetches terrain analysis from API with offline-first caching using Drift.
 /// Supports elevation profiles, slope analysis, and soil characteristics.
-library;
 
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../core/config/api_config.dart';
 import '../../../core/storage/database.dart';
-
-part 'terrain_repository.freezed.dart';
-part 'terrain_repository.g.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Providers - الموفرون
@@ -60,194 +56,460 @@ final slopeAnalysisProvider =
 
 /// Terrain analysis result
 /// نتيجة تحليل التضاريس
-@freezed
-class TerrainAnalysis with _$TerrainAnalysis {
-  const factory TerrainAnalysis({
-    /// Field ID
-    /// معرف الحقل
-    required String fieldId,
+@immutable
+class TerrainAnalysis {
+  final String fieldId;
+  final double averageElevationM;
+  final double minElevationM;
+  final double maxElevationM;
+  final double elevationRangeM;
+  final double averageSlopePercent;
+  final double maxSlopePercent;
+  final String dominantAspect;
+  final String dominantAspectAr;
+  final String? soilType;
+  final String? soilTypeAr;
+  final String? drainageClass;
+  final double? roughnessIndex;
+  final double? wetnessIndex;
+  final DateTime? timestamp;
+  final String dataSource;
 
-    /// Average elevation in meters
-    /// متوسط الارتفاع بالمتر
-    required double averageElevationM,
+  const TerrainAnalysis({
+    required this.fieldId,
+    required this.averageElevationM,
+    required this.minElevationM,
+    required this.maxElevationM,
+    required this.elevationRangeM,
+    required this.averageSlopePercent,
+    required this.maxSlopePercent,
+    required this.dominantAspect,
+    required this.dominantAspectAr,
+    this.soilType,
+    this.soilTypeAr,
+    this.drainageClass,
+    this.roughnessIndex,
+    this.wetnessIndex,
+    this.timestamp,
+    this.dataSource = 'dem',
+  });
 
-    /// Minimum elevation
-    /// الحد الأدنى للارتفاع
-    required double minElevationM,
+  factory TerrainAnalysis.fromJson(Map<String, dynamic> json) {
+    return TerrainAnalysis(
+      fieldId: json['fieldId'] as String,
+      averageElevationM: (json['averageElevationM'] as num).toDouble(),
+      minElevationM: (json['minElevationM'] as num).toDouble(),
+      maxElevationM: (json['maxElevationM'] as num).toDouble(),
+      elevationRangeM: (json['elevationRangeM'] as num).toDouble(),
+      averageSlopePercent: (json['averageSlopePercent'] as num).toDouble(),
+      maxSlopePercent: (json['maxSlopePercent'] as num).toDouble(),
+      dominantAspect: json['dominantAspect'] as String,
+      dominantAspectAr: json['dominantAspectAr'] as String,
+      soilType: json['soilType'] as String?,
+      soilTypeAr: json['soilTypeAr'] as String?,
+      drainageClass: json['drainageClass'] as String?,
+      roughnessIndex: (json['roughnessIndex'] as num?)?.toDouble(),
+      wetnessIndex: (json['wetnessIndex'] as num?)?.toDouble(),
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : null,
+      dataSource: json['dataSource'] as String? ?? 'dem',
+    );
+  }
 
-    /// Maximum elevation
-    /// الحد الأقصى للارتفاع
-    required double maxElevationM,
+  Map<String, dynamic> toJson() => {
+        'fieldId': fieldId,
+        'averageElevationM': averageElevationM,
+        'minElevationM': minElevationM,
+        'maxElevationM': maxElevationM,
+        'elevationRangeM': elevationRangeM,
+        'averageSlopePercent': averageSlopePercent,
+        'maxSlopePercent': maxSlopePercent,
+        'dominantAspect': dominantAspect,
+        'dominantAspectAr': dominantAspectAr,
+        'soilType': soilType,
+        'soilTypeAr': soilTypeAr,
+        'drainageClass': drainageClass,
+        'roughnessIndex': roughnessIndex,
+        'wetnessIndex': wetnessIndex,
+        'timestamp': timestamp?.toIso8601String(),
+        'dataSource': dataSource,
+      };
 
-    /// Elevation range (max - min)
-    /// نطاق الارتفاع
-    required double elevationRangeM,
-
-    /// Average slope percentage
-    /// متوسط الانحدار بالنسبة المئوية
-    required double averageSlopePercent,
-
-    /// Maximum slope percentage
-    /// الحد الأقصى للانحدار
-    required double maxSlopePercent,
-
-    /// Dominant aspect (N, NE, E, SE, S, SW, W, NW)
-    /// الاتجاه السائد
-    required String dominantAspect,
-
-    /// Arabic aspect name
-    /// اسم الاتجاه بالعربية
-    required String dominantAspectAr,
-
-    /// Soil type if available
-    /// نوع التربة إن توفر
+  TerrainAnalysis copyWith({
+    String? fieldId,
+    double? averageElevationM,
+    double? minElevationM,
+    double? maxElevationM,
+    double? elevationRangeM,
+    double? averageSlopePercent,
+    double? maxSlopePercent,
+    String? dominantAspect,
+    String? dominantAspectAr,
     String? soilType,
-
-    /// Arabic soil type
-    /// نوع التربة بالعربية
     String? soilTypeAr,
-
-    /// Drainage class
-    /// فئة الصرف
     String? drainageClass,
-
-    /// Terrain roughness index (0-1)
-    /// مؤشر خشونة التضاريس
     double? roughnessIndex,
-
-    /// Topographic wetness index
-    /// مؤشر الرطوبة الطبوغرافية
     double? wetnessIndex,
-
-    /// Timestamp of analysis
-    /// وقت التحليل
     DateTime? timestamp,
+    String? dataSource,
+  }) {
+    return TerrainAnalysis(
+      fieldId: fieldId ?? this.fieldId,
+      averageElevationM: averageElevationM ?? this.averageElevationM,
+      minElevationM: minElevationM ?? this.minElevationM,
+      maxElevationM: maxElevationM ?? this.maxElevationM,
+      elevationRangeM: elevationRangeM ?? this.elevationRangeM,
+      averageSlopePercent: averageSlopePercent ?? this.averageSlopePercent,
+      maxSlopePercent: maxSlopePercent ?? this.maxSlopePercent,
+      dominantAspect: dominantAspect ?? this.dominantAspect,
+      dominantAspectAr: dominantAspectAr ?? this.dominantAspectAr,
+      soilType: soilType ?? this.soilType,
+      soilTypeAr: soilTypeAr ?? this.soilTypeAr,
+      drainageClass: drainageClass ?? this.drainageClass,
+      roughnessIndex: roughnessIndex ?? this.roughnessIndex,
+      wetnessIndex: wetnessIndex ?? this.wetnessIndex,
+      timestamp: timestamp ?? this.timestamp,
+      dataSource: dataSource ?? this.dataSource,
+    );
+  }
 
-    /// Data source
-    /// مصدر البيانات
-    @Default('dem') String dataSource,
-  }) = _TerrainAnalysis;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TerrainAnalysis &&
+          runtimeType == other.runtimeType &&
+          fieldId == other.fieldId &&
+          averageElevationM == other.averageElevationM &&
+          minElevationM == other.minElevationM &&
+          maxElevationM == other.maxElevationM &&
+          elevationRangeM == other.elevationRangeM &&
+          averageSlopePercent == other.averageSlopePercent &&
+          maxSlopePercent == other.maxSlopePercent &&
+          dominantAspect == other.dominantAspect &&
+          dominantAspectAr == other.dominantAspectAr &&
+          soilType == other.soilType &&
+          soilTypeAr == other.soilTypeAr &&
+          drainageClass == other.drainageClass &&
+          roughnessIndex == other.roughnessIndex &&
+          wetnessIndex == other.wetnessIndex &&
+          dataSource == other.dataSource;
 
-  factory TerrainAnalysis.fromJson(Map<String, dynamic> json) =>
-      _$TerrainAnalysisFromJson(json);
+  @override
+  int get hashCode => Object.hash(
+        fieldId,
+        averageElevationM,
+        minElevationM,
+        maxElevationM,
+        elevationRangeM,
+        averageSlopePercent,
+        maxSlopePercent,
+        dominantAspect,
+        dominantAspectAr,
+        soilType,
+        soilTypeAr,
+        drainageClass,
+        roughnessIndex,
+        wetnessIndex,
+        dataSource,
+      );
+
+  @override
+  String toString() =>
+      'TerrainAnalysis(fieldId: $fieldId, elevation: $averageElevationM m, slope: $averageSlopePercent%)';
 }
 
 /// Elevation profile along a transect
 /// ملف الارتفاع على طول خط عرضي
-@freezed
-class ElevationProfile with _$ElevationProfile {
-  const factory ElevationProfile({
-    /// Field ID
-    /// معرف الحقل
-    required String fieldId,
+@immutable
+class ElevationProfile {
+  final String fieldId;
+  final List<ElevationPoint> points;
+  final double totalDistanceM;
+  final double totalGainM;
+  final double totalLossM;
+  final double? profileDirection;
+  final double? resolutionM;
 
-    /// List of elevation points
-    /// قائمة نقاط الارتفاع
-    required List<ElevationPoint> points,
+  const ElevationProfile({
+    required this.fieldId,
+    required this.points,
+    required this.totalDistanceM,
+    required this.totalGainM,
+    required this.totalLossM,
+    this.profileDirection,
+    this.resolutionM,
+  });
 
-    /// Total distance in meters
-    /// المسافة الإجمالية بالمتر
-    required double totalDistanceM,
+  factory ElevationProfile.fromJson(Map<String, dynamic> json) {
+    return ElevationProfile(
+      fieldId: json['fieldId'] as String,
+      points: (json['points'] as List<dynamic>)
+          .map((p) => ElevationPoint.fromJson(p as Map<String, dynamic>))
+          .toList(),
+      totalDistanceM: (json['totalDistanceM'] as num).toDouble(),
+      totalGainM: (json['totalGainM'] as num).toDouble(),
+      totalLossM: (json['totalLossM'] as num).toDouble(),
+      profileDirection: (json['profileDirection'] as num?)?.toDouble(),
+      resolutionM: (json['resolutionM'] as num?)?.toDouble(),
+    );
+  }
 
-    /// Total elevation gain
-    /// إجمالي الارتفاع المكتسب
-    required double totalGainM,
+  Map<String, dynamic> toJson() => {
+        'fieldId': fieldId,
+        'points': points.map((p) => p.toJson()).toList(),
+        'totalDistanceM': totalDistanceM,
+        'totalGainM': totalGainM,
+        'totalLossM': totalLossM,
+        'profileDirection': profileDirection,
+        'resolutionM': resolutionM,
+      };
 
-    /// Total elevation loss
-    /// إجمالي الارتفاع المفقود
-    required double totalLossM,
-
-    /// Profile direction (degrees from north)
-    /// اتجاه الملف (درجات من الشمال)
+  ElevationProfile copyWith({
+    String? fieldId,
+    List<ElevationPoint>? points,
+    double? totalDistanceM,
+    double? totalGainM,
+    double? totalLossM,
     double? profileDirection,
-
-    /// Resolution in meters
-    /// الدقة بالمتر
     double? resolutionM,
-  }) = _ElevationProfile;
+  }) {
+    return ElevationProfile(
+      fieldId: fieldId ?? this.fieldId,
+      points: points ?? this.points,
+      totalDistanceM: totalDistanceM ?? this.totalDistanceM,
+      totalGainM: totalGainM ?? this.totalGainM,
+      totalLossM: totalLossM ?? this.totalLossM,
+      profileDirection: profileDirection ?? this.profileDirection,
+      resolutionM: resolutionM ?? this.resolutionM,
+    );
+  }
 
-  factory ElevationProfile.fromJson(Map<String, dynamic> json) =>
-      _$ElevationProfileFromJson(json);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ElevationProfile &&
+          runtimeType == other.runtimeType &&
+          fieldId == other.fieldId &&
+          listEquals(points, other.points) &&
+          totalDistanceM == other.totalDistanceM &&
+          totalGainM == other.totalGainM &&
+          totalLossM == other.totalLossM &&
+          profileDirection == other.profileDirection &&
+          resolutionM == other.resolutionM;
+
+  @override
+  int get hashCode => Object.hash(
+        fieldId,
+        Object.hashAll(points),
+        totalDistanceM,
+        totalGainM,
+        totalLossM,
+        profileDirection,
+        resolutionM,
+      );
+
+  @override
+  String toString() =>
+      'ElevationProfile(fieldId: $fieldId, points: ${points.length}, distance: $totalDistanceM m)';
 }
 
 /// Single elevation point
 /// نقطة ارتفاع واحدة
-@freezed
-class ElevationPoint with _$ElevationPoint {
-  const factory ElevationPoint({
-    /// Distance from start (meters)
-    /// المسافة من البداية (متر)
-    required double distanceM,
+@immutable
+class ElevationPoint {
+  final double distanceM;
+  final double elevationM;
+  final double? latitude;
+  final double? longitude;
+  final double? slopePercent;
 
-    /// Elevation (meters)
-    /// الارتفاع (متر)
-    required double elevationM,
+  const ElevationPoint({
+    required this.distanceM,
+    required this.elevationM,
+    this.latitude,
+    this.longitude,
+    this.slopePercent,
+  });
 
-    /// Latitude
-    /// خط العرض
+  factory ElevationPoint.fromJson(Map<String, dynamic> json) {
+    return ElevationPoint(
+      distanceM: (json['distanceM'] as num).toDouble(),
+      elevationM: (json['elevationM'] as num).toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      slopePercent: (json['slopePercent'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'distanceM': distanceM,
+        'elevationM': elevationM,
+        'latitude': latitude,
+        'longitude': longitude,
+        'slopePercent': slopePercent,
+      };
+
+  ElevationPoint copyWith({
+    double? distanceM,
+    double? elevationM,
     double? latitude,
-
-    /// Longitude
-    /// خط الطول
     double? longitude,
-
-    /// Slope at this point (percent)
-    /// الانحدار عند هذه النقطة (نسبة مئوية)
     double? slopePercent,
-  }) = _ElevationPoint;
+  }) {
+    return ElevationPoint(
+      distanceM: distanceM ?? this.distanceM,
+      elevationM: elevationM ?? this.elevationM,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      slopePercent: slopePercent ?? this.slopePercent,
+    );
+  }
 
-  factory ElevationPoint.fromJson(Map<String, dynamic> json) =>
-      _$ElevationPointFromJson(json);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ElevationPoint &&
+          runtimeType == other.runtimeType &&
+          distanceM == other.distanceM &&
+          elevationM == other.elevationM &&
+          latitude == other.latitude &&
+          longitude == other.longitude &&
+          slopePercent == other.slopePercent;
+
+  @override
+  int get hashCode =>
+      Object.hash(distanceM, elevationM, latitude, longitude, slopePercent);
+
+  @override
+  String toString() =>
+      'ElevationPoint(distance: $distanceM m, elevation: $elevationM m)';
 }
 
 /// Slope analysis for a field
 /// تحليل الانحدار للحقل
-@freezed
-class SlopeAnalysis with _$SlopeAnalysis {
-  const factory SlopeAnalysis({
-    /// Field ID
-    /// معرف الحقل
-    required String fieldId,
+@immutable
+class SlopeAnalysis {
+  final String fieldId;
+  final Map<String, double> slopeDistribution;
+  final String dominantSlopeClass;
+  final String dominantSlopeClassAr;
+  final String erosionRisk;
+  final String erosionRiskAr;
+  final List<String> recommendations;
+  final List<String> recommendationsAr;
+  final double? contourIntervalM;
+  final double? tillageDirDegrees;
 
-    /// Slope distribution by class
-    /// توزيع الانحدار حسب الفئة
-    required Map<String, double> slopeDistribution,
+  const SlopeAnalysis({
+    required this.fieldId,
+    required this.slopeDistribution,
+    required this.dominantSlopeClass,
+    required this.dominantSlopeClassAr,
+    required this.erosionRisk,
+    required this.erosionRiskAr,
+    this.recommendations = const [],
+    this.recommendationsAr = const [],
+    this.contourIntervalM,
+    this.tillageDirDegrees,
+  });
 
-    /// Dominant slope class
-    /// فئة الانحدار السائدة
-    required String dominantSlopeClass,
+  factory SlopeAnalysis.fromJson(Map<String, dynamic> json) {
+    return SlopeAnalysis(
+      fieldId: json['fieldId'] as String,
+      slopeDistribution:
+          (json['slopeDistribution'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ),
+      dominantSlopeClass: json['dominantSlopeClass'] as String,
+      dominantSlopeClassAr: json['dominantSlopeClassAr'] as String,
+      erosionRisk: json['erosionRisk'] as String,
+      erosionRiskAr: json['erosionRiskAr'] as String,
+      recommendations: (json['recommendations'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      recommendationsAr: (json['recommendationsAr'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      contourIntervalM: (json['contourIntervalM'] as num?)?.toDouble(),
+      tillageDirDegrees: (json['tillageDirDegrees'] as num?)?.toDouble(),
+    );
+  }
 
-    /// Arabic dominant slope class
-    /// فئة الانحدار السائدة بالعربية
-    required String dominantSlopeClassAr,
+  Map<String, dynamic> toJson() => {
+        'fieldId': fieldId,
+        'slopeDistribution': slopeDistribution,
+        'dominantSlopeClass': dominantSlopeClass,
+        'dominantSlopeClassAr': dominantSlopeClassAr,
+        'erosionRisk': erosionRisk,
+        'erosionRiskAr': erosionRiskAr,
+        'recommendations': recommendations,
+        'recommendationsAr': recommendationsAr,
+        'contourIntervalM': contourIntervalM,
+        'tillageDirDegrees': tillageDirDegrees,
+      };
 
-    /// Erosion risk level
-    /// مستوى خطر التعرية
-    required String erosionRisk,
-
-    /// Arabic erosion risk
-    /// خطر التعرية بالعربية
-    required String erosionRiskAr,
-
-    /// Recommended practices
-    /// الممارسات الموصى بها
-    @Default([]) List<String> recommendations,
-
-    /// Arabic recommendations
-    /// التوصيات بالعربية
-    @Default([]) List<String> recommendationsAr,
-
-    /// Contour interval recommendation (meters)
-    /// توصية فترة الخطوط الكنتورية (متر)
+  SlopeAnalysis copyWith({
+    String? fieldId,
+    Map<String, double>? slopeDistribution,
+    String? dominantSlopeClass,
+    String? dominantSlopeClassAr,
+    String? erosionRisk,
+    String? erosionRiskAr,
+    List<String>? recommendations,
+    List<String>? recommendationsAr,
     double? contourIntervalM,
-
-    /// Tillage direction recommendation (degrees)
-    /// توصية اتجاه الحراثة (درجات)
     double? tillageDirDegrees,
-  }) = _SlopeAnalysis;
+  }) {
+    return SlopeAnalysis(
+      fieldId: fieldId ?? this.fieldId,
+      slopeDistribution: slopeDistribution ?? this.slopeDistribution,
+      dominantSlopeClass: dominantSlopeClass ?? this.dominantSlopeClass,
+      dominantSlopeClassAr: dominantSlopeClassAr ?? this.dominantSlopeClassAr,
+      erosionRisk: erosionRisk ?? this.erosionRisk,
+      erosionRiskAr: erosionRiskAr ?? this.erosionRiskAr,
+      recommendations: recommendations ?? this.recommendations,
+      recommendationsAr: recommendationsAr ?? this.recommendationsAr,
+      contourIntervalM: contourIntervalM ?? this.contourIntervalM,
+      tillageDirDegrees: tillageDirDegrees ?? this.tillageDirDegrees,
+    );
+  }
 
-  factory SlopeAnalysis.fromJson(Map<String, dynamic> json) =>
-      _$SlopeAnalysisFromJson(json);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SlopeAnalysis &&
+          runtimeType == other.runtimeType &&
+          fieldId == other.fieldId &&
+          mapEquals(slopeDistribution, other.slopeDistribution) &&
+          dominantSlopeClass == other.dominantSlopeClass &&
+          dominantSlopeClassAr == other.dominantSlopeClassAr &&
+          erosionRisk == other.erosionRisk &&
+          erosionRiskAr == other.erosionRiskAr &&
+          listEquals(recommendations, other.recommendations) &&
+          listEquals(recommendationsAr, other.recommendationsAr) &&
+          contourIntervalM == other.contourIntervalM &&
+          tillageDirDegrees == other.tillageDirDegrees;
+
+  @override
+  int get hashCode => Object.hash(
+        fieldId,
+        Object.hashAll(slopeDistribution.entries),
+        dominantSlopeClass,
+        dominantSlopeClassAr,
+        erosionRisk,
+        erosionRiskAr,
+        Object.hashAll(recommendations),
+        Object.hashAll(recommendationsAr),
+        contourIntervalM,
+        tillageDirDegrees,
+      );
+
+  @override
+  String toString() =>
+      'SlopeAnalysis(fieldId: $fieldId, dominantSlope: $dominantSlopeClass, erosionRisk: $erosionRisk)';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -556,15 +818,6 @@ class TerrainRepository {
     String fieldId,
     String dataType,
   ) async {
-    // In a full implementation, this would use a dedicated Drift table
-    // For now, using shared preferences or a cache table
-
-    // Placeholder - in real implementation:
-    // final cached = await _database?.getCachedTerrainData(fieldId, dataType);
-    // if (cached != null && !_isCacheExpired(cached.timestamp)) {
-    //   return json.decode(cached.data);
-    // }
-
     return null;
   }
 
@@ -573,30 +826,18 @@ class TerrainRepository {
     String fieldId,
     String dataType,
     Map<String, dynamic> data,
-  ) async {
-    // In a full implementation, this would save to a Drift table
-    // For now, placeholder
-
-    // await _database?.upsertTerrainCache(
-    //   fieldId: fieldId,
-    //   dataType: dataType,
-    //   data: json.encode(data),
-    //   timestamp: DateTime.now(),
-    // );
-  }
+  ) async {}
 
   /// Clear cache for a field
   /// مسح التخزين المؤقت للحقل
   Future<void> clearCache(String fieldId) async {
     _memoryCache.removeWhere((key, _) => key.contains(fieldId));
-    // await _database?.deleteTerrainCache(fieldId);
   }
 
   /// Clear all terrain cache
   /// مسح كل التخزين المؤقت للتضاريس
   Future<void> clearAllCache() async {
     _memoryCache.clear();
-    // await _database?.deleteAllTerrainCache();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

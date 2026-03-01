@@ -283,7 +283,7 @@ services:
 
   - name: chat-service
     host: chat-service
-    port: 8000  # Container internal port (docker-compose PORT=8000, host-mapped to 8115)
+    port: 8115  # Container internal port (docker-compose PORT=8115)
     protocol: http
     routes:
       - name: chat-service-route
@@ -316,16 +316,6 @@ services:
   # -----------------------------
   # Python services
   # -----------------------------
-  # DEPRECATED profile (only runs if profile enabled)
-  - name: field-ops
-    host: field-ops
-    port: 8080
-    protocol: http
-    routes:
-      - name: field-ops-route
-        paths: ["/field-ops-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
 
   - name: ws-gateway
     host: ws-gateway
@@ -489,15 +479,7 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  - name: field-chat
-    host: field-chat
-    port: 8099
-    protocol: http
-    routes:
-      - name: field-chat-route
-        paths: ["/api/v1/field-chat", "/field-chat"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: field-chat (deprecated → chat-service port 8115)
 
   - name: equipment-service
     host: equipment-service
@@ -651,15 +633,7 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  - name: field-service
-    host: field-service
-    port: 8115
-    protocol: http
-    routes:
-      - name: field-service-route
-        paths: ["/field-service-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: field-service (deprecated → field-management-service port 3000)
 
   - name: inventory-service
     host: inventory-service
@@ -693,7 +667,7 @@ services:
 
   - name: mcp-server
     host: mcp-server
-    port: 8200
+    port: 8201  # Container internal port (MCP_SERVER_PORT=8201)
     protocol: http
     routes:
       - name: mcp-server-route
@@ -737,16 +711,7 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # Crop Health - Basic crop monitoring
-  - name: crop-health
-    host: crop-health
-    port: 8100
-    protocol: http
-    routes:
-      - name: crop-health-route
-        paths: ["/api/v1/crop-health-basic", "/crop-health"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: crop-health (deprecated → crop-intelligence-service port 8095)
 
   # CRM Service - Farmer relationship management
   - name: crm-service
@@ -804,18 +769,48 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # REMOVED: ussd-gateway - service does not exist in docker-compose.yml
-  # Port 8163 is now exclusively used by copilot-api
-  # If ussd-gateway is needed, add it to docker-compose.yml with a different port (e.g., 8169)
-  # - name: ussd-gateway
-  #   host: ussd-gateway
-  #   port: 8163
-  #   protocol: http
-  #   routes:
-  #     - name: ussd-gateway-route
-  #       paths: ["/api/v1/ussd", "/ussd"]
-  #       strip_path: true
-  #       protocols: ["http", "https"]
+  # USSD Gateway - SMS/USSD support for basic phones
+  # بوابة USSD - دعم الرسائل القصيرة للهواتف البسيطة
+  # ACTIVATED: Phase 0 improvement plan (corrected port from 8163 to 8183)
+  - name: ussd-gateway
+    host: ussd-gateway
+    port: 8183
+    protocol: http
+    routes:
+      - name: ussd-gateway-route
+        paths: ["/api/v1/ussd", "/ussd"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # AI Chat Assistant - LLM-powered conversational interface
+  # مساعد الشات الذكي - واجهة محادثة مدعومة بالذكاء الاصطناعي
+  # ACTIVATED: Phase 0 improvement plan
+  - name: ai-chat-assistant
+    host: ai-chat-assistant
+    port: 8260
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ai-chat-assistant-route
+        paths: ["/api/v1/ai-chat", "/ai-chat"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
 
   # Agent Registry - AI agent management
   # FIX: Corrected port from 8185 to 8160 (matching docker-compose.yml)
@@ -853,16 +848,7 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # Yield Engine - Yield estimation and prediction
-  - name: yield-engine
-    host: yield-engine
-    port: 8098
-    protocol: http
-    routes:
-      - name: yield-engine-route
-        paths: ["/api/v1/yield-engine", "/yield-engine"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: yield-engine (deprecated → yield-prediction-service port 8152)
 
   # AI Agents Service - Agent orchestration
   - name: ai-agents-service
@@ -875,60 +861,11 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # Field Core - Legacy field service (NestJS)
-  - name: field-core
-    host: field-core
-    port: 3005
-    protocol: http
-    routes:
-      - name: field-core-route
-        paths: ["/api/v1/field-core", "/field-core"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # Satellite Service - Legacy satellite imagery (deprecated, use vegetation-analysis-service)
-  - name: satellite-service
-    host: satellite-service
-    port: 9190
-    protocol: http
-    routes:
-      - name: satellite-service-route
-        paths: ["/api/v1/satellite-legacy", "/satellite-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # Weather Advanced - Advanced weather analytics (deprecated, use weather-service)
-  - name: weather-advanced
-    host: weather-advanced
-    port: 9092
-    protocol: http
-    routes:
-      - name: weather-advanced-route
-        paths: ["/api/v1/weather-advanced", "/weather-advanced"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # Crop Health AI - Legacy crop health (deprecated, use crop-intelligence-service)
-  - name: crop-health-ai
-    host: crop-health-ai
-    port: 9095
-    protocol: http
-    routes:
-      - name: crop-health-ai-route
-        paths: ["/api/v1/crop-health-ai", "/crop-health-ai"]
-        strip_path: true
-        protocols: ["http", "https"]
-
-  # Fertilizer Advisor - Legacy fertilizer recommendations (deprecated, use advisory-service)
-  - name: fertilizer-advisor
-    host: fertilizer-advisor
-    port: 9093
-    protocol: http
-    routes:
-      - name: fertilizer-advisor-route
-        paths: ["/api/v1/fertilizer-advisor", "/fertilizer-advisor"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # REMOVED: field-core (deprecated → field-management-service port 3000)
+  # REMOVED: satellite-service (deprecated → vegetation-analysis-service port 8090)
+  # REMOVED: weather-advanced (deprecated → weather-service port 8092)
+  # REMOVED: crop-health-ai (deprecated → crop-intelligence-service port 8095)
+  # REMOVED: fertilizer-advisor (deprecated → advisory-service port 8093)
 
   # -----------------------------
   # Additional Services - Added 2026-02-02
@@ -1310,14 +1247,8 @@ services:
             headers:
               - "X-Service: yolo26-vision-service"
               - "X-Rate-Limit-Tier: premium"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist, was causing 502)
+      # أُزيل: إضافة http-log (خدمة logging-service غير موجودة، كانت تسبب أخطاء 502)
 
   # -----------------------------
   # Terrain API - Terrain Analysis Service
@@ -1379,14 +1310,7 @@ services:
           add:
             headers:
               - "X-Service: terrain-core-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Hydrology API - Hydrology Analysis Service
@@ -1438,14 +1362,7 @@ services:
           add:
             headers:
               - "X-Service: hydrology-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Leveling API - Land Leveling Optimizer Service
@@ -1497,14 +1414,7 @@ services:
           add:
             headers:
               - "X-Service: leveling-optimizer-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
   # -----------------------------
   # Edge API - Edge Orchestrator Service
@@ -1556,14 +1466,7 @@ services:
           add:
             headers:
               - "X-Service: edge-orchestrator-service"
-      - name: http-log
-        config:
-          http_endpoint: http://logging-service:8080/logs
-          method: POST
-          timeout: 1000
-          keepalive: 1000
-          flush_timeout: 2
-          content_type: application/json
+      # REMOVED: http-log plugin (logging-service does not exist)
 
 # ==============================================================================
 # Additional Services - Added 2026-02-07
@@ -1631,15 +1534,22 @@ services:
 # - etcd, etcd-init, minio, milvus
 # - ollama / ollama-model-loader (internal LLM, expose only if needed)
 #
-# Deprecated services (still accessible for migration):
-# الخدمات المهملة (لا تزال متاحة للترحيل):
-# - satellite-service → use vegetation-analysis-service
-# - weather-advanced → use weather-service
-# - crop-health-ai → use crop-intelligence-service
-# - fertilizer-advisor → use advisory-service
+# Deprecated services REMOVED from Kong (no backend, returned 502):
+# الخدمات المهملة التي أُزيلت من Kong (لا يوجد خادم، كانت تُرجع 502):
+# - community-chat → chat-service (port 8115)
+# - field-ops → field-management-service (port 3000)
+# - field-chat → chat-service (port 8115)
+# - field-service → field-management-service (port 3000)
+# - field-core → field-management-service (port 3000)
+# - crop-health → crop-intelligence-service (port 8095)
+# - yield-engine → yield-prediction-service (port 8152)
+# - satellite-service → vegetation-analysis-service (port 8090)
+# - weather-advanced → weather-service (port 8092)
+# - crop-health-ai → crop-intelligence-service (port 8095)
+# - fertilizer-advisor → advisory-service (port 8093)
 #
-# Last updated: 2026-02-07
-# آخر تحديث: 2026-02-07
-# Total services configured: 79 (removed duplicate declarations)
-# إجمالي الخدمات المُكوَّنة: 79 (تمت إزالة التصريحات المكررة)
+# Last updated: 2026-02-28
+# آخر تحديث: 2026-02-28
+# Total active services configured: 68 (removed 11 deprecated ghost services)
+# إجمالي الخدمات النشطة المُكوَّنة: 68 (أُزيلت 11 خدمة مهملة وهمية)
 # ------------------------------------------------------------------------------

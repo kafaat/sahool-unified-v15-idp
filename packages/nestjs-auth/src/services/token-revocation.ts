@@ -174,7 +174,7 @@ export class RedisTokenRevocationStore
       this.initialized = true;
       this.logger.log("Redis token revocation store initialized");
     } catch (error) {
-      this.logger.error(`Failed to initialize Redis: ${error.message}`);
+      this.logger.error(`Failed to initialize Redis: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
   }
@@ -254,7 +254,7 @@ export class RedisTokenRevocationStore
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke token: ${error.message}`);
+      this.logger.error(`Failed to revoke token: ${error instanceof Error ? error.message : String(error)}`);
       return false;
     }
   }
@@ -285,7 +285,7 @@ export class RedisTokenRevocationStore
       const exists = await this.redis!.exists(key);
       return exists > 0;
     } catch (error) {
-      this.logger.error(`Error checking token revocation: ${error.message}`);
+      this.logger.error(`Error checking token revocation: ${error instanceof Error ? error.message : String(error)}`);
       // Fail open: don't block access on Redis errors
       return false;
     }
@@ -317,7 +317,7 @@ export class RedisTokenRevocationStore
 
       return null;
     } catch (error) {
-      this.logger.error(`Error getting revocation info: ${error.message}`);
+      this.logger.error(`Error getting revocation info: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -369,7 +369,7 @@ export class RedisTokenRevocationStore
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke user tokens: ${error.message}`);
+      this.logger.error(`Failed to revoke user tokens: ${error instanceof Error ? error.message : String(error)}`);
       return false;
     }
   }
@@ -414,7 +414,7 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking user token revocation: ${error.message}`,
+        `Error checking user token revocation: ${error instanceof Error ? error.message : String(error)}`,
       );
       return false;
     }
@@ -448,7 +448,7 @@ export class RedisTokenRevocationStore
 
       return deleted > 0;
     } catch (error) {
-      this.logger.error(`Failed to clear user revocation: ${error.message}`);
+      this.logger.error(`Failed to clear user revocation: ${error instanceof Error ? error.message : String(error)}`);
       return false;
     }
   }
@@ -495,7 +495,7 @@ export class RedisTokenRevocationStore
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke tenant tokens: ${error.message}`);
+      this.logger.error(`Failed to revoke tenant tokens: ${error instanceof Error ? error.message : String(error)}`);
       return false;
     }
   }
@@ -534,7 +534,7 @@ export class RedisTokenRevocationStore
       return false;
     } catch (error) {
       this.logger.error(
-        `Error checking tenant token revocation: ${error.message}`,
+        `Error checking tenant token revocation: ${error instanceof Error ? error.message : String(error)}`,
       );
       return false;
     }
@@ -625,7 +625,7 @@ export class RedisTokenRevocationStore
         redisUrl: this.buildRedisUrl().split("@").pop(), // Hide password
       };
     } catch (error) {
-      this.logger.error(`Error getting stats: ${error.message}`);
+      this.logger.error(`Error getting stats: ${error instanceof Error ? error.message : String(error)}`);
       return {
         initialized: this.initialized,
         revokedTokens: 0,
@@ -650,7 +650,7 @@ export class RedisTokenRevocationStore
       await this.redis!.ping();
       return true;
     } catch (error) {
-      this.logger.error(`Health check failed: ${error.message}`);
+      this.logger.error(`Health check failed: ${error instanceof Error ? error.message : String(error)}`);
       return false;
     }
   }

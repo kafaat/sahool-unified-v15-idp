@@ -154,7 +154,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
                 {getActionIcon(recommendation.actionType)}
               </div>
 
-              <div className="flex-1" dir="rtl">
+              <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold text-gray-900">
                     {recommendation.titleAr}
@@ -221,7 +221,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
               {getActionIcon(recommendation.actionType)}
             </div>
 
-            <div dir="rtl">
+            <div>
               <div className="flex items-center gap-2 mb-1">
                 <h3
                   id={`recommendation-title-${recommendation.id}`}
@@ -250,22 +250,21 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
                 {Math.round(recommendation.confidence)}%
               </span>
             </div>
-            <p className="text-xs text-gray-500" dir="rtl">
+            <p className="text-xs text-gray-500">
               الثقة
             </p>
           </div>
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 mb-4" dir="rtl">
+        <p className="text-gray-700 mb-4">
           {recommendation.descriptionAr}
         </p>
 
         {/* Window Information */}
         <div
           className="bg-blue-50 rounded-lg border border-blue-200 p-4 mb-4"
-          dir="rtl"
-        >
+                 >
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-4 h-4 text-blue-600" aria-hidden="true" />
             <span className="font-semibold text-blue-900">
@@ -291,10 +290,10 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
 
         {/* Reason */}
         <div className="mb-4">
-          <h4 className="font-semibold text-gray-900 mb-2" dir="rtl">
+          <h4 className="font-semibold text-gray-900 mb-2">
             السبب
           </h4>
-          <p className="text-sm text-gray-700" dir="rtl">
+          <p className="text-sm text-gray-700">
             {recommendation.reasonAr}
           </p>
         </div>
@@ -302,7 +301,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
         {/* Benefits */}
         {recommendation.benefitsAr && recommendation.benefitsAr.length > 0 && (
           <div className="mb-4">
-            <h4 className="font-semibold text-gray-900 mb-2" dir="rtl">
+            <h4 className="font-semibold text-gray-900 mb-2">
               الفوائد
             </h4>
             <ul className="space-y-1">
@@ -310,8 +309,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
                 <li
                   key={index}
                   className="flex items-start gap-2 text-sm text-gray-700"
-                  dir="rtl"
-                >
+                                 >
                   <CheckCircle2
                     className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0"
                     aria-hidden="true"
@@ -326,7 +324,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
         {/* Warnings */}
         {recommendation.warningsAr && recommendation.warningsAr.length > 0 && (
           <div className="mb-4">
-            <h4 className="font-semibold text-gray-900 mb-2" dir="rtl">
+            <h4 className="font-semibold text-gray-900 mb-2">
               تحذيرات
             </h4>
             <ul className="space-y-1">
@@ -334,8 +332,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
                 <li
                   key={index}
                   className="flex items-start gap-2 text-sm text-orange-700"
-                  dir="rtl"
-                >
+                                 >
                   <AlertCircle
                     className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0"
                     aria-hidden="true"
@@ -350,7 +347,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
         {/* Weather Conditions */}
         {showWeather && (
           <div className="mb-4">
-            <h4 className="font-semibold text-gray-900 mb-3" dir="rtl">
+            <h4 className="font-semibold text-gray-900 mb-3">
               الظروف الجوية
             </h4>
             <WeatherConditions conditions={recommendation.conditions} compact />
@@ -380,17 +377,17 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
             {isCreatingTask ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
-                <span dir="rtl">جاري الإنشاء...</span>
+                <span>جاري الإنشاء...</span>
               </>
             ) : taskCreated ? (
               <>
                 <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
-                <span dir="rtl">تم إنشاء المهمة</span>
+                <span>تم إنشاء المهمة</span>
               </>
             ) : (
               <>
                 <Plus className="w-5 h-5" aria-hidden="true" />
-                <span dir="rtl">إنشاء مهمة</span>
+                <span>إنشاء مهمة</span>
               </>
             )}
           </button>
@@ -399,8 +396,7 @@ export const ActionRecommendation = React.memo<ActionRecommendationProps>(
         {/* Footer */}
         <div
           className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500"
-          dir="rtl"
-        >
+                 >
           <span>ينتهي في: {formatDateTime(recommendation.expiresAt)}</span>
           {recommendation.fieldNameAr && (
             <span>الحقل: {recommendation.fieldNameAr}</span>

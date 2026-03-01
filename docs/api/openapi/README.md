@@ -3,7 +3,7 @@
 OpenAPI 3.0.3 specifications for all SAHOOL platform services.
 
 > **Version**: 16.0.0
-> **Last Updated**: 2026-01-24
+> **Last Updated**: 2026-02-21
 
 ## Overview | نظرة عامة
 
@@ -23,6 +23,8 @@ This directory contains comprehensive OpenAPI/Swagger documentation for all SAHO
 | **[billing-services.yaml](./billing-services.yaml)** | billing-core | Plans, Subscriptions, Invoices, Payments, Usage | الخطط، الاشتراكات، الفواتير، المدفوعات، الاستخدام |
 | **[task-services.yaml](./task-services.yaml)** | task-service, equipment-service, inventory-service | Tasks, Equipment, Inventory, Maintenance | المهام، المعدات، المخزون، الصيانة |
 | **[agent-services.yaml](./agent-services.yaml)** | agent-registry, ai-agents-core, ai-agents-service, knowledge-graph, mcp-server, skills-service | AI Agents, Knowledge Graph, MCP Tools, Skills | وكلاء الذكاء الاصطناعي، رسم المعرفة، أدوات MCP، المهارات |
+| **[irrigation-services.yaml](./irrigation-services.yaml)** | irrigation-smart | Smart Irrigation Scheduling, Water Balance, Efficiency Reports | الري الذكي، التوازن المائي، تقارير الكفاءة |
+| **[pest-detection-services.yaml](./pest-detection-services.yaml)** | pest-detection-service | Pest Identification, IPM, Scout Reports, Economic Thresholds | كشف الآفات، الإدارة المتكاملة، تقارير الاستكشاف، العتبات الاقتصادية |
 
 ## Quick Start | البدء السريع
 

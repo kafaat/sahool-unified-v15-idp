@@ -414,6 +414,6 @@ export class ChatService {
       select: { unreadCount: true },
     });
 
-    return participants.reduce((total, p) => total + p.unreadCount, 0);
+    return participants.reduce((total: number, p: { unreadCount: number }) => total + p.unreadCount, 0);
   }
 }

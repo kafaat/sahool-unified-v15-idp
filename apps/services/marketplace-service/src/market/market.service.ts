@@ -273,7 +273,7 @@ export class MarketService {
       // Create a typed map for quick lookup
       type ProductType = (typeof products)[number];
       const productMap = new Map<string, ProductType>(
-        products.map((p) => [p.id, p]),
+        products.map((p: ProductType): [string, ProductType] => [p.id, p]),
       );
 
       // حساب المبالغ
@@ -323,7 +323,7 @@ export class MarketService {
       // Check for low stock after update (outside transaction to avoid blocking)
       // We'll do this in a non-blocking way after the transaction completes
       Promise.all(
-        updatedProducts.map(async (product) => {
+        updatedProducts.map(async (product: ProductType) => {
           const LOW_STOCK_THRESHOLD = 10;
           if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
             await this.eventsService.publishInventoryLowStock({

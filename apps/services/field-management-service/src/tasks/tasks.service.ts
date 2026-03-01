@@ -5,7 +5,7 @@
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
-import { TaskType, Priority, TaskState, Prisma } from "@prisma/client";
+import { TaskType, Priority, TaskState, Prisma } from "../../prisma/generated/client";
 
 @Injectable()
 export class TasksService {

@@ -103,7 +103,7 @@ export const FEATURE_SCHEMA = {
 
 type FeatureKey = keyof typeof FEATURE_SCHEMA.features;
 
-interface ValidationError {
+export interface ValidationError {
   field: string;
   value: unknown;
   message: string;

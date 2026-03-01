@@ -18,7 +18,7 @@ import {
   Logger,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../prisma/generated/client";
 
 // Bilingual error messages
 const ERROR_MESSAGES: Record<number, { en: string; ar: string }> = {

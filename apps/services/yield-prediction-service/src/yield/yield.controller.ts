@@ -12,6 +12,7 @@ import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
+  ValidationError,
   FEATURE_SCHEMA,
   validateFeatureInput,
 } from "./yield.service";
@@ -115,7 +116,7 @@ export class YieldController {
   })
   @ApiResponse({ status: 200, description: "Validation result" })
   @ApiResponse({ status: 400, description: "Invalid input data" })
-  validateInput(@Body() data: ValidateInputDto) {
+  validateInput(@Body() data: ValidateInputDto): { valid: boolean; errors: ValidationError[]; schema_version: string } {
     const result = validateFeatureInput(data as Record<string, unknown>);
     return {
       ...result,

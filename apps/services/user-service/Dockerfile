@@ -110,6 +110,7 @@ COPY --from=builder /workspace/user-service/dist ./dist
 
 # Set port environment variable
 ENV PORT=3025
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 3025

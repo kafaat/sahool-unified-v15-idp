@@ -79,3 +79,20 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Topology spread constraints using chart selector labels.
+Iterates over .Values.topologySpreadConstraints and injects the chart's
+selectorLabels so the constraint always matches actual pod labels, even
+when nameOverride / fullnameOverride is set.
+*/}}
+{{- define "admin.topologySpreadConstraints" -}}
+{{- range .Values.topologySpreadConstraints }}
+- maxSkew: {{ .maxSkew }}
+  topologyKey: {{ .topologyKey }}
+  whenUnsatisfiable: {{ .whenUnsatisfiable }}
+  labelSelector:
+    matchLabels:
+      {{- include "admin.selectorLabels" $ | nindent 6 }}
+{{- end }}
+{{- end }}

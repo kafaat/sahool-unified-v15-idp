@@ -633,8 +633,6 @@ jobs:
             path: apps/services/crop-intelligence-service
           - name: irrigation-smart
             path: apps/services/irrigation-smart
-          - name: yield-engine
-            path: apps/services/yield-engine
           - name: notification-service
             path: apps/services/notification-service
           - name: marketplace-service
@@ -805,17 +803,49 @@ jobs:
       - name: Run Bandit (Python security linter)
         run: bandit -r apps/ shared/ -ll -x "**/tests/**" || true
 
-      - name: Run Trivy vulnerability scanner (SARIF)
-        uses: aquasecurity/trivy-action@0.29.0
-        continue-on-error: true
+      - name: Install Trivy
+        id: install_trivy
+        run: |
+          TRIVY_VERSION="0.62.1"
+          echo "Installing Trivy v${TRIVY_VERSION}..."
+          for i in 1 2 3 4; do
+            echo "Attempt $i: Downloading Trivy..."
+            if curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+              -o trivy.tar.gz -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"; then
+              tar -xzf trivy.tar.gz trivy
+              sudo mv trivy /usr/local/bin/trivy
+              rm -f trivy.tar.gz
+              trivy --version
+              echo "installed=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "Download failed, retrying in $((i * 4))s..."
+            sleep $((i * 4))
+          done
+          echo "installed=false" >> $GITHUB_OUTPUT
+          echo "::warning::Failed to install Trivy after 4 attempts"
+
+      - name: Cache Trivy DB
+        if: steps.install_trivy.outputs.installed == 'true'
+        uses: actions/cache@v4
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL'
-          ignore-unfixed: false
-          scanners: 'vuln'
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}-
+
+      - name: Run Trivy vulnerability scanner (SARIF)
+        if: steps.install_trivy.outputs.installed == 'true'
+        continue-on-error: true
+        run: |
+          trivy fs \
+            --skip-check-update \
+            --format sarif \
+            --output trivy-results.sarif \
+            --severity CRITICAL \
+            --exit-code 0 \
+            --scanners vuln \
+            . || true
 
       - name: Generate Trivy SARIF fallback
         if: always()

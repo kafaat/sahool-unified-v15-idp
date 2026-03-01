@@ -106,6 +106,7 @@ COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
 ENV PORT=8115
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 8115

@@ -1153,6 +1153,12 @@
 <td>منخفضة ✅</td>
 </tr>
 <tr>
+<td>خدمات Kong الوهمية</td>
+<td>15</td>
+<td>0</td>
+<td>متوسطة ✅</td>
+</tr>
+<tr>
 <td>تحسينات الأداء</td>
 <td>0</td>
 <td>5</td>
@@ -1161,7 +1167,8 @@
 </tbody>
 </table>
 <blockquote>
-<p><strong>تحديث 2026-01-25</strong>: تم إكمال المراحل 1-5 بنجاح</p>
+<p><strong>تحديث 2026-03-01</strong>: تم إكمال المراحل 1-5 بنجاح + المرحلة 4 (Kong cleanup) مكتملة
+<strong>تحديث 2026-01-25</strong>: تم إكمال المراحل 1-5 بنجاح</p>
 </blockquote>
 <hr />
 <h2 id="1">المرحلة 1: الإصلاحات الحرجة (مكتملة ✅)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -1323,77 +1330,79 @@ infrastructure/gateway/kong/kong.yml
 </code></pre></div>
 
 <hr />
-<h2 id="4-kong">المرحلة 4: الخدمات الوهمية في Kong (متبقية ⏳)<a class="headerlink" href="#4-kong" title="Permanent link">&para;</a></h2>
-<h3 id="41">4.1 الخدمات الوهمية المكتشفة<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<h2 id="4-kong">المرحلة 4: الخدمات الوهمية في Kong (مكتملة ✅)<a class="headerlink" href="#4-kong" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>تحديث 2026-03-01</strong>: تم تنظيف جميع الخدمات الوهمية والمراجع المعطلة</p>
+</blockquote>
+<h3 id="41-">4.1 الخدمات الوهمية - تم الإزالة ✅<a class="headerlink" href="#41-" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>الخدمة</th>
 <th>المنفذ</th>
-<th>الحالة</th>
+<th>الإجراء</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>analytics-service</td>
 <td>8154</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>reporting-service</td>
 <td>8155</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>integration-service</td>
 <td>8156</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>export-service</td>
 <td>8158</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>import-service</td>
 <td>8159</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>monitoring-service</td>
 <td>8160</td>
-<td>تعارض مع agent-registry</td>
+<td>✅ أُزيلت (agent-registry يستخدم المنفذ)</td>
 </tr>
 <tr>
 <td>logging-service</td>
 <td>8162</td>
-<td>تعارض مع code-fix-agent</td>
+<td>✅ أُزيلت (code-fix-agent يستخدم المنفذ)</td>
 </tr>
 <tr>
 <td>tracing-service</td>
 <td>8162</td>
-<td>تعارض مع code-review-agent</td>
+<td>✅ أُزيلت (code-review-agent يستخدم المنفذ)</td>
 </tr>
 <tr>
 <td>cache-service</td>
 <td>8163</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 <tr>
 <td>search-service</td>
 <td>8164</td>
-<td>غير موجودة</td>
+<td>✅ أُزيلت من kong.yml</td>
 </tr>
 </tbody>
 </table>
-<h3 id="42">4.2 الخيارات<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
-<p><strong>الخيار أ: الإزالة</strong> (موصى به)
-- حذف هذه الخدمات من kong.yml
-- تقليل الأخطاء 502 Bad Gateway</p>
-<p><strong>الخيار ب: التعليق</strong>
-- تحويلها إلى تعليقات للتطوير المستقبلي</p>
-<p><strong>الخيار ج: الإنشاء</strong>
-- إنشاء stubs لهذه الخدمات</p>
+<h3 id="42-logging-service-">4.2 مراجع logging-service الوهمية - تم التنظيف ✅<a class="headerlink" href="#42-logging-service-" title="Permanent link">&para;</a></h3>
+<p>أُزيلت 5 إضافات <code>http-log</code> كانت تشير إلى <code>logging-service:8080</code> غير الموجود من:
+- yolo26-vision-service
+- terrain-core-service
+- hydrology-service
+- leveling-optimizer-service
+- edge-orchestrator-service</p>
 <hr />
 <h2 id="5">المرحلة 5: تنظيف الكود (مكتملة ✅)<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <h3 id="51">5.1 ملفات الجذر ✅<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>

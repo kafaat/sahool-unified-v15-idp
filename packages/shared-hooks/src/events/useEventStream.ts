@@ -218,7 +218,7 @@ export function useEventStream(
   }, [onError]);
 
   // Store connect in a ref so the reconnect timeout always calls the latest version
-  const connectRef = useRef<() => void>();
+  const connectRef = useRef<(() => void) | undefined>(undefined);
 
   // Connect to event stream
   const connect = useCallback(() => {

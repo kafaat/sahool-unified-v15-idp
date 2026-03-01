@@ -110,6 +110,18 @@ EXPOSE 3001
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
+# Runtime API Gateway URL (overrides build-time NEXT_PUBLIC_API_URL for server-side rewrites)
+# In K8s: set to http://kong.kong.svc.cluster.local:8000
+# In Docker Compose: set to http://kong-gateway:8000
+ENV API_GATEWAY_URL=""
+
+LABEL org.opencontainers.image.title="SAHOOL Admin Dashboard" \
+      org.opencontainers.image.description="Admin portal for SAHOOL National Agricultural Intelligence Platform" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-v15-idp" \
+      org.opencontainers.image.base.name="node:20-alpine"
+
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1

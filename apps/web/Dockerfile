@@ -112,6 +112,13 @@ ENV HOSTNAME="0.0.0.0"
 # In Docker Compose: set to http://kong-gateway:8000
 ENV API_GATEWAY_URL=""
 
+LABEL org.opencontainers.image.title="SAHOOL Web Dashboard" \
+      org.opencontainers.image.description="Web dashboard for SAHOOL National Agricultural Intelligence Platform" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-v15-idp" \
+      org.opencontainers.image.base.name="node:20-alpine"
+
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1

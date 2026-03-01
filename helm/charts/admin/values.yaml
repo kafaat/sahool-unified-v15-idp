@@ -1,10 +1,10 @@
-# SAHOOL Web Dashboard - Helm Values
+# SAHOOL Admin Dashboard - Helm Values
 # Version: 16.0.0
 
-replicaCount: 3
+replicaCount: 2
 
 image:
-  repository: ghcr.io/kafaat/sahool/web
+  repository: ghcr.io/kafaat/sahool/admin
   tag: "16.0.0"
   pullPolicy: IfNotPresent
 
@@ -19,7 +19,7 @@ serviceAccount:
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 3001
 
 resources:
   limits:
@@ -34,20 +34,19 @@ deploymentSlot: blue
 
 # Environment variables
 env:
-  NEXT_PUBLIC_APP_NAME: "SAHOOL"
+  NEXT_PUBLIC_APP_NAME: "SAHOOL Admin"
   NEXT_PUBLIC_APP_VERSION: "16.0.0"
 
 # API gateway URL (Kong)
 apiUrl: "http://kong:8000"
-wsUrl: "ws://ws-gateway:8081"
 
 secrets:
   jwtSecret: ""
 
 autoscaling:
   enabled: true
-  minReplicas: 3
-  maxReplicas: 10
+  minReplicas: 2
+  maxReplicas: 6
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
 
@@ -92,8 +91,17 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                  - web
+                  - admin
           topologyKey: kubernetes.io/hostname
+
+# Topology spread constraints for even distribution
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: admin
 
 # Pod annotations
 podAnnotations: {}
@@ -112,15 +120,6 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
-
-# Topology spread constraints for even distribution
-topologySpreadConstraints:
-  - maxSkew: 1
-    topologyKey: kubernetes.io/hostname
-    whenUnsatisfiable: ScheduleAnyway
-    labelSelector:
-      matchLabels:
-        app.kubernetes.io/name: web
 
 # Graceful shutdown
 terminationGracePeriodSeconds: 30

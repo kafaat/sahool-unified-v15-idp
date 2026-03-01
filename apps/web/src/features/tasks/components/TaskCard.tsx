@@ -136,8 +136,8 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
     const ariaLabel = React.useMemo(() => {
       const parts = [
         `Task: ${task.title}`,
-        `Status: ${statusInfo.labelAr}`,
-        `Priority: ${priorityInfo.labelAr}`,
+        `Status: ${statusInfo?.labelAr ?? ""}`,
+        `Priority: ${priorityInfo?.labelAr ?? ""}`,
       ];
 
       if (task.due_date) {

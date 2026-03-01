@@ -1,0 +1,86 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL vLLM Inference Server - DeepSeek Coder
+# خادم استدلال vLLM لنموذج ديب سيك كودر
+#
+# Usage:
+#   # Build and run with GPU:
+#   docker compose -f infrastructure/core/vllm/docker-compose.vllm.yml up -d
+#
+#   # With custom model cache (pre-downloaded):
+#   VLLM_MODEL_CACHE=/path/to/models docker compose -f infrastructure/core/vllm/docker-compose.vllm.yml up -d
+#
+#   # With HuggingFace token (for gated models):
+#   HF_TOKEN=hf_xxx docker compose -f infrastructure/core/vllm/docker-compose.vllm.yml up -d
+#
+# API (OpenAI-compatible):
+#   http://localhost:8000/v1/chat/completions
+#   http://localhost:8000/v1/completions
+#   http://localhost:8000/v1/models
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # vLLM GPU Inference Server
+  # خادم استدلال vLLM مع دعم GPU
+  # ─────────────────────────────────────────────────────────────────────────────
+  vllm:
+    build:
+      context: ../../../
+      dockerfile: infrastructure/core/vllm/Dockerfile
+    image: sahool/vllm-deepseek:16.0.0
+    container_name: sahool-vllm
+    ports:
+      - "${VLLM_EXTERNAL_PORT:-127.0.0.1:8000}:${VLLM_PORT:-8000}"
+    volumes:
+      # Persistent model cache - avoids re-downloading on restart
+      - vllm_models:/models
+      - vllm_hf_cache:/home/sahool/.cache/huggingface
+    environment:
+      # Model configuration
+      - VLLM_MODEL=${VLLM_MODEL:-deepseek-ai/deepseek-coder-6.7b-instruct}
+      - VLLM_PORT=${VLLM_PORT:-8000}
+      - VLLM_HOST=${VLLM_HOST:-0.0.0.0}
+      - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-16384}
+      # GPU configuration
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      # HuggingFace authentication (for gated models)
+      - HF_TOKEN=${HF_TOKEN:-}
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${VLLM_GPU_COUNT:-1}
+              capabilities: [gpu]
+        limits:
+          memory: ${VLLM_MEMORY_LIMIT:-32G}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8000}/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 180s
+    networks:
+      - sahool-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+volumes:
+  vllm_models:
+    name: sahool-vllm-models
+    driver: local
+  vllm_hf_cache:
+    name: sahool-vllm-hf-cache
+    driver: local
+
+networks:
+  sahool-network:
+    name: sahool-network
+    external: true

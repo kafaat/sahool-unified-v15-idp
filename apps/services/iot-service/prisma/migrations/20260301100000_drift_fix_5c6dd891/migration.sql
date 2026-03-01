@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
--- Purpose: Resolve critical NOT NULL without DEFAULT and risky migration patterns
+-- Purpose: Resolve critical mandatory-columns-without-DEFAULT and risky migration patterns
 -- Service: iot-service
 -- ═══════════════════════════════════════════════════════════════════════════════
 

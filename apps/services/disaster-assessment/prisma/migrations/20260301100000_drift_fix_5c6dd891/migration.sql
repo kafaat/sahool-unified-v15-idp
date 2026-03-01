@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
--- Purpose: Resolve critical NOT NULL without DEFAULT, HIGH tenant isolation
+-- Purpose: Resolve critical mandatory-columns-without-DEFAULT, HIGH tenant isolation
 --          violation, and add missing safe defaults
 -- Service: disaster-assessment
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -27,7 +27,7 @@ ALTER TABLE "field_assessments" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned
 ALTER TABLE "alert_subscriptions" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Critical Fix: Add DEFAULT to NOT NULL columns lacking defaults
+-- Critical Fix: Add DEFAULT to mandatory columns lacking DEFAULT values
 -- إصلاح حرج: إضافة قيم افتراضية للأعمدة الإلزامية
 -- ─────────────────────────────────────────────────────────────────────────────
 

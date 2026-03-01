@@ -802,36 +802,29 @@ jobs:
         run: |
           pip install safety bandit detect-secrets
 
-      - name: Install Trivy 0.69.1
-        run: |
-          echo "📦 Installing Trivy 0.69.1..."
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo "deb https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y trivy=0.69.1
-          trivy --version
-
       - name: Run Bandit (Python security linter)
         run: bandit -r apps/ shared/ -ll -x "**/tests/**" || true
 
-      - name: Run Trivy vulnerability scanner
-        continue-on-error: true  # Informational scan - don't block pipeline
+      - name: Run Trivy vulnerability scanner (SARIF)
+        uses: aquasecurity/trivy-action@0.29.0
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL'
+          ignore-unfixed: false
+          scanners: 'vuln'
+
+      - name: Generate Trivy SARIF fallback
+        if: always()
         run: |
-          echo "🔍 Running Trivy filesystem scan..."
-          mkdir -p trivy-results
-          trivy fs \
-            --skip-version-check \
-            --scanners vuln \
-            --severity CRITICAL \
-            --exit-code 0 \
-            --format sarif \
-            --output trivy-results.sarif \
-            . || true
-          
-          # Ensure SARIF file exists
           if [ ! -f "trivy-results.sarif" ]; then
-            echo "Creating empty SARIF file..."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.69.1"}},"results":[]}]}' > trivy-results.sarif
+            echo "Creating empty SARIF file (Trivy scan did not produce output)..."
+            cat > trivy-results.sarif <<'SARIF'
+          {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
+          SARIF
           fi
 
       - name: Upload Trivy scan results to GitHub Security tab

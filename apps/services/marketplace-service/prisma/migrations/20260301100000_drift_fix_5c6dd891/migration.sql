@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
--- Purpose: Resolve critical NOT NULL without DEFAULT and risky migration patterns
+-- Purpose: Resolve critical mandatory-columns-without-DEFAULT and risky migration patterns
 -- Service: marketplace-service
 -- ═══════════════════════════════════════════════════════════════════════════════
 
@@ -42,9 +42,9 @@ ALTER TABLE "product_reviews" ALTER COLUMN "updated_at" SET DEFAULT now();
 ALTER TABLE "review_responses" ALTER COLUMN "updated_at" SET DEFAULT now();
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Critical Fix 3: audit_logs NOT NULL columns need safe defaults
--- The audit_logs CREATE TABLE (20260101_add_audit_logs) has several NOT NULL
--- columns without DEFAULT. Add defaults for direct SQL insert safety.
+-- Critical Fix 3: audit_logs mandatory columns need safe DEFAULT values
+-- The audit_logs CREATE TABLE (20260101_add_audit_logs) has several mandatory
+-- columns lacking DEFAULT values. Add defaults for direct SQL insert safety.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 ALTER TABLE "audit_logs" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';

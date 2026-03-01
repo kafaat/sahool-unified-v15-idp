@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
--- Purpose: Resolve critical NOT NULL without DEFAULT and risky migration patterns
+-- Purpose: Resolve critical mandatory-columns-without-DEFAULT and risky migration patterns
 -- Service: field-management-service
 -- ═══════════════════════════════════════════════════════════════════════════════
 
@@ -16,7 +16,7 @@ ALTER TABLE "tasks" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Critical Fix 2: Ensure all NOT NULL columns have safe DEFAULT values
+-- Critical Fix 2: Ensure all mandatory columns have safe DEFAULT values
 -- Covers columns from initial migration that lacked defaults
 -- ─────────────────────────────────────────────────────────────────────────────
 

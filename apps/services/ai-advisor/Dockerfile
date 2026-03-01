@@ -37,39 +37,41 @@ ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Configure pip for network resilience | تكوين pip لمرونة الشبكة
+# Configure pip for network resilience (PyPI first for CI reliability)
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
 timeout = 300
 retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
+index-url = https://pypi.org/simple/
+extra-index-url = https://mirrors.aliyun.com/pypi/simple/
+                  https://pypi.tuna.tsinghua.edu.cn/simple/
 [install]
 prefer-binary = true
 EOF
 
-# Upgrade pip and build tools
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
-    pip>=24.0 \
-    setuptools>=75.0 \
-    wheel>=0.44.0 \
-    build
+# Upgrade pip and build tools (multi-mirror fallback)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 build || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 build
 
 # Copy requirements and constraints | نسخ المتطلبات والقيود
 COPY --chown=sahool:sahool apps/services/ai-advisor/requirements.txt /tmp/requirements.txt
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
-# Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
-    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
-    -c /tmp/constraints-ai.txt \
-    -r /tmp/requirements.txt
+# Install Python dependencies (PyPI first, Aliyun fallback, Tencent fallback)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production | المرحلة 2: الإنتاج

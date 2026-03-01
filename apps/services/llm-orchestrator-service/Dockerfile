@@ -34,36 +34,28 @@ ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Configure pip with network resilience BEFORE any pip install
+# Configure pip with network resilience (PyPI first for CI reliability)
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
 timeout = 300
 retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
+index-url = https://pypi.org/simple/
+extra-index-url = https://mirrors.aliyun.com/pypi/simple/
+                  https://pypi.tuna.tsinghua.edu.cn/simple/
 [install]
 prefer-binary = true
 EOF
 
-# Upgrade pip with multi-mirror fallback
+# Upgrade pip with multi-mirror fallback (PyPI first)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
-    --trusted-host pypi.tuna.tsinghua.edu.cn \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
     --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Copy and install dependencies
@@ -71,17 +63,13 @@ COPY --chown=sahool:sahool apps/services/llm-orchestrator-service/requirements.t
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
-    --trusted-host pypi.tuna.tsinghua.edu.cn \
-    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────

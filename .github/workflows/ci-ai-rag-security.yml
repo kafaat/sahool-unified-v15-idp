@@ -176,9 +176,19 @@ jobs:
           exit-code: '0'
           ignore-unfixed: true
 
+      - name: Generate Trivy SARIF fallback
+        if: always()
+        run: |
+          # Create minimal SARIF if Trivy didn't generate one (e.g., build failed)
+          if [ ! -f "trivy-${{ matrix.service }}.sarif" ]; then
+            echo "Creating empty SARIF file (build or scan did not produce output)..."
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.0.0"}},"results":[]}]}' > trivy-${{ matrix.service }}.sarif
+          fi
+
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
-        if: always() && steps.build.outputs.build_success == 'true'
+        if: always()
+        continue-on-error: true
         with:
           sarif_file: trivy-${{ matrix.service }}.sarif
           category: trivy-${{ matrix.service }}

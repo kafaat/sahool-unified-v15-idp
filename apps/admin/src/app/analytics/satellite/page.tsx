@@ -3,7 +3,7 @@
 // Satellite Data Analytics
 // تحليلات البيانات الفضائية
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
@@ -93,12 +93,7 @@ export default function SatellitePage() {
     "month",
   );
 
-  useEffect(() => {
-    loadData();
-     
-  }, [dateRange]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const satelliteData = await fetchSatelliteData({ range: dateRange });
@@ -114,7 +109,11 @@ export default function SatellitePage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [dateRange, selectedField]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (isLoading || !data) {
     return (

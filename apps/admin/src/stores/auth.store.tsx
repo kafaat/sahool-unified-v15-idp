@@ -38,6 +38,8 @@ const AuthContext = React.createContext<AuthState | null>(null);
 const IDLE_TIMEOUT = 30 * 60 * 1000;
 // Token refresh interval: check every 5 minutes
 const REFRESH_CHECK_INTERVAL = 5 * 60 * 1000;
+// Minimum interval between server activity pings (5 minutes)
+const SERVER_PING_INTERVAL = 5 * 60 * 1000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
@@ -66,8 +68,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Track last time we notified the server of activity
   const lastServerPingRef = React.useRef<number>(0);
-  // Minimum interval between server activity pings (5 minutes)
-  const SERVER_PING_INTERVAL = 5 * 60 * 1000;
 
   // Update last activity timestamp locally, and notify server at most once
   // every 5 minutes. Previously this sent a network request on every user

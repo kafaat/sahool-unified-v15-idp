@@ -3,7 +3,7 @@
 // Alerts Management Page - Dynamic with Full CRUD
 // صفحة إدارة التنبيهات - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ import {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery] = useState("");
+  const [_searchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -46,11 +46,7 @@ export default function AlertsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadAlerts();
-  }, [page, typeFilter, severityFilter, statusFilter, searchQuery]);
-
-  async function loadAlerts() {
+  const loadAlerts = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await alertService.getAll({
@@ -60,7 +56,7 @@ export default function AlertsPage() {
         severity: severityFilter || undefined,
         status: statusFilter || undefined,
       });
-      
+
       setAlerts(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
@@ -69,7 +65,11 @@ export default function AlertsPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [page, typeFilter, severityFilter, statusFilter]);
+
+  useEffect(() => {
+    loadAlerts();
+  }, [loadAlerts]);
 
   // CRUD Handlers
   async function handleCreate(data: CreateAlertData) {

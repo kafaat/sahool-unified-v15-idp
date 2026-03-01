@@ -250,10 +250,6 @@ export default function EquipmentPage() {
   const [formStatus, setFormStatus] = useState<EquipmentStatus>("operational");
   const [formFarm, setFormFarm] = useState(MOCK_FARMS_LIST[0]?.id || "");
 
-  useEffect(() => {
-    loadEquipment();
-  }, []);
-
   const loadEquipment = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -265,6 +261,10 @@ export default function EquipmentPage() {
       setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadEquipment();
+  }, [loadEquipment]);
 
   // Filter equipment
   const filteredEquipment = useMemo(() => {

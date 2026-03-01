@@ -3,7 +3,7 @@
 // Users Management Page - Dynamic with Full CRUD
 // صفحة إدارة المستخدمين - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
@@ -49,11 +49,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadUsers();
-  }, [page, roleFilter, statusFilter, searchQuery]);
-
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await userService.getAll({
@@ -63,25 +59,28 @@ export default function UsersPage() {
         role: roleFilter || undefined,
         status: statusFilter || undefined,
       });
-      
+
       // Map API users to UI format
       const mappedUsers: User[] = response.data.map(user => ({
         ...user,
-        nameAr: user.name, // Can be enhanced with actual Arabic names
+        nameAr: user.name,
         farmCount: user.farmCount ?? 0,
         lastLogin: user.lastLogin ?? "",
       }));
-      
+
       setUsers(mappedUsers);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
       logger.error("Failed to load users:", error);
-      // Fallback to empty array on error
       setUsers([]);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [page, roleFilter, statusFilter, searchQuery]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   // CRUD Handlers
   async function handleCreate(data: CreateUserData) {

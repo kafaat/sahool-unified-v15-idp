@@ -8,33 +8,35 @@ Provides voice-based interaction for farmers:
 - Agricultural context understanding
 - Offline-capable via Ollama on-device
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class VoiceLanguage(str, Enum):
-    AR_MSA = "ar_msa"         # العربية الفصحى
-    AR_YEMENI = "ar_yemeni"   # يمنية
-    AR_SAUDI = "ar_saudi"     # سعودية
-    AR_IRAQI = "ar_iraqi"     # عراقية
+class VoiceLanguage(StrEnum):
+    AR_MSA = "ar_msa"  # العربية الفصحى
+    AR_YEMENI = "ar_yemeni"  # يمنية
+    AR_SAUDI = "ar_saudi"  # سعودية
+    AR_IRAQI = "ar_iraqi"  # عراقية
     AR_EGYPTIAN = "ar_egyptian"  # مصرية
-    EN = "en"                 # English
+    EN = "en"  # English
 
 
-class VoiceCommand(str, Enum):
+class VoiceCommand(StrEnum):
     """Recognized voice command types | أنواع الأوامر الصوتية"""
-    QUERY = "query"             # استفسار
-    ACTION = "action"           # إجراء
-    NAVIGATION = "navigation"   # تنقل
-    REPORT = "report"           # تقرير
-    ALERT = "alert"             # تنبيه
-    RECORD = "record"           # تسجيل ملاحظة
+
+    QUERY = "query"  # استفسار
+    ACTION = "action"  # إجراء
+    NAVIGATION = "navigation"  # تنقل
+    REPORT = "report"  # تقرير
+    ALERT = "alert"  # تنبيه
+    RECORD = "record"  # تسجيل ملاحظة
 
 
 LANGUAGE_AR = {
@@ -111,6 +113,7 @@ VOICE_PATTERNS = {
 @dataclass
 class VoiceInput:
     """Voice input from user | مدخل صوتي من المستخدم"""
+
     audio_duration_seconds: float = 0.0
     detected_language: VoiceLanguage = VoiceLanguage.AR_MSA
     detected_language_ar: str = ""
@@ -122,6 +125,7 @@ class VoiceInput:
 @dataclass
 class VoiceResponse:
     """Voice response to user | استجابة صوتية للمستخدم"""
+
     response_id: str = ""
     text: str = ""
     text_ar: str = ""
@@ -138,6 +142,7 @@ class VoiceResponse:
 @dataclass
 class VoiceSession:
     """Voice interaction session | جلسة تفاعل صوتي"""
+
     session_id: str = ""
     farmer_id: str = ""
     tenant_id: str = ""
@@ -278,12 +283,9 @@ class VoiceAssistant:
             confidence=confidence,
             data=field_context or {},
             suggested_actions=suggested_actions,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     def get_supported_languages(self) -> list[dict]:
         """Get list of supported languages with labels."""
-        return [
-            {"code": lang.value, "label": LANGUAGE_AR.get(lang, lang.value)}
-            for lang in VoiceLanguage
-        ]
+        return [{"code": lang.value, "label": LANGUAGE_AR.get(lang, lang.value)} for lang in VoiceLanguage]

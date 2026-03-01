@@ -6,6 +6,7 @@ Provides agricultural vocabulary translation and normalization.
 
 This is a SAHOOL-exclusive feature - no competitor offers Arabic dialect NLP.
 """
+
 from __future__ import annotations
 
 import logging
@@ -17,13 +18,14 @@ logger = logging.getLogger(__name__)
 
 class ArabicDialect(StrEnum):
     """Supported Arabic dialects | اللهجات العربية المدعومة"""
-    MSA = "msa"             # فصحى Modern Standard Arabic
-    YEMENI = "yemeni"       # يمنية
-    SAUDI = "saudi"         # سعودية
-    IRAQI = "iraqi"         # عراقية
-    EGYPTIAN = "egyptian"   # مصرية
-    JORDANIAN = "jordanian" # أردنية
-    OMANI = "omani"         # عمانية
+
+    MSA = "msa"  # فصحى Modern Standard Arabic
+    YEMENI = "yemeni"  # يمنية
+    SAUDI = "saudi"  # سعودية
+    IRAQI = "iraqi"  # عراقية
+    EGYPTIAN = "egyptian"  # مصرية
+    JORDANIAN = "jordanian"  # أردنية
+    OMANI = "omani"  # عمانية
 
 
 DIALECT_LABELS = {
@@ -41,68 +43,68 @@ DIALECT_LABELS = {
 # Maps dialect-specific terms to MSA equivalents
 DIALECT_VOCABULARY: dict[ArabicDialect, dict[str, str]] = {
     ArabicDialect.YEMENI: {
-        "سقي": "ري",           # irrigation
-        "مي": "ماء",            # water
-        "غيل": "قناة ري",       # irrigation channel
-        "حب": "حبوب",           # grains
-        "بُن": "قهوة",          # coffee
-        "قات": "قات",           # qat (local crop)
-        "مدرج": "مصاطب",        # terraces
-        "سيل": "فيضان",         # flood
-        "وادي": "وادي",         # valley/wadi
-        "جبل": "مرتفعات",       # highlands
-        "تهامة": "سهل ساحلي",   # coastal plain
-        "ذرة رفيعة": "ذرة",      # sorghum
-        "برد": "صقيع",          # frost
-        "شمس قوية": "إجهاد حراري", # heat stress
+        "سقي": "ري",  # irrigation
+        "مي": "ماء",  # water
+        "غيل": "قناة ري",  # irrigation channel
+        "حب": "حبوب",  # grains
+        "بُن": "قهوة",  # coffee
+        "قات": "قات",  # qat (local crop)
+        "مدرج": "مصاطب",  # terraces
+        "سيل": "فيضان",  # flood
+        "وادي": "وادي",  # valley/wadi
+        "جبل": "مرتفعات",  # highlands
+        "تهامة": "سهل ساحلي",  # coastal plain
+        "ذرة رفيعة": "ذرة",  # sorghum
+        "برد": "صقيع",  # frost
+        "شمس قوية": "إجهاد حراري",  # heat stress
     },
     ArabicDialect.SAUDI: {
-        "مزرعة": "مزرعة",       # farm
-        "نخل": "نخيل",          # palm trees
-        "رطب": "رطب",           # fresh dates
-        "تمر": "تمور",          # dates
-        "بئر": "بئر مياه",       # water well
-        "محور": "رشاش محوري",    # center pivot
-        "صحراء": "أرض قاحلة",   # arid land
-        "ملوحة": "ملوحة",       # salinity
-        "رمل": "تربة رملية",    # sandy soil
-        "حر": "إجهاد حراري",    # heat stress
+        "مزرعة": "مزرعة",  # farm
+        "نخل": "نخيل",  # palm trees
+        "رطب": "رطب",  # fresh dates
+        "تمر": "تمور",  # dates
+        "بئر": "بئر مياه",  # water well
+        "محور": "رشاش محوري",  # center pivot
+        "صحراء": "أرض قاحلة",  # arid land
+        "ملوحة": "ملوحة",  # salinity
+        "رمل": "تربة رملية",  # sandy soil
+        "حر": "إجهاد حراري",  # heat stress
         "سوسة": "سوسة النخيل",  # palm weevil
-        "مبيد": "مبيد حشري",    # pesticide
-        "سماد": "سماد",         # fertilizer
-        "يوريا": "يوريا",       # urea
+        "مبيد": "مبيد حشري",  # pesticide
+        "سماد": "سماد",  # fertilizer
+        "يوريا": "يوريا",  # urea
     },
     ArabicDialect.IRAQI: {
-        "جراوية": "مزرعة صغيرة", # small farm
-        "مضخة": "مضخة مياه",     # water pump
-        "شط": "نهر",            # river
-        "هور": "مستنقع",        # marsh
-        "تمن": "أرز",           # rice
-        "حنطة": "قمح",          # wheat
-        "شعير": "شعير",         # barley
-        "رقي": "بطيخ",          # watermelon
-        "باذنجان": "باذنجان",   # eggplant
-        "طماطة": "طماطم",       # tomato
-        "بامية": "بامية",       # okra
-        "فلاح": "مزارع",        # farmer
-        "ديم": "زراعة بعلية",   # rainfed agriculture
+        "جراوية": "مزرعة صغيرة",  # small farm
+        "مضخة": "مضخة مياه",  # water pump
+        "شط": "نهر",  # river
+        "هور": "مستنقع",  # marsh
+        "تمن": "أرز",  # rice
+        "حنطة": "قمح",  # wheat
+        "شعير": "شعير",  # barley
+        "رقي": "بطيخ",  # watermelon
+        "باذنجان": "باذنجان",  # eggplant
+        "طماطة": "طماطم",  # tomato
+        "بامية": "بامية",  # okra
+        "فلاح": "مزارع",  # farmer
+        "ديم": "زراعة بعلية",  # rainfed agriculture
     },
     ArabicDialect.EGYPTIAN: {
-        "غيط": "حقل",           # field
-        "ترعة": "قناة ري",      # irrigation canal
-        "طلمبة": "مضخة",        # pump
-        "فلاح": "مزارع",        # farmer
-        "أرض": "حقل زراعي",     # agricultural land
-        "قمح": "قمح",           # wheat (same in MSA)
-        "أرز": "أرز",           # rice
-        "قطن": "قطن",           # cotton
-        "قصب": "قصب سكر",       # sugarcane
-        "برسيم": "برسيم",       # alfalfa/clover
-        "فول": "فول",           # fava beans
-        "ذرة": "ذرة",           # corn
-        "طماطم": "طماطم",       # tomato
-        "بتنجان": "باذنجان",    # eggplant
-        "سباخ": "سماد عضوي",    # organic fertilizer
+        "غيط": "حقل",  # field
+        "ترعة": "قناة ري",  # irrigation canal
+        "طلمبة": "مضخة",  # pump
+        "فلاح": "مزارع",  # farmer
+        "أرض": "حقل زراعي",  # agricultural land
+        "قمح": "قمح",  # wheat (same in MSA)
+        "أرز": "أرز",  # rice
+        "قطن": "قطن",  # cotton
+        "قصب": "قصب سكر",  # sugarcane
+        "برسيم": "برسيم",  # alfalfa/clover
+        "فول": "فول",  # fava beans
+        "ذرة": "ذرة",  # corn
+        "طماطم": "طماطم",  # tomato
+        "بتنجان": "باذنجان",  # eggplant
+        "سباخ": "سماد عضوي",  # organic fertilizer
     },
 }
 
@@ -164,6 +166,7 @@ AGRI_TERMS_DICT: dict[str, dict[str, str]] = {
 @dataclass
 class DialectDetectionResult:
     """Result of dialect detection | نتيجة كشف اللهجة"""
+
     detected_dialect: ArabicDialect = ArabicDialect.MSA
     confidence: float = 0.0
     dialect_label: str = ""
@@ -176,6 +179,7 @@ class DialectDetectionResult:
 @dataclass
 class TermTranslation:
     """Technical term translation | ترجمة مصطلح تقني"""
+
     term: str = ""
     arabic: str = ""
     english: str = ""
@@ -218,7 +222,7 @@ class ArabicDialectProcessor:
         candidates = [word]
         for prefix in self.ARABIC_PREFIXES:
             if word.startswith(prefix) and len(word) > len(prefix) + 1:
-                candidates.append(word[len(prefix):])
+                candidates.append(word[len(prefix) :])
         return candidates
 
     def detect_dialect(self, text: str) -> DialectDetectionResult:
@@ -250,11 +254,13 @@ class ArabicDialectProcessor:
                     if candidate in self._all_dialect_terms:
                         dialect, msa = self._all_dialect_terms[candidate]
                         scores[dialect] += 1
-                        terms_found.append({
-                            "word": candidate,
-                            "dialect": dialect.value,
-                            "msa_equivalent": msa,
-                        })
+                        terms_found.append(
+                            {
+                                "word": candidate,
+                                "dialect": dialect.value,
+                                "msa_equivalent": msa,
+                            }
+                        )
                         break
 
         # Find best match
@@ -326,7 +332,4 @@ class ArabicDialectProcessor:
 
         الحصول على جميع المصطلحات الزراعية التقنية.
         """
-        return [
-            TermTranslation(term=k, arabic=v["ar"], english=v["en"])
-            for k, v in AGRI_TERMS_DICT.items()
-        ]
+        return [TermTranslation(term=k, arabic=v["ar"], english=v["en"]) for k, v in AGRI_TERMS_DICT.items()]

@@ -11,11 +11,12 @@ Each profile includes:
 
 يوفر ملفات زراعية لست دول في الشرق الأوسط مع بيانات المناخ والمحاصيل والتربة.
 """
+
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +25,10 @@ logger = logging.getLogger(__name__)
 # Enumerations | التعدادات
 # ---------------------------------------------------------------------------
 
-class ClimateZone(str, Enum):
+
+class ClimateZone(StrEnum):
     """Climate zone classification | تصنيف المناطق المناخية"""
+
     ARID = "arid"
     SEMI_ARID = "semi_arid"
     HIGHLAND = "highland"
@@ -36,8 +39,9 @@ class ClimateZone(str, Enum):
     TROPICAL_MONSOON = "tropical_monsoon"
 
 
-class SoilCategory(str, Enum):
+class SoilCategory(StrEnum):
     """Soil category | فئة التربة"""
+
     VOLCANIC = "volcanic"
     ALLUVIAL = "alluvial"
     SANDY = "sandy"
@@ -53,8 +57,9 @@ class SoilCategory(str, Enum):
     GYPSIFEROUS = "gypsiferous"
 
 
-class WaterSourceType(str, Enum):
+class WaterSourceType(StrEnum):
     """Water source type | نوع مصدر المياه"""
+
     WELLS = "wells"
     SPRINGS = "springs"
     SPATE = "spate_irrigation"
@@ -69,8 +74,9 @@ class WaterSourceType(str, Enum):
     WADI = "wadi"
 
 
-class GrowingSeason(str, Enum):
+class GrowingSeason(StrEnum):
     """Growing season | موسم الزراعة"""
+
     WINTER = "winter"
     SUMMER = "summer"
     YEAR_ROUND = "year_round"
@@ -130,9 +136,11 @@ SEASON_AR: dict[GrowingSeason, str] = {
 # Data classes | فئات البيانات
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class CropEntry:
     """A major crop for a country | محصول رئيسي لدولة"""
+
     name_en: str = ""
     name_ar: str = ""
     area_ha: int = 0
@@ -144,6 +152,7 @@ class CropEntry:
 @dataclass
 class SeasonWindow:
     """A growing season window | نافذة موسم زراعي"""
+
     season: GrowingSeason = GrowingSeason.WINTER
     season_ar: str = ""
     start_month: str = ""
@@ -156,6 +165,7 @@ class SeasonWindow:
 @dataclass
 class ClimateInfo:
     """Climate summary for a region | ملخص المناخ لمنطقة"""
+
     zone: ClimateZone = ClimateZone.ARID
     zone_ar: str = ""
     avg_temp_summer_c: float = 0.0
@@ -168,6 +178,7 @@ class ClimateInfo:
 @dataclass
 class CountryProfile:
     """Agricultural profile for a country | ملف زراعي لدولة"""
+
     country_code: str = ""
     name_en: str = ""
     name_ar: str = ""
@@ -214,6 +225,7 @@ class CountryProfile:
 # Country data builders | بناة بيانات الدول
 # ---------------------------------------------------------------------------
 
+
 def _build_yemen() -> CountryProfile:
     """Build Yemen profile | بناء ملف اليمن"""
     zones = [ClimateZone.ARID, ClimateZone.SEMI_ARID, ClimateZone.HIGHLAND, ClimateZone.COASTAL]
@@ -229,24 +241,98 @@ def _build_yemen() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Coffee", name_ar="بُن", area_ha=34_000, region="highlands", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Qat", name_ar="قات", area_ha=167_000, region="highlands", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Sorghum", name_ar="ذرة رفيعة", area_ha=350_000, region="highlands", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Wheat", name_ar="قمح", area_ha=100_000, region="highlands", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Mango", name_ar="مانجو", area_ha=12_000, region="tihama", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Date Palm", name_ar="نخيل", area_ha=20_000, region="hadramout", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
+            CropEntry(
+                name_en="Coffee",
+                name_ar="بُن",
+                area_ha=34_000,
+                region="highlands",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Qat",
+                name_ar="قات",
+                area_ha=167_000,
+                region="highlands",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Sorghum",
+                name_ar="ذرة رفيعة",
+                area_ha=350_000,
+                region="highlands",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Wheat",
+                name_ar="قمح",
+                area_ha=100_000,
+                region="highlands",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Mango",
+                name_ar="مانجو",
+                area_ha=12_000,
+                region="tihama",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Date Palm",
+                name_ar="نخيل",
+                area_ha=20_000,
+                region="hadramout",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="October", end_month="November", crops=["wheat", "barley"], description_en="Main cereal planting", description_ar="زراعة الحبوب الرئيسية"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="March", end_month="April", crops=["sorghum", "millet"], description_en="Summer crops planting", description_ar="زراعة المحاصيل الصيفية"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="October",
+                end_month="November",
+                crops=["wheat", "barley"],
+                description_en="Main cereal planting",
+                description_ar="زراعة الحبوب الرئيسية",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="March",
+                end_month="April",
+                crops=["sorghum", "millet"],
+                description_en="Summer crops planting",
+                description_ar="زراعة المحاصيل الصيفية",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.HIGHLAND, zone_ar="مرتفعات", avg_temp_summer_c=25.0, avg_temp_winter_c=12.0, annual_rainfall_mm=500.0, description_en="Yemen highlands - coffee region", description_ar="مرتفعات اليمن - منطقة البُن"),
-            ClimateInfo(zone=ClimateZone.COASTAL, zone_ar="ساحلي", avg_temp_summer_c=38.0, avg_temp_winter_c=25.0, annual_rainfall_mm=50.0, description_en="Tihama coastal plain", description_ar="سهل تهامة الساحلي"),
+            ClimateInfo(
+                zone=ClimateZone.HIGHLAND,
+                zone_ar="مرتفعات",
+                avg_temp_summer_c=25.0,
+                avg_temp_winter_c=12.0,
+                annual_rainfall_mm=500.0,
+                description_en="Yemen highlands - coffee region",
+                description_ar="مرتفعات اليمن - منطقة البُن",
+            ),
+            ClimateInfo(
+                zone=ClimateZone.COASTAL,
+                zone_ar="ساحلي",
+                avg_temp_summer_c=38.0,
+                avg_temp_winter_c=25.0,
+                annual_rainfall_mm=50.0,
+                description_en="Tihama coastal plain",
+                description_ar="سهل تهامة الساحلي",
+            ),
         ],
         currency="YER",
         currency_ar="ريال يمني",
@@ -261,7 +347,12 @@ def _build_saudi() -> CountryProfile:
     """Build Saudi Arabia profile | بناء ملف السعودية"""
     zones = [ClimateZone.DESERT, ClimateZone.ARID, ClimateZone.SEMI_ARID]
     soils = [SoilCategory.SANDY, SoilCategory.SALINE, SoilCategory.CALCAREOUS, SoilCategory.GYPSIFEROUS]
-    waters = [WaterSourceType.DESALINATION, WaterSourceType.GROUNDWATER, WaterSourceType.DAMS, WaterSourceType.TREATED_WASTEWATER]
+    waters = [
+        WaterSourceType.DESALINATION,
+        WaterSourceType.GROUNDWATER,
+        WaterSourceType.DAMS,
+        WaterSourceType.TREATED_WASTEWATER,
+    ]
     return CountryProfile(
         country_code="SA",
         name_en="Saudi Arabia",
@@ -272,23 +363,89 @@ def _build_saudi() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Date Palm", name_ar="نخيل", area_ha=170_000, region="qassim", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Wheat", name_ar="قمح", area_ha=400_000, region="central", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Tomato", name_ar="طماطم", area_ha=15_000, region="southwest", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Alfalfa", name_ar="برسيم", area_ha=200_000, region="central", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Cucumber", name_ar="خيار", area_ha=5_000, region="greenhouse", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Watermelon", name_ar="بطيخ", area_ha=30_000, region="southwest", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
+            CropEntry(
+                name_en="Date Palm",
+                name_ar="نخيل",
+                area_ha=170_000,
+                region="qassim",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Wheat",
+                name_ar="قمح",
+                area_ha=400_000,
+                region="central",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Tomato",
+                name_ar="طماطم",
+                area_ha=15_000,
+                region="southwest",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Alfalfa",
+                name_ar="برسيم",
+                area_ha=200_000,
+                region="central",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Cucumber",
+                name_ar="خيار",
+                area_ha=5_000,
+                region="greenhouse",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Watermelon",
+                name_ar="بطيخ",
+                area_ha=30_000,
+                region="southwest",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="November", end_month="December", crops=["wheat", "barley", "vegetables"], description_en="Main cereal and vegetable planting", description_ar="زراعة الحبوب والخضروات"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="March", end_month="April", crops=["date_palm_pollination", "watermelon"], description_en="Date pollination and summer crops", description_ar="تلقيح النخيل ومحاصيل صيفية"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="November",
+                end_month="December",
+                crops=["wheat", "barley", "vegetables"],
+                description_en="Main cereal and vegetable planting",
+                description_ar="زراعة الحبوب والخضروات",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="March",
+                end_month="April",
+                crops=["date_palm_pollination", "watermelon"],
+                description_en="Date pollination and summer crops",
+                description_ar="تلقيح النخيل ومحاصيل صيفية",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.DESERT, zone_ar="صحراوي", avg_temp_summer_c=45.0, avg_temp_winter_c=15.0, annual_rainfall_mm=80.0, description_en="Central desert - Najd", description_ar="الصحراء الوسطى - نجد"),
+            ClimateInfo(
+                zone=ClimateZone.DESERT,
+                zone_ar="صحراوي",
+                avg_temp_summer_c=45.0,
+                avg_temp_winter_c=15.0,
+                annual_rainfall_mm=80.0,
+                description_en="Central desert - Najd",
+                description_ar="الصحراء الوسطى - نجد",
+            ),
         ],
         currency="SAR",
         currency_ar="ريال سعودي",
@@ -314,21 +471,73 @@ def _build_oman() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Date Palm", name_ar="نخيل", area_ha=32_000, region="interior", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Lime", name_ar="ليمون", area_ha=5_000, region="batinah", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Banana", name_ar="موز", area_ha=3_000, region="dhofar", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Alfalfa", name_ar="برسيم", area_ha=8_000, region="interior", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
+            CropEntry(
+                name_en="Date Palm",
+                name_ar="نخيل",
+                area_ha=32_000,
+                region="interior",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Lime",
+                name_ar="ليمون",
+                area_ha=5_000,
+                region="batinah",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Banana",
+                name_ar="موز",
+                area_ha=3_000,
+                region="dhofar",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Alfalfa",
+                name_ar="برسيم",
+                area_ha=8_000,
+                region="interior",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="October", end_month="March", crops=["alfalfa", "vegetables"], description_en="Winter growing season", description_ar="موسم الزراعة الشتوي"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="April", end_month="September", crops=["date_palm"], description_en="Date harvest season", description_ar="موسم حصاد التمور"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="October",
+                end_month="March",
+                crops=["alfalfa", "vegetables"],
+                description_en="Winter growing season",
+                description_ar="موسم الزراعة الشتوي",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="April",
+                end_month="September",
+                crops=["date_palm"],
+                description_en="Date harvest season",
+                description_ar="موسم حصاد التمور",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.ARID, zone_ar="جاف", avg_temp_summer_c=42.0, avg_temp_winter_c=20.0, annual_rainfall_mm=100.0, description_en="Batinah coast - main farming", description_ar="ساحل الباطنة - الزراعة الرئيسية"),
+            ClimateInfo(
+                zone=ClimateZone.ARID,
+                zone_ar="جاف",
+                avg_temp_summer_c=42.0,
+                avg_temp_winter_c=20.0,
+                annual_rainfall_mm=100.0,
+                description_en="Batinah coast - main farming",
+                description_ar="ساحل الباطنة - الزراعة الرئيسية",
+            ),
         ],
         currency="OMR",
         currency_ar="ريال عماني",
@@ -354,22 +563,81 @@ def _build_iraq() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Wheat", name_ar="حنطة", area_ha=2_500_000, region="central", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Barley", name_ar="شعير", area_ha=1_200_000, region="central", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Rice", name_ar="تمن", area_ha=200_000, region="south", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Date Palm", name_ar="نخيل", area_ha=160_000, region="south", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Tomato", name_ar="طماطة", area_ha=80_000, region="central", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
+            CropEntry(
+                name_en="Wheat",
+                name_ar="حنطة",
+                area_ha=2_500_000,
+                region="central",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Barley",
+                name_ar="شعير",
+                area_ha=1_200_000,
+                region="central",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Rice",
+                name_ar="تمن",
+                area_ha=200_000,
+                region="south",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Date Palm",
+                name_ar="نخيل",
+                area_ha=160_000,
+                region="south",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Tomato",
+                name_ar="طماطة",
+                area_ha=80_000,
+                region="central",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="October", end_month="April", crops=["wheat", "barley"], description_en="Rainfed north, irrigated south", description_ar="بعلي شمالاً ومروي جنوباً"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="May", end_month="September", crops=["rice", "cotton", "vegetables"], description_en="Rice and summer crops", description_ar="الأرز والمحاصيل الصيفية"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="October",
+                end_month="April",
+                crops=["wheat", "barley"],
+                description_en="Rainfed north, irrigated south",
+                description_ar="بعلي شمالاً ومروي جنوباً",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="May",
+                end_month="September",
+                crops=["rice", "cotton", "vegetables"],
+                description_en="Rice and summer crops",
+                description_ar="الأرز والمحاصيل الصيفية",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.SUBTROPICAL, zone_ar="شبه استوائي", avg_temp_summer_c=42.0, avg_temp_winter_c=10.0, annual_rainfall_mm=150.0, description_en="Mesopotamian plain - Tigris & Euphrates", description_ar="سهل بلاد الرافدين"),
+            ClimateInfo(
+                zone=ClimateZone.SUBTROPICAL,
+                zone_ar="شبه استوائي",
+                avg_temp_summer_c=42.0,
+                avg_temp_winter_c=10.0,
+                annual_rainfall_mm=150.0,
+                description_en="Mesopotamian plain - Tigris & Euphrates",
+                description_ar="سهل بلاد الرافدين",
+            ),
         ],
         currency="IQD",
         currency_ar="دينار عراقي",
@@ -384,7 +652,12 @@ def _build_jordan() -> CountryProfile:
     """Build Jordan profile | بناء ملف الأردن"""
     zones = [ClimateZone.SEMI_ARID, ClimateZone.MEDITERRANEAN, ClimateZone.ARID]
     soils = [SoilCategory.TERRA_ROSSA, SoilCategory.ALLUVIAL, SoilCategory.DESERT]
-    waters = [WaterSourceType.DAMS, WaterSourceType.GROUNDWATER, WaterSourceType.TREATED_WASTEWATER, WaterSourceType.RIVER]
+    waters = [
+        WaterSourceType.DAMS,
+        WaterSourceType.GROUNDWATER,
+        WaterSourceType.TREATED_WASTEWATER,
+        WaterSourceType.RIVER,
+    ]
     return CountryProfile(
         country_code="JO",
         name_en="Jordan",
@@ -395,22 +668,82 @@ def _build_jordan() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Tomato", name_ar="بندورة", area_ha=15_000, region="jordan_valley", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Olive", name_ar="زيتون", area_ha=65_000, region="highlands", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Wheat", name_ar="قمح", area_ha=30_000, region="central", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Cucumber", name_ar="خيار", area_ha=8_000, region="jordan_valley", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
+            CropEntry(
+                name_en="Tomato",
+                name_ar="بندورة",
+                area_ha=15_000,
+                region="jordan_valley",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Olive",
+                name_ar="زيتون",
+                area_ha=65_000,
+                region="highlands",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Wheat",
+                name_ar="قمح",
+                area_ha=30_000,
+                region="central",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Cucumber",
+                name_ar="خيار",
+                area_ha=8_000,
+                region="jordan_valley",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="October", end_month="April", crops=["tomato", "cucumber", "wheat"], description_en="Main vegetable and cereal season", description_ar="موسم الخضروات والحبوب الرئيسي"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="May", end_month="September", crops=["greenhouse_crops"], description_en="Jordan Valley greenhouse crops", description_ar="محاصيل بيوت محمية"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="October",
+                end_month="April",
+                crops=["tomato", "cucumber", "wheat"],
+                description_en="Main vegetable and cereal season",
+                description_ar="موسم الخضروات والحبوب الرئيسي",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="May",
+                end_month="September",
+                crops=["greenhouse_crops"],
+                description_en="Jordan Valley greenhouse crops",
+                description_ar="محاصيل بيوت محمية",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.SEMI_ARID, zone_ar="شبه جاف", avg_temp_summer_c=35.0, avg_temp_winter_c=8.0, annual_rainfall_mm=250.0, description_en="Jordan Valley - irrigated", description_ar="وادي الأردن - مروي"),
-            ClimateInfo(zone=ClimateZone.MEDITERRANEAN, zone_ar="متوسطي", avg_temp_summer_c=28.0, avg_temp_winter_c=5.0, annual_rainfall_mm=450.0, description_en="Highland plateau - olive growing", description_ar="الهضبة - زراعة الزيتون"),
+            ClimateInfo(
+                zone=ClimateZone.SEMI_ARID,
+                zone_ar="شبه جاف",
+                avg_temp_summer_c=35.0,
+                avg_temp_winter_c=8.0,
+                annual_rainfall_mm=250.0,
+                description_en="Jordan Valley - irrigated",
+                description_ar="وادي الأردن - مروي",
+            ),
+            ClimateInfo(
+                zone=ClimateZone.MEDITERRANEAN,
+                zone_ar="متوسطي",
+                avg_temp_summer_c=28.0,
+                avg_temp_winter_c=5.0,
+                annual_rainfall_mm=450.0,
+                description_en="Highland plateau - olive growing",
+                description_ar="الهضبة - زراعة الزيتون",
+            ),
         ],
         currency="JOD",
         currency_ar="دينار أردني",
@@ -436,24 +769,98 @@ def _build_egypt() -> CountryProfile:
         climate_zones=zones,
         climate_zones_ar=[CLIMATE_ZONE_AR[z] for z in zones],
         major_crops=[
-            CropEntry(name_en="Wheat", name_ar="قمح", area_ha=1_400_000, region="delta", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
-            CropEntry(name_en="Rice", name_ar="أرز", area_ha=500_000, region="delta", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Cotton", name_ar="قطن", area_ha=100_000, region="upper_egypt", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Sugarcane", name_ar="قصب سكر", area_ha=130_000, region="upper_egypt", season=GrowingSeason.YEAR_ROUND, season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND]),
-            CropEntry(name_en="Corn", name_ar="ذرة", area_ha=800_000, region="delta", season=GrowingSeason.SUMMER, season_ar=SEASON_AR[GrowingSeason.SUMMER]),
-            CropEntry(name_en="Clover", name_ar="برسيم", area_ha=1_000_000, region="delta", season=GrowingSeason.WINTER, season_ar=SEASON_AR[GrowingSeason.WINTER]),
+            CropEntry(
+                name_en="Wheat",
+                name_ar="قمح",
+                area_ha=1_400_000,
+                region="delta",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
+            CropEntry(
+                name_en="Rice",
+                name_ar="أرز",
+                area_ha=500_000,
+                region="delta",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Cotton",
+                name_ar="قطن",
+                area_ha=100_000,
+                region="upper_egypt",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Sugarcane",
+                name_ar="قصب سكر",
+                area_ha=130_000,
+                region="upper_egypt",
+                season=GrowingSeason.YEAR_ROUND,
+                season_ar=SEASON_AR[GrowingSeason.YEAR_ROUND],
+            ),
+            CropEntry(
+                name_en="Corn",
+                name_ar="ذرة",
+                area_ha=800_000,
+                region="delta",
+                season=GrowingSeason.SUMMER,
+                season_ar=SEASON_AR[GrowingSeason.SUMMER],
+            ),
+            CropEntry(
+                name_en="Clover",
+                name_ar="برسيم",
+                area_ha=1_000_000,
+                region="delta",
+                season=GrowingSeason.WINTER,
+                season_ar=SEASON_AR[GrowingSeason.WINTER],
+            ),
         ],
         soil_types=soils,
         soil_types_ar=[SOIL_CATEGORY_AR[s] for s in soils],
         water_sources=waters,
         water_sources_ar=[WATER_SOURCE_AR[w] for w in waters],
         growing_seasons=[
-            SeasonWindow(season=GrowingSeason.WINTER, season_ar="شتوي", start_month="October", end_month="April", crops=["wheat", "clover", "vegetables"], description_en="Wheat, berseem, vegetables", description_ar="قمح وبرسيم وخضروات"),
-            SeasonWindow(season=GrowingSeason.SUMMER, season_ar="صيفي", start_month="May", end_month="September", crops=["rice", "cotton", "corn"], description_en="Rice, cotton, maize", description_ar="أرز وقطن وذرة"),
+            SeasonWindow(
+                season=GrowingSeason.WINTER,
+                season_ar="شتوي",
+                start_month="October",
+                end_month="April",
+                crops=["wheat", "clover", "vegetables"],
+                description_en="Wheat, berseem, vegetables",
+                description_ar="قمح وبرسيم وخضروات",
+            ),
+            SeasonWindow(
+                season=GrowingSeason.SUMMER,
+                season_ar="صيفي",
+                start_month="May",
+                end_month="September",
+                crops=["rice", "cotton", "corn"],
+                description_en="Rice, cotton, maize",
+                description_ar="أرز وقطن وذرة",
+            ),
         ],
         climate_data=[
-            ClimateInfo(zone=ClimateZone.SUBTROPICAL, zone_ar="شبه استوائي", avg_temp_summer_c=35.0, avg_temp_winter_c=12.0, annual_rainfall_mm=25.0, description_en="Nile Valley and Delta", description_ar="وادي ودلتا النيل"),
-            ClimateInfo(zone=ClimateZone.MEDITERRANEAN, zone_ar="متوسطي", avg_temp_summer_c=30.0, avg_temp_winter_c=13.0, annual_rainfall_mm=180.0, description_en="North coast", description_ar="الساحل الشمالي"),
+            ClimateInfo(
+                zone=ClimateZone.SUBTROPICAL,
+                zone_ar="شبه استوائي",
+                avg_temp_summer_c=35.0,
+                avg_temp_winter_c=12.0,
+                annual_rainfall_mm=25.0,
+                description_en="Nile Valley and Delta",
+                description_ar="وادي ودلتا النيل",
+            ),
+            ClimateInfo(
+                zone=ClimateZone.MEDITERRANEAN,
+                zone_ar="متوسطي",
+                avg_temp_summer_c=30.0,
+                avg_temp_winter_c=13.0,
+                annual_rainfall_mm=180.0,
+                description_en="North coast",
+                description_ar="الساحل الشمالي",
+            ),
         ],
         currency="EGP",
         currency_ar="جنيه مصري",
@@ -468,12 +875,133 @@ def _build_egypt() -> CountryProfile:
 # All country data (legacy dict kept for backward compat)
 # ---------------------------------------------------------------------------
 COUNTRY_PROFILES: dict[str, dict] = {
-    "YE": {"name": "Yemen", "name_ar": "اليمن", "capital": "Sana'a", "capital_ar": "صنعاء", "arable_land_hectares": 1_600_000, "main_crops": [{"crop": "coffee", "crop_ar": "بُن", "area_ha": 34_000, "region": "highlands"}, {"crop": "qat", "crop_ar": "قات", "area_ha": 167_000, "region": "highlands"}, {"crop": "sorghum", "crop_ar": "ذرة رفيعة", "area_ha": 350_000, "region": "highlands"}, {"crop": "wheat", "crop_ar": "قمح", "area_ha": 100_000, "region": "highlands"}, {"crop": "mango", "crop_ar": "مانجو", "area_ha": 12_000, "region": "tihama"}, {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 20_000, "region": "hadramout"}], "climate_zones": ["arid", "semi-arid", "highland-temperate"], "water_sources": ["wells", "spate_irrigation", "terraces", "springs"], "soil_types": ["volcanic", "alluvial", "sandy", "calcareous"], "currency": "YER", "currency_ar": "ريال يمني", "dialect": "yemeni", "dialect_ar": "يمنية"},
-    "SA": {"name": "Saudi Arabia", "name_ar": "المملكة العربية السعودية", "capital": "Riyadh", "capital_ar": "الرياض", "arable_land_hectares": 3_500_000, "main_crops": [{"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 170_000, "region": "qassim"}, {"crop": "wheat", "crop_ar": "قمح", "area_ha": 400_000, "region": "central"}, {"crop": "tomato", "crop_ar": "طماطم", "area_ha": 15_000, "region": "southwest"}, {"crop": "alfalfa", "crop_ar": "برسيم", "area_ha": 200_000, "region": "central"}, {"crop": "cucumber", "crop_ar": "خيار", "area_ha": 5_000, "region": "greenhouse"}, {"crop": "watermelon", "crop_ar": "بطيخ", "area_ha": 30_000, "region": "southwest"}], "climate_zones": ["hyper-arid", "arid", "semi-arid"], "water_sources": ["desalination", "groundwater", "dams", "treated_wastewater"], "soil_types": ["sandy", "saline", "calcareous", "gypsiferous"], "currency": "SAR", "currency_ar": "ريال سعودي", "dialect": "saudi", "dialect_ar": "سعودية"},
-    "OM": {"name": "Oman", "name_ar": "عُمان", "capital": "Muscat", "capital_ar": "مسقط", "arable_land_hectares": 60_000, "main_crops": [{"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 32_000, "region": "interior"}, {"crop": "lime", "crop_ar": "ليمون", "area_ha": 5_000, "region": "batinah"}, {"crop": "banana", "crop_ar": "موز", "area_ha": 3_000, "region": "dhofar"}, {"crop": "alfalfa", "crop_ar": "برسيم", "area_ha": 8_000, "region": "interior"}], "climate_zones": ["arid", "tropical-monsoon"], "water_sources": ["aflaj", "wells", "desalination", "dams"], "soil_types": ["sandy", "alluvial", "gravel"], "currency": "OMR", "currency_ar": "ريال عماني", "dialect": "omani", "dialect_ar": "عمانية"},
-    "IQ": {"name": "Iraq", "name_ar": "العراق", "capital": "Baghdad", "capital_ar": "بغداد", "arable_land_hectares": 8_000_000, "main_crops": [{"crop": "wheat", "crop_ar": "حنطة", "area_ha": 2_500_000, "region": "central"}, {"crop": "barley", "crop_ar": "شعير", "area_ha": 1_200_000, "region": "central"}, {"crop": "rice", "crop_ar": "تمن", "area_ha": 200_000, "region": "south"}, {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 160_000, "region": "south"}, {"crop": "tomato", "crop_ar": "طماطة", "area_ha": 80_000, "region": "central"}], "climate_zones": ["arid", "semi-arid", "mediterranean"], "water_sources": ["tigris", "euphrates", "canals", "groundwater"], "soil_types": ["alluvial", "saline", "marsh"], "currency": "IQD", "currency_ar": "دينار عراقي", "dialect": "iraqi", "dialect_ar": "عراقية"},
-    "JO": {"name": "Jordan", "name_ar": "الأردن", "capital": "Amman", "capital_ar": "عمّان", "arable_land_hectares": 400_000, "main_crops": [{"crop": "tomato", "crop_ar": "بندورة", "area_ha": 15_000, "region": "jordan_valley"}, {"crop": "olive", "crop_ar": "زيتون", "area_ha": 65_000, "region": "highlands"}, {"crop": "wheat", "crop_ar": "قمح", "area_ha": 30_000, "region": "central"}, {"crop": "cucumber", "crop_ar": "خيار", "area_ha": 8_000, "region": "jordan_valley"}], "climate_zones": ["semi-arid", "mediterranean", "arid"], "water_sources": ["dams", "groundwater", "treated_wastewater", "jordan_river"], "soil_types": ["terra_rossa", "alluvial", "desert"], "currency": "JOD", "currency_ar": "دينار أردني", "dialect": "jordanian", "dialect_ar": "أردنية"},
-    "EG": {"name": "Egypt", "name_ar": "مصر", "capital": "Cairo", "capital_ar": "القاهرة", "arable_land_hectares": 3_600_000, "main_crops": [{"crop": "wheat", "crop_ar": "قمح", "area_ha": 1_400_000, "region": "delta"}, {"crop": "rice", "crop_ar": "أرز", "area_ha": 500_000, "region": "delta"}, {"crop": "cotton", "crop_ar": "قطن", "area_ha": 100_000, "region": "upper_egypt"}, {"crop": "sugarcane", "crop_ar": "قصب سكر", "area_ha": 130_000, "region": "upper_egypt"}, {"crop": "corn", "crop_ar": "ذرة", "area_ha": 800_000, "region": "delta"}, {"crop": "clover", "crop_ar": "برسيم", "area_ha": 1_000_000, "region": "delta"}], "climate_zones": ["arid", "mediterranean"], "water_sources": ["nile", "canals", "groundwater"], "soil_types": ["alluvial_nile", "desert", "saline"], "currency": "EGP", "currency_ar": "جنيه مصري", "dialect": "egyptian", "dialect_ar": "مصرية"},
+    "YE": {
+        "name": "Yemen",
+        "name_ar": "اليمن",
+        "capital": "Sana'a",
+        "capital_ar": "صنعاء",
+        "arable_land_hectares": 1_600_000,
+        "main_crops": [
+            {"crop": "coffee", "crop_ar": "بُن", "area_ha": 34_000, "region": "highlands"},
+            {"crop": "qat", "crop_ar": "قات", "area_ha": 167_000, "region": "highlands"},
+            {"crop": "sorghum", "crop_ar": "ذرة رفيعة", "area_ha": 350_000, "region": "highlands"},
+            {"crop": "wheat", "crop_ar": "قمح", "area_ha": 100_000, "region": "highlands"},
+            {"crop": "mango", "crop_ar": "مانجو", "area_ha": 12_000, "region": "tihama"},
+            {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 20_000, "region": "hadramout"},
+        ],
+        "climate_zones": ["arid", "semi-arid", "highland-temperate"],
+        "water_sources": ["wells", "spate_irrigation", "terraces", "springs"],
+        "soil_types": ["volcanic", "alluvial", "sandy", "calcareous"],
+        "currency": "YER",
+        "currency_ar": "ريال يمني",
+        "dialect": "yemeni",
+        "dialect_ar": "يمنية",
+    },
+    "SA": {
+        "name": "Saudi Arabia",
+        "name_ar": "المملكة العربية السعودية",
+        "capital": "Riyadh",
+        "capital_ar": "الرياض",
+        "arable_land_hectares": 3_500_000,
+        "main_crops": [
+            {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 170_000, "region": "qassim"},
+            {"crop": "wheat", "crop_ar": "قمح", "area_ha": 400_000, "region": "central"},
+            {"crop": "tomato", "crop_ar": "طماطم", "area_ha": 15_000, "region": "southwest"},
+            {"crop": "alfalfa", "crop_ar": "برسيم", "area_ha": 200_000, "region": "central"},
+            {"crop": "cucumber", "crop_ar": "خيار", "area_ha": 5_000, "region": "greenhouse"},
+            {"crop": "watermelon", "crop_ar": "بطيخ", "area_ha": 30_000, "region": "southwest"},
+        ],
+        "climate_zones": ["hyper-arid", "arid", "semi-arid"],
+        "water_sources": ["desalination", "groundwater", "dams", "treated_wastewater"],
+        "soil_types": ["sandy", "saline", "calcareous", "gypsiferous"],
+        "currency": "SAR",
+        "currency_ar": "ريال سعودي",
+        "dialect": "saudi",
+        "dialect_ar": "سعودية",
+    },
+    "OM": {
+        "name": "Oman",
+        "name_ar": "عُمان",
+        "capital": "Muscat",
+        "capital_ar": "مسقط",
+        "arable_land_hectares": 60_000,
+        "main_crops": [
+            {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 32_000, "region": "interior"},
+            {"crop": "lime", "crop_ar": "ليمون", "area_ha": 5_000, "region": "batinah"},
+            {"crop": "banana", "crop_ar": "موز", "area_ha": 3_000, "region": "dhofar"},
+            {"crop": "alfalfa", "crop_ar": "برسيم", "area_ha": 8_000, "region": "interior"},
+        ],
+        "climate_zones": ["arid", "tropical-monsoon"],
+        "water_sources": ["aflaj", "wells", "desalination", "dams"],
+        "soil_types": ["sandy", "alluvial", "gravel"],
+        "currency": "OMR",
+        "currency_ar": "ريال عماني",
+        "dialect": "omani",
+        "dialect_ar": "عمانية",
+    },
+    "IQ": {
+        "name": "Iraq",
+        "name_ar": "العراق",
+        "capital": "Baghdad",
+        "capital_ar": "بغداد",
+        "arable_land_hectares": 8_000_000,
+        "main_crops": [
+            {"crop": "wheat", "crop_ar": "حنطة", "area_ha": 2_500_000, "region": "central"},
+            {"crop": "barley", "crop_ar": "شعير", "area_ha": 1_200_000, "region": "central"},
+            {"crop": "rice", "crop_ar": "تمن", "area_ha": 200_000, "region": "south"},
+            {"crop": "date_palm", "crop_ar": "نخيل", "area_ha": 160_000, "region": "south"},
+            {"crop": "tomato", "crop_ar": "طماطة", "area_ha": 80_000, "region": "central"},
+        ],
+        "climate_zones": ["arid", "semi-arid", "mediterranean"],
+        "water_sources": ["tigris", "euphrates", "canals", "groundwater"],
+        "soil_types": ["alluvial", "saline", "marsh"],
+        "currency": "IQD",
+        "currency_ar": "دينار عراقي",
+        "dialect": "iraqi",
+        "dialect_ar": "عراقية",
+    },
+    "JO": {
+        "name": "Jordan",
+        "name_ar": "الأردن",
+        "capital": "Amman",
+        "capital_ar": "عمّان",
+        "arable_land_hectares": 400_000,
+        "main_crops": [
+            {"crop": "tomato", "crop_ar": "بندورة", "area_ha": 15_000, "region": "jordan_valley"},
+            {"crop": "olive", "crop_ar": "زيتون", "area_ha": 65_000, "region": "highlands"},
+            {"crop": "wheat", "crop_ar": "قمح", "area_ha": 30_000, "region": "central"},
+            {"crop": "cucumber", "crop_ar": "خيار", "area_ha": 8_000, "region": "jordan_valley"},
+        ],
+        "climate_zones": ["semi-arid", "mediterranean", "arid"],
+        "water_sources": ["dams", "groundwater", "treated_wastewater", "jordan_river"],
+        "soil_types": ["terra_rossa", "alluvial", "desert"],
+        "currency": "JOD",
+        "currency_ar": "دينار أردني",
+        "dialect": "jordanian",
+        "dialect_ar": "أردنية",
+    },
+    "EG": {
+        "name": "Egypt",
+        "name_ar": "مصر",
+        "capital": "Cairo",
+        "capital_ar": "القاهرة",
+        "arable_land_hectares": 3_600_000,
+        "main_crops": [
+            {"crop": "wheat", "crop_ar": "قمح", "area_ha": 1_400_000, "region": "delta"},
+            {"crop": "rice", "crop_ar": "أرز", "area_ha": 500_000, "region": "delta"},
+            {"crop": "cotton", "crop_ar": "قطن", "area_ha": 100_000, "region": "upper_egypt"},
+            {"crop": "sugarcane", "crop_ar": "قصب سكر", "area_ha": 130_000, "region": "upper_egypt"},
+            {"crop": "corn", "crop_ar": "ذرة", "area_ha": 800_000, "region": "delta"},
+            {"crop": "clover", "crop_ar": "برسيم", "area_ha": 1_000_000, "region": "delta"},
+        ],
+        "climate_zones": ["arid", "mediterranean"],
+        "water_sources": ["nile", "canals", "groundwater"],
+        "soil_types": ["alluvial_nile", "desert", "saline"],
+        "currency": "EGP",
+        "currency_ar": "جنيه مصري",
+        "dialect": "egyptian",
+        "dialect_ar": "مصرية",
+    },
 }
 
 

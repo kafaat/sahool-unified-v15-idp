@@ -7,34 +7,37 @@ Routes notifications to appropriate channels based on priority:
 - advisory: push + in_app            (نصائح ري، تسميد)
 - info:     in_app only              (تحديثات السوق)
 """
+
 from __future__ import annotations
 
 import os
 import json
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     """Notification priority levels | مستويات أولوية الإشعارات"""
-    CRITICAL = "critical"   # فوري - خلال 6 ساعات
-    WARNING = "warning"     # تحذير - خلال 24-48 ساعة
-    ADVISORY = "advisory"   # استشارة - خلال أسبوع
-    INFO = "info"           # معلومات - للعلم فقط
+
+    CRITICAL = "critical"  # فوري - خلال 6 ساعات
+    WARNING = "warning"  # تحذير - خلال 24-48 ساعة
+    ADVISORY = "advisory"  # استشارة - خلال أسبوع
+    INFO = "info"  # معلومات - للعلم فقط
 
 
-class NotificationChannel(str, Enum):
+class NotificationChannel(StrEnum):
     """Available notification channels | قنوات الإشعارات المتاحة"""
-    PUSH = "push"           # FCM push notifications
-    WHATSAPP = "whatsapp"   # WhatsApp Business API
-    SMS = "sms"             # USSD/SMS gateway
-    EMAIL = "email"         # SMTP email
-    IN_APP = "in_app"       # WebSocket in-app
+
+    PUSH = "push"  # FCM push notifications
+    WHATSAPP = "whatsapp"  # WhatsApp Business API
+    SMS = "sms"  # USSD/SMS gateway
+    EMAIL = "email"  # SMTP email
+    IN_APP = "in_app"  # WebSocket in-app
 
 
 # Channel routing rules based on priority
@@ -156,6 +159,7 @@ ALERT_TYPES = {
 @dataclass
 class NotificationPayload:
     """Notification payload structure | هيكل حمولة الإشعار"""
+
     notification_id: str = ""
     tenant_id: str = ""
     user_id: str = ""
@@ -236,7 +240,7 @@ class NotificationRouter:
             body_ar=body_ar,
             channels=channels,
             data=extra_data or {},
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
             response_window_hours=alert_config.get("response_window_hours"),
         )
 
@@ -261,7 +265,7 @@ class NotificationRouter:
                         "channel": channel.value,
                         "service": service.get("service", "unknown"),
                         "priority": payload.priority.value,
-                    }
+                    },
                 )
                 results[channel.value] = {
                     "status": "routed",

@@ -8,20 +8,20 @@ Provides "what-if" scenario simulation for agricultural fields:
 
 Competitive reference: Farmers Edge (exclusive to SAHOOL)
 """
+
 from __future__ import annotations
 
 import logging
-import math
-from datetime import datetime, timezone, timedelta
-from enum import Enum
-from typing import Any
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class ScenarioType(str, Enum):
+class ScenarioType(StrEnum):
     """Types of simulation scenarios | أنواع سيناريوهات المحاكاة"""
+
     IRRIGATION_CHANGE = "irrigation_change"
     FERTILIZER_TIMING = "fertilizer_timing"
     CROP_VARIETY = "crop_variety"
@@ -31,12 +31,13 @@ class ScenarioType(str, Enum):
     SOIL_AMENDMENT = "soil_amendment"
 
 
-class ImpactLevel(str, Enum):
+class ImpactLevel(StrEnum):
     """Impact assessment levels | مستويات تقييم التأثير"""
-    POSITIVE = "positive"       # إيجابي
-    NEUTRAL = "neutral"         # محايد
-    NEGATIVE = "negative"       # سلبي
-    CRITICAL = "critical"       # حرج
+
+    POSITIVE = "positive"  # إيجابي
+    NEUTRAL = "neutral"  # محايد
+    NEGATIVE = "negative"  # سلبي
+    CRITICAL = "critical"  # حرج
 
 
 SCENARIO_LABELS_AR = {
@@ -60,6 +61,7 @@ IMPACT_LABELS_AR = {
 @dataclass
 class SimulationParameter:
     """A parameter for the simulation | معامل للمحاكاة"""
+
     name: str = ""
     name_ar: str = ""
     current_value: float = 0.0
@@ -72,6 +74,7 @@ class SimulationParameter:
 @dataclass
 class YieldImpact:
     """Yield impact prediction | تنبؤ تأثير الإنتاجية"""
+
     current_yield_ton_ha: float = 0.0
     predicted_yield_ton_ha: float = 0.0
     change_percent: float = 0.0
@@ -83,6 +86,7 @@ class YieldImpact:
 @dataclass
 class CostImpact:
     """Cost impact prediction | تنبؤ تأثير التكلفة"""
+
     current_cost_sar_ha: float = 0.0
     predicted_cost_sar_ha: float = 0.0
     change_sar: float = 0.0
@@ -92,6 +96,7 @@ class CostImpact:
 @dataclass
 class WaterImpact:
     """Water usage impact | تأثير استخدام المياه"""
+
     current_usage_m3_ha: float = 0.0
     predicted_usage_m3_ha: float = 0.0
     change_percent: float = 0.0
@@ -102,6 +107,7 @@ class WaterImpact:
 @dataclass
 class RiskAssessment:
     """Risk assessment for scenario | تقييم المخاطر للسيناريو"""
+
     disease_risk_change: float = 0.0
     pest_risk_change: float = 0.0
     water_stress_risk: float = 0.0
@@ -115,6 +121,7 @@ class RiskAssessment:
 @dataclass
 class SimulationResult:
     """Complete simulation result | نتيجة المحاكاة الكاملة"""
+
     simulation_id: str = ""
     field_id: str = ""
     tenant_id: str = ""
@@ -289,11 +296,11 @@ class DigitalTwinSimulator:
                 warnings_ar=warnings_ar,
             ),
             recommendation=f"{'Recommended' if yield_change > 0 else 'Not recommended'}: "
-                          f"Expected yield change {yield_change:+.1f}%",
+            f"Expected yield change {yield_change:+.1f}%",
             recommendation_ar=f"{'موصى به' if yield_change > 0 else 'غير موصى به'}: "
-                             f"تغيير الإنتاجية المتوقع {yield_change:+.1f}%",
+            f"تغيير الإنتاجية المتوقع {yield_change:+.1f}%",
             confidence_percent=75.0,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
         )
 
     def simulate_fertilizer_timing(
@@ -370,7 +377,7 @@ class DigitalTwinSimulator:
             recommendation="Apply fertilizer as scheduled" if delay_days > 0 else "Timing is acceptable",
             recommendation_ar="طبّق السماد في الموعد" if delay_days > 0 else "التوقيت مقبول",
             confidence_percent=70.0,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
         )
 
     def simulate_crop_variety(
@@ -400,8 +407,12 @@ class DigitalTwinSimulator:
         impact_level, impact_ar = self._get_impact_level(yield_change)
 
         crop_ar = {
-            "wheat": "قمح", "barley": "شعير", "date_palm": "نخيل",
-            "tomato": "طماطم", "cucumber": "خيار", "alfalfa": "برسيم",
+            "wheat": "قمح",
+            "barley": "شعير",
+            "date_palm": "نخيل",
+            "tomato": "طماطم",
+            "cucumber": "خيار",
+            "alfalfa": "برسيم",
         }
 
         return SimulationResult(
@@ -440,5 +451,5 @@ class DigitalTwinSimulator:
             recommendation=f"Yield {'increase' if yield_change > 0 else 'decrease'} of {abs(yield_change):.1f}% expected",
             recommendation_ar=f"{'زيادة' if yield_change > 0 else 'انخفاض'} متوقعة في الإنتاجية بنسبة {abs(yield_change):.1f}%",
             confidence_percent=65.0,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
         )

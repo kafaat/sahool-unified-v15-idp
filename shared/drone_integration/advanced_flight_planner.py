@@ -7,18 +7,19 @@ Provides:
 - Variable Rate Application spraying
 - DJI and Parrot SDK integration support
 """
+
 from __future__ import annotations
 
 import logging
 import math
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class DroneType(str, Enum):
+class DroneType(StrEnum):
     DJI_MAVIC = "dji_mavic"
     DJI_PHANTOM = "dji_phantom"
     DJI_MATRICE = "dji_matrice"
@@ -27,7 +28,7 @@ class DroneType(str, Enum):
     CUSTOM = "custom"
 
 
-class MissionType(str, Enum):
+class MissionType(StrEnum):
     MAPPING = "mapping"
     NDVI_SURVEY = "ndvi_survey"
     VRA_SPRAYING = "vra_spraying"
@@ -35,7 +36,7 @@ class MissionType(str, Enum):
     COUNTING = "counting"
 
 
-class FlightStatus(str, Enum):
+class FlightStatus(StrEnum):
     PLANNED = "planned"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -65,7 +66,13 @@ DRONE_SPECS = {
     DroneType.DJI_MAVIC: {"max_flight_time_min": 46, "max_speed_ms": 21, "camera_mp": 48, "max_altitude_m": 500},
     DroneType.DJI_PHANTOM: {"max_flight_time_min": 34, "max_speed_ms": 16, "camera_mp": 20, "max_altitude_m": 500},
     DroneType.DJI_MATRICE: {"max_flight_time_min": 55, "max_speed_ms": 23, "camera_mp": 45, "max_altitude_m": 500},
-    DroneType.DJI_AGRAS: {"max_flight_time_min": 20, "max_speed_ms": 10, "camera_mp": 0, "spray_tank_l": 16, "max_altitude_m": 200},
+    DroneType.DJI_AGRAS: {
+        "max_flight_time_min": 20,
+        "max_speed_ms": 10,
+        "camera_mp": 0,
+        "spray_tank_l": 16,
+        "max_altitude_m": 200,
+    },
     DroneType.PARROT_ANAFI: {"max_flight_time_min": 32, "max_speed_ms": 15, "camera_mp": 21, "max_altitude_m": 500},
 }
 
@@ -73,6 +80,7 @@ DRONE_SPECS = {
 @dataclass
 class Waypoint:
     """A flight waypoint | نقطة مسار طيران"""
+
     latitude: float = 0.0
     longitude: float = 0.0
     altitude_m: float = 50.0
@@ -84,6 +92,7 @@ class Waypoint:
 @dataclass
 class FlightPlan:
     """Complete flight plan | خطة طيران كاملة"""
+
     plan_id: str = ""
     field_id: str = ""
     tenant_id: str = ""
@@ -110,6 +119,7 @@ class FlightPlan:
 @dataclass
 class SprayPlan:
     """VRA spray plan | خطة رش VRA"""
+
     plan_id: str = ""
     field_id: str = ""
     zones: list[dict] = field(default_factory=list)
@@ -128,7 +138,9 @@ class DroneFlightPlanner:
     يخطط رحلات الطائرات بدون طيار للعمليات الزراعية.
     """
 
-    def calculate_gsd(self, altitude_m: float, focal_length_mm: float = 8.8, sensor_width_mm: float = 13.2, image_width_px: int = 5472) -> float:
+    def calculate_gsd(
+        self, altitude_m: float, focal_length_mm: float = 8.8, sensor_width_mm: float = 13.2, image_width_px: int = 5472
+    ) -> float:
         """Calculate Ground Sample Distance (cm/pixel)."""
         gsd = (altitude_m * sensor_width_mm * 100) / (focal_length_mm * image_width_px)
         return round(gsd, 2)
@@ -223,7 +235,7 @@ class DroneFlightPlanner:
             total_images=total_images,
             battery_changes=battery_changes,
             status=FlightStatus.PLANNED,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
             message=f"Flight plan: {flight_time:.0f}min, {total_images} images, GSD {gsd}cm/px",
             message_ar=f"خطة طيران: {flight_time:.0f} دقيقة، {total_images} صورة، دقة {gsd} سم/بكسل",
         )

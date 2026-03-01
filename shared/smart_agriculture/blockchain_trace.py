@@ -6,18 +6,19 @@ Provides farm-to-consumer traceability:
 - Digital origin certificates
 - Export market integration
 """
+
 from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class TraceEventType(str, Enum):
+class TraceEventType(StrEnum):
     PLANTING = "planting"
     FERTILIZING = "fertilizing"
     IRRIGATING = "irrigating"
@@ -30,7 +31,7 @@ class TraceEventType(str, Enum):
     DELIVERY = "delivery"
 
 
-class CertificationType(str, Enum):
+class CertificationType(StrEnum):
     ORGANIC = "organic"
     GLOBALGAP = "globalgap"
     FAIR_TRADE = "fair_trade"
@@ -63,6 +64,7 @@ CERT_TYPE_AR = {
 @dataclass
 class TraceEvent:
     """A single traceability event | حدث تتبع واحد"""
+
     event_id: str = ""
     event_type: TraceEventType = TraceEventType.PLANTING
     event_type_ar: str = ""
@@ -78,6 +80,7 @@ class TraceEvent:
 @dataclass
 class ProductTrace:
     """Complete product traceability record | سجل تتبع المنتج الكامل"""
+
     trace_id: str = ""
     product_id: str = ""
     crop_type: str = ""
@@ -97,6 +100,7 @@ class ProductTrace:
 @dataclass
 class OriginCertificate:
     """Digital origin certificate | شهادة المنشأ الرقمية"""
+
     certificate_id: str = ""
     product_id: str = ""
     farm_name: str = ""
@@ -151,7 +155,7 @@ class BlockchainTraceability:
             farm_name_ar=farm_name_ar,
             field_id=field_id,
             tenant_id=tenant_id,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
         self._traces[trace.trace_id] = trace
         return trace
@@ -182,7 +186,7 @@ class BlockchainTraceability:
             event_id=f"EVT-{len(trace.events) + 1:03d}",
             event_type=event_type,
             event_type_ar=TRACE_EVENT_AR.get(event_type, ""),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             location=location,
             location_ar=location_ar,
             operator=operator,
@@ -273,5 +277,5 @@ class BlockchainTraceability:
             quality_grade=quality_grade,
             certifications=certifications or [],
             verification_hash=verification_hash,
-            issued_date=datetime.now(timezone.utc).isoformat(),
+            issued_date=datetime.now(UTC).isoformat(),
         )

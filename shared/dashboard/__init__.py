@@ -2,11 +2,12 @@
 Dashboard Data Aggregation Module | وحدة تجميع بيانات لوحة المعلومات
 Provides unified farm overview data from multiple services.
 """
+
 from __future__ import annotations
 
 import os
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from dataclasses import dataclass, field
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class NDVIOverview:
     """NDVI overview data | بيانات نظرة عامة NDVI"""
+
     average_ndvi: float = 0.0
     health_status: str = "unknown"
     health_status_ar: str = "غير معروف"
@@ -26,6 +28,7 @@ class NDVIOverview:
 @dataclass
 class IrrigationOverview:
     """Irrigation overview | نظرة عامة على الري"""
+
     next_irrigation_days: int = -1
     water_usage_m3: float = 0.0
     efficiency_percent: float = 0.0
@@ -36,6 +39,7 @@ class IrrigationOverview:
 @dataclass
 class WeatherOverview:
     """Weather overview | نظرة عامة على الطقس"""
+
     temperature_c: float = 0.0
     humidity_percent: float = 0.0
     wind_speed_kmh: float = 0.0
@@ -47,6 +51,7 @@ class WeatherOverview:
 @dataclass
 class PestOverview:
     """Pest alerts overview | نظرة عامة على تنبيهات الآفات"""
+
     active_alerts: int = 0
     critical_alerts: int = 0
     recent_detections: list = field(default_factory=list)
@@ -57,6 +62,7 @@ class PestOverview:
 @dataclass
 class YieldOverview:
     """Yield prediction overview | نظرة عامة على تنبؤ الإنتاجية"""
+
     predicted_yield_ton_ha: float = 0.0
     yield_change_percent: float = 0.0
     confidence: float = 0.0
@@ -67,6 +73,7 @@ class YieldOverview:
 @dataclass
 class CostOverview:
     """Cost overview | نظرة عامة على التكاليف"""
+
     total_revenue_sar: float = 0.0
     total_costs_sar: float = 0.0
     profit_sar: float = 0.0
@@ -76,6 +83,7 @@ class CostOverview:
 @dataclass
 class TaskOverview:
     """Upcoming tasks overview | نظرة عامة على المهام القادمة"""
+
     pending_tasks: int = 0
     overdue_tasks: int = 0
     upcoming: list = field(default_factory=list)
@@ -84,6 +92,7 @@ class TaskOverview:
 @dataclass
 class FarmDashboard:
     """Complete farm dashboard data | بيانات لوحة بيانات المزرعة الكاملة"""
+
     tenant_id: str = ""
     farm_name: str = ""
     farm_name_ar: str = ""
@@ -167,7 +176,7 @@ class DashboardAggregator:
             tenant_id=self.tenant_id,
             farm_name=farm_name,
             farm_name_ar=farm_name_ar,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
         )
 
         # NDVI data

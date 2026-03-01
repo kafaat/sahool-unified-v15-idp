@@ -4,17 +4,18 @@ Farmer Education Platform | منصة تعليم المزارعين
 Provides personalized learning paths, digital certificates,
 community features, and gamification for farmer education.
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class ContentType(str, Enum):
+class ContentType(StrEnum):
     VIDEO = "video"
     ARTICLE = "article"
     AUDIO = "audio"
@@ -23,14 +24,14 @@ class ContentType(str, Enum):
     INFOGRAPHIC = "infographic"
 
 
-class DifficultyLevel(str, Enum):
+class DifficultyLevel(StrEnum):
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"
     ADVANCED = "advanced"
     EXPERT = "expert"
 
 
-class CertificateType(str, Enum):
+class CertificateType(StrEnum):
     COMPLETION = "completion"
     COMPETENCY = "competency"
     PROFESSIONAL = "professional"
@@ -56,6 +57,7 @@ DIFFICULTY_AR = {
 @dataclass
 class LearningModule:
     """A learning module | وحدة تعليمية"""
+
     module_id: str = ""
     title: str = ""
     title_ar: str = ""
@@ -77,6 +79,7 @@ class LearningModule:
 @dataclass
 class LearningPath:
     """A structured learning path | مسار تعليمي"""
+
     path_id: str = ""
     title: str = ""
     title_ar: str = ""
@@ -93,6 +96,7 @@ class LearningPath:
 @dataclass
 class FarmerProgress:
     """Farmer's learning progress | تقدم المزارع التعليمي"""
+
     farmer_id: str = ""
     tenant_id: str = ""
     total_points: int = 0
@@ -110,6 +114,7 @@ class FarmerProgress:
 @dataclass
 class DigitalCertificate:
     """Digital certificate | شهادة رقمية"""
+
     certificate_id: str = ""
     farmer_id: str = ""
     path_id: str = ""
@@ -130,13 +135,62 @@ LEARNING_PATHS = [
         "title_ar": "أساسيات زراعة القمح",
         "crop_type": "wheat",
         "modules": [
-            {"id": "M01", "title": "Wheat Varieties", "title_ar": "أصناف القمح", "type": ContentType.VIDEO, "duration": 15, "points": 10},
-            {"id": "M02", "title": "Soil Preparation", "title_ar": "تجهيز التربة", "type": ContentType.VIDEO, "duration": 20, "points": 15},
-            {"id": "M03", "title": "Planting Guide", "title_ar": "دليل الزراعة", "type": ContentType.ARTICLE, "duration": 10, "points": 10},
-            {"id": "M04", "title": "Irrigation Scheduling", "title_ar": "جدولة الري", "type": ContentType.PRACTICAL, "duration": 30, "points": 25},
-            {"id": "M05", "title": "Fertilizer Application", "title_ar": "تطبيق الأسمدة", "type": ContentType.VIDEO, "duration": 20, "points": 15},
-            {"id": "M06", "title": "Disease Recognition", "title_ar": "التعرف على الأمراض", "type": ContentType.QUIZ, "duration": 15, "points": 20},
-            {"id": "M07", "title": "Harvest Timing", "title_ar": "توقيت الحصاد", "type": ContentType.ARTICLE, "duration": 10, "points": 10},
+            {
+                "id": "M01",
+                "title": "Wheat Varieties",
+                "title_ar": "أصناف القمح",
+                "type": ContentType.VIDEO,
+                "duration": 15,
+                "points": 10,
+            },
+            {
+                "id": "M02",
+                "title": "Soil Preparation",
+                "title_ar": "تجهيز التربة",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 15,
+            },
+            {
+                "id": "M03",
+                "title": "Planting Guide",
+                "title_ar": "دليل الزراعة",
+                "type": ContentType.ARTICLE,
+                "duration": 10,
+                "points": 10,
+            },
+            {
+                "id": "M04",
+                "title": "Irrigation Scheduling",
+                "title_ar": "جدولة الري",
+                "type": ContentType.PRACTICAL,
+                "duration": 30,
+                "points": 25,
+            },
+            {
+                "id": "M05",
+                "title": "Fertilizer Application",
+                "title_ar": "تطبيق الأسمدة",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 15,
+            },
+            {
+                "id": "M06",
+                "title": "Disease Recognition",
+                "title_ar": "التعرف على الأمراض",
+                "type": ContentType.QUIZ,
+                "duration": 15,
+                "points": 20,
+            },
+            {
+                "id": "M07",
+                "title": "Harvest Timing",
+                "title_ar": "توقيت الحصاد",
+                "type": ContentType.ARTICLE,
+                "duration": 10,
+                "points": 10,
+            },
         ],
     },
     {
@@ -145,11 +199,46 @@ LEARNING_PATHS = [
         "title_ar": "إدارة النخيل",
         "crop_type": "date_palm",
         "modules": [
-            {"id": "D01", "title": "Palm Varieties", "title_ar": "أصناف النخيل", "type": ContentType.VIDEO, "duration": 20, "points": 10},
-            {"id": "D02", "title": "Pollination", "title_ar": "التلقيح", "type": ContentType.VIDEO, "duration": 25, "points": 20},
-            {"id": "D03", "title": "RPW Prevention", "title_ar": "الوقاية من سوسة النخيل", "type": ContentType.PRACTICAL, "duration": 30, "points": 30},
-            {"id": "D04", "title": "Irrigation & Fertilization", "title_ar": "الري والتسميد", "type": ContentType.ARTICLE, "duration": 15, "points": 15},
-            {"id": "D05", "title": "Harvest & Post-Harvest", "title_ar": "الحصاد وما بعده", "type": ContentType.VIDEO, "duration": 20, "points": 15},
+            {
+                "id": "D01",
+                "title": "Palm Varieties",
+                "title_ar": "أصناف النخيل",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 10,
+            },
+            {
+                "id": "D02",
+                "title": "Pollination",
+                "title_ar": "التلقيح",
+                "type": ContentType.VIDEO,
+                "duration": 25,
+                "points": 20,
+            },
+            {
+                "id": "D03",
+                "title": "RPW Prevention",
+                "title_ar": "الوقاية من سوسة النخيل",
+                "type": ContentType.PRACTICAL,
+                "duration": 30,
+                "points": 30,
+            },
+            {
+                "id": "D04",
+                "title": "Irrigation & Fertilization",
+                "title_ar": "الري والتسميد",
+                "type": ContentType.ARTICLE,
+                "duration": 15,
+                "points": 15,
+            },
+            {
+                "id": "D05",
+                "title": "Harvest & Post-Harvest",
+                "title_ar": "الحصاد وما بعده",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 15,
+            },
         ],
     },
     {
@@ -158,11 +247,46 @@ LEARNING_PATHS = [
         "title_ar": "الإدارة المتكاملة للآفات",
         "crop_type": "general",
         "modules": [
-            {"id": "I01", "title": "IPM Principles", "title_ar": "مبادئ الإدارة المتكاملة", "type": ContentType.VIDEO, "duration": 20, "points": 15},
-            {"id": "I02", "title": "Pest Identification", "title_ar": "تحديد الآفات", "type": ContentType.PRACTICAL, "duration": 30, "points": 25},
-            {"id": "I03", "title": "Biological Control", "title_ar": "المكافحة الحيوية", "type": ContentType.ARTICLE, "duration": 15, "points": 15},
-            {"id": "I04", "title": "Safe Pesticide Use", "title_ar": "الاستخدام الآمن للمبيدات", "type": ContentType.VIDEO, "duration": 25, "points": 20},
-            {"id": "I05", "title": "IPM Assessment", "title_ar": "تقييم الإدارة المتكاملة", "type": ContentType.QUIZ, "duration": 20, "points": 30},
+            {
+                "id": "I01",
+                "title": "IPM Principles",
+                "title_ar": "مبادئ الإدارة المتكاملة",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 15,
+            },
+            {
+                "id": "I02",
+                "title": "Pest Identification",
+                "title_ar": "تحديد الآفات",
+                "type": ContentType.PRACTICAL,
+                "duration": 30,
+                "points": 25,
+            },
+            {
+                "id": "I03",
+                "title": "Biological Control",
+                "title_ar": "المكافحة الحيوية",
+                "type": ContentType.ARTICLE,
+                "duration": 15,
+                "points": 15,
+            },
+            {
+                "id": "I04",
+                "title": "Safe Pesticide Use",
+                "title_ar": "الاستخدام الآمن للمبيدات",
+                "type": ContentType.VIDEO,
+                "duration": 25,
+                "points": 20,
+            },
+            {
+                "id": "I05",
+                "title": "IPM Assessment",
+                "title_ar": "تقييم الإدارة المتكاملة",
+                "type": ContentType.QUIZ,
+                "duration": 20,
+                "points": 30,
+            },
         ],
     },
     {
@@ -171,11 +295,46 @@ LEARNING_PATHS = [
         "title_ar": "تقنيات الري الذكي",
         "crop_type": "general",
         "modules": [
-            {"id": "S01", "title": "Water Requirements", "title_ar": "الاحتياجات المائية", "type": ContentType.ARTICLE, "duration": 15, "points": 10},
-            {"id": "S02", "title": "Drip vs Sprinkler", "title_ar": "التنقيط مقابل الرشاش", "type": ContentType.VIDEO, "duration": 20, "points": 15},
-            {"id": "S03", "title": "Soil Moisture Monitoring", "title_ar": "مراقبة رطوبة التربة", "type": ContentType.PRACTICAL, "duration": 25, "points": 20},
-            {"id": "S04", "title": "Scheduling with ET", "title_ar": "الجدولة باستخدام التبخر-نتح", "type": ContentType.VIDEO, "duration": 20, "points": 20},
-            {"id": "S05", "title": "Water Conservation", "title_ar": "الحفاظ على المياه", "type": ContentType.QUIZ, "duration": 15, "points": 25},
+            {
+                "id": "S01",
+                "title": "Water Requirements",
+                "title_ar": "الاحتياجات المائية",
+                "type": ContentType.ARTICLE,
+                "duration": 15,
+                "points": 10,
+            },
+            {
+                "id": "S02",
+                "title": "Drip vs Sprinkler",
+                "title_ar": "التنقيط مقابل الرشاش",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 15,
+            },
+            {
+                "id": "S03",
+                "title": "Soil Moisture Monitoring",
+                "title_ar": "مراقبة رطوبة التربة",
+                "type": ContentType.PRACTICAL,
+                "duration": 25,
+                "points": 20,
+            },
+            {
+                "id": "S04",
+                "title": "Scheduling with ET",
+                "title_ar": "الجدولة باستخدام التبخر-نتح",
+                "type": ContentType.VIDEO,
+                "duration": 20,
+                "points": 20,
+            },
+            {
+                "id": "S05",
+                "title": "Water Conservation",
+                "title_ar": "الحفاظ على المياه",
+                "type": ContentType.QUIZ,
+                "duration": 15,
+                "points": 25,
+            },
         ],
     },
 ]
@@ -207,29 +366,33 @@ class EducationPlatform:
         for p in LEARNING_PATHS:
             modules = []
             for m in p.get("modules", []):
-                modules.append(LearningModule(
-                    module_id=m["id"],
-                    title=m["title"],
-                    title_ar=m["title_ar"],
-                    content_type=m.get("type", ContentType.ARTICLE),
-                    content_type_ar=CONTENT_TYPE_AR.get(m.get("type", ContentType.ARTICLE), ""),
-                    duration_minutes=m.get("duration", 15),
-                    points=m.get("points", 10),
-                    crop_type=p.get("crop_type", ""),
-                ))
+                modules.append(
+                    LearningModule(
+                        module_id=m["id"],
+                        title=m["title"],
+                        title_ar=m["title_ar"],
+                        content_type=m.get("type", ContentType.ARTICLE),
+                        content_type_ar=CONTENT_TYPE_AR.get(m.get("type", ContentType.ARTICLE), ""),
+                        duration_minutes=m.get("duration", 15),
+                        points=m.get("points", 10),
+                        crop_type=p.get("crop_type", ""),
+                    )
+                )
 
             total_hrs = sum(m.duration_minutes for m in modules) / 60
             total_pts = sum(m.points for m in modules)
 
-            paths.append(LearningPath(
-                path_id=p["path_id"],
-                title=p["title"],
-                title_ar=p["title_ar"],
-                modules=modules,
-                total_duration_hours=round(total_hrs, 1),
-                total_points=total_pts,
-                crop_type=p.get("crop_type", ""),
-            ))
+            paths.append(
+                LearningPath(
+                    path_id=p["path_id"],
+                    title=p["title"],
+                    title_ar=p["title_ar"],
+                    modules=modules,
+                    total_duration_hours=round(total_hrs, 1),
+                    total_points=total_pts,
+                    crop_type=p.get("crop_type", ""),
+                )
+            )
         return paths
 
     def get_paths(self, crop_type: str | None = None) -> list[LearningPath]:
@@ -291,7 +454,7 @@ class EducationPlatform:
             title=path.title if path else "",
             title_ar=path.title_ar if path else "",
             certificate_type=CertificateType.COMPLETION,
-            issued_date=datetime.now(timezone.utc).isoformat(),
+            issued_date=datetime.now(UTC).isoformat(),
             score_percent=score_percent,
             verification_code=f"SAHOOL-{farmer_id[:8]}-{datetime.now().strftime('%Y%m%d%H%M')}",
         )

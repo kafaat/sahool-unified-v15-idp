@@ -406,7 +406,7 @@ async def get_daily_report(
 
     logger.info(
         "Generating daily report",
-        extra={"tenant_id": tenant_id, "date": str(target_date)},
+        extra={"tenant_id": str(tenant_id)[:100], "date": str(target_date)},
     )
 
     VEHICLES, STORAGE_FACILITIES, HARVEST_COLLECTIONS, SHIPMENTS = _get_stores()
@@ -498,7 +498,7 @@ async def get_weekly_report(
     logger.info(
         "Generating weekly report",
         extra={
-            "tenant_id": tenant_id,
+            "tenant_id": str(tenant_id)[:100],
             "week_start": str(week_start_date),
             "week_end": str(week_end_date),
         },
@@ -612,7 +612,7 @@ async def get_monthly_report(
 
     logger.info(
         "Generating monthly report",
-        extra={"tenant_id": tenant_id, "month": target_month_str},
+        extra={"tenant_id": str(tenant_id)[:100], "month": str(target_month_str)[:7]},
     )
 
     _, last_day = calendar.monthrange(target_year, target_month)
@@ -650,7 +650,6 @@ async def get_monthly_report(
     collections = _build_collection_summary(monthly_collections)
 
     # ── Cost estimation ──
-    total_vehicles = len(tenant_vehicles)
     completed_trips = len([s for s in monthly_shipments if s["status"] == SS.DELIVERED.value])
     total_weight = sum(s.get("weight_kg", 0) for s in monthly_shipments)
 

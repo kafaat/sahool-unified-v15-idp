@@ -6,34 +6,37 @@ Implements agent activation, capability registry, and inter-agent communication.
 
 Based on governance/agents.yaml definitions.
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime
+from enum import StrEnum
 from typing import Any
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class AgentCategory(str, Enum):
+class AgentCategory(StrEnum):
     """Agent categories | فئات الوكلاء"""
-    PRODUCTION = "production"       # إنتاج
-    MONITORING = "monitoring"       # مراقبة
-    PLANNING = "planning"           # تخطيط
-    MARKET = "market"               # سوق
-    SUPPORT = "support"             # دعم
-    ADVANCED = "advanced"           # متقدم
+
+    PRODUCTION = "production"  # إنتاج
+    MONITORING = "monitoring"  # مراقبة
+    PLANNING = "planning"  # تخطيط
+    MARKET = "market"  # سوق
+    SUPPORT = "support"  # دعم
+    ADVANCED = "advanced"  # متقدم
 
 
-class AgentStatus(str, Enum):
+class AgentStatus(StrEnum):
     """Agent operational status | حالة تشغيل الوكيل"""
-    ACTIVE = "active"           # نشط
-    INACTIVE = "inactive"       # غير نشط
-    WARMING_UP = "warming_up"   # قيد التحميل
-    ERROR = "error"             # خطأ
-    MAINTENANCE = "maintenance" # صيانة
+
+    ACTIVE = "active"  # نشط
+    INACTIVE = "inactive"  # غير نشط
+    WARMING_UP = "warming_up"  # قيد التحميل
+    ERROR = "error"  # خطأ
+    MAINTENANCE = "maintenance"  # صيانة
 
 
 CATEGORY_AR = {
@@ -57,6 +60,7 @@ STATUS_AR = {
 @dataclass
 class AgentCapability:
     """A capability that an agent can perform | قدرة يمكن للوكيل تنفيذها"""
+
     name: str = ""
     name_ar: str = ""
     description: str = ""
@@ -68,6 +72,7 @@ class AgentCapability:
 @dataclass
 class AgentDefinition:
     """Definition of an AI agent | تعريف وكيل ذكي"""
+
     agent_id: str = ""
     name: str = ""
     name_ar: str = ""
@@ -87,6 +92,7 @@ class AgentDefinition:
 @dataclass
 class AgentMessage:
     """Message between agents (A2A protocol) | رسالة بين الوكلاء"""
+
     message_id: str = ""
     from_agent: str = ""
     to_agent: str = ""
@@ -99,6 +105,7 @@ class AgentMessage:
 @dataclass
 class AgentEcosystemStatus:
     """Overall ecosystem status | حالة النظام البيئي"""
+
     total_agents: int = 0
     active_agents: int = 0
     inactive_agents: int = 0
@@ -533,10 +540,12 @@ class AgentEcosystem:
         for agent_dict in AGENT_DEFINITIONS:
             caps = []
             for cap in agent_dict.get("capabilities", []):
-                caps.append(AgentCapability(
-                    name=cap.get("name", ""),
-                    name_ar=cap.get("name_ar", ""),
-                ))
+                caps.append(
+                    AgentCapability(
+                        name=cap.get("name", ""),
+                        name_ar=cap.get("name_ar", ""),
+                    )
+                )
 
             agent = AgentDefinition(
                 agent_id=agent_dict["agent_id"],

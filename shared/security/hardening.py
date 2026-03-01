@@ -8,6 +8,7 @@ Provides:
 - GlobalGAP compliance reporting
 - Automated security scanning configuration
 """
+
 from __future__ import annotations
 
 import os
@@ -22,18 +23,20 @@ logger = logging.getLogger(__name__)
 
 class SecurityLevel(StrEnum):
     """Security compliance levels | مستويات الامتثال الأمني"""
-    BASIC = "basic"             # أساسي
-    STANDARD = "standard"       # قياسي
-    ENHANCED = "enhanced"       # محسّن
-    ENTERPRISE = "enterprise"   # مؤسسي
+
+    BASIC = "basic"  # أساسي
+    STANDARD = "standard"  # قياسي
+    ENHANCED = "enhanced"  # محسّن
+    ENTERPRISE = "enterprise"  # مؤسسي
 
 
 class AuditStatus(StrEnum):
     """Audit check status | حالة فحص التدقيق"""
-    PASS = "pass"           # نجاح
-    FAIL = "fail"           # فشل
-    WARNING = "warning"     # تحذير
-    SKIPPED = "skipped"     # تخطي
+
+    PASS = "pass"  # نجاح
+    FAIL = "fail"  # فشل
+    WARNING = "warning"  # تحذير
+    SKIPPED = "skipped"  # تخطي
     NOT_APPLICABLE = "n/a"  # غير قابل للتطبيق
 
 
@@ -48,6 +51,7 @@ SECURITY_LEVEL_AR = {
 @dataclass
 class SecurityCheckResult:
     """Result of a single security check | نتيجة فحص أمني واحد"""
+
     check_id: str = ""
     category: str = ""
     category_ar: str = ""
@@ -63,6 +67,7 @@ class SecurityCheckResult:
 @dataclass
 class SecurityAuditReport:
     """Complete security audit report | تقرير التدقيق الأمني الكامل"""
+
     report_id: str = ""
     tenant_id: str = ""
     security_level: SecurityLevel = SecurityLevel.STANDARD
@@ -80,6 +85,7 @@ class SecurityAuditReport:
 @dataclass
 class TLSConfig:
     """TLS configuration for services | تكوين TLS للخدمات"""
+
     enabled: bool = False
     cert_path: str = ""
     key_path: str = ""
@@ -92,6 +98,7 @@ class TLSConfig:
 @dataclass
 class VaultConfig:
     """Vault integration configuration | تكوين تكامل Vault"""
+
     enabled: bool = False
     address: str = ""
     auth_method: str = "token"  # token, kubernetes, approle

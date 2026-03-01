@@ -18,6 +18,18 @@ ALTER TABLE "field_boundary_history" ALTER COLUMN "tenant_id" SET DEFAULT 'unass
 ALTER TABLE "tasks" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
+-- farms.updated_at: NOT NULL without DEFAULT (Prisma @updatedAt)
+ALTER TABLE "farms" ALTER COLUMN "updated_at" SET DEFAULT now();
+
+-- fields.updated_at: NOT NULL without DEFAULT (Prisma @updatedAt)
+ALTER TABLE "fields" ALTER COLUMN "updated_at" SET DEFAULT now();
+
+-- sync_status.updated_at: NOT NULL without DEFAULT (Prisma @updatedAt)
+ALTER TABLE "sync_status" ALTER COLUMN "updated_at" SET DEFAULT now();
+
+-- tasks.updated_at: NOT NULL without DEFAULT (Prisma @updatedAt)
+ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
+
 -- Fix non-concurrent indexes: recreate with CONCURRENTLY where safe
 -- Note: Initial migration indexes are already applied and cannot be recreated
 -- without downtime. Adding concurrent alternatives for future safety.

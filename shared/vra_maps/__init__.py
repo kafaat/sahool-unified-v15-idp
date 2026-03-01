@@ -6,43 +6,47 @@ based on NDVI, soil data, and terrain analysis.
 
 Competitive reference: Trimble, OneSoil, Climate FieldView
 """
+
 from __future__ import annotations
 
 import logging
 import math
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from typing import Any
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class ZoneType(str, Enum):
+class ZoneType(StrEnum):
     """Management zone classification | تصنيف مناطق الإدارة"""
-    HIGH_PRODUCTIVITY = "high_productivity"      # إنتاجية عالية
+
+    HIGH_PRODUCTIVITY = "high_productivity"  # إنتاجية عالية
     MEDIUM_PRODUCTIVITY = "medium_productivity"  # إنتاجية متوسطة
-    LOW_PRODUCTIVITY = "low_productivity"        # إنتاجية منخفضة
-    STRESSED = "stressed"                        # مجهدة
-    WATER_LOGGED = "water_logged"                # مشبعة بالماء
-    SALINE = "saline"                            # ملحية
+    LOW_PRODUCTIVITY = "low_productivity"  # إنتاجية منخفضة
+    STRESSED = "stressed"  # مجهدة
+    WATER_LOGGED = "water_logged"  # مشبعة بالماء
+    SALINE = "saline"  # ملحية
 
 
-class ApplicationType(str, Enum):
+class ApplicationType(StrEnum):
     """VRA application types | أنواع التطبيق المتغير"""
-    FERTILIZER = "fertilizer"     # سماد
-    SEED = "seed"                 # بذور
-    PESTICIDE = "pesticide"       # مبيد
-    IRRIGATION = "irrigation"     # ري
-    LIME = "lime"                 # جير
+
+    FERTILIZER = "fertilizer"  # سماد
+    SEED = "seed"  # بذور
+    PESTICIDE = "pesticide"  # مبيد
+    IRRIGATION = "irrigation"  # ري
+    LIME = "lime"  # جير
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """VRA map export formats | صيغ تصدير خرائط VRA"""
+
     GEOJSON = "geojson"
     SHAPEFILE = "shapefile"
     CSV = "csv"
-    ISOXML = "isoxml"          # ISO 11783 for equipment
+    ISOXML = "isoxml"  # ISO 11783 for equipment
     PRESCRIPTION = "prescription"  # Generic prescription map
 
 
@@ -106,6 +110,7 @@ ZONE_LABELS_AR = {
 @dataclass
 class ManagementZone:
     """A management zone within a field | منطقة إدارية داخل الحقل"""
+
     zone_id: str = ""
     zone_type: ZoneType = ZoneType.MEDIUM_PRODUCTIVITY
     zone_label: str = ""
@@ -125,6 +130,7 @@ class ManagementZone:
 @dataclass
 class VRAPrescription:
     """VRA prescription for a field | وصفة VRA للحقل"""
+
     prescription_id: str = ""
     field_id: str = ""
     tenant_id: str = ""
@@ -242,10 +248,7 @@ class VRAMapGenerator:
             return 0.0
 
         uniform_total = sum(rate * total_area for rate in uniform_rate.values())
-        vra_total = sum(
-            sum(z.recommended_rates.values()) * z.area_hectares
-            for z in zones
-        )
+        vra_total = sum(sum(z.recommended_rates.values()) * z.area_hectares for z in zones)
 
         if uniform_total <= 0:
             return 0.0
@@ -298,16 +301,18 @@ class VRAMapGenerator:
             zone_product = sum(rates.values()) * zone_area
             total_product += zone_product
 
-            zones.append(ManagementZone(
-                zone_id=f"Z{i+1:02d}",
-                zone_type=zone_type,
-                zone_label=zone_type.value.replace("_", " ").title(),
-                zone_label_ar=ZONE_LABELS_AR.get(zone_type, ""),
-                area_hectares=round(zone_area, 2),
-                area_percent=round((zone_area / total_area * 100) if total_area > 0 else 0, 1),
-                ndvi_mean=round(mean_ndvi, 3),
-                recommended_rates=rates,
-            ))
+            zones.append(
+                ManagementZone(
+                    zone_id=f"Z{i + 1:02d}",
+                    zone_type=zone_type,
+                    zone_label=zone_type.value.replace("_", " ").title(),
+                    zone_label_ar=ZONE_LABELS_AR.get(zone_type, ""),
+                    area_hectares=round(zone_area, 2),
+                    area_percent=round((zone_area / total_area * 100) if total_area > 0 else 0, 1),
+                    ndvi_mean=round(mean_ndvi, 3),
+                    recommended_rates=rates,
+                )
+            )
 
         # Cost estimate (approximate: 2.5 SAR/kg for fertilizer)
         cost_per_kg = 2.5
@@ -329,7 +334,7 @@ class VRAMapGenerator:
             total_product_kg=round(total_product, 1),
             cost_estimate_sar=round(cost_estimate, 2),
             savings_vs_uniform_percent=savings,
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
             message=f"VRA prescription generated with {len(zones)} zones, estimated {savings}% savings",
             message_ar=f"تم إنشاء وصفة VRA بـ {len(zones)} مناطق، توفير مقدر {savings}%",
         )
@@ -341,19 +346,21 @@ class VRAMapGenerator:
         """
         features = []
         for zone in prescription.zones:
-            features.append({
-                "type": "Feature",
-                "properties": {
-                    "zone_id": zone.zone_id,
-                    "zone_type": zone.zone_type.value,
-                    "zone_label": zone.zone_label,
-                    "zone_label_ar": zone.zone_label_ar,
-                    "area_hectares": zone.area_hectares,
-                    "ndvi_mean": zone.ndvi_mean,
-                    **zone.recommended_rates,
-                },
-                "geometry": zone.geometry,
-            })
+            features.append(
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "zone_id": zone.zone_id,
+                        "zone_type": zone.zone_type.value,
+                        "zone_label": zone.zone_label,
+                        "zone_label_ar": zone.zone_label_ar,
+                        "area_hectares": zone.area_hectares,
+                        "ndvi_mean": zone.ndvi_mean,
+                        **zone.recommended_rates,
+                    },
+                    "geometry": zone.geometry,
+                }
+            )
 
         return {
             "type": "FeatureCollection",

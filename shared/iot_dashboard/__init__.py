@@ -7,17 +7,18 @@ Provides real-time IoT dashboard data:
 - Device management
 - Integration with Jetson Orin edge devices
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class SensorType(str, Enum):
+class SensorType(StrEnum):
     SOIL_MOISTURE = "soil_moisture"
     SOIL_TEMPERATURE = "soil_temperature"
     SOIL_PH = "soil_ph"
@@ -35,7 +36,7 @@ class SensorType(str, Enum):
     NDVI_SENSOR = "ndvi_sensor"
 
 
-class DeviceStatus(str, Enum):
+class DeviceStatus(StrEnum):
     ONLINE = "online"
     OFFLINE = "offline"
     LOW_BATTERY = "low_battery"
@@ -43,7 +44,7 @@ class DeviceStatus(str, Enum):
     MAINTENANCE = "maintenance"
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -91,6 +92,7 @@ SENSOR_THRESHOLDS = {
 @dataclass
 class SensorReading:
     """A single sensor reading | قراءة مستشعر واحدة"""
+
     device_id: str = ""
     sensor_type: SensorType = SensorType.SOIL_MOISTURE
     sensor_type_ar: str = ""
@@ -105,6 +107,7 @@ class SensorReading:
 @dataclass
 class IoTDevice:
     """An IoT device | جهاز إنترنت الأشياء"""
+
     device_id: str = ""
     device_name: str = ""
     device_name_ar: str = ""
@@ -121,6 +124,7 @@ class IoTDevice:
 @dataclass
 class ThresholdAlert:
     """A threshold alert | تنبيه عتبة"""
+
     alert_id: str = ""
     device_id: str = ""
     sensor_type: SensorType = SensorType.SOIL_MOISTURE
@@ -138,6 +142,7 @@ class ThresholdAlert:
 @dataclass
 class IoTDashboardData:
     """IoT dashboard summary | ملخص لوحة تحكم IoT"""
+
     total_devices: int = 0
     online_devices: int = 0
     offline_devices: int = 0
@@ -204,7 +209,7 @@ class IoTDashboard:
             value=value,
             unit=threshold.get("unit", ""),
             unit_ar=threshold.get("unit_ar", ""),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             is_anomaly=is_anomaly,
         )
         self._readings.append(reading)
@@ -223,34 +228,40 @@ class IoTDashboard:
                 continue
 
             if reading.value < threshold.get("low", float("-inf")):
-                alerts.append(ThresholdAlert(
-                    alert_id=f"ALT-{len(alerts) + 1:04d}",
-                    device_id=reading.device_id,
-                    sensor_type=reading.sensor_type,
-                    sensor_type_ar=SENSOR_TYPE_AR.get(reading.sensor_type, ""),
-                    severity=AlertSeverity.CRITICAL if reading.sensor_type in (SensorType.SOIL_MOISTURE, SensorType.AIR_TEMPERATURE) else AlertSeverity.WARNING,
-                    current_value=reading.value,
-                    threshold=threshold["low"],
-                    direction="below",
-                    message=f"{reading.sensor_type.value} below threshold: {reading.value} < {threshold['low']}",
-                    message_ar=f"{SENSOR_TYPE_AR.get(reading.sensor_type, '')} أقل من الحد: {reading.value} < {threshold['low']}",
-                    timestamp=reading.timestamp,
-                ))
+                alerts.append(
+                    ThresholdAlert(
+                        alert_id=f"ALT-{len(alerts) + 1:04d}",
+                        device_id=reading.device_id,
+                        sensor_type=reading.sensor_type,
+                        sensor_type_ar=SENSOR_TYPE_AR.get(reading.sensor_type, ""),
+                        severity=AlertSeverity.CRITICAL
+                        if reading.sensor_type in (SensorType.SOIL_MOISTURE, SensorType.AIR_TEMPERATURE)
+                        else AlertSeverity.WARNING,
+                        current_value=reading.value,
+                        threshold=threshold["low"],
+                        direction="below",
+                        message=f"{reading.sensor_type.value} below threshold: {reading.value} < {threshold['low']}",
+                        message_ar=f"{SENSOR_TYPE_AR.get(reading.sensor_type, '')} أقل من الحد: {reading.value} < {threshold['low']}",
+                        timestamp=reading.timestamp,
+                    )
+                )
 
             if reading.value > threshold.get("high", float("inf")):
-                alerts.append(ThresholdAlert(
-                    alert_id=f"ALT-{len(alerts) + 1:04d}",
-                    device_id=reading.device_id,
-                    sensor_type=reading.sensor_type,
-                    sensor_type_ar=SENSOR_TYPE_AR.get(reading.sensor_type, ""),
-                    severity=AlertSeverity.CRITICAL,
-                    current_value=reading.value,
-                    threshold=threshold["high"],
-                    direction="above",
-                    message=f"{reading.sensor_type.value} above threshold: {reading.value} > {threshold['high']}",
-                    message_ar=f"{SENSOR_TYPE_AR.get(reading.sensor_type, '')} أعلى من الحد: {reading.value} > {threshold['high']}",
-                    timestamp=reading.timestamp,
-                ))
+                alerts.append(
+                    ThresholdAlert(
+                        alert_id=f"ALT-{len(alerts) + 1:04d}",
+                        device_id=reading.device_id,
+                        sensor_type=reading.sensor_type,
+                        sensor_type_ar=SENSOR_TYPE_AR.get(reading.sensor_type, ""),
+                        severity=AlertSeverity.CRITICAL,
+                        current_value=reading.value,
+                        threshold=threshold["high"],
+                        direction="above",
+                        message=f"{reading.sensor_type.value} above threshold: {reading.value} > {threshold['high']}",
+                        message_ar=f"{SENSOR_TYPE_AR.get(reading.sensor_type, '')} أعلى من الحد: {reading.value} > {threshold['high']}",
+                        timestamp=reading.timestamp,
+                    )
+                )
 
         return alerts
 
@@ -274,7 +285,7 @@ class IoTDashboard:
             latest_readings=self._readings[-20:],
             alerts=alerts[:10],
             devices=devices,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             message=f"IoT: {online}/{len(devices)} online, {len(alerts)} alerts",
             message_ar=f"IoT: {online}/{len(devices)} متصل، {len(alerts)} تنبيهات",
         )

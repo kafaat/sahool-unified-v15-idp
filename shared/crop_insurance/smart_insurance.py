@@ -6,24 +6,25 @@ Provides:
 - Automatic claims with satellite evidence
 - Parametric insurance (automatic payout on weather events)
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class InsuranceType(str, Enum):
-    YIELD_BASED = "yield_based"           # مبني على الإنتاجية
+class InsuranceType(StrEnum):
+    YIELD_BASED = "yield_based"  # مبني على الإنتاجية
     WEATHER_PARAMETRIC = "weather_parametric"  # بارامتري (طقس)
-    NDVI_INDEX = "ndvi_index"             # مبني على مؤشر NDVI
-    REVENUE = "revenue"                   # مبني على الإيراد
+    NDVI_INDEX = "ndvi_index"  # مبني على مؤشر NDVI
+    REVENUE = "revenue"  # مبني على الإيراد
 
 
-class ClaimStatus(str, Enum):
+class ClaimStatus(StrEnum):
     DRAFT = "draft"
     SUBMITTED = "submitted"
     UNDER_REVIEW = "under_review"
@@ -32,7 +33,7 @@ class ClaimStatus(str, Enum):
     PAID = "paid"
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     VERY_LOW = "very_low"
     LOW = "low"
     MODERATE = "moderate"
@@ -68,6 +69,7 @@ CLAIM_STATUS_AR = {
 @dataclass
 class RiskAssessment:
     """Field risk assessment for insurance | تقييم مخاطر الحقل للتأمين"""
+
     field_id: str = ""
     crop_type: str = ""
     crop_type_ar: str = ""
@@ -88,6 +90,7 @@ class RiskAssessment:
 @dataclass
 class InsurancePremium:
     """Insurance premium calculation | حساب قسط التأمين"""
+
     policy_id: str = ""
     field_id: str = ""
     tenant_id: str = ""
@@ -109,6 +112,7 @@ class InsurancePremium:
 @dataclass
 class InsuranceClaim:
     """Insurance claim with evidence | مطالبة تأمين مع الأدلة"""
+
     claim_id: str = ""
     policy_id: str = ""
     field_id: str = ""
@@ -132,6 +136,7 @@ class InsuranceClaim:
 @dataclass
 class ParametricTrigger:
     """Parametric insurance trigger | محفز التأمين البارامتري"""
+
     trigger_id: str = ""
     trigger_type: str = ""
     trigger_type_ar: str = ""
@@ -248,8 +253,15 @@ class SmartInsuranceEngine:
 
         تقييم مخاطر الحقل للتأمين.
         """
-        crop_ar = {"wheat": "قمح", "barley": "شعير", "date_palm": "نخيل",
-                   "tomato": "طماطم", "cucumber": "خيار", "rice": "أرز", "corn": "ذرة"}
+        crop_ar = {
+            "wheat": "قمح",
+            "barley": "شعير",
+            "date_palm": "نخيل",
+            "tomato": "طماطم",
+            "cucumber": "خيار",
+            "rice": "أرز",
+            "corn": "ذرة",
+        }
 
         # Calculate component risks
         ndvi_values = ndvi_history or [0.6]
@@ -265,7 +277,7 @@ class SmartInsuranceEngine:
         disease = factors.get("disease_risk", 0.2)
         frost = factors.get("frost_risk", 0.1)
 
-        risk_score = (drought * 0.3 + flood * 0.1 + pest * 0.2 + disease * 0.2 + frost * 0.1 + (1 - ndvi_stability) * 0.1)
+        risk_score = drought * 0.3 + flood * 0.1 + pest * 0.2 + disease * 0.2 + frost * 0.1 + (1 - ndvi_stability) * 0.1
 
         if risk_score < 0.2:
             level = RiskLevel.VERY_LOW
@@ -343,7 +355,7 @@ class SmartInsuranceEngine:
             premium_sar=round(premium, 2),
             premium_rate_percent=round(adjusted_rate, 2),
             risk_assessment=risk_assessment,
-            valid_from=datetime.now(timezone.utc).isoformat(),
+            valid_from=datetime.now(UTC).isoformat(),
             message=f"Premium: {premium:,.0f} SAR for {coverage:,.0f} SAR coverage",
             message_ar=f"القسط: {premium:,.0f} ريال لتغطية {coverage:,.0f} ريال",
         )
@@ -356,7 +368,7 @@ class SmartInsuranceEngine:
         triggers = []
         for key, config in self.PARAMETRIC_TRIGGERS.items():
             metric = config["metric"]
-            actual = weather_data.get(metric, None)
+            actual = weather_data.get(metric)
             if actual is None:
                 continue
 
@@ -364,21 +376,21 @@ class SmartInsuranceEngine:
             comparison = config["comparison"]
             triggered = False
 
-            if comparison == "below" and actual < threshold:
-                triggered = True
-            elif comparison == "above" and actual > threshold:
+            if (comparison == "below" and actual < threshold) or (comparison == "above" and actual > threshold):
                 triggered = True
 
-            triggers.append(ParametricTrigger(
-                trigger_id=f"TRG-{key}",
-                trigger_type=config["type"],
-                trigger_type_ar=config["type_ar"],
-                threshold=threshold,
-                actual_value=actual,
-                triggered=triggered,
-                payout_percent=config["payout_percent"] if triggered else 0,
-                description=config["description"],
-                description_ar=config["description_ar"],
-            ))
+            triggers.append(
+                ParametricTrigger(
+                    trigger_id=f"TRG-{key}",
+                    trigger_type=config["type"],
+                    trigger_type_ar=config["type_ar"],
+                    threshold=threshold,
+                    actual_value=actual,
+                    triggered=triggered,
+                    payout_percent=config["payout_percent"] if triggered else 0,
+                    description=config["description"],
+                    description_ar=config["description_ar"],
+                )
+            )
 
         return triggers

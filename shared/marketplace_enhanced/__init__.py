@@ -6,18 +6,19 @@ shipment tracking, and buyer/seller ratings.
 
 Competitive reference: CropIn, FarmLogs
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class ListingStatus(str, Enum):
+class ListingStatus(StrEnum):
     DRAFT = "draft"
     ACTIVE = "active"
     SOLD = "sold"
@@ -25,18 +26,18 @@ class ListingStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class OrderType(str, Enum):
-    BID = "bid"      # عرض شراء
-    ASK = "ask"      # عرض بيع
+class OrderType(StrEnum):
+    BID = "bid"  # عرض شراء
+    ASK = "ask"  # عرض بيع
     FIXED = "fixed"  # سعر ثابت
 
 
-class QualityGrade(str, Enum):
-    PREMIUM = "premium"     # ممتاز
-    GRADE_A = "grade_a"     # درجة أ
-    GRADE_B = "grade_b"     # درجة ب
-    GRADE_C = "grade_c"     # درجة ج
-    UNGRADED = "ungraded"   # غير مصنف
+class QualityGrade(StrEnum):
+    PREMIUM = "premium"  # ممتاز
+    GRADE_A = "grade_a"  # درجة أ
+    GRADE_B = "grade_b"  # درجة ب
+    GRADE_C = "grade_c"  # درجة ج
+    UNGRADED = "ungraded"  # غير مصنف
 
 
 QUALITY_AR = {
@@ -51,6 +52,7 @@ QUALITY_AR = {
 @dataclass
 class MarketPrice:
     """Live market price entry | إدخال سعر السوق الحي"""
+
     crop_type: str = ""
     crop_type_ar: str = ""
     price_sar_per_ton: float = 0.0
@@ -66,6 +68,7 @@ class MarketPrice:
 @dataclass
 class Listing:
     """Marketplace listing | قائمة السوق"""
+
     listing_id: str = ""
     seller_id: str = ""
     tenant_id: str = ""
@@ -91,6 +94,7 @@ class Listing:
 @dataclass
 class SellerRating:
     """Seller/buyer rating | تقييم البائع/المشتري"""
+
     user_id: str = ""
     average_rating: float = 0.0
     total_reviews: int = 0
@@ -103,6 +107,7 @@ class SellerRating:
 @dataclass
 class MarketSummary:
     """Market summary | ملخص السوق"""
+
     total_listings: int = 0
     active_listings: int = 0
     total_volume_tons: float = 0.0
@@ -145,18 +150,20 @@ class MarketplaceEngine:
         الحصول على أسعار السوق الحالية.
         """
         prices = []
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         for crop, info in self.DEFAULT_PRICES.items():
-            prices.append(MarketPrice(
-                crop_type=crop,
-                crop_type_ar=info["ar"],
-                price_sar_per_ton=info["price"],
-                change_24h_percent=0.0,
-                updated_at=now,
-                trend="stable",
-                trend_ar="مستقر",
-            ))
+            prices.append(
+                MarketPrice(
+                    crop_type=crop,
+                    crop_type_ar=info["ar"],
+                    price_sar_per_ton=info["price"],
+                    change_24h_percent=0.0,
+                    updated_at=now,
+                    trend="stable",
+                    trend_ar="مستقر",
+                )
+            )
 
         return prices
 
@@ -194,7 +201,7 @@ class MarketplaceEngine:
             description=description,
             description_ar=description_ar,
             certifications=certifications or [],
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
 
         self._listings.append(listing)
@@ -215,10 +222,7 @@ class MarketplaceEngine:
         for l in active:
             crop_volumes[l.crop_type] = crop_volumes.get(l.crop_type, 0) + l.quantity_tons
 
-        top_crops = [
-            {"crop": k, "volume_tons": v}
-            for k, v in sorted(crop_volumes.items(), key=lambda x: -x[1])[:5]
-        ]
+        top_crops = [{"crop": k, "volume_tons": v} for k, v in sorted(crop_volumes.items(), key=lambda x: -x[1])[:5]]
 
         return MarketSummary(
             total_listings=len(self._listings),
@@ -227,7 +231,7 @@ class MarketplaceEngine:
             total_value_sar=round(total_value, 2),
             top_crops=top_crops,
             price_trends=self.get_market_prices(),
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             message=f"Marketplace: {len(active)} active listings, {total_volume:.0f} tons available",
             message_ar=f"السوق: {len(active)} قائمة نشطة، {total_volume:.0f} طن متاح",
         )

@@ -6,39 +6,42 @@ and ROI estimation for agricultural recommendations.
 
 Competitive reference: Agworld, FarmLogs
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 
-class CostCategory(str, Enum):
+class CostCategory(StrEnum):
     """Cost categories | فئات التكاليف"""
-    SEED = "seed"                   # بذور
-    FERTILIZER = "fertilizer"       # أسمدة
-    PESTICIDE = "pesticide"         # مبيدات
-    IRRIGATION = "irrigation"       # ري
-    LABOR = "labor"                 # عمالة
-    EQUIPMENT = "equipment"         # معدات
-    FUEL = "fuel"                   # وقود
-    TRANSPORT = "transport"         # نقل
-    STORAGE = "storage"             # تخزين
-    CERTIFICATION = "certification" # شهادات
-    INSURANCE = "insurance"         # تأمين
-    OTHER = "other"                 # أخرى
+
+    SEED = "seed"  # بذور
+    FERTILIZER = "fertilizer"  # أسمدة
+    PESTICIDE = "pesticide"  # مبيدات
+    IRRIGATION = "irrigation"  # ري
+    LABOR = "labor"  # عمالة
+    EQUIPMENT = "equipment"  # معدات
+    FUEL = "fuel"  # وقود
+    TRANSPORT = "transport"  # نقل
+    STORAGE = "storage"  # تخزين
+    CERTIFICATION = "certification"  # شهادات
+    INSURANCE = "insurance"  # تأمين
+    OTHER = "other"  # أخرى
 
 
-class Season(str, Enum):
+class Season(StrEnum):
     """Agricultural seasons | المواسم الزراعية"""
-    WINTER = "winter"       # شتاء
-    SUMMER = "summer"       # صيف
-    SPRING = "spring"       # ربيع
-    FALL = "fall"           # خريف
+
+    WINTER = "winter"  # شتاء
+    SUMMER = "summer"  # صيف
+    SPRING = "spring"  # ربيع
+    FALL = "fall"  # خريف
 
 
 COST_CATEGORY_AR = {
@@ -60,6 +63,7 @@ COST_CATEGORY_AR = {
 @dataclass
 class CostEntry:
     """A single cost entry | إدخال تكلفة واحد"""
+
     entry_id: str = ""
     category: CostCategory = CostCategory.OTHER
     category_ar: str = ""
@@ -76,6 +80,7 @@ class CostEntry:
 @dataclass
 class RevenueEntry:
     """A revenue entry | إدخال إيراد"""
+
     entry_id: str = ""
     crop_type: str = ""
     crop_type_ar: str = ""
@@ -91,6 +96,7 @@ class RevenueEntry:
 @dataclass
 class FieldFinancialReport:
     """Financial report for a single field | تقرير مالي لحقل واحد"""
+
     report_id: str = ""
     field_id: str = ""
     field_name: str = ""
@@ -127,6 +133,7 @@ class FieldFinancialReport:
 @dataclass
 class SeasonComparison:
     """Season-over-season comparison | مقارنة بين المواسم"""
+
     field_id: str = ""
     current_season: str = ""
     previous_season: str = ""
@@ -141,6 +148,7 @@ class SeasonComparison:
 @dataclass
 class RecommendationROI:
     """ROI estimation for a recommendation | تقدير العائد على الاستثمار لتوصية"""
+
     recommendation_id: str = ""
     recommendation_type: str = ""
     recommendation_type_ar: str = ""
@@ -220,7 +228,7 @@ class FinancialReportGenerator:
         expected_return = additional_yield * price
 
         roi = ((expected_return - investment_sar) / investment_sar * 100) if investment_sar > 0 else 0
-        payback_days = int((investment_sar / expected_return * 180)) if expected_return > 0 else 999
+        payback_days = int(investment_sar / expected_return * 180) if expected_return > 0 else 999
 
         risk_levels = {
             (500, 9999): ("low", "منخفض"),
@@ -306,7 +314,7 @@ class FinancialReportGenerator:
             profit_per_hectare_sar=round(profit_per_ha, 2),
             roi_percent=round(roi, 1),
             break_even_yield_ton=break_even,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             message=f"Financial report for {field_name}: ROI {roi:.1f}%",
             message_ar=f"تقرير مالي لـ {field_name_ar}: العائد {roi:.1f}%",
         )
@@ -320,9 +328,21 @@ class FinancialReportGenerator:
 
         مقارنة موسمين لحقل.
         """
-        cost_change = ((current.total_costs_sar - previous.total_costs_sar) / previous.total_costs_sar * 100) if previous.total_costs_sar > 0 else 0
-        rev_change = ((current.total_revenue_sar - previous.total_revenue_sar) / previous.total_revenue_sar * 100) if previous.total_revenue_sar > 0 else 0
-        profit_change = ((current.profit_sar - previous.profit_sar) / abs(previous.profit_sar) * 100) if previous.profit_sar != 0 else 0
+        cost_change = (
+            ((current.total_costs_sar - previous.total_costs_sar) / previous.total_costs_sar * 100)
+            if previous.total_costs_sar > 0
+            else 0
+        )
+        rev_change = (
+            ((current.total_revenue_sar - previous.total_revenue_sar) / previous.total_revenue_sar * 100)
+            if previous.total_revenue_sar > 0
+            else 0
+        )
+        profit_change = (
+            ((current.profit_sar - previous.profit_sar) / abs(previous.profit_sar) * 100)
+            if previous.profit_sar != 0
+            else 0
+        )
 
         recommendations = []
         recommendations_ar = []

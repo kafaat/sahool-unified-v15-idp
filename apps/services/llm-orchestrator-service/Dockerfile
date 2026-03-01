@@ -85,9 +85,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: Runtime
+# Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL LLM Orchestrator Service" \

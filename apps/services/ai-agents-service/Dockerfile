@@ -63,9 +63,9 @@ COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: Runtime
+# Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL AI Agents Service" \

@@ -72,9 +72,9 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: Runtime | المرحلة 2: وقت التشغيل
+# Stage 2: Production | المرحلة 2: الإنتاج
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL AI Advisor Service | خدمة المستشار الذكي" \

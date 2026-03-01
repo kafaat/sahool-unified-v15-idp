@@ -1,18 +1,20 @@
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Hydrology Service Dockerfile
 # خدمة الهيدرولوجيا - ملف Docker
 # Port: 8165
+# Multi-stage build for optimized production image
+# ═══════════════════════════════════════════════════════════════════════════════
 
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
-# Create non-root user for security
-RUN groupadd --system --gid 1000 sahool && \
-    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
-
-# Install system dependencies for numpy
+# Install build dependencies for numpy/scipy compilation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libffi-dev \
@@ -29,16 +31,33 @@ COPY apps/services/hydrology-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Production
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Copy installed packages from builder (no gcc/libffi-dev in production)
+COPY --from=builder /install /usr/local
 
 # Copy shared modules
 COPY apps/services/shared ./shared/
@@ -51,9 +70,10 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PORT=8165
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
+    PORT=8165
 
 # Expose port
 EXPOSE 8165

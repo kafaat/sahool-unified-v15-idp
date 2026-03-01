@@ -200,10 +200,13 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         }
         throw err;
       } finally {
-        if (mountedRef.current) {
-          setIsLoading(false);
-        }
+        // Only update loading state if this is still the current request
+        // and the component is still mounted. This prevents a stale/aborted
+        // request from flipping loading state while a newer request is in-flight.
         if (abortControllerRef.current === abortController) {
+          if (mountedRef.current) {
+            setIsLoading(false);
+          }
           abortControllerRef.current = null;
         }
       }

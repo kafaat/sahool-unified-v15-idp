@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
   const allowedOrigins = (
     process.env.ALLOWED_ORIGINS ||
     "https://admin.sahool.app,https://sahool.app"
-  ).split(",");
+  ).split(",").map(s => s.trim()).filter(Boolean);
 
   if (origin && !allowedOrigins.includes(origin)) {
     return new NextResponse(null, {
@@ -221,7 +221,7 @@ export async function OPTIONS() {
   const allowedOrigins =
     process.env.ALLOWED_ORIGINS ||
     "https://admin.sahool.app,https://sahool.app";
-  const origin = allowedOrigins.split(",")[0] || "https://admin.sahool.app"; // Use first allowed origin or default
+  const origin = allowedOrigins.split(",").map(s => s.trim()).filter(Boolean)[0] || "https://admin.sahool.app";
 
   return new NextResponse(null, {
     status: 204,

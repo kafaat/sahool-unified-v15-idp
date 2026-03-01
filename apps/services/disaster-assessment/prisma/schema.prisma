@@ -6,6 +6,7 @@
 
 generator client {
   provider        = "prisma-client-js"
+  output          = "./generated/client"
   previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
@@ -54,8 +55,8 @@ model DisasterReport {
   totalEstimatedLossYER  BigInt?  @map("total_estimated_loss_yer")
 
   // Reporting
-  reportedBy String  @map("reported_by") @db.VarChar(255)
-  tenantId   String  @map("tenant_id") @db.VarChar(100)
+  reportedBy String  @default("system") @map("reported_by") @db.VarChar(255)
+  tenantId   String  @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Lifecycle Dates
   startDate  DateTime? @map("start_date") @db.Timestamptz
@@ -128,7 +129,7 @@ model DisasterAlert {
   report   DisasterReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
 
   // Multi-tenancy
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Timestamps
   sentAt    DateTime @default(now()) @map("sent_at") @db.Timestamptz
@@ -185,7 +186,7 @@ model FieldAssessment {
   assessedBy       String? @map("assessed_by") @db.VarChar(255)
 
   // Multi-tenancy
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Timestamps
   assessedAt DateTime @default(now()) @map("assessed_at") @db.Timestamptz
@@ -209,7 +210,7 @@ model AlertSubscription {
 
   // User Info
   userId   String @map("user_id") @db.VarChar(255)
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Subscription Settings
   governorate String @db.VarChar(100)

@@ -747,8 +747,8 @@ export class WalletService {
       }),
     ]);
 
-    const escrowAsBuyer = buyerEscrows.reduce((sum, e) => sum + e.amount, 0);
-    const escrowAsSeller = sellerEscrows.reduce((sum, e) => sum + e.amount, 0);
+    const escrowAsBuyer = buyerEscrows.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
+    const escrowAsSeller = sellerEscrows.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
 
     const pendingPayments = await this.prisma.scheduledPayment.findMany({
       where: {
@@ -761,7 +761,7 @@ export class WalletService {
     });
 
     const totalPendingPayments = pendingPayments.reduce(
-      (sum, p) => sum + p.amount,
+      (sum: number, p: { amount: number }) => sum + p.amount,
       0,
     );
 
@@ -779,7 +779,7 @@ export class WalletService {
       { date: string; income: number; expense: number }
     > = {};
 
-    transactions.forEach((tx) => {
+    transactions.forEach((tx: { createdAt: Date; amount: number }) => {
       const dateKey = tx.createdAt.toISOString().split("T")[0];
       if (!dailyStats[dateKey]) {
         dailyStats[dateKey] = { date: dateKey, income: 0, expense: 0 };

@@ -48,7 +48,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # Production stage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 LABEL org.opencontainers.image.title="Ground Vision Service"
 LABEL org.opencontainers.image.description="High-frequency agricultural monitoring using tower cameras"

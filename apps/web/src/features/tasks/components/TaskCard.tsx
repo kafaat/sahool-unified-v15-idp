@@ -136,8 +136,8 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
     const ariaLabel = React.useMemo(() => {
       const parts = [
         `Task: ${task.title}`,
-        `Status: ${statusInfo.labelAr}`,
-        `Priority: ${priorityInfo.labelAr}`,
+        `Status: ${statusInfo?.labelAr ?? ""}`,
+        `Priority: ${priorityInfo?.labelAr ?? ""}`,
       ];
 
       if (task.due_date) {
@@ -169,7 +169,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
         onClick={onClick}
         onKeyDown={handleKeyDown}
         draggable={draggable}
-               aria-label={ariaLabel}
+        aria-label={ariaLabel}
         aria-live="polite"
         className={`
         rounded-lg border-2 p-4 transition-all duration-200

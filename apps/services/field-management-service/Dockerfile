@@ -80,7 +80,7 @@ COPY apps/services/field-management-service/src ./src
 RUN npx nest build
 
 # Stage 2: Production
-FROM node:${NODE_VERSION}-bookworm-slim
+FROM node:${NODE_VERSION}-bookworm-slim AS production
 
 # Re-declare ARGs for this stage
 ARG NODE_VERSION=20

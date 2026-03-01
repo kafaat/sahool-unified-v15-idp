@@ -1,0 +1,14 @@
+apiVersion: v2
+name: admin
+description: SAHOOL Admin Dashboard - Next.js Application
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - admin
+  - dashboard
+  - nextjs
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

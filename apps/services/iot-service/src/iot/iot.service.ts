@@ -17,9 +17,7 @@ import {
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
-// PrismaSensorType is a string alias; the Prisma client enum is generated at build time.
-// We define constant values here to avoid a hard dependency on @prisma/client codegen.
-type PrismaSensorType = string;
+import { SensorType as PrismaSensorType } from "../../prisma/generated/client";
 const PrismaSensorTypeValues = {
   SOIL_MOISTURE: "SOIL_MOISTURE" as PrismaSensorType,
   SOIL_TEMPERATURE: "SOIL_TEMPERATURE" as PrismaSensorType,
@@ -1096,9 +1094,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         threshold,
         timestamp: reading.timestamp.toISOString(),
       },
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       this.logger.error(
-        `Failed to send push notification for ${reading.sensorType} alert: ${error.message}`,
+        `Failed to send push notification for ${reading.sensorType} alert: ${error instanceof Error ? error.message : String(error)}`,
       );
     });
   }

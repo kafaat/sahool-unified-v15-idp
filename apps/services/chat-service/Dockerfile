@@ -106,6 +106,7 @@ COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
 ENV PORT=8115
+ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 8115
@@ -116,7 +117,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8115/api/v1/health || exit 1
+    CMD curl -f http://localhost:8115/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

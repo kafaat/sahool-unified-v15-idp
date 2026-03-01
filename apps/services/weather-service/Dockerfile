@@ -77,9 +77,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c /tmp/constraints.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: Runtime | المرحلة 2: وقت التشغيل
+# Stage 2: Production | المرحلة 2: الإنتاج
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Build arguments
 ARG SERVICE_NAME=weather-service

@@ -30,6 +30,8 @@ export class ReviewsService {
    * إنشاء تقييم منتج جديد
    */
   async createProductReview(dto: CreateProductReviewDto, tenantId?: string) {
+    const tenant = tenantId || "unassigned";
+
     // Verify the buyer profile exists
     const buyerProfile = await this.prisma.buyerProfile.findUnique({
       where: { id: dto.buyerId },
@@ -42,6 +44,7 @@ export class ReviewsService {
     // Check if buyer has already reviewed this product for this order
     const existingReview = await this.prisma.productReview.findFirst({
       where: {
+        tenantId: tenant,
         productId: dto.productId,
         buyerId: dto.buyerId,
         orderId: dto.orderId,
@@ -75,6 +78,7 @@ export class ReviewsService {
     // Create the review
     const review = await this.prisma.productReview.create({
       data: {
+        tenantId: tenant,
         productId: dto.productId,
         buyerId: dto.buyerId,
         orderId: dto.orderId,

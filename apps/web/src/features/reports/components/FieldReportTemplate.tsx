@@ -64,7 +64,7 @@ export const FieldReportTemplate: React.FC<FieldReportTemplateProps> = ({
     if (language === "en") return <span>{en}</span>;
     return (
       <div className="space-y-1">
-        <div className="text-right" dir="rtl">
+        <div className="text-right">
           {ar}
         </div>
         <div className="text-left" dir="ltr">
@@ -95,7 +95,7 @@ export const FieldReportTemplate: React.FC<FieldReportTemplateProps> = ({
               <h1 className="text-3xl font-bold text-gray-900">
                 {showBoth ? (
                   <>
-                    <div className="text-right" dir="rtl">
+                    <div className="text-right">
                       {titleAr || "تقرير أداء الحقل"}
                     </div>
                     <div className="text-xl text-left mt-1" dir="ltr">
@@ -123,7 +123,7 @@ export const FieldReportTemplate: React.FC<FieldReportTemplateProps> = ({
           <h2 className="text-2xl font-bold text-green-900">
             {showBoth ? (
               <>
-                <div className="text-right" dir="rtl">
+                <div className="text-right">
                   {data.field.nameAr}
                 </div>
                 <div className="text-lg mt-1" dir="ltr">
@@ -496,7 +496,7 @@ const Section: React.FC<SectionProps> = ({
       <h3 className="text-xl font-bold text-green-600 mb-4 pb-2 border-b-2 border-gray-200">
         {language === "both" && titleAr ? (
           <>
-            <div className="text-right" dir="rtl">
+            <div className="text-right">
               {titleAr}
             </div>
             <div className="text-lg text-left mt-1" dir="ltr">
@@ -538,7 +538,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
             label.en
           ) : (
             <>
-              <div className="text-right" dir="rtl">
+              <div className="text-right">
                 {label.ar}
               </div>
               <div className="text-xs" dir="ltr">
@@ -555,7 +555,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
           value.en
         ) : (
           <>
-            <div className="text-right" dir="rtl">
+            <div className="text-right">
               {value.ar}
             </div>
             <div className="text-sm" dir="ltr">
@@ -601,7 +601,7 @@ const HealthZoneCard: React.FC<HealthZoneCardProps> = ({
             label.en
           ) : (
             <>
-              <div dir="rtl">{label.ar}</div>
+              <div>{label.ar}</div>
               <div className="text-xs" dir="ltr">
                 {label.en}
               </div>

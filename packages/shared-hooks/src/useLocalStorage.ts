@@ -3,7 +3,7 @@
 // خطاف التخزين المحلي
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 export function useLocalStorage<T>(
   key: string,
@@ -26,6 +26,13 @@ export function useLocalStorage<T>(
 
   const [storedValue, setStoredValue] = useState<T>(readValue);
 
+  // Keep a ref to the latest value so we can compute functional updates
+  // without relying on the state updater (which can run twice in StrictMode)
+  const valueRef = useRef(storedValue);
+  useEffect(() => {
+    valueRef.current = storedValue;
+  }, [storedValue]);
+
   // Set value
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
@@ -35,11 +42,14 @@ export function useLocalStorage<T>(
       }
 
       try {
-        const newValue = value instanceof Function ? value(storedValue) : value;
-        window.localStorage.setItem(key, JSON.stringify(newValue));
+        // Compute new value from ref (safe from StrictMode double-invocation)
+        const newValue = value instanceof Function ? value(valueRef.current) : value;
+
+        // Update state
         setStoredValue(newValue);
 
-        // Dispatch storage event for other tabs
+        // Side effects: persist to localStorage and notify other tabs
+        window.localStorage.setItem(key, JSON.stringify(newValue));
         window.dispatchEvent(
           new StorageEvent("storage", {
             key,
@@ -50,7 +60,7 @@ export function useLocalStorage<T>(
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue],
+    [key],
   );
 
   // Remove value

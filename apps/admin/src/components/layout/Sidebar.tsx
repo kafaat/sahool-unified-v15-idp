@@ -149,6 +149,7 @@ export default React.memo(function Sidebar() {
     <>
       {/* Mobile menu button */}
       <button
+        type="button"
         onClick={() => setIsMobileMenuOpen(true)}
         className="fixed top-4 right-4 z-40 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 lg:hidden"
         aria-label="فتح القائمة"
@@ -376,6 +377,7 @@ export default React.memo(function Sidebar() {
           {/* Precision Agriculture Section */}
           <div className="pt-2">
             <button
+              type="button"
               onClick={() => setPrecisionExpanded(!precisionExpanded)}
               aria-expanded={precisionExpanded}
               aria-controls="precision-agriculture-menu"
@@ -441,6 +443,7 @@ export default React.memo(function Sidebar() {
           {/* Analytics Section */}
           <div className="pt-2">
             <button
+              type="button"
               onClick={() => setAnalyticsExpanded(!analyticsExpanded)}
               aria-expanded={analyticsExpanded}
               aria-controls="analytics-menu"
@@ -522,8 +525,10 @@ export default React.memo(function Sidebar() {
             </div>
           </div>
           <button
+            type="button"
             onClick={logout}
             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            aria-label="تسجيل الخروج"
           >
             <LogOut className="w-4 h-4" />
             تسجيل الخروج

@@ -48,6 +48,7 @@ export function LocaleSwitcher() {
             const isActive = locale === currentLocale;
             return (
               <button
+                type="button"
                 key={locale}
                 onClick={() => handleLocaleChange(locale)}
                 disabled={isPending || isActive}

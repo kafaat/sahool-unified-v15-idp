@@ -483,7 +483,8 @@ class EventSubscriber:
                     del self._handlers[subject]
                     logger.info(f"✅ Unsubscribed from {subject}")
                     return True
-                except Exception:
+                except Exception as unsub_err:
+                    logger.warning(f"Failed to unsubscribe from {subject}: {unsub_err}")
                     continue
 
             return False

@@ -730,7 +730,6 @@ export default function EquipmentPage() {
                   onChange={(e) => setFormNameAr(e.target.value)}
                   placeholder="مثال: جرار جون ديري 5075E"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
-                  dir="rtl"
                 />
               </div>
 

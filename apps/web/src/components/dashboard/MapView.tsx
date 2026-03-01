@@ -59,7 +59,7 @@ const PopupContent: React.FC<PopupData> = ({
   };
 
   return (
-    <div className="p-2 text-right" dir="rtl">
+    <div className="p-2 text-right">
       <h4 className="font-bold text-sm">{name || "حقل"}</h4>
       <p className="text-xs text-gray-600">المحصول: {crop || "-"}</p>
       <p className="text-xs text-gray-600">المساحة: {area || "0"} هكتار</p>

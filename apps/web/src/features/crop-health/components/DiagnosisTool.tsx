@@ -148,8 +148,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
   return (
     <div
       className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-      dir="rtl"
-    >
+         >
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Camera className="w-6 h-6 text-green-500" />

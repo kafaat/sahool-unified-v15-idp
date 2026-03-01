@@ -411,3 +411,391 @@ def track_external_call(service_name: str):
         return wrapper
 
     return decorator
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Connection Pool Metrics | مقاييس مجمع اتصالات قاعدة البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class DatabasePoolMetrics:
+    """
+    Track database connection pool metrics for asyncpg pools.
+    تتبع مقاييس مجمع اتصالات قاعدة البيانات لمجمعات asyncpg.
+
+    Captures active connections, idle connections, total pool size,
+    and waiting acquires to identify pool exhaustion and connection leaks.
+
+    Usage:
+        from shared.monitoring.metrics import DatabasePoolMetrics
+
+        db_pool_metrics = DatabasePoolMetrics(service_name="field-management-service")
+
+        # In a periodic task or health check:
+        db_pool_metrics.record_pool_stats(app.state.db_pool)
+
+        # Or use the snapshot helper:
+        snapshot = db_pool_metrics.snapshot(app.state.db_pool)
+        # snapshot = {"active": 5, "idle": 3, "total": 10, "min": 2, "max": 10, "waiting": 0}
+    """
+
+    def __init__(self, service_name: str = "sahool"):
+        self._service_name = service_name
+        registry = get_registry(service_name)
+
+        self._pool_active = registry.gauge(
+            "db_pool_active_connections",
+            "Number of currently acquired (in-use) database connections",
+            {"service": service_name},
+        )
+        self._pool_idle = registry.gauge(
+            "db_pool_idle_connections",
+            "Number of idle (available) database connections in the pool",
+            {"service": service_name},
+        )
+        self._pool_size = registry.gauge(
+            "db_pool_total_size",
+            "Total number of connections in the pool (active + idle)",
+            {"service": service_name},
+        )
+        self._pool_min = registry.gauge(
+            "db_pool_min_size",
+            "Configured minimum pool size",
+            {"service": service_name},
+        )
+        self._pool_max = registry.gauge(
+            "db_pool_max_size",
+            "Configured maximum pool size",
+            {"service": service_name},
+        )
+        self._pool_waiting = registry.gauge(
+            "db_pool_waiting_acquires",
+            "Number of coroutines waiting to acquire a connection",
+            {"service": service_name},
+        )
+
+    def record_pool_stats(self, pool) -> None:
+        """
+        Record current pool statistics from an asyncpg Pool instance.
+        تسجيل إحصائيات المجمع الحالية من مثيل asyncpg Pool.
+
+        Args:
+            pool: An asyncpg.Pool instance (or any object with get_size(),
+                  get_idle_size(), get_min_size(), get_max_size() methods).
+                  Safely no-ops if pool is None or methods are unavailable.
+        """
+        if pool is None:
+            return
+
+        try:
+            total = pool.get_size() if hasattr(pool, "get_size") else 0
+            idle = pool.get_idle_size() if hasattr(pool, "get_idle_size") else 0
+            active = total - idle
+            min_size = pool.get_min_size() if hasattr(pool, "get_min_size") else 0
+            max_size = pool.get_max_size() if hasattr(pool, "get_max_size") else 0
+
+            self._pool_active.set(active)
+            self._pool_idle.set(idle)
+            self._pool_size.set(total)
+            self._pool_min.set(min_size)
+            self._pool_max.set(max_size)
+
+            # Some asyncpg versions expose _queue with waiting coroutines
+            waiting = 0
+            if hasattr(pool, "_queue") and hasattr(pool._queue, "qsize"):
+                # _queue.qsize() gives waiting coroutines count on some versions
+                waiting = max(0, pool._queue.qsize())
+            self._pool_waiting.set(waiting)
+
+            logger.debug(
+                "db_pool_stats_recorded",
+                extra={
+                    "active": active,
+                    "idle": idle,
+                    "total": total,
+                    "min": min_size,
+                    "max": max_size,
+                    "waiting": waiting,
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Failed to record DB pool stats: {e}")
+
+    def snapshot(self, pool) -> dict:
+        """
+        Return a dict snapshot of pool stats without updating metrics.
+        Useful for health check endpoints and diagnostics.
+
+        Args:
+            pool: An asyncpg.Pool instance.
+
+        Returns:
+            dict with pool statistics, or empty dict if pool is unavailable.
+        """
+        if pool is None:
+            return {}
+
+        try:
+            total = pool.get_size() if hasattr(pool, "get_size") else 0
+            idle = pool.get_idle_size() if hasattr(pool, "get_idle_size") else 0
+            return {
+                "active": total - idle,
+                "idle": idle,
+                "total": total,
+                "min": pool.get_min_size() if hasattr(pool, "get_min_size") else 0,
+                "max": pool.get_max_size() if hasattr(pool, "get_max_size") else 0,
+            }
+        except Exception:
+            return {}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NATS Event Metrics | مقاييس أحداث NATS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class NATSEventMetrics:
+    """
+    Track NATS event publishing and consumption metrics.
+    تتبع مقاييس نشر واستهلاك أحداث NATS.
+
+    Provides counters for events published, consumed, and errors,
+    plus a histogram for event processing latency. Metrics are labeled
+    by subject so operators can identify hot topics and error-prone handlers.
+
+    Usage:
+        from shared.monitoring.metrics import NATSEventMetrics
+
+        nats_metrics = NATSEventMetrics(service_name="advisory-service")
+
+        # When publishing:
+        nats_metrics.record_published("sahool.field.created")
+
+        # When consuming:
+        start = time.time()
+        try:
+            await handle_event(event)
+            nats_metrics.record_consumed("sahool.field.created", time.time() - start)
+        except Exception as e:
+            nats_metrics.record_error("sahool.field.created", type(e).__name__)
+    """
+
+    def __init__(self, service_name: str = "sahool"):
+        self._service_name = service_name
+        registry = get_registry(service_name)
+
+        self._events_published = registry.counter(
+            "nats_events_published_total",
+            "Total NATS events published",
+            {"service": service_name},
+        )
+        self._events_consumed = registry.counter(
+            "nats_events_consumed_total",
+            "Total NATS events consumed and processed successfully",
+            {"service": service_name},
+        )
+        self._event_errors = registry.counter(
+            "nats_event_errors_total",
+            "Total NATS event processing errors",
+            {"service": service_name},
+        )
+        self._event_processing_latency = registry.histogram(
+            "nats_event_processing_duration_seconds",
+            "NATS event handler processing time in seconds",
+            labels={"service": service_name},
+        )
+        self._events_retried = registry.counter(
+            "nats_events_retried_total",
+            "Total NATS events that required retry",
+            {"service": service_name},
+        )
+        self._events_dlq = registry.counter(
+            "nats_events_dlq_total",
+            "Total NATS events sent to Dead Letter Queue",
+            {"service": service_name},
+        )
+
+        # Tracking dicts for per-subject breakdowns (logged, not in registry labels
+        # to avoid high-cardinality label explosion in Prometheus).
+        self._subject_counts: dict[str, int] = {}
+
+    def record_published(self, subject: str) -> None:
+        """Record a successfully published event."""
+        self._events_published.inc()
+        self._subject_counts[subject] = self._subject_counts.get(subject, 0) + 1
+        logger.debug("nats_event_published", extra={"subject": subject})
+
+    def record_consumed(self, subject: str, duration_seconds: float = 0.0) -> None:
+        """Record a successfully consumed and processed event."""
+        self._events_consumed.inc()
+        if duration_seconds > 0:
+            self._event_processing_latency.observe(duration_seconds)
+        logger.debug(
+            "nats_event_consumed",
+            extra={"subject": subject, "duration_seconds": duration_seconds},
+        )
+
+    def record_error(self, subject: str, error_type: str = "unknown") -> None:
+        """Record an event processing error."""
+        self._event_errors.inc()
+        logger.warning(
+            "nats_event_error",
+            extra={"subject": subject, "error_type": error_type},
+        )
+
+    def record_retry(self, subject: str) -> None:
+        """Record that an event required retry."""
+        self._events_retried.inc()
+        logger.debug("nats_event_retried", extra={"subject": subject})
+
+    def record_dlq(self, subject: str) -> None:
+        """Record that an event was sent to the Dead Letter Queue."""
+        self._events_dlq.inc()
+        logger.warning("nats_event_dlq", extra={"subject": subject})
+
+    @property
+    def stats(self) -> dict:
+        """Return a summary of NATS event metrics for health endpoints."""
+        return {
+            "events_published": self._events_published.value,
+            "events_consumed": self._events_consumed.value,
+            "event_errors": self._event_errors.value,
+            "events_retried": self._events_retried.value,
+            "events_dlq": self._events_dlq.value,
+            "processing_latency_count": self._event_processing_latency.count,
+            "processing_latency_sum": self._event_processing_latency.sum,
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance Analytics Endpoint | نقطة تحليلات الأداء
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class PerformanceMetrics:
+    """
+    Aggregated performance metrics for the /api/analytics/performance endpoint.
+    مقاييس الأداء المجمعة لنقطة /api/analytics/performance.
+
+    Collects request latency percentiles, error rates, throughput,
+    and infrastructure metrics (DB pool, NATS) into a single JSON response.
+
+    Usage:
+        from shared.monitoring.metrics import PerformanceMetrics
+
+        perf = PerformanceMetrics(service_name="advisory-service")
+
+        # Register the endpoint on your FastAPI app:
+        perf.register_endpoint(app)
+
+        # Or get the data programmatically:
+        data = perf.collect(db_pool=app.state.db_pool, nats_client=app.state.nc)
+    """
+
+    def __init__(self, service_name: str = "sahool"):
+        self._service_name = service_name
+        self._start_time = time.time()
+        self._db_pool_metrics = DatabasePoolMetrics(service_name)
+        self._nats_metrics = NATSEventMetrics(service_name)
+
+    @property
+    def db_pool(self) -> DatabasePoolMetrics:
+        """Access the database pool metrics instance."""
+        return self._db_pool_metrics
+
+    @property
+    def nats(self) -> NATSEventMetrics:
+        """Access the NATS event metrics instance."""
+        return self._nats_metrics
+
+    def collect(self, db_pool=None, nats_client=None) -> dict:
+        """
+        Collect a performance snapshot.
+        جمع لقطة أداء.
+
+        Args:
+            db_pool: asyncpg.Pool instance (optional)
+            nats_client: NATS client instance (optional)
+
+        Returns:
+            dict with performance data suitable for JSON serialization.
+        """
+        registry = get_registry(self._service_name)
+        uptime = time.time() - self._start_time
+
+        result = {
+            "service": self._service_name,
+            "uptime_seconds": round(uptime, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "http": {
+                "total_requests": 0,
+                "total_errors": 0,
+                "active_requests": 0,
+            },
+            "database": {},
+            "nats": {},
+        }
+
+        # Gather HTTP metrics from the registry
+        for key, metric in registry._counters.items():
+            if "http_requests_total" in metric["name"]:
+                result["http"]["total_requests"] = metric["value"]
+            elif "http_errors_total" in metric["name"]:
+                result["http"]["total_errors"] = metric["value"]
+
+        for key, metric in registry._gauges.items():
+            if "http_requests_active" in metric["name"]:
+                result["http"]["active_requests"] = metric["value"]
+
+        # Gather histogram stats
+        for key, metric in registry._histograms.items():
+            if "http_request_duration_seconds" in metric["name"]:
+                count = metric["count"]
+                total = metric["sum"]
+                result["http"]["request_count"] = count
+                result["http"]["avg_latency_seconds"] = round(total / count, 4) if count > 0 else 0
+
+        # Database pool snapshot
+        if db_pool is not None:
+            self._db_pool_metrics.record_pool_stats(db_pool)
+            result["database"] = self._db_pool_metrics.snapshot(db_pool)
+
+        # NATS stats
+        result["nats"] = self._nats_metrics.stats
+
+        # NATS client connection info
+        if nats_client is not None:
+            result["nats"]["connected"] = getattr(nats_client, "is_connected", False)
+
+        return result
+
+    def register_endpoint(self, app) -> None:
+        """
+        Register GET /api/analytics/performance on a FastAPI app.
+        تسجيل نقطة GET /api/analytics/performance على تطبيق FastAPI.
+
+        Args:
+            app: FastAPI application instance.
+        """
+        if not FASTAPI_AVAILABLE:
+            logger.warning(
+                "FastAPI not available; cannot register /api/analytics/performance endpoint"
+            )
+            return
+
+        @app.get(
+            "/api/analytics/performance",
+            tags=["Analytics", "التحليلات"],
+            summary="Performance analytics | تحليلات الأداء",
+        )
+        async def performance_analytics():
+            """
+            Returns aggregated performance metrics including HTTP request stats,
+            database connection pool status, and NATS event throughput.
+
+            يرجع مقاييس الأداء المجمعة بما في ذلك إحصائيات طلبات HTTP
+            وحالة مجمع اتصالات قاعدة البيانات وإنتاجية أحداث NATS.
+            """
+            db_pool = getattr(getattr(app, "state", None), "db_pool", None)
+            nats_client = getattr(getattr(app, "state", None), "nc", None)
+            return self.collect(db_pool=db_pool, nats_client=nats_client)

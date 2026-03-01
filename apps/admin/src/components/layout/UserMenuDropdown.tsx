@@ -57,6 +57,7 @@ export default function UserMenuDropdown({
 
       <div className="border-t border-gray-100 dark:border-gray-700 py-1">
         <button
+          type="button"
           onClick={onLogout}
           role="menuitem"
           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

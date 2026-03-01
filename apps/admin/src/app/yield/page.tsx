@@ -117,7 +117,7 @@ export default function YieldPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" dir="rtl">
+    <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">

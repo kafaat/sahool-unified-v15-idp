@@ -147,6 +147,7 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
       </div>
       <React.Suspense fallback={<div className="w-4 h-4" />}>
         <button
+          type="button"
           onClick={() => onClose(toast.id)}
           className="flex-shrink-0 text-current opacity-50 hover:opacity-100 transition-opacity"
           aria-label="Close notification"

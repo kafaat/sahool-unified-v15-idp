@@ -153,8 +153,10 @@ export default function Header({
                 />
                 {searchQuery && (
                   <button
+                    type="button"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                    aria-label="مسح البحث"
                   >
                     <X className="w-3 h-3 text-gray-400" />
                   </button>
@@ -163,6 +165,7 @@ export default function Header({
 
               {/* Mobile search button */}
               <button
+                type="button"
                 onClick={() => setShowSearchOverlay(true)}
                 className="md:hidden p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="بحث"
@@ -178,6 +181,7 @@ export default function Header({
           {/* Notifications */}
           <div ref={notificationsRef} className="relative">
             <button
+              type="button"
               onClick={() => setShowNotifications(!showNotifications)}
               aria-label="التنبيهات"
               aria-expanded={showNotifications}
@@ -206,6 +210,7 @@ export default function Header({
           {/* User Menu */}
           <div ref={userMenuRef} className="relative">
             <button
+              type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
               aria-expanded={showUserMenu}
               aria-haspopup="true"

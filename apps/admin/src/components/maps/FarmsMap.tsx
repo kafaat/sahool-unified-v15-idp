@@ -238,7 +238,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
                 }}
               >
                 <Popup>
-                  <div className="text-right font-arabic" dir="rtl">
+                  <div className="text-right font-arabic">
                     <h3 className="font-bold text-lg mb-2">
                       {farm.nameAr || farm.name || "مزرعة"}
                     </h3>
@@ -299,7 +299,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
               }}
             >
               <Popup>
-                <div className="text-right font-arabic" dir="rtl">
+                <div className="text-right font-arabic">
                   <h3 className="font-bold text-lg mb-2">
                     {farm.nameAr || farm.name || "مزرعة"}
                   </h3>

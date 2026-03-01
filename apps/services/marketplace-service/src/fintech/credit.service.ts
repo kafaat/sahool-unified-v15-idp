@@ -344,25 +344,25 @@ export class CreditService {
     }
 
     const totalLoans = wallet.loans.length;
-    const paidLoans = wallet.loans.filter((l) => l.status === "PAID").length;
+    const paidLoans = wallet.loans.filter((l: any) => l.status === "PAID").length;
     const loanRepaymentRate =
       totalLoans > 0 ? (paidLoans / totalLoans) * 100 : 0;
 
     const completedOrders = wallet.creditEvents.filter(
-      (e) => e.eventType === "ORDER_COMPLETED",
+      (e: any) => e.eventType === "ORDER_COMPLETED",
     ).length;
 
     const hasVerificationUpgrade = wallet.creditEvents.some(
-      (e) => e.eventType === "VERIFICATION_UPGRADE",
+      (e: any) => e.eventType === "VERIFICATION_UPGRADE",
     );
     const hasFarmVerification = wallet.creditEvents.some(
-      (e) => e.eventType === "FARM_VERIFIED",
+      (e: any) => e.eventType === "FARM_VERIFIED",
     );
     const hasLandVerification = wallet.creditEvents.some(
-      (e) => e.eventType === "LAND_VERIFIED",
+      (e: any) => e.eventType === "LAND_VERIFIED",
     );
     const hasCooperative = wallet.creditEvents.some(
-      (e) => e.eventType === "COOPERATIVE_JOINED",
+      (e: any) => e.eventType === "COOPERATIVE_JOINED",
     );
 
     let verificationLevel: "basic" | "verified" | "premium" = "basic";

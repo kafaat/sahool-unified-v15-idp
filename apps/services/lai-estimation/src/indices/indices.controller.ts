@@ -11,14 +11,47 @@ import {
   ApiQuery,
   ApiBody,
 } from "@nestjs/swagger";
+import { IsNumber, IsOptional, Min, Max } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { VegetationIndicesService, IndexInfo } from "./indices.service";
 
 class SpectralBandsInput {
+  @ApiProperty({ description: "Green band reflectance (0-1)", example: 0.08 })
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   green: number;
+
+  @ApiProperty({ description: "Red band reflectance (0-1)", example: 0.05 })
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   red: number;
+
+  @ApiProperty({ description: "Red Edge band reflectance (0-1)", example: 0.15 })
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   redEdge: number;
+
+  @ApiProperty({ description: "NIR band reflectance (0-1)", example: 0.45 })
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   nir: number;
+
+  @ApiPropertyOptional({ description: "Blue band reflectance (0-1)", example: 0.03 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   blue?: number;
+
+  @ApiPropertyOptional({ description: "SWIR band reflectance (0-1)", example: 0.2 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   swir?: number;
 }
 

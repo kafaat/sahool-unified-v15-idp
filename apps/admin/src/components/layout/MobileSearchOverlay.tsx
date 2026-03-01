@@ -31,6 +31,7 @@ export default function MobileSearchOverlay({
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="بحث..."
               autoFocus
+              aria-label="بحث في لوحة التحكم"
               className="w-full pl-10 pr-4 py-3 text-base border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:border-transparent bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
             <Search
@@ -39,8 +40,10 @@ export default function MobileSearchOverlay({
             />
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="إغلاق البحث"
           >
             <X className="w-6 h-6" />
           </button>

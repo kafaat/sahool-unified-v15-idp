@@ -1,19 +1,15 @@
-"use client";
+import type { Metadata } from "next";
+import DashboardShell from "@/components/layout/DashboardShell";
 
-import Sidebar from "@/components/layout/Sidebar";
-import { AuthGuard } from "@/components/auth/AuthGuard";
+export const metadata: Metadata = {
+  title: "SAHOOL - Disease Diagnostics",
+  description: "Crop disease detection and diagnosis management for agricultural fields",
+};
 
 export default function DiseasesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <AuthGuard requiredRole="viewer">
-      <div className="min-h-screen bg-gray-50">
-        <Sidebar />
-        <main className="mr-64 min-h-screen">{children}</main>
-      </div>
-    </AuthGuard>
-  );
+  return <DashboardShell requiredRole="viewer">{children}</DashboardShell>;
 }

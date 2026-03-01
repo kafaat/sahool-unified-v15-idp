@@ -169,8 +169,7 @@ export const TaskCard: React.FC<TaskCardProps> = React.memo(
         onClick={onClick}
         onKeyDown={handleKeyDown}
         draggable={draggable}
-        dir="rtl"
-        aria-label={ariaLabel}
+               aria-label={ariaLabel}
         aria-live="polite"
         className={`
         rounded-lg border-2 p-4 transition-all duration-200

@@ -43,8 +43,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
     return (
       <div
         className="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
-        dir="rtl"
-      >
+             >
         <div className="flex flex-col items-center justify-center">
           <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
           <p className="text-gray-600 font-medium">جاري تحليل الصور...</p>
@@ -104,7 +103,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-start justify-between">

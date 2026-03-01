@@ -336,7 +336,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
                 permanent={showLabels && isSelected}
                 className="custom-tooltip"
               >
-                <div className="text-right font-arabic" dir="rtl">
+                <div className="text-right font-arabic">
                   <div className="font-bold text-sm mb-1">{zone.name}</div>
                   <div className="text-xs space-y-0.5">
                     <div>
@@ -358,7 +358,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
 
             {/* Popup - النافذة المنبثقة */}
             <Popup>
-              <div className="text-right font-arabic min-w-[200px]" dir="rtl">
+              <div className="text-right font-arabic min-w-[200px]">
                 <h3 className="font-bold text-base mb-3 text-gray-900 border-b border-gray-200 pb-2">
                   {zone.name}
                 </h3>

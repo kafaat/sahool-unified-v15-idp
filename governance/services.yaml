@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [iot-service, iot-gateway, weather-service, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
+      services: [iot-service, iot-gateway, weather-service, virtual-sensors, ground-vision-service, edge-orchestrator-service, astronomical-calendar, iot-sensor-hub]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service]
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction-service, ai-advisor, leveling-optimizer-service, drone-service]  # yield-prediction deprecated in favor of yield-prediction-service
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-prediction-service, ai-advisor, leveling-optimizer-service, drone-service, llm-orchestrator-service, fertigation-engine, irrigation-cycle-engine]  # yield-engine deprecated in favor of yield-prediction-service
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"

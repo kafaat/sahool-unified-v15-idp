@@ -60,6 +60,7 @@ export const QuickActions = React.memo<QuickActionsProps>(
         <div className="grid grid-cols-2 gap-3">
           {actions.map((action) => (
             <button
+              type="button"
               key={action.id}
               onClick={action.onClick}
               aria-label={action.label}

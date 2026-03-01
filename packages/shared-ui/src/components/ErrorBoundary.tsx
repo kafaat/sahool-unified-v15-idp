@@ -143,12 +143,14 @@ export class ErrorBoundary extends Component<
             {showRetry && (
               <div className="flex gap-3 justify-center">
                 <button
+                  type="button"
                   onClick={this.handleRetry}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   إعادة المحاولة
                 </button>
                 <button
+                  type="button"
                   onClick={() => window.location.reload()}
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >

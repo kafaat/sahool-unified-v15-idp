@@ -144,6 +144,7 @@ model DisasterAlert {
   @@index([alertType], name: "idx_alert_type")
   @@index([isActive], name: "idx_alert_active")
   @@index([severity], name: "idx_alert_severity")
+  @@index([reportId], name: "idx_alert_report")
   @@map("disaster_alerts")
 }
 
@@ -189,7 +190,7 @@ model FieldAssessment {
   // Timestamps
   assessedAt DateTime @default(now()) @map("assessed_at") @db.Timestamptz
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@index([fieldId], name: "idx_assessment_field")
@@ -231,6 +232,7 @@ model AlertSubscription {
   // Indexes
   @@unique([userId, governorate], name: "idx_subscription_user_gov")
   @@index([tenantId], name: "idx_subscription_tenant")
+  @@index([alertId], name: "idx_subscription_alert")
   @@map("alert_subscriptions")
 }
 

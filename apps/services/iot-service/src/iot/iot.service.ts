@@ -17,7 +17,23 @@ import {
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
-import { SensorType as PrismaSensorType } from "@prisma/client";
+// PrismaSensorType is a string alias; the Prisma client enum is generated at build time.
+// We define constant values here to avoid a hard dependency on @prisma/client codegen.
+type PrismaSensorType = string;
+const PrismaSensorTypeValues = {
+  SOIL_MOISTURE: "SOIL_MOISTURE" as PrismaSensorType,
+  SOIL_TEMPERATURE: "SOIL_TEMPERATURE" as PrismaSensorType,
+  AIR_TEMPERATURE: "AIR_TEMPERATURE" as PrismaSensorType,
+  AIR_HUMIDITY: "AIR_HUMIDITY" as PrismaSensorType,
+  LIGHT_INTENSITY: "LIGHT_INTENSITY" as PrismaSensorType,
+  WATER_LEVEL: "WATER_LEVEL" as PrismaSensorType,
+  WATER_FLOW: "WATER_FLOW" as PrismaSensorType,
+  PH_LEVEL: "PH_LEVEL" as PrismaSensorType,
+  EC_LEVEL: "EC_LEVEL" as PrismaSensorType,
+  WIND_SPEED: "WIND_SPEED" as PrismaSensorType,
+  RAINFALL: "RAINFALL" as PrismaSensorType,
+  CUSTOM: "CUSTOM" as PrismaSensorType,
+} as const;
 import * as mqtt from "mqtt";
 import { v4 as uuidv4 } from "uuid";
 import { publishNotificationSend } from "@sahool/shared-events";
@@ -147,7 +163,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         this.redisConnected = true;
         this.logger.log("Connected to Redis");
       } catch (error) {
-        this.logger.warn(`Failed to connect to Redis: ${error.message}`);
+        this.logger.warn(`Failed to connect to Redis: ${error instanceof Error ? error.message : String(error)}`);
         if (this.isTestEnvironment) {
           this.logger.warn(
             "Running in test environment - continuing without Redis",
@@ -169,7 +185,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       if (this.isTestEnvironment) {
         this.logger.warn(
-          `MQTT connection failed in test environment: ${error.message}`,
+          `MQTT connection failed in test environment: ${error instanceof Error ? error.message : String(error)}`,
         );
       } else {
         throw error;
@@ -512,7 +528,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -529,7 +545,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching field sensor data: ${error.message}`);
+      this.logger.error(`Error fetching field sensor data: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return readings;
@@ -550,7 +566,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       const data = await this.redis.get(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      this.logger.error(`Error fetching sensor reading: ${error.message}`);
+      this.logger.error(`Error fetching sensor reading: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -569,7 +585,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -587,7 +603,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching actuator states: ${error.message}`);
+      this.logger.error(`Error fetching actuator states: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return states;
@@ -604,7 +620,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -621,7 +637,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching connected devices: ${error.message}`);
+      this.logger.error(`Error fetching connected devices: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return devices;
@@ -647,7 +663,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         else error++;
       });
     } catch (err) {
-      this.logger.error(`Error calculating device stats: ${err.message}`);
+      this.logger.error(`Error calculating device stats: ${err instanceof Error ? err.message : String(err)}`);
     }
 
     return { online, offline, error };
@@ -672,7 +688,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         JSON.stringify(reading),
       );
     } catch (error) {
-      this.logger.error(`Failed to cache sensor reading: ${error.message}`);
+      this.logger.error(`Failed to cache sensor reading: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -689,7 +705,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         JSON.stringify(status),
       );
     } catch (error) {
-      this.logger.error(`Failed to cache device status: ${error.message}`);
+      this.logger.error(`Failed to cache device status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -701,7 +717,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.redis.setex(key, this.ACTUATOR_STATE_TTL, isOn.toString());
     } catch (error) {
-      this.logger.error(`Failed to cache actuator state: ${error.message}`);
+      this.logger.error(`Failed to cache actuator state: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -783,7 +799,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist sensor reading: ${error.message}`);
+      this.logger.error(`Failed to persist sensor reading: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -817,7 +833,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist device status: ${error.message}`);
+      this.logger.error(`Failed to persist device status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -849,7 +865,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist alert: ${error.message}`);
+      this.logger.error(`Failed to persist alert: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -885,7 +901,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to fetch historical readings: ${error.message}`);
+      this.logger.error(`Failed to fetch historical readings: ${error instanceof Error ? error.message : String(error)}`);
       return [];
     }
   }
@@ -895,19 +911,19 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   private mapSensorType(type: SensorType): PrismaSensorType {
     const mapping: Record<string, PrismaSensorType> = {
-      [SensorType.SOIL_MOISTURE]: PrismaSensorType.SOIL_MOISTURE,
-      [SensorType.SOIL_TEMPERATURE]: PrismaSensorType.SOIL_TEMPERATURE,
-      [SensorType.AIR_TEMPERATURE]: PrismaSensorType.AIR_TEMPERATURE,
-      [SensorType.AIR_HUMIDITY]: PrismaSensorType.AIR_HUMIDITY,
-      [SensorType.LIGHT_INTENSITY]: PrismaSensorType.LIGHT_INTENSITY,
-      [SensorType.WATER_LEVEL]: PrismaSensorType.WATER_LEVEL,
-      [SensorType.WATER_FLOW]: PrismaSensorType.WATER_FLOW,
-      [SensorType.PH_LEVEL]: PrismaSensorType.PH_LEVEL,
-      [SensorType.EC_LEVEL]: PrismaSensorType.EC_LEVEL,
-      [SensorType.WIND_SPEED]: PrismaSensorType.WIND_SPEED,
-      [SensorType.RAIN_GAUGE]: PrismaSensorType.RAINFALL,
+      [SensorType.SOIL_MOISTURE]: PrismaSensorTypeValues.SOIL_MOISTURE,
+      [SensorType.SOIL_TEMPERATURE]: PrismaSensorTypeValues.SOIL_TEMPERATURE,
+      [SensorType.AIR_TEMPERATURE]: PrismaSensorTypeValues.AIR_TEMPERATURE,
+      [SensorType.AIR_HUMIDITY]: PrismaSensorTypeValues.AIR_HUMIDITY,
+      [SensorType.LIGHT_INTENSITY]: PrismaSensorTypeValues.LIGHT_INTENSITY,
+      [SensorType.WATER_LEVEL]: PrismaSensorTypeValues.WATER_LEVEL,
+      [SensorType.WATER_FLOW]: PrismaSensorTypeValues.WATER_FLOW,
+      [SensorType.PH_LEVEL]: PrismaSensorTypeValues.PH_LEVEL,
+      [SensorType.EC_LEVEL]: PrismaSensorTypeValues.EC_LEVEL,
+      [SensorType.WIND_SPEED]: PrismaSensorTypeValues.WIND_SPEED,
+      [SensorType.RAIN_GAUGE]: PrismaSensorTypeValues.RAINFALL,
     };
-    return mapping[type] || PrismaSensorType.CUSTOM;
+    return mapping[type] || PrismaSensorTypeValues.CUSTOM;
   }
 
   // ==========================================================================

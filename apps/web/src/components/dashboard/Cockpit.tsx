@@ -71,7 +71,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header
         className="bg-white shadow-sm px-6 py-4 flex items-center justify-between"
@@ -96,6 +96,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
             <span className="text-gray-600">متصل</span>
           </div>
           <button
+            type="button"
             className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             aria-label="إضافة مهمة جديدة"
           >
@@ -117,6 +118,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
             <h3 className="font-bold text-gray-800">🗺️ خريطة الحقول</h3>
             <div className="flex gap-2" role="group" aria-label="خيارات عرض الخريطة">
               <button
+                type="button"
                 className="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-700"
                 aria-label="عرض الحقول على الخريطة"
                 aria-pressed="true"
@@ -124,6 +126,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
                 الحقول
               </button>
               <button
+                type="button"
                 className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
                 aria-label="عرض بيانات NDVI على الخريطة"
                 aria-pressed="false"
@@ -131,6 +134,7 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = "tenant_1" }) => {
                 NDVI
               </button>
               <button
+                type="button"
                 className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
                 aria-label="عرض المهام على الخريطة"
                 aria-pressed="false"

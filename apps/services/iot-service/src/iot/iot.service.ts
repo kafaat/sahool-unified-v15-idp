@@ -528,7 +528,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -585,7 +585,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -620,7 +620,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,

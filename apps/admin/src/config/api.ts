@@ -700,6 +700,23 @@ export const API_URLS = {
 export const DEFAULT_TIMEOUT = 30000;
 
 /**
+ * Operation-specific timeout tiers (in milliseconds)
+ * مهلات مخصصة حسب نوع العملية
+ */
+export const TIMEOUT_TIERS = {
+  /** Default API calls */
+  default: 30000,
+  /** File uploads (images, documents) */
+  upload: 120000,
+  /** AI analysis and recommendations */
+  analysis: 180000,
+  /** Report generation and exports */
+  report: 60000,
+  /** Health checks */
+  healthCheck: 5000,
+} as const;
+
+/**
  * Maximum retry attempts for failed requests
  */
 export const MAX_RETRY_ATTEMPTS = 3;
@@ -723,6 +740,7 @@ export const DEFAULT_HEADERS: Readonly<Record<string, string>> = {
  */
 export const API_CONFIG = {
   timeout: DEFAULT_TIMEOUT,
+  timeoutTiers: TIMEOUT_TIERS,
   maxRetryAttempts: MAX_RETRY_ATTEMPTS,
   retryDelay: RETRY_DELAY,
   headers: DEFAULT_HEADERS,
@@ -847,6 +865,7 @@ const apiConfig = {
   API_URLS,
   API_CONFIG,
   DEFAULT_TIMEOUT,
+  TIMEOUT_TIERS,
   MAX_RETRY_ATTEMPTS,
   RETRY_DELAY,
   DEFAULT_HEADERS,

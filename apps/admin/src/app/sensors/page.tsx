@@ -3,7 +3,7 @@
 // IoT Sensors Management Page - Dynamic with Full CRUD
 // صفحة إدارة المستشعرات - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
@@ -48,11 +48,7 @@ export default function SensorsPage() {
   const [readings, setReadings] = useState<SensorReading[]>([]);
   const [loadingReadings, setLoadingReadings] = useState(false);
 
-  useEffect(() => {
-    loadDevices();
-  }, [page, typeFilter, statusFilter, searchQuery]);
-
-  async function loadDevices() {
+  const loadDevices = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await iotService.getAll({
@@ -62,7 +58,7 @@ export default function SensorsPage() {
         type: typeFilter || undefined,
         status: statusFilter || undefined,
       });
-      
+
       setDevices(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
@@ -71,7 +67,11 @@ export default function SensorsPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [page, typeFilter, statusFilter, searchQuery]);
+
+  useEffect(() => {
+    loadDevices();
+  }, [loadDevices]);
 
   async function loadDeviceReadings(deviceId: string) {
     setLoadingReadings(true);

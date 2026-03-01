@@ -1422,8 +1422,8 @@ services:
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
-  # This service is being consolidated into chat-service (Port 8114)
+  # ⚠️ DEPRECATED: community_chat - Migrated to chat-service
+  # This service has been consolidated into chat-service (Port 8115)
   # Kept temporarily for backwards compatibility
   # User Service - Authentication & User Management
   # خدمة المستخدمين - المصادقة وإدارة المستخدمين

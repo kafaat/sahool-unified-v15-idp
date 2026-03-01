@@ -189,6 +189,7 @@ markers = [
     "english: Tests for English language support",
     "latency: Tests for latency measurement",
     "safety: Tests for safety checking",
+    "fixops: FixOps auto-fix engine tests",
 ]
 
 [tool.coverage.run]

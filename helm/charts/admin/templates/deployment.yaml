@@ -37,7 +37,11 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-        {{- include "admin.topologySpreadConstraints" $ | nindent 8 }}
+        {{- $selectorLabels := include "admin.selectorLabels" . | fromYaml }}
+        {{- $labelSelector := dict "matchLabels" $selectorLabels }}
+        {{- range .Values.topologySpreadConstraints }}
+        - {{- mergeOverwrite (deepCopy .) (dict "labelSelector" $labelSelector) | toYaml | nindent 10 }}
+        {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}

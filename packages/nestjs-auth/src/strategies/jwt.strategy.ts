@@ -147,9 +147,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw error;
       }
 
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const errStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
-        `JWT validation error for user ${userId}: ${error.message}`,
-        error.stack,
+        `JWT validation error for user ${userId}: ${errMsg}`,
+        errStack,
       );
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }

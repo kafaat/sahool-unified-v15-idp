@@ -74,13 +74,6 @@ index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
                   https://mirrors.cloud.tencent.com/pypi/simple
                   https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               mirrors.cloud.tencent.com
-               pypi.org
-               files.pythonhosted.org
-               download.pytorch.org
-
 [install]
 prefer-binary = true
 EOF
@@ -88,12 +81,9 @@ EOF
 # Upgrade pip, setuptools, wheel with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Copy constraints file
@@ -103,20 +93,16 @@ COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 # This layer is cached and reused across all AI services
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints-ai.txt \
     fastapi uvicorn[standard] pydantic pydantic-settings \
     httpx structlog prometheus-client python-dotenv nats-py redis || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c /tmp/constraints-ai.txt \
     fastapi uvicorn[standard] pydantic pydantic-settings \
     httpx structlog prometheus-client python-dotenv nats-py redis || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c /tmp/constraints-ai.txt \
     fastapi uvicorn[standard] pydantic pydantic-settings \
     httpx structlog prometheus-client python-dotenv nats-py redis

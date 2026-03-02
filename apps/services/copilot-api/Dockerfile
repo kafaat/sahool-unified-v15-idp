@@ -33,32 +33,22 @@ COPY apps/services/copilot-api/requirements.txt .
 # Install Python dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --upgrade pip setuptools wheel || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --upgrade pip setuptools wheel
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --extra-index-url https://download.pytorch.org/whl/cpu \
-    --trusted-host mirrors.aliyun.com \
-    --trusted-host download.pytorch.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --extra-index-url https://download.pytorch.org/whl/cpu \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    --trusted-host download.pytorch.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --extra-index-url https://download.pytorch.org/whl/cpu \
-    --trusted-host mirrors.cloud.tencent.com \
-    --trusted-host download.pytorch.org \
     -c constraints.txt -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -99,12 +89,9 @@ FROM dependencies AS development
 # Install development dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     pytest pytest-asyncio pytest-cov mypy || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     pytest pytest-asyncio pytest-cov mypy
 
 # Copy application code

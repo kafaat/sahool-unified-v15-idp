@@ -1,0 +1,247 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Trusted Agricultural Knowledge Sources
+# مصادر المعرفة الزراعية الموثوقة
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Credibility Levels (مستويات المصداقية):
+#   5 = International organizations (منظمات دولية)
+#   4 = Government/University (حكومات/جامعات)
+#   3 = Local research centers (مراكز بحثية محلية)
+#   2 = Specialized websites (مواقع متخصصة)
+#   1 = Community/blogs (مجتمعات/مدونات)
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+sources:
+  # ─── Level 5: International Organizations (منظمات دولية) ─────────────────
+
+  - name: "FAO - Food and Agriculture Organization"
+    name_ar: "منظمة الأغذية والزراعة (الفاو)"
+    url_patterns:
+      - "fao.org"
+      - "agris.fao.org"
+      - "aims.fao.org"
+    credibility: 5
+    domains: [crops, soil, irrigation, fertilizer, pest_disease, weather, general]
+    languages: [en, ar, fr, es]
+    region_coverage: [global]
+    notes: "Primary reference for AGROVOC concepts and global best practices"
+
+  - name: "ICARDA - International Center for Agricultural Research in the Dry Areas"
+    name_ar: "المركز الدولي للبحوث الزراعية في المناطق الجافة (إيكاردا)"
+    url_patterns:
+      - "icarda.org"
+    credibility: 5
+    domains: [crops, irrigation, soil, general]
+    languages: [en, ar]
+    region_coverage: [mena, central_asia, global]
+    notes: "Key reference for dryland agriculture, wheat, barley, lentils"
+
+  - name: "CGIAR - Consultative Group on International Agricultural Research"
+    name_ar: "المجموعة الاستشارية للبحوث الزراعية الدولية"
+    url_patterns:
+      - "cgiar.org"
+      - "worldagroforestry.org"
+      - "ciat.cgiar.org"
+      - "irri.org"
+    credibility: 5
+    domains: [crops, soil, irrigation, weather, general]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Network of 15 research centers, open-access data"
+
+  - name: "WHO/CODEX - Food Safety Standards"
+    name_ar: "منظمة الصحة العالمية / الدستور الغذائي"
+    url_patterns:
+      - "who.int"
+      - "codexalimentarius.org"
+    credibility: 5
+    domains: [pest_disease, fertilizer, general]
+    languages: [en, ar, fr]
+    region_coverage: [global]
+    notes: "Pesticide MRLs, food safety guidelines"
+
+  - name: "USDA - United States Department of Agriculture"
+    name_ar: "وزارة الزراعة الأمريكية"
+    url_patterns:
+      - "usda.gov"
+      - "ars.usda.gov"
+      - "nrcs.usda.gov"
+    credibility: 5
+    domains: [crops, soil, irrigation, fertilizer, pest_disease, weather, remote_sensing]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Soil taxonomy, crop databases, NRCS soil surveys"
+
+  # ─── Level 4: Government/University (حكومات/جامعات) ──────────────────────
+
+  - name: "MEWA - Ministry of Environment, Water and Agriculture (Saudi Arabia)"
+    name_ar: "وزارة البيئة والمياه والزراعة - المملكة العربية السعودية"
+    url_patterns:
+      - "mewa.gov.sa"
+    credibility: 4
+    domains: [crops, irrigation, soil, general]
+    languages: [ar, en]
+    region_coverage: [saudi_arabia, gcc]
+    notes: "Saudi agricultural regulations, water policy, crop guidelines"
+
+  - name: "Ministry of Agriculture - Yemen"
+    name_ar: "وزارة الزراعة والري - اليمن"
+    url_patterns:
+      - "agriculture.gov.ye"
+      - "mai.gov.ye"
+    credibility: 4
+    domains: [crops, irrigation, soil, general]
+    languages: [ar]
+    region_coverage: [yemen]
+    notes: "Yemen crop guidelines, regional adaptation"
+
+  - name: "ACSAD - Arab Center for the Studies of Arid Zones and Dry Lands"
+    name_ar: "المركز العربي لدراسات المناطق الجافة والأراضي القاحلة (أكساد)"
+    url_patterns:
+      - "acsad.org"
+    credibility: 4
+    domains: [crops, irrigation, soil, weather, general]
+    languages: [ar, en]
+    region_coverage: [arab_world, mena]
+    notes: "Dryland agriculture, water management, soil reclamation"
+
+  - name: "King Saud University - Agriculture"
+    name_ar: "جامعة الملك سعود - كلية الزراعة"
+    url_patterns:
+      - "ksu.edu.sa"
+    credibility: 4
+    domains: [crops, soil, irrigation, pest_disease]
+    languages: [ar, en]
+    region_coverage: [saudi_arabia, gcc]
+    notes: "Saudi agricultural research, extension bulletins"
+
+  - name: "King Abdulaziz University"
+    name_ar: "جامعة الملك عبدالعزيز"
+    url_patterns:
+      - "kau.edu.sa"
+    credibility: 4
+    domains: [crops, soil, irrigation, remote_sensing]
+    languages: [ar, en]
+    region_coverage: [saudi_arabia, gcc]
+
+  - name: "Sana'a University - Agriculture"
+    name_ar: "جامعة صنعاء - كلية الزراعة"
+    url_patterns:
+      - "su.edu.ye"
+    credibility: 4
+    domains: [crops, soil, irrigation]
+    languages: [ar]
+    region_coverage: [yemen]
+
+  - name: "UAE Ministry of Climate Change and Environment"
+    name_ar: "وزارة التغير المناخي والبيئة - الإمارات"
+    url_patterns:
+      - "moccae.gov.ae"
+    credibility: 4
+    domains: [crops, irrigation, weather, general]
+    languages: [ar, en]
+    region_coverage: [uae, gcc]
+
+  - name: "ESA - European Space Agency (Sentinel)"
+    name_ar: "وكالة الفضاء الأوروبية"
+    url_patterns:
+      - "esa.int"
+      - "sentinel.esa.int"
+      - "scihub.copernicus.eu"
+      - "copernicus.eu"
+    credibility: 4
+    domains: [remote_sensing]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Sentinel-2 satellite data for NDVI, LAI, water stress"
+
+  # ─── Level 3: Local Research Centers (مراكز بحثية محلية) ──────────────────
+
+  - name: "AREA - Agricultural Research and Extension Authority (Yemen)"
+    name_ar: "الهيئة العامة للبحوث والإرشاد الزراعي - اليمن"
+    url_patterns:
+      - "area.gov.ye"
+    credibility: 3
+    domains: [crops, soil, irrigation, pest_disease]
+    languages: [ar]
+    region_coverage: [yemen]
+    notes: "Yemen field trials, local crop varieties, extension materials"
+
+  - name: "NCARE - National Center for Agricultural Research (Jordan)"
+    name_ar: "المركز الوطني للبحوث الزراعية - الأردن"
+    url_patterns:
+      - "ncare.gov.jo"
+    credibility: 3
+    domains: [crops, irrigation, soil]
+    languages: [ar, en]
+    region_coverage: [jordan, mena]
+
+  - name: "ARC - Agricultural Research Center (Egypt)"
+    name_ar: "مركز البحوث الزراعية - مصر"
+    url_patterns:
+      - "arc.sci.eg"
+    credibility: 3
+    domains: [crops, soil, irrigation, pest_disease, fertilizer]
+    languages: [ar, en]
+    region_coverage: [egypt, mena]
+    notes: "Major reference for wheat, cotton, rice in Arab region"
+
+  - name: "KACST - King Abdulaziz City for Science and Technology"
+    name_ar: "مدينة الملك عبدالعزيز للعلوم والتقنية"
+    url_patterns:
+      - "kacst.edu.sa"
+    credibility: 3
+    domains: [remote_sensing, irrigation, general]
+    languages: [ar, en]
+    region_coverage: [saudi_arabia]
+
+  # ─── Level 2: Specialized Websites (مواقع متخصصة) ─────────────────────────
+
+  - name: "CropIn - Agricultural Intelligence"
+    name_ar: "كروب إن - الذكاء الزراعي"
+    url_patterns:
+      - "cropin.com"
+    credibility: 2
+    domains: [crops, remote_sensing, general]
+    languages: [en]
+    region_coverage: [global]
+    notes: "500+ crop knowledge graph, 103 countries"
+
+  - name: "AgriExpo - Agricultural Equipment"
+    name_ar: "أجري إكسبو"
+    url_patterns:
+      - "agriexpo.online"
+    credibility: 2
+    domains: [irrigation, general]
+    languages: [en, ar]
+    region_coverage: [global]
+
+  - name: "ScienceDirect - Agricultural Sciences"
+    name_ar: "ساينس دايركت - العلوم الزراعية"
+    url_patterns:
+      - "sciencedirect.com"
+    credibility: 2
+    domains: [crops, soil, irrigation, fertilizer, pest_disease, weather, remote_sensing]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Peer-reviewed, requires validation of specific claims"
+
+  - name: "Springer Nature - Agriculture"
+    name_ar: "سبرينجر نيتشر - الزراعة"
+    url_patterns:
+      - "springer.com"
+      - "nature.com"
+    credibility: 2
+    domains: [crops, soil, irrigation, remote_sensing, general]
+    languages: [en]
+    region_coverage: [global]
+
+  - name: "الشبكة العربية للزراعة المستدامة"
+    name_ar: "الشبكة العربية للزراعة المستدامة"
+    url_patterns:
+      - "arasannet.org"
+    credibility: 2
+    domains: [crops, soil, irrigation, general]
+    languages: [ar]
+    region_coverage: [arab_world]

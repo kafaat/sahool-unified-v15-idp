@@ -1,0 +1,95 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Remote Sensing Analysis
+# سير عمل تحليل الاستشعار عن بعد
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: remote_sensing_analysis_workflow
+name: Remote Sensing Analysis
+name_ar: تحليل بيانات الاستشعار عن بعد
+description: |
+  Interprets remote sensing indices (NDVI, LAI, water stress) and provides
+  actionable agricultural recommendations based on satellite data.
+description_ar: |
+  يفسر مؤشرات الاستشعار عن بعد (NDVI، LAI، إجهاد مائي) ويقدم
+  توصيات زراعية قابلة للتنفيذ بناءً على بيانات الأقمار الصناعية.
+version: "1.0.0"
+
+variables:
+  ndvi_value: 0
+  lai_value: 0
+  ndwi_value: 0
+  crop_type: ""
+  growth_stage: ""
+  field_id: ""
+  acquisition_date: ""
+  top_k: 8
+
+entry_point: analyze_indices
+
+steps:
+  - id: analyze_indices
+    type: transform
+    name: Analyze remote sensing indices
+    config:
+      type: analysis
+      inputs:
+        - ndvi_value
+        - lai_value
+        - ndwi_value
+        - growth_stage
+      output: index_analysis
+      analysis_type: vegetation_health
+    next_step: retrieve_index_interpretation
+
+  - id: retrieve_index_interpretation
+    type: retrieve
+    name: Get index interpretation guide
+    config:
+      query: "NDVI ${ndvi_value} LAI ${lai_value} interpretation for ${crop_type} at ${growth_stage}"
+      collection: remote_sensing_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_crop_health_reference
+
+  - id: retrieve_crop_health_reference
+    type: retrieve
+    name: Get crop health reference values
+    config:
+      query: "${crop_type} expected NDVI LAI values at ${growth_stage} healthy crop"
+      collection: crop_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank remote sensing results
+    config:
+      method: cross_encoder
+      top_k: 6
+    next_step: generate_analysis
+
+  - id: generate_analysis
+    type: generate
+    name: Generate remote sensing analysis
+    config:
+      template: |
+        Interpret the remote sensing data and provide bilingual analysis:
+        - Vegetation health status (healthy/moderate/stressed/critical)
+        - Comparison with expected values for crop and stage
+        - Identified anomalies or stress patterns
+        - Recommended field actions (irrigation, fertilization, pest inspection)
+        - Suggested follow-up satellite acquisition timing
+      language: both
+      max_tokens: 1200
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return remote sensing analysis
+    config:
+      output_fields:
+        - analysis
+        - health_status
+        - confidence
+        - sources

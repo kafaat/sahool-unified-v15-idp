@@ -1,0 +1,161 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Comprehensive Field Advisory
+# سير عمل الاستشارة الحقلية الشاملة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: comprehensive_field_advisory_workflow
+name: Comprehensive Field Advisory
+name_ar: الاستشارة الحقلية الشاملة
+description: |
+  Multi-domain agricultural advisory combining crop, soil, irrigation,
+  fertilizer, weather, and pest knowledge for holistic field management
+  recommendations.
+description_ar: |
+  استشارة زراعية متعددة المجالات تجمع بين معرفة المحاصيل والتربة
+  والري والتسميد والطقس والآفات لتوصيات إدارة حقلية شاملة.
+version: "1.0.0"
+
+variables:
+  crop_type: ""
+  growth_stage: ""
+  soil_test: {}
+  weather_forecast: {}
+  ndvi_value: 0
+  field_id: ""
+  region: ""
+  farmer_query: ""
+  top_k: 10
+
+entry_point: analyze_field_status
+
+steps:
+  - id: analyze_field_status
+    type: transform
+    name: Analyze comprehensive field status
+    config:
+      type: analysis
+      inputs:
+        - crop_type
+        - growth_stage
+        - soil_test
+        - weather_forecast
+        - ndvi_value
+      output: field_status
+      analysis_type: comprehensive_field
+    next_step: retrieve_crop_knowledge
+
+  - id: retrieve_crop_knowledge
+    type: retrieve
+    name: Get crop management knowledge
+    config:
+      query: "${crop_type} management at ${growth_stage} comprehensive guide"
+      collection: crop_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_soil_knowledge
+
+  - id: retrieve_soil_knowledge
+    type: retrieve
+    name: Get soil management knowledge
+    config:
+      query: "Soil management for ${crop_type} pH ${soil_test.ph} ${region}"
+      collection: soil_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_irrigation_knowledge
+
+  - id: retrieve_irrigation_knowledge
+    type: retrieve
+    name: Get irrigation knowledge
+    config:
+      query: "Irrigation for ${crop_type} ${growth_stage} weather conditions"
+      collection: irrigation_practices
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_fertilizer_knowledge
+
+  - id: retrieve_fertilizer_knowledge
+    type: retrieve
+    name: Get fertilizer knowledge
+    config:
+      query: "Fertilization for ${crop_type} ${growth_stage} soil nutrients"
+      collection: fertilizer_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_weather_knowledge
+
+  - id: retrieve_weather_knowledge
+    type: retrieve
+    name: Get weather impact knowledge
+    config:
+      query: "Weather impact on ${crop_type} protection measures ${region}"
+      collection: weather_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_pest_knowledge
+
+  - id: retrieve_pest_knowledge
+    type: retrieve
+    name: Get pest monitoring knowledge
+    config:
+      query: "${crop_type} pest disease monitoring at ${growth_stage} ${region}"
+      collection: pest_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: rerank_all
+
+  - id: rerank_all
+    type: rerank
+    name: Rerank all knowledge sources
+    config:
+      method: cross_encoder
+      top_k: 10
+    next_step: generate_comprehensive_advisory
+
+  - id: generate_comprehensive_advisory
+    type: generate
+    name: Generate comprehensive field advisory
+    config:
+      template: |
+        Provide a comprehensive bilingual field advisory covering:
+        1. Field Status Summary (crop health, NDVI interpretation)
+        2. Irrigation Recommendation (amount, timing, method)
+        3. Fertilization Plan (nutrients needed, products, rates, timing)
+        4. Pest/Disease Monitoring (current risks, scouting priorities)
+        5. Weather Alerts (upcoming risks, protective actions)
+        6. Prioritized Action Plan (next 7 days, next 30 days)
+        7. Economic Analysis (input costs vs expected returns)
+
+        Farmer query: ${farmer_query}
+      language: both
+      max_tokens: 2500
+    next_step: confidence_check
+
+  - id: confidence_check
+    type: condition
+    name: Check advisory confidence
+    config:
+      condition: "confidence >= 0.5"
+      true_step: complete
+      false_step: fallback_general
+
+  - id: fallback_general
+    type: retrieve
+    name: Fallback to general knowledge
+    config:
+      query: "${farmer_query} ${crop_type} agricultural advice ${region}"
+      collection: general_agriculture
+      top_k: 5
+      strategy: hybrid
+    next_step: generate_comprehensive_advisory
+
+  - id: complete
+    type: output
+    name: Return comprehensive advisory
+    config:
+      output_fields:
+        - advisory
+        - action_plan
+        - risk_assessment
+        - confidence
+        - sources

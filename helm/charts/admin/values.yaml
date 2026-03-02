@@ -95,7 +95,7 @@ affinity:
           topologyKey: kubernetes.io/hostname
 
 # Topology spread constraints for even distribution
-# Note: labelSelector is automatically set to the chart's selector labels by the deployment template
+# labelSelector is automatically set to the chart's selector labels by the deployment template
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname

@@ -40,7 +40,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3 4 5; do \
         echo "Attempt $i: Installing npm dependencies..." && \
-        npm install --legacy-peer-deps \
+        npm install --legacy-peer-deps --ignore-scripts \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=180000 \
@@ -51,7 +51,7 @@ RUN --mount=type=cache,target=/root/.npm \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1

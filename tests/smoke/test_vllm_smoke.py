@@ -19,9 +19,9 @@ class TestVLLMImports:
 
     def test_import_shared_llm_package(self):
         """shared.llm package imports without errors."""
-        import shared.llm
+        from shared.llm import __version__
 
-        assert hasattr(shared.llm, "__version__")
+        assert __version__ is not None
 
     def test_import_openai_compat_module(self):
         """shared.llm.openai_compat module imports."""

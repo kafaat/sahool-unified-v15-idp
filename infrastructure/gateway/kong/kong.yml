@@ -909,6 +909,28 @@ services:
           policy: local
           fault_tolerant: true
 
+  # vLLM Inference Server - OpenAI-compatible LLM inference
+  # خادم استدلال vLLM - واجهة متوافقة مع OpenAI
+  - name: vllm-deepseek
+    host: vllm
+    port: 8000
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 300000
+    read_timeout: 300000
+    routes:
+      - name: vllm-inference-route
+        paths: ["/api/v1/vllm", "/vllm"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
+
   # Pest Detection Service - AI pest detection
   # خدمة كشف الآفات - الكشف عن الآفات بالذكاء الاصطناعي
   - name: pest-detection-service

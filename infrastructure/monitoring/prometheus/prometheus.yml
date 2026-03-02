@@ -921,3 +921,17 @@ scrape_configs:
           description_ar: 'إدارة أسطول أجهزة الحافة والمزامنة غير المتصلة'
     metrics_path: /metrics
     scrape_interval: 15s
+
+  # vLLM DeepSeek Inference Server - خادم استدلال vLLM ديب سيك
+  - job_name: 'vllm-deepseek'
+    static_configs:
+      - targets: ['vllm:8000']
+        labels:
+          tier: 'ai-ml'
+          component: 'llm-inference'
+          service: 'vllm-deepseek'
+          language: 'python'
+          description: 'vLLM GPU-Accelerated LLM Inference (DeepSeek Coder 6.7B)'
+          description_ar: 'خادم استدلال النماذج اللغوية الكبيرة مسرّع بالمعالج الرسومي'
+    metrics_path: /metrics
+    scrape_interval: 15s

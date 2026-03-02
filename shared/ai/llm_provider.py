@@ -47,6 +47,7 @@ class LLMProvider(StrEnum):
     """Supported LLM providers."""
 
     OLLAMA = "ollama"
+    VLLM = "vllm"
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     GOOGLE = "google"
@@ -76,6 +77,16 @@ class LLMConfig:
                 model=os.getenv("OLLAMA_MODEL", "codellama:13b"),
                 base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
                 priority=0,  # Highest priority (offline-first)
+            )
+        elif provider == LLMProvider.VLLM:
+            vllm_url = os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1")
+            return cls(
+                provider=provider,
+                model=os.getenv("VLLM_MODEL", "deepseek-ai/deepseek-coder-6.7b-instruct"),
+                base_url=vllm_url,
+                priority=0,  # Same priority as Ollama (local GPU inference)
+                enabled=bool(os.getenv("VLLM_BASE_URL")),
+                timeout=300.0,  # Long timeout for large model inference
             )
         elif provider == LLMProvider.ANTHROPIC:
             return cls(

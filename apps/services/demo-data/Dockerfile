@@ -20,17 +20,13 @@ COPY constraints.txt .
 # Mirrors: Aliyun (primary) → PyPI (official) → Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --upgrade pip; \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c constraints.txt \
     'httpx[http2]' || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c constraints.txt \
     'httpx[http2]' || \
     pip install --no-cache-dir --timeout=600 --retries=5 \

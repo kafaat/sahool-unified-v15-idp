@@ -36,8 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
     echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf
+    echo "retries = 10" >> /root/.pip/pip.conf
 
 # Copy requirements and constraints first for better caching
 # Note: Build context is repo root, so use full path
@@ -47,16 +46,12 @@ COPY apps/services/leveling-optimizer-service/requirements.txt .
 # Install Python dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c constraints.txt -r requirements.txt
 
 # Production stage

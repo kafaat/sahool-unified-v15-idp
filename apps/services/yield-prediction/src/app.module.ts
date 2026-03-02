@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
-import { TenantGuard } from "@sahool/nestjs-auth";
+import { TenantGuard } from "./auth/tenant.guard";
 import { AppController } from "./app.controller";
 import { YieldController } from "./yield/yield.controller";
 import { YieldService } from "./yield/yield.service";

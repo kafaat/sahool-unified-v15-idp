@@ -42,9 +42,9 @@ RUN --mount=type=cache,target=/root/.npm \
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f node_modules/.prisma/client/index.js || \
+    test -f prisma/generated/client/index.js || \
     (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
-     test -f node_modules/.prisma/client/index.js) || \
+     test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application using nest build directly (skip prebuild to avoid
@@ -99,8 +99,7 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY --from=builder /workspace/research-core/prisma ./prisma/
 
 # Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /workspace/research-core/node_modules/.prisma ./node_modules/.prisma/
-COPY --from=builder /workspace/research-core/node_modules/@prisma/client ./node_modules/@prisma/client/
+COPY --from=builder /workspace/research-core/prisma/generated ./prisma/generated/
 
 # Copy built application
 COPY --from=builder /workspace/research-core/dist ./dist
@@ -111,6 +110,8 @@ EXPOSE 3015
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
 USER node
+
+ENV NODE_ENV=production
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \

@@ -88,6 +88,8 @@ EXPOSE 3022
 RUN chown -R node:node /app /nestjs-auth
 USER node
 
+ENV NODE_ENV=production
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3022/healthz || exit 1

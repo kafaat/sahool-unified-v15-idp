@@ -1007,7 +1007,29 @@ logs-all: ## عرض سجلات جميع الخدمات - View logs from all serv
 # AI & Agent Services - خدمات الذكاء الاصطناعي والوكلاء
 # ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: dev-ai dev-agents build-ai test-ai logs-ai
+.PHONY: dev-ai dev-agents build-ai test-ai logs-ai dev-vllm build-vllm logs-vllm stop-vllm
+
+dev-vllm: network-create ## تشغيل خادم vLLM - Start vLLM inference server (GPU required)
+	@echo "$(GREEN)🚀 تشغيل خادم vLLM DeepSeek - Starting vLLM DeepSeek server...$(RESET)"
+	docker compose --profile gpu up -d vllm
+	@echo "$(GREEN)✅ خادم vLLM جاهز - vLLM server starting (model download may take several minutes)$(RESET)"
+	@VLLM_P=$${VLLM_PORT:-8270}; \
+	echo "$(BLUE)API:$(RESET) localhost:$$VLLM_P/v1"; \
+	echo "$(BLUE)Health:$(RESET) localhost:$$VLLM_P/health"; \
+	echo "$(BLUE)Models:$(RESET) localhost:$$VLLM_P/v1/models"
+
+build-vllm: ## بناء صورة vLLM - Build vLLM Docker image
+	@echo "$(YELLOW)🔨 بناء صورة vLLM - Building vLLM image...$(RESET)"
+	docker compose --profile gpu build vllm
+	@echo "$(GREEN)✅ بناء صورة vLLM مكتمل - vLLM image built!$(RESET)"
+
+logs-vllm: ## عرض سجلات vLLM - View vLLM server logs
+	@docker compose --profile gpu logs -f vllm
+
+stop-vllm: ## إيقاف خادم vLLM - Stop vLLM inference server
+	@echo "$(YELLOW)⏹️  إيقاف خادم vLLM - Stopping vLLM server...$(RESET)"
+	docker compose --profile gpu stop vllm
+	@echo "$(GREEN)✅ تم إيقاف vLLM - vLLM server stopped$(RESET)"
 
 dev-ai: ## تشغيل خدمات AI - Start AI services (advisory, crop-intelligence)
 	@echo "$(GREEN)🤖 تشغيل خدمات الذكاء الاصطناعي - Starting AI services...$(RESET)"

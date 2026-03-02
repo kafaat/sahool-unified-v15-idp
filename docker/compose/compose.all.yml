@@ -914,6 +914,30 @@ services:
     depends_on:
     - terrain-core-service
     - weather-service
+  vllm-deepseek:
+    build:
+      context: ../../apps/services/vllm-deepseek
+      dockerfile: Dockerfile
+    ports:
+    - 8270:8270
+    environment:
+    - PORT=8270
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8270/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 32Gi
   soil-analysis-service:
     build:
       context: ../../apps/services/soil-analysis-service

@@ -566,6 +566,63 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # vLLM Inference Server - DeepSeek Coder 6.7B (GPU-accelerated)
+  # خادم استدلال vLLM - ديب سيك كودر (مسرّع بالمعالج الرسومي)
+  # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
+  # API: http://localhost:${VLLM_PORT:-8270}/v1 (OpenAI-compatible)
+  # ─────────────────────────────────────────────────────────────────────────────
+  vllm:
+    profiles:
+      - gpu
+    build:
+      context: .
+      dockerfile: apps/services/vllm-deepseek/Dockerfile
+    image: sahool/vllm-deepseek:16.0.0
+    container_name: sahool-vllm
+    volumes:
+      - vllm_models:/models
+      - vllm_hf_cache:/home/sahool/.cache/huggingface
+    ports:
+      - "127.0.0.1:${VLLM_PORT:-8270}:${VLLM_PORT:-8270}"
+    environment:
+      - VLLM_MODEL=${VLLM_MODEL:-deepseek-ai/deepseek-coder-6.7b-instruct}
+      - VLLM_PORT=${VLLM_PORT:-8270}
+      - VLLM_HOST=0.0.0.0
+      - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-16384}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8270}/health" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 180s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: ${VLLM_MEMORY_LIMIT:-32G}
+        reservations:
+          cpus: '2'
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: ${VLLM_GPU_COUNT:-1}
+              capabilities: [ gpu ]
+    networks:
+      - sahool-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
   # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
   # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
@@ -4154,6 +4211,11 @@ volumes:
     name: sahool-ollama-data
   code_review_logs:
     name: sahool-code-review-logs
+  # vLLM Inference Server Volumes
+  vllm_models:
+    name: sahool-vllm-models
+  vllm_hf_cache:
+    name: sahool-vllm-hf-cache
   # Milvus Vector Database Volumes
   etcd_data:
     name: sahool-etcd-data

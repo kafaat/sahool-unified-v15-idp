@@ -54,7 +54,7 @@ class OpenAICompatProvider(LLMProvider):
 
     Works with any server implementing the OpenAI chat/completions API:
         - Ollama (http://localhost:11434/v1)
-        - vLLM (http://localhost:8000/v1)
+        - vLLM (http://localhost:8270/v1)
         - LM Studio (http://localhost:1234/v1)
         - LocalAI (http://localhost:8080/v1)
         - Text Generation Inference
@@ -461,13 +461,28 @@ async def get_openai_compat_provider(
 
 
 async def get_vllm_provider(
-    base_url: str = "http://localhost:8000/v1",
-    model: str = "meta-llama/Llama-3.2-3B-Instruct",
+    base_url: str = "http://localhost:8270/v1",
+    model: str = "deepseek-ai/deepseek-coder-6.7b-instruct",
 ) -> OpenAICompatProvider:
     """
     Get a vLLM provider instance.
 
     الحصول على مثيل مزود vLLM
+    """
+    return await get_openai_compat_provider(
+        base_url=base_url,
+        model=model,
+    )
+
+
+async def get_deepseek_vllm_provider(
+    base_url: str = "http://sahool-vllm:8270/v1",
+    model: str = "deepseek-ai/deepseek-coder-6.7b-instruct",
+) -> OpenAICompatProvider:
+    """
+    Get a DeepSeek Coder vLLM provider instance (Docker service).
+
+    الحصول على مثيل مزود ديب سيك كودر عبر vLLM (خدمة Docker)
     """
     return await get_openai_compat_provider(
         base_url=base_url,

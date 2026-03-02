@@ -75,8 +75,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt && \
-    chown -R sahool:sahool /app
+    -c constraints.txt -r requirements.txt
+
+RUN chown -R sahool:sahool /app
 
 USER sahool
 

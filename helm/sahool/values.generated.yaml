@@ -2187,6 +2187,38 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8164'
       prometheus.io/path: /metrics
+  vllm-deepseek:
+    enabled: true
+    name: vllm-deepseek
+    image:
+      repository: ghcr.io/kafaat/sahool-vllm-deepseek
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8000
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: '8'
+        memory: 32Gi
+      limits:
+        cpu: 1000m
+        memory: 32Gi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8000'
+    serviceAccount:
+      create: true
+      name: sahool-vllm-deepseek
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8000'
+      prometheus.io/path: /metrics
   supply-chain-service:
     enabled: true
     name: supply-chain-service
@@ -2997,6 +3029,10 @@ ingress:
       pathType: Prefix
       service: llm-orchestrator-service
       port: 8164
+    - path: /api/v1/vllm/deepseek
+      pathType: Prefix
+      service: vllm-deepseek
+      port: 8000
     - path: /api/v1/supply/chain/service
       pathType: Prefix
       service: supply-chain-service

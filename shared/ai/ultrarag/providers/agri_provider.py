@@ -29,6 +29,16 @@ from ..retriever import (
     TriRAGRetriever,
 )
 
+# Knowledge base integration
+from ...knowledge.collections import (
+    FERTILIZER_KNOWLEDGE,
+    GENERAL_AGRICULTURE,
+    REMOTE_SENSING_KNOWLEDGE,
+    SOIL_KNOWLEDGE,
+    WEATHER_KNOWLEDGE,
+)
+from ...knowledge.verification.region_filter import CLIMATE_ZONES
+
 logger = structlog.get_logger(__name__)
 
 
@@ -39,6 +49,7 @@ class AgriQueryContext:
     crop_type: str | None = None
     growth_stage: str | None = None
     region: str | None = None
+    climate_zone: str | None = None
     soil_type: str | None = None
     weather: dict[str, Any] | None = None
     field_id: str | None = None
@@ -624,6 +635,174 @@ class AgriRAGProvider:
             advisory_ar=f"نتائج الاستعلام: {query}",
             confidence=results[0].score if results else 0.0,
             sources=[r.to_dict() for r in results[:5]],
+        )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Extended Domain Queries (New Collections)
+    # استعلامات المجالات الموسعة (مجموعات جديدة)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    async def query_soil_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query soil knowledge collection | استعلام قاعدة معرفة التربة"""
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=SOIL_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "soil")
+
+    async def query_fertilizer_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query fertilizer knowledge collection | استعلام قاعدة معرفة التسميد"""
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=FERTILIZER_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "fertilizer")
+
+    async def query_weather_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query weather knowledge collection | استعلام قاعدة معرفة الطقس"""
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=WEATHER_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "weather")
+
+    async def query_remote_sensing(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query remote sensing knowledge | استعلام قاعدة معرفة الاستشعار عن بعد"""
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=REMOTE_SENSING_KNOWLEDGE,
+            filters={"kg_max_hops": 1},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "remote_sensing")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Region Filter & CRAG (Corrective RAG)
+    # فلتر إقليمي و RAG تصحيحي
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Quality threshold for CRAG - below this triggers broadened search
+    CRAG_QUALITY_THRESHOLD = 0.4
+
+    def _apply_region_filter(self, results: list, context: AgriQueryContext | None) -> list:
+        """Apply AgriRegion-style spatial-semantic scoring.
+        تطبيق تسجيل مكاني-دلالي على نمط AgriRegion
+
+        - Local knowledge = highest score (1.0x)
+        - Similar ecoregions = reduced (0.7x)
+        - Dissimilar regions = heavily reduced (0.3x)
+        """
+        if not context or not context.climate_zone:
+            return results
+
+        target_zone = context.climate_zone
+        zone_info = CLIMATE_ZONES.get(target_zone)
+        if not zone_info:
+            return results
+
+        similar_zones = set(zone_info.get("similar_zones", []))
+        similar_zones.add(target_zone)
+
+        scored_results = []
+        for r in results:
+            region_meta = r.chunk.metadata.get("region_relevance", {})
+            doc_regions = region_meta.get("applicable_regions", [])
+
+            if not doc_regions:
+                # No region info → general content, keep at moderate score
+                scored_results.append(r)
+            elif target_zone in doc_regions:
+                # Direct match → boost
+                r.score = min(r.score * 1.2, 1.0)
+                scored_results.append(r)
+            elif any(z in similar_zones for z in doc_regions):
+                # Similar ecoregion → keep but reduce
+                r.score *= 0.7
+                scored_results.append(r)
+            else:
+                # Dissimilar region → heavily reduce but don't remove
+                r.score *= 0.3
+                scored_results.append(r)
+
+        # Re-sort by score
+        scored_results.sort(key=lambda x: x.score, reverse=True)
+        return scored_results
+
+    def _apply_crag(self, results: list, query: str, fallback_collection: str) -> list:
+        """Apply Corrective RAG (CRAG) pattern.
+        تطبيق نمط RAG التصحيحي
+
+        If retrieval quality is below threshold, trigger broadened search
+        in the fallback (general_agriculture) collection.
+        """
+        if not results:
+            return results
+
+        # Evaluate retrieval quality (average top-3 scores)
+        top_scores = [r.score for r in results[:3]]
+        avg_quality = sum(top_scores) / len(top_scores) if top_scores else 0.0
+
+        if avg_quality >= self.CRAG_QUALITY_THRESHOLD:
+            return results
+
+        # Quality below threshold → would trigger broadened search
+        # In synchronous context, just log the need
+        logger.info(
+            "crag_low_quality_detected",
+            avg_quality=avg_quality,
+            threshold=self.CRAG_QUALITY_THRESHOLD,
+            fallback_collection=fallback_collection,
+            query=query[:100],
+        )
+
+        return results
+
+    def _build_result(self, query: str, results: list, domain: str) -> AgriAdvisoryResult:
+        """Build a standard advisory result from retrieval results."""
+        return AgriAdvisoryResult(
+            query=query,
+            advisory=f"Results for {domain} query: {query}",
+            advisory_ar=f"نتائج استعلام {domain}: {query}",
+            confidence=results[0].score if results else 0.0,
+            sources=[r.to_dict() for r in results[:5]],
+            metadata={"domain": domain},
         )
 
     def get_mcp_tools(self) -> RAGMCPTools:

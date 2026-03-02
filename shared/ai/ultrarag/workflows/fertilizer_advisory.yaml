@@ -1,0 +1,132 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Fertilizer Advisory
+# سير عمل استشارات التسميد
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: fertilizer_advisory_workflow
+name: Fertilizer Advisory
+name_ar: استشارات التسميد
+description: |
+  Intelligent fertilizer recommendation system combining soil test results,
+  crop nutrient requirements, growth stage, and regional best practices
+  for optimal nutrient management.
+description_ar: |
+  نظام توصيات التسميد الذكي يجمع بين نتائج تحليل التربة ومتطلبات
+  المحصول الغذائية ومرحلة النمو وأفضل الممارسات الإقليمية
+  لإدارة مثالية للعناصر الغذائية.
+version: "1.0.0"
+
+variables:
+  crop_type: ""
+  growth_stage: ""
+  soil_test: {}
+  field_id: ""
+  target_yield: 0
+  top_k: 8
+
+entry_point: analyze_soil_nutrients
+
+steps:
+  - id: analyze_soil_nutrients
+    type: transform
+    name: Analyze soil nutrient status
+    config:
+      type: analysis
+      inputs:
+        - soil_test
+        - crop_type
+        - growth_stage
+      output: nutrient_analysis
+      analysis_type: nutrient_deficiency
+    next_step: retrieve_crop_nutrient_needs
+
+  - id: retrieve_crop_nutrient_needs
+    type: retrieve
+    name: Get crop nutrient requirements
+    config:
+      query: "Nutrient requirements for ${crop_type} at ${growth_stage} stage target yield ${target_yield}"
+      collection: fertilizer_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_fertilizer_options
+
+  - id: retrieve_fertilizer_options
+    type: retrieve
+    name: Get fertilizer options and rates
+    config:
+      query: "Fertilizer types and application rates for ${crop_type} nutrient deficiency"
+      collection: fertilizer_knowledge
+      top_k: 5
+      strategy: hybrid
+    next_step: retrieve_crop_specifics
+
+  - id: retrieve_crop_specifics
+    type: retrieve
+    name: Get crop-specific fertilizer guidance
+    config:
+      query: "${crop_type} fertilization schedule and best practices"
+      collection: crop_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_soil_context
+
+  - id: retrieve_soil_context
+    type: retrieve
+    name: Get soil-type fertilizer compatibility
+    config:
+      query: "Soil type fertilizer compatibility pH ${soil_test.ph} organic matter"
+      collection: soil_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank fertilizer recommendations
+    config:
+      method: cross_encoder
+      top_k: 8
+    next_step: generate_recommendation
+
+  - id: generate_recommendation
+    type: generate
+    name: Generate fertilizer recommendation
+    config:
+      template: |
+        Based on the soil analysis and crop requirements, provide a comprehensive
+        fertilizer recommendation in Arabic and English:
+        - Specific fertilizer types and rates (kg/ha)
+        - Application timing relative to growth stage
+        - Application method (broadcast, banding, fertigation)
+        - Safety precautions
+        - Cost-benefit analysis
+      language: both
+      max_tokens: 1500
+    next_step: confidence_check
+
+  - id: confidence_check
+    type: condition
+    name: Check recommendation confidence
+    config:
+      condition: "confidence >= 0.6"
+      true_step: complete
+      false_step: fallback_general
+
+  - id: fallback_general
+    type: retrieve
+    name: Fallback to general agriculture knowledge
+    config:
+      query: "General fertilizer application guidelines for ${crop_type}"
+      collection: general_agriculture
+      top_k: 5
+      strategy: dense
+    next_step: generate_recommendation
+
+  - id: complete
+    type: output
+    name: Return fertilizer advisory
+    config:
+      output_fields:
+        - recommendation
+        - confidence
+        - sources

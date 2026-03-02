@@ -1,0 +1,125 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Pest and Disease Diagnosis
+# سير عمل تشخيص الآفات والأمراض
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: pest_diagnosis_workflow
+name: Pest and Disease Diagnosis
+name_ar: تشخيص الآفات والأمراض
+description: |
+  Identifies pests and diseases from symptoms, provides IPM-based treatment
+  recommendations with safety considerations and economic thresholds.
+description_ar: |
+  يحدد الآفات والأمراض من الأعراض، ويقدم توصيات العلاج القائمة
+  على الإدارة المتكاملة مع اعتبارات السلامة والعتبات الاقتصادية.
+version: "1.0.0"
+
+variables:
+  crop_type: ""
+  symptoms: ""
+  growth_stage: ""
+  region: ""
+  field_id: ""
+  severity: ""
+  top_k: 8
+
+entry_point: analyze_symptoms
+
+steps:
+  - id: analyze_symptoms
+    type: transform
+    name: Analyze reported symptoms
+    config:
+      type: analysis
+      inputs:
+        - symptoms
+        - crop_type
+        - growth_stage
+        - severity
+      output: symptom_analysis
+      analysis_type: pest_disease_identification
+    next_step: retrieve_pest_knowledge
+
+  - id: retrieve_pest_knowledge
+    type: retrieve
+    name: Get pest and disease identification
+    config:
+      query: "${crop_type} ${symptoms} pest disease identification ${growth_stage}"
+      collection: pest_knowledge
+      top_k: 5
+      strategy: hybrid
+    next_step: retrieve_treatment_options
+
+  - id: retrieve_treatment_options
+    type: retrieve
+    name: Get IPM treatment options
+    config:
+      query: "Treatment for ${crop_type} pest disease IPM integrated management ${region}"
+      collection: pest_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_crop_context
+
+  - id: retrieve_crop_context
+    type: retrieve
+    name: Get crop-specific pest management
+    config:
+      query: "${crop_type} common pests diseases resistance varieties"
+      collection: crop_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank pest diagnosis results
+    config:
+      method: cross_encoder
+      top_k: 8
+    next_step: generate_diagnosis
+
+  - id: generate_diagnosis
+    type: generate
+    name: Generate pest diagnosis and treatment plan
+    config:
+      template: |
+        Based on reported symptoms, provide bilingual diagnosis and treatment:
+        - Probable pest/disease identification (with confidence)
+        - Economic injury threshold assessment
+        - IPM-based treatment plan (biological, cultural, chemical as last resort)
+        - Specific pesticide recommendations with PHI and safety measures
+        - Prevention strategies for future seasons
+        - When to escalate (critical pests like RPW)
+      language: both
+      max_tokens: 1500
+    next_step: safety_check
+
+  - id: safety_check
+    type: condition
+    name: Check for safety-critical recommendations
+    config:
+      condition: "has_pesticide_recommendation"
+      true_step: verify_pesticide_safety
+      false_step: complete
+
+  - id: verify_pesticide_safety
+    type: transform
+    name: Verify pesticide safety compliance
+    config:
+      type: validation
+      inputs:
+        - recommendation
+      output: safety_verified_recommendation
+      validation_type: pesticide_safety
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return pest diagnosis
+    config:
+      output_fields:
+        - diagnosis
+        - treatment_plan
+        - severity_assessment
+        - confidence
+        - sources

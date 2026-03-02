@@ -156,8 +156,11 @@ class TestVLLMDockerfile:
 
     def test_multi_mirror_pip_fallback(self):
         """Dockerfile uses multi-mirror pip fallback pattern."""
-        assert "pypi.org" in self.content
-        assert "mirrors.aliyun.com" in self.content or "mirrors.cloud.tencent.com" in self.content
+        pypi_host = "pypi.org/simple"
+        aliyun_host = "mirrors.aliyun.com/pypi"
+        tencent_host = "mirrors.cloud.tencent.com/pypi"
+        assert pypi_host in self.content
+        assert aliyun_host in self.content or tencent_host in self.content
 
     def test_oci_labels(self):
         """Dockerfile has OCI image labels."""

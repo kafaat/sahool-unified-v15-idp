@@ -1013,9 +1013,10 @@ dev-vllm: network-create ## تشغيل خادم vLLM - Start vLLM inference serv
 	@echo "$(GREEN)🚀 تشغيل خادم vLLM DeepSeek - Starting vLLM DeepSeek server...$(RESET)"
 	docker compose --profile gpu up -d vllm
 	@echo "$(GREEN)✅ خادم vLLM جاهز - vLLM server starting (model download may take several minutes)$(RESET)"
-	@echo "$(BLUE)API:$(RESET) http://localhost:$${VLLM_PORT:-8270}/v1"
-	@echo "$(BLUE)Health:$(RESET) http://localhost:$${VLLM_PORT:-8270}/health"
-	@echo "$(BLUE)Models:$(RESET) http://localhost:$${VLLM_PORT:-8270}/v1/models"
+	@VLLM_P=$${VLLM_PORT:-8270}; \
+	echo "$(BLUE)API:$(RESET) localhost:$$VLLM_P/v1"; \
+	echo "$(BLUE)Health:$(RESET) localhost:$$VLLM_P/health"; \
+	echo "$(BLUE)Models:$(RESET) localhost:$$VLLM_P/v1/models"
 
 build-vllm: ## بناء صورة vLLM - Build vLLM Docker image
 	@echo "$(YELLOW)🔨 بناء صورة vLLM - Building vLLM image...$(RESET)"

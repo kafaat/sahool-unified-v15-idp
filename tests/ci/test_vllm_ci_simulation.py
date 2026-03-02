@@ -204,12 +204,14 @@ class TestCIJobArchCheck:
     def test_no_circular_imports_in_llm_package(self):
         """shared.llm imports without circular dependency errors."""
         env = {**os.environ, **CI_ENV}
+        cmd = (
+            "import shared.llm; "
+            "print(f'shared.llm v{shared.llm.__version__} imported OK'); "
+            "from shared.llm import get_vllm_provider, get_deepseek_vllm_provider; "
+            "print('vLLM providers imported OK')"
+        )
         result = subprocess.run(
-            [sys.executable, "-c",
-             "import shared.llm; "
-             "print(f'shared.llm v{shared.llm.__version__} imported OK'); "
-             "from shared.llm import get_vllm_provider, get_deepseek_vllm_provider; "
-             "print('vLLM providers imported OK')"],
+            [sys.executable, "-c", cmd],
             capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"
@@ -218,11 +220,13 @@ class TestCIJobArchCheck:
     def test_no_circular_imports_in_llm_provider(self):
         """shared.ai.llm_provider imports without errors."""
         env = {**os.environ, **CI_ENV}
+        cmd = (
+            "from shared.ai.llm_provider import LLMProvider, LLMConfig; "
+            "assert LLMProvider.VLLM == 'vllm'; "
+            "print('LLMProvider.VLLM verified')"
+        )
         result = subprocess.run(
-            [sys.executable, "-c",
-             "from shared.ai.llm_provider import LLMProvider, LLMConfig; "
-             "assert LLMProvider.VLLM == 'vllm'; "
-             "print('LLMProvider.VLLM verified')"],
+            [sys.executable, "-c", cmd],
             capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"
@@ -230,11 +234,13 @@ class TestCIJobArchCheck:
     def test_no_circular_imports_in_events_subjects(self):
         """shared.events.subjects imports without errors."""
         env = {**os.environ, **CI_ENV}
+        cmd = (
+            "from shared.events.subjects import SAHOOL_LLM_INFERENCE_STARTED, SUBJECT_REGISTRY; "
+            "assert 'llm.inference_started' in SUBJECT_REGISTRY; "
+            "print(f'LLM subjects OK, registry has {len(SUBJECT_REGISTRY)} entries')"
+        )
         result = subprocess.run(
-            [sys.executable, "-c",
-             "from shared.events.subjects import SAHOOL_LLM_INFERENCE_STARTED, SUBJECT_REGISTRY; "
-             "assert 'llm.inference_started' in SUBJECT_REGISTRY; "
-             "print(f'LLM subjects OK, registry has {len(SUBJECT_REGISTRY)} entries')"],
+            [sys.executable, "-c", cmd],
             capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"

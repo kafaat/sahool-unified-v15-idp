@@ -35,7 +35,7 @@ COPY apps/services/ai-agents-core/src/ ./src/
 RUN chown -R sahool:sahool /app
 
 # Set Python path and default port
-ENV PYTHONPATH=/app/src \
+ENV PYTHONPATH=/app:/app/src \
     PORT=8161
 
 # Expose port

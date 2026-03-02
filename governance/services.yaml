@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine]
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -2844,6 +2844,40 @@ services:
       cpu: "500m"
       memory: "1Gi"
       replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VLLM INFERENCE SERVER - خادم استدلال vLLM
+  # ═══════════════════════════════════════════════════════════════════════════
+  vllm-deepseek:
+    name: "vLLM DeepSeek Inference Server"
+    name_ar: "خادم استدلال vLLM ديب سيك"
+    description: "GPU-accelerated LLM inference server serving DeepSeek Coder 6.7B via vLLM with OpenAI-compatible API"
+    description_ar: "خادم استدلال النماذج اللغوية الكبيرة مسرّع بالمعالج الرسومي يقدم نموذج ديب سيك كودر عبر vLLM مع واجهة متوافقة مع OpenAI"
+    type: python
+    category: intelligence
+    layer: intelligence
+    path: "apps/services/vllm-deepseek"
+    port: 8270
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    owner: "ai-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-1
+    profile: gpu
+    events:
+      produces:
+        - LLMInferenceCompleted.v1
+        - LLMInferenceStarted.v1
+        - LLMInferenceFailed.v1
+      consumes: []
+    dependencies: []
+    resources:
+      cpu: "8"
+      memory: "32Gi"
+      gpu: "1"
+      replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
   # SUPPLY CHAIN SERVICE - خدمة سلسلة التوريد

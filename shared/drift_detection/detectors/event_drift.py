@@ -28,12 +28,15 @@ from shared.drift_detection.models import (
 logger = logging.getLogger(__name__)
 
 # Valid NATS subject patterns for SAHOOL
+# Convention: sahool.{domain}.{entity}.{action} (see shared/events/subjects.py)
 VALID_SUBJECT_PATTERNS = [
+    re.compile(r"^sahool\.\w+$"),  # sahool.{domain} (base/wildcard targets)
     re.compile(r"^sahool\.\w+\.\w+$"),  # sahool.{domain}.{action}
-    re.compile(r"^sahool\.tenant\.[a-f0-9-]+\.\w+\.\w+$"),  # tenant-scoped
-    re.compile(r"^sahool\.[a-f0-9-]+\.\w+\.\w+$"),  # inline tenant
-    re.compile(r"^sahool\.vision\.\w+$"),  # vision events
-    re.compile(r"^sahool\.dlq\.\w+$"),  # DLQ events
+    re.compile(r"^sahool\.\w+\.\w+\.\w+$"),  # sahool.{domain}.{entity}.{action}
+    re.compile(r"^sahool\.\w+\.\w+\.\w+\.v\d+$"),  # versioned: sahool.{d}.{e}.{a}.v{N}
+    re.compile(r"^sahool\.\w+\.\w+\.[\w-]+\.\w+$"),  # 5-segment: device/stage scoped
+    re.compile(r"^sahool\.tenant\.[\w-]+\.\w+\.\w+$"),  # tenant-scoped (flexible ID)
+    re.compile(r"^sahool\.dlq(\.\w+)*$"),  # DLQ events (base + sub-levels)
 ]
 
 

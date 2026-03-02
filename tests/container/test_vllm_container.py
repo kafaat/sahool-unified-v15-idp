@@ -465,9 +465,9 @@ class TestVLLMGovernanceRegistry:
         assert "vllm-deepseek" in services, "vllm-deepseek not in intelligence layer"
 
     def test_vllm_service_port(self):
-        """vllm-deepseek has port 8000."""
+        """vllm-deepseek has port 8270."""
         service = self.services["services"]["vllm-deepseek"]
-        assert service.get("port") == 8000
+        assert service.get("port") == 8270
 
     def test_vllm_service_type(self):
         """vllm-deepseek is type python."""
@@ -515,11 +515,11 @@ class TestVLLMKongGateway:
         vllm_svc = next(s for s in services if "vllm" in s.get("name", ""))
         assert vllm_svc.get("host") == "vllm"
 
-    def test_vllm_service_port_8000(self):
-        """Kong vLLM service uses port 8000."""
+    def test_vllm_service_port_8270(self):
+        """Kong vLLM service uses port 8270."""
         services = self.kong.get("services", [])
         vllm_svc = next(s for s in services if "vllm" in s.get("name", ""))
-        assert vllm_svc.get("port") == 8000
+        assert vllm_svc.get("port") == 8270
 
     def test_vllm_route_paths(self):
         """Kong has route paths for vLLM."""
@@ -567,7 +567,7 @@ class TestVLLMPrometheusMonitoring:
         )
 
     def test_vllm_scrape_target(self):
-        """Prometheus scrapes vllm:8000."""
+        """Prometheus scrapes vllm:8270."""
         scrape_configs = self.prom.get("scrape_configs", [])
         vllm_job = next(
             (j for j in scrape_configs if "vllm" in j.get("job_name", "")),
@@ -579,8 +579,8 @@ class TestVLLMPrometheusMonitoring:
         all_targets = []
         for sc in static_configs:
             all_targets.extend(sc.get("targets", []))
-        assert any("vllm:8000" in t for t in all_targets), (
-            f"vllm:8000 not in targets: {all_targets}"
+        assert any("vllm:8270" in t for t in all_targets), (
+            f"vllm:8270 not in targets: {all_targets}"
         )
 
     def test_vllm_scrape_labels(self):
@@ -725,14 +725,14 @@ class TestVLLMCrossComponentConsistency:
     """Test consistency across all vLLM configuration files."""
 
     def test_port_consistency(self):
-        """Port 8000 is consistent across all config files."""
+        """Port 8270 is consistent across all config files."""
         dockerfile = _read_text(VLLM_DOCKERFILE)
         compose = _read_text(VLLM_COMPOSE)
         env = _read_text(VLLM_ENV_EXAMPLE)
 
-        assert "8000" in dockerfile
-        assert "8000" in compose
-        assert "8000" in env
+        assert "8270" in dockerfile
+        assert "8270" in compose
+        assert "8270" in env
 
     def test_model_name_consistency(self):
         """Model name is consistent across configurations."""

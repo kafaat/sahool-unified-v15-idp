@@ -570,24 +570,24 @@ services:
   # vLLM Inference Server - DeepSeek Coder 6.7B (GPU-accelerated)
   # خادم استدلال vLLM - ديب سيك كودر (مسرّع بالمعالج الرسومي)
   # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
-  # API: http://localhost:${VLLM_PORT:-8000}/v1 (OpenAI-compatible)
+  # API: http://localhost:${VLLM_PORT:-8270}/v1 (OpenAI-compatible)
   # ─────────────────────────────────────────────────────────────────────────────
   vllm:
     profiles:
       - gpu
     build:
       context: .
-      dockerfile: infrastructure/core/vllm/Dockerfile
+      dockerfile: apps/services/vllm-deepseek/Dockerfile
     image: sahool/vllm-deepseek:16.0.0
     container_name: sahool-vllm
     volumes:
       - vllm_models:/models
       - vllm_hf_cache:/home/sahool/.cache/huggingface
     ports:
-      - "127.0.0.1:${VLLM_PORT:-8000}:${VLLM_PORT:-8000}"
+      - "127.0.0.1:${VLLM_PORT:-8270}:${VLLM_PORT:-8270}"
     environment:
       - VLLM_MODEL=${VLLM_MODEL:-deepseek-ai/deepseek-coder-6.7b-instruct}
-      - VLLM_PORT=${VLLM_PORT:-8000}
+      - VLLM_PORT=${VLLM_PORT:-8270}
       - VLLM_HOST=0.0.0.0
       - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-16384}
       - NVIDIA_VISIBLE_DEVICES=all
@@ -595,7 +595,7 @@ services:
       - HF_TOKEN=${HF_TOKEN:-}
       - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8000}/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8270}/health" ]
       interval: 30s
       timeout: 15s
       retries: 5

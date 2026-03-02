@@ -2765,14 +2765,14 @@ services:
     - traefik.http.routers.llm-orchestrator-service.rule=PathPrefix(`/api/v1/llm/orchestrator/service`)
   vllm-deepseek:
     build:
-      context: ./infrastructure/core/vllm
+      context: ./apps/services/vllm-deepseek
       dockerfile: Dockerfile
     container_name: sahool-vllm-deepseek
     ports:
-    - 8000:8000
+    - 8270:8270
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8000
+    - PORT=8270
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2781,7 +2781,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8000/health
+      - http://localhost:8270/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2798,7 +2798,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=vllm-deepseek
-    - sahool.port=8000
+    - sahool.port=8270
     - sahool.category=intelligence
     - traefik.enable=true
     - traefik.http.routers.vllm-deepseek.rule=PathPrefix(`/api/v1/vllm/deepseek`)

@@ -58,7 +58,7 @@ class TestLLMProviderEnum:
         """VLLM and Ollama both have priority 0 (local GPU inference)."""
         from shared.ai.llm_provider import LLMConfig, LLMProvider
 
-        with patch.dict(os.environ, {"VLLM_BASE_URL": "http://localhost:8000/v1"}, clear=False):
+        with patch.dict(os.environ, {"VLLM_BASE_URL": "http://localhost:8270/v1"}, clear=False):
             vllm_config = LLMConfig.from_env(LLMProvider.VLLM)
             ollama_config = LLMConfig.from_env(LLMProvider.OLLAMA)
 
@@ -85,7 +85,7 @@ class TestLLMConfigVLLM:
 
                 assert config.provider == LLMProvider.VLLM
                 assert config.model == "deepseek-ai/deepseek-coder-6.7b-instruct"
-                assert config.base_url == "http://localhost:8000/v1"
+                assert config.base_url == "http://localhost:8270/v1"
                 assert config.priority == 0
                 assert config.timeout == 300.0
                 assert config.enabled is False  # No VLLM_BASE_URL set
@@ -95,13 +95,13 @@ class TestLLMConfigVLLM:
         from shared.ai.llm_provider import LLMConfig, LLMProvider
 
         env = {
-            "VLLM_BASE_URL": "http://sahool-vllm:8000/v1",
+            "VLLM_BASE_URL": "http://sahool-vllm:8270/v1",
             "VLLM_MODEL": "deepseek-ai/deepseek-coder-33b-instruct",
         }
         with patch.dict(os.environ, env, clear=False):
             config = LLMConfig.from_env(LLMProvider.VLLM)
 
-            assert config.base_url == "http://sahool-vllm:8000/v1"
+            assert config.base_url == "http://sahool-vllm:8270/v1"
             assert config.model == "deepseek-ai/deepseek-coder-33b-instruct"
             assert config.enabled is True  # VLLM_BASE_URL is set
 
@@ -109,7 +109,7 @@ class TestLLMConfigVLLM:
         """VLLM provider is enabled when VLLM_BASE_URL is set."""
         from shared.ai.llm_provider import LLMConfig, LLMProvider
 
-        with patch.dict(os.environ, {"VLLM_BASE_URL": "http://vllm:8000/v1"}, clear=False):
+        with patch.dict(os.environ, {"VLLM_BASE_URL": "http://vllm:8270/v1"}, clear=False):
             config = LLMConfig.from_env(LLMProvider.VLLM)
             assert config.enabled is True
 
@@ -320,7 +320,7 @@ class TestVLLMProviderFunctions:
         sig = inspect.signature(get_vllm_provider)
         params = sig.parameters
 
-        assert params["base_url"].default == "http://localhost:8000/v1"
+        assert params["base_url"].default == "http://localhost:8270/v1"
         assert params["model"].default == "deepseek-ai/deepseek-coder-6.7b-instruct"
 
     def test_get_deepseek_vllm_provider_defaults(self):
@@ -332,7 +332,7 @@ class TestVLLMProviderFunctions:
         sig = inspect.signature(get_deepseek_vllm_provider)
         params = sig.parameters
 
-        assert params["base_url"].default == "http://sahool-vllm:8000/v1"
+        assert params["base_url"].default == "http://sahool-vllm:8270/v1"
         assert params["model"].default == "deepseek-ai/deepseek-coder-6.7b-instruct"
 
     def test_get_vllm_provider_is_async(self):
@@ -399,8 +399,8 @@ class TestVLLMConfigConsistency:
         assert provider_model == vllm_sig.parameters["model"].default
         assert provider_model == deepseek_sig.parameters["model"].default
 
-    def test_default_port_is_8000(self):
-        """Default vLLM port is 8000 across all configurations."""
+    def test_default_port_is_8270(self):
+        """Default vLLM port is 8270 across all configurations."""
         import inspect
 
         from shared.llm.openai_compat import get_vllm_provider
@@ -408,7 +408,7 @@ class TestVLLMConfigConsistency:
         sig = inspect.signature(get_vllm_provider)
         base_url = sig.parameters["base_url"].default
 
-        assert ":8000/" in base_url
+        assert ":8270/" in base_url
 
     def test_deepseek_docker_url_uses_service_name(self):
         """Docker-internal URL uses sahool-vllm service name."""

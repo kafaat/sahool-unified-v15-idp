@@ -2195,7 +2195,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8000
+    port: 8270
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -2211,13 +2211,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8000'
+      value: '8270'
     serviceAccount:
       create: true
       name: sahool-vllm-deepseek
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8000'
+      prometheus.io/port: '8270'
       prometheus.io/path: /metrics
   supply-chain-service:
     enabled: true
@@ -3032,7 +3032,7 @@ ingress:
     - path: /api/v1/vllm/deepseek
       pathType: Prefix
       service: vllm-deepseek
-      port: 8000
+      port: 8270
     - path: /api/v1/supply/chain/service
       pathType: Prefix
       service: supply-chain-service

@@ -913,7 +913,7 @@ services:
   # خادم استدلال vLLM - واجهة متوافقة مع OpenAI
   - name: vllm-deepseek
     host: vllm
-    port: 8000
+    port: 8270
     protocol: http
     connect_timeout: 30000
     write_timeout: 300000

@@ -13,9 +13,9 @@
 #   HF_TOKEN=hf_xxx docker compose -f infrastructure/core/vllm/docker-compose.vllm.yml up -d
 #
 # API (OpenAI-compatible):
-#   http://localhost:8000/v1/chat/completions
-#   http://localhost:8000/v1/completions
-#   http://localhost:8000/v1/models
+#   http://localhost:8270/v1/chat/completions
+#   http://localhost:8270/v1/completions
+#   http://localhost:8270/v1/models
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -31,7 +31,7 @@ services:
     image: sahool/vllm-deepseek:16.0.0
     container_name: sahool-vllm
     ports:
-      - "${VLLM_EXTERNAL_PORT:-127.0.0.1:8000}:${VLLM_PORT:-8000}"
+      - "${VLLM_EXTERNAL_PORT:-127.0.0.1:8270}:${VLLM_PORT:-8270}"
     volumes:
       # Persistent model cache - avoids re-downloading on restart
       - vllm_models:/models
@@ -39,7 +39,7 @@ services:
     environment:
       # Model configuration
       - VLLM_MODEL=${VLLM_MODEL:-deepseek-ai/deepseek-coder-6.7b-instruct}
-      - VLLM_PORT=${VLLM_PORT:-8000}
+      - VLLM_PORT=${VLLM_PORT:-8270}
       - VLLM_HOST=${VLLM_HOST:-0.0.0.0}
       - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-16384}
       # GPU configuration
@@ -59,7 +59,7 @@ services:
           memory: ${VLLM_MEMORY_LIMIT:-32G}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8000}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${VLLM_PORT:-8270}/health"]
       interval: 30s
       timeout: 15s
       retries: 5

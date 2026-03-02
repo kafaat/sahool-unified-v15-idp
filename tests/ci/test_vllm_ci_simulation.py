@@ -347,8 +347,8 @@ class TestCIJobEnvValidation:
         env_file = _read_text(VLLM_DIR / ".env.example")
 
         # Check port default
-        assert "VLLM_PORT=8000" in env_file
-        assert "VLLM_PORT=8000" in dockerfile or "VLLM_PORT" in dockerfile
+        assert "VLLM_PORT=8270" in env_file
+        assert "VLLM_PORT=8270" in dockerfile or "VLLM_PORT" in dockerfile
 
         # Check model default
         assert "deepseek-ai/deepseek-coder-6.7b-instruct" in env_file
@@ -414,7 +414,7 @@ class TestCIJobGovernance:
             assert field in svc, f"Missing required field '{field}' in vllm-deepseek"
 
     def test_vllm_port_not_conflicting(self):
-        """vllm-deepseek port 8000 doesn't conflict with other services."""
+        """vllm-deepseek port 8270 doesn't conflict with other services."""
         vllm_port = self.services["services"]["vllm-deepseek"]["port"]
         port_conflicts = []
 
@@ -424,7 +424,7 @@ class TestCIJobGovernance:
             if isinstance(svc, dict) and svc.get("port") == vllm_port:
                 port_conflicts.append(name)
 
-        # Note: Port 8000 may be used by chat-service or Kong, but in different
+        # Note: Port 8270 may be used by chat-service or Kong, but in different
         # network contexts (Docker profile isolation). Document conflicts.
         if port_conflicts:
             # These should be profile-isolated or on different networks

@@ -2856,8 +2856,8 @@ services:
     type: python
     category: intelligence
     layer: intelligence
-    path: "infrastructure/core/vllm"
-    port: 8000
+    path: "apps/services/vllm-deepseek"
+    port: 8270
     protocol: http
     health_endpoint: "/health"
     status: active

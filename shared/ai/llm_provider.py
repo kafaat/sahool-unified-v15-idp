@@ -79,7 +79,7 @@ class LLMConfig:
                 priority=0,  # Highest priority (offline-first)
             )
         elif provider == LLMProvider.VLLM:
-            vllm_url = os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1")
+            vllm_url = os.getenv("VLLM_BASE_URL", "http://localhost:8270/v1")
             return cls(
                 provider=provider,
                 model=os.getenv("VLLM_MODEL", "deepseek-ai/deepseek-coder-6.7b-instruct"),

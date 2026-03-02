@@ -925,7 +925,7 @@ scrape_configs:
   # vLLM DeepSeek Inference Server - خادم استدلال vLLM ديب سيك
   - job_name: 'vllm-deepseek'
     static_configs:
-      - targets: ['vllm:8000']
+      - targets: ['vllm:8270']
         labels:
           tier: 'ai-ml'
           component: 'llm-inference'

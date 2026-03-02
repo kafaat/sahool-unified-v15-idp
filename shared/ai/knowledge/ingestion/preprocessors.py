@@ -98,9 +98,13 @@ class AgriculturalTermNormalizer:
     def normalize_terms(self, text: str) -> str:
         """Replace common aliases with canonical terms."""
         result = text
-        for alias, canonical in self.TERM_MAP.items():
-            # Case-insensitive replacement for English
-            pattern = re.compile(re.escape(alias), re.IGNORECASE)
+        # Sort by length descending to match longer patterns first
+        # This prevents partial matches (e.g., "k fertilizer" matching inside "NPK fertilizer")
+        sorted_items = sorted(self.TERM_MAP.items(), key=lambda x: len(x[0]), reverse=True)
+        for alias, canonical in sorted_items:
+            # Use word boundary for English terms to avoid partial matches
+            escaped = re.escape(alias)
+            pattern = re.compile(r"\b" + escaped + r"\b", re.IGNORECASE)
             result = pattern.sub(canonical, result)
         return result
 

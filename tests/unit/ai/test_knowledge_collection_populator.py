@@ -20,8 +20,6 @@ from shared.ai.knowledge.collection_populator import (
 from shared.ai.knowledge.collections import (
     ALL_COLLECTIONS,
     CROP_KNOWLEDGE,
-    GENERAL_AGRICULTURE,
-    SOIL_KNOWLEDGE,
 )
 
 

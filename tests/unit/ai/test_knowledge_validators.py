@@ -14,7 +14,6 @@ from shared.ai.knowledge.models import (
     CropKnowledgeDocument,
     FertilizerKnowledgeDocument,
     IrrigationKnowledgeDocument,
-    KnowledgeDomain,
     SoilTypeDocument,
 )
 from shared.ai.knowledge.validators import (

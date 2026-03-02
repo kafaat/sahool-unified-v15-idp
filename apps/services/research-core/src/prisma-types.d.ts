@@ -3,7 +3,7 @@
  * This file provides types when Prisma client cannot be generated
  */
 
-declare module "@prisma/client" {
+declare module "../../prisma/generated/client" {
   // Enums from schema.prisma
   export enum ExperimentStatus {
     draft = "draft",

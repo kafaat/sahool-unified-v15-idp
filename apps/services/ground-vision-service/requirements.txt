@@ -18,7 +18,7 @@ nats-py==2.13.1
 # Computer Vision
 opencv-python-headless>=4.10.0
 numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
-scipy>=1.14.0
+scipy>=1.14.0,<1.18.0  # Upper bound for TensorFlow 2.20.0 compatibility
 pillow>=11.0.0
 
 # AI/ML (optional - for GPU inference)

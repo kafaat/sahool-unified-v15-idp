@@ -149,7 +149,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -r sahool && useradd -r -g sahool sahool
 
 # Copy installed Python packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+ARG PYTHON_VERSION=3.11
+COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared libraries

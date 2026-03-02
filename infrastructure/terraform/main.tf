@@ -31,9 +31,6 @@ terraform {
     encrypt        = true
     dynamodb_table = "sahool-terraform-locks"
 
-    # تفعيل التشفير والنسخ الاحتياطي
-    # Enable encryption and versioning
-    versioning = true
   }
 }
 

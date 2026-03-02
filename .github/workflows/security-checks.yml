@@ -423,13 +423,14 @@ jobs:
         run: |
           echo "Merging SBOMs into single file..."
           # Create a combined SBOM summary
-          cat << 'EOF' > sbom-summary.json
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          cat << EOF > sbom-summary.json
           {
             "bomFormat": "CycloneDX",
             "specVersion": "1.4",
             "version": 1,
             "metadata": {
-              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "timestamp": "${TIMESTAMP}",
               "component": {
                 "type": "application",
                 "name": "sahool-platform",
@@ -492,7 +493,7 @@ jobs:
             -f JSON
             -f SARIF
             --enableExperimental
-            --failOnCVSS 11
+            --failOnCVSS 7
             --exclude 'archive/**'
             --exclude '**/__pycache__/**'
             --exclude '**/node_modules/**'

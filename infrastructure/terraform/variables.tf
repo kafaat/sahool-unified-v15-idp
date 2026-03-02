@@ -26,7 +26,7 @@ variable "primary_region" {
 variable "secondary_region" {
   description = "المنطقة الثانوية AWS / Secondary AWS region"
   type        = string
-  default     = "me-south-1"
+  default     = "eu-west-1"
 }
 
 variable "eks_cluster_version" {

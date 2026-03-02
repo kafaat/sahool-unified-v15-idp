@@ -94,6 +94,8 @@ EXPOSE 8152
 RUN chown -R node:node /app /nestjs-auth
 USER node
 
+ENV NODE_ENV=production
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD sh -c "curl -f http://localhost:${PORT:-8152}/api/v1/yield/health || exit 1"

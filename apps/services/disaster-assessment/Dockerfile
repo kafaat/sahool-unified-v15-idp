@@ -81,6 +81,8 @@ EXPOSE 3020
 RUN chown -R node:node /app
 USER node
 
+ENV NODE_ENV=production
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3020/healthz || exit 1

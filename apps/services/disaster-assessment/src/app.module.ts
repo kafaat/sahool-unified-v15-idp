@@ -5,7 +5,7 @@
 import { Module, OnModuleInit } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { TenantGuard } from "@sahool/nestjs-auth";
+import { TenantGuard } from "./auth/tenant.guard";
 import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 import { DisasterController } from "./disaster/disaster.controller";

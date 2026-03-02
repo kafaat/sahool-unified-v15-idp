@@ -4,8 +4,8 @@
 #
 # Provides DLQ management API and monitoring for failed messages.
 #
-# Usage:
-#   docker-compose -f docker/docker-compose.dlq.yml up -d
+# Usage (overlay - requires main compose file which provides nats):
+#   docker-compose -f docker-compose.yml -f docker/docker-compose.dlq.yml up -d
 #
 # Endpoints:
 #   - API: http://localhost:8090/docs

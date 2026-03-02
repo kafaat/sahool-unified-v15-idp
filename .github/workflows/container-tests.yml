@@ -186,7 +186,7 @@ jobs:
           - name: agent-registry
             path: apps/services/agent-registry
             port: 8014
-            container_port: 8121
+            container_port: 8160
           # agro-advisor DEPRECATED → advisory-service (archived 2025-01-06)
           # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), exceeds CI disk space
           # Test locally with: docker build -f apps/services/ai-advisor/Dockerfile .
@@ -201,7 +201,7 @@ jobs:
           - name: mcp-server
             path: apps/services/mcp-server
             port: 8200
-            container_port: 8200
+            container_port: 8201
           # NOTE: vegetation-analysis-service is defined above (port 8001)
           - name: field-management-service
             path: apps/services/field-management-service

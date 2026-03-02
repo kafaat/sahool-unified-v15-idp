@@ -59,7 +59,7 @@ jobs:
             python:
               - 'apps/services/**'
               - 'shared/**'
-              - 'pytest.ini'
+              - 'pyproject.toml'
               - 'requirements*.txt'
             shared:
               - 'governance/**'
@@ -174,7 +174,7 @@ jobs:
           echo "Generating coverage report..."
           # Run each service separately to avoid tests/__init__.py namespace
           # collisions. Only services with guarded imports are included.
-          # Uses -c pytest.ini to force root config — some services (e.g.
+          # Uses -c pyproject.toml to force root config — some services (e.g.
           # ndvi-processor) ship their own pytest.ini which changes rootdir
           # and can prevent pytest-cov plugin detection (exit code 4).
           SERVICES="ndvi-processor alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
@@ -184,7 +184,7 @@ jobs:
             COV_ARGS="--cov=apps/services"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pytest.ini $COV_ARGS --cov-report= --cov-fail-under=0 || {
+              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=0 || {
               rc=$?
               echo "⚠ pytest exited with code $rc for $svc, continuing"
             }

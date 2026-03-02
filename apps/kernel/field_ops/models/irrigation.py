@@ -244,7 +244,7 @@ class WaterBalance(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     field_id: str = Field(..., description="معرّف الحقل - Field ID")
-    date: date = Field(..., description="التاريخ - Date")
+    balance_date: date = Field(..., alias="date", description="التاريخ - Date")
 
     # المدخلات - Inputs (mm)
     irrigation: float = Field(0.0, ge=0, description="كمية الري - Irrigation amount")

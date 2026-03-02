@@ -6,7 +6,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { TenantGuard } from "@sahool/nestjs-auth";
+import { TenantGuard } from "./auth/tenant.guard";
 import { LoggerModule } from "nestjs-pino";
 import { createPinoLoggerConfig } from "./utils/pino-logger.config";
 import { PrismaService } from "./prisma/prisma.service";

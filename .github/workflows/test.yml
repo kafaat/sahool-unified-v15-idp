@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: [main, develop]
   push:
-    branches: [main, develop]
+    branches: [main, develop, "claude/**"]
 
 concurrency:
   group: test-${{ github.ref }}
@@ -142,25 +142,34 @@ jobs:
             --trusted-host pypi.org \
             --trusted-host files.pythonhosted.org \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
-            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil || \
+            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
+            pillow aiofiles pyotp qrcode || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
-            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil || \
+            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
+            pillow aiofiles pyotp qrcode || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
-            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil
+            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
+            pillow aiofiles pyotp qrcode
 
       - name: Run NDVI Processor Tests
         run: |
           echo "Running NDVI Processor tests..."
           PYTHONPATH=$PWD pytest apps/services/ndvi-processor/tests/ -v --tb=short
+        env:
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
 
       - name: Run Alert Service Tests
         run: |
@@ -168,6 +177,12 @@ jobs:
           PYTHONPATH=$PWD pytest apps/services/alert-service/tests/ -v --tb=short || {
             rc=$?; if [ $rc -eq 5 ]; then echo "⚠ No tests collected (skipped), continuing"; else exit $rc; fi
           }
+        env:
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
 
       - name: Generate Coverage Report
         run: |
@@ -193,6 +208,13 @@ jobs:
           # Generate combined coverage report
           coverage report --show-missing || true
           coverage xml || true
+        env:
+          ENVIRONMENT: test
+          PYTHONPATH: .
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v5

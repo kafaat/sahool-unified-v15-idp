@@ -630,8 +630,7 @@ jobs:
             path: apps/services/crop-intelligence-service
           - name: irrigation-smart
             path: apps/services/irrigation-smart
-          - name: yield-engine
-            path: apps/services/yield-engine
+          # yield-engine: Archived → yield-prediction-service (removed from matrix)
           - name: notification-service
             path: apps/services/notification-service
           - name: marketplace-service

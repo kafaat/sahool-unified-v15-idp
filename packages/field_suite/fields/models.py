@@ -43,9 +43,15 @@ class IrrigationType(StrEnum):
 
 @dataclass
 class FieldBoundary:
-    """Field geographic boundary (polygon)"""
+    """
+    Field geographic boundary (polygon).
+    حد الحقل الجغرافي (مضلع)
 
-    coordinates: list[tuple[float, float]]  # List of (lat, lon) pairs
+    Coordinates follow GeoJSON standard: (longitude, latitude).
+    الإحداثيات تتبع معيار GeoJSON: (خط الطول، خط العرض)
+    """
+
+    coordinates: list[tuple[float, float]]  # List of (lon, lat) pairs — GeoJSON order
     center_latitude: float
     center_longitude: float
 
@@ -58,12 +64,15 @@ class FieldBoundary:
 
     @classmethod
     def from_coordinates(cls, coordinates: list[tuple[float, float]]) -> FieldBoundary:
-        """Create boundary from coordinate list, calculating center"""
+        """
+        Create boundary from coordinate list, calculating center.
+        Coordinates must be in GeoJSON order: (longitude, latitude).
+        """
         if not coordinates:
             raise ValueError("Coordinates list cannot be empty")
 
-        avg_lat = sum(c[0] for c in coordinates) / len(coordinates)
-        avg_lon = sum(c[1] for c in coordinates) / len(coordinates)
+        avg_lon = sum(c[0] for c in coordinates) / len(coordinates)
+        avg_lat = sum(c[1] for c in coordinates) / len(coordinates)
 
         return cls(
             coordinates=coordinates,

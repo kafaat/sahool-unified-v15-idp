@@ -181,8 +181,8 @@ class Coordinate:
 
 
 @dataclass
-class BoundingBox:
-    """Bounding box for a region - مربع الحدود لمنطقة"""
+class GeoBoundingBox:
+    """Geographic bounding box for a region - مربع الحدود الجغرافية لمنطقة"""
 
     min_lat: float
     max_lat: float
@@ -203,6 +203,10 @@ class BoundingBox:
             "min_lng": self.min_lng,
             "max_lng": self.max_lng,
         }
+
+
+# Backward-compatible alias
+BoundingBox = GeoBoundingBox
 
 
 # ==============================================================================

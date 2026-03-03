@@ -113,8 +113,8 @@ class Severity(StrEnum):
 
 
 @dataclass
-class BoundingBox:
-    """Bounding box for detected regions"""
+class ImageBoundingBox:
+    """Bounding box for detected regions in image coordinates (normalized 0-1)."""
 
     x: float  # Top-left x (0-1 normalized)
     y: float  # Top-left y (0-1 normalized)
@@ -123,6 +123,10 @@ class BoundingBox:
 
     def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y, "width": self.width, "height": self.height}
+
+
+# Backward-compatible alias
+BoundingBox = ImageBoundingBox
 
 
 @dataclass

@@ -45,11 +45,15 @@ class CloudCoverage(StrEnum):
 
 
 @dataclass
-class FieldBoundary:
-    """Field boundary definition."""
+class SatelliteFieldBoundary:
+    """
+    Lightweight field boundary for satellite NDVI queries.
+    For comprehensive field boundaries, use shared.field_boundaries.models.FieldBoundary.
+    حد حقل مبسط لاستعلامات NDVI من الأقمار الصناعية
+    """
 
     field_id: str
-    coordinates: list[tuple[float, float]]  # [(lon, lat), ...]
+    coordinates: list[tuple[float, float]]  # [(lon, lat), ...] — GeoJSON order
     area_hectares: float = 0.0
     crs: str = "EPSG:4326"  # WGS84
 
@@ -58,6 +62,10 @@ class FieldBoundary:
         lons = [c[0] for c in self.coordinates]
         lats = [c[1] for c in self.coordinates]
         return (min(lons), min(lats), max(lons), max(lats))
+
+
+# Backward-compatible alias
+FieldBoundary = SatelliteFieldBoundary
 
 
 @dataclass

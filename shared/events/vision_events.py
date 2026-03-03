@@ -163,10 +163,10 @@ class BaseVisionEvent(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class BoundingBox(BaseModel):
+class DetectionBoundingBox(BaseModel):
     """
-    Bounding box coordinates for detected objects.
-    إحداثيات مربع الإحاطة للكائنات المكتشفة
+    Bounding box coordinates for detected objects (YOLO26 vision detections).
+    إحداثيات مربع الإحاطة للكائنات المكتشفة (اكتشافات الرؤية YOLO26)
     """
 
     x_min: float = Field(..., ge=0, description="Left boundary (normalized 0-1 or pixels)")
@@ -180,6 +180,10 @@ class BoundingBox(BaseModel):
     pixel_y: int | None = Field(None, ge=0, description="Pixel Y coordinate")
     width_px: int | None = Field(None, ge=0, description="Width in pixels")
     height_px: int | None = Field(None, ge=0, description="Height in pixels")
+
+
+# Backward-compatible alias
+BoundingBox = DetectionBoundingBox
 
 
 class GeoLocation(BaseModel):

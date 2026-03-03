@@ -13,16 +13,21 @@ References:
 - ISO 19115-2:2019 Extensions for imagery and gridded data
 - ISO 19157:2013 Geographic information — Data quality
 
+Note: Class names follow ISO 19115 naming conventions (e.g., CI_Citation,
+MD_Metadata, DQ_Element) per the standard's UML class diagram.
+These intentionally use underscores in class names (ruff N801 suppressed).
+
 Author: SAHOOL Platform
 Version: 16.0.0
 """
+# ruff: noqa: N801
 
 from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -193,9 +198,7 @@ class CI_ResponsibleParty(BaseModel):
         default="كفاءات - منصة سهول",
         description="Arabic organization name | اسم المنظمة بالعربية",
     )
-    position_name: str | None = Field(
-        default=None, description="Role/position | المنصب"
-    )
+    position_name: str | None = Field(default=None, description="Role/position | المنصب")
     role: CI_RoleCode = Field(
         default=CI_RoleCode.POINT_OF_CONTACT,
         description="Role of the responsible party | دور الجهة",
@@ -219,18 +222,14 @@ class CI_Citation(BaseModel):
         default_factory=lambda: datetime.now(UTC),
         description="Reference date | التاريخ المرجعي",
     )
-    date_type: str = Field(
-        default="creation", description="creation | publication | revision"
-    )
+    date_type: str = Field(default="creation", description="creation | publication | revision")
     edition: str | None = Field(default=None, description="Version of the resource")
     identifier: str = Field(
         default_factory=lambda: f"SAHOOL-{uuid.uuid4().hex[:12].upper()}",
         description="Unique resource identifier | المعرف الفريد",
     )
     cited_responsible_party: list[CI_ResponsibleParty] = Field(default_factory=list)
-    presentation_form: str | None = Field(
-        default=None, description="mapDigital | tableDigital | imageDigital"
-    )
+    presentation_form: str | None = Field(default=None, description="mapDigital | tableDigital | imageDigital")
 
 
 # =============================================================================
@@ -246,28 +245,17 @@ class EX_GeographicBoundingBox(BaseModel):
     All coordinates are in decimal degrees (WGS84 / EPSG:4326).
     """
 
-    west_bound_longitude: float = Field(
-        ..., ge=-180, le=180, description="Western-most longitude | خط الطول الغربي"
-    )
-    east_bound_longitude: float = Field(
-        ..., ge=-180, le=180, description="Eastern-most longitude | خط الطول الشرقي"
-    )
-    south_bound_latitude: float = Field(
-        ..., ge=-90, le=90, description="Southern-most latitude | خط العرض الجنوبي"
-    )
-    north_bound_latitude: float = Field(
-        ..., ge=-90, le=90, description="Northern-most latitude | خط العرض الشمالي"
-    )
+    west_bound_longitude: float = Field(..., ge=-180, le=180, description="Western-most longitude | خط الطول الغربي")
+    east_bound_longitude: float = Field(..., ge=-180, le=180, description="Eastern-most longitude | خط الطول الشرقي")
+    south_bound_latitude: float = Field(..., ge=-90, le=90, description="Southern-most latitude | خط العرض الجنوبي")
+    north_bound_latitude: float = Field(..., ge=-90, le=90, description="Northern-most latitude | خط العرض الشمالي")
 
     @field_validator("east_bound_longitude")
     @classmethod
     def east_gt_west(cls, v: float, info: Any) -> float:
         west = info.data.get("west_bound_longitude")
         if west is not None and v < west:
-            raise ValueError(
-                "East longitude must be >= west longitude | "
-                "خط الطول الشرقي يجب أن يكون >= الغربي"
-            )
+            raise ValueError("East longitude must be >= west longitude | خط الطول الشرقي يجب أن يكون >= الغربي")
         return v
 
 
@@ -277,9 +265,7 @@ class EX_TemporalExtent(BaseModel):
     النطاق الزمني للبيانات
     """
 
-    begin_position: datetime = Field(
-        ..., description="Start of temporal extent | بداية النطاق الزمني"
-    )
+    begin_position: datetime = Field(..., description="Start of temporal extent | بداية النطاق الزمني")
     end_position: datetime | None = Field(
         default=None, description="End of temporal extent (None=ongoing) | نهاية النطاق"
     )
@@ -299,9 +285,7 @@ class EX_Extent(BaseModel):
     النطاق المكاني والزمني
     """
 
-    description: str | None = Field(
-        default=None, description="Extent description | وصف النطاق"
-    )
+    description: str | None = Field(default=None, description="Extent description | وصف النطاق")
     description_ar: str | None = Field(default=None)
     geographic_element: EX_GeographicBoundingBox | None = Field(default=None)
     temporal_element: EX_TemporalExtent | None = Field(default=None)
@@ -325,12 +309,8 @@ class MD_Keywords(BaseModel):
     """
 
     keyword: list[str] = Field(..., min_length=1, description="Keywords | الكلمات المفتاحية")
-    keyword_ar: list[str] = Field(
-        default_factory=list, description="Arabic keywords | الكلمات المفتاحية بالعربية"
-    )
-    type: str = Field(
-        default="theme", description="discipline | place | stratum | temporal | theme"
-    )
+    keyword_ar: list[str] = Field(default_factory=list, description="Arabic keywords | الكلمات المفتاحية بالعربية")
+    type: str = Field(default="theme", description="discipline | place | stratum | temporal | theme")
     thesaurus_name: str | None = Field(
         default=None,
         description="Name of the keyword thesaurus | اسم القاموس المرجعي",
@@ -343,9 +323,7 @@ class MD_Constraints(BaseModel):
     القيود العامة
     """
 
-    use_limitation: list[str] = Field(
-        default_factory=list, description="Use limitations | حدود الاستخدام"
-    )
+    use_limitation: list[str] = Field(default_factory=list, description="Use limitations | حدود الاستخدام")
     use_limitation_ar: list[str] = Field(default_factory=list)
 
 
@@ -426,12 +404,8 @@ class MD_ReferenceSystem(BaseModel):
     Default is WGS 84 (EPSG:4326) - the standard for GPS and web mapping.
     """
 
-    code: str = Field(
-        default="EPSG:4326", description="CRS code (e.g., EPSG:4326) | رمز النظام الإحداثي"
-    )
-    code_space: str = Field(
-        default="EPSG", description="Authority (EPSG, OGC) | الجهة المرجعية"
-    )
+    code: str = Field(default="EPSG:4326", description="CRS code (e.g., EPSG:4326) | رمز النظام الإحداثي")
+    code_space: str = Field(default="EPSG", description="Authority (EPSG, OGC) | الجهة المرجعية")
     version: str | None = Field(default=None)
     description: str = Field(
         default="WGS 84 - World Geodetic System 1984",
@@ -566,15 +540,9 @@ class MD_DataIdentification(BaseModel):
     """
 
     citation: CI_Citation = Field(...)
-    abstract: str = Field(
-        ..., description="Brief description of the dataset | وصف موجز لمجموعة البيانات"
-    )
-    abstract_ar: str | None = Field(
-        default=None, description="Arabic abstract | الملخص بالعربية"
-    )
-    purpose: str | None = Field(
-        default=None, description="Purpose of the dataset | الغرض من مجموعة البيانات"
-    )
+    abstract: str = Field(..., description="Brief description of the dataset | وصف موجز لمجموعة البيانات")
+    abstract_ar: str | None = Field(default=None, description="Arabic abstract | الملخص بالعربية")
+    purpose: str | None = Field(default=None, description="Purpose of the dataset | الغرض من مجموعة البيانات")
     purpose_ar: str | None = Field(default=None)
     status: MD_ProgressCode = Field(
         default=MD_ProgressCode.ON_GOING,
@@ -613,9 +581,7 @@ class MD_DataIdentification(BaseModel):
     aggregation_info: list[MD_AggregateInformation] = Field(default_factory=list)
 
     # SAHOOL-specific
-    tenant_id: str | None = Field(
-        default=None, description="SAHOOL tenant ID | معرف المستأجر"
-    )
+    tenant_id: str | None = Field(default=None, description="SAHOOL tenant ID | معرف المستأجر")
     domain: str | None = Field(
         default=None,
         description="SAHOOL domain (field, satellite, terrain, iot) | المجال",
@@ -647,12 +613,8 @@ class DQ_QuantitativeResult(BaseModel):
     """
 
     value: float = Field(..., description="Quality measurement value | قيمة القياس")
-    value_unit: str = Field(
-        ..., description="Unit of measure (m, %, px) | وحدة القياس"
-    )
-    value_type: str = Field(
-        default="measure", description="measure | percentage | count"
-    )
+    value_unit: str = Field(..., description="Unit of measure (m, %, px) | وحدة القياس")
+    value_type: str = Field(default="measure", description="measure | percentage | count")
 
 
 class DQ_ConformanceResult(BaseModel):
@@ -661,13 +623,9 @@ class DQ_ConformanceResult(BaseModel):
     نتيجة المطابقة مع المعيار
     """
 
-    specification: str = Field(
-        ..., description="Standard/specification name | اسم المعيار"
-    )
+    specification: str = Field(..., description="Standard/specification name | اسم المعيار")
     explanation: str | None = Field(default=None)
-    is_conformant: bool = Field(
-        ..., description="Does data conform to spec? | هل البيانات مطابقة؟"
-    )
+    is_conformant: bool = Field(..., description="Does data conform to spec? | هل البيانات مطابقة؟")
 
 
 class DQ_Element(BaseModel):
@@ -692,9 +650,7 @@ class DQ_Element(BaseModel):
     name_ar: str | None = Field(default=None)
     measure_description: str | None = Field(default=None)
     measure_description_ar: str | None = Field(default=None)
-    evaluation_method: str | None = Field(
-        default=None, description="How quality was assessed | طريقة التقييم"
-    )
+    evaluation_method: str | None = Field(default=None, description="How quality was assessed | طريقة التقييم")
     date_time: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         description="When quality was evaluated | تاريخ التقييم",
@@ -713,9 +669,7 @@ class DataQualityReport(BaseModel):
     """
 
     scope: DQ_Scope = Field(default_factory=DQ_Scope)
-    report: list[DQ_Element] = Field(
-        default_factory=list, description="Quality elements | عناصر الجودة"
-    )
+    report: list[DQ_Element] = Field(default_factory=list, description="Quality elements | عناصر الجودة")
 
     def add_positional_accuracy(
         self,
@@ -731,9 +685,7 @@ class DataQualityReport(BaseModel):
                 name=name,
                 name_ar="الدقة المكانية المطلقة",
                 evaluation_method=method,
-                quantitative_result=DQ_QuantitativeResult(
-                    value=accuracy_m, value_unit="m", value_type="measure"
-                ),
+                quantitative_result=DQ_QuantitativeResult(value=accuracy_m, value_unit="m", value_type="measure"),
             )
         )
 
@@ -785,9 +737,7 @@ class DataQualityReport(BaseModel):
                 quality_type_ar="الدقة الموضوعية",
                 name=name,
                 name_ar="دقة التصنيف",
-                quantitative_result=DQ_QuantitativeResult(
-                    value=accuracy_pct, value_unit="%", value_type="percentage"
-                ),
+                quantitative_result=DQ_QuantitativeResult(value=accuracy_pct, value_unit="%", value_type="percentage"),
             )
         )
 
@@ -826,9 +776,7 @@ class LI_Source(BaseModel):
     Documents the origin of the data used in processing.
     """
 
-    description: str = Field(
-        ..., description="Source description | وصف المصدر"
-    )
+    description: str = Field(..., description="Source description | وصف المصدر")
     description_ar: str | None = Field(default=None)
     source_citation: CI_Citation | None = Field(default=None)
     source_extent: EX_Extent | None = Field(default=None)
@@ -844,32 +792,18 @@ class LI_ProcessStep(BaseModel):
     Documents each transformation applied to the source data.
     """
 
-    description: str = Field(
-        ..., description="Step description | وصف الخطوة"
-    )
+    description: str = Field(..., description="Step description | وصف الخطوة")
     description_ar: str | None = Field(default=None)
-    rationale: str | None = Field(
-        default=None, description="Why this step was done | سبب الخطوة"
-    )
+    rationale: str | None = Field(default=None, description="Why this step was done | سبب الخطوة")
     date_time: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         description="When this step was performed | تاريخ التنفيذ",
     )
-    processor: CI_ResponsibleParty | None = Field(
-        default=None, description="Who/what processed this step | المعالج"
-    )
-    source: list[LI_Source] = Field(
-        default_factory=list, description="Input sources for this step | مصادر الإدخال"
-    )
-    software_reference: str | None = Field(
-        default=None, description="Software used (e.g., GDAL 3.8, PostGIS 3.4)"
-    )
-    algorithm: str | None = Field(
-        default=None, description="Algorithm used | الخوارزمية المستخدمة"
-    )
-    parameters: dict[str, Any] = Field(
-        default_factory=dict, description="Processing parameters | معلمات المعالجة"
-    )
+    processor: CI_ResponsibleParty | None = Field(default=None, description="Who/what processed this step | المعالج")
+    source: list[LI_Source] = Field(default_factory=list, description="Input sources for this step | مصادر الإدخال")
+    software_reference: str | None = Field(default=None, description="Software used (e.g., GDAL 3.8, PostGIS 3.4)")
+    algorithm: str | None = Field(default=None, description="Algorithm used | الخوارزمية المستخدمة")
+    parameters: dict[str, Any] = Field(default_factory=dict, description="Processing parameters | معلمات المعالجة")
 
 
 class LI_Lineage(BaseModel):
@@ -886,12 +820,8 @@ class LI_Lineage(BaseModel):
         description="General lineage statement | بيان النسب العام",
     )
     statement_ar: str | None = Field(default=None)
-    source: list[LI_Source] = Field(
-        default_factory=list, description="Source datasets | مجموعات البيانات المصدر"
-    )
-    process_step: list[LI_ProcessStep] = Field(
-        default_factory=list, description="Processing steps | خطوات المعالجة"
-    )
+    source: list[LI_Source] = Field(default_factory=list, description="Source datasets | مجموعات البيانات المصدر")
+    process_step: list[LI_ProcessStep] = Field(default_factory=list, description="Processing steps | خطوات المعالجة")
 
     def add_step(
         self,
@@ -953,9 +883,7 @@ class MD_Metadata(BaseModel):
         default="ISO 19115-1:2014",
         description="Metadata standard name | اسم معيار البيانات الوصفية",
     )
-    metadata_standard_version: str = Field(
-        default="2014", description="Standard version | إصدار المعيار"
-    )
+    metadata_standard_version: str = Field(default="2014", description="Standard version | إصدار المعيار")
     metadata_contact: list[CI_ResponsibleParty] = Field(
         default_factory=lambda: [CI_ResponsibleParty()],
         description="Metadata point of contact | جهة الاتصال للبيانات الوصفية",
@@ -990,7 +918,9 @@ class MD_Metadata(BaseModel):
                 "fileIdentifier": self.metadata_identifier,
                 "language": self.metadata_language,
                 "characterSet": self.metadata_character_set,
-                "hierarchyLevel": self.hierarchy_level.value if isinstance(self.hierarchy_level, StrEnum) else self.hierarchy_level,
+                "hierarchyLevel": self.hierarchy_level.value
+                if isinstance(self.hierarchy_level, StrEnum)
+                else self.hierarchy_level,
                 "contact": [
                     {
                         "CI_ResponsibleParty": {
@@ -1015,7 +945,9 @@ class MD_Metadata(BaseModel):
                         },
                         "abstract": self.identification_info.abstract,
                         "purpose": self.identification_info.purpose,
-                        "status": self.identification_info.status.value if isinstance(self.identification_info.status, StrEnum) else self.identification_info.status,
+                        "status": self.identification_info.status.value
+                        if isinstance(self.identification_info.status, StrEnum)
+                        else self.identification_info.status,
                         "topicCategory": [
                             tc.value if isinstance(tc, StrEnum) else tc
                             for tc in self.identification_info.topic_category
@@ -1108,8 +1040,6 @@ class GeospatialMetadataRecord(BaseModel):
             "resource_type": self.resource_type,
             "title": self.metadata.identification_info.citation.title,
             "abstract": self.metadata.identification_info.abstract,
-            "crs": self.metadata.reference_system_info[0].code
-            if self.metadata.reference_system_info
-            else "EPSG:4326",
+            "crs": self.metadata.reference_system_info[0].code if self.metadata.reference_system_info else "EPSG:4326",
             "created_at": self.created_at.isoformat(),
         }

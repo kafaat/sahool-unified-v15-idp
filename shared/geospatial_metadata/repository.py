@@ -11,7 +11,6 @@ Version: 16.0.0
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -159,7 +158,8 @@ class GeospatialMetadataRepository:
                 contact.get("organisation_name_ar", "كفاءات - منصة سهول"),
                 contact.get("role", "pointOfContact"),
                 identification.get("resource_maintenance", {}).get("maintenance_frequency", "asNeeded")
-                if identification.get("resource_maintenance") else "asNeeded",
+                if identification.get("resource_maintenance")
+                else "asNeeded",
                 json.dumps(quality) if quality else "{}",
                 lineage.get("statement"),
                 lineage.get("statement_ar"),

@@ -1,0 +1,1723 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="كيف تطبق منصة SAHOOL مفاهيم سلسلة الذكاء الزراعي في خدماتها الفعلية">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>ربط مفاهيم الذكاء الزراعي بمنصة SAHOOL - Platform Mapping - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ربط مفاهيم الذكاء الزراعي بمنصة SAHOOL - Platform Mapping
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-mapping">ربط سلسلة الذكاء الزراعي بمنصة SAHOOL | Platform Mapping<a class="headerlink" href="#sahool-platform-mapping" title="Permanent link">&para;</a></h1>
+<p>كيف تطبق منصة <strong>SAHOOL</strong> مفاهيم سلسلة الذكاء الزراعي AI+ في خدماتها الـ 71 الفعلية.</p>
+<p>How SAHOOL implements the AI+ Agriculture industry chain concepts across its 71 microservices.</p>
+<hr />
+<h2 id="sahool-industry-chain-sahool-services">ربط طبقات سلسلة الصناعة بخدمات SAHOOL | Industry Chain → SAHOOL Services<a class="headerlink" href="#sahool-industry-chain-sahool-services" title="Permanent link">&para;</a></h2>
+<h3 id="data-collection-layer">طبقة جمع البيانات | Data Collection Layer<a class="headerlink" href="#data-collection-layer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مفهوم سلسلة الصناعة</th>
+<th>SAHOOL Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>شبكة مستشعرات IoT</td>
+<td><code>iot-service</code></td>
+<td>8117</td>
+<td>إدارة أجهزة إنترنت الأشياء</td>
+</tr>
+<tr>
+<td>بوابة بروتوكولات IoT</td>
+<td><code>iot-gateway</code></td>
+<td>8106</td>
+<td>بوابة بروتوكولات MQTT/CoAP</td>
+</tr>
+<tr>
+<td>محور المستشعرات</td>
+<td><code>iot-sensor-hub</code></td>
+<td>8251</td>
+<td>تجميع بيانات المستشعرات</td>
+</tr>
+<tr>
+<td>المستشعرات الافتراضية</td>
+<td><code>virtual-sensors</code></td>
+<td>8119</td>
+<td>حساب قيم مشتقة من بيانات المستشعرات</td>
+</tr>
+<tr>
+<td>الاستشعار عن بعد</td>
+<td><code>vegetation-analysis-service</code></td>
+<td>8090</td>
+<td>تحليل صور الأقمار الصناعية (Sentinel)</td>
+</tr>
+<tr>
+<td>بيانات الطقس</td>
+<td><code>weather-service</code></td>
+<td>8092</td>
+<td>جمع ومعالجة البيانات المناخية</td>
+</tr>
+<tr>
+<td>معالجة حافة</td>
+<td><code>edge-orchestrator-service</code></td>
+<td>8180</td>
+<td>إدارة أجهزة Jetson Orin الطرفية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-processing-storage">طبقة معالجة وتخزين البيانات | Data Processing &amp; Storage<a class="headerlink" href="#data-processing-storage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مفهوم سلسلة الصناعة</th>
+<th>SAHOOL Component</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>منصة البيانات الكبرى</td>
+<td>PostgreSQL 16 + PostGIS 3.4</td>
+<td>قاعدة بيانات مكانية متقدمة</td>
+</tr>
+<tr>
+<td>تخزين السلاسل الزمنية</td>
+<td>Redis 7.x + PostgreSQL</td>
+<td>تخزين وتخبئة البيانات الزمنية</td>
+</tr>
+<tr>
+<td>نظام الأحداث</td>
+<td>NATS JetStream</td>
+<td>نقل الأحداث بين الخدمات (4 طبقات)</td>
+</tr>
+<tr>
+<td>تخزين المتجهات</td>
+<td>Qdrant 1.7.x / Milvus 2.3.x</td>
+<td>تخزين المتجهات لنظام RAG</td>
+</tr>
+<tr>
+<td>تتبع النماذج</td>
+<td>MLflow 2.15.x</td>
+<td>إدارة وتتبع نماذج AI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-algorithm-analysis">طبقة تحليل الخوارزميات | AI Algorithm Analysis<a class="headerlink" href="#ai-algorithm-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نموذج سلسلة الصناعة</th>
+<th>SAHOOL Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>نموذج الزراعة الذكية</td>
+<td><code>advisory-service</code></td>
+<td>8093</td>
+<td>توصيات ونصائح زراعية ذكية</td>
+</tr>
+<tr>
+<td>نموذج تقدير الإنتاج</td>
+<td><code>yield-prediction-service</code></td>
+<td>8152</td>
+<td>تنبؤ بالإنتاجية عبر ML</td>
+</tr>
+<tr>
+<td>نموذج الآفات والأمراض</td>
+<td><code>yolo26-vision-service</code></td>
+<td>8150</td>
+<td>كشف 22 آفة + 34 مرض + 12 عشب</td>
+</tr>
+<tr>
+<td>نموذج الآفات (تكميلي)</td>
+<td><code>pest-detection-service</code></td>
+<td>8125</td>
+<td>كشف إضافي للآفات</td>
+</tr>
+<tr>
+<td>نموذج نمو المحاصيل</td>
+<td><code>crop-growth-model</code></td>
+<td>3023</td>
+<td>محاكاة مراحل نمو المحاصيل</td>
+</tr>
+<tr>
+<td>تحليل صحة المحاصيل</td>
+<td><code>crop-intelligence-service</code></td>
+<td>8095</td>
+<td>تحليل ذكي لصحة المحاصيل</td>
+</tr>
+<tr>
+<td>حساب NDVI/LAI</td>
+<td><code>vegetation-analysis-service</code></td>
+<td>8090</td>
+<td>تحليل الغطاء النباتي</td>
+</tr>
+<tr>
+<td>تقدير LAI</td>
+<td><code>lai-estimation</code></td>
+<td>3022</td>
+<td>تقدير مؤشر مساحة الأوراق</td>
+</tr>
+<tr>
+<td>تحليل التربة</td>
+<td><code>soil-analysis-service</code></td>
+<td>8134</td>
+<td>تحليل التربة بالذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td>تحليل التضاريس</td>
+<td><code>terrain-core-service</code></td>
+<td>8185</td>
+<td>تحليل DEM والتضاريس</td>
+</tr>
+<tr>
+<td>تحليل المياه</td>
+<td><code>hydrology-service</code></td>
+<td>8165</td>
+<td>تحليل الصرف والمياه</td>
+</tr>
+<tr>
+<td>رؤية أرضية</td>
+<td><code>ground-vision-service</code></td>
+<td>8182</td>
+<td>تحليل الصور الأرضية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="decision-output">طبقة مخرجات القرار | Decision Output<a class="headerlink" href="#decision-output" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نموذج سلسلة الصناعة</th>
+<th>SAHOOL Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إنذارات مبكرة</td>
+<td><code>alert-service</code></td>
+<td>8113</td>
+<td>نظام التنبيهات والإنذارات</td>
+</tr>
+<tr>
+<td>نظام القرارات الذكي</td>
+<td><code>advisory-service</code></td>
+<td>8093</td>
+<td>محرك التوصيات الزراعية</td>
+</tr>
+<tr>
+<td>الري الذكي</td>
+<td><code>irrigation-smart</code></td>
+<td>8094</td>
+<td>جدولة ري ذكية بالذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td>قواعد زراعية</td>
+<td><code>agro-rules</code></td>
+<td>8151</td>
+<td>محرك القواعد الزراعية</td>
+</tr>
+<tr>
+<td>حلول مخصصة</td>
+<td><code>ai-advisor</code></td>
+<td>8112</td>
+<td>مستشار AI مخصص</td>
+</tr>
+<tr>
+<td>تحسين التسوية</td>
+<td><code>leveling-optimizer-service</code></td>
+<td>8170</td>
+<td>تحسين تسوية الحقول</td>
+</tr>
+<tr>
+<td>تقويم زراعي</td>
+<td><code>astronomical-calendar</code></td>
+<td>8111</td>
+<td>تقويم إسلامي وزراعي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="field-execution">طبقة التنفيذ الميداني | Field Execution<a class="headerlink" href="#field-execution" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نموذج سلسلة الصناعة</th>
+<th>SAHOOL Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إدارة الحقول</td>
+<td><code>field-management-service</code></td>
+<td>3000</td>
+<td>إدارة الحقول (الخدمة الموحدة)</td>
+</tr>
+<tr>
+<td>إدارة المعدات</td>
+<td><code>equipment-service</code></td>
+<td>8101</td>
+<td>تتبع وصيانة المعدات</td>
+</tr>
+<tr>
+<td>إدارة المهام</td>
+<td><code>task-service</code></td>
+<td>8103</td>
+<td>إدارة وتوزيع مهام الحقل</td>
+</tr>
+<tr>
+<td>تكامل الطائرات</td>
+<td><code>drone-service</code></td>
+<td>8126</td>
+<td>تخطيط رحلات الطائرات</td>
+</tr>
+<tr>
+<td>تتبع المنتجات</td>
+<td><code>traceability-service</code></td>
+<td>8123</td>
+<td>تتبع سلسلة التوريد</td>
+</tr>
+<tr>
+<td>السوق الزراعي</td>
+<td><code>marketplace-service</code></td>
+<td>3010</td>
+<td>سوق إلكتروني زراعي</td>
+</tr>
+<tr>
+<td>إشعارات</td>
+<td><code>notification-service</code></td>
+<td>8110</td>
+<td>إشعارات متعددة القنوات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="iot-sahool-iot-architecture-sahool">ربط بنية IoT بمكونات SAHOOL | IoT Architecture → SAHOOL<a class="headerlink" href="#iot-sahool-iot-architecture-sahool" title="Permanent link">&para;</a></h2>
+<h3 id="sahool">طبقة الأجهزة → SAHOOL<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المستشعرات الميدانية
+    │
+    v
+┌───────────────────────────────────────────────┐
+│  shared/soil_sensors/     ← محولات المستشعرات │
+│  shared/irrigation/       ← أجهزة الري        │
+│  shared/weather_alerts/   ← محطات الطقس       │
+└───────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="sahool_1">طبقة الشبكة → SAHOOL<a class="headerlink" href="#sahool_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>بروتوكولات الاتصال
+    │
+    v
+┌───────────────────────────────────────────────┐
+│  iot-gateway (8106)       ← MQTT/CoAP بوابة  │
+│  ws-gateway (8081)        ← WebSocket         │
+│  NATS JetStream           ← أحداث داخلية     │
+│  Mosquitto MQTT 2.x       ← وسيط IoT         │
+└───────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="sahool_2">طبقة المنصة → SAHOOL<a class="headerlink" href="#sahool_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>معالجة وتحليل
+    │
+    v
+┌───────────────────────────────────────────────┐
+│  PostgreSQL 16 + PostGIS  ← تخزين مكاني      │
+│  Redis 7.x                ← تخبئة وجلسات     │
+│  Kong 3.x                 ← بوابة API         │
+│  Prometheus + Grafana     ← مراقبة            │
+│  OpenTelemetry + Jaeger   ← تتبع موزع        │
+│  shared/ai/*              ← نماذج AI          │
+│  shared/monitoring/       ← SLI/SLO           │
+└───────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="sahool_3">طبقة التطبيقات → SAHOOL<a class="headerlink" href="#sahool_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>واجهات المستخدم
+    │
+    v
+┌───────────────────────────────────────────────┐
+│  apps/web/                ← لوحة التحكم       │
+│  apps/admin/              ← بوابة الإدارة     │
+│  apps/mobile/             ← تطبيق الحقل       │
+│    sahool_field_app       ← تطبيق الحقل الرئيسي│
+│    sahol_atmosphere       ← تطبيق الطقس       │
+│  chat-service (8000)      ← دردشة الحقل       │
+│  whatsapp-bot (8240)      ← بوت واتساب        │
+│  ussd-gateway (8183)      ← بوابة USSD        │
+└───────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="sahool-precision-farming-shared-modules">ربط الزراعة الدقيقة بوحدات SAHOOL المشتركة | Precision Farming → Shared Modules<a class="headerlink" href="#sahool-precision-farming-shared-modules" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>مرحلة الزراعة الدقيقة</th>
+<th>SAHOOL Shared Module</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تحليل التربة</td>
+<td><code>shared/soil_testing/</code></td>
+<td>تفسير نتائج فحص التربة</td>
+</tr>
+<tr>
+<td>اختيار الأصناف</td>
+<td><code>shared/crop_rotation/</code></td>
+<td>تخطيط الدورة الزراعية</td>
+</tr>
+<tr>
+<td>الري الذكي</td>
+<td><code>shared/irrigation/</code></td>
+<td>جدولة ري ذكية</td>
+</tr>
+<tr>
+<td>الري ML</td>
+<td><code>shared/ml_irrigation/</code></td>
+<td>تحسين الري بالتعلم الآلي</td>
+</tr>
+<tr>
+<td>إدارة المياه</td>
+<td><code>shared/water_management/</code></td>
+<td>رصد كفاءة استخدام المياه</td>
+</tr>
+<tr>
+<td>إدارة الملوحة</td>
+<td><code>shared/salinity/</code></td>
+<td>مراقبة ملوحة التربة</td>
+</tr>
+<tr>
+<td>التسميد</td>
+<td><code>shared/fertilizer_management/</code></td>
+<td>توصيات المغذيات</td>
+</tr>
+<tr>
+<td>رصد الآفات</td>
+<td><code>shared/pest_scouting/</code></td>
+<td>مسح ورصد الآفات</td>
+</tr>
+<tr>
+<td>الامتثال للمبيدات</td>
+<td><code>shared/pesticide_compliance/</code></td>
+<td>سلامة المبيدات (PHI)</td>
+</tr>
+<tr>
+<td>التقويم الزراعي</td>
+<td><code>shared/agri_calendar/</code></td>
+<td>مواعيد الزراعة والحصاد</td>
+</tr>
+<tr>
+<td>حدود الحقول</td>
+<td><code>shared/field_boundaries/</code></td>
+<td>عمليات جغرافية مكانية</td>
+</tr>
+<tr>
+<td>جودة الحصاد</td>
+<td><code>shared/harvest_quality/</code></td>
+<td>فرز وتصنيف الجودة</td>
+</tr>
+<tr>
+<td>تكامل الطائرات</td>
+<td><code>shared/drone_integration/</code></td>
+<td>تخطيط VRA</td>
+</tr>
+<tr>
+<td>التأمين</td>
+<td><code>shared/crop_insurance/</code></td>
+<td>تقييم المخاطر</td>
+</tr>
+<tr>
+<td>السوق</td>
+<td><code>shared/market_prices/</code></td>
+<td>تتبع الأسعار</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="event-architecture-mapping">ربط بنية الأحداث | Event Architecture Mapping<a class="headerlink" href="#event-architecture-mapping" title="Permanent link">&para;</a></h2>
+<p>بنية SAHOOL ذات الأربع طبقات تتوافق مباشرة مع سلسلة الصناعة:</p>
+<table>
+<thead>
+<tr>
+<th>طبقة سلسلة الصناعة</th>
+<th>طبقة أحداث SAHOOL</th>
+<th>خدمات SAHOOL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>جمع البيانات</strong></td>
+<td><strong>Acquisition</strong></td>
+<td>vegetation-analysis, iot-service, weather-service, virtual-sensors, iot-gateway, edge-orchestrator</td>
+</tr>
+<tr>
+<td><strong>تحليل الخوارزميات</strong></td>
+<td><strong>Intelligence</strong></td>
+<td>indicators-service, lai-estimation, crop-intelligence, yolo26-vision, terrain-core, field-intelligence</td>
+</tr>
+<tr>
+<td><strong>مخرجات القرار</strong></td>
+<td><strong>Decision</strong></td>
+<td>crop-growth-model, advisory-service, irrigation-smart, yield-prediction, hydrology, leveling-optimizer</td>
+</tr>
+<tr>
+<td><strong>التنفيذ الميداني</strong></td>
+<td><strong>Business</strong></td>
+<td>notification-service, marketplace, billing-core, chat-service, task-service, equipment-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="event-patterns">نمط الأحداث | Event Patterns<a class="headerlink" href="#event-patterns" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> جمع البيانات → تحليل
+sahool.iot.sensor_reading    → indicators-service → sahool.indicator.computed
+sahool.satellite.ndvi_ready  → vegetation-analysis → sahool.field.health_updated
+
+<span class="gh">#</span> تحليل → قرار
+sahool.vision.pest_detected  → advisory-service → sahool.advisory.recommendation_created
+sahool.indicator.threshold_exceeded → alert-service → sahool.alert.created
+
+<span class="gh">#</span> قرار → تنفيذ
+sahool.advisory.irrigation_needed → irrigation-smart → sahool.irrigation.scheduled
+sahool.alert.created → notification-service → sahool.notification.sent
+</code></pre></div>
+
+<hr />
+<h2 id="sahool-additional-ai-services">الخدمات الذكية الإضافية في SAHOOL | Additional AI Services<a class="headerlink" href="#sahool-additional-ai-services" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>الوصف</th>
+<th>الربط</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>copilot-api</code></td>
+<td>8088</td>
+<td>مساعد AI متعدد LLM مع RAG</td>
+<td>مستشار ذكي شامل</td>
+</tr>
+<tr>
+<td><code>ai-chat-assistant</code></td>
+<td>8260</td>
+<td>مساعد دردشة AI</td>
+<td>تفاعل مع المزارعين</td>
+</tr>
+<tr>
+<td><code>knowledge-graph</code></td>
+<td>8140</td>
+<td>رسم بياني للمعرفة</td>
+<td>ربط المعلومات الزراعية</td>
+</tr>
+<tr>
+<td><code>llm-orchestrator-service</code></td>
+<td>8164</td>
+<td>تنسيق LLM</td>
+<td>إدارة نماذج اللغة</td>
+</tr>
+<tr>
+<td><code>agent-registry</code></td>
+<td>8160</td>
+<td>سجل الوكلاء</td>
+<td>تنسيق وكلاء AI</td>
+</tr>
+<tr>
+<td><code>skills-service</code></td>
+<td>8121</td>
+<td>تقييم المهارات</td>
+<td>تقييم مهارات المزارعين</td>
+</tr>
+<tr>
+<td><code>digital-twin-engine</code></td>
+<td>8253</td>
+<td>التوائم الرقمية</td>
+<td>محاكاة افتراضية للحقول</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>ملاحظة</strong>: منصة SAHOOL تطبق بالفعل جميع طبقات سلسلة الذكاء الزراعي عبر بنيتها الخدمية المصغرة (71 خدمة) مع ميزة فريدة: <strong>الأولوية للعمل دون اتصال</strong> (Offline-First) المصممة خصيصاً لبيئات الاتصال المحدود في الشرق الأوسط.</p>
+</blockquote>
+<p><em>آخر تحديث: مارس 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

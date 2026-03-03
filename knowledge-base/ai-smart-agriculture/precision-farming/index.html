@@ -1,0 +1,1569 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="إدارة دورة حياة المحاصيل بالكامل باستخدام الذكاء الاصطناعي">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>الزراعة الدقيقة بالذكاء الاصطناعي - AI Precision Farming - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ai-precision-farming" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              الزراعة الدقيقة بالذكاء الاصطناعي - AI Precision Farming
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ai-precision-farming">الزراعة الدقيقة | AI Precision Farming<a class="headerlink" href="#ai-precision-farming" title="Permanent link">&para;</a></h1>
+<p>إدارة دورة حياة المحاصيل بالكامل بواسطة الذكاء الاصطناعي - من تحليل التربة قبل الزرع إلى اختبار الجودة عند الحصاد.</p>
+<p>Full crop lifecycle management powered by AI - from pre-planting soil analysis to harvest quality testing.</p>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>الزراعة الدقيقة تحقق الإدارة الذكية لدورة حياة المحاصيل بأكملها من خلال تكنولوجيا الذكاء الاصطناعي، مما أدى إلى:</p>
+<ul>
+<li>تحسين كفاءة الإنتاج بأكثر من <strong>30%</strong></li>
+<li>زيادة استخدام الموارد بنسبة <strong>25%</strong></li>
+<li>تقليل كبير في تكاليف الإنتاج والتأثير البيئي</li>
+</ul>
+<hr />
+<h2 id="intelligent-management-stages">مراحل الإدارة الذكية | Intelligent Management Stages<a class="headerlink" href="#intelligent-management-stages" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌──────────────────────────────────────────────────────────────────────────────────┐
+│                    الإدارة الذكية الكاملة للزراعة الدقيقة                        │
+│                  Precision Planting: Full AI Management                          │
+└──────────────────────────────────────────────────────────────────────────────────┘
+        │
+        v
+┌──────────────────────────────────────────┐
+│  المرحلة 1: اختيار الأصناف وتحليل التربة │
+│  AI Seed Selection + Soil Analysis        │
+│                                           │
+│  النتائج:                                 │
+│  - تحسين ملاءمة البذور بنسبة 20%         │
+│  - رفع معدل الإنبات بنسبة 15%            │
+└──────────────┬───────────────────────────┘
+               v
+┌──────────────────────────────────────────┐
+│  المرحلة 2: الري الذكي بالذكاء الاصطناعي │
+│  Smart Monitoring + AI Irrigation         │
+│                                           │
+│  النتائج:                                 │
+│  - توفير المياه بنسبة 20%+               │
+│  - تجنب الإفراط والنقص في الري            │
+└──────────────┬───────────────────────────┘
+               v
+┌──────────────────────────────────────────┐
+│  المرحلة 3: التسميد المتغير الدقيق       │
+│  Nutrient Sensing + Variable Rate         │
+│                                           │
+│  النتائج:                                 │
+│  - توفير الأسمدة بنسبة 18%+              │
+│  - زيادة إنتاج المحاصيل 10%              │
+└──────────────┬───────────────────────────┘
+               v
+┌──────────────────────────────────────────┐
+│  المرحلة 4: مكافحة الآفات والأمراض       │
+│  Image Recognition + AI Prediction        │
+│                                           │
+│  النتائج:                                 │
+│  - تقليل استخدام المبيدات 25%             │
+│  - خفض خسائر المحاصيل 12%               │
+└──────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="1-seed-selection-soil-analysis">المرحلة 1: اختيار الأصناف وتحليل التربة | Seed Selection &amp; Soil Analysis<a class="headerlink" href="#1-seed-selection-soil-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="technologies">التقنيات المستخدمة | Technologies<a class="headerlink" href="#technologies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Technology</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>نموذج اختيار الأصناف بالذكاء الاصطناعي</strong></td>
+<td>AI Seed Selection Model</td>
+<td>تحليل متعدد الأبعاد للتربة والمناخ لاختيار الصنف الأمثل</td>
+</tr>
+<tr>
+<td><strong>تحليل التربة متعدد الأبعاد</strong></td>
+<td>Multi-dimensional Soil Analysis</td>
+<td>فحص NPK، pH، EC، الملمس، المادة العضوية</td>
+</tr>
+<tr>
+<td><strong>التحليل المكاني</strong></td>
+<td>Spatial Analysis</td>
+<td>خرائط خصوبة التربة عبر PostGIS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inputs-outputs">المدخلات والمخرجات | Inputs &amp; Outputs<a class="headerlink" href="#inputs-outputs" title="Permanent link">&para;</a></h3>
+<p><strong>المدخلات</strong>:
+- نتائج فحص التربة (pH، EC، NPK، مادة عضوية)
+- البيانات المناخية التاريخية (5-10 سنوات)
+- تاريخ المحاصيل في الحقل (دورة زراعية)
+- توفر المياه ونوعيتها</p>
+<p><strong>المخرجات</strong>:
+- ترتيب الأصناف حسب الملاءمة (نسبة ملاءمة لكل صنف)
+- خريطة توزيع البذور المتغيرة (Variable Rate Seeding Map)
+- توصيات معالجة التربة قبل الزراعة</p>
+<h3 id="expected-results">النتائج المتوقعة | Expected Results<a class="headerlink" href="#expected-results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Metric</th>
+<th>التحسن</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ملاءمة البذور</td>
+<td>Seed Suitability</td>
+<td>+20%</td>
+</tr>
+<tr>
+<td>معدل الإنبات</td>
+<td>Germination Rate</td>
+<td>+15%</td>
+</tr>
+<tr>
+<td>تكلفة البذور</td>
+<td>Seed Cost</td>
+<td>-10%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-smart-irrigation">المرحلة 2: الري الذكي | Smart Irrigation<a class="headerlink" href="#2-smart-irrigation" title="Permanent link">&para;</a></h2>
+<h3 id="technologies_1">التقنيات المستخدمة | Technologies<a class="headerlink" href="#technologies_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Technology</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>رصد ذكي للمحاصيل</strong></td>
+<td>Smart Crop Monitoring</td>
+<td>مراقبة مستمرة لحالة المحصول عبر المستشعرات</td>
+</tr>
+<tr>
+<td><strong>استراتيجية ري ديناميكية بالذكاء الاصطناعي</strong></td>
+<td>AI Dynamic Irrigation Strategy</td>
+<td>جدولة ري تتكيف مع الظروف الفعلية</td>
+</tr>
+<tr>
+<td><strong>التنبؤ بالتبخر-نتح</strong></td>
+<td>ET Prediction</td>
+<td>نماذج Penman-Monteith محسنة بالذكاء الاصطناعي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="decision-algorithm">خوارزمية القرار | Decision Algorithm<a class="headerlink" href="#decision-algorithm" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">قراءة</span><span class="w"> </span><span class="n">رطوبة</span><span class="w"> </span><span class="n">التربة</span><span class="w"> </span><span class="n">الحالية</span><span class="w"> </span><span class="p">(</span><span class="n">SM%</span><span class="p">)</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">استرجاع</span><span class="w"> </span><span class="n">توقعات</span><span class="w"> </span><span class="n">الطقس</span><span class="w"> </span><span class="p">(</span><span class="mf">48</span><span class="w"> </span><span class="n">ساعة</span><span class="p">)</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">تحديد</span><span class="w"> </span><span class="n">مرحلة</span><span class="w"> </span><span class="n">نمو</span><span class="w"> </span><span class="n">المحصول</span><span class="w"> </span><span class="p">(</span><span class="n">Zadoks</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">BBCH</span><span class="p">)</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">حساب</span><span class="w"> </span><span class="n">الاحتياج</span><span class="w"> </span><span class="n">المائي</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ET₀</span><span class="w"> </span><span class="err">×</span><span class="w"> </span><span class="n">Kc</span><span class="w"> </span><span class="err">×</span><span class="w"> </span><span class="n">Area</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">تعديل</span><span class="w"> </span><span class="n">بناء</span><span class="err">ً</span><span class="w"> </span><span class="n">على</span><span class="p">:</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">احتمالية</span><span class="w"> </span><span class="n">هطول</span><span class="w"> </span><span class="n">المطر</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">نوع</span><span class="w"> </span><span class="n">نظام</span><span class="w"> </span><span class="n">الري</span><span class="w"> </span><span class="p">(</span><span class="n">كفاءة</span><span class="p">)</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">ملوحة</span><span class="w"> </span><span class="n">التربة</span><span class="w"> </span><span class="n">والمياه</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">إصدار</span><span class="w"> </span><span class="n">أمر</span><span class="w"> </span><span class="n">الري</span><span class="w"> </span><span class="p">(</span><span class="n">الكمية</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">المدة</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">التوقيت</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="expected-results_1">النتائج المتوقعة | Expected Results<a class="headerlink" href="#expected-results_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Metric</th>
+<th>التحسن</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توفير المياه</td>
+<td>Water Savings</td>
+<td>+20%</td>
+</tr>
+<tr>
+<td>تجنب الري الزائد</td>
+<td>Over-irrigation Prevention</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>تجنب الإجهاد المائي</td>
+<td>Water Stress Prevention</td>
+<td>&gt; 90%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-variable-rate-fertilization">المرحلة 3: التسميد المتغير الدقيق | Variable Rate Fertilization<a class="headerlink" href="#3-variable-rate-fertilization" title="Permanent link">&para;</a></h2>
+<h3 id="technologies_2">التقنيات المستخدمة | Technologies<a class="headerlink" href="#technologies_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Technology</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>استشعار مغذيات المحاصيل</strong></td>
+<td>Crop Nutrient Sensing</td>
+<td>كشف نقص العناصر عبر التصوير متعدد الأطياف</td>
+</tr>
+<tr>
+<td><strong>نظام تسميد متغير دقيق</strong></td>
+<td>Variable Rate Fertilization</td>
+<td>تطبيق كميات مختلفة حسب الموقع في الحقل</td>
+</tr>
+<tr>
+<td><strong>خرائط خصوبة التربة</strong></td>
+<td>Soil Fertility Maps</td>
+<td>خرائط GIS محدثة للمغذيات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendation-model">نموذج التوصية | Recommendation Model<a class="headerlink" href="#recommendation-model" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المدخلات:
+├── نتائج فحص التربة (N, P, K, Zn, Fe, B)
+├── مرحلة نمو المحصول
+├── الإنتاجية المستهدفة (طن/هكتار)
+├── تاريخ التسميد السابق
+└── سعر الأسمدة في السوق
+
+المخرجات:
+├── نوع السماد الموصى به
+├── الكمية (كجم/هكتار) - متغيرة حسب المنطقة
+├── طريقة التطبيق (رش، حقن، نثر)
+├── التوقيت الأمثل
+└── تحليل التكلفة/العائد (ROI)
+</code></pre></div>
+
+<h3 id="expected-results_2">النتائج المتوقعة | Expected Results<a class="headerlink" href="#expected-results_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Metric</th>
+<th>التحسن</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توفير الأسمدة</td>
+<td>Fertilizer Savings</td>
+<td>+18%</td>
+</tr>
+<tr>
+<td>زيادة الإنتاج</td>
+<td>Yield Increase</td>
+<td>+10%</td>
+</tr>
+<tr>
+<td>تقليل التلوث</td>
+<td>Pollution Reduction</td>
+<td>-20%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-pest-disease-control">المرحلة 4: مكافحة الآفات والأمراض | Pest &amp; Disease Control<a class="headerlink" href="#4-pest-disease-control" title="Permanent link">&para;</a></h2>
+<h3 id="technologies_3">التقنيات المستخدمة | Technologies<a class="headerlink" href="#technologies_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Technology</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>التعرف بالصور والإنذار المبكر</strong></td>
+<td>Image Recognition &amp; Early Warning</td>
+<td>كشف الآفات والأمراض من صور الحقل</td>
+</tr>
+<tr>
+<td><strong>نموذج التنبؤ بالذكاء الاصطناعي</strong></td>
+<td>AI Prediction Model</td>
+<td>توقع احتمالية الإصابة قبل ظهور الأعراض</td>
+</tr>
+<tr>
+<td><strong>المكافحة المتكاملة الذكية</strong></td>
+<td>Smart IPM</td>
+<td>بروتوكولات مكافحة متعددة المستويات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="diagnostic-pipeline">مسار التشخيص | Diagnostic Pipeline<a class="headerlink" href="#diagnostic-pipeline" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>صورة المحصول ──&gt; معالجة أولية ──&gt; نموذج YOLO26 ──&gt; تصنيف ──&gt; شدة ──&gt; توصية
+Crop Image   ──&gt; Preprocessing ──&gt; YOLO26 Model ──&gt; Classify ──&gt; Severity ──&gt; Recommendation
+</code></pre></div>
+
+<h3 id="detection-categories">فئات الكشف | Detection Categories<a class="headerlink" href="#detection-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>Category</th>
+<th>عدد الأنواع</th>
+<th>أمثلة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الآفات الحشرية</strong></td>
+<td>Pests</td>
+<td>22 نوع</td>
+<td>سوسة النخيل الحمراء، المن، الذبابة البيضاء، الجراد</td>
+</tr>
+<tr>
+<td><strong>الأمراض النباتية</strong></td>
+<td>Diseases</td>
+<td>34 مرض</td>
+<td>صدأ القمح، اللفحة، الذبول الفيوزاري</td>
+</tr>
+<tr>
+<td><strong>الأعشاب الضارة</strong></td>
+<td>Weeds</td>
+<td>12 نوع</td>
+<td>الشوفان البري، النجيل، اللبلاب</td>
+</tr>
+</tbody>
+</table>
+<h3 id="expected-results_3">النتائج المتوقعة | Expected Results<a class="headerlink" href="#expected-results_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Metric</th>
+<th>التحسن</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تقليل المبيدات</td>
+<td>Pesticide Reduction</td>
+<td>-25%</td>
+</tr>
+<tr>
+<td>خفض خسائر المحاصيل</td>
+<td>Crop Loss Reduction</td>
+<td>-12%</td>
+</tr>
+<tr>
+<td>دقة التشخيص</td>
+<td>Diagnosis Accuracy</td>
+<td>&gt; 90%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="core-application-scenarios">سيناريوهات التطبيق الأساسية | Core Application Scenarios<a class="headerlink" href="#core-application-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="1-smart-soil-nutrient-analysis">1. التحليل الذكي لمغذيات التربة | Smart Soil Nutrient Analysis<a class="headerlink" href="#1-smart-soil-nutrient-analysis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تحليل آلي لعينات التربة عبر مستشعرات IoT</li>
+<li>خرائط خصوبة ديناميكية محدثة</li>
+<li>توصيات تسميد مخصصة لكل منطقة</li>
+</ul>
+<h3 id="2-dynamic-crop-growth-monitoring">2. الرصد الديناميكي لنمو المحاصيل | Dynamic Crop Growth Monitoring<a class="headerlink" href="#2-dynamic-crop-growth-monitoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تتبع مراحل النمو عبر NDVI وLAI</li>
+<li>مقارنة النمو الفعلي بالمتوقع</li>
+<li>إنذارات مبكرة عند الانحراف</li>
+</ul>
+<h3 id="3-precision-irrigation-decision-making">3. اتخاذ قرارات الري الدقيقة | Precision Irrigation Decision-Making<a class="headerlink" href="#3-precision-irrigation-decision-making" title="Permanent link">&para;</a></h3>
+<ul>
+<li>حساب ET₀ × Kc تلقائي</li>
+<li>تكامل مع توقعات الطقس</li>
+<li>أوامر ري آلية مع تعديل فوري</li>
+</ul>
+<h3 id="4-smart-pest-disease-recognition">4. التعرف الذكي على الآفات والأمراض | Smart Pest &amp; Disease Recognition<a class="headerlink" href="#4-smart-pest-disease-recognition" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تصوير بالطائرات أو الهاتف</li>
+<li>تشخيص فوري بالذكاء الاصطناعي</li>
+<li>توصيات مكافحة ثنائية اللغة (عربي/إنجليزي)</li>
+</ul>
+<h3 id="5-yield-prediction-quality-assessment">5. توقع الإنتاج وتقييم الجودة | Yield Prediction &amp; Quality Assessment<a class="headerlink" href="#5-yield-prediction-quality-assessment" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تقدير الإنتاج في منتصف الموسم</li>
+<li>تصنيف جودة المحصول قبل الحصاد</li>
+<li>تحسين توقيت الحصاد</li>
+</ul>
+<hr />
+<blockquote>
+<p><strong>ملاحظة</strong>: جميع النتائج الكمية مبنية على دراسات ميدانية وتجارب عملية. النتائج الفعلية تتأثر بالظروف المحلية.</p>
+</blockquote>
+<p><em>آخر تحديث: مارس 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

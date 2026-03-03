@@ -33,7 +33,6 @@ from shared.geospatial_metadata import (
     EX_TemporalExtent,
     DataQualityReport,
     DQ_Scope,
-    DQ_Element,
     LI_Lineage,
     LI_ProcessStep,
     LI_Source,

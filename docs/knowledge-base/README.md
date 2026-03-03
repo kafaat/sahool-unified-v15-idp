@@ -7,7 +7,7 @@ tags:
   - arabic
   - sahool
 category: overview
-last_updated: 2026-03-02
+last_updated: 2026-03-03
 version: 2.0.0
 ---
 
@@ -86,6 +86,19 @@ version: 2.0.0
 - [[remote-sensing/lai-guide|مؤشر مساحة الأوراق LAI]] - كثافة الغطاء
 - [[remote-sensing/water-stress-index|مؤشر الإجهاد المائي]] - كشف العطش
 - [[remote-sensing/sentinel-guide|دليل Sentinel-2]] - بيانات مجانية
+
+### [[ai-smart-agriculture/README|الذكاء الاصطناعي والزراعة الذكية (AI + Smart Agriculture)]] — 10 وثائق
+تحليل شامل لسلسلة صناعة الذكاء الزراعي:
+- [[ai-smart-agriculture/industry-chain|سلسلة الصناعة (Industry Chain)]] - الخريطة البانورامية الكاملة
+- [[ai-smart-agriculture/precision-farming|الزراعة الدقيقة (Precision Farming)]] - إدارة دورة حياة المحاصيل بالذكاء الاصطناعي
+- [[ai-smart-agriculture/smart-farm|المزارع الذكية (Smart Farm)]] - من العمليات اللامركزية إلى التحكم المركزي
+- [[ai-smart-agriculture/iot-architecture|بنية إنترنت الأشياء (IoT Architecture)]] - طبقات النظام الأربع
+- [[ai-smart-agriculture/market-data|بيانات السوق (Market Data)]] - إحصائيات سوق الذكاء الزراعي عالمياً وإقليمياً
+- [[ai-smart-agriculture/international-comparison|المقارنة الدولية (International Comparison)]] - نماذج إسرائيل واليابان والصين وMENA
+- [[ai-smart-agriculture/agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة
+- [[ai-smart-agriculture/policies-standards|السياسات والمعايير (Policies & Standards)]] - الأطر التنظيمية وحوكمة البيانات
+- [[ai-smart-agriculture/trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة
+- [[ai-smart-agriculture/sahool-platform-mapping|ربط SAHOOL (Platform Mapping)]] - كيف يطبق SAHOOL هذه المفاهيم
 
 ### [[best-practices/README|الممارسات الزراعية المثلى (Best Practices)]]
 إرشادات للزراعة المستدامة:

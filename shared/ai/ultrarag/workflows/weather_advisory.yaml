@@ -1,0 +1,92 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Weather Advisory for Agriculture
+# سير عمل استشارات الطقس الزراعية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: weather_advisory_workflow
+name: Agricultural Weather Advisory
+name_ar: استشارات الطقس الزراعية
+description: |
+  Weather-informed agricultural advisory combining forecast data with crop
+  vulnerability assessment and protective action recommendations.
+description_ar: |
+  استشارات زراعية مبنية على الطقس تجمع بين بيانات التنبؤ وتقييم
+  حساسية المحصول وتوصيات إجراءات الحماية.
+version: "1.0.0"
+
+variables:
+  weather_forecast: {}
+  crop_type: ""
+  growth_stage: ""
+  region: ""
+  field_id: ""
+  top_k: 8
+
+entry_point: analyze_weather_risks
+
+steps:
+  - id: analyze_weather_risks
+    type: transform
+    name: Analyze weather risks for agriculture
+    config:
+      type: analysis
+      inputs:
+        - weather_forecast
+        - crop_type
+        - growth_stage
+      output: weather_risk_analysis
+      analysis_type: agricultural_weather_risk
+    next_step: retrieve_weather_knowledge
+
+  - id: retrieve_weather_knowledge
+    type: retrieve
+    name: Get weather impact knowledge
+    config:
+      query: "Weather effects on ${crop_type} at ${growth_stage} frost heat wind drought"
+      collection: weather_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_protection_measures
+
+  - id: retrieve_protection_measures
+    type: retrieve
+    name: Get crop protection measures
+    config:
+      query: "Protection measures for ${crop_type} against weather extremes ${region}"
+      collection: crop_knowledge
+      top_k: 5
+      strategy: hybrid
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank weather advisory results
+    config:
+      method: cross_encoder
+      top_k: 8
+    next_step: generate_advisory
+
+  - id: generate_advisory
+    type: generate
+    name: Generate weather advisory
+    config:
+      template: |
+        Based on the weather forecast and crop conditions, provide a bilingual advisory:
+        - Current weather risk assessment (frost, heat, wind, drought)
+        - Impact on crop at current growth stage
+        - Recommended protective actions with timing
+        - Irrigation adjustments based on weather
+        - Spray window recommendations
+      language: both
+      max_tokens: 1200
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return weather advisory
+    config:
+      output_fields:
+        - advisory
+        - risk_level
+        - confidence
+        - sources

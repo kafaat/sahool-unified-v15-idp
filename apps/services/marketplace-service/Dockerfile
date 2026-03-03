@@ -58,9 +58,6 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
-# Download Prisma engine binaries (skipped by --ignore-scripts)
-RUN npm rebuild prisma @prisma/client 2>/dev/null || true
-
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \

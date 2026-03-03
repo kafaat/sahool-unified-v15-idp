@@ -1,0 +1,100 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Soil Analysis Advisory
+# سير عمل استشارات تحليل التربة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: soil_analysis_advisory_workflow
+name: Soil Analysis Advisory
+name_ar: استشارات تحليل التربة
+description: |
+  Soil analysis interpretation system that provides soil health assessment,
+  amendment recommendations, and crop suitability based on soil test results.
+description_ar: |
+  نظام تفسير تحليل التربة يقدم تقييم صحة التربة وتوصيات
+  التعديل وملاءمة المحاصيل بناءً على نتائج فحص التربة.
+version: "1.0.0"
+
+variables:
+  soil_test: {}
+  field_id: ""
+  target_crop: ""
+  region: ""
+  top_k: 8
+
+entry_point: analyze_soil_properties
+
+steps:
+  - id: analyze_soil_properties
+    type: transform
+    name: Analyze soil test results
+    config:
+      type: analysis
+      inputs:
+        - soil_test
+        - region
+      output: soil_analysis
+      analysis_type: soil_health
+    next_step: retrieve_soil_type_info
+
+  - id: retrieve_soil_type_info
+    type: retrieve
+    name: Get soil type characteristics
+    config:
+      query: "Soil type properties pH ${soil_test.ph} EC ${soil_test.ec} texture classification"
+      collection: soil_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_amendment_info
+
+  - id: retrieve_amendment_info
+    type: retrieve
+    name: Get soil amendment recommendations
+    config:
+      query: "Soil amendments for pH ${soil_test.ph} organic matter improvement salinity management"
+      collection: soil_knowledge
+      top_k: 5
+      strategy: hybrid
+    next_step: retrieve_crop_suitability
+
+  - id: retrieve_crop_suitability
+    type: retrieve
+    name: Get crop suitability for soil type
+    config:
+      query: "Crops suitable for soil pH ${soil_test.ph} EC ${soil_test.ec} ${region}"
+      collection: crop_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank soil analysis results
+    config:
+      method: cross_encoder
+      top_k: 8
+    next_step: generate_analysis
+
+  - id: generate_analysis
+    type: generate
+    name: Generate soil analysis report
+    config:
+      template: |
+        Provide a comprehensive soil analysis report in Arabic and English:
+        - Soil type classification and properties
+        - Nutrient status assessment (N, P, K, micronutrients)
+        - Salinity/alkalinity assessment
+        - Amendment recommendations with rates
+        - Suitable crops for this soil type
+        - Long-term soil health improvement plan
+      language: both
+      max_tokens: 1500
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return soil analysis advisory
+    config:
+      output_fields:
+        - analysis_report
+        - confidence
+        - sources

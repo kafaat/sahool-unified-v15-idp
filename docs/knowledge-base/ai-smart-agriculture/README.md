@@ -19,9 +19,20 @@ version: 1.0.0
 
 ## الوثائق | Documents
 
+### البنية والمفاهيم | Architecture & Concepts
 - [[industry-chain|سلسلة الصناعة (Industry Chain)]] - الخريطة البانورامية الكاملة
 - [[precision-farming|الزراعة الدقيقة (Precision Farming)]] - إدارة دورة حياة المحاصيل بالذكاء الاصطناعي
 - [[smart-farm|المزارع الذكية (Smart Farm)]] - من العمليات اللامركزية إلى التحكم المركزي
 - [[iot-architecture|بنية إنترنت الأشياء (IoT Architecture)]] - طبقات النظام الأربع
+
+### السوق والمقارنات | Market & Comparisons
+- [[market-data|بيانات السوق (Market Data)]] - إحصائيات ونمو سوق الذكاء الزراعي عالمياً وإقليمياً
+- [[international-comparison|المقارنة الدولية (International Comparison)]] - إسرائيل واليابان والصين ومنطقة MENA
+
+### التقنيات والمعايير | Technologies & Standards
+- [[agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة في الزراعة
+- [[policies-standards|السياسات والمعايير (Policies & Standards)]] - الأطر التنظيمية وحوكمة البيانات
+
+### الاتجاهات والتطبيق | Trends & Implementation
 - [[trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة
 - [[sahool-platform-mapping|ربط SAHOOL (Platform Mapping)]] - كيف يطبق SAHOOL هذه المفاهيم

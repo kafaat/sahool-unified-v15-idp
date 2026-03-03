@@ -40,18 +40,22 @@ RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-ev
 # during npm install (shared-events was already built at lines 25-27)
 RUN npm pkg delete scripts.prepublish --prefix ../packages/shared-events 2>/dev/null || true
 
-# Install all dependencies with retry for network resilience
+# Install all dependencies with --ignore-scripts to avoid postinstall failures
+# (Prisma engine downloads and file: dependency lifecycle scripts are handled separately)
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+
+# Download Prisma engine binaries (skipped by --ignore-scripts)
+RUN npm rebuild prisma @prisma/client 2>/dev/null || true
 
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f node_modules/.prisma/client/index.js || \
+    (test -f node_modules/.prisma/client/index.js || test -f prisma/generated/client/index.js) || \
     (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
-     test -f node_modules/.prisma/client/index.js) || \
+     (test -f node_modules/.prisma/client/index.js || test -f prisma/generated/client/index.js)) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build NestJS application using nest build directly (skip prebuild to avoid

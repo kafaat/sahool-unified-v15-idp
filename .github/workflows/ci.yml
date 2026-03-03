@@ -282,7 +282,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis --quiet
+          # Core test framework and dependencies
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout --quiet
+          pip install httpx pyjwt fastapi pydantic jsonschema sqlalchemy structlog redis --quiet
+          # ORM and optional deps (may fail on some platforms)
+          pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
+          pip install langchain-anthropic --quiet || echo "::warning::langchain-anthropic install failed, some tests may skip"
           # AI module dependencies for unit tests
           pip install numpy pillow aiofiles --quiet
           # 2FA, NATS, and additional unit test dependencies
@@ -516,6 +521,9 @@ jobs:
           fi
         env:
           ENVIRONMENT: test
+          PYTHONPATH: .
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
           DATABASE_URL: ""
           NATS_URL: ""
 
@@ -798,13 +806,17 @@ jobs:
         run: |
           pip install safety bandit detect-secrets
 
-      - name: Install Trivy 0.69.1
+      - name: Install Trivy
         run: |
-          echo "📦 Installing Trivy 0.69.1..."
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo "deb https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y trivy=0.69.1
+          echo "📦 Installing Trivy..."
+          # Use official install script (auto-fetches latest stable release)
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin || {
+            # Fallback: install via apt repo
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+            echo "deb https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+            sudo apt-get update
+            sudo apt-get install -y trivy
+          }
           trivy --version
 
       - name: Run Bandit (Python security linter)
@@ -827,7 +839,7 @@ jobs:
           # Ensure SARIF file exists
           if [ ! -f "trivy-results.sarif" ]; then
             echo "Creating empty SARIF file..."
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.69.1"}},"results":[]}]}' > trivy-results.sarif
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"latest"}},"results":[]}]}' > trivy-results.sarif
           fi
 
       - name: Upload Trivy scan results to GitHub Security tab

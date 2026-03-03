@@ -5,6 +5,7 @@
 
 generator client {
   provider        = "prisma-client-js"
+  output          = "./generated/client"
   previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
@@ -49,7 +50,7 @@ model Farm {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   fields Field[]
@@ -110,7 +111,7 @@ model Field {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   boundaryHistory FieldBoundaryHistory[]
@@ -142,11 +143,11 @@ model FieldBoundaryHistory {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Field Reference
   fieldId         String @map("field_id") @db.Uuid
-  versionAtChange Int    @map("version_at_change")
+  versionAtChange Int    @default(1) @map("version_at_change")
 
   // Boundary Snapshots (PostGIS)
   previousBoundary Unsupported("geometry(Polygon, 4326)")? @map("previous_boundary")
@@ -205,7 +206,7 @@ model SyncStatus {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@unique([deviceId, userId], name: "idx_sync_device_user")
@@ -222,7 +223,7 @@ model Task {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Task Info
   title       String    @db.VarChar(255)
@@ -239,7 +240,7 @@ model Task {
 
   // Assignment
   assignedTo String? @map("assigned_to") @db.VarChar(100)
-  createdBy  String  @map("created_by") @db.VarChar(100)
+  createdBy  String  @default("system") @map("created_by") @db.VarChar(100)
 
   // Field Reference
   fieldId String? @map("field_id") @db.Uuid
@@ -258,7 +259,7 @@ model Task {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@index([tenantId], name: "idx_task_tenant")
@@ -286,7 +287,7 @@ model NdviReading {
   id String @id @default(uuid()) @db.Uuid
 
   // Tenant Isolation
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Field Reference
   fieldId String @map("field_id") @db.Uuid

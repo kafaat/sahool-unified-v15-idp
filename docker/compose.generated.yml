@@ -2763,6 +2763,45 @@ services:
     - sahool.category=intelligence
     - traefik.enable=true
     - traefik.http.routers.llm-orchestrator-service.rule=PathPrefix(`/api/v1/llm/orchestrator/service`)
+  vllm-deepseek:
+    build:
+      context: ./apps/services/vllm-deepseek
+      dockerfile: Dockerfile
+    container_name: sahool-vllm-deepseek
+    ports:
+    - 8270:8270
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8270
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8270/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=vllm-deepseek
+    - sahool.port=8270
+    - sahool.category=intelligence
+    - traefik.enable=true
+    - traefik.http.routers.vllm-deepseek.rule=PathPrefix(`/api/v1/vllm/deepseek`)
   supply-chain-service:
     build:
       context: ./apps/services/supply-chain-service

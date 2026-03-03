@@ -543,6 +543,62 @@ export interface PaginatedResponse<T> {
 
 export type LogLevel = "none" | "error" | "warn" | "info" | "debug";
 
+/**
+ * Retry configuration for failed requests
+ * تكوين إعادة المحاولة للطلبات الفاشلة
+ */
+export interface RetryConfig {
+  /**
+   * Maximum number of retry attempts
+   * @default 3
+   */
+  maxRetries?: number;
+
+  /**
+   * Base delay in milliseconds for exponential backoff
+   * Actual delay: baseDelay * 2^(attempt - 1) + jitter
+   * @default 1000
+   */
+  baseDelay?: number;
+
+  /**
+   * Maximum delay in milliseconds between retries
+   * @default 30000
+   */
+  maxDelay?: number;
+
+  /**
+   * HTTP status codes that trigger a retry
+   * @default [408, 429, 500, 502, 503, 504]
+   */
+  retryableStatuses?: number[];
+
+  /**
+   * Whether to retry on network errors (no response received)
+   * @default true
+   */
+  retryOnNetworkError?: boolean;
+}
+
+/**
+ * Token refresh configuration
+ * تكوين تحديث الرمز المميز
+ */
+export interface TokenRefreshConfig {
+  /**
+   * Function to refresh the authentication token.
+   * Should return the new access token, or null if refresh fails.
+   * يجب أن ترجع رمز الوصول الجديد، أو null إذا فشل التحديث
+   */
+  refreshToken: () => Promise<string | null>;
+
+  /**
+   * Maximum number of refresh attempts before giving up
+   * @default 1
+   */
+  maxRefreshAttempts?: number;
+}
+
 export interface ApiClientConfig {
   baseUrl: string;
   timeout?: number;
@@ -581,6 +637,30 @@ export interface ApiClientConfig {
     info: (message: string, context?: Record<string, unknown>) => void;
     debug: (message: string, context?: Record<string, unknown>) => void;
   };
+
+  /**
+   * Retry configuration for failed requests.
+   * Set to false to disable retries entirely.
+   * تكوين إعادة المحاولة - اضبط على false لتعطيل إعادة المحاولة
+   * @default { maxRetries: 3, baseDelay: 1000, maxDelay: 30000 }
+   */
+  retry?: RetryConfig | false;
+
+  /**
+   * Token refresh configuration.
+   * When set, the client will attempt to refresh the token on 401 responses
+   * before calling onUnauthorized.
+   * تكوين تحديث الرمز المميز - عند التعيين، سيحاول العميل تحديث الرمز عند استجابة 401
+   */
+  tokenRefresh?: TokenRefreshConfig;
+
+  /**
+   * Whether to enforce HTTPS in production environments.
+   * When true, HTTP URLs are automatically upgraded to HTTPS in production.
+   * هل يجب فرض HTTPS في بيئات الإنتاج
+   * @default true
+   */
+  enforceHttps?: boolean;
 }
 
 export interface ServicePorts {

@@ -78,15 +78,19 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_validation = False
-            for py_file in src_dir.rglob("*.py"):
+            # Scan both Python and TypeScript sources
+            source_files = list(src_dir.rglob("*.py")) + list(src_dir.rglob("*.ts"))
+            for src_file in source_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                     if any(
                         pat in content
                         for pat in [
                             "Validator",
                             "validator",
                             "validate_input",
+                            "validateInput",
+                            "validateFeature",
                             "pydantic",
                             "BaseModel",
                             "Field(",
@@ -94,6 +98,15 @@ class DataDriftDetector(BaseDriftDetector):
                             "schema_validate",
                             "check_range",
                             "assert_range",
+                            "FEATURE_SCHEMA",
+                            "input_schema",
+                            "inputSchema",
+                            "ValidationPipe",
+                            "class-validator",
+                            "IsNumber",
+                            "IsString",
+                            "Min(",
+                            "Max(",
                         ]
                     ):
                         has_validation = True
@@ -236,9 +249,11 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_bounds_check = False
-            for py_file in sensor_dir.rglob("*.py"):
+            # Scan both Python and TypeScript sources
+            sensor_files = list(sensor_dir.rglob("*.py")) + list(sensor_dir.rglob("*.ts"))
+            for src_file in sensor_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                 except (OSError, UnicodeDecodeError):
                     continue
 
@@ -254,6 +269,12 @@ class DataDriftDetector(BaseDriftDetector):
                         "> 100",
                         "SENSOR_MIN",
                         "SENSOR_MAX",
+                        "assessReadingQuality",
+                        "ReadingQuality",
+                        "min:",
+                        "max:",
+                        "range.min",
+                        "range.max",
                     ]
                 ):
                     has_bounds_check = True
@@ -339,18 +360,22 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_feature_schema = False
-            for py_file in svc_dir.rglob("*.py"):
+            # Scan both Python and TypeScript sources
+            schema_files = list(svc_dir.rglob("*.py")) + list(svc_dir.rglob("*.ts"))
+            for src_file in schema_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                     if any(
                         pat in content
                         for pat in [
                             "feature_schema",
                             "FeatureSchema",
+                            "FEATURE_SCHEMA",
                             "feature_columns",
                             "expected_features",
                             "feature_names",
                             "input_schema",
+                            "inputSchema",
                         ]
                     ):
                         has_feature_schema = True

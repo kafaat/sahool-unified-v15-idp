@@ -45,7 +45,7 @@ final aiAdvisorRepositoryProvider = Provider<AiAdvisorRepository>((ref) {
 // ============================================================================
 
 /// Chat messages state
-final chatMessagesProvider = StateNotifierProvider<ChatMessagesNotifier, AsyncValue<List<ChatMessage>>>((ref) {
+final chatMessagesProvider = StateNotifierProvider.autoDispose<ChatMessagesNotifier, AsyncValue<List<ChatMessage>>>((ref) {
   final repository = ref.watch(aiAdvisorRepositoryProvider);
   return ChatMessagesNotifier(repository);
 });
@@ -160,7 +160,7 @@ class ChatMessagesNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> 
 // ============================================================================
 
 /// All advisories state
-final advisoriesProvider = StateNotifierProvider<AdvisoriesNotifier, AsyncValue<List<Advisory>>>((ref) {
+final advisoriesProvider = StateNotifierProvider.autoDispose<AdvisoriesNotifier, AsyncValue<List<Advisory>>>((ref) {
   final repository = ref.watch(aiAdvisorRepositoryProvider);
   return AdvisoriesNotifier(repository);
 });
@@ -213,7 +213,7 @@ class AdvisoriesNotifier extends StateNotifier<AsyncValue<List<Advisory>>> {
 }
 
 /// Filtered advisories by type
-final filteredAdvisoriesProvider = Provider.family<AsyncValue<List<Advisory>>, AdvisoryType?>((ref, type) {
+final filteredAdvisoriesProvider = Provider.autoDispose.family<AsyncValue<List<Advisory>>, AdvisoryType?>((ref, type) {
   final advisories = ref.watch(advisoriesProvider);
 
   return advisories.whenData((list) {
@@ -223,7 +223,7 @@ final filteredAdvisoriesProvider = Provider.family<AsyncValue<List<Advisory>>, A
 });
 
 /// Pending advisories
-final pendingAdvisoriesProvider = Provider<AsyncValue<List<Advisory>>>((ref) {
+final pendingAdvisoriesProvider = Provider.autoDispose<AsyncValue<List<Advisory>>>((ref) {
   final advisories = ref.watch(advisoriesProvider);
 
   return advisories.whenData((list) {
@@ -232,7 +232,7 @@ final pendingAdvisoriesProvider = Provider<AsyncValue<List<Advisory>>>((ref) {
 });
 
 /// Applied advisories
-final appliedAdvisoriesProvider = Provider<AsyncValue<List<Advisory>>>((ref) {
+final appliedAdvisoriesProvider = Provider.autoDispose<AsyncValue<List<Advisory>>>((ref) {
   final advisories = ref.watch(advisoriesProvider);
 
   return advisories.whenData((list) {
@@ -245,7 +245,7 @@ final appliedAdvisoriesProvider = Provider<AsyncValue<List<Advisory>>>((ref) {
 // ============================================================================
 
 /// Advisory context state
-final advisoryContextProvider = StateNotifierProvider<AdvisoryContextNotifier, AsyncValue<AdvisoryContext?>>((ref) {
+final advisoryContextProvider = StateNotifierProvider.autoDispose<AdvisoryContextNotifier, AsyncValue<AdvisoryContext?>>((ref) {
   final repository = ref.watch(aiAdvisorRepositoryProvider);
   return AdvisoryContextNotifier(repository);
 });
@@ -278,7 +278,7 @@ class AdvisoryContextNotifier extends StateNotifier<AsyncValue<AdvisoryContext?>
 // ============================================================================
 
 /// Feedback submission state
-final feedbackSubmissionProvider = StateNotifierProvider<FeedbackSubmissionNotifier, AsyncValue<void>>((ref) {
+final feedbackSubmissionProvider = StateNotifierProvider.autoDispose<FeedbackSubmissionNotifier, AsyncValue<void>>((ref) {
   final repository = ref.watch(aiAdvisorRepositoryProvider);
   return FeedbackSubmissionNotifier(repository);
 });
@@ -308,47 +308,47 @@ class FeedbackSubmissionNotifier extends StateNotifier<AsyncValue<void>> {
 // ============================================================================
 
 /// Is typing state (for typing indicator)
-final isTypingProvider = StateProvider<bool>((ref) => false);
+final isTypingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 /// Selected field ID for context
-final selectedFieldIdProvider = StateProvider<String?>((ref) => null);
+final selectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 /// Selected advisory type filter
-final selectedAdvisoryTypeProvider = StateProvider<AdvisoryType?>((ref) => null);
+final selectedAdvisoryTypeProvider = StateProvider.autoDispose<AdvisoryType?>((ref) => null);
 
 /// Selected advisory status filter
-final selectedAdvisoryStatusProvider = StateProvider<AdvisoryStatus?>((ref) => null);
+final selectedAdvisoryStatusProvider = StateProvider.autoDispose<AdvisoryStatus?>((ref) => null);
 
 /// Chat input text
-final chatInputProvider = StateProvider<String>((ref) => '');
+final chatInputProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// Show context panel
-final showContextPanelProvider = StateProvider<bool>((ref) => false);
+final showContextPanelProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 // ============================================================================
 // Computed Providers
 // ============================================================================
 
 /// Has pending advisories
-final hasPendingAdvisoriesProvider = Provider<bool>((ref) {
+final hasPendingAdvisoriesProvider = Provider.autoDispose<bool>((ref) {
   final pending = ref.watch(pendingAdvisoriesProvider);
   return pending.whenOrNull(data: (list) => list.isNotEmpty) ?? false;
 });
 
 /// Pending advisories count
-final pendingAdvisoriesCountProvider = Provider<int>((ref) {
+final pendingAdvisoriesCountProvider = Provider.autoDispose<int>((ref) {
   final pending = ref.watch(pendingAdvisoriesProvider);
   return pending.whenOrNull(data: (list) => list.length) ?? 0;
 });
 
 /// Context completeness percentage
-final contextCompletenessProvider = Provider<double>((ref) {
+final contextCompletenessProvider = Provider.autoDispose<double>((ref) {
   final context = ref.watch(advisoryContextProvider);
   return context.whenOrNull(data: (ctx) => ctx?.completeness ?? 0.0) ?? 0.0;
 });
 
 /// Quick questions for selected field
-final quickQuestionsProvider = Provider<List<QuickQuestion>>((ref) {
+final quickQuestionsProvider = Provider.autoDispose<List<QuickQuestion>>((ref) {
   final context = ref.watch(advisoryContextProvider);
 
   return context.whenOrNull(data: (ctx) {
@@ -394,10 +394,10 @@ final quickQuestionsProvider = Provider<List<QuickQuestion>>((ref) {
 // ============================================================================
 
 /// Selected advisory for details view
-final selectedAdvisoryProvider = StateProvider<Advisory?>((ref) => null);
+final selectedAdvisoryProvider = StateProvider.autoDispose<Advisory?>((ref) => null);
 
 /// Advisory details provider (loads full details)
-final advisoryDetailsProvider = FutureProvider.family<Advisory?, String>((ref, advisoryId) async {
+final advisoryDetailsProvider = FutureProvider.autoDispose.family<Advisory?, String>((ref, advisoryId) async {
   final advisories = ref.watch(advisoriesProvider);
 
   return advisories.whenOrNull(

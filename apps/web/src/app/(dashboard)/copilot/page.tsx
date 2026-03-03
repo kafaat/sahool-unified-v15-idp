@@ -163,6 +163,47 @@ export default function CopilotPage() {
   }, []);
 
   // -------------------------------------------------------------------
+  // Non-streaming fallback
+  // -------------------------------------------------------------------
+  const fallbackNonStreaming = useCallback(
+    async (
+      allMessages: Array<{ role: string; content: string }>,
+      assistantId: string,
+    ) => {
+      const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          messages: allMessages,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.detail?.error_ar ||
+            errorData?.detail?.error ||
+            errorData?.detail ||
+            `HTTP ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+      const content = data.message?.content || "";
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? { ...m, content, timestamp: new Date() }
+            : m,
+        ),
+      );
+    },
+    [sessionId],
+  );
+
+  // -------------------------------------------------------------------
   // Send message with SSE streaming
   // -------------------------------------------------------------------
   const sendMessage = useCallback(
@@ -299,46 +340,8 @@ export default function CopilotPage() {
         inputRef.current?.focus();
       }
     },
-    [isStreaming, messages, sessionId],
+    [isStreaming, messages, sessionId, fallbackNonStreaming],
   );
-
-  // -------------------------------------------------------------------
-  // Non-streaming fallback
-  // -------------------------------------------------------------------
-  const fallbackNonStreaming = async (
-    allMessages: Array<{ role: string; content: string }>,
-    assistantId: string,
-  ) => {
-    const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId,
-        messages: allMessages,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        errorData?.detail?.error_ar ||
-          errorData?.detail?.error ||
-          errorData?.detail ||
-          `HTTP ${response.status}`,
-      );
-    }
-
-    const data = await response.json();
-    const content = data.message?.content || "";
-
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === assistantId
-          ? { ...m, content, timestamp: new Date() }
-          : m,
-      ),
-    );
-  };
 
   // -------------------------------------------------------------------
   // Actions

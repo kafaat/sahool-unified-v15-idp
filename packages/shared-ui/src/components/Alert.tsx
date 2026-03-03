@@ -67,6 +67,7 @@ export function Alert({
 
       {dismissible && onDismiss && (
         <button
+          type="button"
           onClick={onDismiss}
           className="flex-shrink-0 hover:opacity-70 transition-opacity"
           aria-label="Dismiss"

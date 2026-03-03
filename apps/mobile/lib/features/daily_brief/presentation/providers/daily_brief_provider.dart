@@ -1,46 +1,40 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/http/api_client.dart';
 
 /// Daily Brief Provider
 /// موفر بيانات الملخص اليومي
 
-final dailyBriefProvider = FutureProvider<DailyBrief>((ref) async {
-  // In production, this would fetch from API
-  await Future.delayed(const Duration(milliseconds: 500));
+/// API client provider for daily brief
+final _apiClientProvider = Provider.autoDispose<ApiClient>((ref) => ApiClient());
 
+final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
+  final apiClient = ref.watch(_apiClientProvider);
+
+  try {
+    final response = await apiClient.get('/api/v1/daily-brief');
+
+    if (response.statusCode == 200 && response.data != null) {
+      return DailyBrief.fromJson(response.data as Map<String, dynamic>);
+    }
+  } catch (_) {
+    // Fallback to local data when API is unavailable (offline-first)
+    // الرجوع إلى البيانات المحلية عند عدم توفر الاتصال
+  }
+
+  // Offline fallback — construct from locally available data
   return DailyBrief(
     greeting: _getGreeting(),
     headline: _getHeadline(),
-    weather: WeatherSummary(
-      temperature: 28,
-      condition: 'sunny',
-      humidity: 45,
-      recommendation: 'طقس مثالي للعمل في الحقل',
+    weather: const WeatherSummary(
+      temperature: 0,
+      condition: 'unknown',
+      humidity: 0,
+      recommendation: 'لا توجد بيانات طقس - تحقق من الاتصال',
     ),
-    priorityItems: [
-      PriorityItem(
-        id: '1',
-        title: 'ري حقل الشمال - منسوب الرطوبة منخفض',
-        priority: Priority.high,
-        type: PriorityType.irrigation,
-        actionLabel: 'ابدأ الري',
-      ),
-      PriorityItem(
-        id: '2',
-        title: 'فحص البيت المحمي - علامات مبكرة للآفات',
-        priority: Priority.medium,
-        type: PriorityType.inspection,
-        actionLabel: 'افحص',
-      ),
-      PriorityItem(
-        id: '3',
-        title: 'تسميد المنطقة الجنوبية',
-        priority: Priority.low,
-        type: PriorityType.task,
-      ),
-    ],
-    pendingTasksCount: 5,
-    alertsCount: 2,
-    fieldsHealth: 85,
+    priorityItems: const [],
+    pendingTasksCount: 0,
+    alertsCount: 0,
+    fieldsHealth: 0,
   );
 });
 
@@ -79,6 +73,23 @@ class DailyBrief {
     required this.alertsCount,
     required this.fieldsHealth,
   });
+
+  factory DailyBrief.fromJson(Map<String, dynamic> json) {
+    return DailyBrief(
+      greeting: json['greeting'] as String? ?? _getGreeting(),
+      headline: json['headline'] as String? ?? _getHeadline(),
+      weather: json['weather'] != null
+          ? WeatherSummary.fromJson(json['weather'] as Map<String, dynamic>)
+          : const WeatherSummary(temperature: 0, condition: 'unknown', humidity: 0, recommendation: ''),
+      priorityItems: (json['priority_items'] as List<dynamic>?)
+              ?.map((e) => PriorityItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      pendingTasksCount: json['pending_tasks_count'] as int? ?? 0,
+      alertsCount: json['alerts_count'] as int? ?? 0,
+      fieldsHealth: json['fields_health'] as int? ?? 0,
+    );
+  }
 }
 
 class WeatherSummary {
@@ -93,6 +104,15 @@ class WeatherSummary {
     required this.humidity,
     required this.recommendation,
   });
+
+  factory WeatherSummary.fromJson(Map<String, dynamic> json) {
+    return WeatherSummary(
+      temperature: json['temperature'] as int? ?? 0,
+      condition: json['condition'] as String? ?? 'unknown',
+      humidity: json['humidity'] as int? ?? 0,
+      recommendation: json['recommendation'] as String? ?? '',
+    );
+  }
 }
 
 class PriorityItem {
@@ -111,6 +131,23 @@ class PriorityItem {
     this.actionLabel,
     this.actionRoute,
   });
+
+  factory PriorityItem.fromJson(Map<String, dynamic> json) {
+    return PriorityItem(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      priority: Priority.values.firstWhere(
+        (e) => e.name == json['priority'],
+        orElse: () => Priority.low,
+      ),
+      type: PriorityType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => PriorityType.task,
+      ),
+      actionLabel: json['action_label'] as String?,
+      actionRoute: json['action_route'] as String?,
+    );
+  }
 }
 
 enum Priority { high, medium, low }

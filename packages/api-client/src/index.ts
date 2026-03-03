@@ -6,6 +6,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, type AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import type {
   ApiClientConfig,
+  RetryConfig,
+  TokenRefreshConfig,
   ServicePorts,
   Task,
   CreateTaskRequest,
@@ -58,6 +60,23 @@ export class SahoolApiClient {
   private isProduction: boolean;
   private logLevel: LogLevel;
   private errorHandling: "throw" | "silent";
+  private retryConfig: Required<RetryConfig>;
+  private tokenRefreshConfig: TokenRefreshConfig | null;
+  private enforceHttps: boolean;
+  private isRefreshing: boolean = false;
+  private refreshSubscribers: Array<(token: string | null) => void> = [];
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Default retry configuration
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private static readonly DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
+    maxRetries: 3,
+    baseDelay: 1000,
+    maxDelay: 30000,
+    retryableStatuses: [408, 429, 500, 502, 503, 504],
+    retryOnNetworkError: true,
+  };
 
   constructor(config: ApiClientConfig, ports: Partial<ServicePorts> = {}) {
     this.config = {
@@ -72,6 +91,28 @@ export class SahoolApiClient {
     this.isProduction = process.env.NODE_ENV === "production";
     this.logLevel = this.config.logLevel || "error";
     this.errorHandling = this.config.errorHandling || "throw";
+
+    // Retry configuration - defaults enabled unless explicitly set to false
+    if (this.config.retry === false) {
+      this.retryConfig = { ...SahoolApiClient.DEFAULT_RETRY_CONFIG, maxRetries: 0 };
+    } else {
+      this.retryConfig = {
+        ...SahoolApiClient.DEFAULT_RETRY_CONFIG,
+        ...(this.config.retry || {}),
+      };
+    }
+
+    // Token refresh configuration
+    this.tokenRefreshConfig = this.config.tokenRefresh || null;
+
+    // HTTPS enforcement - defaults to true
+    this.enforceHttps = this.config.enforceHttps !== false;
+
+    // Enforce HTTPS on baseUrl in production
+    const baseUrl = this.enforceHttps
+      ? this.upgradeToHttps(this.config.baseUrl)
+      : this.config.baseUrl;
+    this.config.baseUrl = baseUrl;
 
     // Create axios instance
     this.client = axios.create({
@@ -88,8 +129,13 @@ export class SahoolApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add auth token
+    // Request interceptor - add auth token and enforce HTTPS
     this.client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+      // Enforce HTTPS on outgoing request URLs in production
+      if (this.enforceHttps && config.url) {
+        config.url = this.upgradeToHttps(config.url);
+      }
+
       const token = this.config.getToken?.();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -97,13 +143,89 @@ export class SahoolApiClient {
       return config;
     });
 
-    // Response interceptor - handle errors
+    // Response interceptor - handle 401 with token refresh, then fallback
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
-      (error: AxiosError) => {
-        if (error.response?.status === 401) {
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+        // Only attempt token refresh on 401 if:
+        // 1. We have a tokenRefresh config
+        // 2. This request hasn't already been retried for auth
+        // 3. The response status is 401
+        if (
+          error.response?.status === 401 &&
+          this.tokenRefreshConfig &&
+          originalRequest &&
+          !originalRequest._retry
+        ) {
+          originalRequest._retry = true;
+
+          // If a refresh is already in progress, queue this request
+          if (this.isRefreshing) {
+            return new Promise<AxiosResponse>((resolve, reject) => {
+              this.refreshSubscribers.push((newToken: string | null) => {
+                if (newToken) {
+                  originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                  resolve(this.client.request(originalRequest));
+                } else {
+                  reject(error);
+                }
+              });
+            });
+          }
+
+          this.isRefreshing = true;
+
+          try {
+            const maxAttempts = this.tokenRefreshConfig.maxRefreshAttempts ?? 1;
+            let newToken: string | null = null;
+
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+              newToken = await this.tokenRefreshConfig.refreshToken();
+              if (newToken) break;
+            }
+
+            if (newToken) {
+              // Store the new token
+              this.config.setToken?.(newToken);
+              this.log("info", "Token refreshed successfully");
+
+              // Retry the original request with the new token
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+              // Notify all queued subscribers
+              this.refreshSubscribers.forEach((cb) => cb(newToken));
+              this.refreshSubscribers = [];
+
+              return this.client.request(originalRequest);
+            }
+
+            // Refresh failed - notify subscribers and call onUnauthorized
+            this.refreshSubscribers.forEach((cb) => cb(null));
+            this.refreshSubscribers = [];
+            this.log("warn", "Token refresh failed, calling onUnauthorized");
+            this.config.onUnauthorized?.();
+            return Promise.reject(error);
+          } catch (refreshError) {
+            this.refreshSubscribers.forEach((cb) => cb(null));
+            this.refreshSubscribers = [];
+            this.log("error", "Token refresh threw an error", {
+              error: refreshError instanceof Error ? refreshError.message : "Unknown",
+            });
+            this.config.onUnauthorized?.();
+            return Promise.reject(error);
+          } finally {
+            this.isRefreshing = false;
+          }
+        }
+
+        // For non-401 errors or when no token refresh is configured,
+        // call onUnauthorized directly for 401s
+        if (error.response?.status === 401 && !this.tokenRefreshConfig) {
           this.config.onUnauthorized?.();
         }
+
         return Promise.reject(error);
       },
     );
@@ -236,6 +358,44 @@ export class SahoolApiClient {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // HTTPS Enforcement
+  // فرض HTTPS للاتصالات الآمنة
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Upgrade an HTTP URL to HTTPS in production environments.
+   * In non-production (development/test), localhost and private IPs are exempted.
+   * ترقية عنوان URL من HTTP إلى HTTPS في بيئات الإنتاج
+   */
+  private upgradeToHttps(url: string): string {
+    if (!url) return url;
+
+    // Only upgrade URLs that start with http://
+    if (!url.startsWith("http://")) return url;
+
+    // In production, always upgrade to HTTPS
+    if (this.isProduction) {
+      return url.replace(/^http:\/\//, "https://");
+    }
+
+    // In non-production, skip localhost and private IPs
+    const exemptPatterns = [
+      /^http:\/\/localhost([:\/]|$)/,
+      /^http:\/\/127\.0\.0\.1([:\/]|$)/,
+      /^http:\/\/0\.0\.0\.0([:\/]|$)/,
+      /^http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}([:\/]|$)/,
+      /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}([:\/]|$)/,
+      /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}([:\/]|$)/,
+    ];
+
+    const isExempt = exemptPatterns.some((pattern) => pattern.test(url));
+    if (isExempt) return url;
+
+    // Non-production, non-exempt: still upgrade to HTTPS
+    return url.replace(/^http:\/\//, "https://");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // URL Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -273,30 +433,122 @@ export class SahoolApiClient {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Generic Request Method
+  // Retry Logic with Exponential Backoff
+  // منطق إعادة المحاولة مع التأخير الأسي
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Determine whether a failed request should be retried.
+   * Checks HTTP status codes and network errors against the retry config.
+   */
+  private isRetryable(error: unknown): boolean {
+    if (this.retryConfig.maxRetries <= 0) return false;
+
+    if (axios.isAxiosError(error)) {
+      // Network error (no response received) - e.g. ECONNRESET, DNS failure
+      if (!error.response) {
+        return this.retryConfig.retryOnNetworkError;
+      }
+
+      // Check if the HTTP status code is in the retryable list
+      return this.retryConfig.retryableStatuses.includes(error.response.status);
+    }
+
+    return false;
+  }
+
+  /**
+   * Calculate the delay before the next retry using exponential backoff with jitter.
+   * Formula: min(maxDelay, baseDelay * 2^attempt) + random jitter
+   * حساب التأخير قبل إعادة المحاولة التالية
+   */
+  private getRetryDelay(attempt: number, error?: unknown): number {
+    // If the server sent a Retry-After header (common for 429), respect it
+    if (axios.isAxiosError(error) && error.response?.headers?.["retry-after"]) {
+      const retryAfter = error.response.headers["retry-after"];
+      const retryAfterSeconds = parseInt(retryAfter as string, 10);
+      if (!isNaN(retryAfterSeconds) && retryAfterSeconds > 0) {
+        return Math.min(retryAfterSeconds * 1000, this.retryConfig.maxDelay);
+      }
+    }
+
+    // Exponential backoff: baseDelay * 2^attempt
+    const exponentialDelay = this.retryConfig.baseDelay * Math.pow(2, attempt);
+
+    // Cap at maxDelay
+    const cappedDelay = Math.min(exponentialDelay, this.retryConfig.maxDelay);
+
+    // Add random jitter (0-25% of the delay) to avoid thundering herd
+    const jitter = cappedDelay * Math.random() * 0.25;
+
+    return Math.floor(cappedDelay + jitter);
+  }
+
+  /**
+   * Sleep for a specified duration in milliseconds.
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Generic Request Method (with retry)
   // ─────────────────────────────────────────────────────────────────────────
 
   private async request<T>(
     url: string,
     options: AxiosRequestConfig = {},
   ): Promise<T> {
-    try {
-      this.log("debug", `Request: ${options.method || "GET"} ${url}`, {
-        params: options.params,
-        data: options.data,
-      });
+    const method = options.method?.toUpperCase() || "GET";
+    let lastError: unknown;
 
-      const response = await this.client.request<T>({ url, ...options });
+    // Attempt the request up to (1 + maxRetries) times
+    for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          this.log("info", `Retry attempt ${attempt}/${this.retryConfig.maxRetries}: ${method} ${url}`, {
+            attempt,
+            maxRetries: this.retryConfig.maxRetries,
+          });
+        } else {
+          this.log("debug", `Request: ${method} ${url}`, {
+            params: options.params,
+            data: options.data,
+          });
+        }
 
-      this.log("debug", `Response: ${options.method || "GET"} ${url}`, {
-        status: response.status,
-        statusText: response.statusText,
-      });
+        const response = await this.client.request<T>({ url, ...options });
 
-      return response.data;
-    } catch (error) {
-      return this.handleError(error, url, options.method?.toUpperCase() || "GET");
+        this.log("debug", `Response: ${method} ${url}`, {
+          status: response.status,
+          statusText: response.statusText,
+        });
+
+        return response.data;
+      } catch (error) {
+        lastError = error;
+
+        // Check if we should retry
+        const hasMoreAttempts = attempt < this.retryConfig.maxRetries;
+        if (hasMoreAttempts && this.isRetryable(error)) {
+          const delay = this.getRetryDelay(attempt, error);
+          this.log("warn", `Request failed, retrying in ${delay}ms: ${method} ${url}`, {
+            attempt: attempt + 1,
+            maxRetries: this.retryConfig.maxRetries,
+            delay,
+            error: error instanceof Error ? error.message : "Unknown error",
+            status: axios.isAxiosError(error) ? error.response?.status : undefined,
+          });
+          await this.sleep(delay);
+          continue;
+        }
+
+        // No more retries or not retryable - throw
+        break;
+      }
     }
+
+    return this.handleError(lastError, url, method);
   }
 
   // ─────────────────────────────────────────────────────────────────────────

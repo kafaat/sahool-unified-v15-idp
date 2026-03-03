@@ -1,0 +1,123 @@
+# SAHOOL Admin Dashboard - Helm Values
+# Version: 16.0.0
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/kafaat/sahool/admin
+  tag: "16.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 3001
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 128Mi
+
+environment: staging
+deploymentSlot: blue
+
+# Environment variables
+env:
+  NEXT_PUBLIC_APP_NAME: "SAHOOL Admin"
+  NEXT_PUBLIC_APP_VERSION: "16.0.0"
+
+# API gateway URL (Kong)
+apiUrl: "http://kong:8000"
+
+secrets:
+  jwtSecret: ""
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# Health probes
+probes:
+  startup:
+    path: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 30
+  liveness:
+    path: /api/healthz
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    path: /api/readyz
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+nodeSelector: {}
+
+tolerations: []
+
+# Pod anti-affinity for high availability
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - admin
+          topologyKey: kubernetes.io/hostname
+
+# Topology spread constraints for even distribution
+# labelSelector is automatically set to the chart's selector labels by the deployment template
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+# Pod annotations
+podAnnotations: {}
+
+# Security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Graceful shutdown
+terminationGracePeriodSeconds: 30

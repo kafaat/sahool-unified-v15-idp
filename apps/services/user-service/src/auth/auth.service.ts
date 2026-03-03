@@ -303,6 +303,7 @@ export class AuthService {
 
     await this.prisma.refreshToken.create({
       data: {
+        tenantId: user.tenantId,
         userId: user.id,
         jti: refreshJti,
         family: tokenFamily,

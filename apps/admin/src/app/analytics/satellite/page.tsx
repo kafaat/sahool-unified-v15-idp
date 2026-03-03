@@ -3,7 +3,7 @@
 // Satellite Data Analytics
 // تحليلات البيانات الفضائية
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
@@ -70,9 +70,10 @@ interface SatelliteData {
 }
 
 const getNDVIColor = (ndvi: number) => {
-  if (ndvi >= 0.7) return "text-green-600";
-  if (ndvi >= 0.5) return "text-lime-600";
+  if (ndvi >= 0.7) return "text-green-700";
+  if (ndvi >= 0.5) return "text-green-600";
   if (ndvi >= 0.3) return "text-yellow-600";
+  if (ndvi >= 0.15) return "text-orange-600";
   return "text-red-600";
 };
 
@@ -80,7 +81,8 @@ const getNDVILabel = (ndvi: number) => {
   if (ndvi >= 0.7) return "ممتاز";
   if (ndvi >= 0.5) return "جيد";
   if (ndvi >= 0.3) return "متوسط";
-  return "ضعيف";
+  if (ndvi >= 0.15) return "ضعيف";
+  return "حرج";
 };
 
 export default function SatellitePage() {
@@ -91,12 +93,7 @@ export default function SatellitePage() {
     "month",
   );
 
-  useEffect(() => {
-    loadData();
-     
-  }, [dateRange]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const satelliteData = await fetchSatelliteData({ range: dateRange });
@@ -112,7 +109,11 @@ export default function SatellitePage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [dateRange, selectedField]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (isLoading || !data) {
     return (

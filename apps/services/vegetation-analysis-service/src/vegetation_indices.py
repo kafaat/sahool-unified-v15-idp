@@ -236,9 +236,38 @@ class AllIndices:
     gdvi: float | None = None  # Green Difference Vegetation Index
     tsavi: float | None = None  # Transformed SAVI
 
+    # Valid ranges for normalized difference indices (all follow [-1, 1] range)
+    _NORMALIZED_INDICES = frozenset({
+        "ndvi", "ndwi", "evi", "savi", "ndmi", "ndre", "gndvi", "vari",
+        "gli", "grvi", "msavi", "osavi", "arvi", "nbr", "evi2", "ccci",
+        "rendvi", "wdrvi", "mndwi", "nbr2", "ndbi",
+    })
+
+    def __post_init__(self) -> None:
+        """Validate and clamp all index values to their valid ranges."""
+        for field_name in self._NORMALIZED_INDICES:
+            value = getattr(self, field_name, None)
+            if value is not None:
+                clamped = max(-1.0, min(1.0, value))
+                object.__setattr__(self, field_name, round(clamped, 4))
+
+        # Clamp non-normalized indices with known ranges
+        if self.lai is not None:
+            object.__setattr__(self, "lai", round(max(0.0, min(8.0, self.lai)), 2))
+        if self.cvi is not None:
+            object.__setattr__(self, "cvi", round(max(0.0, min(10.0, self.cvi)), 4))
+        if self.mcari is not None:
+            object.__setattr__(self, "mcari", round(max(0.0, min(1.5, self.mcari)), 4))
+        if self.tcari is not None:
+            object.__setattr__(self, "tcari", round(max(0.0, min(3.0, self.tcari)), 4))
+        if self.sipi is not None:
+            object.__setattr__(self, "sipi", round(max(0.0, min(2.0, self.sipi)), 4))
+        if self.sr is not None:
+            object.__setattr__(self, "sr", round(max(0.0, min(30.0, self.sr)), 4))
+
     def to_dict(self) -> dict[str, float]:
         """Convert to dictionary, excluding None values"""
-        return {k: v for k, v in asdict(self).items() if v is not None}
+        return {k: v for k, v in asdict(self).items() if v is not None and not k.startswith("_")}
 
 
 # =============================================================================
@@ -340,7 +369,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red == 0:
             return 0.0
-        return round((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red), 4)
+        result = (b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def ndwi(self, b: BandData) -> float:
         """
@@ -350,7 +380,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B11_swir1 == 0:
             return 0.0
-        return round((b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1), 4)
+        result = (b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def evi(self, b: BandData) -> float:
         """
@@ -362,7 +393,8 @@ class VegetationIndicesCalculator:
         denominator = b.B08_nir + 6 * b.B04_red - 7.5 * b.B02_blue + 1
         if denominator == 0:
             return 0.0
-        return round(2.5 * (b.B08_nir - b.B04_red) / denominator, 4)
+        result = 2.5 * (b.B08_nir - b.B04_red) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def savi(self, b: BandData, L: float = 0.5) -> float:
         """
@@ -373,7 +405,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red + L == 0:
             return 0.0
-        return round(((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L), 4)
+        result = ((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def lai(self, ndvi: float) -> float:
         """
@@ -399,7 +432,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B11_swir1 == 0:
             return 0.0
-        return round((b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1), 4)
+        result = (b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     # =========================================================================
     # Advanced Indices - Chlorophyll & Nitrogen
@@ -414,7 +448,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B05_red_edge1 == 0:
             return 0.0
-        return round((b.B08_nir - b.B05_red_edge1) / (b.B08_nir + b.B05_red_edge1), 4)
+        result = (b.B08_nir - b.B05_red_edge1) / (b.B08_nir + b.B05_red_edge1)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def cvi(self, b: BandData) -> float:
         """
@@ -483,7 +518,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B03_green == 0:
             return 0.0
-        return round((b.B08_nir - b.B03_green) / (b.B08_nir + b.B03_green), 4)
+        result = (b.B08_nir - b.B03_green) / (b.B08_nir + b.B03_green)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def vari(self, b: BandData) -> float:
         """
@@ -520,7 +556,8 @@ class VegetationIndicesCalculator:
         """
         if b.B03_green + b.B04_red == 0:
             return 0.0
-        return round((b.B03_green - b.B04_red) / (b.B03_green + b.B04_red), 4)
+        result = (b.B03_green - b.B04_red) / (b.B03_green + b.B04_red)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     # =========================================================================
     # Advanced Indices - Soil & Atmosphere Correction
@@ -554,7 +591,8 @@ class VegetationIndicesCalculator:
         denominator = b.B08_nir + b.B04_red + Y
         if denominator == 0:
             return 0.0
-        return round((b.B08_nir - b.B04_red) / denominator, 4)
+        result = (b.B08_nir - b.B04_red) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def arvi(self, b: BandData) -> float:
         """
@@ -763,7 +801,8 @@ class VegetationIndicesCalculator:
         denominator = b.B08_nir + b.B12_swir2
         if denominator == 0:
             return 0.0
-        return round((b.B08_nir - b.B12_swir2) / denominator, 4)
+        result = (b.B08_nir - b.B12_swir2) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def evi2(self, b: BandData) -> float:
         """
@@ -783,7 +822,8 @@ class VegetationIndicesCalculator:
         denominator = b.B08_nir + 2.4 * b.B04_red + 1
         if denominator == 0:
             return 0.0
-        return round(2.5 * (b.B08_nir - b.B04_red) / denominator, 4)
+        result = 2.5 * (b.B08_nir - b.B04_red) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def bsi(self, b: BandData) -> float:
         """
@@ -806,7 +846,8 @@ class VegetationIndicesCalculator:
         denominator = (b.B11_swir1 + b.B04_red) + (b.B08_nir + b.B02_blue)
         if denominator == 0:
             return 0.0
-        return round(numerator / denominator, 4)
+        result = numerator / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def sr(self, b: BandData) -> float:
         """
@@ -989,7 +1030,8 @@ class VegetationIndicesCalculator:
         denominator = b.B06_red_edge2 + b.B05_red_edge1
         if denominator == 0:
             return 0.0
-        return round((b.B06_red_edge2 - b.B05_red_edge1) / denominator, 4)
+        result = (b.B06_red_edge2 - b.B05_red_edge1) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def wdrvi(self, b: BandData, alpha: float = 0.2) -> float:
         """
@@ -1011,7 +1053,8 @@ class VegetationIndicesCalculator:
         denominator = weighted_nir + b.B04_red
         if denominator == 0:
             return 0.0
-        return round((weighted_nir - b.B04_red) / denominator, 4)
+        result = (weighted_nir - b.B04_red) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     # =========================================================================
     # المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
@@ -1036,7 +1079,8 @@ class VegetationIndicesCalculator:
         denominator = b.B03_green + b.B11_swir1
         if denominator == 0:
             return 0.0
-        return round((b.B03_green - b.B11_swir1) / denominator, 4)
+        result = (b.B03_green - b.B11_swir1) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def nbr2(self, b: BandData) -> float:
         """
@@ -1056,7 +1100,8 @@ class VegetationIndicesCalculator:
         denominator = b.B11_swir1 + b.B12_swir2
         if denominator == 0:
             return 0.0
-        return round((b.B11_swir1 - b.B12_swir2) / denominator, 4)
+        result = (b.B11_swir1 - b.B12_swir2) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def ndbi(self, b: BandData) -> float:
         """
@@ -1076,7 +1121,8 @@ class VegetationIndicesCalculator:
         denominator = b.B11_swir1 + b.B08_nir
         if denominator == 0:
             return 0.0
-        return round((b.B11_swir1 - b.B08_nir) / denominator, 4)
+        result = (b.B11_swir1 - b.B08_nir) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def dvi(self, b: BandData) -> float:
         """
@@ -1093,7 +1139,8 @@ class VegetationIndicesCalculator:
         Advantage: Simple, not ratio-based so no saturation issues,
         sensitive to soil background
         """
-        return round(b.B08_nir - b.B04_red, 4)
+        result = b.B08_nir - b.B04_red
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def gdvi(self, b: BandData) -> float:
         """
@@ -1109,7 +1156,8 @@ class VegetationIndicesCalculator:
         Advantage: More sensitive than DVI in early growth stages,
         responds to green leaf tissue specifically
         """
-        return round(b.B08_nir - b.B03_green, 4)
+        result = b.B08_nir - b.B03_green
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def tsavi(self, b: BandData, s: float = 0.5, a: float = 0.08, X: float = 0.08) -> float:
         """

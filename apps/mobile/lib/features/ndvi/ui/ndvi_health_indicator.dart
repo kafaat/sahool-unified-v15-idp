@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../domain/ndvi_value.dart';
 import '../domain/ndvi_colormap.dart';
+import '../domain/spectral_index.dart';
 
 /// NDVI Health Indicator Widget
 /// Circular gauge showing current NDVI health status
@@ -396,5 +397,242 @@ class _NdviChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _NdviChartPainter oldDelegate) {
     return oldDelegate.statistics != statistics;
+  }
+}
+
+/// Spectral Health Indicator - Works with any SpectralIndex
+/// Circular gauge showing current spectral index health status
+class SpectralHealthIndicator extends StatelessWidget {
+  final SpectralIndex index;
+  final double value;
+  final double size;
+  final bool showLabel;
+  final bool showValue;
+  final bool animate;
+
+  const SpectralHealthIndicator({
+    super.key,
+    required this.index,
+    required this.value,
+    this.size = 80,
+    this.showLabel = true,
+    this.showValue = true,
+    this.animate = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final color = SpectralColormap.getColor(index, value);
+    final healthLabel = SpectralColormap.getHealthLabel(index, value, isArabic);
+
+    // Normalize to 0-1 for gauge
+    final range = index.maxValue - index.minValue;
+    final normalizedValue = range > 0
+        ? ((value - index.minValue) / range).clamp(0.0, 1.0)
+        : 0.5;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: size,
+          height: size,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Background circle
+              SizedBox(
+                width: size,
+                height: size,
+                child: CircularProgressIndicator(
+                  value: 1.0,
+                  strokeWidth: size * 0.1,
+                  color: Colors.grey[200],
+                ),
+              ),
+
+              // Progress arc
+              TweenAnimationBuilder<double>(
+                duration: animate
+                    ? const Duration(milliseconds: 800)
+                    : Duration.zero,
+                curve: Curves.easeOutCubic,
+                tween: Tween(begin: 0, end: normalizedValue),
+                builder: (context, animValue, child) {
+                  return SizedBox(
+                    width: size,
+                    height: size,
+                    child: CircularProgressIndicator(
+                      value: animValue,
+                      strokeWidth: size * 0.1,
+                      color: color,
+                      strokeCap: StrokeCap.round,
+                    ),
+                  );
+                },
+              ),
+
+              // Center content
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    index.icon,
+                    size: size * 0.25,
+                    color: color,
+                  ),
+                  if (showValue)
+                    Text(
+                      value.toStringAsFixed(2),
+                      style: TextStyle(
+                        fontSize: size * 0.16,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  Text(
+                    index.code,
+                    style: TextStyle(
+                      fontSize: size * 0.1,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        if (showLabel) ...[
+          const SizedBox(height: 8),
+          Text(
+            healthLabel,
+            style: TextStyle(
+              fontSize: size * 0.14,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Spectral Badge - Compact badge for any spectral index
+class SpectralBadge extends StatelessWidget {
+  final SpectralIndex index;
+  final double value;
+
+  const SpectralBadge({
+    super.key,
+    required this.index,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = SpectralColormap.getColor(index, value);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(index.icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            '${index.code}: ${value.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Spectral Legend Card - Legend for any spectral index
+class SpectralLegendCard extends StatelessWidget {
+  final SpectralIndex index;
+
+  const SpectralLegendCard({super.key, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final legend = SpectralColormap.getLegend(index);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Icon(index.icon, size: 20, color: SpectralColormap.getColor(index, 0.6)),
+                const SizedBox(width: 8),
+                Text(
+                  isArabic ? index.nameAr : index.name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...legend.map((item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: item.color,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isArabic ? item.label : item.labelEn,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              item.range,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
   }
 }

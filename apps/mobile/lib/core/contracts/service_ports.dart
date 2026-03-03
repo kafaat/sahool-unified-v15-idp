@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 1.2.0
+/// Contract version: 2.0.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -36,7 +36,7 @@ abstract final class ServicePorts {
   static const int providerConfig = 8104;
   static const int inventory = 8116;
   static const int wsGateway = 8081;
-  static const int chatService = 8000;
+  static const int chatService = 8115;
   static const int fieldChat = 8099;
   static const int communityChat = 8097;
   static const int iotService = 8117;

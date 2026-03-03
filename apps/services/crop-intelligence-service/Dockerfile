@@ -41,30 +41,37 @@ retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
                   https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF
 
-# Upgrade pip
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
-    pip>=24.0 \
-    setuptools>=75.0 \
-    wheel>=0.44.0
+# Upgrade pip with multi-mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/crop-intelligence-service/requirements.txt /tmp/requirements.txt
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+# Install dependencies with resilient multi-mirror fallback strategy
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: Runtime
+# Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL org.opencontainers.image.title="SAHOOL Crop Intelligence Service" \
@@ -95,8 +102,9 @@ ENV VIRTUAL_ENV=/home/sahool/venv \
 
 WORKDIR /app
 
-# Copy shared libraries
-COPY --chown=sahool:sahool apps/services/shared ./shared/
+# Copy shared libraries (root shared first, then service-shared overlay)
+COPY --chown=sahool:sahool shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy source
 COPY --chown=sahool:sahool apps/services/crop-intelligence-service/src/ ./src/

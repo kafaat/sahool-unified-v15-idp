@@ -562,6 +562,21 @@ SAHOOL_LOWCODE_ALL = "sahool.lowcode.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# LLM Inference Subjects - موضوعات استدلال النماذج اللغوية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_LLM_INFERENCE_STARTED = "sahool.llm.inference_started"
+SAHOOL_LLM_INFERENCE_COMPLETED = "sahool.llm.inference_completed"
+SAHOOL_LLM_INFERENCE_FAILED = "sahool.llm.inference_failed"
+SAHOOL_LLM_MODEL_LOADED = "sahool.llm.model_loaded"
+SAHOOL_LLM_MODEL_UNLOADED = "sahool.llm.model_unloaded"
+SAHOOL_LLM_GPU_OOM = "sahool.llm.gpu_oom"
+
+# Wildcards
+SAHOOL_LLM_ALL = "sahool.llm.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Chat Subjects - موضوعات المحادثات
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -796,6 +811,13 @@ SUBJECT_REGISTRY = {
     # Lowcode
     "lowcode.model_updated": SAHOOL_LOWCODE_MODEL_UPDATED,
     "lowcode.page_updated": SAHOOL_LOWCODE_PAGE_UPDATED,
+    # LLM Inference
+    "llm.inference_started": SAHOOL_LLM_INFERENCE_STARTED,
+    "llm.inference_completed": SAHOOL_LLM_INFERENCE_COMPLETED,
+    "llm.inference_failed": SAHOOL_LLM_INFERENCE_FAILED,
+    "llm.model_loaded": SAHOOL_LLM_MODEL_LOADED,
+    "llm.model_unloaded": SAHOOL_LLM_MODEL_UNLOADED,
+    "llm.gpu_oom": SAHOOL_LLM_GPU_OOM,
     # Chat
     "chat.ai_query": SAHOOL_CHAT_AI_QUERY,
     "chat.ai_response": SAHOOL_CHAT_AI_RESPONSE,

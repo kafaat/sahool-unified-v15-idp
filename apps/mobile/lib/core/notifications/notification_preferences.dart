@@ -10,45 +10,47 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/app_logger.dart';
 import 'firebase_messaging_service.dart';
 
 /// Notification preferences model
 class NotificationPreferences {
   // Type-specific preferences
-  bool weatherAlerts;
-  bool diseaseDetection;
-  bool pestOutbreak;
-  bool sprayWindow;
-  bool harvestReminders;
-  bool irrigationReminders;
-  bool taskReminders;
-  bool fieldUpdates;
-  bool satelliteImages;
-  bool cropHealth;
-  bool marketPrices;
-  bool paymentDue;
-  bool lowStock;
-  bool systemNotifications;
+  final bool weatherAlerts;
+  final bool diseaseDetection;
+  final bool pestOutbreak;
+  final bool sprayWindow;
+  final bool harvestReminders;
+  final bool irrigationReminders;
+  final bool taskReminders;
+  final bool fieldUpdates;
+  final bool satelliteImages;
+  final bool cropHealth;
+  final bool marketPrices;
+  final bool paymentDue;
+  final bool lowStock;
+  final bool systemNotifications;
 
   // Quiet hours
-  bool enableQuietHours;
-  TimeOfDay quietHoursStart;
-  TimeOfDay quietHoursEnd;
+  final bool enableQuietHours;
+  final TimeOfDay quietHoursStart;
+  final TimeOfDay quietHoursEnd;
 
   // Sound and vibration
-  bool enableSound;
-  bool enableVibration;
+  final bool enableSound;
+  final bool enableVibration;
 
   // Priority filtering
-  NotificationPriority minimumPriority;
+  final NotificationPriority minimumPriority;
 
   // Badge and preview
-  bool showBadge;
-  bool showPreview;
+  final bool showBadge;
+  final bool showPreview;
 
-  NotificationPreferences({
+  const NotificationPreferences({
     this.weatherAlerts = true,
     this.diseaseDetection = true,
     this.pestOutbreak = true,
@@ -141,17 +143,11 @@ class NotificationPreferences {
     SAHOOLNotificationType type,
     NotificationPriority priority,
   ) {
-    // Check if type is enabled
     if (!isTypeEnabled(type)) return false;
-
-    // Check priority threshold
     if (!meetsPriorityThreshold(priority)) return false;
-
-    // Check quiet hours (critical notifications override quiet hours)
     if (isInQuietHours() && priority != NotificationPriority.critical) {
       return false;
     }
-
     return true;
   }
 
@@ -312,11 +308,11 @@ class NotificationPreferencesService {
           jsonDecode(json) as Map<String, dynamic>,
         );
       } catch (e) {
-        debugPrint('❌ Failed to load preferences: $e');
-        _preferences = NotificationPreferences();
+        AppLogger.e('Failed to load notification preferences', tag: 'NotificationPrefs', error: e);
+        _preferences = const NotificationPreferences();
       }
     } else {
-      _preferences = NotificationPreferences();
+      _preferences = const NotificationPreferences();
     }
 
     return _preferences!;
@@ -330,12 +326,12 @@ class NotificationPreferencesService {
 
     _preferences = preferences;
     await _sharedPrefs!.setString(_prefsKey, jsonEncode(preferences.toJson()));
-    debugPrint('✅ Notification preferences saved');
+    AppLogger.d('Notification preferences saved', tag: 'NotificationPrefs');
   }
 
   /// Get current preferences
   NotificationPreferences getPreferences() {
-    return _preferences ?? NotificationPreferences();
+    return _preferences ?? const NotificationPreferences();
   }
 
   /// Update a specific preference
@@ -349,7 +345,7 @@ class NotificationPreferencesService {
 
   /// Enable all notifications
   Future<void> enableAll() async {
-    await updatePreference((prefs) => NotificationPreferences(
+    await updatePreference((prefs) => prefs.copyWith(
           weatherAlerts: true,
           diseaseDetection: true,
           pestOutbreak: true,
@@ -364,20 +360,12 @@ class NotificationPreferencesService {
           paymentDue: true,
           lowStock: true,
           systemNotifications: true,
-          enableQuietHours: prefs.enableQuietHours,
-          quietHoursStart: prefs.quietHoursStart,
-          quietHoursEnd: prefs.quietHoursEnd,
-          enableSound: prefs.enableSound,
-          enableVibration: prefs.enableVibration,
-          minimumPriority: prefs.minimumPriority,
-          showBadge: prefs.showBadge,
-          showPreview: prefs.showPreview,
         ));
   }
 
   /// Disable all notifications
   Future<void> disableAll() async {
-    await updatePreference((prefs) => NotificationPreferences(
+    await updatePreference((prefs) => prefs.copyWith(
           weatherAlerts: false,
           diseaseDetection: false,
           pestOutbreak: false,
@@ -392,64 +380,57 @@ class NotificationPreferencesService {
           paymentDue: false,
           lowStock: false,
           systemNotifications: false,
-          enableQuietHours: prefs.enableQuietHours,
-          quietHoursStart: prefs.quietHoursStart,
-          quietHoursEnd: prefs.quietHoursEnd,
-          enableSound: prefs.enableSound,
-          enableVibration: prefs.enableVibration,
-          minimumPriority: prefs.minimumPriority,
-          showBadge: prefs.showBadge,
-          showPreview: prefs.showPreview,
         ));
   }
 
   /// Reset to defaults
   Future<void> resetToDefaults() async {
-    await savePreferences(NotificationPreferences());
+    await savePreferences(const NotificationPreferences());
   }
 }
 
-/// Notification preferences screen
-class NotificationPreferencesScreen extends StatefulWidget {
+// =============================================================================
+// Riverpod Providers
+// =============================================================================
+
+/// Notification preferences state notifier
+class NotificationPrefsNotifier extends StateNotifier<NotificationPreferences> {
+  final NotificationPreferencesService _service;
+
+  NotificationPrefsNotifier(this._service)
+      : super(const NotificationPreferences()) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    state = await _service.loadPreferences();
+  }
+
+  Future<void> update(NotificationPreferences Function(NotificationPreferences) updater) async {
+    state = updater(state);
+    await _service.savePreferences(state);
+  }
+
+  Future<void> resetToDefaults() async {
+    state = const NotificationPreferences();
+    await _service.savePreferences(state);
+  }
+}
+
+/// Notification preferences provider
+final notificationPrefsProvider =
+    StateNotifierProvider.autoDispose<NotificationPrefsNotifier, NotificationPreferences>((ref) {
+  return NotificationPrefsNotifier(NotificationPreferencesService.instance);
+});
+
+/// Notification preferences screen (Riverpod-powered, zero setState)
+class NotificationPreferencesScreen extends ConsumerWidget {
   const NotificationPreferencesScreen({super.key});
 
   @override
-  State<NotificationPreferencesScreen> createState() =>
-      _NotificationPreferencesScreenState();
-}
-
-class _NotificationPreferencesScreenState
-    extends State<NotificationPreferencesScreen> {
-  late NotificationPreferences _prefs;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreferences();
-  }
-
-  Future<void> _loadPreferences() async {
-    _prefs = await NotificationPreferencesService.instance.loadPreferences();
-    setState(() => _loading = false);
-  }
-
-  Future<void> _savePreferences() async {
-    await NotificationPreferencesService.instance.savePreferences(_prefs);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ الإعدادات')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefs = ref.watch(notificationPrefsProvider);
+    final notifier = ref.read(notificationPrefsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -457,10 +438,7 @@ class _NotificationPreferencesScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              await NotificationPreferencesService.instance.resetToDefaults();
-              await _loadPreferences();
-            },
+            onPressed: () => notifier.resetToDefaults(),
             tooltip: 'إعادة تعيين',
           ),
         ],
@@ -468,130 +446,110 @@ class _NotificationPreferencesScreenState
       body: ListView(
         children: [
           // Notification Types Section
-          _buildSectionHeader('أنواع الإشعارات'),
+          _buildSectionHeader(context, 'أنواع الإشعارات'),
           _buildSwitchTile(
             title: 'تنبيهات الطقس',
             subtitle: 'صقيع، عاصفة، فيضان',
             icon: Icons.wb_sunny,
-            value: _prefs.weatherAlerts,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(weatherAlerts: value));
-              _savePreferences();
-            },
+            value: prefs.weatherAlerts,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(weatherAlerts: value)),
           ),
           _buildSwitchTile(
             title: 'كشف الأمراض',
             subtitle: 'تنبيهات الأمراض المكتشفة',
             icon: Icons.healing,
-            value: _prefs.diseaseDetection,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(diseaseDetection: value));
-              _savePreferences();
-            },
+            value: prefs.diseaseDetection,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(diseaseDetection: value)),
           ),
           _buildSwitchTile(
             title: 'انتشار الآفات',
             subtitle: 'تنبيهات الآفات في منطقتك',
             icon: Icons.bug_report,
-            value: _prefs.pestOutbreak,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(pestOutbreak: value));
-              _savePreferences();
-            },
+            value: prefs.pestOutbreak,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(pestOutbreak: value)),
           ),
           _buildSwitchTile(
             title: 'أوقات الرش',
             subtitle: 'إشعارات الظروف المثالية للرش',
             icon: Icons.water_drop,
-            value: _prefs.sprayWindow,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(sprayWindow: value));
-              _savePreferences();
-            },
+            value: prefs.sprayWindow,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(sprayWindow: value)),
           ),
           _buildSwitchTile(
             title: 'تذكيرات الحصاد',
             subtitle: 'تذكيرات موسم الحصاد',
             icon: Icons.agriculture,
-            value: _prefs.harvestReminders,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(harvestReminders: value));
-              _savePreferences();
-            },
+            value: prefs.harvestReminders,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(harvestReminders: value)),
           ),
           _buildSwitchTile(
             title: 'تذكيرات الري',
             subtitle: 'جدولة الري والتذكيرات',
             icon: Icons.water,
-            value: _prefs.irrigationReminders,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(irrigationReminders: value));
-              _savePreferences();
-            },
+            value: prefs.irrigationReminders,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(irrigationReminders: value)),
           ),
           _buildSwitchTile(
             title: 'صور الأقمار',
             subtitle: 'صور جديدة وتحليل NDVI',
             icon: Icons.satellite_alt,
-            value: _prefs.satelliteImages,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(satelliteImages: value));
-              _savePreferences();
-            },
+            value: prefs.satelliteImages,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(satelliteImages: value)),
           ),
           _buildSwitchTile(
             title: 'أسعار السوق',
             subtitle: 'تحديثات أسعار المحاصيل',
             icon: Icons.trending_up,
-            value: _prefs.marketPrices,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(marketPrices: value));
-              _savePreferences();
-            },
+            value: prefs.marketPrices,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(marketPrices: value)),
           ),
 
           const Divider(),
 
           // Quiet Hours Section
-          _buildSectionHeader('ساعات الهدوء'),
+          _buildSectionHeader(context, 'ساعات الهدوء'),
           _buildSwitchTile(
             title: 'تفعيل ساعات الهدوء',
             subtitle: 'لا إشعارات خلال هذه الساعات',
             icon: Icons.bedtime,
-            value: _prefs.enableQuietHours,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(enableQuietHours: value));
-              _savePreferences();
-            },
+            value: prefs.enableQuietHours,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(enableQuietHours: value)),
           ),
-          if (_prefs.enableQuietHours) ...[
+          if (prefs.enableQuietHours) ...[
             ListTile(
               leading: const Icon(Icons.nightlight),
               title: const Text('بداية الهدوء'),
-              trailing: Text(_formatTime(_prefs.quietHoursStart)),
+              trailing: Text(_formatTime(prefs.quietHoursStart)),
               onTap: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: _prefs.quietHoursStart,
+                  initialTime: prefs.quietHoursStart,
                 );
                 if (time != null) {
-                  setState(() => _prefs = _prefs.copyWith(quietHoursStart: time));
-                  _savePreferences();
+                  notifier.update((p) => p.copyWith(quietHoursStart: time));
                 }
               },
             ),
             ListTile(
               leading: const Icon(Icons.wb_sunny),
               title: const Text('نهاية الهدوء'),
-              trailing: Text(_formatTime(_prefs.quietHoursEnd)),
+              trailing: Text(_formatTime(prefs.quietHoursEnd)),
               onTap: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: _prefs.quietHoursEnd,
+                  initialTime: prefs.quietHoursEnd,
                 );
                 if (time != null) {
-                  setState(() => _prefs = _prefs.copyWith(quietHoursEnd: time));
-                  _savePreferences();
+                  notifier.update((p) => p.copyWith(quietHoursEnd: time));
                 }
               },
             ),
@@ -600,31 +558,27 @@ class _NotificationPreferencesScreenState
           const Divider(),
 
           // Sound & Vibration
-          _buildSectionHeader('الصوت والاهتزاز'),
+          _buildSectionHeader(context, 'الصوت والاهتزاز'),
           _buildSwitchTile(
             title: 'تفعيل الصوت',
             icon: Icons.volume_up,
-            value: _prefs.enableSound,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(enableSound: value));
-              _savePreferences();
-            },
+            value: prefs.enableSound,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(enableSound: value)),
           ),
           _buildSwitchTile(
             title: 'تفعيل الاهتزاز',
             icon: Icons.vibration,
-            value: _prefs.enableVibration,
-            onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(enableVibration: value));
-              _savePreferences();
-            },
+            value: prefs.enableVibration,
+            onChanged: (value) =>
+                notifier.update((p) => p.copyWith(enableVibration: value)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(

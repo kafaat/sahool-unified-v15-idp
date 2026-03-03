@@ -1,5 +1,6 @@
 /// Equipment Card Widget - بطاقة المعدة
 /// Displays equipment info in a card format
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
@@ -52,10 +53,11 @@ class EquipmentCard extends StatelessWidget {
           child: equipment.imageUrl != null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    equipment.imageUrl!,
+                  child: CachedNetworkImage(
+                    imageUrl: equipment.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _buildDefaultIcon(),
+                    placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    errorWidget: (_, __, ___) => _buildDefaultIcon(),
                   ),
                 )
               : _buildDefaultIcon(),

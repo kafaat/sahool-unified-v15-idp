@@ -3,20 +3,126 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
+import { Controller, Get, Post, Param, Query, Body, UseGuards, Req, UsePipes, ValidationPipe } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiProperty } from "@nestjs/swagger";
+import { IsNumber, IsOptional, IsString, IsIn, Min, Max } from "class-validator";
+import { Type } from "class-transformer";
 import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
+  ValidationError,
+  FEATURE_SCHEMA,
+  validateFeatureInput,
 } from "./yield.service";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DTOs - التحقق من صحة المدخلات
+// ─────────────────────────────────────────────────────────────────────────────
+
+class ValidateInputDto {
+  @IsOptional()
+  @IsNumber()
+  @Min(-1.0)
+  @Max(1.0)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: -1.0, maximum: 1.0, description: "NDVI index value" })
+  ndvi?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  @Max(10000)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0.01, maximum: 10000, description: "Field area in hectares" })
+  areaHectares?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0, maximum: 100, description: "Growth stage percentage" })
+  growthStagePercent?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(50000)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0, maximum: 50000, description: "Historical yield in kg/ha" })
+  historicalYieldKgHa?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0, maximum: 1, description: "Water stress factor (0-1)" })
+  waterStressFactor?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0, maximum: 1, description: "Disease factor (0-1)" })
+  diseaseFactor?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: 0, maximum: 100, description: "Grain moisture percentage" })
+  grainMoisture?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-10)
+  @Max(60)
+  @Type(() => Number)
+  @ApiProperty({ required: false, minimum: -10, maximum: 60, description: "Canopy temperature in °C" })
+  canopyTemperature?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"])
+  @ApiProperty({ required: false, enum: ["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"] })
+  cropType?: string;
+}
 
 @ApiTags("yield")
 @Controller("api/v1/yield")
 @UseGuards(JwtAuthGuard)
 export class YieldController {
   constructor(private readonly yieldService: YieldService) {}
+
+  @Get("feature-schema")
+  @ApiOperation({
+    summary: "Get ML feature schema",
+    description: "Return the feature schema definition for data drift monitoring",
+  })
+  getFeatureSchema() {
+    return FEATURE_SCHEMA;
+  }
+
+  @Post("validate-input")
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @ApiOperation({
+    summary: "Validate ML input data",
+    description: "التحقق من صحة بيانات الإدخال مقابل مخطط المدخلات لكشف انحراف البيانات",
+  })
+  @ApiResponse({ status: 200, description: "Validation result" })
+  @ApiResponse({ status: 400, description: "Invalid input data" })
+  validateInput(@Body() data: ValidateInputDto): { valid: boolean; errors: ValidationError[]; schema_version: string } {
+    const result = validateFeatureInput(data as Record<string, unknown>);
+    return {
+      ...result,
+      schema_version: FEATURE_SCHEMA.version,
+    };
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Predict Field Yield - التنبؤ بإنتاجية الحقل

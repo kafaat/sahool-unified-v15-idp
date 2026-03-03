@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
+import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
+import '../../ndvi/domain/spectral_index.dart';
 import '../../tasks/ui/widgets/daily_tasks_sheet.dart';
 import 'widgets/field_context_panel.dart';
 
@@ -13,14 +16,14 @@ import 'widgets/field_context_panel.dart';
 /// شاشة الخريطة الاحترافية بأسلوب غرفة العمليات
 ///
 /// مستوحاة من John Deere Ops Center و Trimble
-class MapScreen extends StatefulWidget {
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
@@ -28,73 +31,131 @@ class _MapScreenState extends State<MapScreen> {
   bool _isOnline = true;
   int _pendingSync = 3;
 
+  late final MapController _mapController;
+  String _searchQuery = '';
+  String _activeFilter = 'الكل';
+
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
+
+  /// Active spectral index for overlay coloring
+  SpectralIndex _activeSpectralIndex = SpectralIndex.ndvi;
 
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
     MapLayerOption('الخريطة', Icons.map, false),
     MapLayerOption('NDVI', Icons.grass, false),
-    MapLayerOption('الرطوبة', Icons.water_drop, false),
+    MapLayerOption('NDWI', Icons.water_drop, false),
+    MapLayerOption('EVI', Icons.park, false),
+    MapLayerOption('SAVI', Icons.landscape, false),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   // بيانات وهمية للحقول (Mock Data)
   final List<Field> _mockFields = [
-    const Field(
+    Field(
       id: '1',
       name: 'القطعة الشمالية',
+      tenantId: 'mock',
       cropType: 'قمح',
-      areaHa: 2.4,
-      ndvi: 0.78,
-      status: FieldStatus.healthy,
+      areaHectares: 2.4,
+      ndviCurrent: 0.78,
+      status: 'healthy',
       pendingTasks: 1,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '2',
       name: 'حقل الذرة',
+      tenantId: 'mock',
       cropType: 'ذرة',
-      areaHa: 3.1,
-      ndvi: 0.65,
-      status: FieldStatus.healthy,
+      areaHectares: 3.1,
+      ndviCurrent: 0.65,
+      status: 'healthy',
       pendingTasks: 0,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '3',
       name: 'البستان الغربي',
+      tenantId: 'mock',
       cropType: 'عنب',
-      areaHa: 1.8,
-      ndvi: 0.52,
-      status: FieldStatus.stressed,
+      areaHectares: 1.8,
+      ndviCurrent: 0.52,
+      status: 'stressed',
       pendingTasks: 2,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '4',
       name: 'حقل الطماطم',
+      tenantId: 'mock',
       cropType: 'طماطم',
-      areaHa: 0.9,
-      ndvi: 0.35,
-      status: FieldStatus.critical,
+      areaHectares: 0.9,
+      ndviCurrent: 0.35,
+      status: 'critical',
       pendingTasks: 4,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '5',
       name: 'المنطقة الجنوبية',
+      tenantId: 'mock',
       cropType: 'برسيم',
-      areaHa: 4.2,
-      ndvi: 0.71,
-      status: FieldStatus.healthy,
+      areaHectares: 4.2,
+      ndviCurrent: 0.71,
+      status: 'healthy',
       pendingTasks: 0,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
-    const Field(
+    Field(
       id: '6',
       name: 'حقل البطاطا',
+      tenantId: 'mock',
       cropType: 'بطاطا',
-      areaHa: 1.5,
-      ndvi: 0.48,
-      status: FieldStatus.stressed,
+      areaHectares: 1.5,
+      ndviCurrent: 0.48,
+      status: 'stressed',
       pendingTasks: 1,
+      createdAt: DateTime(2025, 1, 1),
+      updatedAt: DateTime(2025, 1, 1),
     ),
   ];
+
+  List<Field> get _filteredFields {
+    var fields = _mockFields;
+    // Apply status filter
+    if (_activeFilter == 'نشط') {
+      fields = fields.where((f) => f.healthStatus == FieldStatus.healthy).toList();
+    } else if (_activeFilter == 'تنبيه') {
+      fields = fields.where((f) => f.needsAttention).toList();
+    } else if (_activeFilter == 'حصاد') {
+      fields = fields.where((f) => f.ndvi >= 0.7).toList();
+    }
+    // Apply search query
+    if (_searchQuery.isNotEmpty) {
+      fields = fields.where((f) =>
+          f.name.contains(_searchQuery) ||
+          (f.cropType?.contains(_searchQuery) ?? false)).toList();
+    }
+    return fields;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,122 +239,118 @@ class _MapScreenState extends State<MapScreen> {
 
   /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
+    // Determine tile URL based on selected layer
+    final String tileUrl;
+    // Is a spectral index layer active? (indices 2-5: NDVI, NDWI, EVI, SAVI)
+    final bool isSpectralLayer = _selectedLayerIndex >= 2 && _selectedLayerIndex <= 5;
+    switch (_selectedLayerIndex) {
+      case 0: // Satellite
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        break;
+      case 2: // NDVI
+      case 3: // NDWI
+      case 4: // EVI
+      case 5: // SAVI
+        // Use satellite imagery as base for spectral overlays
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        _activeSpectralIndex = const [
+          SpectralIndex.ndvi,
+          SpectralIndex.ndvi,
+          SpectralIndex.ndvi,
+          SpectralIndex.ndwi,
+          SpectralIndex.evi,
+          SpectralIndex.savi,
+        ][_selectedLayerIndex];
+        break;
+      default: // Map
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
         initialZoom: 12,
         onTap: (tapPosition, point) {
-          // إلغاء التحديد عند الضغط على مكان فارغ
           if (_selectedField != null) {
             setState(() => _selectedField = null);
           }
         },
       ),
       children: [
-        // طبقة الخرائط الأساسية
+        // Base tile layer - switches based on selected layer
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: tileUrl,
           userAgentPackageName: 'com.sahool.field',
           maxZoom: 19,
+          tileProvider: SahoolTileProvider(),
         ),
 
-        // طبقة علامات الحقول
+        // Spectral index colored polygons overlay (NDVI/NDWI/EVI/SAVI layers)
+        if (isSpectralLayer)
+          PolygonLayer(
+            polygons: _filteredFields.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final field = entry.value;
+              if (idx >= _fieldLocations.length) return null;
+              final loc = _fieldLocations[idx];
+              final color = _getIndexColor(field.ndvi);
+              // Create a small polygon around each field location
+              const offset = 0.005;
+              return Polygon(
+                points: [
+                  LatLng(loc.latitude - offset, loc.longitude - offset),
+                  LatLng(loc.latitude - offset, loc.longitude + offset),
+                  LatLng(loc.latitude + offset, loc.longitude + offset),
+                  LatLng(loc.latitude + offset, loc.longitude - offset),
+                ],
+                color: color.withOpacity(0.4),
+                borderColor: color,
+                borderStrokeWidth: 2,
+                label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                ),
+              );
+            }).whereType<Polygon>().toList(),
+          ),
+
+        // Field markers
         MarkerLayer(
-          markers: List.generate(_mockFields.length, (index) {
-            final field = _mockFields[index];
-            final location = _fieldLocations[index];
-            return Marker(
-              point: location,
-              width: 150,
-              height: 60,
-              child: _buildFieldMarker(field),
-            );
-          }),
+          markers: _buildFieldMarkers(),
         ),
       ],
     );
   }
 
-  /// علامة الحقل على الخريطة
-  Widget _buildFieldMarker(Field field) {
-    final isSelected = _selectedField?.id == field.id;
-
-    return GestureDetector(
-      onTap: () => _selectField(field),
-      child: AnimatedScale(
-        scale: isSelected ? 1.1 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isSelected ? field.statusColor : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: field.statusColor.withOpacity(0.4),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : SahoolShadows.medium,
-                border: isSelected
-                    ? Border.all(color: Colors.white, width: 2)
-                    : null,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.white : field.statusColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    field.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  if (field.pendingTasks > 0) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.white : Colors.orange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${field.pendingTasks}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? field.statusColor : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            CustomPaint(
-              size: const Size(20, 10),
-              painter: _TrianglePainter(
-                color: isSelected ? field.statusColor : Colors.white,
-              ),
-            ),
-          ],
+  /// بناء قائمة markers محسّنة (تُحسب مرة واحدة ما لم يتغير التحديد)
+  List<Marker> _buildFieldMarkers() {
+    final fields = _filteredFields;
+    return List.generate(fields.length, (index) {
+      final field = fields[index];
+      if (index >= _fieldLocations.length) return null;
+      final location = _fieldLocations[index];
+      return Marker(
+        point: location,
+        width: 150,
+        height: 60,
+        child: RepaintBoundary(
+          child: _FieldMarkerWidget(
+            key: ValueKey('marker-${field.id}'),
+            field: field,
+            isSelected: _selectedField?.id == field.id,
+            onTap: () => _selectField(field),
+          ),
         ),
-      ),
-    );
+      );
+    }).whereType<Marker>().toList();
+  }
+
+  Color _getIndexColor(double value) {
+    return SpectralColormap.getColor(_activeSpectralIndex, value);
   }
 
   /// تحديد حقل
@@ -325,6 +382,7 @@ class _MapScreenState extends State<MapScreen> {
       right: 16,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
+        clipBehavior: Clip.hardEdge,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: _isSearchExpanded ? 120 : 56,
         decoration: BoxDecoration(
@@ -332,49 +390,55 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(28),
           boxShadow: SahoolShadows.large,
         ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 56,
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: SahoolColors.textSecondary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'ابحث عن حقل أو منطقة...',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      onTap: () => setState(() => _isSearchExpanded = true),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      _isSearchExpanded ? Icons.close : Icons.filter_list,
-                      color: SahoolColors.primary,
-                    ),
-                    onPressed: () => setState(() => _isSearchExpanded = !_isSearchExpanded),
-                  ),
-                ],
-              ),
-            ),
-            if (_isSearchExpanded) ...[
-              const Divider(height: 1),
-              Expanded(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 56,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildQuickFilter('الكل', true),
-                    _buildQuickFilter('نشط', false),
-                    _buildQuickFilter('تنبيه', false),
-                    _buildQuickFilter('حصاد', false),
+                    const Icon(Icons.search, color: SahoolColors.textSecondary),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'ابحث عن حقل أو منطقة...',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        onTap: () => setState(() => _isSearchExpanded = true),
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isSearchExpanded ? Icons.close : Icons.filter_list,
+                        color: SahoolColors.primary,
+                      ),
+                      onPressed: () => setState(() => _isSearchExpanded = !_isSearchExpanded),
+                    ),
                   ],
                 ),
               ),
+              if (_isSearchExpanded) ...[
+                const Divider(height: 1),
+                SizedBox(
+                  height: 63,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildQuickFilter('الكل', true),
+                      _buildQuickFilter('نشط', false),
+                      _buildQuickFilter('تنبيه', false),
+                      _buildQuickFilter('حصاد', false),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -383,8 +447,8 @@ class _MapScreenState extends State<MapScreen> {
   Widget _buildQuickFilter(String label, bool isSelected) {
     return FilterChip(
       label: Text(label),
-      selected: isSelected,
-      onSelected: (_) {},
+      selected: _activeFilter == label,
+      onSelected: (_) => setState(() => _activeFilter = label),
       selectedColor: SahoolColors.primary.withOpacity(0.2),
       checkmarkColor: SahoolColors.primary,
     );
@@ -397,13 +461,31 @@ class _MapScreenState extends State<MapScreen> {
       top: MediaQuery.of(context).padding.top + 90,
       child: Column(
         children: [
-          _buildMapControlButton(Icons.add, 'تكبير', () {}),
+          _buildMapControlButton(Icons.add, 'تكبير', () {
+            final zoom = _mapController.camera.zoom;
+            _mapController.move(_mapController.camera.center, zoom + 1);
+          }),
           const SizedBox(height: 8),
-          _buildMapControlButton(Icons.remove, 'تصغير', () {}),
+          _buildMapControlButton(Icons.remove, 'تصغير', () {
+            final zoom = _mapController.camera.zoom;
+            _mapController.move(_mapController.camera.center, zoom - 1);
+          }),
           const SizedBox(height: 16),
-          _buildMapControlButton(Icons.my_location, 'موقعي', () {}, highlight: true),
+          _buildMapControlButton(Icons.my_location, 'موقعي', () {
+            _mapController.move(const LatLng(15.3694, 44.1910), 14);
+          }, highlight: true),
           const SizedBox(height: 8),
-          _buildMapControlButton(Icons.crop_free, 'إطار', () {}),
+          _buildMapControlButton(Icons.crop_free, 'إطار', () {
+            // Fit all field markers into view
+            if (_fieldLocations.isNotEmpty) {
+              _mapController.fitCamera(
+                CameraFit.coordinates(
+                  coordinates: _fieldLocations,
+                  padding: const EdgeInsets.all(50),
+                ),
+              );
+            }
+          }),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.route, 'مسار', () {}),
         ],
@@ -670,6 +752,103 @@ class _MapScreenState extends State<MapScreen> {
             child: const Text('إبلاغ'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Widget مستقل لعلامة الحقل - يتجنب إعادة البناء غير الضرورية
+class _FieldMarkerWidget extends StatelessWidget {
+  final Field field;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FieldMarkerWidget({
+    super.key,
+    required this.field,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedScale(
+        scale: isSelected ? 1.1 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? field.statusColor : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: field.statusColor.withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : SahoolShadows.medium,
+                border: isSelected
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : field.statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      field.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: isSelected ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                  if (field.pendingTasks > 0) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${field.pendingTasks}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? field.statusColor : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            CustomPaint(
+              size: const Size(20, 10),
+              painter: _TrianglePainter(
+                color: isSelected ? field.statusColor : Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

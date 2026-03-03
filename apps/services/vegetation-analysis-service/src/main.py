@@ -29,7 +29,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
@@ -327,6 +327,7 @@ add_request_id_middleware(app)
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
 
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
@@ -2451,6 +2452,19 @@ class YieldPredictionRequest(BaseModel):
         None,
         description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)",
     )
+
+    @field_validator("ndvi_series")
+    @classmethod
+    def validate_ndvi_range(cls, v: list[float] | None) -> list[float] | None:
+        """Validate all NDVI values are within [-1.0, 1.0]."""
+        if v is not None:
+            for idx, val in enumerate(v):
+                if not (-1.0 <= val <= 1.0):
+                    raise ValueError(
+                        f"ndvi_series[{idx}]={val} outside valid range [-1.0, 1.0] | "
+                        f"قيمة NDVI في الموضع {idx} خارج النطاق الصالح"
+                    )
+        return v
 
     # Weather data (optional - will be estimated if not provided)
     precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")

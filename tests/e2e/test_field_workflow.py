@@ -41,7 +41,7 @@ async def test_complete_field_workflow(
     اختبار سير عمل الحقل الكامل: إنشاء → NDVI → طقس → توصيات
 
     Workflow Steps:
-    1. Create a new field in Field Ops
+    1. Create a new field in Field Management Service
     2. Request NDVI analysis for the field
     3. Get weather data for field location
     4. Get agricultural recommendations
@@ -53,8 +53,9 @@ async def test_complete_field_workflow(
     # ───────────────────────────────────────────────────────────────────────────
     print("\n[Step 1] Creating field...")
 
+    # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
     field_response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=test_field_data
+        "http://localhost:3000/api/v1/fields", headers=e2e_headers, json=test_field_data
     )
 
     # Should create field or require authentication
@@ -83,8 +84,9 @@ async def test_complete_field_workflow(
     print("\n[Step 2] Requesting NDVI analysis...")
 
     # Request NDVI analysis for the field
+    # ndvi-engine (port 8107) deprecated; now uses vegetation-analysis-service (port 8090)
     ndvi_response = await workflow_client.get(
-        f"http://localhost:8107/api/v1/ndvi/fields/{field_id}/analysis",
+        f"http://localhost:8090/api/v1/ndvi/fields/{field_id}/analysis",
         headers=e2e_headers,
     )
 
@@ -109,8 +111,9 @@ async def test_complete_field_workflow(
     # ───────────────────────────────────────────────────────────────────────────
     print("\n[Step 3] Getting weather data...")
 
+    # weather-core (port 8108) deprecated; now uses weather-service (port 8092)
     weather_response = await workflow_client.get(
-        "http://localhost:8108/api/v1/weather/current",
+        "http://localhost:8092/api/v1/weather/current",
         headers=e2e_headers,
         params=test_location_yemen,
     )
@@ -137,8 +140,9 @@ async def test_complete_field_workflow(
     # ───────────────────────────────────────────────────────────────────────────
     print("\n[Step 4] Getting agricultural recommendations...")
 
+    # agro-advisor (port 8105) deprecated; now uses advisory-service (port 8093)
     recommendations_response = await workflow_client.get(
-        f"http://localhost:8105/api/v1/recommendations/field/{field_id}",
+        f"http://localhost:8093/api/v1/recommendations/field/{field_id}",
         headers=e2e_headers,
     )
 
@@ -159,9 +163,9 @@ async def test_complete_field_workflow(
     # ───────────────────────────────────────────────────────────────────────────
     print("\n[Step 5] Verifying data consistency...")
 
-    # Retrieve field from Field Ops again
+    # Retrieve field from Field Management Service again
     field_verify_response = await workflow_client.get(
-        f"http://localhost:8080/api/v1/fields/{field_id}", headers=e2e_headers
+        f"http://localhost:3000/api/v1/fields/{field_id}", headers=e2e_headers
     )
 
     assert field_verify_response.status_code in (
@@ -206,8 +210,9 @@ async def test_field_creation_validation_workflow(
         "area_hectares": -10,  # Negative area
     }
 
+    # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
     response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=invalid_field
+        "http://localhost:3000/api/v1/fields", headers=e2e_headers, json=invalid_field
     )
 
     # Should reject invalid data
@@ -239,8 +244,9 @@ async def test_ndvi_analysis_workflow(
     # Test NDVI calculation endpoint
     ndvi_input = {"red": 0.5, "nir": 0.8}
 
+    # ndvi-engine (port 8107) deprecated; now uses vegetation-analysis-service (port 8090)
     response = await workflow_client.post(
-        "http://localhost:8107/api/v1/ndvi/calculate",
+        "http://localhost:8090/api/v1/ndvi/calculate",
         headers=e2e_headers,
         json=ndvi_input,
     )
@@ -285,15 +291,16 @@ async def test_weather_forecast_workflow(
     """
 
     # Get current weather
+    # weather-core (port 8108) deprecated; now uses weather-service (port 8092)
     current_response = await workflow_client.get(
-        "http://localhost:8108/api/v1/weather/current",
+        "http://localhost:8092/api/v1/weather/current",
         headers=e2e_headers,
         params=test_location_yemen,
     )
 
     # Get weather forecast
     forecast_response = await workflow_client.get(
-        "http://localhost:8108/api/v1/weather/forecast",
+        "http://localhost:8092/api/v1/weather/forecast",
         headers=e2e_headers,
         params=test_location_yemen,
     )
@@ -445,8 +452,9 @@ async def test_field_operations_complete_workflow(
     """
 
     # Step 1: Create field
+    # field-ops (port 8080) deprecated; now uses field-management-service (port 3000)
     create_response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=test_field_data
+        "http://localhost:3000/api/v1/fields", headers=e2e_headers, json=test_field_data
     )
 
     if create_response.status_code != 201:
@@ -457,14 +465,14 @@ async def test_field_operations_complete_workflow(
 
     # Step 2: List fields
     list_response = await workflow_client.get(
-        "http://localhost:8080/api/v1/fields", headers=e2e_headers
+        "http://localhost:3000/api/v1/fields", headers=e2e_headers
     )
 
     assert list_response.status_code in (200, 401), "Fields list should be accessible"
 
     # Step 3: Get specific field
     get_response = await workflow_client.get(
-        f"http://localhost:8080/api/v1/fields/{field_id}", headers=e2e_headers
+        f"http://localhost:3000/api/v1/fields/{field_id}", headers=e2e_headers
     )
 
     assert get_response.status_code in (200, 401), "Field should be retrievable"

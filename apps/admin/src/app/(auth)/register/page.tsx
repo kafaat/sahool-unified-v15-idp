@@ -118,7 +118,6 @@ function RegisterForm() {
                   className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="محمد"
                   required
-                  dir="rtl"
                 />
               </div>
             </div>
@@ -142,7 +141,6 @@ function RegisterForm() {
                   className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
                   placeholder="العبدالله"
                   required
-                  dir="rtl"
                 />
               </div>
             </div>

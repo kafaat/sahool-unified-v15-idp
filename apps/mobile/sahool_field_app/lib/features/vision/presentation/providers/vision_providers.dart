@@ -76,6 +76,8 @@ class DetectionHistoryState {
 /// Notifier for detection history
 /// مُعلم سجل الكشف
 class DetectionHistoryNotifier extends StateNotifier<DetectionHistoryState> {
+  int _sessionCounter = 0;
+
   DetectionHistoryNotifier() : super(const DetectionHistoryState());
 
   /// Add a detection result to history
@@ -87,8 +89,9 @@ class DetectionHistoryNotifier extends StateNotifier<DetectionHistoryState> {
 
   /// Start a new detection session
   DetectionSession startSession({String? fieldId}) {
+    _sessionCounter++;
     final session = DetectionSession(
-      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+      sessionId: '${DateTime.now().millisecondsSinceEpoch}_$_sessionCounter',
       fieldId: fieldId,
       startTime: DateTime.now(),
     );

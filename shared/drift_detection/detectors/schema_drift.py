@@ -32,16 +32,55 @@ BREAKING_PATTERNS = [
     (re.compile(r"\bALTER\s+COLUMN\s+\w+\s+TYPE\b", re.IGNORECASE), "ALTER COLUMN TYPE"),
     (re.compile(r"\bRENAME\s+COLUMN\b", re.IGNORECASE), "RENAME COLUMN"),
     (re.compile(r"\bRENAME\s+TABLE\b", re.IGNORECASE), "RENAME TABLE"),
-    (re.compile(r"\bNOT\s+NULL\b(?!.*DEFAULT)", re.IGNORECASE), "NOT NULL without DEFAULT"),
 ]
 
 # Patterns that need careful review
 RISKY_PATTERNS = [
-    (re.compile(r"\bCREATE\s+INDEX\b(?!\s+CONCURRENTLY)", re.IGNORECASE), "Non-concurrent index creation"),
     (re.compile(r"\bALTER\s+TABLE\s+\w+\s+ADD\s+CONSTRAINT\b", re.IGNORECASE), "Adding constraint"),
     (re.compile(r"\bTRUNCATE\b", re.IGNORECASE), "TRUNCATE"),
     (re.compile(r"\bDELETE\s+FROM\b(?!\s+WHERE)", re.IGNORECASE), "DELETE without WHERE"),
 ]
+
+# Regex to detect ALTER TABLE ADD COLUMN with NOT NULL but no DEFAULT (truly breaking)
+_ALTER_ADD_NOT_NULL_RE = re.compile(
+    r"\bALTER\s+TABLE\b[^;]*\bADD\s+(?:COLUMN\s+)?[^;]*\bNOT\s+NULL\b(?![^;]*\bDEFAULT\b)",
+    re.IGNORECASE,
+)
+
+# Regex to detect CREATE INDEX without CONCURRENTLY (only risky on non-init migrations)
+_NON_CONCURRENT_INDEX_RE = re.compile(
+    r"\bCREATE\s+INDEX\b(?!\s+CONCURRENTLY)", re.IGNORECASE
+)
+
+# Migration path patterns considered "initial" (CREATE TABLE from scratch, no existing data)
+_INIT_MIGRATION_RE = re.compile(r"(^|\/)0*1[_-]|init|initial|create[_-]tables", re.IGNORECASE)
+
+
+def _extract_prisma_models(content: str) -> list[tuple[str, str]]:
+    """Extract Prisma model name/body pairs using brace-depth counting.
+
+    Simple regex like ``model (\\w+) \\{([^}]+)\\}`` fails when inline
+    comments contain ``}`` (e.g. ``// { lat, lng }``).  This helper
+    tracks brace depth so it correctly identifies the closing ``}`` of
+    each model block.
+    """
+    results: list[tuple[str, str]] = []
+    model_re = re.compile(r"\bmodel\s+(\w+)\s*\{")
+    for m in model_re.finditer(content):
+        name = m.group(1)
+        start = m.end()  # position right after the opening '{'
+        depth = 1
+        pos = start
+        while pos < len(content) and depth > 0:
+            ch = content[pos]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+            pos += 1
+        body = content[start : pos - 1] if depth == 0 else content[start:]
+        results.append((name, body))
+    return results
 
 
 class SchemaDriftDetector(BaseDriftDetector):
@@ -120,7 +159,9 @@ class SchemaDriftDetector(BaseDriftDetector):
                     service_name = parts[i + 1]
                     break
 
-            # Check breaking patterns
+            is_init = _INIT_MIGRATION_RE.search(str(mig_file))
+
+            # Check breaking patterns (DROP, RENAME, ALTER TYPE)
             for pattern, pattern_name in BREAKING_PATTERNS:
                 matches = pattern.findall(content)
                 if matches:
@@ -141,6 +182,27 @@ class SchemaDriftDetector(BaseDriftDetector):
                         )
                     )
 
+            # Check ALTER TABLE ADD COLUMN ... NOT NULL without DEFAULT
+            # (Only truly breaking: adds a mandatory column to existing rows)
+            # NOT NULL inside CREATE TABLE is safe (no existing rows).
+            if _ALTER_ADD_NOT_NULL_RE.search(content):
+                self.add_result(
+                    DriftResult(
+                        category=DriftCategory.SCHEMA,
+                        severity=DriftSeverity.CRITICAL,
+                        source="breaking_migration",
+                        expected="ALTER TABLE ADD COLUMN with DEFAULT or nullable",
+                        actual="NOT NULL without DEFAULT on ALTER TABLE ADD COLUMN",
+                        description=f"Potentially breaking migration in {service_name}: NOT NULL without DEFAULT",
+                        description_ar=f"هجرة قد تسبب كسر في {service_name}: NOT NULL بدون DEFAULT",
+                        file_path=str(mig_file),
+                        service_name=service_name,
+                        auto_fixable=False,
+                        remediation_hint="Add DEFAULT value or make column nullable, then backfill.",
+                        remediation_hint_ar="أضف قيمة DEFAULT أو اجعل العمود قابلاً للقيم الفارغة ثم املأ البيانات.",
+                    )
+                )
+
             # Check risky patterns
             for pattern, pattern_name in RISKY_PATTERNS:
                 matches = pattern.findall(content)
@@ -155,9 +217,27 @@ class SchemaDriftDetector(BaseDriftDetector):
                             file_path=str(mig_file),
                             service_name=service_name,
                             auto_fixable=False,
-                            remediation_hint=f"Review '{pattern_name}' for production safety. Consider CONCURRENTLY for indexes.",
+                            remediation_hint=f"Review '{pattern_name}' for production safety.",
                         )
                     )
+
+            # Non-concurrent index creation: only flag on non-initial migrations
+            # Initial migrations create tables from scratch with no existing data,
+            # so CONCURRENTLY is unnecessary and actually unsupported inside transactions.
+            if not is_init and _NON_CONCURRENT_INDEX_RE.search(content):
+                self.add_result(
+                    DriftResult(
+                        category=DriftCategory.SCHEMA,
+                        severity=DriftSeverity.MEDIUM,
+                        source="risky_migration",
+                        description=f"Risky migration pattern in {service_name}: Non-concurrent index creation",
+                        description_ar=f"نمط هجرة محفوف بالمخاطر في {service_name}: إنشاء فهرس بدون CONCURRENTLY",
+                        file_path=str(mig_file),
+                        service_name=service_name,
+                        auto_fixable=False,
+                        remediation_hint="Use CREATE INDEX CONCURRENTLY for zero-downtime index creation on existing tables.",
+                    )
+                )
 
     async def _check_prisma_drift(self) -> None:
         """Check Prisma schema consistency."""
@@ -189,12 +269,27 @@ class SchemaDriftDetector(BaseDriftDetector):
                 )
 
             # Check for tenant_id field on all models (multi-tenant requirement)
-            models = re.findall(r"model\s+(\w+)\s*\{([^}]+)\}", content, re.DOTALL)
+            # Use a parser-style approach instead of [^}]+ regex, because inline
+            # comments may contain '}' (e.g. // { lat, lng }) that break the match.
+            models = _extract_prisma_models(content)
             for model_name, model_body in models:
-                # Skip system/config models
-                if model_name.lower() in {"migration", "prisma", "session", "account"}:
+                # Skip system/config/join-table models that don't need tenant isolation
+                skip_models = {
+                    "migration", "prisma", "session", "account",
+                    "verificationtoken", "authenticator",
+                }
+                if model_name.lower() in skip_models:
                     continue
-                if "tenant_id" not in model_body and "tenantId" not in model_body:
+                # Check for tenant_id in any common Prisma naming pattern:
+                # - tenantId (camelCase field name)
+                # - tenant_id (snake_case in @map or raw SQL)
+                # - @map("tenant_id") (explicit column mapping)
+                has_tenant = (
+                    "tenant_id" in model_body
+                    or "tenantId" in model_body
+                    or '@map("tenant_id")' in model_body
+                )
+                if not has_tenant:
                     self.add_result(
                         DriftResult(
                             category=DriftCategory.SCHEMA,

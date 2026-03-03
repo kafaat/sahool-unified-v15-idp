@@ -99,8 +99,12 @@ class RedisTokenRevocationStore:
                 self._redis_url,
                 encoding="utf-8",
                 decode_responses=True,
+                max_connections=20,
+                socket_timeout=5,
                 socket_connect_timeout=5,
                 socket_keepalive=True,
+                health_check_interval=30,
+                retry_on_timeout=True,
             )
 
             # Test connection
@@ -541,16 +545,26 @@ class RedisTokenRevocationStore:
             await self.initialize()
 
         try:
-            # Count keys by prefix
-            token_keys = await self._redis.keys(f"{self.TOKEN_PREFIX}*")
-            user_keys = await self._redis.keys(f"{self.USER_PREFIX}*")
-            tenant_keys = await self._redis.keys(f"{self.TENANT_PREFIX}*")
+            # Count keys by prefix using SCAN (safe for production)
+            async def _count_keys(pattern: str) -> int:
+                count = 0
+                cursor = 0
+                while True:
+                    cursor, keys = await self._redis.scan(cursor, match=pattern, count=100)
+                    count += len(keys)
+                    if cursor == 0:
+                        break
+                return count
+
+            revoked_tokens = await _count_keys(f"{self.TOKEN_PREFIX}*")
+            revoked_users = await _count_keys(f"{self.USER_PREFIX}*")
+            revoked_tenants = await _count_keys(f"{self.TENANT_PREFIX}*")
 
             return {
                 "initialized": self._initialized,
-                "revoked_tokens": len(token_keys),
-                "revoked_users": len(user_keys),
-                "revoked_tenants": len(tenant_keys),
+                "revoked_tokens": revoked_tokens,
+                "revoked_users": revoked_users,
+                "revoked_tenants": revoked_tenants,
                 "redis_url": self._redis_url.split("@")[-1],  # Hide password
             }
 

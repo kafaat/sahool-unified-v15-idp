@@ -218,7 +218,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
     return (
       <div className="space-y-4">
         {/* Header with collapse button */}
-        <div className="flex items-center justify-between" dir="rtl">
+        <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-white">الطقس الحالي</h3>
           <button
             onClick={onCollapse}
@@ -233,7 +233,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
         {/* Main weather info */}
         <div className="flex items-center gap-4">
           {getWeatherIcon(weather.condition, 12)}
-          <div dir="rtl">
+          <div>
             <p className="text-4xl font-bold text-white">
               {Math.round(weather.temperature)}°C
             </p>
@@ -248,8 +248,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
           {/* Temperature */}
           <div
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-            dir="rtl"
-          >
+                     >
             <div className="flex items-center gap-2 mb-1">
               <Thermometer
                 className="w-4 h-4 text-white/80"
@@ -265,8 +264,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
           {/* Humidity */}
           <div
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-            dir="rtl"
-          >
+                     >
             <div className="flex items-center gap-2 mb-1">
               <Droplets className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الرطوبة</p>
@@ -277,8 +275,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
           {/* Wind */}
           <div
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-            dir="rtl"
-          >
+                     >
             <div className="flex items-center gap-2 mb-1">
               <Wind className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الرياح</p>
@@ -294,8 +291,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
           {/* Rainfall forecast */}
           <div
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
-            dir="rtl"
-          >
+                     >
             <div className="flex items-center gap-2 mb-1">
               <CloudRain className="w-4 h-4 text-white/80" aria-hidden="true" />
               <p className="text-xs text-white/80">الأمطار المتوقعة</p>
@@ -309,7 +305,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
 
         {/* Weather alerts */}
         {activeAlerts.length > 0 && (
-          <div className="space-y-2" dir="rtl">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <AlertTriangle
                 className="w-4 h-4 text-yellow-300"
@@ -351,7 +347,7 @@ const ExpandedWeather = React.memo<ExpandedWeatherProps>(
 
         {/* Location info */}
         {weather.location && (
-          <div className="text-center pt-3 border-t border-white/20" dir="rtl">
+          <div className="text-center pt-3 border-t border-white/20">
             <p className="text-xs text-white/70">{weather.location}</p>
           </div>
         )}
@@ -432,8 +428,7 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
           <div className="bg-gradient-to-br from-blue-500/90 to-cyan-600/90 backdrop-blur-md rounded-lg shadow-lg p-4 min-w-[200px]">
             <div
               className="animate-pulse text-white text-sm text-center"
-              dir="rtl"
-            >
+                         >
               جاري تحميل الطقس...
             </div>
           </div>
@@ -451,8 +446,7 @@ export const WeatherOverlay = React.memo<WeatherOverlayProps>(
           <div className="bg-gradient-to-br from-gray-500/90 to-gray-600/90 backdrop-blur-md rounded-lg shadow-lg p-4 min-w-[200px]">
             <div
               className="flex items-center gap-2 text-white text-sm"
-              dir="rtl"
-            >
+                         >
               <Cloud className="w-4 h-4 opacity-50" aria-hidden="true" />
               <span>بيانات الطقس غير متوفرة</span>
             </div>

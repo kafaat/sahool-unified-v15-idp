@@ -90,6 +90,7 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
             <h4 className="font-semibold text-gray-900">{alert.titleAr}</h4>
             {onDismiss && (
               <button
+                type="button"
                 onClick={() => onDismiss(alert.id)}
                 className="p-1 rounded-full hover:bg-gray-200 transition-colors text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
                 aria-label={`إغلاق تنبيه: ${alert.titleAr}`}
@@ -109,6 +110,7 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
 
             {alert.actionUrl && (
               <button
+                type="button"
                 onClick={() => onAction?.(alert.actionUrl!)}
                 className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={`عرض تفاصيل: ${alert.titleAr}`}

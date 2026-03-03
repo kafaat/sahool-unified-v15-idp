@@ -25,6 +25,8 @@ export interface SatelliteField {
     ndviChange: number;
     ndwi?: number;
     evi?: number;
+    savi?: number;
+    ndre?: number;
     lai?: number;
   };
   healthStatus: HealthStatus;

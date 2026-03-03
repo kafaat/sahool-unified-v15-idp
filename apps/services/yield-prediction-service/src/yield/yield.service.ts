@@ -3,7 +3,7 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { v4 as uuidv4 } from "uuid";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -69,6 +69,94 @@ export interface PreHarvestAlertResponse {
     badge: Badge;
   };
   nats_topic: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Feature Schema Definition (v1.0)
+// تعريف مخطط المدخلات للكشف عن انحراف البيانات
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const FEATURE_SCHEMA = {
+  version: "1.0.0",
+  service: "yield-prediction-service",
+  features: {
+    ndvi: { type: "float", min: -1.0, max: 1.0, unit: "index", typicalHealthy: [0.3, 0.9] },
+    areaHectares: { type: "float", min: 0.01, max: 10000, unit: "ha" },
+    growthStagePercent: { type: "float", min: 0, max: 100, unit: "%" },
+    historicalYieldKgHa: { type: "float", min: 0, max: 50000, unit: "kg/ha", optional: true },
+    waterStressFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    diseaseFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    grainMoisture: { type: "float", min: 0, max: 100, unit: "%" },
+    canopyTemperature: { type: "float", min: -10, max: 60, unit: "°C" },
+    cropType: { type: "enum", values: ["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"] },
+  },
+  qualityRequirements: {
+    minConfidence: 0.5,
+    maxObservationAgeDays: 14,
+  },
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Input Validation - التحقق من صحة المدخلات
+// Validates input data against FEATURE_SCHEMA to prevent data drift
+// ═══════════════════════════════════════════════════════════════════════════════
+
+type FeatureKey = keyof typeof FEATURE_SCHEMA.features;
+
+export interface ValidationError {
+  field: string;
+  value: unknown;
+  message: string;
+  message_ar: string;
+}
+
+export function validateFeatureInput(
+  data: Record<string, unknown>,
+): { valid: boolean; errors: ValidationError[] } {
+  const errors: ValidationError[] = [];
+
+  for (const [key, value] of Object.entries(data)) {
+    const schema = FEATURE_SCHEMA.features[key as FeatureKey];
+    if (!schema) continue;
+
+    if (value === null || value === undefined) continue;
+
+    if (schema.type === "float") {
+      const numValue = typeof value === "number" ? value : Number(value);
+      if (isNaN(numValue)) {
+        errors.push({
+          field: key,
+          value,
+          message: `${key} must be a number, got ${typeof value}`,
+          message_ar: `${key} يجب أن يكون رقمًا`,
+        });
+        continue;
+      }
+      const { min, max } = schema as { min: number; max: number };
+      if (numValue < min || numValue > max) {
+        errors.push({
+          field: key,
+          value: numValue,
+          message: `${key} value ${numValue} out of range [${min}, ${max}]`,
+          message_ar: `قيمة ${key} (${numValue}) خارج النطاق المسموح [${min}, ${max}]`,
+        });
+      }
+    }
+
+    if (schema.type === "enum") {
+      const { values } = schema as { values: readonly string[] };
+      if (!values.includes(value as string)) {
+        errors.push({
+          field: key,
+          value,
+          message: `${key} must be one of: ${values.join(", ")}`,
+          message_ar: `${key} يجب أن يكون أحد: ${values.join(", ")}`,
+        });
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
 }
 
 // Crop data constants
@@ -595,6 +683,20 @@ export class YieldService {
   // ─────────────────────────────────────────────────────────────────────────────
   // Helper Methods
   // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Validate prediction input data against FEATURE_SCHEMA
+   * التحقق من بيانات الإدخال مقابل مخطط المدخلات
+   */
+  validatePredictionInput(data: Record<string, unknown>): void {
+    const result = validateFeatureInput(data);
+    if (!result.valid) {
+      throw new BadRequestException({
+        message: "Input data validation failed - فشل التحقق من البيانات",
+        errors: result.errors,
+      });
+    }
+  }
 
   private calculateNDVIFactor(ndvi: number): number {
     // NDVI to yield factor mapping

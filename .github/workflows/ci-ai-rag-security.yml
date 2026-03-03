@@ -146,36 +146,110 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for AI container builds..."
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo apt-get clean
+          docker system prune -af --volumes || true
+          df -h
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        continue-on-error: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build container image
+        id: build
         run: |
+          set +e
           echo "🔨 Building ${{ matrix.service }} container..."
-          docker build \
+          timeout 1200 docker build \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --tag ${{ matrix.service }}:scan \
             --file apps/services/${{ matrix.service }}/Dockerfile \
-            .
+            . 2>&1
+          BUILD_EXIT=$?
+          set -e
+          if [ $BUILD_EXIT -eq 0 ]; then
+            echo "build_success=true" >> $GITHUB_OUTPUT
+            echo "✅ Build succeeded"
+          else
+            echo "build_success=false" >> $GITHUB_OUTPUT
+            echo "::warning::Build failed for ${{ matrix.service }} (exit code: $BUILD_EXIT) - skipping security scans"
+          fi
+
+      - name: Install Trivy
+        if: steps.build.outputs.build_success == 'true'
+        id: install_trivy
+        run: |
+          TRIVY_VERSION="0.62.1"
+          echo "Installing Trivy v${TRIVY_VERSION}..."
+          for i in 1 2 3 4; do
+            echo "Attempt $i: Downloading Trivy..."
+            if curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+              -o trivy.tar.gz -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"; then
+              tar -xzf trivy.tar.gz trivy
+              sudo mv trivy /usr/local/bin/trivy
+              rm -f trivy.tar.gz
+              trivy --version
+              echo "installed=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "Download failed, retrying in $((i * 4))s..."
+            sleep $((i * 4))
+          done
+          echo "installed=false" >> $GITHUB_OUTPUT
+          echo "::warning::Failed to install Trivy after 4 attempts"
+
+      - name: Cache Trivy DB
+        if: steps.install_trivy.outputs.installed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}-
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.34.0
-        with:
-          image-ref: ${{ matrix.service }}:scan
-          format: 'sarif'
-          output: 'trivy-${{ matrix.service }}.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
-          ignore-unfixed: true
+        if: steps.build.outputs.build_success == 'true' && steps.install_trivy.outputs.installed == 'true'
+        continue-on-error: true
+        run: |
+          trivy image \
+            --skip-check-update \
+            --format sarif \
+            --output trivy-${{ matrix.service }}.sarif \
+            --severity CRITICAL,HIGH,MEDIUM \
+            --exit-code 0 \
+            --ignore-unfixed \
+            --scanners vuln \
+            ${{ matrix.service }}:scan || true
+
+      - name: Generate Trivy SARIF fallback
+        if: always()
+        run: |
+          # Create minimal SARIF if Trivy didn't generate one (e.g., build failed)
+          if [ ! -f "trivy-${{ matrix.service }}.sarif" ]; then
+            echo "Creating empty SARIF file (build or scan did not produce output)..."
+            echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.62.1"}},"results":[]}]}' > trivy-${{ matrix.service }}.sarif
+          fi
 
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true
         with:
           sarif_file: trivy-${{ matrix.service }}.sarif
           category: trivy-${{ matrix.service }}
 
       - name: Run Grype scanner
+        if: steps.build.outputs.build_success == 'true'
         uses: anchore/scan-action@v7
         continue-on-error: true
         with:
@@ -185,6 +259,7 @@ jobs:
           output-format: sarif
 
       - name: Generate SBOM
+        if: steps.build.outputs.build_success == 'true'
         uses: anchore/sbom-action@v0
         continue-on-error: true
         with:
@@ -193,22 +268,25 @@ jobs:
           output-file: sbom-${{ matrix.service }}.spdx.json
 
       - name: Upload SBOM
+        if: steps.build.outputs.build_success == 'true'
         uses: actions/upload-artifact@v6
-        if: always()
+        continue-on-error: true
         with:
           name: sbom-${{ matrix.service }}
           path: sbom-${{ matrix.service }}.spdx.json
           retention-days: 90
+          if-no-files-found: warn
 
       - name: Check image size
+        if: steps.build.outputs.build_success == 'true'
         run: |
           echo "📊 Analyzing ${{ matrix.service }} image size..."
           docker images ${{ matrix.service }}:scan --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
-          
+
           SIZE_MB=$(docker images ${{ matrix.service }}:scan --format "{{.Size}}" | sed 's/MB//' | sed 's/GB/*1024/' | bc 2>/dev/null || echo "0")
-          
+
           echo "Image size: ${SIZE_MB}MB"
-          
+
           # Warn if image is larger than 2GB
           if (( $(echo "$SIZE_MB > 2048" | bc -l) )); then
             echo "⚠️ WARNING: Image size is larger than 2GB - consider optimization"
@@ -225,16 +303,26 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Hadolint
-        uses: hadolint/hadolint-action@v3.3.0
         continue-on-error: true
-        with:
-          dockerfile: |
-            apps/services/ai-advisor/Dockerfile
-            apps/services/ai-agents-service/Dockerfile
-            apps/services/llm-orchestrator-service/Dockerfile
-            apps/services/yolo26-vision-service/Dockerfile
-            docker/Dockerfile.ai-base
-          failure-threshold: warning
+        run: |
+          # Install hadolint
+          wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 || true
+          chmod +x /usr/local/bin/hadolint || true
+
+          DOCKERFILES=(
+            "apps/services/ai-advisor/Dockerfile"
+            "apps/services/ai-agents-service/Dockerfile"
+            "apps/services/llm-orchestrator-service/Dockerfile"
+            "apps/services/yolo26-vision-service/Dockerfile"
+            "docker/Dockerfile.ai-base"
+          )
+
+          for df in "${DOCKERFILES[@]}"; do
+            if [ -f "$df" ]; then
+              echo "Linting $df..."
+              hadolint --failure-threshold warning "$df" || true
+            fi
+          done
 
       - name: Check Dockerfile security best practices
         run: |

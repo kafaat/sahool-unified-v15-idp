@@ -18,7 +18,7 @@ import Cookies from "js-cookie";
 import { logger } from "./logger";
 
 // Import API configuration from centralized config
-import { API_URLS, API_CONFIG } from "@/config/api";
+import { API_URLS, API_CONFIG, TIMEOUT_TIERS } from "@/config/api";
 
 // Re-export API_URLS for consumers of this module
 export { API_URLS };
@@ -100,17 +100,8 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     );
     return response.data;
   } catch (error) {
-    logger.warn("fetchDashboardStats failed, returning mock data", { error });
-    return {
-      totalFarms: 156,
-      activeFarms: 142,
-      totalArea: 2450.5,
-      totalDiagnoses: 1247,
-      pendingReviews: 23,
-      criticalAlerts: 5,
-      avgHealthScore: 78.5,
-      weeklyDiagnoses: 89,
-    };
+    logger.error("fetchDashboardStats failed", { error });
+    throw error;
   }
 }
 
@@ -743,7 +734,7 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   await Promise.all(
     services.map(async ([name, url]) => {
       try {
-        await apiClient.get(`${url}/healthz`, { timeout: 5000 });
+        await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
         results[name] = true;
       } catch {
         results[name] = false;
@@ -755,11 +746,12 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Empty-state fallbacks (no static mock data)
-// حالات فارغة بدلاً من بيانات وهمية ثابتة
+// Error handling policy
+// سياسة التعامل مع الأخطاء
 // ═══════════════════════════════════════════════════════════════════════════
-// API functions return empty arrays/defaults on error. No mock data is used.
-// The UI should display proper empty-state messages when data is unavailable.
+// Critical functions (fetchDashboardStats) throw errors for React Query to handle.
+// List functions return empty arrays on error for graceful degradation.
+// The UI should display proper empty-state or error messages when data is unavailable.
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Re-export services and types from api/ directory

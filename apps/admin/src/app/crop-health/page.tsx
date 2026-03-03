@@ -85,7 +85,7 @@ export default function CropHealthPage() {
   const getStatusColor = (status: CropHealthRecord["healthStatus"]) => {
     const colors: Record<CropHealthRecord["healthStatus"], string> = {
       excellent: "bg-green-100 text-green-800",
-      good: "bg-blue-100 text-blue-800",
+      good: "bg-green-50 text-green-700",
       moderate: "bg-yellow-100 text-yellow-800",
       poor: "bg-orange-100 text-orange-800",
       critical: "bg-red-100 text-red-800",
@@ -94,9 +94,10 @@ export default function CropHealthPage() {
   };
 
   const getNdviColor = (ndvi: number) => {
-    if (ndvi >= 0.7) return "text-green-600";
-    if (ndvi >= 0.5) return "text-yellow-600";
-    if (ndvi >= 0.3) return "text-orange-600";
+    if (ndvi >= 0.7) return "text-green-700";
+    if (ndvi >= 0.5) return "text-green-600";
+    if (ndvi >= 0.3) return "text-yellow-600";
+    if (ndvi >= 0.15) return "text-orange-600";
     return "text-red-600";
   };
 

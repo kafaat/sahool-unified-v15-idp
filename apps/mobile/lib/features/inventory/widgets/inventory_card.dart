@@ -1,6 +1,7 @@
 /// Inventory Card Widget - بطاقة عنصر المخزون
 library;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -220,10 +221,11 @@ class InventoryCard extends StatelessWidget {
 
   Widget _buildImageSection(BuildContext context) {
     if (item.imageUrl != null && item.imageUrl!.isNotEmpty) {
-      return Image.network(
-        item.imageUrl!,
+      return CachedNetworkImage(
+        imageUrl: item.imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildIconPlaceholder(context),
+        placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        errorWidget: (context, _, __) => _buildIconPlaceholder(context),
       );
     }
     return _buildIconPlaceholder(context);

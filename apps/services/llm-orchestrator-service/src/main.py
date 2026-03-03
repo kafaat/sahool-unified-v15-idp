@@ -94,6 +94,7 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+
 # Authentication imports
 try:
     from shared.auth.dependencies import get_current_user

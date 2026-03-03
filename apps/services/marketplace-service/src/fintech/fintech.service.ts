@@ -179,11 +179,11 @@ export class FintechService {
   // التصنيف الائتماني - Credit Scoring (delegated to CreditService)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async calculateCreditScore(userId: string, farmData: FarmData) {
+  async calculateCreditScore(userId: string, farmData: FarmData, tenantId?: string) {
     return this.creditService.calculateCreditScore(userId, farmData);
   }
 
-  async calculateAdvancedCreditScore(userId: string, factors: CreditFactors) {
+  async calculateAdvancedCreditScore(userId: string, factors: CreditFactors, tenantId?: string) {
     return this.creditService.calculateAdvancedCreditScore(userId, factors);
   }
 
@@ -191,7 +191,7 @@ export class FintechService {
     return this.creditService.getCreditFactors(userId);
   }
 
-  async recordCreditEvent(data: RecordCreditEventDto) {
+  async recordCreditEvent(data: RecordCreditEventDto, tenantId?: string) {
     return this.creditService.recordCreditEvent(data);
   }
 
@@ -203,7 +203,7 @@ export class FintechService {
   // القروض - Loans (delegated to LoanService)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async requestLoan(data: CreateLoanDto) {
+  async requestLoan(data: CreateLoanDto, tenantId?: string) {
     return this.loanService.requestLoan(data);
   }
 

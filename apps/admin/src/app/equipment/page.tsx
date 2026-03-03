@@ -250,10 +250,6 @@ export default function EquipmentPage() {
   const [formStatus, setFormStatus] = useState<EquipmentStatus>("operational");
   const [formFarm, setFormFarm] = useState(MOCK_FARMS_LIST[0]?.id || "");
 
-  useEffect(() => {
-    loadEquipment();
-  }, []);
-
   const loadEquipment = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -265,6 +261,10 @@ export default function EquipmentPage() {
       setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadEquipment();
+  }, [loadEquipment]);
 
   // Filter equipment
   const filteredEquipment = useMemo(() => {
@@ -730,7 +730,6 @@ export default function EquipmentPage() {
                   onChange={(e) => setFormNameAr(e.target.value)}
                   placeholder="مثال: جرار جون ديري 5075E"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
-                  dir="rtl"
                 />
               </div>
 

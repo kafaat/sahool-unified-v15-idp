@@ -216,12 +216,18 @@ class IntelligenceCache:
         return deleted
 
     async def clear(self) -> None:
-        """Clear all cache entries."""
+        """Clear all cache entries using SCAN (safe for production)."""
         if self._redis_client:
             try:
-                keys = await self._redis_client.keys("crop_intel:*")
-                if keys:
-                    await self._redis_client.delete(*keys)
+                cursor = 0
+                while True:
+                    cursor, keys = await self._redis_client.scan(
+                        cursor, match="crop_intel:*", count=100
+                    )
+                    if keys:
+                        await self._redis_client.delete(*keys)
+                    if cursor == 0:
+                        break
             except Exception:
                 pass
 

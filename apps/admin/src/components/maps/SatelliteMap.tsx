@@ -293,7 +293,7 @@ export default function SatelliteMap({
           <div className="flex items-center gap-2 text-xs">
             <span
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#2E7D32" }}
+              style={{ backgroundColor: "#1B5E20" }}
             ></span>
             <span>ممتاز (NDVI &gt; 0.7)</span>
           </div>
@@ -314,9 +314,16 @@ export default function SatelliteMap({
           <div className="flex items-center gap-2 text-xs">
             <span
               className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#FF9800" }}
+            ></span>
+            <span>ضعيف (0.15 - 0.3)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: "#F44336" }}
             ></span>
-            <span>ضعيف (&lt; 0.3)</span>
+            <span>حرج (&lt; 0.15)</span>
           </div>
         </div>
       </div>
@@ -324,16 +331,18 @@ export default function SatelliteMap({
   );
 }
 
-function getNDVIColor(ndvi: number): string {
-  if (ndvi >= 0.7) return "#2E7D32"; // Dark green
-  if (ndvi >= 0.5) return "#4CAF50"; // Green
-  if (ndvi >= 0.3) return "#FDD835"; // Yellow
-  return "#F44336"; // Red
+export function getNDVIColor(ndvi: number): string {
+  if (ndvi >= 0.7) return "#1B5E20"; // Dark green - excellent
+  if (ndvi >= 0.5) return "#4CAF50"; // Green - good
+  if (ndvi >= 0.3) return "#FDD835"; // Yellow - moderate
+  if (ndvi >= 0.15) return "#FF9800"; // Orange - poor
+  return "#F44336"; // Red - critical
 }
 
-function getHealthLabel(ndvi: number): string {
+export function getHealthLabel(ndvi: number): string {
   if (ndvi >= 0.7) return "ممتاز";
   if (ndvi >= 0.5) return "جيد";
   if (ndvi >= 0.3) return "متوسط";
-  return "ضعيف";
+  if (ndvi >= 0.15) return "ضعيف";
+  return "حرج";
 }

@@ -18,19 +18,27 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceName(StrEnum):
-    """Available services"""
+    """Available services - must match SERVICE_PORTS keys in versions.py"""
 
     BILLING = "billing-core"
-    SATELLITE = "satellite-service"
+    VEGETATION_ANALYSIS = "vegetation-analysis-service"
     INDICATORS = "indicators-service"
-    WEATHER = "weather-advanced"
-    FERTILIZER = "fertilizer-advisor"
+    WEATHER = "weather-service"
+    ADVISORY = "advisory-service"
     IRRIGATION = "irrigation-smart"
-    CROP_HEALTH = "crop-health-ai"
+    CROP_INTELLIGENCE = "crop-intelligence-service"
     VIRTUAL_SENSORS = "virtual-sensors"
-    YIELD = "yield-engine"
+    YIELD_PREDICTION = "yield-prediction-service"
     NOTIFICATION = "notification-service"
     ASTRONOMICAL = "astronomical-calendar"
+    FIELD_MANAGEMENT = "field-management-service"
+    USER_SERVICE = "user-service"
+    TASK = "task-service"
+    EQUIPMENT = "equipment-service"
+    ALERT = "alert-service"
+    CHAT = "chat-service"
+    IOT = "iot-service"
+    COPILOT = "copilot-api"
 
 
 @dataclass
@@ -367,7 +375,7 @@ async def get_irrigation_recommendation(field_id: str) -> dict | None:
 
 async def get_satellite_imagery(field_id: str, date: str = None) -> dict | None:
     """Get satellite imagery for a field"""
-    client = get_service_client(ServiceName.SATELLITE)
+    client = get_service_client(ServiceName.VEGETATION_ANALYSIS)
     params = {"date": date} if date else None
     response = await client.get(f"/v1/imagery/{field_id}", params=params)
     return response.data if response.success else None
@@ -375,7 +383,7 @@ async def get_satellite_imagery(field_id: str, date: str = None) -> dict | None:
 
 async def analyze_crop_health(image_path: str, crop_type: str) -> dict | None:
     """Analyze crop health from image"""
-    client = get_service_client(ServiceName.CROP_HEALTH)
+    client = get_service_client(ServiceName.CROP_INTELLIGENCE)
     response = await client.post(
         "/v1/analyze", json={"image_path": image_path, "crop_type": crop_type}
     )

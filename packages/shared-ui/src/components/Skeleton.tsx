@@ -44,7 +44,11 @@ export function Skeleton({
         className,
       )}
       style={style}
-    />
+      role="status"
+      aria-label="Loading"
+    >
+      <span className="sr-only">Loading...</span>
+    </div>
   );
 }
 
@@ -56,6 +60,8 @@ export function SkeletonCard({ className = "" }: { className?: string }) {
         "bg-white rounded-lg border border-gray-200 p-4",
         className,
       )}
+      role="status"
+      aria-label="Loading card"
     >
       <Skeleton variant="rectangular" height={20} className="mb-3 w-1/2" />
       <Skeleton variant="text" className="mb-2" />
@@ -73,7 +79,7 @@ export function SkeletonTable({
   cols?: number;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" role="status" aria-label="Loading table">
       {/* Header */}
       <div className="flex gap-4 p-3 bg-gray-50 rounded-lg">
         {Array.from({ length: cols }).map((_, i) => (

@@ -13,6 +13,12 @@ export default defineConfig({
     coverage: {
       reporter: ["text", "json", "html"],
       exclude: ["node_modules/", "src/__tests__/setup.ts"],
+      thresholds: {
+        statements: 3,
+        branches: 3,
+        functions: 3,
+        lines: 3,
+      },
     },
   },
   resolve: {
@@ -24,6 +30,10 @@ export default defineConfig({
       "@sahool/shared-types": path.resolve(
         __dirname,
         "../../packages/shared-types/src",
+      ),
+      "@sahool/api-client": path.resolve(
+        __dirname,
+        "../../packages/api-client/src",
       ),
       "@": path.resolve(__dirname, "./src"),
     },

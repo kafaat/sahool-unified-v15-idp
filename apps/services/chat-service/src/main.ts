@@ -114,7 +114,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, document);
 
-  const port = process.env.PORT || 8114;
+  const port = process.env.PORT || 8115;
   await app.listen(port);
 
   const logger = app.get(Logger);

@@ -6,6 +6,7 @@
 
 generator client {
   provider        = "prisma-client-js"
+  output          = "./generated/client"
   previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
@@ -54,8 +55,8 @@ model DisasterReport {
   totalEstimatedLossYER  BigInt?  @map("total_estimated_loss_yer")
 
   // Reporting
-  reportedBy String  @map("reported_by") @db.VarChar(255)
-  tenantId   String  @map("tenant_id") @db.VarChar(100)
+  reportedBy String  @default("system") @map("reported_by") @db.VarChar(255)
+  tenantId   String  @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Lifecycle Dates
   startDate  DateTime? @map("start_date") @db.Timestamptz
@@ -68,7 +69,7 @@ model DisasterReport {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   alerts            DisasterAlert[]
@@ -128,12 +129,12 @@ model DisasterAlert {
   report   DisasterReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
 
   // Multi-tenancy
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Timestamps
   sentAt    DateTime @default(now()) @map("sent_at") @db.Timestamptz
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   subscriptions AlertSubscription[]
@@ -144,6 +145,7 @@ model DisasterAlert {
   @@index([alertType], name: "idx_alert_type")
   @@index([isActive], name: "idx_alert_active")
   @@index([severity], name: "idx_alert_severity")
+  @@index([reportId], name: "idx_alert_report")
   @@map("disaster_alerts")
 }
 
@@ -184,12 +186,12 @@ model FieldAssessment {
   assessedBy       String? @map("assessed_by") @db.VarChar(255)
 
   // Multi-tenancy
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Timestamps
   assessedAt DateTime @default(now()) @map("assessed_at") @db.Timestamptz
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@index([fieldId], name: "idx_assessment_field")
@@ -208,7 +210,7 @@ model AlertSubscription {
 
   // User Info
   userId   String @map("user_id") @db.VarChar(255)
-  tenantId String @map("tenant_id") @db.VarChar(100)
+  tenantId String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Subscription Settings
   governorate String @db.VarChar(100)
@@ -226,11 +228,12 @@ model AlertSubscription {
 
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
   @@unique([userId, governorate], name: "idx_subscription_user_gov")
   @@index([tenantId], name: "idx_subscription_tenant")
+  @@index([alertId], name: "idx_subscription_alert")
   @@map("alert_subscriptions")
 }
 

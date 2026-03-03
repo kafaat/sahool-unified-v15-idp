@@ -270,6 +270,24 @@ export function RealTimeActivityFeed({
   );
 
   /**
+   * Start mock data generation for demo
+   */
+  const startMockGeneration = useCallback(() => {
+    // Generate initial events
+    const initialEvents = Array.from({ length: 5 }, () => generateMockEvent());
+    setActivities(initialEvents);
+
+    // Generate new events periodically
+    const interval = setInterval(() => {
+      if (!isPaused) {
+        addActivity(generateMockEvent());
+      }
+    }, 3000 + Math.random() * 5000);
+
+    return () => clearInterval(interval);
+  }, [isPaused, addActivity]);
+
+  /**
    * Connect to WebSocket
    */
   const connectWebSocket = useCallback(() => {
@@ -324,30 +342,9 @@ export function RealTimeActivityFeed({
       wsRef.current = ws;
     } catch {
       // WebSocket connection failed - fallback to mock data
-      // Start mock data generation as fallback
-      // Note: startMockGeneration is defined below but hoisted, intentionally not in deps
       startMockGeneration();
     }
-     
-  }, [wsUrl, addActivity]);
-
-  /**
-   * Start mock data generation for demo
-   */
-  const startMockGeneration = useCallback(() => {
-    // Generate initial events
-    const initialEvents = Array.from({ length: 5 }, () => generateMockEvent());
-    setActivities(initialEvents);
-
-    // Generate new events periodically
-    const interval = setInterval(() => {
-      if (!isPaused) {
-        addActivity(generateMockEvent());
-      }
-    }, 3000 + Math.random() * 5000);
-
-    return () => clearInterval(interval);
-  }, [isPaused, addActivity]);
+  }, [wsUrl, addActivity, startMockGeneration]);
 
   /**
    * Initialize WebSocket or mock data

@@ -5,7 +5,8 @@
 
 export default function DashboardLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" dir="rtl">
+    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل لوحة التحكم - Loading dashboard">
+      <span className="sr-only">جاري تحميل لوحة التحكم - Loading dashboard</span>
       {/* Header skeleton */}
       <div className="flex items-center justify-between">
         <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded" />

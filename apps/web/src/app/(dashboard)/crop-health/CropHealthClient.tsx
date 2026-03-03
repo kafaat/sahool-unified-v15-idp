@@ -20,7 +20,7 @@ export default function CropHealthClient() {
       {!diagnosisId && (
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex gap-4" dir="rtl">
+            <div className="flex gap-4">
               <button
                 onClick={() => setActiveView("dashboard")}
                 className={`
@@ -61,8 +61,7 @@ export default function CropHealthClient() {
             <button
               onClick={() => setDiagnosisId(null)}
               className="mb-6 text-green-600 hover:text-green-700 font-medium"
-              dir="rtl"
-            >
+                         >
               ← العودة
             </button>
             <DiagnosisResultView requestId={diagnosisId} />

@@ -16,7 +16,6 @@ export default defineConfig({
     include: [
       "packages/**/*.{test,spec}.{ts,tsx}",
       "apps/web/src/**/*.{test,spec}.{ts,tsx}",
-      "apps/admin/src/**/*.{test,spec}.{ts,tsx}",
       "shared/**/*.{test,spec}.{ts,tsx}",
       // API Integration Tests
       "tests/integration/api/**/*.{test,spec}.{ts,tsx}",

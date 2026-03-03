@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
+import '../../../../core/auth/secure_storage_service.dart';
 import '../../domain/models/report_template.dart';
 import '../../domain/models/report_filter.dart';
 import '../widgets/filter_chips_widget.dart';
@@ -495,7 +496,7 @@ class _ReportBuilderScreenState extends ConsumerState<ReportBuilderScreen> {
       final report = await repository.generateReport(
         template: widget.template,
         filter: _filter,
-        tenantId: 'default', // TODO: Get from user context
+        tenantId: await ref.read(secureStorageProvider).getTenantId() ?? 'default',
         customTitle: customTitle,
       );
 

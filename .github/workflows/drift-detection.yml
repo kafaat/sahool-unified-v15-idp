@@ -238,7 +238,7 @@ jobs:
                       sys.exit(0)
           except Exception as e:
               print(f'Exit code extraction error: {e}', file=sys.stderr)
-              sys.exit(0)
+              sys.exit(1)
           " && echo 0 || echo $?)
 
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT

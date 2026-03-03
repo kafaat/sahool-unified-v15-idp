@@ -40,6 +40,34 @@ SERVICE_NAME = "pest-detection-service"
 SERVICE_VERSION = "16.0.0"
 SERVICE_NAME_AR = "خدمة كشف الآفات"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Feature Schema Definition (v1.0)
+# تعريف مخطط المدخلات للكشف عن انحراف البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FEATURE_SCHEMA = {
+    "version": "1.0.0",
+    "service": SERVICE_NAME,
+    "features": {
+        "image": {"type": "binary", "formats": ["jpeg", "png", "webp"], "max_size_mb": 50},
+        "temperature_c": {"type": "float", "min": -10, "max": 60, "unit": "°C"},
+        "humidity_pct": {"type": "float", "min": 0, "max": 100, "unit": "%"},
+        "ndvi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "optional": True},
+        "crop_type": {"type": "enum", "values": [
+            "wheat", "sorghum", "tomato", "date_palm", "coffee",
+            "mango", "citrus", "grape", "cotton", "sesame", "alfalfa",
+        ]},
+        "season": {"type": "enum", "values": ["spring", "summer", "fall", "winter"]},
+        "latitude": {"type": "float", "min": -90, "max": 90, "unit": "degrees"},
+        "longitude": {"type": "float", "min": -180, "max": 180, "unit": "degrees"},
+        "confidence_threshold": {"type": "float", "min": 0.0, "max": 1.0, "default": 0.25},
+    },
+    "quality_requirements": {
+        "min_image_resolution_px": 320,
+        "max_detection_latency_ms": 5000,
+    },
+}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -129,6 +157,12 @@ app.add_middleware(
 
 # Tenant context middleware
 app.add_middleware(TenantContextMiddleware)
+
+
+@app.get("/v1/feature-schema", tags=["Schema"])
+async def get_feature_schema():
+    """Return the ML feature schema for data drift monitoring."""
+    return FEATURE_SCHEMA
 
 
 # Health endpoints

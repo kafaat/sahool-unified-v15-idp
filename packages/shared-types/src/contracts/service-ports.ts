@@ -83,7 +83,7 @@ export const SERVICE_PORTS = {
   /** WebSocket gateway - بوابة WebSocket */
   WS_GATEWAY: 8081,
   /** Real-time messaging - الرسائل الفورية */
-  CHAT_SERVICE: 8000,
+  CHAT_SERVICE: 8115,
   /** Field-level chat - دردشة الحقل */
   FIELD_CHAT: 8099,
   /** Community features (deprecated → chat-service) */
@@ -116,7 +116,9 @@ export const SERVICE_PORTS = {
   KNOWLEDGE_GRAPH: 8140,
   /** Code fix agent - وكيل إصلاح الكود */
   CODE_FIX_AGENT: 8162,
-  /** Code review agent (NestJS) - وكيل مراجعة الكود */
+  /** Code review agent (CLI tool, no HTTP server) - وكيل مراجعة الكود */
+  // NOTE: code-review-agent is a CLI agent, not a web service.
+  // Port retained for registry completeness but no HTTP server listens on it.
   CODE_REVIEW_AGENT: 8145,
   /** Code review service - خدمة مراجعة الكود */
   CODE_REVIEW_SERVICE: 8102,

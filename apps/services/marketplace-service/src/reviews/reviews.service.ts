@@ -29,7 +29,9 @@ export class ReviewsService {
   /**
    * إنشاء تقييم منتج جديد
    */
-  async createProductReview(dto: CreateProductReviewDto) {
+  async createProductReview(dto: CreateProductReviewDto, tenantId?: string) {
+    const tenant = tenantId || "unassigned";
+
     // Verify the buyer profile exists
     const buyerProfile = await this.prisma.buyerProfile.findUnique({
       where: { id: dto.buyerId },
@@ -42,6 +44,7 @@ export class ReviewsService {
     // Check if buyer has already reviewed this product for this order
     const existingReview = await this.prisma.productReview.findFirst({
       where: {
+        tenantId: tenant,
         productId: dto.productId,
         buyerId: dto.buyerId,
         orderId: dto.orderId,
@@ -65,7 +68,7 @@ export class ReviewsService {
     }
 
     const orderContainsProduct = order.items.some(
-      (item) => item.productId === dto.productId,
+      (item: { productId: string }) => item.productId === dto.productId,
     );
 
     if (!orderContainsProduct) {
@@ -75,6 +78,7 @@ export class ReviewsService {
     // Create the review
     const review = await this.prisma.productReview.create({
       data: {
+        tenantId: tenant,
         productId: dto.productId,
         buyerId: dto.buyerId,
         orderId: dto.orderId,
@@ -191,11 +195,11 @@ export class ReviewsService {
     }
 
     const totalReviews = reviews.length;
-    const sumRatings = reviews.reduce((sum, r) => sum + r.rating, 0);
+    const sumRatings = reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0);
     const averageRating = sumRatings / totalReviews;
 
     const ratingDistribution = reviews.reduce(
-      (dist, r) => {
+      (dist: Record<number, number>, r: { rating: number }) => {
         dist[r.rating] = (dist[r.rating] || 0) + 1;
         return dist;
       },

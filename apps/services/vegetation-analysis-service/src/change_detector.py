@@ -88,6 +88,12 @@ class ChangeEvent:
     recommended_action_en: str
     additional_metrics: dict[str, float] = None  # Optional NDWI, NDMI, etc.
 
+    def __post_init__(self) -> None:
+        self.ndvi_before = max(-1.0, min(1.0, self.ndvi_before))
+        self.ndvi_after = max(-1.0, min(1.0, self.ndvi_after))
+        self.ndvi_change = max(-2.0, min(2.0, self.ndvi_change))
+        self.confidence = max(0.0, min(1.0, self.confidence))
+
     def to_dict(self) -> dict:
         """Convert to dictionary"""
         result = asdict(self)

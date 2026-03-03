@@ -1,10 +1,5 @@
-"""Test configuration for demo-data."""
-import pytest
-from fastapi.testclient import TestClient
+"""Test configuration for demo-data.
 
-
-@pytest.fixture
-def client():
-    """Create test client."""
-    from src.main import app
-    return TestClient(app)
+Note: demo-data is a standalone data generation script, not a FastAPI service.
+It does not expose HTTP endpoints directly.
+"""

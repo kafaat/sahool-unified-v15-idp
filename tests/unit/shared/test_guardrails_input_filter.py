@@ -421,7 +421,7 @@ class TestUtilityFunctions:
         text = "hello\x00world"
         result = sanitize_input(text)
         assert "\x00" not in result
-        assert result == "hello world"  # Null byte replaced with space to preserve word boundaries
+        assert result == "hello world"  # Null byte replaced with space to prevent concatenation attacks
 
     def test_sanitize_whitespace(self):
         """Test whitespace normalization."""

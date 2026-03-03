@@ -208,6 +208,7 @@ tls.key
 
 # Prisma generated clients
 **/.prisma/
+**/prisma/generated/
 
 # Setup script generated files
 .env.tmp

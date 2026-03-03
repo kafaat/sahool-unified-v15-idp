@@ -74,6 +74,7 @@ from .ollama import (
 from .openai_compat import (
     OpenAICompatError,
     OpenAICompatProvider,
+    get_deepseek_vllm_provider,
     get_lm_studio_provider,
     get_openai_compat_provider,
     get_vllm_provider,
@@ -174,6 +175,7 @@ __all__ = [
     "OpenAICompatProvider",
     "get_openai_compat_provider",
     "get_vllm_provider",
+    "get_deepseek_vllm_provider",
     "get_lm_studio_provider",
     # Router
     "AllProvidersFailedError",

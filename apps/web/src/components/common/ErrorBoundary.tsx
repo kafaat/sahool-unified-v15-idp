@@ -92,8 +92,7 @@ export class ErrorBoundary extends Component<Props, State> {
         this.props.fallback || (
           <div
             className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
-            dir="rtl"
-            role="alert"
+                       role="alert"
             aria-live="assertive"
             aria-atomic="true"
           >

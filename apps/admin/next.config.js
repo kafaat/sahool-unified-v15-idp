@@ -54,11 +54,50 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value:
-              "camera=(), microphone=(), geolocation=(self), interest-cohort=()",
+              "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
           },
           // CSP is now handled by middleware with nonce-based security
           // See: src/middleware.ts and src/lib/security/csp-config.ts
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "credentialless",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-origin",
+          },
         ],
+      },
+      // Static assets - long-term caching (content-hashed, immutable)
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
+
+  // API rewrites for backend services
+  // Uses API_GATEWAY_URL (server-side, runtime) with NEXT_PUBLIC_API_URL as fallback.
+  // In production (Docker/K8s), set API_GATEWAY_URL to the internal Kong URL.
+  // NEXT_PUBLIC_API_URL is baked at build-time and should only be used for dev.
+  async rewrites() {
+    const apiOrigin =
+      process.env.API_GATEWAY_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:8000";
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${apiOrigin}/api/v1/:path*`,
       },
     ];
   },

@@ -18,7 +18,7 @@ import {
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { TasksService } from "./tasks.service";
-import { TaskType, Priority, TaskState } from "@prisma/client";
+import { TaskType, Priority, TaskState } from "../../prisma/generated/client";
 import {
   IsString,
   IsOptional,

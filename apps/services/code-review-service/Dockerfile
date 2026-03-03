@@ -21,16 +21,12 @@ COPY apps/services/code-review-service/requirements.txt .
 # Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c constraints.txt -r requirements.txt
 
 # Copy shared modules
@@ -46,6 +42,9 @@ COPY apps/services/code-review-service/config/ ./config/
 
 # Ensure ownership is correct after copying
 RUN chown -R sahool:sahool /app
+
+# Set Python path for shared module imports
+ENV PYTHONPATH=/app
 
 # Expose API port (standardized to 8102 per docker-compose.yml)
 EXPOSE 8102

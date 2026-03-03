@@ -1,0 +1,154 @@
+# SAHOOL Agent - Argo Rollouts Agent for canary and blue-green deployments
+# Version: 16.0.0
+
+replicaCount: 3
+
+image:
+  repository: ghcr.io/kafaat/sahool/sahool-agent
+  tag: "16.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+environment: staging
+
+# -------------------------------------------------------------------
+# Argo Rollouts configuration
+# -------------------------------------------------------------------
+rollout:
+  enabled: false
+  strategy: canary  # canary or blueGreen
+  revisionHistoryLimit: 5
+  minReadySeconds: 30
+  progressDeadlineSeconds: 600
+  progressDeadlineAbort: true
+
+  notifications:
+    slack:
+      channel: deployments
+
+  # Traffic routing - enable one
+  trafficRouting:
+    istio:
+      enabled: false
+    nginx:
+      enabled: false
+    alb:
+      enabled: false
+
+  # Canary strategy settings
+  canary:
+    # Override the default canary steps by providing a list here
+    steps: []
+    initialPauseDuration: "2m"
+    stepPauseDuration: "5m"
+
+  # Blue-Green strategy settings
+  blueGreen:
+    autoPromotionEnabled: false
+    autoPromotionSeconds: 300
+    scaleDownDelaySeconds: 30
+    scaleDownDelayRevisionLimit: 1
+    previewReplicaCount: 1
+
+  # Analysis configuration shared across templates
+  analysis:
+    prometheusUrl: "http://prometheus:9090"
+    successRateThreshold: "0.95"
+    latencyThresholdMs: "500"
+    errorRateThreshold: "0.05"
+    interval: "1m"
+    failureLimit: 3
+    smokeTests:
+      enabled: false
+      image: "curlimages/curl:8.5.0"
+
+# -------------------------------------------------------------------
+# Canary Deployment configuration
+# -------------------------------------------------------------------
+canary:
+  enabled: false
+  version: ""
+  replicaCount: 1
+  revisionHistoryLimit: 3
+  maxSurge: "25%"
+  maxUnavailable: 0
+
+  linkerd:
+    enabled: false
+
+  extraEnv: []
+  extraVolumeMounts: []
+  extraVolumes: []
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 30
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  service:
+    type: ClusterIP
+    sessionAffinity: None
+
+  metrics:
+    enabled: false
+    interval: "15s"
+    scrapeTimeout: "10s"
+
+  pdb:
+    enabled: false
+    # minAvailable: 1
+    maxUnavailable: 1
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+    customMetrics: []
+    scaleDownStabilizationWindowSeconds: 300
+    scaleUpStabilizationWindowSeconds: 0
+
+  nodeSelector: {}
+  tolerations: []

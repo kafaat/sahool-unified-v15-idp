@@ -128,7 +128,7 @@ export default function HealthZonesLayerExample() {
   }
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4">
       {/* العنوان والوصف - Header and Description */}
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">

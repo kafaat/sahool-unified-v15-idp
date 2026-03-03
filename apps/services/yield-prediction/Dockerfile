@@ -67,6 +67,8 @@ EXPOSE 3021
 RUN chown -R node:node /app
 USER node
 
+ENV NODE_ENV=production
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3021/api/v1/yield/health || exit 1

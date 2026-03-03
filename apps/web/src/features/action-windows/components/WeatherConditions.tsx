@@ -62,7 +62,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
   ({ conditions, thresholds, compact = false }) => {
     if (compact) {
       return (
-        <div className="flex flex-wrap gap-3" dir="rtl">
+        <div className="flex flex-wrap gap-3">
           {/* Wind Speed */}
           <div className="flex items-center gap-1.5 text-sm">
             <Wind className="w-4 h-4 text-cyan-600" aria-hidden="true" />
@@ -105,7 +105,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* Wind Speed */}
           <div className="bg-white rounded-lg border border-gray-200 p-3">
-            <div className="flex items-center gap-2 mb-2" dir="rtl">
+            <div className="flex items-center gap-2 mb-2">
               <Wind className="w-5 h-5 text-cyan-600" aria-hidden="true" />
               <span className="text-sm text-gray-600">سرعة الرياح</span>
             </div>
@@ -113,14 +113,14 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
               {conditions.windSpeed}{" "}
               <span className="text-sm font-normal">km/h</span>
             </p>
-            <p className="text-xs text-gray-500 mt-1" dir="rtl">
+            <p className="text-xs text-gray-500 mt-1">
               {conditions.windDirection}
             </p>
           </div>
 
           {/* Temperature */}
           <div className="bg-white rounded-lg border border-gray-200 p-3">
-            <div className="flex items-center gap-2 mb-2" dir="rtl">
+            <div className="flex items-center gap-2 mb-2">
               <Thermometer
                 className="w-5 h-5 text-orange-600"
                 aria-hidden="true"
@@ -135,7 +135,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
 
           {/* Humidity */}
           <div className="bg-white rounded-lg border border-gray-200 p-3">
-            <div className="flex items-center gap-2 mb-2" dir="rtl">
+            <div className="flex items-center gap-2 mb-2">
               <Droplets className="w-5 h-5 text-blue-600" aria-hidden="true" />
               <span className="text-sm text-gray-600">الرطوبة</span>
             </div>
@@ -147,7 +147,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
 
           {/* Rain Probability */}
           <div className="bg-white rounded-lg border border-gray-200 p-3">
-            <div className="flex items-center gap-2 mb-2" dir="rtl">
+            <div className="flex items-center gap-2 mb-2">
               <CloudRain
                 className="w-5 h-5 text-indigo-600"
                 aria-hidden="true"
@@ -159,7 +159,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
               <span className="text-sm font-normal">%</span>
             </p>
             {conditions.precipitation > 0 && (
-              <p className="text-xs text-blue-600 mt-1" dir="rtl">
+              <p className="text-xs text-blue-600 mt-1">
                 {conditions.precipitation} mm
               </p>
             )}
@@ -169,7 +169,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
         {/* Threshold Indicators */}
         {thresholds && thresholds.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-700" dir="rtl">
+            <h4 className="text-sm font-semibold text-gray-700">
               مؤشرات العتبة
             </h4>
             <div className="space-y-2">
@@ -183,10 +183,10 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
                   <div className="flex items-center gap-2">
                     {getStatusIcon(threshold.status)}
                     <div>
-                      <p className="text-sm font-medium" dir="rtl">
+                      <p className="text-sm font-medium">
                         {threshold.parameterAr}
                       </p>
-                      <p className="text-xs" dir="rtl">
+                      <p className="text-xs">
                         {threshold.messageAr}
                       </p>
                     </div>
@@ -195,7 +195,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
                     <p className="text-sm font-bold" dir="ltr">
                       {threshold.currentValue} {threshold.unit}
                     </p>
-                    <p className="text-xs opacity-75" dir="rtl">
+                    <p className="text-xs opacity-75">
                       الحد: {threshold.threshold} {threshold.unit}
                     </p>
                   </div>
@@ -208,7 +208,7 @@ export const WeatherConditions = React.memo<WeatherConditionsProps>(
         {/* Additional Details */}
         {(conditions.cloudCover !== undefined ||
           conditions.uvIndex !== undefined) && (
-          <div className="flex gap-4 text-sm text-gray-600" dir="rtl">
+          <div className="flex gap-4 text-sm text-gray-600">
             {conditions.cloudCover !== undefined && (
               <div>
                 <span className="font-medium">الغطاء السحابي:</span>{" "}

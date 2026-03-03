@@ -5,7 +5,8 @@
 
 export default function Loading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse">
+    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل الري - Loading irrigation">
+      <span className="sr-only">جاري تحميل الري - Loading irrigation</span>
       {/* Header skeleton */}
       <div>
         <div className="h-8 bg-gray-200 rounded w-44 mb-2" />

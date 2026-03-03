@@ -1,43 +1,55 @@
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Agent Registry Service - Dockerfile
-# ===========================================
+# Multi-stage build for optimized production image
 # Port: 8160
+# ═══════════════════════════════════════════════════════════════════════════════
 
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
-
-# Create non-root user
-RUN groupadd --system --gid 1000 sahool && \
-    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy requirements and constraints
 COPY constraints.txt .
 COPY apps/services/agent-registry/requirements.txt .
 
-# Install Python dependencies
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
+# Install Python dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
+    --prefix=/install \
     -c constraints.txt -r requirements.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Production
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
+
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Copy installed packages from builder (no gcc in production)
+COPY --from=builder /install /usr/local
 
 # Copy shared modules (required for imports from shared/)
 COPY apps/services/shared/ ./shared/
@@ -53,6 +65,11 @@ RUN chown -R sahool:sahool /app
 
 # Switch to non-root user
 USER sahool
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
 
 # Expose port
 EXPOSE 8160

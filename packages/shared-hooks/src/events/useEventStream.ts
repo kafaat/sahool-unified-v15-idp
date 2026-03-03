@@ -156,6 +156,12 @@ export function useEventStream(
     return `${baseUrl}/v1/events/stream?${params.toString()}`;
   }, [categories, fieldId, governorate]);
 
+  // Keep a ref to the latest URL builder so reconnect always uses the current URL
+  const buildStreamUrlRef = useRef(buildStreamUrl);
+  useEffect(() => {
+    buildStreamUrlRef.current = buildStreamUrl;
+  }, [buildStreamUrl]);
+
   // Handle incoming events
   const handleEvent = useCallback(
     (event: SahoolEvent) => {
@@ -192,6 +198,28 @@ export function useEventStream(
     [onEvent, queryClient],
   );
 
+  // Keep refs for callbacks so connect doesn't depend on them
+  const handleEventRef = useRef(handleEvent);
+  useEffect(() => {
+    handleEventRef.current = handleEvent;
+  }, [handleEvent]);
+
+  const onConnectRef = useRef(onConnect);
+  const onDisconnectRef = useRef(onDisconnect);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onConnectRef.current = onConnect;
+  }, [onConnect]);
+  useEffect(() => {
+    onDisconnectRef.current = onDisconnect;
+  }, [onDisconnect]);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  // Store connect in a ref so the reconnect timeout always calls the latest version
+  const connectRef = useRef<(() => void) | undefined>(undefined);
+
   // Connect to event stream
   const connect = useCallback(() => {
     if (eventSourceRef.current) {
@@ -200,7 +228,7 @@ export function useEventStream(
 
     setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
-    const url = buildStreamUrl();
+    const url = buildStreamUrlRef.current();
     const eventSource = new EventSource(url, { withCredentials: true });
 
     eventSource.onopen = () => {
@@ -211,13 +239,13 @@ export function useEventStream(
         reconnectAttempts: 0,
         error: null,
       }));
-      onConnect?.();
+      onConnectRef.current?.();
     };
 
     eventSource.onmessage = (messageEvent) => {
       try {
         const event: SahoolEvent = JSON.parse(messageEvent.data);
-        handleEvent(event);
+        handleEventRef.current(event);
       } catch (e) {
         console.error("Failed to parse event:", e);
       }
@@ -231,8 +259,8 @@ export function useEventStream(
         isConnecting: false,
         error,
       }));
-      onError?.(error);
-      onDisconnect?.();
+      onErrorRef.current?.(error);
+      onDisconnectRef.current?.();
 
       eventSource.close();
 
@@ -249,7 +277,7 @@ export function useEventStream(
             );
 
             reconnectTimeoutRef.current = setTimeout(() => {
-              connect();
+              connectRef.current?.();
             }, exponentialDelay);
             return { ...prev, reconnectAttempts: prev.reconnectAttempts + 1 };
           }
@@ -260,16 +288,16 @@ export function useEventStream(
 
     eventSourceRef.current = eventSource;
   }, [
-    buildStreamUrl,
-    handleEvent,
     autoReconnect,
     reconnectDelay,
     maxReconnectDelay,
     maxReconnectAttempts,
-    onConnect,
-    onDisconnect,
-    onError,
   ]);
+
+  // Keep connectRef in sync so reconnect timeout always calls latest connect
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // Disconnect from event stream
   const disconnect = useCallback(() => {
@@ -294,6 +322,21 @@ export function useEventStream(
     connect();
     return () => disconnect();
   }, [connect, disconnect]);
+
+  // Reconnect when URL parameters change (categories, fieldId, governorate)
+  // The connect function uses buildStreamUrlRef which always has the latest URL,
+  // but connect itself won't change when URL params change (by design, to avoid
+  // recreating callbacks). This effect ensures we reconnect with the new URL.
+  const prevUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    const currentUrl = buildStreamUrl();
+    if (prevUrlRef.current !== null && prevUrlRef.current !== currentUrl) {
+      // URL changed after initial mount - reconnect with new URL
+      disconnect();
+      connect();
+    }
+    prevUrlRef.current = currentUrl;
+  }, [buildStreamUrl, connect, disconnect]);
 
   return {
     ...state,

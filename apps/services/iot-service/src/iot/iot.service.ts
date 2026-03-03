@@ -17,7 +17,21 @@ import {
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
-import { SensorType as PrismaSensorType } from "@prisma/client";
+import { SensorType as PrismaSensorType } from "../../prisma/generated/client";
+const PrismaSensorTypeValues = {
+  SOIL_MOISTURE: "SOIL_MOISTURE" as PrismaSensorType,
+  SOIL_TEMPERATURE: "SOIL_TEMPERATURE" as PrismaSensorType,
+  AIR_TEMPERATURE: "AIR_TEMPERATURE" as PrismaSensorType,
+  AIR_HUMIDITY: "AIR_HUMIDITY" as PrismaSensorType,
+  LIGHT_INTENSITY: "LIGHT_INTENSITY" as PrismaSensorType,
+  WATER_LEVEL: "WATER_LEVEL" as PrismaSensorType,
+  WATER_FLOW: "WATER_FLOW" as PrismaSensorType,
+  PH_LEVEL: "PH_LEVEL" as PrismaSensorType,
+  EC_LEVEL: "EC_LEVEL" as PrismaSensorType,
+  WIND_SPEED: "WIND_SPEED" as PrismaSensorType,
+  RAINFALL: "RAINFALL" as PrismaSensorType,
+  CUSTOM: "CUSTOM" as PrismaSensorType,
+} as const;
 import * as mqtt from "mqtt";
 import { v4 as uuidv4 } from "uuid";
 import { publishNotificationSend } from "@sahool/shared-events";
@@ -147,7 +161,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         this.redisConnected = true;
         this.logger.log("Connected to Redis");
       } catch (error) {
-        this.logger.warn(`Failed to connect to Redis: ${error.message}`);
+        this.logger.warn(`Failed to connect to Redis: ${error instanceof Error ? error.message : String(error)}`);
         if (this.isTestEnvironment) {
           this.logger.warn(
             "Running in test environment - continuing without Redis",
@@ -169,7 +183,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       if (this.isTestEnvironment) {
         this.logger.warn(
-          `MQTT connection failed in test environment: ${error.message}`,
+          `MQTT connection failed in test environment: ${error instanceof Error ? error.message : String(error)}`,
         );
       } else {
         throw error;
@@ -296,14 +310,32 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       data = { value: parseFloat(payload) };
     }
 
+    // Validate sensor value is a finite number
+    const numValue = Number(data.value);
+    if (!Number.isFinite(numValue)) {
+      this.logger.warn(
+        `Rejected non-numeric sensor reading: ${sensorType} @ ${fieldId}: ${data.value}`,
+      );
+      return;
+    }
+
+    // Validate sensor value is within physical bounds
+    const quality = this.assessReadingQuality(sensorType, numValue);
+    if (quality === "error") {
+      this.logger.warn(
+        `Rejected out-of-bounds sensor reading: ${sensorType} @ ${fieldId}: ${numValue} (bounds violation)`,
+      );
+      return;
+    }
+
     const reading: SensorReading = {
       deviceId: data.deviceId || `sensor-${fieldId}-${sensorType}`,
       fieldId,
       sensorType,
-      value: data.value,
+      value: numValue,
       unit: this.getUnitForSensorType(sensorType),
       timestamp: new Date(),
-      quality: this.assessReadingQuality(sensorType, data.value),
+      quality,
     };
 
     // Cache latest reading in Redis
@@ -314,7 +346,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     await this.persistSensorReading(reading, tenantId);
 
     this.logger.debug(
-      `📊 Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
+      `Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
     );
 
     // Check for alerts
@@ -494,7 +526,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -511,7 +543,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching field sensor data: ${error.message}`);
+      this.logger.error(`Error fetching field sensor data: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return readings;
@@ -532,7 +564,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       const data = await this.redis.get(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      this.logger.error(`Error fetching sensor reading: ${error.message}`);
+      this.logger.error(`Error fetching sensor reading: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -551,7 +583,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -569,7 +601,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching actuator states: ${error.message}`);
+      this.logger.error(`Error fetching actuator states: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return states;
@@ -586,7 +618,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       let cursor = "0";
       do {
-        const [newCursor, keys] = await this.redis.scan(
+        const [newCursor, keys]: [string, string[]] = await this.redis.scan(
           cursor,
           "MATCH",
           pattern,
@@ -603,7 +635,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         }
       } while (cursor !== "0");
     } catch (error) {
-      this.logger.error(`Error fetching connected devices: ${error.message}`);
+      this.logger.error(`Error fetching connected devices: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return devices;
@@ -629,7 +661,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         else error++;
       });
     } catch (err) {
-      this.logger.error(`Error calculating device stats: ${err.message}`);
+      this.logger.error(`Error calculating device stats: ${err instanceof Error ? err.message : String(err)}`);
     }
 
     return { online, offline, error };
@@ -654,7 +686,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         JSON.stringify(reading),
       );
     } catch (error) {
-      this.logger.error(`Failed to cache sensor reading: ${error.message}`);
+      this.logger.error(`Failed to cache sensor reading: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -671,7 +703,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         JSON.stringify(status),
       );
     } catch (error) {
-      this.logger.error(`Failed to cache device status: ${error.message}`);
+      this.logger.error(`Failed to cache device status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -683,7 +715,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.redis.setex(key, this.ACTUATOR_STATE_TTL, isOn.toString());
     } catch (error) {
-      this.logger.error(`Failed to cache actuator state: ${error.message}`);
+      this.logger.error(`Failed to cache actuator state: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -765,7 +797,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist sensor reading: ${error.message}`);
+      this.logger.error(`Failed to persist sensor reading: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -799,7 +831,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist device status: ${error.message}`);
+      this.logger.error(`Failed to persist device status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -831,7 +863,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to persist alert: ${error.message}`);
+      this.logger.error(`Failed to persist alert: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -867,7 +899,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to fetch historical readings: ${error.message}`);
+      this.logger.error(`Failed to fetch historical readings: ${error instanceof Error ? error.message : String(error)}`);
       return [];
     }
   }
@@ -877,19 +909,19 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   private mapSensorType(type: SensorType): PrismaSensorType {
     const mapping: Record<string, PrismaSensorType> = {
-      [SensorType.SOIL_MOISTURE]: PrismaSensorType.SOIL_MOISTURE,
-      [SensorType.SOIL_TEMPERATURE]: PrismaSensorType.SOIL_TEMPERATURE,
-      [SensorType.AIR_TEMPERATURE]: PrismaSensorType.AIR_TEMPERATURE,
-      [SensorType.AIR_HUMIDITY]: PrismaSensorType.AIR_HUMIDITY,
-      [SensorType.LIGHT_INTENSITY]: PrismaSensorType.LIGHT_INTENSITY,
-      [SensorType.WATER_LEVEL]: PrismaSensorType.WATER_LEVEL,
-      [SensorType.WATER_FLOW]: PrismaSensorType.WATER_FLOW,
-      [SensorType.PH_LEVEL]: PrismaSensorType.PH_LEVEL,
-      [SensorType.EC_LEVEL]: PrismaSensorType.EC_LEVEL,
-      [SensorType.WIND_SPEED]: PrismaSensorType.WIND_SPEED,
-      [SensorType.RAIN_GAUGE]: PrismaSensorType.RAINFALL,
+      [SensorType.SOIL_MOISTURE]: PrismaSensorTypeValues.SOIL_MOISTURE,
+      [SensorType.SOIL_TEMPERATURE]: PrismaSensorTypeValues.SOIL_TEMPERATURE,
+      [SensorType.AIR_TEMPERATURE]: PrismaSensorTypeValues.AIR_TEMPERATURE,
+      [SensorType.AIR_HUMIDITY]: PrismaSensorTypeValues.AIR_HUMIDITY,
+      [SensorType.LIGHT_INTENSITY]: PrismaSensorTypeValues.LIGHT_INTENSITY,
+      [SensorType.WATER_LEVEL]: PrismaSensorTypeValues.WATER_LEVEL,
+      [SensorType.WATER_FLOW]: PrismaSensorTypeValues.WATER_FLOW,
+      [SensorType.PH_LEVEL]: PrismaSensorTypeValues.PH_LEVEL,
+      [SensorType.EC_LEVEL]: PrismaSensorTypeValues.EC_LEVEL,
+      [SensorType.WIND_SPEED]: PrismaSensorTypeValues.WIND_SPEED,
+      [SensorType.RAIN_GAUGE]: PrismaSensorTypeValues.RAINFALL,
     };
-    return mapping[type] || PrismaSensorType.CUSTOM;
+    return mapping[type] || PrismaSensorTypeValues.CUSTOM;
   }
 
   // ==========================================================================
@@ -913,39 +945,93 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     return units[type] || "";
   }
 
+  /**
+   * Ingest a sensor reading via REST API (alternative to MQTT)
+   * استيعاب قراءة مستشعر عبر REST API
+   */
+  async ingestReading(
+    fieldId: string,
+    data: { deviceId: string; sensorType: SensorType; value: number; timestamp?: string },
+    tenantId: string,
+  ): Promise<{ success: boolean; quality: string; message: string }> {
+    const quality = this.assessReadingQuality(data.sensorType, data.value);
+    if (quality === "error") {
+      return {
+        success: false,
+        quality,
+        message: `Rejected out-of-bounds value for ${data.sensorType}: ${data.value}`,
+      };
+    }
+
+    const reading: SensorReading = {
+      deviceId: data.deviceId,
+      fieldId,
+      sensorType: data.sensorType,
+      value: data.value,
+      unit: this.getUnitForSensorType(data.sensorType),
+      timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
+      quality,
+    };
+
+    const key = `sensor:${fieldId}:${data.sensorType}`;
+    await this.cacheSensorReading(key, reading);
+    await this.persistSensorReading(reading, tenantId);
+    this.checkSensorAlerts(reading, tenantId);
+
+    return {
+      success: true,
+      quality,
+      message: `Sensor reading accepted: ${data.sensorType} = ${data.value}${reading.unit}`,
+    };
+  }
+
   private assessReadingQuality(
     type: SensorType,
     value: number,
   ): "good" | "warning" | "error" {
-    // Define acceptable ranges for each sensor type
-    const ranges: Record<SensorType, { min: number; max: number }> = {
-      [SensorType.SOIL_MOISTURE]: { min: 0, max: 100 },
-      [SensorType.SOIL_TEMPERATURE]: { min: -10, max: 60 },
-      [SensorType.AIR_TEMPERATURE]: { min: -20, max: 60 },
-      [SensorType.AIR_HUMIDITY]: { min: 0, max: 100 },
-      [SensorType.LIGHT_INTENSITY]: { min: 0, max: 150000 },
-      [SensorType.WATER_LEVEL]: { min: 0, max: 1000 },
-      [SensorType.WATER_FLOW]: { min: 0, max: 1000 },
-      [SensorType.PH_LEVEL]: { min: 0, max: 14 },
-      [SensorType.EC_LEVEL]: { min: 0, max: 10 },
-      [SensorType.WIND_SPEED]: { min: 0, max: 200 },
-      [SensorType.RAIN_GAUGE]: { min: 0, max: 500 },
+    // Define acceptable and warning ranges for each sensor type
+    const ranges: Record<SensorType, { min: number; max: number; warnMin?: number; warnMax?: number }> = {
+      [SensorType.SOIL_MOISTURE]: { min: 0, max: 100, warnMin: 5, warnMax: 95 },
+      [SensorType.SOIL_TEMPERATURE]: { min: -10, max: 60, warnMin: -5, warnMax: 55 },
+      [SensorType.AIR_TEMPERATURE]: { min: -20, max: 60, warnMin: -15, warnMax: 55 },
+      [SensorType.AIR_HUMIDITY]: { min: 0, max: 100, warnMin: 3, warnMax: 99 },
+      [SensorType.LIGHT_INTENSITY]: { min: 0, max: 150000, warnMax: 130000 },
+      [SensorType.WATER_LEVEL]: { min: 0, max: 1000, warnMax: 950 },
+      [SensorType.WATER_FLOW]: { min: 0, max: 1000, warnMax: 900 },
+      [SensorType.PH_LEVEL]: { min: 0, max: 14, warnMin: 1, warnMax: 13 },
+      [SensorType.EC_LEVEL]: { min: 0, max: 10, warnMax: 8 },
+      [SensorType.WIND_SPEED]: { min: 0, max: 200, warnMax: 150 },
+      [SensorType.RAIN_GAUGE]: { min: 0, max: 500, warnMax: 400 },
     };
 
     const range = ranges[type];
     if (!range) return "good";
 
+    // Out of physical bounds - reject
     if (value < range.min || value > range.max) return "error";
+
+    // Within bounds but near limits - warning
+    if (range.warnMin !== undefined && value < range.warnMin) return "warning";
+    if (range.warnMax !== undefined && value > range.warnMax) return "warning";
+
     return "good";
   }
 
   private checkSensorAlerts(reading: SensorReading, tenantId: string): void {
-    // Alert thresholds
+    // Alert thresholds for agricultural operations
     const alerts: Partial<Record<SensorType, { low?: number; high?: number }>> =
       {
-        [SensorType.SOIL_MOISTURE]: { low: 30, high: 85 },
-        [SensorType.AIR_TEMPERATURE]: { high: 40 },
-        [SensorType.WATER_LEVEL]: { low: 10 },
+        [SensorType.SOIL_MOISTURE]: { low: 20, high: 85 },
+        [SensorType.SOIL_TEMPERATURE]: { low: 5, high: 40 },
+        [SensorType.AIR_TEMPERATURE]: { low: 0, high: 45 },
+        [SensorType.AIR_HUMIDITY]: { low: 15, high: 95 },
+        [SensorType.LIGHT_INTENSITY]: { high: 120000 },
+        [SensorType.WATER_LEVEL]: { low: 10, high: 900 },
+        [SensorType.WATER_FLOW]: { high: 800 },
+        [SensorType.PH_LEVEL]: { low: 4.5, high: 9.5 },
+        [SensorType.EC_LEVEL]: { high: 6 },
+        [SensorType.WIND_SPEED]: { high: 60 },
+        [SensorType.RAIN_GAUGE]: { high: 100 },
       };
 
     const threshold = alerts[reading.sensorType];
@@ -1008,9 +1094,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         threshold,
         timestamp: reading.timestamp.toISOString(),
       },
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       this.logger.error(
-        `Failed to send push notification for ${reading.sensorType} alert: ${error.message}`,
+        `Failed to send push notification for ${reading.sensorType} alert: ${error instanceof Error ? error.message : String(error)}`,
       );
     });
   }

@@ -845,19 +845,25 @@ class PreferencesManager {
       MapTypePreference mapType = MapTypePreference.satellite;
       try {
         mapType = MapTypePreference.values.byName(map['mapType'] as String);
-      } catch (_) {}
+      } catch (e) {
+        AppLogger.w('Failed to parse mapType preference: ${map['mapType']}', tag: 'Preferences');
+      }
 
       // Parse measurement unit
       MeasurementUnit measurementUnit = MeasurementUnit.metric;
       try {
         measurementUnit = MeasurementUnit.values.byName(map['measurementUnit'] as String);
-      } catch (_) {}
+      } catch (e) {
+        AppLogger.w('Failed to parse measurementUnit preference: ${map['measurementUnit']}', tag: 'Preferences');
+      }
 
       // Parse date format
       DateFormatPreference dateFormat = DateFormatPreference.both;
       try {
         dateFormat = DateFormatPreference.values.byName(map['dateFormat'] as String);
-      } catch (_) {}
+      } catch (e) {
+        AppLogger.w('Failed to parse dateFormat preference: ${map['dateFormat']}', tag: 'Preferences');
+      }
 
       final prefs = UserPreferences(
         themeMode: themeMode,

@@ -1,7 +1,7 @@
 """
-SAHOOL Field Core Service - Main API
+SAHOOL Field Management Service - Main API
 Crop profitability analysis and financial insights
-Port: 8090
+Port: 3000
 """
 
 import os
@@ -97,7 +97,7 @@ async def lifespan(app: FastAPI):
     # Initialize profitability analyzer
     app.state.analyzer = ProfitabilityAnalyzer(db_pool=getattr(app.state, "db_pool", None))
 
-    logger.info("Field Core ready on port 8090")
+    logger.info("Field Management Service ready on port 3000")
     yield
 
     # Cleanup
@@ -137,6 +137,7 @@ except Exception as e:
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
 
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
@@ -532,5 +533,5 @@ async def list_cost_categories():
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8090))
+    port = int(os.getenv("PORT", 3000))
     uvicorn.run(app, host="0.0.0.0", port=port)

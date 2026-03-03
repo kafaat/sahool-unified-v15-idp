@@ -57,6 +57,7 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base

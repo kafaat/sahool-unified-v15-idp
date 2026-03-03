@@ -58,6 +58,7 @@ except ImportError:
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+
 from .decision_engine import (
     GrowthStage,
     Indices,
@@ -107,6 +108,33 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Feature Schema Definition (v1.0)
+# تعريف مخطط المدخلات للكشف عن انحراف البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FEATURE_SCHEMA = {
+    "version": "1.0.0",
+    "service": "crop-intelligence-service",
+    "features": {
+        "ndvi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.3, 0.9)},
+        "evi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.2, 0.8)},
+        "ndre": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.1, 0.6)},
+        "lci": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.1, 0.5)},
+        "ndwi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (-0.3, 0.4)},
+        "savi": {"type": "float", "min": -1.0, "max": 1.0, "unit": "index", "typical_healthy": (0.2, 0.7)},
+        "crop_type": {"type": "enum", "values": [e.value for e in CropType]},
+        "growth_stage": {"type": "enum", "values": [e.value for e in GrowthStage]},
+        "humidity_pct": {"type": "float", "min": 0, "max": 100, "unit": "%", "optional": True},
+        "temp_c": {"type": "float", "min": -20, "max": 60, "unit": "°C", "optional": True},
+    },
+    "quality_requirements": {
+        "min_cloud_free_pct": 70,
+        "max_observation_age_days": 10,
+    },
+}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Schemas
@@ -844,6 +872,12 @@ except Exception as _sf_import_error:  # pragma: no cover
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/v1/feature-schema")
+def get_feature_schema():
+    """Return the ML feature schema for data drift monitoring."""
+    return FEATURE_SCHEMA
 
 
 @app.get("/healthz")

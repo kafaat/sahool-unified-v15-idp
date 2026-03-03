@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Yield Prediction Feature Schema",
+  "title_ar": "مخطط ميزات التنبؤ بالإنتاجية",
+  "version": "1.0.0",
+  "service": "yield-prediction-service",
+  "description": "Defines input feature bounds for ML yield prediction to prevent data drift",
+  "description_ar": "يحدد حدود ميزات الإدخال للتنبؤ بالإنتاجية بالذكاء الاصطناعي لمنع انحراف البيانات",
+  "type": "object",
+  "properties": {
+    "ndvi": {
+      "type": "number",
+      "minimum": -1.0,
+      "maximum": 1.0,
+      "description": "Normalized Difference Vegetation Index",
+      "unit": "index",
+      "typicalRange": [0.3, 0.9]
+    },
+    "areaHectares": {
+      "type": "number",
+      "minimum": 0.01,
+      "maximum": 10000,
+      "description": "Field area in hectares",
+      "unit": "ha"
+    },
+    "growthStagePercent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Growth stage completion percentage",
+      "unit": "%"
+    },
+    "historicalYieldKgHa": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 50000,
+      "description": "Historical yield in kg per hectare",
+      "unit": "kg/ha"
+    },
+    "waterStressFactor": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Water stress factor (0=no stress, 1=severe)",
+      "unit": "factor"
+    },
+    "diseaseFactor": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Disease impact factor (0=healthy, 1=severe)",
+      "unit": "factor"
+    },
+    "grainMoisture": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Grain moisture content at harvest",
+      "unit": "%"
+    },
+    "canopyTemperature": {
+      "type": "number",
+      "minimum": -10,
+      "maximum": 60,
+      "description": "Canopy temperature measured by thermal sensor",
+      "unit": "°C"
+    },
+    "cropType": {
+      "type": "string",
+      "enum": ["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"],
+      "description": "Crop type for yield prediction"
+    }
+  },
+  "required": ["ndvi", "areaHectares", "growthStagePercent", "cropType"],
+  "qualityRequirements": {
+    "minConfidence": 0.5,
+    "maxObservationAgeDays": 14
+  }
+}

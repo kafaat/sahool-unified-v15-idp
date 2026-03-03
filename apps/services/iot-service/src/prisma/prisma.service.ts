@@ -4,7 +4,7 @@
  */
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../../prisma/generated/client";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -25,8 +25,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     try {
       await this.$connect();
       this.logger.log("Connected to PostgreSQL database");
-    } catch (error) {
-      this.logger.error(`Failed to connect to database: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Failed to connect to database: ${error instanceof Error ? error.message : String(error)}`);
       // Don't throw - allow service to run in degraded mode (Redis only)
       this.logger.warn("Running in degraded mode without database persistence");
     }

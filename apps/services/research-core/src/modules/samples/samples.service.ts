@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "@/config/prisma.service";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../prisma/generated/client";
 import { CreateSampleDto, UpdateSampleDto } from "./dto/sample.dto";
 import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../utils/db-utils";
 

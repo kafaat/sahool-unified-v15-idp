@@ -235,8 +235,8 @@ async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
             logger.error("nats_detection_handler_error", error=str(e))
 
     # Subscribe to edge events (tenant-scoped wildcard)
-    await nc.subscribe("sahool.*.edge.metrics", cb=handle_device_metrics)
-    await nc.subscribe("sahool.*.edge.detection", cb=handle_detection_result)
+    await nc.subscribe("sahool.tenant.*.edge.metrics", cb=handle_device_metrics)
+    await nc.subscribe("sahool.tenant.*.edge.detection", cb=handle_detection_result)
     logger.info("nats_subscriptions_setup")
 
 

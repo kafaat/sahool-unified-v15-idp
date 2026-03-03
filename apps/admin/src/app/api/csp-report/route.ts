@@ -115,6 +115,20 @@ function shouldFilterReport(report: CSPReport): boolean {
  * Receive CSP violation reports
  */
 export async function POST(request: NextRequest) {
+  // CORS origin validation - only accept reports from allowed origins
+  const origin = request.headers.get("origin");
+  const allowedOrigins = (
+    process.env.ALLOWED_ORIGINS ||
+    "https://admin.sahool.app,https://sahool.app"
+  ).split(",").map(s => s.trim()).filter(Boolean);
+
+  if (origin && !allowedOrigins.includes(origin)) {
+    return new NextResponse(null, {
+      status: 403,
+      headers: { "X-Content-Type-Options": "nosniff" },
+    });
+  }
+
   // Get client IP
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -207,7 +221,7 @@ export async function OPTIONS() {
   const allowedOrigins =
     process.env.ALLOWED_ORIGINS ||
     "https://admin.sahool.app,https://sahool.app";
-  const origin = allowedOrigins.split(",")[0] || "https://admin.sahool.app"; // Use first allowed origin or default
+  const origin = allowedOrigins.split(",").map(s => s.trim()).filter(Boolean)[0] || "https://admin.sahool.app";
 
   return new NextResponse(null, {
     status: 204,

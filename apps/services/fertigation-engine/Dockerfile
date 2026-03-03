@@ -18,16 +18,12 @@ COPY apps/services/fertigation-engine/requirements.txt ./requirements.txt
 # Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c constraints.txt -r requirements.txt
 
 # Copy root shared modules (shared.ai, shared.events, etc.)

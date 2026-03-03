@@ -369,14 +369,19 @@ export function TaskMarkers({
 
     window.addEventListener("task-marker-click", handleTaskClick);
 
+    // Capture ref values for cleanup
+    const mapInstance = mapRef.current;
+    const clusterGroup = clusterGroupRef.current;
+    const markers = markersRef.current;
+
     // Cleanup
     return () => {
       window.removeEventListener("task-marker-click", handleTaskClick);
-      if (clusterGroupRef.current) {
-        mapRef.current?.removeLayer(clusterGroupRef.current);
+      if (clusterGroup) {
+        mapInstance?.removeLayer(clusterGroup);
         clusterGroupRef.current = null;
       }
-      markersRef.current.forEach((marker) => marker.remove());
+      markers.forEach((marker) => marker.remove());
       markersRef.current = [];
     };
   }, [tasks, fields, mapRef, enableClustering, onTaskClick, router]);

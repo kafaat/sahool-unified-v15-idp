@@ -19,7 +19,7 @@ structlog>=24.1.0
 nats-py==2.13.1
 
 # Database
-asyncpg>=0.30.0
+asyncpg>=0.30.0,<1.0.0
 
 # JWT Authentication
 PyJWT>=2.8.0,<3.0.0

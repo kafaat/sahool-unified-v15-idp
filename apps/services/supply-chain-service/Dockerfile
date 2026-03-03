@@ -18,26 +18,19 @@ COPY constraints.txt .
 COPY apps/services/supply-chain-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --upgrade pip setuptools wheel || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --upgrade pip setuptools wheel
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     --user -c constraints.txt -r requirements.txt
 
 # Production stage
@@ -51,6 +44,9 @@ WORKDIR /app
 
 # Copy installed packages from builder
 COPY --from=builder /root/.local /home/appuser/.local
+
+# Copy shared libraries
+COPY --chown=appuser:appgroup apps/services/shared/ ./shared/
 
 # Copy application code
 COPY --chown=appuser:appgroup apps/services/supply-chain-service/src ./src

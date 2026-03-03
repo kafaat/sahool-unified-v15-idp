@@ -34,22 +34,24 @@ const YEMEN_CENTER: LatLngTuple = [15.5527, 48.5164];
 /**
  * Get NDVI-based color for field display
  */
-const getNDVIColor = (ndvi?: number): string => {
+export const getNDVIColor = (ndvi?: number): string => {
   if (ndvi === undefined || ndvi === null) return "#9ca3af"; // Gray for no data
-  if (ndvi >= 0.6) return "#10b981"; // Emerald (healthy)
-  if (ndvi >= 0.4) return "#f59e0b"; // Amber (warning)
-  if (ndvi >= 0.2) return "#f97316"; // Orange (stressed)
-  return "#ef4444"; // Red (critical)
+  if (ndvi >= 0.7) return "#1B5E20"; // Dark green (excellent - ممتاز)
+  if (ndvi >= 0.5) return "#4CAF50"; // Green (good - جيد)
+  if (ndvi >= 0.3) return "#FDD835"; // Yellow (moderate - متوسط)
+  if (ndvi >= 0.15) return "#FF9800"; // Orange (poor - ضعيف)
+  return "#F44336"; // Red (critical - حرج)
 };
 
 /**
  * Get Arabic health status label
  */
-const getHealthLabel = (ndvi?: number): string => {
+export const getHealthLabel = (ndvi?: number): string => {
   if (ndvi === undefined || ndvi === null) return "غير معروف";
-  if (ndvi >= 0.6) return "صحي";
-  if (ndvi >= 0.4) return "متوسط";
-  if (ndvi >= 0.2) return "مجهد";
+  if (ndvi >= 0.7) return "ممتاز";
+  if (ndvi >= 0.5) return "جيد";
+  if (ndvi >= 0.3) return "متوسط";
+  if (ndvi >= 0.15) return "ضعيف";
   return "حرج";
 };
 
@@ -172,7 +174,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]" dir="rtl">
+                  <div className="p-2 min-w-[200px]">
                     <h3 className="font-bold text-gray-900 mb-2">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>
@@ -238,7 +240,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[180px]" dir="rtl">
+                  <div className="p-2 min-w-[180px]">
                     <h3 className="font-bold text-gray-900 mb-1">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>

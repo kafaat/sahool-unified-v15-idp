@@ -147,11 +147,11 @@ async def test_kong_admin_api_health():
 @pytest.mark.asyncio
 async def test_route_to_field_ops_service(http_client: AsyncClient, auth_headers):
     """
-    Test Kong routes requests to field-ops service
-    اختبار توجيه Kong للطلبات إلى خدمة field-ops
+    Test Kong routes requests to field-management-service (replaces deprecated field-ops)
+    اختبار توجيه Kong للطلبات إلى خدمة إدارة الحقول (بديل field-ops المتوقف)
     """
     try:
-        # Try to access field-ops through Kong gateway
+        # Try to access field-management-service through Kong gateway
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
@@ -161,7 +161,7 @@ async def test_route_to_field_ops_service(http_client: AsyncClient, auth_headers
             f"Unexpected status code: {response.status_code}"
         )
     except httpx.ConnectError:
-        pytest.skip("Kong gateway or field-ops service not available")
+        pytest.skip("Kong gateway or field-management-service not available")
 
 
 @pytest.mark.integration

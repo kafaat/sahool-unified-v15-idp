@@ -14,6 +14,7 @@ datasource db {
 
 generator client {
   provider      = "prisma-client-js"
+  output        = "./generated/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
 
@@ -24,7 +25,7 @@ generator client {
 
 model Product {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   name        String
   nameAr      String   @map("name_ar")
   category    ProductCategory
@@ -58,7 +59,7 @@ model Product {
   deletedBy   String?   @map("deleted_by")
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   orderItems  OrderItem[]
 
@@ -101,7 +102,7 @@ enum ProductStatus {
 
 model Order {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   orderNumber String   @unique @map("order_number")
 
   // المشتري
@@ -130,7 +131,7 @@ model Order {
   deletedBy   String?   @map("deleted_by")
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   items       OrderItem[]
   transactions Transaction[]
@@ -148,7 +149,7 @@ model Order {
 
 model OrderItem {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   orderId     String   @map("order_id")
   productId   String   @map("product_id")
 
@@ -187,7 +188,7 @@ enum PaymentStatus {
 
 model Wallet {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   userId      String   @unique @map("user_id")
   userType    String   @map("user_type") // farmer, company, buyer
 
@@ -224,7 +225,7 @@ model Wallet {
   deletedBy   String?   @map("deleted_by")
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   transactions Transaction[]
   loans       Loan[]
@@ -255,7 +256,7 @@ enum CreditTier {
 
 model Transaction {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   type        TransactionType
@@ -327,7 +328,7 @@ enum TransactionStatus {
 
 model Loan {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   amount      Float
@@ -355,7 +356,7 @@ model Loan {
   deletedBy   String?   @map("deleted_by")
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   wallet      Wallet   @relation(fields: [walletId], references: [id])
 
@@ -392,7 +393,7 @@ enum LoanStatus {
 
 model CreditEvent {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   eventType   CreditEventType @map("event_type")
@@ -429,7 +430,7 @@ enum CreditEventType {
 
 model Escrow {
   id             String       @id @default(uuid()) @db.Uuid
-  tenantId       String       @map("tenant_id")
+  tenantId       String       @default("unassigned") @map("tenant_id")
   orderId        String       @unique @map("order_id")
 
   // المحافظ
@@ -475,7 +476,7 @@ enum EscrowStatus {
 
 model ScheduledPayment {
   id              String   @id @default(uuid()) @db.Uuid
-  tenantId        String   @map("tenant_id")
+  tenantId        String   @default("unassigned") @map("tenant_id")
   walletId        String   @map("wallet_id")
 
   // المبلغ والتكرار
@@ -496,7 +497,7 @@ model ScheduledPayment {
 
   // التواريخ
   createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
   wallet          Wallet   @relation(fields: [walletId], references: [id])
 
@@ -504,6 +505,7 @@ model ScheduledPayment {
   @@index([walletId])
   @@index([nextPaymentDate])
   @@index([isActive])
+  @@index([loanId])
   @@map("scheduled_payments")
 }
 
@@ -522,7 +524,7 @@ enum PaymentFrequency {
 
 model WalletAuditLog {
   id              String   @id @default(uuid()) @db.Uuid
-  tenantId        String   @map("tenant_id")
+  tenantId        String   @default("unassigned") @map("tenant_id")
   walletId        String   @map("wallet_id")
   transactionId   String?  @map("transaction_id")
 
@@ -568,7 +570,7 @@ model WalletAuditLog {
 model SellerProfile {
   id          String   @id @default(uuid()) @db.Uuid
   userId      String   @unique @map("user_id")
-  tenantId    String   @default("default") @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
 
   // معلومات العمل
   businessName String  @map("business_name")
@@ -591,7 +593,7 @@ model SellerProfile {
   payoutPreferences Json? @map("payout_preferences") // تفضيلات الدفع
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   reviewResponses ReviewResponse[]
 
@@ -613,7 +615,7 @@ enum BusinessType {
 model BuyerProfile {
   id          String   @id @default(uuid()) @db.Uuid
   userId      String   @unique @map("user_id")
-  tenantId    String   @default("default") @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
 
   // عناوين الشحن
   shippingAddresses Json? @map("shipping_addresses") // قائمة عناوين الشحن
@@ -627,7 +629,7 @@ model BuyerProfile {
   loyaltyPoints  Int     @default(0) @map("loyalty_points")
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   reviews     ProductReview[]
 
@@ -642,7 +644,7 @@ model BuyerProfile {
 
 model ProductReview {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   productId   String   @map("product_id")
   buyerId     String   @map("buyer_id")
   orderId     String   @map("order_id")
@@ -661,7 +663,7 @@ model ProductReview {
   reported    Boolean  @default(false) // تم الإبلاغ عن التقييم
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   buyer       BuyerProfile @relation(fields: [buyerId], references: [id])
   response    ReviewResponse?
@@ -677,14 +679,14 @@ model ProductReview {
 
 model ReviewResponse {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id")
+  tenantId    String   @default("unassigned") @map("tenant_id")
   reviewId    String   @unique @map("review_id")
   sellerId    String   @map("seller_id")
 
   response    String   @db.Text
 
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   review      ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   seller      SellerProfile @relation(fields: [sellerId], references: [id])

@@ -810,27 +810,27 @@ export class AuditLogger {
       totalEvents: events.length,
       eventsByCategory: {} as Record<AuditCategory, number>,
       eventsBySeverity: {} as Record<AuditSeverity, number>,
-      uniqueActors: new Set(events.map((e) => e.actorId)).size,
+      uniqueActors: new Set(events.map((e: any) => e.actorId)).size,
       uniqueResources: new Set(
-        events.map((e) => `${e.resourceType}:${e.resourceId}`),
+        events.map((e: any) => `${e.resourceType}:${e.resourceId}`),
       ).size,
-      failedEvents: events.filter((e) => !e.success).length,
+      failedEvents: events.filter((e: any) => !e.success).length,
       criticalEvents: events.filter(
-        (e) => e.severity === AuditSeverity.CRITICAL,
+        (e: any) => e.severity === AuditSeverity.CRITICAL,
       ).length,
     };
 
     // Count by category
     for (const category of Object.values(AuditCategory)) {
       stats.eventsByCategory[category] = events.filter(
-        (e) => e.category === category,
+        (e: any) => e.category === category,
       ).length;
     }
 
     // Count by severity
     for (const severity of Object.values(AuditSeverity)) {
       stats.eventsBySeverity[severity] = events.filter(
-        (e) => e.severity === severity,
+        (e: any) => e.severity === severity,
       ).length;
     }
 

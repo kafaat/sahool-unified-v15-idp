@@ -8,7 +8,7 @@
  */
 
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
-import { SyncState } from "@prisma/client";
+import { SyncState } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 
@@ -92,7 +92,7 @@ export class SyncService {
     const lastUpdated = fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
 
     // Transform with sync metadata
-    const syncData = fields.map((field) => ({
+    const syncData = fields.map((field: typeof fields[0]) => ({
       ...field,
       server_version: field.version,
       etag: generateETag(field.id, field.version),

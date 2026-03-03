@@ -8,7 +8,7 @@
 
 export default function PrecisionAgricultureLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" dir="rtl">
+    <div className="p-6 space-y-6 animate-pulse">
       {/* Header skeleton */}
       <div>
         <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded" />

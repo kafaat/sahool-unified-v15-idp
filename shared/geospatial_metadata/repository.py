@@ -17,6 +17,13 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Valid domain and resource_type values matching the DB CHECK constraints
+VALID_DOMAINS = frozenset({"field", "satellite", "terrain", "iot", "weather", "ndvi"})
+VALID_RESOURCE_TYPES = frozenset({
+    "field_boundary", "ndvi_reading", "dem_analysis", "satellite_image",
+    "sensor_data", "weather_observation", "weather_forecast",
+})
+
 
 class GeospatialMetadataRepository:
     """
@@ -50,7 +57,21 @@ class GeospatialMetadataRepository:
 
         Returns:
             ID of the created record
+
+        Raises:
+            ValueError: If domain or resource_type is invalid
         """
+        domain = record.get("domain")
+        if domain and domain not in VALID_DOMAINS:
+            raise ValueError(
+                f"Invalid domain '{domain}'. Must be one of: {', '.join(sorted(VALID_DOMAINS))}"
+            )
+        resource_type = record.get("resource_type")
+        if resource_type and resource_type not in VALID_RESOURCE_TYPES:
+            raise ValueError(
+                f"Invalid resource_type '{resource_type}'. Must be one of: {', '.join(sorted(VALID_RESOURCE_TYPES))}"
+            )
+
         metadata = record.get("metadata", {})
         identification = metadata.get("identification_info", {})
         citation = identification.get("citation", {})
@@ -261,8 +282,142 @@ class GeospatialMetadataRepository:
             rows = await conn.fetch(sql, *params)
             return [dict(row) for row in rows]
 
+    async def get_full_metadata(self, tenant_id: str, record_id: str) -> dict[str, Any] | None:
+        """
+        Retrieve a full metadata record including the complete JSON.
+        استرجاع سجل بيانات وصفية كامل بما في ذلك JSON الكامل
+
+        Args:
+            tenant_id: Tenant UUID
+            record_id: Record UUID
+
+        Returns:
+            Full record dict including metadata_json, or None if not found
+        """
+        sql = f"""
+            SELECT id, tenant_id, domain, resource_id, resource_type,
+                   metadata_identifier, hierarchy_level,
+                   title, title_ar, abstract, abstract_ar, purpose, purpose_ar, status,
+                   topic_categories, keywords, keywords_ar,
+                   spatial_representation_type, spatial_resolution_m,
+                   crs_code, crs_description,
+                   bbox_west, bbox_east, bbox_south, bbox_north,
+                   temporal_begin, temporal_end,
+                   vertical_min_m, vertical_max_m,
+                   contact_org, contact_org_ar, contact_role,
+                   maintenance_frequency,
+                   data_quality, lineage_statement, lineage_statement_ar,
+                   lineage_sources, lineage_process_steps,
+                   metadata_json,
+                   tags, is_published, created_by,
+                   created_at, updated_at
+            FROM {self.SCHEMA}.{self.TABLE}
+            WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL
+        """
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(sql, tenant_id, record_id)
+            if row is None:
+                return None
+            result = dict(row)
+            # Parse JSON fields
+            for json_field in ("data_quality", "lineage_sources", "lineage_process_steps", "metadata_json"):
+                if json_field in result and isinstance(result[json_field], str):
+                    result[json_field] = json.loads(result[json_field])
+            return result
+
+    async def update_metadata(
+        self,
+        tenant_id: str,
+        record_id: str,
+        updates: dict[str, Any],
+    ) -> bool:
+        """
+        Update specific fields of a metadata record.
+        تحديث حقول محددة في سجل البيانات الوصفية
+
+        Only allows updating safe, predefined columns.
+
+        Args:
+            tenant_id: Tenant UUID
+            record_id: Record UUID
+            updates: Dict of column_name -> new_value
+
+        Returns:
+            True if record was updated, False if not found
+        """
+        # Allowlist of updatable columns to prevent SQL injection
+        allowed_columns = frozenset({
+            "title", "title_ar", "abstract", "abstract_ar",
+            "purpose", "purpose_ar", "status",
+            "keywords", "keywords_ar", "tags",
+            "is_published", "maintenance_frequency",
+            "bbox_west", "bbox_east", "bbox_south", "bbox_north",
+            "temporal_begin", "temporal_end",
+            "vertical_min_m", "vertical_max_m",
+            "data_quality", "metadata_json",
+        })
+
+        filtered = {k: v for k, v in updates.items() if k in allowed_columns}
+        if not filtered:
+            logger.warning("update_metadata_no_valid_columns", record_id=record_id)
+            return False
+
+        set_clauses = []
+        params: list[Any] = [tenant_id, record_id]
+        idx = 3
+
+        for col, val in filtered.items():
+            if col in ("data_quality", "metadata_json"):
+                set_clauses.append(f"{col} = ${idx}::jsonb")
+                params.append(json.dumps(val) if not isinstance(val, str) else val)
+            else:
+                set_clauses.append(f"{col} = ${idx}")
+                params.append(val)
+            idx += 1
+
+        set_clauses.append("updated_at = NOW()")
+
+        sql = f"""
+            UPDATE {self.SCHEMA}.{self.TABLE}
+            SET {', '.join(set_clauses)}
+            WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL
+            RETURNING id
+        """
+
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(sql, *params)
+            if row:
+                logger.info(
+                    "geospatial_metadata_updated",
+                    record_id=record_id,
+                    updated_columns=list(filtered.keys()),
+                )
+            return row is not None
+
+    async def count_metadata(
+        self,
+        tenant_id: str,
+        domain: str | None = None,
+    ) -> int:
+        """
+        Count metadata records for a tenant.
+        عد سجلات البيانات الوصفية للمستأجر
+        """
+        conditions = ["tenant_id = $1::uuid", "deleted_at IS NULL"]
+        params: list[Any] = [tenant_id]
+
+        if domain:
+            conditions.append("domain = $2")
+            params.append(domain)
+
+        where_clause = " AND ".join(conditions)
+        sql = f"SELECT COUNT(*) FROM {self.SCHEMA}.{self.TABLE} WHERE {where_clause}"
+
+        async with self.pool.acquire() as conn:
+            return await conn.fetchval(sql, *params)
+
     async def delete_metadata(self, tenant_id: str, record_id: str) -> bool:
-        """Soft-delete a metadata record."""
+        """Soft-delete a metadata record. حذف ناعم لسجل بيانات وصفية."""
         sql = f"""
             UPDATE {self.SCHEMA}.{self.TABLE}
             SET deleted_at = NOW(), updated_at = NOW()
@@ -271,4 +426,6 @@ class GeospatialMetadataRepository:
         """
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(sql, tenant_id, record_id)
+            if row:
+                logger.info("geospatial_metadata_deleted", record_id=record_id)
             return row is not None

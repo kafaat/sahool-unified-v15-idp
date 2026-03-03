@@ -118,6 +118,15 @@ class TestEXGeographicBoundingBox:
                 north_bound_latitude=24.8,
             )
 
+    def test_invalid_north_lt_south(self):
+        with pytest.raises(ValueError, match="North latitude"):
+            EX_GeographicBoundingBox(
+                west_bound_longitude=46.7,
+                east_bound_longitude=46.8,
+                south_bound_latitude=25.0,
+                north_bound_latitude=24.0,
+            )
+
 
 class TestEXTemporalExtent:
     """Tests for EX_TemporalExtent model."""
@@ -142,6 +151,27 @@ class TestEXTemporalExtent:
                 begin_position=datetime(2025, 12, 31, tzinfo=UTC),
                 end_position=datetime(2025, 1, 1, tzinfo=UTC),
             )
+
+
+class TestEXExtent:
+    """Tests for EX_Extent model including vertical extent validation."""
+
+    def test_valid_vertical_extent(self):
+        ext = EX_Extent(vertical_min_m=100.0, vertical_max_m=500.0)
+        assert ext.vertical_min_m == 100.0
+        assert ext.vertical_max_m == 500.0
+
+    def test_invalid_vertical_max_lt_min(self):
+        with pytest.raises(ValueError, match="vertical_max_m.*must be >= vertical_min_m"):
+            EX_Extent(vertical_min_m=500.0, vertical_max_m=100.0)
+
+    def test_vertical_none_values_ok(self):
+        ext = EX_Extent(vertical_min_m=None, vertical_max_m=None)
+        assert ext.vertical_min_m is None
+
+    def test_vertical_only_max_ok(self):
+        ext = EX_Extent(vertical_max_m=500.0)
+        assert ext.vertical_max_m == 500.0
 
 
 class TestMDReferenceSystem:
@@ -203,6 +233,40 @@ class TestDataQualityReport:
         elem = report.report[0]
         assert elem.conformance_result.is_conformant is True
         assert "GeoJSON" in elem.conformance_result.specification
+
+    def test_logical_consistency(self):
+        report = DataQualityReport()
+        report.add_logical_consistency(98.5, name="Topological consistency")
+        elem = report.report[0]
+        assert elem.quality_type == "logicalConsistency"
+        assert elem.quantitative_result.value == 98.5
+        assert elem.quantitative_result.value_unit == "%"
+
+    def test_overall_quality_score(self):
+        report = DataQualityReport()
+        report.add_positional_accuracy(5.0)       # 100 - 5 = 95 (weight 0.3)
+        report.add_completeness(90.0)              # 90 (weight 0.25)
+        report.add_thematic_accuracy(85.0)         # 85 (weight 0.25)
+        score = report.overall_quality_score()
+        assert score is not None
+        assert 85.0 <= score <= 95.0  # Weighted average should be in this range
+
+    def test_overall_quality_score_empty(self):
+        report = DataQualityReport()
+        assert report.overall_quality_score() is None
+
+    def test_overall_quality_score_conformance_only(self):
+        """Conformance elements have no quantitative result, score should be None."""
+        report = DataQualityReport()
+        report.add_conformance("ISO 19115", is_conformant=True)
+        assert report.overall_quality_score() is None
+
+    def test_overall_quality_score_perfect_accuracy(self):
+        """0m positional error = 100 score."""
+        report = DataQualityReport()
+        report.add_positional_accuracy(0.0)
+        score = report.overall_quality_score()
+        assert score == 100.0
 
 
 # =============================================================================

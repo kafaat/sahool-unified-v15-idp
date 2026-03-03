@@ -258,6 +258,14 @@ class EX_GeographicBoundingBox(BaseModel):
             raise ValueError("East longitude must be >= west longitude | خط الطول الشرقي يجب أن يكون >= الغربي")
         return v
 
+    @field_validator("north_bound_latitude")
+    @classmethod
+    def north_gt_south(cls, v: float, info: Any) -> float:
+        south = info.data.get("south_bound_latitude")
+        if south is not None and v < south:
+            raise ValueError("North latitude must be >= south latitude | خط العرض الشمالي يجب أن يكون >= الجنوبي")
+        return v
+
 
 class EX_TemporalExtent(BaseModel):
     """
@@ -295,6 +303,17 @@ class EX_Extent(BaseModel):
     vertical_max_m: float | None = Field(
         default=None, description="Maximum elevation in meters | الارتفاع الأقصى بالمتر"
     )
+
+    @field_validator("vertical_max_m")
+    @classmethod
+    def vertical_max_gte_min(cls, v: float | None, info: Any) -> float | None:
+        vmin = info.data.get("vertical_min_m")
+        if v is not None and vmin is not None and v < vmin:
+            raise ValueError(
+                f"vertical_max_m ({v}) must be >= vertical_min_m ({vmin}) | "
+                "الارتفاع الأقصى يجب أن يكون >= الأدنى"
+            )
+        return v
 
 
 # =============================================================================
@@ -741,6 +760,26 @@ class DataQualityReport(BaseModel):
             )
         )
 
+    def add_logical_consistency(
+        self,
+        consistency_pct: float,
+        name: str = "Topological consistency",
+        method: str = "Automated validation",
+    ) -> None:
+        """Add logical consistency quality element (topology, domain, format)."""
+        self.report.append(
+            DQ_Element(
+                quality_type="logicalConsistency",
+                quality_type_ar="الاتساق المنطقي",
+                name=name,
+                name_ar="الاتساق الطوبولوجي",
+                evaluation_method=method,
+                quantitative_result=DQ_QuantitativeResult(
+                    value=consistency_pct, value_unit="%", value_type="percentage"
+                ),
+            )
+        )
+
     def add_conformance(
         self,
         specification: str,
@@ -761,6 +800,44 @@ class DataQualityReport(BaseModel):
                 ),
             )
         )
+
+    def overall_quality_score(self) -> float | None:
+        """
+        Calculate overall quality score as weighted average of quantitative results.
+        حساب درجة الجودة الكلية كمتوسط مرجح للنتائج الكمية
+
+        Weights: positionalAccuracy=0.3, completeness=0.25, thematicAccuracy=0.25,
+                 logicalConsistency=0.1, temporalQuality=0.1
+
+        Returns:
+            Score between 0-100, or None if no quantitative elements exist.
+        """
+        weights = {
+            "positionalAccuracy": 0.30,
+            "completeness": 0.25,
+            "thematicAccuracy": 0.25,
+            "logicalConsistency": 0.10,
+            "temporalQuality": 0.10,
+        }
+        total_weight = 0.0
+        weighted_sum = 0.0
+
+        for element in self.report:
+            if element.quantitative_result is None:
+                continue
+            w = weights.get(element.quality_type, 0.10)
+            val = element.quantitative_result.value
+            # Normalize: positionalAccuracy is in meters (lower=better), cap at 100m
+            if element.quality_type == "positionalAccuracy":
+                val = max(0.0, 100.0 - val)  # Invert: 0m error = 100 score
+            # Clamp to 0-100 range
+            val = max(0.0, min(100.0, val))
+            weighted_sum += val * w
+            total_weight += w
+
+        if total_weight == 0:
+            return None
+        return round(weighted_sum / total_weight, 2)
 
 
 # =============================================================================

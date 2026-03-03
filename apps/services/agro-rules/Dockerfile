@@ -31,10 +31,14 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install build tools
+# Upgrade pip and install build tools with multi-mirror fallback
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade "setuptools>=68.0" wheel build
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip "setuptools>=68.0" wheel build || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade pip "setuptools>=68.0" wheel build
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
@@ -45,10 +49,6 @@ retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
                   https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF
@@ -60,18 +60,14 @@ COPY apps/services/agro-rules/requirements.txt .
 # Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     --prefix=/install \
     -c constraints.txt -r requirements.txt
 

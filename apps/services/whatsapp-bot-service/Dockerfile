@@ -27,26 +27,19 @@ COPY constraints.txt /tmp/constraints.txt
 COPY apps/services/whatsapp-bot-service/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --upgrade pip setuptools wheel || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --upgrade pip setuptools wheel
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c /tmp/constraints.txt -r /tmp/requirements.txt
 
 # Production image

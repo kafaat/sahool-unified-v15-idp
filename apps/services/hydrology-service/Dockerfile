@@ -20,8 +20,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
+# Upgrade pip with multi-mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade pip
 
 # Install dependencies
 COPY constraints.txt .
@@ -30,18 +35,14 @@ COPY apps/services/hydrology-service/requirements.txt .
 # Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     --prefix=/install \
     -c constraints.txt -r requirements.txt
 

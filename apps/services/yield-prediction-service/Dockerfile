@@ -32,10 +32,10 @@ WORKDIR /workspace/yield-prediction-service
 # Replace workspace dependency with local file path for Docker build
 RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json && \
     npm config set registry https://registry.npmmirror.com; \
-    (npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
-    (echo "Retrying npm install..." && npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
+    (npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "Retrying npm install..." && npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
@@ -73,11 +73,11 @@ COPY --from=builder /workspace/yield-prediction-service/package-lock.json ./
 # reflect-metadata is required at runtime for NestJS decorators and DI
 # Note: Deprecation warnings (inflight, glob@7) are from transitive dependencies and are non-blocking
 RUN npm config set registry https://registry.npmmirror.com && \
-    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
-    (echo "npm ci failed, falling back to npm install..." && npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
+    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "npm ci failed, falling back to npm install..." && npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit))
+    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit))
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)

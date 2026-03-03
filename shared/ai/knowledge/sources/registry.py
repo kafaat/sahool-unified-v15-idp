@@ -74,7 +74,12 @@ class KnowledgeSourceRegistry:
                 try:
                     domains.append(KnowledgeDomain(d))
                 except ValueError:
-                    pass
+                    logger.warning(
+                        "invalid_domain_in_trusted_source",
+                        domain_value=d,
+                        source_name=entry.get("name", ""),
+                        sources_file=str(self._sources_file),
+                    )
 
             credibility_val = entry.get("credibility", 2)
             try:

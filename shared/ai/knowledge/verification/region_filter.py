@@ -308,9 +308,7 @@ class RegionRelevanceFilter:
             if crop_name in mena_crops:
                 matched += 1
 
-        if crop_tags:
-            return matched / len(crop_tags)
-        return 0.5
+        return matched / len(crop_tags)
 
     def _check_soil_compatibility(self, doc: BaseKnowledgeDocument, target_regions: list[str]) -> float:
         """Score soil compatibility for target regions."""

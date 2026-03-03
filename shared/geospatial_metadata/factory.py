@@ -38,6 +38,41 @@ from .iso19115 import (
 )
 
 
+def _validate_bbox(bbox: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+    """
+    Validate bounding box coordinates.
+
+    IMPORTANT: bbox order is (west_lon, south_lat, east_lon, north_lat)
+    following OGC/GeoJSON convention (longitude first, then latitude).
+    This matches PostGIS ST_MakeEnvelope(xmin, ymin, xmax, ymax) order.
+
+    NOT the (lat, lng) order used by some mapping libraries.
+
+    Args:
+        bbox: (west_longitude, south_latitude, east_longitude, north_latitude)
+
+    Returns:
+        Validated bbox tuple
+
+    Raises:
+        ValueError: If coordinates are out of range or inverted
+    """
+    west, south, east, north = bbox
+    if not (-180 <= west <= 180):
+        raise ValueError(f"west_longitude {west} out of range [-180, 180]")
+    if not (-180 <= east <= 180):
+        raise ValueError(f"east_longitude {east} out of range [-180, 180]")
+    if not (-90 <= south <= 90):
+        raise ValueError(f"south_latitude {south} out of range [-90, 90]")
+    if not (-90 <= north <= 90):
+        raise ValueError(f"north_latitude {north} out of range [-90, 90]")
+    if east < west:
+        raise ValueError(f"east_longitude ({east}) must be >= west_longitude ({west})")
+    if north < south:
+        raise ValueError(f"north_latitude ({north}) must be >= south_latitude ({south})")
+    return bbox
+
+
 def create_field_metadata(
     *,
     field_id: str,
@@ -71,6 +106,7 @@ def create_field_metadata(
         capture_method: How boundary was captured
         created_by: User who created
     """
+    _validate_bbox(bbox)
     west, south, east, north = bbox
 
     quality = DataQualityReport(scope=DQ_Scope(level=MD_ScopeCode.FEATURE))
@@ -195,6 +231,7 @@ def create_ndvi_metadata(
     Create ISO 19115 metadata for NDVI analysis results.
     إنشاء بيانات وصفية لنتائج تحليل NDVI
     """
+    _validate_bbox(bbox)
     west, south, east, north = bbox
 
     quality = DataQualityReport(scope=DQ_Scope(level=MD_ScopeCode.DATASET))
@@ -339,6 +376,7 @@ def create_terrain_metadata(
     Create ISO 19115 metadata for terrain/DEM analysis.
     إنشاء بيانات وصفية لتحليل التضاريس/نموذج الارتفاعات الرقمي
     """
+    _validate_bbox(bbox)
     west, south, east, north = bbox
     analysis = analysis_types or ["slope", "aspect", "curvature"]
 
@@ -452,6 +490,7 @@ def create_satellite_metadata(
     Create ISO 19115 metadata for satellite imagery.
     إنشاء بيانات وصفية لصور الأقمار الصناعية
     """
+    _validate_bbox(bbox)
     west, south, east, north = bbox
     bands = bands or ["B2", "B3", "B4", "B8"]
 

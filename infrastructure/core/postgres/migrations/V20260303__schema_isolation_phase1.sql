@@ -27,6 +27,16 @@
 -- IMPORTANT: Phase 1 creates schemas and views. Actual table migration
 -- (ALTER TABLE SET SCHEMA) should be done in Phase 2 after service code
 -- is updated to use schema-qualified names.
+--
+-- DEPENDENCIES:
+--   - 001_init_extensions.sql (PostGIS, uuid-ossp, pg_trgm, btree_gist)
+--   - 010_row_level_security.sql (current_tenant_id(), is_super_admin())
+--     NOTE: Fallback definitions are included if 010 hasn't run yet.
+--
+-- KNOWN PRE-EXISTING ISSUES:
+--   - 'iot' schema is also created in 001_init_extensions.sql (safe: IF NOT EXISTS)
+--   - Disaster tables have duplicate definitions in 005 and V20260130 migrations
+--     (not related to this migration - tracked separately)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -370,21 +380,63 @@ CREATE INDEX IF NOT EXISTS idx_quality_type
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION 8: Enable RLS on new tables
 -- القسم 8: تفعيل أمان مستوى الصف على الجداول الجديدة
+--
+-- DEPENDENCY: Requires current_tenant_id() and is_super_admin() from
+-- 010_row_level_security.sql. If those functions don't exist, we create
+-- fallback versions to ensure this migration can run independently.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+-- Ensure RLS helper functions exist (idempotent - won't overwrite 010's versions)
+DO $$
+BEGIN
+    -- Create current_tenant_id() if not exists (defined in 010_row_level_security.sql)
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_proc WHERE proname = 'current_tenant_id'
+    ) THEN
+        EXECUTE $func$
+            CREATE FUNCTION current_tenant_id() RETURNS UUID AS $body$
+            BEGIN
+                RETURN NULLIF(current_setting('app.current_tenant', true), '')::UUID;
+            EXCEPTION WHEN OTHERS THEN RETURN NULL;
+            END;
+            $body$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+        $func$;
+        RAISE NOTICE 'Created fallback current_tenant_id() function';
+    END IF;
+
+    -- Create is_super_admin() if not exists (defined in 010_row_level_security.sql)
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_proc WHERE proname = 'is_super_admin'
+    ) THEN
+        EXECUTE $func$
+            CREATE FUNCTION is_super_admin() RETURNS BOOLEAN AS $body$
+            BEGIN
+                RETURN COALESCE(current_setting('app.is_super_admin', true), 'false')::BOOLEAN;
+            EXCEPTION WHEN OTHERS THEN RETURN FALSE;
+            END;
+            $body$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+        $func$;
+        RAISE NOTICE 'Created fallback is_super_admin() function';
+    END IF;
+END;
+$$;
 
 ALTER TABLE geospatial_metadata.metadata_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE geospatial_metadata.lineage_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE geospatial_metadata.quality_assessments ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
+-- RLS Policies (idempotent with DROP IF EXISTS)
+DROP POLICY IF EXISTS metadata_records_tenant_isolation ON geospatial_metadata.metadata_records;
 CREATE POLICY metadata_records_tenant_isolation
     ON geospatial_metadata.metadata_records
     FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
+DROP POLICY IF EXISTS lineage_records_tenant_isolation ON geospatial_metadata.lineage_records;
 CREATE POLICY lineage_records_tenant_isolation
     ON geospatial_metadata.lineage_records
     FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
 
+DROP POLICY IF EXISTS quality_assessments_tenant_isolation ON geospatial_metadata.quality_assessments;
 CREATE POLICY quality_assessments_tenant_isolation
     ON geospatial_metadata.quality_assessments
     FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());

@@ -984,3 +984,74 @@ class TestEnumCoverage:
 
         assert MD_ProgressCode.ON_GOING == "onGoing"
         assert MD_ProgressCode.COMPLETED == "completed"
+
+
+# =============================================================================
+# Bbox Validation Tests
+# =============================================================================
+
+
+class TestBboxValidation:
+    """Tests for _validate_bbox function and factory bbox validation."""
+
+    def test_valid_bbox_passes(self):
+        """Valid bbox should not raise."""
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        result = _validate_bbox((46.7, 24.7, 46.8, 24.8))
+        assert result == (46.7, 24.7, 46.8, 24.8)
+
+    def test_bbox_west_out_of_range(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="west_longitude.*out of range"):
+            _validate_bbox((-200, 24.7, 46.8, 24.8))
+
+    def test_bbox_east_out_of_range(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="east_longitude.*out of range"):
+            _validate_bbox((46.7, 24.7, 200, 24.8))
+
+    def test_bbox_south_out_of_range(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="south_latitude.*out of range"):
+            _validate_bbox((46.7, -100, 46.8, 24.8))
+
+    def test_bbox_north_out_of_range(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="north_latitude.*out of range"):
+            _validate_bbox((46.7, 24.7, 46.8, 100))
+
+    def test_bbox_east_lt_west_rejected(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="east_longitude.*must be >= west"):
+            _validate_bbox((46.8, 24.7, 46.7, 24.8))
+
+    def test_bbox_north_lt_south_rejected(self):
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        with pytest.raises(ValueError, match="north_latitude.*must be >= south"):
+            _validate_bbox((46.7, 24.8, 46.8, 24.7))
+
+    def test_factory_rejects_invalid_bbox(self):
+        """Factory functions should reject invalid bbox coordinates."""
+        with pytest.raises(ValueError, match="east_longitude.*must be >= west"):
+            create_field_metadata(
+                field_id="F-BAD",
+                tenant_id="00000000-0000-0000-0000-000000000001",
+                title="Bad bbox",
+                abstract="Inverted coordinates",
+                bbox=(47.0, 24.0, 46.0, 25.0),  # west > east
+            )
+
+    def test_factory_rejects_latlon_swap(self):
+        """Detect when latitude values > 90 are passed as latitude."""
+        from shared.geospatial_metadata.factory import _validate_bbox
+
+        # If someone passes latitude > 90, it should fail
+        with pytest.raises(ValueError, match="south_latitude.*out of range"):
+            _validate_bbox((46.0, 91.0, 47.0, 92.0))  # lat=91 is invalid

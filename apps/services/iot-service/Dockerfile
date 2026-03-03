@@ -36,6 +36,10 @@ WORKDIR /workspace/iot-service
 # Using npm pkg set for reliable package.json modification (more robust than sed)
 RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
 
+# Remove prepublish script from shared-events to prevent tsc from running
+# during npm install (shared-events was already built at lines 25-27)
+RUN npm pkg delete scripts.prepublish --prefix ../packages/shared-events 2>/dev/null || true
+
 # Install all dependencies with retry for network resilience
 RUN npm config set registry https://registry.npmmirror.com && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \

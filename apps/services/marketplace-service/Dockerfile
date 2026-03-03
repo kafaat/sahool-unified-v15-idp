@@ -90,15 +90,17 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends openssl && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy nestjs-auth package (needed for file: dependency resolution)
-COPY --from=builder /workspace/packages ./packages
+# Copy only nestjs-auth dist + package.json for runtime (not src/node_modules from builder)
+COPY --from=builder /workspace/packages/nestjs-auth/dist ./packages/nestjs-auth/dist/
+COPY --from=builder /workspace/packages/nestjs-auth/package.json ./packages/nestjs-auth/package.json
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
 
 # Fix the file: path reference for production stage
-RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:./packages/nestjs-auth|g' package.json || true
+# Builder already changed ../../../packages → ../packages, so match THAT pattern here
+RUN sed -i 's|file:\.\./packages/nestjs-auth|file:./packages/nestjs-auth|g' package.json || true
 
 # Install production dependencies with retry loop
 RUN --mount=type=cache,target=/root/.npm \

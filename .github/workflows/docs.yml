@@ -56,22 +56,15 @@ jobs:
           mkdir -p ${{ env.DOCS_DIR }}/openapi
 
           # List of Python FastAPI services
-          # NOTE: Deprecated services migrated to new names:
-          #   - satellite-service → vegetation-analysis-service
-          #   - weather-advanced → weather-service
-          #   - crop-health-ai → crop-intelligence-service
-          #   - field-ops → field-management-service
+          # All deprecated services removed; only active services listed
           PYTHON_SERVICES=(
             "field-management-service"
             "weather-service"
-            "agro-advisor"
-            "crop-health"
-            "ndvi-engine"
-            "irrigation-smart"
-            "vegetation-analysis-service"
-            "weather-core"
+            "advisory-service"
             "crop-intelligence-service"
-            "yield-engine"
+            "vegetation-analysis-service"
+            "irrigation-smart"
+            "yield-prediction-service"
             "billing-core"
             "inventory-service"
           )
@@ -252,32 +245,32 @@ jobs:
                           <a href="field-management-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>Weather Core</h3>
+                          <h3>Weather Service</h3>
                           <p>Weather forecasts and agricultural weather data</p>
                           <span class="badge starter">Starter</span><br>
-                          <a href="weather-core.html">View API Docs →</a>
+                          <a href="weather-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>Agro Advisor</h3>
+                          <h3>Advisory Service</h3>
                           <p>Agricultural recommendations and best practices</p>
                           <span class="badge starter">Starter</span><br>
-                          <a href="agro-advisor.html">View API Docs →</a>
+                          <a href="advisory-service.html">View API Docs →</a>
                       </div>
                   </div>
 
                   <h2>Professional Package</h2>
                   <div class="services">
                       <div class="service-card">
-                          <h3>Crop Health</h3>
-                          <p>Monitor crop health and detect diseases</p>
+                          <h3>Crop Intelligence</h3>
+                          <p>AI-powered crop disease detection and monitoring</p>
                           <span class="badge professional">Professional</span><br>
-                          <a href="crop-health.html">View API Docs →</a>
+                          <a href="crop-intelligence-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>NDVI Engine</h3>
+                          <h3>Vegetation Analysis</h3>
                           <p>Vegetation indices and satellite imagery analysis</p>
                           <span class="badge professional">Professional</span><br>
-                          <a href="ndvi-engine.html">View API Docs →</a>
+                          <a href="vegetation-analysis-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
                           <h3>Smart Irrigation</h3>
@@ -308,10 +301,10 @@ jobs:
                           <a href="crop-intelligence-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
-                          <h3>Yield Engine</h3>
+                          <h3>Yield Prediction</h3>
                           <p>Yield prediction and optimization models</p>
                           <span class="badge enterprise">Enterprise</span><br>
-                          <a href="yield-engine.html">View API Docs →</a>
+                          <a href="yield-prediction-service.html">View API Docs →</a>
                       </div>
                       <div class="service-card">
                           <h3>Billing Core</h3>

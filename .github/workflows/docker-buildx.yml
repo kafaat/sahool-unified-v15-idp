@@ -263,7 +263,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [crop-intelligence-service, advisory-service, agro-advisor, alert-service]
+        service: [crop-intelligence-service, advisory-service, alert-service]
 
     steps:
       - name: Checkout code
@@ -308,7 +308,7 @@ jobs:
       matrix:
         # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), takes 25+ min to build
         # Build ai-advisor separately or locally: docker build -f apps/services/ai-advisor/Dockerfile .
-        service: [crop-intelligence-service, advisory-service, agro-advisor, alert-service]
+        service: [crop-intelligence-service, advisory-service, alert-service]
 
     steps:
       - name: Free up disk space
@@ -461,7 +461,6 @@ jobs:
             echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
             echo "| crop-intelligence-service | ${{ needs.validate-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
             echo "| advisory-service | ${{ needs.validate-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| agro-advisor | ${{ needs.validate-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
             echo "| alert-service | ${{ needs.validate-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
           else
             echo "### Build Configuration:" >> $GITHUB_STEP_SUMMARY
@@ -483,7 +482,6 @@ jobs:
             echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
             echo "| crop-intelligence-service | ${{ needs.build-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
             echo "| advisory-service | ${{ needs.build-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| agro-advisor | ${{ needs.build-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
             echo "| alert-service | ${{ needs.build-python.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
           fi
 

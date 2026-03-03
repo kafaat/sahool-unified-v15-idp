@@ -58,6 +58,9 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
+# Rebuild Prisma to download engine binaries (skipped by --ignore-scripts)
+RUN npm rebuild prisma @prisma/client 2>/dev/null || true
+
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
@@ -129,6 +132,10 @@ COPY --from=builder /workspace/marketplace-service/prisma ./prisma/
 # Copy generated Prisma client from builder (avoid npx downloading incompatible version)
 COPY --from=builder /workspace/marketplace-service/node_modules/.prisma ./node_modules/.prisma/
 COPY --from=builder /workspace/marketplace-service/node_modules/@prisma/client ./node_modules/@prisma/client/
+
+# Install nestjs-auth runtime dependencies (redis, ioredis used by token-revocation;
+# @liaoliaots/nestjs-redis used by user-validation service)
+RUN npm install --no-save --ignore-scripts redis ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
 
 # Copy built application
 COPY --from=builder /workspace/marketplace-service/dist ./dist

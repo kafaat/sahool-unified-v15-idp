@@ -19,12 +19,18 @@ COPY shared ./shared/
 # Copy nestjs-auth package (required for @sahool/nestjs-auth dependency)
 COPY packages/nestjs-auth ./packages/nestjs-auth/
 
+# Copy root tsconfig.base.json (nestjs-auth tsconfig extends ../../tsconfig.base.json)
+# From /workspace/packages/nestjs-auth/, ../../ = /workspace/
+COPY tsconfig.base.json /workspace/tsconfig.base.json
+
 # Pre-build nestjs-auth package (install its deps and compile TypeScript)
 WORKDIR /workspace/packages/nestjs-auth
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null || true && \
-    npx tsc --skipLibCheck 2>/dev/null || true
+    npx tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    echo "WARN: nestjs-auth build failed"
 
 # Copy service to maintain relative path
 WORKDIR /workspace

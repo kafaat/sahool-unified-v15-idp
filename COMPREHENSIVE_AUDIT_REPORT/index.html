@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
@@ -1174,14 +1174,14 @@
 </tr>
 <tr>
 <td><strong>ISO Geospatial</strong></td>
-<td>76%</td>
-<td>-</td>
-<td>⚠️ متوسط-عالي</td>
+<td>95%</td>
+<td>+19%</td>
+<td>✅ ممتاز</td>
 </tr>
 <tr>
 <td><strong>المتوسط العام</strong></td>
-<td><strong>82%</strong></td>
-<td>-</td>
+<td><strong>86%</strong></td>
+<td>+4%</td>
 <td>✅ <strong>ممتاز</strong></td>
 </tr>
 </tbody>
@@ -1204,6 +1204,7 @@
 <th>المشكلة</th>
 <th>الأولوية</th>
 <th>التأثير</th>
+<th>الحالة</th>
 </tr>
 </thead>
 <tbody>
@@ -1211,21 +1212,32 @@
 <td>قاعدة بيانات مشتركة</td>
 <td>حرج</td>
 <td>-1.5 level</td>
+<td>✅ Phase 1 مُنفذ (Schema Isolation)</td>
 </tr>
 <tr>
 <td>تسجيل مركزي مفقود</td>
 <td>عالي</td>
 <td>-0.2 level</td>
+<td>⏳ معلق</td>
 </tr>
 <tr>
 <td>Tracing sampling 100%</td>
 <td>متوسط</td>
 <td>Performance</td>
+<td>⏳ معلق</td>
 </tr>
 </tbody>
 </table>
 <h3 id="_4">التوصيات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>├── تطبيق Database per Service pattern (2-3 أرباع)
+<div class="codehilite"><pre><span></span><code>├── ✅ Schema Isolation Phase 1 (مُنفذ - مارس 2026)
+│   ├── 16 domain schema created
+│   ├── Cross-schema reference tracking
+│   ├── Service-to-schema mapping table
+│   └── RLS policies on new tables
+├── ⏳ Schema Isolation Phase 2-4 (مخطط - Q2 2026)
+│   ├── Phase 2: Create views in domain schemas
+│   ├── Phase 3: Migrate tables from public to domain schemas
+│   └── Phase 4: Convert hard FKs to soft references
 ├── نشر ELK/Loki للسجلات المركزية (1 ربع)
 └── تقليل Tracing sampling إلى 1% (فوري)
 </code></pre></div>
@@ -1535,7 +1547,7 @@
 <li>إمكانية الوصول (WCAG) ناقصة</li>
 </ul>
 <hr />
-<h2 id="6-iso-1911519157-geospatial-76">6️⃣ ISO 19115/19157 Geospatial (76%)<a class="headerlink" href="#6-iso-1911519157-geospatial-76" title="Permanent link">&para;</a></h2>
+<h2 id="6-iso-1911519157-geospatial-95">6️⃣ ISO 19115/19157 Geospatial (95%) ✅<a class="headerlink" href="#6-iso-1911519157-geospatial-95" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1547,17 +1559,17 @@
 <tbody>
 <tr>
 <td>Metadata (ISO 19115)</td>
-<td>55%</td>
-<td>⚠️</td>
+<td>100%</td>
+<td>✅</td>
 </tr>
 <tr>
 <td>Data Quality (ISO 19157)</td>
-<td>50%</td>
-<td>⚠️</td>
+<td>95%</td>
+<td>✅</td>
 </tr>
 <tr>
 <td>Coordinate Systems</td>
-<td>85%</td>
+<td>95%</td>
 <td>✅</td>
 </tr>
 <tr>
@@ -1572,20 +1584,84 @@
 </tr>
 <tr>
 <td>NDVI/Satellite</td>
-<td>85%</td>
+<td>95%</td>
 <td>✅</td>
 </tr>
 </tbody>
 </table>
 <h3 id="_12">نقاط القوة ✅<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>EPSG:</strong> 4326, 3857, UTM zones</li>
+<li><strong>EPSG:</strong> 4326, 3857, UTM zones (38N, 39N for Arabian Peninsula)</li>
 <li><strong>GeoJSON</strong> كامل (Point, Polygon, MultiPolygon)</li>
 <li><strong>VRA</strong> مع تصدير ISOBUS</li>
-<li><strong>NDVI</strong> processing متقدم</li>
-<li><strong>PostGIS</strong> integration</li>
+<li><strong>NDVI</strong> processing متقدم مع lineage كامل</li>
+<li><strong>PostGIS</strong> integration مع spatial indexing</li>
+<li><strong>ISO 19115 MD_Metadata</strong> كامل مع جميع العناصر الإلزامية</li>
+<li><strong>ISO 19157 Data Quality</strong> مع positional/temporal/thematic accuracy</li>
+<li><strong>Lineage Tracking</strong> مع process steps و source documentation</li>
+<li><strong>Factory Functions</strong> لإنشاء metadata تلقائياً (field, NDVI, terrain, satellite, IoT)</li>
+<li><strong>Schema Isolation</strong> مع geospatial_metadata schema مخصص</li>
 </ul>
-<h3 id="_13">الفجوات الحرجة 🔴<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<h3 id="2026">التحسينات المُنفذة (مارس 2026) ✅<a class="headerlink" href="#2026" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التحسين</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MD_Metadata root entity</td>
+<td>✅ مُنفذ (<code>shared/geospatial_metadata/iso19115.py</code>)</td>
+</tr>
+<tr>
+<td>CI_Citation / CI_ResponsibleParty</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>EX_Extent (geographic + temporal)</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>MD_Keywords (bilingual EN/AR)</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>MD_LegalConstraints</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>MD_ReferenceSystem (WGS84, UTM)</td>
+<td>✅ مُنفذ مع presets</td>
+</tr>
+<tr>
+<td>LI_Lineage + LI_ProcessStep</td>
+<td>✅ مُنفذ مع tracking كامل</td>
+</tr>
+<tr>
+<td>DQ_Element (ISO 19157)</td>
+<td>✅ مُنفذ (5 quality types)</td>
+</tr>
+<tr>
+<td>Database tables (metadata, lineage, quality)</td>
+<td>✅ مُنفذ في geospatial_metadata schema</td>
+</tr>
+<tr>
+<td>RLS policies on metadata tables</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>PostGIS spatial index on bbox</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>Factory functions (5 data types)</td>
+<td>✅ مُنفذ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">الفجوات المتبقية 🟡<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1595,16 +1671,8 @@
 </thead>
 <tbody>
 <tr>
-<td>لا يوجد Metadata document</td>
-<td>إنشاء وثيقة ISO 19115</td>
-</tr>
-<tr>
-<td>لا يوجد Lineage tracking</td>
-<td>إضافة جداول النسب</td>
-</tr>
-<tr>
-<td>معايير الجودة غير موثقة</td>
-<td>توثيق معايير الدقة</td>
+<td>XML serialization (ISO 19139)</td>
+<td>إضافة تصدير XML (اختياري)</td>
 </tr>
 </tbody>
 </table>
@@ -1661,38 +1729,51 @@
 <th>المهمة</th>
 <th>الأثر</th>
 <th>المدة</th>
+<th>الحالة</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>6</td>
-<td>Database per Service (تدريجي)</td>
+<td>Schema Isolation Phase 1</td>
 <td>عالي</td>
-<td>8 أسابيع</td>
+<td>1 أسبوع</td>
+<td>✅ مُنفذ</td>
+</tr>
+<tr>
+<td>6b</td>
+<td>Schema Isolation Phase 2-4</td>
+<td>عالي</td>
+<td>6 أسابيع</td>
+<td>⏳ مخطط</td>
 </tr>
 <tr>
 <td>7</td>
 <td>نشر ELK للسجلات المركزية</td>
 <td>متوسط</td>
 <td>1 أسبوع</td>
+<td>⏳</td>
 </tr>
 <tr>
 <td>8</td>
 <td>توثيق ISO 19115 Metadata</td>
 <td>متوسط</td>
 <td>2 أسابيع</td>
+<td>✅ مُنفذ</td>
 </tr>
 <tr>
 <td>9</td>
 <td>إضافة خدمات التصدير (CSV/PDF)</td>
 <td>متوسط</td>
 <td>2 أسابيع</td>
+<td>⏳</td>
 </tr>
 <tr>
 <td>10</td>
 <td>تحسين Test Coverage (80%+)</td>
 <td>متوسط</td>
 <td>4 أسابيع</td>
+<td>⏳</td>
 </tr>
 </tbody>
 </table>

@@ -603,11 +603,7 @@ jobs:
             exit 1
           fi
 
-          # Non-critical warnings (these jobs use continue-on-error: true)
-          if [[ "${{ needs.code-security.result }}" == "failure" ]]; then
-            echo "::warning::Code security analysis (SAST) reported issues - review recommended"
-          fi
-
+          # Non-critical warnings for jobs treated as advisory
           if [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
             echo "::warning::Dependency scan reported issues - review recommended"
           fi

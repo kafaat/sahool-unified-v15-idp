@@ -22,9 +22,9 @@ COPY packages/shared-events ./packages/shared-events/
 
 # Build shared-events package
 WORKDIR /workspace/packages/shared-events
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install && npm run build || \
-    (npm config set registry https://registry.npmjs.org && npm install && npm run build)
+RUN npm config set registry https://registry.npmmirror.com; \
+    if npm install && npm run build; then true; \
+    else npm config set registry https://registry.npmjs.org && npm install && npm run build; fi
 
 # Copy service to maintain relative path: ../../shared/ from iot-service/src/
 WORKDIR /workspace
@@ -49,7 +49,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -120,7 +120,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund); then break; fi; \
-        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund && npm run build; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -133,7 +133,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

@@ -344,11 +344,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK Platform 36
+      - name: Install Android SDK Platform 35
         run: |
-          echo "Installing Android SDK Platform 36 (required by compileSdk in build.gradle.kts)..."
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" || \
-            sdkmanager --install "platforms;android-36" || true
+          echo "Installing Android SDK Platform 35 (required by compileSdk in build.gradle.kts)..."
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" || \
+            sdkmanager --install "platforms;android-35" || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2

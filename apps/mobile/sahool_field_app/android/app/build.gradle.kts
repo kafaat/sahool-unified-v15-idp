@@ -19,7 +19,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 36  // Android 16 - required by flutter_tts and mobile_scanner plugins
+    compileSdk = 35  // Android 15 - stable with Flutter 3.27.1 and AGP 8.7.x
     ndkVersion = "27.0.12077973"
 
     compileOptions {

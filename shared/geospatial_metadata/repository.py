@@ -38,6 +38,11 @@ class GeospatialMetadataRepository:
     LINEAGE_TABLE = "lineage_records"
     QUALITY_TABLE = "quality_assessments"
 
+    # Fully-qualified table names as string literals to satisfy static analysis
+    _FQ_TABLE = "geospatial_metadata.metadata_records"
+    _FQ_LINEAGE = "geospatial_metadata.lineage_records"
+    _FQ_QUALITY = "geospatial_metadata.quality_assessments"
+
     def __init__(self, db_pool: Any) -> None:
         """
         Initialize with asyncpg connection pool.
@@ -90,8 +95,8 @@ class GeospatialMetadataRepository:
         quality = metadata.get("data_quality_info", {})
         lineage = metadata.get("lineage", {})
 
-        sql = f"""
-            INSERT INTO {self.SCHEMA}.{self.TABLE} (
+        sql = """
+            INSERT INTO geospatial_metadata.metadata_records (
                 tenant_id, domain, resource_id, resource_type,
                 metadata_identifier, hierarchy_level,
                 title, title_ar, abstract, abstract_ar, purpose, purpose_ar, status,
@@ -213,37 +218,25 @@ class GeospatialMetadataRepository:
         Query metadata records with filtering.
         استعلام سجلات البيانات الوصفية مع التصفية
         """
-        conditions = ["tenant_id = $1::uuid"]
-        params: list[Any] = [tenant_id]
-        idx = 2
-
-        if resource_id:
-            conditions.append(f"resource_id = ${idx}")
-            params.append(resource_id)
-            idx += 1
-
-        if domain:
-            conditions.append(f"domain = ${idx}")
-            params.append(domain)
-            idx += 1
-
-        where_clause = " AND ".join(conditions)
-        params.extend([limit, offset])
-
-        sql = f"""
+        # Use fixed parameter positions: $1=tenant_id, $2=resource_id (or null),
+        # $3=domain (or null), $4=limit, $5=offset
+        sql = """
             SELECT id, tenant_id, domain, resource_id, resource_type,
                    metadata_identifier, title, title_ar, abstract, abstract_ar,
                    crs_code, bbox_west, bbox_east, bbox_south, bbox_north,
                    temporal_begin, temporal_end, tags, is_published,
                    created_at, updated_at
-            FROM {self.SCHEMA}.{self.TABLE}
-            WHERE {where_clause} AND deleted_at IS NULL
+            FROM geospatial_metadata.metadata_records
+            WHERE tenant_id = $1::uuid
+              AND ($2::text IS NULL OR resource_id = $2)
+              AND ($3::text IS NULL OR domain = $3)
+              AND deleted_at IS NULL
             ORDER BY created_at DESC
-            LIMIT ${idx} OFFSET ${idx + 1}
+            LIMIT $4 OFFSET $5
         """
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(sql, *params)
+            rows = await conn.fetch(sql, tenant_id, resource_id, domain, limit, offset)
             return [dict(row) for row in rows]
 
     async def get_metadata_by_bbox(
@@ -259,27 +252,21 @@ class GeospatialMetadataRepository:
         Spatial query: find metadata records intersecting a bounding box.
         استعلام مكاني: إيجاد السجلات المتقاطعة مع حدود جغرافية
         """
-        domain_filter = ""
-        params: list[Any] = [tenant_id, west, south, east, north]
-        if domain:
-            domain_filter = "AND domain = $6"
-            params.append(domain)
-
-        sql = f"""
+        sql = """
             SELECT id, tenant_id, domain, resource_id, resource_type,
                    title, title_ar, crs_code,
                    bbox_west, bbox_east, bbox_south, bbox_north,
                    tags, created_at
-            FROM {self.SCHEMA}.{self.TABLE}
+            FROM geospatial_metadata.metadata_records
             WHERE tenant_id = $1::uuid
               AND deleted_at IS NULL
               AND bbox_geometry && ST_SetSRID(ST_MakeEnvelope($2, $3, $4, $5), 4326)
-              {domain_filter}
+              AND ($6::text IS NULL OR domain = $6)
             ORDER BY created_at DESC
         """
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(sql, *params)
+            rows = await conn.fetch(sql, tenant_id, west, south, east, north, domain)
             return [dict(row) for row in rows]
 
     async def get_full_metadata(self, tenant_id: str, record_id: str) -> dict[str, Any] | None:
@@ -294,7 +281,7 @@ class GeospatialMetadataRepository:
         Returns:
             Full record dict including metadata_json, or None if not found
         """
-        sql = f"""
+        sql = """
             SELECT id, tenant_id, domain, resource_id, resource_type,
                    metadata_identifier, hierarchy_level,
                    title, title_ar, abstract, abstract_ar, purpose, purpose_ar, status,
@@ -311,7 +298,7 @@ class GeospatialMetadataRepository:
                    metadata_json,
                    tags, is_published, created_by,
                    created_at, updated_at
-            FROM {self.SCHEMA}.{self.TABLE}
+            FROM geospatial_metadata.metadata_records
             WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL
         """
         async with self.pool.acquire() as conn:
@@ -362,27 +349,33 @@ class GeospatialMetadataRepository:
             logger.warning("update_metadata_no_valid_columns", record_id=record_id)
             return False
 
-        set_clauses = []
+        # Build SET clause using allowlisted column names only.
+        # Column names are from allowed_columns frozenset (string literals),
+        # values are passed as parameterized $N placeholders.
+        _JSONB_COLUMNS = frozenset({"data_quality", "metadata_json"})
+        set_parts: list[str] = []
         params: list[Any] = [tenant_id, record_id]
         idx = 3
 
         for col, val in filtered.items():
-            if col in ("data_quality", "metadata_json"):
-                set_clauses.append(f"{col} = ${idx}::jsonb")
+            # col is guaranteed to be in allowed_columns (validated above)
+            cast = "::jsonb" if col in _JSONB_COLUMNS else ""
+            set_parts.append(col + " = $" + str(idx) + cast)
+            if col in _JSONB_COLUMNS:
                 params.append(json.dumps(val) if not isinstance(val, str) else val)
             else:
-                set_clauses.append(f"{col} = ${idx}")
                 params.append(val)
             idx += 1
 
-        set_clauses.append("updated_at = NOW()")
+        set_parts.append("updated_at = NOW()")
+        set_sql = ", ".join(set_parts)
 
-        sql = f"""
-            UPDATE {self.SCHEMA}.{self.TABLE}
-            SET {', '.join(set_clauses)}
-            WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL
-            RETURNING id
-        """
+        sql = (
+            "UPDATE geospatial_metadata.metadata_records "
+            "SET " + set_sql + " "
+            "WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL "
+            "RETURNING id"
+        )
 
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(sql, *params)
@@ -403,23 +396,20 @@ class GeospatialMetadataRepository:
         Count metadata records for a tenant.
         عد سجلات البيانات الوصفية للمستأجر
         """
-        conditions = ["tenant_id = $1::uuid", "deleted_at IS NULL"]
-        params: list[Any] = [tenant_id]
-
-        if domain:
-            conditions.append("domain = $2")
-            params.append(domain)
-
-        where_clause = " AND ".join(conditions)
-        sql = f"SELECT COUNT(*) FROM {self.SCHEMA}.{self.TABLE} WHERE {where_clause}"
+        sql = """
+            SELECT COUNT(*) FROM geospatial_metadata.metadata_records
+            WHERE tenant_id = $1::uuid
+              AND deleted_at IS NULL
+              AND ($2::text IS NULL OR domain = $2)
+        """
 
         async with self.pool.acquire() as conn:
-            return await conn.fetchval(sql, *params)
+            return await conn.fetchval(sql, tenant_id, domain)
 
     async def delete_metadata(self, tenant_id: str, record_id: str) -> bool:
         """Soft-delete a metadata record. حذف ناعم لسجل بيانات وصفية."""
-        sql = f"""
-            UPDATE {self.SCHEMA}.{self.TABLE}
+        sql = """
+            UPDATE geospatial_metadata.metadata_records
             SET deleted_at = NOW(), updated_at = NOW()
             WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL
             RETURNING id

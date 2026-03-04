@@ -10,12 +10,9 @@ targets:
           - "lib/models/**/*.dart"
           - "lib/services/**/*.dart"
           - "lib/core/models/**/*.dart"
-          - "lib/core/storage/**/*.dart"
           - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
-          - "lib/features/**/config/*.dart"
-          - "lib/features/**/data/**/*.dart"
         options:
           explicit_to_json: true
           include_if_null: false
@@ -28,8 +25,6 @@ targets:
           - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
-          - "lib/features/**/config/*.dart"
-          - "lib/features/**/data/**/*.dart"
 
       # Drift database configuration
       drift_dev:
@@ -47,17 +42,11 @@ targets:
         options:
           store_date_time_values_as_text: true
 
-      # Riverpod generator configuration
-      riverpod_generator:
-        generate_for:
-          - "lib/**/*.dart"
-
       # Exclude test files from code generation
       source_gen|combining_builder:
         generate_for:
-          include:
-            - "lib/**"
           exclude:
+            - "test/**"
             - "**/*.mocks.dart"
             - "**/*.g.dart"
             - "**/*.freezed.dart"

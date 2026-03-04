@@ -10,7 +10,7 @@ tags:
   - food-security
 category: ai-smart-agriculture
 last_updated: 2026-03-03
-version: 1.0.0
+version: 2.0.0
 ---
 
 # السياسات والمعايير الزراعية الذكية | Smart Agriculture Policies & Standards
@@ -46,9 +46,14 @@ Regulatory frameworks, standards, and government policies shaping the future of 
 | السياسة | Policy | التفاصيل |
 |---------|--------|---------|
 | **خطة الزراعة الذكية 2024-2028** | Smart Agriculture Plan | **الأشمل عالمياً** |
-| **هدف الرقمنة** | Digitization Target | 32%+ بحلول 2028 (من 26% في 2024) |
+| **خطة "AI+" (أغسطس 2025)** | **AI+ Action Plan** | **مجلس الدولة — دمج AI في جميع القطاعات بما فيها الزراعة** |
+| **هدف الرقمنة 2028** | Digitization Target 2028 | 32%+ (من 26% في 2024) |
+| **هدف الرقمنة 2030** | **Digitization Target 2030** | **35%** (وزارة الزراعة) |
 | **3 إجراءات رئيسية** | 3 Key Actions | خدمات عامة + توسع تطبيقات + مشاريع رائدة |
+| **مساهمة الزراعة الدقيقة** | Precision Ag Share | **>40%** من الزيادة في الرقمنة |
+| **CAGR المستهدف** | Target CAGR | **~12%** (2025-2030) |
 | **هدف 2035** | 2035 Target | مزارع بدون عمال على نطاق واسع |
+| **برنامج "AI إلى الريف"** | **AI下乡 Program** | **Tencent + وزارة الزراعة: 3 سنوات تدريب AI مجاني** |
 
 ### اليابان 🇯🇵 | Japan
 
@@ -57,6 +62,26 @@ Regulatory frameworks, standards, and government policies shaping the future of 
 | **استراتيجية الزراعة الذكية** | Smart Agriculture Strategy | مواجهة شيخوخة المزارعين |
 | **مشروع المزارع الذكية** | Smart Farm Project | تجارب في عدة مقاطعات |
 | **معايير الأمان للآلات المستقلة** | Autonomous Machinery Safety | إطار تنظيمي للجرارات بدون سائق |
+
+### توصيات البنك الدولي (نوفمبر 2025) 🌍 | World Bank Recommendations
+
+من تقرير "Harnessing AI for Agricultural Transformation" — 60 حالة دراسية:
+
+| التوصية | Recommendation | التفاصيل |
+|---------|---------------|---------|
+| **1. استراتيجيات AI وطنية تشمل الزراعة** | National AI Strategies | مسارات تنفيذ واضحة مع ميزانيات مخصصة |
+| **2. ربط AI بسياسات المرونة المناخية** | Link AI to Climate | دمج AI في أهداف الأمن الغذائي والتغذية |
+| **3. أنظمة بيانات مفتوحة** | Open Data Ecosystems | دعم Agricultural Data Exchange Nodes + مبادئ FAIR |
+| **4. بنية تحتية رقمية جاهزة لـ AI** | AI-Ready DPI | هوية رقمية + مدفوعات + منصات بيانات |
+| **5. تمويل بحثي لنماذج AI محلية** | Local AI Models | التركيز على محاصيل ولغات وسلاسل توريد محلية |
+
+### مبادرات ائتلافات البيانات الزراعية | Agricultural Data Coalitions
+
+| المبادرة | Country | الوصف |
+|---------|---------|-------|
+| **Coalition of the Willing** | إثيوبيا 🇪🇹 | مشاركة بيانات زراعية مع حماية السيادة |
+| **ADeX** (Agricultural Data Exchange) | الهند 🇮🇳 | تبادل بيانات زراعي وطني |
+| **Kenya Ag Observatory** | كينيا 🇰🇪 | بيانات فورية لـ 1.1M مزارع → 6M في غرب أفريقيا |
 
 ---
 

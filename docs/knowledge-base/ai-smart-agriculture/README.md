@@ -9,8 +9,8 @@ tags:
   - iot
   - machine-learning
 category: ai-smart-agriculture
-last_updated: 2026-03-03
-version: 1.0.0
+last_updated: 2026-03-04
+version: 2.0.0
 ---
 
 # الذكاء الاصطناعي + الزراعة الذكية | AI + Smart Agriculture
@@ -27,7 +27,8 @@ version: 1.0.0
 
 ### السوق والمقارنات | Market & Comparisons
 - [[market-data|بيانات السوق (Market Data)]] - إحصائيات ونمو سوق الذكاء الزراعي عالمياً وإقليمياً
-- [[international-comparison|المقارنة الدولية (International Comparison)]] - إسرائيل واليابان والصين ومنطقة MENA
+- [[international-comparison|المقارنة الدولية (International Comparison)]] - إسرائيل واليابان والصين ومنطقة MENA + 60 حالة دراسية من البنك الدولي
+- [[business-models|نماذج الأعمال (Business Models)]] - AIaaS، منصات مفتوحة، أونلاين+ميداني، وصول ميسّر
 
 ### التقنيات والمعايير | Technologies & Standards
 - [[agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة في الزراعة

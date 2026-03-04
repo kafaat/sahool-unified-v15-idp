@@ -252,12 +252,13 @@ jobs:
 
       - name: Create .env file for tests
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<'EOF'
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Run unit tests with coverage
         run: |
@@ -406,12 +407,15 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<'EOF'
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY || 'debug_weather_key' }}
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
           ENV=debug
           EOF
+          sed -i 's/^[[:space:]]*//' .env
+          echo "Created .env file:"
+          cat .env
 
       - name: Generate code
         run: |
@@ -573,12 +577,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<'EOF'
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_key
           MAPS_API_KEY=test_key
           ENV=test
           EOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Enable KVM for Android emulator
         run: |

@@ -199,12 +199,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Update version in pubspec.yaml
         run: |
@@ -451,12 +452,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Update version in pubspec.yaml
         run: |

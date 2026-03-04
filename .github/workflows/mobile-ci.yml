@@ -409,15 +409,13 @@ jobs:
 
       - name: Generate code
         run: |
-          flutter clean
-          flutter pub get
           echo "Running build_runner code generation (required for .g.dart files)..."
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
             echo "::warning::Code generation had issues, retrying with clean state..."
             rm -rf .dart_tool/build
             flutter clean
             flutter pub get
-            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
+            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee -a codegen.log || {
               echo "::warning::Code generation failed - .g.dart files may be missing"
               echo "--- build_runner error output ---"
               tail -50 codegen.log

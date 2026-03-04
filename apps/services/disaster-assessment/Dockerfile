@@ -21,17 +21,19 @@ COPY apps/services/disaster-assessment/package*.json ./
 COPY apps/services/disaster-assessment/prisma ./prisma/
 
 # Install dependencies with retry for network resilience
-# Use --ignore-scripts to prevent postinstall from running before prisma schema is available
-# Then explicitly run prisma generate
+# Prisma schema is copied above so postinstall (prisma generate) can run successfully
 RUN npm config set registry https://registry.npmmirror.com; \
-    (npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+    (npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    (npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
 
-# Generate Prisma client (required before build)
-RUN npx prisma generate
+# Generate Prisma client and verify output
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate && \
+    test -f node_modules/.prisma/client/index.js || \
+    (echo "Prisma client generation failed, retrying..." && npx prisma generate)
 
 # Copy source code
 COPY apps/services/disaster-assessment/ .

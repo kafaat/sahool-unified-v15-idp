@@ -70,7 +70,13 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY apps/services/field-management-service/prisma ./prisma
 
 # Generate Prisma client (required before TypeScript compilation)
-RUN npx prisma generate
+# Schema uses output = "./generated/client" so verify that path
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate && \
+    test -f prisma/generated/client/index.js || \
+    (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
+     test -f prisma/generated/client/index.js) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source, config, and build
 COPY apps/services/field-management-service/tsconfig.json ./
@@ -137,8 +143,10 @@ COPY --from=builder /app/dist ./dist
 # Copy prisma schema for runtime migrations
 COPY --from=builder /app/prisma ./prisma
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /app/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Set ownership

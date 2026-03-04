@@ -20,21 +20,33 @@ COPY apps/services/disaster-assessment/package*.json ./
 # Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
 COPY apps/services/disaster-assessment/prisma ./prisma/
 
-# Install dependencies with retry for network resilience
+# Install dependencies with resilient retry loop and npm cache
 # Prisma schema is copied above so postinstall (prisma generate) can run successfully
-RUN npm config set registry https://registry.npmmirror.com; \
-    (npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Generate Prisma client and verify output
 # Schema uses custom output (prisma/generated/client/) so verify that path
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
     test -f prisma/generated/client/index.js || \
-    (echo "Prisma client generation failed, retrying..." && npx prisma generate)
+    (echo "Prisma client generation failed, retrying..." && npx prisma generate && \
+     test -f prisma/generated/client/index.js) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source code
 COPY apps/services/disaster-assessment/ .

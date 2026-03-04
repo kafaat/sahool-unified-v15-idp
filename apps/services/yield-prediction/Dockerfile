@@ -5,7 +5,7 @@
 # Build stage
 ARG NODE_VERSION=20
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="yield-prediction"
@@ -22,18 +22,29 @@ COPY apps/services/yield-prediction ./yield-prediction/
 
 WORKDIR /workspace/yield-prediction
 
-# Install dependencies with retry for network resilience
-# Use Taobao mirror for faster downloads in China/MENA region
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+# Install dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Build the application
-RUN npm run build
+RUN npx nest build
 
 # Production stage
-FROM node:${NODE_VERSION}-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
 
 # Re-declare build arg for this stage
 ARG NODE_VERSION=20
@@ -41,21 +52,41 @@ ARG NODE_VERSION=20
 WORKDIR /app
 
 # Install curl for health checks
-RUN apk add --no-cache curl
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: reflect-metadata MUST be in dependencies (not devDependencies) for NestJS to work
 COPY --from=builder /workspace/yield-prediction/package.json ./
 COPY --from=builder /workspace/yield-prediction/package-lock.json ./
 
-# Install only production dependencies using npm ci for deterministic builds
+# Install only production dependencies with resilient retry loop
 # reflect-metadata is required at runtime for NestJS decorators and DI
-RUN npm config set registry https://registry.npmmirror.com && \
-    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+        npm install --omit=dev --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy built application
 COPY --from=builder /workspace/yield-prediction/dist ./dist

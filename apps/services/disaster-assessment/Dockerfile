@@ -36,8 +36,9 @@ RUN npx prisma generate
 # Copy source code
 COPY apps/services/disaster-assessment/ .
 
-# Build the application
-RUN npm run build
+# Build the application using nest build directly (skip prebuild to avoid
+# re-running prisma generate which can resolve paths differently in Docker)
+RUN npx nest build
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production

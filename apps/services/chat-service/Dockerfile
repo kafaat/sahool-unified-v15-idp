@@ -43,9 +43,9 @@ RUN --mount=type=cache,target=/root/.npm \
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f node_modules/.prisma/client/index.js || \
+    test -f prisma/generated/client/index.js || \
     (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
-     test -f node_modules/.prisma/client/index.js) || \
+     test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application using nest build directly (skip prebuild to avoid
@@ -97,8 +97,10 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/chat-service/prisma ./prisma/
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /workspace/chat-service/node_modules/.prisma ./node_modules/.prisma/
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /workspace/chat-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/chat-service/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application

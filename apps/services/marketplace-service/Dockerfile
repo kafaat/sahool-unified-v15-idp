@@ -36,31 +36,33 @@ WORKDIR /workspace/marketplace-service
 RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:../packages/nestjs-auth|g' package.json || true
 
 # Install dependencies with retry loop for network resilience
+# Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3 4 5; do \
-        echo "Attempt $i: Installing npm dependencies..." && \
-        npm install --legacy-peer-deps --ignore-scripts \
+        echo "Attempt $i: Installing npm dependencies..."; \
+        if npm install --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=180000 \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
 # Generate Prisma client and verify output
+# Schema uses custom output (prisma/generated/client/) so verify that path
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f node_modules/.prisma/client/index.js || \
+    test -f prisma/generated/client/index.js || \
     (echo "ERROR: Prisma client not generated at expected path" && \
      echo "Retrying prisma generate..." && \
      sleep 5 && npx prisma generate && \
-     test -f node_modules/.prisma/client/index.js) || \
+     test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application using nest build directly (skip prebuild to avoid
@@ -96,8 +98,8 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:./packages/nestjs-au
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing production dependencies..." && \
-        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=180000 \
@@ -112,8 +114,8 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund) && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund); then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -121,8 +123,10 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /workspace/marketplace-service/node_modules/.prisma ./node_modules/.prisma/
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so the actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /workspace/marketplace-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/marketplace-service/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application

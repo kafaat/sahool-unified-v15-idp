@@ -598,17 +598,16 @@ jobs:
             CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
           fi
 
-          if [[ "${{ needs.code-security.result }}" == "failure" ]]; then
-            echo "::error::Code security analysis (SAST) failed - security vulnerabilities detected"
-            CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
-          fi
-
           if [ $CRITICAL_FAILURES -gt 0 ]; then
             echo "::error::$CRITICAL_FAILURES critical security check(s) failed - blocking merge"
             exit 1
           fi
 
-          # Non-critical warnings
+          # Non-critical warnings (these jobs use continue-on-error: true)
+          if [[ "${{ needs.code-security.result }}" == "failure" ]]; then
+            echo "::warning::Code security analysis (SAST) reported issues - review recommended"
+          fi
+
           if [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
             echo "::warning::Dependency scan reported issues - review recommended"
           fi

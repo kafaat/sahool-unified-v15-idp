@@ -33,7 +33,7 @@ jobs:
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     defaults:
       run:
-        working-directory: apps/mobile/sahool_field_app
+        working-directory: apps/mobile
 
     steps:
       - name: Checkout repository
@@ -237,8 +237,8 @@ jobs:
         with:
           name: build-logs-${{ github.run_number }}
           path: |
-            apps/mobile/sahool_field_app/build.log
-            apps/mobile/sahool_field_app/codegen.log
+            apps/mobile/build.log
+            apps/mobile/codegen.log
           retention-days: 7
 
       - name: Get APK info
@@ -259,7 +259,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
         with:
           name: sahool-apk-${{ github.run_number }}
-          path: apps/mobile/sahool_field_app/build/app/outputs/**/*.apk
+          path: apps/mobile/build/app/outputs/**/*.apk
           retention-days: 30
           if-no-files-found: warn
 
@@ -268,7 +268,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
         with:
           name: sahool-symbols-${{ github.run_number }}
-          path: apps/mobile/sahool_field_app/build/app/outputs/symbols/
+          path: apps/mobile/build/app/outputs/symbols/
           retention-days: 90
         continue-on-error: true
 

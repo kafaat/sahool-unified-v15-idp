@@ -49,7 +49,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); \
+        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -81,7 +81,8 @@ LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
 # Install curl for healthcheck and OpenSSL for Prisma native query engine
-RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -119,7 +120,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund); then break; fi; \
-        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); \
+        echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

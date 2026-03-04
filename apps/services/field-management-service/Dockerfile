@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund && npm run build; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -103,7 +103,8 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash sahool
 
 # Install curl for healthcheck, ca-certificates, and OpenSSL for Prisma native query engine
-RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl ca-certificates openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -132,7 +133,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); [ "$i" != "3" ] || false; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

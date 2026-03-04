@@ -369,7 +369,47 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          dart run build_runner build --delete-conflicting-outputs
+          set +o pipefail
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log
+          exit_code=${PIPESTATUS[0]}
+          set -o pipefail
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::build_runner failed with exit code $exit_code"
+            echo "## Code Generation Failed" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -50 codegen.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $exit_code
+          fi
+
+      - name: Verify generated files
+        run: |
+          echo "Checking critical generated files..."
+          missing=0
+          for f in \
+            lib/core/storage/database.g.dart \
+            lib/features/advisor/data/models/fertilizer_models.g.dart \
+            lib/features/advisor/data/models/irrigation_models.g.dart \
+            lib/features/community/data/models/chat_models.g.dart \
+            lib/features/crop_health/data/models/diagnosis_model.g.dart \
+            lib/features/crop_health/data/models/diagnosis_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart \
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing generated file: $f"
+              missing=$((missing + 1))
+            fi
+          done
+          total_g=$(find lib -name "*.g.dart" | wc -l)
+          echo "Total .g.dart files generated: $total_g"
+          echo "Missing critical files: $missing"
+          if [ $missing -gt 0 ]; then
+            echo "## Missing Generated Files ($missing)" >> $GITHUB_STEP_SUMMARY
+            echo "build_runner did not generate all required .g.dart files." >> $GITHUB_STEP_SUMMARY
+            echo "Run \`dart run build_runner build --delete-conflicting-outputs\` locally to debug." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons skipped"

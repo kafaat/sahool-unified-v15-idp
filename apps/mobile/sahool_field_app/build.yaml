@@ -13,6 +13,8 @@ targets:
           - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/config/*.dart"
+          - "lib/features/**/data/**/*.dart"
         options:
           explicit_to_json: true
           include_if_null: false
@@ -25,6 +27,8 @@ targets:
           - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
+          - "lib/features/**/config/*.dart"
+          - "lib/features/**/data/**/*.dart"
 
       # Drift database configuration
       drift_dev:

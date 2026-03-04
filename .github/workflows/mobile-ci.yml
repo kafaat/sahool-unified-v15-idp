@@ -192,6 +192,8 @@ jobs:
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          # Remove leading whitespace from heredoc (YAML indentation artifact)
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Run unit tests with coverage
         run: |
@@ -326,6 +328,15 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
+      - name: Override Gradle JVM memory for CI
+        run: |
+          # gradle.properties requests -Xmx8G which exceeds GitHub Actions runner memory (7GB)
+          # Override with CI-appropriate memory settings
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=1G -XX:ReservedCodeCacheSize=256m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+        working-directory: .
+
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses || true
 
@@ -347,10 +358,12 @@ jobs:
         run: |
           cat > .env << 'EOF'
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY || 'debug_weather_key' }}
-          MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
+          WEATHER_API_KEY=debug_weather_key
+          MAPS_API_KEY=debug_maps_key
           ENV=debug
           EOF
+          # Remove leading whitespace from heredoc (YAML indentation artifact)
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Generate code
         run: |
@@ -364,6 +377,20 @@ jobs:
       - name: Generate native splash
         run: dart run flutter_native_splash:create || echo "Splash generation skipped"
 
+      - name: Verify Flutter and Gradle environment
+        run: |
+          echo "FLUTTER_ROOT=${FLUTTER_ROOT:-NOT SET}"
+          echo "ANDROID_HOME=${ANDROID_HOME:-NOT SET}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-NOT SET}"
+          echo "Java version:"
+          java -version 2>&1
+          echo "Flutter version:"
+          flutter --version
+          echo "Gradle JVM settings (user-level override):"
+          cat ~/.gradle/gradle.properties 2>/dev/null || echo "No user gradle.properties"
+          echo "Available memory:"
+          free -h
+
       - name: Build Debug APK
         run: |
           echo "Building Debug APK..."
@@ -371,14 +398,16 @@ jobs:
           exit_code=${PIPESTATUS[0]}
           if [ $exit_code -ne 0 ]; then
             echo "::error::Flutter build failed with exit code $exit_code"
-            echo "## Build Debug APK - FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "## Build Debug APK - FAILED (exit code $exit_code)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Error lines" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            grep -i "error\|FAILURE\|exception\|failed\|Cannot\|Could not\|No such" build.log | tail -50 >> $GITHUB_STEP_SUMMARY
+            grep -i "error\|FAILURE\|exception\|failed\|Cannot\|Could not\|No such\|OutOfMemory\|killed\|AAPT" build.log | tail -80 >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Last 50 lines" >> $GITHUB_STEP_SUMMARY
+            echo "### Last 100 lines of build log" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -50 build.log >> $GITHUB_STEP_SUMMARY
+            tail -100 build.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             exit $exit_code
           fi

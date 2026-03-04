@@ -43,6 +43,7 @@ env:
   ANDROID_COMPILE_SDK: '36'
   ANDROID_BUILD_TOOLS: '36.0.0'
   ANDROID_MIN_SDK: '23'
+  ANDROID_NDK_VERSION: '27.0.12077973'
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -289,7 +290,8 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
+            "platform-tools" \
+            "ndk;${{ env.ANDROID_NDK_VERSION }}" || echo "::warning::Some SDK components failed to install"
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2

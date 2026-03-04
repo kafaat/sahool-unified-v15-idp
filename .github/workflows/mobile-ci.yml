@@ -351,10 +351,12 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK Platform 35
+      - name: Install Android SDK components
         run: |
-          echo "Installing Android SDK Platform 35 (required by compileSdk in build.gradle.kts)..."
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          echo "Installing Android SDK Platform 35 and NDK 27 (required by build.gradle.kts)..."
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
+          echo "Installed SDK components:"
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || sdkmanager --list 2>/dev/null | head -20
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -523,7 +525,27 @@ jobs:
         run: |
           set -o pipefail
           echo "Building Debug APK..."
-          flutter build apk --debug --verbose 2>&1 | tee build.log
+          flutter build apk --debug --verbose 2>&1 | tee build.log || {
+            BUILD_RC=$?
+            echo "::error::Flutter build failed with exit code $BUILD_RC"
+            echo ""
+            echo "=== LAST 80 LINES OF BUILD LOG ==="
+            tail -80 build.log
+            echo ""
+            echo "=== GRADLE ERRORS ==="
+            grep -i -E '(FAILURE|ERROR|Exception|Could not|cannot find|No such)' build.log | tail -30 || true
+            echo ""
+            echo "## Build Debug APK FAILED" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -i -E '(FAILURE|ERROR|Exception|Could not|cannot find|No such)' build.log | tail -20 >> $GITHUB_STEP_SUMMARY || echo "No specific error pattern found" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Last 30 lines of build log" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -30 build.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $BUILD_RC
+          }
           echo "Build completed!"
 
       - name: Get APK info

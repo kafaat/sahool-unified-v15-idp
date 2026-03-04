@@ -22,7 +22,7 @@ dependencies:
   sqflite: ^2.4.1  # Local notifications storage
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
-  path: ^1.9.0  # Must match Flutter SDK version requirement
+  path: ^1.9.1  # Must match Flutter SDK version requirement
 
   # Network
   dio: ^5.7.0
@@ -61,7 +61,7 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
   # google_fonts removed: using local IBM Plex Sans Arabic fonts instead
-  flutter_svg: ^2.0.16
+  flutter_svg: ^2.2.3
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1  # Image & file cache management
 
@@ -72,7 +72,7 @@ dependencies:
   fl_chart: ^0.69.2
   
   # Calendar
-  table_calendar: ^3.0.9  # For spray calendar and scheduling views
+  table_calendar: ^3.2.0  # For spray calendar and scheduling views
 
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
@@ -105,7 +105,7 @@ dependencies:
 
   # Utils
   uuid: ^4.5.1
-  intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility
+  intl: 0.20.2  # Pinned for flutter_localizations SDK compatibility
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
@@ -158,7 +158,7 @@ dev_dependencies:
   riverpod_generator: ^2.6.3  # Required for @riverpod annotations
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
   mocktail: ^1.0.4  # Mock library for unit testing (simpler API than mockito)
-  fake_async: ^1.3.1  # Pinned by integration_test from Flutter SDK
+  fake_async: ^1.3.3  # Pinned by integration_test from Flutter SDK
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

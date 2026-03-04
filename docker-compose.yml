@@ -616,7 +616,9 @@ services:
               count: ${VLLM_GPU_COUNT:-1}
               capabilities: [ gpu ]
     networks:
-      - sahool-network
+      sahool-network:
+        aliases:
+          - vllm  # Preserve legacy hostname so Kong/consumers using 'host: vllm' keep working
     logging:
       driver: json-file
       options:

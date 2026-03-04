@@ -184,12 +184,13 @@ jobs:
 
       - name: Create .env file for tests
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
-          EOF
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Run unit tests with coverage
         run: |
@@ -282,6 +283,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "platform-tools" || echo "::warning::Some SDK components failed to install"
+
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -332,12 +341,27 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          WEATHER_KEY="${{ secrets.WEATHER_API_KEY }}"
+          MAPS_KEY="${{ secrets.MAPS_API_KEY }}"
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY || 'debug_weather_key' }}
-          MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
+          WEATHER_API_KEY=${WEATHER_KEY:-debug_weather_key}
+          MAPS_API_KEY=${MAPS_KEY:-debug_maps_key}
           ENV=debug
-          EOF
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
+
+      - name: Override Gradle JVM memory for CI
+        working-directory: .
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
+          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          GRADLEEOF
+          sed -i 's/^[[:space:]]*//' ~/.gradle/gradle.properties
 
       - name: Generate code
         run: |
@@ -442,12 +466,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_key
           MAPS_API_KEY=test_key
           ENV=test
-          EOF
+          ENVEOF
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Enable KVM for Android emulator
         run: |

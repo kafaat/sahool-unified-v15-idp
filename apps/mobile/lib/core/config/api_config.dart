@@ -61,6 +61,27 @@ class ServicePorts {
     if (EnvConfig.notificationsPort != contracts.ServicePorts.notifications) {
       mismatches['notifications'] = 'env=${EnvConfig.notificationsPort} contract=${contracts.ServicePorts.notifications}';
     }
+    if (EnvConfig.chatPort != contracts.ServicePorts.fieldChat) {
+      mismatches['chat'] = 'env=${EnvConfig.chatPort} contract=${contracts.ServicePorts.fieldChat}';
+    }
+    if (EnvConfig.communityChatPort != contracts.ServicePorts.communityChat) {
+      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.communityChat}';
+    }
+    if (EnvConfig.sprayPort != contracts.ServicePorts.yieldEngine) {
+      mismatches['spray'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldEngine}';
+    }
+    if (EnvConfig.billingPort != contracts.ServicePorts.billingCore) {
+      mismatches['billing'] = 'env=${EnvConfig.billingPort} contract=${contracts.ServicePorts.billingCore}';
+    }
+    if (EnvConfig.aiAdvisorPort != contracts.ServicePorts.aiAdvisor) {
+      mismatches['aiAdvisor'] = 'env=${EnvConfig.aiAdvisorPort} contract=${contracts.ServicePorts.aiAdvisor}';
+    }
+    if (EnvConfig.inventoryPort != contracts.ServicePorts.inventory) {
+      mismatches['inventory'] = 'env=${EnvConfig.inventoryPort} contract=${contracts.ServicePorts.inventory}';
+    }
+    if (EnvConfig.gatewayPort != contracts.ServicePorts.kongGateway) {
+      mismatches['gateway'] = 'env=${EnvConfig.gatewayPort} contract=${contracts.ServicePorts.kongGateway}';
+    }
     return mismatches;
   }
 }

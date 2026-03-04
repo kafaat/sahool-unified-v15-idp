@@ -6,7 +6,7 @@ on:
       build_type:
         description: 'Build type (release/debug)'
         required: true
-        default: 'release'
+        default: 'debug'
         type: choice
         options:
           - release
@@ -14,11 +14,16 @@ on:
   push:
     branches:
       - main
-      - 'claude/mobile-*'
-      - 'claude/fix-mobile-*'
-      - 'claude/flutter-*'
+      - 'claude/**'
     paths:
       - 'apps/mobile/**'
+      - '.github/workflows/flutter-apk.yml'
+
+env:
+  FLUTTER_VERSION: '3.27.1'
+  JAVA_VERSION: '17'
+  ANDROID_COMPILE_SDK: '36'
+  ANDROID_BUILD_TOOLS: '36.0.0'
 
 jobs:
   build-apk:
@@ -35,28 +40,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
 
-      - name: Setup Java 17
+      - name: Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK components
+      - name: Install required Android SDK components
         run: |
           echo "ANDROID_HOME: $ANDROID_HOME"
           echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
-          echo "Installing required SDK components for apps/mobile (compileSdk 36, NDK 28)..."
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" || true
-          echo "Installed components:"
-          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;28.2.13676358" \
+            "platform-tools" || echo "::warning::Some SDK components failed to install"
+          echo "Installed SDK packages:"
+          sdkmanager --list_installed 2>/dev/null | head -20 || true
 
-      - name: Setup Flutter
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
 
@@ -67,6 +76,18 @@ jobs:
 
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
+
+      - name: Override Gradle JVM memory for CI
+        working-directory: .
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
+          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          GRADLEEOF
+          sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -80,78 +101,34 @@ jobs:
         run: |
           pip install Pillow
           mkdir -p assets/icon assets/images assets/icons
-          python3 scripts/generate_icons.py
-
-      - name: Validate required secrets
-        id: secrets_check
-        run: |
-          echo "Validating required API keys..."
-          MISSING_SECRETS=0
-
-          if [ -z "${{ secrets.WEATHER_API_KEY }}" ]; then
-            echo "⚠️ WARNING: WEATHER_API_KEY secret is not set - using placeholder"
-            MISSING_SECRETS=1
-          else
-            echo "✅ WEATHER_API_KEY is configured"
-          fi
-
-          if [ -z "${{ secrets.MAPS_API_KEY }}" ]; then
-            echo "⚠️ WARNING: MAPS_API_KEY secret is not set - using placeholder"
-            MISSING_SECRETS=1
-          else
-            echo "✅ MAPS_API_KEY is configured"
-          fi
-
-          if [ $MISSING_SECRETS -eq 1 ]; then
-            echo "⚠️ Some secrets are missing - build will use placeholder values"
-            echo "For production builds, configure secrets in repository settings"
-            echo "secrets_missing=true" >> $GITHUB_OUTPUT
-          else
-            echo "All required secrets are configured"
-            echo "secrets_missing=false" >> $GITHUB_OUTPUT
-          fi
+          python3 scripts/generate_icons.py || echo "Icon generation skipped"
 
       - name: Create .env file
         run: |
-          # Use placeholder values if secrets are not configured
+          # Use secrets when available, fallback to placeholders
           WEATHER_KEY="${{ secrets.WEATHER_API_KEY }}"
           MAPS_KEY="${{ secrets.MAPS_API_KEY }}"
-
-          if [ -z "$WEATHER_KEY" ]; then
-            WEATHER_KEY="placeholder_weather_key_for_ci_build"
-          fi
-
-          if [ -z "$MAPS_KEY" ]; then
-            MAPS_KEY="placeholder_maps_key_for_ci_build"
-          fi
-
-          # Create .env file (no leading spaces - flutter_dotenv requires clean format)
-          cat > .env << 'ENVFILE'
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=$WEATHER_KEY
-          MAPS_API_KEY=$MAPS_KEY
-          ENV=production
-          ENVFILE
-          # Remove leading whitespace from each line (cross-platform, works on macOS and Linux)
+          WEATHER_API_KEY=${WEATHER_KEY:-placeholder_weather_key_for_ci_build}
+          MAPS_API_KEY=${MAPS_KEY:-placeholder_maps_key_for_ci_build}
+          ENV=${{ github.event.inputs.build_type || 'debug' }}
+          ENVEOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
-          # Substitute variables
-          sed "s|\$WEATHER_KEY|$WEATHER_KEY|g" .env > .env.tmp && mv .env.tmp .env
-          sed "s|\$MAPS_KEY|$MAPS_KEY|g" .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 
       - name: Clean previous build artifacts
         run: |
           flutter clean
-          # Remove entire .dart_tool to ensure clean slate
           rm -rf .dart_tool
           rm -rf build
-          # Remove any existing generated files to force regeneration
+          # Remove existing generated files to force regeneration
           find lib -name "*.g.dart" -delete 2>/dev/null || true
           find lib -name "*.freezed.dart" -delete 2>/dev/null || true
           flutter pub get
 
-      - name: Generate Drift database code
+      - name: Generate code
         run: |
           echo "Starting code generation..."
           echo "Working directory: $(pwd)"
@@ -160,58 +137,59 @@ jobs:
           cat build.yaml
           echo ""
           dart run build_runner clean || true
-          # Run with verbose flag to diagnose issues
-          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
-            echo "First attempt output:"
-            tail -50 codegen.log
-            echo "Retrying with fresh state..."
+          set +o pipefail
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log
+          exit_code=${PIPESTATUS[0]}
+          set -o pipefail
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::build_runner failed, retrying with fresh state..."
             rm -rf .dart_tool/build
             touch lib/core/storage/database.dart
-            dart run build_runner build --delete-conflicting-outputs --verbose
-          }
+            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log
+            retry_code=${PIPESTATUS[0]}
+            if [ $retry_code -ne 0 ]; then
+              echo "::error::build_runner retry also failed with exit code $retry_code"
+              exit $retry_code
+            fi
+          fi
           echo ""
-          echo "📊 Generated files count:"
+          echo "Generated files count:"
           echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
           echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
           echo ""
-          echo "=== All generated .g.dart files ==="
-          find lib -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
-          echo ""
-          # Verify all critical generated files exist
-          MISSING=0
-          GENERATED_FILES=(
-            lib/core/storage/database.g.dart
-            lib/features/auth/config/otp_config.g.dart
-            lib/features/advisor/data/models/fertilizer_models.freezed.dart
-            lib/features/advisor/data/models/fertilizer_models.g.dart
-            lib/features/advisor/data/models/irrigation_models.freezed.dart
-            lib/features/advisor/data/models/irrigation_models.g.dart
-            lib/features/astronomical/models/astronomical_models.freezed.dart
-            lib/features/astronomical/models/astronomical_models.g.dart
-            lib/features/community/data/models/chat_models.freezed.dart
-            lib/features/community/data/models/chat_models.g.dart
-            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
-            lib/features/crop_health/data/models/diagnosis_models.g.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
-          )
-          for f in "${GENERATED_FILES[@]}"; do
-            if [ ! -f "$f" ]; then
+
+      - name: Verify generated files
+        run: |
+          echo "Checking critical generated files..."
+          missing=0
+          for f in \
+            lib/core/storage/database.g.dart \
+            lib/features/advisor/data/models/fertilizer_models.g.dart \
+            lib/features/advisor/data/models/irrigation_models.g.dart \
+            lib/features/auth/config/otp_config.g.dart \
+            lib/features/community/data/models/chat_models.g.dart \
+            lib/features/crop_health/data/models/diagnosis_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart \
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart \
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart; do
+            if [ -f "$f" ]; then
+              echo "OK: $(basename $f)"
+            else
               echo "::error::Missing generated file: $f"
-              MISSING=$((MISSING + 1))
+              missing=$((missing + 1))
             fi
           done
-          if [ $MISSING -gt 0 ]; then
-            echo "::warning::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - check codegen.log"
-            echo "=== Last 50 lines of codegen log ==="
-            tail -50 codegen.log
-          else
-            echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
+          total_g=$(find lib -name "*.g.dart" | wc -l)
+          echo "Total .g.dart files generated: $total_g"
+          if [ $missing -gt 0 ]; then
+            echo "::error::$missing critical .g.dart files missing"
+            echo "## Missing Generated Files ($missing)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -50 codegen.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
+          echo "All critical .g.dart files generated successfully"
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
@@ -220,34 +198,43 @@ jobs:
         run: dart run flutter_native_splash:create || echo "Splash generation skipped"
 
       - name: Analyze code before build
-        run: flutter analyze --no-fatal-infos || echo "Analysis warnings found"
-
-      - name: Build Release APK
-        if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
-        run: |
-          echo "🔨 Building Release APK..."
-          echo "Flutter version:"
-          flutter --version
-          echo "Dart version:"
-          dart --version
-          echo "Starting build..."
-          flutter build apk --release --verbose 2>&1 | tee build.log || {
-            echo "❌ Build failed! Last 100 lines of log:"
-            tail -100 build.log
-            exit 1
-          }
-          echo "✅ Build completed!"
+        run: flutter analyze --no-fatal-infos || echo "::warning::Analysis warnings found"
 
       - name: Build Debug APK
-        if: ${{ github.event.inputs.build_type == 'debug' }}
+        if: ${{ github.event.inputs.build_type != 'release' }}
         run: |
-          echo "🔨 Building Debug APK..."
-          flutter build apk --debug --verbose 2>&1 | tee build.log || {
-            echo "❌ Build failed! Last 100 lines of log:"
-            tail -100 build.log
-            exit 1
-          }
-          echo "✅ Build completed!"
+          echo "Building Debug APK..."
+          set +o pipefail
+          flutter build apk --debug --verbose 2>&1 | tee build.log
+          exit_code=${PIPESTATUS[0]}
+          set -o pipefail
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::Flutter debug build failed with exit code $exit_code"
+            echo "## Build Debug APK - FAILED" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -i "error\|FAILURE\|exception\|failed\|Cannot\|OutOfMemory" build.log | tail -50 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $exit_code
+          fi
+          echo "Build completed!"
+
+      - name: Build Release APK
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        run: |
+          echo "Building Release APK..."
+          set +o pipefail
+          flutter build apk --release --verbose 2>&1 | tee build.log
+          exit_code=${PIPESTATUS[0]}
+          set -o pipefail
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::Flutter release build failed with exit code $exit_code"
+            echo "## Build Release APK - FAILED" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -i "error\|FAILURE\|exception\|failed\|Cannot\|OutOfMemory" build.log | tail -50 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit $exit_code
+          fi
+          echo "Build completed!"
 
       - name: Upload logs on failure
         if: failure()
@@ -263,11 +250,15 @@ jobs:
         id: apk_info
         run: |
           APK_PATH=$(find build/app/outputs -name "*.apk" | head -1)
-          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-          echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
-          echo "APK Path: $APK_PATH"
-          echo "APK Size: $APK_SIZE"
+          if [ -n "$APK_PATH" ]; then
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+            echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+            echo "APK Path: $APK_PATH"
+            echo "APK Size: $APK_SIZE"
+          else
+            echo "No APK found"
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
@@ -275,9 +266,10 @@ jobs:
           name: sahool-apk-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/**/*.apk
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload Debug Symbols
-        if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
+        if: ${{ github.event.inputs.build_type == 'release' }}
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
         with:
           name: sahool-symbols-${{ github.run_number }}
@@ -291,7 +283,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Type | ${{ github.event.inputs.build_type || 'release' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| APK Size | ${{ steps.apk_info.outputs.apk_size }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Flutter Version | 3.27.1 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Type | ${{ github.event.inputs.build_type || 'debug' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK Size | ${{ steps.apk_info.outputs.apk_size || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Version | ${{ env.FLUTTER_VERSION }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY

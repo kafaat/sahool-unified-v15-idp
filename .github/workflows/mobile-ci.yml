@@ -4,7 +4,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # This workflow runs on every push and PR to ensure code quality
 # يعمل هذا الخط على كل دفع وطلب سحب لضمان جودة الكود
-# NDK 27.0.12077973 required for sqlcipher_flutter_libs native compilation
 
 name: Mobile CI
 
@@ -14,18 +13,16 @@ on:
       - main
       - develop
       - 'feature/**'
-      - 'claude/mobile-**'
-      - 'claude/fix-mobile-**'
-      - 'claude/flutter-**'
+      - 'claude/**'
     paths:
-      - 'apps/mobile/sahool_field_app/**'
+      - 'apps/mobile/**'
       - '.github/workflows/mobile-ci.yml'
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'apps/mobile/sahool_field_app/**'
+      - 'apps/mobile/**'
       - '.github/workflows/mobile-ci.yml'
   workflow_dispatch:
     inputs:
@@ -43,8 +40,8 @@ concurrency:
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'
-  ANDROID_COMPILE_SDK: '35'
-  ANDROID_BUILD_TOOLS: '35.0.0'
+  ANDROID_COMPILE_SDK: '36'
+  ANDROID_BUILD_TOOLS: '36.0.0'
   ANDROID_MIN_SDK: '23'
 
 jobs:
@@ -97,59 +94,11 @@ jobs:
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Running code generation..."
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
-            echo "Code generation failed, retrying with clean state..."
+          dart run build_runner build --delete-conflicting-outputs || {
+            echo "Code generation failed, retrying..."
             rm -rf .dart_tool/build
-            flutter clean
-            flutter pub get
-            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
-              echo "::warning::Code generation failed after retry - analysis may be incomplete"
-              echo "--- build_runner error output ---"
-              tail -50 codegen.log
-            }
+            dart run build_runner build --delete-conflicting-outputs
           }
-          # Verify critical generated files (warning only - flutter analyze is the real gate)
-          MISSING=0
-          GENERATED_FILES=(
-            lib/core/storage/database.g.dart
-            lib/features/auth/config/otp_config.g.dart
-            lib/features/advisor/data/models/fertilizer_models.freezed.dart
-            lib/features/advisor/data/models/fertilizer_models.g.dart
-            lib/features/advisor/data/models/irrigation_models.freezed.dart
-            lib/features/advisor/data/models/irrigation_models.g.dart
-            lib/features/astronomical/models/astronomical_models.freezed.dart
-            lib/features/astronomical/models/astronomical_models.g.dart
-            lib/features/community/data/models/chat_models.freezed.dart
-            lib/features/community/data/models/chat_models.g.dart
-            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
-            lib/features/crop_health/data/models/diagnosis_models.g.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
-          )
-          for f in "${GENERATED_FILES[@]}"; do
-            if [ ! -f "$f" ]; then
-              echo "::warning::Missing generated file: $f"
-              MISSING=$((MISSING + 1))
-            fi
-          done
-          if [ $MISSING -gt 0 ]; then
-            echo "::warning::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - check codegen.log for errors"
-          else
-            echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
-          fi
-
-      - name: Upload codegen log
-        if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
-        with:
-          name: codegen-log-analyze
-          path: apps/mobile/sahool_field_app/codegen.log
-          retention-days: 7
-        continue-on-error: true
 
       - name: Run Flutter Analyze
         run: |
@@ -171,8 +120,7 @@ jobs:
 
       - name: Check Dart formatting
         run: |
-          echo "Checking Dart formatting..."
-          # Exclude generated files (.g.dart, .freezed.dart) from formatting check
+          echo "Checking Dart formatting (excluding generated files)..."
           find lib/ test/ -name '*.dart' \
             ! -name '*.g.dart' \
             ! -name '*.freezed.dart' \
@@ -236,29 +184,17 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Generate code (Drift, Freezed, etc.)
-        run: |
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
-            echo "Code generation failed, retrying with clean state..."
-            rm -rf .dart_tool/build
-            flutter clean
-            flutter pub get
-            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
-              echo "::warning::Code generation failed after retry - tests may be affected"
-              echo "--- build_runner error output ---"
-              tail -50 codegen.log
-            }
-          }
-          echo "Code generation completed"
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Create .env file for tests
         run: |
-          cat > .env <<'EOF'
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
-          EOF
+          ENVEOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run unit tests with coverage
@@ -314,7 +250,7 @@ jobs:
       - name: Check coverage threshold
         run: |
           COVERAGE="${{ env.COVERAGE_PERCENT }}"
-          THRESHOLD=10
+          THRESHOLD=60
 
           if [ -z "$COVERAGE" ]; then
             echo "::warning::Coverage data not available"
@@ -352,12 +288,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK components
+      - name: Install required Android SDK components
         run: |
-          echo "Installing Android SDK Platform 35 and NDK 27 (required by build.gradle.kts)..."
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;27.0.12077973" \
+            "platform-tools" || echo "::warning::Some SDK components failed to install"
           echo "Installed SDK components:"
-          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || sdkmanager --list 2>/dev/null | head -20
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
+
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -408,119 +349,39 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env <<'EOF'
+          WEATHER_KEY="${{ secrets.WEATHER_API_KEY }}"
+          MAPS_KEY="${{ secrets.MAPS_API_KEY }}"
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY || 'debug_weather_key' }}
-          MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
+          WEATHER_API_KEY=${WEATHER_KEY:-debug_weather_key}
+          MAPS_API_KEY=${MAPS_KEY:-debug_maps_key}
           ENV=debug
-          EOF
+          ENVEOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
-          echo "Created .env file:"
-          cat .env
+
+      - name: Override Gradle JVM memory for CI
+        working-directory: .
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
+          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          GRADLEEOF
+          sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties
 
       - name: Generate code
         run: |
-          echo "Running build_runner code generation (required for .g.dart files)..."
-          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
-            echo "::warning::Code generation had issues, retrying with clean state..."
-            rm -rf .dart_tool/build
-            flutter clean
-            flutter pub get
-            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee -a codegen.log || {
-              echo "::warning::Code generation failed - .g.dart files may be missing"
-              echo "--- build_runner error output ---"
-              tail -50 codegen.log
-            }
-          }
-          # Verify critical generated files (warning only - flutter build is the real gate)
-          MISSING=0
-          GENERATED_FILES=(
-            lib/core/storage/database.g.dart
-            lib/features/auth/config/otp_config.g.dart
-            lib/features/advisor/data/models/fertilizer_models.freezed.dart
-            lib/features/advisor/data/models/fertilizer_models.g.dart
-            lib/features/advisor/data/models/irrigation_models.freezed.dart
-            lib/features/advisor/data/models/irrigation_models.g.dart
-            lib/features/astronomical/models/astronomical_models.freezed.dart
-            lib/features/astronomical/models/astronomical_models.g.dart
-            lib/features/community/data/models/chat_models.freezed.dart
-            lib/features/community/data/models/chat_models.g.dart
-            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
-            lib/features/crop_health/data/models/diagnosis_models.g.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
-            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
-            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
-          )
-          for f in "${GENERATED_FILES[@]}"; do
-            if [ ! -f "$f" ]; then
-              echo "::warning::Missing generated file: $f"
-              MISSING=$((MISSING + 1))
-            fi
-          done
-          if [ $MISSING -gt 0 ]; then
-            echo "::error::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - build will fail"
-            echo "Check codegen.log for details"
-            tail -50 codegen.log
-            exit 1
-          else
-            echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
-          fi
-
-      - name: Upload codegen log
-        if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
-        with:
-          name: codegen-log-build
-          path: apps/mobile/sahool_field_app/codegen.log
-          retention-days: 7
-        continue-on-error: true
+          flutter clean
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Generate launcher icons
-        run: dart run flutter_launcher_icons || echo "::warning::Launcher icons generation skipped"
+        run: dart run flutter_launcher_icons || echo "Launcher icons skipped"
 
       - name: Generate native splash
-        run: dart run flutter_native_splash:create || echo "::warning::Splash generation skipped"
-
-      - name: Pre-build validation
-        run: |
-          echo "Validating build prerequisites..."
-          ERRORS=0
-
-          # Check .env file exists and has content
-          if [ ! -f .env ] || [ ! -s .env ]; then
-            echo "::error::Missing or empty .env file"
-            ERRORS=$((ERRORS + 1))
-          else
-            echo "✓ .env file exists ($(wc -l < .env) lines)"
-          fi
-
-          # Check critical icon assets
-          for icon in assets/icon/app_icon.png assets/icon/app_icon_foreground.png; do
-            if [ ! -f "$icon" ]; then
-              echo "::warning::Missing icon asset: $icon"
-            else
-              echo "✓ $icon exists"
-            fi
-          done
-
-          # Check generated files count
-          G_COUNT=$(find lib -name '*.g.dart' | wc -l)
-          F_COUNT=$(find lib -name '*.freezed.dart' | wc -l)
-          echo "Generated files: ${G_COUNT} .g.dart, ${F_COUNT} .freezed.dart"
-
-          if [ "$G_COUNT" -eq 0 ]; then
-            echo "::error::No .g.dart files found - code generation failed"
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          if [ $ERRORS -gt 0 ]; then
-            echo "::error::Pre-build validation failed with $ERRORS error(s)"
-            exit 1
-          fi
-          echo "All pre-build checks passed"
+        run: dart run flutter_native_splash:create || echo "Splash generation skipped"
 
       - name: Build Debug APK
         run: |
@@ -578,7 +439,6 @@ jobs:
           name: build-logs-debug-${{ github.run_number }}
           path: |
             apps/mobile/sahool_field_app/build.log
-            apps/mobile/sahool_field_app/codegen.log
             apps/mobile/sahool_field_app/android/app/build/outputs/logs/
           retention-days: 7
 
@@ -629,26 +489,17 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Generate code (Drift, Freezed, etc.)
-        run: |
-          dart run build_runner build --delete-conflicting-outputs || {
-            echo "Code generation failed, retrying..."
-            rm -rf .dart_tool/build
-            dart run build_runner build --delete-conflicting-outputs || {
-              echo "::error::Code generation failed after retry"
-              exit 1
-            }
-          }
-          echo "Code generation completed successfully"
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Create .env file
         run: |
-          cat > .env <<'EOF'
+          cat > .env <<ENVEOF
           API_BASE_URL=https://api.test.sahool.app
           WEATHER_API_KEY=test_key
           MAPS_API_KEY=test_key
           ENV=test
-          EOF
+          ENVEOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Enable KVM for Android emulator

@@ -19,7 +19,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 35  // Android 15 - stable with Flutter 3.27.1 and AGP 8.7.x
+    compileSdk = 36  // Android 16 - aligned with CI SDK version and plugin requirements
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -39,7 +39,7 @@ android {
         // SQLCipher and biometric auth also benefit from API 23+
         // flutter_tts requires API 24+ for full compatibility
         minSdk = 24
-        targetSdk = 35  // Target Android 15 for latest features
+        targetSdk = 36  // Target Android 16 - aligned with compileSdk
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 

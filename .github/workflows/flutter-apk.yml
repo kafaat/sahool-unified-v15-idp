@@ -14,9 +14,7 @@ on:
   push:
     branches:
       - main
-      - 'claude/mobile-*'
-      - 'claude/fix-mobile-*'
-      - 'claude/flutter-*'
+      - 'claude/**'
     paths:
       - 'apps/mobile/**'
 

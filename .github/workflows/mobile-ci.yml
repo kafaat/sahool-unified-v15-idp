@@ -364,9 +364,15 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          set -o pipefail
           echo "Building Debug APK..."
           flutter build apk --debug --verbose 2>&1 | tee build.log
+          exit_code=${PIPESTATUS[0]}
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::Flutter build failed with exit code $exit_code"
+            echo "=== Last 100 lines of build output ==="
+            tail -100 build.log
+            exit $exit_code
+          fi
           echo "Build completed!"
 
       - name: Get APK info

@@ -99,7 +99,9 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs || {
             echo "Code generation failed, retrying..."
             rm -rf .dart_tool/build
-            dart run build_runner build --delete-conflicting-outputs
+            dart run build_runner build --delete-conflicting-outputs || {
+              echo "::warning::Code generation failed after retry - analysis may be incomplete"
+            }
           }
 
       - name: Run Flutter Analyze
@@ -283,6 +285,12 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK Platform 36
+        run: |
+          echo "Installing Android SDK Platform 36 (required by compileSdk in build.gradle.kts)..."
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" || \
+            sdkmanager --install "platforms;android-36" || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2

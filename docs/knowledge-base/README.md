@@ -87,7 +87,7 @@ version: 2.1.0
 - [[remote-sensing/water-stress-index|مؤشر الإجهاد المائي]] - كشف العطش
 - [[remote-sensing/sentinel-guide|دليل Sentinel-2]] - بيانات مجانية
 
-### [[ai-smart-agriculture/README|الذكاء الاصطناعي والزراعة الذكية (AI + Smart Agriculture)]] — 10 وثائق
+### [[ai-smart-agriculture/README|الذكاء الاصطناعي والزراعة الذكية (AI + Smart Agriculture)]] — 13 وثيقة
 تحليل شامل لسلسلة صناعة الذكاء الزراعي:
 - [[ai-smart-agriculture/industry-chain|سلسلة الصناعة (Industry Chain)]] - الخريطة البانورامية الكاملة
 - [[ai-smart-agriculture/precision-farming|الزراعة الدقيقة (Precision Farming)]] - إدارة دورة حياة المحاصيل بالذكاء الاصطناعي
@@ -96,6 +96,7 @@ version: 2.1.0
 - [[ai-smart-agriculture/market-data|بيانات السوق (Market Data)]] - إحصائيات سوق الذكاء الزراعي عالمياً وإقليمياً
 - [[ai-smart-agriculture/international-comparison|المقارنة الدولية (International Comparison)]] - نماذج إسرائيل واليابان والصين وMENA
 - [[ai-smart-agriculture/agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة
+- [[ai-smart-agriculture/computer-vision-plant-monitoring|الرؤية الحاسوبية (CV Plant Monitoring)]] - مراقبة النمو واكتشاف الإجهاد
 - [[ai-smart-agriculture/policies-standards|السياسات والمعايير (Policies & Standards)]] - الأطر التنظيمية وحوكمة البيانات
 - [[ai-smart-agriculture/trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة
 - [[ai-smart-agriculture/sahool-platform-mapping|ربط SAHOOL (Platform Mapping)]] - كيف يطبق SAHOOL هذه المفاهيم
@@ -115,7 +116,7 @@ version: 2.1.0
 | القسم | Section | عدد الوثائق | Documents |
 |-------|---------|-------------|-----------|
 | المحاصيل | Crops | 18 | wheat, barley, dates, tomato, +14 |
-| الذكاء الاصطناعي | AI + Smart Agriculture | 12 | industry chain, precision farming, +10 |
+| الذكاء الاصطناعي | AI + Smart Agriculture | 13 | industry chain, precision farming, CV monitoring, +10 |
 | الري | Irrigation | 8 | drip, sprinkler, flood, deficit, +4 |
 | التسميد | Fertilization | 8 | N, P, K, organic, fertigation, +3 |
 | التربة | Soils | 7 | sandy, clay, loam, saline, +3 |
@@ -124,7 +125,7 @@ version: 2.1.0
 | الأمراض والآفات | Diseases & Pests | 3 | fungal, pests, index |
 | الممارسات المثلى | Best Practices | 2 | sustainable farming |
 | المراقبة | Monitoring | 1 | remote sensing + AI |
-| **المجموع** | **Total** | **72** | |
+| **المجموع** | **Total** | **73** | |
 
 ---
 

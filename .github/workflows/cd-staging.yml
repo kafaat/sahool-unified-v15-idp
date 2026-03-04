@@ -145,8 +145,8 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Deploy Starter Package
-  # Services: field-management-service, weather-core, agro-advisor
-  # Note: field-ops → field-management-service (deprecated)
+  # Services: field-management-service, weather-service, advisory-service
+  # Note: field-ops → field-management-service, weather-core → weather-service, agro-advisor → advisory-service
   # ─────────────────────────────────────────────────────────────────────────────
   deploy-starter:
     name: Deploy Starter Package
@@ -202,8 +202,8 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          # Deploy weather-core
-          helm upgrade --install weather-core ./helm/services/weather-core \
+          # Deploy weather-service (replaces deprecated weather-core)
+          helm upgrade --install weather-service ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
@@ -211,8 +211,8 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          # Deploy agro-advisor
-          helm upgrade --install agro-advisor ./helm/services/agro-advisor \
+          # Deploy advisory-service (replaces deprecated agro-advisor)
+          helm upgrade --install advisory-service ./helm/services/advisory-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
@@ -261,18 +261,19 @@ jobs:
 
       - name: Run smoke tests
         run: |
-          # Test field-ops health
+          # Test field-management-service health
           curl -f https://staging.sahool.io/api/v1/field-management/health || exit 1
 
-          # Test weather-core health
+          # Test weather-service health
           curl -f https://staging.sahool.io/api/v1/weather/health || exit 1
 
-          # Test agro-advisor health
-          curl -f https://staging.sahool.io/api/v1/agro-advisor/health || exit 1
+          # Test advisory-service health (replaces agro-advisor)
+          curl -f https://staging.sahool.io/api/v1/advisory/health || exit 1
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Deploy Professional Package
-  # Additional Services: crop-health, ndvi-engine, irrigation-smart
+  # Additional Services: crop-intelligence-service, vegetation-analysis-service, irrigation-smart
+  # Note: crop-health → crop-intelligence-service, ndvi-engine → vegetation-analysis-service
   # ─────────────────────────────────────────────────────────────────────────────
   deploy-professional:
     name: Deploy Professional Package
@@ -296,16 +297,16 @@ jobs:
         run: |
           echo "Deploying Professional package services..."
 
-          # Deploy crop-health
-          helm upgrade --install crop-health ./helm/services/crop-health \
+          # Deploy crop-intelligence-service (replaces deprecated crop-health)
+          helm upgrade --install crop-intelligence-service ./helm/services/crop-intelligence-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          # Deploy ndvi-engine
-          helm upgrade --install ndvi-engine ./helm/services/ndvi-engine \
+          # Deploy vegetation-analysis-service (replaces deprecated ndvi-engine)
+          helm upgrade --install vegetation-analysis-service ./helm/services/vegetation-analysis-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
@@ -359,18 +360,15 @@ jobs:
 
       - name: Run smoke tests
         run: |
-          curl -f https://staging.sahool.io/api/v1/crop-health/health || exit 1
-          curl -f https://staging.sahool.io/api/v1/ndvi/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/crop-intelligence/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/vegetation-analysis/health || exit 1
           curl -f https://staging.sahool.io/api/v1/irrigation/health || exit 1
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Deploy Enterprise Package
   # Services: vegetation-analysis-service, weather-service, crop-intelligence-service,
-  #           yield-engine, billing-core, inventory-service
-  # Note: Deprecated services migrated:
-  #   - satellite-service → vegetation-analysis-service
-  #   - weather-advanced → weather-service
-  #   - crop-health-ai → crop-intelligence-service
+  #           yield-prediction-service, billing-core, inventory-service
+  # Note: All deprecated services have been migrated to their replacements
   # ─────────────────────────────────────────────────────────────────────────────
   deploy-enterprise:
     name: Deploy Enterprise Package
@@ -420,8 +418,8 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          # Deploy yield-engine
-          helm upgrade --install yield-engine ./helm/services/yield-engine \
+          # Deploy yield-prediction-service (replaces deprecated yield-engine)
+          helm upgrade --install yield-prediction-service ./helm/services/yield-prediction-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
@@ -598,9 +596,9 @@ jobs:
           echo "🧪 Running golden dataset tests against live staging API..."
 
           # Test with actual API endpoints
-          curl -f https://staging.sahool.io/api/v1/field-management/health || echo "::warning::field-ops health check failed"
+          curl -f https://staging.sahool.io/api/v1/field-management/health || echo "::warning::field-management health check failed"
           curl -f https://staging.sahool.io/api/v1/weather/health || echo "::warning::weather health check failed"
-          curl -f https://staging.sahool.io/api/v1/agro-advisor/health || echo "::warning::agro-advisor health check failed"
+          curl -f https://staging.sahool.io/api/v1/advisory/health || echo "::warning::advisory health check failed"
 
           echo "✅ Golden dataset validation complete"
 

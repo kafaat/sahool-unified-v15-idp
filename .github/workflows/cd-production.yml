@@ -93,22 +93,15 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           echo "Verifying all required Docker images exist for version: $VERSION"
 
-          # Note: Deprecated services migrated:
-          #   - field-ops → field-management-service
-          #   - satellite-service → vegetation-analysis-service
-          #   - weather-advanced → weather-service
-          #   - crop-health-ai → crop-intelligence-service
+          # All deprecated services replaced with their active successors
           SERVICES=(
             "field-management-service"
-            "weather-core"
-            "agro-advisor"
-            "crop-health"
-            "ndvi-engine"
-            "irrigation-smart"
-            "vegetation-analysis-service"
             "weather-service"
+            "advisory-service"
             "crop-intelligence-service"
-            "yield-engine"
+            "vegetation-analysis-service"
+            "irrigation-smart"
+            "yield-prediction-service"
             "billing-core"
             "inventory-service"
           )
@@ -246,7 +239,7 @@ jobs:
           # Deploy with green label
           DEPLOYMENT_SLOT="green"
 
-          # Starter Package (field-ops → field-management-service)
+          # Starter Package
           helm upgrade --install field-management-service-green ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
@@ -257,7 +250,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install weather-core-green ./helm/services/weather-core \
+          helm upgrade --install weather-service-green ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -266,7 +259,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install agro-advisor-green ./helm/services/agro-advisor \
+          helm upgrade --install advisory-service-green ./helm/services/advisory-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -275,7 +268,7 @@ jobs:
             --wait
 
           # Professional Package
-          helm upgrade --install crop-health-green ./helm/services/crop-health \
+          helm upgrade --install crop-intelligence-service-green ./helm/services/crop-intelligence-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -283,7 +276,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install ndvi-engine-green ./helm/services/ndvi-engine \
+          helm upgrade --install vegetation-analysis-service-green ./helm/services/vegetation-analysis-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -326,7 +319,7 @@ jobs:
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          helm upgrade --install yield-engine-green ./helm/services/yield-engine \
+          helm upgrade --install yield-prediction-service-green ./helm/services/yield-prediction-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=$VERSION \
             --set environment=production \
@@ -425,35 +418,26 @@ jobs:
           echo "Switching production traffic to Green environment..."
 
           # Update service selectors to point to green pods
-          # Note: deprecated services migrated to new names
+          # All deprecated services replaced with active successors
           kubectl patch service field-management-service -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service weather-core -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service agro-advisor -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service crop-health -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service ndvi-engine -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service irrigation-smart -n ${{ env.KUBERNETES_NAMESPACE }} \
-            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
-
-          kubectl patch service vegetation-analysis-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
           kubectl patch service weather-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
+          kubectl patch service advisory-service -n ${{ env.KUBERNETES_NAMESPACE }} \
+            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
+
           kubectl patch service crop-intelligence-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
-          kubectl patch service yield-engine -n ${{ env.KUBERNETES_NAMESPACE }} \
+          kubectl patch service vegetation-analysis-service -n ${{ env.KUBERNETES_NAMESPACE }} \
+            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
+
+          kubectl patch service irrigation-smart -n ${{ env.KUBERNETES_NAMESPACE }} \
+            -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
+
+          kubectl patch service yield-prediction-service -n ${{ env.KUBERNETES_NAMESPACE }} \
             -p '{"spec":{"selector":{"deploymentSlot":"green"}}}'
 
           kubectl patch service billing-core -n ${{ env.KUBERNETES_NAMESPACE }} \

@@ -49,7 +49,7 @@ try:
 except ImportError:
     _AUTH = False
 
-    def get_current_user():  # type: ignore[misc]
+    async def get_current_user():  # type: ignore[misc]
         return None
 
 
@@ -176,7 +176,7 @@ def _dto_to_targets(dtos: list[TargetDTO]) -> list[CalibrationTarget]:
 router = APIRouter(
     prefix="/calibration",
     tags=["Calibration"],
-    dependencies=[Depends(get_current_user)] if _AUTH else [],
+    dependencies=[Depends(get_current_user)],
 )
 
 

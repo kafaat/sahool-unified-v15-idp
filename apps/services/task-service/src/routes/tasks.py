@@ -69,9 +69,12 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         return None
 
 

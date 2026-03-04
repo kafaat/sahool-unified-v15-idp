@@ -282,7 +282,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis --quiet
+          # Core test framework and dependencies
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout --quiet
+          pip install httpx pyjwt fastapi pydantic jsonschema sqlalchemy structlog redis --quiet
+          # ORM and optional deps (may fail on some platforms)
+          pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
+          pip install langchain-anthropic --quiet || echo "::warning::langchain-anthropic install failed, some tests may skip"
           # AI module dependencies for unit tests
           pip install numpy pillow aiofiles --quiet
           # 2FA, NATS, and additional unit test dependencies
@@ -517,6 +522,9 @@ jobs:
           fi
         env:
           ENVIRONMENT: test
+          PYTHONPATH: .
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
           DATABASE_URL: ""
           NATS_URL: ""
 

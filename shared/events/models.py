@@ -48,14 +48,22 @@ class EventStatus(StrEnum):
     FAILED = "failed"
 
 
-class EventMetadata(BaseModel):
-    """Metadata attached to every event"""
+class EventMetadataDTO(BaseModel):
+    """
+    Lenient event metadata for deserialization (all fields optional, str types).
+    For strict event creation, use shared.contracts.events.base.EventMetadata.
+    بيانات وصفية مرنة للأحداث (جميع الحقول اختيارية)
+    """
 
     correlation_id: str | None = None
     causation_id: str | None = None
     user_id: str | None = None
     trace_id: str | None = None
     span_id: str | None = None
+
+
+# Backward-compatible alias
+EventMetadata = EventMetadataDTO
 
 
 # ─────────────────────────────────────────────────────────────────────────────

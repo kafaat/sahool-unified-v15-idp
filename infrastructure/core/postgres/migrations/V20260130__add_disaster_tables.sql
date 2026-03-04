@@ -118,5 +118,38 @@ CREATE TRIGGER update_disaster_alerts_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_disaster_updated_at();
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Disaster Affected Fields Junction Table (migrated from legacy 005_disaster_tables.sql)
+-- جدول الحقول المتأثرة بالكوارث
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.disaster_affected_fields (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    disaster_report_id UUID NOT NULL REFERENCES public.disaster_reports(id) ON DELETE CASCADE,
+    field_id UUID NOT NULL,
+    damage_percent NUMERIC(5, 2) DEFAULT 0 CHECK (damage_percent >= 0 AND damage_percent <= 100),
+    estimated_loss_yer NUMERIC(15, 2) DEFAULT 0,
+    crop_type VARCHAR(100),
+    crop_stage VARCHAR(50),
+    status VARCHAR(20) NOT NULL DEFAULT 'affected'
+        CHECK (status IN ('affected', 'recovering', 'recovered', 'destroyed')),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- Indexes for disaster_affected_fields
+CREATE INDEX IF NOT EXISTS idx_disaster_affected_fields_report
+    ON public.disaster_affected_fields(disaster_report_id);
+CREATE INDEX IF NOT EXISTS idx_disaster_affected_fields_field
+    ON public.disaster_affected_fields(field_id);
+CREATE INDEX IF NOT EXISTS idx_disaster_affected_fields_status
+    ON public.disaster_affected_fields(status);
+
+-- Trigger for updated_at
+DROP TRIGGER IF EXISTS update_disaster_affected_fields_updated_at ON public.disaster_affected_fields;
+CREATE TRIGGER update_disaster_affected_fields_updated_at
+    BEFORE UPDATE ON public.disaster_affected_fields
+    FOR EACH ROW
+    EXECUTE FUNCTION update_disaster_updated_at();
+
 -- Verification
 SELECT 'Disaster management tables created successfully!' AS status;

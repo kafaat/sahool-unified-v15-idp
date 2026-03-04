@@ -22,8 +22,7 @@ jobs:
             path: apps/services/indicators-service
           - name: irrigation-smart
             path: apps/services/irrigation-smart
-          - name: yield-engine
-            path: apps/services/yield-engine
+          # yield-engine: DEPRECATED → yield-prediction-service (archived)
           - name: notification-service
             path: apps/services/notification-service
           - name: marketplace-service
@@ -92,8 +91,7 @@ jobs:
             path: apps/services/indicators-service
           - name: irrigation-smart
             path: apps/services/irrigation-smart
-          - name: yield-engine
-            path: apps/services/yield-engine
+          # yield-engine: DEPRECATED → yield-prediction-service (archived)
           - name: notification-service
             path: apps/services/notification-service
           - name: marketplace-service

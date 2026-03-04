@@ -382,8 +382,15 @@ jobs:
             echo "Download failed, retrying in $((i * 4))s..."
             sleep $((i * 4))
           done
+          # Fallback: use official install script (latest stable)
+          echo "Trying official install script..."
+          if curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin; then
+            trivy --version
+            echo "installed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "installed=false" >> $GITHUB_OUTPUT
-          echo "::warning::Failed to install Trivy after 4 attempts"
+          echo "::warning::Failed to install Trivy after all attempts"
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'

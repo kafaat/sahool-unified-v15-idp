@@ -50,13 +50,17 @@ class GeoCoordinates:
 
 
 @dataclass
-class BoundingBox:
-    """Geographic bounding box"""
+class MonitoringBoundingBox:
+    """Geographic bounding box for monitoring regions."""
 
     min_lat: float
     min_lon: float
     max_lat: float
     max_lon: float
+
+
+# Backward-compatible alias
+BoundingBox = MonitoringBoundingBox
 
 
 @dataclass

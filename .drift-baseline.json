@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "generated_at": "2026-03-02T02:30:00.000000+00:00",
+  "generated_at": "2026-03-03T10:00:00.000000+00:00",
   "environment": "development",
-  "total": 94,
+  "total": 91,
   "critical": 0,
   "high": 2,
   "by_category": {
     "schema": {
       "critical": 0,
       "high": 0,
-      "medium": 4,
+      "medium": 1,
       "info": 1
     },
     "event": {

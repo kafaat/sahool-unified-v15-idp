@@ -6,7 +6,7 @@ on:
     paths:
       # Trigger on changes to AI/Agent services
       - 'apps/services/ai-advisor/**'
-      - 'apps/services/agro-advisor/**'
+      # agro-advisor: DEPRECATED → advisory-service (archived)
       - 'tests/evaluation/**'
       - '.github/workflows/agent-evaluation.yml'
     branches:

@@ -160,10 +160,8 @@ jobs:
             lib/core/storage/database.g.dart \
             lib/features/advisor/data/models/fertilizer_models.g.dart \
             lib/features/advisor/data/models/irrigation_models.g.dart \
-            lib/features/astronomical/models/astronomical_models.g.dart \
             lib/features/auth/config/otp_config.g.dart \
             lib/features/community/data/models/chat_models.g.dart \
-            lib/features/crop_health/data/models/diagnosis_model.g.dart \
             lib/features/crop_health/data/models/diagnosis_models.g.dart \
             lib/features/pivot_irrigation/domain/models/pivot_models.g.dart \
             lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart \

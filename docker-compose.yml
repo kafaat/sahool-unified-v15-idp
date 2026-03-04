@@ -572,7 +572,7 @@ services:
   # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   # API: http://localhost:${VLLM_PORT:-8270}/v1 (OpenAI-compatible)
   # ─────────────────────────────────────────────────────────────────────────────
-  vllm:
+  vllm-deepseek:
     profiles:
       - gpu
     build:

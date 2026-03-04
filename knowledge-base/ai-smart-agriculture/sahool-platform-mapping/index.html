@@ -1657,8 +1657,155 @@ sahool.alert.created → notification-service → sahool.notification.sent
 </tbody>
 </table>
 <hr />
+<h2 id="2025-sahool-new-architecture-patterns-mapping">ربط الأنماط المعمارية الجديدة (2025) بخدمات SAHOOL | New Architecture Patterns Mapping<a class="headerlink" href="#2025-sahool-new-architecture-patterns-mapping" title="Permanent link">&para;</a></h2>
+<h3 id="triple-fusion-imap">نمط الاندماج الثلاثي (Triple Fusion) — مستوحى من iMAP<a class="headerlink" href="#triple-fusion-imap" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">خدمات</span><span class="w"> </span><span class="n">SAHOOL</span><span class="w"> </span><span class="err">الحالية</span><span class="w"> </span><span class="err">التي</span><span class="w"> </span><span class="err">تحقق</span><span class="w"> </span><span class="err">هذا</span><span class="w"> </span><span class="err">النمط</span><span class="o">:</span>
+
+<span class="err">آلية</span><span class="w"> </span><span class="err">المحصول</span><span class="w"> </span><span class="p">(</span><span class="n">Crop</span><span class="w"> </span><span class="n">Mechanism</span><span class="p">)</span><span class="w">         </span><span class="err">←→</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="n">growth</span><span class="o">-</span><span class="n">model</span><span class="w"> </span><span class="p">(</span><span class="mh">3023</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">agri_calendar</span><span class="o">/</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">crop_rotation</span><span class="o">/</span>
+<span class="w">        </span><span class="err">×</span>
+<span class="err">نموذج</span><span class="w"> </span><span class="err">لغوي</span><span class="w"> </span><span class="err">كبير</span><span class="w"> </span><span class="p">(</span><span class="n">LLM</span><span class="p">)</span><span class="w">                </span><span class="err">←→</span><span class="w"> </span><span class="n">llm</span><span class="o">-</span><span class="n">orchestrator</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="p">(</span><span class="mh">8164</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">copilot</span><span class="o">-</span><span class="n">api</span><span class="w"> </span><span class="p">(</span><span class="mh">8088</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">llm_provider</span><span class="p">.</span><span class="n">py</span>
+<span class="w">        </span><span class="err">×</span>
+<span class="err">نظام</span><span class="w"> </span><span class="err">وكلاء</span><span class="w"> </span><span class="p">(</span><span class="n">Agent</span><span class="w"> </span><span class="n">System</span><span class="p">)</span><span class="w">            </span><span class="err">←→</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="n">registry</span><span class="w"> </span><span class="p">(</span><span class="mh">8160</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="w"> </span><span class="p">(</span><span class="mh">8161</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">agents</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">CrewAI</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="llm">نمط LLM + نموذج صغير + قاعدة معرفة — مستوحى من 农科小智<a class="headerlink" href="#llm" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>LLM كبير                              ←→ Ollama (codellama/mistral)
+                                          + shared/ai/ollama_client.py
+        +
+نموذج صغير متخصص                     ←→ yolo26-vision-service (8150)
+                                          + shared/ai/crop_vision.py
+                                          + pest-detection-service (8125)
+        +
+قاعدة معرفة محلية                     ←→ shared/ai/knowledge/ (63+ وثيقة)
+                                          + shared/ai/ultrarag/
+                                          + shared/ai/vector_store.py
+</code></pre></div>
+
+<h3 id="rag-tool-calling-cropwizard">نمط RAG + Tool Calling — مستوحى من CropWizard<a class="headerlink" href="#rag-tool-calling-cropwizard" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">RAG</span><span class="w"> </span><span class="err">ضخم</span><span class="w">                               </span><span class="err">←→</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">ultrarag</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">AgriRAGProvider</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">Qdrant</span><span class="o">/</span><span class="n">Milvus</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="n">stores</span>
+<span class="w">        </span><span class="o">+</span>
+<span class="n">Tool</span><span class="w"> </span><span class="n">Calling</span><span class="w">                          </span><span class="err">←→</span><span class="w"> </span><span class="n">mcp</span><span class="o">-</span><span class="n">server</span><span class="w"> </span><span class="p">(</span><span class="mi">8201</span><span class="p">)</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">mcp</span><span class="o">/</span>
+<span class="w">                                          </span><span class="o">+</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">tool_registry</span><span class="o">.</span><span class="n">py</span>
+</code></pre></div>
+
+<hr />
+<h2 id="accessible-access-channels-mapping">ربط قنوات الوصول الميسّر | Accessible Access Channels Mapping<a class="headerlink" href="#accessible-access-channels-mapping" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>قناة الوصول</th>
+<th>Access Channel</th>
+<th>خدمة SAHOOL</th>
+<th>المنفذ</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WhatsApp Bot</strong></td>
+<td>Super App messaging</td>
+<td><code>whatsapp-bot-service</code></td>
+<td>8240</td>
+<td>متوفر ✓</td>
+</tr>
+<tr>
+<td><strong>USSD Gateway</strong></td>
+<td>أي هاتف بدون إنترنت</td>
+<td><code>ussd-gateway</code></td>
+<td>8183</td>
+<td>متوفر ✓</td>
+</tr>
+<tr>
+<td><strong>واجهة صوتية</strong></td>
+<td>تفاعل صوتي عربي</td>
+<td><code>shared/nlp/</code> (AraBERT)</td>
+<td>-</td>
+<td>جزئي</td>
+</tr>
+<tr>
+<td><strong>دردشة AI</strong></td>
+<td>مساعد ذكي تفاعلي</td>
+<td><code>ai-chat-assistant</code></td>
+<td>8260</td>
+<td>متوفر ✓</td>
+</tr>
+<tr>
+<td><strong>تطبيق موبايل</strong></td>
+<td>تطبيق كامل الميزات</td>
+<td><code>sahool_field_app</code></td>
+<td>-</td>
+<td>متوفر ✓</td>
+</tr>
+<tr>
+<td><strong>لوحة ويب</strong></td>
+<td>إدارة عبر المتصفح</td>
+<td><code>apps/web/</code></td>
+<td>-</td>
+<td>متوفر ✓</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-business-models-mapping">ربط نماذج الأعمال بخدمات SAHOOL | Business Models Mapping<a class="headerlink" href="#sahool-business-models-mapping" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>نموذج الأعمال</th>
+<th>Business Model</th>
+<th>خدمات SAHOOL</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AIaaS (اشتراك)</strong></td>
+<td><code>billing-core</code> (8089) + <code>user-service</code> (3025)</td>
+<td>متوفر ✓</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>منصة مفتوحة</strong></td>
+<td><code>mcp-server</code> (8201) + Kong API Gateway</td>
+<td>جزئي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>أونلاين + ميداني</strong></td>
+<td><code>advisory-service</code> (8093) + <code>task-service</code> (8103)</td>
+<td>بنية جاهزة</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>أجهزة + خدمة</strong></td>
+<td><code>iot-service</code> (8117) + <code>edge-orchestrator</code> (8180)</td>
+<td>متوفر ✓</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>وصول ميسّر</strong></td>
+<td><code>ussd-gateway</code> (8183) + <code>whatsapp-bot</code> (8240)</td>
+<td>متوفر ✓</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>بيانات كأصل</strong></td>
+<td><code>knowledge-graph</code> (8140) + analytics (kernel)</td>
+<td>مخطط</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
 <blockquote>
-<p><strong>ملاحظة</strong>: منصة SAHOOL تطبق بالفعل جميع طبقات سلسلة الذكاء الزراعي عبر بنيتها الخدمية المصغرة (71 خدمة) مع ميزة فريدة: <strong>الأولوية للعمل دون اتصال</strong> (Offline-First) المصممة خصيصاً لبيئات الاتصال المحدود في الشرق الأوسط.</p>
+<p><strong>ملاحظة</strong>: منصة SAHOOL تطبق بالفعل جميع طبقات سلسلة الذكاء الزراعي عبر بنيتها الخدمية المصغرة (71 خدمة). مع تحديثات 2025، أصبحت المنصة مؤهلة لتطبيق الأنماط المعمارية الجديدة (Triple Fusion, Multi-Agent RAG, Tool Calling) وقنوات الوصول الميسّر (USSD, WhatsApp, صوت) — مما يسد الفجوة بين "80% يعترفون بالفائدة و20% فقط تبنوا".</p>
 </blockquote>
 <p><em>آخر تحديث: مارس 2026</em></p>
 

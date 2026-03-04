@@ -8,7 +8,7 @@ for reinforcement learning and supervised fine-tuning.
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -27,13 +27,8 @@ class FeedbackType(StrEnum):
     OUTCOME = "outcome"  # Did the advice work?
 
 
-class OutcomeStatus(StrEnum):
-    """Outcome of following agent advice."""
-
-    SUCCESS = "success"
-    PARTIAL = "partial"
-    FAILURE = "failure"
-    UNKNOWN = "unknown"
+# Import canonical OutcomeStatus from shared.ai.feedback
+from shared.ai.feedback import OutcomeStatus  # noqa: E402, F811
 
 
 @dataclass

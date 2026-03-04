@@ -59,13 +59,21 @@ class RecommendationType(StrEnum):
 
 
 class OutcomeStatus(StrEnum):
-    """Outcome of following recommendation | نتيجة اتباع التوصية"""
+    """
+    Outcome of following recommendation | نتيجة اتباع التوصية
+
+    Canonical definition — other modules should import from here.
+    التعريف المعتمد — يجب على الوحدات الأخرى الاستيراد من هنا.
+    """
 
     SUCCESS = "success"  # نجاح
     PARTIAL_SUCCESS = "partial_success"  # نجاح جزئي
+    PARTIAL = "partial"  # Alias value used by agent feedback loops
     FAILURE = "failure"  # فشل
     NOT_APPLICABLE = "not_applicable"  # غير قابل للتطبيق
     PENDING = "pending"  # قيد الانتظار
+    UNKNOWN = "unknown"  # غير معروف
+    NOT_APPLIED = "not_applied"  # لم يتم التطبيق
 
 
 @dataclass

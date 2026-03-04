@@ -24,7 +24,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 from .api.endpoints import leveling
 from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse
@@ -184,7 +189,8 @@ app.add_middleware(
 
 
 # Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID middleware

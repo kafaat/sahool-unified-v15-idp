@@ -26,7 +26,15 @@ from profitability_analyzer import (
     ProfitabilityAnalyzer,
 )
 
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")

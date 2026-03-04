@@ -107,8 +107,8 @@ jobs:
             # Deploy single service
             SERVICES='["${{ github.event.inputs.service }}"]'
           else
-            # Deploy all core services (field-ops → field-management-service)
-            SERVICES='["field-management-service","weather-core","agro-advisor","crop-health","ndvi-engine","irrigation-smart"]'
+            # Deploy all core services (deprecated services replaced with active successors)
+            SERVICES='["field-management-service","weather-service","advisory-service","crop-intelligence-service","vegetation-analysis-service","irrigation-smart"]'
           fi
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
 

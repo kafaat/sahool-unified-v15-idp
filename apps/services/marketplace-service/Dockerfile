@@ -14,7 +14,7 @@ LABEL version="16.0.0"
 WORKDIR /workspace
 
 # Copy shared modules first (required for imports from ../../shared/)
-COPY shared ./shared/
+COPY apps/services/shared ./shared/
 
 # Copy nestjs-auth package (required for @sahool/nestjs-auth dependency)
 COPY packages/nestjs-auth ./packages/nestjs-auth/

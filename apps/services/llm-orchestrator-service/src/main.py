@@ -87,7 +87,12 @@ except ImportError:
         pass
 
 
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 
 # Authentication imports
@@ -98,11 +103,14 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
+
+    class User:  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
 
 
 @asynccontextmanager
@@ -305,7 +313,8 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 # Include routers
 app.include_router(orchestrator_router)

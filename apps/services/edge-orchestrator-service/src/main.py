@@ -24,13 +24,19 @@ import uvicorn
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from shared.middleware.tenant_context import TenantContextMiddleware
 
 from src.api.endpoints import devices, jobs, sync
 from src.api.schemas import HealthStatus, ReadinessStatus
 from src.core.config import settings
 from src.events.websocket import WebSocketManager, get_websocket_manager
 from src.utils.device_manager import get_device_manager
+
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 # Configure structured logging
 structlog.configure(
@@ -293,7 +299,8 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # =============================================================================

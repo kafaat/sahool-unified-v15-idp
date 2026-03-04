@@ -72,7 +72,7 @@ try:
 except ImportError:
     _AUTH_AVAILABLE = False
 
-    class AuthUser:  # type: ignore[no-redef]
+    class AuthUser(BaseModel):  # type: ignore[no-redef]
         id: str = "anonymous"
         tenant_id: str = "default"
 

@@ -56,14 +56,8 @@ class QualityDimension(StrEnum):
     COMPLETENESS = "completeness"  # Nothing important missing
 
 
-class OutcomeStatus(StrEnum):
-    """حالة النتيجة"""
-
-    SUCCESS = "success"  # Advice worked
-    PARTIAL_SUCCESS = "partial"  # Partially worked
-    FAILURE = "failure"  # Did not work
-    UNKNOWN = "unknown"  # Not measured
-    NOT_APPLIED = "not_applied"  # User didn't apply
+# Import canonical OutcomeStatus from shared.ai.feedback
+from shared.ai.feedback import OutcomeStatus  # noqa: E402, F811
 
 
 class EscalationLevel(StrEnum):

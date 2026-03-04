@@ -86,8 +86,8 @@ jobs:
           if [ -n "${{ github.event.inputs.service }}" ]; then
             SERVICES='["${{ github.event.inputs.service }}"]'
           else
-            # Note: deprecated services migrated (field-ops, satellite-service, weather-advanced, crop-health-ai)
-            SERVICES='["field-management-service","weather-core","agro-advisor","crop-health","ndvi-engine","irrigation-smart","vegetation-analysis-service","weather-service","crop-intelligence-service","yield-engine","billing-core","inventory-service"]'
+            # All deprecated services replaced with active successors
+            SERVICES='["field-management-service","weather-service","advisory-service","crop-intelligence-service","vegetation-analysis-service","irrigation-smart","yield-prediction-service","billing-core","inventory-service"]'
           fi
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
 

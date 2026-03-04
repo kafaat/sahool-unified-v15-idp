@@ -227,19 +227,20 @@ jobs:
         # Core services for release
         service:
           - field-management-service
-          - ndvi-engine
-          - weather-core
           - weather-service
-          - field-chat
           - iot-gateway
-          - agro-advisor
           - ws-gateway
-          - crop-health
           - crop-intelligence-service
           - vegetation-analysis-service
           - advisory-service
-          - yield-engine
           - irrigation-smart
+          # DEPRECATED (archived) - removed from build matrix:
+          # ndvi-engine → vegetation-analysis-service
+          # weather-core → weather-service
+          # field-chat → chat-service
+          # agro-advisor → advisory-service
+          # crop-health → crop-intelligence-service
+          # yield-engine → yield-prediction-service
 
     steps:
       - name: Free up disk space
@@ -377,8 +378,7 @@ jobs:
           | crop-intelligence-service | 8095 | Crop health AI |
           | advisory-service | 8093 | Agricultural recommendations |
           | irrigation-smart | 8094 | Smart irrigation |
-          | yield-engine | 8098 | Yield estimation |
-          | agro-advisor | 8105 | Disease and fertilizer AI |
+          | yield-prediction-service | 8152 | Yield prediction ML |
           | ws-gateway | 8081 | WebSocket broadcasting |
 
           ## Quick Start

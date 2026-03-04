@@ -13,7 +13,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 from .api.endpoints import (
     auto_purchase_router,
@@ -188,7 +193,8 @@ app.add_middleware(
 )
 
 # Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID middleware

@@ -17,6 +17,7 @@ on:
       - 'claude/**'
     paths:
       - 'apps/mobile/**'
+      - '.github/workflows/flutter-apk.yml'
 
 env:
   FLUTTER_VERSION: '3.27.1'

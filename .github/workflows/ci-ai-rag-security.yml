@@ -36,6 +36,7 @@ on:
       - 'apps/services/yolo26-vision-service/**'
       - 'shared/ai/**'
       - 'docker/constraints-ai.txt'
+      - '.github/workflows/ci-ai-rag-security.yml'
   schedule:
     # Run daily at 3 AM UTC
     - cron: '0 3 * * *'

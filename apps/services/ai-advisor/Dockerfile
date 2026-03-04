@@ -18,7 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /build
 
 # Install build dependencies | تثبيت تبعيات البناء
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
@@ -85,7 +85,7 @@ LABEL org.opencontainers.image.title="SAHOOL AI Advisor Service | خدمة ال�
       org.opencontainers.image.description="AI-powered agricultural advisor with natural language query support"
 
 # Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean

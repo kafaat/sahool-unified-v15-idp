@@ -11,7 +11,7 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     libgdal-dev \
@@ -52,7 +52,7 @@ LABEL org.opencontainers.image.source="https://github.com/kafaat/sahool-unified-
 WORKDIR /app
 
 # Install runtime dependencies (Bookworm package names)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN (apt-get update || (sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; apt-get update)) && apt-get install -y --no-install-recommends \
     libpq5 \
     libgdal32 \
     libgeos-c1v5 \

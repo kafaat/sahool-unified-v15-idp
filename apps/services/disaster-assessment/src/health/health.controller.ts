@@ -3,12 +3,17 @@
  * Kubernetes health check endpoints for disaster-assessment service
  */
 
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, SetMetadata } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SkipThrottle } from "@nestjs/throttler";
 import { PrismaService } from "../prisma/prisma.service";
+import { SkipTenantCheck } from "../auth/tenant.guard";
 
 @ApiTags("health")
 @Controller()
+@SkipThrottle()
+@SkipTenantCheck()
+@SetMetadata("isPublic", true)
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 

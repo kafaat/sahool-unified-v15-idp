@@ -94,4 +94,7 @@ async function bootstrap() {
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error("❌ Failed to start Disaster Assessment Service:", error);
+  process.exit(1);
+});

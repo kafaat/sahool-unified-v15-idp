@@ -438,6 +438,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
+          set -o pipefail
           echo "Building Debug APK..."
           # Disable pipefail temporarily so we can capture exit code AND build log
           set +o pipefail

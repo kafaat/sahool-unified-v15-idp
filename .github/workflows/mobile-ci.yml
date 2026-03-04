@@ -354,9 +354,7 @@ jobs:
       - name: Install Android SDK Platform 35
         run: |
           echo "Installing Android SDK Platform 35 (required by compileSdk in build.gradle.kts)..."
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" || \
-            sdkmanager --install "platforms;android-35" || true
-
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:

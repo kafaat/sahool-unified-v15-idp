@@ -353,7 +353,26 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          dart run build_runner build --delete-conflicting-outputs
+          echo "Running build_runner code generation (required for .g.dart files)..."
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
+            echo "::warning::Code generation had issues, retrying..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
+              echo "::error::Code generation failed - .g.dart files may be missing"
+              cat codegen.log
+            }
+          }
+          # Verify critical generated files exist
+          MISSING=0
+          for f in lib/core/storage/database.g.dart; do
+            if [ ! -f "$f" ]; then
+              echo "::warning::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "::warning::$MISSING generated file(s) missing - build may fail"
+          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons skipped"

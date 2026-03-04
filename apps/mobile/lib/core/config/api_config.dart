@@ -61,6 +61,27 @@ class ServicePorts {
     if (EnvConfig.notificationsPort != contracts.ServicePorts.notifications) {
       mismatches['notifications'] = 'env=${EnvConfig.notificationsPort} contract=${contracts.ServicePorts.notifications}';
     }
+    if (EnvConfig.chatPort != contracts.ServicePorts.fieldChat) {
+      mismatches['chat'] = 'env=${EnvConfig.chatPort} contract=${contracts.ServicePorts.fieldChat}';
+    }
+    if (EnvConfig.communityChatPort != contracts.ServicePorts.communityChat) {
+      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.communityChat}';
+    }
+    if (EnvConfig.sprayPort != contracts.ServicePorts.yieldEngine) {
+      mismatches['spray'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldEngine}';
+    }
+    if (EnvConfig.billingPort != contracts.ServicePorts.billingCore) {
+      mismatches['billing'] = 'env=${EnvConfig.billingPort} contract=${contracts.ServicePorts.billingCore}';
+    }
+    if (EnvConfig.aiAdvisorPort != contracts.ServicePorts.aiAdvisor) {
+      mismatches['aiAdvisor'] = 'env=${EnvConfig.aiAdvisorPort} contract=${contracts.ServicePorts.aiAdvisor}';
+    }
+    if (EnvConfig.inventoryPort != contracts.ServicePorts.inventory) {
+      mismatches['inventory'] = 'env=${EnvConfig.inventoryPort} contract=${contracts.ServicePorts.inventory}';
+    }
+    if (EnvConfig.gatewayPort != contracts.ServicePorts.kongGateway) {
+      mismatches['gateway'] = 'env=${EnvConfig.gatewayPort} contract=${contracts.ServicePorts.kongGateway}';
+    }
     return mismatches;
   }
 }
@@ -208,8 +229,8 @@ class ApiConfig {
   static String get indicatorTrends => '$_indicatorsBase/trends';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Fertilizer Advisor Endpoints (port 8093)
-  // مستشار التسميد
+  // Advisory Service Endpoints (port 8093, was fertilizer-advisor)
+  // خدمة الاستشارات (كانت مستشار التسميد)
   // Kong route: /api/v1/fertilizer
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -241,8 +262,8 @@ class ApiConfig {
   static String get irrigationSchedule => '$_irrigationBase/schedule';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Crop Health AI Service Endpoints (port 8095)
-  // سهول فيجن - الذكاء الاصطناعي لصحة المحاصيل
+  // Crop Intelligence Service Endpoints (port 8095, was crop-health-ai)
+  // خدمة ذكاء المحاصيل
   // Kong route: /api/v1/crop-health
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -258,9 +279,9 @@ class ApiConfig {
   static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual Sensors Engine Endpoints (port 8096)
+  // Virtual Sensors Engine Endpoints (port 8119)
   // محرك المستشعرات الافتراضية
-  // Kong route: /api/v1/sensors/virtual
+  // Kong route: /api/v1/virtual-sensors
   // ─────────────────────────────────────────────────────────────────────────────
 
   static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : '$effectiveBaseUrl/api/v1/virtual-sensors';
@@ -382,7 +403,8 @@ class ApiConfig {
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Community Chat Service Endpoints (port 8097)
-  // خدمة الدردشة المجتمعية
+  // @deprecated Use chat-service (port 8115) instead. Sunset: v17.0.0
+  // خدمة الدردشة المجتمعية (مهملة - استخدم chat-service)
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -443,7 +465,7 @@ class ApiConfig {
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Chat/Messaging Service Endpoints (port 3011)
+  // Chat/Messaging Service Endpoints (port 8115 chat-service, 8099 field-chat)
   // خدمة المحادثات والرسائل
   // Kong route: /api/v1/chat
   // ─────────────────────────────────────────────────────────────────────────────

@@ -7,8 +7,8 @@ tags:
   - arabic
   - sahool
 category: overview
-last_updated: 2026-03-03
-version: 2.0.0
+last_updated: 2026-03-04
+version: 2.1.0
 ---
 
 # قاعدة المعرفة الزراعية | SAHOOL Agricultural Knowledge Base
@@ -100,9 +100,31 @@ version: 2.0.0
 - [[ai-smart-agriculture/trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة
 - [[ai-smart-agriculture/sahool-platform-mapping|ربط SAHOOL (Platform Mapping)]] - كيف يطبق SAHOOL هذه المفاهيم
 
-### [[best-practices/README|الممارسات الزراعية المثلى (Best Practices)]]
+### [[monitoring/remote-sensing-ai|المراقبة (Monitoring)]] — 1 وثيقة
+مراقبة المحاصيل باستخدام التقنيات الحديثة:
+- [[monitoring/remote-sensing-ai|الاستشعار عن بعد والذكاء الاصطناعي (Remote Sensing + AI)]]
+
+### [[best-practices/README|الممارسات الزراعية المثلى (Best Practices)]] — 2 وثيقة
 إرشادات للزراعة المستدامة:
 - [[best-practices/sustainable-farming|الزراعة المستدامة (Sustainable Farming)]]
+
+---
+
+## إحصائيات قاعدة المعرفة | Knowledge Base Statistics
+
+| القسم | Section | عدد الوثائق | Documents |
+|-------|---------|-------------|-----------|
+| المحاصيل | Crops | 18 | wheat, barley, dates, tomato, +14 |
+| الذكاء الاصطناعي | AI + Smart Agriculture | 12 | industry chain, precision farming, +10 |
+| الري | Irrigation | 8 | drip, sprinkler, flood, deficit, +4 |
+| التسميد | Fertilization | 8 | N, P, K, organic, fertigation, +3 |
+| التربة | Soils | 7 | sandy, clay, loam, saline, +3 |
+| الطقس | Weather | 6 | climate zones, frost, heat, +3 |
+| الاستشعار عن بعد | Remote Sensing | 5 | NDVI, LAI, WSI, Sentinel-2 |
+| الأمراض والآفات | Diseases & Pests | 3 | fungal, pests, index |
+| الممارسات المثلى | Best Practices | 2 | sustainable farming |
+| المراقبة | Monitoring | 1 | remote sensing + AI |
+| **المجموع** | **Total** | **72** | |
 
 ---
 

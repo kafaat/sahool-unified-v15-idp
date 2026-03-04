@@ -1,6 +1,6 @@
 # shared/ai — SAHOOL AI Module | وحدة الذكاء الاصطناعي لمنصة سهول
 
-**Version**: 2.0.0 | **Python**: >=3.11 | **Files**: 82 Python files
+**Version**: 2.1.0 | **Python**: >=3.11 | **Files**: 95+ Python files
 
 Central AI infrastructure for the SAHOOL agricultural platform. Provides everything from
 offline-first LLM routing and vector search to automated code fixing, multi-agent
@@ -103,6 +103,24 @@ shared/ai/
 │       ├── integrator.py        # Model selection and routing
 │       ├── connector.py         # API connectors (ShengNong, CropWizard, AgroGPT, etc.)
 │       └── models.py            # Registry data models
+│
+├── Agriculture Knowledge Base | قاعدة المعرفة الزراعية
+│   └── knowledge/
+│       ├── __init__.py          # Public API (9 collections, 6 document models)
+│       ├── models.py            # Domain models (FRESH metadata, geospatial, crop/soil/weather docs)
+│       ├── collections.py       # Pre-built knowledge collections (9 domains)
+│       ├── collection_populator.py  # Bulk population from docs/knowledge-base/
+│       ├── validators.py        # Knowledge validation (freshness, coverage, quality)
+│       ├── ingestion/           # 6-stage ingestion pipeline
+│       │   ├── pipeline.py      # Extract → Clean → Chunk → Embed → Validate → Store
+│       │   ├── extractors.py    # Markdown, PDF, HTML, URL extractors
+│       │   └── preprocessors.py # Arabic normalization, deduplication, metadata
+│       ├── sources/             # Source credibility registry
+│       │   ├── registry.py      # FAO, ICARDA, MEWA + 30 trusted sources
+│       │   └── trusted_sources.yaml  # Source metadata & credibility scores
+│       └── verification/        # Knowledge verification
+│           ├── agent.py         # 4-layer verification gate (CRAG-inspired)
+│           └── region_filter.py # AgriRegion pattern for MENA relevance
 │
 ├── Learning & Optimization
 │   ├── experience_learning.py   # Experience-based SOP generation (Acontext-inspired)
@@ -605,19 +623,87 @@ pip install httpx sentence-transformers Pillow structlog sentry-sdk opentelemetr
 
 ---
 
+## Agriculture Knowledge Base | قاعدة المعرفة الزراعية
+
+The `knowledge/` sub-module provides structured knowledge management for agricultural AI agents,
+including a 6-stage ingestion pipeline, source credibility registry, and region-aware verification.
+
+```python
+from shared.ai.knowledge import (
+    CROP_KNOWLEDGE,
+    SOIL_KNOWLEDGE,
+    IRRIGATION_PRACTICES,
+    FERTILIZER_KNOWLEDGE,
+    WEATHER_KNOWLEDGE,
+    REMOTE_SENSING_KNOWLEDGE,
+    KnowledgeDomain,
+    CropKnowledgeDocument,
+)
+
+# Access pre-built collections
+for doc in CROP_KNOWLEDGE:
+    print(f"{doc.name_ar}: {doc.name_en}")
+
+# Ingest from docs/knowledge-base/
+from shared.ai.knowledge.ingestion.pipeline import KnowledgeIngestionPipeline
+
+pipeline = KnowledgeIngestionPipeline()
+result = await pipeline.ingest("docs/knowledge-base/crops/wheat.md")
+print(f"Chunks: {result.chunk_count}, Domain: {result.domain}")
+
+# Verify knowledge with region filter
+from shared.ai.knowledge.verification.region_filter import AgriRegionFilter
+
+filter = AgriRegionFilter(region="arabian_peninsula")
+relevance = filter.score(document)
+print(f"Region relevance: {relevance:.2f}")
+```
+
+### Knowledge Collections (9 domains)
+
+| Collection | Domain | Description |
+|------------|--------|-------------|
+| `CROP_KNOWLEDGE` | crops | 18 crop profiles (wheat, barley, dates, etc.) |
+| `SOIL_KNOWLEDGE` | soils | 6 soil types (sandy, clay, loam, saline, etc.) |
+| `IRRIGATION_PRACTICES` | irrigation | 7 methods (drip, sprinkler, flood, deficit, etc.) |
+| `FERTILIZER_KNOWLEDGE` | fertilization | 7 nutrient guides (N, P, K, organic, micronutrients) |
+| `WEATHER_KNOWLEDGE` | weather | 5 climate patterns (frost, heat, wind, drought) |
+| `REMOTE_SENSING_KNOWLEDGE` | remote-sensing | 4 indices (NDVI, LAI, WSI, Sentinel-2) |
+| `PEST_KNOWLEDGE` | diseases | Fungal diseases and pest identification |
+| `CROP_WATER_REQUIREMENTS` | irrigation | Per-crop water demand tables |
+| `GENERAL_AGRICULTURE` | best-practices | Sustainable farming guidelines |
+
+### Ingestion Pipeline (6 stages)
+
+```
+Markdown/PDF/HTML/URL → Extract → Clean → Chunk → Embed → Validate → Store
+                         ↓         ↓        ↓        ↓         ↓        ↓
+                      Extractors  Arabic   Semantic  Embedding  CRAG    Vector
+                                  Normalization  Chunking  Providers  4-layer  Store
+```
+
+### Trusted Sources (30+ sources with credibility scores)
+
+Sources are defined in `knowledge/sources/trusted_sources.yaml`:
+- **Tier 1** (score ≥ 0.9): FAO, ICARDA, CGIAR, NASA
+- **Tier 2** (score ≥ 0.7): MEWA, ICBA, national agricultural research centers
+- **Tier 3** (score ≥ 0.5): Regional universities, extension services
+
+---
+
 ## Integration Points
 
 ### Services that consume `shared/ai`
 
 | Service | Components Used |
 |---------|----------------|
-| `copilot-api` (port 8088) | `llm_provider`, `ultrarag`, `embeddings`, `vector_store` |
-| `advisory-service` (port 8093) | `explainability`, `feedback`, `crop_vision` |
+| `copilot-api` (port 8088) | `llm_provider`, `ultrarag`, `embeddings`, `vector_store`, `knowledge` |
+| `advisory-service` (port 8093) | `explainability`, `feedback`, `crop_vision`, `knowledge` |
 | `code-fix-agent` (port 8162) | `auto_fix`, `code_llm_provider`, `quality_orchestrator` |
-| `ai-agents-core` (port 8161) | `agents`, `orchestration`, `graph_memory` |
+| `ai-agents-core` (port 8161) | `agents`, `orchestration`, `graph_memory`, `knowledge` |
 | `llm-orchestrator-service` (port 8164) | `llm_provider`, `models_registry`, `embeddings` |
 | `crop-intelligence-service` (port 8095) | `crop_vision`, `context_engineering` |
-| `knowledge-graph` (port 8140) | `graph_memory`, `vector_store`, `ultrarag` |
+| `knowledge-graph` (port 8140) | `graph_memory`, `vector_store`, `ultrarag`, `knowledge` |
 
 ### FixOps CLI integration
 
@@ -666,7 +752,9 @@ Test markers: `@pytest.mark.unit`, `@pytest.mark.smoke`, `@pytest.mark.integrati
 - `apps/services-docs/advisory-service.md` — Advisory service consuming this module
 - `tools/` — FixOps CLI built on `auto_fix`
 - `.claude/skills/context-engineering/` — AI skills for context compression and evaluation
+- `docs/knowledge-base/` — 72 bilingual knowledge base documents (source content for ingestion)
+- `docs/knowledge-base/ai-smart-agriculture/` — 12 AI + Smart Agriculture industry analysis docs
 
 ---
 
-_Module version 2.0.0. Last updated: February 2026. Owner: SAHOOL Platform Team._
+_Module version 2.1.0. Last updated: March 2026. Owner: SAHOOL Platform Team._

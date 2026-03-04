@@ -130,11 +130,11 @@ jobs:
           MAPS_API_KEY=$MAPS_KEY
           ENV=production
           ENVFILE
-          # Remove leading whitespace from each line
-          sed -i 's/^[[:space:]]*//' .env
+          # Remove leading whitespace from each line (cross-platform, works on macOS and Linux)
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
           # Substitute variables
-          sed -i "s|\$WEATHER_KEY|$WEATHER_KEY|g" .env
-          sed -i "s|\$MAPS_KEY|$MAPS_KEY|g" .env
+          sed "s|\$WEATHER_KEY|$WEATHER_KEY|g" .env > .env.tmp && mv .env.tmp .env
+          sed "s|\$MAPS_KEY|$MAPS_KEY|g" .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 

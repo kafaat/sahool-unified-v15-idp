@@ -258,7 +258,7 @@ jobs:
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run unit tests with coverage
         run: |
@@ -411,7 +411,7 @@ jobs:
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
           ENV=debug
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 
@@ -626,7 +626,7 @@ jobs:
           MAPS_API_KEY=test_key
           ENV=test
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Enable KVM for Android emulator
         run: |

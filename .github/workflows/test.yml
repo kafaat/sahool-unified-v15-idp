@@ -257,7 +257,7 @@ jobs:
           ENABLE_OFFLINE_MODE=true
           ENABLE_BACKGROUND_SYNC=true
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs

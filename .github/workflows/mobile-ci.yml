@@ -103,6 +103,39 @@ jobs:
               echo "::warning::Code generation failed after retry - analysis may be incomplete"
             }
           }
+          # Verify all critical generated files exist
+          MISSING=0
+          GENERATED_FILES=(
+            lib/core/storage/database.g.dart
+            lib/features/auth/config/otp_config.g.dart
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart
+            lib/features/advisor/data/models/fertilizer_models.g.dart
+            lib/features/advisor/data/models/irrigation_models.freezed.dart
+            lib/features/advisor/data/models/irrigation_models.g.dart
+            lib/features/astronomical/models/astronomical_models.freezed.dart
+            lib/features/astronomical/models/astronomical_models.g.dart
+            lib/features/community/data/models/chat_models.freezed.dart
+            lib/features/community/data/models/chat_models.g.dart
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
+            lib/features/crop_health/data/models/diagnosis_models.g.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
+          )
+          for f in "${GENERATED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::warning::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "::error::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - build will fail"
+            exit 1
+          fi
+          echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
 
       - name: Run Flutter Analyze
         run: |
@@ -183,8 +216,17 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Generate code (Drift, Freezed, etc.)
+        run: |
+          dart run build_runner build --delete-conflicting-outputs || {
+            echo "Code generation failed, retrying..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs || {
+              echo "::error::Code generation failed after retry"
+              exit 1
+            }
+          }
+          echo "Code generation completed successfully"
 
       - name: Create .env file for tests
         run: |
@@ -362,17 +404,39 @@ jobs:
               cat codegen.log
             }
           }
-          # Verify critical generated files exist
+          # Verify all critical generated files exist
           MISSING=0
-          for f in lib/core/storage/database.g.dart; do
+          GENERATED_FILES=(
+            lib/core/storage/database.g.dart
+            lib/features/auth/config/otp_config.g.dart
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart
+            lib/features/advisor/data/models/fertilizer_models.g.dart
+            lib/features/advisor/data/models/irrigation_models.freezed.dart
+            lib/features/advisor/data/models/irrigation_models.g.dart
+            lib/features/astronomical/models/astronomical_models.freezed.dart
+            lib/features/astronomical/models/astronomical_models.g.dart
+            lib/features/community/data/models/chat_models.freezed.dart
+            lib/features/community/data/models/chat_models.g.dart
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
+            lib/features/crop_health/data/models/diagnosis_models.g.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
+          )
+          for f in "${GENERATED_FILES[@]}"; do
             if [ ! -f "$f" ]; then
               echo "::warning::Missing generated file: $f"
               MISSING=$((MISSING + 1))
             fi
           done
           if [ $MISSING -gt 0 ]; then
-            echo "::warning::$MISSING generated file(s) missing - build may fail"
+            echo "::error::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - build will fail"
+            exit 1
           fi
+          echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons skipped"
@@ -462,8 +526,17 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Generate code (Drift, Freezed, etc.)
+        run: |
+          dart run build_runner build --delete-conflicting-outputs || {
+            echo "Code generation failed, retrying..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs || {
+              echo "::error::Code generation failed after retry"
+              exit 1
+            }
+          }
+          echo "Code generation completed successfully"
 
       - name: Create .env file
         run: |

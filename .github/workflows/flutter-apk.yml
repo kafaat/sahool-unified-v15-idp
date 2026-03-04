@@ -175,17 +175,41 @@ jobs:
           echo "=== All generated .g.dart files ==="
           find lib -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
           echo ""
-          if [ -f "lib/core/storage/database.g.dart" ]; then
-            echo "✅ database.g.dart generated successfully"
-            head -10 lib/core/storage/database.g.dart
-          else
-            echo "❌ database.g.dart NOT found - build will fail"
-            echo "=== Searching for database.g.dart anywhere ==="
-            find . -name "database.g.dart" -type f 2>/dev/null || echo "Not found anywhere"
+          # Verify all critical generated files exist
+          MISSING=0
+          GENERATED_FILES=(
+            lib/core/storage/database.g.dart
+            lib/features/auth/config/otp_config.g.dart
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart
+            lib/features/advisor/data/models/fertilizer_models.g.dart
+            lib/features/advisor/data/models/irrigation_models.freezed.dart
+            lib/features/advisor/data/models/irrigation_models.g.dart
+            lib/features/astronomical/models/astronomical_models.freezed.dart
+            lib/features/astronomical/models/astronomical_models.g.dart
+            lib/features/community/data/models/chat_models.freezed.dart
+            lib/features/community/data/models/chat_models.g.dart
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
+            lib/features/crop_health/data/models/diagnosis_models.g.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
+          )
+          for f in "${GENERATED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "::error::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - build will fail"
             echo "=== Full codegen log ==="
             cat codegen.log
             exit 1
           fi
+          echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"

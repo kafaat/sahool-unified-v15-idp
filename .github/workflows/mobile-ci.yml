@@ -4,6 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # This workflow runs on every push and PR to ensure code quality
 # يعمل هذا الخط على كل دفع وطلب سحب لضمان جودة الكود
+# NDK 27.0.12077973 required for sqlcipher_flutter_libs native compilation
 
 name: Mobile CI
 

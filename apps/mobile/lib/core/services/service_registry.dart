@@ -459,27 +459,11 @@ class ServiceRegistry {
       },
     ));
 
-    // Community Chat Service
+    // Chat Service (consolidated from community-chat + field-chat)
     register(ServiceConfig(
-      id: 'community-chat',
-      name: 'Community Chat Service',
-      nameAr: 'خدمة الدردشة المجتمعية',
-      baseUrl: EnvConfig.communityChatUrl,
-      tier: ServiceTier.business,
-      isRequired: false,
-      endpoints: {
-        'requests': '/api/v1/community/requests',
-        'rooms': '/api/v1/community/rooms',
-        'experts': '/api/v1/community/experts/online',
-        'stats': '/api/v1/community/stats',
-      },
-    ));
-
-    // Field Chat Service
-    register(ServiceConfig(
-      id: 'field-chat',
-      name: 'Field Chat Service',
-      nameAr: 'خدمة محادثات الحقل',
+      id: 'chat-service',
+      name: 'Chat Service',
+      nameAr: 'خدمة الدردشة',
       baseUrl: EnvConfig.chatUrl,
       tier: ServiceTier.business,
       isRequired: false,
@@ -487,6 +471,11 @@ class ServiceRegistry {
         'conversations': '/api/v1/chat/conversations',
         'messages': '/api/v1/chat/messages',
         'unread-count': '/api/v1/chat/conversations/unread-count',
+        // Community endpoints routed via Kong to chat-service
+        'community-requests': '/api/v1/community/requests',
+        'community-rooms': '/api/v1/community/rooms',
+        'community-experts': '/api/v1/community/experts/online',
+        'community-stats': '/api/v1/community/stats',
       },
     ));
   }

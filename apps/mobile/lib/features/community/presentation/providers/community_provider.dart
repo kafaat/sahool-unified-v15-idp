@@ -165,7 +165,9 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Replace with actual API call to community-chat service
+      // TODO: Replace with actual API call to chat-service (port 8115)
+      // community-chat (port 8097) is deprecated; use chat-service endpoints
+      // via Kong route: /api/v1/community/*
       await Future.delayed(const Duration(milliseconds: 500));
 
       final posts = _getMockPosts();

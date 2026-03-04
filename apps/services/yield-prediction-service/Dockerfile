@@ -35,16 +35,16 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing dependencies..." && \
-        npm install --legacy-peer-deps --ignore-scripts \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps --ignore-scripts \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --no-audit --no-fund)
@@ -89,8 +89,8 @@ COPY --from=builder /workspace/yield-prediction-service/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing production dependencies..." && \
-        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
@@ -105,8 +105,8 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund) && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund); then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

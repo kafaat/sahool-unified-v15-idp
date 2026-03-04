@@ -25,16 +25,16 @@ COPY apps/services/code-review-agent/tsconfig.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing dependencies..." && \
-        npm ci --ignore-scripts \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm ci --ignore-scripts \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm ci --ignore-scripts --fetch-retries=5 --no-audit --no-fund)

@@ -394,8 +394,11 @@ jobs:
       - name: Build Debug APK
         run: |
           echo "Building Debug APK..."
+          # Disable pipefail temporarily so we can capture exit code AND build log
+          set +o pipefail
           flutter build apk --debug --verbose 2>&1 | tee build.log
           exit_code=${PIPESTATUS[0]}
+          set -o pipefail
           if [ $exit_code -ne 0 ]; then
             echo "::error::Flutter build failed with exit code $exit_code"
             echo "## Build Debug APK - FAILED (exit code $exit_code)" >> $GITHUB_STEP_SUMMARY

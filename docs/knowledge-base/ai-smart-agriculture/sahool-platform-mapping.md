@@ -9,7 +9,7 @@ tags:
   - implementation
 category: ai-smart-agriculture
 last_updated: 2026-03-03
-version: 1.0.0
+version: 2.0.0
 ---
 
 # ربط سلسلة الذكاء الزراعي بمنصة SAHOOL | Platform Mapping
@@ -218,6 +218,80 @@ sahool.alert.created → notification-service → sahool.notification.sent
 
 ---
 
-> **ملاحظة**: منصة SAHOOL تطبق بالفعل جميع طبقات سلسلة الذكاء الزراعي عبر بنيتها الخدمية المصغرة (71 خدمة) مع ميزة فريدة: **الأولوية للعمل دون اتصال** (Offline-First) المصممة خصيصاً لبيئات الاتصال المحدود في الشرق الأوسط.
+## ربط الأنماط المعمارية الجديدة (2025) بخدمات SAHOOL | New Architecture Patterns Mapping
+
+### نمط الاندماج الثلاثي (Triple Fusion) — مستوحى من iMAP
+
+```
+خدمات SAHOOL الحالية التي تحقق هذا النمط:
+
+آلية المحصول (Crop Mechanism)         ←→ crop-growth-model (3023)
+                                          + shared/agri_calendar/
+                                          + shared/crop_rotation/
+        ×
+نموذج لغوي كبير (LLM)                ←→ llm-orchestrator-service (8164)
+                                          + copilot-api (8088)
+                                          + shared/ai/llm_provider.py
+        ×
+نظام وكلاء (Agent System)            ←→ agent-registry (8160)
+                                          + ai-agents-core (8161)
+                                          + shared/agents/ (CrewAI)
+```
+
+### نمط LLM + نموذج صغير + قاعدة معرفة — مستوحى من 农科小智
+
+```
+LLM كبير                              ←→ Ollama (codellama/mistral)
+                                          + shared/ai/ollama_client.py
+        +
+نموذج صغير متخصص                     ←→ yolo26-vision-service (8150)
+                                          + shared/ai/crop_vision.py
+                                          + pest-detection-service (8125)
+        +
+قاعدة معرفة محلية                     ←→ shared/ai/knowledge/ (63+ وثيقة)
+                                          + shared/ai/ultrarag/
+                                          + shared/ai/vector_store.py
+```
+
+### نمط RAG + Tool Calling — مستوحى من CropWizard
+
+```
+RAG ضخم                               ←→ shared/ai/ultrarag/ (AgriRAGProvider)
+                                          + Qdrant/Milvus vector stores
+        +
+Tool Calling                          ←→ mcp-server (8201)
+                                          + shared/mcp/
+                                          + shared/ai/tool_registry.py
+```
+
+---
+
+## ربط قنوات الوصول الميسّر | Accessible Access Channels Mapping
+
+| قناة الوصول | Access Channel | خدمة SAHOOL | المنفذ | الحالة |
+|------------|---------------|-------------|--------|--------|
+| **WhatsApp Bot** | Super App messaging | `whatsapp-bot-service` | 8240 | متوفر ✓ |
+| **USSD Gateway** | أي هاتف بدون إنترنت | `ussd-gateway` | 8183 | متوفر ✓ |
+| **واجهة صوتية** | تفاعل صوتي عربي | `shared/nlp/` (AraBERT) | - | جزئي |
+| **دردشة AI** | مساعد ذكي تفاعلي | `ai-chat-assistant` | 8260 | متوفر ✓ |
+| **تطبيق موبايل** | تطبيق كامل الميزات | `sahool_field_app` | - | متوفر ✓ |
+| **لوحة ويب** | إدارة عبر المتصفح | `apps/web/` | - | متوفر ✓ |
+
+---
+
+## ربط نماذج الأعمال بخدمات SAHOOL | Business Models Mapping
+
+| نموذج الأعمال | Business Model | خدمات SAHOOL | الحالة |
+|-------------|---------------|-------------|--------|
+| **AIaaS (اشتراك)** | `billing-core` (8089) + `user-service` (3025) | متوفر ✓ |
+| **منصة مفتوحة** | `mcp-server` (8201) + Kong API Gateway | جزئي |
+| **أونلاين + ميداني** | `advisory-service` (8093) + `task-service` (8103) | بنية جاهزة |
+| **أجهزة + خدمة** | `iot-service` (8117) + `edge-orchestrator` (8180) | متوفر ✓ |
+| **وصول ميسّر** | `ussd-gateway` (8183) + `whatsapp-bot` (8240) | متوفر ✓ |
+| **بيانات كأصل** | `knowledge-graph` (8140) + analytics (kernel) | مخطط |
+
+---
+
+> **ملاحظة**: منصة SAHOOL تطبق بالفعل جميع طبقات سلسلة الذكاء الزراعي عبر بنيتها الخدمية المصغرة (71 خدمة). مع تحديثات 2025، أصبحت المنصة مؤهلة لتطبيق الأنماط المعمارية الجديدة (Triple Fusion, Multi-Agent RAG, Tool Calling) وقنوات الوصول الميسّر (USSD, WhatsApp, صوت) — مما يسد الفجوة بين "80% يعترفون بالفائدة و20% فقط تبنوا".
 
 *آخر تحديث: مارس 2026*

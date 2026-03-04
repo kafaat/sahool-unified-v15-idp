@@ -9,7 +9,7 @@ tags:
   - ai-agriculture
 category: ai-smart-agriculture
 last_updated: 2026-03-03
-version: 1.0.0
+version: 2.0.0
 sources:
   - QYResearch
   - Cognitive Market Research
@@ -17,6 +17,12 @@ sources:
   - IMARC Group
   - Roots Analysis
   - Market Data Forecast
+  - GMInsights
+  - MarketsandMarkets
+  - World Bank
+  - PitchBook
+  - IPSOS/Syngenta
+  - 36Kr Research
 ---
 
 # بيانات سوق الزراعة الذكية | Smart Agriculture Market Data
@@ -31,13 +37,17 @@ Updated statistics and growth forecasts for the global and regional AI agricultu
 
 ### حجم السوق الإجمالي | Total Market Size
 
-| القطاع | Segment | 2024 | 2025 (متوقع) | 2030-2035 (متوقع) | CAGR |
-|--------|---------|------|-------------|------------------|------|
-| **الزراعة الذكية (عالمي)** | Smart Agriculture | - | $15.2B | - | ~14% |
-| **AI في الزراعة (عالمي)** | AI in Agriculture | $2.14B | - | $20.96B (2035) | 23.06% |
-| **الري الذكي (عالمي)** | Smart Irrigation | - | $2.0B | $5.8B (2034) | 12.68% |
-| **IoT الزراعي (عالمي)** | Agriculture IoT | $16.24B | - | $40.24B (2034) | 9.5% |
-| **الروبوتات الزراعية (عالمي)** | Ag Robotics | - | - | - | ~16% |
+| القطاع | Segment | 2024 | 2025 (متوقع) | 2030-2035 (متوقع) | CAGR | المصدر |
+|--------|---------|------|-------------|------------------|------|--------|
+| **الزراعة الذكية (عالمي)** | Smart Agriculture | $14.4-25.4B | $15.2B | $23.4B (2029) / $54.7B (2030) | 10.2-13.9% | MarketsandMarkets / Grand View |
+| **AI في الزراعة (عالمي)** | AI in Agriculture | **$4.7B** | - | **$10.2B (2032)** | **26.3%** | GMInsights / World Bank |
+| **الري الذكي (عالمي)** | Smart Irrigation | - | $2.0B | $5.8B (2034) | 12.68% | Market Data Forecast |
+| **IoT الزراعي (عالمي)** | Agriculture IoT | $16.24B | - | $40.24B (2034) | 9.5% | Roots Analysis |
+| **الروبوتات الزراعية (عالمي)** | Ag Robotics | - | - | - | ~16% | IMARC |
+| **AI التوليدي الزراعي** | GenAI in Agriculture | ~$0.8B | - | - | **~30%** | صناعي |
+| **AIaaS (عالمي)** | AI as a Service | - | - | **$88B (2028)** | **25%** | GMInsights |
+
+> **ملاحظة 2025**: AI السحابي يسيطر على **62.45%** من السوق، مما يسرع انتشار نماذج "AI كخدمة" (AIaaS) منخفضة التكلفة.
 
 ### التوزيع الجغرافي | Geographic Distribution
 
@@ -48,6 +58,27 @@ Updated statistics and growth forecasts for the global and regional AI agricultu
 | **آسيا والمحيط الهادئ** | Asia-Pacific | ~22% | **18%** | أعلى نمو (الصين، الهند) |
 | **الشرق الأوسط وأفريقيا** | MEA | ~8% | 14% | نمو سريع بدعم حكومي |
 | **أمريكا اللاتينية** | Latin America | ~5% | 11% | زراعة واسعة النطاق |
+
+### معدلات التبني حسب حجم المزرعة (2025) | Adoption by Farm Size
+
+| حجم المزرعة | Farm Size | نسبة التبني | ملاحظات |
+|-------------|-----------|------------|---------|
+| **مزارع كبيرة** (>500 هكتار) | Large Farms | **81%** | تبني واسع لتقنيات دقيقة |
+| **مزارع متوسطة** (50-500 هكتار) | Medium Farms | **76%** | نمو سريع عبر AIaaS |
+| **مزارع صغيرة** (<50 هكتار) | Small Farms | **36%** | فجوة كبيرة — فرصة SAHOOL |
+
+> **إحصائية مهمة**: **80%** من المزارعين يعترفون بفوائد AI، لكن **20% فقط** تبنوه فعلياً (IPSOS/Syngenta 2025). الفجوة = فرصة.
+
+### استثمارات AgTech العالمية (2025) | Global AgTech Investment
+
+| المؤشر | Metric | القيمة | المصدر |
+|--------|--------|--------|--------|
+| **رأس المال المخاطر Q1 2025** | VC Investment Q1 | **$1.6B** عبر 137 صفقة | PitchBook |
+| **إمكانية زيادة GDP الزراعي** | Potential GDP Increase | **$450B** عالمياً | World Bank |
+| **ROI للزراعة الدقيقة** | Precision Ag ROI | **150%** متوسط | صناعي |
+| **زيادة الإنتاج** | Yield Increase | **15-25%** مع AI | متعدد |
+| **توفير المياه** | Water Savings | **حتى 30%** مع AI | متعدد |
+| **تخفيض التكاليف** | Cost Reduction | **25%** للمدخلات | صناعي |
 
 ---
 
@@ -87,21 +118,39 @@ Updated statistics and growth forecasts for the global and regional AI agricultu
 
 | المؤشر | Metric | القيمة | المصدر |
 |--------|--------|--------|--------|
-| حجم السوق (2024) | Market Size | ~$110B (800B CNY) | QYResearch |
-| معدل النمو السنوي | CAGR | 12-15% | متعدد |
+| حجم السوق (2024) | Market Size | ~$110B (¥800B) | QYResearch |
+| **حجم السوق (2025)** | **Market Size 2025** | **~$165B (¥1,200B)** | **36Kr Research** |
+| معدل النمو السنوي | CAGR | **~12%** (حكومي: 2025-2030) | وزارة الزراعة |
+| **هدف الرقمنة 2030** | **2030 Digitization Target** | **35%** | **وزارة الزراعة** |
 | نمو طلب الروبوتات الزراعية | Ag Robot Demand Growth | **38.6%/سنة** | صناعة |
 | مساحة المزارع بدون عمال | Unmanned Farm Area | 300,000+ مو (20,000 هكتار) | حكومي |
 | التغطية الجغرافية | Geographic Coverage | 22 مقاطعة | حكومي |
 | معدل رقمنة الزراعة (2024) | Agriculture Digitization | ~26% | وزارة الزراعة |
 | الهدف (2028) | Target 2028 | 32%+ | خطة 2024-2028 |
+| **مساهمة الزراعة الدقيقة** | **Precision Ag Contribution** | **>40%** من الزيادة | صناعي |
 
-### النماذج الزراعية الكبيرة (الصين) | Chinese AgriLLMs
+### النماذج الزراعية الكبيرة التجارية (الصين 2025) | Chinese Commercial AgriLLMs
 
-| النموذج | Model | المطور | التغطية | الدقة |
-|---------|-------|--------|---------|-------|
+| النموذج | Model | المطور | التغطية | الميزة الرئيسية |
+|---------|-------|--------|---------|----------------|
+| **iMAP** | Sinochem/MAP | 先正达集团 | **100M مو** تجاري | اندماج ثلاثي (Crop × LLM × Agent) |
+| **农科小智 3.0** | NongKe XiaoZhi | أكاديمية بكين | 115K+ استشارة | DeepSeek-R1 671B محلي |
+| **神农 3.0** | Shennong 3.0 | جامعة الزراعة | 90% تخصصات | أكبر بيانات تدريب |
+| **奇稷** | QiJi | 赵春江 أكاديمي | مليون+ مورد | DeepSeek 671B |
 | **天工开悟** | Tiangong Kaiwu | HIT (هاربين) | 22 محصول، 95 صنف | خطأ < 10% |
-| **九壤耘星 1.0** | Jiurang Yunxing | Huawei + NWAFU | 6 نماذج فرعية (فاكهة، ماشية...) | - |
-| **农业大模型** | Various | Alibaba Cloud, Baidu | متعدد | - |
+| **九壤耘星** | Jiurang Yunxing | Huawei + NWAFU | 6 نماذج فرعية | تكامل Huawei Cloud |
+| **雄小农** | Xiong Xiao Nong | هيبي حكومي | خدمة عامة | أول DeepSeek زراعي عام |
+| **问稷** | WenJi | TopYun | 53 خوارزمية | وصول WeChat |
+| **耕云** | GengYun | حكومي | 4 خدمات | إنتاج + استشارات + خدمات + سوق |
+
+### هيكل المنافسة في الصين | China Competition Landscape
+
+| الفئة | Category | الشركات الرئيسية |
+|-------|----------|----------------|
+| **شركات زراعية تقليدية** | Traditional Ag | 潍柴雷沃 (Weichai Lovol)، 隆平高科 (Longping) |
+| **شركات تقنية كبرى** | Big Tech | 大疆农业 (DJI Ag)، 华为 (Huawei)، 阿里云 (Alibaba Cloud) |
+| **شركات AgTech متخصصة** | Vertical AgTech | 极飞科技 (XAG)، 托普云农 (TopYun)، 大气候 (DAQI) |
+| **معاهد بحثية** | Research Institutes | 中国农业大学 (CAU)، 中国农科院 (CAAS) |
 
 ---
 

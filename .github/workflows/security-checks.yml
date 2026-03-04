@@ -625,10 +625,6 @@ jobs:
           fi
 
           # Non-critical warnings for jobs treated as advisory
-          if [[ "${{ needs.code-security.outputs.has_findings }}" == "true" ]]; then
-            echo "::warning::Code security analysis (SAST) reported issues - review recommended"
-          fi
-
           if [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
             echo "::warning::Dependency scan reported issues - review recommended"
           fi

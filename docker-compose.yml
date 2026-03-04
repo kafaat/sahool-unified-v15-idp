@@ -618,7 +618,7 @@ services:
     networks:
       sahool-network:
         aliases:
-          - vllm  # Preserve legacy hostname so Kong/consumers using 'host: vllm' keep working
+          - vllm
     logging:
       driver: json-file
       options:

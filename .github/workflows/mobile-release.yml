@@ -205,7 +205,7 @@ jobs:
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Update version in pubspec.yaml
         run: |
@@ -458,7 +458,7 @@ jobs:
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Update version in pubspec.yaml
         run: |

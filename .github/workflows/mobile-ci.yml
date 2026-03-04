@@ -258,7 +258,7 @@ jobs:
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run unit tests with coverage
         run: |
@@ -355,7 +355,6 @@ jobs:
         run: |
           echo "Installing Android SDK Platform 35 (required by compileSdk in build.gradle.kts)..."
           sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
-
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -412,7 +411,7 @@ jobs:
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY || 'debug_maps_key' }}
           ENV=debug
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 
@@ -522,6 +521,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
+          set -o pipefail
           echo "Building Debug APK..."
           flutter build apk --debug --verbose 2>&1 | tee build.log
           echo "Build completed!"
@@ -542,8 +542,11 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
         with:
           name: sahool-debug-apk-${{ github.run_number }}
-          path: apps/mobile/sahool_field_app/build/app/outputs/**/*.apk
+          path: |
+            apps/mobile/sahool_field_app/build/app/outputs/**/*.apk
+            apps/mobile/sahool_field_app/build/app/outputs/flutter-apk/*.apk
           retention-days: 7
+          if-no-files-found: warn
 
       - name: Upload build logs on failure
         if: failure()
@@ -623,7 +626,7 @@ jobs:
           MAPS_API_KEY=test_key
           ENV=test
           EOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Enable KVM for Android emulator
         run: |

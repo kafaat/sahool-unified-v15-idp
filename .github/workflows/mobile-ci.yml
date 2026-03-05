@@ -40,9 +40,10 @@ concurrency:
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'
-  ANDROID_COMPILE_SDK: '35'
-  ANDROID_BUILD_TOOLS: '35.0.0'
-  ANDROID_MIN_SDK: '23'
+  ANDROID_COMPILE_SDK: '36'
+  ANDROID_BUILD_TOOLS: '36.0.0'
+  ANDROID_MIN_SDK: '24'
+  ANDROID_NDK_VERSION: '27.0.12077973'
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -294,10 +295,8 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;27.0.12077973" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
-          echo "Installed SDK components:"
-          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
+            "platform-tools" \
+            "ndk;${{ env.ANDROID_NDK_VERSION }}"
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
@@ -364,7 +363,7 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
-          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx6G -XX:MaxMetaspaceSize=2G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
           org.gradle.parallel=true
           org.gradle.caching=true

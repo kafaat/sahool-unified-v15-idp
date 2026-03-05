@@ -49,6 +49,16 @@ REMOTE_SENSING_KNOWLEDGE = "remote_sensing_knowledge"
 """NDVI interpretation, LAI guide, water stress index, Sentinel-2 usage.
 Referenced in: remote_sensing_analysis.yaml"""
 
+SMART_AGRICULTURE_KNOWLEDGE = "smart_agriculture_knowledge"
+"""Smart agriculture: IoT, drones, digital twins, AI models, precision farming,
+blockchain traceability, edge computing, market intelligence.
+References: AGRARIAN (MDPI 2025), China Smart Agriculture Plan 2024-2028,
+FAO Digital Agriculture Roadmap 2025, CropIn Cloud architecture."""
+
+RESEARCH_REFERENCES = "research_references"
+"""Academic papers and research references backing knowledge base content.
+Sources: AgriRegion, Crop GraphRAG, CRAG, KALLM, AgroAskAI, C3PO, RAGOps."""
+
 # Collection-to-directory mapping for population
 COLLECTION_DIRECTORY_MAP: dict[str, list[str]] = {
     CROP_KNOWLEDGE: ["docs/knowledge-base/crops/"],
@@ -59,6 +69,8 @@ COLLECTION_DIRECTORY_MAP: dict[str, list[str]] = {
     FERTILIZER_KNOWLEDGE: ["docs/knowledge-base/fertilization/"],
     WEATHER_KNOWLEDGE: ["docs/knowledge-base/weather/"],
     REMOTE_SENSING_KNOWLEDGE: ["docs/knowledge-base/remote-sensing/"],
+    SMART_AGRICULTURE_KNOWLEDGE: ["docs/knowledge-base/ai-smart-agriculture/"],
+    RESEARCH_REFERENCES: ["docs/knowledge-base/ai-smart-agriculture/"],
     GENERAL_AGRICULTURE: ["docs/knowledge-base/"],
 }
 
@@ -71,5 +83,7 @@ ALL_COLLECTIONS = [
     FERTILIZER_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
+    SMART_AGRICULTURE_KNOWLEDGE,
+    RESEARCH_REFERENCES,
     GENERAL_AGRICULTURE,
 ]

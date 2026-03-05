@@ -245,3 +245,118 @@ sources:
     domains: [crops, soil, irrigation, general]
     languages: [ar]
     region_coverage: [arab_world]
+
+  # ─── New Sources from Research (added 2026-03) ──────────────────────────────
+
+  - name: "FAO AGROVOC Thesaurus"
+    name_ar: "مكنز الفاو الزراعي (أجروفوك)"
+    url_patterns:
+      - "agrovoc.fao.org"
+    credibility: 5
+    domains: [crops, soil, irrigation, fertilizer, pest_disease, weather, general, smart_agriculture]
+    languages: [en, ar, fr, es, zh]
+    region_coverage: [global]
+    notes: "41,400+ concepts, 1,219,000+ terms, 42 languages. SKOS-XL Linked Open Data."
+
+  - name: "CGIAR Crop Ontology"
+    name_ar: "أنطولوجيا المحاصيل - CGIAR"
+    url_patterns:
+      - "cropontology.org"
+      - "bigdata.cgiar.org"
+    credibility: 5
+    domains: [crops, soil, general]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Crop Ontology (CO), Agronomy Ontology (AgrO), Socio-Economic Ontology"
+
+  - name: "World Bank - Digital Agriculture"
+    name_ar: "البنك الدولي - الزراعة الرقمية"
+    url_patterns:
+      - "worldbank.org"
+      - "openknowledge.worldbank.org"
+    credibility: 5
+    domains: [general, smart_agriculture]
+    languages: [en, ar]
+    region_coverage: [global]
+    notes: "Digital Agriculture Roadmap 2025, mobile apps for agriculture studies"
+
+  - name: "arXiv - Agricultural AI Research"
+    name_ar: "أركايف - أبحاث الذكاء الاصطناعي الزراعي"
+    url_patterns:
+      - "arxiv.org"
+    credibility: 3
+    domains: [crops, pest_disease, remote_sensing, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Pre-prints. Key refs: AgriRegion (2512.10114), CRAG (2401.15884), AgroAskAI (2512.14910)"
+
+  - name: "Frontiers - Plant Science"
+    name_ar: "فرونتيرز - علوم النبات"
+    url_patterns:
+      - "frontiersin.org"
+    credibility: 3
+    domains: [crops, pest_disease, soil, general]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Crop GraphRAG (2026), C3PO ontology, peer-reviewed open access"
+
+  - name: "MDPI - Agriculture"
+    name_ar: "MDPI - الزراعة"
+    url_patterns:
+      - "mdpi.com"
+    credibility: 3
+    domains: [crops, irrigation, remote_sensing, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "AGRARIAN architecture (2025), Digital Twins review, open access"
+
+  - name: "Farmonaut - Agriculture Technology"
+    name_ar: "فارمونوت - تقنية الزراعة"
+    url_patterns:
+      - "farmonaut.com"
+    credibility: 2
+    domains: [smart_agriculture, remote_sensing]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Middle East agriculture 2025, robotics market data"
+
+  - name: "ThingsBoard - IoT Platform"
+    name_ar: "ثينجز بورد - منصة إنترنت الأشياء"
+    url_patterns:
+      - "thingsboard.io"
+    credibility: 2
+    domains: [smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Open-source IoT platform for smart farming"
+
+  - name: "XAG - Agricultural Drones"
+    name_ar: "XAG - طائرات زراعية مسيرة"
+    url_patterns:
+      - "xa.com"
+    credibility: 2
+    domains: [smart_agriculture]
+    languages: [en, zh]
+    region_coverage: [global, china]
+    notes: "Autonomous agricultural drones, swarm capability"
+
+  - name: "Taylor & Francis - Agricultural Engineering"
+    name_ar: "تايلور وفرانسيس - الهندسة الزراعية"
+    url_patterns:
+      - "tandfonline.com"
+    credibility: 3
+    domains: [irrigation, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Digital twins for smart irrigation (2025)"
+
+  - name: "PMC - Agricultural Research"
+    name_ar: "المكتبة المركزية الطبية - البحوث الزراعية"
+    url_patterns:
+      - "pmc.ncbi.nlm.nih.gov"
+      - "pubmed.ncbi.nlm.nih.gov"
+    credibility: 3
+    domains: [pest_disease, crops, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "RDW-YOLO, RS-YOLO, AI+IoT edge devices for crop protection"

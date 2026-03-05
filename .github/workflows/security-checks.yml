@@ -259,6 +259,8 @@ jobs:
     name: Code Security Analysis (SAST)
     runs-on: ubuntu-latest
     continue-on-error: true
+    outputs:
+      has_findings: ${{ steps.check-findings.outputs.has_findings }}
     permissions:
       security-events: write
       actions: read
@@ -606,7 +608,7 @@ jobs:
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Secrets Scan | ${{ needs.secrets-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Passed' || (needs.dependency-scan.result == 'skipped' && '⏭️ Skipped' || '⚠️ Issues Found') }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Security | ${{ needs.code-security.result == 'success' && '✅ Passed' || (needs.code-security.result == 'skipped' && '⏭️ Skipped' || '⚠️ Issues Found') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Security | ${{ needs.code-security.result == 'skipped' && '⏭️ Skipped' || (needs.code-security.outputs.has_findings == 'true' && '⚠️ Findings Detected' || (needs.code-security.result == 'success' && '✅ Passed' || '❌ Failed')) }} |" >> $GITHUB_STEP_SUMMARY
           echo "| SBOM Generation | ${{ needs.sbom-generation.result == 'success' && '✅ Generated' || (needs.sbom-generation.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| License Compliance | ${{ needs.license-check.result == 'success' && '✅ Passed' || (needs.license-check.result == 'skipped' && '⏭️ Skipped' || '⚠️ Review Needed') }} |" >> $GITHUB_STEP_SUMMARY
 

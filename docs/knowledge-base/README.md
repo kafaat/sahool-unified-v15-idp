@@ -7,8 +7,8 @@ tags:
   - arabic
   - sahool
 category: overview
-last_updated: 2026-03-03
-version: 2.0.0
+last_updated: 2026-03-04
+version: 2.1.0
 ---
 
 # قاعدة المعرفة الزراعية | SAHOOL Agricultural Knowledge Base
@@ -17,7 +17,7 @@ version: 2.0.0
 
 ## الأقسام الرئيسية | Main Sections
 
-### [[crops/README|المحاصيل (Crops)]] — 18 وثيقة
+### [[crops/README|المحاصيل (Crops)]] — 19 وثيقة
 معلومات شاملة عن المحاصيل الرئيسية في المنطقة:
 - [[crops/wheat|القمح (Wheat)]] - المحصول الاستراتيجي الأول
 - [[crops/barley|الشعير (Barley)]] - محصول متحمل للجفاف
@@ -37,6 +37,7 @@ version: 2.0.0
 - [[crops/corn|الذرة (Corn)]] - حبوب وأعلاف
 - [[crops/sorghum|الذرة الرفيعة (Sorghum)]] - متحمل للجفاف
 - [[crops/sesame|السمسم (Sesame)]] - محصول زيتي
+- [[crops/cotton|القطن (Cotton)]] - محصول نقدي استراتيجي متحمل للملوحة
 
 ### [[soils/README|التربة (Soils)]] — 7 وثائق
 أنواع التربة وخصائصها وإدارتها:
@@ -87,7 +88,7 @@ version: 2.0.0
 - [[remote-sensing/water-stress-index|مؤشر الإجهاد المائي]] - كشف العطش
 - [[remote-sensing/sentinel-guide|دليل Sentinel-2]] - بيانات مجانية
 
-### [[ai-smart-agriculture/README|الذكاء الاصطناعي والزراعة الذكية (AI + Smart Agriculture)]] — 10 وثائق
+### [[ai-smart-agriculture/README|الذكاء الاصطناعي والزراعة الذكية (AI + Smart Agriculture)]] — 13 وثيقة
 تحليل شامل لسلسلة صناعة الذكاء الزراعي:
 - [[ai-smart-agriculture/industry-chain|سلسلة الصناعة (Industry Chain)]] - الخريطة البانورامية الكاملة
 - [[ai-smart-agriculture/precision-farming|الزراعة الدقيقة (Precision Farming)]] - إدارة دورة حياة المحاصيل بالذكاء الاصطناعي
@@ -96,13 +97,36 @@ version: 2.0.0
 - [[ai-smart-agriculture/market-data|بيانات السوق (Market Data)]] - إحصائيات سوق الذكاء الزراعي عالمياً وإقليمياً
 - [[ai-smart-agriculture/international-comparison|المقارنة الدولية (International Comparison)]] - نماذج إسرائيل واليابان والصين وMENA
 - [[ai-smart-agriculture/agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة
+- [[ai-smart-agriculture/computer-vision-plant-monitoring|الرؤية الحاسوبية (CV Plant Monitoring)]] - مراقبة النمو واكتشاف الإجهاد
 - [[ai-smart-agriculture/policies-standards|السياسات والمعايير (Policies & Standards)]] - الأطر التنظيمية وحوكمة البيانات
 - [[ai-smart-agriculture/trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة
 - [[ai-smart-agriculture/sahool-platform-mapping|ربط SAHOOL (Platform Mapping)]] - كيف يطبق SAHOOL هذه المفاهيم
 
-### [[best-practices/README|الممارسات الزراعية المثلى (Best Practices)]]
+### [[monitoring/remote-sensing-ai|المراقبة (Monitoring)]] — 1 وثيقة
+مراقبة المحاصيل باستخدام التقنيات الحديثة:
+- [[monitoring/remote-sensing-ai|الاستشعار عن بعد والذكاء الاصطناعي (Remote Sensing + AI)]]
+
+### [[best-practices/README|الممارسات الزراعية المثلى (Best Practices)]] — 2 وثيقة
 إرشادات للزراعة المستدامة:
 - [[best-practices/sustainable-farming|الزراعة المستدامة (Sustainable Farming)]]
+
+---
+
+## إحصائيات قاعدة المعرفة | Knowledge Base Statistics
+
+| القسم | Section | عدد الوثائق | Documents |
+|-------|---------|-------------|-----------|
+| المحاصيل | Crops | 19 | wheat, barley, dates, tomato, cotton, +14 |
+| الذكاء الاصطناعي | AI + Smart Agriculture | 13 | industry chain, precision farming, CV monitoring, +10 |
+| الري | Irrigation | 8 | drip, sprinkler, flood, deficit, +4 |
+| التسميد | Fertilization | 8 | N, P, K, organic, fertigation, +3 |
+| التربة | Soils | 7 | sandy, clay, loam, saline, +3 |
+| الطقس | Weather | 6 | climate zones, frost, heat, +3 |
+| الاستشعار عن بعد | Remote Sensing | 5 | NDVI, LAI, WSI, Sentinel-2 |
+| الأمراض والآفات | Diseases & Pests | 3 | fungal, pests, index |
+| الممارسات المثلى | Best Practices | 2 | sustainable farming |
+| المراقبة | Monitoring | 1 | remote sensing + AI |
+| **المجموع** | **Total** | **74** | |
 
 ---
 

@@ -59,6 +59,8 @@ source_of_truth:
   mobile_root: "apps/mobile"
   packages_root: "packages"
   shared_root: "shared"
+  knowledge_base: "docs/knowledge-base"
+  ai_knowledge_module: "shared/ai/knowledge"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Service Categories

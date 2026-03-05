@@ -36,6 +36,7 @@ from .collections import (
     GENERAL_AGRICULTURE,
     IRRIGATION_PRACTICES,
     PEST_KNOWLEDGE,
+    SMART_AGRICULTURE_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
@@ -162,6 +163,36 @@ class KnowledgeBasePopulator:
                 "module_path": "shared/irrigation/scheduling.py",
                 "description": "Irrigation scheduling algorithms",
                 "collections": [IRRIGATION_PRACTICES],
+            },
+            {
+                "module_path": "shared/drone_integration/flight_planning.py",
+                "description": "Drone flight planning and VRA",
+                "collections": [SMART_AGRICULTURE_KNOWLEDGE],
+            },
+            {
+                "module_path": "shared/smart_agriculture/blockchain.py",
+                "description": "Blockchain traceability (23-41% price premium)",
+                "collections": [SMART_AGRICULTURE_KNOWLEDGE],
+            },
+            {
+                "module_path": "shared/edge_cloud/cooperative.py",
+                "description": "Edge-cloud cooperative architecture",
+                "collections": [SMART_AGRICULTURE_KNOWLEDGE],
+            },
+            {
+                "module_path": "shared/ml_irrigation/optimizer.py",
+                "description": "ML-based irrigation optimization (70% water savings)",
+                "collections": [IRRIGATION_PRACTICES, CROP_WATER_REQUIREMENTS],
+            },
+            {
+                "module_path": "shared/salinity/monitoring.py",
+                "description": "Soil salinity monitoring and mitigation",
+                "collections": [SOIL_KNOWLEDGE],
+            },
+            {
+                "module_path": "shared/crop_rotation/planner.py",
+                "description": "Crop rotation planning for soil health",
+                "collections": [CROP_KNOWLEDGE, GENERAL_AGRICULTURE],
             },
         ]
 

@@ -95,6 +95,63 @@ CLIMATE_ZONES: dict[str, dict[str, Any]] = {
         "altitude_m": (0, 100),
         "similar_zones": ["yemen_coastal", "oman_coastal"],
     },
+    # Extended regions from research (ICARDA, Saudi Vision 2030, FAO)
+    "egypt_nile_delta": {
+        "name_ar": "دلتا النيل",
+        "type": "semi_arid",
+        "temp_range_c": (10, 38),
+        "rainfall_mm": (50, 200),
+        "altitude_m": (0, 50),
+        "similar_zones": ["gcc_coastal"],
+    },
+    "egypt_upper": {
+        "name_ar": "صعيد مصر",
+        "type": "arid",
+        "temp_range_c": (8, 44),
+        "rainfall_mm": (0, 50),
+        "altitude_m": (50, 500),
+        "similar_zones": ["yemen_eastern_plateau", "saudi_central"],
+    },
+    "jordan_valley": {
+        "name_ar": "غور الأردن",
+        "type": "hot_arid",
+        "temp_range_c": (10, 46),
+        "rainfall_mm": (50, 200),
+        "altitude_m": (-400, 0),
+        "similar_zones": ["yemen_coastal"],
+    },
+    "iraq_central": {
+        "name_ar": "وسط العراق",
+        "type": "arid_continental",
+        "temp_range_c": (5, 50),
+        "rainfall_mm": (100, 250),
+        "altitude_m": (0, 500),
+        "similar_zones": ["saudi_central"],
+    },
+    "morocco_atlantic": {
+        "name_ar": "الساحل الأطلسي المغربي",
+        "type": "semi_arid",
+        "temp_range_c": (8, 35),
+        "rainfall_mm": (200, 600),
+        "altitude_m": (0, 500),
+        "similar_zones": ["yemen_highland"],
+    },
+    "sudan_central": {
+        "name_ar": "وسط السودان",
+        "type": "semi_arid",
+        "temp_range_c": (18, 45),
+        "rainfall_mm": (200, 600),
+        "altitude_m": (300, 700),
+        "similar_zones": ["yemen_eastern_plateau"],
+    },
+    "uae_interior": {
+        "name_ar": "داخل الإمارات",
+        "type": "hyper_arid",
+        "temp_range_c": (12, 52),
+        "rainfall_mm": (30, 120),
+        "altitude_m": (0, 300),
+        "similar_zones": ["saudi_central", "oman_interior"],
+    },
 }
 
 # Climate type compatibility (how similar two climate types are: 0.0-1.0)
@@ -107,6 +164,13 @@ _CLIMATE_COMPATIBILITY: dict[tuple[str, str], float] = {
     ("arid", "arid_continental"): 0.8,
     ("arid", "hyper_arid"): 0.6,
     ("hot_humid", "tropical_semi_arid"): 0.6,
+    ("semi_arid", "semi_arid_highland"): 0.7,
+    ("semi_arid", "arid"): 0.7,
+    ("semi_arid", "hot_arid"): 0.6,
+    ("arid_continental", "arid"): 0.8,
+    ("arid_continental", "hot_arid"): 0.6,
+    ("hyper_arid", "arid_continental"): 0.5,
+    ("hyper_arid", "arid"): 0.6,
 }
 
 

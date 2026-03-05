@@ -20,11 +20,14 @@ COPY apps/services/shared ./shared/
 COPY packages/nestjs-auth ./packages/nestjs-auth/
 
 # Pre-build nestjs-auth package (install its deps and compile TypeScript)
+# Note: marketplace-service uses local auth guards, nestjs-auth is a vestigial dependency
+# Build errors are logged but non-fatal since local guards handle auth at runtime
 WORKDIR /workspace/packages/nestjs-auth
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
-    npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null || true && \
-    npx tsc --skipLibCheck 2>/dev/null || true
+    (npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
+     npx tsc --skipLibCheck) || \
+    echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"
 
 # Copy service to maintain relative path
 WORKDIR /workspace
@@ -49,7 +52,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+        if [ "$i" != "5" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)

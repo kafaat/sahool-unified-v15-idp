@@ -1986,10 +1986,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-chat-service
     ports:
-    - 8000:8000
+    - 8115:8115
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8000
+    - PORT=8115
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -1999,7 +1999,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8000/healthz
+      - http://localhost:8115/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2016,7 +2016,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=chat-service
-    - sahool.port=8000
+    - sahool.port=8115
     - sahool.category=community
     - traefik.enable=true
     - traefik.http.routers.chat-service.rule=PathPrefix(`/api/v1/chat/service`)
@@ -2059,45 +2059,6 @@ services:
     - sahool.category=analytics
     - traefik.enable=true
     - traefik.http.routers.code-fix-agent.rule=PathPrefix(`/api/v1/code/fix/agent`)
-  code-review-agent:
-    build:
-      context: ./apps/services/code-review-agent
-      dockerfile: Dockerfile
-    container_name: sahool-code-review-agent
-    ports:
-    - 8145:8145
-    environment:
-    - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8145
-    - DATABASE_URL=${DATABASE_URL}
-    - REDIS_URL=${REDIS_URL}
-    - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8145/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    networks:
-    - sahool-network
-    restart: unless-stopped
-    labels:
-    - sahool.service=code-review-agent
-    - sahool.port=8145
-    - sahool.category=analytics
-    - traefik.enable=true
-    - traefik.http.routers.code-review-agent.rule=PathPrefix(`/api/v1/code/review/agent`)
   code-review-service:
     build:
       context: ./apps/services/code-review-service

@@ -81,6 +81,9 @@ def generate_compose_by_layer(data: dict) -> dict:
     layers = {}
 
     for name, config in data.get("services", {}).items():
+        # Skip CLI agents and services without a port (e.g. code-review-agent)
+        if config.get("port") is None:
+            continue
         layer = config.get("layer", "business")
         if layer not in layers:
             layers[layer] = {}

@@ -1555,7 +1555,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8000
+    port: 8115
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1571,13 +1571,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8000'
+      value: '8115'
     serviceAccount:
       create: true
       name: sahool-chat-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8000'
+      prometheus.io/port: '8115'
       prometheus.io/path: /metrics
   code-fix-agent:
     enabled: true
@@ -1610,38 +1610,6 @@ services:
     podAnnotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8162'
-      prometheus.io/path: /metrics
-  code-review-agent:
-    enabled: true
-    name: code-review-agent
-    image:
-      repository: ghcr.io/kafaat/sahool-code-review-agent
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8145
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 400m
-        memory: 512Mi
-      limits:
-        cpu: 400000m
-        memory: 512Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8145'
-    serviceAccount:
-      create: true
-      name: sahool-code-review-agent
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8145'
       prometheus.io/path: /metrics
   code-review-service:
     enabled: true
@@ -2952,15 +2920,11 @@ ingress:
     - path: /api/v1/chat/service
       pathType: Prefix
       service: chat-service
-      port: 8000
+      port: 8115
     - path: /api/v1/code/fix/agent
       pathType: Prefix
       service: code-fix-agent
       port: 8162
-    - path: /api/v1/code/review/agent
-      pathType: Prefix
-      service: code-review-agent
-      port: 8145
     - path: /api/v1/code/review/service
       pathType: Prefix
       service: code-review-service

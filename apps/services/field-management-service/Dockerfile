@@ -116,6 +116,7 @@ COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Fix the file: path reference again for production stage
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true

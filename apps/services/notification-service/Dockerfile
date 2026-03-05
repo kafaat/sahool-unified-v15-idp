@@ -59,8 +59,11 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
-# Copy shared modules
-COPY --chown=sahool:sahool apps/services/shared ./shared/
+# Copy root shared modules first (shared.cache, shared.middleware.security_headers, etc.)
+COPY --chown=sahool:sahool shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py, shared.logging_config, etc.)
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/

@@ -2138,7 +2138,7 @@ services:
     category: community
     layer: business
     path: "apps/services/chat-service"
-    port: 8000  # Matches Dockerfile EXPOSE (Kong config at 8114 is WRONG)
+    port: 8115  # Matches Dockerfile EXPOSE and ENV PORT=8115
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2215,9 +2215,9 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/code-review-agent"
-    port: 8145
-    protocol: http
-    health_endpoint: "/healthz"
+    port: null  # CLI agent, not an HTTP service (no EXPOSE in Dockerfile)
+    protocol: cli
+    health_endpoint: null  # No HTTP health endpoint - HEALTHCHECK NONE in Dockerfile
     docker_compose_profiles: [optional, ai-agents]  # Not started by default
     status: active
     owner: "data-team@sahool.io"

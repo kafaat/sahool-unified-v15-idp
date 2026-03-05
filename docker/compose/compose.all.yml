@@ -725,33 +725,6 @@ services:
           memory: 512Mi
     depends_on:
     - redis
-  code-review-agent:
-    build:
-      context: ../../apps/services/code-review-agent
-      dockerfile: Dockerfile
-    ports:
-    - 8145:8145
-    environment:
-    - PORT=8145
-    - ENVIRONMENT=production
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8145/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '400'
-          memory: 512Mi
-    depends_on:
-    - redis
-    - nats
   crop-health:
     build:
       context: ../../archive/deprecated-services/crop-health
@@ -1546,16 +1519,16 @@ services:
       context: ../../apps/services/chat-service
       dockerfile: Dockerfile
     ports:
-    - 8000:8000
+    - 8115:8115
     environment:
-    - PORT=8000
+    - PORT=8115
     - NODE_ENV=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8000/healthz
+      - http://localhost:8115/healthz
       interval: 30s
       timeout: 10s
       retries: 3

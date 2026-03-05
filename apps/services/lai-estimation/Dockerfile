@@ -55,7 +55,7 @@ RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \
     npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+    (echo "ERROR: nestjs-auth build failed" && exit 1)
 
 # Build the application
 RUN npx nest build

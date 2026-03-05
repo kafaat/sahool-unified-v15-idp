@@ -22,9 +22,9 @@ COPY packages/shared-events ./packages/shared-events/
 
 # Build shared-events package
 WORKDIR /workspace/packages/shared-events
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install && npm run build || \
-    (npm config set registry https://registry.npmjs.org && npm install && npm run build)
+RUN npm config set registry https://registry.npmmirror.com; \
+    if npm install && npm run build; then true; \
+    else npm config set registry https://registry.npmjs.org && npm install && npm run build; fi
 
 # Copy service to maintain relative path: ../../shared/ from iot-service/src/
 WORKDIR /workspace
@@ -36,11 +36,23 @@ WORKDIR /workspace/iot-service
 # Using npm pkg set for reliable package.json modification (more robust than sed)
 RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
 
-# Install all dependencies with retry for network resilience
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+# Install all dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund; then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -69,7 +81,8 @@ LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
 # Install curl for healthcheck and OpenSSL for Prisma native query engine
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -86,13 +99,31 @@ COPY --from=builder /workspace/packages/shared-events ./packages/shared-events/
 # (we'll copy the pre-built package directly to node_modules after)
 RUN npm pkg delete dependencies.'@sahool/shared-events' || true
 
-# Install production dependencies with retry for network resilience
-RUN npm config set registry https://registry.npmmirror.com && \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force) || \
+# Install production dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+         npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund); then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy built shared-events package to node_modules
 RUN mkdir -p node_modules/@sahool && cp -r packages/shared-events node_modules/@sahool/shared-events && rm -rf packages

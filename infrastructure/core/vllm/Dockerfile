@@ -60,7 +60,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # ─────────────────────────────────────────────────────────────────────────────
 # System Dependencies (minimal attack surface)
 # ─────────────────────────────────────────────────────────────────────────────
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-venv \
     python${PYTHON_VERSION}-dev \

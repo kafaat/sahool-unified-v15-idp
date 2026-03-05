@@ -88,7 +88,7 @@ jobs:
           org.gradle.parallel=true
           org.gradle.caching=true
           GRADLEEOF
-          sed -i 's/^[[:space:]]*//' ~/.gradle/gradle.properties
+          sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -115,7 +115,7 @@ jobs:
           MAPS_API_KEY=${MAPS_KEY:-placeholder_maps_key_for_ci_build}
           ENV=${{ github.event.inputs.build_type || 'debug' }}
           ENVEOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 

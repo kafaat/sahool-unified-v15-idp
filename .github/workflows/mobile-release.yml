@@ -151,6 +151,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK components
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" || true
+
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -199,12 +203,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Update version in pubspec.yaml
         run: |
@@ -214,11 +219,54 @@ jobs:
           echo "Updated version to: ${VERSION}+${BUILD}"
           grep "^version:" pubspec.yaml
 
-      - name: Generate code
+      - name: Generate code (Drift, Freezed, etc.)
         run: |
           flutter clean
           flutter pub get
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
+            echo "Code generation failed, retrying with clean state..."
+            rm -rf .dart_tool/build
+            flutter clean
+            flutter pub get
+            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
+              echo "::warning::Code generation failed after retry - build may be affected"
+              echo "--- build_runner error output ---"
+              tail -50 codegen.log
+            }
+          }
+          # Verify critical generated files (warning only - flutter build is the real gate)
+          MISSING=0
+          GENERATED_FILES=(
+            lib/core/storage/database.g.dart
+            lib/features/auth/config/otp_config.g.dart
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart
+            lib/features/advisor/data/models/fertilizer_models.g.dart
+            lib/features/advisor/data/models/irrigation_models.freezed.dart
+            lib/features/advisor/data/models/irrigation_models.g.dart
+            lib/features/astronomical/models/astronomical_models.freezed.dart
+            lib/features/astronomical/models/astronomical_models.g.dart
+            lib/features/community/data/models/chat_models.freezed.dart
+            lib/features/community/data/models/chat_models.g.dart
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
+            lib/features/crop_health/data/models/diagnosis_models.g.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
+          )
+          for f in "${GENERATED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::warning::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "::warning::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - check codegen.log"
+          else
+            echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
+          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons skipped"
@@ -360,6 +408,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK components
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" || true
+
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
@@ -408,12 +460,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
           MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Update version in pubspec.yaml
         run: |
@@ -421,11 +474,54 @@ jobs:
           BUILD="${{ needs.version.outputs.build_number }}"
           sed -i "s/^version:.*/version: ${VERSION}+${BUILD}/" pubspec.yaml
 
-      - name: Generate code
+      - name: Generate code (Drift, Freezed, etc.)
         run: |
           flutter clean
           flutter pub get
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
+            echo "Code generation failed, retrying with clean state..."
+            rm -rf .dart_tool/build
+            flutter clean
+            flutter pub get
+            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee -a codegen.log || {
+              echo "::warning::Code generation failed after retry - build may be affected"
+              echo "--- build_runner error output ---"
+              tail -50 codegen.log
+            }
+          }
+          # Verify critical generated files (warning only - flutter build is the real gate)
+          MISSING=0
+          GENERATED_FILES=(
+            lib/core/storage/database.g.dart
+            lib/features/auth/config/otp_config.g.dart
+            lib/features/advisor/data/models/fertilizer_models.freezed.dart
+            lib/features/advisor/data/models/fertilizer_models.g.dart
+            lib/features/advisor/data/models/irrigation_models.freezed.dart
+            lib/features/advisor/data/models/irrigation_models.g.dart
+            lib/features/astronomical/models/astronomical_models.freezed.dart
+            lib/features/astronomical/models/astronomical_models.g.dart
+            lib/features/community/data/models/chat_models.freezed.dart
+            lib/features/community/data/models/chat_models.g.dart
+            lib/features/crop_health/data/models/diagnosis_models.freezed.dart
+            lib/features/crop_health/data/models/diagnosis_models.g.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/pivot_models.g.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart
+            lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+            lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart
+          )
+          for f in "${GENERATED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::warning::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ $MISSING -gt 0 ]; then
+            echo "::warning::$MISSING of ${#GENERATED_FILES[@]} generated file(s) missing - check codegen.log"
+          else
+            echo "All ${#GENERATED_FILES[@]} generated files verified successfully"
+          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons skipped"

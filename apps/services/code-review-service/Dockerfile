@@ -5,7 +5,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     git \
     procps \
     && rm -rf /var/lib/apt/lists/*

@@ -883,7 +883,7 @@ void main() {
         results.add(data);
       });
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       await db.insertField(FieldDaoFixtures.createField(
         id: 'watch-field-2',
@@ -891,7 +891,7 @@ void main() {
         name: 'New Field',
       ));
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       await subscription.cancel();
 
@@ -907,7 +907,7 @@ void main() {
         results.add(data);
       });
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Insert field for different tenant
       await db.insertField(FieldDaoFixtures.createField(
@@ -916,7 +916,7 @@ void main() {
         name: 'Other Tenant Field',
       ));
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       await subscription.cancel();
 

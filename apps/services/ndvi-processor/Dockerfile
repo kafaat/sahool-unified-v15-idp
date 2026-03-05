@@ -13,7 +13,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /build
 
 # Install system dependencies for geo-spatial processing and compilation
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     libgdal-dev \
     gdal-bin \
     build-essential \
@@ -65,7 +66,8 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Install only runtime geo-spatial libraries (no build tools)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     libgdal32 \
     gdal-bin \
     && rm -rf /var/lib/apt/lists/*

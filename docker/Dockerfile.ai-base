@@ -34,7 +34,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Install system dependencies (minimal)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -48,8 +49,8 @@ RUN groupadd --system --gid 1000 sahool && \
 # ─────────────────────────────────────────────────────────────────────────────
 FROM base AS builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install build dependencies (apt-update.sh inherited from base stage)
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     git \

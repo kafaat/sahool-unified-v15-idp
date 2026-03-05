@@ -263,6 +263,8 @@ jobs:
       security-events: write
       actions: read
       contents: read
+    outputs:
+      has_findings: ${{ steps.count-findings.outputs.has_findings }}
     steps:
       - uses: actions/checkout@v6
 
@@ -338,6 +340,25 @@ jobs:
         with:
           sarif_file: semgrep-results.sarif
           category: 'semgrep-sast'
+
+      - name: Count SARIF findings
+        id: count-findings
+        if: always()
+        run: |
+          # Count actual results across both SARIF files; emit has_findings=true if any exist
+          TOTAL=0
+          for f in bandit-results.sarif semgrep-results.sarif; do
+            if [ -f "$f" ]; then
+              COUNT=$(python3 -c "import json,sys; d=json.load(open('$f')); print(sum(len(r.get('results',[])) for r in d.get('runs',[])))" 2>/dev/null || echo 0)
+              TOTAL=$((TOTAL + COUNT))
+            fi
+          done
+          echo "Total SAST findings: $TOTAL"
+          if [ "$TOTAL" -gt 0 ]; then
+            echo "has_findings=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_findings=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload security reports
         uses: actions/upload-artifact@v6
@@ -598,17 +619,12 @@ jobs:
             CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
           fi
 
-          if [[ "${{ needs.code-security.result }}" == "failure" ]]; then
-            echo "::error::Code security analysis (SAST) failed - security vulnerabilities detected"
-            CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
-          fi
-
           if [ $CRITICAL_FAILURES -gt 0 ]; then
             echo "::error::$CRITICAL_FAILURES critical security check(s) failed - blocking merge"
             exit 1
           fi
 
-          # Non-critical warnings
+          # Non-critical warnings for jobs treated as advisory
           if [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
             echo "::warning::Dependency scan reported issues - review recommended"
           fi

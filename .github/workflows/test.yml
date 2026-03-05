@@ -250,13 +250,14 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<'EOF'
           ENV=development
           API_URL=http://localhost:8000/api/v1
           WS_URL=ws://localhost:8090
           ENABLE_OFFLINE_MODE=true
           ENABLE_BACKGROUND_SYNC=true
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs

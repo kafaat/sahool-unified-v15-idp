@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 import 'sync_mocks.dart';
 
@@ -357,7 +356,7 @@ void main() {
 
     test('should sync pending items in background task', () async {
       // Setup mock database with pending items
-      final id1 = await mockDb.queueOutboxItem(
+      await mockDb.queueOutboxItem(
         tenantId: 'tenant_1',
         entityType: 'field',
         entityId: 'field_001',
@@ -365,7 +364,7 @@ void main() {
         method: 'PUT',
         payload: '{}',
       );
-      final id2 = await mockDb.queueOutboxItem(
+      await mockDb.queueOutboxItem(
         tenantId: 'tenant_1',
         entityType: 'task',
         entityId: 'task_001',

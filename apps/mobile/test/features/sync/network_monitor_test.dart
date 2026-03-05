@@ -51,7 +51,7 @@ void main() {
       networkStatus.setOnline(true);
       networkStatus.setOnline(false);
 
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(statuses, equals([false, true, false]));
 
@@ -203,7 +203,7 @@ void main() {
 
       // Go offline
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(networkStatus.isOnline, isFalse);
       expect(transitions, contains(false));
@@ -223,7 +223,7 @@ void main() {
       });
 
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(syncPaused, isTrue);
       expect(queueEnabled, isTrue);
@@ -238,7 +238,7 @@ void main() {
       networkStatus.setOnline(false);
       networkStatus.setOnline(true);
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(transitions.length, equals(4));
       expect(transitions.last, isTrue);
@@ -272,7 +272,7 @@ void main() {
 
       // Start offline
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       // Queue some items while offline
       await mockDb.queueOutboxItem(
@@ -289,7 +289,7 @@ void main() {
 
       // Come back online
       networkStatus.setOnline(true);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(syncTriggered, isTrue);
     });
@@ -404,19 +404,19 @@ void main() {
 
       // Simulate intermittent connectivity
       networkStatus.setOnline(true);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       networkStatus.setOnline(true);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       networkStatus.setOnline(true);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(connectivityEvents.length, equals(5));
       expect(connectivityEvents.last, isTrue);
@@ -461,7 +461,7 @@ void main() {
       });
 
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 5));
+      await Future<void>.delayed(const Duration(milliseconds: 5));
 
       // Dispose while potentially emitting
       networkStatus.dispose();
@@ -482,7 +482,7 @@ void main() {
       networkStatus.setOnline(false);
       networkStatus.setOnline(true);
 
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       // Both subscriptions should receive same events
       expect(events1.length, equals(2));
@@ -507,7 +507,7 @@ void main() {
 
       // Emit new event
       networkStatus.setOnline(false);
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
       // Should only receive events after subscription
       expect(events.length, equals(1));

@@ -14,6 +14,8 @@ from .models import (
     CropKnowledgeDocument,
     FertilizerKnowledgeDocument,
     IrrigationKnowledgeDocument,
+    PestVisionDocument,
+    SmartAgricultureDocument,
     SoilTypeDocument,
 )
 
@@ -57,6 +59,11 @@ class KnowledgeValidator:
     IRRIGATION_EFFICIENCY_RANGE = (0.0, 100.0)
     ORGANIC_MATTER_RANGE = (0.0, 100.0)
 
+    # Research-backed constraints (from AgriRegion, C3PO, CGIAR standards)
+    WATER_REQUIREMENT_MM_RANGE = (0.0, 3000.0)
+    HARVEST_DAYS_RANGE = (20, 730)
+    MAP_SCORE_RANGE = (0.0, 1.0)
+
     def validate(self, document: BaseKnowledgeDocument) -> ValidationResult:
         """Validate a knowledge document."""
         result = ValidationResult()
@@ -73,6 +80,10 @@ class KnowledgeValidator:
             self._validate_irrigation(document, result)
         elif isinstance(document, FertilizerKnowledgeDocument):
             self._validate_fertilizer(document, result)
+        elif isinstance(document, SmartAgricultureDocument):
+            self._validate_smart_agriculture(document, result)
+        elif isinstance(document, PestVisionDocument):
+            self._validate_pest_vision(document, result)
 
         if result.issues:
             logger.info(
@@ -162,3 +173,55 @@ class KnowledgeValidator:
                     f"Nutrient {nutrient} content {pct}% outside 0-100",
                     f"محتوى {nutrient} {pct}% خارج النطاق 0-100",
                 )
+
+    def _validate_smart_agriculture(self, doc: SmartAgricultureDocument, result: ValidationResult) -> None:
+        """Validate smart agriculture document fields.
+        Based on AGRARIAN (MDPI 2025) and FAO Digital Agriculture Roadmap."""
+        valid_tech_types = {"iot", "drone", "digital_twin", "ai_model", "blockchain", "edge", "precision", ""}
+        if doc.technology_type and doc.technology_type not in valid_tech_types:
+            result.add_warning(
+                "technology_type",
+                f"Unknown technology type: {doc.technology_type}",
+                f"نوع تقنية غير معروف: {doc.technology_type}",
+            )
+
+        valid_scales = {"field", "farm", "region", "national", ""}
+        if doc.deployment_scale and doc.deployment_scale not in valid_scales:
+            result.add_warning(
+                "deployment_scale",
+                f"Unknown deployment scale: {doc.deployment_scale}",
+                f"نطاق نشر غير معروف: {doc.deployment_scale}",
+            )
+
+        valid_connectivity = {"offline", "low", "moderate", "high", ""}
+        if doc.connectivity_requirement and doc.connectivity_requirement not in valid_connectivity:
+            result.add_warning(
+                "connectivity_requirement",
+                f"Unknown connectivity requirement: {doc.connectivity_requirement}",
+                f"متطلب اتصال غير معروف: {doc.connectivity_requirement}",
+            )
+
+    def _validate_pest_vision(self, doc: PestVisionDocument, result: ValidationResult) -> None:
+        """Validate pest/disease vision detection document.
+        Based on RS-YOLO (96.6% mAP), RDW-YOLO, SerpensGate-YOLOv8."""
+        if doc.map_score is not None:
+            if not (self.MAP_SCORE_RANGE[0] <= doc.map_score <= self.MAP_SCORE_RANGE[1]):
+                result.add_error(
+                    "map_score",
+                    f"mAP score {doc.map_score} outside valid range 0-1",
+                    f"درجة mAP {doc.map_score} خارج النطاق الصالح 0-1",
+                )
+
+        if doc.min_confidence < 0 or doc.min_confidence > 1:
+            result.add_error(
+                "min_confidence",
+                f"Confidence threshold {doc.min_confidence} outside 0-1",
+                f"عتبة الثقة {doc.min_confidence} خارج النطاق 0-1",
+            )
+
+        if doc.image_size_px < 32 or doc.image_size_px > 4096:
+            result.add_warning(
+                "image_size_px",
+                f"Image size {doc.image_size_px}px outside typical range 32-4096",
+                f"حجم الصورة {doc.image_size_px}px خارج النطاق المعتاد",
+            )

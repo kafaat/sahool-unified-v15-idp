@@ -612,12 +612,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
@@ -675,12 +676,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
@@ -805,12 +807,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
@@ -889,12 +892,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << EOF
+          cat > .env <<EOF
           API_BASE_URL=https://api.sahool.app
           WEATHER_API_KEY=test_weather_key
           MAPS_API_KEY=test_maps_key
           ENV=test
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
@@ -1127,7 +1131,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat > .env << 'EOF'
+          cat > .env <<'EOF'
           ENV=test
           API_URL=http://localhost:8080
           WS_URL=ws://localhost:8080
@@ -1136,6 +1140,7 @@ jobs:
           MAPS_API_KEY=test_maps_key
           MAPBOX_ACCESS_TOKEN=pk.test_token
           EOF
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen

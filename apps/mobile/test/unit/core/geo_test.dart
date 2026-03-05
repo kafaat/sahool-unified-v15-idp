@@ -197,7 +197,7 @@ void main() {
       // Arrange
       final geometry = {
         'type': 'Polygon',
-        'coordinates': [],
+        'coordinates': <dynamic>[],
       };
 
       // Act
@@ -442,7 +442,7 @@ void main() {
       // Arrange
       const feature = GeoJsonFeature(
         id: '1',
-        geometry: {'type': 'Polygon', 'coordinates': []},
+        geometry: {'type': 'Polygon', 'coordinates': <dynamic>[]},
         properties: {},
       );
 
@@ -468,7 +468,7 @@ void main() {
     test('isMultiPolygon returns true for MultiPolygon geometry', () {
       // Arrange
       const feature = GeoJsonFeature(
-        geometry: {'type': 'MultiPolygon', 'coordinates': []},
+        geometry: {'type': 'MultiPolygon', 'coordinates': <dynamic>[]},
         properties: {},
       );
 
@@ -530,7 +530,7 @@ void main() {
     test('point getter returns null for non-Point type', () {
       // Arrange
       const feature = GeoJsonFeature(
-        geometry: {'type': 'Polygon', 'coordinates': []},
+        geometry: {'type': 'Polygon', 'coordinates': <dynamic>[]},
         properties: {},
       );
 
@@ -568,7 +568,7 @@ void main() {
 
       // Assert
       expect(polygon['type'], 'Polygon');
-      expect(polygon['coordinates'], isA<List>());
+      expect(polygon['coordinates'], isA<List<dynamic>>());
     });
 
     test('centroid getter delegates to GeoJson.calculateCentroid', () {

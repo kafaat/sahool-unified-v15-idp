@@ -10,7 +10,7 @@ tags:
   - machine-learning
 category: ai-smart-agriculture
 last_updated: 2026-03-04
-version: 2.0.0
+version: 2.1.0
 ---
 
 # الذكاء الاصطناعي + الزراعة الذكية | AI + Smart Agriculture
@@ -32,7 +32,11 @@ version: 2.0.0
 
 ### التقنيات والمعايير | Technologies & Standards
 - [[agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]] - نماذج AI الكبيرة المتخصصة في الزراعة
+- [[computer-vision-plant-monitoring|الرؤية الحاسوبية لمراقبة النباتات (CV Plant Monitoring)]] - تقنيات الاستشعار وسير العمل الذكي
 - [[policies-standards|السياسات والمعايير (Policies & Standards)]] - الأطر التنظيمية وحوكمة البيانات
+
+### التطبيقات المحصولية | Crop-Specific Applications
+- [[smart-cotton-arab|القطن الذكي للمنطقة العربية (Smart Cotton - Arab Regions)]] - تكييف تقنيات شينجيانغ مع دمج IoT والتعلم الآلي لإدارة الملوحة وتوفير المياه
 
 ### الاتجاهات والتطبيق | Trends & Implementation
 - [[trends-challenges|الاتجاهات والتحديات (Trends & Challenges)]] - مستقبل الصناعة

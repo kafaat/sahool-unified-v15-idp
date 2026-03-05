@@ -24,6 +24,7 @@ env:
   JAVA_VERSION: '17'
   ANDROID_COMPILE_SDK: '36'
   ANDROID_BUILD_TOOLS: '36.0.0'
+  ANDROID_NDK_VERSION: '27.0.12077973'
 
 jobs:
   build-apk:
@@ -57,7 +58,8 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
+            "platform-tools" \
+            "ndk;${{ env.ANDROID_NDK_VERSION }}"
           echo "Installed SDK packages:"
           sdkmanager --list_installed 2>/dev/null | head -20 || true
 
@@ -81,12 +83,12 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
-          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx6G -XX:MaxMetaspaceSize=2G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
           org.gradle.parallel=true
           org.gradle.caching=true
           GRADLEEOF
-          sed -i 's/^[[:space:]]*//' ~/.gradle/gradle.properties
+          sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties
 
       - name: Get Flutter dependencies
         run: flutter pub get
@@ -113,7 +115,7 @@ jobs:
           MAPS_API_KEY=${MAPS_KEY:-placeholder_maps_key_for_ci_build}
           ENV=${{ github.event.inputs.build_type || 'debug' }}
           ENVEOF
-          sed -i 's/^[[:space:]]*//' .env
+          sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
           echo "Created .env file:"
           cat .env
 

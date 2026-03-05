@@ -12,9 +12,11 @@ ARG PYTHON_VERSION=3.11
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-# Install build dependencies
+# Configure apt to use HTTPS and install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 

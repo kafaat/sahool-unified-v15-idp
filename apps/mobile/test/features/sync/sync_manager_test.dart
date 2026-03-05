@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fake_async/fake_async.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/offline/offline_sync_engine.dart';
-import 'package:sahool_field_app/core/sync/sync_engine.dart' hide SyncStatus, SyncResult;
 import 'package:sahool_field_app/core/utils/retry_policy.dart';
 
 import 'sync_mocks.dart';
@@ -256,7 +251,6 @@ void main() {
       final delays = List.generate(10, (_) => backoff.calculateDelay(2));
 
       // With jitter, delays should vary (base is 4000ms, jitter adds 0-25%)
-      final uniqueDelays = delays.toSet();
       // Highly likely to have some variation (not guaranteed but probable)
       // At minimum, all should be >= base delay
       for (final delay in delays) {

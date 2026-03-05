@@ -16,7 +16,8 @@ FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 
 # Upgrade npm to latest version for better dependency resolution
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
@@ -109,7 +110,8 @@ RUN apt-update.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages (needed for file: protocol dependencies)
 COPY --from=builder /app/packages ./packages

@@ -98,6 +98,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install tini for proper PID 1 signal handling
+RUN apk add --no-cache tini
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
@@ -130,6 +133,9 @@ LABEL org.opencontainers.image.title="SAHOOL Admin Dashboard" \
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+# Use tini as init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # In monorepo standalone, server.js is at apps/admin/server.js
 WORKDIR /app/apps/admin

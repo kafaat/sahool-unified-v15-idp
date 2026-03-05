@@ -6,11 +6,11 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install system dependencies with mirror fallback
+# Install system dependencies with mirror fallback (tini for PID 1 signal handling)
 COPY docker/apt-update.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/apt-update.sh && \
     apt-update.sh && apt-get install -y --no-install-recommends \
-    curl && rm -rf /var/lib/apt/lists/*
+    curl tini && rm -rf /var/lib/apt/lists/*
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
@@ -66,6 +66,9 @@ EXPOSE {{port}}
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:{{port}}/healthz || exit 1
+
+# Use tini as init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run application
 CMD ["python", "-m", "src.main"]

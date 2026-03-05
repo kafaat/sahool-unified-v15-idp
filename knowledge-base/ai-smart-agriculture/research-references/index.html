@@ -1,0 +1,1399 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Agriculture AI Knowledge Base - Research References - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agriculture-ai-knowledge-base-research-references" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Agriculture AI Knowledge Base - Research References
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="agriculture-ai-knowledge-base-research-references">Agriculture AI Knowledge Base - Research References<a class="headerlink" href="#agriculture-ai-knowledge-base-research-references" title="Permanent link">&para;</a></h1>
+<h2 id="academic-papers-10-papers">Academic Papers (10 Papers)<a class="headerlink" href="#academic-papers-10-papers" title="Permanent link">&para;</a></h2>
+<h3 id="1-agriregion-region-aware-rag-for-agriculture">1. AgriRegion - Region-Aware RAG for Agriculture<a class="headerlink" href="#1-agriregion-region-aware-rag-for-agriculture" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Authors</strong>: Mesafint Fanuel et al. (NC A&amp;T, Alabama, Amazon AWS)</li>
+<li><strong>Published</strong>: arXiv:2512.10114, December 2025</li>
+<li><strong>Contribution</strong>: Geospatial metadata injection + regional re-ranking + AgriRegion-Eval benchmark (160 questions, 12 domains)</li>
+<li><strong>Results</strong>: 10-20% hallucination reduction vs GPT-4-Turbo</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/ai/ultrarag/</code> + <code>shared/ai/knowledge/verification/region_filter.py</code> + <code>shared/yemen/</code></li>
+</ul>
+<h3 id="2-crop-graphrag-knowledge-graph-for-pests">2. Crop GraphRAG - Knowledge Graph for Pests<a class="headerlink" href="#2-crop-graphrag-knowledge-graph-for-pests" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: Frontiers in Plant Science, January 2026</li>
+<li><strong>Contribution</strong>: Knowledge Graph + RAG integration, 1,200-token chunking with 200 overlap, 5-stage pipeline</li>
+<li><strong>SAHOOL Integration</strong>: <code>knowledge-graph</code> (port 8140) + <code>shared/ai/ultrarag/</code> + <code>pest-detection-service</code></li>
+</ul>
+<h3 id="3-kallm-knowledge-guided-agricultural-llm">3. KALLM - Knowledge-Guided Agricultural LLM<a class="headerlink" href="#3-kallm-knowledge-guided-agricultural-llm" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Authors</strong>: Jingchi Jiang et al.</li>
+<li><strong>Published</strong>: Knowledge-Based Systems, Vol 314, 2025</li>
+<li><strong>Contribution</strong>: Dual knowledge integration (token-level + sentence-level), CCAD dataset (220,000 Q&amp;A pairs)</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/ai/model_training.py</code> + <code>shared/ai/ultrarag/</code> + <code>copilot-api</code></li>
+</ul>
+<h3 id="4-agroaskai-multi-agent-framework-for-smallholder-farmers">4. AgroAskAI - Multi-Agent Framework for Smallholder Farmers<a class="headerlink" href="#4-agroaskai-multi-agent-framework-for-smallholder-farmers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Authors</strong>: Cantonjos &amp; Biswas</li>
+<li><strong>Published</strong>: arXiv:2512.14910, December 2025</li>
+<li><strong>Contribution</strong>: Specialized agents + Reviewer Agent for hallucination reduction + GPT-5.1 comparison</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/agents/</code> (CrewAI) + <code>shared/ai/orchestration/consensus.py</code></li>
+</ul>
+<h3 id="5-crag-corrective-retrieval-augmented-generation">5. CRAG - Corrective Retrieval Augmented Generation<a class="headerlink" href="#5-crag-corrective-retrieval-augmented-generation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: arXiv:2401.15884, January 2024</li>
+<li><strong>Contribution</strong>: Lightweight retrieval evaluator (T5-large), web search fallback, 19% improvement over standard RAG</li>
+<li><strong>Code</strong>: https://github.com/HuskyInSalt/CRAG</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/ai/ultrarag/</code> + <code>shared/ai/explainability.py</code></li>
+</ul>
+<h3 id="6-c3po-crop-planning-and-production-process-ontology">6. C3PO - Crop Planning and Production Process Ontology<a class="headerlink" href="#6-c3po-crop-planning-and-production-process-ontology" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: Frontiers in AI, October 2023</li>
+<li><strong>Contribution</strong>: 8 modules + 3 layers (general/planned/actual) for all production dimensions</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/crop_rotation/</code> + <code>shared/agri_calendar/</code> + <code>digital-twin-engine</code></li>
+</ul>
+<h3 id="7-agrarian-hybrid-ai-architecture-for-smart-agriculture">7. AGRARIAN - Hybrid AI Architecture for Smart Agriculture<a class="headerlink" href="#7-agrarian-hybrid-ai-architecture-for-smart-agriculture" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: MDPI Agriculture, April 2025</li>
+<li><strong>Contribution</strong>: 4 layers + 5G + LEO satellites + federated learning on edge</li>
+<li><strong>SAHOOL Integration</strong>: <code>edge-orchestrator-service</code> + <code>shared/edge_cloud/</code></li>
+</ul>
+<h3 id="8-ragops-operating-and-managing-rag-pipelines">8. RAGOps - Operating and Managing RAG Pipelines<a class="headerlink" href="#8-ragops-operating-and-managing-rag-pipelines" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: arXiv:2506.03401, June 2025</li>
+<li><strong>Contribution</strong>: 4+1 RAG architecture model + dual lifecycle (DevOps + Data Operations) + GDPR compliance</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/ai/ultrarag/</code> + <code>shared/ai/knowledge/ingestion/</code> + <code>shared/ai/observability.py</code></li>
+</ul>
+<h3 id="9-agrisaathi-temporal-aware-agricultural-advisory">9. AgriSaathi - Temporal-Aware Agricultural Advisory<a class="headerlink" href="#9-agrisaathi-temporal-aware-agricultural-advisory" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: IJFMR, 2025</li>
+<li><strong>Contribution</strong>: Seasonal retrieval priority + real-time integration (weather + prices + alerts) + multimodal</li>
+<li><strong>SAHOOL Integration</strong>: <code>shared/agri_calendar/</code> + <code>weather-service</code> + <code>marketplace-service</code></li>
+</ul>
+<h3 id="10-digital-twins-in-agriculture-review-of-167-studies">10. Digital Twins in Agriculture (Review of 167 Studies)<a class="headerlink" href="#10-digital-twins-in-agriculture-review-of-167-studies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Published</strong>: MDPI AgriEngineering, May 2025</li>
+<li><strong>Contribution</strong>: IoT+UAV+ML+RS integration framework, real-time irrigation/fertilization/pest simulation</li>
+<li><strong>SAHOOL Integration</strong>: <code>digital-twin-engine</code> (port 8253) + <code>irrigation-smart</code> + <code>iot-service</code></li>
+</ul>
+<hr />
+<h2 id="global-platforms-standards-5-sources">Global Platforms &amp; Standards (5 Sources)<a class="headerlink" href="#global-platforms-standards-5-sources" title="Permanent link">&para;</a></h2>
+<h3 id="1-cropin-cloud">1. CropIn Cloud<a class="headerlink" href="#1-cropin-cloud" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scale</strong>: 500+ crops, 10,000+ varieties, 103 countries, 1B+ acres</li>
+<li><strong>Technologies</strong>: 22 AI models + Cropin Sage (GenAI on Gemini) + 3 layers (Apps/Data Hub/Intelligence)</li>
+<li><strong>Results</strong>: 30% yield increase + 37% income increase (World Bank project)</li>
+<li><strong>URL</strong>: https://www.cropin.com/intelligent-agriculture-cloud.html</li>
+</ul>
+<h3 id="2-fao-agrovoc">2. FAO AGROVOC<a class="headerlink" href="#2-fao-agrovoc" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scale</strong>: 41,400+ concepts, 1,219,000+ terms, 42 languages (including Arabic)</li>
+<li><strong>Standard</strong>: SKOS-XL Linked Open Data, CC-BY-4.0</li>
+<li><strong>URL</strong>: https://www.fao.org/agrovoc/</li>
+<li><strong>SAHOOL Integration</strong>: Backbone for <code>shared/ai/knowledge/</code> + <code>shared/nlp/</code> + <code>knowledge-graph</code></li>
+</ul>
+<h3 id="3-cgiar-crop-ontology-agronomy-ontology">3. CGIAR Crop Ontology &amp; Agronomy Ontology<a class="headerlink" href="#3-cgiar-crop-ontology-agronomy-ontology" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scale</strong>: Standard vocabulary across 15+ international research centers</li>
+<li><strong>Includes</strong>: Crop Ontology (CO) + Agronomy Ontology (AgrO) + Socio-Economic Ontology</li>
+<li><strong>URL</strong>: https://bigdata.cgiar.org/communities-of-practice/ontologies/</li>
+</ul>
+<h3 id="4-usda-ai-strategy-fy-2025-2026">4. USDA AI Strategy FY 2025-2026<a class="headerlink" href="#4-usda-ai-strategy-fy-2025-2026" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scale</strong>: $220M federal investment in 5 national AI institutes for agriculture</li>
+<li><strong>Contribution</strong>: AI governance framework + MITRE maturity model + AI CoE</li>
+<li><strong>URL</strong>: https://www.usda.gov/ai</li>
+</ul>
+<h3 id="5-fao-digital-agriculture-roadmap-2025">5. FAO Digital Agriculture Roadmap 2025<a class="headerlink" href="#5-fao-digital-agriculture-roadmap-2025" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Contribution</strong>: Federated decentralized framework, 4 pillars (policy/technology/innovation/impact)</li>
+<li><strong>Scale</strong>: 194 FAO member states</li>
+<li><strong>URL</strong>: https://www.fao.org/innovation/home/digital-agriculture-and-ai-innovation/en</li>
+</ul>
+<hr />
+<h2 id="computer-vision-yolo-for-agriculture">Computer Vision (YOLO) for Agriculture<a class="headerlink" href="#computer-vision-yolo-for-agriculture" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Contribution</th>
+<th>mAP@0.5</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RS-YOLO (YOLOv8n)</td>
+<td>Dense small-target pest detection</td>
+<td>96.6%</td>
+<td>ScienceDirect</td>
+</tr>
+<tr>
+<td>RDW-YOLO (YOLO11)</td>
+<td>Higher efficiency (-15% compute)</td>
+<td>71.3%</td>
+<td>PMC</td>
+</tr>
+<tr>
+<td>SerpensGate-YOLOv8</td>
+<td>Plant diseases with DySnakeConv</td>
+<td>+3.3% baseline</td>
+<td>Frontiers</td>
+</tr>
+<tr>
+<td>YOLOv11 (Nature 2026)</td>
+<td>Plant health monitoring, 66 FPS</td>
+<td>High</td>
+<td>Nature</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="smart-agriculture-in-china-6-sources">Smart Agriculture in China (6 Sources)<a class="headerlink" href="#smart-agriculture-in-china-6-sources" title="Permanent link">&para;</a></h2>
+<h3 id="1-national-smart-agriculture-action-plan-2024-2028">1. National Smart Agriculture Action Plan 2024-2028<a class="headerlink" href="#1-national-smart-agriculture-action-plan-2024-2028" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Market</strong>: 100B yuan ($14.35B) in 2024, 5B yuan government funding</li>
+<li><strong>Goals</strong>: 30% digitization rate by 2026, 20+ core algorithms</li>
+</ul>
+<h3 id="2-xinjiang-smart-cotton">2. Xinjiang Smart Cotton<a class="headerlink" href="#2-xinjiang-smart-cotton" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Results</strong>: Production: 285 to 442 kg/mu (+55%), income +1,000 yuan/mu</li>
+<li><strong>Technologies</strong>: IoT + BeiDou (&lt;5cm) + smart irrigation + drone spraying 50x faster</li>
+</ul>
+<h3 id="3-national-traceability-platform">3. National Traceability Platform<a class="headerlink" href="#3-national-traceability-platform" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Results</strong>: 23-41% price premium for blockchain-certified products</li>
+<li><strong>Technologies</strong>: Blockchain + RFID + IoT + SM3 cryptographic (30% efficiency)</li>
+</ul>
+<hr />
+<h2 id="smart-agriculture-in-the-arab-region-4-sources">Smart Agriculture in the Arab Region (4 Sources)<a class="headerlink" href="#smart-agriculture-in-the-arab-region-4-sources" title="Permanent link">&para;</a></h2>
+<h3 id="1-saudi-arabia-climate-smart-agriculture-vision-2030">1. Saudi Arabia - Climate-Smart Agriculture (Vision 2030)<a class="headerlink" href="#1-saudi-arabia-climate-smart-agriculture-vision-2030" title="Permanent link">&para;</a></h3>
+<ul>
+<li>1.6% arable land, 52% focus on resilient varieties, 46% drip/sprinkler irrigation</li>
+</ul>
+<h3 id="2-uae-vertical-farming">2. UAE - Vertical Farming<a class="headerlink" href="#2-uae-vertical-farming" title="Permanent link">&para;</a></h3>
+<ul>
+<li>$680M Plenty-Mawarid joint venture, 22% annual growth</li>
+</ul>
+<h3 id="3-icarda-regional-collaboration-including-yemen">3. ICARDA - Regional Collaboration (including Yemen)<a class="headerlink" href="#3-icarda-regional-collaboration-including-yemen" title="Permanent link">&para;</a></h3>
+<ul>
+<li>6 GCC countries + Yemen, protected agriculture, water-saving technologies</li>
+</ul>
+<h3 id="4-offline-first-market-gap">4. Offline-First Market Gap<a class="headerlink" href="#4-offline-first-market-gap" title="Permanent link">&para;</a></h3>
+<ul>
+<li>47% of developing-country farmers use mobile apps, demand "far from satisfied" (GSMA 2019)</li>
+</ul>
+<hr />
+<h2 id="iot-and-precision-irrigation">IoT and Precision Irrigation<a class="headerlink" href="#iot-and-precision-irrigation" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Results</th>
+<th>Technologies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microsoft (Andhra Pradesh)</td>
+<td>30% yield increase + 70% water savings</td>
+<td>IoT + ML</td>
+</tr>
+<tr>
+<td>Xinjiang Cotton</td>
+<td>55 m3/hectare water savings</td>
+<td>IoT + BeiDou</td>
+</tr>
+<tr>
+<td>Digital Twins + Irrigation</td>
+<td>Pre-use water simulation</td>
+<td>ML + DT + sensors</td>
+</tr>
+<tr>
+<td>LSTM Soil Moisture</td>
+<td>Soil moisture prediction + auto valve control</td>
+<td>ESP32 + LSTM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-findings-for-sahool-top-10">Key Findings for SAHOOL (Top 10)<a class="headerlink" href="#key-findings-for-sahool-top-10" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>SAHOOL has 85%+ of architecture mentioned in research</strong> - Infrastructure ready, knowledge content is the gap</li>
+<li><strong>AgriRegion + CRAG = immediate RAG improvement</strong> - 10-20% hallucination reduction with regional filter + self-correction</li>
+<li><strong>AGROVOC (42 languages) as backbone</strong> - Unified EN/AR agricultural terminology</li>
+<li><strong>RS-YOLO for small pest detection</strong> - 96.6% mAP upgrade for yolo26-vision-service</li>
+<li><strong>70% water savings achievable</strong> - Strong economic case for smart irrigation in Arab region</li>
+<li><strong>23-41% price premium for traceability</strong> - Economic case for traceability-service</li>
+<li><strong>Offline-first = real market gap</strong> - 47% use apps but demand "far from satisfied"</li>
+<li><strong>1+N model matches SAHOOL architecture</strong> - 1 kernel + 72 microservices = same pattern</li>
+<li><strong>FAO + World Bank confirm direction</strong> - Decentralized offline-first = FAO 2025 strategy</li>
+<li><strong>Arab smart agriculture market growing rapidly</strong> - $680M UAE + Vision 2030 Saudi + ICARDA Yemen</li>
+</ol>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1776 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="تكييف تقنيات زراعة القطن الذكية من شينجيانغ للمنطقة العربية مع دمج IoT والتعلم الآلي">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>القطن الذكي للمنطقة العربية - Smart Cotton Farming for Arab Regions - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#smart-cotton-farming-for-arab-regions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              القطن الذكي للمنطقة العربية - Smart Cotton Farming for Arab Regions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="smart-cotton-farming-for-arab-regions">القطن الذكي للمنطقة العربية | Smart Cotton Farming for Arab Regions<a class="headerlink" href="#smart-cotton-farming-for-arab-regions" title="Permanent link">&para;</a></h1>
+<p>تكييف تقنيات إدارة القطن الذكية المطبقة بنجاح في شينجيانغ (الصين) للمنطقة العربية، مع التركيز على إدارة الملوحة وتوفير المياه وزيادة الإنتاجية.</p>
+<p>This document adapts smart cotton farming technologies successfully implemented in Xinjiang, China, for Arab cotton-growing regions, focusing on salinity management, water conservation, and yield optimization.</p>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="shared-challenges">أوجه التشابه بين شينجيانغ والمنطقة العربية | Shared Challenges<a class="headerlink" href="#shared-challenges" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التحدي</th>
+<th>شينجيانغ (الصين)</th>
+<th>المنطقة العربية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المناخ</strong></td>
+<td>جاف قاري، هطول &lt; 200 مم</td>
+<td>جاف حار، هطول &lt; 100 مم (أشد)</td>
+</tr>
+<tr>
+<td><strong>شح المياه</strong></td>
+<td>أنهار موسمية، ري قنوات</td>
+<td>نضوب مياه جوفية، ري آبار</td>
+</tr>
+<tr>
+<td><strong>ملوحة التربة</strong></td>
+<td>جنوب شينجيانغ: 3-8 dS/m</td>
+<td>تهامة/الدلتا: 2-12 dS/m (أعلى)</td>
+</tr>
+<tr>
+<td><strong>تكلفة العمالة</strong></td>
+<td>ارتفاع 40% في عقد</td>
+<td>هجرة ريفية متسارعة</td>
+</tr>
+<tr>
+<td><strong>المساحة</strong></td>
+<td>210,000 هكتار مشروع</td>
+<td>مصر 100K + يمن + سودان</td>
+</tr>
+<tr>
+<td><strong>البيانات</strong></td>
+<td>مبعثرة قبل المشروع</td>
+<td>مبعثرة - تحتاج توحيد</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>الخلاصة</strong>: المنطقة العربية تواجه تحديات <strong>أشد</strong> من شينجيانغ في المياه والملوحة، مما يجعل الحاجة للتقنيات الذكية <strong>أكبر</strong> والعائد المتوقع <strong>أعلى</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="pain-points-arab-context">نقاط الألم: السياق العربي | Pain Points: Arab Context<a class="headerlink" href="#pain-points-arab-context" title="Permanent link">&para;</a></h2>
+<h3 id="1-high-manual-management-costs">1. ارتفاع تكلفة الإدارة اليدوية | High Manual Management Costs<a class="headerlink" href="#1-high-manual-management-costs" title="Permanent link">&para;</a></h3>
+<p>تُشكل تكلفة اليد العاملة 40-60% من إجمالي تكلفة إنتاج القطن في المنطقة العربية:</p>
+<table>
+<thead>
+<tr>
+<th>المنطقة</th>
+<th>نمط الزراعة</th>
+<th>تكلفة العمالة</th>
+<th>التحدي الرئيسي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مصر (الصعيد)</td>
+<td>أسري كثيف</td>
+<td>45-55%</td>
+<td>جمع يدوي + مكافحة آفات</td>
+</tr>
+<tr>
+<td>اليمن (تهامة)</td>
+<td>صغار مزارعين</td>
+<td>50-60%</td>
+<td>ري يدوي + حصاد</td>
+</tr>
+<tr>
+<td>السودان (الجزيرة)</td>
+<td>مشاريع كبيرة</td>
+<td>35-45%</td>
+<td>نقص عمالة موسمية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-severe-water-scarcity">2. شح المياه الحاد | Severe Water Scarcity<a class="headerlink" href="#2-severe-water-scarcity" title="Permanent link">&para;</a></h3>
+<p>القطن محصول <strong>عالي الاحتياج المائي</strong> (700-1,300 مم/موسم) في منطقة تعاني أزمة مياه:</p>
+<ul>
+<li><strong>اليمن</strong>: انخفاض المياه الجوفية 2-4 م/سنة في بعض المناطق، أزمة حوض صنعاء</li>
+<li><strong>مصر</strong>: حصة النيل محدودة (55.5 مليار م³)، تأثر بسد النهضة</li>
+<li><strong>السعودية</strong>: نضوب المياه الجوفية غير المتجددة</li>
+<li><strong>السودان</strong>: بنية تحتية قديمة، فقد 30-40% من مياه الري في القنوات</li>
+</ul>
+<h3 id="3-escalating-soil-salinity">3. ملوحة التربة المتفاقمة | Escalating Soil Salinity<a class="headerlink" href="#3-escalating-soil-salinity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المنطقة</th>
+<th>مصدر الملوحة</th>
+<th>مستوى EC</th>
+<th>تأثير على القطن</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تهامة (اليمن)</td>
+<td>تسرب مياه بحر</td>
+<td>4-12 dS/m</td>
+<td><strong>تحتاج إدارة نشطة</strong></td>
+</tr>
+<tr>
+<td>دلتا النيل</td>
+<td>ارتفاع منسوب المياه الجوفية</td>
+<td>2-6 dS/m</td>
+<td>متوسط التأثير</td>
+</tr>
+<tr>
+<td>جنوب العراق</td>
+<td>أهوار + ري سيء</td>
+<td>5-15 dS/m</td>
+<td><strong>شديد</strong></td>
+</tr>
+<tr>
+<td>الساحل السعودي</td>
+<td>تداخل مالح</td>
+<td>3-8 dS/m</td>
+<td>يحتاج إدارة</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>القطن بعتبة ملوحة <strong>7.7 dS/m</strong> (من <code>shared/salinity/module.py</code>) هو <strong>أنسب محصول</strong> لهذه المناطق. الشعير فقط (8.0 dS/m) يتفوق عليه.</p>
+</blockquote>
+<hr />
+<h2 id="core-innovation-closed-loop-management">الابتكار الأساسي: إدارة الحلقة المغلقة | Core Innovation: Closed-Loop Management<a class="headerlink" href="#core-innovation-closed-loop-management" title="Permanent link">&para;</a></h2>
+<p>آلية الإدارة المغلقة المطبقة بنجاح في شينجيانغ، مُعدّلة لخدمات منصة SAHOOL:</p>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                                                                   │
+│   ┌──────────────┐         ┌──────────────┐                     │
+│   │   المراقبة   │ ──────► │   التحليل   │                     │
+│   │  Monitoring   │         │  Analysis    │                     │
+│   │              │         │              │                     │
+│   │ • IoT sensors │         │ • NDVI trend  │                     │
+│   │ • SM, EC, T  │         │ • ML models   │                     │
+│   │ • NDVI weekly │         │ • Salinity    │                     │
+│   │ • Weather     │         │   forecast   │                     │
+│   └──────┬───────┘         └──────┬───────┘                     │
+│          │                        │                              │
+│          │                        ▼                              │
+│   ┌──────┴───────┐         ┌──────────────┐                     │
+│   │ التغذية      │ ◄────── │   التنظيم   │                     │
+│   │  الراجعة     │         │  Regulation   │                     │
+│   │  Feedback     │         │              │                     │
+│   │              │         │ • Irrigation   │                     │
+│   │ • Yield data  │         │   schedule   │                     │
+│   │ • Farmer      │         │ • Fertigation │                     │
+│   │   feedback   │         │ • Pest alerts  │                     │
+│   │ • Cost/ROI    │         │ • Defoliation │                     │
+│   └──────────────┘         └──────────────┘                     │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="sahool-sahool-service-mapping">ربط كل مرحلة بخدمات SAHOOL | SAHOOL Service Mapping<a class="headerlink" href="#sahool-sahool-service-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>الخدمة/الوحدة في SAHOOL</th>
+<th>الوظيفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المراقبة</strong></td>
+<td><code>iot-service</code> (port 8117)</td>
+<td>إدارة أجهزة IoT</td>
+</tr>
+<tr>
+<td></td>
+<td><code>iot-gateway</code> (port 8106)</td>
+<td>بوابة بروتوكولات MQTT/LoRaWAN</td>
+</tr>
+<tr>
+<td></td>
+<td><code>iot-sensor-hub</code> (port 8251)</td>
+<td>تجميع بيانات الاستشعار</td>
+</tr>
+<tr>
+<td></td>
+<td><code>weather-service</code> (port 8092)</td>
+<td>بيانات أرصاد جوية</td>
+</tr>
+<tr>
+<td></td>
+<td><code>vegetation-analysis-service</code> (port 8090)</td>
+<td>تحليل NDVI عبر Sentinel Hub</td>
+</tr>
+<tr>
+<td><strong>التحليل</strong></td>
+<td><code>crop-intelligence-service</code> (port 8095)</td>
+<td>ذكاء المحاصيل</td>
+</tr>
+<tr>
+<td></td>
+<td><code>soil-analysis-service</code> (port 8134)</td>
+<td>تحليل التربة والملوحة</td>
+</tr>
+<tr>
+<td></td>
+<td><code>shared/salinity/module.py</code></td>
+<td>حسابات FAO-29 للملوحة</td>
+</tr>
+<tr>
+<td></td>
+<td><code>shared/ml_irrigation/</code></td>
+<td>نماذج ML للري</td>
+</tr>
+<tr>
+<td><strong>التنظيم</strong></td>
+<td><code>irrigation-smart</code> (port 8094)</td>
+<td>جدولة الري الذكي</td>
+</tr>
+<tr>
+<td></td>
+<td><code>advisory-service</code> (port 8093)</td>
+<td>توصيات زراعية</td>
+</tr>
+<tr>
+<td></td>
+<td><code>task-service</code> (port 8103)</td>
+<td>إدارة المهام</td>
+</tr>
+<tr>
+<td><strong>التغذية الراجعة</strong></td>
+<td><code>shared/ai/feedback.py</code></td>
+<td>جمع تقييمات المزارعين</td>
+</tr>
+<tr>
+<td></td>
+<td><code>shared/ai/experience_learning.py</code></td>
+<td>تعلم ذاتي من التجارب</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="full-fertility-period-data-collection">جمع بيانات فترة الخصوبة الكاملة | Full Fertility Period Data Collection<a class="headerlink" href="#full-fertility-period-data-collection" title="Permanent link">&para;</a></h2>
+<h3 id="iot">نشر أجهزة IoT عبر مراحل النمو الأربع<a class="headerlink" href="#iot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مرحلة النمو</th>
+<th>المدة</th>
+<th>أجهزة الاستشعار</th>
+<th>وحدة SAHOOL</th>
+<th>المعاملات الحرجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>أولية</strong> (إنبات)</td>
+<td>30 يوم</td>
+<td>SM, Temp, EC</td>
+<td><code>soil_sensors/</code></td>
+<td>رطوبة إنبات 65-75%</td>
+</tr>
+<tr>
+<td><strong>نمو</strong> (خضري)</td>
+<td>50 يوم</td>
+<td>SM, EC, NDVI</td>
+<td><code>vegetation-analysis-service</code></td>
+<td>تطور المظلة الخضرية</td>
+</tr>
+<tr>
+<td><strong>منتصف الموسم</strong> (تزهير)</td>
+<td>55 يوم</td>
+<td>SM, EC, NDVI, Weather</td>
+<td><code>irrigation-smart</code></td>
+<td>ذروة الاستهلاك المائي (Kc=1.20)</td>
+</tr>
+<tr>
+<td><strong>متأخرة</strong> (نضج)</td>
+<td>45 يوم</td>
+<td>SM, Temp</td>
+<td><code>advisory-service</code></td>
+<td>توقيت إزالة الأوراق</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-types">أنواع البيانات المجمعة | Data Types<a class="headerlink" href="#data-types" title="Permanent link">&para;</a></h3>
+<p><strong>بيانات الإنتاج</strong> (Production Data):
+- استهلاك المياه بالتبخر-النتح (ET) - مقاس بمحطات أرصاد صغيرة
+- ملوحة التربة (EC) - مقاسة بأجهزة EC في منطقة الجذور
+- رطوبة التربة (SM) - بروتوكول MQTT كل 15 دقيقة</p>
+<p><strong>بيانات بيئية</strong> (Environmental Data):
+- بيانات أرصاد جوية (حرارة، رطوبة، رياح، إشعاع)
+- صور الأقمار الصناعية (NDVI أسبوعي عبر Sentinel Hub)</p>
+<p><strong>بيانات إدارية</strong> (Management Data):
+- برامج الزراعة والري
+- سجلات التسميد والمكافحة
+- تكاليف ونتائج الموسم</p>
+<hr />
+<h2 id="iot-iot-machine-learning-integration">دمج IoT + التعلم الآلي | IoT + Machine Learning Integration<a class="headerlink" href="#iot-iot-machine-learning-integration" title="Permanent link">&para;</a></h2>
+<h3 id="1-soil-moisture-prediction">1. التنبؤ برطوبة التربة | Soil Moisture Prediction<a class="headerlink" href="#1-soil-moisture-prediction" title="Permanent link">&para;</a></h3>
+<p>نموذج <strong>الغابات العشوائية</strong> (Random Forest) المطبق في شينجيانغ، مُعدّل للمنطقة العربية:</p>
+<p><strong>المدخلات</strong>: EC التربة + حرارة الهواء + رطوبة الهواء + سرعة الرياح + NDVI
+<strong>المخرجات</strong>: رطوبة التربة المتوقعة بعد 24-72 ساعة</p>
+<blockquote>
+<p><strong>تطبيق SAHOOL</strong>: <code>shared/ml_irrigation/</code> يدعم نماذج ML للتنبؤ بالري</p>
+</blockquote>
+<h3 id="2-smart-salinity-management">2. إدارة الملوحة الذكية | Smart Salinity Management<a class="headerlink" href="#2-smart-salinity-management" title="Permanent link">&para;</a></h3>
+<p>دمج قراءات EC اللحظية مع حسابات FAO-29 الموجودة في <code>shared/salinity/module.py</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">القطن</span><span class="o">:</span><span class="w"> </span><span class="err">عتبة</span><span class="w"> </span><span class="n">ECe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">7.7</span><span class="w"> </span><span class="n">dS</span><span class="sr">/m | منحدر = 5.2%/dS/</span><span class="n">m</span>
+
+<span class="err">مثال</span><span class="w"> </span><span class="err">عملي</span><span class="w"> </span><span class="o">(</span><span class="err">تهامة</span><span class="o">):</span>
+<span class="o">-</span><span class="w"> </span><span class="err">ملوحة</span><span class="w"> </span><span class="err">ماء</span><span class="w"> </span><span class="err">الري</span><span class="o">:</span><span class="w"> </span><span class="mf">3.5</span><span class="w"> </span><span class="n">dS</span><span class="o">/</span><span class="n">m</span>
+<span class="o">-</span><span class="w"> </span><span class="err">ملوحة</span><span class="w"> </span><span class="err">التربة</span><span class="w"> </span><span class="err">الحالية</span><span class="o">:</span><span class="w"> </span><span class="mf">6.0</span><span class="w"> </span><span class="n">dS</span><span class="o">/</span><span class="n">m</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">لا</span><span class="w"> </span><span class="err">فقد</span><span class="w"> </span><span class="err">إنتاج</span><span class="w"> </span><span class="o">(&lt;</span><span class="w"> </span><span class="mf">7.7</span><span class="o">)</span>
+<span class="o">-</span><span class="w"> </span><span class="err">كسر</span><span class="w"> </span><span class="err">الغسيل</span><span class="w"> </span><span class="err">المطلوب</span><span class="o">:</span><span class="w"> </span><span class="mi">15</span><span class="o">%</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">ري</span><span class="w"> </span><span class="err">إضافي</span><span class="w"> </span><span class="mi">15</span><span class="o">%</span>
+<span class="o">-</span><span class="w"> </span><span class="err">تنبيه</span><span class="o">:</span><span class="w"> </span><span class="err">إذا</span><span class="w"> </span><span class="err">ارتفعت</span><span class="w"> </span><span class="n">EC</span><span class="w"> </span><span class="err">التربة</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">7.0</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">زيادة</span><span class="w"> </span><span class="err">كسر</span><span class="w"> </span><span class="err">الغسيل</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="mi">20</span><span class="o">%</span>
+</code></pre></div>
+
+<h3 id="3-ndvi-weekly-ndvi-monitoring">3. مراقبة NDVI الأسبوعية | Weekly NDVI Monitoring<a class="headerlink" href="#3-ndvi-weekly-ndvi-monitoring" title="Permanent link">&para;</a></h3>
+<p>عبر <code>shared/satellite/sentinel_ndvi.py</code>:
+- <strong>NDVI &gt; 0.6</strong>: صحي - استمر بنفس البرنامج
+- <strong>NDVI 0.4-0.6</strong>: إجهاد - فحص الري والتسميد
+- <strong>NDVI &lt; 0.4</strong>: حرج - تدخل فوري</p>
+<h3 id="4-ai-pest-detection">4. كشف الآفات بالذكاء الاصطناعي | AI Pest Detection<a class="headerlink" href="#4-ai-pest-detection" title="Permanent link">&para;</a></h3>
+<p>عبر <code>yolo26-vision-service</code> (port 8150):
+- كشف <strong>دودة اللوز القرنفلية</strong> (Pink Bollworm) - إنذار حرج
+- كشف <strong>مَنّ القطن</strong> (<em>Aphis gossypii</em> - APHID001) - مراقبة الكثافة
+- كشف <strong>الذبابة البيضاء</strong> (<em>Bemisia tabaci</em>) - ناقل فيروس تجعد الأوراق</p>
+<h3 id="5-cottonai-cottonai-model">5. نموذج CottonAI | CottonAI Model<a class="headerlink" href="#5-cottonai-cottonai-model" title="Permanent link">&para;</a></h3>
+<p>مسجل في <code>shared/ai/models_registry/registry.py</code>:
+- <strong>المعرّف</strong>: <code>cottonai</code>
+- <strong>المالك</strong>: Cotton Research Institute (ICRA)
+- <strong>القدرات</strong>: كشف أمراض، تحديد آفات، تنبؤ إنتاجية</p>
+<hr />
+<h2 id="projected-results-for-arab-regions">النتائج المتوقعة للمنطقة العربية | Projected Results for Arab Regions<a class="headerlink" href="#projected-results-for-arab-regions" title="Permanent link">&para;</a></h2>
+<h3 id="comparison-with-xinjiang-results">مقارنة مع نتائج شينجيانغ | Comparison with Xinjiang Results<a class="headerlink" href="#comparison-with-xinjiang-results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>نتيجة شينجيانغ</th>
+<th>المتوقع عربياً</th>
+<th>الأساس</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>توفير المياه</strong></td>
+<td>55 م³/هكتار</td>
+<td><strong>60-80 م³/هكتار</strong></td>
+<td>هدر أساسي أعلى في الري التقليدي العربي</td>
+</tr>
+<tr>
+<td><strong>زيادة الإنتاج</strong></td>
+<td>25% (80 كغ/مو)</td>
+<td><strong>20-30%</strong></td>
+<td>تقنية مماثلة، خط أساس مختلف</td>
+</tr>
+<tr>
+<td><strong>المساحة المغطاة</strong></td>
+<td>210,000 هكتار</td>
+<td><strong>50,000 هكتار</strong> (المرحلة 1)</td>
+<td>مصر 30K + يمن 10K + سودان 10K</td>
+</tr>
+<tr>
+<td><strong>زيادة دخل المزارع</strong></td>
+<td>160,000 يوان/حقل</td>
+<td><strong>15-25% زيادة</strong></td>
+<td>مُعدّل للاقتصاد المحلي</td>
+</tr>
+<tr>
+<td><strong>المزارعون الرقميون</strong></td>
+<td>1,000+ مُدرّب</td>
+<td><strong>500</strong> (المرحلة 1)</td>
+<td>عبر تطبيق SAHOOL للموبايل</td>
+</tr>
+<tr>
+<td><strong>تحسين جودة الألياف</strong></td>
+<td>✓</td>
+<td>✓</td>
+<td>إدارة علمية للتسميد والري</td>
+</tr>
+<tr>
+<td><strong>خفض تكلفة المدخلات</strong></td>
+<td>كبير</td>
+<td><strong>20-35%</strong></td>
+<td>تقليل عمالة + أسمدة + مبيدات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="expected-roi">العائد الاقتصادي المتوقع | Expected ROI<a class="headerlink" href="#expected-roi" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>تكلفة التطبيق (لكل هكتار):
+├── أجهزة IoT: ~200 دولار/هكتار (مرة واحدة)
+├── اشتراك SAHOOL: ~50 دولار/هكتار/موسم
+└── تدريب المزارع: ~30 دولار (مرة واحدة)
+    المجموع السنة الأولى: ~280 دولار/هكتار
+
+العائد المتوقع (لكل هكتار):
+├── توفير مياه: ~40 دولار/هكتار
+├── زيادة إنتاج (25%): ~450 دولار/هكتار (عند 2.5 ط/هـ × 1800 $/ط)
+├── تحسين جودة: ~100 دولار/هكتار (أسعار أعلى)
+└── خفض مدخلات: ~80 دولار/هكتار
+    المجموع: ~670 دولار/هكتار
+
+ROI السنة الأولى: ~140%
+ROI من السنة الثانية: ~1,240% (بدون تكلفة أجهزة)
+</code></pre></div>
+
+<hr />
+<h2 id="regional-implementation-roadmaps">خرائط طريق إقليمية | Regional Implementation Roadmaps<a class="headerlink" href="#regional-implementation-roadmaps" title="Permanent link">&para;</a></h2>
+<h3 id="egypt-largest-area">مصر (الأكبر مساحة) | Egypt (Largest Area)<a class="headerlink" href="#egypt-largest-area" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>المساحة المستهدفة</strong>: 30,000 هكتار (من 100,000 هكتار إجمالي)</li>
+<li><strong>المناطق</strong>: الصعيد (أسيوط، المنيا)، الدلتا (كفر الشيخ، البحيرة)</li>
+<li><strong>التركيز</strong>: ميكنة الحصاد + كفاءة المياه + جودة التيلة</li>
+<li><strong>البنية التحتية</strong>: متوفرة نسبياً (شبكات GSM، كهرباء)</li>
+<li><strong>الشريك</strong>: وزارة الزراعة المصرية + مركز البحوث الزراعية</li>
+</ul>
+<h3 id="yemen-most-challenging">اليمن (الأشد تحدياً) | Yemen (Most Challenging)<a class="headerlink" href="#yemen-most-challenging" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>المساحة المستهدفة</strong>: 10,000 هكتار (تهامة + أبين)</li>
+<li><strong>التحدي الرئيسي</strong>: الملوحة المرتفعة (4-12 dS/m) + ضعف الاتصال</li>
+<li><strong>التركيز</strong>: إدارة الملوحة (الاستفادة من <code>shared/salinity/</code>) + الري بالتنقيط</li>
+<li><strong>ميزة SAHOOL</strong>: <strong>Offline-first</strong> - التطبيق يعمل بدون إنترنت عبر <code>shared/mobile_sync/</code></li>
+<li><strong>الشريك</strong>: التعاونيات الزراعية المحلية + ICARDA</li>
+</ul>
+<h3 id="sudan-gezira-scheme">السودان (مشروع الجزيرة) | Sudan (Gezira Scheme)<a class="headerlink" href="#sudan-gezira-scheme" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>المساحة المستهدفة</strong>: 10,000 هكتار (من مشروع الجزيرة)</li>
+<li><strong>التحدي الرئيسي</strong>: بنية تحتية قديمة، فقد مياه في القنوات</li>
+<li><strong>التركيز</strong>: مراقبة القنوات بـ IoT + جدولة الري المركزية</li>
+<li><strong>ميزة</strong>: مشروع كبير منظم - أسهل للتطبيق على نطاق واسع</li>
+</ul>
+<h3 id="saudi-arabia-experimental">السعودية (تجريبي) | Saudi Arabia (Experimental)<a class="headerlink" href="#saudi-arabia-experimental" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>المساحة المستهدفة</strong>: 1,000 هكتار (جازان، عسير)</li>
+<li><strong>التحدي الرئيسي</strong>: تكلفة المياه العالية</li>
+<li><strong>التركيز</strong>: نشر IoT كامل + قطن فاخر فائق التيلة</li>
+<li><strong>ميزة</strong>: بنية تحتية رقمية متقدمة + قدرة استثمارية</li>
+</ul>
+<hr />
+<h2 id="multi-dimensional-value-transformation">تحويل القيمة المتعدد الأبعاد | Multi-Dimensional Value Transformation<a class="headerlink" href="#multi-dimensional-value-transformation" title="Permanent link">&para;</a></h2>
+<h3 id="data-to-value-pipeline">من البيانات إلى القيمة | Data to Value Pipeline<a class="headerlink" href="#data-to-value-pipeline" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>[1] طبقة البيانات              [2] طبقة التقنية
+    Data Layer                     Technology Layer
+    ─────────────                  ─────────────────
+    • IoT sensors raw data         • ML prediction models
+    • Satellite imagery            • FAO-29 calculations
+    • Weather stations             • NDVI analysis
+    • Farmer observations          • CottonAI inference
+           │                              │
+           ▼                              ▼
+[3] طبقة الاقتصاد             [4] طبقة البيئة
+    Economic Layer                 Environmental Layer
+    ──────────────                 ─────────────────
+    • Cost reduction               • Water conservation
+    • Yield increase               • Reduced chemicals
+    • Quality premium              • Soil health improvement
+    • Income growth                • Carbon footprint reduction
+</code></pre></div>
+
+<h3 id="environmental-impact">الأثر البيئي | Environmental Impact<a class="headerlink" href="#environmental-impact" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>القيمة المتوقعة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>توفير المياه</strong></td>
+<td>3-4 مليون م³/سنة</td>
+<td>على 50,000 هكتار مستهدفة</td>
+</tr>
+<tr>
+<td><strong>تقليل المبيدات</strong></td>
+<td>25-40%</td>
+<td>كشف مبكر بالذكاء الاصطناعي = رش دقيق</td>
+</tr>
+<tr>
+<td><strong>تحسين التربة</strong></td>
+<td>تقليل تملح 10-15%</td>
+<td>إدارة الغسيل العلمية</td>
+</tr>
+<tr>
+<td><strong>البصمة الكربونية</strong></td>
+<td>تقليل 15-20%</td>
+<td>ري أقل + مدخلات أقل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-sahool-platform-mapping">ربط SAHOOL | SAHOOL Platform Mapping<a class="headerlink" href="#sahool-sahool-platform-mapping" title="Permanent link">&para;</a></h2>
+<h3 id="_1">جدول الربط الشامل<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مفهوم القطن الذكي</th>
+<th>خدمة/وحدة SAHOOL</th>
+<th>المرجع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مراقبة EC التربة</td>
+<td><code>shared/soil_sensors/</code></td>
+<td>محولات MQTT/LoRaWAN</td>
+</tr>
+<tr>
+<td>إدارة الملوحة</td>
+<td><code>shared/salinity/module.py</code></td>
+<td>حسابات FAO-29 (عتبة 7.7 dS/m)</td>
+</tr>
+<tr>
+<td>الري الذكي</td>
+<td><code>shared/irrigation/</code></td>
+<td>محرك التعاون إنسان-آلة</td>
+</tr>
+<tr>
+<td>مراقبة NDVI</td>
+<td><code>vegetation-analysis-service</code></td>
+<td>Sentinel Hub</td>
+</tr>
+<tr>
+<td>كشف الآفات</td>
+<td><code>yolo26-vision-service</code></td>
+<td>مَنّ القطن APHID001 + دودة اللوز</td>
+</tr>
+<tr>
+<td>نموذج CottonAI</td>
+<td><code>shared/ai/models_registry/</code></td>
+<td>معرّف: cottonai</td>
+</tr>
+<tr>
+<td>التوصيات</td>
+<td><code>advisory-service</code></td>
+<td>حلقة مغلقة مع تغذية راجعة</td>
+</tr>
+<tr>
+<td>المزامنة أوفلاين</td>
+<td><code>shared/mobile_sync/</code></td>
+<td>offline-first لليمن</td>
+</tr>
+<tr>
+<td>الدورة الزراعية</td>
+<td><code>shared/crop_rotation/</code></td>
+<td>COTTON في MALVACEAE</td>
+</tr>
+<tr>
+<td>تقييم المزارعين</td>
+<td><code>shared/ai/feedback.py</code></td>
+<td>تقييمات + نتائج + تصحيحات</td>
+</tr>
+<tr>
+<td>التعلم الذاتي</td>
+<td><code>shared/ai/experience_learning.py</code></td>
+<td>SOP تلقائي من التجارب</td>
+</tr>
+<tr>
+<td>تأمين المحاصيل</td>
+<td><code>shared/crop_insurance/</code></td>
+<td>معامل خطر القطن: 0.055</td>
+</tr>
+<tr>
+<td>بيانات اليمن</td>
+<td><code>shared/yemen/crops.py</code></td>
+<td>4 مراحل نمو + ملوحة + مناخ</td>
+</tr>
+<tr>
+<td>بيانات مصر</td>
+<td><code>shared/regional/__init__.py</code></td>
+<td>100K هكتار، الموسم الصيفي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<h3 id="sahool">وثائق SAHOOL ذات صلة<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[[../crops/cotton|القطن - دليل المحصول]] - معلومات شاملة عن القطن</li>
+<li>[[precision-farming|الزراعة الدقيقة]] - إدارة دورة حياة المحاصيل بالذكاء الاصطناعي</li>
+<li>[[iot-architecture|بنية إنترنت الأشياء]] - طبقات النظام الأربع</li>
+<li>[[smart-farm|المزارع الذكية]] - من اللامركزية إلى التحكم المركزي</li>
+<li>[[sahool-platform-mapping|ربط SAHOOL]] - كيف يطبق SAHOOL المفاهيم الذكية</li>
+</ul>
+<h3 id="_2">مصادر خارجية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>مشروع القطن الذكي في شينجيانغ - المقال الأصلي المُكيَّف</li>
+<li>FAO: Cotton Production Guidelines for Arid Regions</li>
+<li>ICARDA: Salinity Management in Irrigated Agriculture</li>
+<li>UNDP SIERY: Drip Irrigation Trials in Yemen (Hadhramaut)</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: مارس 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

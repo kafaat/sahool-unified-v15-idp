@@ -1,0 +1,2481 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="ثورة الذكاء الاصطناعي والرؤية الحاسوبية في مراقبة نمو النباتات واكتشاف الإجهاد">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>الرؤية الحاسوبية لمراقبة نمو النباتات - Computer Vision for Plant Growth Monitoring - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              الرؤية الحاسوبية لمراقبة نمو النباتات - Computer Vision for Plant Growth Monitoring
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">الذكاء الاصطناعي والرؤية الحاسوبية: ثورة في مراقبة نمو النباتات واكتشاف الإجهاد<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="ai-computer-vision-revolution-in-plant-growth-monitoring-and-stress-detection">AI &amp; Computer Vision: Revolution in Plant Growth Monitoring and Stress Detection<a class="headerlink" href="#ai-computer-vision-revolution-in-plant-growth-monitoring-and-stress-detection" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>تُحدث تقنيات الرؤية الحاسوبية (Computer Vision) المدعومة بالتعلم العميق (Deep Learning) ثورة حقيقية في مراقبة نمو النباتات واكتشاف الإجهاد المبكر. تتيح هذه التقنيات قياسات غير تدميرية (Non-Destructive) ومستمرة لصحة النبات بدقة تفوق القياسات اليدوية.</p>
+<p>AI-powered Computer Vision technologies are revolutionizing plant growth monitoring and early stress detection. These techniques enable non-destructive, continuous measurements of plant health with accuracy exceeding manual assessments.</p>
+<hr />
+<h2 id="target-stressors">أنواع الإجهاد المستهدفة | Target Stressors<a class="headerlink" href="#target-stressors" title="Permanent link">&para;</a></h2>
+<h3 id="abiotic-stress">الإجهاد غير الحيوي (Abiotic Stress) | إجهاد بيئي<a class="headerlink" href="#abiotic-stress" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع الإجهاد</th>
+<th>Stress Type</th>
+<th>المؤشرات</th>
+<th>Indicators</th>
+<th>درجة الخطورة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الإجهاد المائي</td>
+<td>Water Stress</td>
+<td>ذبول الأوراق، انخفاض التمدد</td>
+<td>Leaf wilting, turgor loss</td>
+<td>🔴 حرج</td>
+</tr>
+<tr>
+<td>الإجهاد الحراري</td>
+<td>Heat Stress</td>
+<td>احتراق حواف الأوراق، تغير اللون</td>
+<td>Leaf scorching, discoloration</td>
+<td>🔴 حرج</td>
+</tr>
+<tr>
+<td>نقص العناصر الغذائية</td>
+<td>Nutrient Deficiency</td>
+<td>اصفرار، تبقع، نمو متقزم</td>
+<td>Chlorosis, spotting, stunting</td>
+<td>🟠 متوسط</td>
+</tr>
+<tr>
+<td>الملوحة</td>
+<td>Salinity Stress</td>
+<td>احتراق الحواف، نمو ضعيف</td>
+<td>Leaf burn, reduced growth</td>
+<td>🟠 متوسط</td>
+</tr>
+<tr>
+<td>الإجهاد الضوئي</td>
+<td>Light Stress</td>
+<td>شحوب أو تلون الأوراق</td>
+<td>Bleaching or dark pigmentation</td>
+<td>🟡 خفيف</td>
+</tr>
+</tbody>
+</table>
+<h3 id="biotic-stress">الإجهاد الحيوي (Biotic Stress) | إجهاد بيولوجي<a class="headerlink" href="#biotic-stress" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع الإجهاد</th>
+<th>Stress Type</th>
+<th>المؤشرات</th>
+<th>Indicators</th>
+<th>درجة الخطورة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الأمراض الفطرية</td>
+<td>Fungal Diseases</td>
+<td>بقع، بثرات، عفن</td>
+<td>Spots, pustules, mold</td>
+<td>🔴 حرج</td>
+</tr>
+<tr>
+<td>الأمراض البكتيرية</td>
+<td>Bacterial Diseases</td>
+<td>تقرحات مائية، ذبول</td>
+<td>Water-soaked lesions, wilt</td>
+<td>🔴 حرج</td>
+</tr>
+<tr>
+<td>الأمراض الفيروسية</td>
+<td>Viral Diseases</td>
+<td>فسيفساء، تجعد</td>
+<td>Mosaic, curling, stunting</td>
+<td>🟠 متوسط</td>
+</tr>
+<tr>
+<td>الإصابة بالآفات</td>
+<td>Pest Infestation</td>
+<td>ثقوب، نخر، شبكات</td>
+<td>Holes, necrosis, webs</td>
+<td>🔴 حرج</td>
+</tr>
+<tr>
+<td>الأعشاب الضارة</td>
+<td>Weed Competition</td>
+<td>تنافس على الموارد</td>
+<td>Resource competition</td>
+<td>🟡 خفيف</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sensing-technologies">تقنيات الاستشعار | Sensing Technologies<a class="headerlink" href="#sensing-technologies" title="Permanent link">&para;</a></h2>
+<h3 id="1-rgb-imaging">1. التصوير بالألوان الطبيعية (RGB Imaging)<a class="headerlink" href="#1-rgb-imaging" title="Permanent link">&para;</a></h3>
+<p><strong>الاستخدام الأساسي</strong>: مراقبة الشكل العام، تحليل المظهر، قياس الأبعاد</p>
+<table>
+<thead>
+<tr>
+<th>المعامل</th>
+<th>Parameter</th>
+<th>القيمة</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الدقة النموذجية</td>
+<td>Typical Resolution</td>
+<td>12-50 MP</td>
+<td>ميجابكسل</td>
+</tr>
+<tr>
+<td>النطاق الطيفي</td>
+<td>Spectral Range</td>
+<td>400-700 nm</td>
+<td>مرئي</td>
+</tr>
+<tr>
+<td>التكلفة</td>
+<td>Cost</td>
+<td>منخفضة</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>السرعة</td>
+<td>Speed</td>
+<td>عالية جداً</td>
+<td>Very High</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التطبيقات | Applications</strong>:
+- تحليل المظهر الخارجي (Phenotypic Analysis): شكل الورقة، حجم الثمرة
+- قياس مساحة الغطاء النباتي (Canopy Area Estimation)
+- تتبع مراحل النمو (Growth Stage Tracking)
+- اكتشاف تغير اللون (Color Change Detection): اصفرار، تبقع</p>
+<div class="codehilite"><pre><span></span><code>📷 RGB Camera → Image Capture → Color Analysis → Growth Metrics
+                                      ↓
+                              Leaf Area Index (LAI)
+                              Canopy Coverage %
+                              Color Distribution
+</code></pre></div>
+
+<h3 id="2-thermal-imaging">2. التصوير الحراري (Thermal Imaging)<a class="headerlink" href="#2-thermal-imaging" title="Permanent link">&para;</a></h3>
+<p><strong>الاستخدام الأساسي</strong>: اكتشاف الإجهاد المائي والحراري عبر قياس درجة حرارة سطح الأوراق</p>
+<table>
+<thead>
+<tr>
+<th>المعامل</th>
+<th>Parameter</th>
+<th>القيمة</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الدقة النموذجية</td>
+<td>Typical Resolution</td>
+<td>320×240 - 640×512</td>
+<td>بكسل</td>
+</tr>
+<tr>
+<td>النطاق الطيفي</td>
+<td>Spectral Range</td>
+<td>7.5-14 μm</td>
+<td>الأشعة تحت الحمراء البعيدة (LWIR)</td>
+</tr>
+<tr>
+<td>الدقة الحرارية</td>
+<td>Thermal Accuracy</td>
+<td>±0.05°C</td>
+<td>NETD</td>
+</tr>
+<tr>
+<td>التكلفة</td>
+<td>Cost</td>
+<td>متوسطة-عالية</td>
+<td>Medium-High</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المبدأ العلمي | Scientific Principle</strong>:
+- النباتات المُجهَدة مائياً تغلق ثغورها (Stomata) → انخفاض النتح (Transpiration) → ارتفاع حرارة الورقة
+- الفرق بين حرارة الورقة والهواء المحيط (ΔT) مؤشر مباشر على حالة الإجهاد المائي</p>
+<p><strong>مؤشرات مشتقة | Derived Indices</strong>:
+- <strong>CWSI</strong> (Crop Water Stress Index): مؤشر الإجهاد المائي للمحصول
+- <strong>Ig</strong> (Stomatal Conductance Index): مؤشر التوصيل الثغري
+- <strong>Tc-Ta</strong> (Canopy-Air Temperature Difference): فرق الحرارة</p>
+<div class="codehilite"><pre><span></span><code>🌡️ Thermal Camera → Temperature Map → CWSI Calculation → Irrigation Decision
+                           ↓
+                    Tc (Canopy Temp)
+                    Ta (Air Temp)
+                    CWSI = (Tc-Ta - LL) / (UL - LL)
+</code></pre></div>
+
+<h3 id="3-hyperspectral-imaging">3. التصوير فوق الطيفي (Hyperspectral Imaging)<a class="headerlink" href="#3-hyperspectral-imaging" title="Permanent link">&para;</a></h3>
+<p><strong>الاستخدام الأساسي</strong>: كشف الإجهاد المبكر قبل ظهور الأعراض المرئية بأيام أو أسابيع</p>
+<table>
+<thead>
+<tr>
+<th>المعامل</th>
+<th>Parameter</th>
+<th>القيمة</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>عدد النطاقات</td>
+<td>Spectral Bands</td>
+<td>100-300+</td>
+<td>نطاق</td>
+</tr>
+<tr>
+<td>النطاق الطيفي</td>
+<td>Spectral Range</td>
+<td>350-2500 nm</td>
+<td>VNIR + SWIR</td>
+</tr>
+<tr>
+<td>الدقة الطيفية</td>
+<td>Spectral Resolution</td>
+<td>1-10 nm</td>
+<td></td>
+</tr>
+<tr>
+<td>التكلفة</td>
+<td>Cost</td>
+<td>عالية</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المؤشرات النباتية المشتقة | Derived Vegetation Indices</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Index</th>
+<th>الصيغة</th>
+<th>Formula</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NDVI</td>
+<td>مؤشر الغطاء النباتي</td>
+<td>(NIR-Red)/(NIR+Red)</td>
+<td>صحة عامة</td>
+<td></td>
+</tr>
+<tr>
+<td>PRI</td>
+<td>مؤشر الانعكاس الضوئي</td>
+<td>(R531-R570)/(R531+R570)</td>
+<td>كفاءة التمثيل الضوئي</td>
+<td></td>
+</tr>
+<tr>
+<td>NDWI</td>
+<td>مؤشر الماء</td>
+<td>(NIR-SWIR)/(NIR+SWIR)</td>
+<td>محتوى الماء</td>
+<td></td>
+</tr>
+<tr>
+<td>ARI</td>
+<td>مؤشر الأنثوسيانين</td>
+<td>(1/R550)-(1/R700)</td>
+<td>إجهاد ونضج</td>
+<td></td>
+</tr>
+<tr>
+<td>CRI</td>
+<td>مؤشر الكاروتينويد</td>
+<td>(1/R510)-(1/R550)</td>
+<td>إجهاد مبكر</td>
+<td></td>
+</tr>
+<tr>
+<td>SIPI</td>
+<td>مؤشر الصبغات</td>
+<td>(R800-R445)/(R800-R680)</td>
+<td>نسبة الصبغات</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>ميزة فريدة</strong>: اكتشاف الإجهاد <strong>قبل 3-7 أيام</strong> من ظهور الأعراض المرئية بالعين المجردة.</p>
+<div class="codehilite"><pre><span></span><code>🔬 Hyperspectral → 200+ Bands → Spectral Signatures → Early Stress Alert
+                                        ↓
+                              Chlorophyll Content
+                              Water Content
+                              Nutrient Status
+                              Disease Presence (pre-symptomatic)
+</code></pre></div>
+
+<h3 id="4-chlorophyll-fluorescence">4. تألق الكلوروفيل (Chlorophyll Fluorescence)<a class="headerlink" href="#4-chlorophyll-fluorescence" title="Permanent link">&para;</a></h3>
+<p><strong>الاستخدام الأساسي</strong>: قياس كفاءة التمثيل الضوئي مباشرة كمؤشر على صحة النبات</p>
+<table>
+<thead>
+<tr>
+<th>المعامل</th>
+<th>Parameter</th>
+<th>القيمة</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>القياس الأساسي</td>
+<td>Primary Measurement</td>
+<td>Fv/Fm</td>
+<td>كفاءة PSII</td>
+</tr>
+<tr>
+<td>النطاق الصحي</td>
+<td>Healthy Range</td>
+<td>0.75-0.85</td>
+<td>نباتات C3</td>
+</tr>
+<tr>
+<td>نطاق الإجهاد</td>
+<td>Stress Threshold</td>
+<td>&lt; 0.70</td>
+<td>يشير لإجهاد</td>
+</tr>
+<tr>
+<td>التكلفة</td>
+<td>Cost</td>
+<td>متوسطة</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المعاملات الرئيسية | Key Parameters</strong>:
+- <strong>Fv/Fm</strong>: الكفاءة القصوى للنظام الضوئي الثاني (Maximum Quantum Yield of PSII)
+- <strong>Fv'/Fm'</strong>: الكفاءة الفعلية أثناء الإضاءة
+- <strong>NPQ</strong> (Non-Photochemical Quenching): التبديد الحراري للطاقة الضوئية الزائدة
+- <strong>ETR</strong> (Electron Transport Rate): معدل نقل الإلكترونات</p>
+<div class="codehilite"><pre><span></span><code>💡 Excitation Light → Chlorophyll Response → Fv/Fm Analysis → Health Score
+                              ↓
+                     F0 (Minimal Fluorescence)
+                     Fm (Maximal Fluorescence)
+                     Fv = Fm - F0
+                     Efficiency = Fv/Fm
+</code></pre></div>
+
+<h3 id="sensing-technologies-comparison">مقارنة تقنيات الاستشعار | Sensing Technologies Comparison<a class="headerlink" href="#sensing-technologies-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>RGB</th>
+<th>حراري</th>
+<th>فوق طيفي</th>
+<th>تألق كلوروفيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>التكلفة</strong></td>
+<td>⭐ منخفضة</td>
+<td>⭐⭐ متوسطة</td>
+<td>⭐⭐⭐ عالية</td>
+<td>⭐⭐ متوسطة</td>
+</tr>
+<tr>
+<td><strong>الدقة المكانية</strong></td>
+<td>⭐⭐⭐ عالية جداً</td>
+<td>⭐⭐ متوسطة</td>
+<td>⭐⭐ متوسطة</td>
+<td>⭐ منخفضة</td>
+</tr>
+<tr>
+<td><strong>الكشف المبكر</strong></td>
+<td>⭐ متأخر</td>
+<td>⭐⭐ مبكر</td>
+<td>⭐⭐⭐ مبكر جداً</td>
+<td>⭐⭐⭐ مبكر جداً</td>
+</tr>
+<tr>
+<td><strong>سهولة الاستخدام</strong></td>
+<td>⭐⭐⭐ سهل</td>
+<td>⭐⭐ متوسط</td>
+<td>⭐ معقد</td>
+<td>⭐⭐ متوسط</td>
+</tr>
+<tr>
+<td><strong>ملاءمة الحقل</strong></td>
+<td>⭐⭐⭐ ممتازة</td>
+<td>⭐⭐ جيدة</td>
+<td>⭐ محدودة</td>
+<td>⭐⭐ جيدة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="intelligent-workflow">سير العمل الذكي | Intelligent Workflow<a class="headerlink" href="#intelligent-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="five-stages-of-plant-growth-analysis">المراحل الخمس لتحليل نمو النبات | Five Stages of Plant Growth Analysis<a class="headerlink" href="#five-stages-of-plant-growth-analysis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  1. التقاط    │ →  │  2. المعالجة  │ →  │  3. التجزئة  │ →  │ 4. استخلاص   │ →  │  5. القياس   │
+│   الصور      │    │   المسبقة    │    │   الذكية     │    │  الخصائص     │    │   والتحليل   │
+│ Image        │    │ Pre-         │    │ Smart        │    │ Feature      │    │ Growth       │
+│ Capture      │    │ Processing   │    │ Segmentation │    │ Extraction   │    │ Measurement  │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+</code></pre></div>
+
+<h3 id="1-image-capture">المرحلة 1: التقاط الصور (Image Capture)<a class="headerlink" href="#1-image-capture" title="Permanent link">&para;</a></h3>
+<p><strong>البروتوكولات المعتمدة | Capture Protocols</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>المعامل</th>
+<th>Parameter</th>
+<th>القيمة الموصى بها</th>
+<th>Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الإضاءة</td>
+<td>Lighting</td>
+<td>موحدة، LED مبرمج</td>
+<td>Uniform, programmable LED</td>
+</tr>
+<tr>
+<td>الخلفية</td>
+<td>Background</td>
+<td>أحادية اللون (أزرق/أسود)</td>
+<td>Monochrome (blue/black)</td>
+</tr>
+<tr>
+<td>الزاوية</td>
+<td>Angle</td>
+<td>علوي (Top-view) + جانبي (Side-view)</td>
+<td>Multi-angle</td>
+</tr>
+<tr>
+<td>التكرار</td>
+<td>Frequency</td>
+<td>كل 15-60 دقيقة</td>
+<td>Every 15-60 min</td>
+</tr>
+<tr>
+<td>الدقة</td>
+<td>Resolution</td>
+<td>≥ 12 MP (RGB)، 640×512 (حراري)</td>
+<td>High resolution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>مصادر الصور | Image Sources</strong>:
+- كاميرات ثابتة في البيوت المحمية (Fixed greenhouse cameras)
+- طائرات بدون طيار (Drones/UAVs)
+- أقمار صناعية (Satellites) — Sentinel-2, PlanetScope
+- أجهزة حقلية محمولة (Handheld field devices)
+- روبوتات حقلية (Field robots / Phenomobiles)</p>
+<h3 id="2-pre-processing">المرحلة 2: المعالجة المسبقة (Pre-Processing)<a class="headerlink" href="#2-pre-processing" title="Permanent link">&para;</a></h3>
+<p><strong>العمليات الأساسية | Core Operations</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># مثال على خط المعالجة المسبقة</span>
+<span class="n">preprocessing_pipeline</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;color_calibration&quot;</span><span class="p">,</span>      <span class="c1"># معايرة الألوان (Color Calibration)</span>
+    <span class="s2">&quot;background_removal&quot;</span><span class="p">,</span>     <span class="c1"># إزالة الخلفية (Background Subtraction)</span>
+    <span class="s2">&quot;distortion_correction&quot;</span><span class="p">,</span>  <span class="c1"># تصحيح التشوه البصري (Lens Distortion Correction)</span>
+    <span class="s2">&quot;noise_reduction&quot;</span><span class="p">,</span>        <span class="c1"># تقليل الضوضاء (Gaussian/Median Filter)</span>
+    <span class="s2">&quot;white_balance&quot;</span><span class="p">,</span>          <span class="c1"># توازن الأبيض (White Balance)</span>
+    <span class="s2">&quot;histogram_equalization&quot;</span><span class="p">,</span> <span class="c1"># تحسين التباين (Contrast Enhancement)</span>
+    <span class="s2">&quot;image_registration&quot;</span><span class="p">,</span>     <span class="c1"># محاذاة الصور الزمنية (Temporal Alignment)</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>العملية</th>
+<th>Operation</th>
+<th>الخوارزمية</th>
+<th>Algorithm</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>معايرة الألوان</td>
+<td>Color Calibration</td>
+<td>ColorChecker + Polynomial Mapping</td>
+<td>توحيد الألوان عبر الجلسات</td>
+<td></td>
+</tr>
+<tr>
+<td>إزالة الخلفية</td>
+<td>Background Removal</td>
+<td>GrabCut / U-Net</td>
+<td>عزل النبات عن المحيط</td>
+<td></td>
+</tr>
+<tr>
+<td>تصحيح التشوه</td>
+<td>Distortion Correction</td>
+<td>Zhang's Method</td>
+<td>إزالة تشوه العدسة</td>
+<td></td>
+</tr>
+<tr>
+<td>تقليل الضوضاء</td>
+<td>Denoising</td>
+<td>Non-Local Means / BM3D</td>
+<td>تحسين جودة الصورة</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-smart-segmentation">المرحلة 3: التجزئة الذكية (Smart Segmentation)<a class="headerlink" href="#3-smart-segmentation" title="Permanent link">&para;</a></h3>
+<p><strong>النماذج المستخدمة | Models Used</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>النموذج</th>
+<th>Model</th>
+<th>الدقة</th>
+<th>Accuracy</th>
+<th>السرعة</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U-Net</td>
+<td>Semantic</td>
+<td>95.2%</td>
+<td>IoU</td>
+<td>سريع</td>
+<td>تجزئة الأوراق</td>
+</tr>
+<tr>
+<td>Mask R-CNN</td>
+<td>Instance</td>
+<td>93.8%</td>
+<td>mAP</td>
+<td>متوسط</td>
+<td>عد الأوراق</td>
+</tr>
+<tr>
+<td>DeepLab v3+</td>
+<td>Semantic</td>
+<td>96.1%</td>
+<td>mIoU</td>
+<td>سريع</td>
+<td>غطاء نباتي</td>
+</tr>
+<tr>
+<td>SAM (Segment Anything)</td>
+<td>Universal</td>
+<td>94.5%</td>
+<td>IoU</td>
+<td>سريع</td>
+<td>تجزئة متعددة</td>
+</tr>
+<tr>
+<td>PlantSeg</td>
+<td>Specialized</td>
+<td>97.3%</td>
+<td>IoU</td>
+<td>بطيء</td>
+<td>تجزئة خلوية</td>
+</tr>
+<tr>
+<td><strong>YOLO26</strong> (SAHOOL)</td>
+<td>Instance</td>
+<td>93.0%</td>
+<td>mAP@0.5</td>
+<td>سريع جداً</td>
+<td>آفات وأمراض</td>
+</tr>
+</tbody>
+</table>
+<p><strong>مخرجات التجزئة | Segmentation Outputs</strong>:
+- أقنعة الأوراق الفردية (Individual Leaf Masks)
+- خريطة الغطاء النباتي (Canopy Coverage Map)
+- مناطق الإصابة (Affected Regions)
+- خريطة كثافة النمو (Growth Density Map)</p>
+<div class="codehilite"><pre><span></span><code>Input Image → U-Net/SAM → Leaf Masks → Individual Leaf Analysis
+                  ↓
+         Canopy Mask → Coverage % → Growth Rate
+                  ↓
+         Disease Mask → Affected Area % → Severity Score
+</code></pre></div>
+
+<h3 id="4-feature-extraction">المرحلة 4: استخلاص الخصائص (Feature Extraction)<a class="headerlink" href="#4-feature-extraction" title="Permanent link">&para;</a></h3>
+<p><strong>الخصائص المورفولوجية | Morphological Features</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>الخاصية</th>
+<th>Feature</th>
+<th>الوحدة</th>
+<th>Unit</th>
+<th>الدلالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مساحة الورقة</td>
+<td>Leaf Area</td>
+<td>cm²</td>
+<td>سنتيمتر مربع</td>
+<td>حجم النمو</td>
+</tr>
+<tr>
+<td>محيط الورقة</td>
+<td>Leaf Perimeter</td>
+<td>cm</td>
+<td>سنتيمتر</td>
+<td>شكل الورقة</td>
+</tr>
+<tr>
+<td>طول/عرض الورقة</td>
+<td>Length/Width Ratio</td>
+<td>نسبة</td>
+<td>ratio</td>
+<td>نمط النمو</td>
+</tr>
+<tr>
+<td>عدد الأوراق</td>
+<td>Leaf Count</td>
+<td>عدد</td>
+<td>count</td>
+<td>مرحلة النمو</td>
+</tr>
+<tr>
+<td>ارتفاع النبات</td>
+<td>Plant Height</td>
+<td>cm</td>
+<td>سنتيمتر</td>
+<td>النمو العمودي</td>
+</tr>
+<tr>
+<td>حجم المظلة</td>
+<td>Canopy Volume</td>
+<td>cm³</td>
+<td>سنتيمتر مكعب</td>
+<td>الكتلة الحيوية</td>
+</tr>
+<tr>
+<td>مؤشر التماثل</td>
+<td>Symmetry Index</td>
+<td>0-1</td>
+<td>score</td>
+<td>صحة النمو</td>
+</tr>
+<tr>
+<td>التراص</td>
+<td>Compactness</td>
+<td>0-1</td>
+<td>ratio</td>
+<td>كثافة النبات</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخصائص اللونية | Color Features</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>الخاصية</th>
+<th>Feature</th>
+<th>الفضاء اللوني</th>
+<th>Color Space</th>
+<th>الدلالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>متوسط الأخضر</td>
+<td>Green Mean</td>
+<td>RGB</td>
+<td>G channel</td>
+<td>محتوى الكلوروفيل</td>
+</tr>
+<tr>
+<td>نسبة الاصفرار</td>
+<td>Yellowing Ratio</td>
+<td>HSV</td>
+<td>H:40-80</td>
+<td>نقص عناصر</td>
+</tr>
+<tr>
+<td>مؤشر النخر</td>
+<td>Necrosis Index</td>
+<td>Lab</td>
+<td>a* channel</td>
+<td>موت الأنسجة</td>
+</tr>
+<tr>
+<td>تشبع اللون</td>
+<td>Color Saturation</td>
+<td>HSV</td>
+<td>S channel</td>
+<td>حيوية النبات</td>
+</tr>
+<tr>
+<td>ExG (Excess Green)</td>
+<td>مؤشر</td>
+<td>2G-R-B</td>
+<td></td>
+<td>فصل النبات/التربة</td>
+</tr>
+<tr>
+<td>GLI (Green Leaf Index)</td>
+<td>مؤشر</td>
+<td>(2G-R-B)/(2G+R+B)</td>
+<td></td>
+<td>كثافة الخضرة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخصائص النسيجية | Texture Features</strong>:
+- <strong>GLCM</strong> (Gray-Level Co-occurrence Matrix): مصفوفة التواجد المشترك
+- <strong>LBP</strong> (Local Binary Patterns): الأنماط الثنائية المحلية
+- <strong>Gabor Filters</strong>: مرشحات التردد المكاني
+- <strong>Haralick Features</strong>: 13 خاصية نسيجية (تباين، ارتباط، طاقة، تجانس)</p>
+<h3 id="5-growth-measurement">المرحلة 5: قياس النمو (Growth Measurement)<a class="headerlink" href="#5-growth-measurement" title="Permanent link">&para;</a></h3>
+<p><strong>المؤشرات الكمية | Quantitative Metrics</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Metric</th>
+<th>الصيغة</th>
+<th>Formula</th>
+<th>المثال</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AGV</strong> (Average Growth Velocity)</td>
+<td>سرعة النمو المتوسطة</td>
+<td>ΔHeight / ΔTime</td>
+<td><strong>0.27 سم/ساعة</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>RGR</strong> (Relative Growth Rate)</td>
+<td>معدل النمو النسبي</td>
+<td>(ln W₂ - ln W₁) / (t₂ - t₁)</td>
+<td>0.15 يوم⁻¹</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>GI</strong> (Growth Index)</td>
+<td>مؤشر النمو</td>
+<td>(H + W₁ + W₂) / 3</td>
+<td><strong>0.75</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>LAR</strong> (Leaf Area Ratio)</td>
+<td>نسبة مساحة الأوراق</td>
+<td>Total Leaf Area / Dry Weight</td>
+<td>cm²/g</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>CGR</strong> (Crop Growth Rate)</td>
+<td>معدل نمو المحصول</td>
+<td>ΔW / (ΔT × Area)</td>
+<td>g/m²/day</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>NAR</strong> (Net Assimilation Rate)</td>
+<td>صافي الاستيعاب</td>
+<td>ΔW / (ΔT × Mean LA)</td>
+<td>g/cm²/day</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="c1"># حساب سرعة النمو المتوسطة</span>
+<span class="c1"># Average Growth Velocity Calculation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_agv</span><span class="p">(</span><span class="n">heights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AGV = متوسط (Δh / Δt) لكل فترة زمنية</span>
+<span class="sd">    AGV = mean(Δh / Δt) for each time interval</span>
+
+<span class="sd">    المثال: AGV = 0.27 cm/hour (القمح في مرحلة التفريع)</span>
+<span class="sd">    Example: AGV = 0.27 cm/hour (wheat at tillering stage)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">velocities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heights</span><span class="p">)):</span>
+        <span class="n">dh</span> <span class="o">=</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">timestamps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">timestamps</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">velocities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dh</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">velocities</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocities</span><span class="p">)</span> <span class="k">if</span> <span class="n">velocities</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+
+<span class="c1"># حساب مؤشر النمو</span>
+<span class="c1"># Growth Index Calculation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_growth_index</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    GI = (H + W1 + W2) / 3</span>
+
+<span class="sd">    المثال: GI = 0.75 (نمو طبيعي)</span>
+<span class="sd">    Example: GI = 0.75 (normal growth)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">width1</span> <span class="o">+</span> <span class="n">width2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+</code></pre></div>
+
+<p><strong>تصنيف حالة النمو | Growth Status Classification</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>مؤشر النمو GI</th>
+<th>الحالة</th>
+<th>Status</th>
+<th>الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥ 0.85</td>
+<td>نمو ممتاز</td>
+<td>Excellent</td>
+<td>استمرار البرنامج الحالي</td>
+</tr>
+<tr>
+<td>0.70 - 0.84</td>
+<td>نمو جيد</td>
+<td>Good</td>
+<td>مراقبة روتينية</td>
+</tr>
+<tr>
+<td>0.50 - 0.69</td>
+<td>نمو متوسط</td>
+<td>Moderate</td>
+<td>فحص العناصر الغذائية والري</td>
+</tr>
+<tr>
+<td>0.30 - 0.49</td>
+<td>نمو ضعيف</td>
+<td>Poor</td>
+<td>تدخل عاجل</td>
+</tr>
+<tr>
+<td>&lt; 0.30</td>
+<td>نمو حرج</td>
+<td>Critical</td>
+<td>تحقيق شامل وعلاج فوري</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="deep-learning-models">نماذج التعلم العميق | Deep Learning Models<a class="headerlink" href="#deep-learning-models" title="Permanent link">&para;</a></h2>
+<h3 id="common-architectures">البنيات المعمارية الشائعة | Common Architectures<a class="headerlink" href="#common-architectures" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البنية</th>
+<th>Architecture</th>
+<th>المهمة</th>
+<th>Task</th>
+<th>الدقة</th>
+<th>مناسبة لـ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResNet-50</td>
+<td>Classification</td>
+<td>تصنيف الإجهاد</td>
+<td>94.5%</td>
+<td>GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>EfficientNet-B4</td>
+<td>Classification</td>
+<td>تصنيف الأمراض</td>
+<td>96.2%</td>
+<td>Edge + GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>Vision Transformer (ViT)</td>
+<td>Classification</td>
+<td>تحليل شامل</td>
+<td>95.8%</td>
+<td>GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>U-Net</td>
+<td>Segmentation</td>
+<td>تجزئة الأوراق</td>
+<td>95.2% mIoU</td>
+<td>GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>Mask R-CNN</td>
+<td>Instance Seg.</td>
+<td>عد وتجزئة</td>
+<td>93.8% mAP</td>
+<td>GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>YOLO v8/v11</td>
+<td>Detection</td>
+<td>كشف الآفات</td>
+<td>91.5% mAP</td>
+<td>Edge + GPU</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>YOLO26</strong> (SAHOOL)</td>
+<td>Detection</td>
+<td>كشف شامل</td>
+<td>88-93% mAP</td>
+<td>Edge + GPU</td>
+<td></td>
+</tr>
+<tr>
+<td>3D-CNN</td>
+<td>Temporal</td>
+<td>تتبع النمو</td>
+<td>92.1%</td>
+<td>GPU</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="transfer-learning-for-agriculture">نقل التعلم للمجال الزراعي | Transfer Learning for Agriculture<a class="headerlink" href="#transfer-learning-for-agriculture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>ImageNet Pre-trained → Fine-tune on PlantVillage → Adapt to Local Crops → Deploy
+      ↓                        ↓                          ↓                  ↓
+   General Features      Disease Features         Regional Varieties    Edge/Cloud
+   (edges, textures)     (lesions, spots)         (wheat-Sakha95)      (inference)
+</code></pre></div>
+
+<p><strong>مجموعات البيانات الرئيسية | Key Datasets</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>المجموعة</th>
+<th>Dataset</th>
+<th>الصور</th>
+<th>الفئات</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PlantVillage</td>
+<td>54,306</td>
+<td>38</td>
+<td>أمراض نباتية عامة</td>
+<td></td>
+</tr>
+<tr>
+<td>PlantDoc</td>
+<td>2,598</td>
+<td>27</td>
+<td>أمراض في ظروف حقلية حقيقية</td>
+<td></td>
+</tr>
+<tr>
+<td>CGIAR Wheat Rust</td>
+<td>1,400</td>
+<td>4</td>
+<td>صدأ القمح</td>
+<td></td>
+</tr>
+<tr>
+<td>Rice Disease</td>
+<td>3,355</td>
+<td>5</td>
+<td>أمراض الأرز</td>
+<td></td>
+</tr>
+<tr>
+<td>DeepWeeds</td>
+<td>17,509</td>
+<td>9</td>
+<td>أعشاب ضارة</td>
+<td></td>
+</tr>
+<tr>
+<td>SAHOOL Internal</td>
+<td>25,000+</td>
+<td>68+</td>
+<td>آفات وأمراض الشرق الأوسط</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-sahool-platform-integration">التكامل مع منصة SAHOOL | SAHOOL Platform Integration<a class="headerlink" href="#sahool-sahool-platform-integration" title="Permanent link">&para;</a></h2>
+<h3 id="related-services">الخدمات المرتبطة | Related Services<a class="headerlink" href="#related-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>الوظيفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[sahool-platform-mapping|yolo26-vision-service]]</td>
+<td>8150</td>
+<td>كشف الآفات والأمراض (YOLO26)</td>
+<td></td>
+</tr>
+<tr>
+<td>[[precision-farming|crop-intelligence-service]]</td>
+<td>8095</td>
+<td>ذكاء صحة المحاصيل</td>
+<td></td>
+</tr>
+<tr>
+<td>[[precision-farming|vegetation-analysis-service]]</td>
+<td>8090</td>
+<td>تحليل صور الأقمار الصناعية</td>
+<td></td>
+</tr>
+<tr>
+<td>[[iot-architecture|ground-vision-service]]</td>
+<td>8182</td>
+<td>تحليل الرؤية الأرضية</td>
+<td></td>
+</tr>
+<tr>
+<td>[[iot-architecture|edge-orchestrator-service]]</td>
+<td>8180</td>
+<td>نشر النماذج على أجهزة الحافة</td>
+<td></td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td>8125</td>
+<td>كشف الآفات بالذكاء الاصطناعي</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-modules">وحدات الذكاء الاصطناعي | AI Modules<a class="headerlink" href="#ai-modules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>Module</th>
+<th>الموقع</th>
+<th>الوظيفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>crop_vision</td>
+<td><code>shared/ai/crop_vision.py</code></td>
+<td>رؤية حاسوبية للأمراض والآفات</td>
+<td></td>
+</tr>
+<tr>
+<td>knowledge</td>
+<td><code>shared/ai/knowledge/</code></td>
+<td>قاعدة معرفة زراعية</td>
+<td></td>
+</tr>
+<tr>
+<td>models_registry</td>
+<td><code>shared/ai/models_registry/</code></td>
+<td>سجل نماذج الذكاء الاصطناعي (50+)</td>
+<td></td>
+</tr>
+<tr>
+<td>ultrarag</td>
+<td><code>shared/ai/ultrarag/</code></td>
+<td>نظام RAG متقدم (9 سير عمل)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="nats-published-nats-events">أحداث NATS المنشورة | Published NATS Events<a class="headerlink" href="#nats-published-nats-events" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool.vision.pest_detected          # اكتشاف آفة
+sahool.vision.disease_detected       # اكتشاف مرض
+sahool.vision.weed_detected          # اكتشاف أعشاب ضارة
+sahool.vision.critical_alert         # تنبيه حرج (سوسة النخيل، جراد)
+sahool.vision.plant_count_completed  # اكتمال عد النباتات
+sahool.vision.analysis_completed     # اكتمال التحليل
+sahool.vision.growth_anomaly         # شذوذ في النمو
+</code></pre></div>
+
+<hr />
+<h2 id="practical-applications">التطبيقات العملية | Practical Applications<a class="headerlink" href="#practical-applications" title="Permanent link">&para;</a></h2>
+<h3 id="1-greenhouse-monitoring">1. مراقبة البيوت المحمية (Greenhouse Monitoring)<a class="headerlink" href="#1-greenhouse-monitoring" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Fixed Cameras (RGB + Thermal)
+        ↓
+    Every 30 min capture
+        ↓
+    Edge Processing (Jetson Orin)
+        ↓
+    Growth Metrics + Stress Alerts
+        ↓
+    Dashboard + Mobile Notifications
+</code></pre></div>
+
+<p><strong>المؤشرات المراقبة</strong>:
+- ارتفاع النبات (كل 30 دقيقة)
+- مساحة الغطاء النباتي (يومياً)
+- درجة حرارة الأوراق (مستمر)
+- اكتشاف الأمراض المبكر (كل ساعة)</p>
+<h3 id="2-drone-field-survey">2. المسح الحقلي بالطائرات (Drone Field Survey)<a class="headerlink" href="#2-drone-field-survey" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>UAV Flight Plan (5-10 ha/flight)
+        ↓
+    RGB + Multispectral + Thermal
+        ↓
+    Orthomosaic Generation
+        ↓
+    AI Analysis (NDVI + Disease Detection + Plant Count)
+        ↓
+    Variable Rate Application Maps
+</code></pre></div>
+
+<h3 id="3-high-throughput-phenotyping">3. النمذجة الظاهرية عالية الإنتاجية (High-Throughput Phenotyping)<a class="headerlink" href="#3-high-throughput-phenotyping" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Phenomobile / Conveyor System
+        ↓
+    Multi-sensor capture (RGB + Hyperspectral + Fluorescence + 3D LiDAR)
+        ↓
+    Automated Feature Extraction (100+ traits)
+        ↓
+    QTL Mapping + GWAS Analysis
+        ↓
+    Breeding Selection Decisions
+</code></pre></div>
+
+<hr />
+<h2 id="performance-benchmarks">الأداء والمعايير | Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Permanent link">&para;</a></h2>
+<h3 id="detection-accuracy-by-stress-type">دقة الكشف حسب نوع الإجهاد | Detection Accuracy by Stress Type<a class="headerlink" href="#detection-accuracy-by-stress-type" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع الإجهاد</th>
+<th>Stress Type</th>
+<th>RGB</th>
+<th>حراري</th>
+<th>فوق طيفي</th>
+<th>متعدد المستشعرات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إجهاد مائي</td>
+<td>Water Stress</td>
+<td>72%</td>
+<td><strong>94%</strong></td>
+<td>91%</td>
+<td><strong>97%</strong></td>
+</tr>
+<tr>
+<td>نقص نيتروجين</td>
+<td>N Deficiency</td>
+<td>78%</td>
+<td>65%</td>
+<td><strong>95%</strong></td>
+<td><strong>96%</strong></td>
+</tr>
+<tr>
+<td>أمراض فطرية</td>
+<td>Fungal Disease</td>
+<td><strong>89%</strong></td>
+<td>71%</td>
+<td>93%</td>
+<td><strong>95%</strong></td>
+</tr>
+<tr>
+<td>إصابة حشرية</td>
+<td>Pest Damage</td>
+<td><strong>91%</strong></td>
+<td>68%</td>
+<td>87%</td>
+<td><strong>94%</strong></td>
+</tr>
+<tr>
+<td>إجهاد حراري</td>
+<td>Heat Stress</td>
+<td>70%</td>
+<td><strong>96%</strong></td>
+<td>88%</td>
+<td><strong>98%</strong></td>
+</tr>
+<tr>
+<td>ملوحة</td>
+<td>Salinity</td>
+<td>65%</td>
+<td>78%</td>
+<td><strong>92%</strong></td>
+<td><strong>95%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="processing-latency">زمن المعالجة | Processing Latency<a class="headerlink" href="#processing-latency" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>العملية</th>
+<th>Operation</th>
+<th>CPU</th>
+<th>GPU (RTX 3090)</th>
+<th>Edge (Jetson Orin)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RGB Classification</td>
+<td>120 ms</td>
+<td>8 ms</td>
+<td>25 ms</td>
+<td></td>
+</tr>
+<tr>
+<td>Semantic Segmentation</td>
+<td>450 ms</td>
+<td>15 ms</td>
+<td>45 ms</td>
+<td></td>
+</tr>
+<tr>
+<td>Object Detection (YOLO26)</td>
+<td>180 ms</td>
+<td>5.5 ms</td>
+<td>18 ms</td>
+<td></td>
+</tr>
+<tr>
+<td>Thermal Analysis</td>
+<td>80 ms</td>
+<td>5 ms</td>
+<td>15 ms</td>
+<td></td>
+</tr>
+<tr>
+<td>Hyperspectral Processing</td>
+<td>2500 ms</td>
+<td>85 ms</td>
+<td>250 ms</td>
+<td></td>
+</tr>
+<tr>
+<td>Full Pipeline</td>
+<td>3500 ms</td>
+<td>120 ms</td>
+<td>350 ms</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references-links">المراجع والروابط | References &amp; Links<a class="headerlink" href="#references-links" title="Permanent link">&para;</a></h2>
+<h3 id="related-knowledge-base-documents">وثائق ذات صلة في قاعدة المعرفة | Related Knowledge Base Documents<a class="headerlink" href="#related-knowledge-base-documents" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[[precision-farming|الزراعة الدقيقة (Precision Farming)]]</li>
+<li>[[iot-architecture|بنية إنترنت الأشياء (IoT Architecture)]]</li>
+<li>[[smart-farm|المزارع الذكية (Smart Farm)]]</li>
+<li>[[agri-llm-models|نماذج اللغة الزراعية (AgriLLM Models)]]</li>
+<li>[[sahool-platform-mapping|ربط منصة SAHOOL (Platform Mapping)]]</li>
+<li>[[../remote-sensing/ndvi-interpretation|تفسير NDVI]]</li>
+<li>[[../remote-sensing/lai-guide|مؤشر مساحة الأوراق LAI]]</li>
+<li>[[../diseases/fungal|الأمراض الفطرية]]</li>
+<li>[[../diseases/pests|الآفات الحشرية]]</li>
+</ul>
+<h3 id="scientific-references">مراجع علمية | Scientific References<a class="headerlink" href="#scientific-references" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>PlantVillage</strong> - Hughes, D.P. &amp; Salathé, M. (2015). Open access repository of plant disease images.</li>
+<li><strong>U-Net</strong> - Ronneberger, O. et al. (2015). Convolutional Networks for Biomedical Image Segmentation.</li>
+<li><strong>Mask R-CNN</strong> - He, K. et al. (2017). Instance Segmentation framework.</li>
+<li><strong>SAM</strong> - Kirillov, A. et al. (2023). Segment Anything Model.</li>
+<li><strong>CWSI</strong> - Idso, S.B. et al. (1981). Crop Water Stress Index methodology.</li>
+<li><strong>AgriRegion</strong> - arXiv:2512.10114 - Region-aware RAG for agriculture.</li>
+</ol>
+<hr />
+<blockquote>
+<p><strong>ملاحظة</strong>: يدعم نظام SAHOOL جميع تقنيات الاستشعار المذكورة عبر خدمة <code>yolo26-vision-service</code> و <code>ground-vision-service</code> و <code>edge-orchestrator-service</code>. للتوصيات الدقيقة المبنية على تحليل الصور، استخدم نظام التوصيات الذكي في تطبيق SAHOOL.</p>
+<p><strong>Note</strong>: SAHOOL platform supports all mentioned sensing technologies through <code>yolo26-vision-service</code>, <code>ground-vision-service</code>, and <code>edge-orchestrator-service</code>. For precise image-based recommendations, use the smart advisory system in the SAHOOL mobile app.</p>
+</blockquote>
+<p><em>آخر تحديث: مارس 2026 | Last Updated: March 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

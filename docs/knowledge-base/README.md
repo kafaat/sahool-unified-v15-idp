@@ -17,7 +17,7 @@ version: 2.1.0
 
 ## الأقسام الرئيسية | Main Sections
 
-### [[crops/README|المحاصيل (Crops)]] — 18 وثيقة
+### [[crops/README|المحاصيل (Crops)]] — 19 وثيقة
 معلومات شاملة عن المحاصيل الرئيسية في المنطقة:
 - [[crops/wheat|القمح (Wheat)]] - المحصول الاستراتيجي الأول
 - [[crops/barley|الشعير (Barley)]] - محصول متحمل للجفاف
@@ -37,6 +37,7 @@ version: 2.1.0
 - [[crops/corn|الذرة (Corn)]] - حبوب وأعلاف
 - [[crops/sorghum|الذرة الرفيعة (Sorghum)]] - متحمل للجفاف
 - [[crops/sesame|السمسم (Sesame)]] - محصول زيتي
+- [[crops/cotton|القطن (Cotton)]] - محصول نقدي استراتيجي متحمل للملوحة
 
 ### [[soils/README|التربة (Soils)]] — 7 وثائق
 أنواع التربة وخصائصها وإدارتها:
@@ -115,7 +116,7 @@ version: 2.1.0
 
 | القسم | Section | عدد الوثائق | Documents |
 |-------|---------|-------------|-----------|
-| المحاصيل | Crops | 18 | wheat, barley, dates, tomato, +14 |
+| المحاصيل | Crops | 19 | wheat, barley, dates, tomato, cotton, +14 |
 | الذكاء الاصطناعي | AI + Smart Agriculture | 13 | industry chain, precision farming, CV monitoring, +10 |
 | الري | Irrigation | 8 | drip, sprinkler, flood, deficit, +4 |
 | التسميد | Fertilization | 8 | N, P, K, organic, fertigation, +3 |
@@ -125,7 +126,7 @@ version: 2.1.0
 | الأمراض والآفات | Diseases & Pests | 3 | fungal, pests, index |
 | الممارسات المثلى | Best Practices | 2 | sustainable farming |
 | المراقبة | Monitoring | 1 | remote sensing + AI |
-| **المجموع** | **Total** | **73** | |
+| **المجموع** | **Total** | **74** | |
 
 ---
 

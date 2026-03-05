@@ -752,8 +752,8 @@ Test markers: `@pytest.mark.unit`, `@pytest.mark.smoke`, `@pytest.mark.integrati
 - `apps/services-docs/advisory-service.md` — Advisory service consuming this module
 - `tools/` — FixOps CLI built on `auto_fix`
 - `.claude/skills/context-engineering/` — AI skills for context compression and evaluation
-- `docs/knowledge-base/` — 72 bilingual knowledge base documents (source content for ingestion)
-- `docs/knowledge-base/ai-smart-agriculture/` — 12 AI + Smart Agriculture industry analysis docs
+- `docs/knowledge-base/` — 74 bilingual knowledge base documents (source content for ingestion)
+- `docs/knowledge-base/ai-smart-agriculture/` — 13 AI + Smart Agriculture industry analysis docs
 
 ---
 

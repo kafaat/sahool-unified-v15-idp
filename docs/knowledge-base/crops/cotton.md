@@ -164,7 +164,7 @@ Cotton is one of the most important industrial crops in the Arab region, serving
 ### الآفات | Pests
 - **دودة اللوز القرنفلية** (Pink Bollworm - *Pectinophora gossypiella*) - أخطر آفة، تنخر في اللوز
 - **دودة اللوز الأمريكية** (American Bollworm - *Helicoverpa armigera*) - متعددة العوائل
-- **من القطن** (Cotton Aphid - *Aphis gossypii*) - يمتص العصارة وينقل الفيروسات
+- **مَنّ القطن** (Cotton Aphid - *Aphis gossypii*) - يمتص العصارة وينقل الفيروسات
 - **الذبابة البيضاء** (Whitefly - *Bemisia tabaci*) - ناقل رئيسي لفيروس تجعد الأوراق
 - **العنكبوت الأحمر** (Red Spider Mite - *Tetranychus urticae*) - في الظروف الجافة والحارة
 

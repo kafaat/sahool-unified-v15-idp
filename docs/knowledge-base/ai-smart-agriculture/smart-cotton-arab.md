@@ -191,7 +191,7 @@ This document adapts smart cotton farming technologies successfully implemented 
 
 عبر `yolo26-vision-service` (port 8150):
 - كشف **دودة اللوز القرنفلية** (Pink Bollworm) - إنذار حرج
-- كشف **من القطن** (*Aphis gossypii* - APHID001) - مراقبة الكثافة
+- كشف **مَنّ القطن** (*Aphis gossypii* - APHID001) - مراقبة الكثافة
 - كشف **الذبابة البيضاء** (*Bemisia tabaci*) - ناقل فيروس تجعد الأوراق
 
 ### 5. نموذج CottonAI | CottonAI Model
@@ -317,7 +317,7 @@ ROI من السنة الثانية: ~1,240% (بدون تكلفة أجهزة)
 | إدارة الملوحة | `shared/salinity/module.py` | حسابات FAO-29 (عتبة 7.7 dS/m) |
 | الري الذكي | `shared/irrigation/` | محرك التعاون إنسان-آلة |
 | مراقبة NDVI | `vegetation-analysis-service` | Sentinel Hub |
-| كشف الآفات | `yolo26-vision-service` | من القطن APHID001 + دودة اللوز |
+| كشف الآفات | `yolo26-vision-service` | مَنّ القطن APHID001 + دودة اللوز |
 | نموذج CottonAI | `shared/ai/models_registry/` | معرّف: cottonai |
 | التوصيات | `advisory-service` | حلقة مغلقة مع تغذية راجعة |
 | المزامنة أوفلاين | `shared/mobile_sync/` | offline-first لليمن |

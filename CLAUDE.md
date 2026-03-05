@@ -2717,7 +2717,7 @@ The platform contains **475+ documentation files** spread across multiple direct
 | `docs/guides/` | 20 | Quick start guides (2FA, build, deployment, MCP, testing) |
 | `docs/implementations/` | 35 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
 | `docs/infrastructure/` | 3 | Circuit breaker, Kong HA, PostGIS optimization |
-| `docs/knowledge-base/` | 72 | Agricultural knowledge (18 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 12 AI+Smart Agriculture, best practices) |
+| `docs/knowledge-base/` | 74 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
 | `docs/migrations/` | 4 | Service migration summaries |
 | `docs/proposals/` | 1 | AI code agent proposal |
 | `docs/reports/` | 52 | Comprehensive audit and analysis reports |

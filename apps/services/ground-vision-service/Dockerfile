@@ -68,7 +68,7 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN useradd --create-home --shell /bin/bash appuser
+RUN useradd --create-home --shell /bin/bash sahool
 
 # Copy installed packages from builder
 COPY --from=builder /install /usr/local
@@ -84,10 +84,10 @@ COPY apps/services/ground-vision-service/requirements.txt .
 COPY apps/services/ground-vision-service/src/ ./src/
 
 # Set ownership
-RUN chown -R appuser:appuser /app
+RUN chown -R sahool:sahool /app
 
 # Switch to non-root user
-USER appuser
+USER sahool
 
 # Environment configuration
 ENV PYTHONUNBUFFERED=1 \

@@ -12,10 +12,9 @@ ARG PYTHON_VERSION=3.11
 
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-# Configure apt to use HTTPS and install build dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-update.sh && apt-get install -y --no-install-recommends \
-    apt-transport-https \
+# Install build dependencies
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -75,7 +74,7 @@ LABEL description="Knowledge graph service for crop-disease-treatment relationsh
 # Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app/src \
+    PYTHONPATH=/app \
     PORT=8140 \
     LOG_LEVEL=INFO
 

@@ -358,7 +358,7 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
-          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx6G -XX:MaxMetaspaceSize=2G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
           org.gradle.parallel=true
           org.gradle.caching=true

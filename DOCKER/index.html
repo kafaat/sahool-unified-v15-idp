@@ -1221,28 +1221,22 @@ PLANET_API_KEY=&lt;your-api-key&gt;
 </thead>
 <tbody>
 <tr>
-<td>crop_health_ai</td>
+<td>crop-intelligence-service</td>
 <td>8095</td>
 <td>Python</td>
 <td>تشخيص صحة المحاصيل</td>
 </tr>
 <tr>
 <td>virtual_sensors</td>
-<td>8096</td>
+<td>8119</td>
 <td>Python</td>
 <td>المستشعرات الافتراضية</td>
 </tr>
 <tr>
-<td>community_chat</td>
-<td>8097</td>
+<td>chat-service</td>
+<td>8115</td>
 <td>Node.js</td>
-<td>الدردشة المجتمعية</td>
-</tr>
-<tr>
-<td>yield_engine</td>
-<td>8098</td>
-<td>Python</td>
-<td>توقع الإنتاجية</td>
+<td>الدردشة والتراسل الفوري</td>
 </tr>
 <tr>
 <td>billing_core</td>
@@ -1251,10 +1245,10 @@ PLANET_API_KEY=&lt;your-api-key&gt;
 <td>الفوترة والاشتراكات</td>
 </tr>
 <tr>
-<td>satellite_service</td>
+<td>vegetation-analysis-service</td>
 <td>8090</td>
 <td>Python</td>
-<td>صور الأقمار الصناعية</td>
+<td>تحليل صور الأقمار الصناعية</td>
 </tr>
 <tr>
 <td>indicators_service</td>
@@ -1263,16 +1257,16 @@ PLANET_API_KEY=&lt;your-api-key&gt;
 <td>المؤشرات الزراعية</td>
 </tr>
 <tr>
-<td>weather_advanced</td>
+<td>weather-service</td>
 <td>8092</td>
 <td>Python</td>
 <td>التنبؤات الجوية</td>
 </tr>
 <tr>
-<td>fertilizer_advisor</td>
+<td>advisory-service</td>
 <td>8093</td>
 <td>Python</td>
-<td>مستشار التسميد</td>
+<td>الاستشارات الزراعية</td>
 </tr>
 <tr>
 <td>irrigation_smart</td>
@@ -1428,7 +1422,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 </code></pre></div>
 
 <h3 id="network-resilience">حل مشاكل الشبكة | Network Resilience<a class="headerlink" href="#network-resilience" title="Permanent link">&para;</a></h3>
-<p>إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted):</p>
+<p>إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted أو DNS failures):</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># تأكد من تفعيل BuildKit</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span>
 
@@ -1436,10 +1430,69 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--progress<span class="o">=</span>plain<span class="w"> </span>chat-service
 </code></pre></div>
 
-<p>خدمات Node.js تستخدم:
-- <strong>BuildKit cache mount</strong>: إعادة استخدام حزم npm المحملة
-- <strong>Retry loop</strong>: 5 محاولات مع تأخير متزايد
+<h3 id="standardized-build-patterns">أنماط البناء المعيارية | Standardized Build Patterns<a class="headerlink" href="#standardized-build-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="apt-get-mirror-fallback">apt-get Mirror Fallback (جميع الخدمات)<a class="headerlink" href="#apt-get-mirror-fallback" title="Permanent link">&para;</a></h4>
+<p>جميع الحاويات تستخدم سكريبت <code>docker/apt-update.sh</code> المشترك بدلاً من <code>apt-get update</code> مباشرة.
+السكريبت يتعامل مع فشل DNS تلقائياً بالتبديل إلى مرايا Aliyun:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># نسخ السكريبت المشترك</span>
+<span class="k">COPY</span><span class="w"> </span>docker/apt-update.sh<span class="w"> </span>/usr/local/bin/
+<span class="k">RUN</span><span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/apt-update.sh
+
+<span class="c"># الاستخدام - بدلاً من apt-get update</span>
+<span class="k">RUN</span><span class="w"> </span>apt-update.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>curl<span class="w"> </span>tini<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+</code></pre></div>
+
+<p>يدعم: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية.</p>
+<h4 id="npm-install-retry-mirror-fallback-nodejs">npm Install مع Retry و Mirror Fallback (خدمات Node.js)<a class="headerlink" href="#npm-install-retry-mirror-fallback-nodejs" title="Permanent link">&para;</a></h4>
+<p>جميع خدمات Node.js تستخدم نمط retry loop موحد مع 5 محاولات و mirror fallback:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>--mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>cache,target<span class="o">=</span>/root/.npm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--prefer-offline<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--fetch-timeout<span class="o">=</span><span class="m">300000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--no-audit<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--no-fund<span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"> </span><span class="k">fi</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;5&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry...&quot;</span><span class="p">;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span>false<span class="p">;</span><span class="w"> </span><span class="k">fi</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">done</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">(</span>npm<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>registry<span class="w"> </span>https://registry.npmmirror.com<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps<span class="o">)</span>
+</code></pre></div>
+
+<p><strong>المميزات:</strong>
+- <strong>BuildKit cache mount</strong>: إعادة استخدام حزم npm المحملة (<code>/root/.npm</code>)
+- <strong>5 محاولات</strong>: مع تأخير متزايد (10s, 20s, 30s, 40s)
+- <strong>Mirror fallback</strong>: التبديل إلى npmmirror.com عند فشل جميع المحاولات
 - <strong>Increased timeouts</strong>: 5 دقائق لكل طلب</p>
+<h4 id="pip-multi-mirror-fallback-python">pip Multi-Mirror Fallback (خدمات Python)<a class="headerlink" href="#pip-multi-mirror-fallback-python" title="Permanent link">&para;</a></h4>
+<p>خدمات Python تستخدم نمط المرايا المتعددة:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>--timeout<span class="o">=</span><span class="m">600</span><span class="w"> </span>--retries<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trusted-host<span class="w"> </span>pypi.org<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trusted-host<span class="w"> </span>files.pythonhosted.org<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>--timeout<span class="o">=</span><span class="m">600</span><span class="w"> </span>--retries<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-i<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trusted-host<span class="w"> </span>mirrors.aliyun.com<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>--timeout<span class="o">=</span><span class="m">600</span><span class="w"> </span>--retries<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-i<span class="w"> </span>https://mirrors.cloud.tencent.com/pypi/simple<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trusted-host<span class="w"> </span>mirrors.cloud.tencent.com<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-r<span class="w"> </span>requirements.txt
+</code></pre></div>
+
+<p><strong>ترتيب المرايا:</strong> PyPI الرسمي → Alibaba Cloud → Tencent Cloud</p>
+<h4 id="cli-http">خدمات CLI (بدون منفذ HTTP)<a class="headerlink" href="#cli-http" title="Permanent link">&para;</a></h4>
+<p>بعض الخدمات مثل <code>code-review-agent</code> هي أدوات CLI بدون خادم HTTP.
+هذه الخدمات لا تحتاج port mapping أو health check:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في governance/services.yaml</span>
+<span class="nt">code-review-agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">               </span><span class="c1"># لا يوجد منفذ HTTP</span>
+<span class="w">  </span><span class="nt">health_endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">    </span><span class="c1"># لا يوجد فحص صحة</span>
+<span class="w">  </span><span class="nt">service_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cli</span><span class="w">        </span><span class="c1"># نوع الخدمة</span>
+</code></pre></div>
+
+<p>المولّدات (<code>generate_infra.py</code>, <code>compose-generator.py</code>) تتخطى هذه الخدمات تلقائياً عند توليد Docker Compose و Helm.</p>
 <hr />
 <h2 id="profiles-legacy-services">Profiles (Legacy Services)<a class="headerlink" href="#profiles-legacy-services" title="Permanent link">&para;</a></h2>
 <p>بعض الخدمات القديمة موضوعة في profile منفصل:</p>
@@ -1561,7 +1614,7 @@ helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"
 <p align="center">
   <strong>SAHOOL Platform v16.0</strong>
   <br>
-  <sub>آخر تحديث: فبراير 2026</sub>
+  <sub>آخر تحديث: مارس 2026</sub>
 </p>
 
 

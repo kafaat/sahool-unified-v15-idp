@@ -105,32 +105,6 @@ services:
           memory: 1Gi
     depends_on:
     - vegetation-analysis-service
-  agro-rules:
-    build:
-      context: ../../apps/services/agro-rules
-      dockerfile: Dockerfile
-    ports:
-    - 8151:8151
-    environment:
-    - PORT=8151
-    - ENVIRONMENT=production
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8151/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '200'
-          memory: 256Mi
-    depends_on:
-    - nats
   crop-intelligence-service:
     build:
       context: ../../apps/services/crop-intelligence-service

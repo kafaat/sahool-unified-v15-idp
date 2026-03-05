@@ -17,7 +17,8 @@ FROM python:${PYTHON_VERSION}-slim AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -61,7 +62,8 @@ RUN groupadd --gid 1000 sahool && \
     useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     tini \
@@ -119,8 +121,8 @@ FROM production AS development
 
 USER root
 
-# Install development dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install development dependencies (apt-update.sh inherited from production stage)
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     git \
     vim \
     && rm -rf /var/lib/apt/lists/*

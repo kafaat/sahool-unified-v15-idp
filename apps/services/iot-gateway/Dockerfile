@@ -27,7 +27,8 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install curl for health checks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools with multi-mirror fallback

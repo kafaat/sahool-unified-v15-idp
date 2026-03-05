@@ -18,7 +18,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONFAULTHANDLER=1
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-venv \
     python3.11-dev \
@@ -60,8 +61,8 @@ RUN groupadd --system --gid 1000 sahool && \
 # -----------------------------------------------------------------------------
 FROM base AS builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install build dependencies (apt-update.sh inherited from base stage)
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     git \
@@ -228,7 +229,8 @@ ENV PYTHONFAULTHANDLER=1
 
 # Install system dependencies
 # Note: libgl1-mesa-glx replaced by libgl1 in Debian Trixie
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     libsm6 \

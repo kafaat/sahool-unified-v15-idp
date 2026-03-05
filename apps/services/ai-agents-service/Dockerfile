@@ -16,7 +16,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -80,7 +81,8 @@ LABEL org.opencontainers.image.title="SAHOOL AI Agents Service" \
       org.opencontainers.image.description="AI Agents Service for autonomous agricultural intelligence"
 
 # Install runtime dependencies (curl for health check)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \

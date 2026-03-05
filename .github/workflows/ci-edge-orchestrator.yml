@@ -406,7 +406,7 @@ jobs:
               && rm -rf /var/lib/apt/lists/*
 
           # Create non-root user
-          RUN useradd -m -u 1000 appuser
+          RUN useradd -m -u 1000 sahool
 
           WORKDIR /app
 
@@ -421,18 +421,18 @@ jobs:
           # Copy application
           COPY apps/services/edge-orchestrator-service/src/ ./src/
 
-          RUN chown -R appuser:appuser /app
-          USER appuser
+          RUN chown -R sahool:sahool /app
+          USER sahool
 
           ENV PYTHONPATH=/app
           ENV ENVIRONMENT=production
 
           HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-              CMD curl -f http://localhost:8190/healthz || exit 1
+              CMD curl -f http://localhost:8180/healthz || exit 1
 
-          EXPOSE 8190
+          EXPOSE 8180
 
-          CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8190"]
+          CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8180"]
           EOF
 
       - name: Build and push Docker image

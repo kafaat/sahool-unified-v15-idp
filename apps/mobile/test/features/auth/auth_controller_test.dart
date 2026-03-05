@@ -22,7 +22,7 @@ import 'auth_mocks.dart';
 /// More reliable than fixed Future.delayed() durations in CI.
 Future<void> _waitForInit(AuthStateNotifier notifier) async {
   for (var i = 0; i < 100; i++) {
-    await Future.delayed(const Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 10));
     if (notifier.state.status != AuthStatus.loading &&
         notifier.state.status != AuthStatus.initial) {
       return;
@@ -196,7 +196,7 @@ void main() {
             .thenAnswer((_) async => null);
         when(() => mockSecureStorage.setAccessToken(any()))
             .thenAnswer((_) async {
-          await Future.delayed(const Duration(milliseconds: 50));
+          await Future<void>.delayed(const Duration(milliseconds: 50));
         });
         when(() => mockSecureStorage.setRefreshToken(any()))
             .thenAnswer((_) async {});

@@ -652,7 +652,7 @@ void main() {
           'recommendation': 'Test',
           'recommendation_ar': 'اختبار',
           'status': 'unknown_status',
-          'reasons': [],
+          'reasons': <dynamic>[],
         };
         final impact = AgriculturalImpact.fromJson(json);
 
@@ -719,7 +719,7 @@ void main() {
           'recommendation': 'Test',
           'recommendation_ar': 'اختبار',
           'status': 'favorable',
-          'reasons': [],
+          'reasons': <dynamic>[],
         };
         final impact = AgriculturalImpact.fromJson(json);
         expect(impact.categoryIcon, equals('🌡️'));
@@ -761,7 +761,7 @@ void main() {
           'recommendation': 'Test',
           'recommendation_ar': 'اختبار',
           'status': 'favorable',
-          'reasons': [],
+          'reasons': <dynamic>[],
         };
         final impact = AgriculturalImpact.fromJson(json);
         expect(impact.categoryAr, equals('fertilizing'));

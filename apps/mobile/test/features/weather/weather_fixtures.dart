@@ -53,10 +53,10 @@ class WeatherFixtures {
           'uv_index': 9.5,
           'timestamp': '2026-01-23T14:00:00Z',
         },
-        'hourly': [],
-        'daily': [],
-        'alerts': [],
-        'impacts': [],
+        'hourly': <dynamic>[],
+        'daily': <dynamic>[],
+        'alerts': <dynamic>[],
+        'impacts': <dynamic>[],
       };
 
   /// Rainy weather JSON (مطر)
@@ -74,8 +74,8 @@ class WeatherFixtures {
           'uv_index': 2.0,
           'timestamp': '2026-01-23T16:00:00Z',
         },
-        'hourly': [],
-        'daily': [],
+        'hourly': <dynamic>[],
+        'daily': <dynamic>[],
         'alerts': [
           {
             'id': 'alert-rain-001',
@@ -88,7 +88,7 @@ class WeatherFixtures {
             'end_time': '2026-01-24T16:00:00Z',
           }
         ],
-        'impacts': [],
+        'impacts': <dynamic>[],
       };
 
   /// Thunderstorm weather JSON (عاصفة رعدية)
@@ -106,8 +106,8 @@ class WeatherFixtures {
           'uv_index': 1.0,
           'timestamp': '2026-01-23T18:00:00Z',
         },
-        'hourly': [],
-        'daily': [],
+        'hourly': <dynamic>[],
+        'daily': <dynamic>[],
         'alerts': [
           {
             'id': 'alert-storm-001',
@@ -120,7 +120,7 @@ class WeatherFixtures {
             'end_time': '2026-01-23T23:00:00Z',
           }
         ],
-        'impacts': [],
+        'impacts': <dynamic>[],
       };
 
   /// Foggy weather JSON (ضبابي)
@@ -138,10 +138,10 @@ class WeatherFixtures {
           'uv_index': 0.5,
           'timestamp': '2026-01-23T06:00:00Z',
         },
-        'hourly': [],
-        'daily': [],
-        'alerts': [],
-        'impacts': [],
+        'hourly': <dynamic>[],
+        'daily': <dynamic>[],
+        'alerts': <dynamic>[],
+        'impacts': <dynamic>[],
       };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -511,10 +511,10 @@ class WeatherFixtures {
           'uv_index': 5.0,
           'timestamp': DateTime.now().toIso8601String(),
         },
-        'hourly': [],
-        'daily': [],
-        'alerts': [],
-        'impacts': [],
+        'hourly': <dynamic>[],
+        'daily': <dynamic>[],
+        'alerts': <dynamic>[],
+        'impacts': <dynamic>[],
       };
 
   /// Generate forecast for specified number of days

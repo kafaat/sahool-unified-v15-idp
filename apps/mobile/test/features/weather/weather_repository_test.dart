@@ -526,7 +526,7 @@ void main() {
 
       test('should return empty list when no alerts', () async {
         // Arrange
-        final responseBody = jsonEncode({'alerts': []});
+        final responseBody = jsonEncode(<String, dynamic>{'alerts': <dynamic>[]});
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
             .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 

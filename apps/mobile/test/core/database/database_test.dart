@@ -572,7 +572,7 @@ void main() {
       });
 
       // Wait for initial emission
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Insert new record
       await db.into(db.testTasks).insert(TestTasksCompanion.insert(
@@ -585,7 +585,7 @@ void main() {
           ));
 
       // Wait for stream update
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       await subscription.cancel();
 

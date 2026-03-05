@@ -1611,38 +1611,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8162'
       prometheus.io/path: /metrics
-  code-review-agent:
-    enabled: true
-    name: code-review-agent
-    image:
-      repository: ghcr.io/kafaat/sahool-code-review-agent
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: null
-    healthCheck:
-      path: null
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 400m
-        memory: 512Mi
-      limits:
-        cpu: 400000m
-        memory: 512Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: None
-    serviceAccount:
-      create: true
-      name: sahool-code-review-agent
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: None
-      prometheus.io/path: /metrics
   code-review-service:
     enabled: true
     name: code-review-service
@@ -2957,10 +2925,6 @@ ingress:
       pathType: Prefix
       service: code-fix-agent
       port: 8162
-    - path: /api/v1/code/review/agent
-      pathType: Prefix
-      service: code-review-agent
-      port: null
     - path: /api/v1/code/review/service
       pathType: Prefix
       service: code-review-service

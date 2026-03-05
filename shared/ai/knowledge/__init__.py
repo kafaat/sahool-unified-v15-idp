@@ -20,6 +20,7 @@
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
+from .agrovoc import AgrovocConcept, AgrovocDomain, AgrovocLookup
 from .collections import (
     CROP_KNOWLEDGE,
     CROP_WATER_REQUIREMENTS,
@@ -28,8 +29,18 @@ from .collections import (
     IRRIGATION_PRACTICES,
     PEST_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
+    RESEARCH_REFERENCES,
+    SMART_AGRICULTURE_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
+)
+from .corrective_retrieval import (
+    ConfidenceLevel,
+    CorrectiveRetrievalEngine,
+    CRAGResult,
+    RefinedChunk,
+    RetrievalAction,
+    RetrievalEvaluation,
 )
 from .models import (
     CropKnowledgeDocument,
@@ -39,12 +50,15 @@ from .models import (
     IrrigationKnowledgeDocument,
     KnowledgeDomain,
     KnowledgeSourceMeta,
+    PestVisionDocument,
     RemoteSensingGuideDocument,
+    SeasonalRelevance,
+    SmartAgricultureDocument,
     SoilTypeDocument,
     WeatherPatternDocument,
 )
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __all__ = [
     # Collections
     "CROP_KNOWLEDGE",
@@ -55,9 +69,12 @@ __all__ = [
     "FERTILIZER_KNOWLEDGE",
     "WEATHER_KNOWLEDGE",
     "REMOTE_SENSING_KNOWLEDGE",
+    "SMART_AGRICULTURE_KNOWLEDGE",
+    "RESEARCH_REFERENCES",
     "GENERAL_AGRICULTURE",
     # Models
     "KnowledgeDomain",
+    "SeasonalRelevance",
     "FRESHMetadata",
     "GeospatialMetadata",
     "KnowledgeSourceMeta",
@@ -67,4 +84,17 @@ __all__ = [
     "FertilizerKnowledgeDocument",
     "WeatherPatternDocument",
     "RemoteSensingGuideDocument",
+    "SmartAgricultureDocument",
+    "PestVisionDocument",
+    # AGROVOC
+    "AgrovocConcept",
+    "AgrovocDomain",
+    "AgrovocLookup",
+    # Corrective Retrieval (CRAG)
+    "CorrectiveRetrievalEngine",
+    "CRAGResult",
+    "RefinedChunk",
+    "RetrievalAction",
+    "RetrievalEvaluation",
+    "ConfidenceLevel",
 ]

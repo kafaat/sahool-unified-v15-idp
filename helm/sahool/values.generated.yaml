@@ -651,38 +651,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8201'
       prometheus.io/path: /metrics
-  agro-rules:
-    enabled: true
-    name: agro-rules
-    image:
-      repository: ghcr.io/kafaat/sahool-agro-rules
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8151
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-      limits:
-        cpu: 200000m
-        memory: 256Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8151'
-    serviceAccount:
-      create: true
-      name: sahool-agro-rules
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8151'
-      prometheus.io/path: /metrics
   crop-intelligence-service:
     enabled: true
     name: crop-intelligence-service
@@ -2635,38 +2603,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8251'
       prometheus.io/path: /metrics
-  demo-data:
-    enabled: true
-    name: demo-data
-    image:
-      repository: ghcr.io/kafaat/sahool-demo-data
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8261
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-      limits:
-        cpu: 200000m
-        memory: 256Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8261'
-    serviceAccount:
-      create: true
-      name: sahool-demo-data
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8261'
-      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2805,10 +2741,6 @@ ingress:
       pathType: Prefix
       service: mcp-server
       port: 8201
-    - path: /api/v1/agro/rules
-      pathType: Prefix
-      service: agro-rules
-      port: 8151
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service
@@ -3053,10 +2985,6 @@ ingress:
       pathType: Prefix
       service: iot-sensor-hub
       port: 8251
-    - path: /api/v1/demo/data
-      pathType: Prefix
-      service: demo-data
-      port: 8261
   tls:
   - secretName: sahool-tls
     hosts:

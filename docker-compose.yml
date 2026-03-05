@@ -3054,7 +3054,7 @@ services:
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
     ports:
-      - "127.0.0.1:8163:8088"
+      - "127.0.0.1:8088:8088"
     depends_on:
       pgbouncer:
         condition: service_healthy

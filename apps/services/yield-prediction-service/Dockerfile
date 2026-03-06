@@ -57,7 +57,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # Use explicit tsc path since npx resolution through symlinks is unreliable
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/yield-prediction-service/node_modules ./node_modules && \
-    npm install --no-save typescript@5.9.3 redis@4 @liaoliaots/nestjs-redis@10 ioredis@5 2>/dev/null; \
+    npm install --no-save typescript@5.9.3 redis@4 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 2>/dev/null; \
     ./node_modules/.bin/tsc --skipLibCheck || \
     (echo "WARN: tsc not found via symlink, installing directly..." && \
      npm install --no-save typescript@5.9.3 2>/dev/null && \

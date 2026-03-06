@@ -195,7 +195,8 @@ services:
         name_ar: "تكامل نظم المعلومات الجغرافية"
         endpoint: "/gis"
 
-    dependencies: []
+    dependencies:
+      - redis
     environment:
       - NODE_ENV
       - PORT
@@ -267,6 +268,7 @@ services:
         - FieldIndicatorsComputed.v1
     dependencies:
       - vegetation-analysis-service
+      - redis
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -335,7 +337,8 @@ services:
     database:
       type: postgresql
       name: sahool_marketplace
-    dependencies: []
+    dependencies:
+      - redis
     resources:
       cpu: "400m"
       memory: "384Mi"
@@ -3233,6 +3236,7 @@ services:
     dependencies:
       - crop-growth-model
       - weather-service
+      - redis
     resources:
       cpu: "500m"
       memory: "512Mi"

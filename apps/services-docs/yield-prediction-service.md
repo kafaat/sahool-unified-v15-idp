@@ -711,6 +711,10 @@ Based on days until harvest:
 | class-validator | ^0.14.1 | Validation |
 | rxjs | ^7.8.1 | Reactive extensions |
 | uuid | ^11.0.3 | UUID generation |
+| @sahool/nestjs-auth | 16.0.0 | JWT authentication & token revocation |
+| @liaoliaots/nestjs-redis | ^9.0.0 | NestJS Redis module |
+| ioredis | ^5.0.0 | Redis client |
+| redis | ^4.6.0 | Redis client (token revocation) |
 | typescript | ^5.7.2 | TypeScript compiler |
 | prisma | ^5.22.0 | Prisma CLI |
 

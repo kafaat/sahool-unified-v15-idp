@@ -131,6 +131,7 @@ This service does not publish NATS events directly. LAI estimates are consumed s
 - NestJS 10.x, TypeScript 5.9.x
 - `@sahool/nestjs-auth` for JWT Bearer authentication
 - `@nestjs/swagger` for API documentation at `/docs`
+- Redis 7.x (token revocation via `@sahool/nestjs-auth`)
 - PROSAIL radiative transfer model library for physics-based computation
 
 ---

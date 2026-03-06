@@ -426,12 +426,39 @@ These services have NO dependencies and must start first:
 #### yield-prediction-service (Port 8152)
 **Dependencies:**
 - postgres (via pgbouncer:6432)
+- redis:6379
 - nats:4222
 
 **Dependents:**
 - Admin app (yield forecasts)
 
 **Purpose:** Yield estimation & prediction
+
+---
+
+#### lai-estimation (Port 3022)
+**Dependencies:**
+- redis:6379
+- nats:4222
+
+**Dependents:**
+- vegetation-analysis-service
+- indicators-service
+
+**Purpose:** Leaf Area Index estimation using LAI-TransNet
+
+---
+
+#### crop-growth-model (Port 3023)
+**Dependencies:**
+- redis:6379
+- nats:4222
+
+**Dependents:**
+- yield-prediction-service
+- advisory-service
+
+**Purpose:** Crop growth simulation (WOFOST/DSSAT/APSIM)
 
 ---
 

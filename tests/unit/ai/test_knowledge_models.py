@@ -40,8 +40,8 @@ class TestKnowledgeDomain:
 
     @pytest.mark.unit
     def test_all_domains_defined(self):
-        """Test that all 8 knowledge domains are defined."""
-        assert len(KnowledgeDomain) == 8
+        """Test that all 11 knowledge domains are defined."""
+        assert len(KnowledgeDomain) == 11
 
     @pytest.mark.unit
     def test_domain_values(self):

@@ -20,6 +20,8 @@ from shared.ai.knowledge.collections import (
     IRRIGATION_PRACTICES,
     PEST_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
+    RESEARCH_REFERENCES,
+    SMART_AGRICULTURE_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
@@ -43,8 +45,8 @@ class TestCollectionConstants:
 
     @pytest.mark.unit
     def test_all_collections_count(self):
-        """Test that ALL_COLLECTIONS has 9 entries."""
-        assert len(ALL_COLLECTIONS) == 9
+        """Test that ALL_COLLECTIONS has 11 entries."""
+        assert len(ALL_COLLECTIONS) == 11
 
     @pytest.mark.unit
     def test_all_collections_contents(self):
@@ -59,6 +61,8 @@ class TestCollectionConstants:
             FERTILIZER_KNOWLEDGE,
             WEATHER_KNOWLEDGE,
             REMOTE_SENSING_KNOWLEDGE,
+            SMART_AGRICULTURE_KNOWLEDGE,
+            RESEARCH_REFERENCES,
         }
         assert set(ALL_COLLECTIONS) == expected
 

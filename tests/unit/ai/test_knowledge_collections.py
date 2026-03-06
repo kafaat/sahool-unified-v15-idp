@@ -124,5 +124,6 @@ class TestCollectionDirectoryMap:
 
     @pytest.mark.unit
     def test_general_agriculture_mapping(self):
-        """Test general agriculture maps to base directory."""
-        assert "docs/knowledge-base/" in COLLECTION_DIRECTORY_MAP[GENERAL_AGRICULTURE]
+        """Test general agriculture maps to best-practices and monitoring directories."""
+        dirs = COLLECTION_DIRECTORY_MAP[GENERAL_AGRICULTURE]
+        assert any("best-practices" in d for d in dirs)

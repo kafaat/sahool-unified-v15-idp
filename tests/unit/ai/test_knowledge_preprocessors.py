@@ -75,10 +75,14 @@ class TestArabicTextPreprocessor:
     @pytest.mark.unit
     @pytest.mark.arabic
     def test_normalize_taa_marbuta(self, arabic_preprocessor: ArabicTextPreprocessor):
-        """Test taa marbuta normalization | اختبار توحيد التاء المربوطة"""
+        """Test taa marbuta normalization is disabled by default to preserve meaning."""
         text = "الزراعة"
+        # Default: taa marbuta NOT normalized (preserves semantic meaning)
         result = arabic_preprocessor.normalize(text)
-        assert result == "الزراعه"
+        assert result == "الزراعة"
+        # Opt-in: taa marbuta normalized for search indexing
+        result_with_normalization = arabic_preprocessor.normalize(text, normalize_taa_marbuta=True)
+        assert result_with_normalization == "الزراعه"
 
     @pytest.mark.unit
     @pytest.mark.arabic

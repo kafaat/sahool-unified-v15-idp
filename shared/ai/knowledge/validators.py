@@ -15,8 +15,10 @@ from .models import (
     FertilizerKnowledgeDocument,
     IrrigationKnowledgeDocument,
     PestVisionDocument,
+    RemoteSensingGuideDocument,
     SmartAgricultureDocument,
     SoilTypeDocument,
+    WeatherPatternDocument,
 )
 
 logger = structlog.get_logger(__name__)
@@ -63,6 +65,11 @@ class KnowledgeValidator:
     WATER_REQUIREMENT_MM_RANGE = (0.0, 3000.0)
     HARVEST_DAYS_RANGE = (20, 730)
     MAP_SCORE_RANGE = (0.0, 1.0)
+    RAINFALL_MM_RANGE = (0.0, 5000.0)
+    HUMIDITY_RANGE = (0.0, 100.0)
+    SPATIAL_RESOLUTION_RANGE = (0.1, 10000.0)  # meters
+    NDVI_RANGE = (-1.0, 1.0)
+    TEMPORAL_RESOLUTION_RANGE = (1, 365)  # days
 
     def validate(self, document: BaseKnowledgeDocument) -> ValidationResult:
         """Validate a knowledge document."""
@@ -84,6 +91,10 @@ class KnowledgeValidator:
             self._validate_smart_agriculture(document, result)
         elif isinstance(document, PestVisionDocument):
             self._validate_pest_vision(document, result)
+        elif isinstance(document, WeatherPatternDocument):
+            self._validate_weather(document, result)
+        elif isinstance(document, RemoteSensingGuideDocument):
+            self._validate_remote_sensing(document, result)
 
         if result.issues:
             logger.info(
@@ -225,3 +236,69 @@ class KnowledgeValidator:
                 f"Image size {doc.image_size_px}px outside typical range 32-4096",
                 f"حجم الصورة {doc.image_size_px}px خارج النطاق المعتاد",
             )
+
+    def _validate_weather(self, doc: WeatherPatternDocument, result: ValidationResult) -> None:
+        """Validate weather/climate document fields."""
+        if doc.annual_rainfall_mm:
+            lo, hi = doc.annual_rainfall_mm
+            if not (self.RAINFALL_MM_RANGE[0] <= lo <= hi <= self.RAINFALL_MM_RANGE[1]):
+                result.add_error(
+                    "annual_rainfall_mm",
+                    f"Rainfall range {lo}-{hi}mm outside valid bounds 0-5000",
+                    f"نطاق الأمطار {lo}-{hi}مم خارج الحدود 0-5000",
+                )
+
+        if doc.humidity_range_percent:
+            lo, hi = doc.humidity_range_percent
+            if not (self.HUMIDITY_RANGE[0] <= lo <= hi <= self.HUMIDITY_RANGE[1]):
+                result.add_error(
+                    "humidity_range_percent",
+                    f"Humidity range {lo}-{hi}% outside valid bounds 0-100",
+                    f"نطاق الرطوبة {lo}-{hi}% خارج الحدود 0-100",
+                )
+
+        for season, temp_range in doc.temperature_range_c.items():
+            if isinstance(temp_range, (list, tuple)) and len(temp_range) == 2:
+                lo, hi = temp_range
+                if not (self.TEMPERATURE_RANGE_C[0] <= lo <= hi <= self.TEMPERATURE_RANGE_C[1]):
+                    result.add_error(
+                        "temperature_range_c",
+                        f"Temperature range {lo}-{hi}C for {season} outside valid bounds",
+                        f"نطاق الحرارة {lo}-{hi}م لموسم {season} خارج الحدود",
+                    )
+
+    def _validate_remote_sensing(self, doc: RemoteSensingGuideDocument, result: ValidationResult) -> None:
+        """Validate remote sensing guide document fields."""
+        if doc.spatial_resolution_m is not None:
+            if not (self.SPATIAL_RESOLUTION_RANGE[0] <= doc.spatial_resolution_m <= self.SPATIAL_RESOLUTION_RANGE[1]):
+                result.add_error(
+                    "spatial_resolution_m",
+                    f"Spatial resolution {doc.spatial_resolution_m}m outside valid range 0.1-10000",
+                    f"الدقة المكانية {doc.spatial_resolution_m}م خارج النطاق 0.1-10000",
+                )
+
+        if doc.temporal_resolution_days is not None:
+            if not (self.TEMPORAL_RESOLUTION_RANGE[0] <= doc.temporal_resolution_days <= self.TEMPORAL_RESOLUTION_RANGE[1]):
+                result.add_warning(
+                    "temporal_resolution_days",
+                    f"Temporal resolution {doc.temporal_resolution_days} days outside typical range 1-365",
+                    f"الدقة الزمنية {doc.temporal_resolution_days} يوم خارج النطاق المعتاد 1-365",
+                )
+
+        if doc.value_range:
+            lo, hi = doc.value_range
+            if lo >= hi:
+                result.add_error(
+                    "value_range",
+                    f"Value range minimum {lo} must be less than maximum {hi}",
+                    f"الحد الأدنى {lo} يجب أن يكون أقل من الأقصى {hi}",
+                )
+            # NDVI-specific range check
+            index_lower = doc.index_name.lower()
+            if "ndvi" in index_lower or "vegetation" in index_lower:
+                if not (self.NDVI_RANGE[0] <= lo and hi <= self.NDVI_RANGE[1]):
+                    result.add_error(
+                        "value_range",
+                        f"NDVI range {lo}-{hi} outside valid bounds -1 to 1",
+                        f"نطاق NDVI {lo}-{hi} خارج الحدود -1 إلى 1",
+                    )

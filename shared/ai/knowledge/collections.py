@@ -68,20 +68,22 @@ DIGITAL_TWIN_KNOWLEDGE = "digital_twin_knowledge"
 Sources: FAO Digital Agriculture, IEEE, Wageningen University."""
 
 # Collection-to-directory mapping for population
+# NOTE: Each directory should map to a single primary collection to avoid duplication.
+# If two collections need the same directory, use metadata-based routing in the pipeline.
 COLLECTION_DIRECTORY_MAP: dict[str, list[str]] = {
     CROP_KNOWLEDGE: ["docs/knowledge-base/crops/"],
     PEST_KNOWLEDGE: ["docs/knowledge-base/diseases/"],
-    CROP_WATER_REQUIREMENTS: ["docs/knowledge-base/irrigation/"],
+    CROP_WATER_REQUIREMENTS: [],  # Populated via metadata routing from irrigation/ docs tagged with "water_requirements"
     IRRIGATION_PRACTICES: ["docs/knowledge-base/irrigation/"],
     SOIL_KNOWLEDGE: ["docs/knowledge-base/soils/"],
     FERTILIZER_KNOWLEDGE: ["docs/knowledge-base/fertilization/"],
     WEATHER_KNOWLEDGE: ["docs/knowledge-base/weather/"],
     REMOTE_SENSING_KNOWLEDGE: ["docs/knowledge-base/remote-sensing/"],
     SMART_AGRICULTURE_KNOWLEDGE: ["docs/knowledge-base/ai-smart-agriculture/"],
-    RESEARCH_REFERENCES: ["docs/knowledge-base/ai-smart-agriculture/"],
+    RESEARCH_REFERENCES: [],  # Populated via metadata routing from docs tagged with "research"
     PRECISION_FARMING_KNOWLEDGE: ["docs/knowledge-base/precision-farming/"],
     DIGITAL_TWIN_KNOWLEDGE: ["docs/knowledge-base/digital-twin/"],
-    GENERAL_AGRICULTURE: ["docs/knowledge-base/"],
+    GENERAL_AGRICULTURE: ["docs/knowledge-base/best-practices/", "docs/knowledge-base/monitoring/"],
 }
 
 ALL_COLLECTIONS = [

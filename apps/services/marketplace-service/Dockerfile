@@ -24,6 +24,9 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
      npx tsc --skipLibCheck) || \
     echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"
+# Clean nestjs-auth node_modules after pre-build to prevent npm 'extraneous' errors
+# when marketplace-service resolves the file: dependency during its own npm install
+RUN rm -rf node_modules
 
 # Copy service to maintain relative path
 WORKDIR /workspace
@@ -31,8 +34,9 @@ COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
 
-# Fix the file: path reference for Docker build context
+# Fix the file: path reference for Docker build context (both package.json and lock file)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:../packages/nestjs-auth|g' package.json || true
+RUN sed -i 's|\.\./\.\./\.\./packages/nestjs-auth|../packages/nestjs-auth|g' package-lock.json || true
 
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries

@@ -40,7 +40,7 @@ class TestKnowledgeDomain:
 
     @pytest.mark.unit
     def test_all_domains_defined(self):
-        """Test that all 11 knowledge domains are defined."""
+        """Test that all knowledge domains are defined."""
         assert len(KnowledgeDomain) == 11
 
     @pytest.mark.unit
@@ -296,6 +296,8 @@ class TestBaseKnowledgeDocument:
             KnowledgeDomain.PEST_DISEASE: "pest_knowledge",
             KnowledgeDomain.WEATHER: "weather_knowledge",
             KnowledgeDomain.REMOTE_SENSING: "remote_sensing_knowledge",
+            KnowledgeDomain.PRECISION_FARMING: "precision_farming_knowledge",
+            KnowledgeDomain.DIGITAL_TWIN: "digital_twin_knowledge",
             KnowledgeDomain.GENERAL: "general_agriculture",
         }
         for domain, expected_collection in mappings.items():

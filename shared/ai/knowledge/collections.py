@@ -59,6 +59,14 @@ RESEARCH_REFERENCES = "research_references"
 """Academic papers and research references backing knowledge base content.
 Sources: AgriRegion, Crop GraphRAG, CRAG, KALLM, AgroAskAI, C3PO, RAGOps."""
 
+PRECISION_FARMING_KNOWLEDGE = "precision_farming_knowledge"
+"""Precision farming: VRA, GPS/GNSS guidance, yield mapping, site-specific management.
+Sources: ISPA, John Deere, Trimble Agriculture."""
+
+DIGITAL_TWIN_KNOWLEDGE = "digital_twin_knowledge"
+"""Digital twins: farm simulation, cyber-physical systems, real-time replicas.
+Sources: FAO Digital Agriculture, IEEE, Wageningen University."""
+
 # Collection-to-directory mapping for population
 COLLECTION_DIRECTORY_MAP: dict[str, list[str]] = {
     CROP_KNOWLEDGE: ["docs/knowledge-base/crops/"],
@@ -71,6 +79,8 @@ COLLECTION_DIRECTORY_MAP: dict[str, list[str]] = {
     REMOTE_SENSING_KNOWLEDGE: ["docs/knowledge-base/remote-sensing/"],
     SMART_AGRICULTURE_KNOWLEDGE: ["docs/knowledge-base/ai-smart-agriculture/"],
     RESEARCH_REFERENCES: ["docs/knowledge-base/ai-smart-agriculture/"],
+    PRECISION_FARMING_KNOWLEDGE: ["docs/knowledge-base/precision-farming/"],
+    DIGITAL_TWIN_KNOWLEDGE: ["docs/knowledge-base/digital-twin/"],
     GENERAL_AGRICULTURE: ["docs/knowledge-base/"],
 }
 
@@ -85,5 +95,7 @@ ALL_COLLECTIONS = [
     REMOTE_SENSING_KNOWLEDGE,
     SMART_AGRICULTURE_KNOWLEDGE,
     RESEARCH_REFERENCES,
+    PRECISION_FARMING_KNOWLEDGE,
+    DIGITAL_TWIN_KNOWLEDGE,
     GENERAL_AGRICULTURE,
 ]

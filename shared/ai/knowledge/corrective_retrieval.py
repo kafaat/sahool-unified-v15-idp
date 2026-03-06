@@ -124,6 +124,10 @@ class CorrectiveRetrievalEngine:
         "fertilizer": ["nitrogen", "phosphorus", "potassium", "urea", "NPK", "سماد", "نيتروجين"],
         "soil": ["pH", "EC", "organic matter", "texture", "drainage", "تربة", "حموضة"],
         "weather": ["temperature", "rainfall", "frost", "drought", "wind", "حرارة", "أمطار", "جفاف"],
+        "remote_sensing": ["NDVI", "satellite", "Sentinel", "LAI", "spectral", "استشعار عن بعد", "قمر صناعي"],
+        "smart_agriculture": ["IoT", "drone", "sensor", "blockchain", "edge", "إنترنت الأشياء", "مزرعة ذكية"],
+        "precision_farming": ["VRA", "variable rate", "GPS", "RTK", "yield map", "زراعة دقيقة", "معدل متغير"],
+        "digital_twin": ["digital twin", "simulation", "virtual model", "3D", "توأم رقمي", "محاكاة", "نموذج افتراضي"],
     }
 
     # Safety-critical keywords that boost relevance for safety queries
@@ -530,6 +534,10 @@ class CorrectiveRetrievalEngine:
             "soil": [FERTILIZER_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
             "weather": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
             "remote_sensing": [CROP_KNOWLEDGE, GENERAL_AGRICULTURE],
+            "smart_agriculture": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "precision_farming": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "digital_twin": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "general": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, PEST_KNOWLEDGE],
         }
 
         suggestions = fallback_map.get(query_domain, [GENERAL_AGRICULTURE])

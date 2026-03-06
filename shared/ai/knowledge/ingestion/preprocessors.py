@@ -242,6 +242,19 @@ class MetadataEnricher:
             "معدل متغير",
             "خريطة إنتاجية",
         ],
+        KnowledgeDomain.DIGITAL_TWIN: [
+            "digital twin",
+            "simulation",
+            "virtual model",
+            "3D model",
+            "cyber-physical",
+            "real-time replica",
+            "farm simulation",
+            "توأم رقمي",
+            "محاكاة",
+            "نموذج افتراضي",
+            "نسخة رقمية",
+        ],
     }
 
     def detect_domains(self, text: str) -> list[KnowledgeDomain]:

@@ -24,6 +24,8 @@ services:
         limits:
           cpus: '400'
           memory: 384Mi
+    depends_on:
+    - redis
   community-chat:
     build:
       context: ../../archive/deprecated-services/community-chat

@@ -41,15 +41,15 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 100
-          hour: 5000
+          minute: 30
+          hour: 500
           day: 100000
           policy: local
           fault_tolerant: true
       - name: response-ratelimiting
         config:
           limits:
-            minute: 100
+            minute: 30
       - name: request-size-limiting
         config:
           allowed_payload_size: 10

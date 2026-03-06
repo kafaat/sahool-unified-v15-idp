@@ -1,0 +1,1968 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Agriculture AI Knowledge Base - Comprehensive Review & Gap Analysis - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agriculture-ai-knowledge-base-comprehensive-review-gap-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Agriculture AI Knowledge Base - Comprehensive Review &amp; Gap Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="agriculture-ai-knowledge-base-comprehensive-review-gap-analysis">Agriculture AI Knowledge Base - Comprehensive Review &amp; Gap Analysis<a class="headerlink" href="#agriculture-ai-knowledge-base-comprehensive-review-gap-analysis" title="Permanent link">&para;</a></h1>
+<h1 id="-">مراجعة شاملة وتحليل الفجوات - قاعدة المعرفة الزراعية بالذكاء الاصطناعي<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-06
+<strong>Version</strong>: 2.0.0
+<strong>Module</strong>: <code>shared/ai/knowledge/</code>
+<strong>Tests</strong>: 365/365 passing
+<strong>Branch</strong>: <code>claude/agriculture-ai-knowledge-base-3XrgZ</code></p>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary | ملخص تنفيذي<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<p>The Agriculture AI Knowledge Base module is a <strong>well-structured, comprehensive system</strong> consisting of 16 Python files across 4 sub-packages, with 92 knowledge documents, 13 collections, and a 6-stage ingestion pipeline. The module demonstrates strong architectural foundations with FRESH framework compliance, AgriRegion pattern integration, and CRAG-based corrective retrieval.</p>
+<p><strong>Overall Assessment</strong>: 8/10 - Production-ready core with identifiable gaps in async operations, persistence integration, and monitoring.</p>
+<hr />
+<h2 id="2-architecture-review">2. Architecture Review | مراجعة البنية<a class="headerlink" href="#2-architecture-review" title="Permanent link">&para;</a></h2>
+<h3 id="21-module-structure-16-files-3500-loc">2.1 Module Structure (16 files, ~3,500 LOC)<a class="headerlink" href="#21-module-structure-16-files-3500-loc" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">shared</span><span class="o">/</span><span class="nx">ai</span><span class="o">/</span><span class="nx">knowledge</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">              </span><span class="err">✅</span><span class="w"> </span><span class="nx">Clean</span><span class="w"> </span><span class="nx">public</span><span class="w"> </span><span class="nx">API</span><span class="p">,</span><span class="w"> </span><span class="nx">proper</span><span class="w"> </span><span class="nx">__all__</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">models</span><span class="p">.</span><span class="nx">py</span><span class="w">                </span><span class="err">✅</span><span class="w"> </span><span class="nx">Pydantic</span><span class="w"> </span><span class="nx">v2</span><span class="p">,</span><span class="w"> </span><span class="nx">FRESH</span><span class="w"> </span><span class="nx">metadata</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="nx">document</span><span class="w"> </span><span class="nx">types</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">collections</span><span class="p">.</span><span class="nx">py</span><span class="w">           </span><span class="err">✅</span><span class="w"> </span><span class="mi">13</span><span class="w"> </span><span class="nx">collections</span><span class="w"> </span><span class="nx">with</span><span class="w"> </span><span class="nx">directory</span><span class="w"> </span><span class="nx">mapping</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">agrovoc</span><span class="p">.</span><span class="nx">py</span><span class="w">               </span><span class="err">✅</span><span class="w"> </span><span class="mi">37</span><span class="w"> </span><span class="nx">AGROVOC</span><span class="w"> </span><span class="nx">concepts</span><span class="p">,</span><span class="w"> </span><span class="nx">bilingual</span><span class="w"> </span><span class="nx">lookup</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">graph_builder</span><span class="p">.</span><span class="nx">py</span><span class="w">         </span><span class="err">✅</span><span class="w"> </span><span class="nx">Single</span><span class="w"> </span><span class="nx">source</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">truth</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="o">+</span><span class="w"> </span><span class="nx">entities</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">corrective_retrieval</span><span class="p">.</span><span class="nx">py</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="nx">Full</span><span class="w"> </span><span class="nx">CRAG</span><span class="w"> </span><span class="nx">implementation</span><span class="w"> </span><span class="p">(</span><span class="mi">3</span><span class="w"> </span><span class="nx">actions</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">validators</span><span class="p">.</span><span class="nx">py</span><span class="w">            </span><span class="err">✅</span><span class="w"> </span><span class="nx">Scientific</span><span class="w"> </span><span class="nx">range</span><span class="w"> </span><span class="nx">validation</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="nx">document</span><span class="w"> </span><span class="nx">types</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">collection_populator</span><span class="p">.</span><span class="nx">py</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="nx">Docs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="nx">population</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">ingestion</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="nx">Clean</span><span class="w"> </span><span class="nx">re</span><span class="o">-</span><span class="nx">exports</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">pipeline</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="mi">6</span><span class="o">-</span><span class="nx">stage</span><span class="w"> </span><span class="nx">pipeline</span><span class="w"> </span><span class="nx">with</span><span class="w"> </span><span class="nx">batch</span><span class="w"> </span><span class="nx">support</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">extractors</span><span class="p">.</span><span class="nx">py</span><span class="w">        </span><span class="err">✅</span><span class="w"> </span><span class="nx">MD</span><span class="o">/</span><span class="nx">PDF</span><span class="o">/</span><span class="nx">HTML</span><span class="w"> </span><span class="nx">extraction</span><span class="p">,</span><span class="w"> </span><span class="nx">bilingual</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">preprocessors</span><span class="p">.</span><span class="nx">py</span><span class="w">     </span><span class="err">✅</span><span class="w"> </span><span class="nx">Arabic</span><span class="w"> </span><span class="nx">normalization</span><span class="p">,</span><span class="w"> </span><span class="nx">term</span><span class="w"> </span><span class="nx">unification</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">sources</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="nx">Clean</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">registry</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="nx">URL</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="nx">matching</span><span class="p">,</span><span class="w"> </span><span class="nx">credibility</span><span class="w"> </span><span class="nx">scoring</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">trusted_sources</span><span class="p">.</span><span class="nx">yaml</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="mi">35</span><span class="o">+</span><span class="w"> </span><span class="nx">sources</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="nx">credibility</span><span class="w"> </span><span class="nx">levels</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">verification</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="nx">Clean</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">agent</span><span class="p">.</span><span class="nx">py</span><span class="w">             </span><span class="err">✅</span><span class="w"> </span><span class="mi">4</span><span class="o">-</span><span class="nx">layer</span><span class="w"> </span><span class="nx">verification</span><span class="w"> </span><span class="nx">gate</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">region_filter</span><span class="p">.</span><span class="nx">py</span><span class="w">     </span><span class="err">✅</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="nx">climate</span><span class="w"> </span><span class="nx">zones</span><span class="p">,</span><span class="w"> </span><span class="nx">compatibility</span><span class="w"> </span><span class="nx">matrix</span>
+</code></pre></div>
+
+<h3 id="22-strengths">2.2 Strengths | نقاط القوة<a class="headerlink" href="#22-strengths" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Rating</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data Models</strong></td>
+<td>9/10</td>
+<td>Pydantic v2, type-safe, FRESH framework, 8 specialized document types</td>
+</tr>
+<tr>
+<td><strong>Bilingual Support</strong></td>
+<td>9/10</td>
+<td>Full AR/EN throughout models, preprocessors, extractors, validation messages</td>
+</tr>
+<tr>
+<td><strong>AGROVOC Integration</strong></td>
+<td>8/10</td>
+<td>37 curated concepts with SKOS-XL model, bilingual fuzzy lookup</td>
+</tr>
+<tr>
+<td><strong>Knowledge Graph</strong></td>
+<td>9/10</td>
+<td>150+ entities, eliminates duplication across 3 previously separate datasets</td>
+</tr>
+<tr>
+<td><strong>CRAG Engine</strong></td>
+<td>8/10</td>
+<td>Full 3-action pattern, domain-aware scoring, safety-critical boost</td>
+</tr>
+<tr>
+<td><strong>Ingestion Pipeline</strong></td>
+<td>8/10</td>
+<td>6-stage, multi-format, AGROVOC enrichment, seasonal detection</td>
+</tr>
+<tr>
+<td><strong>Source Registry</strong></td>
+<td>9/10</td>
+<td>35+ trusted sources, YAML-driven, URL pattern matching, 5-level credibility</td>
+</tr>
+<tr>
+<td><strong>Verification Agent</strong></td>
+<td>8/10</td>
+<td>4-layer gate (structural, semantic, cross-ref, safety), banned substance detection</td>
+</tr>
+<tr>
+<td><strong>Region Filter</strong></td>
+<td>8/10</td>
+<td>15 climate zones, weighted scoring (climate/crop/soil), adaptation suggestions</td>
+</tr>
+<tr>
+<td><strong>Test Coverage</strong></td>
+<td>9/10</td>
+<td>365 tests passing, covers all modules including disease/pest scenarios</td>
+</tr>
+<tr>
+<td><strong>Code Quality</strong></td>
+<td>9/10</td>
+<td>Consistent structlog logging, type hints, clean imports, Ruff-compliant</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-gap-analysis">3. Gap Analysis | تحليل الفجوات<a class="headerlink" href="#3-gap-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="31-critical-gaps-p0">3.1 Critical Gaps (P0) | فجوات حرجة<a class="headerlink" href="#31-critical-gaps-p0" title="Permanent link">&para;</a></h3>
+<h4 id="gap-01-no-actual-vector-store-integration-in-pipeline">GAP-01: No Actual Vector Store Integration in Pipeline<a class="headerlink" href="#gap-01-no-actual-vector-store-integration-in-pipeline" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>ingestion/pipeline.py:192</code>
+<strong>Issue</strong>: The pipeline validates documents and reports success/failure, but <strong>never actually stores</strong> documents in the vector store. Stage 6 is documented as "Store → Chunk &amp; embed via UltraRAG KnowledgeBase" but the implementation stops at validation.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Current: Pipeline ends at validation</span>
+<span class="n">result</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="n">validation</span><span class="o">.</span><span class="n">is_valid</span>  <span class="c1"># Line 192</span>
+<span class="k">return</span> <span class="n">result</span>
+
+<span class="c1"># Missing: Actual chunking, embedding, and storage</span>
+<span class="c1"># await knowledge_base.add_document(doc)</span>
+</code></pre></div>
+
+<p><strong>Impact</strong>: Documents can be validated but cannot be queried via RAG without manual integration.
+<strong>Recommendation</strong>: Add optional <code>vector_store</code> and <code>embeddings</code> parameters to the pipeline, implementing chunk-and-store as the final stage.</p>
+<h4 id="gap-02-no-async-support">GAP-02: No Async Support<a class="headerlink" href="#gap-02-no-async-support" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: All pipeline operations are synchronous despite the platform being built on async FastAPI. The <code>ingest_file()</code>, <code>ingest_directory()</code>, and all verification methods are synchronous.</p>
+<p><strong>Impact</strong>: Blocks the event loop when used in FastAPI services, especially for batch ingestion of 92+ documents.
+<strong>Recommendation</strong>: Add async variants (<code>aingest_file</code>, <code>aingest_directory</code>) or convert to fully async with <code>aiofiles</code>.</p>
+<h4 id="gap-03-no-persistence-layer-for-knowledge-metadata">GAP-03: No Persistence Layer for Knowledge Metadata<a class="headerlink" href="#gap-03-no-persistence-layer-for-knowledge-metadata" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: Knowledge documents, ingestion results, and verification results exist only in memory. There's no database storage for:
+- Document metadata and verification status
+- Ingestion audit trail
+- Population reports</p>
+<p><strong>Impact</strong>: Cannot track which documents have been ingested, their verification status, or when they were last updated.
+<strong>Recommendation</strong>: Add optional database persistence using <code>asyncpg</code> or Tortoise ORM, aligned with the platform's database conventions.</p>
+<hr />
+<h3 id="32-high-priority-gaps-p1">3.2 High Priority Gaps (P1) | فجوات عالية الأولوية<a class="headerlink" href="#32-high-priority-gaps-p1" title="Permanent link">&para;</a></h3>
+<h4 id="gap-04-weatherpatterndocument-missing-from-validator">GAP-04: WeatherPatternDocument Missing from Validator<a class="headerlink" href="#gap-04-weatherpatterndocument-missing-from-validator" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>validators.py:67-96</code>
+<strong>Issue</strong>: <code>KnowledgeValidator.validate()</code> has specific validation for 6 of 8 document types but <strong>skips</strong> <code>WeatherPatternDocument</code> and <code>RemoteSensingGuideDocument</code>. These documents pass validation without any domain-specific checks.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Missing in validate():</span>
+<span class="c1"># elif isinstance(document, WeatherPatternDocument):</span>
+<span class="c1">#     self._validate_weather(document, result)</span>
+<span class="c1"># elif isinstance(document, RemoteSensingGuideDocument):</span>
+<span class="c1">#     self._validate_remote_sensing(document, result)</span>
+</code></pre></div>
+
+<p><strong>Recommendation</strong>: Add validators for:
+- Weather: <code>annual_rainfall_mm</code> range (0-5000), <code>temperature_range_c</code> within bounds
+- Remote Sensing: <code>value_range</code> within expected bounds for index type, <code>spatial_resolution_m</code> positive</p>
+<h4 id="gap-05-agrovoc-concept-coverage-gaps">GAP-05: AGROVOC Concept Coverage Gaps<a class="headerlink" href="#gap-05-agrovoc-concept-coverage-gaps" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>agrovoc.py</code>
+<strong>Issue</strong>: Only 37 concepts registered out of 41,400+ in AGROVOC. Missing important MENA-specific concepts:
+- <strong>Crops</strong>: Okra (بامية), Watermelon (بطيخ), Banana (موز), Fig (تين), Cotton subspecies
+- <strong>Livestock</strong>: Camel (جمل), Goat (ماعز), Sheep (خروف) - important for mixed farming
+- <strong>Diseases</strong>: Additional wheat diseases (Septoria, Karnal bunt), date palm diseases (Bayoud)
+- <strong>Water concepts</strong>: Water harvesting, rainwater collection, wadi agriculture</p>
+<p><strong>Impact</strong>: Text concept extraction misses important agricultural terms, reducing RAG accuracy.
+<strong>Recommendation</strong>: Expand to ~100 concepts covering all crops in <code>docs/knowledge-base/crops/</code> (19 crops).</p>
+<h4 id="gap-06-collection-directory-mapping-overlaps">GAP-06: Collection Directory Mapping Overlaps<a class="headerlink" href="#gap-06-collection-directory-mapping-overlaps" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>collections.py:71-85</code>
+<strong>Issue</strong>: Two collections share the same directory:
+- <code>CROP_WATER_REQUIREMENTS</code> → <code>docs/knowledge-base/irrigation/</code>
+- <code>IRRIGATION_PRACTICES</code> → <code>docs/knowledge-base/irrigation/</code>
+- <code>SMART_AGRICULTURE_KNOWLEDGE</code> → <code>docs/knowledge-base/ai-smart-agriculture/</code>
+- <code>RESEARCH_REFERENCES</code> → <code>docs/knowledge-base/ai-smart-agriculture/</code></p>
+<p><strong>Impact</strong>: Same documents get ingested into multiple collections, potentially causing duplicate results in retrieval.
+<strong>Recommendation</strong>: Either split directories or add metadata-based routing within the ingestion pipeline.</p>
+<h4 id="gap-07-no-chunking-strategy">GAP-07: No Chunking Strategy<a class="headerlink" href="#gap-07-no-chunking-strategy" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: The ingestion pipeline extracts full documents but has no chunking strategy. The <code>collection_populator.py</code> sends entire files to ingestion without splitting into retrieval-appropriate chunks.</p>
+<p><strong>Impact</strong>: Large documents (some knowledge-base files are 5000+ words) result in poor retrieval granularity.
+<strong>Recommendation</strong>: Add configurable chunking in the pipeline (Stage 5.5):
+- Heading-based splitting for Markdown
+- Overlap windows (e.g., 512 tokens with 50 token overlap)
+- Metadata preservation per chunk</p>
+<hr />
+<h3 id="33-medium-priority-gaps-p2">3.3 Medium Priority Gaps (P2) | فجوات متوسطة الأولوية<a class="headerlink" href="#33-medium-priority-gaps-p2" title="Permanent link">&para;</a></h3>
+<h4 id="gap-08-pdf-extraction-depends-on-uninstalled-package">GAP-08: PDF Extraction Depends on Uninstalled Package<a class="headerlink" href="#gap-08-pdf-extraction-depends-on-uninstalled-package" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>ingestion/extractors.py:156-158</code>
+<strong>Issue</strong>: <code>PDFExtractor</code> requires <code>PyMuPDF (fitz)</code> which is not in any <code>requirements.txt</code>. The extractor silently fails if the package is not installed.</p>
+<p><strong>Impact</strong>: PDF ingestion silently produces empty results with no clear error.
+<strong>Recommendation</strong>: Either add <code>PyMuPDF</code> to requirements or raise a clear <code>ImportError</code> with installation instructions.</p>
+<h4 id="gap-09-region-filter-hardcodes-default-regions">GAP-09: Region Filter Hardcodes Default Regions<a class="headerlink" href="#gap-09-region-filter-hardcodes-default-regions" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>verification/region_filter.py:220</code>
+<strong>Issue</strong>: Default target regions are hardcoded to <code>["yemen_highland", "yemen_coastal"]</code>. This should be configurable at the platform level.</p>
+<p><strong>Impact</strong>: Non-Yemen deployments get incorrect default region filtering.
+<strong>Recommendation</strong>: Move default to environment variable or platform configuration.</p>
+<h4 id="gap-10-arabic-text-preprocessing-normalizes-taa-marbuta">GAP-10: Arabic Text Preprocessing Normalizes Taa Marbuta<a class="headerlink" href="#gap-10-arabic-text-preprocessing-normalizes-taa-marbuta" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>ingestion/preprocessors.py:43</code>
+<strong>Issue</strong>: <code>ArabicTextPreprocessor</code> normalizes <code>ة</code> → <code>ه</code> (taa marbuta → haa). This is aggressive normalization that loses semantic meaning. For example:
+- <code>مدرسة</code> (school) → <code>مدرسه</code> (incorrect)
+- <code>قمح</code> vs <code>قمحة</code> (different meanings)</p>
+<p><strong>Impact</strong>: May cause incorrect matching in semantic search and AGROVOC lookup.
+<strong>Recommendation</strong>: Make taa-marbuta normalization optional or use it only for search indexing, not for content storage.</p>
+<h4 id="gap-11-no-freshnessexpiration-monitoring">GAP-11: No Freshness/Expiration Monitoring<a class="headerlink" href="#gap-11-no-freshnessexpiration-monitoring" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: <code>FRESHMetadata.expiration_date</code> is defined but never monitored. No scheduled job checks for expired documents or alerts when knowledge becomes stale.</p>
+<p><strong>Impact</strong>: Outdated agricultural knowledge (e.g., expired pesticide registrations) remains in the system.
+<strong>Recommendation</strong>: Add a <code>KnowledgeFreshnessMonitor</code> that periodically checks expiration dates and emits NATS events (<code>sahool.knowledge.document_expired</code>).</p>
+<h4 id="gap-12-no-nats-event-integration">GAP-12: No NATS Event Integration<a class="headerlink" href="#gap-12-no-nats-event-integration" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: The knowledge module doesn't publish any NATS events despite the platform's 4-layer event architecture. Key events missing:
+- <code>sahool.knowledge.document_ingested</code>
+- <code>sahool.knowledge.document_verified</code>
+- <code>sahool.knowledge.document_expired</code>
+- <code>sahool.knowledge.collection_populated</code></p>
+<p><strong>Impact</strong>: Other services can't react to knowledge base changes.
+<strong>Recommendation</strong>: Add optional NATS publishing in the pipeline and populator.</p>
+<h4 id="gap-13-missing-monitoringmetrics">GAP-13: Missing Monitoring/Metrics<a class="headerlink" href="#gap-13-missing-monitoringmetrics" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: No Prometheus metrics for:
+- Ingestion throughput (documents/second)
+- Validation success/failure rates
+- CRAG action distribution (CORRECT vs AMBIGUOUS vs INCORRECT)
+- Knowledge base size per collection
+- Average source credibility</p>
+<p><strong>Impact</strong>: No observability into knowledge pipeline health.
+<strong>Recommendation</strong>: Add a <code>KnowledgeMetrics</code> class using the platform's <code>shared/monitoring/</code> Prometheus integration.</p>
+<h4 id="gap-14-graph-builder-entity-properties-incomplete">GAP-14: Graph Builder Entity Properties Incomplete<a class="headerlink" href="#gap-14-graph-builder-entity-properties-incomplete" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>graph_builder.py</code>
+<strong>Issue</strong>: Some entities have extensive properties while others have minimal or empty <code>properties</code> dicts. For example, crop entities have Kc values and water requirements, but some treatment entities lack dosage information.</p>
+<p><strong>Recommendation</strong>: Standardize property schemas per entity type.</p>
+<hr />
+<h3 id="34-low-priority-gaps-p3">3.4 Low Priority Gaps (P3) | فجوات منخفضة الأولوية<a class="headerlink" href="#34-low-priority-gaps-p3" title="Permanent link">&para;</a></h3>
+<h4 id="gap-15-no-knowledge-versioningdiff">GAP-15: No Knowledge Versioning/Diff<a class="headerlink" href="#gap-15-no-knowledge-versioningdiff" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: <code>BaseKnowledgeDocument</code> has a <code>version</code> field but no mechanism to track changes between versions or roll back updates.</p>
+<h4 id="gap-16-html-extractor-is-basic">GAP-16: HTML Extractor Is Basic<a class="headerlink" href="#gap-16-html-extractor-is-basic" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>ingestion/extractors.py:188-233</code>
+<strong>Issue</strong>: Uses regex-based tag stripping instead of proper HTML parsing (e.g., <code>BeautifulSoup</code>). Loses structure, headings, and lists.</p>
+<h4 id="gap-17-no-urlweb-ingestion">GAP-17: No URL/Web Ingestion<a class="headerlink" href="#gap-17-no-urlweb-ingestion" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: The pipeline supports file-based ingestion but cannot directly ingest from URLs, despite the <code>source_url</code> field existing in the models.</p>
+<h4 id="gap-18-crag-relevance-scoring-is-keyword-based">GAP-18: CRAG Relevance Scoring Is Keyword-Based<a class="headerlink" href="#gap-18-crag-relevance-scoring-is-keyword-based" title="Permanent link">&para;</a></h4>
+<p><strong>File</strong>: <code>corrective_retrieval.py:290-340</code>
+<strong>Issue</strong>: <code>_score_chunk_relevance</code> uses word overlap and keyword matching rather than semantic similarity. This works but limits accuracy for paraphrased content.</p>
+<p><strong>Recommendation</strong>: Optionally integrate <code>EmbeddingsAdapter</code> for semantic similarity scoring within CRAG.</p>
+<h4 id="gap-19-no-multi-tenant-support">GAP-19: No Multi-Tenant Support<a class="headerlink" href="#gap-19-no-multi-tenant-support" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: Knowledge base has no tenant isolation. All documents go into shared collections.</p>
+<p><strong>Impact</strong>: In a multi-tenant deployment, all tenants share the same knowledge base.
+<strong>Recommendation</strong>: Add optional <code>tenant_id</code> to <code>BaseKnowledgeDocument</code> and collection namespacing.</p>
+<h4 id="gap-20-best-practices-documentation-sparse">GAP-20: Best Practices Documentation Sparse<a class="headerlink" href="#gap-20-best-practices-documentation-sparse" title="Permanent link">&para;</a></h4>
+<p><strong>Issue</strong>: <code>docs/knowledge-base/best-practices/</code> has only 2 files. The monitoring directory has only 1 file. These collections are significantly underrepresented compared to crops (19 files) or irrigation (8 files).</p>
+<hr />
+<h2 id="4-coverage-matrix">4. Coverage Matrix | مصفوفة التغطية<a class="headerlink" href="#4-coverage-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="41-knowledge-domain-coverage">4.1 Knowledge Domain Coverage<a class="headerlink" href="#41-knowledge-domain-coverage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Docs</th>
+<th>Model</th>
+<th>Collection</th>
+<th>Validator</th>
+<th>AGROVOC</th>
+<th>CRAG Signals</th>
+<th>KG Entities</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crops</td>
+<td>19</td>
+<td>✅ CropKnowledgeDocument</td>
+<td>✅ crop_knowledge</td>
+<td>✅ Full</td>
+<td>✅ 19 concepts</td>
+<td>✅</td>
+<td>✅ 20+</td>
+<td>Complete</td>
+</tr>
+<tr>
+<td>Soil</td>
+<td>6</td>
+<td>✅ SoilTypeDocument</td>
+<td>✅ soil_knowledge</td>
+<td>✅ Full</td>
+<td>✅ 5 concepts</td>
+<td>✅</td>
+<td>✅ 6</td>
+<td>Complete</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>8</td>
+<td>✅ IrrigationKnowledgeDocument</td>
+<td>✅ irrigation_practices</td>
+<td>✅ Full</td>
+<td>✅ 4 concepts</td>
+<td>✅</td>
+<td>✅ 5</td>
+<td>Complete</td>
+</tr>
+<tr>
+<td>Fertilizer</td>
+<td>8</td>
+<td>✅ FertilizerKnowledgeDocument</td>
+<td>✅ fertilizer_knowledge</td>
+<td>✅ Full</td>
+<td>✅ 5 concepts</td>
+<td>✅</td>
+<td>✅ 6</td>
+<td>Complete</td>
+</tr>
+<tr>
+<td>Pest/Disease</td>
+<td>4</td>
+<td>✅ PestVisionDocument</td>
+<td>✅ pest_knowledge</td>
+<td>✅ Full</td>
+<td>✅ 6 concepts</td>
+<td>✅</td>
+<td>✅ 35+</td>
+<td>Complete</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>5</td>
+<td>✅ WeatherPatternDocument</td>
+<td>✅ weather_knowledge</td>
+<td>⚠️ No validator</td>
+<td>✅ 3 concepts</td>
+<td>✅</td>
+<td>❌ None</td>
+<td><strong>Gap</strong></td>
+</tr>
+<tr>
+<td>Remote Sensing</td>
+<td>4</td>
+<td>✅ RemoteSensingGuideDocument</td>
+<td>✅ remote_sensing_knowledge</td>
+<td>⚠️ No validator</td>
+<td>❌ None</td>
+<td>✅</td>
+<td>❌ None</td>
+<td><strong>Gap</strong></td>
+</tr>
+<tr>
+<td>Smart Agriculture</td>
+<td>13</td>
+<td>✅ SmartAgricultureDocument</td>
+<td>✅ smart_agriculture_knowledge</td>
+<td>✅ Full</td>
+<td>✅ 2 concepts</td>
+<td>✅</td>
+<td>❌ None</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Precision Farming</td>
+<td>3</td>
+<td>❌ No specific model</td>
+<td>✅ precision_farming_knowledge</td>
+<td>❌ None</td>
+<td>✅ 1 concept</td>
+<td>✅</td>
+<td>❌ None</td>
+<td><strong>Gap</strong></td>
+</tr>
+<tr>
+<td>Digital Twin</td>
+<td>3</td>
+<td>❌ No specific model</td>
+<td>✅ digital_twin_knowledge</td>
+<td>❌ None</td>
+<td>❌ None</td>
+<td>✅</td>
+<td>❌ None</td>
+<td><strong>Gap</strong></td>
+</tr>
+<tr>
+<td>Best Practices</td>
+<td>2</td>
+<td>❌ No specific model</td>
+<td>❌ No collection</td>
+<td>❌ None</td>
+<td>❌ None</td>
+<td>❌</td>
+<td>❌ None</td>
+<td><strong>Gap</strong></td>
+</tr>
+<tr>
+<td>General</td>
+<td>varies</td>
+<td>✅ BaseKnowledgeDocument</td>
+<td>✅ general_agriculture</td>
+<td>✅ Common</td>
+<td>N/A</td>
+<td>✅</td>
+<td>N/A</td>
+<td>Complete</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-integration-coverage">4.2 Integration Coverage<a class="headerlink" href="#42-integration-coverage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Integration Point</th>
+<th>Status</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UltraRAG AgriProvider</td>
+<td>✅ Connected</td>
+<td>Uses collections via Tri-RAG</td>
+</tr>
+<tr>
+<td>Knowledge Graph Service</td>
+<td>✅ Connected</td>
+<td>Uses <code>graph_builder.py</code> as single source of truth</td>
+</tr>
+<tr>
+<td>MCP RAG Integration</td>
+<td>✅ Connected</td>
+<td><code>shared/mcp/rag_integration.py</code></td>
+</tr>
+<tr>
+<td>Vector Store</td>
+<td>⚠️ Partial</td>
+<td>Models convert to dict, but pipeline doesn't store</td>
+</tr>
+<tr>
+<td>Embeddings Adapter</td>
+<td>❌ Not integrated</td>
+<td>Pipeline doesn't embed documents</td>
+</tr>
+<tr>
+<td>NATS Events</td>
+<td>❌ Not integrated</td>
+<td>No event publishing</td>
+</tr>
+<tr>
+<td>Prometheus Metrics</td>
+<td>❌ Not integrated</td>
+<td>No metrics</td>
+</tr>
+<tr>
+<td>Database Persistence</td>
+<td>❌ Not integrated</td>
+<td>No metadata persistence</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-test-quality-assessment">5. Test Quality Assessment | تقييم جودة الاختبارات<a class="headerlink" href="#5-test-quality-assessment" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Test File</th>
+<th>Tests</th>
+<th>Coverage Area</th>
+<th>Quality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test_knowledge_models.py</td>
+<td>~40</td>
+<td>All 8 document types, FRESH metadata</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td>test_knowledge_validators.py</td>
+<td>~30</td>
+<td>Scientific ranges, all 6 validators</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td>test_knowledge_pipeline.py</td>
+<td>~25</td>
+<td>6-stage pipeline, batch ingestion</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_collections.py</td>
+<td>~15</td>
+<td>Collection constants, directory mapping</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_agrovoc.py</td>
+<td>~25</td>
+<td>Concept lookup, translation, enrichment</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td>test_knowledge_graph_builder.py</td>
+<td>~30</td>
+<td>Entity/relation coverage, graph building</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td>test_knowledge_sources_registry.py</td>
+<td>~20</td>
+<td>URL matching, credibility scoring</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_region_filter.py</td>
+<td>~25</td>
+<td>Climate scoring, crop/soil relevance</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_corrective_retrieval.py</td>
+<td>~30</td>
+<td>CRAG 3-action, refinement, scoring</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td>test_knowledge_extractors.py</td>
+<td>~20</td>
+<td>MD/PDF/HTML extraction, bilingual</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_preprocessors.py</td>
+<td>~15</td>
+<td>Arabic normalization, term mapping</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_verification_agent.py</td>
+<td>~20</td>
+<td>4-layer gate, safety checks</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_collection_populator.py</td>
+<td>~15</td>
+<td>Docs/code population, dry run</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_workflows.py</td>
+<td>~20</td>
+<td>YAML workflow discovery, validation</td>
+<td>✅ Good</td>
+</tr>
+<tr>
+<td>test_knowledge_disease_pest_scenarios.py</td>
+<td>~35</td>
+<td>Disease/pest scenarios, vector transmission</td>
+<td>✅ Excellent</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>365</strong></td>
+<td></td>
+<td><strong>Overall: Excellent</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-gaps">Test Gaps<a class="headerlink" href="#test-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No integration tests with actual vector store</li>
+<li>No async test cases</li>
+<li>No performance/load tests for batch ingestion</li>
+<li>No NATS event tests</li>
+</ul>
+<hr />
+<h2 id="6-recommendations-prioritized">6. Recommendations Prioritized | التوصيات حسب الأولوية<a class="headerlink" href="#6-recommendations-prioritized" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-critical-sprint-1-1">Phase 1: Critical (Sprint 1) | المرحلة 1: حرجة<a class="headerlink" href="#phase-1-critical-sprint-1-1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Effort</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GAP-01: Add vector store integration to pipeline</td>
+<td>3 days</td>
+<td>High - Enables end-to-end RAG</td>
+</tr>
+<tr>
+<td>2</td>
+<td>GAP-07: Add chunking strategy</td>
+<td>2 days</td>
+<td>High - Improves retrieval quality</td>
+</tr>
+<tr>
+<td>3</td>
+<td>GAP-02: Add async support</td>
+<td>2 days</td>
+<td>High - Required for FastAPI integration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-high-priority-sprint-2-2">Phase 2: High Priority (Sprint 2) | المرحلة 2: عالية الأولوية<a class="headerlink" href="#phase-2-high-priority-sprint-2-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Effort</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>GAP-04: Add Weather/RemoteSensing validators</td>
+<td>1 day</td>
+<td>Medium - Complete validation coverage</td>
+</tr>
+<tr>
+<td>5</td>
+<td>GAP-05: Expand AGROVOC to ~100 concepts</td>
+<td>2 days</td>
+<td>Medium - Better concept extraction</td>
+</tr>
+<tr>
+<td>6</td>
+<td>GAP-12: Add NATS event integration</td>
+<td>1 day</td>
+<td>Medium - Event-driven architecture</td>
+</tr>
+<tr>
+<td>7</td>
+<td>GAP-06: Fix collection directory overlaps</td>
+<td>0.5 day</td>
+<td>Medium - Prevent duplicates</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-medium-priority-sprint-3-3">Phase 3: Medium Priority (Sprint 3) | المرحلة 3: متوسطة الأولوية<a class="headerlink" href="#phase-3-medium-priority-sprint-3-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Effort</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>GAP-03: Add persistence layer</td>
+<td>3 days</td>
+<td>Medium - Audit trail</td>
+</tr>
+<tr>
+<td>9</td>
+<td>GAP-13: Add Prometheus metrics</td>
+<td>1 day</td>
+<td>Medium - Observability</td>
+</tr>
+<tr>
+<td>10</td>
+<td>GAP-11: Add freshness monitoring</td>
+<td>1 day</td>
+<td>Medium - Data quality</td>
+</tr>
+<tr>
+<td>11</td>
+<td>GAP-10: Fix Arabic preprocessing</td>
+<td>0.5 day</td>
+<td>Medium - Search accuracy</td>
+</tr>
+<tr>
+<td>12</td>
+<td>GAP-09: Configurable default regions</td>
+<td>0.5 day</td>
+<td>Low - Multi-region support</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-4-enhancement-backlog-4">Phase 4: Enhancement (Backlog) | المرحلة 4: تحسينات<a class="headerlink" href="#phase-4-enhancement-backlog-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Effort</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13</td>
+<td>GAP-08: Add PyMuPDF requirement</td>
+<td>0.5 day</td>
+<td>Low - PDF support</td>
+</tr>
+<tr>
+<td>14</td>
+<td>GAP-18: Semantic similarity in CRAG</td>
+<td>2 days</td>
+<td>Low - Better accuracy</td>
+</tr>
+<tr>
+<td>15</td>
+<td>GAP-19: Multi-tenant support</td>
+<td>3 days</td>
+<td>Low - Enterprise feature</td>
+</tr>
+<tr>
+<td>16</td>
+<td>GAP-17: URL ingestion</td>
+<td>1 day</td>
+<td>Low - Convenience</td>
+</tr>
+<tr>
+<td>17</td>
+<td>GAP-15: Knowledge versioning</td>
+<td>2 days</td>
+<td>Low - Traceability</td>
+</tr>
+<tr>
+<td>18</td>
+<td>GAP-16: Better HTML parsing</td>
+<td>1 day</td>
+<td>Low - Quality</td>
+</tr>
+<tr>
+<td>19</td>
+<td>GAP-14: Standardize KG properties</td>
+<td>1 day</td>
+<td>Low - Completeness</td>
+</tr>
+<tr>
+<td>20</td>
+<td>GAP-20: Expand best practices docs</td>
+<td>2 days</td>
+<td>Low - Knowledge coverage</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-security-considerations">7. Security Considerations | اعتبارات أمنية<a class="headerlink" href="#7-security-considerations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No hardcoded secrets</td>
+<td>✅ Pass</td>
+<td></td>
+</tr>
+<tr>
+<td>Input validation</td>
+<td>✅ Pass</td>
+<td>Pydantic v2 models, scientific range checks</td>
+</tr>
+<tr>
+<td>SQL injection</td>
+<td>✅ N/A</td>
+<td>No direct SQL queries</td>
+</tr>
+<tr>
+<td>Path traversal</td>
+<td>⚠️ Review</td>
+<td><code>ingest_file()</code> accepts any path - should validate against base directory</td>
+</tr>
+<tr>
+<td>YAML safe_load</td>
+<td>✅ Pass</td>
+<td>Uses <code>yaml.safe_load</code> for trusted_sources.yaml</td>
+</tr>
+<tr>
+<td>Banned substances</td>
+<td>✅ Pass</td>
+<td>Safety gate detects DDT, endosulfan, paraquat, etc.</td>
+</tr>
+<tr>
+<td>Source credibility</td>
+<td>✅ Pass</td>
+<td>5-level verification prevents untrusted content</td>
+</tr>
+<tr>
+<td>File size limits</td>
+<td>⚠️ Missing</td>
+<td>No max file size check in extractors</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-conclusion">8. Conclusion | الخلاصة<a class="headerlink" href="#8-conclusion" title="Permanent link">&para;</a></h2>
+<p>The Agriculture AI Knowledge Base is a <strong>well-designed module</strong> with strong foundations in agricultural domain modeling, bilingual support, and knowledge quality assurance. The module follows established research patterns (FRESH, AgriRegion, CRAG, AGROVOC) and has excellent test coverage (365 tests).</p>
+<p>The <strong>three critical gaps</strong> are:
+1. <strong>Vector store integration</strong> - Pipeline doesn't actually store documents
+2. <strong>Async support</strong> - Synchronous operations block FastAPI
+3. <strong>Chunking strategy</strong> - Full documents reduce retrieval quality</p>
+<p>Addressing these would complete the end-to-end pipeline from document ingestion to RAG-powered advisory generation, fully connecting the knowledge base to the UltraRAG system and the 11 specialized agricultural advisory agents.</p>
+<hr />
+<p><em>Generated: 2026-03-06 | Module Version: 2.0.0 | Platform Version: 16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

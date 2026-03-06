@@ -1,0 +1,1548 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Crop Growth Simulation Models - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#crop-growth-simulation-models" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Crop Growth Simulation Models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="crop-growth-simulation-models">Crop Growth Simulation Models<a class="headerlink" href="#crop-growth-simulation-models" title="Permanent link">&para;</a></h1>
+<h1 id="_1">نماذج محاكاة نمو المحاصيل<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Crop growth simulation models are the computational core of agricultural digital twins. They predict crop development, water use, nutrient uptake, and yield based on weather, soil, and management inputs.</p>
+<h2 id="key-models">Key Models | النماذج الرئيسية<a class="headerlink" href="#key-models" title="Permanent link">&para;</a></h2>
+<h3 id="aquacrop-fao">AquaCrop (FAO)<a class="headerlink" href="#aquacrop-fao" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Details</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer</td>
+<td>FAO</td>
+<td>منظمة الأغذية والزراعة</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>Water productivity</td>
+<td>إنتاجية المياه</td>
+</tr>
+<tr>
+<td>Crops</td>
+<td>20+ field crops</td>
+<td>أكثر من 20 محصول</td>
+</tr>
+<tr>
+<td>Key Input</td>
+<td>Daily weather, soil, management</td>
+<td>طقس يومي، تربة، إدارة</td>
+</tr>
+<tr>
+<td>Key Output</td>
+<td>Yield, biomass, water use, ET</td>
+<td>إنتاجية، كتلة حيوية، استخدام مياه</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Low-medium (few parameters)</td>
+<td>منخفضة-متوسطة</td>
+</tr>
+<tr>
+<td><strong>MENA suitability</strong></td>
+<td><strong>Excellent</strong> - designed for water-limited environments</td>
+<td><strong>ممتاز</strong> - مصمم للبيئات محدودة المياه</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AquaCrop Simulation Steps:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Daily</span><span class="w"> </span><span class="n">climate</span><span class="w"> </span><span class="kd">data</span><span class="w"> </span><span class="p">(</span><span class="n">Tmax</span><span class="p">,</span><span class="w"> </span><span class="n">Tmin</span><span class="p">,</span><span class="w"> </span><span class="n">rainfall</span><span class="p">,</span><span class="w"> </span><span class="n">ET₀</span><span class="p">)</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Soil</span><span class="w"> </span><span class="n">hydraulic</span><span class="w"> </span><span class="n">properties</span><span class="w"> </span><span class="p">(</span><span class="n">texture</span><span class="p">,</span><span class="w"> </span><span class="n">FC</span><span class="p">,</span><span class="w"> </span><span class="n">WP</span><span class="p">,</span><span class="w"> </span><span class="n">Ksat</span><span class="p">)</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="p">(</span><span class="n">Kc</span><span class="p">,</span><span class="w"> </span><span class="n">HI</span><span class="p">,</span><span class="w"> </span><span class="n">CGC</span><span class="p">,</span><span class="w"> </span><span class="n">CDC</span><span class="p">,</span><span class="w"> </span><span class="n">rooting</span><span class="w"> </span><span class="n">depth</span><span class="p">)</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Management</span><span class="w"> </span><span class="p">(</span><span class="n">planting</span><span class="w"> </span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">irrigation</span><span class="w"> </span><span class="n">schedule</span><span class="p">,</span><span class="w"> </span><span class="n">fertility</span><span class="p">)</span>
+<span class="w">         </span><span class="err">↓</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Daily</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="n">balance</span><span class="w"> </span><span class="p">(</span><span class="n">rain</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">irrigation</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ET</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="kr">run</span><span class="n">off</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">deep</span><span class="w"> </span><span class="n">percolation</span><span class="p">)</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Canopy</span><span class="w"> </span><span class="n">cover</span><span class="w"> </span><span class="n">development</span><span class="w"> </span><span class="p">(</span><span class="n">GDD</span><span class="o">-</span><span class="n">based</span><span class="p">)</span>
+<span class="mf">7.</span><span class="w"> </span><span class="n">Biomass</span><span class="w"> </span><span class="n">accumulation</span><span class="w"> </span><span class="p">(</span><span class="n">WP</span><span class="w"> </span><span class="err">×</span><span class="w"> </span><span class="n">transpiration</span><span class="p">)</span>
+<span class="mf">8.</span><span class="w"> </span><span class="n">Yield</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Biomass</span><span class="w"> </span><span class="err">×</span><span class="w"> </span><span class="n">Harvest</span><span class="w"> </span><span class="n">Index</span><span class="w"> </span><span class="err">×</span><span class="w"> </span><span class="n">stress</span><span class="w"> </span><span class="n">factors</span>
+</code></pre></div>
+
+<h3 id="dssat-decision-support-system-for-agrotechnology-transfer">DSSAT (Decision Support System for Agrotechnology Transfer)<a class="headerlink" href="#dssat-decision-support-system-for-agrotechnology-transfer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Details</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer</td>
+<td>University of Florida / ICASA</td>
+<td>جامعة فلوريدا</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>Comprehensive crop simulation</td>
+<td>محاكاة شاملة للمحاصيل</td>
+</tr>
+<tr>
+<td>Crops</td>
+<td>40+ crops (CERES-Wheat, CERES-Maize, etc.)</td>
+<td>أكثر من 40 محصول</td>
+</tr>
+<tr>
+<td>Key Input</td>
+<td>Detailed genetics, soil profiles, management</td>
+<td>وراثة، تربة، إدارة مفصلة</td>
+</tr>
+<tr>
+<td>Key Output</td>
+<td>Growth stages, yield, nitrogen balance</td>
+<td>مراحل نمو، إنتاجية، توازن نيتروجين</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>High (many genetic coefficients)</td>
+<td>عالية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="apsim-agricultural-production-systems-simulator">APSIM (Agricultural Production Systems sIMulator)<a class="headerlink" href="#apsim-agricultural-production-systems-simulator" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Details</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer</td>
+<td>CSIRO (Australia)</td>
+<td>CSIRO أستراليا</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>Farming systems analysis</td>
+<td>تحليل نظم الزراعة</td>
+</tr>
+<tr>
+<td>Strengths</td>
+<td>Crop rotation, soil carbon, long-term simulation</td>
+<td>دورات محصولية، كربون تربة</td>
+</tr>
+</tbody>
+</table>
+<h2 id="model-selection-guide">Model Selection Guide | دليل اختيار النموذج<a class="headerlink" href="#model-selection-guide" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>AquaCrop</th>
+<th>DSSAT</th>
+<th>APSIM</th>
+<th>Custom ML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Water-limited env.</td>
+<td>★★★</td>
+<td>★★</td>
+<td>★★</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>Ease of calibration</td>
+<td>★★★</td>
+<td>★</td>
+<td>★★</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>Data requirement</td>
+<td>Low</td>
+<td>High</td>
+<td>Medium</td>
+<td>High (training)</td>
+</tr>
+<tr>
+<td>Real-time capability</td>
+<td>★★★</td>
+<td>★★</td>
+<td>★</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>MENA crop coverage</td>
+<td>★★★</td>
+<td>★★</td>
+<td>★</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td><strong>Recommended for SAHOOL</strong></td>
+<td><strong>Primary</strong></td>
+<td>Secondary</td>
+<td>Reference</td>
+<td>Hybrid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="calibration-for-mena-crops">Calibration for MENA Crops | المعايرة لمحاصيل المنطقة<a class="headerlink" href="#calibration-for-mena-crops" title="Permanent link">&para;</a></h2>
+<h3 id="wheat-sakha-95">Wheat (Sakha 95) | القمح<a class="headerlink" href="#wheat-sakha-95" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base temperature</td>
+<td>0°C</td>
+<td>ICARDA</td>
+</tr>
+<tr>
+<td>Optimal temperature</td>
+<td>15-22°C</td>
+<td>ICARDA</td>
+</tr>
+<tr>
+<td>Kc initial</td>
+<td>0.30</td>
+<td>FAO-56</td>
+</tr>
+<tr>
+<td>Kc mid-season</td>
+<td>1.15</td>
+<td>FAO-56</td>
+</tr>
+<tr>
+<td>Kc late</td>
+<td>0.40</td>
+<td>FAO-56</td>
+</tr>
+<tr>
+<td>Harvest Index</td>
+<td>0.40-0.48</td>
+<td>Field trials</td>
+</tr>
+<tr>
+<td>Growing season</td>
+<td>120-150 days</td>
+<td>MEWA guidelines</td>
+</tr>
+<tr>
+<td>Water requirement</td>
+<td>450-650 mm</td>
+<td>Regional data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="date-palm">Date Palm | نخيل التمر<a class="headerlink" href="#date-palm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kc (young, &lt;5yr)</td>
+<td>0.45-0.65</td>
+<td>FAO-56 adapted</td>
+</tr>
+<tr>
+<td>Kc (mature)</td>
+<td>0.90-1.00</td>
+<td>Regional studies</td>
+</tr>
+<tr>
+<td>Water requirement</td>
+<td>18,000-25,000 L/tree/year</td>
+<td>Saudi guidelines</td>
+</tr>
+<tr>
+<td>Fruit development</td>
+<td>150-200 days</td>
+<td>Variety-dependent</td>
+</tr>
+<tr>
+<td>Heat units (GDD)</td>
+<td>4,500-5,500</td>
+<td>Regional calibration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="integration-with-digital-twin">Integration with Digital Twin | التكامل مع التوأم الرقمي<a class="headerlink" href="#integration-with-digital-twin" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nv">Real</span><span class="o">-</span><span class="nv">Time</span><span class="w"> </span><span class="nv">Sensor</span><span class="w"> </span><span class="nv">Data</span>
+├──<span class="w"> </span><span class="nv">Soil</span><span class="w"> </span><span class="nv">moisture</span><span class="w"> </span><span class="ss">(</span><span class="nv">actual</span><span class="ss">)</span>
+├──<span class="w"> </span><span class="nv">Weather</span><span class="w"> </span><span class="nv">station</span><span class="w"> </span><span class="ss">(</span><span class="nv">actual</span><span class="ss">)</span>
+└──<span class="w"> </span><span class="nv">NDVI</span><span class="w"> </span><span class="ss">(</span><span class="nv">actual</span><span class="w"> </span><span class="nv">crop</span><span class="w"> </span><span class="nv">status</span><span class="ss">)</span>
+<span class="w">         </span>↓
+<span class="w">    </span><span class="nv">Data</span><span class="w"> </span><span class="nv">Assimilation</span>
+<span class="w">    </span><span class="ss">(</span><span class="nv">Update</span><span class="w"> </span><span class="nv">model</span><span class="w"> </span><span class="nv">state</span><span class="w"> </span><span class="nv">with</span><span class="w"> </span><span class="nv">observations</span><span class="ss">)</span>
+<span class="w">         </span>↓
+<span class="w">    </span><span class="nv">Simulation</span><span class="w"> </span><span class="nv">Engine</span><span class="w"> </span><span class="ss">(</span><span class="nv">AquaCrop</span><span class="ss">)</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="nv">Current</span><span class="w"> </span><span class="nv">state</span><span class="w"> </span><span class="nv">estimation</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="mi">7</span><span class="o">-</span><span class="nv">day</span><span class="w"> </span><span class="nv">forecast</span><span class="w"> </span><span class="ss">(</span><span class="nv">weather</span><span class="w"> </span><span class="nv">forecast</span><span class="w"> </span><span class="nv">input</span><span class="ss">)</span>
+<span class="w">    </span>└──<span class="w"> </span><span class="nv">Season</span><span class="o">-</span><span class="k">end</span><span class="w"> </span><span class="nv">yield</span><span class="w"> </span><span class="nv">prediction</span>
+<span class="w">         </span>↓
+<span class="w">    </span><span class="nv">Decision</span><span class="w"> </span><span class="nv">Support</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="s2">&quot;Irrigate 25mm in 2 days&quot;</span><span class="w"> </span><span class="ss">(</span><span class="nv">predicted</span><span class="w"> </span><span class="nv">soil</span><span class="w"> </span><span class="nv">moisture</span><span class="ss">)</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="s2">&quot;Expected yield: 4.8 t/ha&quot;</span><span class="w"> </span><span class="ss">(</span>±<span class="mi">10</span><span class="o">%</span><span class="ss">)</span>
+<span class="w">    </span>└──<span class="w"> </span><span class="s2">&quot;Harvest window: April 10-20&quot;</span><span class="w"> </span><span class="ss">(</span><span class="nv">GDD</span><span class="w"> </span><span class="nv">accumulation</span><span class="ss">)</span>
+</code></pre></div>
+
+<h3 id="data-assimilation-methods">Data Assimilation Methods | طرق استيعاب البيانات<a class="headerlink" href="#data-assimilation-methods" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Complexity</th>
+<th>Accuracy</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Direct insertion</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Soil moisture update</td>
+</tr>
+<tr>
+<td>Ensemble Kalman Filter</td>
+<td>High</td>
+<td>High</td>
+<td>Multi-variable state update</td>
+</tr>
+<tr>
+<td>Particle Filter</td>
+<td>High</td>
+<td>High</td>
+<td>Non-linear systems</td>
+</tr>
+<tr>
+<td><strong>Simple nudging</strong></td>
+<td><strong>Low</strong></td>
+<td><strong>Good</strong></td>
+<td><strong>Recommended for real-time</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="validation-metrics">Validation Metrics | مقاييس التحقق<a class="headerlink" href="#validation-metrics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Acceptable</th>
+<th>Good</th>
+<th>Excellent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RMSE (yield, t/ha)</td>
+<td>&lt;1.0</td>
+<td>&lt;0.5</td>
+<td>&lt;0.3</td>
+</tr>
+<tr>
+<td>R² (yield)</td>
+<td>&gt;0.6</td>
+<td>&gt;0.8</td>
+<td>&gt;0.9</td>
+</tr>
+<tr>
+<td>d-index</td>
+<td>&gt;0.8</td>
+<td>&gt;0.9</td>
+<td>&gt;0.95</td>
+</tr>
+<tr>
+<td>MAPE (%)</td>
+<td>&lt;20%</td>
+<td>&lt;10%</td>
+<td>&lt;5%</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

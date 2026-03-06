@@ -1,0 +1,2077 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="دليل شامل لنظام ICON 5 للتحكم، الري المتغير، تقسيم الحقل، المراقبة بالأقمار، الطاقة الشمسية، والتطبيقات المتقدمة">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>أنظمة Valley الذكية - ICON 5 و VRI والتكامل المتقدم - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#valley-valley-smart-systems" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              أنظمة Valley الذكية - ICON 5 و VRI والتكامل المتقدم
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="valley-valley-smart-systems">أنظمة Valley الذكية | Valley Smart Systems<a class="headerlink" href="#valley-valley-smart-systems" title="Permanent link">&para;</a></h1>
+<h2 id="contents">الفهرس | Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#icon-5">نظام التحكم ICON 5</a></li>
+<li><a href="#vri">الري بمعدل متغير VRI</a></li>
+<li><a href="#field-zoning">تقسيم الحقل وإدارة المناطق</a></li>
+<li><a href="#satellite-monitoring">المراقبة بالأقمار الصناعية</a></li>
+<li><a href="#solar-energy">الطاقة الشمسية للمحاور</a></li>
+<li><a href="#applications">التطبيقات والتكامل</a></li>
+<li><a href="#sahool-integration">التكامل مع SAHOOL</a></li>
+</ol>
+<hr />
+<h2 id="icon-5-icon-5-control-system-icon-5">نظام التحكم ICON 5 | ICON 5 Control System {#icon-5}<a class="headerlink" href="#icon-5-icon-5-control-system-icon-5" title="Permanent link">&para;</a></h2>
+<h3 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>Valley ICON 5 هو الجيل الخامس من لوحات التحكم الذكية لأنظمة الري المحوري. يوفر تحكماً كاملاً عن بُعد عبر تطبيق AgSense 365.</p>
+<h3 id="technical-specifications">المواصفات الفنية | Technical Specifications<a class="headerlink" href="#technical-specifications" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المواصفة</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الشاشة</strong></td>
+<td>10.1" LCD ملونة تعمل باللمس، مقاومة للماء IP65</td>
+</tr>
+<tr>
+<td><strong>المعالج</strong></td>
+<td>ARM Cortex، ذاكرة 512MB RAM</td>
+</tr>
+<tr>
+<td><strong>الاتصال</strong></td>
+<td>4G LTE + Wi-Fi + Satellite (اختياري)</td>
+</tr>
+<tr>
+<td><strong>GPS</strong></td>
+<td>دقة ±1 متر (RTK اختياري لدقة ±2 سم)</td>
+</tr>
+<tr>
+<td><strong>الاستشعار</strong></td>
+<td>ضغط، تدفق، موقع، سرعة، اتجاه، درجة حرارة</td>
+</tr>
+<tr>
+<td><strong>التخزين</strong></td>
+<td>سجل 5 سنوات من بيانات التشغيل</td>
+</tr>
+<tr>
+<td><strong>الطاقة</strong></td>
+<td>120/240V AC + بطارية احتياطية 12V</td>
+</tr>
+<tr>
+<td><strong>التشغيل</strong></td>
+<td>-20°C إلى +60°C</td>
+</tr>
+</tbody>
+</table>
+<h3 id="icon-5-icon-5-functions">وظائف ICON 5 | ICON 5 Functions<a class="headerlink" href="#icon-5-icon-5-functions" title="Permanent link">&para;</a></h3>
+<h4 id="1-basic-control">1. التحكم الأساسي | Basic Control<a class="headerlink" href="#1-basic-control" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>التشغيل/الإيقاف ← START/STOP
+الاتجاه ← Forward / Reverse
+السرعة ← 0-100% (المؤقت Timer)
+بدء من زاوية ← Auto Start at Angle
+إيقاف عند زاوية ← Auto Stop at Angle
+رطب/جاف ← Wet/Dry Sector Selection
+</code></pre></div>
+
+<h4 id="2-scheduling">2. الجدولة | Scheduling<a class="headerlink" href="#2-scheduling" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>برنامج يومي</strong>: حتى 8 دورات يومية مختلفة</li>
+<li><strong>برنامج أسبوعي</strong>: جدول مختلف لكل يوم</li>
+<li><strong>برنامج موسمي</strong>: تعديل تلقائي حسب مرحلة النمو</li>
+<li><strong>إيقاف مطر</strong>: إيقاف تلقائي عند هطول مطر (مستشعر مطر)</li>
+<li><strong>إيقاف رياح</strong>: إيقاف عند تجاوز سرعة الرياح الحد المحدد</li>
+</ul>
+<h4 id="3-alerts">3. التنبيهات | Alerts<a class="headerlink" href="#3-alerts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التنبيه</th>
+<th>الوصف</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توقف المحور</td>
+<td>عدم حركة أثناء التشغيل</td>
+<td>حرج</td>
+</tr>
+<tr>
+<td>انخفاض ضغط</td>
+<td>أقل من الحد المعين</td>
+<td>حرج</td>
+</tr>
+<tr>
+<td>تدفق غير طبيعي</td>
+<td>أعلى أو أقل من المعدل</td>
+<td>تحذير</td>
+</tr>
+<tr>
+<td>نهاية دورة</td>
+<td>اكتمال 360°</td>
+<td>معلوماتي</td>
+</tr>
+<tr>
+<td>صيانة مجدولة</td>
+<td>حسب ساعات التشغيل</td>
+<td>استشاري</td>
+</tr>
+<tr>
+<td>فصل اتصال</td>
+<td>انقطاع الاتصال بالشبكة</td>
+<td>تحذير</td>
+</tr>
+<tr>
+<td>درجة حرارة عالية</td>
+<td>&gt; 55°C في لوحة التحكم</td>
+<td>تحذير</td>
+</tr>
+<tr>
+<td>جهد منخفض</td>
+<td>بطارية احتياطية &lt; 11V</td>
+<td>تحذير</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-icon-5-reports">4. تقارير ICON 5 | Reports<a class="headerlink" href="#4-icon-5-reports" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>تقرير التشغيل</strong>: ساعات تشغيل، عدد الدورات، كمية المياه</li>
+<li><strong>تقرير الطاقة</strong>: استهلاك kWh، تكلفة تقديرية</li>
+<li><strong>تقرير الأعطال</strong>: سجل التنبيهات والتوقفات</li>
+<li><strong>تقرير VRI</strong>: خريطة التطبيق الفعلي vs الوصفة</li>
+<li><strong>تقرير GPS</strong>: مسار المحور وسجل المواقع</li>
+</ul>
+<h3 id="agsense-365">AgSense 365 | تطبيق التحكم عن بُعد<a class="headerlink" href="#agsense-365" title="Permanent link">&para;</a></h3>
+<p>AgSense 365 هو التطبيق الموحد الذي يدمج 4 منصات سابقة (AgSense, Valley 365, PrecisionKing, PivoTrac).</p>
+<p><strong>المزايا</strong>:
+- تحكم كامل من الهاتف المحمول (iOS/Android)
+- عرض خريطة لجميع المحاور في المزرعة
+- تنبيهات فورية (Push Notifications)
+- مشاركة الوصول مع فريق العمل
+- تكامل مع بيانات الطقس
+- لوحة معلومات (Dashboard) قابلة للتخصيص</p>
+<hr />
+<h2 id="vri-variable-rate-irrigation-vri">الري بمعدل متغير VRI | Variable Rate Irrigation {#vri}<a class="headerlink" href="#vri-variable-rate-irrigation-vri" title="Permanent link">&para;</a></h2>
+<h3 id="principle">المبدأ | Principle<a class="headerlink" href="#principle" title="Permanent link">&para;</a></h3>
+<p>VRI يطبق كميات مختلفة من المياه في مناطق مختلفة من الحقل بناءً على:
+- اختلاف نوع التربة (رملية مقابل طينية)
+- اختلاف التضاريس (مرتفعات ومنخفضات)
+- اختلاف حالة المحصول (من بيانات NDVI)
+- مناطق غير مزروعة (طرق، أبنية، قنوات)</p>
+<h3 id="vri-vri-types">أنواع VRI | VRI Types<a class="headerlink" href="#vri-vri-types" title="Permanent link">&para;</a></h3>
+<h4 id="speed-control-vri">Speed Control VRI (البسيط)<a class="headerlink" href="#speed-control-vri" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الآلية</strong>: تغيير سرعة المحور حسب الزاوية</li>
+<li><strong>الدقة</strong>: قطاعات (sector-based)</li>
+<li><strong>عدد المناطق</strong>: 360 قطاع (1 درجة لكل قطاع)</li>
+<li><strong>التكلفة</strong>: منخفضة (ترقية برمجية فقط)</li>
+<li><strong>التوفير</strong>: 5-15% من المياه</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="err">مثال</span><span class="o">:</span><span class="w"> </span><span class="err">حقل</span><span class="w"> </span><span class="err">دائري</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="err">هكتار</span>
+<span class="o">-</span><span class="w"> </span><span class="err">القطاع</span><span class="w"> </span><span class="mi">0</span><span class="o">-</span><span class="mi">90</span><span class="err">°</span><span class="o">:</span><span class="w"> </span><span class="err">تربة</span><span class="w"> </span><span class="err">رملية</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">سرعة</span><span class="w"> </span><span class="mi">70</span><span class="o">%</span><span class="w"> </span><span class="o">(</span><span class="err">تطبيق</span><span class="w"> </span><span class="err">أكثر</span><span class="o">)</span>
+<span class="o">-</span><span class="w"> </span><span class="err">القطاع</span><span class="w"> </span><span class="mi">90</span><span class="o">-</span><span class="mi">180</span><span class="err">°</span><span class="o">:</span><span class="w"> </span><span class="err">تربة</span><span class="w"> </span><span class="err">طميية</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">سرعة</span><span class="w"> </span><span class="mi">100</span><span class="o">%</span><span class="w"> </span><span class="o">(</span><span class="err">تطبيق</span><span class="w"> </span><span class="err">عادي</span><span class="o">)</span>
+<span class="o">-</span><span class="w"> </span><span class="err">القطاع</span><span class="w"> </span><span class="mi">180</span><span class="o">-</span><span class="mi">270</span><span class="err">°</span><span class="o">:</span><span class="w"> </span><span class="err">مرتفع</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">سرعة</span><span class="w"> </span><span class="mi">85</span><span class="o">%</span><span class="w"> </span><span class="o">(</span><span class="err">تطبيق</span><span class="w"> </span><span class="err">متوسط</span><span class="o">)</span>
+<span class="o">-</span><span class="w"> </span><span class="err">القطاع</span><span class="w"> </span><span class="mi">270</span><span class="o">-</span><span class="mi">360</span><span class="err">°</span><span class="o">:</span><span class="w"> </span><span class="err">منخفض</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">سرعة</span><span class="w"> </span><span class="mi">110</span><span class="o">%</span><span class="w"> </span><span class="o">(</span><span class="err">تطبيق</span><span class="w"> </span><span class="err">أقل</span><span class="w"> </span><span class="err">لتجنب</span><span class="w"> </span><span class="err">التجمع</span><span class="o">)</span>
+</code></pre></div>
+
+<h4 id="zone-control-vri">Zone Control VRI (المتقدم)<a class="headerlink" href="#zone-control-vri" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الآلية</strong>: فتح/إغلاف فوهات فردية أو مجموعات</li>
+<li><strong>الدقة</strong>: صمام واحد لكل 3-6 فوهات</li>
+<li><strong>عدد المناطق</strong>: 100-2500 منطقة (حسب عدد الصمامات)</li>
+<li><strong>التكلفة</strong>: عالية (صمامات كهربائية لكل منطقة)</li>
+<li><strong>التوفير</strong>: 15-30% من المياه</li>
+<li><strong>المكونات</strong>: صمامات Valley BaseStation2 + ICON 5</li>
+</ul>
+<h3 id="vri-creating-vri-prescription">إنشاء وصفة VRI | Creating VRI Prescription<a class="headerlink" href="#vri-creating-vri-prescription" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المدخلات:
+├── خريطة التربة (soil map)
+├── خريطة NDVI (من الأقمار أو الطائرات بدون طيار)
+├── خريطة التضاريس (DEM)
+├── بيانات مستشعرات رطوبة التربة
+└── حدود الحقل (field boundary)
+    ↓
+المعالجة:
+├── تقسيم الحقل إلى مناطق إدارية (management zones)
+├── حساب ETc لكل منطقة
+├── تحديد عمق الري المطلوب لكل منطقة
+└── تحويل إلى أوامر VRI (سرعة أو صمامات)
+    ↓
+المخرجات:
+├── خريطة وصفة (Prescription Map)
+├── ملف VRI (لتحميله على ICON 5)
+└── تقرير مقارنة: تطبيق موحد vs VRI
+</code></pre></div>
+
+<h3 id="roi-calculation">حساب العائد على الاستثمار | ROI Calculation<a class="headerlink" href="#roi-calculation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>بدون VRI</th>
+<th>مع VRI</th>
+<th>الفرق</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>استهلاك المياه (م³/هـ/موسم)</td>
+<td>6,000</td>
+<td>4,800</td>
+<td>-20%</td>
+</tr>
+<tr>
+<td>تكلفة المياه (ريال/هـ)</td>
+<td>1,800</td>
+<td>1,440</td>
+<td>-360</td>
+</tr>
+<tr>
+<td>تكلفة الطاقة (ريال/هـ)</td>
+<td>800</td>
+<td>640</td>
+<td>-160</td>
+</tr>
+<tr>
+<td>الإنتاجية (طن/هـ)</td>
+<td>4.5</td>
+<td>4.9</td>
+<td>+8.9%</td>
+</tr>
+<tr>
+<td><strong>التوفير الإجمالي</strong></td>
+<td>-</td>
+<td>-</td>
+<td><strong>1,260 ريال/هـ/موسم</strong></td>
+</tr>
+<tr>
+<td><strong>تكلفة نظام VRI</strong></td>
+<td>-</td>
+<td>-</td>
+<td><strong>15,000-40,000 ريال</strong></td>
+</tr>
+<tr>
+<td><strong>فترة الاسترداد</strong></td>
+<td>-</td>
+<td>-</td>
+<td><strong>2-4 مواسم</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="field-zoning-management-zones-field-zoning">تقسيم الحقل وإدارة المناطق | Field Zoning &amp; Management Zones {#field-zoning}<a class="headerlink" href="#field-zoning-management-zones-field-zoning" title="Permanent link">&para;</a></h2>
+<h3 id="management-zone-concept">مفهوم مناطق الإدارة | Management Zone Concept<a class="headerlink" href="#management-zone-concept" title="Permanent link">&para;</a></h3>
+<p>تقسيم الحقل إلى مناطق متجانسة من حيث التربة والتضاريس والإنتاجية لتطبيق معاملات مختلفة (ري، تسميد، بذر).</p>
+<h3 id="zoning-data-sources">مصادر بيانات التقسيم | Zoning Data Sources<a class="headerlink" href="#zoning-data-sources" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المصدر</th>
+<th>البيانات</th>
+<th>الدقة</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NDVI (Sentinel-2)</strong></td>
+<td>مؤشر الغطاء النباتي</td>
+<td>10م/بكسل</td>
+<td>مجاني</td>
+</tr>
+<tr>
+<td><strong>خرائط الإنتاجية</strong></td>
+<td>Yield Maps من الحصادة</td>
+<td>1-3م</td>
+<td>متاح مع الحصادة</td>
+</tr>
+<tr>
+<td><strong>EM Survey</strong></td>
+<td>التوصيل الكهربائي للتربة</td>
+<td>5-10م</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td><strong>DEM (تضاريس)</strong></td>
+<td>ارتفاعات وميول</td>
+<td>1-30م</td>
+<td>مجاني-متوسط</td>
+</tr>
+<tr>
+<td><strong>تحليل تربة</strong></td>
+<td>خواص التربة (pH, EC, NPK)</td>
+<td>نقطي</td>
+<td>مرتفع</td>
+</tr>
+<tr>
+<td><strong>مستشعرات IoT</strong></td>
+<td>رطوبة تربة فورية</td>
+<td>نقطي</td>
+<td>مرتفع</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zoning-algorithm">خوارزمية التقسيم | Zoning Algorithm<a class="headerlink" href="#zoning-algorithm" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">جمع</span><span class="w"> </span><span class="n">البيانات</span><span class="w"> </span><span class="n">المكانية</span><span class="w"> </span><span class="p">(</span><span class="n">NDVI</span><span class="p">,</span><span class="w"> </span><span class="n">DEM</span><span class="p">,</span><span class="w"> </span><span class="n">soil</span><span class="w"> </span><span class="n">EC</span><span class="p">)</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">تطبيع</span><span class="w"> </span><span class="n">البيانات</span><span class="w"> </span><span class="p">(</span><span class="n">normalize</span><span class="w"> </span><span class="mf">0</span><span class="o">-</span><span class="mf">1</span><span class="p">)</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">تجميع</span><span class="w"> </span><span class="n">بخوارزمية</span><span class="w"> </span><span class="n">K</span><span class="o">-</span><span class="n">Means</span><span class="w"> </span><span class="n">أو</span><span class="w"> </span><span class="n">Fuzzy</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="n">Means</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">تحديد</span><span class="w"> </span><span class="n">عدد</span><span class="w"> </span><span class="n">المناطق</span><span class="w"> </span><span class="n">الأمثل</span><span class="w"> </span><span class="p">(</span><span class="mf">2</span><span class="o">-</span><span class="mf">5</span><span class="w"> </span><span class="n">مناطق</span><span class="w"> </span><span class="n">عادة</span><span class="err">ً</span><span class="p">)</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">تنعيم</span><span class="w"> </span><span class="n">الحدود</span><span class="w"> </span><span class="p">(</span><span class="n">spatial</span><span class="w"> </span><span class="n">smoothing</span><span class="p">)</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">مراجعة</span><span class="w"> </span><span class="n">ميدانية</span><span class="w"> </span><span class="n">وتعديل</span>
+<span class="mf">7.</span><span class="w"> </span><span class="n">تصدير</span><span class="w"> </span><span class="n">كخريطة</span><span class="w"> </span><span class="n">شكلية</span><span class="w"> </span><span class="p">(</span><span class="n">shapefile</span><span class="p">)</span><span class="w"> </span><span class="n">لنظام</span><span class="w"> </span><span class="n">VRI</span>
+</code></pre></div>
+
+<h3 id="zone-types">أنواع التقسيم | Zone Types<a class="headerlink" href="#zone-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع التقسيم</th>
+<th>الهدف</th>
+<th>مصدر البيانات الرئيسي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>مناطق الري</strong></td>
+<td>تطبيق VRI</td>
+<td>خريطة التربة + NDVI</td>
+</tr>
+<tr>
+<td><strong>مناطق التسميد</strong></td>
+<td>تطبيق VRA (Variable Rate Application)</td>
+<td>تحليل تربة + NDVI</td>
+</tr>
+<tr>
+<td><strong>مناطق البذر</strong></td>
+<td>كثافة بذر مختلفة</td>
+<td>خريطة الإنتاجية + التربة</td>
+</tr>
+<tr>
+<td><strong>مناطق المراقبة</strong></td>
+<td>مراقبة الآفات والأمراض</td>
+<td>NDVI + سجل تاريخي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zoning-simulation">محاكاة التقسيم | Zoning Simulation<a class="headerlink" href="#zoning-simulation" title="Permanent link">&para;</a></h3>
+<p>يمكن لمنصة سهول محاكاة تأثير التقسيم قبل التطبيق الفعلي:</p>
+<div class="codehilite"><pre><span></span><code>المدخلات:
+├── حدود الحقل (GeoJSON)
+├── خريطة NDVI حالية
+├── بيانات تربة متاحة
+└── معلمات المحور (طول، موقع المركز)
+    ↓
+المحاكاة:
+├── تقسيم إلى 3 مناطق (مثال)
+├── حساب ETc لكل منطقة
+├── محاكاة VRI speed control
+├── محاكاة VRI zone control
+└── مقارنة مع تطبيق موحد
+    ↓
+المخرجات:
+├── خريطة المناطق المقترحة
+├── وفر المياه المتوقع (%)
+├── تأثير الإنتاجية المتوقع (%)
+├── تكلفة التطبيق
+└── ROI وفترة الاسترداد
+</code></pre></div>
+
+<hr />
+<h2 id="satellite-monitoring-satellite-monitoring">المراقبة بالأقمار الصناعية | Satellite Monitoring {#satellite-monitoring}<a class="headerlink" href="#satellite-monitoring-satellite-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="available-satellites">الأقمار المتاحة | Available Satellites<a class="headerlink" href="#available-satellites" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>القمر</th>
+<th>المزود</th>
+<th>التردد</th>
+<th>الدقة</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sentinel-2</strong></td>
+<td>ESA/Copernicus</td>
+<td>5 أيام</td>
+<td>10م</td>
+<td>مجاني</td>
+</tr>
+<tr>
+<td><strong>Landsat 8/9</strong></td>
+<td>NASA/USGS</td>
+<td>16 يوم</td>
+<td>30م</td>
+<td>مجاني</td>
+</tr>
+<tr>
+<td><strong>PlanetScope</strong></td>
+<td>Planet Labs</td>
+<td>يومي</td>
+<td>3م</td>
+<td>مدفوع</td>
+</tr>
+<tr>
+<td><strong>WorldView</strong></td>
+<td>Maxar</td>
+<td>حسب الطلب</td>
+<td>0.3م</td>
+<td>مدفوع عالي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vegetation-indices-for-pivots">المؤشرات النباتية للري المحوري | Vegetation Indices for Pivots<a class="headerlink" href="#vegetation-indices-for-pivots" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الحساب</th>
+<th>الاستخدام لأنظمة المحور</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NDVI</strong></td>
+<td>(NIR-Red)/(NIR+Red)</td>
+<td>صحة المحصول العامة، كشف بقع الإجهاد</td>
+</tr>
+<tr>
+<td><strong>NDWI</strong></td>
+<td>(NIR-SWIR)/(NIR+SWIR)</td>
+<td>محتوى الرطوبة، كفاءة الري</td>
+</tr>
+<tr>
+<td><strong>NDMI</strong></td>
+<td>(NIR-SWIR1)/(NIR+SWIR1)</td>
+<td>إجهاد مائي، تحديد مناطق VRI</td>
+</tr>
+<tr>
+<td><strong>MSAVI</strong></td>
+<td>(2×NIR+1-√((2×NIR+1)²-8×(NIR-Red)))/2</td>
+<td>المحاصيل المبكرة، تربة مكشوفة</td>
+</tr>
+<tr>
+<td><strong>EVI</strong></td>
+<td>2.5×(NIR-Red)/(NIR+6×Red-7.5×Blue+1)</td>
+<td>تغطية كثيفة، أقل تأثراً بالغلاف الجوي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pivot-monitoring-applications">تطبيقات المراقبة على المحور | Pivot Monitoring Applications<a class="headerlink" href="#pivot-monitoring-applications" title="Permanent link">&para;</a></h3>
+<h4 id="1-nozzle-failure-detection">1. كشف أعطال الفوهات | Nozzle Failure Detection<a class="headerlink" href="#1-nozzle-failure-detection" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>خريطة NDVI عالية الدقة (3-10م)
+         ↓
+كشف خطوط أو بقع جافة دائرية
+         ↓
+تحديد موقع الفوهة المعطلة (رقم الرشاش)
+         ↓
+تنبيه صيانة تلقائي
+</code></pre></div>
+
+<h4 id="2-application-uniformity">2. تقييم انتظام التطبيق | Application Uniformity<a class="headerlink" href="#2-application-uniformity" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>مقارنة NDVI على طول نصف القطر
+         ↓
+CU (معامل الانتظام) المقدر
+         ↓
+تحديد مناطق الإفراط/النقص
+         ↓
+توصية بتعديل الرشاشات أو الضغط
+</code></pre></div>
+
+<h4 id="3-corner-coverage-monitoring">3. مراقبة تغطية الزاوية | Corner Coverage Monitoring<a class="headerlink" href="#3-corner-coverage-monitoring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>NDVI داخل الدائرة vs خارجها
+         ↓
+تقييم فعالية Corner Arm
+         ↓
+تحديد المساحة غير المخدومة
+         ↓
+تقدير الخسارة الإنتاجية في الزوايا
+</code></pre></div>
+
+<h4 id="4-ndvi-ndvi-time-series">4. سلسلة زمنية NDVI | NDVI Time Series<a class="headerlink" href="#4-ndvi-ndvi-time-series" title="Permanent link">&para;</a></h4>
+<p>تحليل تطور المحصول عبر الموسم تحت المحور:
+- كشف تأخر في النمو (قد يدل على مشكلة ري)
+- مقارنة مع المعدل التاريخي
+- تنبؤ بموعد الحصاد
+- تقدير الإنتاجية</p>
+<hr />
+<h2 id="solar-energy-for-pivots-solar-energy">الطاقة الشمسية للمحاور | Solar Energy for Pivots {#solar-energy}<a class="headerlink" href="#solar-energy-for-pivots-solar-energy" title="Permanent link">&para;</a></h2>
+<h3 id="why-solar">لماذا الطاقة الشمسية؟ | Why Solar?<a class="headerlink" href="#why-solar" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تكلفة الكهرباء = 30-50% من تكلفة تشغيل المحور</li>
+<li>المنطقة العربية: 2,000-2,500 ساعة شمسية/سنة</li>
+<li>الإشعاع الشمسي: 5-7 kWh/م²/يوم</li>
+<li>مزارع نائية بدون شبكة كهربائية</li>
+</ul>
+<h3 id="applications">التطبيقات | Applications<a class="headerlink" href="#applications" title="Permanent link">&para;</a></h3>
+<h4 id="1-solar-powered-pump">1. تشغيل مضخة المحور بالطاقة الشمسية | Solar-Powered Pump<a class="headerlink" href="#1-solar-powered-pump" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المواصفة</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>قدرة المضخة</strong></td>
+<td>15-75 kW (حسب العمق والتدفق)</td>
+</tr>
+<tr>
+<td><strong>ألواح مطلوبة</strong></td>
+<td>30-150 لوح (550W كل لوح)</td>
+</tr>
+<tr>
+<td><strong>المساحة المطلوبة</strong></td>
+<td>200-800 م²</td>
+</tr>
+<tr>
+<td><strong>الإنفرتر</strong></td>
+<td>VFD (Variable Frequency Drive) شمسي</td>
+</tr>
+<tr>
+<td><strong>التخزين</strong></td>
+<td>مع بطاريات (ري 24 ساعة) أو بدون (ري نهاري فقط)</td>
+</tr>
+<tr>
+<td><strong>التكلفة</strong></td>
+<td>50,000-200,000 ريال</td>
+</tr>
+<tr>
+<td><strong>الاسترداد</strong></td>
+<td>3-5 سنوات</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2">2. تشغيل محركات الأبراج بالطاقة الشمسية<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>استهلاك برج واحد</strong>: 0.5-1.5 kW</li>
+<li><strong>محور 10 أبراج</strong>: 5-15 kW</li>
+<li><strong>حل هجين</strong>: شمسي + شبكة (تقليل 50-70% من تكلفة الطاقة)</li>
+</ul>
+<h4 id="3-icon-5">3. تشغيل ICON 5 والاتصالات<a class="headerlink" href="#3-icon-5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>استهلاك لوحة التحكم</strong>: 50-100 واط</li>
+<li><strong>لوح شمسي صغير + بطارية</strong>: تشغيل مستمر بدون شبكة</li>
+<li><strong>مفيد في</strong>: المزارع النائية، المواقع بدون كهرباء</li>
+</ul>
+<h3 id="solar-design-calculations">حسابات التصميم الشمسي | Solar Design Calculations<a class="headerlink" href="#solar-design-calculations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>القدرة المطلوبة (kWp) = قدرة المضخة (kW) / معامل الأداء (0.75-0.85)
+
+مثال: مضخة 30 kW
+القدرة الشمسية = 30 / 0.80 = 37.5 kWp
+عدد الألواح (550W) = 37.5 / 0.55 = 69 لوح
+المساحة ≈ 69 × 2.8 م² = 193 م²
+</code></pre></div>
+
+<h3 id="energy-cost-comparison">مقارنة تكلفة الطاقة | Energy Cost Comparison<a class="headerlink" href="#energy-cost-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مصدر الطاقة</th>
+<th>تكلفة (ريال/kWh)</th>
+<th>تكلفة سنوية (محور 50 هـ)</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>شبكة كهربائية</td>
+<td>0.18-0.32</td>
+<td>8,000-15,000</td>
+<td>أرخص لكن يحتاج توصيل</td>
+</tr>
+<tr>
+<td>ديزل</td>
+<td>0.40-0.80</td>
+<td>18,000-36,000</td>
+<td>متاح لكن مكلف</td>
+</tr>
+<tr>
+<td>شمسي (بدون تخزين)</td>
+<td>0.05-0.10</td>
+<td>2,200-4,500</td>
+<td>ري نهاري فقط</td>
+</tr>
+<tr>
+<td>شمسي + بطاريات</td>
+<td>0.12-0.20</td>
+<td>5,400-9,000</td>
+<td>ري 24 ساعة</td>
+</tr>
+<tr>
+<td>هجين (شمسي + شبكة)</td>
+<td>0.10-0.15</td>
+<td>4,500-6,750</td>
+<td>الأمثل اقتصادياً</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="advanced-applications-applications">التطبيقات والتكامل المتقدم | Advanced Applications {#applications}<a class="headerlink" href="#advanced-applications-applications" title="Permanent link">&para;</a></h2>
+<h3 id="1-chemigation">1. Chemigation (التسميد والمعالجة عبر المحور)<a class="headerlink" href="#1-chemigation" title="Permanent link">&para;</a></h3>
+<p>تطبيق الأسمدة والمبيدات عبر نظام الري المحوري:</p>
+<table>
+<thead>
+<tr>
+<th>نوع التطبيق</th>
+<th>الأسمدة/المبيدات</th>
+<th>النسبة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fertigation</strong></td>
+<td>أسمدة سائلة (UAN-32, 10-34-0)</td>
+<td>5-20 لتر/هـ</td>
+<td>ري + تسميد في نفس الوقت</td>
+</tr>
+<tr>
+<td><strong>Herbigation</strong></td>
+<td>مبيدات حشائش</td>
+<td>حسب التسجيل</td>
+<td>يحتاج فحص نوز بدون انسداد</td>
+</tr>
+<tr>
+<td><strong>Insectigation</strong></td>
+<td>مبيدات حشرية</td>
+<td>حسب التسجيل</td>
+<td>تطبيق موجه مع VRI</td>
+</tr>
+<tr>
+<td><strong>Fungigation</strong></td>
+<td>مبيدات فطرية</td>
+<td>حسب التسجيل</td>
+<td>فعال ضد الصدأ والبياض</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>تحذير</strong>: يجب تركيب صمام منع الرجوع (check valve) ونظام حقن معتمد لمنع تلوث مصدر المياه.</p>
+</blockquote>
+<h3 id="2-automated-pump-control">2. التحكم التلقائي بالمضخة | Automated Pump Control<a class="headerlink" href="#2-automated-pump-control" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>مستشعر ضغط (عند المضخة + عند المحور)
+         ↓
+ICON 5 يرسل أمر تشغيل المضخة
+         ↓
+VFD يضبط سرعة المضخة حسب الطلب
+         ↓
+مراقبة مستمرة: ضغط + تدفق + استهلاك
+         ↓
+إيقاف تلقائي عند نهاية الدورة أو خلل
+</code></pre></div>
+
+<h3 id="3-drone-pivot-integration">3. الطائرات بدون طيار + المحور | Drone + Pivot Integration<a class="headerlink" href="#3-drone-pivot-integration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الاستخدام</th>
+<th>التفاصيل</th>
+<th>الفائدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>مسح NDVI عالي الدقة</strong></td>
+<td>دقة 5 سم، كل حقل في &lt; 30 دقيقة</td>
+<td>وصفة VRI دقيقة</td>
+</tr>
+<tr>
+<td><strong>رش موضعي</strong></td>
+<td>DJI Agras أو XAG</td>
+<td>معالجة بقع الآفات بدون رش كامل</td>
+</tr>
+<tr>
+<td><strong>كشف أعطال</strong></td>
+<td>تصوير حراري للأنابيب والفوهات</td>
+<td>صيانة استباقية</td>
+</tr>
+<tr>
+<td><strong>عد النباتات</strong></td>
+<td>تصوير في مرحلة الإنبات</td>
+<td>تقييم كثافة الزراعة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-digital-twin-for-pivot">4. التوأم الرقمي للمحور | Digital Twin for Pivot<a class="headerlink" href="#4-digital-twin-for-pivot" title="Permanent link">&para;</a></h3>
+<p>محاكاة رقمية كاملة لنظام الري المحوري:</p>
+<div class="codehilite"><pre><span></span><code>بيانات حقيقية (ICON 5 + IoT + طقس)
+         ↓
+نموذج المحور الرقمي:
+├── موقع وزاوية المحور (GPS)
+├── حالة كل فوهة (ON/OFF, flow rate)
+├── معدل التطبيق الفعلي (mm/hr per zone)
+├── خريطة الرطوبة المتوقعة
+└── استهلاك الطاقة الفعلي vs المتوقع
+         ↓
+مخرجات:
+├── تنبؤ بوقت الري القادم
+├── كشف انحراف عن الوصفة
+├── تحسين جدول الري
+└── تخطيط الصيانة التنبؤية
+</code></pre></div>
+
+<h3 id="5-ai-pivot">5. الذكاء الاصطناعي والمحور | AI + Pivot<a class="headerlink" href="#5-ai-pivot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التطبيق</th>
+<th>النموذج</th>
+<th>المدخلات</th>
+<th>المخرجات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تنبؤ ETc</strong></td>
+<td>LSTM/Transformer</td>
+<td>طقس + مرحلة نمو</td>
+<td>ETc يومي لـ 7 أيام</td>
+</tr>
+<tr>
+<td><strong>جدولة ذكية</strong></td>
+<td>Reinforcement Learning</td>
+<td>رطوبة + طقس + تعرفة طاقة</td>
+<td>توقيت وكمية الري الأمثل</td>
+</tr>
+<tr>
+<td><strong>كشف أعطال</strong></td>
+<td>Anomaly Detection</td>
+<td>ضغط + تدفق + GPS</td>
+<td>تنبيه مبكر</td>
+</tr>
+<tr>
+<td><strong>وصفة VRI</strong></td>
+<td>Clustering + Regression</td>
+<td>NDVI + تربة + DEM</td>
+<td>خريطة وصفة محسنة</td>
+</tr>
+<tr>
+<td><strong>تقدير إنتاجية</strong></td>
+<td>Random Forest</td>
+<td>NDVI + طقس + ري</td>
+<td>طن/هكتار</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool-platform-integration-sahool-integration">التكامل مع منصة سهول | SAHOOL Platform Integration {#sahool-integration}<a class="headerlink" href="#sahool-platform-integration-sahool-integration" title="Permanent link">&para;</a></h2>
+<h3 id="integration-architecture">بنية التكامل | Integration Architecture<a class="headerlink" href="#integration-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Valley ICON 5 / AgSense 365
+         ↓ (API / MQTT / Webhook)
+iot-gateway (shared/integrations/)
+         ↓
+iot-service → NATS: sahool.iot.pivot.telemetry
+         ↓
+irrigation-smart → حساب VRI prescription
+         ↓
+vegetation-analysis-service → خريطة NDVI
+         ↓
+terrain-core-service → DEM وتقسيم المناطق
+         ↓
+digital-twin-engine → محاكاة المحور
+         ↓
+advisory-service → توصية ري شاملة
+         ↓
+notification-service → تنبيه المزارع (SMS/App)
+</code></pre></div>
+
+<h3 id="nats-proposed-nats-events">أحداث NATS المقترحة | Proposed NATS Events<a class="headerlink" href="#nats-proposed-nats-events" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>الوصف</th>
+<th>المشغل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.pivot.cycle_started</code></td>
+<td>بدء دورة المحور</td>
+<td>ICON 5</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.cycle_completed</code></td>
+<td>اكتمال دورة</td>
+<td>ICON 5</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.alert.pressure_low</code></td>
+<td>انخفاض ضغط</td>
+<td>مستشعر</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.alert.stopped</code></td>
+<td>توقف غير متوقع</td>
+<td>ICON 5</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.alert.wind</code></td>
+<td>تجاوز حد الرياح</td>
+<td>محطة طقس</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.vri.prescription_applied</code></td>
+<td>تحميل وصفة VRI</td>
+<td>ICON 5</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.maintenance.due</code></td>
+<td>صيانة دورية مستحقة</td>
+<td>جدول صيانة</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.telemetry.update</code></td>
+<td>بيانات تشغيل دورية</td>
+<td>كل 5 دقائق</td>
+</tr>
+<tr>
+<td><code>sahool.pivot.energy.solar_status</code></td>
+<td>حالة النظام الشمسي</td>
+<td>إنفرتر</td>
+</tr>
+</tbody>
+</table>
+<h3 id="related-sahool-services">خدمات سهول المرتبطة | Related SAHOOL Services<a class="headerlink" href="#related-sahool-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الدور في تكامل المحور</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>iot-service</strong></td>
+<td>استقبال تلغرافات ICON 5</td>
+</tr>
+<tr>
+<td><strong>iot-gateway</strong></td>
+<td>تحويل بروتوكول Valley → NATS</td>
+</tr>
+<tr>
+<td><strong>irrigation-smart</strong></td>
+<td>حساب كمية وتوقيت الري</td>
+</tr>
+<tr>
+<td><strong>vegetation-analysis-service</strong></td>
+<td>خرائط NDVI لوصفات VRI</td>
+</tr>
+<tr>
+<td><strong>terrain-core-service</strong></td>
+<td>تحليل تضاريس لتقسيم المناطق</td>
+</tr>
+<tr>
+<td><strong>weather-service</strong></td>
+<td>بيانات طقس لقرارات الري</td>
+</tr>
+<tr>
+<td><strong>digital-twin-engine</strong></td>
+<td>محاكاة أداء المحور</td>
+</tr>
+<tr>
+<td><strong>equipment-service</strong></td>
+<td>سجل صيانة المحور</td>
+</tr>
+<tr>
+<td><strong>alert-service</strong></td>
+<td>إدارة تنبيهات المحور</td>
+</tr>
+<tr>
+<td><strong>advisory-service</strong></td>
+<td>توصيات ري شاملة</td>
+</tr>
+<tr>
+<td><strong>drone-service</strong></td>
+<td>تكامل مسح الطائرات بدون طيار</td>
+</tr>
+<tr>
+<td><strong>indicators-service</strong></td>
+<td>مؤشرات كفاءة الري</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">مراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[[center-pivot-valley|أنظمة Valley المحورية]]</li>
+<li>[[scheduling|جدولة الري]]</li>
+<li>[[../remote-sensing/ndvi|مؤشر NDVI]]</li>
+<li>[[../ai-smart-agriculture/precision-farming|الزراعة الدقيقة]]</li>
+<li>[[../ai-smart-agriculture/digital-twin|التوأم الرقمي]]</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: مارس 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

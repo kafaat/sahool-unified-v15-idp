@@ -1392,6 +1392,121 @@ curl<span class="w"> </span>http://localhost:8222/healthz<span class="w">   </sp
 </code></pre></div>
 
 <hr />
+<h2 id="service-profiles-docker-compose">Service Profiles (Docker Compose) | ملفات تعريف الخدمات<a class="headerlink" href="#service-profiles-docker-compose" title="Permanent link">&para;</a></h2>
+<p>Some services are configured with Docker Compose profiles and will <strong>NOT</strong> start with the default <code>docker compose up</code>. They require explicit profile activation.</p>
+<p>بعض الخدمات مُعدّة بملفات تعريف Docker Compose ولن تبدأ مع الأمر الافتراضي. تتطلب تفعيل الملف الشخصي بشكل صريح.</p>
+<h3 id="available-profiles">Available Profiles | الملفات المتاحة<a class="headerlink" href="#available-profiles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>Services</th>
+<th>Requirements</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>default</code></td>
+<td>68 services</td>
+<td>-</td>
+<td>All active application + infrastructure services</td>
+</tr>
+<tr>
+<td><code>gpu</code></td>
+<td>ollama, ollama-model-loader, vllm-deepseek, code-review-service</td>
+<td>NVIDIA GPU, 16GB+ VRAM</td>
+<td>GPU-accelerated AI/ML services</td>
+</tr>
+<tr>
+<td><code>deprecated</code></td>
+<td>yield-prediction</td>
+<td>-</td>
+<td>Legacy services replaced by newer versions</td>
+</tr>
+<tr>
+<td><code>demo</code></td>
+<td>demo-data</td>
+<td>-</td>
+<td>Demo data generator for testing</td>
+</tr>
+<tr>
+<td><code>optional</code> + <code>ai-agents</code></td>
+<td>code-review-agent</td>
+<td>-</td>
+<td>Optional AI agent services (dual profile)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="usage-examples">Usage Examples | أمثلة الاستخدام<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start all default services (68 active services)</span>
+<span class="c1"># تشغيل جميع الخدمات النشطة الافتراضية</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Start with GPU services (vision, LLM inference)</span>
+<span class="c1"># التشغيل مع خدمات GPU (الرؤية الحاسوبية والاستدلال)</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>gpu<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Start with demo data for testing</span>
+<span class="c1"># التشغيل مع بيانات تجريبية للاختبار</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>demo<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Start AI agent services</span>
+<span class="c1"># تشغيل خدمات وكلاء الذكاء الاصطناعي</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>optional<span class="w"> </span>--profile<span class="w"> </span>ai-agents<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Start with deprecated services (for migration testing only)</span>
+<span class="c1"># تشغيل الخدمات المهملة (لاختبار الترحيل فقط)</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>deprecated<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Full stack (all profiles)</span>
+<span class="c1"># التشغيل الكامل (جميع الملفات)</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>gpu<span class="w"> </span>--profile<span class="w"> </span>demo<span class="w"> </span>--profile<span class="w"> </span>optional<span class="w"> </span>--profile<span class="w"> </span>ai-agents<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h3 id="gpu-profile-details-gpu">GPU Profile Details | تفاصيل ملف GPU<a class="headerlink" href="#gpu-profile-details-gpu" title="Permanent link">&para;</a></h3>
+<p>The GPU profile includes services that require NVIDIA GPU hardware:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>GPU VRAM</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ollama</td>
+<td>11434</td>
+<td>8GB+</td>
+<td>Local LLM server (Ollama 0.5.x)</td>
+</tr>
+<tr>
+<td>ollama-model-loader</td>
+<td>-</td>
+<td>-</td>
+<td>Model download and cache</td>
+</tr>
+<tr>
+<td>vllm-deepseek</td>
+<td>8270</td>
+<td>16GB+</td>
+<td>DeepSeek Coder 6.7B inference</td>
+</tr>
+<tr>
+<td>code-review-service</td>
+<td>8102</td>
+<td>4GB+</td>
+<td>GPU-accelerated code review</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note</strong>: Ensure NVIDIA Container Toolkit is installed before using the GPU profile.
+Install with: <code>apt-get install nvidia-container-toolkit</code></p>
+</blockquote>
+<hr />
 <h2 id="production-deployment-kubernetes">Production Deployment (Kubernetes) | نشر الإنتاج<a class="headerlink" href="#production-deployment-kubernetes" title="Permanent link">&para;</a></h2>
 <h3 id="step-1-prepare-cluster">Step 1: Prepare Cluster | إعداد العنقود<a class="headerlink" href="#step-1-prepare-cluster" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify kubectl is configured</span>

@@ -1,164 +1,339 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# MCP-RAG Bridge
-# جسر MCP-RAG
+# MCP-RAG Bridge - Bridges MCP Server Tools with UltraRAG Retrieval
+# جسر MCP-RAG - يربط أدوات خادم MCP مع استرجاع UltraRAG
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# Connects the SAHOOL MCP Server with the UltraRAG pipeline, providing:
-#   - Automated RAG pipeline initialization with configurable backends
-#   - Registration of RAG tools (query, search, knowledge base, advisory)
-#     into the MCP server's tool system
-#   - Session-based conversation memory for multi-turn interactions
-#   - Bilingual support (Arabic/English)
+# Gap G-19: MCP-RAG bridge integration
 #
-# Usage:
-#   from shared.ai.mcp_rag_bridge import MCPRAGBridge
-#   bridge = MCPRAGBridge()
-#   bridge.initialize()
-#   bridge.register_with_mcp_server(mcp_server)
+# Provides a bridge layer that exposes UltraRAG retrieval operations as
+# JSON-RPC 2.0 compatible MCP tools. Supports the 9 agricultural workflows
+# (pest_diagnosis, irrigation_advisory, crop_advisory, fertilizer_advisory,
+# soil_analysis, weather_advisory, remote_sensing, comprehensive_field,
+# knowledge_search) and returns structured results with citations and
+# confidence scores.
 #
-# يربط خادم MCP الخاص بسهول مع خط أنابيب UltraRAG
+# يوفر طبقة جسر تعرض عمليات استرجاع UltraRAG كأدوات MCP متوافقة مع
+# JSON-RPC 2.0. يدعم 9 سير عمل زراعي ويعيد نتائج منظمة مع اقتباسات
+# ودرجات ثقة.
 #
+# Author: SAHOOL Platform Team
+# Updated: March 2026
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from __future__ import annotations
 
 import logging
-import os
+import time
+import uuid
+from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# ─── Imports with graceful fallbacks ──────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Optional imports with graceful fallbacks
+# ─────────────────────────────────────────────────────────────────────────────
 
 try:
-    from .ultrarag.models import (
-        GenerationMode,
-        RAGPipelineConfig,
-        RAGRequest,
-        RerankingMethod,
-        RetrievalStrategy,
-    )
-    from .ultrarag.pipeline import RAGPipeline, RAGPipelineBuilder
-    from .ultrarag.mcp_tools import RAGMCPTools, register_rag_tools
-    from .ultrarag.knowledge_base import KnowledgeBase
-    from .ultrarag.conversation_memory import (
-        ConversationMemory,
-        RAGConversationManager,
-    )
-
-    _ULTRARAG_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"UltraRAG modules not fully available: {e}")
-    _ULTRARAG_AVAILABLE = False
-
-try:
-    from .embeddings import EmbeddingsAdapter, EmbeddingConfig, EmbeddingProvider
-    _EMBEDDINGS_AVAILABLE = True
+    from .ultrarag.pipeline import RAGPipeline
 except ImportError:
-    _EMBEDDINGS_AVAILABLE = False
+    RAGPipeline = None  # type: ignore[assignment,misc]
 
 try:
-    from .vector_store import VectorStore
-    _VECTOR_STORE_AVAILABLE = True
+    from .ultrarag.conversation_memory import ConversationMemory, RAGConversationManager
 except ImportError:
-    _VECTOR_STORE_AVAILABLE = False
+    ConversationMemory = None  # type: ignore[assignment,misc]
+    RAGConversationManager = None  # type: ignore[assignment,misc]
 
 try:
-    from .knowledge.vector_store_integration import KnowledgeVectorStore
-    _KB_VECTOR_STORE_AVAILABLE = True
+    from .knowledge.collections import ALL_COLLECTIONS
 except ImportError:
-    _KB_VECTOR_STORE_AVAILABLE = False
+    ALL_COLLECTIONS: list[str] = []  # type: ignore[no-redef]
+
+try:
+    from .embeddings import EmbeddingsAdapter
+except ImportError:
+    EmbeddingsAdapter = None  # type: ignore[assignment,misc]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Configuration
+# Enums
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class MCPRAGConfig:
-    """Configuration for the MCP-RAG bridge.
-    تكوين جسر MCP-RAG"""
+class AgriWorkflow(StrEnum):
+    """Agricultural workflow identifiers | معرفات سير العمل الزراعي"""
 
-    def __init__(
-        self,
-        # Pipeline settings
-        pipeline_name: str = "sahool-mcp-rag",
-        retrieval_strategy: str = "hybrid",
-        reranking_method: str = "cross_encoder",
-        generation_mode: str = "standard",
-        top_k: int = 10,
-        rerank_top_k: int = 5,
-        # Embedding settings
-        embedding_model: str = "paraphrase-multilingual-MiniLM-L12-v2",
-        embedding_provider: str = "sentence_transformers",
-        # LLM settings
-        llm_model: str = "codellama:7b",
-        llm_provider: str = "ollama",
-        # Conversation memory
-        enable_conversation_memory: bool = True,
-        session_ttl_seconds: int = 3600,
-        max_context_turns: int = 5,
-        # Arabic support
-        arabic_enabled: bool = True,
-        arabic_embedding_model: str = "CAMeL-Lab/bert-base-arabic-camelbert-mix",
-        # Offline mode
-        offline_first: bool = True,
-    ) -> None:
-        self.pipeline_name = pipeline_name
-        self.retrieval_strategy = retrieval_strategy
-        self.reranking_method = reranking_method
-        self.generation_mode = generation_mode
-        self.top_k = top_k
-        self.rerank_top_k = rerank_top_k
-        self.embedding_model = embedding_model
-        self.embedding_provider = embedding_provider
-        self.llm_model = llm_model
-        self.llm_provider = llm_provider
-        self.enable_conversation_memory = enable_conversation_memory
-        self.session_ttl_seconds = session_ttl_seconds
-        self.max_context_turns = max_context_turns
-        self.arabic_enabled = arabic_enabled
-        self.arabic_embedding_model = arabic_embedding_model
-        self.offline_first = offline_first
+    PEST_DIAGNOSIS = "pest_diagnosis"
+    IRRIGATION_ADVISORY = "irrigation_advisory"
+    CROP_ADVISORY = "crop_advisory"
+    FERTILIZER_ADVISORY = "fertilizer_advisory"
+    SOIL_ANALYSIS = "soil_analysis_advisory"
+    WEATHER_ADVISORY = "weather_advisory"
+    REMOTE_SENSING = "remote_sensing_analysis"
+    COMPREHENSIVE_FIELD = "comprehensive_field_advisory"
+    KNOWLEDGE_SEARCH = "knowledge_search"
 
-    @classmethod
-    def from_env(cls) -> "MCPRAGConfig":
-        """Create configuration from environment variables.
-        إنشاء التكوين من متغيرات البيئة"""
-        return cls(
-            pipeline_name=os.getenv("RAG_PIPELINE_NAME", "sahool-mcp-rag"),
-            retrieval_strategy=os.getenv("RAG_RETRIEVAL_STRATEGY", "hybrid"),
-            reranking_method=os.getenv("RAG_RERANKING_METHOD", "cross_encoder"),
-            generation_mode=os.getenv("RAG_GENERATION_MODE", "standard"),
-            top_k=int(os.getenv("RAG_TOP_K", "10")),
-            rerank_top_k=int(os.getenv("RAG_RERANK_TOP_K", "5")),
-            embedding_model=os.getenv(
-                "RAG_EMBEDDING_MODEL", "paraphrase-multilingual-MiniLM-L12-v2"
-            ),
-            embedding_provider=os.getenv("RAG_EMBEDDING_PROVIDER", "sentence_transformers"),
-            llm_model=os.getenv("RAG_LLM_MODEL", "codellama:7b"),
-            llm_provider=os.getenv("RAG_LLM_PROVIDER", "ollama"),
-            enable_conversation_memory=os.getenv(
-                "RAG_ENABLE_CONVERSATION_MEMORY", "true"
-            ).lower() == "true",
-            session_ttl_seconds=int(os.getenv("RAG_SESSION_TTL", "3600")),
-            max_context_turns=int(os.getenv("RAG_MAX_CONTEXT_TURNS", "5")),
-            arabic_enabled=os.getenv("RAG_ARABIC_ENABLED", "true").lower() == "true",
-            offline_first=os.getenv("RAG_OFFLINE_FIRST", "true").lower() == "true",
-        )
+
+class BridgeToolName(StrEnum):
+    """MCP tool names registered by this bridge | أسماء أدوات MCP المسجلة"""
+
+    RAG_SEARCH = "rag_search"
+    RAG_RETRIEVE = "rag_retrieve"
+    RAG_INGEST = "rag_ingest"
+    RAG_WORKFLOW = "rag_workflow"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Models
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass
+class Citation:
+    """A source citation from RAG retrieval | اقتباس مصدر من استرجاع RAG"""
+
+    document_id: str = ""
+    title: str = ""
+    collection: str = ""
+    chunk_text: str = ""
+    relevance_score: float = 0.0
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize to dictionary | التحويل إلى قاموس"""
         return {
-            "pipeline_name": self.pipeline_name,
-            "retrieval_strategy": self.retrieval_strategy,
-            "reranking_method": self.reranking_method,
-            "top_k": self.top_k,
-            "embedding_model": self.embedding_model,
-            "llm_model": self.llm_model,
-            "conversation_memory": self.enable_conversation_memory,
-            "arabic_enabled": self.arabic_enabled,
-            "offline_first": self.offline_first,
+            "document_id": self.document_id,
+            "title": self.title,
+            "collection": self.collection,
+            "chunk_text": self.chunk_text[:300] if self.chunk_text else "",
+            "relevance_score": round(self.relevance_score, 4),
+            "metadata": self.metadata,
         }
+
+
+@dataclass
+class BridgeResult:
+    """Result returned by bridge operations | نتيجة عمليات الجسر"""
+
+    success: bool = True
+    data: dict[str, Any] = field(default_factory=dict)
+    citations: list[Citation] = field(default_factory=list)
+    confidence: float = 0.0
+    processing_time_ms: float = 0.0
+    workflow_id: str | None = None
+    error: str | None = None
+    error_ar: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to JSON-RPC compatible dictionary | التحويل إلى قاموس متوافق مع JSON-RPC"""
+        result: dict[str, Any] = {
+            "success": self.success,
+            "data": self.data,
+            "citations": [c.to_dict() for c in self.citations],
+            "confidence": round(self.confidence, 4),
+            "processing_time_ms": round(self.processing_time_ms, 2),
+        }
+        if self.workflow_id:
+            result["workflow_id"] = self.workflow_id
+        if self.error:
+            result["error"] = self.error
+        if self.error_ar:
+            result["error_ar"] = self.error_ar
+        return result
+
+
+@dataclass
+class MCPToolSchema:
+    """Schema definition for an MCP tool | تعريف مخطط أداة MCP"""
+
+    name: str
+    description: str
+    description_ar: str
+    input_schema: dict[str, Any] = field(default_factory=dict)
+    category: str = "rag_bridge"
+
+    def to_mcp_format(self) -> dict[str, Any]:
+        """Convert to MCP tools/list format | التحويل إلى تنسيق قائمة أدوات MCP"""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "inputSchema": self.input_schema,
+        }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tool Schema Definitions
+# ─────────────────────────────────────────────────────────────────────────────
+
+RAG_SEARCH_SCHEMA = MCPToolSchema(
+    name=BridgeToolName.RAG_SEARCH,
+    description="Search the agricultural knowledge base using semantic similarity",
+    description_ar="البحث في قاعدة المعرفة الزراعية باستخدام التشابه الدلالي",
+    input_schema={
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "Search query in English or Arabic | استعلام البحث بالإنجليزية أو العربية",
+            },
+            "collection": {
+                "type": "string",
+                "description": "Knowledge collection to search | مجموعة المعرفة للبحث",
+                "default": "general_agriculture",
+            },
+            "top_k": {
+                "type": "integer",
+                "description": "Number of results to return | عدد النتائج",
+                "default": 5,
+                "minimum": 1,
+                "maximum": 20,
+            },
+            "min_score": {
+                "type": "number",
+                "description": "Minimum relevance score threshold | الحد الأدنى لدرجة الصلة",
+                "default": 0.3,
+            },
+            "language": {
+                "type": "string",
+                "enum": ["en", "ar", "both"],
+                "description": "Response language | لغة الاستجابة",
+                "default": "both",
+            },
+        },
+        "required": ["query"],
+    },
+)
+
+RAG_RETRIEVE_SCHEMA = MCPToolSchema(
+    name=BridgeToolName.RAG_RETRIEVE,
+    description="Retrieve a specific document or chunk by ID from the knowledge base",
+    description_ar="استرجاع مستند أو قطعة محددة بالمعرف من قاعدة المعرفة",
+    input_schema={
+        "type": "object",
+        "properties": {
+            "document_id": {
+                "type": "string",
+                "description": "Document or chunk identifier | معرف المستند أو القطعة",
+            },
+            "collection": {
+                "type": "string",
+                "description": "Collection containing the document | المجموعة التي تحتوي على المستند",
+                "default": "general_agriculture",
+            },
+            "include_neighbors": {
+                "type": "boolean",
+                "description": "Include neighboring chunks for context | تضمين القطع المجاورة للسياق",
+                "default": False,
+            },
+        },
+        "required": ["document_id"],
+    },
+)
+
+RAG_INGEST_SCHEMA = MCPToolSchema(
+    name=BridgeToolName.RAG_INGEST,
+    description="Ingest a new document into the agricultural knowledge base",
+    description_ar="إدخال مستند جديد في قاعدة المعرفة الزراعية",
+    input_schema={
+        "type": "object",
+        "properties": {
+            "text": {
+                "type": "string",
+                "description": "Document text content | محتوى المستند النصي",
+            },
+            "title": {
+                "type": "string",
+                "description": "Document title | عنوان المستند",
+            },
+            "text_ar": {
+                "type": "string",
+                "description": "Arabic text content (optional) | المحتوى العربي (اختياري)",
+            },
+            "collection": {
+                "type": "string",
+                "description": "Target collection | المجموعة المستهدفة",
+                "default": "general_agriculture",
+            },
+            "metadata": {
+                "type": "object",
+                "description": "Additional metadata (crop, region, season) | بيانات وصفية إضافية",
+            },
+        },
+        "required": ["text", "title"],
+    },
+)
+
+RAG_WORKFLOW_SCHEMA = MCPToolSchema(
+    name=BridgeToolName.RAG_WORKFLOW,
+    description=(
+        "Execute a pre-built agricultural RAG workflow "
+        "(pest_diagnosis, irrigation_advisory, crop_advisory, fertilizer_advisory, "
+        "soil_analysis_advisory, weather_advisory, remote_sensing_analysis, "
+        "comprehensive_field_advisory, knowledge_search)"
+    ),
+    description_ar=(
+        "تنفيذ سير عمل RAG زراعي مبني مسبقاً "
+        "(تشخيص آفات، استشارة ري، استشارة محاصيل، استشارة أسمدة، "
+        "تحليل تربة، استشارة طقس، تحليل استشعار عن بعد، "
+        "استشارة حقل شاملة، بحث معرفي)"
+    ),
+    input_schema={
+        "type": "object",
+        "properties": {
+            "workflow": {
+                "type": "string",
+                "enum": [w.value for w in AgriWorkflow],
+                "description": "Workflow to execute | سير العمل للتنفيذ",
+            },
+            "query": {
+                "type": "string",
+                "description": "Query or question for the workflow | الاستعلام أو السؤال لسير العمل",
+            },
+            "context": {
+                "type": "object",
+                "description": "Workflow context (crop, field_id, growth_stage, region, etc.) | سياق سير العمل",
+            },
+            "language": {
+                "type": "string",
+                "enum": ["en", "ar", "both"],
+                "description": "Response language | لغة الاستجابة",
+                "default": "both",
+            },
+        },
+        "required": ["workflow", "query"],
+    },
+)
+
+# All tool schemas for registration
+BRIDGE_TOOL_SCHEMAS: list[MCPToolSchema] = [
+    RAG_SEARCH_SCHEMA,
+    RAG_RETRIEVE_SCHEMA,
+    RAG_INGEST_SCHEMA,
+    RAG_WORKFLOW_SCHEMA,
+]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Workflow-to-collection mapping
+# ─────────────────────────────────────────────────────────────────────────────
+
+WORKFLOW_COLLECTION_MAP: dict[str, list[str]] = {
+    AgriWorkflow.PEST_DIAGNOSIS: ["pest_knowledge", "crop_knowledge"],
+    AgriWorkflow.IRRIGATION_ADVISORY: ["crop_water_requirements", "irrigation_practices"],
+    AgriWorkflow.CROP_ADVISORY: ["crop_knowledge", "general_agriculture"],
+    AgriWorkflow.FERTILIZER_ADVISORY: ["fertilizer_knowledge", "soil_knowledge"],
+    AgriWorkflow.SOIL_ANALYSIS: ["soil_knowledge", "general_agriculture"],
+    AgriWorkflow.WEATHER_ADVISORY: ["weather_knowledge", "crop_knowledge"],
+    AgriWorkflow.REMOTE_SENSING: ["remote_sensing_knowledge"],
+    AgriWorkflow.COMPREHENSIVE_FIELD: [
+        "crop_knowledge",
+        "soil_knowledge",
+        "irrigation_practices",
+    ],
+    AgriWorkflow.KNOWLEDGE_SEARCH: ["general_agriculture"],
+}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -167,568 +342,693 @@ class MCPRAGConfig:
 
 
 class MCPRAGBridge:
-    """Bridge connecting the SAHOOL MCP Server with UltraRAG pipeline.
-    جسر يربط خادم MCP الخاص بسهول مع خط أنابيب UltraRAG
+    """
+    Bridge between MCP server tools and UltraRAG retrieval pipeline.
+    جسر بين أدوات خادم MCP وخط أنابيب استرجاع UltraRAG.
 
-    Handles:
-    - Initializing the RAG pipeline with embedding/vector store/LLM backends
-    - Creating RAGMCPTools and registering them with the MCP server
-    - Managing conversation memory for multi-turn interactions
-    - Providing health status and metrics
+    Registers RAG tools (rag_search, rag_retrieve, rag_ingest, rag_workflow)
+    with an MCP server and routes JSON-RPC 2.0 tool calls to the UltraRAG
+    pipeline. Supports the 9 pre-built agricultural workflows and returns
+    structured results with citations and confidence scores.
 
-    Usage:
-        # In MCP server lifespan or startup:
-        bridge = MCPRAGBridge(config=MCPRAGConfig.from_env())
-        bridge.initialize()
+    يسجل أدوات RAG (بحث، استرجاع، إدخال، سير عمل) مع خادم MCP
+    ويوجه استدعاءات أدوات JSON-RPC 2.0 إلى خط أنابيب UltraRAG. يدعم
+    9 سير عمل زراعي مبني مسبقاً ويعيد نتائج منظمة مع اقتباسات ودرجات ثقة.
+
+    Usage::
+
+        bridge = MCPRAGBridge(
+            rag_pipeline=pipeline,
+            knowledge_base=kb,
+            workflow_engine=engine,
+        )
         bridge.register_with_mcp_server(mcp_server)
 
-        # In MCP server shutdown:
-        bridge.shutdown()
+        # Handle a JSON-RPC 2.0 tools/call request
+        response = await bridge.handle_jsonrpc_request(jsonrpc_request)
     """
 
     def __init__(
         self,
-        config: MCPRAGConfig | None = None,
-        vector_store: Any | None = None,
-        embedding_service: Any | None = None,
-        llm_client: Any | None = None,
+        rag_pipeline: Any | None = None,
+        conversation_manager: Any | None = None,
+        knowledge_base: Any | None = None,
+        workflow_engine: Any | None = None,
     ) -> None:
-        self._config = config or MCPRAGConfig.from_env()
-        self._vector_store = vector_store
-        self._embedding_service = embedding_service
-        self._llm_client = llm_client
-
-        self._pipeline: RAGPipeline | None = None
-        self._knowledge_base: KnowledgeBase | None = None
-        self._rag_tools: RAGMCPTools | None = None
-        self._conversation_manager: RAGConversationManager | None = None
-        self._conversation_memory: ConversationMemory | None = None
-        self._initialized = False
+        self._pipeline = rag_pipeline
+        self._conversation_manager = conversation_manager
+        self._knowledge_base = knowledge_base
+        self._workflow_engine = workflow_engine
+        self._tool_handlers: dict[str, Any] = {
+            BridgeToolName.RAG_SEARCH: self._handle_search,
+            BridgeToolName.RAG_RETRIEVE: self._handle_retrieve,
+            BridgeToolName.RAG_INGEST: self._handle_ingest,
+            BridgeToolName.RAG_WORKFLOW: self._handle_workflow,
+        }
 
         logger.info(
-            "MCP-RAG bridge created | تم إنشاء جسر MCP-RAG",
-            extra={"config": self._config.to_dict()},
+            "MCPRAGBridge initialized | تم تهيئة جسر MCP-RAG",
+            extra={
+                "pipeline_available": rag_pipeline is not None,
+                "conversation_manager": conversation_manager is not None,
+                "knowledge_base": knowledge_base is not None,
+                "workflow_engine": workflow_engine is not None,
+            },
         )
 
-    @property
-    def is_initialized(self) -> bool:
-        return self._initialized
+    # ─────────────────────────────────────────────────────────────────────
+    # MCP Registration
+    # ─────────────────────────────────────────────────────────────────────
 
-    @property
-    def pipeline(self) -> RAGPipeline | None:
-        return self._pipeline
-
-    @property
-    def rag_tools(self) -> RAGMCPTools | None:
-        return self._rag_tools
-
-    @property
-    def conversation_manager(self) -> RAGConversationManager | None:
-        return self._conversation_manager
-
-    def initialize(self) -> bool:
-        """Initialize the RAG pipeline and all supporting components.
-        تهيئة خط أنابيب RAG وجميع المكونات الداعمة
-
-        Returns:
-            True if initialization succeeded, False otherwise.
+    def get_tool_schemas(self) -> list[dict[str, Any]]:
         """
-        if not _ULTRARAG_AVAILABLE:
-            logger.error(
-                "Cannot initialize MCP-RAG bridge: UltraRAG modules not available. "
-                "لا يمكن تهيئة جسر MCP-RAG: وحدات UltraRAG غير متاحة"
-            )
-            return False
-
-        try:
-            # Step 1: Initialize embedding service if not provided
-            if self._embedding_service is None:
-                self._embedding_service = self._create_embedding_service()
-
-            # Step 2: Initialize vector store if not provided
-            if self._vector_store is None:
-                self._vector_store = self._create_vector_store()
-
-            # Step 3: Build the RAG pipeline
-            self._pipeline = self._build_pipeline()
-
-            # Step 4: Initialize knowledge base
-            self._knowledge_base = self._create_knowledge_base()
-
-            # Step 5: Create RAG MCP tools
-            self._rag_tools = RAGMCPTools(
-                rag_pipeline=self._pipeline,
-                knowledge_base=self._knowledge_base,
-            )
-
-            # Step 6: Initialize conversation memory if enabled
-            if self._config.enable_conversation_memory:
-                self._conversation_memory = ConversationMemory(
-                    session_ttl_seconds=self._config.session_ttl_seconds,
-                    max_context_turns=self._config.max_context_turns,
-                )
-                self._conversation_manager = RAGConversationManager(
-                    pipeline=self._pipeline,
-                    memory=self._conversation_memory,
-                    inject_context=True,
-                    context_turns=self._config.max_context_turns,
-                )
-
-            self._initialized = True
-            logger.info(
-                "MCP-RAG bridge initialized successfully | تم تهيئة جسر MCP-RAG بنجاح",
-                extra={
-                    "pipeline": self._config.pipeline_name,
-                    "strategy": self._config.retrieval_strategy,
-                    "conversation_memory": self._config.enable_conversation_memory,
-                },
-            )
-            return True
-
-        except Exception as e:
-            logger.error(
-                f"Failed to initialize MCP-RAG bridge: {e} | فشل في تهيئة جسر MCP-RAG: {e}",
-                exc_info=True,
-            )
-            return False
+        Return all tool schemas in MCP tools/list format.
+        إرجاع جميع مخططات الأدوات بتنسيق قائمة أدوات MCP.
+        """
+        return [schema.to_mcp_format() for schema in BRIDGE_TOOL_SCHEMAS]
 
     def register_with_mcp_server(self, mcp_server: Any) -> int:
-        """Register RAG tools with an MCP server instance.
-        تسجيل أدوات RAG مع مثيل خادم MCP
+        """
+        Register all RAG bridge tools with an MCP server instance.
+        تسجيل جميع أدوات جسر RAG مع مثيل خادم MCP.
 
-        Supports two MCP server types:
-        1. SAHOOLMCPServer (shared.mcp.server.MCPServer) - registers via tools/call routing
-        2. FastAPI app (apps/services/mcp-server) - registers tool handlers
+        Supports MCP servers that expose either ``register_tool()`` or a
+        ``tools`` attribute with ``register_tool()``.
 
         Args:
-            mcp_server: MCP server instance to register tools with
+            mcp_server: MCP server instance with a register_tool method.
 
         Returns:
-            Number of tools registered
+            Number of tools registered | عدد الأدوات المسجلة.
         """
-        if not self._initialized or self._rag_tools is None:
-            logger.warning(
-                "Cannot register tools: bridge not initialized. "
-                "لا يمكن تسجيل الأدوات: الجسر غير مهيأ"
-            )
-            return 0
-
-        tools = self._rag_tools.get_tools()
-        registered_count = 0
-
-        # Try to use the register_rag_tools helper
-        try:
-            register_rag_tools(mcp_server, self._rag_tools)
-            registered_count = len(tools)
-            logger.info(
-                f"Registered {registered_count} RAG tools with MCP server via register_rag_tools"
-            )
-            return registered_count
-        except Exception:
-            pass
-
-        # Fallback: try direct tool registration methods
-        for tool in tools:
-            tool_name = tool["name"]
+        registered = 0
+        for schema in BRIDGE_TOOL_SCHEMAS:
             try:
                 if hasattr(mcp_server, "register_tool"):
                     mcp_server.register_tool(
-                        name=tool_name,
-                        description=tool["description"],
-                        input_schema=tool["inputSchema"],
-                        handler=lambda args, t=tool_name: self._rag_tools.call_tool(t, args),
+                        name=schema.name,
+                        description=schema.description,
+                        input_schema=schema.input_schema,
+                        handler=lambda args, _name=schema.name: self.handle_tool_call(
+                            _name, args
+                        ),
                     )
-                    registered_count += 1
-                elif hasattr(mcp_server, "tools") and hasattr(mcp_server.tools, "register_tool"):
+                    registered += 1
+                elif hasattr(mcp_server, "tools") and hasattr(
+                    mcp_server.tools, "register_tool"
+                ):
                     mcp_server.tools.register_tool(
-                        name=tool_name,
-                        description=tool["description"],
-                        input_schema=tool["inputSchema"],
-                        handler=lambda args, t=tool_name: self._rag_tools.call_tool(t, args),
+                        name=schema.name,
+                        description=schema.description,
+                        input_schema=schema.input_schema,
+                        handler=lambda args, _name=schema.name: self.handle_tool_call(
+                            _name, args
+                        ),
                     )
-                    registered_count += 1
+                    registered += 1
                 else:
-                    logger.debug(
-                        f"No registration method found for tool {tool_name}"
+                    logger.warning(
+                        "MCP server missing register_tool method, skipping %s",
+                        schema.name,
                     )
-            except Exception as e:
-                logger.warning(f"Failed to register tool {tool_name}: {e}")
-
-        # Register conversation tools if memory is enabled
-        if self._conversation_manager:
-            conv_tools = self._get_conversation_tools()
-            for tool in conv_tools:
-                tool_name = tool["name"]
-                try:
-                    if hasattr(mcp_server, "register_tool"):
-                        mcp_server.register_tool(
-                            name=tool_name,
-                            description=tool["description"],
-                            input_schema=tool["inputSchema"],
-                            handler=tool["handler"],
-                        )
-                        registered_count += 1
-                except Exception as e:
-                    logger.warning(f"Failed to register conversation tool {tool_name}: {e}")
+            except Exception as exc:
+                logger.warning("Failed to register tool %s: %s", schema.name, exc)
 
         logger.info(
-            f"Registered {registered_count} tools with MCP server | "
-            f"تم تسجيل {registered_count} أدوات مع خادم MCP"
+            "Registered %d RAG bridge tools with MCP server | "
+            "تم تسجيل %d أدوات جسر RAG مع خادم MCP",
+            registered,
+            registered,
         )
-        return registered_count
+        return registered
 
-    def _build_pipeline(self) -> RAGPipeline:
-        """Build the RAG pipeline from configuration.
-        بناء خط أنابيب RAG من التكوين"""
-        cfg = self._config
+    # ─────────────────────────────────────────────────────────────────────
+    # JSON-RPC 2.0 Tool Call Router
+    # ─────────────────────────────────────────────────────────────────────
 
-        builder = RAGPipelineBuilder(name=cfg.pipeline_name)
+    async def handle_tool_call(
+        self,
+        tool_name: str,
+        arguments: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Route a tool call to the appropriate handler and return a result dict.
+        توجيه استدعاء أداة إلى المعالج المناسب وإرجاع قاموس النتيجة.
 
-        # Set retrieval strategy
-        strategy_map = {
-            "dense": RetrievalStrategy.DENSE,
-            "sparse": RetrievalStrategy.SPARSE,
-            "hybrid": RetrievalStrategy.HYBRID,
-            "adaptive": RetrievalStrategy.ADAPTIVE,
-            "tri_rag": RetrievalStrategy.TRI_RAG,
-        }
-        strategy = strategy_map.get(cfg.retrieval_strategy, RetrievalStrategy.HYBRID)
-        builder = builder.with_retrieval_strategy(strategy)
+        Args:
+            tool_name: Name of the tool to invoke.
+            arguments: Tool call arguments from JSON-RPC params.
 
-        # Set reranking
-        rerank_map = {
-            "none": RerankingMethod.NONE,
-            "cross_encoder": RerankingMethod.CROSS_ENCODER,
-            "llm": RerankingMethod.LLM,
-            "reciprocal_rank": RerankingMethod.RECIPROCAL_RANK,
-        }
-        rerank = rerank_map.get(cfg.reranking_method, RerankingMethod.CROSS_ENCODER)
-        builder = builder.with_reranking(rerank)
+        Returns:
+            JSON-RPC compatible result dictionary with success, data,
+            citations, and confidence fields.
+        """
+        handler = self._tool_handlers.get(tool_name)
+        if handler is None:
+            return BridgeResult(
+                success=False,
+                error=f"Unknown tool: {tool_name}",
+                error_ar=f"أداة غير معروفة: {tool_name}",
+            ).to_dict()
 
-        # Set generation mode
-        gen_map = {
-            "standard": GenerationMode.STANDARD,
-            "cot": GenerationMode.CHAIN_OF_THOUGHT,
-            "self_reflective": GenerationMode.SELF_REFLECTIVE,
-            "iterative": GenerationMode.ITERATIVE,
-        }
-        gen_mode = gen_map.get(cfg.generation_mode, GenerationMode.STANDARD)
-        builder = builder.with_generation_mode(gen_mode)
-
-        # Set top_k
-        builder = builder.with_top_k(cfg.top_k, cfg.rerank_top_k)
-
-        # Set embedding
-        builder = builder.with_embedding(cfg.embedding_model, cfg.embedding_provider)
-
-        # Set LLM
-        builder = builder.with_llm(cfg.llm_model, cfg.llm_provider)
-
-        # Set Arabic support
-        builder = builder.with_arabic_support(cfg.arabic_enabled, cfg.arabic_embedding_model)
-
-        # Inject services
-        if self._vector_store:
-            builder = builder.with_vector_store(self._vector_store)
-        if self._embedding_service:
-            builder = builder.with_embedding_service(self._embedding_service)
-        if self._llm_client:
-            builder = builder.with_llm_client(self._llm_client)
-
-        pipeline = builder.build()
-
-        logger.info(
-            f"RAG pipeline built: {cfg.pipeline_name} | "
-            f"تم بناء خط أنابيب RAG: {cfg.pipeline_name}",
-            extra={
-                "strategy": strategy.value,
-                "reranking": rerank.value,
-                "generation": gen_mode.value,
-            },
-        )
-        return pipeline
-
-    def _create_embedding_service(self) -> Any:
-        """Create embedding service from config.
-        إنشاء خدمة التضمين من التكوين"""
-        if not _EMBEDDINGS_AVAILABLE:
-            logger.warning(
-                "Embeddings module not available, using None. "
-                "وحدة التضمينات غير متاحة"
-            )
-            return None
-
+        start = time.monotonic()
         try:
-            provider_map = {
-                "sentence_transformers": EmbeddingProvider.SENTENCE_TRANSFORMERS,
-                "ollama": EmbeddingProvider.OLLAMA,
-                "openai": EmbeddingProvider.OPENAI,
+            result: BridgeResult = await handler(arguments)
+            result.processing_time_ms = (time.monotonic() - start) * 1000
+            return result.to_dict()
+        except Exception as exc:
+            elapsed = (time.monotonic() - start) * 1000
+            logger.exception("Tool call failed: %s", tool_name)
+            return BridgeResult(
+                success=False,
+                error=str(exc),
+                error_ar="فشل استدعاء الأداة",
+                processing_time_ms=elapsed,
+            ).to_dict()
+
+    async def handle_jsonrpc_request(self, request: dict[str, Any]) -> dict[str, Any]:
+        """
+        Handle a full JSON-RPC 2.0 request envelope for tools/call.
+        معالجة غلاف طلب JSON-RPC 2.0 كامل لاستدعاء الأدوات.
+
+        Expects ``method`` = ``"tools/call"`` with ``params`` containing
+        ``name`` and ``arguments``. Returns a JSON-RPC 2.0 response with
+        either ``result`` or ``error``.
+
+        Args:
+            request: JSON-RPC 2.0 request dict with jsonrpc, id, method, params.
+
+        Returns:
+            JSON-RPC 2.0 response envelope.
+        """
+        request_id = request.get("id")
+        method = request.get("method", "")
+        params = request.get("params", {})
+
+        if method != "tools/call":
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Method not supported: {method}. Use 'tools/call'.",
+                },
             }
-            provider = provider_map.get(
-                self._config.embedding_provider,
-                EmbeddingProvider.SENTENCE_TRANSFORMERS,
+
+        tool_name = params.get("name", "")
+        arguments = params.get("arguments", {})
+
+        tool_result = await self.handle_tool_call(tool_name, arguments)
+
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": {
+                "content": [{"type": "text", "text": tool_result}],
+                "isError": not tool_result.get("success", False),
+            },
+        }
+
+    # ─────────────────────────────────────────────────────────────────────
+    # Tool Handlers
+    # ─────────────────────────────────────────────────────────────────────
+
+    async def _handle_search(self, args: dict[str, Any]) -> BridgeResult:
+        """
+        Semantic search across knowledge collections.
+        بحث دلالي عبر مجموعات المعرفة.
+        """
+        query = args.get("query", "")
+        collection = args.get("collection", "general_agriculture")
+        top_k = min(args.get("top_k", 5), 20)
+        min_score = args.get("min_score", 0.3)
+        language = args.get("language", "both")
+
+        if not query:
+            return BridgeResult(
+                success=False,
+                error="Query is required",
+                error_ar="الاستعلام مطلوب",
             )
 
-            config = EmbeddingConfig(
-                provider=provider,
-                model=self._config.embedding_model,
-                cache_enabled=True,
-            )
-            adapter = EmbeddingsAdapter(config)
-            logger.info(
-                f"Embedding service created: {self._config.embedding_model} | "
-                f"تم إنشاء خدمة التضمين: {self._config.embedding_model}"
-            )
-            return adapter
+        # Try pipeline-based search first
+        if self._pipeline is not None:
+            try:
+                from .ultrarag.models import RAGRequest
 
-        except Exception as e:
-            logger.warning(f"Failed to create embedding service: {e}")
-            return None
+                request = RAGRequest(
+                    query=query,
+                    collection=collection,
+                    top_k=top_k,
+                    language="ar" if language == "ar" else "en",
+                )
+                rag_result = await self._pipeline.run(request)
 
-    def _create_vector_store(self) -> Any:
-        """Create vector store from config.
-        إنشاء مخزن المتجهات من التكوين"""
-        if not _VECTOR_STORE_AVAILABLE:
-            logger.warning(
-                "VectorStore module not available, using None. "
-                "وحدة مخزن المتجهات غير متاحة"
+                citations = _extract_citations(rag_result.retrieval_results, min_score)
+                answer = ""
+                answer_ar = None
+                confidence = 0.0
+
+                if rag_result.generation_result:
+                    answer = rag_result.generation_result.answer or ""
+                    answer_ar = getattr(rag_result.generation_result, "answer_ar", None)
+                    confidence = rag_result.generation_result.confidence or 0.0
+
+                data: dict[str, Any] = {
+                    "answer": answer,
+                    "total_results": len(citations),
+                    "collection": collection,
+                }
+                if language in ("ar", "both") and answer_ar:
+                    data["answer_ar"] = answer_ar
+
+                return BridgeResult(
+                    success=rag_result.success,
+                    data=data,
+                    citations=citations,
+                    confidence=confidence,
+                )
+
+            except Exception as exc:
+                logger.warning("Pipeline search failed, returning error: %s", exc)
+
+        # Fallback: pipeline not available
+        return BridgeResult(
+            success=False,
+            error="RAG pipeline not available for search",
+            error_ar="خط أنابيب RAG غير متوفر للبحث",
+            data={"query": query, "collection": collection},
+        )
+
+    async def _handle_retrieve(self, args: dict[str, Any]) -> BridgeResult:
+        """
+        Retrieve a specific document by ID.
+        استرجاع مستند محدد بالمعرف.
+        """
+        document_id = args.get("document_id", "")
+        collection = args.get("collection", "general_agriculture")
+
+        if not document_id:
+            return BridgeResult(
+                success=False,
+                error="document_id is required",
+                error_ar="معرف المستند مطلوب",
             )
-            return None
+
+        if self._knowledge_base is not None:
+            try:
+                doc = None
+                if hasattr(self._knowledge_base, "get_document"):
+                    doc = await self._knowledge_base.get_document(document_id)
+                elif hasattr(self._knowledge_base, "get_chunk"):
+                    doc = await self._knowledge_base.get_chunk(document_id)
+
+                if doc is not None:
+                    doc_data = (
+                        doc.to_dict() if hasattr(doc, "to_dict") else {"id": document_id}
+                    )
+                    return BridgeResult(
+                        success=True,
+                        data=doc_data,
+                        confidence=1.0,
+                    )
+
+                return BridgeResult(
+                    success=False,
+                    error=f"Document not found: {document_id}",
+                    error_ar=f"المستند غير موجود: {document_id}",
+                )
+
+            except Exception as exc:
+                logger.warning("Retrieve failed for %s: %s", document_id, exc)
+                return BridgeResult(
+                    success=False,
+                    error=str(exc),
+                    error_ar="فشل الاسترجاع",
+                )
+
+        return BridgeResult(
+            success=False,
+            error="Knowledge base not available",
+            error_ar="قاعدة المعرفة غير متوفرة",
+        )
+
+    async def _handle_ingest(self, args: dict[str, Any]) -> BridgeResult:
+        """
+        Ingest a new document into the knowledge base.
+        إدخال مستند جديد في قاعدة المعرفة.
+        """
+        text = args.get("text", "")
+        title = args.get("title", "")
+        text_ar = args.get("text_ar")
+        collection = args.get("collection", "general_agriculture")
+        metadata = args.get("metadata", {})
+
+        if not text or not title:
+            return BridgeResult(
+                success=False,
+                error="Both text and title are required",
+                error_ar="النص والعنوان مطلوبان",
+            )
+
+        if self._knowledge_base is not None:
+            try:
+                doc = await self._knowledge_base.add_text(
+                    text=text,
+                    title=title,
+                    text_ar=text_ar,
+                    collection=collection,
+                    metadata=metadata,
+                )
+                if doc is not None:
+                    chunks_count = len(doc.chunks) if hasattr(doc, "chunks") else 0
+                    return BridgeResult(
+                        success=True,
+                        data={
+                            "document_id": (
+                                doc.id if hasattr(doc, "id") else str(uuid.uuid4())
+                            ),
+                            "title": title,
+                            "collection": collection,
+                            "chunks_count": chunks_count,
+                        },
+                        confidence=1.0,
+                    )
+
+                return BridgeResult(
+                    success=False,
+                    error="Failed to ingest document",
+                    error_ar="فشل إدخال المستند",
+                )
+
+            except Exception as exc:
+                logger.warning("Ingest failed: %s", exc)
+                return BridgeResult(
+                    success=False,
+                    error=str(exc),
+                    error_ar="فشل إدخال المستند",
+                )
+
+        return BridgeResult(
+            success=False,
+            error="Knowledge base not available for ingestion",
+            error_ar="قاعدة المعرفة غير متوفرة للإدخال",
+        )
+
+    async def _handle_workflow(self, args: dict[str, Any]) -> BridgeResult:
+        """
+        Execute a pre-built agricultural RAG workflow.
+        تنفيذ سير عمل RAG زراعي مبني مسبقاً.
+        """
+        workflow_name = args.get("workflow", "")
+        query = args.get("query", "")
+        context = args.get("context", {})
+        language = args.get("language", "both")
+
+        if not workflow_name or not query:
+            return BridgeResult(
+                success=False,
+                error="Both workflow and query are required",
+                error_ar="سير العمل والاستعلام مطلوبان",
+            )
+
+        # Validate workflow name
+        valid_workflows = {w.value for w in AgriWorkflow}
+        if workflow_name not in valid_workflows:
+            return BridgeResult(
+                success=False,
+                error=(
+                    f"Unknown workflow: {workflow_name}. "
+                    f"Valid workflows: {sorted(valid_workflows)}"
+                ),
+                error_ar=f"سير عمل غير معروف: {workflow_name}",
+            )
+
+        # Try the workflow engine first
+        if self._workflow_engine is not None:
+            try:
+                wf_result = await self._workflow_engine.execute(
+                    workflow_id=workflow_name,
+                    variables={"query": query, "language": language, **context},
+                )
+
+                output = (
+                    wf_result.output if hasattr(wf_result, "output") else {}
+                )
+                if isinstance(output, dict):
+                    data = output
+                else:
+                    data = {"output": str(output)}
+
+                return BridgeResult(
+                    success=True,
+                    data=data,
+                    workflow_id=workflow_name,
+                    confidence=data.get("confidence", 0.7),
+                )
+
+            except Exception as exc:
+                logger.warning(
+                    "Workflow engine execution failed for %s, "
+                    "falling back to pipeline: %s",
+                    workflow_name,
+                    exc,
+                )
+
+        # Fallback: route to pipeline with workflow-appropriate collections
+        if self._pipeline is not None:
+            return await self._workflow_via_pipeline(
+                workflow_name, query, context, language
+            )
+
+        return BridgeResult(
+            success=False,
+            error="Neither workflow engine nor RAG pipeline available",
+            error_ar="لا محرك سير العمل ولا خط أنابيب RAG متوفر",
+            workflow_id=workflow_name,
+        )
+
+    async def _workflow_via_pipeline(
+        self,
+        workflow_name: str,
+        query: str,
+        context: dict[str, Any],
+        language: str,
+    ) -> BridgeResult:
+        """
+        Execute a workflow by routing through the RAG pipeline with
+        appropriate collection selection.
+        تنفيذ سير العمل عبر خط أنابيب RAG مع اختيار المجموعة المناسبة.
+        """
+        collections = WORKFLOW_COLLECTION_MAP.get(
+            workflow_name, ["general_agriculture"]
+        )
+        primary_collection = collections[0] if collections else "general_agriculture"
+
+        # Enrich query with workflow context
+        enriched_query = _build_workflow_query(workflow_name, query, context)
 
         try:
-            store = VectorStore()
-            logger.info("Vector store created | تم إنشاء مخزن المتجهات")
-            return store
-        except Exception as e:
-            logger.warning(f"Failed to create vector store: {e}")
-            return None
+            from .ultrarag.models import RAGRequest
 
-    def _create_knowledge_base(self) -> KnowledgeBase | None:
-        """Create knowledge base instance.
-        إنشاء مثيل قاعدة المعرفة"""
-        try:
-            kb = KnowledgeBase()
-            logger.info("Knowledge base created | تم إنشاء قاعدة المعرفة")
-            return kb
-        except Exception as e:
-            logger.warning(f"Failed to create knowledge base: {e}")
-            return None
+            request = RAGRequest(
+                query=enriched_query,
+                collection=primary_collection,
+                top_k=5,
+                language="ar" if language == "ar" else "en",
+            )
 
-    def _get_conversation_tools(self) -> list[dict[str, Any]]:
-        """Build MCP tool definitions for conversation management.
-        بناء تعريفات أدوات MCP لإدارة المحادثات"""
-        if not self._conversation_manager:
-            return []
+            rag_result = await self._pipeline.run(request)
 
+            citations = _extract_citations(
+                rag_result.retrieval_results, min_score=0.2
+            )
+            answer = ""
+            answer_ar = None
+            confidence = 0.0
+
+            if rag_result.generation_result:
+                answer = rag_result.generation_result.answer or ""
+                answer_ar = getattr(
+                    rag_result.generation_result, "answer_ar", None
+                )
+                confidence = rag_result.generation_result.confidence or 0.0
+
+            data: dict[str, Any] = {
+                "answer": answer,
+                "workflow": workflow_name,
+                "collections_searched": collections,
+                "total_sources": len(citations),
+            }
+            if language in ("ar", "both") and answer_ar:
+                data["answer_ar"] = answer_ar
+
+            return BridgeResult(
+                success=rag_result.success,
+                data=data,
+                citations=citations,
+                confidence=confidence,
+                workflow_id=workflow_name,
+            )
+
+        except Exception as exc:
+            logger.exception(
+                "Pipeline workflow fallback failed for %s", workflow_name
+            )
+            return BridgeResult(
+                success=False,
+                error=str(exc),
+                error_ar="فشل تنفيذ سير العمل عبر خط الأنابيب",
+                workflow_id=workflow_name,
+            )
+
+    # ─────────────────────────────────────────────────────────────────────
+    # Introspection
+    # ─────────────────────────────────────────────────────────────────────
+
+    def list_workflows(self) -> list[dict[str, Any]]:
+        """
+        List available agricultural workflows with their collections.
+        عرض سير العمل الزراعي المتاح مع مجموعاتهم.
+        """
         return [
             {
-                "name": "conversation_start",
-                "description": "Start a new conversation session for multi-turn RAG queries",
-                "description_ar": "بدء جلسة محادثة جديدة لاستعلامات RAG متعددة الجولات",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "tenant_id": {
-                            "type": "string",
-                            "description": "Tenant ID | معرف المستأجر",
-                        },
-                        "language": {
-                            "type": "string",
-                            "enum": ["en", "ar", "both"],
-                            "description": "Session language | لغة الجلسة",
-                            "default": "en",
-                        },
-                    },
-                },
-                "handler": self._handle_conversation_start,
-            },
-            {
-                "name": "conversation_query",
-                "description": "Send a query within an existing conversation session",
-                "description_ar": "إرسال استعلام ضمن جلسة محادثة قائمة",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "session_id": {
-                            "type": "string",
-                            "description": "Session ID | معرف الجلسة",
-                        },
-                        "query": {
-                            "type": "string",
-                            "description": "Query text | نص الاستعلام",
-                        },
-                        "query_ar": {
-                            "type": "string",
-                            "description": "Arabic query (optional) | الاستعلام بالعربية (اختياري)",
-                        },
-                        "collection": {
-                            "type": "string",
-                            "description": "Collection to search | المجموعة للبحث",
-                            "default": "default",
-                        },
-                    },
-                    "required": ["session_id", "query"],
-                },
-                "handler": self._handle_conversation_query,
-            },
-            {
-                "name": "conversation_end",
-                "description": "End a conversation session",
-                "description_ar": "إنهاء جلسة محادثة",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "session_id": {
-                            "type": "string",
-                            "description": "Session ID to end | معرف الجلسة للإنهاء",
-                        },
-                    },
-                    "required": ["session_id"],
-                },
-                "handler": self._handle_conversation_end,
-            },
+                "id": w.value,
+                "collections": WORKFLOW_COLLECTION_MAP.get(w.value, []),
+            }
+            for w in AgriWorkflow
         ]
 
-    async def _handle_conversation_start(self, args: dict[str, Any]) -> dict[str, Any]:
-        """Handle conversation start tool call"""
-        if not self._conversation_manager:
-            return {"error": "Conversation memory not enabled"}
-
-        session_id = self._conversation_manager.start_session(
-            tenant_id=args.get("tenant_id"),
-            language=args.get("language", "en"),
-        )
-
-        return {
-            "session_id": session_id,
-            "message": "Conversation session started",
-            "message_ar": "تم بدء جلسة المحادثة",
-        }
-
-    async def _handle_conversation_query(self, args: dict[str, Any]) -> dict[str, Any]:
-        """Handle conversation query tool call"""
-        if not self._conversation_manager:
-            return {"error": "Conversation memory not enabled"}
-
-        session_id = args["session_id"]
-        query = args["query"]
-
-        result = await self._conversation_manager.query(
-            session_id=session_id,
-            query=query,
-            query_ar=args.get("query_ar"),
-            collection=args.get("collection", "default"),
-        )
-
-        return {
-            "session_id": session_id,
-            "answer": result.generation_result.answer if result.generation_result else None,
-            "answer_ar": result.generation_result.answer_ar if result.generation_result else None,
-            "confidence": result.generation_result.confidence if result.generation_result else 0.0,
-            "sources": [r.to_dict() for r in result.retrieval_results[:5]],
-            "success": result.success,
-            "processing_time_ms": result.total_time_ms,
-        }
-
-    async def _handle_conversation_end(self, args: dict[str, Any]) -> dict[str, Any]:
-        """Handle conversation end tool call"""
-        if not self._conversation_manager:
-            return {"error": "Conversation memory not enabled"}
-
-        success = self._conversation_manager.end_session(args["session_id"])
-        return {
-            "success": success,
-            "message": "Session ended" if success else "Session not found",
-            "message_ar": "تم إنهاء الجلسة" if success else "الجلسة غير موجودة",
-        }
+    def list_collections(self) -> list[str]:
+        """
+        List all available knowledge collections.
+        عرض جميع مجموعات المعرفة المتاحة.
+        """
+        if ALL_COLLECTIONS:
+            return list(ALL_COLLECTIONS)
+        # Derive from workflow map as a fallback
+        seen: set[str] = set()
+        result: list[str] = []
+        for cols in WORKFLOW_COLLECTION_MAP.values():
+            for c in cols:
+                if c not in seen:
+                    seen.add(c)
+                    result.append(c)
+        return result
 
     def get_health(self) -> dict[str, Any]:
-        """Get bridge health status.
-        الحصول على حالة صحة الجسر"""
+        """
+        Get bridge health status.
+        الحصول على حالة صحة الجسر.
+        """
         health: dict[str, Any] = {
-            "initialized": self._initialized,
-            "pipeline": self._pipeline is not None,
-            "knowledge_base": self._knowledge_base is not None,
-            "rag_tools": self._rag_tools is not None,
-            "conversation_memory": self._conversation_memory is not None,
-            "embedding_service": self._embedding_service is not None,
-            "vector_store": self._vector_store is not None,
+            "bridge": "mcp_rag_bridge",
+            "pipeline_available": self._pipeline is not None,
+            "knowledge_base_available": self._knowledge_base is not None,
+            "workflow_engine_available": self._workflow_engine is not None,
+            "conversation_manager_available": self._conversation_manager is not None,
+            "registered_tools": [s.name for s in BRIDGE_TOOL_SCHEMAS],
+            "available_workflows": [w.value for w in AgriWorkflow],
         }
-
-        if self._pipeline:
+        if self._pipeline and hasattr(self._pipeline, "get_metrics"):
             health["pipeline_metrics"] = self._pipeline.get_metrics()
-
-        if self._conversation_memory:
-            health["conversation_stats"] = self._conversation_memory.get_stats()
-
-        if self._rag_tools:
-            health["tools_count"] = len(self._rag_tools.get_tools())
-
         return health
 
-    def shutdown(self) -> None:
-        """Shutdown the bridge and cleanup resources.
-        إيقاف الجسر وتنظيف الموارد"""
-        if self._conversation_memory:
-            self._conversation_memory.cleanup_expired()
-
-        self._initialized = False
-        logger.info("MCP-RAG bridge shut down | تم إيقاف جسر MCP-RAG")
-
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Convenience functions
+# Helper Functions
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def create_mcp_rag_bridge(
-    config: MCPRAGConfig | None = None,
-    auto_initialize: bool = True,
-) -> MCPRAGBridge:
-    """Create and optionally initialize an MCP-RAG bridge.
-    إنشاء واختيارياً تهيئة جسر MCP-RAG
-
-    Args:
-        config: Bridge configuration (default: from environment)
-        auto_initialize: Whether to initialize immediately
-
-    Returns:
-        Configured MCPRAGBridge instance
+def _extract_citations(
+    retrieval_results: list[Any],
+    min_score: float = 0.0,
+) -> list[Citation]:
     """
-    bridge = MCPRAGBridge(config=config)
-    if auto_initialize:
-        bridge.initialize()
-    return bridge
-
-
-def setup_rag_for_mcp_server(
-    mcp_server: Any,
-    config: MCPRAGConfig | None = None,
-) -> MCPRAGBridge:
-    """One-line setup: create bridge, initialize, and register with MCP server.
-    إعداد من سطر واحد: إنشاء الجسر وتهيئته وتسجيله مع خادم MCP
-
-    Args:
-        mcp_server: MCP server instance to register tools with
-        config: Bridge configuration (default: from environment)
-
-    Returns:
-        Initialized and registered MCPRAGBridge
+    Convert UltraRAG retrieval results into Citation objects.
+    تحويل نتائج استرجاع UltraRAG إلى كائنات اقتباس.
     """
-    bridge = MCPRAGBridge(config=config)
-    if bridge.initialize():
-        bridge.register_with_mcp_server(mcp_server)
-    else:
-        logger.error(
-            "Failed to set up RAG for MCP server | فشل في إعداد RAG لخادم MCP"
+    citations: list[Citation] = []
+    for result in retrieval_results:
+        score = getattr(result, "score", 0.0)
+        if score < min_score:
+            continue
+
+        chunk = getattr(result, "chunk", None)
+        if chunk is None:
+            continue
+
+        citations.append(
+            Citation(
+                document_id=getattr(chunk, "document_id", ""),
+                title=getattr(chunk, "metadata", {}).get("title", ""),
+                collection=getattr(chunk, "collection", ""),
+                chunk_text=getattr(chunk, "text", ""),
+                relevance_score=score,
+                metadata=getattr(chunk, "metadata", {}),
+            )
         )
-    return bridge
+    return citations
 
 
-# Export classes
+def _build_workflow_query(
+    workflow_name: str,
+    query: str,
+    context: dict[str, Any],
+) -> str:
+    """
+    Enrich a user query with workflow-specific context fields.
+    إثراء استعلام المستخدم بحقول سياق خاصة بسير العمل.
+    """
+    parts = [query]
+
+    # Workflow-specific context enrichment
+    _context_keys: dict[str, list[str]] = {
+        AgriWorkflow.PEST_DIAGNOSIS: ["crop", "symptoms", "region", "growth_stage"],
+        AgriWorkflow.IRRIGATION_ADVISORY: [
+            "crop",
+            "growth_stage",
+            "soil_moisture",
+            "soil_type",
+        ],
+        AgriWorkflow.CROP_ADVISORY: ["crop", "growth_stage", "issue", "region"],
+        AgriWorkflow.FERTILIZER_ADVISORY: [
+            "crop",
+            "soil_test",
+            "target_yield",
+            "growth_stage",
+        ],
+        AgriWorkflow.SOIL_ANALYSIS: ["soil_type", "ph", "ec", "organic_matter"],
+        AgriWorkflow.WEATHER_ADVISORY: ["crop", "region", "forecast", "season"],
+        AgriWorkflow.REMOTE_SENSING: ["field_id", "ndvi", "index_type", "date"],
+        AgriWorkflow.COMPREHENSIVE_FIELD: ["field_id", "crop", "growth_stage"],
+        AgriWorkflow.KNOWLEDGE_SEARCH: ["topic", "category"],
+    }
+
+    keys = _context_keys.get(workflow_name, [])
+    for key in keys:
+        if value := context.get(key):
+            parts.append(f"{key}: {value}")
+
+    # Generic context keys not already handled
+    for key in ("notes", "additional_info"):
+        if key not in keys and (val := context.get(key)):
+            parts.append(f"{key}: {val}")
+
+    return ". ".join(parts)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Module exports
+# ─────────────────────────────────────────────────────────────────────────────
+
 __all__ = [
+    "AgriWorkflow",
+    "BridgeResult",
+    "BridgeToolName",
+    "BRIDGE_TOOL_SCHEMAS",
+    "Citation",
     "MCPRAGBridge",
-    "MCPRAGConfig",
-    "create_mcp_rag_bridge",
-    "setup_rag_for_mcp_server",
+    "MCPToolSchema",
+    "WORKFLOW_COLLECTION_MAP",
 ]

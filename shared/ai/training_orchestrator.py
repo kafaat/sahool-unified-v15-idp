@@ -1,16 +1,23 @@
 """
 Training Orchestrator
 =====================
-منسق التدريب
+منسق التدريب - إدارة دورة حياة تدريب النماذج وتقييمها
 
 Connects GRPO training (GRPOConfig/GRPOTrainer) to actual training workflows
 and provides a unified TrainingOrchestrator for managing training jobs.
+
+Covers:
+    - G-13: GRPO trainer integration
+    - G-18: Model evaluation metrics (accuracy, F1, BLEU-AR, domain scores)
 
 Supports:
 - Ollama-based training via ModelTrainer
 - vLLM as an inference/evaluation backend
 - GRPO reward-based policy optimization
 - Integration with LLMProviderManager for model evaluation
+- Automatic model versioning and deployment gating
+- Bilingual evaluation metrics (Arabic/English)
+- Agricultural domain-specific evaluation
 
 يربط تدريب GRPO بسير عمل التدريب الفعلي
 ويوفر منسق تدريب موحد لإدارة مهام التدريب.
@@ -20,6 +27,9 @@ Supports:
 - vLLM كخلفية للاستدلال/التقييم
 - تحسين السياسة القائم على المكافآت GRPO
 - التكامل مع مدير مزودي LLM لتقييم النماذج
+- إصدار النماذج التلقائي وبوابة النشر
+- مقاييس تقييم ثنائية اللغة (عربي/إنجليزي)
+- تقييم خاص بالمجال الزراعي
 
 Author: SAHOOL Platform Team
 Updated: March 2026
@@ -36,25 +46,51 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Callable
 
-from .grpo_trainer import (
-    GRPOBatch,
-    GRPOConfig,
-    GRPOSample,
-    GRPOTrainer,
-    GRPOTrainingStats,
-    GRPOVariant,
-    SAHOOLGRPOTrainer,
-)
-from .model_training import (
-    DatasetBuilder,
-    DatasetType,
-    EvaluationResult,
-    ModelTrainer,
-    TrainingConfig,
-    TrainingDataset,
-    TrainingJob,
-    TrainingStatus,
-)
+try:
+    from .grpo_trainer import (
+        GRPOBatch,
+        GRPOConfig,
+        GRPOSample,
+        GRPOTrainer,
+        GRPOTrainingStats,
+        GRPOVariant,
+        SAHOOLGRPOTrainer,
+    )
+
+    GRPO_TRAINER_AVAILABLE = True
+except ImportError:
+    GRPO_TRAINER_AVAILABLE = False
+    GRPOBatch = None  # type: ignore[assignment, misc]
+    GRPOConfig = None  # type: ignore[assignment, misc]
+    GRPOSample = None  # type: ignore[assignment, misc]
+    GRPOTrainer = None  # type: ignore[assignment, misc]
+    GRPOTrainingStats = None  # type: ignore[assignment, misc]
+    GRPOVariant = None  # type: ignore[assignment, misc]
+    SAHOOLGRPOTrainer = None  # type: ignore[assignment, misc]
+
+try:
+    from .model_training import (
+        DatasetBuilder,
+        DatasetType,
+        EvaluationResult,
+        ModelTrainer,
+        TrainingConfig,
+        TrainingDataset,
+        TrainingJob,
+        TrainingStatus,
+    )
+
+    MODEL_TRAINER_AVAILABLE = True
+except ImportError:
+    MODEL_TRAINER_AVAILABLE = False
+    DatasetBuilder = None  # type: ignore[assignment, misc]
+    DatasetType = None  # type: ignore[assignment, misc]
+    EvaluationResult = None  # type: ignore[assignment, misc]
+    ModelTrainer = None  # type: ignore[assignment, misc]
+    TrainingConfig = None  # type: ignore[assignment, misc]
+    TrainingDataset = None  # type: ignore[assignment, misc]
+    TrainingJob = None  # type: ignore[assignment, misc]
+    TrainingStatus = None  # type: ignore[assignment, misc]
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +101,153 @@ try:
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False
+
+
+# ---------------------------------------------------------------------------
+# Training Type & Job Config (G-13, G-18)
+# ---------------------------------------------------------------------------
+
+
+class TrainingType(StrEnum):
+    """
+    Type of training pipeline.
+    نوع مسار التدريب
+    """
+
+    FINE_TUNE = "fine_tune"
+    GRPO = "grpo"
+    RLHF = "rlhf"
+    DISTILLATION = "distillation"
+
+
+class TrainingJobStatus(StrEnum):
+    """
+    Lifecycle status of a managed training job.
+    حالة دورة حياة مهمة التدريب المدارة
+    """
+
+    CREATED = "created"
+    PREPARING = "preparing"
+    TRAINING = "training"
+    EVALUATING = "evaluating"
+    EVALUATED = "evaluated"
+    DEPLOYING = "deploying"
+    DEPLOYED = "deployed"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+@dataclass
+class TrainingJobConfig:
+    """
+    Configuration for a managed training job.
+
+    إعدادات مهمة التدريب المدارة
+
+    Attributes:
+        job_id: Unique job identifier (auto-generated if empty)
+        base_model: Base model name (e.g. codellama:7b)
+        dataset_name: Name of the training dataset
+        training_type: Type of training pipeline
+        epochs: Number of training epochs
+        learning_rate: Learning rate
+        evaluation_metrics: Metrics to compute during evaluation
+        auto_deploy: Whether to deploy automatically on passing evaluation
+    """
+
+    job_id: str = ""
+    base_model: str = "codellama:7b"
+    dataset_name: str = "sahool-default"
+    training_type: TrainingType = TrainingType.FINE_TUNE
+    epochs: int = 3
+    learning_rate: float = 1e-5
+    evaluation_metrics: list[str] = field(
+        default_factory=lambda: ["accuracy", "f1", "bleu_ar", "domain_accuracy"]
+    )
+    auto_deploy: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.job_id:
+            self.job_id = f"tj-{uuid.uuid4().hex[:12]}"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary. | تحويل إلى قاموس"""
+        return {
+            "job_id": self.job_id,
+            "base_model": self.base_model,
+            "dataset_name": self.dataset_name,
+            "training_type": self.training_type.value,
+            "epochs": self.epochs,
+            "learning_rate": self.learning_rate,
+            "evaluation_metrics": self.evaluation_metrics,
+            "auto_deploy": self.auto_deploy,
+        }
+
+
+@dataclass
+class EvaluationReport:
+    """
+    Evaluation report for a trained model (G-18).
+
+    تقرير تقييم النموذج المدرب
+
+    Attributes:
+        job_id: Training job identifier
+        model_id: Versioned model identifier
+        metrics: General metrics (accuracy, f1, loss, perplexity)
+        arabic_metrics: Arabic-specific metrics (BLEU, accuracy_ar)
+        agricultural_metrics: Domain metrics (domain_accuracy, recommendation_quality)
+        passed_threshold: Whether the model met minimum quality thresholds
+        timestamp: When the evaluation was performed
+    """
+
+    job_id: str
+    model_id: str
+    metrics: dict[str, float] = field(default_factory=dict)
+    arabic_metrics: dict[str, float] = field(
+        default_factory=lambda: {"bleu": 0.0, "accuracy_ar": 0.0}
+    )
+    agricultural_metrics: dict[str, float] = field(
+        default_factory=lambda: {"domain_accuracy": 0.0, "recommendation_quality": 0.0}
+    )
+    passed_threshold: bool = False
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary. | تحويل إلى قاموس"""
+        return {
+            "job_id": self.job_id,
+            "model_id": self.model_id,
+            "metrics": self.metrics,
+            "arabic_metrics": self.arabic_metrics,
+            "agricultural_metrics": self.agricultural_metrics,
+            "passed_threshold": self.passed_threshold,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+    @property
+    def overall_score(self) -> float:
+        """
+        Weighted overall score (0-1).
+
+        الدرجة الإجمالية المرجحة
+        Weights: accuracy 30%, F1 25%, Arabic BLEU 20%, domain accuracy 25%
+        """
+        acc = self.metrics.get("accuracy", 0.0)
+        f1 = self.metrics.get("f1", 0.0)
+        bleu_ar = self.arabic_metrics.get("bleu", 0.0)
+        domain = self.agricultural_metrics.get("domain_accuracy", 0.0)
+        return acc * 0.30 + f1 * 0.25 + bleu_ar * 0.20 + domain * 0.25
+
+
+# Default quality thresholds for deployment gating
+DEFAULT_THRESHOLDS: dict[str, float] = {
+    "accuracy": 0.70,
+    "f1": 0.65,
+    "bleu_ar": 0.30,
+    "domain_accuracy": 0.60,
+    "recommendation_quality": 0.55,
+}
 
 
 # ---------------------------------------------------------------------------

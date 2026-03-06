@@ -7,10 +7,6 @@ ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
-LABEL maintainer="SAHOOL Team"
-LABEL service="lai-estimation"
-LABEL version="16.0.0"
-
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 
@@ -69,16 +65,19 @@ RUN npx nest build
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
-# Re-declare build arg for this stage
-ARG NODE_VERSION=20
+LABEL maintainer="SAHOOL Team" \
+      service="lai-estimation" \
+      version="16.0.0" \
+      org.opencontainers.image.title="SAHOOL LAI Estimation Service" \
+      org.opencontainers.image.vendor="KAFAAT"
 
 WORKDIR /app
 
-# Install curl for health checks
+# Install curl for health checks and tini for proper signal handling
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends curl tini && \
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Copy only nestjs-auth dist + package.json for runtime (avoid builder's node_modules symlink)
 # Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
@@ -133,8 +132,14 @@ USER node
 ENV NODE_ENV=production
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:3022/healthz || exit 1
+
+# Signal handling
+STOPSIGNAL SIGTERM
+
+# Init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run the application
 CMD ["node", "dist/main.js"]

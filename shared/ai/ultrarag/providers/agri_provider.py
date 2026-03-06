@@ -31,8 +31,10 @@ from ..retriever import (
 
 # Knowledge base integration
 from ...knowledge.collections import (
+    DIGITAL_TWIN_KNOWLEDGE,
     FERTILIZER_KNOWLEDGE,
     GENERAL_AGRICULTURE,
+    PRECISION_FARMING_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
@@ -502,6 +504,50 @@ class AgriRAGProvider:
         results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
         return self._build_result(query, results, "remote_sensing")
 
+    async def query_precision_farming_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query precision farming knowledge | استعلام قاعدة معرفة الزراعة الدقيقة
+
+        Covers VRA, GPS/GNSS guidance, yield mapping, site-specific management.
+        يغطي: معدل متغير، توجيه GPS، خرائط إنتاجية، إدارة موقعية.
+        """
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=PRECISION_FARMING_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "precision_farming")
+
+    async def query_digital_twin_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query digital twin knowledge | استعلام قاعدة معرفة التوأم الرقمي
+
+        Covers farm simulation, crop models, irrigation optimization, cyber-physical systems.
+        يغطي: محاكاة المزرعة، نماذج المحاصيل، تحسين الري، أنظمة سيبرانية-مادية.
+        """
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=DIGITAL_TWIN_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "digital_twin")
+
     # ═══════════════════════════════════════════════════════════════════════════
     # Region Filter & CRAG (Corrective RAG)
     # فلتر إقليمي و RAG تصحيحي
@@ -584,6 +630,8 @@ class AgriRAGProvider:
             FERTILIZER_KNOWLEDGE: "fertilizer",
             WEATHER_KNOWLEDGE: "weather",
             REMOTE_SENSING_KNOWLEDGE: "remote_sensing",
+            PRECISION_FARMING_KNOWLEDGE: "precision_farming",
+            DIGITAL_TWIN_KNOWLEDGE: "digital_twin",
             GENERAL_AGRICULTURE: "general",
         }
         query_domain = domain_map.get(fallback_collection, "")

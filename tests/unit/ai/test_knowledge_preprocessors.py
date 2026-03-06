@@ -267,6 +267,27 @@ class TestMetadataEnricher:
         assert KnowledgeDomain.REMOTE_SENSING in domains
 
     @pytest.mark.unit
+    def test_detect_smart_agriculture_domain(self, metadata_enricher: MetadataEnricher):
+        """Test smart agriculture domain detection."""
+        text = "IoT sensors and blockchain enable smart farming with edge computing drones."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.SMART_AGRICULTURE in domains
+
+    @pytest.mark.unit
+    def test_detect_precision_farming_domain(self, metadata_enricher: MetadataEnricher):
+        """Test precision farming domain detection | كشف مجال الزراعة الدقيقة"""
+        text = "Variable rate application using GPS and RTK guidance for yield map analysis."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.PRECISION_FARMING in domains
+
+    @pytest.mark.unit
+    def test_detect_digital_twin_domain(self, metadata_enricher: MetadataEnricher):
+        """Test digital twin domain detection | كشف مجال التوأم الرقمي"""
+        text = "Digital twin simulation creates a virtual model for farm cyber-physical system."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.DIGITAL_TWIN in domains
+
+    @pytest.mark.unit
     @pytest.mark.arabic
     def test_detect_arabic_domain(self, metadata_enricher: MetadataEnricher):
         """Test domain detection from Arabic text | كشف المجال من النص العربي"""

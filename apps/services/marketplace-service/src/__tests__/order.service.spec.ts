@@ -15,6 +15,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { MarketService } from "../market/market.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { CacheService } from "../cache/cache.service";
 
 describe("MarketService - Order Operations", () => {
   let service: MarketService;
@@ -44,6 +45,18 @@ describe("MarketService - Order Operations", () => {
     publishInventoryLowStock: jest.fn(),
   };
 
+  const mockCacheService = {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
+    delByPattern: jest.fn().mockResolvedValue(undefined),
+    getOrSet: jest.fn(),
+    invalidateProduct: jest.fn().mockResolvedValue(undefined),
+    invalidateWallet: jest.fn().mockResolvedValue(undefined),
+    invalidateOrder: jest.fn().mockResolvedValue(undefined),
+    isHealthy: jest.fn().mockResolvedValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -55,6 +68,10 @@ describe("MarketService - Order Operations", () => {
         {
           provide: EventsService,
           useValue: mockEventsService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -307,7 +324,7 @@ describe("MarketService - Order Operations", () => {
           order: {
             create: jest.fn().mockResolvedValue({
               id: "order-1",
-              orderNumber: expect.stringMatching(/^SAH-[A-Z0-9]+$/),
+              orderNumber: "SAH-ABC123",
             }),
           },
         };
@@ -485,7 +502,7 @@ describe("MarketService - Order Operations", () => {
       const result = await service.getUserOrders(userId, "buyer");
 
       expect(result.data).toEqual(mockOrders);
-      expect(result.total).toBe(2);
+      expect(result.meta.total).toBe(2);
       expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { buyerId: userId },
@@ -676,6 +693,16 @@ describe("MarketService - Order Operations", () => {
         const tx = {
           product: {
             findMany: jest.fn().mockResolvedValue([]),
+          },
+          order: {
+            create: jest.fn().mockResolvedValue({
+              id: "order-1",
+              subtotal: 0,
+              serviceFee: 0,
+              deliveryFee: 500,
+              totalAmount: 500,
+              items: [],
+            }),
           },
         };
         return callback(tx);
@@ -885,14 +912,9 @@ describe("MarketService - Order Operations", () => {
 
       it("should reject invalid buyer ID format", async () => {
         const orderData = {
-          buyerId: "", // Empty buyer ID
+          buyerId: "",
           items: [{ productId: "product-1", quantity: 1 }],
         };
-
-        // Business logic should validate this
-        if (!orderData.buyerId) {
-          throw new Error("معرف المشتري مطلوب");
-        }
 
         await expect(async () => {
           if (!orderData.buyerId) {

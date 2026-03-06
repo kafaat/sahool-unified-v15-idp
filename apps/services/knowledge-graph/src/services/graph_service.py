@@ -122,6 +122,7 @@ class KnowledgeGraphService:
                 cost_per_liter=0.0,
             )),
             "irrigation": lambda e: self._add_generic_entity(e),
+            "equipment": lambda e: self._add_generic_entity(e),
         }
 
         # Add entities
@@ -137,6 +138,8 @@ class KnowledgeGraphService:
             "affects": RelationshipType.AFFECTS,
             "treats": RelationshipType.TREATED_BY,
             "compatible_with": RelationshipType.COMPATIBLE,
+            "requires": RelationshipType.REQUIRES,
+            "subtype_of": RelationshipType.FOLLOWS,  # closest available type
         }
 
         # Map entity IDs to their node type prefixes
@@ -152,6 +155,7 @@ class KnowledgeGraphService:
             "treatment": "treatment",
             "fertilizer": "treatment",
             "irrigation": "irrigation",
+            "equipment": "equipment",
         }
 
         # ID strip prefix mapping
@@ -162,6 +166,7 @@ class KnowledgeGraphService:
             "treatment": "treat_",
             "fertilizer": "fert_",
             "irrigation": "irr_",
+            "equipment": "equip_",
         }
 
         # Add relations

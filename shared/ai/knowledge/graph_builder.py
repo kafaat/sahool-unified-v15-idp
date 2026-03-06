@@ -526,7 +526,55 @@ def build_agricultural_knowledge_graph() -> AgriculturalKnowledgeGraph:
             name="Center Pivot",
             name_ar="الري المحوري",
             entity_type="irrigation",
-            properties={"efficiency": 85, "type": "mechanical"},
+            properties={
+                "efficiency": 85,
+                "type": "mechanical",
+                "brands": ["Valley", "Zimmatic", "Reinke"],
+                "coverage_ha": (20, 200),
+                "pressure_bar": (1.0, 4.0),
+            },
+        ),
+        KGEntity(
+            id="irr_pivot_lepa",
+            name="LEPA Center Pivot",
+            name_ar="المحوري منخفض الضغط (LEPA)",
+            entity_type="irrigation",
+            properties={
+                "efficiency": 97,
+                "type": "mechanical",
+                "pressure_bar": (0.4, 1.0),
+                "application": "near_surface",
+                "energy_saving_pct": 50,
+                "best_for_soil": ["clay", "clay_loam"],
+            },
+        ),
+        KGEntity(
+            id="irr_pivot_vri",
+            name="VRI Center Pivot",
+            name_ar="المحوري بمعدل متغير (VRI)",
+            entity_type="irrigation",
+            properties={
+                "efficiency": 92,
+                "type": "mechanical",
+                "precision": "zone_or_individual_nozzle",
+                "water_saving_pct": (15, 25),
+                "requires": ["NDVI_map", "soil_moisture_sensors", "GPS"],
+                "brands": ["Valley ICON", "FieldNET"],
+            },
+        ),
+        KGEntity(
+            id="irr_linear_move",
+            name="Linear Move",
+            name_ar="الري الخطي المتحرك",
+            entity_type="irrigation",
+            properties={
+                "efficiency": 88,
+                "type": "mechanical",
+                "coverage_ha": (20, 100),
+                "pressure_bar": (2.0, 4.0),
+                "field_shape": "rectangular",
+                "brands": ["Valley Linear", "Zimmatic"],
+            },
         ),
         KGEntity(
             id="irr_flood",
@@ -535,9 +583,154 @@ def build_agricultural_knowledge_graph() -> AgriculturalKnowledgeGraph:
             entity_type="irrigation",
             properties={"efficiency": 50, "type": "surface"},
         ),
+        KGEntity(
+            id="irr_chemigation",
+            name="Chemigation via Pivot",
+            name_ar="التسميد والمعالجة عبر المحور",
+            entity_type="irrigation",
+            properties={
+                "efficiency": 90,
+                "type": "application",
+                "parent": "center_pivot",
+                "applications": ["fertigation", "herbigation", "insectigation", "fungigation"],
+                "requires": ["check_valve", "injection_pump", "calibration"],
+            },
+        ),
     ]
 
-    all_entities = crops + diseases + pests + treatments + fertilizers + irrigation_methods
+    # ═══════════════════════════════════════════════════════════════════════
+    # Pivot Equipment Entities - معدات المحور
+    # ═══════════════════════════════════════════════════════════════════════
+    pivot_equipment = [
+        KGEntity(
+            id="equip_icon5",
+            name="Valley ICON 5 Smart Panel",
+            name_ar="لوحة تحكم Valley ICON 5 الذكية",
+            entity_type="equipment",
+            properties={
+                "type": "control_panel",
+                "brand": "Valley",
+                "connectivity": ["4G_LTE", "Wi-Fi", "Satellite"],
+                "features": ["GPS", "VRI", "scheduling", "alerts", "telemetry"],
+                "app": "AgSense 365",
+                "operating_temp_c": (-20, 60),
+            },
+        ),
+        KGEntity(
+            id="equip_submersible_pump",
+            name="Submersible Well Pump",
+            name_ar="مضخة غاطسة",
+            entity_type="equipment",
+            properties={
+                "type": "pump",
+                "power_kw": (15, 150),
+                "depth_m": (30, 300),
+                "flow_m3h": (20, 200),
+                "brands": ["Grundfos", "Caprari", "Pedrollo", "KSB"],
+                "drive": ["electric", "solar_vfd"],
+            },
+        ),
+        KGEntity(
+            id="equip_booster_pump",
+            name="Booster Pump",
+            name_ar="مضخة تعزيز (بوستر)",
+            entity_type="equipment",
+            properties={
+                "type": "pump",
+                "purpose": "increase_pressure",
+                "power_kw": (5, 50),
+                "use_case": "low_well_pressure_or_long_pipeline",
+                "brands": ["Grundfos", "DAB", "Pentair"],
+            },
+        ),
+        KGEntity(
+            id="equip_vfd",
+            name="Variable Frequency Drive",
+            name_ar="محول تردد متغير (VFD/إنفرتر)",
+            entity_type="equipment",
+            properties={
+                "type": "drive",
+                "purpose": "pump_speed_control",
+                "energy_saving_pct": (20, 40),
+                "brands": ["ABB", "Danfoss", "Siemens", "Yaskawa"],
+                "compatible": ["solar", "grid", "diesel_generator"],
+            },
+        ),
+        KGEntity(
+            id="equip_solar_pump_system",
+            name="Solar Pump System",
+            name_ar="نظام ضخ بالطاقة الشمسية",
+            entity_type="equipment",
+            properties={
+                "type": "energy_system",
+                "components": ["solar_panels", "solar_vfd", "pump", "combiner_box"],
+                "panel_power_w": 550,
+                "system_kw": (5, 150),
+                "roi_years": (3, 5),
+                "brands": ["Lorentz", "Grundfos SQFlex", "Franklin Electric"],
+            },
+        ),
+        KGEntity(
+            id="equip_filtration",
+            name="Irrigation Filtration System",
+            name_ar="نظام ترشيح مياه الري",
+            entity_type="equipment",
+            properties={
+                "type": "filtration",
+                "filter_types": ["sand_media", "disc", "screen", "hydrocyclone"],
+                "purpose": "prevent_nozzle_clogging",
+                "mesh_size": (80, 200),
+                "auto_flush": True,
+                "brands": ["Amiad", "Netafim", "Arkal"],
+            },
+        ),
+        KGEntity(
+            id="equip_flow_meter",
+            name="Flow Meter",
+            name_ar="عداد تدفق",
+            entity_type="equipment",
+            properties={
+                "type": "sensor",
+                "sensor_types": ["electromagnetic", "ultrasonic", "propeller"],
+                "accuracy_pct": (0.5, 2.0),
+                "output": ["pulse", "4-20mA", "modbus"],
+                "brands": ["McCrometer", "Seametrics", "Badger"],
+            },
+        ),
+        KGEntity(
+            id="equip_pressure_regulator",
+            name="Pressure Regulator",
+            name_ar="منظم ضغط",
+            entity_type="equipment",
+            properties={
+                "type": "accessory",
+                "purpose": "uniform_application",
+                "pressure_range_psi": (6, 30),
+                "location": "at_each_drop_or_nozzle",
+                "brands": ["Nelson", "Senninger"],
+            },
+        ),
+        KGEntity(
+            id="equip_sprinkler_package",
+            name="Sprinkler/Nozzle Package",
+            name_ar="حزمة الرشاشات والفوهات",
+            entity_type="equipment",
+            properties={
+                "type": "nozzle",
+                "nozzle_types": [
+                    "i-Wob (Senninger)",
+                    "Rotator (Nelson)",
+                    "Spinner (Nelson)",
+                    "LEPA Bubble (Senninger)",
+                    "LDN (Senninger)",
+                    "S3000 (Senninger)",
+                ],
+                "selection_by": ["soil_type", "crop_height", "wind_speed", "pressure"],
+            },
+        ),
+    ]
+
+    all_entities = crops + diseases + pests + treatments + fertilizers + irrigation_methods + pivot_equipment
 
     # ═══════════════════════════════════════════════════════════════════════
     # Relations - العلاقات
@@ -596,9 +789,43 @@ def build_agricultural_knowledge_graph() -> AgriculturalKnowledgeGraph:
         KGRelation("irr_pivot", "crop_wheat", "compatible_with", 0.95),
         KGRelation("irr_pivot", "crop_barley", "compatible_with", 0.90),
         KGRelation("irr_pivot", "crop_alfalfa", "compatible_with", 0.85),
+        KGRelation("irr_pivot", "crop_sorghum", "compatible_with", 0.80),
+        KGRelation("irr_pivot", "crop_potato", "compatible_with", 0.80),
+        # LEPA pivot - best for clay soils and water-scarce regions
+        KGRelation("irr_pivot_lepa", "crop_wheat", "compatible_with", 0.98),
+        KGRelation("irr_pivot_lepa", "crop_barley", "compatible_with", 0.95),
+        KGRelation("irr_pivot_lepa", "crop_alfalfa", "compatible_with", 0.90),
+        # VRI pivot - precision irrigation
+        KGRelation("irr_pivot_vri", "crop_wheat", "compatible_with", 0.95),
+        KGRelation("irr_pivot_vri", "crop_potato", "compatible_with", 0.95),
+        KGRelation("irr_pivot_vri", "crop_barley", "compatible_with", 0.90),
+        # Linear move - rectangular fields
+        KGRelation("irr_linear_move", "crop_wheat", "compatible_with", 0.90),
+        KGRelation("irr_linear_move", "crop_barley", "compatible_with", 0.85),
+        KGRelation("irr_linear_move", "crop_alfalfa", "compatible_with", 0.85),
+        KGRelation("irr_linear_move", "crop_potato", "compatible_with", 0.85),
+        # LEPA/VRI are subtypes of center pivot
+        KGRelation("irr_pivot_lepa", "irr_pivot", "subtype_of", 1.0),
+        KGRelation("irr_pivot_vri", "irr_pivot", "subtype_of", 1.0),
+        # Sprinkler and flood
         KGRelation("irr_sprinkler", "crop_alfalfa", "compatible_with", 0.85),
         KGRelation("irr_sprinkler", "crop_potato", "compatible_with", 0.80),
         KGRelation("irr_flood", "crop_alfalfa", "compatible_with", 0.70),
+        # Chemigation → Crops
+        KGRelation("irr_chemigation", "crop_wheat", "compatible_with", 0.90),
+        KGRelation("irr_chemigation", "crop_alfalfa", "compatible_with", 0.85),
+        KGRelation("irr_chemigation", "crop_potato", "compatible_with", 0.90),
+        # Equipment → Irrigation (requires)
+        KGRelation("irr_pivot", "equip_icon5", "requires", 0.90),
+        KGRelation("irr_pivot", "equip_submersible_pump", "requires", 0.95),
+        KGRelation("irr_pivot", "equip_filtration", "requires", 0.90),
+        KGRelation("irr_pivot", "equip_flow_meter", "requires", 0.85),
+        KGRelation("irr_pivot", "equip_pressure_regulator", "requires", 0.95),
+        KGRelation("irr_pivot", "equip_sprinkler_package", "requires", 0.99),
+        KGRelation("irr_pivot_vri", "equip_icon5", "requires", 0.99),
+        KGRelation("equip_submersible_pump", "equip_vfd", "compatible_with", 0.95),
+        KGRelation("equip_submersible_pump", "equip_solar_pump_system", "compatible_with", 0.90),
+        KGRelation("equip_solar_pump_system", "equip_vfd", "requires", 0.99),
     ]
 
     kg = AgriculturalKnowledgeGraph(entities=all_entities, relations=relations)
@@ -613,6 +840,7 @@ def build_agricultural_knowledge_graph() -> AgriculturalKnowledgeGraph:
         treatments=len(treatments),
         fertilizers=len(fertilizers),
         irrigation=len(irrigation_methods),
+        equipment=len(pivot_equipment),
     )
 
     return kg

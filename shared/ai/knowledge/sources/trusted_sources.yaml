@@ -430,3 +430,49 @@ sources:
     languages: [en]
     region_coverage: [global]
     notes: "Leading research on crop digital twins, greenhouse simulation, soil modeling"
+
+  # ─── Mechanized Irrigation Sources (الري الميكانيكي) ─────────────────────────
+
+  - name: "Valley Irrigation (Valmont Industries)"
+    name_ar: "فالي للري (فالمونت إندستريز)"
+    url_patterns:
+      - "valleyirrigation.com"
+      - "valmont.com/agriculture"
+      - "agsense365.com"
+    credibility: 3
+    domains: [irrigation, precision_farming, smart_agriculture]
+    languages: [en, ar]
+    region_coverage: [global, mena, saudi_arabia]
+    notes: "World leader in center pivot irrigation, LEPA/LESA, VRI, AgSense 365 telemetry"
+
+  - name: "Lindsay Corporation (Zimmatic)"
+    name_ar: "ليندسي كوربوريشن (زيماتيك)"
+    url_patterns:
+      - "lindsay.com"
+      - "zimmatic.com"
+      - "fieldnet.com"
+    credibility: 3
+    domains: [irrigation, precision_farming]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Zimmatic pivots, FieldNET remote management, GPS guidance"
+
+  - name: "Reinke Manufacturing"
+    name_ar: "رينكي للتصنيع"
+    url_patterns:
+      - "reinke.com"
+    credibility: 2
+    domains: [irrigation, precision_farming]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Center pivot and lateral move irrigation systems, electrogator"
+
+  - name: "Irrigation Association"
+    name_ar: "جمعية الري"
+    url_patterns:
+      - "irrigation.org"
+    credibility: 4
+    domains: [irrigation, precision_farming, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Industry standards, certification, best practices for mechanized irrigation"

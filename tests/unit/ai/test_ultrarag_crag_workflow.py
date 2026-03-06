@@ -177,7 +177,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _output, _next_step = asyncio.get_event_loop().run_until_complete(
+        _, __ = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -201,7 +201,7 @@ class TestCRAGStepExecution:
             config={"domain": "crops"},
         )
 
-        _output, _next_step = asyncio.get_event_loop().run_until_complete(
+        _, __ = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -231,7 +231,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _output, next_step = asyncio.get_event_loop().run_until_complete(
+        _, next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -256,7 +256,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _output, next_step = asyncio.get_event_loop().run_until_complete(
+        _, next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
         assert next_step == "fallback_search"

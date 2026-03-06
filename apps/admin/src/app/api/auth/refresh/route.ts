@@ -5,8 +5,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { logger } from "@/lib/logger";
+import { API_URL, TIMEOUT_TIERS } from "@/config/api";
 
 export async function POST(_request: NextRequest) {
   try {
@@ -20,14 +20,23 @@ export async function POST(_request: NextRequest) {
       );
     }
 
-    // Call backend refresh endpoint
-    const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refreshToken: refreshToken }),
-    });
+    // Call backend refresh endpoint with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_TIERS.default);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken: refreshToken }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const data = await response.json();
 
@@ -43,12 +52,22 @@ export async function POST(_request: NextRequest) {
       );
     }
 
+    // Use env vars for cookie maxAge, aligned with login route
+    const accessTokenMaxAge = parseInt(
+      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "86400",
+      10,
+    ); // 1 day default
+    const refreshTokenMaxAge = parseInt(
+      process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
+      10,
+    ); // 7 days default
+
     // Update access token
     cookieStore.set("sahool_admin_token", data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 86400, // 1 day
+      maxAge: accessTokenMaxAge,
       path: "/",
     });
 
@@ -58,7 +77,7 @@ export async function POST(_request: NextRequest) {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 604800, // 7 days
+        maxAge: refreshTokenMaxAge,
         path: "/",
       });
     }
@@ -68,13 +87,13 @@ export async function POST(_request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 86400, // 1 day
+      maxAge: accessTokenMaxAge,
       path: "/",
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Token refresh error:", error);
+    logger.production("Token refresh error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

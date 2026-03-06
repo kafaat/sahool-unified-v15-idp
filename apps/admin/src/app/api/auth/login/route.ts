@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-import { API_URL, API_ENDPOINTS } from "@/config/api";
+import { API_URL, API_ENDPOINTS, TIMEOUT_TIERS } from "@/config/api";
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {
@@ -35,18 +35,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Forward to backend auth API
-    const response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        ...(totp_code && { totp_code }),
-      }),
-    });
+    // Forward to backend auth API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_TIERS.default);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          ...(totp_code && { totp_code }),
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const data = await response.json();
 

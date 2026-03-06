@@ -23,7 +23,7 @@
     "@sahool/shared-hooks": "*",
     "@sahool/shared-ui": "*",
     "@sahool/shared-utils": "*",
-    "@sentry/nextjs": "^8.0.0",
+    "@sentry/nextjs": "^9.5.0",
     "axios": "1.13.5",
     "clsx": "2.1.1",
     "date-fns": "4.1.0",

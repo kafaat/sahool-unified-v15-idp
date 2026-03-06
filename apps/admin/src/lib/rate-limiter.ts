@@ -134,7 +134,22 @@ export function cleanupExpiredEntries(): void {
   }
 }
 
-// Clean up every 5 minutes
+// Clean up every 5 minutes - track handle for testability and cleanup
+let cleanupTimer: ReturnType<typeof setInterval> | null = null;
 if (typeof setInterval !== "undefined") {
-  setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+  cleanupTimer = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+  // Allow process to exit without waiting for this timer
+  if (cleanupTimer && typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
+    cleanupTimer.unref();
+  }
+}
+
+/**
+ * Stop the periodic cleanup timer (useful for tests)
+ */
+export function stopCleanupTimer(): void {
+  if (cleanupTimer) {
+    clearInterval(cleanupTimer);
+    cleanupTimer = null;
+  }
 }

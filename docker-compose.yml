@@ -371,7 +371,7 @@ services:
     ports:
       - "127.0.0.1:5000:5000"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
@@ -395,7 +395,7 @@ services:
 
   # MQTT Broker - IoT Communication
   mqtt:
-    image: eclipse-mosquitto:2
+    image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
     user: root
     environment:
@@ -882,7 +882,7 @@ services:
 
   # API Gateway (Kong)
   kong:
-    image: kong:3.4
+    image: kong:3.4.2
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
@@ -1427,6 +1427,7 @@ services:
   # Ground Vision Service - Tower Camera Agricultural Monitoring
   # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
   ground-vision-service:
+    profiles: [gpu]
     build:
       context: .
       dockerfile: apps/services/ground-vision-service/Dockerfile
@@ -3610,6 +3611,7 @@ services:
   # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
   # Real-time object detection using YOLO26m model with GPU acceleration
   yolo26-vision-service:
+    profiles: [gpu]
     build:
       context: .
       dockerfile: apps/services/yolo26-vision-service/Dockerfile

@@ -24,7 +24,6 @@ env:
   JAVA_VERSION: '17'
   ANDROID_COMPILE_SDK: '36'
   ANDROID_BUILD_TOOLS: '36.0.0'
-  ANDROID_NDK_VERSION: '27.0.12077973'
 
 jobs:
   build-apk:
@@ -58,8 +57,8 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "platform-tools" \
-            "ndk;${{ env.ANDROID_NDK_VERSION }}"
+            "ndk;28.2.13676358" \
+            "platform-tools" || echo "::warning::Some SDK components failed to install"
           echo "Installed SDK packages:"
           sdkmanager --list_installed 2>/dev/null | head -20 || true
 
@@ -83,7 +82,7 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
-          org.gradle.jvmargs=-Xmx6G -XX:MaxMetaspaceSize=2G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
           org.gradle.parallel=true
           org.gradle.caching=true

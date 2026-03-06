@@ -55,8 +55,8 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-// Clean up old entries periodically
-setInterval(() => {
+// Clean up old entries periodically - track handle for cleanup
+const cleanupTimer = setInterval(() => {
   const now = Date.now();
   for (const [ip, record] of rateLimitMap.entries()) {
     if (now > record.resetTime) {
@@ -64,6 +64,10 @@ setInterval(() => {
     }
   }
 }, 60 * 1000);
+// Allow process to exit without waiting for this timer
+if (cleanupTimer && typeof cleanupTimer === "object" && "unref" in cleanupTimer) {
+  cleanupTimer.unref();
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validation
@@ -214,19 +218,24 @@ export async function POST(request: NextRequest) {
 
 /**
  * OPTIONS /api/csp-report
- * Handle CORS preflight
+ * Handle CORS preflight - supports all configured origins
  */
-export async function OPTIONS() {
-  // Use configured allowed origins instead of wildcard for security
-  const allowedOrigins =
+export async function OPTIONS(request: NextRequest) {
+  const requestOrigin = request.headers.get("origin");
+  const allowedOrigins = (
     process.env.ALLOWED_ORIGINS ||
-    "https://admin.sahool.app,https://sahool.app";
-  const origin = allowedOrigins.split(",").map(s => s.trim()).filter(Boolean)[0] || "https://admin.sahool.app";
+    "https://admin.sahool.app,https://sahool.app"
+  ).split(",").map(s => s.trim()).filter(Boolean);
+
+  // Reflect the request origin if it's in the allowed list, otherwise use first allowed origin
+  const matchedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin)
+    ? requestOrigin
+    : allowedOrigins[0] || "https://admin.sahool.app";
 
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Origin": matchedOrigin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",

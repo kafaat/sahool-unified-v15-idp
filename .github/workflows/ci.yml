@@ -174,7 +174,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -219,7 +219,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: (needs.changes.outputs.node == 'true' || needs.changes.outputs.packages == 'true') && github.event.inputs.skip_cache != 'true'
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.npm
@@ -269,7 +269,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -372,7 +372,7 @@ jobs:
           verbose: true
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report
@@ -478,7 +478,7 @@ jobs:
 
       - name: Cache pip dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -559,7 +559,7 @@ jobs:
 
       - name: Cache npm dependencies
         if: ${{ github.event.inputs.skip_cache != 'true' }}
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.npm
@@ -683,7 +683,7 @@ jobs:
       # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
       # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -835,7 +835,7 @@ jobs:
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ github.run_id }}

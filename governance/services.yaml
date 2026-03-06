@@ -913,6 +913,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    skeleton: true  # Model Context Protocol server with limited endpoints
     owner: "iot-team@sahool.io"
     team: iot
     lifecycle: production
@@ -2329,6 +2330,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    skeleton: true  # Compliance checklist framework
     owner: "platform-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3006,6 +3008,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    skeleton: true  # Drone integration framework, ready for enhancement
     owner: "agri-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3044,6 +3047,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    skeleton: true  # Basic structure ready for enhancement
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3079,6 +3083,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
+    skeleton: true  # Blockchain-ready supply chain traceability framework
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3468,6 +3473,179 @@ infrastructure:
       port: 3000
     loki:
       port: 3100
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Infrastructure Services (Docker Compose)
+# خدمات البنية التحتية (دوكر كومبوز)
+# These are system-level services that support the application microservices.
+# They are NOT application services and are managed separately in docker-compose.yml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+infrastructure_services:
+  postgres:
+    name: "PostgreSQL + PostGIS"
+    name_ar: "قاعدة بيانات PostgreSQL مع PostGIS"
+    description: "Primary relational database with geospatial extensions"
+    image: "postgis/postgis:16-3.4"
+    port: 5432
+    category: database
+    profile: default
+    resources:
+      cpu: "2"
+      memory: "2G"
+
+  pgbouncer:
+    name: "PgBouncer"
+    name_ar: "مجمع اتصالات PgBouncer"
+    description: "Connection pooling for PostgreSQL (transaction mode, 250 max connections)"
+    image: "edoburu/pgbouncer:v1.23.1-p3"
+    port: 6432
+    category: database
+    profile: default
+    depends_on: [postgres]
+
+  redis:
+    name: "Redis"
+    name_ar: "ريديس"
+    description: "In-memory cache for sessions, rate limiting, and pub/sub"
+    image: "redis:7.4-alpine"
+    port: 6379
+    category: cache
+    profile: default
+    resources:
+      cpu: "1"
+      memory: "768M"
+
+  nats:
+    name: "NATS"
+    name_ar: "ناتس"
+    description: "Event bus with JetStream for event-driven architecture"
+    image: "nats:2.10.24-alpine"
+    ports: [4222, 8222, 6222]
+    category: messaging
+    profile: default
+    resources:
+      cpu: "1"
+      memory: "512M"
+
+  nats-prometheus-exporter:
+    name: "NATS Prometheus Exporter"
+    name_ar: "مصدر مقاييس NATS لـ Prometheus"
+    description: "Metrics exporter for NATS JetStream monitoring"
+    image: "natsio/prometheus-nats-exporter:0.14.0"
+    port: 7777
+    category: monitoring
+    profile: default
+    depends_on: [nats]
+
+  vault:
+    name: "HashiCorp Vault"
+    name_ar: "خزنة هاشيكورب"
+    description: "Secrets management (dev mode in development)"
+    image: "hashicorp/vault:1.17"
+    port: 8200
+    category: security
+    profile: default
+
+  kong:
+    name: "Kong API Gateway"
+    name_ar: "بوابة API كونغ"
+    description: "API gateway with authentication, rate limiting, and 105 routes"
+    image: "kong:3.4"
+    ports: [8000, 8001]
+    category: gateway
+    profile: default
+
+  mqtt:
+    name: "Mosquitto MQTT Broker"
+    name_ar: "وسيط MQTT موسكيتو"
+    description: "IoT message broker for sensor data ingestion"
+    image: "eclipse-mosquitto:2"
+    ports: [1883, 9001]
+    category: messaging
+    profile: default
+
+  qdrant:
+    name: "Qdrant Vector Database"
+    name_ar: "قاعدة بيانات Qdrant الشعاعية"
+    description: "Vector database for RAG and semantic search"
+    image: "qdrant/qdrant:v1.7.4"
+    ports: [6333, 6334]
+    category: database
+    profile: default
+    resources:
+      cpu: "1"
+      memory: "1G"
+
+  etcd:
+    name: "etcd"
+    name_ar: "إتسد"
+    description: "Distributed key-value store for Milvus service discovery"
+    image: "quay.io/coreos/etcd:v3.5.5"
+    port: 2379
+    category: database
+    profile: default
+
+  etcd-init:
+    name: "etcd Auth Initializer"
+    name_ar: "مهيئ مصادقة إتسد"
+    description: "One-time service to enable etcd authentication"
+    image: "quay.io/coreos/etcd:v3.5.5"
+    category: init
+    profile: default
+    depends_on: [etcd]
+
+  minio:
+    name: "MinIO Object Storage"
+    name_ar: "تخزين كائنات MinIO"
+    description: "S3-compatible object storage with TLS and SSE encryption"
+    image: "minio/minio:RELEASE.2024-01-16T16-07-38Z"
+    ports: [9000, 9090]
+    category: storage
+    profile: default
+    resources:
+      cpu: "1"
+      memory: "1G"
+
+  milvus:
+    name: "Milvus Vector Database"
+    name_ar: "قاعدة بيانات Milvus الشعاعية"
+    description: "Distributed vector database for large-scale AI embeddings"
+    image: "milvusdb/milvus:v2.3.3"
+    ports: [19530, 9091]
+    category: database
+    profile: default
+    depends_on: [etcd, minio]
+    resources:
+      cpu: "2"
+      memory: "4G"
+
+  mlflow:
+    name: "MLflow"
+    name_ar: "إم إل فلو"
+    description: "AI/ML model registry and experiment tracking"
+    image: "ghcr.io/mlflow/mlflow:v2.15.1"
+    port: 5000
+    category: ml
+    profile: default
+    depends_on: [postgres]
+
+  ollama:
+    name: "Ollama LLM Server"
+    name_ar: "خادم نماذج أولاما"
+    description: "Local LLM hosting (requires NVIDIA GPU, 16GB+ VRAM)"
+    image: "ollama/ollama:0.5.4"
+    port: 11434
+    category: ai
+    profile: gpu
+
+  ollama-model-loader:
+    name: "Ollama Model Loader"
+    name_ar: "محمل نماذج أولاما"
+    description: "Downloads and caches LLM models for Ollama"
+    category: ai
+    profile: gpu
+    depends_on: [ollama]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Shared Packages

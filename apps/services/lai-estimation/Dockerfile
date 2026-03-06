@@ -31,6 +31,10 @@ WORKDIR /workspace/lai-estimation
 # Replace workspace dependency with local file path for Docker build
 RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
+# Disable nestjs-auth prepare script to prevent premature tsc build during install
+# (nestjs-auth is built explicitly in a later step with proper peer deps available)
+RUN cd /workspace/nestjs-auth && npm pkg delete scripts.prepare && cd /workspace/lai-estimation
+
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

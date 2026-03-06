@@ -616,6 +616,151 @@ _register(AgrovocConcept(
     domain=AgrovocDomain.FERTILIZERS,
 ))
 
+# ─── Precision Farming Domain ────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26001", pref_label_en="variable rate application", pref_label_ar="استخدام معدل متغير",
+    alt_labels_en=["VRA", "variable rate technology", "VRT", "site-specific application"],
+    alt_labels_ar=["تقنية المعدل المتغير", "تطبيق متغير المعدل"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Technology that adjusts input application rates based on spatial variability within a field.",
+    definition_ar="تقنية تعدل معدلات استخدام المدخلات بناءً على التباين المكاني داخل الحقل.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26002", pref_label_en="GPS guidance", pref_label_ar="توجيه GPS",
+    alt_labels_en=["GNSS guidance", "auto-steer", "RTK guidance", "satellite navigation"],
+    alt_labels_ar=["توجيه ملاحي", "قيادة آلية", "توجيه RTK"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Satellite-based navigation for precise tractor and implement steering in agricultural fields.",
+    definition_ar="ملاحة فضائية لتوجيه الجرارات والمعدات بدقة في الحقول الزراعية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26003", pref_label_en="yield mapping", pref_label_ar="خرائط الإنتاجية",
+    alt_labels_en=["yield map", "yield monitor", "harvest mapping", "yield data"],
+    alt_labels_ar=["رصد الإنتاجية", "خريطة المحصول"],
+    related=["c_24896", "c_26001"],  # precision agriculture, VRA
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Spatially referenced recording of crop yield during harvest using GPS-equipped combines.",
+    definition_ar="تسجيل الإنتاجية مرجعيًا مكانيًا أثناء الحصاد باستخدام حاصدات مزودة بـ GPS.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26004", pref_label_en="precision seeding", pref_label_ar="بذر دقيق",
+    alt_labels_en=["variable rate seeding", "precision planting", "site-specific seeding"],
+    alt_labels_ar=["زراعة دقيقة", "بذر بمعدل متغير"],
+    related=["c_24896", "c_26001"],  # precision agriculture, VRA
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Technology for adjusting seed spacing and population based on soil variability maps.",
+    definition_ar="تقنية لضبط مسافات البذور وكثافتها بناءً على خرائط تباين التربة.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26005", pref_label_en="soil sampling", pref_label_ar="أخذ عينات التربة",
+    alt_labels_en=["grid sampling", "zone sampling", "soil testing grid", "precision soil sampling"],
+    alt_labels_ar=["أخذ عينات شبكي", "اختبار التربة الموقعي"],
+    related=["c_24896", "c_7153"],  # precision agriculture, soil salinity
+    domain=AgrovocDomain.SOIL,
+    definition_en="Systematic collection of soil samples on a georeferenced grid for nutrient mapping.",
+    definition_ar="جمع منهجي لعينات التربة على شبكة مرجعية جغرافيًا لرسم خرائط المغذيات.",
+))
+
+# ─── Digital Twin Domain ─────────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26010", pref_label_en="cyber-physical system", pref_label_ar="نظام سيبراني-فيزيائي",
+    alt_labels_en=["CPS", "cyber-physical", "digital-physical integration"],
+    alt_labels_ar=["نظام رقمي-مادي"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Integration of computation, networking, and physical processes for agricultural monitoring.",
+    definition_ar="تكامل الحوسبة والشبكات والعمليات الفيزيائية للمراقبة الزراعية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26011", pref_label_en="simulation model", pref_label_ar="نموذج محاكاة",
+    alt_labels_en=["crop simulation", "growth model", "DSSAT", "AquaCrop", "APSIM", "WOFOST"],
+    alt_labels_ar=["محاكاة محاصيل", "نموذج نمو"],
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Mathematical models that simulate crop growth, soil processes, and water balance.",
+    definition_ar="نماذج رياضية تحاكي نمو المحاصيل وعمليات التربة وتوازن الماء.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26012", pref_label_en="real-time monitoring", pref_label_ar="مراقبة آنية",
+    alt_labels_en=["live monitoring", "continuous monitoring", "real-time sensing", "telemetry"],
+    alt_labels_ar=["رصد مباشر", "مراقبة مستمرة", "قياس عن بعد"],
+    related=["c_26010"],  # cyber-physical system
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Continuous data acquisition from field sensors for immediate decision support.",
+    definition_ar="اكتساب بيانات مستمر من أجهزة استشعار الحقل لدعم القرار الفوري.",
+))
+
+# ─── Remote Sensing Expanded ─────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26020", pref_label_en="synthetic aperture radar", pref_label_ar="رادار الفتحة الاصطناعية",
+    alt_labels_en=["SAR", "radar imaging", "C-band SAR", "Sentinel-1"],
+    alt_labels_ar=["رادار SAR", "تصوير راداري"],
+    related=["c_25980"],  # NDVI
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Microwave remote sensing for all-weather crop and soil monitoring.",
+    definition_ar="استشعار عن بعد بالموجات الدقيقة لمراقبة المحاصيل والتربة في جميع الأحوال الجوية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26021", pref_label_en="thermal imaging", pref_label_ar="تصوير حراري",
+    alt_labels_en=["thermal remote sensing", "thermal infrared", "TIR", "canopy temperature"],
+    alt_labels_ar=["استشعار حراري", "أشعة تحت حمراء حرارية"],
+    related=["c_2873"],  # evapotranspiration
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Infrared imaging for crop water stress detection and ET estimation.",
+    definition_ar="تصوير بالأشعة تحت الحمراء لكشف إجهاد المحاصيل المائي وتقدير التبخر-نتح.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26022", pref_label_en="hyperspectral imaging", pref_label_ar="تصوير فوق طيفي",
+    alt_labels_en=["hyperspectral remote sensing", "imaging spectroscopy", "HSI"],
+    alt_labels_ar=["استشعار فوق طيفي", "تحليل طيفي بالتصوير"],
+    related=["c_25980", "c_25981"],  # NDVI, LAI
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Narrow-band spectral imaging for detailed crop biochemistry and nutrient analysis.",
+    definition_ar="تصوير طيفي ضيق النطاق لتحليل الكيمياء الحيوية للمحاصيل والمغذيات بالتفصيل.",
+))
+
+# ─── Best Practices Domain ───────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26030", pref_label_en="good agricultural practices", pref_label_ar="الممارسات الزراعية الجيدة",
+    alt_labels_en=["GAP", "GlobalGAP", "GLOBALG.A.P.", "good farming practices"],
+    alt_labels_ar=["ممارسات زراعية حسنة", "جلوبال جاب"],
+    domain=AgrovocDomain.CROPS,
+    definition_en="Standards for safe, sustainable food production addressing food safety and environmental stewardship.",
+    definition_ar="معايير لإنتاج غذاء آمن ومستدام تتناول سلامة الغذاء والإشراف البيئي.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26031", pref_label_en="integrated pest management", pref_label_ar="إدارة آفات متكاملة",
+    alt_labels_en=["IPM", "integrated crop protection", "biological control integration"],
+    alt_labels_ar=["مكافحة متكاملة", "إدارة متكاملة للآفات"],
+    related=["c_442", "c_773"],  # aphids, whitefly
+    domain=AgrovocDomain.PESTS,
+    definition_en="Ecosystem-based strategy combining biological, cultural, physical, and chemical controls.",
+    definition_ar="استراتيجية قائمة على النظام البيئي تجمع بين المكافحة البيولوجية والثقافية والفيزيائية والكيميائية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26032", pref_label_en="conservation agriculture", pref_label_ar="زراعة محافظة",
+    alt_labels_en=["conservation tillage", "no-till farming", "minimum tillage", "CA"],
+    alt_labels_ar=["حراثة صفرية", "زراعة بدون حرث", "حراثة دنيا"],
+    domain=AgrovocDomain.SOIL,
+    definition_en="Farming system based on minimal soil disturbance, permanent soil cover, and crop rotation.",
+    definition_ar="نظام زراعي قائم على الحد الأدنى من تحريك التربة والغطاء الدائم وتناوب المحاصيل.",
+))
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AGROVOC Lookup Service

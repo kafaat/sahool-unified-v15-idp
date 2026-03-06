@@ -54,7 +54,9 @@ from .corrective_retrieval import (
 )
 from .metrics import KnowledgeMetrics
 from .models import (
+    BestPracticesDocument,
     CropKnowledgeDocument,
+    DigitalTwinDocument,
     FertilizerKnowledgeDocument,
     FRESHMetadata,
     GeospatialMetadata,
@@ -62,6 +64,7 @@ from .models import (
     KnowledgeDomain,
     KnowledgeSourceMeta,
     PestVisionDocument,
+    PrecisionFarmingDocument,
     RemoteSensingGuideDocument,
     SeasonalRelevance,
     SmartAgricultureDocument,
@@ -105,6 +108,9 @@ __all__ = [
     "RemoteSensingGuideDocument",
     "SmartAgricultureDocument",
     "PestVisionDocument",
+    "PrecisionFarmingDocument",
+    "DigitalTwinDocument",
+    "BestPracticesDocument",
     # AGROVOC
     "AgrovocConcept",
     "AgrovocDomain",

@@ -34,6 +34,8 @@ from ..models import (
 )
 from ..sources.registry import KnowledgeSourceRegistry
 from ..validators import KnowledgeValidator, ValidationResult
+from ..vector_store_integration import KnowledgeVectorStore
+from .chunker import ChunkConfig, TextChunker
 from .extractors import ExtractedContent, HTMLExtractor, MarkdownExtractor, PDFExtractor
 from .preprocessors import AgriculturalTermNormalizer, ArabicTextPreprocessor, MetadataEnricher
 
@@ -52,6 +54,8 @@ class IngestionResult:
     domains_detected: list[str] = field(default_factory=list)
     regions_detected: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
+    vector_ids: list[str] = field(default_factory=list)
+    chunks_count: int = 0
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -77,9 +81,12 @@ class KnowledgeIngestionPipeline:
         self,
         source_registry: KnowledgeSourceRegistry | None = None,
         validator: KnowledgeValidator | None = None,
+        vector_store: KnowledgeVectorStore | None = None,
+        chunk_config: ChunkConfig | None = None,
         min_source_credibility: int = 1,
         require_bilingual: bool = False,
         enable_agrovoc: bool = True,
+        enable_vector_storage: bool = True,
     ) -> None:
         self._md_extractor = MarkdownExtractor()
         self._pdf_extractor = PDFExtractor()
@@ -92,6 +99,9 @@ class KnowledgeIngestionPipeline:
         self._min_credibility = min_source_credibility
         self._require_bilingual = require_bilingual
         self._agrovoc = AgrovocLookup() if enable_agrovoc else None
+        self._enable_vector_storage = enable_vector_storage
+        self._vector_store = vector_store
+        self._chunker = TextChunker(chunk_config or ChunkConfig())
 
     # ─── Public API ───────────────────────────────────────────────────────────
 
@@ -191,6 +201,14 @@ class KnowledgeIngestionPipeline:
         # Mark success if no errors
         result.success = validation.is_valid
 
+        # Stage 7: Chunk, embed, and store in vector DB
+        # مرحلة 7: تقطيع وتضمين وتخزين في قاعدة بيانات المتجهات
+        if result.success and self._enable_vector_storage:
+            vector_ids = self._store_in_vector_db(doc)
+            result.vector_ids = vector_ids
+            if vector_ids:
+                result.chunks_count = len(vector_ids)
+
         logger.info(
             "document_ingested",
             document_id=doc.id,
@@ -198,6 +216,7 @@ class KnowledgeIngestionPipeline:
             domain=primary_domain.value,
             success=result.success,
             credibility=credibility.value,
+            vector_ids_count=len(result.vector_ids),
         )
 
         return result
@@ -252,6 +271,13 @@ class KnowledgeIngestionPipeline:
         validation = self._validator.validate(doc)
         result.validation = validation
         result.success = validation.is_valid
+
+        # Store in vector DB if validation passed
+        if result.success and self._enable_vector_storage:
+            vector_ids = self._store_in_vector_db(doc)
+            result.vector_ids = vector_ids
+            if vector_ids:
+                result.chunks_count = len(vector_ids)
 
         return result
 
@@ -337,6 +363,73 @@ class KnowledgeIngestionPipeline:
         if not url:
             return SourceCredibilityLevel.COMMUNITY
         return self._source_registry.get_source_credibility(url)
+
+    def _store_in_vector_db(self, document: BaseKnowledgeDocument) -> list[str]:
+        """Stage 7: Chunk document and store embeddings in vector DB.
+        المرحلة 7: تقطيع الوثيقة وتخزين التضمينات في قاعدة بيانات المتجهات
+
+        Steps:
+            1. Chunk the document content using TextChunker
+            2. Pass chunks to KnowledgeVectorStore which generates embeddings
+               and stores them
+            3. Return the list of vector IDs for all stored chunks
+
+        Returns:
+            List of vector IDs for stored chunks, empty list if storage
+            is disabled or no vector store is configured.
+        """
+        if not self._vector_store:
+            logger.debug("vector_storage_skipped_no_store", document_id=document.id)
+            return []
+
+        try:
+            # Chunk the document content
+            base_metadata = {
+                "document_id": document.id,
+                "domain": document.domain.value,
+                "title": document.title,
+                "title_ar": document.title_ar,
+                "tags": document.tags,
+                "credibility": document.source.credibility.value,
+                "verification_status": document.verification_status.value,
+            }
+
+            chunks = self._chunker.chunk(
+                content=document.content,
+                content_ar=document.content_ar,
+                base_metadata=base_metadata,
+            )
+
+            if not chunks:
+                logger.debug(
+                    "vector_storage_no_chunks",
+                    document_id=document.id,
+                )
+                return []
+
+            # Store document with chunks in vector store
+            # KnowledgeVectorStore.store_document handles embedding generation
+            vector_ids = self._vector_store.store_document(
+                document=document,
+                chunks=chunks,
+            )
+
+            logger.info(
+                "vector_storage_complete",
+                document_id=document.id,
+                chunks_count=len(chunks),
+                vector_ids_count=len(vector_ids),
+            )
+
+            return vector_ids
+
+        except Exception as e:
+            logger.error(
+                "vector_storage_error",
+                document_id=document.id,
+                error=str(e),
+            )
+            return []
 
     def _resolve_collection(self, domain: KnowledgeDomain) -> str:
         """Resolve domain to target collection name."""

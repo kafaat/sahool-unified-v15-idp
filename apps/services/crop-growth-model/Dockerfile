@@ -29,7 +29,9 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)
-RUN cd /workspace/nestjs-auth && npm pkg delete scripts.prepare && cd /workspace/crop-growth-model
+WORKDIR /workspace/nestjs-auth
+RUN npm pkg delete scripts.prepare
+WORKDIR /workspace/crop-growth-model
 
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
@@ -54,11 +56,10 @@ RUN --mount=type=cache,target=/root/.npm \
 # Install nestjs-auth devDependencies (redis, ioredis types) needed for tsc compilation
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
-    npm install --no-save redis @liaoliaots/nestjs-redis ioredis 2>/dev/null; \
-    if ! npx tsc --skipLibCheck; then \
-        npx -y typescript@5.9.3 tsc --skipLibCheck || \
-        (echo "ERROR: nestjs-auth build failed" && exit 1); \
-    fi
+    npm install --no-save typescript@5.9.3 redis@4 @liaoliaots/nestjs-redis@10 ioredis@5 2>/dev/null; \
+    ./node_modules/.bin/tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    (echo "ERROR: nestjs-auth build failed" && exit 1)
 WORKDIR /workspace/crop-growth-model
 
 # Build the application

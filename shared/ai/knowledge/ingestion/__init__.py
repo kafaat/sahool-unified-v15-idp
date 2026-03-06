@@ -3,6 +3,7 @@
 # خط أنابيب استيعاب المعرفة الزراعية
 # ═══════════════════════════════════════════════════════════════════════════════
 
+from .async_pipeline import AsyncKnowledgeIngestionPipeline
 from .chunker import ChunkConfig, ChunkStrategy, TextChunk, TextChunker
 from .extractors import HTMLExtractor, MarkdownExtractor, PDFExtractor
 from .pipeline import KnowledgeIngestionPipeline
@@ -10,6 +11,7 @@ from .preprocessors import AgriculturalTermNormalizer, ArabicTextPreprocessor, M
 
 __all__ = [
     "KnowledgeIngestionPipeline",
+    "AsyncKnowledgeIngestionPipeline",
     "MarkdownExtractor",
     "PDFExtractor",
     "HTMLExtractor",

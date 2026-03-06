@@ -31,12 +31,16 @@ from ..retriever import (
 
 # Knowledge base integration
 from ...knowledge.collections import (
+    DIGITAL_TWIN_KNOWLEDGE,
     FERTILIZER_KNOWLEDGE,
     GENERAL_AGRICULTURE,
+    PRECISION_FARMING_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
+from ...knowledge.corrective_retrieval import CorrectiveRetrievalEngine
+from ...knowledge.graph_builder import build_agricultural_knowledge_graph
 from ...knowledge.verification.region_filter import CLIMATE_ZONES
 
 logger = structlog.get_logger(__name__)
@@ -96,6 +100,13 @@ class AgriRAGProvider:
         self._sparse_retriever: SparseRetriever | None = None
         self._tri_rag: TriRAGRetriever | None = None
 
+        # CRAG engine for corrective retrieval
+        self._crag_engine = CorrectiveRetrievalEngine(
+            correct_threshold=0.7,
+            ambiguous_threshold=0.4,
+            max_refined_chunks=10,
+        )
+
         # Initialize knowledge graph with agricultural entities
         self._initialized = False
 
@@ -128,274 +139,54 @@ class AgriRAGProvider:
         logger.info("agri_rag_provider_initialized")
 
     async def _load_agricultural_knowledge(self):
-        """Load agricultural knowledge into the knowledge graph"""
-        # ═══════════════════════════════════════════════════════════════════════
-        # Crop Entities - كيانات المحاصيل
-        # ═══════════════════════════════════════════════════════════════════════
-        crops = [
-            {
-                "id": "crop_wheat",
-                "name": "Wheat",
-                "name_ar": "قمح",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Poaceae", "season": "winter"},
-            },
-            {
-                "id": "crop_barley",
-                "name": "Barley",
-                "name_ar": "شعير",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Poaceae", "season": "winter"},
-            },
-            {
-                "id": "crop_date_palm",
-                "name": "Date Palm",
-                "name_ar": "نخيل",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Arecaceae", "season": "perennial"},
-            },
-            {
-                "id": "crop_tomato",
-                "name": "Tomato",
-                "name_ar": "طماطم",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Solanaceae", "season": "summer"},
-            },
-            {
-                "id": "crop_cucumber",
-                "name": "Cucumber",
-                "name_ar": "خيار",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Cucurbitaceae", "season": "summer"},
-            },
-            {
-                "id": "crop_alfalfa",
-                "name": "Alfalfa",
-                "name_ar": "برسيم",
-                "entity_type": EntityType.CROP.value,
-                "properties": {"family": "Fabaceae", "season": "perennial"},
-            },
-        ]
+        """Load agricultural knowledge from the shared graph builder.
+        تحميل المعرفة الزراعية من منشئ الرسم البياني المشترك
 
-        # ═══════════════════════════════════════════════════════════════════════
-        # Disease Entities - كيانات الأمراض
-        # ═══════════════════════════════════════════════════════════════════════
-        diseases = [
-            {
-                "id": "disease_rust",
-                "name": "Rust Disease",
-                "name_ar": "مرض الصدأ",
-                "entity_type": EntityType.DISEASE.value,
-                "properties": {"type": "fungal", "severity": "high"},
-            },
-            {
-                "id": "disease_powdery_mildew",
-                "name": "Powdery Mildew",
-                "name_ar": "البياض الدقيقي",
-                "entity_type": EntityType.DISEASE.value,
-                "properties": {"type": "fungal", "severity": "medium"},
-            },
-            {
-                "id": "disease_fusarium",
-                "name": "Fusarium Wilt",
-                "name_ar": "ذبول الفيوزاريوم",
-                "entity_type": EntityType.DISEASE.value,
-                "properties": {"type": "fungal", "severity": "high"},
-            },
-            {
-                "id": "disease_bacterial_blight",
-                "name": "Bacterial Blight",
-                "name_ar": "اللفحة البكتيرية",
-                "entity_type": EntityType.DISEASE.value,
-                "properties": {"type": "bacterial", "severity": "high"},
-            },
-            {
-                "id": "disease_rpw",
-                "name": "Red Palm Weevil",
-                "name_ar": "سوسة النخيل الحمراء",
-                "entity_type": EntityType.PEST.value,
-                "properties": {"type": "insect", "severity": "critical"},
-            },
-            {
-                "id": "disease_leaf_miner",
-                "name": "Leaf Miner",
-                "name_ar": "حافرة الأوراق",
-                "entity_type": EntityType.PEST.value,
-                "properties": {"type": "insect", "severity": "medium"},
-            },
-        ]
+        Uses shared/ai/knowledge/graph_builder.py as single source of truth,
+        eliminating duplication across services.
+        """
+        kg = build_agricultural_knowledge_graph()
 
-        # ═══════════════════════════════════════════════════════════════════════
-        # Treatment Entities - كيانات العلاج
-        # ═══════════════════════════════════════════════════════════════════════
-        treatments = [
-            {
-                "id": "treat_fungicide_propiconazole",
-                "name": "Propiconazole",
-                "name_ar": "بروبيكونازول",
-                "entity_type": EntityType.PESTICIDE.value,
-                "properties": {"type": "fungicide", "target": "rust"},
-            },
-            {
-                "id": "treat_fungicide_sulfur",
-                "name": "Sulfur",
-                "name_ar": "كبريت",
-                "entity_type": EntityType.PESTICIDE.value,
-                "properties": {"type": "fungicide", "target": "powdery_mildew"},
-            },
-            {
-                "id": "treat_insecticide_emamectin",
-                "name": "Emamectin Benzoate",
-                "name_ar": "إيمامكتين بنزوات",
-                "entity_type": EntityType.PESTICIDE.value,
-                "properties": {"type": "insecticide", "target": "rpw"},
-            },
-            {
-                "id": "treat_urea",
-                "name": "Urea 46%",
-                "name_ar": "يوريا 46%",
-                "entity_type": EntityType.FERTILIZER.value,
-                "properties": {"type": "nitrogen", "n_content": 46},
-            },
-            {
-                "id": "treat_dap",
-                "name": "DAP 18-46-0",
-                "name_ar": "داب 18-46-0",
-                "entity_type": EntityType.FERTILIZER.value,
-                "properties": {"type": "phosphorus", "n_content": 18, "p_content": 46},
-            },
-            {
-                "id": "treat_potash",
-                "name": "Potassium Sulfate",
-                "name_ar": "سلفات البوتاسيوم",
-                "entity_type": EntityType.FERTILIZER.value,
-                "properties": {"type": "potassium", "k_content": 50},
-            },
-        ]
-
-        # ═══════════════════════════════════════════════════════════════════════
-        # Irrigation Entities - كيانات الري
-        # ═══════════════════════════════════════════════════════════════════════
-        irrigation = [
-            {
-                "id": "irr_drip",
-                "name": "Drip Irrigation",
-                "name_ar": "الري بالتنقيط",
-                "entity_type": EntityType.IRRIGATION.value,
-                "properties": {"efficiency": 90, "type": "localized"},
-            },
-            {
-                "id": "irr_sprinkler",
-                "name": "Sprinkler Irrigation",
-                "name_ar": "الري بالرش",
-                "entity_type": EntityType.IRRIGATION.value,
-                "properties": {"efficiency": 75, "type": "overhead"},
-            },
-            {
-                "id": "irr_pivot",
-                "name": "Center Pivot",
-                "name_ar": "الري المحوري",
-                "entity_type": EntityType.IRRIGATION.value,
-                "properties": {"efficiency": 85, "type": "mechanical"},
-            },
-        ]
+        # Map entity types to UltraRAG EntityType enum
+        _type_map = {
+            "crop": EntityType.CROP.value,
+            "disease": EntityType.DISEASE.value,
+            "pest": EntityType.PEST.value,
+            "treatment": EntityType.PESTICIDE.value,
+            "fertilizer": EntityType.FERTILIZER.value,
+            "irrigation": EntityType.IRRIGATION.value,
+        }
 
         # Add all entities
-        for entity in crops + diseases + treatments + irrigation:
-            await self._kg_retriever.add_entity(entity)
+        for entity in kg.entities:
+            await self._kg_retriever.add_entity({
+                "id": entity.id,
+                "name": entity.name,
+                "name_ar": entity.name_ar,
+                "entity_type": _type_map.get(entity.entity_type, entity.entity_type),
+                "properties": entity.properties,
+            })
 
-        # ═══════════════════════════════════════════════════════════════════════
-        # Relations - العلاقات
-        # ═══════════════════════════════════════════════════════════════════════
-        relations = [
-            # Crop-Disease relations
-            {
-                "source_id": "disease_rust",
-                "target_id": "crop_wheat",
-                "relation_type": RelationType.AFFECTS.value,
-            },
-            {
-                "source_id": "disease_rust",
-                "target_id": "crop_barley",
-                "relation_type": RelationType.AFFECTS.value,
-            },
-            {
-                "source_id": "disease_powdery_mildew",
-                "target_id": "crop_cucumber",
-                "relation_type": RelationType.AFFECTS.value,
-            },
-            {
-                "source_id": "disease_fusarium",
-                "target_id": "crop_tomato",
-                "relation_type": RelationType.AFFECTS.value,
-            },
-            {
-                "source_id": "disease_rpw",
-                "target_id": "crop_date_palm",
-                "relation_type": RelationType.AFFECTS.value,
-            },
-            # Treatment-Disease relations
-            {
-                "source_id": "treat_fungicide_propiconazole",
-                "target_id": "disease_rust",
-                "relation_type": RelationType.TREATS.value,
-            },
-            {
-                "source_id": "treat_fungicide_sulfur",
-                "target_id": "disease_powdery_mildew",
-                "relation_type": RelationType.TREATS.value,
-            },
-            {
-                "source_id": "treat_insecticide_emamectin",
-                "target_id": "disease_rpw",
-                "relation_type": RelationType.TREATS.value,
-            },
-            # Fertilizer-Crop relations
-            {
-                "source_id": "treat_urea",
-                "target_id": "crop_wheat",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            {
-                "source_id": "treat_dap",
-                "target_id": "crop_wheat",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            {
-                "source_id": "treat_potash",
-                "target_id": "crop_date_palm",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            # Irrigation-Crop relations
-            {
-                "source_id": "irr_drip",
-                "target_id": "crop_tomato",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            {
-                "source_id": "irr_drip",
-                "target_id": "crop_date_palm",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            {
-                "source_id": "irr_pivot",
-                "target_id": "crop_wheat",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-            {
-                "source_id": "irr_sprinkler",
-                "target_id": "crop_alfalfa",
-                "relation_type": RelationType.COMPATIBLE_WITH.value,
-            },
-        ]
+        # Map relation types
+        _rel_map = {
+            "affects": RelationType.AFFECTS.value,
+            "treats": RelationType.TREATS.value,
+            "compatible_with": RelationType.COMPATIBLE_WITH.value,
+        }
 
-        for relation in relations:
-            await self._kg_retriever.add_relation(relation)
+        # Add all relations
+        for relation in kg.relations:
+            await self._kg_retriever.add_relation({
+                "source_id": relation.source_id,
+                "target_id": relation.target_id,
+                "relation_type": _rel_map.get(relation.relation_type, relation.relation_type),
+            })
 
         logger.info(
             "agricultural_knowledge_loaded",
-            entities=len(crops + diseases + treatments + irrigation),
-            relations=len(relations),
+            entities=len(kg.entities),
+            relations=len(kg.relations),
+            source="shared_graph_builder",
         )
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -713,6 +504,50 @@ class AgriRAGProvider:
         results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
         return self._build_result(query, results, "remote_sensing")
 
+    async def query_precision_farming_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query precision farming knowledge | استعلام قاعدة معرفة الزراعة الدقيقة
+
+        Covers VRA, GPS/GNSS guidance, yield mapping, site-specific management.
+        يغطي: معدل متغير، توجيه GPS، خرائط إنتاجية، إدارة موقعية.
+        """
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=PRECISION_FARMING_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "precision_farming")
+
+    async def query_digital_twin_knowledge(
+        self,
+        query: str,
+        context: AgriQueryContext | None = None,
+    ) -> AgriAdvisoryResult:
+        """Query digital twin knowledge | استعلام قاعدة معرفة التوأم الرقمي
+
+        Covers farm simulation, crop models, irrigation optimization, cyber-physical systems.
+        يغطي: محاكاة المزرعة، نماذج المحاصيل، تحسين الري، أنظمة سيبرانية-مادية.
+        """
+        await self.initialize()
+        config = RetrievalConfig(
+            strategy=RetrievalStrategy.TRI_RAG,
+            top_k=8,
+            collection=DIGITAL_TWIN_KNOWLEDGE,
+            filters={"kg_max_hops": 2},
+        )
+        results = await self._tri_rag.retrieve(query, config)
+        results = self._apply_region_filter(results, context)
+        results = self._apply_crag(results, query, GENERAL_AGRICULTURE)
+        return self._build_result(query, results, "digital_twin")
+
     # ═══════════════════════════════════════════════════════════════════════════
     # Region Filter & CRAG (Corrective RAG)
     # فلتر إقليمي و RAG تصحيحي
@@ -766,31 +601,76 @@ class AgriRAGProvider:
         return scored_results
 
     def _apply_crag(self, results: list, query: str, fallback_collection: str) -> list:
-        """Apply Corrective RAG (CRAG) pattern.
-        تطبيق نمط RAG التصحيحي
+        """Apply Corrective RAG (CRAG) pattern using CorrectiveRetrievalEngine.
+        تطبيق نمط RAG التصحيحي باستخدام محرك الاسترجاع التصحيحي
 
-        If retrieval quality is below threshold, trigger broadened search
-        in the fallback (general_agriculture) collection.
+        Evaluates retrieval quality and refines chunks:
+        - CORRECT (>=0.7): Light refinement, keep most content
+        - AMBIGUOUS (0.4-0.7): Deep sentence-level refinement
+        - INCORRECT (<0.4): Salvage usable content, suggest fallback
         """
         if not results:
             return results
 
-        # Evaluate retrieval quality (average top-3 scores)
-        top_scores = [r.score for r in results[:3]]
-        avg_quality = sum(top_scores) / len(top_scores) if top_scores else 0.0
+        # Convert retrieval results to chunk dicts for CRAG engine
+        chunks = []
+        for r in results:
+            chunk_dict = {
+                "content": r.chunk.text if hasattr(r, "chunk") else "",
+                "content_ar": r.chunk.text_ar if hasattr(r, "chunk") and hasattr(r.chunk, "text_ar") else "",
+                "metadata": r.chunk.metadata if hasattr(r, "chunk") else {},
+            }
+            if hasattr(r, "score"):
+                chunk_dict["metadata"]["retrieval_score"] = r.score
+            chunks.append(chunk_dict)
 
-        if avg_quality >= self.CRAG_QUALITY_THRESHOLD:
-            return results
+        # Detect query domain from fallback collection name
+        domain_map = {
+            SOIL_KNOWLEDGE: "soil",
+            FERTILIZER_KNOWLEDGE: "fertilizer",
+            WEATHER_KNOWLEDGE: "weather",
+            REMOTE_SENSING_KNOWLEDGE: "remote_sensing",
+            PRECISION_FARMING_KNOWLEDGE: "precision_farming",
+            DIGITAL_TWIN_KNOWLEDGE: "digital_twin",
+            GENERAL_AGRICULTURE: "general",
+        }
+        query_domain = domain_map.get(fallback_collection, "")
 
-        # Quality below threshold → would trigger broadened search
-        # In synchronous context, just log the need
+        # Run CRAG evaluation and refinement
+        crag_result = self._crag_engine.evaluate_and_refine(
+            query=query,
+            retrieved_chunks=chunks,
+            query_domain=query_domain,
+        )
+
         logger.info(
-            "crag_low_quality_detected",
-            avg_quality=avg_quality,
-            threshold=self.CRAG_QUALITY_THRESHOLD,
-            fallback_collection=fallback_collection,
+            "crag_applied",
+            action=crag_result.action_taken.value,
+            confidence=crag_result.evaluation.confidence.value,
+            score=round(crag_result.evaluation.overall_score, 3),
+            chunks_in=crag_result.total_chunks_input,
+            chunks_out=crag_result.total_chunks_output,
+            fallback_needed=crag_result.fallback_used,
+            fallback_collection=fallback_collection if crag_result.fallback_used else None,
             query=query[:100],
         )
+
+        # If CRAG refined the chunks, update scores on the original results
+        if crag_result.refined_chunks:
+            # Build a content-to-score map from refined chunks
+            refined_scores = {}
+            for rc in crag_result.refined_chunks:
+                refined_scores[rc.content[:100]] = rc.relevance_score
+
+            # Re-score original results based on CRAG refinement
+            for r in results:
+                content_key = (r.chunk.text if hasattr(r, "chunk") else "")[:100]
+                if content_key in refined_scores:
+                    # Blend original score with CRAG relevance
+                    r.score = 0.6 * r.score + 0.4 * refined_scores[content_key]
+
+            # Re-sort by blended score
+            results.sort(key=lambda x: x.score, reverse=True)
 
         return results
 

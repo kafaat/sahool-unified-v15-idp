@@ -59,7 +59,7 @@ jobs:
 
       - name: Restore packages build cache
         id: packages-cache
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             packages/*/dist
@@ -97,7 +97,7 @@ jobs:
           done
 
       - name: Save packages build cache
-        uses: actions/cache/save@v5.0.3
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -130,7 +130,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -142,7 +142,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5
         with:
           path: |
             packages/*/dist
@@ -208,7 +208,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -219,7 +219,7 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5
         with:
           path: |
             packages/*/dist
@@ -250,7 +250,7 @@ jobs:
 
       - name: Upload Coverage Report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: apps/web/coverage/
@@ -278,7 +278,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -331,7 +331,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-web.outcome == 'success'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: apps/web/.next
@@ -364,7 +364,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -376,7 +376,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5
         with:
           path: |
             packages/*/dist
@@ -442,7 +442,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -453,7 +453,7 @@ jobs:
             ${{ runner.os }}-admin-node-
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5
         with:
           path: |
             packages/*/dist
@@ -484,7 +484,7 @@ jobs:
 
       - name: Upload Admin Coverage Report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: admin-coverage
           path: apps/admin/coverage/
@@ -512,7 +512,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -565,7 +565,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-admin.outcome == 'success'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: admin-build
           path: apps/admin/.next
@@ -597,7 +597,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -662,7 +662,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -707,7 +707,7 @@ jobs:
 
       - name: Upload Test Coverage
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-coverage
           path: apps/mobile/coverage/
@@ -776,7 +776,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -829,7 +829,7 @@ jobs:
           flutter build apk --debug --no-shrink
 
       - name: Upload APK
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-android-apk
           path: apps/mobile/build/app/outputs/flutter-apk/*.apk
@@ -861,7 +861,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -940,7 +940,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -964,7 +964,7 @@ jobs:
 
       - name: Download Web Build
         id: download
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: web-build
           path: apps/web/.next
@@ -1042,7 +1042,7 @@ jobs:
 
       - name: Upload E2E Test Results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results
           path: |
@@ -1052,7 +1052,7 @@ jobs:
 
       - name: Upload Server Logs
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-server-logs
           path: apps/web/server.log
@@ -1116,7 +1116,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -1235,7 +1235,7 @@ jobs:
 
       - name: Upload Integration Test Results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: mobile-integration-results
           path: |
@@ -1276,7 +1276,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
         continue-on-error: true
@@ -1420,7 +1420,7 @@ jobs:
           cache: 'npm'
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5
         with:
           path: |
             packages/*/dist
@@ -1459,7 +1459,7 @@ jobs:
           NODE_ENV: production
 
       - name: Upload Bundle Analysis
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-analysis
           path: |

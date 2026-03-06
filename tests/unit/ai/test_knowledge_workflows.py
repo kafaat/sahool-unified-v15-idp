@@ -4,7 +4,7 @@ Tests for UltraRAG Workflow YAML Files
 اختبارات ملفات سير العمل YAML
 
 Tests for YAML validity, required fields, and collection references
-across all 9 UltraRAG workflow files.
+across all 11 UltraRAG workflow files.
 """
 
 from __future__ import annotations
@@ -58,6 +58,8 @@ class TestWorkflowDiscovery:
             "remote_sensing_analysis.yaml",
             "pest_diagnosis.yaml",
             "comprehensive_field_advisory.yaml",
+            "precision_farming_advisory.yaml",
+            "digital_twin_simulation.yaml",
         ]
         for name in expected:
             path = WORKFLOWS_DIR / name
@@ -189,3 +191,23 @@ class TestSpecificWorkflows:
                 has_bilingual = True
                 break
         assert has_bilingual, "No workflow mentions bilingual/Arabic support"
+
+    @pytest.mark.unit
+    def test_precision_farming_advisory_collections(self):
+        """Test precision farming advisory uses correct collection."""
+        path = WORKFLOWS_DIR / "precision_farming_advisory.yaml"
+        if not path.exists():
+            pytest.skip("precision_farming_advisory.yaml not found")
+        data = _load_yaml(path)
+        yaml_str = yaml.dump(data)
+        assert "precision_farming_knowledge" in yaml_str
+
+    @pytest.mark.unit
+    def test_digital_twin_simulation_collections(self):
+        """Test digital twin simulation uses correct collections."""
+        path = WORKFLOWS_DIR / "digital_twin_simulation.yaml"
+        if not path.exists():
+            pytest.skip("digital_twin_simulation.yaml not found")
+        data = _load_yaml(path)
+        yaml_str = yaml.dump(data)
+        assert "digital_twin_knowledge" in yaml_str

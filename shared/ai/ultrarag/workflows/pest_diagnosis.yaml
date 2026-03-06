@@ -76,6 +76,20 @@ steps:
     config:
       method: cross_encoder
       top_k: 8
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate pest retrieval quality (CRAG)
+    config:
+      domain: pest_disease
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_diagnosis
+      on_ambiguous: generate_diagnosis
+      on_incorrect: retrieve_pest_knowledge
     next_step: generate_diagnosis
 
   - id: generate_diagnosis

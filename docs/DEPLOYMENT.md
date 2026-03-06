@@ -189,6 +189,66 @@ curl http://localhost:8222/healthz   # NATS
 
 ---
 
+## Service Profiles (Docker Compose) | ملفات تعريف الخدمات
+
+Some services are configured with Docker Compose profiles and will **NOT** start with the default `docker compose up`. They require explicit profile activation.
+
+بعض الخدمات مُعدّة بملفات تعريف Docker Compose ولن تبدأ مع الأمر الافتراضي. تتطلب تفعيل الملف الشخصي بشكل صريح.
+
+### Available Profiles | الملفات المتاحة
+
+| Profile | Services | Requirements | Description |
+|---------|----------|-------------|-------------|
+| `default` | 68 services | - | All active application + infrastructure services |
+| `gpu` | ollama, ollama-model-loader, vllm-deepseek, code-review-service | NVIDIA GPU, 16GB+ VRAM | GPU-accelerated AI/ML services |
+| `deprecated` | yield-prediction | - | Legacy services replaced by newer versions |
+| `demo` | demo-data | - | Demo data generator for testing |
+| `optional` + `ai-agents` | code-review-agent | - | Optional AI agent services (dual profile) |
+
+### Usage Examples | أمثلة الاستخدام
+
+```bash
+# Start all default services (68 active services)
+# تشغيل جميع الخدمات النشطة الافتراضية
+docker compose up -d
+
+# Start with GPU services (vision, LLM inference)
+# التشغيل مع خدمات GPU (الرؤية الحاسوبية والاستدلال)
+docker compose --profile gpu up -d
+
+# Start with demo data for testing
+# التشغيل مع بيانات تجريبية للاختبار
+docker compose --profile demo up -d
+
+# Start AI agent services
+# تشغيل خدمات وكلاء الذكاء الاصطناعي
+docker compose --profile optional --profile ai-agents up -d
+
+# Start with deprecated services (for migration testing only)
+# تشغيل الخدمات المهملة (لاختبار الترحيل فقط)
+docker compose --profile deprecated up -d
+
+# Full stack (all profiles)
+# التشغيل الكامل (جميع الملفات)
+docker compose --profile gpu --profile demo --profile optional --profile ai-agents up -d
+```
+
+### GPU Profile Details | تفاصيل ملف GPU
+
+The GPU profile includes services that require NVIDIA GPU hardware:
+
+| Service | Port | GPU VRAM | Description |
+|---------|------|----------|-------------|
+| ollama | 11434 | 8GB+ | Local LLM server (Ollama 0.5.x) |
+| ollama-model-loader | - | - | Model download and cache |
+| vllm-deepseek | 8270 | 16GB+ | DeepSeek Coder 6.7B inference |
+| code-review-service | 8102 | 4GB+ | GPU-accelerated code review |
+
+> **Note**: Ensure NVIDIA Container Toolkit is installed before using the GPU profile.
+> Install with: `apt-get install nvidia-container-toolkit`
+
+---
+
 ## Production Deployment (Kubernetes) | نشر الإنتاج
 
 ### Step 1: Prepare Cluster | إعداد العنقود

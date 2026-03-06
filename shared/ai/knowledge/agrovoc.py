@@ -400,6 +400,366 @@ _register(AgrovocConcept(
     domain=AgrovocDomain.EQUIPMENT,
 ))
 
+# ─── Additional Crops (MENA-specific) ──────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_5354", pref_label_en="Abelmoschus esculentus", pref_label_ar="بامية",
+    alt_labels_en=["okra", "lady's finger"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_1614", pref_label_en="Citrullus lanatus", pref_label_ar="بطيخ",
+    alt_labels_en=["watermelon"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_2282", pref_label_en="Cucumis melo", pref_label_ar="شمام",
+    alt_labels_en=["melon", "cantaloupe", "honeydew"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_4779", pref_label_en="Musa", pref_label_ar="موز",
+    alt_labels_en=["banana", "plantain"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_3309", pref_label_en="Ficus carica", pref_label_ar="تين",
+    alt_labels_en=["fig", "fig tree"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_5459", pref_label_en="Pennisetum glaucum", pref_label_ar="دخن",
+    alt_labels_en=["pearl millet", "millet"],
+    alt_labels_ar=["دخن لؤلؤي"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_3557", pref_label_en="Capsicum annuum", pref_label_ar="فلفل",
+    alt_labels_en=["pepper", "chili", "bell pepper"],
+    alt_labels_ar=["فلفل حار", "فلفل حلو"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_7811", pref_label_en="Solanum melongena", pref_label_ar="باذنجان",
+    alt_labels_en=["eggplant", "aubergine"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_3466", pref_label_en="Lens culinaris", pref_label_ar="عدس",
+    alt_labels_en=["lentil", "lentils"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_1624", pref_label_en="Cicer arietinum", pref_label_ar="حمص",
+    alt_labels_en=["chickpea", "garbanzo"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_8061", pref_label_en="Trigonella foenum-graecum", pref_label_ar="حلبة",
+    alt_labels_en=["fenugreek"],
+    domain=AgrovocDomain.CROPS,
+))
+
+_register(AgrovocConcept(
+    uri="c_2252", pref_label_en="Catha edulis", pref_label_ar="قات",
+    alt_labels_en=["khat", "qat"],
+    domain=AgrovocDomain.CROPS,
+))
+
+# ─── Additional Pests & Diseases ─────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_25955", pref_label_en="Septoria tritici", pref_label_ar="سبتوريا القمح",
+    alt_labels_en=["septoria leaf blotch", "septoria"],
+    alt_labels_ar=["تبقع أوراق القمح"],
+    related=["c_7951"],  # wheat
+    domain=AgrovocDomain.DISEASES,
+))
+
+_register(AgrovocConcept(
+    uri="c_8098", pref_label_en="Tuta absoluta", pref_label_ar="توتا أبسلوتا",
+    alt_labels_en=["tomato leaf miner", "tomato borer"],
+    alt_labels_ar=["حافرة أوراق الطماطم"],
+    related=["c_4993"],  # tomato
+    domain=AgrovocDomain.PESTS,
+))
+
+_register(AgrovocConcept(
+    uri="c_25111", pref_label_en="Dubas bug", pref_label_ar="حشرة الدوباس",
+    alt_labels_en=["old world date mite", "Ommatissus lybicus"],
+    alt_labels_ar=["دوباس النخيل"],
+    related=["c_5744"],  # date palm
+    domain=AgrovocDomain.PESTS,
+))
+
+_register(AgrovocConcept(
+    uri="c_7717", pref_label_en="Spodoptera", pref_label_ar="دودة ورق القطن",
+    alt_labels_en=["fall armyworm", "armyworm", "Spodoptera frugiperda"],
+    alt_labels_ar=["دودة الحشد"],
+    domain=AgrovocDomain.PESTS,
+))
+
+_register(AgrovocConcept(
+    uri="c_25950", pref_label_en="Bayoud disease", pref_label_ar="مرض البيوض",
+    alt_labels_en=["Fusarium oxysporum f.sp. albedinis", "bayoud"],
+    related=["c_5744"],  # date palm
+    domain=AgrovocDomain.DISEASES,
+))
+
+_register(AgrovocConcept(
+    uri="c_4876", pref_label_en="Meloidogyne", pref_label_ar="نيماتودا تعقد الجذور",
+    alt_labels_en=["root-knot nematode", "nematode"],
+    alt_labels_ar=["نيماتودا"],
+    domain=AgrovocDomain.PESTS,
+))
+
+_register(AgrovocConcept(
+    uri="c_25960", pref_label_en="Eurygaster integriceps", pref_label_ar="حشرة السونة",
+    alt_labels_en=["sunn pest", "sunn bug"],
+    alt_labels_ar=["سونة القمح"],
+    related=["c_7951"],  # wheat
+    domain=AgrovocDomain.PESTS,
+))
+
+# ─── Water & Irrigation Expanded ────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_25970", pref_label_en="water harvesting", pref_label_ar="حصاد مياه",
+    alt_labels_en=["rainwater harvesting", "water collection"],
+    alt_labels_ar=["تجميع مياه الأمطار"],
+    domain=AgrovocDomain.WATER,
+))
+
+_register(AgrovocConcept(
+    uri="c_3338", pref_label_en="flood irrigation", pref_label_ar="ري غمر",
+    alt_labels_en=["surface irrigation", "furrow irrigation", "basin irrigation"],
+    alt_labels_ar=["ري سطحي", "ري بالأحواض"],
+    domain=AgrovocDomain.WATER,
+))
+
+_register(AgrovocConcept(
+    uri="c_25971", pref_label_en="center pivot irrigation", pref_label_ar="ري محوري",
+    alt_labels_en=["pivot irrigation", "center pivot"],
+    alt_labels_ar=["ري بالرشاش المحوري"],
+    domain=AgrovocDomain.WATER,
+))
+
+_register(AgrovocConcept(
+    uri="c_7157", pref_label_en="soil moisture", pref_label_ar="رطوبة التربة",
+    alt_labels_en=["soil water content", "SWC", "volumetric water content"],
+    alt_labels_ar=["محتوى الماء في التربة"],
+    domain=AgrovocDomain.SOIL,
+))
+
+# ─── Livestock (mixed farming) ──────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_1436", pref_label_en="Camelus dromedarius", pref_label_ar="جمل عربي",
+    alt_labels_en=["dromedary camel", "camel", "Arabian camel"],
+    alt_labels_ar=["إبل", "جمل", "ناقة"],
+    domain=AgrovocDomain.LIVESTOCK,
+))
+
+_register(AgrovocConcept(
+    uri="c_3370", pref_label_en="Capra hircus", pref_label_ar="ماعز",
+    alt_labels_en=["goat", "domestic goat"],
+    alt_labels_ar=["معزة"],
+    domain=AgrovocDomain.LIVESTOCK,
+))
+
+_register(AgrovocConcept(
+    uri="c_7030", pref_label_en="Ovis aries", pref_label_ar="خروف",
+    alt_labels_en=["sheep", "domestic sheep"],
+    alt_labels_ar=["غنم", "ضأن"],
+    domain=AgrovocDomain.LIVESTOCK,
+))
+
+# ─── Remote Sensing Indices ─────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_25980", pref_label_en="NDVI", pref_label_ar="مؤشر الغطاء النباتي",
+    alt_labels_en=["normalized difference vegetation index", "vegetation index"],
+    alt_labels_ar=["مؤشر الاختلاف المعياري للغطاء النباتي"],
+    domain=AgrovocDomain.CLIMATE,
+))
+
+_register(AgrovocConcept(
+    uri="c_25981", pref_label_en="leaf area index", pref_label_ar="مؤشر مساحة الورقة",
+    alt_labels_en=["LAI"],
+    alt_labels_ar=["م.م.و"],
+    domain=AgrovocDomain.CLIMATE,
+))
+
+# ─── Fertilizer Expanded ────────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_25990", pref_label_en="humic acid", pref_label_ar="حمض الهيوميك",
+    alt_labels_en=["humic substances", "humate"],
+    alt_labels_ar=["أحماض هيومية"],
+    domain=AgrovocDomain.FERTILIZERS,
+))
+
+_register(AgrovocConcept(
+    uri="c_25991", pref_label_en="micronutrients", pref_label_ar="عناصر صغرى",
+    alt_labels_en=["trace elements", "iron", "zinc", "manganese", "boron", "copper"],
+    alt_labels_ar=["حديد", "زنك", "منغنيز", "بورون", "نحاس"],
+    domain=AgrovocDomain.FERTILIZERS,
+))
+
+# ─── Precision Farming Domain ────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26001", pref_label_en="variable rate application", pref_label_ar="استخدام معدل متغير",
+    alt_labels_en=["VRA", "variable rate technology", "VRT", "site-specific application"],
+    alt_labels_ar=["تقنية المعدل المتغير", "تطبيق متغير المعدل"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Technology that adjusts input application rates based on spatial variability within a field.",
+    definition_ar="تقنية تعدل معدلات استخدام المدخلات بناءً على التباين المكاني داخل الحقل.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26002", pref_label_en="GPS guidance", pref_label_ar="توجيه GPS",
+    alt_labels_en=["GNSS guidance", "auto-steer", "RTK guidance", "satellite navigation"],
+    alt_labels_ar=["توجيه ملاحي", "قيادة آلية", "توجيه RTK"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Satellite-based navigation for precise tractor and implement steering in agricultural fields.",
+    definition_ar="ملاحة فضائية لتوجيه الجرارات والمعدات بدقة في الحقول الزراعية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26003", pref_label_en="yield mapping", pref_label_ar="خرائط الإنتاجية",
+    alt_labels_en=["yield map", "yield monitor", "harvest mapping", "yield data"],
+    alt_labels_ar=["رصد الإنتاجية", "خريطة المحصول"],
+    related=["c_24896", "c_26001"],  # precision agriculture, VRA
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Spatially referenced recording of crop yield during harvest using GPS-equipped combines.",
+    definition_ar="تسجيل الإنتاجية مرجعيًا مكانيًا أثناء الحصاد باستخدام حاصدات مزودة بـ GPS.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26004", pref_label_en="precision seeding", pref_label_ar="بذر دقيق",
+    alt_labels_en=["variable rate seeding", "precision planting", "site-specific seeding"],
+    alt_labels_ar=["زراعة دقيقة", "بذر بمعدل متغير"],
+    related=["c_24896", "c_26001"],  # precision agriculture, VRA
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Technology for adjusting seed spacing and population based on soil variability maps.",
+    definition_ar="تقنية لضبط مسافات البذور وكثافتها بناءً على خرائط تباين التربة.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26005", pref_label_en="soil sampling", pref_label_ar="أخذ عينات التربة",
+    alt_labels_en=["grid sampling", "zone sampling", "soil testing grid", "precision soil sampling"],
+    alt_labels_ar=["أخذ عينات شبكي", "اختبار التربة الموقعي"],
+    related=["c_24896", "c_7153"],  # precision agriculture, soil salinity
+    domain=AgrovocDomain.SOIL,
+    definition_en="Systematic collection of soil samples on a georeferenced grid for nutrient mapping.",
+    definition_ar="جمع منهجي لعينات التربة على شبكة مرجعية جغرافيًا لرسم خرائط المغذيات.",
+))
+
+# ─── Digital Twin Domain ─────────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26010", pref_label_en="cyber-physical system", pref_label_ar="نظام سيبراني-فيزيائي",
+    alt_labels_en=["CPS", "cyber-physical", "digital-physical integration"],
+    alt_labels_ar=["نظام رقمي-مادي"],
+    related=["c_24896"],  # precision agriculture
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Integration of computation, networking, and physical processes for agricultural monitoring.",
+    definition_ar="تكامل الحوسبة والشبكات والعمليات الفيزيائية للمراقبة الزراعية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26011", pref_label_en="simulation model", pref_label_ar="نموذج محاكاة",
+    alt_labels_en=["crop simulation", "growth model", "DSSAT", "AquaCrop", "APSIM", "WOFOST"],
+    alt_labels_ar=["محاكاة محاصيل", "نموذج نمو"],
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Mathematical models that simulate crop growth, soil processes, and water balance.",
+    definition_ar="نماذج رياضية تحاكي نمو المحاصيل وعمليات التربة وتوازن الماء.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26012", pref_label_en="real-time monitoring", pref_label_ar="مراقبة آنية",
+    alt_labels_en=["live monitoring", "continuous monitoring", "real-time sensing", "telemetry"],
+    alt_labels_ar=["رصد مباشر", "مراقبة مستمرة", "قياس عن بعد"],
+    related=["c_26010"],  # cyber-physical system
+    domain=AgrovocDomain.EQUIPMENT,
+    definition_en="Continuous data acquisition from field sensors for immediate decision support.",
+    definition_ar="اكتساب بيانات مستمر من أجهزة استشعار الحقل لدعم القرار الفوري.",
+))
+
+# ─── Remote Sensing Expanded ─────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26020", pref_label_en="synthetic aperture radar", pref_label_ar="رادار الفتحة الاصطناعية",
+    alt_labels_en=["SAR", "radar imaging", "C-band SAR", "Sentinel-1"],
+    alt_labels_ar=["رادار SAR", "تصوير راداري"],
+    related=["c_25980"],  # NDVI
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Microwave remote sensing for all-weather crop and soil monitoring.",
+    definition_ar="استشعار عن بعد بالموجات الدقيقة لمراقبة المحاصيل والتربة في جميع الأحوال الجوية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26021", pref_label_en="thermal imaging", pref_label_ar="تصوير حراري",
+    alt_labels_en=["thermal remote sensing", "thermal infrared", "TIR", "canopy temperature"],
+    alt_labels_ar=["استشعار حراري", "أشعة تحت حمراء حرارية"],
+    related=["c_2873"],  # evapotranspiration
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Infrared imaging for crop water stress detection and ET estimation.",
+    definition_ar="تصوير بالأشعة تحت الحمراء لكشف إجهاد المحاصيل المائي وتقدير التبخر-نتح.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26022", pref_label_en="hyperspectral imaging", pref_label_ar="تصوير فوق طيفي",
+    alt_labels_en=["hyperspectral remote sensing", "imaging spectroscopy", "HSI"],
+    alt_labels_ar=["استشعار فوق طيفي", "تحليل طيفي بالتصوير"],
+    related=["c_25980", "c_25981"],  # NDVI, LAI
+    domain=AgrovocDomain.CLIMATE,
+    definition_en="Narrow-band spectral imaging for detailed crop biochemistry and nutrient analysis.",
+    definition_ar="تصوير طيفي ضيق النطاق لتحليل الكيمياء الحيوية للمحاصيل والمغذيات بالتفصيل.",
+))
+
+# ─── Best Practices Domain ───────────────────────────────────────────────────
+
+_register(AgrovocConcept(
+    uri="c_26030", pref_label_en="good agricultural practices", pref_label_ar="الممارسات الزراعية الجيدة",
+    alt_labels_en=["GAP", "GlobalGAP", "GLOBALG.A.P.", "good farming practices"],
+    alt_labels_ar=["ممارسات زراعية حسنة", "جلوبال جاب"],
+    domain=AgrovocDomain.CROPS,
+    definition_en="Standards for safe, sustainable food production addressing food safety and environmental stewardship.",
+    definition_ar="معايير لإنتاج غذاء آمن ومستدام تتناول سلامة الغذاء والإشراف البيئي.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26031", pref_label_en="integrated pest management", pref_label_ar="إدارة آفات متكاملة",
+    alt_labels_en=["IPM", "integrated crop protection", "biological control integration"],
+    alt_labels_ar=["مكافحة متكاملة", "إدارة متكاملة للآفات"],
+    related=["c_442", "c_773"],  # aphids, whitefly
+    domain=AgrovocDomain.PESTS,
+    definition_en="Ecosystem-based strategy combining biological, cultural, physical, and chemical controls.",
+    definition_ar="استراتيجية قائمة على النظام البيئي تجمع بين المكافحة البيولوجية والثقافية والفيزيائية والكيميائية.",
+))
+
+_register(AgrovocConcept(
+    uri="c_26032", pref_label_en="conservation agriculture", pref_label_ar="زراعة محافظة",
+    alt_labels_en=["conservation tillage", "no-till farming", "minimum tillage", "CA"],
+    alt_labels_ar=["حراثة صفرية", "زراعة بدون حرث", "حراثة دنيا"],
+    domain=AgrovocDomain.SOIL,
+    definition_en="Farming system based on minimal soil disturbance, permanent soil cover, and crop rotation.",
+    definition_ar="نظام زراعي قائم على الحد الأدنى من تحريك التربة والغطاء الدائم وتناوب المحاصيل.",
+))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AGROVOC Lookup Service

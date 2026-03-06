@@ -11,12 +11,17 @@ import structlog
 
 from .models import (
     BaseKnowledgeDocument,
+    BestPracticesDocument,
     CropKnowledgeDocument,
+    DigitalTwinDocument,
     FertilizerKnowledgeDocument,
     IrrigationKnowledgeDocument,
     PestVisionDocument,
+    PrecisionFarmingDocument,
+    RemoteSensingGuideDocument,
     SmartAgricultureDocument,
     SoilTypeDocument,
+    WeatherPatternDocument,
 )
 
 logger = structlog.get_logger(__name__)
@@ -63,6 +68,24 @@ class KnowledgeValidator:
     WATER_REQUIREMENT_MM_RANGE = (0.0, 3000.0)
     HARVEST_DAYS_RANGE = (20, 730)
     MAP_SCORE_RANGE = (0.0, 1.0)
+    RAINFALL_MM_RANGE = (0.0, 5000.0)
+    HUMIDITY_RANGE = (0.0, 100.0)
+    SPATIAL_RESOLUTION_RANGE = (0.1, 10000.0)  # meters
+    NDVI_RANGE = (-1.0, 1.0)
+    TEMPORAL_RESOLUTION_RANGE = (1, 365)  # days
+
+    # Precision farming constraints
+    GPS_ACCURACY_CM_RANGE = (0.1, 500.0)  # sub-cm RTK to SBAS
+    SOIL_SAMPLING_GRID_M_RANGE = (1.0, 500.0)  # meters
+
+    # Digital twin constraints
+    YIELD_RANGE_T_HA = (0.0, 200.0)  # tonnes per hectare (sugarcane max ~200)
+    UPDATE_FREQUENCY_MINUTES_RANGE = (1, 44640)  # 1 min to 31 days
+    R2_RANGE = (0.0, 1.0)
+    RMSE_RANGE = (0.0, 1000.0)
+
+    # Best practices constraints
+    SUCCESS_RATE_RANGE = (0.0, 100.0)  # percentage
 
     def validate(self, document: BaseKnowledgeDocument) -> ValidationResult:
         """Validate a knowledge document."""
@@ -84,6 +107,16 @@ class KnowledgeValidator:
             self._validate_smart_agriculture(document, result)
         elif isinstance(document, PestVisionDocument):
             self._validate_pest_vision(document, result)
+        elif isinstance(document, WeatherPatternDocument):
+            self._validate_weather(document, result)
+        elif isinstance(document, RemoteSensingGuideDocument):
+            self._validate_remote_sensing(document, result)
+        elif isinstance(document, PrecisionFarmingDocument):
+            self._validate_precision_farming(document, result)
+        elif isinstance(document, DigitalTwinDocument):
+            self._validate_digital_twin(document, result)
+        elif isinstance(document, BestPracticesDocument):
+            self._validate_best_practices(document, result)
 
         if result.issues:
             logger.info(
@@ -225,3 +258,200 @@ class KnowledgeValidator:
                 f"Image size {doc.image_size_px}px outside typical range 32-4096",
                 f"حجم الصورة {doc.image_size_px}px خارج النطاق المعتاد",
             )
+
+    def _validate_weather(self, doc: WeatherPatternDocument, result: ValidationResult) -> None:
+        """Validate weather/climate document fields."""
+        if doc.annual_rainfall_mm:
+            lo, hi = doc.annual_rainfall_mm
+            if not (self.RAINFALL_MM_RANGE[0] <= lo <= hi <= self.RAINFALL_MM_RANGE[1]):
+                result.add_error(
+                    "annual_rainfall_mm",
+                    f"Rainfall range {lo}-{hi}mm outside valid bounds 0-5000",
+                    f"نطاق الأمطار {lo}-{hi}مم خارج الحدود 0-5000",
+                )
+
+        if doc.humidity_range_percent:
+            lo, hi = doc.humidity_range_percent
+            if not (self.HUMIDITY_RANGE[0] <= lo <= hi <= self.HUMIDITY_RANGE[1]):
+                result.add_error(
+                    "humidity_range_percent",
+                    f"Humidity range {lo}-{hi}% outside valid bounds 0-100",
+                    f"نطاق الرطوبة {lo}-{hi}% خارج الحدود 0-100",
+                )
+
+        for season, temp_range in doc.temperature_range_c.items():
+            if isinstance(temp_range, (list, tuple)) and len(temp_range) == 2:
+                lo, hi = temp_range
+                if not (self.TEMPERATURE_RANGE_C[0] <= lo <= hi <= self.TEMPERATURE_RANGE_C[1]):
+                    result.add_error(
+                        "temperature_range_c",
+                        f"Temperature range {lo}-{hi}C for {season} outside valid bounds",
+                        f"نطاق الحرارة {lo}-{hi}م لموسم {season} خارج الحدود",
+                    )
+
+    def _validate_remote_sensing(self, doc: RemoteSensingGuideDocument, result: ValidationResult) -> None:
+        """Validate remote sensing guide document fields."""
+        if doc.spatial_resolution_m is not None:
+            if not (self.SPATIAL_RESOLUTION_RANGE[0] <= doc.spatial_resolution_m <= self.SPATIAL_RESOLUTION_RANGE[1]):
+                result.add_error(
+                    "spatial_resolution_m",
+                    f"Spatial resolution {doc.spatial_resolution_m}m outside valid range 0.1-10000",
+                    f"الدقة المكانية {doc.spatial_resolution_m}م خارج النطاق 0.1-10000",
+                )
+
+        if doc.temporal_resolution_days is not None:
+            if not (self.TEMPORAL_RESOLUTION_RANGE[0] <= doc.temporal_resolution_days <= self.TEMPORAL_RESOLUTION_RANGE[1]):
+                result.add_warning(
+                    "temporal_resolution_days",
+                    f"Temporal resolution {doc.temporal_resolution_days} days outside typical range 1-365",
+                    f"الدقة الزمنية {doc.temporal_resolution_days} يوم خارج النطاق المعتاد 1-365",
+                )
+
+        if doc.value_range:
+            lo, hi = doc.value_range
+            if lo >= hi:
+                result.add_error(
+                    "value_range",
+                    f"Value range minimum {lo} must be less than maximum {hi}",
+                    f"الحد الأدنى {lo} يجب أن يكون أقل من الأقصى {hi}",
+                )
+            # NDVI-specific range check
+            index_lower = doc.index_name.lower()
+            if "ndvi" in index_lower or "vegetation" in index_lower:
+                if not (self.NDVI_RANGE[0] <= lo and hi <= self.NDVI_RANGE[1]):
+                    result.add_error(
+                        "value_range",
+                        f"NDVI range {lo}-{hi} outside valid bounds -1 to 1",
+                        f"نطاق NDVI {lo}-{hi} خارج الحدود -1 إلى 1",
+                    )
+
+    def _validate_precision_farming(self, doc: PrecisionFarmingDocument, result: ValidationResult) -> None:
+        """Validate precision farming document fields.
+        التحقق من صحة حقول وثيقة الزراعة الدقيقة
+        Based on ISPA standards and FAO Precision Agriculture guidelines."""
+        valid_guidance_types = {"rtk", "dgps", "sbas", "manual", ""}
+        if doc.guidance_type and doc.guidance_type not in valid_guidance_types:
+            result.add_warning(
+                "guidance_type",
+                f"Unknown GPS guidance type: {doc.guidance_type}",
+                f"نوع توجيه GPS غير معروف: {doc.guidance_type}",
+            )
+
+        if doc.gps_accuracy_cm is not None:
+            if not (self.GPS_ACCURACY_CM_RANGE[0] <= doc.gps_accuracy_cm <= self.GPS_ACCURACY_CM_RANGE[1]):
+                result.add_error(
+                    "gps_accuracy_cm",
+                    f"GPS accuracy {doc.gps_accuracy_cm}cm outside valid range {self.GPS_ACCURACY_CM_RANGE[0]}-{self.GPS_ACCURACY_CM_RANGE[1]}",
+                    f"دقة GPS {doc.gps_accuracy_cm}سم خارج النطاق الصالح",
+                )
+
+        if doc.soil_sampling_grid_m is not None:
+            if not (self.SOIL_SAMPLING_GRID_M_RANGE[0] <= doc.soil_sampling_grid_m <= self.SOIL_SAMPLING_GRID_M_RANGE[1]):
+                result.add_warning(
+                    "soil_sampling_grid_m",
+                    f"Soil sampling grid {doc.soil_sampling_grid_m}m outside typical range {self.SOIL_SAMPLING_GRID_M_RANGE[0]}-{self.SOIL_SAMPLING_GRID_M_RANGE[1]}",
+                    f"شبكة أخذ عينات التربة {doc.soil_sampling_grid_m}م خارج النطاق المعتاد",
+                )
+
+        for zone in doc.vra_zones:
+            rate = zone.get("rate")
+            if rate is not None and rate < 0:
+                result.add_error(
+                    "vra_zones",
+                    f"VRA zone rate {rate} cannot be negative",
+                    f"معدل منطقة VRA {rate} لا يمكن أن يكون سالبًا",
+                )
+
+        for ym in doc.yield_mapping_fields:
+            yield_val = ym.get("yield_t_ha")
+            if yield_val is not None:
+                if not (self.YIELD_RANGE_T_HA[0] <= yield_val <= self.YIELD_RANGE_T_HA[1]):
+                    result.add_error(
+                        "yield_mapping_fields",
+                        f"Yield {yield_val} t/ha outside valid range 0-200",
+                        f"الإنتاجية {yield_val} طن/هكتار خارج النطاق الصالح 0-200",
+                    )
+
+    def _validate_digital_twin(self, doc: DigitalTwinDocument, result: ValidationResult) -> None:
+        """Validate digital twin simulation document fields.
+        التحقق من صحة حقول وثيقة التوأم الرقمي
+        Based on DSSAT, AquaCrop, APSIM, WOFOST model standards."""
+        valid_sim_types = {"crop_growth", "soil_water", "microclimate", "full_system", ""}
+        if doc.simulation_type and doc.simulation_type not in valid_sim_types:
+            result.add_warning(
+                "simulation_type",
+                f"Unknown simulation type: {doc.simulation_type}",
+                f"نوع محاكاة غير معروف: {doc.simulation_type}",
+            )
+
+        valid_engines = {"dssat", "aquacrop", "apsim", "wofost", "custom", ""}
+        if doc.model_engine and doc.model_engine not in valid_engines:
+            result.add_warning(
+                "model_engine",
+                f"Unknown model engine: {doc.model_engine}",
+                f"محرك نموذج غير معروف: {doc.model_engine}",
+            )
+
+        # Validate accuracy metrics
+        for metric_name, metric_value in doc.accuracy_metrics.items():
+            metric_lower = metric_name.lower()
+            if metric_lower in ("r2", "r_squared", "nash_sutcliffe"):
+                if not (self.R2_RANGE[0] <= metric_value <= self.R2_RANGE[1]):
+                    result.add_error(
+                        "accuracy_metrics",
+                        f"Metric {metric_name}={metric_value} outside valid range 0-1",
+                        f"المقياس {metric_name}={metric_value} خارج النطاق الصالح 0-1",
+                    )
+            if metric_lower in ("rmse", "mae"):
+                if metric_value < 0:
+                    result.add_error(
+                        "accuracy_metrics",
+                        f"Metric {metric_name}={metric_value} cannot be negative",
+                        f"المقياس {metric_name}={metric_value} لا يمكن أن يكون سالبًا",
+                    )
+
+        if doc.update_frequency_minutes is not None:
+            lo, hi = self.UPDATE_FREQUENCY_MINUTES_RANGE
+            if not (lo <= doc.update_frequency_minutes <= hi):
+                result.add_warning(
+                    "update_frequency_minutes",
+                    f"Update frequency {doc.update_frequency_minutes} min outside range {lo}-{hi}",
+                    f"تكرار التحديث {doc.update_frequency_minutes} دقيقة خارج النطاق {lo}-{hi}",
+                )
+
+    def _validate_best_practices(self, doc: BestPracticesDocument, result: ValidationResult) -> None:
+        """Validate best practices document fields.
+        التحقق من صحة حقول وثيقة الممارسات الفضلى
+        Based on GlobalGAP IFA v6, FAO best practices, ICARDA guidelines."""
+        valid_categories = {"gap", "ipm", "conservation", "water_efficiency", "post_harvest", "organic", ""}
+        if doc.practice_category and doc.practice_category not in valid_categories:
+            result.add_warning(
+                "practice_category",
+                f"Unknown practice category: {doc.practice_category}",
+                f"فئة ممارسة غير معروفة: {doc.practice_category}",
+            )
+
+        if doc.success_rate_percent is not None:
+            if not (self.SUCCESS_RATE_RANGE[0] <= doc.success_rate_percent <= self.SUCCESS_RATE_RANGE[1]):
+                result.add_error(
+                    "success_rate_percent",
+                    f"Success rate {doc.success_rate_percent}% outside valid range 0-100",
+                    f"نسبة النجاح {doc.success_rate_percent}% خارج النطاق الصالح 0-100",
+                )
+
+        for step in doc.implementation_steps:
+            if not step.get("step") and not step.get("description"):
+                result.add_warning(
+                    "implementation_steps",
+                    "Implementation step missing 'step' or 'description' field",
+                    "خطوة التنفيذ تفتقر لحقل 'step' أو 'description'",
+                )
+
+        valid_standards = {"globalgap", "organic", "fair_trade", "rainforest_alliance", "iso_22000", "haccp"}
+        for standard in doc.compliance_standards:
+            if standard.lower() not in valid_standards and not standard.startswith("custom:"):
+                result.add_warning(
+                    "compliance_standards",
+                    f"Unrecognized compliance standard: {standard}",
+                    f"معيار امتثال غير معروف: {standard}",
+                )

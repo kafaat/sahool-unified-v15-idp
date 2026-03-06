@@ -72,6 +72,20 @@ steps:
     config:
       method: cross_encoder
       top_k: 8
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate soil retrieval quality (CRAG)
+    config:
+      domain: soil
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_analysis
+      on_ambiguous: generate_analysis
+      on_incorrect: generate_analysis
     next_step: generate_analysis
 
   - id: generate_analysis

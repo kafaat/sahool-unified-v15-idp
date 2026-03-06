@@ -42,9 +42,7 @@ class VectorStoreBackend(StrEnum):
     MEMORY = "memory"
 
     # Cloud backends (optional)
-    # PINECONE = "pinecone"
-    # QDRANT = "qdrant"
-    # WEAVIATE = "weaviate"
+    QDRANT = "qdrant"
 
 
 class DistanceMetric(StrEnum):
@@ -74,6 +72,10 @@ class VectorStoreConfig:
     backend: VectorStoreBackend = VectorStoreBackend.SQLITE
     storage_path: str | None = None
 
+    # Qdrant settings (used when backend=QDRANT)
+    qdrant_host: str = "localhost"
+    qdrant_port: int = 6333
+
     # Vector settings
     dimension: int = 768  # Default for multilingual-e5-base
     distance_metric: DistanceMetric = DistanceMetric.COSINE
@@ -97,6 +99,11 @@ class VectorStoreConfig:
         """Initialize defaults from environment"""
         if self.storage_path is None:
             self.storage_path = os.getenv("VECTOR_STORE_PATH", str(Path.home() / ".sahool" / "vector_store"))
+        self.qdrant_host = os.getenv("QDRANT_HOST", self.qdrant_host)
+        self.qdrant_port = int(os.getenv("QDRANT_PORT", str(self.qdrant_port)))
+        # Auto-select Qdrant backend if QDRANT_HOST is explicitly set
+        if os.getenv("QDRANT_HOST"):
+            self.backend = VectorStoreBackend.QDRANT
 
 
 @dataclass
@@ -954,6 +961,305 @@ class MemoryBackend(VectorStoreBackendBase):
 
 
 # ============================================================================
+# Qdrant Backend
+# ============================================================================
+
+
+class QdrantBackend(VectorStoreBackendBase):
+    """Qdrant vector database backend
+
+    واجهة Qdrant لمخزن المتجهات
+
+    Production-grade vector search with:
+    - HNSW indexing for fast ANN search
+    - Payload filtering
+    - Collection management
+    - Horizontal scalability
+
+    Requires: pip install qdrant-client
+    """
+
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 6333,
+        distance_metric: DistanceMetric = DistanceMetric.COSINE,
+    ):
+        self.host = host
+        self.port = port
+        self.distance_metric = distance_metric
+        self._client: Any = None
+
+    def _get_qdrant_distance(self) -> Any:
+        """Map DistanceMetric to Qdrant Distance enum"""
+        from qdrant_client.models import Distance
+
+        mapping = {
+            DistanceMetric.COSINE: Distance.COSINE,
+            DistanceMetric.EUCLIDEAN: Distance.EUCLID,
+            DistanceMetric.DOT_PRODUCT: Distance.DOT,
+        }
+        return mapping[self.distance_metric]
+
+    async def initialize(self) -> None:
+        """Initialize Qdrant connection"""
+        try:
+            from qdrant_client import QdrantClient
+
+            self._client = QdrantClient(host=self.host, port=self.port)
+            # Verify connection
+            self._client.get_collections()
+            logger.info(f"Qdrant backend initialized at {self.host}:{self.port}")
+        except ImportError:
+            raise ImportError(
+                "qdrant-client is required for Qdrant backend. "
+                "Install with: pip install qdrant-client"
+            )
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Qdrant at {self.host}:{self.port}: {e}")
+
+    async def close(self) -> None:
+        """Close Qdrant connection"""
+        if self._client:
+            self._client.close()
+            self._client = None
+
+    async def create_collection(
+        self,
+        name: str,
+        dimension: int,
+        distance_metric: DistanceMetric,
+        metadata: dict[str, Any] | None = None,
+    ) -> CollectionInfo:
+        """Create a new Qdrant collection"""
+        from qdrant_client.models import VectorParams
+
+        self.distance_metric = distance_metric
+
+        collections = self._client.get_collections().collections
+        if not any(c.name == name for c in collections):
+            self._client.create_collection(
+                collection_name=name,
+                vectors_config=VectorParams(
+                    size=dimension,
+                    distance=self._get_qdrant_distance(),
+                ),
+            )
+
+        now = datetime.now(UTC)
+        return CollectionInfo(
+            name=name,
+            document_count=0,
+            dimension=dimension,
+            distance_metric=distance_metric,
+            created_at=now,
+            updated_at=now,
+            metadata=metadata or {},
+        )
+
+    async def delete_collection(self, name: str) -> bool:
+        """Delete a Qdrant collection"""
+        try:
+            self._client.delete_collection(collection_name=name)
+            return True
+        except Exception:
+            return False
+
+    async def list_collections(self) -> list[CollectionInfo]:
+        """List all Qdrant collections"""
+        collections = self._client.get_collections().collections
+        results = []
+        for c in collections:
+            info = self._client.get_collection(collection_name=c.name)
+            results.append(
+                CollectionInfo(
+                    name=c.name,
+                    document_count=info.points_count or 0,
+                    dimension=info.config.params.vectors.size if info.config.params.vectors else 0,
+                    distance_metric=self.distance_metric,
+                    created_at=datetime.now(UTC),
+                    updated_at=datetime.now(UTC),
+                )
+            )
+        return results
+
+    async def get_collection_info(self, name: str) -> CollectionInfo | None:
+        """Get Qdrant collection info"""
+        try:
+            info = self._client.get_collection(collection_name=name)
+            return CollectionInfo(
+                name=name,
+                document_count=info.points_count or 0,
+                dimension=info.config.params.vectors.size if info.config.params.vectors else 0,
+                distance_metric=self.distance_metric,
+                created_at=datetime.now(UTC),
+                updated_at=datetime.now(UTC),
+            )
+        except Exception:
+            return None
+
+    async def insert(
+        self,
+        documents: list[VectorDocument],
+        collection: str,
+    ) -> list[str]:
+        """Insert documents into Qdrant"""
+        from qdrant_client.models import PointStruct
+
+        points = []
+        ids = []
+        for doc in documents:
+            payload = {
+                "content": doc.content,
+                "created_at": doc.created_at.isoformat(),
+                "updated_at": doc.updated_at.isoformat(),
+                **doc.metadata,
+            }
+            points.append(
+                PointStruct(
+                    id=doc.id,
+                    vector=doc.vector,
+                    payload=payload,
+                )
+            )
+            ids.append(doc.id)
+
+        self._client.upsert(collection_name=collection, points=points)
+        return ids
+
+    async def update(
+        self,
+        document: VectorDocument,
+        collection: str,
+    ) -> bool:
+        """Update a document in Qdrant"""
+        from qdrant_client.models import PointStruct
+
+        document.updated_at = datetime.now(UTC)
+        payload = {
+            "content": document.content,
+            "created_at": document.created_at.isoformat(),
+            "updated_at": document.updated_at.isoformat(),
+            **document.metadata,
+        }
+        self._client.upsert(
+            collection_name=collection,
+            points=[
+                PointStruct(
+                    id=document.id,
+                    vector=document.vector,
+                    payload=payload,
+                )
+            ],
+        )
+        return True
+
+    async def delete(
+        self,
+        ids: list[str],
+        collection: str,
+    ) -> int:
+        """Delete documents from Qdrant"""
+        from qdrant_client.models import PointIdsList
+
+        self._client.delete(
+            collection_name=collection,
+            points_selector=PointIdsList(points=ids),
+        )
+        return len(ids)
+
+    async def get(
+        self,
+        id: str,
+        collection: str,
+    ) -> VectorDocument | None:
+        """Get document by ID from Qdrant"""
+        results = self._client.retrieve(
+            collection_name=collection,
+            ids=[id],
+            with_vectors=True,
+        )
+        if not results:
+            return None
+
+        point = results[0]
+        payload = point.payload or {}
+        metadata = {k: v for k, v in payload.items() if k not in ("content", "created_at", "updated_at")}
+
+        return VectorDocument(
+            id=str(point.id),
+            vector=point.vector,
+            content=payload.get("content", ""),
+            metadata=metadata,
+            created_at=datetime.fromisoformat(payload["created_at"]) if "created_at" in payload else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(payload["updated_at"]) if "updated_at" in payload else datetime.now(UTC),
+            collection=collection,
+        )
+
+    async def search(
+        self,
+        vector: list[float],
+        collection: str,
+        top_k: int = 10,
+        filter: dict[str, Any] | None = None,
+    ) -> list[SearchResult]:
+        """Search for similar vectors in Qdrant"""
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
+
+        qdrant_filter = None
+        if filter:
+            conditions = []
+            for key, value in filter.items():
+                conditions.append(
+                    FieldCondition(key=key, match=MatchValue(value=value))
+                )
+            qdrant_filter = Filter(must=conditions)
+
+        hits = self._client.search(
+            collection_name=collection,
+            query_vector=vector,
+            limit=top_k,
+            query_filter=qdrant_filter,
+            with_vectors=True,
+        )
+
+        results = []
+        for rank, hit in enumerate(hits, 1):
+            payload = hit.payload or {}
+            metadata = {k: v for k, v in payload.items() if k not in ("content", "created_at", "updated_at")}
+
+            doc = VectorDocument(
+                id=str(hit.id),
+                vector=hit.vector or [],
+                content=payload.get("content", ""),
+                metadata=metadata,
+                collection=collection,
+            )
+
+            score = hit.score
+            distance = 1.0 - score if self.distance_metric == DistanceMetric.COSINE else score
+
+            results.append(
+                SearchResult(
+                    document=doc,
+                    score=score,
+                    distance=distance,
+                    rank=rank,
+                )
+            )
+
+        return results
+
+    async def count(self, collection: str) -> int:
+        """Count documents in Qdrant collection"""
+        try:
+            info = self._client.get_collection(collection_name=collection)
+            return info.points_count or 0
+        except Exception:
+            return 0
+
+
+# ============================================================================
 # Main Vector Store Class
 # ============================================================================
 
@@ -1014,6 +1320,12 @@ class VectorStore:
             )
         elif self.config.backend == VectorStoreBackend.MEMORY:
             self._backend = MemoryBackend(
+                distance_metric=self.config.distance_metric,
+            )
+        elif self.config.backend == VectorStoreBackend.QDRANT:
+            self._backend = QdrantBackend(
+                host=self.config.qdrant_host,
+                port=self.config.qdrant_port,
                 distance_metric=self.config.distance_metric,
             )
         else:
@@ -1338,6 +1650,7 @@ __all__ = [
     "VectorStoreBackendBase",
     "SQLiteBackend",
     "MemoryBackend",
+    "QdrantBackend",
     # Main class
     "VectorStore",
     # Convenience functions

@@ -81,6 +81,14 @@ Updated: January 2026
 
 # Models and Enums
 # Connectors
+# Arabic Models
+from .arabic_models import (
+    ARABIC_MODEL_IDS,
+    ARABIC_MODELS_BY_COUNTRY,
+    ARABIC_MODELS_FOR_AGRICULTURE,
+    get_arabic_models,
+    register_arabic_models,
+)
 from .connector import (
     AgroGPTConnector,
     # Base
@@ -195,6 +203,12 @@ __all__ = [
     # Factory
     "create_connector",
     "get_available_connectors",
+    # === Arabic Models (G-02) ===
+    "get_arabic_models",
+    "register_arabic_models",
+    "ARABIC_MODEL_IDS",
+    "ARABIC_MODELS_BY_COUNTRY",
+    "ARABIC_MODELS_FOR_AGRICULTURE",
 ]
 
 

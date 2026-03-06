@@ -15,11 +15,15 @@ from shared.ai.knowledge.collections import (
     COLLECTION_DIRECTORY_MAP,
     CROP_KNOWLEDGE,
     CROP_WATER_REQUIREMENTS,
+    DIGITAL_TWIN_KNOWLEDGE,
     FERTILIZER_KNOWLEDGE,
     GENERAL_AGRICULTURE,
     IRRIGATION_PRACTICES,
     PEST_KNOWLEDGE,
+    PRECISION_FARMING_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
+    RESEARCH_REFERENCES,
+    SMART_AGRICULTURE_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
@@ -43,8 +47,8 @@ class TestCollectionConstants:
 
     @pytest.mark.unit
     def test_all_collections_count(self):
-        """Test that ALL_COLLECTIONS has 9 entries."""
-        assert len(ALL_COLLECTIONS) == 9
+        """Test that ALL_COLLECTIONS has 13 entries."""
+        assert len(ALL_COLLECTIONS) == 13
 
     @pytest.mark.unit
     def test_all_collections_contents(self):
@@ -59,6 +63,10 @@ class TestCollectionConstants:
             FERTILIZER_KNOWLEDGE,
             WEATHER_KNOWLEDGE,
             REMOTE_SENSING_KNOWLEDGE,
+            SMART_AGRICULTURE_KNOWLEDGE,
+            RESEARCH_REFERENCES,
+            PRECISION_FARMING_KNOWLEDGE,
+            DIGITAL_TWIN_KNOWLEDGE,
         }
         assert set(ALL_COLLECTIONS) == expected
 
@@ -116,5 +124,6 @@ class TestCollectionDirectoryMap:
 
     @pytest.mark.unit
     def test_general_agriculture_mapping(self):
-        """Test general agriculture maps to base directory."""
-        assert "docs/knowledge-base/" in COLLECTION_DIRECTORY_MAP[GENERAL_AGRICULTURE]
+        """Test general agriculture maps to best-practices and monitoring directories."""
+        dirs = COLLECTION_DIRECTORY_MAP[GENERAL_AGRICULTURE]
+        assert any("best-practices" in d for d in dirs)

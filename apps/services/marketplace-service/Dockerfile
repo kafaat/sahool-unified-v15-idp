@@ -38,6 +38,10 @@ WORKDIR /workspace/marketplace-service
 # Fix the file: path reference for Docker build context
 RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:../packages/nestjs-auth|g' package.json || true
 
+# Disable nestjs-auth prepare script to prevent premature tsc build during install
+# (nestjs-auth is built explicitly in a later step with proper peer deps available)
+RUN cd /workspace/packages/nestjs-auth && npm pkg delete scripts.prepare && cd /workspace/marketplace-service
+
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries
 RUN --mount=type=cache,target=/root/.npm \

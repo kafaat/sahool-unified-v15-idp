@@ -6,10 +6,6 @@ ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
-LABEL maintainer="SAHOOL Team"
-LABEL service="marketplace-service"
-LABEL version="16.0.0"
-
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 
@@ -77,16 +73,19 @@ RUN npx nest build && \
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
-# Re-declare build arg for this stage
-ARG NODE_VERSION=20
+LABEL maintainer="SAHOOL Team" \
+      service="marketplace-service" \
+      version="16.0.0" \
+      org.opencontainers.image.title="SAHOOL Marketplace Service" \
+      org.opencontainers.image.vendor="KAFAAT"
 
 WORKDIR /app
 
-# Install OpenSSL for Prisma native query engine (bookworm-slim ships OpenSSL 3.x)
+# Install OpenSSL for Prisma, curl for health checks, and tini for signal handling
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openssl curl tini && \
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Copy nestjs-auth package (needed for file: dependency resolution)
 COPY --from=builder /workspace/packages ./packages
@@ -145,9 +144,15 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check (using Node.js built-in fetch — no curl dependency needed)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD node -e "fetch('http://localhost:3010/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+# Health check (using curl for consistency across all services)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:3010/healthz || exit 1
+
+# Signal handling
+STOPSIGNAL SIGTERM
+
+# Init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run the application
 CMD ["node", "dist/main.js"]

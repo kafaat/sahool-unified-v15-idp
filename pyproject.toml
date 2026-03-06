@@ -230,3 +230,10 @@ exclude = [
     "tests/",
     ".venv/",
 ]
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "pytest>=8.4.2",
+    "ruff>=0.15.0",
+]

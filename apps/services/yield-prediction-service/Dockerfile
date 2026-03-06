@@ -47,10 +47,13 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
+# Use explicit tsc path since npx resolution through symlinks is unreliable
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/yield-prediction-service/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    ./node_modules/.bin/tsc --skipLibCheck || \
+    (echo "WARN: tsc not found via symlink, installing directly..." && \
+     npm install --no-save typescript@5.9.3 2>/dev/null && \
+     npx tsc --skipLibCheck) || \
     (echo "ERROR: nestjs-auth build failed" && exit 1)
 
 # Build the application

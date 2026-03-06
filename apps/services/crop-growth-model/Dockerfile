@@ -47,12 +47,14 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
+# Use explicit tsc path since npx resolution through symlinks is unreliable
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
-    if ! npx tsc --skipLibCheck; then \
-        npx -y typescript@5.9.3 tsc --skipLibCheck || \
-        (echo "ERROR: nestjs-auth build failed" && exit 1); \
-    fi
+    ./node_modules/.bin/tsc --skipLibCheck || \
+    (echo "WARN: tsc not found via symlink, installing directly..." && \
+     npm install --no-save typescript@5.9.3 2>/dev/null && \
+     npx tsc --skipLibCheck) || \
+    (echo "ERROR: nestjs-auth build failed" && exit 1)
 WORKDIR /workspace/crop-growth-model
 
 # Build the application

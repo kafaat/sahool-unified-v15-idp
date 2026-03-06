@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -34,8 +34,10 @@ from ..models import (
 )
 from ..sources.registry import KnowledgeSourceRegistry
 from ..validators import KnowledgeValidator, ValidationResult
-from ..vector_store_integration import KnowledgeVectorStore
 from .chunker import ChunkConfig, TextChunker
+
+if TYPE_CHECKING:
+    from ..vector_store_integration import KnowledgeVectorStore
 from .extractors import ExtractedContent, HTMLExtractor, MarkdownExtractor, PDFExtractor
 from .preprocessors import AgriculturalTermNormalizer, ArabicTextPreprocessor, MetadataEnricher
 

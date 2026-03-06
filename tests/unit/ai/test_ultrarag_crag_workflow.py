@@ -21,14 +21,11 @@ import pytest
 from shared.ai.ultrarag.workflow import (
     WorkflowEngine,
     WorkflowExecutionContext,
-    load_workflow_from_yaml,
     load_workflows_from_directory,
 )
 from shared.ai.ultrarag.models import WorkflowConfig, WorkflowStep
 from shared.ai.knowledge.corrective_retrieval import (
-    ConfidenceLevel,
     CorrectiveRetrievalEngine,
-    CRAGResult,
     RetrievalAction,
 )
 
@@ -180,7 +177,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        output, next_step = asyncio.get_event_loop().run_until_complete(
+        _output, _next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -204,7 +201,7 @@ class TestCRAGStepExecution:
             config={"domain": "crops"},
         )
 
-        output, next_step = asyncio.get_event_loop().run_until_complete(
+        _output, _next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -234,7 +231,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        output, next_step = asyncio.get_event_loop().run_until_complete(
+        _output, next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
 
@@ -259,7 +256,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        output, next_step = asyncio.get_event_loop().run_until_complete(
+        _output, next_step = asyncio.get_event_loop().run_until_complete(
             engine._handle_crag(step, ctx)
         )
         assert next_step == "fallback_search"
@@ -384,13 +381,11 @@ class TestYAMLWorkflowCRAGPresence:
         """Test CRAG step is positioned between rerank and generate."""
         workflow = workflow_map[workflow_id]
         step_ids = [s.id for s in workflow.steps]
-        step_types = {s.id: s.type for s in workflow.steps}
 
         crag_steps = [s for s in workflow.steps if s.type == "crag"]
         assert len(crag_steps) >= 1
 
         crag_step = crag_steps[0]
-        crag_idx = step_ids.index(crag_step.id)
 
         # Find the rerank step that points to crag
         rerank_found = False

@@ -140,12 +140,10 @@ COPY --from=builder /workspace/iot-service/node_modules/@prisma/client ./node_mo
 # Copy built application
 COPY --from=builder /workspace/iot-service/dist ./dist
 
-# Create non-root user (UID 1000 for consistency across all SAHOOL services)
-RUN groupadd -g 1000 nodejs && \
-    useradd -u 1000 -g nodejs -s /bin/bash -m nodejs && \
-    chown -R nodejs:nodejs /app
+# Use built-in node user (UID 1000, already exists in node:*-bookworm-slim)
+RUN chown -R node:node /app
 
-USER nodejs
+USER node
 
 # Environment
 ENV NODE_ENV=production \

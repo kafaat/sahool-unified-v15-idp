@@ -55,8 +55,9 @@ RUN --mount=type=cache,target=/root/.npm \
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
 # Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
 RUN ln -sf /workspace/yield-prediction-service/node_modules /workspace/nestjs-auth/node_modules && \
-    /workspace/yield-prediction-service/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
-    (echo "ERROR: nestjs-auth build failed" && exit 1)
+    (/workspace/yield-prediction-service/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     (echo "ERROR: nestjs-auth build failed" && exit 1))
 
 # Build the application
 RUN npx nest build

@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   iot-service:
     build:
@@ -17,15 +18,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
-    networks:
-    - sahool-network
   ground-vision-service:
     build:
       context: ../../apps/services/ground-vision-service
@@ -44,19 +42,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '1000'
           memory: 2Gi
     depends_on:
     - vegetation-analysis-service
     - weather-service
     - iot-service
-    networks:
-    - sahool-network
   satellite-service:
     build:
       context: ../../archive/deprecated-services/satellite-service
@@ -75,17 +70,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.6'
+          cpus: '600'
           memory: 768Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   weather-advanced:
     build:
       context: ../../archive/deprecated-services/weather-advanced
@@ -104,17 +94,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   virtual-sensors:
     build:
       context: ../../apps/services/virtual-sensors
@@ -133,18 +118,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - weather-service
     - vegetation-analysis-service
-    networks:
-    - sahool-network
   weather-service:
     build:
       context: ../../apps/services/weather-service
@@ -163,19 +145,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   astronomical-calendar:
     build:
       context: ../../apps/services/astronomical-calendar
@@ -194,18 +173,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   iot-gateway:
     build:
       context: ../../apps/services/iot-gateway
@@ -224,20 +200,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
     - nats
     - mqtt
-    networks:
-    - sahool-network
   weather-core:
     build:
       context: ../../archive/deprecated-services/weather-core
@@ -256,19 +229,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - redis
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   edge-orchestrator-service:
     build:
       context: ../../apps/services/edge-orchestrator-service
@@ -287,17 +255,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - yolo26-vision-service
-    networks:
-    - sahool-network
   iot-sensor-hub:
     build:
       context: ../../apps/services/iot-sensor-hub
@@ -316,17 +281,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - iot-service
-    networks:
-    - sahool-network
 networks:
   sahool-network:
-    external: true
+    driver: bridge

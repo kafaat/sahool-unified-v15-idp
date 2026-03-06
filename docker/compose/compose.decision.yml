@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   crop-growth-model:
     build:
@@ -17,15 +18,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
-    networks:
-    - sahool-network
   yield-prediction:
     build:
       context: ../../apps/services/yield-prediction
@@ -44,19 +42,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - crop-growth-model
     - weather-service
     - lai-estimation
-    networks:
-    - sahool-network
   yield-engine:
     build:
       context: ../../archive/deprecated-services/yield-engine
@@ -75,20 +70,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - crop-growth-model
     - weather-service
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   fertilizer-advisor:
     build:
       context: ../../archive/deprecated-services/fertilizer-advisor
@@ -107,20 +97,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - crop-growth-model
     - vegetation-analysis-service
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   irrigation-smart:
     build:
       context: ../../apps/services/irrigation-smart
@@ -139,18 +124,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - weather-service
     - virtual-sensors
-    networks:
-    - sahool-network
   advisory-service:
     build:
       context: ../../apps/services/advisory-service
@@ -169,19 +151,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   agro-advisor:
     build:
       context: ../../archive/deprecated-services/agro-advisor
@@ -200,21 +179,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   ai-advisor:
     build:
       context: ../../apps/services/ai-advisor
@@ -233,19 +207,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   leveling-optimizer-service:
     build:
       context: ../../apps/services/leveling-optimizer-service
@@ -264,17 +235,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
     depends_on:
     - terrain-core-service
-    networks:
-    - sahool-network
   llm-orchestrator-service:
     build:
       context: ../../apps/services/llm-orchestrator-service
@@ -293,12 +261,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 1Gi
     depends_on:
     - crop-intelligence-service
@@ -306,8 +273,6 @@ services:
     - irrigation-smart
     - pest-detection-service
     - yolo26-vision-service
-    networks:
-    - sahool-network
   drone-service:
     build:
       context: ../../apps/services/drone-service
@@ -326,18 +291,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - weather-service
     - field-management-service
-    networks:
-    - sahool-network
   yield-prediction-service:
     build:
       context: ../../apps/services/yield-prediction-service
@@ -356,18 +318,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - crop-growth-model
     - weather-service
-    networks:
-    - sahool-network
   fertigation-engine:
     build:
       context: ../../apps/services/fertigation-engine
@@ -386,18 +345,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - irrigation-smart
     - soil-analysis-service
-    networks:
-    - sahool-network
   irrigation-cycle-engine:
     build:
       context: ../../apps/services/irrigation-cycle-engine
@@ -416,18 +372,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - irrigation-smart
     - weather-service
-    networks:
-    - sahool-network
 networks:
   sahool-network:
-    external: true
+    driver: bridge

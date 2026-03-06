@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   disaster-assessment:
     build:
@@ -17,18 +18,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - weather-service
     - vegetation-analysis-service
-    networks:
-    - sahool-network
   lai-estimation:
     build:
       context: ../../apps/services/lai-estimation
@@ -47,17 +45,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
-    networks:
-    - sahool-network
   indicators-service:
     build:
       context: ../../apps/services/indicators-service
@@ -76,17 +71,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
-    networks:
-    - sahool-network
   crop-health-ai:
     build:
       context: ../../archive/deprecated-services/crop-health-ai
@@ -105,19 +97,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.8'
+          cpus: '800'
           memory: 1Gi
     depends_on:
     - vegetation-analysis-service
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   crop-intelligence-service:
     build:
       context: ../../apps/services/crop-intelligence-service
@@ -136,17 +123,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - vegetation-analysis-service
-    networks:
-    - sahool-network
   ndvi-processor:
     build:
       context: ../../apps/services/ndvi-processor
@@ -165,19 +149,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - vegetation-analysis-service
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   field-intelligence:
     build:
       context: ../../apps/services/field-intelligence
@@ -196,17 +175,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - indicators-service
-    networks:
-    - sahool-network
   vegetation-analysis-service:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -225,19 +201,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   skills-service:
     build:
       context: ../../apps/services/skills-service
@@ -256,19 +229,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   ai-agents-service:
     build:
       context: ../../apps/services/ai-agents-service
@@ -287,18 +257,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - redis
     - nats
-    networks:
-    - sahool-network
   ai-agents-core:
     build:
       context: ../../apps/services/ai-agents-core
@@ -317,17 +284,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - redis
-    networks:
-    - sahool-network
   code-fix-agent:
     build:
       context: ../../apps/services/code-fix-agent
@@ -346,17 +310,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
     depends_on:
     - redis
-    networks:
-    - sahool-network
   crop-health:
     build:
       context: ../../archive/deprecated-services/crop-health
@@ -375,20 +336,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   knowledge-graph:
     build:
       context: ../../apps/services/knowledge-graph
@@ -407,18 +363,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   ndvi-engine:
     build:
       context: ../../archive/deprecated-services/ndvi-engine
@@ -437,19 +390,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - redis
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   yolo26-vision-service:
     build:
       context: ../../apps/services/yolo26-vision-service
@@ -468,19 +416,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '1000'
           memory: 2Gi
     depends_on:
     - imagery-service
     - analytics-service
     - alert-service
-    networks:
-    - sahool-network
   terrain-core-service:
     build:
       context: ../../apps/services/terrain-core-service
@@ -499,18 +444,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 1Gi
     depends_on:
     - geo-service
     - imagery-service
-    networks:
-    - sahool-network
   hydrology-service:
     build:
       context: ../../apps/services/hydrology-service
@@ -529,18 +471,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 512Mi
     depends_on:
     - terrain-core-service
     - weather-service
-    networks:
-    - sahool-network
   vllm-deepseek:
     build:
       context: ../../apps/services/vllm-deepseek
@@ -559,15 +498,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: '8'
           memory: 32Gi
-    networks:
-    - sahool-network
   soil-analysis-service:
     build:
       context: ../../apps/services/soil-analysis-service
@@ -586,18 +522,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - advisory-service
     - notification-service
-    networks:
-    - sahool-network
   pest-detection-service:
     build:
       context: ../../apps/services/pest-detection-service
@@ -616,18 +549,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - yolo26-vision-service
     - notification-service
-    networks:
-    - sahool-network
   digital-twin-engine:
     build:
       context: ../../apps/services/digital-twin-engine
@@ -646,17 +576,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - crop-growth-model
-    networks:
-    - sahool-network
 networks:
   sahool-network:
-    external: true
+    driver: bridge

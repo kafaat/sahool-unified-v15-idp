@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   marketplace-service:
     build:
@@ -17,15 +18,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
-    networks:
-    - sahool-network
   community-chat:
     build:
       context: ../../archive/deprecated-services/community-chat
@@ -44,17 +42,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   research-core:
     build:
       context: ../../apps/services/research-core
@@ -73,15 +66,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
-    networks:
-    - sahool-network
   billing-core:
     build:
       context: ../../apps/services/billing-core
@@ -100,15 +90,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
-    networks:
-    - sahool-network
   notification-service:
     build:
       context: ../../apps/services/notification-service
@@ -127,15 +114,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
-    networks:
-    - sahool-network
   mcp-server:
     build:
       context: ../../apps/services/mcp-server
@@ -154,17 +138,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - kong
-    networks:
-    - sahool-network
   equipment-service:
     build:
       context: ../../apps/services/equipment-service
@@ -183,15 +164,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
-    networks:
-    - sahool-network
   task-service:
     build:
       context: ../../apps/services/task-service
@@ -210,15 +188,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
-    networks:
-    - sahool-network
   ws-gateway:
     build:
       context: ../../apps/services/ws-gateway
@@ -237,17 +212,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - nats
-    networks:
-    - sahool-network
   field-management-service:
     build:
       context: ../../apps/services/field-management-service
@@ -266,19 +238,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   user-service:
     build:
       context: ../../apps/services/user-service
@@ -297,18 +266,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   alert-service:
     build:
       context: ../../apps/services/alert-service
@@ -327,19 +293,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   audit-service:
     build:
       context: ../../apps/services/audit-service
@@ -358,19 +321,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   inventory-service:
     build:
       context: ../../apps/services/inventory-service
@@ -389,18 +349,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   field-chat:
     build:
       context: ../../archive/deprecated-services/field-chat
@@ -419,21 +376,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   provider-config:
     build:
       context: ../../apps/services/provider-config
@@ -452,18 +404,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   crm-service:
     build:
       context: ../../apps/services/crm-service
@@ -482,19 +431,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   lowcode-engine:
     build:
       context: ../../apps/services/lowcode-engine
@@ -513,19 +459,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   wechat-service:
     build:
       context: ../../apps/services/wechat-service
@@ -544,18 +487,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - redis
     - nats
-    networks:
-    - sahool-network
   agent-registry:
     build:
       context: ../../apps/services/agent-registry
@@ -574,18 +514,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - redis
     - nats
-    networks:
-    - sahool-network
   chat-service:
     build:
       context: ../../apps/services/chat-service
@@ -604,19 +541,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   code-review-service:
     build:
       context: ../../apps/services/code-review-service
@@ -635,18 +569,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   globalgap-compliance:
     build:
       context: ../../apps/services/globalgap-compliance
@@ -665,18 +596,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
-    networks:
-    - sahool-network
   logistics-service:
     build:
       context: ../../apps/services/logistics-service
@@ -695,19 +623,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
     depends_on:
     - postgres
     - redis
     - nats
-    networks:
-    - sahool-network
   ussd-gateway:
     build:
       context: ../../apps/services/ussd-gateway
@@ -726,18 +651,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.2'
+          cpus: '200'
           memory: 256Mi
     depends_on:
     - redis
     - nats
-    networks:
-    - sahool-network
   field-core:
     build:
       context: ../../archive/deprecated-services/field-core
@@ -756,17 +678,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.4'
+          cpus: '400'
           memory: 384Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   field-ops:
     build:
       context: ../../archive/deprecated-services/field-ops
@@ -785,17 +702,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   field-service:
     build:
       context: ../../archive/deprecated-services/field-service
@@ -814,17 +726,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 384Mi
-    networks:
-    - sahool-network
-    profiles:
-    - deprecated
   supply-chain-service:
     build:
       context: ../../apps/services/supply-chain-service
@@ -843,19 +750,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - advisory-service
     - notification-service
     - billing-core
-    networks:
-    - sahool-network
   whatsapp-bot-service:
     build:
       context: ../../apps/services/whatsapp-bot-service
@@ -874,19 +778,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
     - yolo26-vision-service
     - notification-service
-    networks:
-    - sahool-network
   cooperative-service:
     build:
       context: ../../apps/services/cooperative-service
@@ -905,18 +806,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - user-service
     - notification-service
-    networks:
-    - sahool-network
   traceability-service:
     build:
       context: ../../apps/services/traceability-service
@@ -935,18 +833,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - field-management-service
     - notification-service
-    networks:
-    - sahool-network
   copilot-api:
     build:
       context: ../../apps/services/copilot-api
@@ -965,17 +860,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '500'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
-    networks:
-    - sahool-network
   ai-chat-assistant:
     build:
       context: ../../apps/services/ai-chat-assistant
@@ -994,17 +886,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '300'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
-    networks:
-    - sahool-network
 networks:
   sahool-network:
-    external: true
+    driver: bridge

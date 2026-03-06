@@ -110,6 +110,20 @@ steps:
     config:
       method: cross_encoder
       top_k: 10
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate comprehensive retrieval quality (CRAG)
+    config:
+      domain: crops
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 10
+      on_correct: generate_comprehensive_advisory
+      on_ambiguous: generate_comprehensive_advisory
+      on_incorrect: fallback_general
     next_step: generate_comprehensive_advisory
 
   - id: generate_comprehensive_advisory

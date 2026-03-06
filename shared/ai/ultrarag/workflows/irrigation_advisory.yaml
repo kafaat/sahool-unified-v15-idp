@@ -163,6 +163,24 @@ steps:
       input: combined_irrigation_data
       top_k: 5
       method: reciprocal_rank
+    next_step: crag_evaluate
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 7b: CRAG - Corrective Retrieval Evaluation
+  # الاسترجاع التصحيحي المعزز للتوليد
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate irrigation retrieval quality (CRAG)
+    config:
+      domain: irrigation
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_advisory
+      on_ambiguous: generate_advisory
+      on_incorrect: generate_advisory
     next_step: generate_advisory
 
   # ═══════════════════════════════════════════════════════════════════════════

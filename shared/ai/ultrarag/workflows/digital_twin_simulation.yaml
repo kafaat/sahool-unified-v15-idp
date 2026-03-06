@@ -80,6 +80,19 @@ steps:
     config:
       method: cross_encoder
       top_k: 8
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate digital twin retrieval quality (CRAG)
+    config:
+      domain: digital_twin
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_simulation
+      on_ambiguous: generate_simulation
+      on_incorrect: generate_simulation
     next_step: generate_simulation
 
   - id: generate_simulation

@@ -67,6 +67,19 @@ steps:
     config:
       method: cross_encoder
       top_k: 6
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate precision farming retrieval quality (CRAG)
+    config:
+      domain: precision_farming
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 6
+      on_correct: generate_advisory
+      on_ambiguous: generate_advisory
+      on_incorrect: generate_advisory
     next_step: generate_advisory
 
   - id: generate_advisory

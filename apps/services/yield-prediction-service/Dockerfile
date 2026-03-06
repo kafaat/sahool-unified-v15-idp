@@ -58,7 +58,7 @@ RUN --mount=type=cache,target=/root/.npm \
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/yield-prediction-service/node_modules ./node_modules && \
     cd /workspace/yield-prediction-service && \
-    npm install --no-save typescript@5.9.3 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 && \
+    npm install --no-save typescript@5.9.3 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 redis@4 && \
     cd /workspace/nestjs-auth && \
     /workspace/yield-prediction-service/node_modules/.bin/tsc --skipLibCheck || \
     (echo "WARN: tsc not found, trying npx..." && npx -p typescript@5.9.3 -y tsc --skipLibCheck) || \

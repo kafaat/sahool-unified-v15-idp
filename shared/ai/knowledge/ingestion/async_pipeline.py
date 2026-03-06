@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -65,8 +66,9 @@ class AsyncKnowledgeIngestionPipeline:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             self._executor,
-            lambda: self._pipeline.ingest_file(
-                file_path, source_url, target_collection, extra_metadata
+            partial(
+                self._pipeline.ingest_file,
+                file_path, source_url, target_collection, extra_metadata,
             ),
         )
 
@@ -82,8 +84,9 @@ class AsyncKnowledgeIngestionPipeline:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             self._executor,
-            lambda: self._pipeline.ingest_text(
-                text, title, source_url, target_collection
+            partial(
+                self._pipeline.ingest_text,
+                text, title, source_url, target_collection,
             ),
         )
 
@@ -98,8 +101,9 @@ class AsyncKnowledgeIngestionPipeline:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             self._executor,
-            lambda: self._pipeline.ingest_directory(
-                directory, patterns, target_collection
+            partial(
+                self._pipeline.ingest_directory,
+                directory, patterns, target_collection,
             ),
         )
 

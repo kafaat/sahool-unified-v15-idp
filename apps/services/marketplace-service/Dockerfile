@@ -20,10 +20,13 @@ COPY packages/nestjs-auth ./packages/nestjs-auth/
 # Build errors are logged but non-fatal since local guards handle auth at runtime
 WORKDIR /workspace/packages/nestjs-auth
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
-    (npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
-     npx tsc --skipLibCheck) || \
-    echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"
+    npm config set registry https://registry.npmmirror.com; \
+    if npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
+       npx tsc --skipLibCheck; then \
+        echo "INFO: nestjs-auth built successfully"; \
+    else \
+        echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"; \
+    fi
 # Clean nestjs-auth node_modules after pre-build to prevent npm 'extraneous' errors
 # when marketplace-service resolves the file: dependency during its own npm install
 RUN rm -rf node_modules
@@ -40,11 +43,9 @@ RUN sed -i 's|\.\./\.\./\.\./packages/nestjs-auth|../packages/nestjs-auth|g' pac
 
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)
-RUN cd /workspace/packages/nestjs-auth && npm pkg delete scripts.prepare && cd /workspace/marketplace-service
-
-# Disable nestjs-auth prepare script to prevent premature tsc build during install
-# (nestjs-auth is built explicitly in a later step with proper peer deps available)
-RUN cd /workspace/packages/nestjs-auth && npm pkg delete scripts.prepare && cd /workspace/marketplace-service
+WORKDIR /workspace/packages/nestjs-auth
+RUN npm pkg delete scripts.prepare
+WORKDIR /workspace/marketplace-service
 
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries

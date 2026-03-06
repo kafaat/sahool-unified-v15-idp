@@ -12,7 +12,7 @@
 # =============================================================================
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -47,7 +47,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # =============================================================================
 # Production Stage | مرحلة الإنتاج
 # =============================================================================
-FROM python:${PYTHON_VERSION}-slim AS production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"

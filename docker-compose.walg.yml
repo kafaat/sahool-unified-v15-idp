@@ -59,7 +59,7 @@ services:
       - postgres_logs:/var/log/postgresql
       - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
       - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ./config/postgres/scripts:/usr/local/bin:ro
+      - ./config/postgres/scripts:/usr/local/bin/walg-scripts:ro
 
     # Override command to use custom config
     command:

@@ -53,11 +53,15 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# Install nestjs-auth devDependencies (redis, ioredis types) needed for tsc compilation
+# Install compile-time deps into the SERVICE directory (not through the symlink,
+# which causes silent npm failures) then run tsc from nestjs-auth
 WORKDIR /workspace/nestjs-auth
-RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
-    npm install --no-save typescript@5.9.3 redis@4 @liaoliaots/nestjs-redis@10 ioredis@5 2>/dev/null; \
-    ./node_modules/.bin/tsc --skipLibCheck || \
+RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules
+WORKDIR /workspace/crop-growth-model
+RUN npm install --no-save --legacy-peer-deps \
+    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5
+WORKDIR /workspace/nestjs-auth
+RUN /workspace/crop-growth-model/node_modules/.bin/tsc --skipLibCheck || \
     npx -y typescript@5.9.3 tsc --skipLibCheck || \
     (echo "ERROR: nestjs-auth build failed" && exit 1)
 WORKDIR /workspace/crop-growth-model

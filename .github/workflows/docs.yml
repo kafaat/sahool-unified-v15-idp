@@ -112,7 +112,7 @@ jobs:
           done
 
       - name: Upload OpenAPI specs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openapi-specs
           path: ${{ env.DOCS_DIR }}/openapi/*.json
@@ -130,7 +130,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download OpenAPI specs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: openapi-specs
           path: ${{ env.DOCS_DIR }}/openapi
@@ -325,7 +325,7 @@ jobs:
           EOF
 
       - name: Upload API docs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: api-documentation
           path: ${{ env.DOCS_DIR }}/api
@@ -415,7 +415,7 @@ jobs:
           mkdocs build --clean || true
 
       - name: Upload developer docs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: developer-documentation
@@ -439,13 +439,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download API docs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: api-documentation
           path: public/api
 
       - name: Download developer docs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: developer-documentation
           path: public/

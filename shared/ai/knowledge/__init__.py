@@ -20,17 +20,39 @@
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
+from .agrovoc import AgrovocConcept, AgrovocDomain, AgrovocLookup
+from .cache import KnowledgeCache
 from .collections import (
     CROP_KNOWLEDGE,
     CROP_WATER_REQUIREMENTS,
+    DIGITAL_TWIN_KNOWLEDGE,
     FERTILIZER_KNOWLEDGE,
     GENERAL_AGRICULTURE,
     IRRIGATION_PRACTICES,
     PEST_KNOWLEDGE,
+    PRECISION_FARMING_KNOWLEDGE,
     REMOTE_SENSING_KNOWLEDGE,
+    RESEARCH_REFERENCES,
+    SMART_AGRICULTURE_KNOWLEDGE,
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
+from .graph_builder import (
+    AgriculturalKnowledgeGraph,
+    KGEntity,
+    KGRelation,
+    build_agricultural_knowledge_graph,
+)
+from .freshness_monitor import KnowledgeFreshnessMonitor
+from .corrective_retrieval import (
+    ConfidenceLevel,
+    CorrectiveRetrievalEngine,
+    CRAGResult,
+    RefinedChunk,
+    RetrievalAction,
+    RetrievalEvaluation,
+)
+from .metrics import KnowledgeMetrics
 from .models import (
     CropKnowledgeDocument,
     FertilizerKnowledgeDocument,
@@ -39,12 +61,21 @@ from .models import (
     IrrigationKnowledgeDocument,
     KnowledgeDomain,
     KnowledgeSourceMeta,
+    PestVisionDocument,
     RemoteSensingGuideDocument,
+    SeasonalRelevance,
+    SmartAgricultureDocument,
     SoilTypeDocument,
     WeatherPatternDocument,
 )
 
-__version__ = "1.0.0"
+from .persistence import DocumentPage, DocumentQuery, InMemoryKnowledgeRepository, KnowledgeRepository
+from .quality_gate import KnowledgeQualityGate, QualityCheckResult
+from .serialization import KnowledgeSerializer
+from .vector_store_integration import KnowledgeVectorStore, VectorSearchResult
+from .versioning import DocumentVersionManager
+
+__version__ = "3.0.0"
 __all__ = [
     # Collections
     "CROP_KNOWLEDGE",
@@ -55,9 +86,14 @@ __all__ = [
     "FERTILIZER_KNOWLEDGE",
     "WEATHER_KNOWLEDGE",
     "REMOTE_SENSING_KNOWLEDGE",
+    "SMART_AGRICULTURE_KNOWLEDGE",
+    "RESEARCH_REFERENCES",
+    "PRECISION_FARMING_KNOWLEDGE",
+    "DIGITAL_TWIN_KNOWLEDGE",
     "GENERAL_AGRICULTURE",
     # Models
     "KnowledgeDomain",
+    "SeasonalRelevance",
     "FRESHMetadata",
     "GeospatialMetadata",
     "KnowledgeSourceMeta",
@@ -67,4 +103,43 @@ __all__ = [
     "FertilizerKnowledgeDocument",
     "WeatherPatternDocument",
     "RemoteSensingGuideDocument",
+    "SmartAgricultureDocument",
+    "PestVisionDocument",
+    # AGROVOC
+    "AgrovocConcept",
+    "AgrovocDomain",
+    "AgrovocLookup",
+    # Graph Builder
+    "AgriculturalKnowledgeGraph",
+    "KGEntity",
+    "KGRelation",
+    "build_agricultural_knowledge_graph",
+    # Corrective Retrieval (CRAG)
+    "CorrectiveRetrievalEngine",
+    "CRAGResult",
+    "RefinedChunk",
+    "RetrievalAction",
+    "RetrievalEvaluation",
+    "ConfidenceLevel",
+    # Vector Store Integration (GAP-01)
+    "KnowledgeVectorStore",
+    "VectorSearchResult",
+    # Persistence (GAP-03)
+    "KnowledgeRepository",
+    "InMemoryKnowledgeRepository",
+    "DocumentQuery",
+    "DocumentPage",
+    # Metrics (GAP-13)
+    "KnowledgeMetrics",
+    # Versioning (GAP-14)
+    "DocumentVersionManager",
+    # Cache (GAP-19)
+    "KnowledgeCache",
+    # Quality Gate (GAP-20)
+    "KnowledgeQualityGate",
+    "QualityCheckResult",
+    # Serialization (GAP-16)
+    "KnowledgeSerializer",
+    # Freshness Monitor (GAP-09)
+    "KnowledgeFreshnessMonitor",
 ]

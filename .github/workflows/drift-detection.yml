@@ -244,7 +244,7 @@ jobs:
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Upload Drift Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: drift-report

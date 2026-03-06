@@ -10,7 +10,7 @@ from typing import Any
 
 import structlog
 
-from ..models import KnowledgeDomain
+from ..models import KnowledgeDomain, SeasonalRelevance
 
 logger = structlog.get_logger(__name__)
 
@@ -25,8 +25,15 @@ class ArabicTextPreprocessor:
     _TATWEEL = re.compile(r"\u0640")
     _EXTRA_SPACES = re.compile(r"\s+")
 
-    def normalize(self, text: str) -> str:
-        """Apply standard Arabic text normalization."""
+    def normalize(self, text: str, normalize_taa_marbuta: bool = False) -> str:
+        """Apply standard Arabic text normalization.
+
+        Args:
+            text: Arabic text to normalize
+            normalize_taa_marbuta: If True, normalize taa marbuta (ة→ه).
+                Disabled by default as it can change word meaning
+                (e.g., مدرسة→مدرسه). Enable only for search indexing.
+        """
         if not text:
             return text
 
@@ -39,8 +46,9 @@ class ArabicTextPreprocessor:
         # Normalize alef variants
         text = self._ALEF_VARIANTS.sub("ا", text)
 
-        # Normalize taa marbuta
-        text = text.replace("ة", "ه")
+        # Normalize taa marbuta (optional - can change meaning)
+        if normalize_taa_marbuta:
+            text = text.replace("ة", "ه")
 
         # Normalize alef maqsura
         text = text.replace("ى", "ي")
@@ -211,6 +219,50 @@ class MetadataEnricher:
             "مؤشر",
             "طيفي",
         ],
+        KnowledgeDomain.SMART_AGRICULTURE: [
+            "IoT",
+            "drone",
+            "UAV",
+            "digital twin",
+            "precision farming",
+            "blockchain",
+            "edge computing",
+            "sensor network",
+            "smart farm",
+            "إنترنت الأشياء",
+            "طائرة مسيرة",
+            "توأم رقمي",
+            "زراعة دقيقة",
+            "بلوكتشين",
+            "حوسبة حافة",
+            "مزرعة ذكية",
+        ],
+        KnowledgeDomain.PRECISION_FARMING: [
+            "VRA",
+            "variable rate",
+            "GPS",
+            "GIS",
+            "GNSS",
+            "yield map",
+            "site-specific",
+            "BeiDou",
+            "RTK",
+            "معدل متغير",
+            "خريطة إنتاجية",
+        ],
+        KnowledgeDomain.DIGITAL_TWIN: [
+            "digital twin",
+            "simulation",
+            "virtual model",
+            "3D model",
+            "cyber-physical",
+            "real-time replica",
+            "farm simulation",
+            "توأم رقمي",
+            "محاكاة",
+            "نموذج افتراضي",
+            "نسخة رقمية",
+        ],
     }
 
     def detect_domains(self, text: str) -> list[KnowledgeDomain]:
@@ -270,6 +322,7 @@ class MetadataEnricher:
             "mango": "مانجو",
             "pomegranate": "رمان",
             "sesame": "سمسم",
+            "cotton": "قطن",
         }
         for en_name, ar_name in crop_patterns.items():
             if en_name in text_lower or ar_name in text:
@@ -289,9 +342,13 @@ class MetadataEnricher:
             "gcc": ["gcc", "خليج", "gulf"],
             "uae": ["emirates", "إمارات", "أبوظبي", "دبي"],
             "oman": ["oman", "عمان"],
-            "egypt": ["egypt", "مصر"],
+            "egypt": ["egypt", "مصر", "nile", "نيل"],
             "jordan": ["jordan", "أردن"],
-            "mena": ["mena", "شرق أوسط", "middle east"],
+            "iraq": ["iraq", "عراق", "بغداد"],
+            "sudan": ["sudan", "سودان", "خرطوم"],
+            "morocco": ["morocco", "مغرب", "الرباط"],
+            "china": ["china", "صين", "xinjiang", "شينجيانغ"],
+            "mena": ["mena", "شرق أوسط", "middle east", "arab"],
         }
 
         for region, keywords in region_patterns.items():
@@ -299,3 +356,41 @@ class MetadataEnricher:
                 regions.append(region)
 
         return regions
+
+    def detect_seasonal_relevance(self, text: str) -> SeasonalRelevance:
+        """Detect seasonal relevance from content (AgriSaathi pattern).
+        كشف الملاءمة الموسمية من المحتوى"""
+        text_lower = text.lower()
+
+        season_signals: dict[SeasonalRelevance, list[str]] = {
+            SeasonalRelevance.PLANTING: [
+                "planting", "sowing", "seeding", "transplant",
+                "زراعة", "بذر", "شتل",
+            ],
+            SeasonalRelevance.HARVEST: [
+                "harvest", "picking", "reaping", "yield",
+                "حصاد", "جني", "قطف",
+            ],
+            SeasonalRelevance.WINTER: [
+                "winter crop", "winter season", "cold season",
+                "محصول شتوي", "موسم شتاء",
+            ],
+            SeasonalRelevance.SUMMER: [
+                "summer crop", "summer season", "hot season",
+                "محصول صيفي", "موسم صيف",
+            ],
+            SeasonalRelevance.SPRING: [
+                "spring planting", "spring season",
+                "زراعة ربيعية", "موسم ربيع",
+            ],
+        }
+
+        best_season = SeasonalRelevance.ALL_YEAR
+        best_score = 0
+        for season, keywords in season_signals.items():
+            score = sum(1 for kw in keywords if kw in text_lower)
+            if score > best_score:
+                best_score = score
+                best_season = season
+
+        return best_season

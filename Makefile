@@ -129,33 +129,32 @@ build: ## بناء جميع صور Docker - Build all Docker images
 build-python: ## بناء خدمات Python فقط - Build only Python services
 	@echo "$(YELLOW)🐍 بناء خدمات Python - Building Python services...$(RESET)"
 	@docker compose -f $(COMPOSE_BASE) build \
-		field_ops \
-		weather_core \
-		ndvi_engine \
-		crop_health_ai \
-		virtual_sensors \
-		yield-prediction-service \
-		agro_advisor \
-		alert_service \
-		astronomical_calendar \
-		billing_core \
-		fertilizer_advisor \
-		crop_health \
-		ai_advisor \
-		agro_rules
+		advisory-service \
+		weather-service \
+		vegetation-analysis-service \
+		crop-intelligence-service \
+		virtual-sensors \
+		agro-rules \
+		alert-service \
+		astronomical-calendar \
+		billing-core \
+		ai-advisor \
+		notification-service \
+		irrigation-smart \
+		indicators-service
 	@echo "$(GREEN)✅ خدمات Python جاهزة - Python services built!$(RESET)"
 
 build-node: ## بناء خدمات Node.js فقط - Build only Node.js services
 	@echo "$(YELLOW)📦 بناء خدمات Node.js - Building Node.js services...$(RESET)"
 	@docker compose -f $(COMPOSE_BASE) build \
-		crop_growth_model \
-		disaster_assessment \
-		lai_estimation \
-		yield_prediction \
-		marketplace_service \
-		community_chat \
-		field_core \
-		iot_service
+		crop-growth-model \
+		disaster-assessment \
+		lai-estimation \
+		yield-prediction-service \
+		marketplace-service \
+		chat-service \
+		field-management-service \
+		iot-service
 	@echo "$(GREEN)✅ خدمات Node.js جاهزة - Node.js services built!$(RESET)"
 
 up: network-create ## تشغيل جميع الخدمات - Start all services

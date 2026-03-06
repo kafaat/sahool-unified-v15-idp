@@ -13,7 +13,8 @@ ARG PYTHON_VERSION=3.11
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 # Install build dependencies (needed for compiling Python packages)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 

@@ -81,8 +81,8 @@ class TestClimateZones:
 
     @pytest.mark.unit
     def test_all_zones_defined(self):
-        """Test all 8 climate zones are defined."""
-        assert len(CLIMATE_ZONES) == 8
+        """Test all 15 climate zones are defined."""
+        assert len(CLIMATE_ZONES) == 15
 
     @pytest.mark.unit
     def test_yemen_zones_present(self):

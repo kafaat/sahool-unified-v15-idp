@@ -21,6 +21,7 @@ from typing import Any
 
 import structlog
 
+from ..agrovoc import AgrovocLookup
 from ..collections import GENERAL_AGRICULTURE
 from ..models import (
     BaseKnowledgeDocument,
@@ -78,6 +79,7 @@ class KnowledgeIngestionPipeline:
         validator: KnowledgeValidator | None = None,
         min_source_credibility: int = 1,
         require_bilingual: bool = False,
+        enable_agrovoc: bool = True,
     ) -> None:
         self._md_extractor = MarkdownExtractor()
         self._pdf_extractor = PDFExtractor()
@@ -89,6 +91,7 @@ class KnowledgeIngestionPipeline:
         self._validator = validator or KnowledgeValidator()
         self._min_credibility = min_source_credibility
         self._require_bilingual = require_bilingual
+        self._agrovoc = AgrovocLookup() if enable_agrovoc else None
 
     # ─── Public API ───────────────────────────────────────────────────────────
 
@@ -134,6 +137,19 @@ class KnowledgeIngestionPipeline:
         collection = target_collection or self._resolve_collection(primary_domain)
         result.collection = collection
 
+        # AGROVOC concept extraction
+        agrovoc_concepts = extracted.metadata.get("agrovoc", [])
+        if self._agrovoc and not agrovoc_concepts:
+            found_concepts = self._agrovoc.extract_concepts_from_text(full_text)
+            agrovoc_concepts = [c.uri for c in found_concepts]
+
+        # AGROVOC tag enrichment
+        if self._agrovoc:
+            tags = self._agrovoc.enrich_tags(tags)
+
+        # Seasonal relevance detection (AgriSaathi pattern)
+        seasonal = self._metadata_enricher.detect_seasonal_relevance(full_text)
+
         doc = BaseKnowledgeDocument(
             title=extracted.title or path.stem,
             title_ar=extracted.title_ar,
@@ -144,6 +160,7 @@ class KnowledgeIngestionPipeline:
             fresh=FRESHMetadata(
                 format=extracted.source_type or "md",
                 relevance_domains=domains,
+                seasonal_relevance=seasonal,
             ),
             geospatial=GeospatialMetadata(
                 applicable_regions=regions,
@@ -152,7 +169,7 @@ class KnowledgeIngestionPipeline:
                 source_url=source_url,
                 source_name=path.name,
                 credibility=credibility,
-                agrovoc_concepts=extracted.metadata.get("agrovoc", []),
+                agrovoc_concepts=agrovoc_concepts,
             ),
             verification_status=(VerificationStatus.APPROVED if credibility.value >= 4 else VerificationStatus.PENDING),
         )
@@ -325,10 +342,13 @@ class KnowledgeIngestionPipeline:
         """Resolve domain to target collection name."""
         from ..collections import (
             CROP_KNOWLEDGE,
+            DIGITAL_TWIN_KNOWLEDGE,
             FERTILIZER_KNOWLEDGE,
             IRRIGATION_PRACTICES,
             PEST_KNOWLEDGE,
+            PRECISION_FARMING_KNOWLEDGE,
             REMOTE_SENSING_KNOWLEDGE,
+            SMART_AGRICULTURE_KNOWLEDGE,
             SOIL_KNOWLEDGE,
             WEATHER_KNOWLEDGE,
         )
@@ -341,6 +361,9 @@ class KnowledgeIngestionPipeline:
             KnowledgeDomain.PEST_DISEASE: PEST_KNOWLEDGE,
             KnowledgeDomain.WEATHER: WEATHER_KNOWLEDGE,
             KnowledgeDomain.REMOTE_SENSING: REMOTE_SENSING_KNOWLEDGE,
+            KnowledgeDomain.SMART_AGRICULTURE: SMART_AGRICULTURE_KNOWLEDGE,
+            KnowledgeDomain.PRECISION_FARMING: PRECISION_FARMING_KNOWLEDGE,
+            KnowledgeDomain.DIGITAL_TWIN: DIGITAL_TWIN_KNOWLEDGE,
             KnowledgeDomain.GENERAL: GENERAL_AGRICULTURE,
         }
         return domain_map.get(domain, GENERAL_AGRICULTURE)

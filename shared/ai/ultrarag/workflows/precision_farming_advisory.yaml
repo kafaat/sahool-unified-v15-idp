@@ -1,0 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Precision Farming Advisory
+# سير عمل استشارات الزراعة الدقيقة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: precision_farming_advisory_workflow
+name: Precision Farming Advisory
+name_ar: استشارات الزراعة الدقيقة
+description: |
+  Provides precision farming recommendations including Variable Rate Application (VRA),
+  GPS/GNSS guidance, yield mapping analysis, and site-specific management strategies.
+description_ar: |
+  يقدم توصيات الزراعة الدقيقة بما في ذلك التطبيق بمعدل متغير (VRA)،
+  التوجيه بـ GPS/GNSS، تحليل خرائط الإنتاجية، واستراتيجيات الإدارة الموقعية.
+version: "1.0.0"
+
+variables:
+  field_id: ""
+  crop_type: ""
+  management_zone_count: 0
+  soil_variability: ""
+  equipment_type: ""
+  ndvi_map: ""
+  yield_data: ""
+  top_k: 8
+
+entry_point: analyze_field_variability
+
+steps:
+  - id: analyze_field_variability
+    type: transform
+    name: Analyze field spatial variability
+    config:
+      type: analysis
+      inputs:
+        - field_id
+        - soil_variability
+        - ndvi_map
+        - yield_data
+      output: variability_analysis
+      analysis_type: spatial_variability
+    next_step: retrieve_vra_knowledge
+
+  - id: retrieve_vra_knowledge
+    type: retrieve
+    name: Get VRA technology guidance
+    config:
+      query: "variable rate application ${crop_type} management zones ${soil_variability} precision farming"
+      collection: precision_farming_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_crop_requirements
+
+  - id: retrieve_crop_requirements
+    type: retrieve
+    name: Get crop-specific precision requirements
+    config:
+      query: "${crop_type} site-specific management fertilizer irrigation prescription map"
+      collection: crop_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank precision farming results
+    config:
+      method: cross_encoder
+      top_k: 6
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate precision farming retrieval quality (CRAG)
+    config:
+      domain: precision_farming
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 6
+      on_correct: generate_advisory
+      on_ambiguous: generate_advisory
+      on_incorrect: generate_advisory
+    next_step: generate_advisory
+
+  - id: generate_advisory
+    type: generate
+    name: Generate precision farming advisory
+    config:
+      template: |
+        Provide bilingual precision farming advisory covering:
+        - Management zone delineation based on field variability
+        - VRA prescription map for fertilizer and irrigation
+        - GPS/GNSS guidance settings for equipment
+        - Expected input savings (fertilizer, water, seed)
+        - ROI estimate for precision farming adoption
+        - Equipment compatibility and setup recommendations
+      language: both
+      max_tokens: 1400
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return precision farming advisory
+    config:
+      output_fields:
+        - advisory
+        - management_zones
+        - prescription_map
+        - savings_estimate
+        - confidence
+        - sources

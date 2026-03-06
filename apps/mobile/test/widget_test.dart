@@ -107,7 +107,7 @@ class _TestNavigationScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  MaterialPageRoute<void>(
                     builder: (_) => const Scaffold(
                       body: Center(child: Text('الصفحة الثانية')),
                     ),

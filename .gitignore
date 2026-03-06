@@ -241,3 +241,8 @@ api/validation-report.json
 # CodeQL Analysis
 # ─────────────────────────────────────────────────────────────────────────────
 _codeql_detected_source_root
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MQTT Credentials (CRITICAL - Never commit!)
+# ─────────────────────────────────────────────────────────────────────────────
+infrastructure/core/mqtt/passwd

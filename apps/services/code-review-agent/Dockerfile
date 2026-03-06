@@ -13,7 +13,8 @@ FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends python3 make g++ && \
     rm -rf /var/lib/apt/lists/*
 
@@ -34,7 +35,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm ci --ignore-scripts --fetch-retries=5 --no-audit --no-fund)
@@ -77,9 +78,8 @@ USER agent
 ENV NODE_ENV=production
 ENV LOG_LEVEL=info
 
-# Health check using shell form for better compatibility
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "process.exit(0)"
+# Disable health check - this is a CLI agent, not an HTTP service
+HEALTHCHECK NONE
 
 # Default command runs the production agent
 CMD ["node", "dist/production-agent.js"]

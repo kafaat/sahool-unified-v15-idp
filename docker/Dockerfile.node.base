@@ -26,11 +26,13 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install system dependencies
-RUN apt-get update && \
+# Install system dependencies (tini for proper PID 1 signal handling)
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends \
         curl \
         ca-certificates \
+        tini \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure npm registry mirror for network resilience
@@ -87,6 +89,9 @@ EXPOSE 3000
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/healthz || exit 1
+
+# Use tini as init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Default command
 CMD ["node", "dist/main.js"]

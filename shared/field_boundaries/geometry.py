@@ -647,6 +647,62 @@ def simplify_polygon(
 # PostGIS helper functions | وظائف مساعدة لـ PostGIS
 
 
+def create_circular_boundary(
+    center_lon: float,
+    center_lat: float,
+    radius_m: float,
+    num_points: int = 72,
+) -> list[tuple[float, float]]:
+    """
+    Create a circular polygon from center and radius (for pivot fields).
+    إنشاء مضلع دائري من المركز ونصف القطر (لحقول المحور المركزي).
+
+    Generates geodesically accurate circle vertices on Earth's surface.
+    Useful for center pivot irrigation fields that cover circular areas.
+
+    Args:
+        center_lon: Center point longitude | خط طول المركز
+        center_lat: Center point latitude | خط عرض المركز
+        radius_m: Circle radius in meters | نصف القطر بالمتر
+        num_points: Number of polygon vertices (default 72 = 5 degree steps)
+
+    Returns:
+        List of (longitude, latitude) tuples forming a closed polygon
+    """
+    if radius_m <= 0:
+        raise ValueError("Radius must be positive | نصف القطر يجب أن يكون موجباً")
+    if num_points < 8:
+        raise ValueError("Minimum 8 points required | مطلوب 8 نقاط كحد أدنى")
+
+    boundary = []
+    angle_step = 360.0 / num_points
+
+    for i in range(num_points):
+        bearing_deg = i * angle_step
+        bearing_rad = degrees_to_radians(bearing_deg)
+        d = radius_m / EARTH_RADIUS_M
+
+        lat1 = degrees_to_radians(center_lat)
+        lon1 = degrees_to_radians(center_lon)
+
+        lat2 = math.asin(
+            math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing_rad)
+        )
+        lon2 = lon1 + math.atan2(
+            math.sin(bearing_rad) * math.sin(d) * math.cos(lat1),
+            math.cos(d) - math.sin(lat1) * math.sin(lat2),
+        )
+
+        boundary.append((radians_to_degrees(lon2), radians_to_degrees(lat2)))
+
+    # Close the polygon
+    boundary.append(boundary[0])
+    return boundary
+
+
+# PostGIS helper functions | وظائف مساعدة لـ PostGIS
+
+
 def generate_postgis_area_query(
     geometry_column: str = "geometry", use_spheroid: bool = True
 ) -> str:

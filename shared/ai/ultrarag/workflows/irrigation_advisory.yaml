@@ -22,6 +22,8 @@ variables:
   growth_stage: ""
   weather_forecast: {}
   field_id: ""
+  irrigation_system: ""  # drip, sprinkler, center_pivot, linear_move, flood
+  pivot_model: ""  # Valley 8000, Zimmatic, etc. (if applicable)
   top_k: 8
 
 entry_point: analyze_conditions
@@ -63,7 +65,28 @@ steps:
     type: retrieve
     name: Get irrigation best practices
     config:
-      query: "Irrigation best practices ${crop_type} ${growth_stage}"
+      query: "Irrigation best practices ${crop_type} ${growth_stage} ${irrigation_system}"
+      collection: irrigation_practices
+      top_k: 5
+      strategy: hybrid
+    next_step: check_pivot_system
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 3b: Retrieve Pivot-Specific Knowledge (if applicable)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: check_pivot_system
+    type: condition
+    name: Check if mechanized pivot system
+    config:
+      condition: "irrigation_system_in:center_pivot,linear_move"
+      true_branch: retrieve_pivot_knowledge
+      false_branch: check_weather_conditions
+
+  - id: retrieve_pivot_knowledge
+    type: retrieve
+    name: Get pivot-specific operational knowledge
+    config:
+      query: "Center pivot ${pivot_model} LEPA VRI nozzle selection ${crop_type} sprinkler package"
       collection: irrigation_practices
       top_k: 5
       strategy: hybrid
@@ -140,6 +163,24 @@ steps:
       input: combined_irrigation_data
       top_k: 5
       method: reciprocal_rank
+    next_step: crag_evaluate
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 7b: CRAG - Corrective Retrieval Evaluation
+  # الاسترجاع التصحيحي المعزز للتوليد
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate irrigation retrieval quality (CRAG)
+    config:
+      domain: irrigation
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_advisory
+      on_ambiguous: generate_advisory
+      on_incorrect: generate_advisory
     next_step: generate_advisory
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -160,9 +201,17 @@ steps:
            - Amount (mm or liters)
            - Timing (best time of day)
            - Duration (hours/minutes)
-           - Method (drip, sprinkler, flood)
+           - Method (drip, sprinkler, center pivot, linear move, flood)
         3. MONITORING: What to observe after irrigation
         4. COST-BENEFIT: Estimated water savings vs yield impact
+
+        For CENTER PIVOT / LINEAR MOVE systems, also include:
+        - Pivot speed setting (% timer)
+        - Application technology (LEPA, LESA, or overhead sprinklers)
+        - Nozzle recommendations based on soil type and crop
+        - Wind threshold for stopping (>15-20 km/h)
+        - Night irrigation recommendation for hot climates (>40C)
+        - VRI prescription if NDVI data is available
 
         Always prioritize water conservation while maintaining crop health.
       system_prompt_ar: |
@@ -173,9 +222,17 @@ steps:
            - الكمية (مم أو لتر)
            - التوقيت (أفضل وقت في اليوم)
            - المدة (ساعات/دقائق)
-           - الطريقة (تنقيط، رش، غمر)
+           - الطريقة (تنقيط، رش، محوري، خطي متحرك، غمر)
         3. المراقبة: ما يجب ملاحظته بعد الري
         4. التكلفة والعائد: توفير المياه المقدر مقابل تأثير الإنتاج
+
+        لأنظمة الري المحوري / الخطي المتحرك، أضف أيضاً:
+        - إعداد سرعة المحور (% المؤقت)
+        - تقنية التطبيق (LEPA، LESA، أو رشاشات علوية)
+        - توصية الفوهات حسب نوع التربة والمحصول
+        - حد الرياح للإيقاف (>15-20 كم/ساعة)
+        - توصية الري الليلي في الأجواء الحارة (>40 درجة)
+        - وصفة VRI إذا توفرت بيانات NDVI
 
         أعطِ الأولوية دائماً للحفاظ على المياه مع الحفاظ على صحة المحصول.
     next_step: format_output
@@ -193,6 +250,7 @@ steps:
 
         **Field**: {field_id}
         **Crop**: {crop_type} ({growth_stage})
+        **Irrigation System**: {irrigation_system}
         **Date**: {date}
 
         ### Current Conditions | الظروف الحالية
@@ -201,6 +259,9 @@ steps:
 
         ### Recommendation | التوصية
         {advisory}
+
+        ### Pivot Settings | إعدادات المحور (if applicable)
+        {pivot_settings}
 
         ### Action Items | الإجراءات المطلوبة
         {action_items}

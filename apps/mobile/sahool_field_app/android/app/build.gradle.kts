@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -12,14 +14,14 @@ plugins {
 //   keyAlias=<key alias>
 //   storeFile=<path to keystore file>
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
 }
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 36  // Android 16 - required by flutter_tts and mobile_scanner plugins
+    compileSdk = 35  // Android 15 - max supported by AGP 8.7.3
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -39,7 +41,7 @@ android {
         // SQLCipher and biometric auth also benefit from API 23+
         // flutter_tts requires API 24+ for full compatibility
         minSdk = 24
-        targetSdk = 35  // Target Android 15 for latest features
+        targetSdk = 35  // Target Android 15 - max supported by AGP 8.7.3
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 

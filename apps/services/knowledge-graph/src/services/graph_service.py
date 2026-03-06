@@ -7,10 +7,15 @@ Handles all graph operations including:
 - Relationship management
 - Path finding
 - Graph queries
+
+Uses shared/ai/knowledge/graph_builder.py as the canonical data source
+for agricultural entities and relationships.
 """
 
 import json
 import logging
+import os
+import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
@@ -25,6 +30,14 @@ from models import (
     RelationshipType,
     Treatment,
 )
+
+# Import shared knowledge graph builder
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../shared"))
+try:
+    from shared.ai.knowledge.graph_builder import build_agricultural_knowledge_graph
+    _HAS_SHARED_KG = True
+except ImportError:
+    _HAS_SHARED_KG = False
 
 logger = logging.getLogger(__name__)
 
@@ -43,219 +56,174 @@ class KnowledgeGraphService:
         logger.info("Knowledge Graph Service initialized")
 
     async def initialize(self):
-        """Initialize with sample data"""
-        logger.info("Initializing Knowledge Graph with sample data")
-        await self._load_sample_data()
+        """Initialize with agricultural knowledge data from shared builder"""
+        if _HAS_SHARED_KG:
+            logger.info("Initializing Knowledge Graph from shared/ai/knowledge/graph_builder")
+            await self._load_from_shared_builder()
+        else:
+            logger.warning("shared.ai.knowledge not available, using minimal fallback data")
+            await self._load_fallback_data()
 
-    async def _load_sample_data(self):
-        """Load sample knowledge graph data"""
-        # Sample crops
-        crops = [
-            {
-                "id": "wheat",
-                "name_en": "Wheat",
-                "name_ar": "القمح",
-                "growing_season": "winter",
-                "family": "Poaceae",
-            },
-            {
-                "id": "tomato",
-                "name_en": "Tomato",
-                "name_ar": "الطماطم",
-                "growing_season": "summer",
-                "family": "Solanaceae",
-            },
-            {
-                "id": "potato",
-                "name_en": "Potato",
-                "name_ar": "البطاطس",
-                "growing_season": "spring",
-                "family": "Solanaceae",
-            },
-        ]
+    async def _load_from_shared_builder(self):
+        """Load knowledge graph from the shared canonical builder.
 
-        # Sample diseases
-        diseases = [
-            {
-                "id": "powdery-mildew",
-                "name_en": "Powdery Mildew",
-                "name_ar": "البياض الدقيقي",
-                "pathogen_type": "fungal",
-                "severity_level": 7,
-                "symptoms_en": ["White powder coating", "Leaf distortion"],
-                "symptoms_ar": ["طلاء أبيض ناعم", "تشويه الأوراق"],
-            },
-            {
-                "id": "late-blight",
-                "name_en": "Late Blight",
-                "name_ar": "الآفة المتأخرة",
-                "pathogen_type": "fungal",
-                "severity_level": 9,
-                "symptoms_en": ["Water-soaked lesions", "Brown spots"],
-                "symptoms_ar": ["آفات مليئة بالماء", "بقع بنية"],
-            },
-            {
-                "id": "leaf-spot",
-                "name_en": "Leaf Spot",
-                "name_ar": "بقعة الأوراق",
-                "pathogen_type": "fungal",
-                "severity_level": 5,
-                "symptoms_en": ["Circular spots", "Yellow halo"],
-                "symptoms_ar": ["بقع دائرية", "هالة صفراء"],
-            },
-        ]
+        Uses shared/ai/knowledge/graph_builder.py as the single source of truth
+        for all agricultural entities and their relationships.
+        """
+        kg = build_agricultural_knowledge_graph()
 
-        # Sample treatments
-        treatments = [
-            {
-                "id": "sulfur-dust",
-                "name_en": "Sulfur Dust",
-                "name_ar": "مسحوق الكبريت",
-                "treatment_type": "fungicide",
-                "active_ingredient": "Sulfur",
-                "concentration": "100%",
-                "application_method": "dust",
-                "safety_level": 1,
-                "cost_per_liter": 5.0,
-            },
-            {
-                "id": "copper-fungicide",
-                "name_en": "Copper Fungicide",
-                "name_ar": "مبيد فطري نحاسي",
-                "treatment_type": "fungicide",
-                "active_ingredient": "Copper sulfate",
-                "concentration": "0.5%",
-                "application_method": "spray",
-                "safety_level": 2,
-                "cost_per_liter": 8.0,
-            },
-            {
-                "id": "neem-oil",
-                "name_en": "Neem Oil",
-                "name_ar": "زيت النيم",
-                "treatment_type": "organic",
-                "active_ingredient": "Azadirachtin",
-                "concentration": "3%",
-                "application_method": "spray",
-                "safety_level": 1,
-                "cost_per_liter": 12.0,
-            },
-        ]
+        # Type mapping from builder entity_type to service node types
+        _type_handlers = {
+            "crop": lambda e: self.add_crop(Crop(
+                id=e.id.replace("crop_", ""),
+                name_en=e.name,
+                name_ar=e.name_ar,
+                growing_season=e.properties.get("growing_season", e.properties.get("season", "")),
+                family=e.properties.get("family", ""),
+            )),
+            "disease": lambda e: self.add_disease(Disease(
+                id=e.id.replace("disease_", ""),
+                name_en=e.name,
+                name_ar=e.name_ar,
+                pathogen_type=e.properties.get("pathogen_type", ""),
+                severity_level=e.properties.get("severity_level", 5),
+                symptoms_en=e.properties.get("symptoms_en", []),
+                symptoms_ar=e.properties.get("symptoms_ar", []),
+            )),
+            "pest": lambda e: self.add_disease(Disease(
+                id=e.id.replace("pest_", ""),
+                name_en=e.name,
+                name_ar=e.name_ar,
+                pathogen_type=e.properties.get("type", "insect"),
+                severity_level=e.properties.get("severity_level", 5),
+                symptoms_en=e.properties.get("symptoms_en", []),
+                symptoms_ar=e.properties.get("symptoms_ar", []),
+            )),
+            "treatment": lambda e: self.add_treatment(Treatment(
+                id=e.id.replace("treat_", ""),
+                name_en=e.name,
+                name_ar=e.name_ar,
+                treatment_type=e.properties.get("treatment_type", e.properties.get("type", "")),
+                active_ingredient=e.properties.get("active_ingredient", ""),
+                concentration=str(e.properties.get("concentration", "")),
+                application_method=e.properties.get("application_method", ""),
+                safety_level=e.properties.get("safety_level", 2),
+                cost_per_liter=e.properties.get("cost_per_liter", 0.0),
+            )),
+            "fertilizer": lambda e: self.add_treatment(Treatment(
+                id=e.id.replace("fert_", ""),
+                name_en=e.name,
+                name_ar=e.name_ar,
+                treatment_type="fertilizer",
+                active_ingredient=e.properties.get("type", ""),
+                concentration="",
+                application_method="broadcast",
+                safety_level=1,
+                cost_per_liter=0.0,
+            )),
+            "irrigation": lambda e: self._add_generic_entity(e),
+        }
 
         # Add entities
-        for crop in crops:
-            await self.add_crop(Crop(**crop))
-        for disease in diseases:
-            await self.add_disease(Disease(**disease))
-        for treatment in treatments:
-            await self.add_treatment(Treatment(**treatment))
+        entity_count = 0
+        for entity in kg.entities:
+            handler = _type_handlers.get(entity.entity_type)
+            if handler:
+                await handler(entity)
+                entity_count += 1
 
-        # Add relationships
-        relationships = [
-            # Powdery mildew affects wheat and tomato
-            {
-                "source_type": "disease",
-                "source_id": "powdery-mildew",
-                "target_type": "crop",
-                "target_id": "wheat",
-                "relationship_type": RelationshipType.AFFECTS,
-                "confidence": 0.95,
-            },
-            {
-                "source_type": "disease",
-                "source_id": "powdery-mildew",
-                "target_type": "crop",
-                "target_id": "tomato",
-                "relationship_type": RelationshipType.AFFECTS,
-                "confidence": 0.90,
-            },
-            # Late blight affects potato and tomato
-            {
-                "source_type": "disease",
-                "source_id": "late-blight",
-                "target_type": "crop",
-                "target_id": "potato",
-                "relationship_type": RelationshipType.AFFECTS,
-                "confidence": 0.99,
-            },
-            {
-                "source_type": "disease",
-                "source_id": "late-blight",
-                "target_type": "crop",
-                "target_id": "tomato",
-                "relationship_type": RelationshipType.AFFECTS,
-                "confidence": 0.95,
-            },
-            # Leaf spot affects tomato
-            {
-                "source_type": "disease",
-                "source_id": "leaf-spot",
-                "target_type": "crop",
-                "target_id": "tomato",
-                "relationship_type": RelationshipType.AFFECTS,
-                "confidence": 0.85,
-            },
-            # Powdery mildew treated by sulfur and copper
-            {
-                "source_type": "disease",
-                "source_id": "powdery-mildew",
-                "target_type": "treatment",
-                "target_id": "sulfur-dust",
-                "relationship_type": RelationshipType.TREATED_BY,
-                "confidence": 0.95,
-            },
-            {
-                "source_type": "disease",
-                "source_id": "powdery-mildew",
-                "target_type": "treatment",
-                "target_id": "copper-fungicide",
-                "relationship_type": RelationshipType.TREATED_BY,
-                "confidence": 0.90,
-            },
-            # Late blight treated by copper and neem
-            {
-                "source_type": "disease",
-                "source_id": "late-blight",
-                "target_type": "treatment",
-                "target_id": "copper-fungicide",
-                "relationship_type": RelationshipType.TREATED_BY,
-                "confidence": 0.85,
-            },
-            {
-                "source_type": "disease",
-                "source_id": "late-blight",
-                "target_type": "treatment",
-                "target_id": "neem-oil",
-                "relationship_type": RelationshipType.TREATED_BY,
-                "confidence": 0.70,
-            },
-            # Sulfur is safe for wheat
-            {
-                "source_type": "treatment",
-                "source_id": "sulfur-dust",
-                "target_type": "crop",
-                "target_id": "wheat",
-                "relationship_type": RelationshipType.COMPATIBLE,
-                "confidence": 0.99,
-            },
-        ]
+        # Map relation types to service RelationshipType
+        _rel_map = {
+            "affects": RelationshipType.AFFECTS,
+            "treats": RelationshipType.TREATED_BY,
+            "compatible_with": RelationshipType.COMPATIBLE,
+        }
 
-        for rel_data in relationships:
-            rel_type = rel_data.pop("relationship_type")
-            confidence = rel_data.pop("confidence", 1.0)
-            await self.add_relationship(
-                source_type=rel_data["source_type"],
-                source_id=rel_data["source_id"],
-                target_type=rel_data["target_type"],
-                target_id=rel_data["target_id"],
+        # Map entity IDs to their node type prefixes
+        entity_type_map = {}
+        for entity in kg.entities:
+            entity_type_map[entity.id] = entity.entity_type
+
+        # Type prefix mapping for node IDs
+        _type_prefix = {
+            "crop": "crop",
+            "disease": "disease",
+            "pest": "disease",
+            "treatment": "treatment",
+            "fertilizer": "treatment",
+            "irrigation": "irrigation",
+        }
+
+        # ID strip prefix mapping
+        _strip_prefix = {
+            "crop": "crop_",
+            "disease": "disease_",
+            "pest": "pest_",
+            "treatment": "treat_",
+            "fertilizer": "fert_",
+            "irrigation": "irr_",
+        }
+
+        # Add relations
+        rel_count = 0
+        for relation in kg.relations:
+            src_type = entity_type_map.get(relation.source_id, "")
+            tgt_type = entity_type_map.get(relation.target_id, "")
+
+            src_node_type = _type_prefix.get(src_type, src_type)
+            tgt_node_type = _type_prefix.get(tgt_type, tgt_type)
+
+            src_stripped = relation.source_id.replace(_strip_prefix.get(src_type, ""), "", 1)
+            tgt_stripped = relation.target_id.replace(_strip_prefix.get(tgt_type, ""), "", 1)
+
+            rel_type = _rel_map.get(relation.relation_type, RelationshipType.AFFECTS)
+
+            success = await self.add_relationship(
+                source_type=src_node_type,
+                source_id=src_stripped,
+                target_type=tgt_node_type,
+                target_id=tgt_stripped,
                 relationship_type=rel_type,
-                confidence=confidence,
+                confidence=relation.confidence,
             )
+            if success:
+                rel_count += 1
 
         logger.info(
-            f"Loaded {len(crops)} crops, {len(diseases)} diseases, "
-            f"{len(treatments)} treatments, {len(relationships)} relationships"
+            f"Loaded {entity_count} entities, {rel_count} relationships "
+            f"from shared knowledge graph builder"
         )
+
+    async def _add_generic_entity(self, entity):
+        """Add a generic entity (e.g., irrigation method) to the graph"""
+        prefix = entity.entity_type
+        stripped_id = entity.id.replace(f"{prefix}_", "").replace("irr_", "")
+        node_id = f"{prefix}:{stripped_id}"
+        self.entities[node_id] = {
+            "id": stripped_id,
+            "name_en": entity.name,
+            "name_ar": entity.name_ar,
+            **entity.properties,
+        }
+        self.graph.add_node(
+            node_id,
+            node_type=prefix,
+            label=entity.name,
+            label_ar=entity.name_ar,
+        )
+        return True
+
+    async def _load_fallback_data(self):
+        """Minimal fallback data when shared builder is not available"""
+        crops = [
+            {"id": "wheat", "name_en": "Wheat", "name_ar": "القمح",
+             "growing_season": "winter", "family": "Poaceae"},
+            {"id": "tomato", "name_en": "Tomato", "name_ar": "الطماطم",
+             "growing_season": "summer", "family": "Solanaceae"},
+        ]
+        for crop in crops:
+            await self.add_crop(Crop(**crop))
+        logger.info(f"Loaded {len(crops)} fallback crops")
 
     async def add_crop(self, crop: Crop) -> bool:
         """Add a crop to the knowledge graph"""

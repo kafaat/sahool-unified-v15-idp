@@ -34,6 +34,12 @@ from .collections import (
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
+from .graph_builder import (
+    AgriculturalKnowledgeGraph,
+    KGEntity,
+    KGRelation,
+    build_agricultural_knowledge_graph,
+)
 from .corrective_retrieval import (
     ConfidenceLevel,
     CorrectiveRetrievalEngine,
@@ -90,6 +96,11 @@ __all__ = [
     "AgrovocConcept",
     "AgrovocDomain",
     "AgrovocLookup",
+    # Graph Builder
+    "AgriculturalKnowledgeGraph",
+    "KGEntity",
+    "KGRelation",
+    "build_agricultural_knowledge_graph",
     # Corrective Retrieval (CRAG)
     "CorrectiveRetrievalEngine",
     "CRAGResult",

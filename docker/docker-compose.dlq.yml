@@ -8,9 +8,9 @@
 #   docker-compose -f docker-compose.yml -f docker/docker-compose.dlq.yml up -d
 #
 # Endpoints:
-#   - API: http://localhost:8090/docs
-#   - Health: http://localhost:8090/health
-#   - Stats: http://localhost:8090/dlq/stats
+#   - API: http://localhost:8190/docs
+#   - Health: http://localhost:8190/health
+#   - Stats: http://localhost:8190/dlq/stats
 #
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -29,10 +29,10 @@ services:
       sh -c "
       pip install -q fastapi uvicorn nats-py pydantic aiohttp &&
       cd /app/shared/events &&
-      uvicorn dlq_service:app --host 0.0.0.0 --port 8090 --reload
+      uvicorn dlq_service:app --host 0.0.0.0 --port 8190 --reload
       "
     ports:
-      - "8090:8090"
+      - "8190:8190"
     environment:
       # NATS connection
       NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD}@nats:4222
@@ -57,11 +57,12 @@ services:
     networks:
       - sahool-network
     depends_on:
-      - nats
+      nats:
+        condition: service_healthy
     restart: unless-stopped
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8190/health')\""]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -108,7 +109,8 @@ services:
     networks:
       - sahool-network
     depends_on:
-      - nats
+      nats:
+        condition: service_healthy
     restart: unless-stopped
 
     labels:

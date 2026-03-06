@@ -15,7 +15,7 @@ _transform: true
 # ============================================================================
 # مستهلكو الباقة الأساسية - Starter Package Consumers
 # للمزارعين الصغار وملاك الأراضي الجدد
-# Rate Limit: 100 requests/minute
+# Rate Limit: 30 requests/minute, 500 requests/hour
 # ============================================================================
 
 consumers:
@@ -41,15 +41,15 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 100
-          hour: 5000
+          minute: 30
+          hour: 500
           day: 100000
           policy: local
           fault_tolerant: true
       - name: response-ratelimiting
         config:
           limits:
-            minute: 100
+            minute: 30
       - name: request-size-limiting
         config:
           allowed_payload_size: 10
@@ -73,8 +73,8 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 100
-          hour: 5000
+          minute: 30
+          hour: 500
 
   # ============================================================================
   # مستخدم الباقة الأساسية - مالك أرض جديد
@@ -95,13 +95,13 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 100
-          hour: 5000
+          minute: 30
+          hour: 500
 
 # ============================================================================
 # مستهلكو الباقة المتوسطة - Professional Package Consumers
 # للمزارعين المحترفين والتعاونيات
-# Rate Limit: 1000 requests/minute
+# Rate Limit: 60 requests/minute, 2000 requests/hour
 # ============================================================================
 
   # ============================================================================
@@ -124,15 +124,15 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 1000
-          hour: 50000
+          minute: 60
+          hour: 2000
           day: 1000000
           policy: local
           fault_tolerant: true
       - name: response-ratelimiting
         config:
           limits:
-            minute: 1000
+            minute: 60
       - name: request-size-limiting
         config:
           allowed_payload_size: 50
@@ -157,8 +157,8 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 1000
-          hour: 50000
+          minute: 60
+          hour: 2000
 
   # ============================================================================
   # مستخدم الباقة المتوسطة - تعاونية زراعية
@@ -180,13 +180,13 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 1000
-          hour: 50000
+          minute: 60
+          hour: 2000
 
 # ============================================================================
 # مستهلكو الباقة المتقدمة - Enterprise Package Consumers
 # للشركات الزراعية الكبرى
-# Rate Limit: 10000 requests/minute
+# Rate Limit: 120 requests/minute, 5000 requests/hour
 # ============================================================================
 
   # ============================================================================
@@ -210,15 +210,15 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 5000
           day: 10000000
           policy: local
           fault_tolerant: true
       - name: response-ratelimiting
         config:
           limits:
-            minute: 10000
+            minute: 120
       - name: request-size-limiting
         config:
           allowed_payload_size: 100
@@ -244,8 +244,8 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 5000
 
   # ============================================================================
   # مستخدم الباقة المتقدمة - مركز بحثي تجاري
@@ -268,13 +268,13 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 5000
 
 # ============================================================================
 # مستهلكو باقة البحث العلمي - Research Package Consumers
 # للجامعات ومراكز البحث الأكاديمية
-# Rate Limit: 10000 requests/minute
+# Rate Limit: 120 requests/minute, 10000 requests/hour
 # ============================================================================
 
   # ============================================================================
@@ -297,15 +297,15 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 10000
           day: 10000000
           policy: local
           fault_tolerant: true
       - name: response-ratelimiting
         config:
           limits:
-            minute: 10000
+            minute: 120
       - name: request-size-limiting
         config:
           allowed_payload_size: 100
@@ -330,8 +330,8 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 10000
 
   # ============================================================================
   # مستخدم باقة البحث - مركز بحثي حكومي
@@ -353,8 +353,8 @@ consumers:
     plugins:
       - name: rate-limiting
         config:
-          minute: 10000
-          hour: 500000
+          minute: 120
+          hour: 10000
 
 # ============================================================================
 # المسؤولون - Admin Consumers

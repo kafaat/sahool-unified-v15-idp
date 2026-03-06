@@ -1241,7 +1241,7 @@ docker-compose --profile legacy up
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
-| chat-service         | Node.js | 8000 | Real-time messaging      |
+| chat-service         | Node.js | 8115 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | inventory-service    | Python  | 8116 | Inventory management     |

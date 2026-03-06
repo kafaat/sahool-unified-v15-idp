@@ -65,8 +65,8 @@ COPY --from=builder /install /usr/local
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
 
-# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
-COPY apps/services/shared/ ./shared/
+# Copy services shared modules (merge into separate dir to avoid overwriting root shared/)
+COPY apps/services/shared/ ./services_shared/
 
 # Copy source code
 COPY apps/services/vegetation-analysis-service/src/ ./src/

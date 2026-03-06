@@ -121,8 +121,8 @@ class KnowledgeGraphService:
                 safety_level=1,
                 cost_per_liter=0.0,
             )),
-            "irrigation": lambda e: self._add_generic_entity(e),
-            "equipment": lambda e: self._add_generic_entity(e),
+            "irrigation": self._add_generic_entity,
+            "equipment": self._add_generic_entity,
         }
 
         # Add entities

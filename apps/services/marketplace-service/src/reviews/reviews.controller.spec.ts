@@ -85,10 +85,11 @@ describe("ReviewsController", () => {
 
       mockReviewsService.createProductReview.mockResolvedValue(expectedResult);
 
-      const result = await controller.createProductReview(dto);
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.createProductReview(mockReq, dto);
 
       expect(result).toEqual(expectedResult);
-      expect(service.createProductReview).toHaveBeenCalledWith(dto);
+      expect(service.createProductReview).toHaveBeenCalledWith(dto, 'tenant-1');
     });
   });
 

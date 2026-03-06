@@ -147,6 +147,7 @@ describe("FintechService (Facade)", () => {
         undefined,
         undefined,
         undefined,
+        undefined,
       );
       expect(result).toEqual(mockResult);
     });

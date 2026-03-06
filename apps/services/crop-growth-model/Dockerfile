@@ -58,7 +58,7 @@ RUN --mount=type=cache,target=/root/.npm \
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
     cd /workspace/crop-growth-model && \
-    npm install --no-save typescript@5.9.3 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 redis@4 && \
+    npm install --no-save --legacy-peer-deps typescript@5.9.3 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 redis@4 && \
     cd /workspace/nestjs-auth && \
     /workspace/crop-growth-model/node_modules/.bin/tsc --skipLibCheck || \
     (echo "WARN: tsc not found, trying npx..." && npx -p typescript@5.9.3 -y tsc --skipLibCheck) || \

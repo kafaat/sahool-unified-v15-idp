@@ -20,7 +20,6 @@ import structlog
 from .models import (
     BaseKnowledgeDocument,
     KnowledgeDomain,
-    SourceCredibilityLevel,
     VerificationStatus,
 )
 

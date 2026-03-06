@@ -21,22 +21,12 @@ Updated: March 2026
 from __future__ import annotations
 
 import logging
-import os
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
-
-logger = logging.getLogger(__name__)
-
-# Try structured logging first
-try:
-    import structlog
-    logger = structlog.get_logger(__name__)
-except ImportError:
-    pass
 
 # ── Knowledge Base imports (local, always available) ─────────────────────────
 from .knowledge.collections import (
@@ -50,32 +40,21 @@ from .knowledge.collections import (
     WEATHER_KNOWLEDGE,
 )
 
-# ── Optional imports for full-featured mode ──────────────────────────────────
-try:
-    from .knowledge import (
-        CropKnowledgeDocument,
-        FertilizerKnowledgeDocument,
-        InMemoryKnowledgeRepository,
-        IrrigationKnowledgeDocument,
-        KnowledgeRepository,
-        KnowledgeVectorStore,
-        PestVisionDocument,
-        SoilTypeDocument,
-        VectorSearchResult,
-        WeatherPatternDocument,
-    )
+logger = logging.getLogger(__name__)
 
-    _KNOWLEDGE_MODELS_AVAILABLE = True
+# Try structured logging first
+try:
+    import structlog
+    logger = structlog.get_logger(__name__)
 except ImportError:
-    _KNOWLEDGE_MODELS_AVAILABLE = False
+    pass
+
+# ── Optional imports for full-featured mode ──────────────────────────────────
+_KNOWLEDGE_MODELS_AVAILABLE = False
 
 try:
     from .ultrarag import (
-        KnowledgeBase,
-        RAGPipeline,
-        RAGPipelineBuilder,
         RAGRequest,
-        RAGResult,
         WorkflowEngine,
         load_workflow_from_yaml,
         load_workflows_from_directory,

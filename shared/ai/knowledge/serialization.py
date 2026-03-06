@@ -276,9 +276,7 @@ class KnowledgeSerializer:
         data = doc.model_dump()
         # Ensure datetime fields are ISO strings for JSON compatibility
         for key, value in data.items():
-            if isinstance(value, datetime):
-                data[key] = value.isoformat()
-            elif isinstance(value, date):
+            if isinstance(value, (datetime, date)):
                 data[key] = value.isoformat()
         # Handle nested dicts that may contain date objects
         data = self._convert_dates_recursive(data)

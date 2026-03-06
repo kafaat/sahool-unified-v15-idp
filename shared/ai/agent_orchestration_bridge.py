@@ -23,10 +23,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
-from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import StrEnum
 from typing import Any, Callable, Coroutine
 from uuid import uuid4
 
@@ -34,13 +31,11 @@ from .circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
     CircuitBreakerError,
-    CircuitState,
 )
 from .orchestration.consensus import ConsensusManager, get_consensus_manager
 from .orchestration.models import (
     AgentCapability,
     AgentProfile,
-    ConsensusResult,
     ConsensusType,
     SwarmConfig,
     SwarmResult,
@@ -49,7 +44,6 @@ from .orchestration.models import (
     TaskPriority,
     TaskResult,
     TaskStatus,
-    Vote,
 )
 from .orchestration.router import AgentRouter, get_router
 from .orchestration.swarm import SwarmCoordinator, get_swarm_coordinator

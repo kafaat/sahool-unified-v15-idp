@@ -23,6 +23,8 @@ Updated: March 2026
 
 from __future__ import annotations
 
+from typing import Any
+
 from .models import (
     AIModelCategory,
     AIModelInfo,

@@ -27,7 +27,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -292,7 +291,7 @@ def get_arabic_embedding_model() -> ArabicModelConfig:
 
 
 def list_arabic_models(
-    task: Optional[ArabicModelTask] = None,
+    task: ArabicModelTask | None = None,
 ) -> list[ArabicModelConfig]:
     """
     List all registered Arabic models, optionally filtered by task.

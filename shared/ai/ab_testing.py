@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
+import random
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -474,9 +476,6 @@ try:
 except ImportError:
     HTTPX_AVAILABLE = False
 
-import asyncio
-import os
-import random
 
 
 class SignificanceLevel(StrEnum):
@@ -799,7 +798,7 @@ class ABTestRunner:
             except Exception as e:
                 logger.warning("ab_sample_failed", variant=variant.name, error=str(e))
                 latency_ms = (datetime.now(UTC) - start).total_seconds() * 1000
-                metrics = {m: 0.0 for m in config.metric_names}
+                metrics = dict.fromkeys(config.metric_names, 0.0)
                 metrics["latency_ms"] = latency_ms
                 response = ""
 

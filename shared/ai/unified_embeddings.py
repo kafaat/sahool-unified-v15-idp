@@ -47,7 +47,7 @@ except ImportError:
     get_arabic_embedding_model = None  # type: ignore[assignment]
 
 try:
-    from .graph_memory import SimpleEmbedder, cosine_similarity as _gm_cosine_similarity
+    from .graph_memory import SimpleEmbedder
 
     _SIMPLE_EMBEDDER_AVAILABLE = True
 except ImportError:
@@ -617,8 +617,7 @@ class UnifiedEmbedder:
                     cached=False,
                 )
             # Minimal fallback when EmbeddingResult class is unavailable
-            from dataclasses import dataclass as _dc, field as _f
-            from datetime import UTC as _UTC, datetime as _dt
+            from dataclasses import dataclass as _dc
 
             @_dc
             class _MinimalResult:

@@ -30,12 +30,10 @@ from .crop_vision import (
     DiseaseType,
     PestDetection,
     PestType,
-    Severity,
     VisionAnalysisResult,
 )
 from .knowledge.collections import (
     CROP_KNOWLEDGE,
-    GENERAL_AGRICULTURE,
     PEST_KNOWLEDGE,
 )
 from .knowledge.corrective_retrieval import (

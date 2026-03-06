@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "pg": "^8.13.1",
+    "pg": "^8.19.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20",
     "cors": "^2.8.6",

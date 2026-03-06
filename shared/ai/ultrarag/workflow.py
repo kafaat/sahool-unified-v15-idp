@@ -16,6 +16,11 @@ from .models import (
     WorkflowConfig,
     WorkflowStep,
 )
+from ..knowledge.corrective_retrieval import (
+    CorrectiveRetrievalEngine,
+    CRAGResult,
+    RetrievalAction,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -73,6 +78,7 @@ class WorkflowEngine:
             "parallel": self._handle_parallel,
             "aggregate": self._handle_aggregate,
             "call_rag": self._handle_call_rag,
+            "crag": self._handle_crag,
         }
 
         # Register built-in condition evaluators
@@ -81,6 +87,9 @@ class WorkflowEngine:
             "confidence_above": lambda ctx, params: ctx.variables.get("confidence", 0) > params.get("threshold", 0.5),
             "result_count_above": lambda ctx, params: len(ctx.variables.get("results", [])) > params.get("count", 0),
             "language_is": lambda ctx, params: ctx.variables.get("language") == params.get("lang"),
+            "crag_action_is": lambda ctx, params: ctx.variables.get("crag_action", "") == params.get("action", "correct"),
+            "needs_fallback": lambda ctx, params: ctx.variables.get("crag_fallback_used", False),
+            "relevance_above": lambda ctx, params: ctx.variables.get("crag_overall_score", 0) > params.get("threshold", 0.5),
         }
 
     def register_workflow(self, config: WorkflowConfig):
@@ -532,6 +541,122 @@ class WorkflowEngine:
         ctx.variables[output_var] = aggregated
 
         return aggregated, None
+
+    async def _handle_crag(
+        self,
+        step: WorkflowStep,
+        ctx: WorkflowExecutionContext,
+    ) -> tuple[Any, str | None]:
+        """Handle CRAG (Corrective Retrieval Augmented Generation) evaluation.
+
+        Evaluates retrieval quality and refines chunks using the 3-action pattern:
+        - CORRECT: high quality → keep chunks, proceed to generate
+        - AMBIGUOUS: mixed quality → refine chunks at sentence level
+        - INCORRECT: poor quality → mark for fallback collection search
+
+        Config:
+            domain: query domain for relevance scoring (crops, irrigation, pest_disease, etc.)
+            region: target region for region-aware scoring
+            correct_threshold: score threshold for CORRECT action (default 0.7)
+            ambiguous_threshold: score threshold for AMBIGUOUS action (default 0.4)
+            max_refined_chunks: max chunks to keep after refinement (default 10)
+            on_correct: next step when action is CORRECT
+            on_ambiguous: next step when action is AMBIGUOUS
+            on_incorrect: next step when action is INCORRECT (fallback)
+
+        مرحلة CRAG - الاسترجاع التصحيحي المعزز للتوليد
+        """
+        # Get config
+        domain = step.config.get("domain", ctx.variables.get("query_domain", ""))
+        region = step.config.get("region", ctx.variables.get("region", ""))
+        correct_threshold = step.config.get("correct_threshold", 0.7)
+        ambiguous_threshold = step.config.get("ambiguous_threshold", 0.4)
+        max_refined = step.config.get("max_refined_chunks", 10)
+
+        # Build CRAG engine
+        engine = CorrectiveRetrievalEngine(
+            correct_threshold=correct_threshold,
+            ambiguous_threshold=ambiguous_threshold,
+            max_refined_chunks=max_refined,
+        )
+
+        # Convert retrieval results to chunk dicts for CRAG engine
+        results = ctx.variables.get("results", [])
+        query = ctx.variables.get("query", "")
+
+        chunks_for_crag: list[dict] = []
+        for r in results:
+            if hasattr(r, "chunk"):
+                chunks_for_crag.append({
+                    "content": r.chunk.text,
+                    "content_ar": r.chunk.text_ar or "",
+                    "metadata": {
+                        **r.chunk.metadata,
+                        "collection": r.chunk.collection,
+                        "source": r.chunk.document_id,
+                    },
+                })
+            elif isinstance(r, dict):
+                chunks_for_crag.append(r)
+
+        # Run CRAG evaluation and refinement
+        crag_result: CRAGResult = engine.evaluate_and_refine(
+            query=query,
+            retrieved_chunks=chunks_for_crag,
+            query_domain=domain,
+            target_region=region,
+        )
+
+        # Store CRAG results in context
+        ctx.variables["crag_result"] = crag_result.to_dict()
+        ctx.variables["crag_action"] = crag_result.action_taken.value
+        ctx.variables["crag_confidence"] = crag_result.evaluation.confidence.value
+        ctx.variables["crag_overall_score"] = crag_result.evaluation.overall_score
+        ctx.variables["crag_fallback_used"] = crag_result.fallback_used
+        ctx.variables["crag_fallback_source"] = crag_result.fallback_source
+        ctx.variables["crag_chunks_in"] = crag_result.total_chunks_input
+        ctx.variables["crag_chunks_out"] = crag_result.total_chunks_output
+        ctx.variables["crag_refinement_ratio"] = crag_result.refinement_ratio
+
+        # Store refined chunks as context for generation
+        if crag_result.refined_chunks:
+            ctx.variables["crag_refined_context"] = "\n\n---\n\n".join(
+                chunk.content for chunk in crag_result.refined_chunks
+            )
+            ctx.variables["crag_refined_context_ar"] = "\n\n---\n\n".join(
+                chunk.content_ar for chunk in crag_result.refined_chunks if chunk.content_ar
+            )
+
+        # If fallback needed, suggest alternative collections
+        if crag_result.fallback_used:
+            current_collection = ctx.variables.get("collection", "default")
+            fallback_collections = engine.suggest_fallback_collections(domain, current_collection)
+            ctx.variables["crag_fallback_collections"] = fallback_collections
+
+        # Determine next step based on CRAG action
+        on_correct = step.config.get("on_correct")
+        on_ambiguous = step.config.get("on_ambiguous")
+        on_incorrect = step.config.get("on_incorrect")
+
+        next_step = None
+        if crag_result.action_taken == RetrievalAction.CORRECT and on_correct:
+            next_step = on_correct
+        elif crag_result.action_taken == RetrievalAction.AMBIGUOUS and on_ambiguous:
+            next_step = on_ambiguous
+        elif crag_result.action_taken == RetrievalAction.INCORRECT and on_incorrect:
+            next_step = on_incorrect
+
+        logger.info(
+            "crag_step_complete",
+            action=crag_result.action_taken.value,
+            score=round(crag_result.evaluation.overall_score, 3),
+            chunks_in=crag_result.total_chunks_input,
+            chunks_out=crag_result.total_chunks_output,
+            fallback=crag_result.fallback_used,
+            next_step=next_step,
+        )
+
+        return crag_result.to_dict(), next_step
 
     async def _handle_call_rag(
         self,

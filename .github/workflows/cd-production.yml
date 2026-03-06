@@ -186,7 +186,7 @@ jobs:
           echo "✅ Backup completed"
 
       - name: Upload backup artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: production-backup-${{ needs.validate-release.outputs.deployment_id }}
           path: backups/

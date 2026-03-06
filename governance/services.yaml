@@ -3467,7 +3467,7 @@ infrastructure:
     prometheus:
       port: 9090
     grafana:
-      port: 3000
+      port: 3003  # Changed from 3000 to avoid conflict with field-management-service and web dashboard
     loki:
       port: 3100
 

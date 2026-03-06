@@ -410,7 +410,55 @@ Extract → Clean → Chunk → Embed → Validate → Store
 
 ---
 
-## 9. ملخص الروابط المفقودة بين الطبقات | Missing Inter-Layer Connections
+## 9. فجوات تكامل الخدمات | Service Integration Gaps
+
+### 9.1 فجوات حرجة في التكامل بين الخدمات
+
+| الفجوة | الوصف | التوصية |
+|--------|-------|---------|
+| **لا يوجد Service Discovery ديناميكي** | عناوين URL مضمنة بشكل ثابت (hardcoded) في الكود مع Docker networking | تطبيق Consul/Eureka |
+| **AraBERT غير محمّل فعلياً** | NLP يتراجع إلى keyword matching لعدم تثبيت torch/transformers | تثبيت المتطلبات في Docker |
+| **NATS اتصال اختياري** | الخدمات تتدهور بصمت إذا كان NATS غير متاح | جعل NATS إلزامي في الإنتاج |
+| **لا يوجد توثيق بين الخدمات** | HTTP calls بدون mTLS أو API key validation | إضافة X-Service-Token |
+| **تنفيذ الوكلاء محدود بـ 5 متزامنة** | ai-advisor يخنق الاستدعاءات المتوازية | مراجعة asyncio throttle |
+
+### 9.2 تدفق البيانات النموذجي - تحليل حقل
+
+```
+User → copilot-api (8088)
+   ↓
+ai-advisor (8112) POST /v1/advisor/analyze-field
+   ├→ SatelliteTool → vegetation-analysis-service:8090 [NDVI]
+   ├→ CropHealthTool → crop-intelligence-service:8095 [أمراض]
+   ├→ IrrigationAdvisor → advisory-service:8093 [أسمدة]
+   └→ Supervisor.coordinate()
+      ├→ Context compression (3 مستويات)
+      ├→ Farm memory storage
+      ├→ LLM-as-Judge evaluation
+      └→ Response with confidence scores
+   الزمن: ~2-5 ثواني
+```
+
+### 9.3 تدفق الأحداث - كشف الآفات
+
+```
+كاميرا أرضية → iot-service "sahool.sensor.image.captured"
+   ↓ NATS
+pest-detection-service (8125)
+   → yolo26-vision-service:8150 (POST /api/v1/detect/pest)
+   → publishes "sahool.vision.pest_detected"
+   ↓ NATS
+advisory-service (8093)
+   → IPM recommendations
+   → publishes "sahool.decision.ipm_plan_generated"
+   ↓ NATS
+notification-service (8110)
+   → دفع للتطبيق المحمول
+```
+
+---
+
+## 10. ملخص الروابط المفقودة بين الطبقات | Missing Inter-Layer Connections
 
 | من الطبقة | إلى الطبقة | الحالة | مستوى الفجوة |
 |-----------|----------|--------|-------------|
@@ -429,7 +477,7 @@ Extract → Clean → Chunk → Embed → Validate → Store
 
 ---
 
-## 10. إحصائيات سريعة | Quick Stats
+## 11. إحصائيات سريعة | Quick Stats
 
 | المقياس | القيمة |
 |---------|--------|
@@ -451,7 +499,7 @@ Extract → Clean → Chunk → Embed → Validate → Store
 
 ---
 
-## 11. حجم الكود حسب الطبقة | Code Size by Layer
+## 12. حجم الكود حسب الطبقة | Code Size by Layer
 
 | الطبقة | المكون | LOC | الملفات | الحالة |
 |--------|--------|-----|---------|--------|

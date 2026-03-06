@@ -30,7 +30,10 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
-# Copy shared libraries
+# Copy root shared modules first (shared.soil_testing, etc.)
+COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py, shared.logging_config, etc.)
 COPY apps/services/shared/ ./shared/
 
 # Copy application

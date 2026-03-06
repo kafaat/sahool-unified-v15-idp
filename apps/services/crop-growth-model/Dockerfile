@@ -51,11 +51,13 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-RUN cd /workspace/nestjs-auth && \
-    ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+WORKDIR /workspace/nestjs-auth
+RUN ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
+    if ! npx tsc --skipLibCheck; then \
+        npx -y typescript@5.9.3 tsc --skipLibCheck || \
+        (echo "ERROR: nestjs-auth build failed" && exit 1); \
+    fi
+WORKDIR /workspace/crop-growth-model
 
 # Build the application
 RUN npx nest build

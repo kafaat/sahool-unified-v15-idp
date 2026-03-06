@@ -16,7 +16,8 @@ FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 
 # Upgrade npm to latest version for better dependency resolution
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
@@ -109,13 +110,15 @@ RUN apt-update.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages (needed for file: protocol dependencies)
 COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Fix the file: path reference again for production stage
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
@@ -164,4 +167,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
-CMD ["npm", "start"]
+CMD ["node", "dist/main.js"]

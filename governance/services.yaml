@@ -938,9 +938,10 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/agro-rules"
-    port: 8151
+    port: null
     protocol: nats
-    health_endpoint: "/healthz"
+    service_type: worker
+    health_endpoint: null
     status: active
     owner: "agro-team@sahool.io"
     team: agro
@@ -2139,7 +2140,7 @@ services:
     category: community
     layer: business
     path: "apps/services/chat-service"
-    port: 8000  # Matches Dockerfile EXPOSE (Kong config at 8114 is WRONG)
+    port: 8115  # Matches Dockerfile EXPOSE and ENV PORT=8115
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2216,9 +2217,9 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/code-review-agent"
-    port: 8145
-    protocol: http
-    health_endpoint: "/healthz"
+    port: null  # CLI agent, not an HTTP service (no EXPOSE in Dockerfile)
+    protocol: cli
+    health_endpoint: null  # No HTTP health endpoint - HEALTHCHECK NONE in Dockerfile
     docker_compose_profiles: [optional, ai-agents]  # Not started by default
     status: active
     owner: "data-team@sahool.io"
@@ -3383,9 +3384,10 @@ services:
     category: core
     layer: business
     path: "apps/services/demo-data"
-    port: 8261
-    protocol: http
-    health_endpoint: "/healthz"
+    port: null
+    protocol: none
+    service_type: script
+    health_endpoint: null
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -3470,7 +3472,7 @@ infrastructure:
     prometheus:
       port: 9090
     grafana:
-      port: 3000
+      port: 3003  # Changed from 3000 to avoid conflict with field-management-service and web dashboard
     loki:
       port: 3100
 

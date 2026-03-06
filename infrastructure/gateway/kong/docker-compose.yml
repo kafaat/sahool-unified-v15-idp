@@ -265,7 +265,7 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001, 127.0.0.1:8444 ssl"
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
       KONG_DNS_RESOLVER: "127.0.0.11:53"
       KONG_DNS_ORDER: "LAST,SRV,A,CNAME"
@@ -359,7 +359,8 @@ services:
       --timeout 0
       --tcp-backlog 511
       --bind 0.0.0.0
-      --protected-mode no
+      --protected-mode yes
+      --requirepass ${KONG_REDIS_PASSWORD:-redis_secure}
       --loglevel notice
       --save 900 1
       --save 300 10
@@ -445,7 +446,7 @@ services:
       - kong-net
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-sahool-admin-2026}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD is required}
       GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"

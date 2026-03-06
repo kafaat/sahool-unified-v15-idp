@@ -78,9 +78,8 @@ USER agent
 ENV NODE_ENV=production
 ENV LOG_LEVEL=info
 
-# Health check using shell form for better compatibility
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "process.exit(0)"
+# Disable health check - this is a CLI agent, not an HTTP service
+HEALTHCHECK NONE
 
 # Default command runs the production agent
 CMD ["node", "dist/production-agent.js"]

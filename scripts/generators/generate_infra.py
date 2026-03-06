@@ -194,8 +194,10 @@ def generate_docker_compose(data: dict[str, Any]) -> dict[str, Any]:
     # Add infrastructure services first
     compose["services"].update(generate_infrastructure_services())
 
-    # Generate backend services
+    # Generate backend services (skip CLI agents with no port)
     for name, service in services.items():
+        if service.get("port") is None:
+            continue
         compose["services"][name] = generate_compose_service(name, service)
 
     # Generate frontend applications
@@ -331,8 +333,10 @@ def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
         },
     }
 
-    # Generate service values
+    # Generate service values (skip CLI agents with no port)
     for name, service in services.items():
+        if service.get("port") is None:
+            continue
         values["services"][name] = generate_helm_service(name, service)
 
         # Add ingress paths

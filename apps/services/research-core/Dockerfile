@@ -102,6 +102,10 @@ COPY --from=builder /workspace/research-core/prisma ./prisma/
 # Copy generated Prisma client from builder (avoid npx downloading incompatible version)
 COPY --from=builder /workspace/research-core/prisma/generated ./prisma/generated/
 
+# Copy Prisma client to node_modules where @prisma/client expects it at runtime
+COPY --from=builder /workspace/research-core/prisma/generated/client/ ./node_modules/.prisma/client/
+COPY --from=builder /workspace/research-core/node_modules/@prisma/client ./node_modules/@prisma/client/
+
 # Copy built application
 COPY --from=builder /workspace/research-core/dist ./dist
 

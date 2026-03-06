@@ -98,7 +98,6 @@ plugins:
           - "Referrer-Policy: strict-origin-when-cross-origin"
           - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
           - "Cache-Control: no-store, no-cache, must-revalidate"
-          - "X-Powered-By: SAHOOL"
       remove:
         headers:
           - "Server"

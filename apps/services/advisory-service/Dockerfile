@@ -24,6 +24,8 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
+# Install tini for proper PID 1 signal handling
+RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
 
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -75,4 +77,5 @@ EXPOSE 8093
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')" || exit 1
 
-CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]
+ENTRYPOINT ["tini", "--"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8093"]

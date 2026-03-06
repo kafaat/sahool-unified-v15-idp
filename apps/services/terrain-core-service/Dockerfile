@@ -134,6 +134,7 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     libpng16-16 \
     libtiff6 \
     curl \
+    tini \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -141,7 +142,7 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 RUN groupadd -r sahool && useradd -r -g sahool sahool
 
 # Copy installed Python packages from builder
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION
 COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
@@ -174,5 +175,8 @@ EXPOSE 8185
 HEALTHCHECK --interval=30s --timeout=15s --start-period=90s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8185/healthz')" || exit 1
 
+# Use tini as init system for proper signal handling
+ENTRYPOINT ["tini", "--"]
+
 # Run application
-CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8185}"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8185"]

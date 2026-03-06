@@ -318,37 +318,44 @@ Extract → Clean → Chunk → Embed → Validate → Store
 | G-02 | **ضعف الدعم العربي في سجل الموديلات** | من 50+ موديل، **موديل واحد فقط** (AgroGPT) يدعم العربية - وهو نقطة ضعف كبيرة لمنصة تستهدف الشرق الأوسط | فجوة وظيفية رئيسية |
 | G-03 | **عدم وجود تكامل فعلي للموديلات الخارجية** | سجل الموديلات يحتوي على Connectors (ShengNong, CropWizard, PlantGPT, AgroGPT) لكن التكامل الفعلي غير مؤكد - لا توجد API keys أو اختبارات تكامل | موديلات مسجلة لكن غير متصلة |
 | G-04 | **عدم ربط Knowledge Base بالخدمات** | قاعدة المعرفة (`shared/ai/knowledge/`) شاملة جداً لكن لا يوجد استيراد مباشر لها في خدمات مثل `advisory-service` أو `copilot-api` | معرفة معزولة |
+| G-05 | **تجزئة طبقة التضمينات (Embeddings)** | `GraphMemory` يستخدم `SimpleEmbedder` خاص، بينما `VectorStore` يستخدم `EmbeddingsAdapter` - تطبيقان منفصلان لنفس الوظيفة مع أبعاد غير متسقة | تكرار وعدم اتساق |
+| G-06 | **عدم ربط Context Engineering بـ LLM Provider** | طبقة الضغط (Compression) والذاكرة (Memory) في Layer 7 تنتج سياقاً محسناً لكنه **لا يُمرر** تلقائياً إلى Layer 6 (LLM Provider) | هدر في الرموز وأداء ضعيف |
+| G-07 | **غياب حلقة التغذية الراجعة → التدريب** | ملاحظات المستخدمين تُجمع (Layer 3) لكن لا يوجد خط أنابيب تلقائي لإعادة تدريب الموديلات - الموديلات لا تتحسن مع الوقت | عدم تحسن مستمر |
 
 ### 6.2 فجوات متوسطة (Medium Gaps) 🟠
 
 | # | الفجوة | الوصف | التأثير |
 |---|-------|-------|---------|
-| G-05 | **عدم وجود اختبارات تكامل AI-to-AI** | لا توجد اختبارات تتحقق من تدفق البيانات بين طبقات الذكاء الاصطناعي | صعوبة اكتشاف الأخطاء |
-| G-06 | **تكرار في مزودي التضمين** | `embeddings.py` و `huggingface_provider.py` و `ot_embeddings.py` كلها توفر تضمينات - يوجد تداخل | تعقيد غير ضروري |
-| G-07 | **UltraRAG غير متصل بالخدمات** | 11 سير عمل RAG معرفة لكن لا يوجد دليل على استخدامها في خدمات الإنتاج | سير عمل معطلة |
-| G-08 | **غياب تكامل vLLM في Orchestrator** | `LLMProvider` يعرف vLLM لكن `llm-orchestrator-service` لا يستخدمه | قدرة GPU المحلية غير مستغلة |
-| G-09 | **Orchestration اختيارية** | `ORCHESTRATION_AVAILABLE` معرف كـ optional import مما يعني أن الـ SwarmCoordinator و ConsensusManager قد لا يعملان | قدرات تنسيق محدودة |
-| G-10 | **عدم وجود Health Checks للموديلات** | لا توجد آلية للتحقق من صحة الموديلات المحلية (Ollama) قبل استخدامها | فشل صامت |
+| G-08 | **عدم وجود اختبارات تكامل AI-to-AI** | لا توجد اختبارات تتحقق من تدفق البيانات بين طبقات الذكاء الاصطناعي | صعوبة اكتشاف الأخطاء |
+| G-09 | **UltraRAG غير متصل بالخدمات** | 11 سير عمل RAG معرفة لكن لا يوجد دليل على استخدامها في خدمات الإنتاج | سير عمل معطلة |
+| G-10 | **الوكلاء لا يستخدمون طبقة التنسيق** | `FarmAdvisorAgent` و باقي الوكلاء يعملون باستقلالية بدون تسجيل مع `AgentRouter` أو `SwarmCoordinator` | لا تعاون بين الوكلاء |
+| G-11 | **Crop Vision غير مرتبط بقاعدة المعرفة** | اكتشافات الرؤية الحاسوبية (آفات/أمراض) لا تُبحث في `PEST_KNOWLEDGE` أو `CROP_KNOWLEDGE` للتوصيات المبنية على الأدلة | توصيات بدون أدلة |
+| G-12 | **Experience Learning معزول** | `ExperienceLearner` يولد SOPs لكنها لا تُعدّل بناءً على ملاحظات المستخدمين (Feedback) | SOPs لا تتطور |
+| G-13 | **غياب تكامل vLLM في Orchestrator** | `LLMProvider` يعرف vLLM لكن `llm-orchestrator-service` لا يستخدمه | قدرة GPU المحلية غير مستغلة |
+| G-14 | **Orchestration اختيارية** | `ORCHESTRATION_AVAILABLE` معرف كـ optional import مما يعني أن الـ SwarmCoordinator و ConsensusManager قد لا يعملان | قدرات تنسيق محدودة |
+| G-15 | **عدم وجود Health Checks للموديلات** | لا توجد آلية للتحقق من صحة الموديلات المحلية (Ollama) قبل استخدامها | فشل صامت |
 
 ### 6.3 فجوات تحسينية (Enhancement Gaps) 🟡
 
 | # | الفجوة | الوصف | التأثير |
 |---|-------|-------|---------|
-| G-11 | **غياب A/B Testing للموديلات** | لا توجد آلية لاختبار أداء موديلات مختلفة على نفس المهمة | عدم القدرة على التحسين المستمر |
-| G-12 | **غياب Model Versioning في الإنتاج** | سجل الموديلات لا يتتبع إصدارات الموديلات المنشورة فعلياً | صعوبة التراجع |
-| G-13 | **عدم استخدام GRPO Trainer** | `grpo_trainer.py` موجود لكن لا يوجد دليل على استخدامه | تدريب غير مستغل |
-| G-14 | **Diffusion Module فارغ/هيكلي** | `shared/ai/diffusion/` موجود لكن قد يكون هيكلي فقط | قدرة توليد صور غير مفعلة |
-| G-15 | **عدم تكامل MCP مع RAG** | `shared/ai/ultrarag/mcp_tools.py` يعرف أدوات MCP لكن `mcp-server` (Port 8201) وصفه "skeleton" | MCP غير مكتمل |
-| G-16 | **Google Gemini API قديم** | يستخدم `v1beta` endpoint بدلاً من `v1` المستقر | عدم استقرار |
-| G-17 | **عدم وجود Caching لاستدعاءات LLM** | `LLMProviderManager` لا يستخدم Redis لتخزين مؤقت للردود المتكررة | تكلفة وأداء |
-| G-18 | **غياب Streaming في جميع المزودين** | جميع استدعاءات LLM تستخدم `"stream": False` | تجربة مستخدم بطيئة |
+| G-16 | **غياب A/B Testing للموديلات** | لا توجد آلية لاختبار أداء موديلات مختلفة على نفس المهمة | عدم القدرة على التحسين المستمر |
+| G-17 | **غياب Model Versioning في الإنتاج** | سجل الموديلات لا يتتبع إصدارات الموديلات المنشورة فعلياً | صعوبة التراجع |
+| G-18 | **عدم استخدام GRPO Trainer** | `grpo_trainer.py` (26.3KB - يدعم VANILLA, DAPO, DR_GRPO, DEEPSEEK) موجود لكن لا يوجد دليل على استخدامه | تدريب متقدم غير مستغل |
+| G-19 | **عدم تكامل MCP مع RAG** | `shared/ai/ultrarag/mcp_tools.py` يعرف أدوات MCP لكن `mcp-server` (Port 8201) وصفه "skeleton" | MCP غير مكتمل |
+| G-20 | **Google Gemini API قديم** | يستخدم `v1beta` endpoint بدلاً من `v1` المستقر | عدم استقرار |
+| G-21 | **عدم وجود Caching لاستدعاءات LLM** | `LLMProviderManager` لا يستخدم Redis لتخزين مؤقت للردود المتكررة | تكلفة وأداء |
+| G-22 | **غياب Streaming في جميع المزودين** | جميع استدعاءات LLM تستخدم `"stream": False` | تجربة مستخدم بطيئة |
+| G-23 | **لا توجد تنبؤات بالتكلفة** | لا يمكن تقدير تكلفة الاستدعاء قبل التنفيذ ولا توجد ميزانية لكل tenant | إنفاق غير محكوم |
+| G-24 | **لا يوجد تعافي من فشل الوكلاء** | لا circuit breaker على مستوى الوكلاء، فشل وكيل واحد يمكن أن يسبب تأثيراً متتالياً | هشاشة النظام |
+| G-25 | **RAG بلا ذاكرة محادثة** | UltraRAG stateless - لا يتذكر الاستفسارات السابقة في نفس الجلسة | سياق مفقود |
 
 ### 6.4 فجوات في التوثيق 📝
 
 | # | الفجوة | الوصف |
 |---|-------|-------|
-| G-19 | **غياب Architecture Decision Record للذكاء الاصطناعي** | لا يوجد ADR يوثق قرارات اختيار الموديلات والبنية المعمارية |
-| G-20 | **عدم توثيق تدفق البيانات بين الطبقات** | لا يوجد رسم بياني يوضح كيف تتدفق البيانات من الاستيعاب إلى التوصية |
+| G-26 | **غياب Architecture Decision Record للذكاء الاصطناعي** | لا يوجد ADR يوثق قرارات اختيار الموديلات والبنية المعمارية |
+| G-27 | **عدم توثيق تدفق البيانات بين الطبقات** | لا يوجد رسم بياني يوضح كيف تتدفق البيانات من الاستيعاب إلى التوصية |
 
 ---
 
@@ -401,22 +408,69 @@ Extract → Clean → Chunk → Embed → Validate → Store
 
 ---
 
-## 9. إحصائيات سريعة | Quick Stats
+---
+
+## 9. ملخص الروابط المفقودة بين الطبقات | Missing Inter-Layer Connections
+
+| من الطبقة | إلى الطبقة | الحالة | مستوى الفجوة |
+|-----------|----------|--------|-------------|
+| User Input → Validation → Processing | L2 → L6 | ✅ مكتمل | لا يوجد |
+| Context Optimization → LLM | L7 → L6 | ❌ مفقود | **حرج** |
+| Knowledge Base → RAG → Agents | L9 → L10 → L11 | ❌ جزئي | **عالي** |
+| Vision → Knowledge → Advisory | L5 → L9 → L7 | ❌ مفقود | **عالي** |
+| Feedback → Training → Deployment | L3 → L6 | ❌ مفقود | **حرج** |
+| Graph Memory ↔ Vector Store | L5 ↔ L8 | ❌ مكسور | **عالي** |
+| Agents → Orchestration → Consensus | L11 → L12 | ❌ جزئي | **عالي** |
+| Quality Issues → Auto-Fix | L3 → L4 | ⚠️ ضعيف | متوسط |
+| Experience Learning → SOP Validation | L5 → L3 | ❌ مفقود | متوسط |
+| Agent Registry → Agent Lifecycle | L12 → L11 | ❌ مفقود | **عالي** |
+| Models Registry → Agent Selection | L1 → L11 | ❌ مفقود | متوسط |
+| Validation → Feedback | L2 → L3 | ❌ مفقود | متوسط |
+
+---
+
+## 10. إحصائيات سريعة | Quick Stats
 
 | المقياس | القيمة |
 |---------|--------|
-| إجمالي موديلات AI المسجلة | 50+ |
-| مزودو LLM | 6 |
+| إجمالي موديلات AI المسجلة | 50+ (في 5 فئات) |
+| مزودو LLM | 6 (Ollama, vLLM, Anthropic, OpenAI, Google, DeepSeek) |
 | خدمات AI | 13+ |
-| فئات الوكلاء | 11 |
+| فئات الوكلاء | 11 (A2A Protocol) |
 | مجموعات المعرفة | 13 |
 | سير عمل RAG | 11 |
-| ملفات في `shared/ai/` | 100+ |
-| طبقات البنية المعمارية | 7 |
-| الفجوات المحددة | 20 |
-| الفجوات الحرجة | 4 |
+| إجمالي أسطر الكود في `shared/ai/` | **72,073 سطر** في **113 ملف** |
+| طبقات البنية المعمارية | **12 طبقة** |
+| الفجوات المحددة | **27** |
+| الفجوات الحرجة | **7** |
+| الفجوات المتوسطة | **8** |
+| الفجوات التحسينية | **10** |
+| الفجوات التوثيقية | **2** |
+| الروابط المفقودة بين الطبقات | **10** |
+| الجهد المقدر للإصلاح الشامل | **30-40 يوم مطور** |
+
+---
+
+## 11. حجم الكود حسب الطبقة | Code Size by Layer
+
+| الطبقة | المكون | LOC | الملفات | الحالة |
+|--------|--------|-----|---------|--------|
+| L12 | Orchestration (Swarm, Consensus, Router) | 2,000+ | 5 | متقدم |
+| L11 | Agents (Farm Advisor, ReAct, Tree Search) | 12,000+ | 10+ | ناضج |
+| L10 | UltraRAG 3.0 (Pipeline, Retriever, Generator) | 8,000+ | 13 | شامل |
+| L9 | Knowledge Management (CRAG, Graph, AGROVOC) | 8,000+ | 27 | متطور |
+| L8 | Vector Store + Embeddings | 3,400 | 4 | قوي |
+| L7 | Context Engineering (Compression, Memory) | 2,200 | 4 | ناضج |
+| L6 | LLM Providers + Code Intelligence | 3,000+ | 5 | مكتمل |
+| L5 | Specialized AI (Vision, Graph Memory, Explainability) | 4,300+ | 4 | متقدم |
+| L4 | Auto-Fix (Diagnostics, Fixers, Health Check) | 4,500+ | 8 | ناضج |
+| L3 | Feedback & Quality (Collector, Orchestrator, Registry) | 5,500+ | 3 | شامل |
+| L2 | Safety & Observability (Validation, Guardrails, Audit) | 2,600+ | 5 | دقيق |
+| L1 | Foundational (Models Registry, Hardware Optimizer) | 2,700+ | 3 | قوي |
+| **المجموع** | | **72,073** | **113** | |
 
 ---
 
 *آخر تحديث: 2026-03-06*
 *المراجع: Claude AI Review Agent*
+*مصادر التحليل: مراجعة 113 ملف Python، 72,073 سطر كود، 50+ موديل AI*

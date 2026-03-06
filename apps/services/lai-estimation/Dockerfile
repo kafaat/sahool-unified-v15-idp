@@ -27,6 +27,12 @@ WORKDIR /workspace/lai-estimation
 # Replace workspace dependency with local file path for Docker build
 RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
+# Disable nestjs-auth prepare script to prevent premature tsc build during install
+# (nestjs-auth is built explicitly in a later step with proper peer deps available)
+WORKDIR /workspace/nestjs-auth
+RUN npm pkg delete scripts.prepare
+WORKDIR /workspace/lai-estimation
+
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
@@ -47,14 +53,18 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# Use explicit tsc path since npx resolution through symlinks is unreliable
-RUN cd /workspace/nestjs-auth && \
-    ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
+# 1. Symlink service node_modules so nestjs-auth can resolve peer deps
+# 2. Install typescript + redis types explicitly (devDeps not resolved via symlink)
+# 3. Use explicit tsc path since npx resolution through symlinks is unreliable
+WORKDIR /workspace/nestjs-auth
+RUN ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
+    npm install --no-save typescript@5.9.3 redis@4 @liaoliaots/nestjs-redis@10 ioredis@5 2>/dev/null; \
     ./node_modules/.bin/tsc --skipLibCheck || \
     (echo "WARN: tsc not found via symlink, installing directly..." && \
      npm install --no-save typescript@5.9.3 2>/dev/null && \
      npx tsc --skipLibCheck) || \
     (echo "ERROR: nestjs-auth build failed" && exit 1)
+WORKDIR /workspace/lai-estimation
 
 # Build the application
 RUN npx nest build

@@ -24,6 +24,8 @@ services:
         limits:
           cpus: '500'
           memory: 512Mi
+    depends_on:
+    - redis
   yield-prediction:
     build:
       context: ../../apps/services/yield-prediction
@@ -327,6 +329,7 @@ services:
     depends_on:
     - crop-growth-model
     - weather-service
+    - redis
   fertigation-engine:
     build:
       context: ../../apps/services/fertigation-engine
@@ -434,6 +437,7 @@ services:
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
+    - redis
   indicators-service:
     build:
       context: ../../apps/services/indicators-service
@@ -989,6 +993,8 @@ services:
         limits:
           cpus: '400'
           memory: 384Mi
+    depends_on:
+    - redis
   community-chat:
     build:
       context: ../../archive/deprecated-services/community-chat

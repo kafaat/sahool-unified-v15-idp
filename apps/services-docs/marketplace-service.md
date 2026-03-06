@@ -1310,7 +1310,7 @@ Currently, the service does not subscribe to any external events.
 |---------|---------|
 | PostgreSQL | Primary database |
 | NATS | Event messaging (optional, degraded mode if unavailable) |
-| Redis | Not currently used but in docker-compose |
+| Redis | Token revocation via `@sahool/nestjs-auth`, caching |
 
 ### External APIs
 

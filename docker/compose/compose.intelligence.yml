@@ -53,6 +53,7 @@ services:
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
+    - redis
   indicators-service:
     build:
       context: ../../apps/services/indicators-service

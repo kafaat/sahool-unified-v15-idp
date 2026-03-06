@@ -137,7 +137,7 @@ describe("AppController (Marketplace)", () => {
 
       expect(result).toEqual(mockProducts);
       expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
-        expect.objectContaining({}),
+        expect.objectContaining({ tenantId: 'tenant-1' }),
       );
     });
 
@@ -607,7 +607,7 @@ describe("AppController (Marketplace)", () => {
       const result = await controller.getMarketStats(mockReq);
 
       expect(result).toEqual(expect.objectContaining(mockStats));
-      expect(mockMarketService.getMarketStats).toHaveBeenCalled();
+      expect(mockMarketService.getMarketStats).toHaveBeenCalledWith('tenant-1');
     });
   });
 

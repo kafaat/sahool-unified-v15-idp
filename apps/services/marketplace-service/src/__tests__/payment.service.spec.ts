@@ -1515,6 +1515,10 @@ describe("Payment Service - Wallet Operations", () => {
         await walletService.deposit("wallet-1", 5000);
 
         expect(executeRawMock).toHaveBeenCalled();
+        // Verify the SQL includes FOR UPDATE locking
+        const sqlArg = executeRawMock.mock.calls[0]?.[0];
+        const sqlText = Array.isArray(sqlArg) ? sqlArg.join(' ') : String(sqlArg);
+        expect(sqlText.toUpperCase()).toContain('FOR UPDATE');
       });
     });
 

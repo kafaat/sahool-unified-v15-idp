@@ -141,7 +141,9 @@ describe("EscrowService", () => {
 
       expect(result.duplicate).toBe(false);
       expect(result.escrow.status).toBe("HELD");
-      expect((result as any).wallet.balance).toBe(4000);
+      // Non-duplicate branch includes wallet details
+      const nonDupResult = result as typeof result & { wallet: { balance: number } };
+      expect(nonDupResult.wallet.balance).toBe(4000);
     });
 
     it("should throw error if escrow already exists for order", async () => {
@@ -323,7 +325,9 @@ describe("EscrowService", () => {
 
       expect(result.duplicate).toBe(false);
       expect(result.escrow.status).toBe("REFUNDED");
-      expect((result as any).wallet.balance).toBe(6000);
+      // Non-duplicate branch includes wallet details
+      const nonDupResult = result as typeof result & { wallet: { balance: number } };
+      expect(nonDupResult.wallet.balance).toBe(6000);
     });
 
     it("should allow refund of disputed escrow", async () => {
@@ -1175,8 +1179,11 @@ describe("EscrowService", () => {
           1000,
         );
 
-        expect((result as any).wallet.balance).toBe(4000);
-        expect((result as any).wallet.escrowBalance).toBe(1000);
+        expect(result.duplicate).toBe(false);
+        // Non-duplicate branch includes wallet details
+        const nonDupResult = result as typeof result & { wallet: { balance: number; escrowBalance: number } };
+        expect(nonDupResult.wallet.balance).toBe(4000);
+        expect(nonDupResult.wallet.escrowBalance).toBe(1000);
       });
     });
   });

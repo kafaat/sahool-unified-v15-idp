@@ -51,11 +51,13 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# Install nestjs-auth devDependencies (redis, ioredis types) needed for tsc compilation
+# 1. Symlink service node_modules so nestjs-auth can resolve peer deps
+# 2. Install typescript + redis types explicitly (devDeps not resolved via symlink)
+# 3. Run tsc to compile nestjs-auth
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
-    npm install --no-save redis @liaoliaots/nestjs-redis ioredis 2>/dev/null; \
-    npx tsc --skipLibCheck || \
+    npm install --no-save typescript@5.9.3 redis @liaoliaots/nestjs-redis ioredis 2>/dev/null; \
+    ./node_modules/.bin/tsc --skipLibCheck || \
     npx -y typescript@5.9.3 tsc --skipLibCheck || \
     (echo "ERROR: nestjs-auth build failed" && exit 1)
 

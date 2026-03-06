@@ -5,8 +5,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { logger } from "@/lib/logger";
+import { API_URL, TIMEOUT_TIERS } from "@/config/api";
 
 export async function GET(_request: NextRequest) {
   try {
@@ -17,14 +17,23 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // Forward request to backend API with token
-    const response = await fetch(`${API_URL}/api/v1/auth/me`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    // Forward request to backend API with token and timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_TIERS.default);
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/api/v1/auth/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const data = await response.json();
 
@@ -52,7 +61,7 @@ export async function GET(_request: NextRequest) {
       data: data,
     });
   } catch (error) {
-    console.error("Get current user error:", error);
+    logger.production("Get current user error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

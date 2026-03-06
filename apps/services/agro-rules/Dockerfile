@@ -24,6 +24,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Configure apt to use HTTPS and install build dependencies (needed for nats-py)
+COPY docker/apt-update.sh /usr/local/bin/
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
     apt-update.sh && apt-get install -y --no-install-recommends \
     apt-transport-https \

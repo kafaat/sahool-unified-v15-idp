@@ -20,24 +20,40 @@ COPY apps/services/disaster-assessment/package*.json ./
 # Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
 COPY apps/services/disaster-assessment/prisma ./prisma/
 
-# Install dependencies with retry for network resilience
-# Use --ignore-scripts to prevent postinstall from running before prisma schema is available
-# Then explicitly run prisma generate
-RUN npm config set registry https://registry.npmmirror.com; \
-    (npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+# Install dependencies with resilient retry loop and npm cache
+# Prisma schema is copied above so postinstall (prisma generate) can run successfully
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund; then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
-# Generate Prisma client (required before build)
-RUN npx prisma generate
+# Generate Prisma client and verify output
+# Schema uses custom output (prisma/generated/client/) so verify that path
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate && \
+    test -f prisma/generated/client/index.js || \
+    (echo "Prisma client generation failed, retrying..." && npx prisma generate && \
+     test -f prisma/generated/client/index.js) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source code
 COPY apps/services/disaster-assessment/ .
 
-# Build the application
-RUN npm run build
+# Build the application using nest build directly (skip prebuild to avoid
+# re-running prisma generate which can resolve paths differently in Docker)
+RUN npx nest build
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
@@ -48,7 +64,8 @@ ARG NODE_VERSION=20
 WORKDIR /app
 
 # Install curl for health checks and OpenSSL for Prisma native query engine
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -60,15 +77,35 @@ COPY --from=builder /app/package-lock.json ./
 # Copy prisma schema for migrations
 COPY --from=builder /app/prisma ./prisma/
 
-RUN npm config set registry https://registry.npmmirror.com; \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+         npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund); then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma/
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so the actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /app/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application

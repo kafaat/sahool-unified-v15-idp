@@ -38,6 +38,7 @@ services:
   redis:
     command: [
       "redis-server",
+      "/usr/local/etc/redis/redis.conf",
       "--appendonly", "yes",
       "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
       "--maxmemory", "512mb",
@@ -54,6 +55,12 @@ services:
       "--tls-prefer-server-ciphers", "yes",
       "--tls-session-caching", "yes"
     ]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --tls --cert /etc/redis/certs/server.crt --key /etc/redis/certs/server.key --cacert /etc/redis/certs/ca.crt -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     volumes:
       - ./config/certs/redis:/etc/redis/certs:ro
     environment:
@@ -79,7 +86,7 @@ services:
       KONG_SSL_CERT: /etc/kong/certs/server.crt
       KONG_SSL_CERT_KEY: /etc/kong/certs/server.key
     ports:
-      - "8443:8443"
+      - "127.0.0.1:8443:8443"
     volumes:
       - ./config/certs/kong:/etc/kong/certs:ro
 

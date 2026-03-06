@@ -15,7 +15,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /app
 
 # Install build dependencies for numpy/scipy compilation
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     gcc \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*

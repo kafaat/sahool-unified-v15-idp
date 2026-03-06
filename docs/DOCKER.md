@@ -83,20 +83,19 @@ PLANET_API_KEY=<your-api-key>
 
 ### الخدمات الأساسية | Core Services
 
-| الخدمة                | المنفذ | اللغة   | الوصف                 |
-| --------------------- | ------ | ------- | --------------------- |
-| crop_health_ai        | 8095   | Python  | تشخيص صحة المحاصيل    |
-| virtual_sensors       | 8096   | Python  | المستشعرات الافتراضية |
-| community_chat        | 8097   | Node.js | الدردشة المجتمعية     |
-| yield_engine          | 8098   | Python  | توقع الإنتاجية        |
-| billing_core          | 8089   | Python  | الفوترة والاشتراكات   |
-| satellite_service     | 8090   | Python  | صور الأقمار الصناعية  |
-| indicators_service    | 8091   | Python  | المؤشرات الزراعية     |
-| weather_advanced      | 8092   | Python  | التنبؤات الجوية       |
-| fertilizer_advisor    | 8093   | Python  | مستشار التسميد        |
-| irrigation_smart      | 8094   | Python  | الري الذكي            |
-| notification_service  | 8110   | Python  | الإشعارات             |
-| astronomical_calendar | 8111   | Python  | التقويم الفلكي        |
+| الخدمة                       | المنفذ | اللغة   | الوصف                      |
+| ---------------------------- | ------ | ------- | -------------------------- |
+| crop-intelligence-service    | 8095   | Python  | تشخيص صحة المحاصيل         |
+| virtual_sensors              | 8119   | Python  | المستشعرات الافتراضية      |
+| chat-service                 | 8115   | Node.js | الدردشة والتراسل الفوري    |
+| billing_core                 | 8089   | Python  | الفوترة والاشتراكات        |
+| vegetation-analysis-service  | 8090   | Python  | تحليل صور الأقمار الصناعية |
+| indicators_service           | 8091   | Python  | المؤشرات الزراعية          |
+| weather-service              | 8092   | Python  | التنبؤات الجوية            |
+| advisory-service             | 8093   | Python  | الاستشارات الزراعية        |
+| irrigation_smart             | 8094   | Python  | الري الذكي                 |
+| notification_service         | 8110   | Python  | الإشعارات                  |
+| astronomical_calendar        | 8111   | Python  | التقويم الفلكي             |
 
 ### خدمات NestJS
 
@@ -185,7 +184,7 @@ docker compose build --no-cache billing_core
 
 ### حل مشاكل الشبكة | Network Resilience
 
-إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted):
+إذا فشل البناء بسبب أخطاء الشبكة (npm network aborted أو DNS failures):
 
 ```bash
 # تأكد من تفعيل BuildKit
@@ -195,10 +194,85 @@ export DOCKER_BUILDKIT=1
 docker compose build --progress=plain chat-service
 ```
 
-خدمات Node.js تستخدم:
-- **BuildKit cache mount**: إعادة استخدام حزم npm المحملة
-- **Retry loop**: 5 محاولات مع تأخير متزايد
+### أنماط البناء المعيارية | Standardized Build Patterns
+
+#### apt-get Mirror Fallback (جميع الخدمات)
+
+جميع الحاويات تستخدم سكريبت `docker/apt-update.sh` المشترك بدلاً من `apt-get update` مباشرة.
+السكريبت يتعامل مع فشل DNS تلقائياً بالتبديل إلى مرايا Aliyun:
+
+```dockerfile
+# نسخ السكريبت المشترك
+COPY docker/apt-update.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/apt-update.sh
+
+# الاستخدام - بدلاً من apt-get update
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    curl tini && rm -rf /var/lib/apt/lists/*
+```
+
+يدعم: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية.
+
+#### npm Install مع Retry و Mirror Fallback (خدمات Node.js)
+
+جميع خدمات Node.js تستخدم نمط retry loop موحد مع 5 محاولات و mirror fallback:
+
+```dockerfile
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3 4 5; do \
+        if npm install --legacy-peer-deps \
+            --prefer-offline \
+            --fetch-timeout=300000 \
+            --no-audit \
+            --no-fund; then break; fi; \
+        if [ "$i" != "5" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+    done || \
+    (npm config set registry https://registry.npmmirror.com && \
+     npm install --legacy-peer-deps)
+```
+
+**المميزات:**
+- **BuildKit cache mount**: إعادة استخدام حزم npm المحملة (`/root/.npm`)
+- **5 محاولات**: مع تأخير متزايد (10s, 20s, 30s, 40s)
+- **Mirror fallback**: التبديل إلى npmmirror.com عند فشل جميع المحاولات
 - **Increased timeouts**: 5 دقائق لكل طلب
+
+#### pip Multi-Mirror Fallback (خدمات Python)
+
+خدمات Python تستخدم نمط المرايا المتعددة:
+
+```dockerfile
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r requirements.txt
+```
+
+**ترتيب المرايا:** PyPI الرسمي → Alibaba Cloud → Tencent Cloud
+
+#### خدمات CLI (بدون منفذ HTTP)
+
+بعض الخدمات مثل `code-review-agent` هي أدوات CLI بدون خادم HTTP.
+هذه الخدمات لا تحتاج port mapping أو health check:
+
+```yaml
+# في governance/services.yaml
+code-review-agent:
+  port: null               # لا يوجد منفذ HTTP
+  health_endpoint: null    # لا يوجد فحص صحة
+  service_type: cli        # نوع الخدمة
+```
+
+المولّدات (`generate_infra.py`, `compose-generator.py`) تتخطى هذه الخدمات تلقائياً عند توليد Docker Compose و Helm.
 
 ---
 
@@ -349,5 +423,5 @@ helm install sahool ./helm/sahool \
 <p align="center">
   <strong>SAHOOL Platform v16.0</strong>
   <br>
-  <sub>آخر تحديث: فبراير 2026</sub>
+  <sub>آخر تحديث: مارس 2026</sub>
 </p>

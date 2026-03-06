@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL v15.3.2 Test Environment - Docker Compose
+# SAHOOL v16.0.0 Test Environment - Docker Compose
 # بيئة الاختبار لمنصة سهول
 #
 # This docker-compose file sets up a test environment for running integration
@@ -68,7 +68,7 @@ services:
       - sahool-test-network
 
   qdrant_test:
-    image: qdrant/qdrant:v1.10.1
+    image: qdrant/qdrant:v1.7.4
     container_name: sahool-qdrant-test
     ports:
       - "6335:6333"  # Different port
@@ -89,38 +89,7 @@ services:
   # Core Application Services - الخدمات الأساسية
   # ─────────────────────────────────────────────────────────────────────────────
 
-  field_ops_test:
-    build:
-      context: .
-      dockerfile: apps/services/field-ops/Dockerfile
-    container_name: sahool-field-ops-test
-    environment:
-      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:-test_password_123}@postgres_test:5432/sahool_test
-      - NATS_URL=nats://test_user:test_password@nats_test:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test_redis_pass}@redis_test:6379/0
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-test-secret-key-for-tests-only-do-not-use-in-production-32chars}
-      - JWT_ALGORITHM=HS256
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=test
-    ports:
-      - "8180:8080"  # Different port
-    depends_on:
-      postgres_test:
-        condition: service_healthy
-      nats_test:
-        condition: service_healthy
-      redis_test:
-        condition: service_healthy
-    healthcheck:
-      # Python slim image doesn't include curl, use urllib instead
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')\" || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-    networks:
-      - sahool-test-network
-
+  # ARCHIVED: field-ops → field-management-service (2026-02-14)
   # ARCHIVED: ndvi-engine → vegetation-analysis-service (2026-02-14)
   # ARCHIVED: weather-core → weather-service (2026-02-14)
 
@@ -193,7 +162,6 @@ services:
       - redis_test
       - nats_test
       - qdrant_test
-      - field_ops_test
       - billing_core_test
     command: |
       sh -c "
@@ -218,12 +186,4 @@ networks:
 # Volumes - وحدات التخزين
 # ─────────────────────────────────────────────────────────────────────────────
 
-volumes:
-  postgres_test_data:
-    name: sahool-postgres-test-data
-  redis_test_data:
-    name: sahool-redis-test-data
-  nats_test_data:
-    name: sahool-nats-test-data
-  qdrant_test_data:
-    name: sahool-qdrant-test-data
+volumes: {}

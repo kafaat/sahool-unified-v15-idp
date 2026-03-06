@@ -17,7 +17,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -84,7 +85,8 @@ LABEL org.opencontainers.image.title="SAHOOL LLM Orchestrator Service" \
       org.opencontainers.image.description="LLM Orchestrator Service for SAHOOL Platform"
 
 # Install runtime dependencies (minimal)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean

@@ -538,12 +538,6 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('Provider Integration', () {
-    late MockHttpClient mockClient;
-
-    setUp(() {
-      mockClient = MockHttpClient();
-    });
-
     test('weatherApiProvider should create WeatherApi instance', () {
       // Arrange
       final container = ProviderContainer();
@@ -741,7 +735,7 @@ void main() {
       final data = WeatherData.fromJson(WeatherFixtures.currentWeatherJson);
       when(() => mockApi.getFieldWeather(any()))
           .thenAnswer((_) async {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         return data;
       });
 

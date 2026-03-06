@@ -841,7 +841,7 @@ void main() {
       await db.saveAlert(WeatherDaoFixtures.createAlert());
 
       // Allow stream to update
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Count should now be 1
       expect(await stream.first, equals(1));

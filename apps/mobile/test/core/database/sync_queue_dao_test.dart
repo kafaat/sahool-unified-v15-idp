@@ -691,7 +691,7 @@ void main() {
 
       // Add items
       await db.addToOutbox(SyncDaoFixtures.createOutboxItem());
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(await stream.first, equals(1));
     });
@@ -967,7 +967,7 @@ void main() {
         message: 'New event',
       );
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(await stream.first, equals(1));
     });
   });

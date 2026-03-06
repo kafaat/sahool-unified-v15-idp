@@ -10,14 +10,15 @@
 # =============================================================================
 # Build Stage | مرحلة البناء
 # =============================================================================
-ARG PYTHON_VERSION=3.12
+ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -46,7 +47,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # =============================================================================
 # Production Stage | مرحلة الإنتاج
 # =============================================================================
-FROM python:${PYTHON_VERSION}-slim AS production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
@@ -61,7 +62,8 @@ RUN groupadd --gid 1000 sahool && \
     useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     tini \
@@ -71,8 +73,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Copy Python packages from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+# Copy Python packages from builder (use ARG to avoid hardcoded version path)
+ARG PYTHON_VERSION
+COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
@@ -81,7 +84,6 @@ COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 # Copy application code
 # Note: Build context is repo root, so use full path
 COPY --chown=sahool:sahool apps/services/edge-orchestrator-service/src ./src
-COPY --chown=sahool:sahool apps/services/edge-orchestrator-service/tests ./tests
 
 # Create necessary directories
 RUN mkdir -p /data/uploads /data/models /data/logs && \
@@ -119,8 +121,8 @@ FROM production AS development
 
 USER root
 
-# Install development dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install development dependencies (apt-update.sh inherited from production stage)
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     git \
     vim \
     && rm -rf /var/lib/apt/lists/*

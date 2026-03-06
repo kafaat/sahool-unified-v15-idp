@@ -16,19 +16,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
-RUN groupadd --gid 1000 appgroup \
-    && useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
+RUN groupadd --gid 1000 sahool \
+    && useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Builder stage
 FROM base AS builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install build dependencies (apt-update.sh inherited from base stage)
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -58,19 +59,19 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 FROM base AS production
 
 # Copy installed packages from builder
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION
 COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
-COPY --chown=appuser:appgroup apps/services/shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy application code
 # Note: Build context is repo root, so use full path
-COPY --chown=appuser:appgroup apps/services/leveling-optimizer-service/src ./src
+COPY --chown=sahool:sahool apps/services/leveling-optimizer-service/src ./src
 
 # Switch to non-root user
-USER appuser
+USER sahool
 
 # Expose port
 EXPOSE 8170

@@ -25,16 +25,16 @@ WORKDIR /workspace/research-core
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing dependencies..." && \
-        npm install --legacy-peer-deps \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -60,7 +60,8 @@ ARG NODE_VERSION=20
 WORKDIR /app
 
 # Install curl for health checks and OpenSSL for Prisma native query engine
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -73,8 +74,8 @@ COPY --from=builder /workspace/research-core/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing production dependencies..." && \
-        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
@@ -89,8 +90,8 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund) && break || \
-        (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
+            --no-fund); then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -100,6 +101,10 @@ COPY --from=builder /workspace/research-core/prisma ./prisma/
 
 # Copy generated Prisma client from builder (avoid npx downloading incompatible version)
 COPY --from=builder /workspace/research-core/prisma/generated ./prisma/generated/
+
+# Copy Prisma client to node_modules where @prisma/client expects it at runtime
+COPY --from=builder /workspace/research-core/prisma/generated/client/ ./node_modules/.prisma/client/
+COPY --from=builder /workspace/research-core/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application
 COPY --from=builder /workspace/research-core/dist ./dist

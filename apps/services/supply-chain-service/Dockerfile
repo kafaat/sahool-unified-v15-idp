@@ -9,7 +9,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,22 +38,22 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Security: Run as non-root user
-RUN groupadd --gid 1000 appgroup && \
-    useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
+RUN groupadd --gid 1000 sahool && \
+    useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 WORKDIR /app
 
 # Copy installed packages from builder
-COPY --from=builder /root/.local /home/appuser/.local
+COPY --from=builder /root/.local /home/sahool/.local
 
 # Copy shared libraries
-COPY --chown=appuser:appgroup apps/services/shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy application code
-COPY --chown=appuser:appgroup apps/services/supply-chain-service/src ./src
+COPY --chown=sahool:sahool apps/services/supply-chain-service/src ./src
 
 # Set environment variables
-ENV PATH=/home/appuser/.local/bin:$PATH
+ENV PATH=/home/sahool/.local/bin:$PATH
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -66,7 +67,7 @@ ENV LOG_LEVEL=INFO
 EXPOSE 8230
 
 # Switch to non-root user
-USER appuser
+USER sahool
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

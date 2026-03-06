@@ -651,38 +651,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8201'
       prometheus.io/path: /metrics
-  agro-rules:
-    enabled: true
-    name: agro-rules
-    image:
-      repository: ghcr.io/kafaat/sahool-agro-rules
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8151
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-      limits:
-        cpu: 200000m
-        memory: 256Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8151'
-    serviceAccount:
-      create: true
-      name: sahool-agro-rules
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8151'
-      prometheus.io/path: /metrics
   crop-intelligence-service:
     enabled: true
     name: crop-intelligence-service
@@ -1555,7 +1523,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8000
+    port: 8115
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1571,13 +1539,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8000'
+      value: '8115'
     serviceAccount:
       create: true
       name: sahool-chat-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8000'
+      prometheus.io/port: '8115'
       prometheus.io/path: /metrics
   code-fix-agent:
     enabled: true
@@ -1610,38 +1578,6 @@ services:
     podAnnotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8162'
-      prometheus.io/path: /metrics
-  code-review-agent:
-    enabled: true
-    name: code-review-agent
-    image:
-      repository: ghcr.io/kafaat/sahool-code-review-agent
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8145
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 400m
-        memory: 512Mi
-      limits:
-        cpu: 400000m
-        memory: 512Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8145'
-    serviceAccount:
-      create: true
-      name: sahool-code-review-agent
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8145'
       prometheus.io/path: /metrics
   code-review-service:
     enabled: true
@@ -2667,38 +2603,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8251'
       prometheus.io/path: /metrics
-  demo-data:
-    enabled: true
-    name: demo-data
-    image:
-      repository: ghcr.io/kafaat/sahool-demo-data
-      tag: latest
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8261
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-      limits:
-        cpu: 200000m
-        memory: 256Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8261'
-    serviceAccount:
-      create: true
-      name: sahool-demo-data
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8261'
-      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2837,10 +2741,6 @@ ingress:
       pathType: Prefix
       service: mcp-server
       port: 8201
-    - path: /api/v1/agro/rules
-      pathType: Prefix
-      service: agro-rules
-      port: 8151
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service
@@ -2952,15 +2852,11 @@ ingress:
     - path: /api/v1/chat/service
       pathType: Prefix
       service: chat-service
-      port: 8000
+      port: 8115
     - path: /api/v1/code/fix/agent
       pathType: Prefix
       service: code-fix-agent
       port: 8162
-    - path: /api/v1/code/review/agent
-      pathType: Prefix
-      service: code-review-agent
-      port: 8145
     - path: /api/v1/code/review/service
       pathType: Prefix
       service: code-review-service
@@ -3089,10 +2985,6 @@ ingress:
       pathType: Prefix
       service: iot-sensor-hub
       port: 8251
-    - path: /api/v1/demo/data
-      pathType: Prefix
-      service: demo-data
-      port: 8261
   tls:
   - secretName: sahool-tls
     hosts:

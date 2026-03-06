@@ -208,7 +208,6 @@ void main() {
       );
 
       final container = tester.widget<Container>(find.byType(Container).last);
-      final box = container.constraints;
       // Container should have the specified dimensions
       expect(find.byType(SahoolShimmerCard), findsOneWidget);
     });

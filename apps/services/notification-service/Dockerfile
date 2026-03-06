@@ -11,7 +11,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /build
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential gcc \
     && rm -rf /var/lib/apt/lists/*
 
@@ -58,8 +59,11 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
-# Copy shared modules
-COPY --chown=sahool:sahool apps/services/shared ./shared/
+# Copy root shared modules first (shared.cache, shared.middleware.security_headers, etc.)
+COPY --chown=sahool:sahool shared/ ./shared/
+
+# Copy services shared modules (merge into shared/ without overwriting root modules)
+COPY --chown=sahool:sahool apps/services/shared/ ./services_shared/
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/
@@ -75,4 +79,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')" || exit 1
 
 # Run the application (uses PORT environment variable)
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8110"]

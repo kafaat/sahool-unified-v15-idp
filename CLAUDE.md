@@ -34,7 +34,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool-mobile/      # Secondary mobile variant
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 71 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -67,7 +67,7 @@ sahool-unified-v15-idp/
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (65+ modules)
+├── shared/                     # Python shared modules (75+ modules)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -92,7 +92,8 @@ sahool-unified-v15-idp/
 │   │   ├── orchestration/      # Multi-agent consensus & swarm intelligence
 │   │   ├── guardrails/         # AI safety (input/output filtering)
 │   │   ├── models_registry/    # Agricultural AI models registry (50+ models)
-│   │   ├── ultrarag/           # Advanced RAG system
+│   │   ├── knowledge/          # Agriculture knowledge base (6-stage ingestion pipeline)
+│   │   ├── ultrarag/           # Advanced RAG system (9 agricultural workflows)
 │   │   ├── diffusion/          # Image generation
 │   │   ├── ollama_client.py    # Local LLM hosting via Ollama
 │   │   ├── llm_provider.py     # Multi-provider LLM (Claude, OpenAI, Gemini, DeepSeek)
@@ -153,7 +154,7 @@ sahool-unified-v15-idp/
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (385+ docs)
+├── docs/                       # Technical documentation (475+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
@@ -228,7 +229,7 @@ sahool-unified-v15-idp/
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
 | **IaC**          | Terraform (AWS me-south-1), Helm Charts (32)      |
-| **CI/CD**        | GitHub Actions (49 workflows), Argo CD (18 apps)  |
+| **CI/CD**        | GitHub Actions (53 workflows), Argo CD (18 apps)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -1017,7 +1018,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
 | `package.json`                  | Node.js root workspace (25 packages + services) |
 | `.env.example`                  | Environment template (copy of `.env.development.template`) |
-| `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
+| `governance/services.yaml`      | Service registry v3.3.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
 | `shared/errors_py.py`           | Unified error handling for FastAPI            |
 | `shared/logging_config.py`      | Structured logging configuration             |
@@ -1030,7 +1031,7 @@ The `governance/` directory maintains the platform's service registry and agent 
 
 | File | Version | Purpose |
 |------|---------|---------|
-| `services.yaml` | 3.2.0 | Service registry - single source of truth for all microservices |
+| `services.yaml` | 3.3.0 | Service registry - single source of truth for all microservices |
 | `agents.yaml` | 16.0.0 | AI agent definitions (11 categories, A2A protocol-compliant) |
 | `credentials.template.yaml` | - | Credential template for service configuration |
 | `DEDUP_MATRIX.md` | - | Service deduplication matrix |
@@ -1161,13 +1162,13 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 71 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
+**Platform Totals**: 72 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 71 | Service directories in apps/services/ |
+| Active | 72 | Service directories in apps/services/ |
 | Archived | 15 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications
@@ -1240,7 +1241,7 @@ docker-compose --profile legacy up
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
-| chat-service         | Node.js | 8000 | Real-time messaging      |
+| chat-service         | Node.js | 8115 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | inventory-service    | Python  | 8116 | Inventory management     |
@@ -1675,7 +1676,17 @@ shared/ai/
 ├── orchestration/               # Multi-agent consensus & swarm intelligence
 ├── guardrails/                  # AI safety (input/output filtering, policy)
 ├── models_registry/             # Agricultural AI models registry (50+ models)
+├── knowledge/                   # Agriculture knowledge base module
+│   ├── models.py               # Domain models (FRESH metadata, crop/soil/weather docs)
+│   ├── collections.py          # 9 pre-built knowledge collections
+│   ├── collection_populator.py # Bulk population from docs/knowledge-base/
+│   ├── validators.py           # Knowledge validation (freshness, coverage, quality)
+│   ├── ingestion/              # 6-stage pipeline (Extract→Clean→Chunk→Embed→Validate→Store)
+│   ├── sources/                # Source credibility registry (30+ trusted sources)
+│   └── verification/           # 4-layer verification gate + AgriRegion filter
 ├── ultrarag/                    # Advanced RAG system
+│   ├── providers/agri_provider.py  # Tri-RAG agricultural agent integration
+│   └── workflows/              # 9 pre-built agricultural advisory workflows
 ├── diffusion/                   # Image generation capabilities
 ├── ollama_client.py            # Local LLM integration via Ollama
 ├── model_training.py           # Model fine-tuning & evaluation
@@ -2572,7 +2583,7 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Shared Agricultural Domain Modules
 
-The `shared/` directory contains 65+ Python modules organized by domain. Below is the complete listing:
+The `shared/` directory contains 75+ Python modules organized by domain. Below is the complete listing:
 
 ### Core Infrastructure
 
@@ -2688,9 +2699,9 @@ The `shared/` directory contains 65+ Python modules organized by domain. Below i
 
 ## Platform Documentation Map
 
-The platform contains **385+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **475+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 385+ files)
+### Main Documentation (`docs/` - 475+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
@@ -2706,7 +2717,7 @@ The platform contains **385+ documentation files** spread across multiple direct
 | `docs/guides/` | 20 | Quick start guides (2FA, build, deployment, MCP, testing) |
 | `docs/implementations/` | 35 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
 | `docs/infrastructure/` | 3 | Circuit breaker, Kong HA, PostGIS optimization |
-| `docs/knowledge-base/` | 11 | Agricultural knowledge (crops, diseases, irrigation, monitoring) |
+| `docs/knowledge-base/` | 74 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
 | `docs/migrations/` | 4 | Service migration summaries |
 | `docs/proposals/` | 1 | AI code agent proposal |
 | `docs/reports/` | 52 | Comprehensive audit and analysis reports |
@@ -2733,7 +2744,7 @@ The platform contains **385+ documentation files** spread across multiple direct
 | Future Roadmap | `docs/FUTURE_ROADMAP.md` |
 | Mobile Architecture | `docs/MOBILE_ARCHITECTURE_ANALYSIS.md` |
 
-### Service Documentation (`apps/services-docs/` - 48 files)
+### Service Documentation (`apps/services-docs/` - 83 files)
 
 Detailed per-service documentation with API endpoints, architecture, and admin integration guides.
 
@@ -2760,7 +2771,7 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 
 | Path | Purpose |
 | ---- | ------- |
-| `services.yaml` | **Source of truth** - Service registry (v3.2.0) |
+| `services.yaml` | **Source of truth** - Service registry (v3.3.0) |
 | `agents.yaml` | AI agent definitions (v16.0.0, 11 categories) |
 | `events/catalog.yaml` | Event catalog |
 | `events/schemas/` | JSON schemas (alert, field, NDVI, weather events) |
@@ -2858,4 +2869,4 @@ make ci
 
 ---
 
-_Last Updated: February 2026_
+_Last Updated: March 2026_

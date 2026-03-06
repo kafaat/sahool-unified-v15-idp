@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "5" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
@@ -43,9 +43,9 @@ RUN --mount=type=cache,target=/root/.npm \
 # Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f node_modules/.prisma/client/index.js || \
+    test -f prisma/generated/client/index.js || \
     (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
-     test -f node_modules/.prisma/client/index.js) || \
+     test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application using nest build directly (skip prebuild to avoid
@@ -61,7 +61,8 @@ ARG NODE_VERSION=20
 WORKDIR /app
 
 # Install curl for health checks and OpenSSL for Prisma native query engine
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -89,7 +90,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -97,8 +98,10 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/chat-service/prisma ./prisma/
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /workspace/chat-service/node_modules/.prisma ./node_modules/.prisma/
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /workspace/chat-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/chat-service/node_modules/@prisma/client ./node_modules/@prisma/client/
 
 # Copy built application

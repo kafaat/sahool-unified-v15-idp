@@ -5,7 +5,7 @@
 # Build stage
 ARG NODE_VERSION=20
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="lai-estimation"
@@ -28,13 +28,26 @@ COPY apps/services/lai-estimation /workspace/lai-estimation/
 
 WORKDIR /workspace/lai-estimation
 
-# Install dependencies with retry for network resilience
 # Replace workspace dependency with local file path for Docker build
-RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json && \
-    npm config set registry https://registry.npmmirror.com; \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
+
+# Install dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..."; \
+        if npm install --legacy-peer-deps --ignore-scripts \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund; then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --no-audit --no-fund)
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
@@ -42,13 +55,13 @@ RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \
     npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+    (echo "ERROR: nestjs-auth build failed" && exit 1)
 
 # Build the application
-RUN npm run build
+RUN npx nest build
 
 # Production stage
-FROM node:${NODE_VERSION}-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
 
 # Re-declare build arg for this stage
 ARG NODE_VERSION=20
@@ -56,7 +69,10 @@ ARG NODE_VERSION=20
 WORKDIR /app
 
 # Install curl for health checks
-RUN apk add --no-cache curl
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy only nestjs-auth dist + package.json for runtime (avoid builder's node_modules symlink)
 # Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
@@ -67,12 +83,32 @@ COPY --from=builder /workspace/nestjs-auth/package.json /nestjs-auth/package.jso
 # NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY --from=builder /workspace/lai-estimation/package.json ./
 COPY --from=builder /workspace/lai-estimation/package-lock.json ./
-RUN npm config set registry https://registry.npmmirror.com && \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+
+# Install production dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+        npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund); then break; fi; \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+    done || \
     (npm config set registry https://registry.npmjs.org && \
-    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)

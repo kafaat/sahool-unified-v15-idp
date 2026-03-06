@@ -36,6 +36,9 @@ class KnowledgeDomain(StrEnum):
     PEST_DISEASE = "pest_disease"
     WEATHER = "weather"
     REMOTE_SENSING = "remote_sensing"
+    SMART_AGRICULTURE = "smart_agriculture"
+    PRECISION_FARMING = "precision_farming"
+    DIGITAL_TWIN = "digital_twin"
     GENERAL = "general"
 
 
@@ -79,6 +82,20 @@ class Sensitivity(StrEnum):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
+class SeasonalRelevance(StrEnum):
+    """Seasonal relevance for time-sensitive advice (AgriSaathi pattern).
+    ملاءمة موسمية للنصائح الحساسة للوقت"""
+
+    ALL_YEAR = "all_year"
+    WINTER = "winter"
+    SPRING = "spring"
+    SUMMER = "summer"
+    FALL = "fall"
+    PLANTING = "planting"
+    GROWING = "growing"
+    HARVEST = "harvest"
+
+
 class FRESHMetadata(BaseModel):
     """FRESH framework metadata for knowledge organization.
     إطار FRESH لتنظيم بيانات قاعدة المعرفة"""
@@ -88,6 +105,7 @@ class FRESHMetadata(BaseModel):
     expiration_date: date | None = None
     sensitivity: Sensitivity = Sensitivity.PUBLIC
     hierarchy_level: HierarchyLevel = HierarchyLevel.DETAILED
+    seasonal_relevance: SeasonalRelevance = SeasonalRelevance.ALL_YEAR
 
 
 class GeospatialMetadata(BaseModel):
@@ -113,6 +131,9 @@ class KnowledgeSourceMeta(BaseModel):
     author: str = ""
     language: str = "both"
     agrovoc_concepts: list[str] = Field(default_factory=list)
+    research_paper_id: str = ""
+    doi: str = ""
+    citation: str = ""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -175,6 +196,8 @@ class BaseKnowledgeDocument(BaseModel):
             WEATHER_KNOWLEDGE,
         )
 
+        from .collections import SMART_AGRICULTURE_KNOWLEDGE
+
         domain_map = {
             KnowledgeDomain.CROPS: CROP_KNOWLEDGE,
             KnowledgeDomain.SOIL: SOIL_KNOWLEDGE,
@@ -183,6 +206,9 @@ class BaseKnowledgeDocument(BaseModel):
             KnowledgeDomain.PEST_DISEASE: PEST_KNOWLEDGE,
             KnowledgeDomain.WEATHER: WEATHER_KNOWLEDGE,
             KnowledgeDomain.REMOTE_SENSING: REMOTE_SENSING_KNOWLEDGE,
+            KnowledgeDomain.SMART_AGRICULTURE: SMART_AGRICULTURE_KNOWLEDGE,
+            KnowledgeDomain.PRECISION_FARMING: SMART_AGRICULTURE_KNOWLEDGE,
+            KnowledgeDomain.DIGITAL_TWIN: SMART_AGRICULTURE_KNOWLEDGE,
             KnowledgeDomain.GENERAL: GENERAL_AGRICULTURE,
         }
         return domain_map.get(self.domain, GENERAL_AGRICULTURE)
@@ -288,3 +314,42 @@ class RemoteSensingGuideDocument(BaseKnowledgeDocument):
     spatial_resolution_m: float | None = None
     temporal_resolution_days: int | None = None
     use_cases: list[str] = Field(default_factory=list)
+
+
+class SmartAgricultureDocument(BaseKnowledgeDocument):
+    """Smart agriculture and precision farming knowledge.
+    وثيقة الزراعة الذكية والزراعة الدقيقة
+
+    Covers: IoT, drones, digital twins, AI/ML models, edge computing,
+    blockchain traceability, and market intelligence.
+    Based on: AGRARIAN (MDPI 2025), China Smart Agriculture Plan 2024-2028"""
+
+    domain: KnowledgeDomain = KnowledgeDomain.SMART_AGRICULTURE
+    technology_type: str = ""  # iot, drone, digital_twin, ai_model, blockchain, edge
+    technology_type_ar: str = ""
+    deployment_scale: str = ""  # field, farm, region, national
+    connectivity_requirement: str = ""  # offline, low, moderate, high
+    hardware_requirements: list[str] = Field(default_factory=list)
+    integration_protocols: list[str] = Field(default_factory=list)  # MQTT, NATS, REST, etc.
+    roi_metrics: dict[str, Any] = Field(default_factory=dict)
+    case_studies: list[dict[str, str]] = Field(default_factory=list)
+
+
+class PestVisionDocument(BaseKnowledgeDocument):
+    """Computer vision pest/disease detection knowledge.
+    وثيقة الرؤية الحاسوبية لكشف الآفات والأمراض
+
+    Based on: RS-YOLO (96.6% mAP), RDW-YOLO, SerpensGate-YOLOv8,
+    YOLO26 vision service detection classes."""
+
+    domain: KnowledgeDomain = KnowledgeDomain.PEST_DISEASE
+    detection_model: str = ""  # yolo26, rs-yolo, rdw-yolo
+    target_classes: list[str] = Field(default_factory=list)
+    target_classes_ar: list[str] = Field(default_factory=list)
+    map_score: float | None = None  # mAP@0.5
+    inference_device: str = ""  # gpu, cpu, edge
+    image_size_px: int = 640
+    min_confidence: float = 0.25
+    treatment_recommendations: dict[str, str] = Field(default_factory=dict)
+    treatment_recommendations_ar: dict[str, str] = Field(default_factory=dict)
+    economic_impact: dict[str, Any] = Field(default_factory=dict)

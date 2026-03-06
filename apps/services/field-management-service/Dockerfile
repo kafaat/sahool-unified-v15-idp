@@ -16,7 +16,8 @@ FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /app
 
 # Upgrade npm to latest version for better dependency resolution
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
@@ -36,7 +37,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund && npm run build; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
@@ -61,7 +62,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -70,7 +71,13 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY apps/services/field-management-service/prisma ./prisma
 
 # Generate Prisma client (required before TypeScript compilation)
-RUN npx prisma generate
+# Schema uses output = "./generated/client" so verify that path
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate && \
+    test -f prisma/generated/client/index.js || \
+    (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
+     test -f prisma/generated/client/index.js) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source, config, and build
 COPY apps/services/field-management-service/tsconfig.json ./
@@ -97,18 +104,21 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash sahool
 
 # Install curl for healthcheck, ca-certificates, and OpenSSL for Prisma native query engine
-RUN apt-get update && \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl ca-certificates openssl && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version
-RUN npm install -g npm@11.7.0
+RUN npm install -g npm@11.7.0 || \
+    (npm config set registry https://registry.npmmirror.com && npm install -g npm@11.7.0)
 
 # Copy shared packages (needed for file: protocol dependencies)
 COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Fix the file: path reference again for production stage
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
@@ -126,7 +136,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --prefer-offline \
             --no-audit \
             --no-fund; then break; fi; \
-        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
+        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -137,8 +147,10 @@ COPY --from=builder /app/dist ./dist
 # Copy prisma schema for runtime migrations
 COPY --from=builder /app/prisma ./prisma
 
-# Copy generated Prisma client from builder (avoid npx downloading incompatible version)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# Copy generated Prisma client from builder
+# Schema uses output = "./generated/client" so actual client is at prisma/generated/client/
+# Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
+COPY --from=builder /app/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Set ownership
@@ -155,4 +167,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
-CMD ["npm", "start"]
+CMD ["node", "dist/main.js"]

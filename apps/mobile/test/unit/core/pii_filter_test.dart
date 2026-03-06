@@ -408,13 +408,13 @@ void main() {
     });
 
     test('Should handle empty map', () {
-      final result = PiiFilter.sanitize({});
-      expect(result, {});
+      final result = PiiFilter.sanitize(<String, dynamic>{});
+      expect(result, <String, dynamic>{});
     });
 
     test('Should handle empty list', () {
-      final result = PiiFilter.sanitize([]);
-      expect(result, []);
+      final result = PiiFilter.sanitize(<dynamic>[]);
+      expect(result, <dynamic>[]);
     });
 
     test('Should handle mixed content types', () {

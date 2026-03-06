@@ -16,7 +16,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /build
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -86,7 +87,8 @@ LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}" \
       org.opencontainers.image.description="Weather Service - Weather data and forecasts"
 
 # Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean

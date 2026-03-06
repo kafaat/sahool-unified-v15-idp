@@ -46,14 +46,21 @@ COPY apps/services/yield-prediction/package.json ./apps/services/yield-predictio
 COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-prediction-service/
 COPY apps/web/package.json ./apps/web/
 
-# Install all dependencies at root level
+# Install all dependencies at root level with retry loop and mirror fallback
 # NOTE: --legacy-peer-deps is required due to React 19 compatibility issues with some packages
 # This is a known issue with Next.js 15 + React 19 ecosystem packages
 # TODO: Remove --legacy-peer-deps once all packages are updated to React 19
-RUN npm config set registry https://registry.npmmirror.com; \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3 4 5; do \
+        if npm install --legacy-peer-deps \
+            --prefer-offline \
+            --fetch-timeout=300000 \
+            --no-audit \
+            --no-fund; then break; fi; \
+        if [ "$i" != "5" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
+    done || \
+    (npm config set registry https://registry.npmmirror.com && \
+     npm install --legacy-peer-deps --fetch-timeout=300000 --no-audit --no-fund)
 
 # Build the admin app
 FROM base AS builder
@@ -91,6 +98,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install tini for proper PID 1 signal handling
+RUN apk add --no-cache tini
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
@@ -123,6 +133,9 @@ LABEL org.opencontainers.image.title="SAHOOL Admin Dashboard" \
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+# Use tini as init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # In monorepo standalone, server.js is at apps/admin/server.js
 WORKDIR /app/apps/admin

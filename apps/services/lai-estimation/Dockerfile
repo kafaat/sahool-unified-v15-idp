@@ -55,12 +55,14 @@ RUN --mount=type=cache,target=/root/.npm \
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
 # 1. Symlink service node_modules so nestjs-auth can resolve peer deps
 # 2. Install typescript + redis types explicitly (devDeps not resolved via symlink)
-# 3. Run tsc to compile nestjs-auth
+# 3. Use explicit tsc path since npx resolution through symlinks is unreliable
 WORKDIR /workspace/nestjs-auth
 RUN ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
-    npm install --no-save typescript@5.9.3 redis@4 @liaoliaots/nestjs-redis@10 ioredis@5 2>/dev/null; \
+    npm install --no-save typescript@5.9.3 redis@4 "@liaoliaots/nestjs-redis@^9.0.0" ioredis@5 2>/dev/null; \
     ./node_modules/.bin/tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    (echo "WARN: tsc not found via symlink, installing directly..." && \
+     npm install --no-save typescript@5.9.3 2>/dev/null && \
+     npx tsc --skipLibCheck) || \
     (echo "ERROR: nestjs-auth build failed" && exit 1)
 WORKDIR /workspace/lai-estimation
 

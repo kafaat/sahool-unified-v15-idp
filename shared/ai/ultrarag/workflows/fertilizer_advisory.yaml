@@ -86,6 +86,19 @@ steps:
     config:
       method: cross_encoder
       top_k: 8
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate fertilizer retrieval quality (CRAG)
+    config:
+      domain: fertilizer
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_recommendation
+      on_ambiguous: generate_recommendation
+      on_incorrect: fallback_general
     next_step: generate_recommendation
 
   - id: generate_recommendation

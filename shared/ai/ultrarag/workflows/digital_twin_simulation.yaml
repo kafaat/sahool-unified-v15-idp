@@ -1,0 +1,125 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# UltraRAG Workflow: Digital Twin Simulation
+# سير عمل محاكاة التوأم الرقمي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+id: digital_twin_simulation_workflow
+name: Digital Twin Simulation
+name_ar: محاكاة التوأم الرقمي
+description: |
+  Supports agricultural digital twin operations including crop growth simulation,
+  irrigation optimization scenarios, what-if analysis, and predictive scheduling.
+description_ar: |
+  يدعم عمليات التوأم الرقمي الزراعي بما في ذلك محاكاة نمو المحاصيل،
+  سيناريوهات تحسين الري، تحليل ماذا لو، والجدولة التنبؤية.
+version: "1.0.0"
+
+variables:
+  field_id: ""
+  crop_type: ""
+  crop_variety: ""
+  growth_stage: ""
+  planting_date: ""
+  soil_moisture_pct: 0
+  weather_forecast: ""
+  simulation_model: "AquaCrop"
+  scenario_type: ""
+  top_k: 8
+
+entry_point: analyze_current_state
+
+steps:
+  - id: analyze_current_state
+    type: transform
+    name: Analyze current field state for simulation
+    config:
+      type: analysis
+      inputs:
+        - field_id
+        - crop_type
+        - growth_stage
+        - soil_moisture_pct
+        - weather_forecast
+      output: state_analysis
+      analysis_type: digital_twin_state
+    next_step: retrieve_simulation_knowledge
+
+  - id: retrieve_simulation_knowledge
+    type: retrieve
+    name: Get crop simulation model parameters
+    config:
+      query: "${simulation_model} ${crop_type} ${crop_variety} simulation parameters calibration ${growth_stage}"
+      collection: digital_twin_knowledge
+      top_k: 5
+      strategy: dense
+    next_step: retrieve_crop_parameters
+
+  - id: retrieve_crop_parameters
+    type: retrieve
+    name: Get crop growth parameters
+    config:
+      query: "${crop_type} Kc growth stages GDD water requirement yield prediction"
+      collection: crop_knowledge
+      top_k: 3
+      strategy: dense
+    next_step: retrieve_irrigation_model
+
+  - id: retrieve_irrigation_model
+    type: retrieve
+    name: Get irrigation optimization model
+    config:
+      query: "irrigation scheduling optimization water balance ET ${crop_type} digital twin"
+      collection: irrigation_practices
+      top_k: 3
+      strategy: dense
+    next_step: rerank_results
+
+  - id: rerank_results
+    type: rerank
+    name: Rerank digital twin results
+    config:
+      method: cross_encoder
+      top_k: 8
+    next_step: crag_evaluate
+
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate digital twin retrieval quality (CRAG)
+    config:
+      domain: digital_twin
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_simulation
+      on_ambiguous: generate_simulation
+      on_incorrect: generate_simulation
+    next_step: generate_simulation
+
+  - id: generate_simulation
+    type: generate
+    name: Generate digital twin simulation analysis
+    config:
+      template: |
+        Provide bilingual digital twin simulation analysis covering:
+        - Current crop state estimation (growth stage, biomass, LAI)
+        - Water balance simulation (SM, ET, deep percolation)
+        - 7-day irrigation scheduling forecast
+        - What-if scenario analysis for the requested scenario type
+        - Yield prediction with confidence interval
+        - Recommended management actions with timing
+        - Sensor calibration suggestions if applicable
+      language: both
+      max_tokens: 1600
+    next_step: complete
+
+  - id: complete
+    type: output
+    name: Return digital twin simulation
+    config:
+      output_fields:
+        - simulation_results
+        - irrigation_schedule
+        - yield_prediction
+        - scenario_analysis
+        - confidence
+        - sources

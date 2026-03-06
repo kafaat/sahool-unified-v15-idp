@@ -155,7 +155,12 @@ class PDFExtractor:
         try:
             import fitz  # PyMuPDF
         except ImportError:
-            logger.warning("pymupdf_not_installed", msg="pip install PyMuPDF for PDF support")
+            logger.error(
+                "pymupdf_not_installed",
+                msg="PDF extraction requires PyMuPDF. Install with: pip install PyMuPDF",
+                path=str(path),
+            )
+            result.metadata["error"] = "PyMuPDF not installed. Run: pip install PyMuPDF"
             return result
 
         try:

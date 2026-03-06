@@ -187,16 +187,17 @@ class BaseKnowledgeDocument(BaseModel):
         """Map domain to collection name."""
         from .collections import (
             CROP_KNOWLEDGE,
+            DIGITAL_TWIN_KNOWLEDGE,
             FERTILIZER_KNOWLEDGE,
             GENERAL_AGRICULTURE,
             IRRIGATION_PRACTICES,
             PEST_KNOWLEDGE,
+            PRECISION_FARMING_KNOWLEDGE,
             REMOTE_SENSING_KNOWLEDGE,
+            SMART_AGRICULTURE_KNOWLEDGE,
             SOIL_KNOWLEDGE,
             WEATHER_KNOWLEDGE,
         )
-
-        from .collections import SMART_AGRICULTURE_KNOWLEDGE
 
         domain_map = {
             KnowledgeDomain.CROPS: CROP_KNOWLEDGE,
@@ -207,8 +208,8 @@ class BaseKnowledgeDocument(BaseModel):
             KnowledgeDomain.WEATHER: WEATHER_KNOWLEDGE,
             KnowledgeDomain.REMOTE_SENSING: REMOTE_SENSING_KNOWLEDGE,
             KnowledgeDomain.SMART_AGRICULTURE: SMART_AGRICULTURE_KNOWLEDGE,
-            KnowledgeDomain.PRECISION_FARMING: SMART_AGRICULTURE_KNOWLEDGE,
-            KnowledgeDomain.DIGITAL_TWIN: SMART_AGRICULTURE_KNOWLEDGE,
+            KnowledgeDomain.PRECISION_FARMING: PRECISION_FARMING_KNOWLEDGE,
+            KnowledgeDomain.DIGITAL_TWIN: DIGITAL_TWIN_KNOWLEDGE,
             KnowledgeDomain.GENERAL: GENERAL_AGRICULTURE,
         }
         return domain_map.get(self.domain, GENERAL_AGRICULTURE)

@@ -212,12 +212,25 @@ class RegionRelevanceFilter:
     - Similar ecoregions = reduced but kept
     - Completely dissimilar regions = filtered out"""
 
+    # Default target regions, configurable via SAHOOL_DEFAULT_REGIONS env var
+    # Format: comma-separated zone names, e.g. "yemen_highland,saudi_central"
+    _DEFAULT_REGIONS = ["yemen_highland", "yemen_coastal"]
+
     def __init__(
         self,
         target_regions: list[str] | None = None,
         min_relevance: float = 0.3,
     ) -> None:
-        self._target_regions = target_regions or ["yemen_highland", "yemen_coastal"]
+        import os
+
+        if target_regions is not None:
+            self._target_regions = target_regions
+        else:
+            env_regions = os.environ.get("SAHOOL_DEFAULT_REGIONS", "")
+            if env_regions:
+                self._target_regions = [r.strip() for r in env_regions.split(",") if r.strip()]
+            else:
+                self._target_regions = list(self._DEFAULT_REGIONS)
         self._min_relevance = min_relevance
 
     def assess_relevance(

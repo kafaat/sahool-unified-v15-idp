@@ -72,6 +72,7 @@ from .models import (
     WeatherPatternDocument,
 )
 
+from .events import KnowledgeEventPublisher
 from .persistence import DocumentPage, DocumentQuery, InMemoryKnowledgeRepository, KnowledgeRepository
 from .quality_gate import KnowledgeQualityGate, QualityCheckResult
 from .serialization import KnowledgeSerializer
@@ -146,6 +147,8 @@ __all__ = [
     "QualityCheckResult",
     # Serialization (GAP-16)
     "KnowledgeSerializer",
-    # Freshness Monitor (GAP-09)
+    # Freshness Monitor (GAP-11)
     "KnowledgeFreshnessMonitor",
+    # NATS Event Publisher (GAP-12)
+    "KnowledgeEventPublisher",
 ]

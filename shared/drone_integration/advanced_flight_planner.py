@@ -205,12 +205,8 @@ class DroneFlightPlanner:
         total_images = self.estimate_images(side_m, side_m, altitude_m, overlap, sidelap)
 
         waypoints = []
-        half = side_m / 2
-        ground_width = 2 * altitude_m * math.tan(math.radians(38.5))
-        spacing = ground_width * (1 - sidelap / 100)
 
         for i in range(flight_lines):
-            y_offset = -half + i * spacing
             if i % 2 == 0:
                 waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
             else:
@@ -253,7 +249,6 @@ class DroneFlightPlanner:
         تخطيط مهمة رش VRA.
         """
         total_volume = area_hectares * spray_rate_l_ha
-        tank_size = DRONE_SPECS[DroneType.DJI_AGRAS].get("spray_tank_l", 16)
         swath = 5.0
         speed = 3.0
 

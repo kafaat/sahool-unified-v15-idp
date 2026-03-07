@@ -17,7 +17,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 fastapi==0.128.5
 uvicorn==0.40.0
-starlette>=0.41.0  # Security: matches fastapi 0.126.0
+starlette>=0.49.1,<0.53.0  # Required by fastapi==0.128.5 (was >=0.41.0 which is incompatible)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Validation

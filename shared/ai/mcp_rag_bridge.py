@@ -626,7 +626,6 @@ class MCPRAGBridge:
         استرجاع مستند محدد بالمعرف.
         """
         document_id = args.get("document_id", "")
-        collection = args.get("collection", "general_agriculture")
 
         if not document_id:
             return BridgeResult(

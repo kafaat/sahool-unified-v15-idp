@@ -1,0 +1,2435 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>تقرير توافق الاعتماديات - منصة سهول - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير توافق الاعتماديات - منصة سهول
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="-">تقرير توافق الاعتماديات - منصة سهول<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<h1 id="dependency-compatibility-audit-report-sahool-platform">Dependency Compatibility Audit Report - SAHOOL Platform<a class="headerlink" href="#dependency-compatibility-audit-report-sahool-platform" title="Permanent link">&para;</a></h1>
+<p><strong>الإصدار | Version:</strong> 16.0.0<br />
+<strong>تاريخ التقرير | Report Date:</strong> March 2026<br />
+<strong>المراجع | Reviewer:</strong> KAFAAT Engineering Team<br />
+<strong>الحالة | Status:</strong> ✅ مكتمل (تم تطبيق الإصلاحات الحرجة) | Complete (Critical fixes applied)</p>
+<hr />
+<h2 id="executive-summary">📋 الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تم فحص جميع ملفات الاعتماديات للمشروع عبر ثلاثة بيئات:
+- <strong>Python</strong>: 63 ملف requirements.txt + ملف pyproject.toml + ملفا constraints
+- <strong>Node.js/npm</strong>: 35+ ملف package.json عبر الخدمات والحزم والتطبيقات
+- <strong>Flutter/Dart</strong>: 4 ملفات pubspec.yaml</p>
+<blockquote>
+<p>All project dependency files were audited across three ecosystems: Python (63 requirements files), Node.js/npm (35+ package.json files), and Flutter/Dart (4 pubspec.yaml files).</p>
+</blockquote>
+<h3 id="overall-findings">النتائج الإجمالية | Overall Findings<a class="headerlink" href="#overall-findings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخطورة</th>
+<th>Category</th>
+<th>العدد</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 حرجة - أمنية</td>
+<td>Critical - Security</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>🟠 عالية - توافق</td>
+<td>High - Compatibility</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>🟡 متوسطة - اتساق</td>
+<td>Medium - Consistency</td>
+<td>15</td>
+<td>15</td>
+</tr>
+<tr>
+<td>🟢 منخفضة - أسلوب</td>
+<td>Low - Style</td>
+<td>12</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-issues-security">🔴 المشكلات الحرجة (أمنية) | Critical Issues (Security)<a class="headerlink" href="#critical-issues-security" title="Permanent link">&para;</a></h2>
+<h3 id="c-1-cryptography-">C-1: <code>cryptography</code> - نسخة قديمة في خدمات متعددة<a class="headerlink" href="#c-1-cryptography-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🔴 حرجة<br />
+<strong>CVEs المرتبطة | Related CVEs:</strong> CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong>
+تحدد <code>constraints.txt</code> الحد الأدنى <code>cryptography&gt;=43.0.1</code> لإصلاح CVEs، لكن 23 خدمة تستخدم <code>cryptography&gt;=42.0.0</code>.</p>
+<blockquote>
+<p><code>constraints.txt</code> specifies <code>cryptography&gt;=43.0.1</code> to fix known CVEs, but 23 services specify the lower bound <code>&gt;=42.0.0</code>, allowing vulnerable versions to be installed if constraints file is not used.</p>
+</blockquote>
+<p><strong>الخدمات المتأثرة | Affected Services:</strong>
+<code>advisory-service</code>, <code>ai-advisor</code>, <code>billing-core</code>, <code>crm-service</code>, <code>crop-intelligence-service</code>, <code>equipment-service</code>, <code>iot-gateway</code>, <code>irrigation-smart</code>, <code>llm-orchestrator-service</code>, <code>logistics-service</code>, <code>lowcode-engine</code>, <code>ndvi-processor</code>, <code>notification-service</code>, <code>skills-service</code>, <code>task-service</code>, <code>vegetation-analysis-service</code>, <code>virtual-sensors</code>, <code>weather-service</code>, <code>wechat-service</code>, <code>whatsapp-bot-service</code>, <code>ws-gateway</code></p>
+<p><strong>الإصلاح | Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code># في كل ملف requirements.txt المتأثر
+<span class="gd">- cryptography&gt;=42.0.0</span>
+<span class="gi">+ cryptography&gt;=43.0.1  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p</span>
+</code></pre></div>
+
+<hr />
+<h3 id="c-2-python-jose-">C-2: <code>python-jose</code> - نسخة أدنى من الحد الأمني المطلوب<a class="headerlink" href="#c-2-python-jose-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🔴 حرجة<br />
+<strong>CVEs المرتبطة | Related CVEs:</strong> CVE-2024-33663, CVE-2024-33664<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong>
+- <code>constraints.txt</code> يحدد <code>python-jose&gt;=3.5.0</code> (النسخة المُصلَّحة أمنيًا)
+- <code>constraints-ai.txt</code> يحدد <code>python-jose&gt;=3.3.0,&lt;4.0.0</code> <strong>(أدنى من الحد الأمني)</strong>
+- 4 خدمات تستخدم <code>python-jose[cryptography]&gt;=3.4.0</code> <strong>(أقل من 3.5.0)</strong></p>
+<blockquote>
+<p><code>constraints.txt</code> correctly specifies <code>&gt;=3.5.0</code> for security, but <code>constraints-ai.txt</code> uses the lower <code>&gt;=3.3.0</code> and 4 services use <code>&gt;=3.4.0</code>, potentially allowing installation of a version with known authentication bypass vulnerabilities.</p>
+</blockquote>
+<p><strong>الخدمات المتأثرة | Affected Services:</strong>
+<code>copilot-api</code>, <code>field-management-service</code>, <code>supply-chain-service</code>, <code>ws-gateway</code><br />
+<strong>الملفات المتأثرة | Affected Files:</strong> <code>docker/constraints-ai.txt</code></p>
+<p><strong>الإصلاح | Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code># docker/constraints-ai.txt
+<span class="gd">- python-jose&gt;=3.3.0,&lt;4.0.0</span>
+<span class="gi">+ python-jose&gt;=3.5.0,&lt;4.0.0  # CVE-2024-33663, CVE-2024-33664</span>
+
+# في الخدمات المتأثرة
+<span class="gd">- python-jose[cryptography]&gt;=3.4.0</span>
+<span class="gi">+ python-jose[cryptography]&gt;=3.5.0  # CVE-2024-33663, CVE-2024-33664</span>
+</code></pre></div>
+
+<hr />
+<h3 id="c-3-aiohttp-cve">C-3: <code>aiohttp</code> - نسخة قديمة تفتقر إصلاحات CVE<a class="headerlink" href="#c-3-aiohttp-cve" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🔴 حرجة<br />
+<strong>CVEs المرتبطة | Related CVEs:</strong> CVE-2025-53643 (zip bomb), CVE-2025-69223<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong>
+خدمتان تحددان <code>aiohttp&gt;=3.9.0</code> بينما <code>constraints.txt</code> يشترط <code>&gt;=3.13.3</code> لإصلاح ثغرات ZIP bomb و DoS.</p>
+<blockquote>
+<p>Two services specify <code>aiohttp&gt;=3.9.0</code> while the central constraints require <code>&gt;=3.13.3</code> to fix zip bomb (CVE-2025-53643) and DoS (CVE-2025-69223) vulnerabilities.</p>
+</blockquote>
+<p><strong>الخدمات المتأثرة | Affected Services:</strong>
+- <code>copilot-api/requirements.txt</code>: <code>aiohttp&gt;=3.9.0</code>
+- <code>yolo26-vision-service/requirements.txt</code>: <code>aiohttp&gt;=3.9.0,&lt;4.0.0</code></p>
+<p><strong>الإصلاح | Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code># copilot-api/requirements.txt
+<span class="gd">- aiohttp&gt;=3.9.0</span>
+<span class="gi">+ aiohttp&gt;=3.13.3  # CVE-2025-53643, CVE-2025-69223</span>
+
+# yolo26-vision-service/requirements.txt
+<span class="gd">- aiohttp&gt;=3.9.0,&lt;4.0.0</span>
+<span class="gi">+ aiohttp&gt;=3.13.3,&lt;4.0.0  # CVE-2025-53643, CVE-2025-69223</span>
+</code></pre></div>
+
+<hr />
+<h3 id="c-4-starlette-constraints">C-4: <code>starlette</code> - حد أدنى متناقض في ملف Constraints الأساسي<a class="headerlink" href="#c-4-starlette-constraints" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🔴 حرجة<br />
+<strong>السبب | Reason:</strong> توافق مع FastAPI 0.128.5<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong>
+<code>constraints.txt</code> يحدد <code>starlette&gt;=0.41.0</code> وهو أقل بكثير مما تتطلبه FastAPI 0.128.5 (<code>starlette&gt;=0.49.1,&lt;0.53.0</code>). <code>constraints-ai.txt</code> صحيح مع <code>&gt;=0.49.1</code>.</p>
+<blockquote>
+<p><code>constraints.txt</code> specifies <code>starlette&gt;=0.41.0</code> which is far below what FastAPI 0.128.5 actually requires (<code>starlette&gt;=0.49.1,&lt;0.53.0</code>). Installing starlette 0.41.x through 0.48.x with FastAPI 0.128.5 would cause import errors.</p>
+</blockquote>
+<p><strong>الإصلاح | Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code># constraints.txt
+<span class="gd">- starlette&gt;=0.41.0  # Security: matches fastapi 0.126.0</span>
+<span class="gi">+ starlette&gt;=0.49.1,&lt;0.53.0  # Required by fastapi==0.128.5</span>
+</code></pre></div>
+
+<hr />
+<h2 id="high-severity-issues-compatibility">🟠 المشكلات العالية (توافق) | High Severity Issues (Compatibility)<a class="headerlink" href="#high-severity-issues-compatibility" title="Permanent link">&para;</a></h2>
+<h3 id="h-1-fastapi-">H-1: <code>fastapi</code> - تشتت نسخ كبير عبر الخدمات<a class="headerlink" href="#h-1-fastapi-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ⚠️ تحتاج متابعة</p>
+<p><strong>المشكلة | Problem:</strong>
+المنصة تُثبّت FastAPI على <code>0.128.5</code> في <code>constraints.txt</code>، لكن الخدمات تحدد حدودًا دنيا متباينة:</p>
+<table>
+<thead>
+<tr>
+<th>النطاق</th>
+<th>عدد الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==0.128.5</code> (صحيح)</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>&gt;=0.128.5,&lt;1.0.0</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>&gt;=0.126.0</code> (أو variants)</td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>&gt;=0.115.0,&lt;1.0.0</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>&gt;=0.109.0</code> أو <code>&gt;=0.109.0,&lt;0.129.0</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&gt;=0.104.0</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&gt;=0.100.0</code></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The platform pins FastAPI to <code>0.128.5</code> but services specify inconsistent lower bounds ranging from <code>&gt;=0.100.0</code> to <code>&gt;=0.128.5</code>. While <code>constraints.txt</code> should enforce the correct version, inconsistent per-service specs create confusion and increase risk if constraints file is missed.</p>
+</blockquote>
+<p><strong>التوصية | Recommendation:</strong>
+توحيد جميع الخدمات على <code>fastapi==0.128.5</code> أو على الأقل <code>fastapi&gt;=0.128.5,&lt;0.130.0</code>.</p>
+<hr />
+<h3 id="h-2-prismaclient-">H-2: <code>@prisma/client</code> - تشتت نسخ عبر المشروع<a class="headerlink" href="#h-2-prismaclient-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ⚠️ تحتاج متابعة</p>
+<p><strong>المشكلة | Problem:</strong>
+| الموقع | النسخة المحددة |
+|--------|--------------|
+| <code>package.json</code> (الجذر) | <code>^5.10.0</code> |
+| <code>packages/shared-db</code> | <code>^5.8.0</code> (peerDep) / <code>^5.8.0</code> (dep) |
+| خدمات NestJS | <code>^5.22.0</code> |</p>
+<p>اختلاف النسخ بين <code>5.8.0</code> و<code>5.22.0</code> قد يُسبب عدم توافق في API عند استخدام <code>shared-db</code> مع خدمات تعتمد <code>5.22.0</code>.</p>
+<blockquote>
+<p>Version divergence between <code>5.8.0</code> (shared-db) and <code>5.22.0</code> (NestJS services) can cause API incompatibility. Prisma 5.22 introduced changes to generated client types that may not be reflected in <code>5.8.0</code>-based shared utilities.</p>
+</blockquote>
+<p><strong>التوصية | Recommendation:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-db/package.json</span>
+<span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1">// dep</span>
+<span class="nt">&quot;peerDependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&gt;=5.0.0&quot;</span><span class="w">  </span><span class="c1">// keep broad peer dep</span>
+<span class="p">}</span>
+<span class="c1">// package.json (root)</span>
+<span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="w">    </span><span class="c1">// update from 5.10.0</span>
+</code></pre></div>
+
+<hr />
+<h3 id="h-3-react-sahool-mobile-react-18-react-19">H-3: <code>react</code> - sahool-mobile على React 18 بينما المنصة على React 19<a class="headerlink" href="#h-3-react-sahool-mobile-react-18-react-19" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ⚠️ تحتاج متابعة</p>
+<p><strong>المشكلة | Problem:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">mobile</span><span class="o">/</span><span class="nx">sahool</span><span class="o">-</span><span class="nx">mobile</span><span class="w"> </span><span class="p">(</span><span class="nx">React</span><span class="w"> </span><span class="nx">Native</span><span class="p">):</span><span class="w"> </span><span class="nx">react</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">18.3.1</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="p">:</span><span class="w">  </span><span class="nx">react</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">19.2.4</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">admin</span><span class="p">:</span><span class="w"> </span><span class="nx">react</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">19.2.4</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">design</span><span class="o">-</span><span class="nx">system</span><span class="p">:</span><span class="w"> </span><span class="nx">react</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">19.0.0</span><span class="w"> </span><span class="p">(</span><span class="nx">devDep</span><span class="p">)</span>
+</code></pre></div>
+
+<p>مكتبة sahool-mobile هي تطبيق React Native مستقل، لكن مشاركة أي مكونات بين الويب والموبايل غير ممكنة بسبب فارق الإصدار الرئيسي.</p>
+<blockquote>
+<p>sahool-mobile uses React 18 (React Native) while all web apps use React 19. This is acceptable as they run on different platforms, but any shared component packages must be tested against both versions.</p>
+</blockquote>
+<p><strong>التوصية | Recommendation:</strong>
+توثيق واضح بأن <code>sahool-mobile</code> (React Native) يعمل بشكل مستقل عن منظومة React 19 للويب. لا تشارك مكونات UI مباشرة بينهما.</p>
+<hr />
+<h3 id="h-4-app_links-flutter-">H-4: <code>app_links</code> (Flutter) - فارق إصدار رئيسي بين التطبيقين<a class="headerlink" href="#h-4-app_links-flutter-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ✅ تم التوثيق</p>
+<p><strong>المشكلة | Problem:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apps/mobile/pubspec.yaml:           app_links</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^3.5.1</span>
+<span class="nt">apps/mobile/sahool_field_app:       app_links</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.3.3</span>
+</code></pre></div>
+
+<p>فارق 3 إصدارات رئيسية (Major versions). الـ API تغير جذريًا بين v3 وv6.</p>
+<blockquote>
+<p>The two Flutter apps use completely different major versions of <code>app_links</code> (v3.x vs v6.x). The API for deep link handling changed significantly between these versions, meaning maintenance code written for one app cannot be reused in the other without adaptation.</p>
+</blockquote>
+<hr />
+<h3 id="h-5-ai-agents-core-tensorflow-variant">H-5: <code>ai-agents-core</code> - TensorFlow variant مختلف<a class="headerlink" href="#h-5-ai-agents-core-tensorflow-variant" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">constraints</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span><span class="w">           </span><span class="n">tensorflow</span><span class="o">-</span><span class="n">cpu</span><span class="o">==</span><span class="mf">2.20</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="p">:</span><span class="w">            </span><span class="n">tensorflow</span><span class="o">&gt;=</span><span class="mf">2.13</span><span class="o">.</span><span class="mi">0</span>
+</code></pre></div>
+
+<p><code>ai-agents-core</code> يطلب <code>tensorflow</code> (CUDA-enabled) بينما <code>constraints.txt</code> يُثبّت <code>tensorflow-cpu</code>. هذا يعني أن <code>constraints.txt</code> لن يُطبَّق بشكل صحيح لهذه الخدمة.</p>
+<blockquote>
+<p><code>ai-agents-core</code> requests the full <code>tensorflow</code> package (CUDA-enabled), while <code>constraints.txt</code> pins <code>tensorflow-cpu</code>. The two are separate packages and the constraint won't apply. This could lead to very large Docker images due to CUDA dependencies being pulled unnecessarily.</p>
+</blockquote>
+<p><strong>الإصلاح المقترح | Suggested Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code># ai-agents-core/requirements.txt
+<span class="gd">- tensorflow&gt;=2.13.0  # For TensorFlow support</span>
+<span class="gi">+ tensorflow-cpu&gt;=2.20.0  # Aligned with platform constraint (CPU-only for this service)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="h-6-record-flutter-">H-6: <code>record</code> (Flutter) - تعارض نسخ بين التطبيقين<a class="headerlink" href="#h-6-record-flutter-" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ✅ تم التوثيق</p>
+<p><strong>المشكلة | Problem:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apps/mobile/pubspec.yaml:        record</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.0.5</span><span class="w">  </span><span class="c1"># مُثبَّتة بدقة</span>
+<span class="nt">apps/mobile/sahool_field_app:    record</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.1.2</span><span class="w">  </span><span class="c1"># نطاق أحدث</span>
+</code></pre></div>
+
+<p>كلا التطبيقين يستخدمان <code>record_platform_interface: 1.2.0</code> كـ override، لكن <code>5.1.2</code> قد لا يتوافق مع override هذا بحسب التعليقات في الكود.</p>
+<hr />
+<h3 id="h-7-eslint-admin-web">H-7: <code>eslint</code> - تباين نسخ بين admin و web<a class="headerlink" href="#h-7-eslint-admin-web" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية (في بيئة التطوير)<br />
+<strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
+<p><strong>المشكلة | Problem:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">admin</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;eslint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9.28.0&quot;</span><span class="w">   </span><span class="p">(</span><span class="nx">محدد</span><span class="w"> </span><span class="nx">بدقة</span><span class="p">)</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;eslint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^9.39.2&quot;</span><span class="w">  </span><span class="p">(</span><span class="nx">نطاق</span><span class="w"> </span><span class="nx">أحدث</span><span class="p">)</span>
+</code></pre></div>
+
+<p>استخدام نسختين مختلفتين من ESLint في نفس المشروع قد يُنتج نتائج linting متباينة.</p>
+<hr />
+<h3 id="h-8-starlette0521-leveling-optimizer-service">H-8: <code>starlette==0.52.1</code> - تثبيت دقيق هش في leveling-optimizer-service<a class="headerlink" href="#h-8-starlette0521-leveling-optimizer-service" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity:</strong> 🟠 عالية<br />
+<strong>الحالة | Status:</strong> ⚠️ تحتاج متابعة</p>
+<p><strong>المشكلة | Problem:</strong>
+<code>leveling-optimizer-service/requirements.txt</code> يُثبّت <code>starlette==0.52.1</code> بدقة متناهية. عند ترقية FastAPI لإصدار يستلزم starlette أحدث من 0.52.1، ستتعارض هذه الخدمة.</p>
+<blockquote>
+<p>Hard-pinning <code>starlette==0.52.1</code> means any FastAPI upgrade requiring a newer Starlette version will break this service immediately. This is unnecessarily fragile.</p>
+</blockquote>
+<p><strong>التوصية | Recommendation:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="gd">- starlette==0.52.1</span>
+<span class="gi">+ starlette&gt;=0.49.1,&lt;0.53.0  # Compatible range for fastapi==0.128.5</span>
+</code></pre></div>
+
+<hr />
+<h2 id="medium-severity-issues-consistency">🟡 المشكلات المتوسطة (اتساق) | Medium Severity Issues (Consistency)<a class="headerlink" href="#medium-severity-issues-consistency" title="Permanent link">&para;</a></h2>
+<h3 id="m-1-pydantic-">M-1: <code>pydantic</code> - نطاقات متباينة عبر الخدمات<a class="headerlink" href="#m-1-pydantic-" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة | Status:</strong> ⚠️</p>
+<table>
+<thead>
+<tr>
+<th>النسخة المحددة</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==2.12.5</code> (الحد الأدنى الصحيح)</td>
+<td>~15 خدمة</td>
+</tr>
+<tr>
+<td><code>&gt;=2.5.0,&lt;3.0.0</code></td>
+<td>yolo26-vision-service</td>
+</tr>
+<tr>
+<td><code>&gt;=2.5.0</code></td>
+<td>copilot-api</td>
+</tr>
+<tr>
+<td><code>&gt;=2.10.0</code></td>
+<td>~8 خدمات</td>
+</tr>
+<tr>
+<td><code>&gt;=2.10.0,&lt;3.0.0</code></td>
+<td>~6 خدمات</td>
+</tr>
+<tr>
+<td><code>&gt;=2.10.6,&lt;3.0.0</code></td>
+<td>ai-chat-assistant</td>
+</tr>
+</tbody>
+</table>
+<p><code>constraints.txt</code> يُثبّت <code>pydantic==2.12.5</code>. Pydantic 2.x كسرت التوافق مع 1.x بشكل كامل، وأي إصدار &gt;=2.5.0 متوافق مع constraints.</p>
+<hr />
+<h3 id="m-2-uvicorn-">M-2: <code>uvicorn</code> - تشتت نسخ<a class="headerlink" href="#m-2-uvicorn-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة المحددة</th>
+<th>الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==0.40.0</code></td>
+<td>صحيح ومحدد</td>
+</tr>
+<tr>
+<td><code>&gt;=0.30.0,&lt;1.0.0</code></td>
+<td>نطاق واسع مقبول</td>
+</tr>
+<tr>
+<td><code>&gt;=0.24.0</code></td>
+<td>نطاق قديم جدًا</td>
+</tr>
+<tr>
+<td><code>&gt;=0.27.0</code></td>
+<td>copilot-api - قديم</td>
+</tr>
+</tbody>
+</table>
+<p><code>constraints.txt</code> يُثبّت <code>uvicorn==0.40.0</code>.</p>
+<hr />
+<h3 id="m-3-structlog-">M-3: <code>structlog</code> - تشتت نسخ<a class="headerlink" href="#m-3-structlog-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة</th>
+<th>عدد الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==24.4.0</code></td>
+<td>~10</td>
+</tr>
+<tr>
+<td><code>&gt;=24.4.0,&lt;25.0.0</code></td>
+<td>~8</td>
+</tr>
+<tr>
+<td><code>&gt;=24.1.0,&lt;25.0.0</code></td>
+<td>~6</td>
+</tr>
+<tr>
+<td><code>&gt;=24.0.0,&lt;25.0.0</code></td>
+<td>~5</td>
+</tr>
+<tr>
+<td><code>&gt;=24.0.0</code></td>
+<td>~4</td>
+</tr>
+<tr>
+<td><code>&gt;=23.2.0</code></td>
+<td>1 (قديم جدًا)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="m-4-pytest-">M-4: <code>pytest</code> - نطاقات متباينة<a class="headerlink" href="#m-4-pytest-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==8.4.2</code></td>
+<td>~12</td>
+</tr>
+<tr>
+<td><code>&gt;=8.3.0,&lt;9.0.0</code></td>
+<td>~8</td>
+</tr>
+<tr>
+<td><code>&gt;=8.3.0</code></td>
+<td>~4</td>
+</tr>
+<tr>
+<td><code>&gt;=8.0.0,&lt;9.0.0</code></td>
+<td>~4</td>
+</tr>
+<tr>
+<td><code>&gt;=7.4.0</code></td>
+<td>~6 (قديمة)</td>
+</tr>
+<tr>
+<td><code>&gt;=7.0.0</code></td>
+<td>1 (قديمة)</td>
+</tr>
+</tbody>
+</table>
+<p><code>constraints.txt</code> يُثبّت <code>pytest==8.4.2</code>.</p>
+<hr />
+<h3 id="m-5-pytest-asyncio-">M-5: <code>pytest-asyncio</code> - تباين<a class="headerlink" href="#m-5-pytest-asyncio-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==0.26.0</code></td>
+<td>~12</td>
+</tr>
+<tr>
+<td><code>&gt;=0.25.0,&lt;1.0.0</code></td>
+<td>~4</td>
+</tr>
+<tr>
+<td><code>&gt;=0.24.0,&lt;1.0.0</code></td>
+<td>~5</td>
+</tr>
+<tr>
+<td><code>&gt;=0.23.0</code></td>
+<td>~5</td>
+</tr>
+<tr>
+<td><code>&gt;=0.21.0</code></td>
+<td>~4 (قديمة)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="m-6-httpx-">M-6: <code>httpx</code> - نطاقات متباينة<a class="headerlink" href="#m-6-httpx-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة</th>
+<th>الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==0.28.1</code></td>
+<td>صحيح</td>
+</tr>
+<tr>
+<td><code>&gt;=0.28.0,&lt;1.0.0</code></td>
+<td>مقبول</td>
+</tr>
+<tr>
+<td><code>&gt;=0.27.0,&lt;1.0.0</code></td>
+<td>مقبول</td>
+</tr>
+<tr>
+<td><code>&gt;=0.26.0,&lt;0.29.0</code></td>
+<td>yolo26 - حد أعلى قد يمنع ترقيات أمنية</td>
+</tr>
+<tr>
+<td><code>&gt;=0.26.0</code></td>
+<td>copilot-api</td>
+</tr>
+<tr>
+<td><code>&gt;=0.25.0</code></td>
+<td>قديم نسبيًا</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="m-7-nats-py-">M-7: <code>nats-py</code> - تشتت بين التثبيت الدقيق والنطاق الواسع<a class="headerlink" href="#m-7-nats-py-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">constraints</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span><span class="w">    </span><span class="n">nats</span><span class="o">-</span><span class="n">py</span><span class="o">==</span><span class="mf">2.13</span><span class="o">.</span><span class="mi">1</span>
+<span class="err">معظم</span><span class="w"> </span><span class="err">الخدمات</span><span class="p">:</span><span class="w">     </span><span class="n">nats</span><span class="o">-</span><span class="n">py</span><span class="o">==</span><span class="mf">2.13</span><span class="o">.</span><span class="mi">1</span>
+<span class="n">tests</span><span class="o">/</span><span class="n">integration</span><span class="p">:</span><span class="w">  </span><span class="n">nats</span><span class="o">-</span><span class="n">py</span><span class="o">&gt;=</span><span class="mf">2.3</span><span class="o">.</span><span class="mi">0</span><span class="w">  </span><span class="p">(</span><span class="err">قديم</span><span class="w"> </span><span class="err">جدًا</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="m-8-typescript-nodejs">M-8: <code>typescript</code> - تشتت نسخ في بيئة Node.js<a class="headerlink" href="#m-8-typescript-nodejs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النسخة</th>
+<th>الموقع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>5.9.3</code> (محددة بدقة)</td>
+<td>root, admin, web</td>
+</tr>
+<tr>
+<td><code>^5.9.3</code></td>
+<td>معظم packages</td>
+</tr>
+<tr>
+<td><code>^5.7.2</code></td>
+<td>user-service, code-review-agent</td>
+</tr>
+<tr>
+<td><code>^5.6.3</code></td>
+<td>idp skeleton</td>
+</tr>
+<tr>
+<td><code>^5.4.0</code></td>
+<td>sahool-mobile</td>
+</tr>
+<tr>
+<td><code>^5.0.0</code></td>
+<td>packages/cache</td>
+</tr>
+</tbody>
+</table>
+<p>يُوصى بتوحيد الخدمات على <code>^5.9.3</code> وترك الإصدار الدقيق للجذر فقط.</p>
+<hr />
+<h3 id="m-9-nestjscommon-nestjscore-">M-9: <code>@nestjs/common</code> و <code>@nestjs/core</code> - نطاقان مختلفان<a class="headerlink" href="#m-9-nestjscommon-nestjscore-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">shared</span><span class="o">-</span><span class="nx">audit</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">packages</span><span class="o">/</span><span class="nx">cache</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@nestjs/common&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^10.0.0&quot;</span>
+<span class="nx">جميع</span><span class="w"> </span><span class="nx">الخدمات</span><span class="w"> </span><span class="nx">الأخرى</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;@nestjs/common&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^10.4.15&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="m-10-redis-nodejs-">M-10: <code>redis</code> (Node.js) - تشتت صغير<a class="headerlink" href="#m-10-redis-nodejs-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>nestjs-auth (peerDep):   redis ^4.6.0
+yield-prediction-service: redis ^4.6.0
+lai-estimation:           redis ^4.6.0
+crop-growth-model:        redis ^4.6.0
+marketplace-service:      redis ^4.7.0
+user-service:             redis ^4.7.0
+</code></pre></div>
+
+<p>جميعها على redis v4 وهي متوافقة. الفارق الطفيف (4.6 vs 4.7) مقبول.</p>
+<hr />
+<h3 id="m-11-ioredis-nodejs-">M-11: <code>ioredis</code> (Node.js) - تشتت طفيف<a class="headerlink" href="#m-11-ioredis-nodejs-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">nestjs</span><span class="o">-</span><span class="nx">auth</span><span class="w"> </span><span class="p">(</span><span class="nx">dev</span><span class="p">):</span><span class="w">  </span><span class="nx">ioredis</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">5.0.0</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">cache</span><span class="p">:</span><span class="w">     </span><span class="nx">ioredis</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">5.3.0</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="p">:</span><span class="w">           </span><span class="nx">ioredis</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">5.4.1</span><span class="w">  </span><span class="p">(</span><span class="nx">في</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="nx">ويب</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">غير</span><span class="w"> </span><span class="nx">متوقع</span><span class="p">)</span>
+<span class="nx">iot</span><span class="o">-</span><span class="nx">service</span><span class="p">:</span><span class="w">        </span><span class="nx">ioredis</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">5.4.2</span>
+</code></pre></div>
+
+<p>⚠️ <code>apps/web</code> (Next.js frontend) يستورد <code>ioredis</code> مباشرة وهو غير معتاد لتطبيق frontend. يجب مراجعة ما إذا كان هذا الاستخدام ضروريًا أم يمكن نقله لطبقة API.</p>
+<hr />
+<h3 id="m-12-axios-pinned-range">M-12: <code>axio</code>s - تباين بين pinned وrange<a class="headerlink" href="#m-12-axios-pinned-range" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/web, apps/admin:        axios 1.13.5 (محدد بدقة)
+api-client, NestJS services: axios ^1.7.9 (نطاق أقدم)
+</code></pre></div>
+
+<p>root <code>package.json</code> يحتوي override <code>"axios": "&gt;=1.13.5"</code> مما يحل المشكلة جزئيًا للـ npm workspace.</p>
+<hr />
+<h3 id="m-13-typesnode-">M-13: <code>@types/node</code> - تشتت نسخ<a class="headerlink" href="#m-13-typesnode-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="w"> </span><span class="p">(</span><span class="nx">root</span><span class="p">):</span><span class="w">    </span><span class="err">@</span><span class="nx">types</span><span class="o">/</span><span class="nx">node</span><span class="w"> </span><span class="m m-Double">20.19.33</span><span class="w"> </span><span class="p">(</span><span class="nx">محدد</span><span class="p">)</span>
+<span class="nx">معظم</span><span class="w"> </span><span class="nx">packages</span><span class="p">:</span><span class="w">          </span><span class="err">@</span><span class="nx">types</span><span class="o">/</span><span class="nx">node</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">20.19.33</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">errors</span><span class="p">:</span><span class="w">        </span><span class="err">@</span><span class="nx">types</span><span class="o">/</span><span class="nx">node</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">22.0.0</span><span class="w"> </span><span class="p">(</span><span class="nx">إصدار</span><span class="w"> </span><span class="nx">رئيسي</span><span class="w"> </span><span class="nx">مختلف</span><span class="p">!)</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">cache</span><span class="p">:</span><span class="w">         </span><span class="err">@</span><span class="nx">types</span><span class="o">/</span><span class="nx">node</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">20.0.0</span><span class="w"> </span><span class="p">(</span><span class="nx">نطاق</span><span class="w"> </span><span class="nx">واسع</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="m-14-vitest-nodejs">M-14: <code>vitest</code> - تشتت طفيف في Node.js<a class="headerlink" href="#m-14-vitest-nodejs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">admin</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">web</span><span class="p">:</span><span class="w">  </span><span class="nx">vitest</span><span class="w"> </span><span class="m m-Double">3.2.4</span><span class="w"> </span><span class="p">(</span><span class="nx">محدد</span><span class="p">)</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">ui</span><span class="p">:</span><span class="w">  </span><span class="nx">vitest</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">3.2.0</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">hooks</span><span class="p">:</span><span class="w"> </span><span class="nx">vitest</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">3.2.4</span>
+<span class="nx">code</span><span class="o">-</span><span class="nx">review</span><span class="o">-</span><span class="nx">agent</span><span class="p">:</span><span class="w">   </span><span class="nx">vitest</span><span class="w"> </span><span class="o">^</span><span class="m m-Double">3.0.0</span><span class="w"> </span><span class="p">(</span><span class="nx">قديم</span><span class="w"> </span><span class="nx">نسبي</span><span class="err">ً</span><span class="nx">ا</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="m-15-asyncpg-">M-15: <code>asyncpg</code> - تباين الأرقام<a class="headerlink" href="#m-15-asyncpg-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">constraints</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span><span class="w">       </span><span class="n">asyncpg</span><span class="o">==</span><span class="mf">0.31</span><span class="o">.</span><span class="mi">0</span>
+<span class="err">بعض</span><span class="w"> </span><span class="err">الخدمات</span><span class="p">:</span><span class="w">          </span><span class="n">asyncpg</span><span class="o">==</span><span class="mf">0.31</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="p">(</span><span class="err">صحيح</span><span class="p">)</span>
+<span class="err">معظم</span><span class="w"> </span><span class="err">الخدمات</span><span class="p">:</span><span class="w">         </span><span class="n">asyncpg</span><span class="o">&gt;=</span><span class="mf">0.30</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">copilot</span><span class="o">-</span><span class="n">api</span><span class="p">,</span><span class="w"> </span><span class="n">kernel</span><span class="p">:</span><span class="w">   </span><span class="n">asyncpg</span><span class="o">&gt;=</span><span class="mf">0.30</span><span class="o">.</span><span class="mi">0</span>
+</code></pre></div>
+
+<p>مقبول إذا استخدمت constraints.txt دومًا. يُفضَّل <code>&gt;=0.31.0,&lt;1.0.0</code> للاتساق.</p>
+<hr />
+<h2 id="low-severity-issues-stylecleanup">🟢 المشكلات المنخفضة (أسلوب/نظافة) | Low Severity Issues (Style/Cleanup)<a class="headerlink" href="#low-severity-issues-stylecleanup" title="Permanent link">&para;</a></h2>
+<h3 id="l-1-uvicornstandard-uvicorn-extras">L-1: خدمات تستخدم <code>uvicorn[standard]</code> والأخرى <code>uvicorn</code> بدون extras<a class="headerlink" href="#l-1-uvicornstandard-uvicorn-extras" title="Permanent link">&para;</a></h3>
+<p>في بعض الملفات: <code>uvicorn[standard]</code> مقابل <code>uvicorn</code> - يُفضَّل <code>uvicorn[standard]</code> لتضمين uvloop وhttptools.</p>
+<h3 id="l-2-redishiredis-redis">L-2: <code>redis[hiredis]</code> في بعض الخدمات و<code>redis</code> في أخرى<a class="headerlink" href="#l-2-redishiredis-redis" title="Permanent link">&para;</a></h3>
+<p><code>advisory-service, vegetation-analysis-service</code> تستخدم <code>redis[hiredis]==7.1.0</code> (extras للأداء).<br />
+معظم الخدمات تستخدم <code>redis&gt;=7.1.0,&lt;8.0.0</code> (بدون hiredis).<br />
+يُفضَّل توحيد على <code>redis[hiredis]&gt;=7.1.0,&lt;8.0.0</code> لتحسين الأداء.</p>
+<h3 id="l-3-tenacity">L-3: إصدارات <code>tenacity</code> متباينة قليلاً<a class="headerlink" href="#l-3-tenacity" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>ai-advisor:                 tenacity==8.5.0 (محدد)
+yolo26-vision-service:      tenacity&gt;=8.2.0,&lt;9.0.0
+llm-orchestrator-service:   tenacity&gt;=8.5.0,&lt;9.0.0
+ai-agents-service:          tenacity&gt;=8.5.0,&lt;9.0.0
+</code></pre></div>
+
+<p><code>constraints.txt</code> يحدد <code>tenacity&gt;=8.2.0,&lt;10.0.0</code>.</p>
+<h3 id="l-4-requirements">L-4: تعليقات عربية وإنجليزية غير متسقة في ملفات requirements<a class="headerlink" href="#l-4-requirements" title="Permanent link">&para;</a></h3>
+<p>بعض الخدمات تحتوي تعليقات عربية فقط، وأخرى إنجليزية فقط، وأخرى كليهما.</p>
+<h3 id="l-5-pillow-">L-5: <code>Pillow</code> - نطاقات متباينة<a class="headerlink" href="#l-5-pillow-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">constraints</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span><span class="w">      </span><span class="n">Pillow</span><span class="o">==</span><span class="mf">11.3</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="p">(</span><span class="err">محدد</span><span class="p">)</span>
+<span class="n">constraints</span><span class="o">-</span><span class="n">ai</span><span class="o">.</span><span class="n">txt</span><span class="p">:</span><span class="w">   </span><span class="n">pillow</span><span class="o">&gt;=</span><span class="mf">10.0</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">12.0</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">yolo26</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="n">Pillow</span><span class="o">&gt;=</span><span class="mf">10.0</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">12.0</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">ground</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="p">:</span><span class="w"> </span><span class="n">Pillow</span><span class="o">&gt;=</span><span class="mf">11.0</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="p">:</span><span class="w">        </span><span class="n">Pillow</span><span class="o">&gt;=</span><span class="mf">10.0</span><span class="o">.</span><span class="mi">0</span>
+</code></pre></div>
+
+<h3 id="l-6-requirements">L-6: بعض ملفات requirements تكرر تبعيات الإطار<a class="headerlink" href="#l-6-requirements" title="Permanent link">&para;</a></h3>
+<p>خدمات عدة تضم <code>pytest</code> و<code>pytest-asyncio</code> في ملف requirements.txt الرئيسي بدلاً من ملف requirements-test.txt مستقل.</p>
+<h3 id="l-7-jsonwebtoken-nestjs-services-">L-7: <code>jsonwebtoken</code> في NestJS services - تباين طفيف<a class="headerlink" href="#l-7-jsonwebtoken-nestjs-services-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>user-service:   jsonwebtoken ^9.0.2
+بقية الخدمات:  jsonwebtoken ^9.0.3
+</code></pre></div>
+
+<h3 id="l-8-eslint-react-native">L-8: <code>eslint</code> في شفرة React Native<a class="headerlink" href="#l-8-eslint-react-native" title="Permanent link">&para;</a></h3>
+<p><code>apps/mobile/sahool-mobile</code> يستخدم <code>eslint ^8.57.0</code> بينما بقية التطبيقات على <code>eslint ^9.x</code>. يُعزى ذلك لكون React Native تدعم ESLint 8 بشكل أفضل حاليًا.</p>
+<h3 id="l-9-scipy-constraint-constraintstxt">L-9: <code>scipy</code> - constraint في constraints.txt لكن يُستخدم بدون تحديد<a class="headerlink" href="#l-9-scipy-constraint-constraintstxt" title="Permanent link">&para;</a></h3>
+<p><code>constraints.txt</code>: <code>scipy&gt;=1.11.0,&lt;1.18.0</code><br />
+<code>yolo26-vision-service</code>: <code>scipy&gt;=1.11.0,&lt;2.0.0</code> (حد أعلى أوسع).</p>
+<h3 id="l-10-optuna-constraints">L-10: <code>optuna</code> - مذكور في constraints لكن غير مستخدم في معظم الخدمات<a class="headerlink" href="#l-10-optuna-constraints" title="Permanent link">&para;</a></h3>
+<p><code>constraints.txt</code>: <code>optuna&gt;=3.6.0,&lt;5.0.0</code> - مكتبة hyperparameter tuning غير مستخدمة في معظم الخدمات.</p>
+<h3 id="l-11-network-x-">L-11: <code>network x</code> - إصدار محدد في خدمة واحدة<a class="headerlink" href="#l-11-network-x-" title="Permanent link">&para;</a></h3>
+<p><code>knowledge-graph/requirements.txt</code>: <code>networkx==3.6.1</code> (يجب مزامنة مع أي إصدار أحدث).</p>
+<h3 id="l-12-pre-commit-black-constraints-requirements">L-12: <code>pre-commit</code> و <code>black</code> - في constraints ولكن ليسا في requirements الخدمات<a class="headerlink" href="#l-12-pre-commit-black-constraints-requirements" title="Permanent link">&para;</a></h3>
+<p>تُستخدم فقط في بيئة التطوير المحلية وليس في Docker builds.</p>
+<hr />
+<h2 id="flutterdart-flutterdart-ecosystem-analysis">📦 تحليل نظام Flutter/Dart | Flutter/Dart Ecosystem Analysis<a class="headerlink" href="#flutterdart-flutterdart-ecosystem-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="overall-status">الحالة العامة | Overall Status: 🟡 جيد مع ملاحظات<a class="headerlink" href="#overall-status" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التطبيق</th>
+<th>Flutter SDK</th>
+<th>Dart SDK</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/mobile</code></td>
+<td>3.27.x</td>
+<td>&gt;=3.2.0 &lt;4.0.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>apps/mobile/sahool_field_app</code></td>
+<td>3.27.x</td>
+<td>&gt;=3.2.0 &lt;4.0.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>apps/mobile/sahol_atmosphere</code></td>
+<td>3.27.x</td>
+<td>&gt;=3.2.0 &lt;4.0.0</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flutter">اتساق مكتبات Flutter الرئيسية<a class="headerlink" href="#flutter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>apps/mobile</th>
+<th>sahool_field_app</th>
+<th>sahol_atmosphere</th>
+<th>التوافق</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flutter_riverpod</code></td>
+<td>^2.6.1</td>
+<td>^2.6.1</td>
+<td>^2.6.1</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>drift</code></td>
+<td>^2.24.0</td>
+<td>^2.24.0</td>
+<td>غير موجودة</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>flutter_secure_storage</code></td>
+<td>^9.2.2</td>
+<td>^9.2.2</td>
+<td>^9.2.2</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>fl_chart</code></td>
+<td>^0.69.2</td>
+<td>^0.69.2</td>
+<td>^0.69.2</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>flutter_map</code></td>
+<td><code>&gt;=8.1.1 &lt;8.2.0</code></td>
+<td><code>&gt;=8.1.1 &lt;8.2.0</code></td>
+<td>غير موجودة</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>intl</code></td>
+<td><code>0.19.0</code></td>
+<td><code>0.19.0</code></td>
+<td><code>0.19.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sensors_plus</code></td>
+<td>^7.0.0</td>
+<td>^7.0.0</td>
+<td>^7.0.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>speech_to_text</code></td>
+<td>^7.0.0</td>
+<td>^7.0.0</td>
+<td>^7.0.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>dio</code></td>
+<td>^5.7.0</td>
+<td>غير موجودة</td>
+<td>^5.7.0</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><code>app_links</code></td>
+<td>^3.5.1</td>
+<td>^6.3.3</td>
+<td>غير موجودة</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td><code>record</code></td>
+<td>5.0.5</td>
+<td>^5.1.2</td>
+<td>غير موجودة</td>
+<td>🟠</td>
+</tr>
+<tr>
+<td><code>file_picker</code></td>
+<td>^8.1.4</td>
+<td>^8.1.6</td>
+<td>غير موجودة</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td><code>share_plus</code></td>
+<td>^7.2.1</td>
+<td>^10.1.4</td>
+<td>غير موجودة</td>
+<td>🔴</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-notes">ملاحظات خاصة | Special Notes<a class="headerlink" href="#special-notes" title="Permanent link">&para;</a></h3>
+<p><strong><code>share_plus</code> - فارق إصدار رئيسي:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apps/mobile:              share_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^7.2.1</span>
+<span class="nt">apps/mobile/sahool_field_app: share_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^10.1.4</span>
+</code></pre></div>
+
+<p>فارق 3 إصدارات رئيسية. V10 غيّر API بشكل كبير.</p>
+<p><strong><code>freezed</code> - إصدار متوافق محدد:</strong>
+كلا التطبيقين يستخدمان <code>freezed: 2.5.8</code> (آخر نسخة 2.x متوافقة مع Dart 3.6.0) - <strong>صحيح</strong>.</p>
+<p><strong><code>mockito</code> - تم الحذف الصحيح:</strong>
+تم حذف <code>mockito</code> من كلا التطبيقين لعدم التوافق مع <code>analyzer 7.x</code>. تم استبداله بـ <code>mocktail: ^1.0.4</code> - <strong>صحيح</strong>.</p>
+<p><strong><code>record_platform_interface</code> override:</strong>
+كلا التطبيقين يستخدمان <code>record_platform_interface: 1.2.0</code> كـ dependency_override - <strong>متوافق</strong>.</p>
+<hr />
+<h2 id="summary-of-applied-fixes">📊 ملخص الإصلاحات المُنفَّذة | Summary of Applied Fixes<a class="headerlink" href="#summary-of-applied-fixes" title="Permanent link">&para;</a></h2>
+<p>تم تطبيق الإصلاحات التالية في هذا التقرير:</p>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الإصلاح</th>
+<th>CVE/السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>starlette&gt;=0.41.0</code> → <code>starlette&gt;=0.49.1,&lt;0.53.0</code></td>
+<td>FastAPI 0.128.5 compat</td>
+</tr>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>python-jose&gt;=3.3.0</code> → <code>python-jose&gt;=3.5.0</code></td>
+<td>CVE-2024-33663/33664</td>
+</tr>
+<tr>
+<td>23 خدمة Python</td>
+<td><code>cryptography&gt;=42.0.0</code> → <code>cryptography&gt;=43.0.1</code></td>
+<td>CVE-2024-225</td>
+</tr>
+<tr>
+<td><code>copilot-api/requirements.txt</code></td>
+<td><code>aiohttp&gt;=3.9.0</code> → <code>aiohttp&gt;=3.13.3</code></td>
+<td>CVE-2025-53643/69223</td>
+</tr>
+<tr>
+<td><code>yolo26-vision-service/requirements.txt</code></td>
+<td><code>aiohttp&gt;=3.9.0,&lt;4.0.0</code> → <code>aiohttp&gt;=3.13.3,&lt;4.0.0</code></td>
+<td>CVE-2025-53643/69223</td>
+</tr>
+<tr>
+<td>4 خدمات Python</td>
+<td><code>python-jose&gt;=3.4.0</code> → <code>python-jose&gt;=3.5.0</code></td>
+<td>CVE-2024-33663/33664</td>
+</tr>
+<tr>
+<td><code>apps/admin/package.json</code></td>
+<td><code>eslint: 9.28.0</code> → <code>eslint: ^9.39.2</code></td>
+<td>توحيد النسخة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="full-compatibility-matrix">🗺️ خريطة التوافق الكاملة | Full Compatibility Matrix<a class="headerlink" href="#full-compatibility-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="python-core-framework">Python Core Framework<a class="headerlink" href="#python-core-framework" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>constraints.txt</th>
+<th>constraints-ai.txt</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fastapi</td>
+<td><code>==0.128.5</code></td>
+<td><code>==0.128.5</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td><code>==0.40.0</code></td>
+<td><code>&gt;=0.30.0,&lt;1.0.0</code></td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>pydantic</td>
+<td><code>==2.12.5</code></td>
+<td><code>==2.12.5</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>starlette</td>
+<td><code>&gt;=0.49.1,&lt;0.53.0</code> ✅</td>
+<td><code>&gt;=0.49.1,&lt;1.0.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>httpx</td>
+<td><code>==0.28.1</code></td>
+<td><code>==0.28.1</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>aiohttp</td>
+<td><code>&gt;=3.13.3</code></td>
+<td>غير موجودة</td>
+<td>⚠️</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-infrastructure">Python Infrastructure<a class="headerlink" href="#python-infrastructure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>constraints.txt</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>asyncpg</td>
+<td><code>==0.31.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>tortoise-orm</td>
+<td><code>==0.25.4</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>nats-py</td>
+<td><code>==2.13.1</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>redis</td>
+<td><code>&gt;=7.1.0,&lt;8.0.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>python-jose</td>
+<td><code>&gt;=3.5.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>cryptography</td>
+<td><code>&gt;=43.0.1</code></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-mlai">Python ML/AI<a class="headerlink" href="#python-mlai" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>constraints.txt</th>
+<th>constraints-ai.txt</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numpy</td>
+<td><code>&gt;=1.26.0,&lt;2.5.0</code></td>
+<td><code>&gt;=1.26.0,&lt;2.5.0</code></td>
+<td>✅ متزامن</td>
+</tr>
+<tr>
+<td>tensorflow-cpu</td>
+<td><code>==2.20.0</code></td>
+<td><code>==2.20.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>torch</td>
+<td>غير موجود</td>
+<td><code>==2.2.0</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Pillow</td>
+<td><code>==11.3.0</code></td>
+<td><code>&gt;=10.0.0,&lt;12.0.0</code></td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>sentence-transformers</td>
+<td>غير موجود</td>
+<td><code>==5.2.2</code></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nodejs-core">Node.js Core<a class="headerlink" href="#nodejs-core" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>الجذر/الويب</th>
+<th>الخدمات</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>typescript</td>
+<td><code>5.9.3</code></td>
+<td><code>^5.9.3</code> (معظمها)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>next</td>
+<td><code>15.5.12</code> (web)</td>
+<td>-</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>react</td>
+<td><code>^19.2.4</code></td>
+<td>-</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>@nestjs/*</td>
+<td>-</td>
+<td><code>^10.4.15</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>@prisma/client</td>
+<td><code>^5.10.0</code> 🔴</td>
+<td><code>^5.22.0</code></td>
+<td>⚠️ يحتاج توحيد</td>
+</tr>
+<tr>
+<td>vitest</td>
+<td><code>3.2.4</code></td>
+<td>متباينة</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>eslint</td>
+<td><code>^9.39.2</code></td>
+<td>متباينة</td>
+<td>⚠️</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flutterdart">Flutter/Dart<a class="headerlink" href="#flutterdart" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكتبة</th>
+<th>apps/mobile</th>
+<th>sahool_field_app</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>flutter_riverpod</td>
+<td>^2.6.1</td>
+<td>^2.6.1</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>drift</td>
+<td>^2.24.0</td>
+<td>^2.24.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>intl</td>
+<td>0.19.0</td>
+<td>0.19.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>flutter_map</td>
+<td>&gt;=8.1.1 &lt;8.2.0</td>
+<td>&gt;=8.1.1 &lt;8.2.0</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>app_links</td>
+<td>^3.5.1</td>
+<td>^6.3.3</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>share_plus</td>
+<td>^7.2.1</td>
+<td>^10.1.4</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>record</td>
+<td>5.0.5</td>
+<td>^5.1.2</td>
+<td>🟠</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="operational-recommendations">🔧 التوصيات التشغيلية | Operational Recommendations<a class="headerlink" href="#operational-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="1-constraintstxt">1. استخدام constraints.txt دائمًا عند التثبيت<a class="headerlink" href="#1-constraintstxt" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># صحيح - استخدام constraints</span>
+pip<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>constraints.txt<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c1"># خاطئ - بدون constraints (قد يُثبّت نسخًا ضعيفة)</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</code></pre></div>
+
+<h3 id="2-prisma">2. توحيد نسخ Prisma في جميع الأماكن<a class="headerlink" href="#2-prisma" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تحديث جذر المشروع وشُعَب الحزم</span>
+npm<span class="w"> </span>install<span class="w"> </span>--save<span class="w"> </span>@prisma/client@^5.22.0<span class="w"> </span>prisma@^5.22.0
+</code></pre></div>
+
+<h3 id="3-cicd">3. تفعيل فحص الاعتماديات في CI/CD<a class="headerlink" href="#3-cicd" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في .github/workflows/ci.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Python security audit</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip-audit -r requirements.txt</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node.js security audit</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm audit --audit-level=high</span>
+</code></pre></div>
+
+<h3 id="4-constraints">4. مزامنة ملفات constraints بانتظام<a class="headerlink" href="#4-constraints" title="Permanent link">&para;</a></h3>
+<p>قم بمراجعة <code>constraints.txt</code> و<code>constraints-ai.txt</code> شهريًا للتأكد من:
+- تطبيق جميع إصلاحات CVEs الجديدة
+- الاتساق بين الملفين</p>
+<h3 id="5-app_links-appsmobile">5. ترقية <code>app_links</code> في apps/mobile<a class="headerlink" href="#5-app_links-appsmobile" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># app_links v3.5.1 → v6.3.3 يتطلب تحديث كود</span>
+<span class="c1"># راجع migration guide: https://pub.dev/packages/app_links/changelog</span>
+<span class="nt">app_links</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^6.3.3</span>
+</code></pre></div>
+
+<hr />
+<h2 id="upgrade-roadmap">📅 جدول الترقيات المقترحة | Upgrade Roadmap<a class="headerlink" href="#upgrade-roadmap" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الأولوية</th>
+<th>المكتبة</th>
+<th>من</th>
+<th>إلى</th>
+<th>الموعد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 فوري</td>
+<td>cryptography (Python)</td>
+<td>&gt;=42.0.0</td>
+<td>&gt;=43.0.1</td>
+<td>فوري</td>
+</tr>
+<tr>
+<td>🔴 فوري</td>
+<td>python-jose</td>
+<td>&gt;=3.4.0</td>
+<td>&gt;=3.5.0</td>
+<td>فوري</td>
+</tr>
+<tr>
+<td>🔴 فوري</td>
+<td>aiohttp</td>
+<td>&gt;=3.9.0</td>
+<td>&gt;=3.13.3</td>
+<td>فوري</td>
+</tr>
+<tr>
+<td>🟠 قريب</td>
+<td>@prisma/client</td>
+<td>^5.10.0</td>
+<td>^5.22.0</td>
+<td>Q2 2026</td>
+</tr>
+<tr>
+<td>🟠 قريب</td>
+<td>app_links (apps/mobile)</td>
+<td>^3.5.1</td>
+<td>^6.3.3</td>
+<td>Q2 2026</td>
+</tr>
+<tr>
+<td>🟡 مخطط</td>
+<td>share_plus (apps/mobile)</td>
+<td>^7.2.1</td>
+<td>^10.1.4</td>
+<td>Q3 2026</td>
+</tr>
+<tr>
+<td>🟡 مخطط</td>
+<td>توحيد fastapi في الخدمات</td>
+<td>متباين</td>
+<td>==0.128.5</td>
+<td>Q3 2026</td>
+</tr>
+<tr>
+<td>🟢 مستقبلي</td>
+<td>TensorFlow 2.21.x</td>
+<td>2.20.0</td>
+<td>2.21.x</td>
+<td>Q4 2026</td>
+</tr>
+<tr>
+<td>🟢 مستقبلي</td>
+<td>numpy 2.x</td>
+<td>&lt;2.5.0</td>
+<td>&gt;=2.0</td>
+<td>بعد TF 2.21</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="audit-tools-used">🔍 أدوات الفحص المستخدمة | Audit Tools Used<a class="headerlink" href="#audit-tools-used" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الأداة</th>
+<th>البيئة</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فحص يدوي للنصوص</td>
+<td>Python</td>
+<td>تحليل جميع ملفات requirements.txt</td>
+</tr>
+<tr>
+<td>تحليل JSON</td>
+<td>Node.js</td>
+<td>فحص جميع package.json</td>
+</tr>
+<tr>
+<td>فحص YAML</td>
+<td>Flutter</td>
+<td>فحص pubspec.yaml</td>
+</tr>
+<tr>
+<td><code>npm audit</code></td>
+<td>Node.js</td>
+<td>فحص CVEs في الاعتماديات</td>
+</tr>
+<tr>
+<td><code>pip-audit</code></td>
+<td>Python</td>
+<td>التوصية للاستخدام في CI</td>
+</tr>
+<tr>
+<td>قاعدة بيانات GitHub Advisory</td>
+<td>جميع</td>
+<td>مرجع CVEs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="closing-notes">📝 ملاحظات ختامية | Closing Notes<a class="headerlink" href="#closing-notes" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>المنصة في حالة جيدة عمومًا</strong> - معظم الاعتماديات الحرجة محمية بـ constraints files</li>
+<li><strong>نقطة القوة الرئيسية</strong>: استخدام <code>constraints.txt</code> و<code>constraints-ai.txt</code> كمرجع مركزي للإصدارات</li>
+<li><strong>نقطة الضعف الرئيسية</strong>: عدم الاتساق في الحدود الدنيا عبر الخدمات يخلق خطرًا إذا لم تُستخدم constraints</li>
+<li><strong>التوصية الأهم</strong>: التأكد من أن جميع Docker builds تستخدم <code>-c constraints.txt</code> عند تشغيل pip install</li>
+<li><strong>Flutter</strong>: التطبيقان الرئيسيان متوافقان بشكل جيد مع بعض الاختلافات الموثقة</li>
+</ol>
+<hr />
+<p><em>تم إنشاء هذا التقرير في مارس 2026 كجزء من عملية فحص توافق الاعتماديات الشاملة لمنصة سهول الزراعية.</em><br />
+<em>This report was generated in March 2026 as part of the comprehensive dependency compatibility audit for the SAHOOL Agricultural Platform.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

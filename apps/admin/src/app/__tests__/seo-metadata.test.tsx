@@ -89,17 +89,17 @@ describe("Root Layout SEO", () => {
   });
 
   it("includes font weights 400, 500, 700", () => {
-    // Font weights are specified in the Google Fonts @import URL in globals.css
+    // Font weights are specified in self-hosted @font-face declarations in globals.css
     const cssContent = readFile("globals.css");
-    expect(cssContent).toContain("wght@400");
-    expect(cssContent).toContain("500");
-    expect(cssContent).toContain("700");
+    expect(cssContent).toContain("font-weight: 400");
+    expect(cssContent).toContain("font-weight: 500");
+    expect(cssContent).toContain("font-weight: 700");
   });
 
   it("sets font display to swap", () => {
-    // display=swap is set in the Google Fonts @import URL in globals.css
+    // font-display: swap is set in self-hosted @font-face declarations in globals.css
     const cssContent = readFile("globals.css");
-    expect(cssContent).toContain("display=swap");
+    expect(cssContent).toContain("font-display: swap");
   });
 
   it("has CSP nonce support", () => {

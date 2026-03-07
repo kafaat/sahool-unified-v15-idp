@@ -131,12 +131,15 @@ class DronePublisher:
 
         subject = get_subject(event_type)
 
+        # Derive the action from the full subject (e.g., "registered" from "sahool.drone.registered")
+        tenant_action = subject.rsplit(".", 1)[-1]
+
         try:
             data = json.dumps(envelope.to_dict()).encode()
             await self.nc.publish(subject, data)
 
-            # Also publish tenant-scoped subject
-            tenant_subject = _get_tenant_subject(tenant_id, event_type)
+            # Also publish tenant-scoped subject using action suffix
+            tenant_subject = _get_tenant_subject(tenant_id, tenant_action)
             await self.nc.publish(tenant_subject, data)
 
             logger.info(

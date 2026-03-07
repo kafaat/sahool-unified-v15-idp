@@ -12,9 +12,8 @@ from pydantic import BaseModel
 
 # Unified error handling
 try:
-    from shared.errors_py import ForbiddenException, NotFoundException
+    from shared.errors_py import NotFoundException
 except ImportError:
-    ForbiddenException = None
     NotFoundException = None
 
 # Authentication dependency

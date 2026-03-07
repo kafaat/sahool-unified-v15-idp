@@ -4,7 +4,6 @@ Integrates with shared.drone_integration for flight planning.
 Supports database persistence with in-memory fallback.
 """
 
-import json
 import uuid
 from datetime import UTC, datetime
 

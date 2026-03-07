@@ -31,12 +31,6 @@ logger = structlog.get_logger()
 _metrics = {
     "requests_total": 0,
     "requests_errors": 0,
-    "flights_planned": 0,
-    "missions_created": 0,
-    "missions_completed": 0,
-    "missions_aborted": 0,
-    "prescriptions_created": 0,
-    "drones_registered": 0,
     "request_duration_sum": 0.0,
     "request_duration_count": 0,
 }
@@ -268,18 +262,6 @@ async def metrics():
         '# HELP drone_service_request_duration_seconds_avg Average request duration',
         '# TYPE drone_service_request_duration_seconds_avg gauge',
         f'drone_service_request_duration_seconds_avg {avg_dur:.6f}',
-        '# HELP drone_service_flights_planned_total Total flights planned',
-        '# TYPE drone_service_flights_planned_total counter',
-        f'drone_service_flights_planned_total {_metrics["flights_planned"]}',
-        '# HELP drone_service_missions_created_total Total missions created',
-        '# TYPE drone_service_missions_created_total counter',
-        f'drone_service_missions_created_total {_metrics["missions_created"]}',
-        '# HELP drone_service_drones_registered_total Total drones registered',
-        '# TYPE drone_service_drones_registered_total counter',
-        f'drone_service_drones_registered_total {_metrics["drones_registered"]}',
-        '# HELP drone_service_prescriptions_created_total Total VRA prescriptions',
-        '# TYPE drone_service_prescriptions_created_total counter',
-        f'drone_service_prescriptions_created_total {_metrics["prescriptions_created"]}',
     ]
 
     return PlainTextResponse(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")

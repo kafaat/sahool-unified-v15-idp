@@ -17,6 +17,8 @@ Provides:
 
 from __future__ import annotations
 
+import warnings
+
 import logging
 import math
 from datetime import UTC, datetime
@@ -137,9 +139,6 @@ class SprayPlan:
     estimated_time_min: float = 0.0
     product: str = ""
     product_ar: str = ""
-
-
-import warnings
 
 
 class DroneFlightPlanner:

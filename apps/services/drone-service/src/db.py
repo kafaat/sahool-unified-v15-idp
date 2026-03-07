@@ -19,6 +19,14 @@ def _generate_id() -> str:
     return str(uuid.uuid4())
 
 
+def _safe_uuid(value: str) -> uuid.UUID | None:
+    """Parse a string as UUID, returning None if invalid."""
+    try:
+        return uuid.UUID(value)
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
 class DroneRepository:
     """Database operations for drones, flight plans, and missions."""
 
@@ -41,10 +49,13 @@ class DroneRepository:
             return [dict(r) for r in rows]
 
     async def get_drone(self, drone_id: str, tenant_id: str) -> dict | None:
+        parsed = _safe_uuid(drone_id)
+        if not parsed:
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM drones WHERE id = $1 AND tenant_id = $2",
-                uuid.UUID(drone_id), tenant_id,
+                parsed, tenant_id,
             )
             return dict(row) if row else None
 
@@ -66,11 +77,14 @@ class DroneRepository:
             return dict(row)
 
     async def update_drone(self, drone_id: str, tenant_id: str, data: dict) -> dict | None:
+        parsed = _safe_uuid(drone_id)
+        if not parsed:
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 """UPDATE drones SET name=$3, name_ar=$4, model=$5, serial_number=$6, drone_type=$7
                    WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                uuid.UUID(drone_id), tenant_id,
+                parsed, tenant_id,
                 data["name"], data.get("name_ar"),
                 data["model"], data["serial_number"],
                 data.get("drone_type", "custom"),
@@ -78,18 +92,24 @@ class DroneRepository:
             return dict(row) if row else None
 
     async def delete_drone(self, drone_id: str, tenant_id: str) -> bool:
+        parsed = _safe_uuid(drone_id)
+        if not parsed:
+            return False
         async with self.pool.acquire() as conn:
             result = await conn.execute(
                 "DELETE FROM drones WHERE id=$1 AND tenant_id=$2",
-                uuid.UUID(drone_id), tenant_id,
+                parsed, tenant_id,
             )
             return result == "DELETE 1"
 
     async def update_drone_status(self, drone_id: str, tenant_id: str, status: str) -> dict | None:
+        parsed = _safe_uuid(drone_id)
+        if not parsed:
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "UPDATE drones SET status=$3 WHERE id=$1 AND tenant_id=$2 RETURNING *",
-                uuid.UUID(drone_id), tenant_id, status,
+                parsed, tenant_id, status,
             )
             return dict(row) if row else None
 
@@ -116,10 +136,13 @@ class DroneRepository:
             return [dict(r) for r in rows]
 
     async def get_flight_plan(self, plan_id: str, tenant_id: str) -> dict | None:
+        parsed = _safe_uuid(plan_id)
+        if not parsed:
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM flight_plans WHERE id=$1 AND tenant_id=$2",
-                uuid.UUID(plan_id), tenant_id,
+                parsed, tenant_id,
             )
             return dict(row) if row else None
 
@@ -158,25 +181,36 @@ class DroneRepository:
             params.append(status)
             idx += 1
         if drone_id:
-            query += f" AND drone_id = ${idx}"
-            params.append(uuid.UUID(drone_id))
+            parsed_drone = _safe_uuid(drone_id)
+            if parsed_drone:
+                query += f" AND drone_id = ${idx}"
+                params.append(parsed_drone)
         query += " ORDER BY created_at DESC"
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(query, *params)
             return [dict(r) for r in rows]
 
     async def get_mission(self, mission_id: str, tenant_id: str) -> dict | None:
+        parsed = _safe_uuid(mission_id)
+        if not parsed:
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM missions WHERE id=$1 AND tenant_id=$2",
-                uuid.UUID(mission_id), tenant_id,
+                parsed, tenant_id,
             )
             return dict(row) if row else None
 
-    async def create_mission(self, tenant_id: str, data: dict) -> dict:
+    async def create_mission(self, tenant_id: str, data: dict) -> dict | None:
         mission_id = _generate_id()
-        drone_uuid = uuid.UUID(data["drone_id"]) if data.get("drone_id") else None
-        plan_uuid = uuid.UUID(data["flight_plan_id"]) if data.get("flight_plan_id") else None
+        drone_uuid = _safe_uuid(data["drone_id"]) if data.get("drone_id") else None
+        plan_uuid = _safe_uuid(data["flight_plan_id"]) if data.get("flight_plan_id") else None
+        if data.get("drone_id") and not drone_uuid:
+            logger.warning("invalid_drone_uuid", drone_id=data.get("drone_id"))
+            return None
+        if data.get("flight_plan_id") and not plan_uuid:
+            logger.warning("invalid_plan_uuid", flight_plan_id=data.get("flight_plan_id"))
+            return None
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 """INSERT INTO missions (id, tenant_id, drone_id, flight_plan_id,
@@ -194,23 +228,26 @@ class DroneRepository:
     async def update_mission_status(
         self, mission_id: str, tenant_id: str, status: str
     ) -> dict | None:
+        parsed = _safe_uuid(mission_id)
+        if not parsed:
+            return None
         now = datetime.now(UTC)
         async with self.pool.acquire() as conn:
             if status == "active":
                 row = await conn.fetchrow(
                     """UPDATE missions SET status=$3, started_at=COALESCE(started_at, $4)
                        WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                    uuid.UUID(mission_id), tenant_id, status, now,
+                    parsed, tenant_id, status, now,
                 )
             elif status in ("completed", "aborted"):
                 row = await conn.fetchrow(
                     """UPDATE missions SET status=$3, completed_at=$4
                        WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                    uuid.UUID(mission_id), tenant_id, status, now,
+                    parsed, tenant_id, status, now,
                 )
             else:
                 row = await conn.fetchrow(
                     "UPDATE missions SET status=$3 WHERE id=$1 AND tenant_id=$2 RETURNING *",
-                    uuid.UUID(mission_id), tenant_id, status,
+                    parsed, tenant_id, status,
                 )
             return dict(row) if row else None

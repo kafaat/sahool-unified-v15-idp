@@ -3,7 +3,6 @@ Mission management endpoints - نقاط نهاية إدارة المهام
 Supports database persistence with in-memory fallback.
 """
 
-import json
 import uuid
 from datetime import UTC, datetime
 

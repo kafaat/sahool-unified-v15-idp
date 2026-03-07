@@ -74,15 +74,16 @@ def app(mock_user):
     tenant_mock = MagicMock()
     tenant_mock.TenantContextMiddleware = _NoOpTenantMiddleware
 
-    # Patch auth before import
-    with patch.dict("sys.modules", {
-        "shared.auth.dependencies": MagicMock(),
-        "shared.auth.models": MagicMock(),
-        "shared.errors_py": errors_mock,
-        "shared.middleware.tenant_context": tenant_mock,
-        "nats": MagicMock(),
-        "asyncpg": MagicMock(),
-    }):
+    # Ensure no real connections are attempted during tests
+    with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False), \
+         patch.dict("sys.modules", {
+             "shared.auth.dependencies": MagicMock(),
+             "shared.auth.models": MagicMock(),
+             "shared.errors_py": errors_mock,
+             "shared.middleware.tenant_context": tenant_mock,
+             "nats": MagicMock(),
+             "asyncpg": MagicMock(),
+         }):
         from src.main import app as drone_app
 
         # Override auth dependency

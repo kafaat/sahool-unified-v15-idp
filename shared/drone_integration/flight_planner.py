@@ -698,7 +698,6 @@ class FlightPlanner:
         side_overlap = self.config.side_overlap_percent / 100
 
         photo_spacing_m = ground_height_m * (1 - frontal_overlap)
-        line_spacing_m = ground_width_m * (1 - side_overlap)
 
         # Update config for path generation
         mapping_config = FlightPlanConfig(

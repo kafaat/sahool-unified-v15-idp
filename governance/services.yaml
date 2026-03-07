@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]
+      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat and field-chat removed (deprecated → chat-service)
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -46,7 +46,7 @@ event_architecture:
 
   events_registry: "packages/shared/events/index.json"
   transport: "nats"
-  subject_pattern: "sahool.{tenant_id}.{event_type}"
+  subject_pattern: "sahool.{domain}.{action}"  # Tenant-scoped: sahool.tenant.{tenant_id}.{domain}.{action}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Source of Truth
@@ -3415,7 +3415,7 @@ applications:
     name: "SAHOOL Dashboard"
     name_ar: "لوحة تحكم سهول"
     path: "apps/web"
-    port: 3000
+    port: 3002  # Changed from 3000 to avoid conflict with field-management-service
     status: active
 
   admin:

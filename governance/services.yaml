@@ -46,7 +46,7 @@ event_architecture:
 
   events_registry: "packages/shared/events/index.json"
   transport: "nats"
-  subject_pattern: "sahool.{domain}.{action}"  # Tenant-scoped: sahool.tenant.{tenant_id}.{domain}.{action}
+  subject_pattern: "sahool.{domain}.{action}"  # Base pattern. Tenant-scoped variant: sahool.tenant.{tenant_id}.{domain}.{action}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Source of Truth

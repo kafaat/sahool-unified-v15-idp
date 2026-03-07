@@ -112,7 +112,7 @@ class KnowledgeCache:
         # so we search for keys whose entries contain the collection marker.
         # Since keys are hashes, we maintain a reverse index approach:
         # iterate and check entries whose key was built with this collection.
-        # For efficiency, we use prefix-based invalidation with the collection hash segment.
+        # We match by checking if the collection name appears in the stored entry key.
         keys_to_remove = []
         for key, entry in self._cache.items():
             # Check if this entry's key incorporates the collection

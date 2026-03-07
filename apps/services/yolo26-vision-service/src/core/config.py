@@ -5,11 +5,14 @@ Settings management using pydantic-settings for the SAHOOL agricultural
 computer vision service.
 """
 
+import logging
 from functools import lru_cache
 from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -135,9 +138,7 @@ class Settings(BaseSettings):
     def warn_empty_jwt_secret(cls, v: str) -> str:
         """Warn if JWT secret key is not configured."""
         if not v:
-            import logging
-
-            logging.getLogger(__name__).warning(
+            logger.warning(
                 "JWT_SECRET_KEY not set — authentication will reject all tokens"
             )
         return v

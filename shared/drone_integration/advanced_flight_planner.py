@@ -205,12 +205,18 @@ class DroneFlightPlanner:
         total_images = self.estimate_images(side_m, side_m, altitude_m, overlap, sidelap)
 
         waypoints = []
+        half = side_m / 2
+        ground_width = 2 * altitude_m * math.tan(math.radians(38.5))
+        spacing = ground_width * (1 - sidelap / 100)
 
         for i in range(flight_lines):
+            y_offset = -half + i * spacing
+            # Convert meter offset to approximate lat/lon delta
+            lat_delta = y_offset / 111320.0
             if i % 2 == 0:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon, altitude_m=altitude_m))
             else:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon, altitude_m=altitude_m))
 
         return FlightPlan(
             plan_id=f"FLT-{field_id}-{datetime.now().strftime('%Y%m%d%H%M')}",

@@ -188,7 +188,7 @@ class AuthConfig:
     Settings for JWT authentication and API key validation.
     """
 
-    jwt_secret_key: str = field(default_factory=lambda: os.getenv("JWT_SECRET_KEY", ""))
+    jwt_secret_key: str = field(default_factory=lambda: os.getenv("JWT_SECRET_KEY", ""))  # Empty = auth rejects all tokens
     jwt_algorithm: str = field(default_factory=lambda: os.getenv("JWT_ALGORITHM", "HS256"))
     jwt_expiry_minutes: int = field(
         default_factory=lambda: int(os.getenv("JWT_EXPIRY_MINUTES", "60"))

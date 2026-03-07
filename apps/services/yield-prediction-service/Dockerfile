@@ -53,18 +53,14 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# Install compile-time deps into the SERVICE directory (not through the symlink,
-# which causes silent npm failures) then run tsc from nestjs-auth
-WORKDIR /workspace/nestjs-auth
-RUN ln -sf /workspace/yield-prediction-service/node_modules ./node_modules
-WORKDIR /workspace/yield-prediction-service
+# Install compile-time deps needed by nestjs-auth (nestjs-redis@10 for @nestjs/common@10.x)
 RUN npm install --no-save --legacy-peer-deps \
     typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5
-WORKDIR /workspace/nestjs-auth
-RUN /workspace/yield-prediction-service/node_modules/.bin/tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    (echo "ERROR: nestjs-auth build failed" && exit 1)
-WORKDIR /workspace/yield-prediction-service
+# Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
+RUN ln -sf /workspace/yield-prediction-service/node_modules /workspace/nestjs-auth/node_modules && \
+    (/workspace/yield-prediction-service/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     (echo "ERROR: nestjs-auth build failed" && exit 1))
 
 # Build the application
 RUN npx nest build

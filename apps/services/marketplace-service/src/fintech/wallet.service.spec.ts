@@ -25,6 +25,7 @@ describe("WalletService", () => {
     },
     walletAuditLog: {
       create: jest.fn(),
+      count: jest.fn().mockResolvedValue(0),
     },
     escrow: {
       findMany: jest.fn(),
@@ -34,6 +35,7 @@ describe("WalletService", () => {
     },
     $transaction: jest.fn(),
     $queryRaw: jest.fn(),
+    $executeRaw: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -153,14 +155,13 @@ describe("WalletService", () => {
       mockPrismaService.transaction.findUnique.mockResolvedValue(null);
 
       const mockTxContext = {
-        $queryRaw: jest.fn().mockResolvedValue([
-          {
+        $executeRaw: jest.fn().mockResolvedValue(undefined),
+        wallet: {
+          findUnique: jest.fn().mockResolvedValue({
             id: "wallet-1",
             balance: 1000,
             version: 1,
-          },
-        ]),
-        wallet: {
+          }),
           update: jest.fn().mockResolvedValue({
             id: "wallet-1",
             balance: 1500,
@@ -203,17 +204,31 @@ describe("WalletService", () => {
     it("should throw error for insufficient balance", async () => {
       mockPrismaService.transaction.findUnique.mockResolvedValue(null);
 
+      mockPrismaService.wallet.findUnique.mockResolvedValue({
+        id: "wallet-1",
+        balance: 100,
+        version: 1,
+        requiresPinForAmount: 5000,
+        pin: null,
+        isVerified: false,
+        kycStatus: null,
+        singleTransactionLimit: 50000,
+        dailyWithdrawLimit: 10000,
+        dailyWithdrawnToday: 0,
+      });
+
       const mockTxContext = {
-        $queryRaw: jest.fn().mockResolvedValue([
-          {
+        $executeRaw: jest.fn().mockResolvedValue(undefined),
+        wallet: {
+          findUnique: jest.fn().mockResolvedValue({
             id: "wallet-1",
             balance: 100,
             version: 1,
             singleTransactionLimit: 50000,
             dailyWithdrawLimit: 10000,
             dailyWithdrawnToday: 0,
-          },
-        ]),
+          }),
+        },
       };
 
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -384,8 +399,9 @@ describe("WalletService", () => {
         mockPrismaService.$transaction.mockImplementation(
           async (callback, options) => {
             const tx = {
-              $queryRaw: jest.fn().mockResolvedValue([walletData]),
+              $executeRaw: jest.fn().mockResolvedValue(undefined),
               wallet: {
+                findUnique: jest.fn().mockResolvedValue(walletData),
                 update: jest.fn().mockResolvedValue({
                   ...walletData,
                   balance: 15000,
@@ -435,14 +451,13 @@ describe("WalletService", () => {
         mockPrismaService.$transaction.mockImplementationOnce(
           async (callback) => {
             const tx = {
-              $queryRaw: jest.fn().mockResolvedValue([
-                {
+              $executeRaw: jest.fn().mockResolvedValue(undefined),
+              wallet: {
+                findUnique: jest.fn().mockResolvedValue({
                   id: "wallet-1",
                   balance: currentBalance,
                   version: 1,
-                },
-              ]),
-              wallet: {
+                }),
                 update: jest.fn().mockImplementation(() => {
                   currentBalance += 5000;
                   return Promise.resolve({ balance: currentBalance });
@@ -462,12 +477,27 @@ describe("WalletService", () => {
         await service.deposit("wallet-1", 5000);
         expect(currentBalance).toBe(15000);
 
+        mockPrismaService.wallet.findUnique.mockResolvedValue({
+          id: "wallet-1",
+          balance: currentBalance,
+          version: 2,
+          requiresPinForAmount: 5000,
+          pin: null,
+          isVerified: false,
+          kycStatus: null,
+          dailyWithdrawLimit: 100000,
+          singleTransactionLimit: 200000,
+          dailyWithdrawnToday: 0,
+          lastWithdrawReset: new Date(),
+        });
+
         // Withdraw
         mockPrismaService.$transaction.mockImplementationOnce(
           async (callback) => {
             const tx = {
-              $queryRaw: jest.fn().mockResolvedValue([
-                {
+              $executeRaw: jest.fn().mockResolvedValue(undefined),
+              wallet: {
+                findUnique: jest.fn().mockResolvedValue({
                   id: "wallet-1",
                   balance: currentBalance,
                   version: 2,
@@ -475,9 +505,7 @@ describe("WalletService", () => {
                   singleTransactionLimit: 200000,
                   dailyWithdrawnToday: 0,
                   lastWithdrawReset: new Date(),
-                },
-              ]),
-              wallet: {
+                }),
                 update: jest.fn().mockImplementation(() => {
                   currentBalance -= 3000;
                   return Promise.resolve({ balance: currentBalance });
@@ -503,11 +531,23 @@ describe("WalletService", () => {
           id: "wallet-1",
           balance: 100,
           version: 1,
+          requiresPinForAmount: 5000,
+          pin: null,
+          isVerified: false,
+          kycStatus: null,
+          singleTransactionLimit: 50000,
+          dailyWithdrawLimit: 10000,
+          dailyWithdrawnToday: 0,
         };
+
+        mockPrismaService.wallet.findUnique.mockResolvedValue(walletData);
 
         mockPrismaService.$transaction.mockImplementation(async (callback) => {
           const tx = {
-            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+            $executeRaw: jest.fn().mockResolvedValue(undefined),
+            wallet: {
+              findUnique: jest.fn().mockResolvedValue(walletData),
+            },
           };
           return callback(tx);
         });
@@ -530,8 +570,9 @@ describe("WalletService", () => {
         mockPrismaService.$transaction.mockImplementationOnce(
           async (callback) => {
             const tx = {
-              $queryRaw: jest.fn().mockResolvedValue([walletData]),
+              $executeRaw: jest.fn().mockResolvedValue(undefined),
               wallet: {
+                findUnique: jest.fn().mockResolvedValue(walletData),
                 update: jest.fn().mockResolvedValue({
                   ...walletData,
                   balance: 15000,
@@ -555,13 +596,12 @@ describe("WalletService", () => {
         mockPrismaService.$transaction.mockImplementationOnce(
           async (callback) => {
             const tx = {
-              $queryRaw: jest.fn().mockResolvedValue([
-                {
-                  ...walletData,
-                  version: 6, // Version already updated
-                },
-              ]),
+              $executeRaw: jest.fn().mockResolvedValue(undefined),
               wallet: {
+                findUnique: jest.fn().mockResolvedValue({
+                  ...walletData,
+                  version: 6,
+                }),
                 update: jest
                   .fn()
                   .mockRejectedValue(new Error("Optimistic locking failed")),
@@ -607,8 +647,9 @@ describe("WalletService", () => {
         // Mock anomaly detection
         const detectAnomaly = (transactions: typeof recentTransactions) => {
           const amounts = transactions.map((t) => t.amount);
-          const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
-          const threshold = avg * 10;
+          const sorted = [...amounts].sort((a, b) => a - b);
+          const median = sorted[Math.floor(sorted.length / 2)];
+          const threshold = median * 10;
           return amounts.some((amount) => amount > threshold);
         };
 
@@ -634,6 +675,9 @@ describe("WalletService", () => {
 
     describe("Audit Compliance", () => {
       it("should record complete audit trail with metadata", async () => {
+        mockPrismaService.transaction.findUnique.mockResolvedValue(null);
+        mockPrismaService.$transaction.mockReset();
+
         const walletData = {
           id: "wallet-1",
           balance: 10000,
@@ -644,8 +688,9 @@ describe("WalletService", () => {
 
         mockPrismaService.$transaction.mockImplementation(async (callback) => {
           const tx = {
-            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+            $executeRaw: jest.fn().mockResolvedValue(undefined),
             wallet: {
+              findUnique: jest.fn().mockResolvedValue(walletData),
               update: jest.fn().mockResolvedValue({
                 ...walletData,
                 balance: 15000,
@@ -702,23 +747,24 @@ describe("WalletService", () => {
 
         // Verify no update or delete methods are exposed
         // This is a design verification test
-        expect(typeof service["updateAuditLog"]).toBe("undefined");
-        expect(typeof service["deleteAuditLog"]).toBe("undefined");
+        expect((service as any)["updateAuditLog"]).toBeUndefined();
+        expect((service as any)["deleteAuditLog"]).toBeUndefined();
       });
     });
 
     describe("Error Handling & Recovery", () => {
       it("should rollback transaction on wallet update failure", async () => {
+        mockPrismaService.transaction.findUnique.mockResolvedValue(null);
+        mockPrismaService.$transaction.mockReset();
         mockPrismaService.$transaction.mockImplementation(async (callback) => {
           const tx = {
-            $queryRaw: jest.fn().mockResolvedValue([
-              {
+            $executeRaw: jest.fn().mockResolvedValue(undefined),
+            wallet: {
+              findUnique: jest.fn().mockResolvedValue({
                 id: "wallet-1",
                 balance: 10000,
                 version: 1,
-              },
-            ]),
-            wallet: {
+              }),
               update: jest.fn().mockRejectedValue(new Error("Update failed")),
             },
           };
@@ -741,6 +787,7 @@ describe("WalletService", () => {
       });
 
       it("should handle constraint violation errors", async () => {
+        mockPrismaService.transaction.findUnique.mockResolvedValue(null);
         mockPrismaService.$transaction.mockRejectedValue(
           new Error("Unique constraint violation"),
         );
@@ -758,6 +805,7 @@ describe("WalletService", () => {
 
         mockPrismaService.$transaction.mockImplementation(async (callback) => {
           const tx = {
+            $executeRaw: jest.fn().mockResolvedValue(undefined),
             $queryRaw: jest.fn().mockResolvedValue([
               {
                 id: "wallet-1",
@@ -766,6 +814,11 @@ describe("WalletService", () => {
               },
             ]),
             wallet: {
+              findUnique: jest.fn().mockResolvedValue({
+                id: "wallet-1",
+                balance: 10000,
+                version: 1,
+              }),
               update: jest.fn().mockResolvedValue({
                 balance: 15000,
                 version: 2,
@@ -810,8 +863,8 @@ describe("WalletService", () => {
     describe("Authorization & Access Control", () => {
       it("should prevent cross-wallet access", async () => {
         // User should only access their own wallet
-        const userWalletId = "wallet-1";
-        const attemptedWalletId = "wallet-2";
+        const userWalletId: string = "wallet-1";
+        const attemptedWalletId: string = "wallet-2";
 
         const isAuthorized = userWalletId === attemptedWalletId;
         expect(isAuthorized).toBe(false);
@@ -819,8 +872,8 @@ describe("WalletService", () => {
 
       it("should validate admin privileges for sensitive operations", async () => {
         // Only admins should be able to update wallet limits manually
-        const userRole = "user";
-        const requiredRole = "admin";
+        const userRole: string = "user";
+        const requiredRole: string = "admin";
 
         const hasPermission = userRole === requiredRole;
         expect(hasPermission).toBe(false);

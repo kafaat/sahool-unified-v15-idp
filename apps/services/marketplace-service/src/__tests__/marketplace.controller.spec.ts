@@ -132,10 +132,13 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.findAllProducts.mockResolvedValue(mockProducts);
 
-      const result = await controller.getProducts();
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.getProducts(mockReq);
 
       expect(result).toEqual(mockProducts);
-      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith({});
+      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ tenantId: 'tenant-1' }),
+      );
     });
 
     it("should filter products by category", async () => {
@@ -149,11 +152,12 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.findAllProducts.mockResolvedValue(mockProducts);
 
-      await controller.getProducts("HARVEST");
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      await controller.getProducts(mockReq, "HARVEST");
 
-      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith({
-        category: "HARVEST",
-      });
+      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ category: "HARVEST" }),
+      );
     });
 
     it("should filter products by governorate", async () => {
@@ -167,11 +171,12 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.findAllProducts.mockResolvedValue(mockProducts);
 
-      await controller.getProducts(undefined, "Sana'a");
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      await controller.getProducts(mockReq, undefined, "Sana'a");
 
-      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith({
-        governorate: "Sana'a",
-      });
+      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ governorate: "Sana'a" }),
+      );
     });
 
     it("should filter products by seller ID", async () => {
@@ -185,11 +190,12 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.findAllProducts.mockResolvedValue(mockProducts);
 
-      await controller.getProducts(undefined, undefined, "seller-123");
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      await controller.getProducts(mockReq, undefined, undefined, "seller-123");
 
-      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith({
-        sellerId: "seller-123",
-      });
+      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ sellerId: "seller-123" }),
+      );
     });
 
     it("should filter products by price range", async () => {
@@ -203,7 +209,9 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.findAllProducts.mockResolvedValue(mockProducts);
 
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
       await controller.getProducts(
+        mockReq,
         undefined,
         undefined,
         undefined,
@@ -211,10 +219,12 @@ describe("AppController (Marketplace)", () => {
         "2000",
       );
 
-      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith({
-        minPrice: 500,
-        maxPrice: 2000,
-      });
+      expect(mockMarketService.findAllProducts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          minPrice: 500,
+          maxPrice: 2000,
+        }),
+      );
     });
   });
 
@@ -274,11 +284,13 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createProduct.mockResolvedValue(mockCreatedProduct);
 
-      const result = await controller.createProduct(createProductDto);
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.createProduct(mockReq, createProductDto);
 
       expect(result).toEqual(mockCreatedProduct);
       expect(mockMarketService.createProduct).toHaveBeenCalledWith(
         createProductDto,
+        "tenant-1",
       );
     });
 
@@ -298,8 +310,9 @@ describe("AppController (Marketplace)", () => {
         new Error("Validation failed"),
       );
 
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
       await expect(
-        controller.createProduct(invalidProductDto as any),
+        controller.createProduct(mockReq, invalidProductDto as any),
       ).rejects.toThrow();
     });
   });
@@ -339,12 +352,14 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.convertYieldToProduct.mockResolvedValue(mockProduct);
 
-      const result = await controller.listHarvest(listHarvestDto);
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.listHarvest(mockReq, listHarvestDto);
 
       expect(result).toEqual(mockProduct);
       expect(mockMarketService.convertYieldToProduct).toHaveBeenCalledWith(
         "farmer-123",
         listHarvestDto.yieldData,
+        "tenant-1",
       );
     });
   });
@@ -401,11 +416,13 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createOrder.mockResolvedValue(mockOrder);
 
-      const result = await controller.createOrder(createOrderDto);
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.createOrder(mockReq, createOrderDto);
 
       expect(result).toEqual(mockOrder);
       expect(mockMarketService.createOrder).toHaveBeenCalledWith(
         createOrderDto,
+        'tenant-1',
       );
     });
 
@@ -419,8 +436,9 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
       await expect(
-        controller.createOrder(createOrderDto as any),
+        controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");
     });
 
@@ -434,8 +452,9 @@ describe("AppController (Marketplace)", () => {
         new Error("المنتج غير موجود"),
       );
 
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
       await expect(
-        controller.createOrder(createOrderDto as any),
+        controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("المنتج غير موجود");
     });
   });
@@ -584,10 +603,11 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.getMarketStats.mockResolvedValue(mockStats);
 
-      const result = await controller.getMarketStats();
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const result = await controller.getMarketStats(mockReq);
 
-      expect(result).toEqual(mockStats);
-      expect(mockMarketService.getMarketStats).toHaveBeenCalled();
+      expect(result).toEqual(expect.objectContaining(mockStats));
+      expect(mockMarketService.getMarketStats).toHaveBeenCalledWith('tenant-1');
     });
   });
 
@@ -619,7 +639,8 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createProduct.mockResolvedValue(mockProduct);
 
-      const product = await controller.createProduct(createProductDto);
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const product = await controller.createProduct(mockReq, createProductDto);
       expect(product.id).toBe("product-1");
 
       // Step 2: Create order for the product
@@ -645,7 +666,7 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createOrder.mockResolvedValue(mockOrder);
 
-      const order = await controller.createOrder(createOrderDto as any);
+      const order = await controller.createOrder(mockReq, createOrderDto as any);
       expect(order.totalAmount).toBe(15000);
       expect(order.items[0].productId).toBe("product-1");
     });
@@ -661,7 +682,8 @@ describe("AppController (Marketplace)", () => {
         new Error("Database connection failed"),
       );
 
-      await expect(controller.getProducts()).rejects.toThrow(
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      await expect(controller.getProducts(mockReq)).rejects.toThrow(
         "Database connection failed",
       );
     });
@@ -676,7 +698,8 @@ describe("AppController (Marketplace)", () => {
         new Error("Validation failed"),
       );
 
-      await expect(controller.createProduct(invalidDto as any)).rejects.toThrow(
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      await expect(controller.createProduct(mockReq, invalidDto as any)).rejects.toThrow(
         "Validation failed",
       );
     });
@@ -692,8 +715,9 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
+      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
       await expect(
-        controller.createOrder(createOrderDto as any),
+        controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");
     });
   });

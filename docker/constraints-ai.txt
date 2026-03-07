@@ -93,7 +93,7 @@ sqlalchemy>=2.0.0,<3.0.0
 PyJWT>=2.9.0,<3.0.0
 cryptography>=43.0.1,<45.0.0  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
 # Note: python-jose extras removed for constraints compatibility - install separately
-python-jose>=3.3.0,<4.0.0
+python-jose>=3.5.0,<4.0.0  # CVE-2024-33663, CVE-2024-33664 - fixed in 3.5.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Monitoring and Observability

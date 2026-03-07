@@ -173,6 +173,7 @@ This service does not publish NATS events directly. Results are consumed synchro
 - `@sahool/nestjs-auth` for JWT authentication
 - `@nestjs/throttler` for rate limiting
 - `@nestjs/swagger` for API documentation at `/docs`
+- Redis 7.x (token revocation via `@sahool/nestjs-auth`)
 
 ---
 

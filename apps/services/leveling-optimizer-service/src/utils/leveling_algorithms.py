@@ -347,7 +347,7 @@ class LevelingOptimizer:
         fill_centroid_y = sum(p.y for p in fill_points) / len(fill_points)
 
         # Euclidean distance
-        distance = math.sqrt((cut_centroid_x - fill_centroid_x) ** 2 + (cut_centroid_y - fill_centroid_y) ** 2)
+        distance = math.hypot(cut_centroid_x - fill_centroid_x, cut_centroid_y - fill_centroid_y)
 
         # Add factor for non-direct paths (typical haul factor)
         haul_factor = 1.2

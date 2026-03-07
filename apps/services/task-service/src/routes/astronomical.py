@@ -265,7 +265,9 @@ async def create_task_with_astronomical_recommendation(
 
                 logger.info(f"Selected astronomical date: {due_date_str} with score {best_day.get('score')}")
             else:
-                logger.warning(f"No suitable astronomical days found for {data.activity}, using default scheduling")
+                logger.warning(
+                    f"No suitable astronomical days found for {sanitize_for_log(data.activity)}, using default scheduling"
+                )
                 due_date = now + timedelta(days=7)
                 astronomical_metadata = {
                     "astronomical_recommendation": False,

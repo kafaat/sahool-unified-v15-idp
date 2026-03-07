@@ -333,7 +333,9 @@ class PreferencesService:
             )
 
             if not is_enabled:
-                logger.debug(f"Event {event_type} disabled for user {user_id}")
+                safe_event = str(event_type).replace("\r", "").replace("\n", "")
+                safe_user = str(user_id).replace("\r", "").replace("\n", "")
+                logger.debug(f"Event {safe_event} disabled for user {safe_user}")
                 return False, []
 
             # Get preferred channels
@@ -347,7 +349,9 @@ class PreferencesService:
             if not channels:
                 channels = ["in_app", "push"]
 
-            logger.debug(f"Notification allowed for user {user_id}, event {event_type}, channels: {channels}")
+            safe_event = str(event_type).replace("\r", "").replace("\n", "")
+            safe_user = str(user_id).replace("\r", "").replace("\n", "")
+            logger.debug(f"Notification allowed for user {safe_user}, event {safe_event}, channels: {channels}")
             return True, channels
 
         except Exception as e:

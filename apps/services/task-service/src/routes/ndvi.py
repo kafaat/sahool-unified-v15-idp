@@ -119,8 +119,9 @@ async def create_task_from_ndvi_alert(
     - Sends notifications
     """
     safe_field_id = sanitize_for_log(data.field_id)
+    safe_alert_type = sanitize_for_log(str(data.alert_type))
     logger.info(
-        f"Creating task from NDVI alert: field={safe_field_id}, type={data.alert_type}, ndvi={data.ndvi_value:.3f}"
+        f"Creating task from NDVI alert: field={safe_field_id}, type={safe_alert_type}, ndvi={data.ndvi_value:.3f}"
     )
 
     try:
@@ -214,7 +215,10 @@ async def create_task_from_ndvi_alert(
                 notification_type="ndvi_alert_task",
             )
 
-        logger.info(f"Task created from NDVI alert: {task_id} (priority={priority.value}, assigned_to={assigned_to})")
+        safe_assigned_to = sanitize_for_log(assigned_to) if assigned_to is not None else None
+        logger.info(
+            f"Task created from NDVI alert: {task_id} (priority={priority.value}, assigned_to={safe_assigned_to})"
+        )
 
         return db_task_to_dict(created_task)
 

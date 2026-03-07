@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { PrismaService } from "@/config/prisma.service";
+import { extractTenantId } from "../../utils/tenant.utils";
 
 export const BYPASS_LOCK_KEY = "bypassScientificLock";
 export const BypassScientificLock = () =>
@@ -67,7 +68,7 @@ export class ScientificLockGuard implements CanActivate {
     }
 
     // Check experiment lock status (scoped to tenant)
-    const tenantId = request.tenantId || request.user?.tenantId || request.headers?.["x-tenant-id"];
+    const tenantId = extractTenantId(request);
     const lockStatus = await this.getExperimentLockStatus(experimentId, tenantId);
 
     if (lockStatus.isLocked) {
@@ -125,14 +126,11 @@ export class ScientificLockGuard implements CanActivate {
    */
   async getExperimentLockStatus(
     experimentId: string,
-    tenantId?: string,
+    tenantId: string,
   ): Promise<ExperimentLockStatus> {
     try {
-      const where: any = { id: experimentId };
-      if (tenantId) where.tenantId = tenantId;
-
       const experiment = await this.prisma.experiment.findFirst({
-        where,
+        where: { id: experimentId, tenantId },
         select: {
           id: true,
           status: true,

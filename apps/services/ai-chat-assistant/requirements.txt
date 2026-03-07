@@ -9,7 +9,6 @@ nats-py==2.13.1
 
 # Redis
 redis[hiredis]>=7.1.0,<8.0.0
-redis-om==0.3.3
 
 # HTTP Client
 httpx==0.28.1

@@ -216,13 +216,13 @@ jobs:
           DATABASE_URL: ""
           NATS_URL: ""
 
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v5
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          fail_ci_if_error: false
+          name: coverage-report
+          path: coverage.xml
+          if-no-files-found: warn
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Flutter Mobile Tests

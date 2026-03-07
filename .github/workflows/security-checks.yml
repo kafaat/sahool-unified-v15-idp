@@ -259,8 +259,6 @@ jobs:
     name: Code Security Analysis (SAST)
     runs-on: ubuntu-latest
     continue-on-error: true
-    outputs:
-      has_findings: ${{ steps.check-findings.outputs.has_findings }}
     permissions:
       security-events: write
       actions: read

@@ -3,66 +3,91 @@ drone-service - Drone integration and management - تكامل وإدارة ال�
 """
 
 import os
+import time
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
+
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
-
     TENANT_MIDDLEWARE_AVAILABLE = True
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
 logger = structlog.get_logger()
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Prometheus metrics counters (simple in-process)
+# ─────────────────────────────────────────────────────────────────────────────
+_metrics = {
+    "requests_total": 0,
+    "requests_errors": 0,
+    "flights_planned": 0,
+    "missions_created": 0,
+    "missions_completed": 0,
+    "missions_aborted": 0,
+    "prescriptions_created": 0,
+    "drones_registered": 0,
+    "request_duration_sum": 0.0,
+    "request_duration_count": 0,
+}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler - معالج دورة حياة التطبيق"""
-    # Startup: Initialize connections
     logger.info("Starting drone-service...", version="16.0.0")
 
     # Database connection
+    app.state.db_connected = False
     db_url = os.getenv("DATABASE_URL")
-    # Enforce sslmode for non-development database connections
     if db_url and os.getenv("ENVIRONMENT", "development") != "development":
         if "sslmode" not in db_url:
             db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
     if db_url:
         try:
             import asyncpg
-
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connection pool created")
         except Exception as e:
             logger.error("Failed to connect to database", error=str(e))
-            app.state.db_connected = False
+            app.state.db_pool = None
     else:
-        app.state.db_connected = False
+        app.state.db_pool = None
         logger.warning("DATABASE_URL not set, running without database")
 
     # NATS connection
+    app.state.nats_connected = False
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         try:
             import nats
-
             app.state.nc = await nats.connect(nats_url)
             app.state.nats_connected = True
             logger.info("NATS connection established", url=nats_url)
+
+            # Subscribe to cross-service events
+            try:
+                from src.events import subscribe_cross_service_events
+                app.state.pending_detections = []
+                await subscribe_cross_service_events(app.state.nc, app.state)
+            except Exception as e:
+                logger.warning("Cross-service event subscription failed", error=str(e))
+
         except Exception as e:
             logger.error("Failed to connect to NATS", error=str(e))
-            app.state.nats_connected = False
+            app.state.nc = None
     else:
-        app.state.nats_connected = False
+        app.state.nc = None
         logger.warning("NATS_URL not set, running without NATS")
 
     yield
 
-    # Shutdown: Close connections
+    # Shutdown
     logger.info("Shutting down drone-service...")
 
     if hasattr(app.state, "db_pool") and app.state.db_pool:
@@ -81,7 +106,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Setup CORS
+# CORS
 cors_origins = os.getenv(
     "CORS_ORIGINS",
     "https://sahool.app,https://admin.sahool.app,http://localhost:3000",
@@ -94,23 +119,45 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
 )
 
-# Setup unified error handling
+# Unified error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
     setup_exception_handlers(app)
     add_request_id_middleware(app)
-    logger.info("Unified error handling configured")
 except ImportError:
-    logger.warning("shared.errors_py not available, using default error handling")
+    pass
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
 
+
+# Metrics middleware
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next) -> Response:
+    """Collect request metrics for Prometheus."""
+    if request.url.path in ("/metrics", "/healthz", "/readyz"):
+        return await call_next(request)
+
+    start = time.time()
+    _metrics["requests_total"] += 1
+
+    try:
+        response = await call_next(request)
+        if response.status_code >= 400:
+            _metrics["requests_errors"] += 1
+        return response
+    except Exception:
+        _metrics["requests_errors"] += 1
+        raise
+    finally:
+        duration = time.time() - start
+        _metrics["request_duration_sum"] += duration
+        _metrics["request_duration_count"] += 1
+
+
 # Include API routers
 try:
     from src.api.v1 import drones, flights, missions, vra
-
     app.include_router(drones.router)
     app.include_router(flights.router)
     app.include_router(missions.router)
@@ -118,6 +165,11 @@ try:
     logger.info("API routers registered")
 except ImportError as e:
     logger.error("Failed to import API routers", error=str(e))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Health & Metrics Endpoints
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 @app.get("/healthz")
@@ -141,10 +193,10 @@ def comprehensive_health():
     """Comprehensive health check - فحص صحي شامل"""
     db_status = getattr(app.state, "db_connected", False)
     nats_status = getattr(app.state, "nats_connected", False)
-    overall_status = "ok" if (db_status and nats_status) else "degraded"
+    overall = "ok" if db_status or nats_status else "degraded"
 
     return {
-        "status": overall_status,
+        "status": overall,
         "service": "drone-service",
         "version": "16.0.0",
         "checks": {
@@ -157,25 +209,51 @@ def comprehensive_health():
 @app.get("/metrics")
 async def metrics():
     """Prometheus metrics endpoint"""
-    from fastapi.responses import PlainTextResponse
-
     db_up = 1 if getattr(app.state, "db_connected", False) else 0
     nats_up = 1 if getattr(app.state, "nats_connected", False) else 0
-    metrics_text = (
-        "# HELP drone_service_up Service is up\n"
-        "# TYPE drone_service_up gauge\n"
-        "drone_service_up 1\n"
-        "# HELP drone_service_info Service version info\n"
-        "# TYPE drone_service_info gauge\n"
-        'drone_service_info{service="drone-service",version="16.0.0"} 1\n'
-        "# HELP drone_service_db_up Database connection status\n"
-        "# TYPE drone_service_db_up gauge\n"
-        f"drone_service_db_up {db_up}\n"
-        "# HELP drone_service_nats_up NATS connection status\n"
-        "# TYPE drone_service_nats_up gauge\n"
-        f"drone_service_nats_up {nats_up}\n"
+    avg_dur = (
+        _metrics["request_duration_sum"] / _metrics["request_duration_count"]
+        if _metrics["request_duration_count"] > 0
+        else 0
     )
-    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")
+
+    lines = [
+        '# HELP drone_service_info Service version info',
+        '# TYPE drone_service_info gauge',
+        'drone_service_info{service="drone-service",version="16.0.0"} 1',
+        '# HELP drone_service_up Service is up',
+        '# TYPE drone_service_up gauge',
+        'drone_service_up 1',
+        '# HELP drone_service_db_up Database connection status',
+        '# TYPE drone_service_db_up gauge',
+        f'drone_service_db_up {db_up}',
+        '# HELP drone_service_nats_up NATS connection status',
+        '# TYPE drone_service_nats_up gauge',
+        f'drone_service_nats_up {nats_up}',
+        '# HELP drone_service_requests_total Total HTTP requests',
+        '# TYPE drone_service_requests_total counter',
+        f'drone_service_requests_total {_metrics["requests_total"]}',
+        '# HELP drone_service_requests_errors_total Total HTTP errors',
+        '# TYPE drone_service_requests_errors_total counter',
+        f'drone_service_requests_errors_total {_metrics["requests_errors"]}',
+        '# HELP drone_service_request_duration_seconds_avg Average request duration',
+        '# TYPE drone_service_request_duration_seconds_avg gauge',
+        f'drone_service_request_duration_seconds_avg {avg_dur:.6f}',
+        '# HELP drone_service_flights_planned_total Total flights planned',
+        '# TYPE drone_service_flights_planned_total counter',
+        f'drone_service_flights_planned_total {_metrics["flights_planned"]}',
+        '# HELP drone_service_missions_created_total Total missions created',
+        '# TYPE drone_service_missions_created_total counter',
+        f'drone_service_missions_created_total {_metrics["missions_created"]}',
+        '# HELP drone_service_drones_registered_total Total drones registered',
+        '# TYPE drone_service_drones_registered_total counter',
+        f'drone_service_drones_registered_total {_metrics["drones_registered"]}',
+        '# HELP drone_service_prescriptions_created_total Total VRA prescriptions',
+        '# TYPE drone_service_prescriptions_created_total counter',
+        f'drone_service_prescriptions_created_total {_metrics["prescriptions_created"]}',
+    ]
+
+    return PlainTextResponse(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 
 
 @app.get("/")
@@ -192,5 +270,4 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8126")))

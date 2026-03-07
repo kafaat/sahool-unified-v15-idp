@@ -111,9 +111,9 @@ class KnowledgeCache:
     def invalidate_collection(self, collection: str) -> int:
         """Invalidate all cached entries for a collection.
         إبطال جميع الإدخالات المخزنة مؤقتا لمجموعة معينة"""
-        # Each CacheEntry stores the collection it belongs to (set via put()).
-        # Since cache keys are SHA-256 hashes (via make_key), we cannot infer
-        # the collection from the key itself — we match on the stored field.
+        # Uses field-based matching (not prefix-based): each CacheEntry stores
+        # the collection it belongs to (set via put()). Since cache keys are
+        # SHA-256 hashes (via make_key), we match on the stored collection field.
         keys_to_remove = [key for key, entry in self._cache.items() if entry.collection == collection]
         for key in keys_to_remove:
             del self._cache[key]

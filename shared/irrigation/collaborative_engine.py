@@ -107,6 +107,17 @@ class SessionNotFoundError(HMCEngineError):
         )
 
 
+class SessionInitError(HMCEngineError):
+    """Raised when session is not properly initialized with required dimensions.
+    يُطلق عندما لا تتم تهيئة الجلسة بالأبعاد المطلوبة"""
+
+    def __init__(self, missing: str):
+        super().__init__(
+            HMCErrors.SESSION_INIT_FAILED,
+            {"missing_components": missing},
+        )
+
+
 class GoalsNotSetError(HMCEngineError):
     """Raised when goals are required but not set."""
 
@@ -581,7 +592,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._goal_dimension is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session, goal_dimension, or checklist")
+            raise SessionInitError("session, goal_dimension, or checklist")
 
         all_warnings: list[str] = []
 
@@ -697,9 +708,7 @@ class HMCIrrigationEngine:
             or self._experience_dimension is None
             or self._checklist is None
         ):
-            raise RuntimeError(
-                "Session not properly initialized: missing session, goal_dimension, experience_dimension, or checklist"
-            )
+            raise SessionInitError("session, goal_dimension, experience_dimension, or checklist")
 
         # Check goals are set
         goals = self._goal_dimension.get_all_goals()
@@ -812,7 +821,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session or checklist")
+            raise SessionInitError("session or checklist")
 
         # Use current program if not provided
         program = program or self._current_session.current_program
@@ -890,7 +899,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._experience_dimension is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session, experience_dimension, or checklist")
+            raise SessionInitError("session, experience_dimension, or checklist")
 
         # Inject rules
         success, warnings = self._experience_dimension.inject_local_experience(rules, validate)
@@ -955,7 +964,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._calibration_dimension is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session, calibration_dimension, or checklist")
+            raise SessionInitError("session, calibration_dimension, or checklist")
 
         program = self._current_session.current_program
         if not program:
@@ -1033,7 +1042,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session or checklist")
+            raise SessionInitError("session or checklist")
 
         program = self._current_session.current_program
         if not program:
@@ -1120,7 +1129,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._value_dimension is None or self._checklist is None:
-            raise RuntimeError("Session not properly initialized: missing session, value_dimension, or checklist")
+            raise SessionInitError("session, value_dimension, or checklist")
 
         program = self._current_session.current_program
         if not program:
@@ -1201,7 +1210,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None:
-            raise RuntimeError("Session not properly initialized: missing session")
+            raise SessionInitError("session")
 
         if self._current_session.iteration_count >= self._current_session.max_iterations:
             raise MaxIterationsReachedError(
@@ -1379,7 +1388,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None:
-            raise RuntimeError("Session not properly initialized: missing session")
+            raise SessionInitError("session")
 
         self._current_session.zone_configs = zones
         self._current_session.updated_at = datetime.now(UTC)

@@ -6,8 +6,7 @@ import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { getDirection, type Locale } from "@sahool/i18n";
 
-// Use CSS variable for font family — Tajawal loaded via globals.css @import
-// This avoids next/font/google build failures in offline/CI environments
+// Self-hosted Tajawal font via @font-face in globals.css (no external dependency)
 const tajawal = { variable: "--font-tajawal" };
 
 export const metadata: Metadata = {

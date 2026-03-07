@@ -213,10 +213,14 @@ class DroneFlightPlanner:
             y_offset = -half + i * spacing
             # Convert meter offset to approximate lat/lon delta
             lat_delta = y_offset / 111320.0
+            # Calculate longitude extent for each flight line
+            lon_half_extent = (side_m / 2) / (111320.0 * math.cos(math.radians(center_lat)))
             if i % 2 == 0:
-                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon - lon_half_extent, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon + lon_half_extent, altitude_m=altitude_m))
             else:
-                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon + lon_half_extent, altitude_m=altitude_m))
+                waypoints.append(Waypoint(latitude=center_lat + lat_delta, longitude=center_lon - lon_half_extent, altitude_m=altitude_m))
 
         return FlightPlan(
             plan_id=f"FLT-{field_id}-{datetime.now().strftime('%Y%m%d%H%M')}",

@@ -38,10 +38,17 @@ from .chunker import ChunkConfig, TextChunker
 
 if TYPE_CHECKING:
     from ..vector_store_integration import KnowledgeVectorStore
-from .extractors import ExtractedContent, HTMLExtractor, MarkdownExtractor, PDFExtractor
+from .extractors import ExtractedContent, HTMLExtractor, MarkdownExtractor, PDFExtractor, URLExtractor
 from .preprocessors import AgriculturalTermNormalizer, ArabicTextPreprocessor, MetadataEnricher
 
 logger = structlog.get_logger(__name__)
+
+# Default allowed base directories for ingestion (Security: path traversal protection)
+_DEFAULT_ALLOWED_DIRS = [
+    "docs/knowledge-base",
+    "shared/",
+    "apps/",
+]
 
 
 @dataclass
@@ -89,10 +96,13 @@ class KnowledgeIngestionPipeline:
         require_bilingual: bool = False,
         enable_agrovoc: bool = True,
         enable_vector_storage: bool = True,
+        allowed_base_dirs: list[str] | None = None,
     ) -> None:
         self._md_extractor = MarkdownExtractor()
         self._pdf_extractor = PDFExtractor()
         self._html_extractor = HTMLExtractor()
+        self._url_extractor = URLExtractor()
+        self._allowed_base_dirs = allowed_base_dirs
         self._arabic_preprocessor = ArabicTextPreprocessor()
         self._term_normalizer = AgriculturalTermNormalizer()
         self._metadata_enricher = MetadataEnricher()
@@ -107,6 +117,34 @@ class KnowledgeIngestionPipeline:
 
     # ─── Public API ───────────────────────────────────────────────────────────
 
+    def ingest_url(
+        self,
+        url: str,
+        target_collection: str | None = None,
+        extra_metadata: dict[str, Any] | None = None,
+    ) -> IngestionResult:
+        """Ingest content from a URL through the pipeline (GAP-17).
+        استيعاب محتوى من عنوان URL عبر خط الأنابيب"""
+        result = IngestionResult()
+
+        # Stage 1: Extract from URL
+        extracted = self._url_extractor.extract(url)
+        if not extracted.content and not extracted.content_ar:
+            result.errors.append(f"No content extracted from URL: {url}")
+            return result
+
+        if extracted.metadata.get("error"):
+            result.errors.append(extracted.metadata["error"])
+            return result
+
+        # Continue with shared pipeline stages
+        return self._process_extracted(
+            extracted=extracted,
+            source_url=url,
+            target_collection=target_collection,
+            source_name=url,
+        )
+
     def ingest_file(
         self,
         file_path: str | Path,
@@ -118,6 +156,25 @@ class KnowledgeIngestionPipeline:
         استيعاب ملف واحد عبر خط الأنابيب الكامل"""
         result = IngestionResult()
         path = Path(file_path)
+
+        # Security: Path traversal protection (Section 7)
+        if self._allowed_base_dirs is not None:
+            resolved = path.resolve()
+            is_allowed = any(
+                str(resolved).startswith(str(Path(base).resolve()))
+                for base in self._allowed_base_dirs
+            )
+            if not is_allowed:
+                result.errors.append(
+                    f"Path '{path}' is outside allowed directories. "
+                    f"Allowed: {self._allowed_base_dirs}"
+                )
+                logger.warning(
+                    "path_traversal_blocked",
+                    path=str(path),
+                    allowed=self._allowed_base_dirs,
+                )
+                return result
 
         # Stage 1: Extract
         extracted = self._extract(path)
@@ -332,6 +389,110 @@ class KnowledgeIngestionPipeline:
         return report
 
     # ─── Internal Pipeline Stages ─────────────────────────────────────────────
+
+    def _process_extracted(
+        self,
+        extracted: ExtractedContent,
+        source_url: str = "",
+        target_collection: str | None = None,
+        source_name: str = "",
+    ) -> IngestionResult:
+        """Shared processing for extracted content (used by ingest_file, ingest_url).
+        معالجة مشتركة للمحتوى المستخرج"""
+        result = IngestionResult()
+
+        # Stage 2: Preprocess
+        extracted = self._preprocess(extracted)
+
+        # Stage 3: Source credibility
+        credibility = self._check_source(source_url)
+        result.source_credibility = credibility.value
+        if credibility.value < self._min_credibility:
+            result.errors.append(f"Source credibility {credibility.value} below minimum {self._min_credibility}")
+            result.warnings.append("Low credibility source - requires additional verification")
+
+        # Stage 4: Detect domains & regions
+        full_text = f"{extracted.content} {extracted.content_ar}"
+        domains = self._metadata_enricher.detect_domains(full_text)
+        regions = self._metadata_enricher.detect_regions(full_text)
+        tags = self._metadata_enricher.extract_tags(full_text, extracted.metadata)
+        result.domains_detected = [d.value for d in domains]
+        result.regions_detected = regions
+        result.tags = tags
+
+        # Stage 5: Build document model
+        primary_domain = domains[0] if domains else KnowledgeDomain.GENERAL
+        collection = target_collection or self._resolve_collection(primary_domain)
+        result.collection = collection
+
+        # AGROVOC concept extraction
+        agrovoc_concepts = extracted.metadata.get("agrovoc", [])
+        if self._agrovoc and not agrovoc_concepts:
+            found_concepts = self._agrovoc.extract_concepts_from_text(full_text)
+            agrovoc_concepts = [c.uri for c in found_concepts]
+
+        if self._agrovoc:
+            tags = self._agrovoc.enrich_tags(tags)
+
+        seasonal = self._metadata_enricher.detect_seasonal_relevance(full_text)
+
+        doc = BaseKnowledgeDocument(
+            title=extracted.title or source_name or "Untitled",
+            title_ar=extracted.title_ar,
+            content=extracted.content,
+            content_ar=extracted.content_ar,
+            domain=primary_domain,
+            tags=tags,
+            fresh=FRESHMetadata(
+                format=extracted.source_type or "md",
+                relevance_domains=domains,
+                seasonal_relevance=seasonal,
+            ),
+            geospatial=GeospatialMetadata(applicable_regions=regions),
+            source=KnowledgeSourceMeta(
+                source_url=source_url,
+                source_name=source_name,
+                credibility=credibility,
+                agrovoc_concepts=agrovoc_concepts,
+            ),
+            verification_status=(
+                VerificationStatus.APPROVED if credibility.value >= 4 else VerificationStatus.PENDING
+            ),
+        )
+        result.document_id = doc.id
+
+        # Stage 6: Validate
+        validation = self._validator.validate(doc)
+        result.validation = validation
+
+        if self._require_bilingual and not doc.content_ar:
+            result.warnings.append("Bilingual content recommended but Arabic content missing")
+
+        for issue in validation.issues:
+            if issue.severity == "error":
+                result.errors.append(f"[{issue.field}] {issue.message}")
+            else:
+                result.warnings.append(f"[{issue.field}] {issue.message}")
+
+        result.success = validation.is_valid
+
+        # Stage 7: Vector storage
+        if result.success and self._enable_vector_storage:
+            vector_ids = self._store_in_vector_db(doc)
+            result.vector_ids = vector_ids
+            if vector_ids:
+                result.chunks_count = len(vector_ids)
+
+        logger.info(
+            "document_ingested",
+            document_id=doc.id,
+            collection=collection,
+            domain=primary_domain.value,
+            success=result.success,
+            source=source_name or source_url,
+        )
+
+        return result
 
     def _extract(self, path: Path) -> ExtractedContent:
         """Stage 1: Extract content based on file type."""

@@ -26,16 +26,18 @@ switch_to_mirror() {
 # apt-get update can succeed from cache even when DNS is broken,
 # causing apt-get install to fail later when downloading .deb files.
 dns_ok=true
-if ! getent hosts deb.debian.org >/dev/null 2>&1 && \
-   ! getent hosts archive.ubuntu.com >/dev/null 2>&1; then
+if ! timeout 10 getent hosts deb.debian.org >/dev/null 2>&1 && \
+   ! timeout 10 getent hosts archive.ubuntu.com >/dev/null 2>&1; then
     dns_ok=false
     echo "Cannot resolve default apt repos, switching to mirror..."
     switch_to_mirror
 fi
 
-if apt-get update 2>/dev/null; then
+if apt-get update; then
     exit 0
 fi
+
+echo "apt-get update failed with default sources, attempting mirror fallback..."
 
 # apt-get update failed — switch mirrors if we haven't already
 if [ "$dns_ok" = true ]; then

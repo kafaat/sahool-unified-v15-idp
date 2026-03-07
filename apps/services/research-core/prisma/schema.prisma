@@ -80,7 +80,7 @@ enum SeedQualityGrade {
 model Germplasm {
   id                    String            @id @default(uuid())
   tenantId              String            @map("tenant_id")
-  accessionNumber       String            @unique @map("accession_number") @db.VarChar(50)
+  accessionNumber       String            @map("accession_number") @db.VarChar(50)
   commonName            String            @map("common_name") @db.VarChar(255)
   commonNameAr          String?           @map("common_name_ar") @db.VarChar(255)
   scientificName        String?           @map("scientific_name") @db.VarChar(255)
@@ -132,6 +132,7 @@ model Germplasm {
   seedLots              SeedLot[]
   plantings             Planting[]
 
+  @@unique([tenantId, accessionNumber], name: "uq_germplasm_tenant_accession")
   @@index([tenantId], name: "idx_germplasm_tenant")
   @@index([tenantId, isAvailable], name: "idx_germplasm_tenant_available")
   @@index([isAvailable], name: "idx_germplasm_available")
@@ -145,7 +146,7 @@ model SeedLot {
   id                    String            @id @default(uuid())
   tenantId              String            @map("tenant_id")
   germplasmId           String            @map("germplasm_id")
-  lotNumber             String            @unique @map("lot_number") @db.VarChar(50)
+  lotNumber             String            @map("lot_number") @db.VarChar(50)
 
   // Quantity - الكمية
   initialQuantity       Decimal           @map("initial_quantity") @db.Decimal(10, 3)
@@ -196,6 +197,7 @@ model SeedLot {
   germplasm             Germplasm         @relation(fields: [germplasmId], references: [id], onDelete: Cascade)
   plantings             Planting[]
 
+  @@unique([tenantId, lotNumber], name: "uq_seed_lot_tenant_number")
   @@index([tenantId], name: "idx_seed_lot_tenant")
   @@index([germplasmId], name: "idx_seed_lot_germplasm")
   @@index([qualityGrade], name: "idx_seed_lot_quality")
@@ -419,7 +421,7 @@ model ResearchDailyLog {
   attachments       String[]    @default([])
   recordedBy        String      @map("recorded_by")
   deviceId          String?     @map("device_id") @db.VarChar(100)
-  offlineId         String?     @unique @map("offline_id") @db.VarChar(100)
+  offlineId         String?     @map("offline_id") @db.VarChar(100)
   hash              String?     @db.VarChar(64)
   syncedAt          DateTime?   @map("synced_at")
   createdAt         DateTime    @default(now()) @map("created_at")
@@ -430,6 +432,7 @@ model ResearchDailyLog {
   treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
   samples    LabSample[]
 
+  @@unique([tenantId, offlineId], name: "uq_daily_log_tenant_offline")
   @@index([tenantId], name: "idx_daily_log_tenant")
   @@index([experimentId], name: "idx_daily_log_experiment")
   @@index([plotId], name: "idx_daily_log_plot")
@@ -447,7 +450,7 @@ model LabSample {
   experimentId       String     @map("experiment_id")
   plotId             String?    @map("plot_id")
   logId              String?    @map("log_id")
-  sampleCode         String     @unique @map("sample_code") @db.VarChar(100)
+  sampleCode         String     @map("sample_code") @db.VarChar(100)
   type               SampleType
   description        String?    @db.Text
   descriptionAr      String?    @map("description_ar") @db.Text
@@ -471,6 +474,7 @@ model LabSample {
   plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
   log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
 
+  @@unique([tenantId, sampleCode], name: "uq_lab_sample_tenant_code")
   @@index([tenantId], name: "idx_lab_sample_tenant")
   @@index([experimentId], name: "idx_lab_sample_experiment")
   @@index([plotId], name: "idx_lab_sample_plot")
@@ -500,7 +504,7 @@ model DigitalSignature {
   invalidatedReason  String?   @map("invalidated_reason") @db.Text
   createdAt          DateTime  @default(now()) @map("created_at")
 
-  @@unique([entityType, entityId, signerId, purpose])
+  @@unique([tenantId, entityType, entityId, signerId, purpose])
   @@index([tenantId], name: "idx_signature_tenant")
   @@index([entityType, entityId], name: "idx_signature_entity")
   @@index([signerId], name: "idx_signature_signer")

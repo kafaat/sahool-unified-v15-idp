@@ -20,6 +20,7 @@ import {
 import { TreatmentsService } from "./treatments.service";
 import { CreateTreatmentDto, UpdateTreatmentDto } from "./dto/treatment.dto";
 import { ScientificLockGuard } from "@/core/guards/scientific-lock.guard";
+import { extractTenantId } from "../../utils/tenant.utils";
 
 @ApiTags("treatments")
 @ApiBearerAuth()
@@ -35,7 +36,7 @@ export class TreatmentsController {
     @Body() dto: CreateTreatmentDto,
     @Request() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.create({ ...dto, experimentId }, tenantId);
   }
 
@@ -55,7 +56,7 @@ export class TreatmentsController {
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findAll(experimentId, tenantId, {
       plotId,
       type,
@@ -68,21 +69,21 @@ export class TreatmentsController {
   @Get(":id")
   @ApiOperation({ summary: "Get treatment details - تفاصيل المعالجة" })
   findOne(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findOne(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update treatment - تحديث المعالجة" })
   update(@Param("id") id: string, @Body() dto: UpdateTreatmentDto, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.update(id, dto, tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete treatment - حذف المعالجة" })
   delete(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.delete(id, tenantId);
   }
 }

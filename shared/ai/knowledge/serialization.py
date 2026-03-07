@@ -292,7 +292,6 @@ class KnowledgeSerializer:
             return doc
         except Exception as exc:
             doc_id = data.get("id", f"index_{index}")
-            msg = f"Failed to deserialize document '{doc_id}': {exc}"
             logger.warning("import_deserialize_error", document_id=doc_id, error=str(exc))
             return None
 

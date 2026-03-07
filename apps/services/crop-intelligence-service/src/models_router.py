@@ -373,7 +373,7 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
     try:
         from shared.process_models.agro_meteorology import penman_monteith_et0
         from shared.process_models.hydrology import HydrologyEngine
-        from shared.process_models.models import DailyWeather, SoilProfile
+        from shared.process_models.models import DailyWeather
 
         weather = DailyWeather(
             date=_doy_to_date(req.day_of_year),
@@ -387,11 +387,6 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
 
         et0 = penman_monteith_et0(weather, lat_deg=req.latitude_deg)
         etc = et0 * req.kc
-
-        soil = SoilProfile(
-            field_capacity_mm_per_m=req.field_capacity_mm,
-            wilting_point_mm_per_m=req.wilting_point_mm,
-        )
 
         hydro = HydrologyEngine()
 

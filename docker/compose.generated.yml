@@ -3276,7 +3276,7 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-web
     ports:
-    - 3000:3000
+    - 3002:3002
     environment:
     - NODE_ENV=${NODE_ENV:-development}
     - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}

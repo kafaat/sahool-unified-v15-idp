@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Tajawal } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import "./globals.css";
@@ -7,12 +6,9 @@ import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { getDirection, type Locale } from "@sahool/i18n";
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-  variable: "--font-tajawal",
-});
+// Use CSS variable for font family — Tajawal loaded via globals.css @import
+// This avoids next/font/google build failures in offline/CI environments
+const tajawal = { variable: "--font-tajawal" };
 
 export const metadata: Metadata = {
   title: "سهول | SAHOOL - Smart Agriculture Platform",

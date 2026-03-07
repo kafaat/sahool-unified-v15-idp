@@ -293,17 +293,6 @@ async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest):
         raise HTTPException(status_code=400, detail={"error": "No members in cooperative", "error_ar": "لا يوجد أعضاء في التعاونية"})
 
     try:
-        from shared.cooperatives import RevenueShareCalculator, RevenueShareMethod
-
-        method_map = {
-            "equal": RevenueShareMethod.EQUAL,
-            "contribution": RevenueShareMethod.CONTRIBUTION,
-            "production": RevenueShareMethod.PRODUCTION,
-            "land_area": RevenueShareMethod.LAND_AREA,
-        }
-        share_method = method_map.get(request.method, RevenueShareMethod.EQUAL)
-        calculator = RevenueShareCalculator()
-
         if request.method == "land_area":
             shares_data = {m["id"]: m.get("land_area_ha", 1.0) for m in members}
         elif request.method == "contribution":

@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="", description="Redis connection URL")
     redis_ttl_seconds: int = Field(default=3600, description="Default Redis TTL")
 
-    # JWT Authentication
-    jwt_secret_key: str = Field(default="", description="JWT secret key")
+    # JWT Authentication — empty default ensures decode fails (no silent auth bypass)
+    jwt_secret_key: str = Field(default="", description="JWT secret key — must be set via JWT_SECRET_KEY env var")
     jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")
 
     # CORS Configuration
@@ -129,6 +129,18 @@ class Settings(BaseSettings):
         default=[".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"],
         description="Allowed image file extensions",
     )
+
+    @field_validator("jwt_secret_key", mode="after")
+    @classmethod
+    def warn_empty_jwt_secret(cls, v: str) -> str:
+        """Warn if JWT secret key is not configured."""
+        if not v:
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "JWT_SECRET_KEY not set — authentication will reject all tokens"
+            )
+        return v
 
     @field_validator("cors_origins", mode="before")
     @classmethod

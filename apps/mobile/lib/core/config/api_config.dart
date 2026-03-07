@@ -68,7 +68,7 @@ class ServicePorts {
       mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.communityChat}';
     }
     if (EnvConfig.sprayPort != contracts.ServicePorts.yieldEngine) {
-      mismatches['yieldEngine'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldEngine}';
+      mismatches['spray'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldEngine}';
     }
     if (EnvConfig.billingPort != contracts.ServicePorts.billingCore) {
       mismatches['billing'] = 'env=${EnvConfig.billingPort} contract=${contracts.ServicePorts.billingCore}';

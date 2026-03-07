@@ -26,6 +26,7 @@ export class SignaturesController {
       req.user?.id || "system",
       body.purpose,
       body.data,
+      req.user?.tenantId || req.headers?.["x-tenant-id"] || "",
       { ip: req.ip, userAgent: req.headers?.["user-agent"] },
     );
   }

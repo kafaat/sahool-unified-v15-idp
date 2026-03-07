@@ -24,6 +24,7 @@ export class SignaturesService {
     signerId: string,
     purpose: string,
     data: Record<string, unknown>,
+    tenantId: string,
     request?: { ip?: string; userAgent?: string },
   ) {
     this.logger.log(`Signing ${entityType}:${entityId} by user ${signerId}`);
@@ -40,6 +41,7 @@ export class SignaturesService {
 
     const signature = await this.prisma.digitalSignature.create({
       data: {
+        tenantId,
         entityType,
         entityId,
         signerId,

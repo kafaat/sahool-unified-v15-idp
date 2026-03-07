@@ -171,7 +171,7 @@ export class ScientificLockGuard implements CanActivate {
     userId: string,
     reason?: string,
   ): Promise<void> {
-    await this.prisma.experiment.update({
+    const experiment = await this.prisma.experiment.update({
       where: { id: experimentId },
       data: {
         status: "locked",
@@ -186,6 +186,7 @@ export class ScientificLockGuard implements CanActivate {
     // Log the lock action
     await this.prisma.experimentAuditLog.create({
       data: {
+        tenantId: experiment.tenantId,
         experimentId,
         entityType: "experiment",
         entityId: experimentId,
@@ -209,7 +210,7 @@ export class ScientificLockGuard implements CanActivate {
   ): Promise<void> {
     const experiment = await this.prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { status: true, lockedAt: true, lockedBy: true },
+      select: { tenantId: true, status: true, lockedAt: true, lockedBy: true },
     });
 
     if (!experiment || experiment.status !== "locked") {
@@ -228,6 +229,7 @@ export class ScientificLockGuard implements CanActivate {
     // Log the unlock action with previous state
     await this.prisma.experimentAuditLog.create({
       data: {
+        tenantId: experiment.tenantId,
         experimentId,
         entityType: "experiment",
         entityId: experimentId,

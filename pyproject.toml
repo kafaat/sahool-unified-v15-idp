@@ -171,7 +171,7 @@ filterwarnings = [
     "ignore::PendingDeprecationWarning",
     "ignore::DeprecationWarning:tortoise.*",
     "ignore::DeprecationWarning:pydantic.*",
-    "ignore::pytest.PytestCollectionWarning",
+    "ignore:cannot collect test class '.*' because it has a __init__ constructor:pytest.PytestCollectionWarning",
 ]
 markers = [
     "unit: Unit tests (fast, no I/O)",

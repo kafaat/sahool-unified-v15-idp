@@ -5,7 +5,7 @@ Integrates with shared.drone_integration for flight planning.
 
 import json
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -102,7 +102,7 @@ async def create_spray_flight_plan(request: SprayFlightRequest, req: Request, _u
             "waypoints_count": len(result.flight_path.waypoints) if result.flight_path else 0,
             "total_spray_volume_l": getattr(result, "total_spray_volume_l", None),
             "area_ha": getattr(result, "area_ha", None),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         _flight_plans[plan_id] = plan_data
 
@@ -117,7 +117,7 @@ async def create_spray_flight_plan(request: SprayFlightRequest, req: Request, _u
 
 
 @router.post("/plan/mapping", status_code=201)
-async def create_mapping_flight_plan(request: MappingFlightRequest, req: Request):
+async def create_mapping_flight_plan(request: MappingFlightRequest, req: Request, _user=Depends(get_current_user)):
     """Create mapping flight plan - إنشاء خطة رحلة تصوير"""
     try:
         from shared.drone_integration import Coordinate as DCoord, create_mapping_flight_plan
@@ -142,7 +142,7 @@ async def create_mapping_flight_plan(request: MappingFlightRequest, req: Request
             "total_distance_m": result.total_distance_m,
             "estimated_duration_min": result.estimated_duration_min,
             "waypoints_count": len(result.flight_path.waypoints) if result.flight_path else 0,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         _flight_plans[plan_id] = plan_data
         logger.info("mapping_flight_planned", plan_id=plan_id)
@@ -162,12 +162,13 @@ async def check_flight_weather(request: WeatherCheckRequest):
             temperature_c=request.temperature_c,
             humidity_percent=request.humidity_percent,
             precipitation_mm=request.precipitation_mm,
+            wind_direction_deg=0.0,
         )
         return {
-            "safe_to_fly": assessment.safe_to_fly,
-            "risk_level": assessment.risk_level,
-            "warnings": assessment.warnings,
-            "warnings_ar": getattr(assessment, "warnings_ar", []),
+            "safe_to_fly": assessment.can_fly,
+            "risk_level": assessment.condition.value,
+            "warnings": assessment.warnings_en,
+            "warnings_ar": assessment.warnings_ar,
         }
     except ImportError:
         safe = request.wind_speed_ms < 8 and request.precipitation_mm == 0 and 5 < request.temperature_c < 45

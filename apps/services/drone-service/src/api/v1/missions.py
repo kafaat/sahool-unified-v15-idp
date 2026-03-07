@@ -4,7 +4,7 @@ Mission management endpoints - نقاط نهاية إدارة المهام
 
 import json
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -71,7 +71,7 @@ async def create_mission(mission: MissionCreate, req: Request):
         "flight_plan_id": mission.flight_plan_id, "mission_type": mission.mission_type,
         "name": mission.name, "name_ar": mission.name_ar,
         "field_id": mission.field_id, "status": "planned",
-        "progress_percent": 0, "created_at": datetime.utcnow().isoformat(),
+        "progress_percent": 0, "created_at": datetime.now(UTC).isoformat(),
         "started_at": None, "completed_at": None,
     }
     _missions[mission_id] = mission_data
@@ -105,9 +105,9 @@ def _transition_mission(mission_id: str, target_status: str) -> dict:
         )
     mission["status"] = target_status
     if target_status == "active" and not mission.get("started_at"):
-        mission["started_at"] = datetime.utcnow().isoformat()
+        mission["started_at"] = datetime.now(UTC).isoformat()
     if target_status in ("completed", "aborted"):
-        mission["completed_at"] = datetime.utcnow().isoformat()
+        mission["completed_at"] = datetime.now(UTC).isoformat()
     logger.info("mission_transition", mission_id=mission_id, from_status=current, to_status=target_status)
     return mission
 

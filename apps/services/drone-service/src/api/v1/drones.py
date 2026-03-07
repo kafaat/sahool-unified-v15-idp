@@ -3,11 +3,25 @@ Drone management endpoints - نقاط نهاية إدارة الطائرات
 """
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 logger = structlog.get_logger()
 
@@ -38,13 +52,13 @@ class DroneResponse(BaseModel):
 
 
 @router.get("/", response_model=list[DroneResponse])
-async def list_drones():
+async def list_drones(_user=Depends(get_current_user)):
     """List all registered drones - قائمة بجميع الطائرات المسجلة"""
     return [DroneResponse(**{k: d[k] for k in DroneResponse.model_fields if k in d}) for d in _drones.values()]
 
 
 @router.post("/", response_model=DroneResponse, status_code=201)
-async def register_drone(drone: DroneCreate):
+async def register_drone(drone: DroneCreate, _user=Depends(get_current_user)):
     """Register a new drone - تسجيل طائرة جديدة"""
     drone_id = f"DRN-{uuid.uuid4().hex[:8].upper()}"
     drone_data = {
@@ -60,7 +74,7 @@ async def register_drone(drone: DroneCreate):
         "status": "active",
         "battery_percent": 100,
         "total_flight_hours": 0.0,
-        "registered_at": datetime.utcnow().isoformat(),
+        "registered_at": datetime.now(UTC).isoformat(),
     }
     _drones[drone_id] = drone_data
     logger.info("drone_registered", drone_id=drone_id, model=drone.model)
@@ -77,7 +91,7 @@ async def get_drone(drone_id: str):
 
 
 @router.put("/{drone_id}", response_model=DroneResponse)
-async def update_drone(drone_id: str, drone: DroneCreate):
+async def update_drone(drone_id: str, drone: DroneCreate, _user=Depends(get_current_user)):
     """Update drone information - تحديث معلومات الطائرة"""
     if drone_id not in _drones:
         raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
@@ -92,7 +106,7 @@ async def update_drone(drone_id: str, drone: DroneCreate):
 
 
 @router.delete("/{drone_id}", status_code=204)
-async def delete_drone(drone_id: str):
+async def delete_drone(drone_id: str, _user=Depends(get_current_user)):
     """Deregister a drone - إلغاء تسجيل الطائرة"""
     if drone_id not in _drones:
         raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
@@ -110,7 +124,7 @@ async def get_drone_status(drone_id: str):
         "drone_id": drone_id, "status": d["status"],
         "battery_percent": d.get("battery_percent", 100),
         "total_flight_hours": d.get("total_flight_hours", 0),
-        "last_updated": datetime.utcnow().isoformat(),
+        "last_updated": datetime.now(UTC).isoformat(),
     }
 
 

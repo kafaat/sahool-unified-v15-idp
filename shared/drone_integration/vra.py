@@ -261,7 +261,17 @@ class VRAGenerator:
             PrescriptionMap | خريطة الوصفة
         """
         rows = len(ndvi_data)
-        len(ndvi_data[0]) if rows > 0 else 0
+        cols = len(ndvi_data[0]) if rows > 0 else 0
+
+        if rows == 0 or cols == 0:
+            return PrescriptionMap(
+                id=generate_id("vrm"),
+                tenant_id=tenant_id,
+                field_id=field_id,
+                name=name,
+                name_ar=name_ar,
+                zones=[],
+            )
 
         # Convert to raster data structure
         raster = self._create_raster_from_array(

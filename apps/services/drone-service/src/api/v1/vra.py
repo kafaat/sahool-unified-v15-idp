@@ -3,7 +3,7 @@ VRA (Variable Rate Application) endpoints - نقاط نهاية التطبيق �
 Integrates with shared.drone_integration.vra for prescription map generation.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
@@ -91,7 +91,7 @@ async def create_ndvi_prescription(request: NDVIPrescriptionRequest, _user=Depen
             "name": prescription.name,
             "name_ar": prescription.name_ar,
             "zones_count": len(prescription.zones) if hasattr(prescription, "zones") else 0,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         _prescriptions[prescription.id] = result
         logger.info("ndvi_prescription_created", prescription_id=prescription.id, field_id=request.field_id)
@@ -101,7 +101,7 @@ async def create_ndvi_prescription(request: NDVIPrescriptionRequest, _user=Depen
 
 
 @router.post("/prescription/spot-spray", status_code=201)
-async def create_spot_spray(request: SpotSprayRequest):
+async def create_spot_spray(request: SpotSprayRequest, _user=Depends(get_current_user)):
     """Create spot spray map from detection points - إنشاء خريطة رش نقطي من نقاط الكشف"""
     try:
         from shared.drone_integration import Coordinate as DCoord, create_spot_spray_map
@@ -126,7 +126,7 @@ async def create_spot_spray(request: SpotSprayRequest):
             "detection_type": request.detection_type,
             "detection_points_count": len(request.detection_points),
             "zones_count": len(prescription.zones) if hasattr(prescription, "zones") else 0,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         _prescriptions[prescription.id] = result
         logger.info("spot_spray_map_created", prescription_id=prescription.id, detection_type=request.detection_type)

@@ -19,6 +19,7 @@ import {
 import { ExperimentsService } from "./experiments.service";
 import { CreateExperimentDto, UpdateExperimentDto } from "./dto/experiment.dto";
 import { ScientificLockGuard } from "@/core/guards/scientific-lock.guard";
+import { extractTenantId } from "../../utils/tenant.utils";
 
 @ApiTags("experiments")
 @ApiBearerAuth()
@@ -30,7 +31,7 @@ export class ExperimentsController {
   @Post()
   @ApiOperation({ summary: "Create new experiment - إنشاء تجربة جديدة" })
   create(@Body() dto: CreateExperimentDto, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.create(dto, req.user?.id || "system", tenantId);
   }
 
@@ -47,42 +48,42 @@ export class ExperimentsController {
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findAll(tenantId, { status, researcherId, page, limit });
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get experiment details - تفاصيل التجربة" })
   findOne(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findOne(id, tenantId);
   }
 
   @Get(":id/summary")
   @ApiOperation({ summary: "Get experiment summary - ملخص التجربة" })
   getSummary(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.getSummary(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update experiment - تحديث التجربة" })
   update(@Param("id") id: string, @Body() dto: UpdateExperimentDto, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.update(id, dto, tenantId);
   }
 
   @Post(":id/lock")
   @ApiOperation({ summary: "Lock experiment - قفل التجربة" })
   lock(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.lock(id, req.user?.id || "system", tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete experiment - حذف التجربة" })
   delete(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.delete(id, tenantId);
   }
 }

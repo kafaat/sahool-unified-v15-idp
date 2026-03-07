@@ -66,8 +66,9 @@ export class ScientificLockGuard implements CanActivate {
       return true;
     }
 
-    // Check experiment lock status
-    const lockStatus = await this.getExperimentLockStatus(experimentId);
+    // Check experiment lock status (scoped to tenant)
+    const tenantId = request.tenantId || request.user?.tenantId || request.headers?.["x-tenant-id"];
+    const lockStatus = await this.getExperimentLockStatus(experimentId, tenantId);
 
     if (lockStatus.isLocked) {
       this.logger.warn(
@@ -124,10 +125,14 @@ export class ScientificLockGuard implements CanActivate {
    */
   async getExperimentLockStatus(
     experimentId: string,
+    tenantId?: string,
   ): Promise<ExperimentLockStatus> {
     try {
-      const experiment = await this.prisma.experiment.findUnique({
-        where: { id: experimentId },
+      const where: any = { id: experimentId };
+      if (tenantId) where.tenantId = tenantId;
+
+      const experiment = await this.prisma.experiment.findFirst({
+        where,
         select: {
           id: true,
           status: true,
@@ -209,7 +214,7 @@ export class ScientificLockGuard implements CanActivate {
     userId: string,
     reason: string,
   ): Promise<void> {
-    const experiment = await this.prisma.experiment.findUnique({
+    const experiment = await this.prisma.experiment.findFirst({
       where: { id: experimentId },
       select: { tenantId: true, status: true, lockedAt: true, lockedBy: true },
     });

@@ -2611,7 +2611,7 @@ applications:
       repository: ghcr.io/kafaat/sahool-web
       tag: latest
     replicaCount: 2
-    port: 3000
+    port: 3002
   admin:
     enabled: true
     name: admin

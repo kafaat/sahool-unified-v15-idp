@@ -54,7 +54,6 @@ _KNOWLEDGE_MODELS_AVAILABLE = False
 
 try:
     from .ultrarag import (
-        RAGRequest,
         WorkflowEngine,
         load_workflow_from_yaml,
         load_workflows_from_directory,
@@ -900,14 +899,6 @@ class KnowledgeServiceBridge:
                 self._workflow_engine._workflows[wf_config.workflow_id] = wf_config
             else:
                 return None
-
-        # Build RAG request
-        rag_request = RAGRequest(
-            query=query,
-            collection=DOMAIN_COLLECTION_MAP.get(domain, [GENERAL_AGRICULTURE])[0],
-            top_k=top_k,
-            metadata=metadata,
-        )
 
         # Execute workflow
         from .ultrarag.workflow import WorkflowExecutionContext

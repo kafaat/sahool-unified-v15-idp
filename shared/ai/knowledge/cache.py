@@ -113,7 +113,6 @@ class KnowledgeCache:
         # Since keys are hashes, we maintain a reverse index approach:
         # iterate and check entries whose key was built with this collection.
         # For efficiency, we use prefix-based invalidation with the collection hash segment.
-        collection_prefix = hashlib.sha256(f"|{collection}|".encode()).hexdigest()[:8]
         keys_to_remove = []
         for key, entry in self._cache.items():
             # Check if this entry's key incorporates the collection

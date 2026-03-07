@@ -577,7 +577,6 @@ class FeedbackTrainingPipeline:
                     )
 
             elif item_type == "correction":
-                original = item.get("original_response", "")
                 corrected = item.get("corrected_response", "")
                 query = context.get("query", context.get("original_query", ""))
 

@@ -122,7 +122,6 @@ def green_ampt_infiltration(
         }
 
     fp = ks * (1.0 + psi * dtheta / 0.001)  # initial high infiltration
-    fp_stable = rainfall_rate_mm_h
     f_cumulative = 0.0
     total_runoff = 0.0
     dt = 0.05  # time step 3-min
@@ -178,7 +177,6 @@ def soil_water_daily_step(
     """
     fc_mm = soil.field_capacity_mm_per_m * soil.depth_m
     wp_mm = soil.wilting_point_mm_per_m * soil.depth_m
-    sat_mm = soil.saturation_mm_per_m * soil.depth_m
 
     # Rainfall + irrigation
     total_input = weather.precipitation_mm + irrigation_mm

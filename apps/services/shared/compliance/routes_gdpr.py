@@ -200,7 +200,9 @@ async def request_data_deletion(
     """
     request_id = uuid4()
 
-    safe_reason = request.reason.replace("\r", "").replace("\n", "") if isinstance(request.reason, str) else request.reason
+    safe_reason = (
+        request.reason.replace("\r", "").replace("\n", "") if isinstance(request.reason, str) else request.reason
+    )
     logger.info(f"GDPR deletion request: user={request.user_id}, reason={safe_reason}, request_id={request_id}")
 
     # Queue background deletion job
@@ -297,7 +299,9 @@ async def record_consent(
 
     Required for GDPR lawful basis of processing.
     """
-    safe_purpose = consent.purpose.replace("\r", "").replace("\n", "") if isinstance(consent.purpose, str) else consent.purpose
+    safe_purpose = (
+        consent.purpose.replace("\r", "").replace("\n", "") if isinstance(consent.purpose, str) else consent.purpose
+    )
     logger.info(f"Consent recorded: user={consent.user_id}, purpose={safe_purpose}, granted={consent.granted}")
 
     return ConsentResponse(user_id=consent.user_id, consents=[consent.model_dump()])

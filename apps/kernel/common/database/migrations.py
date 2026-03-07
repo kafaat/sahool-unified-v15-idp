@@ -469,10 +469,18 @@ class PostGISMigrationHelper:
             raise ValueError(f"Invalid SQL identifier: {name!r}")
         return name
 
-    _VALID_GEOMETRY_TYPES = frozenset({
-        "POINT", "LINESTRING", "POLYGON", "MULTIPOINT",
-        "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", "GEOMETRY",
-    })
+    _VALID_GEOMETRY_TYPES = frozenset(
+        {
+            "POINT",
+            "LINESTRING",
+            "POLYGON",
+            "MULTIPOINT",
+            "MULTILINESTRING",
+            "MULTIPOLYGON",
+            "GEOMETRYCOLLECTION",
+            "GEOMETRY",
+        }
+    )
 
     @staticmethod
     def _validate_geometry_type(geometry_type: str) -> str:

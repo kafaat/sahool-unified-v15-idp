@@ -92,7 +92,8 @@ class TestInMemoryRepositoryCRUD:
         repo = InMemoryKnowledgeRepository()
         doc = _make_doc()
         repo.save(doc)
-        assert repo.delete(doc.id) is True
+        result = repo.delete(doc.id)
+        assert result is True
         assert repo.get_by_id(doc.id) is None
         assert repo.count() == 0
 
@@ -100,7 +101,8 @@ class TestInMemoryRepositoryCRUD:
         from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository
 
         repo = InMemoryKnowledgeRepository()
-        assert repo.delete("nonexistent") is False
+        result = repo.delete("nonexistent")
+        assert result is False
 
     def test_count_all(self):
         from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository

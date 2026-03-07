@@ -65,12 +65,14 @@ class TestLocalStorageProvider:
     @pytest.mark.asyncio
     async def test_delete(self, local_provider):
         await local_provider.store(b"data", "test/delete.txt")
-        assert await local_provider.delete("test/delete.txt") is True
+        result = await local_provider.delete("test/delete.txt")
+        assert result is True
         assert await local_provider.exists("test/delete.txt") is False
 
     @pytest.mark.asyncio
     async def test_delete_nonexistent(self, local_provider):
-        assert await local_provider.delete("nonexistent.txt") is False
+        result = await local_provider.delete("nonexistent.txt")
+        assert result is False
 
     @pytest.mark.asyncio
     async def test_retrieve_nonexistent(self, local_provider):

@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any, Protocol
 
 import structlog
@@ -37,7 +37,8 @@ class NatsClient(Protocol):
     """Protocol for NATS client. Compatible with nats-py nc.publish().
     بروتوكول عميل NATS"""
 
-    async def publish(self, subject: str, payload: bytes) -> None: ...
+    async def publish(self, subject: str, payload: bytes) -> None:
+        """Publish a message to a NATS subject."""
 
 
 class KnowledgeEventPublisher:
@@ -179,7 +180,7 @@ class KnowledgeEventPublisher:
 
         payload = {
             "event": subject,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "data": data,
         }
 

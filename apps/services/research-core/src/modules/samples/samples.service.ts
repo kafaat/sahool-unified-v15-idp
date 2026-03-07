@@ -26,9 +26,9 @@ export class SamplesService {
   async create(dto: CreateSampleDto, tenantId: string) {
     this.logger.log("Creating sample", { sampleCode: this.sanitizeForLog(dto.sampleCode) });
 
-    // Check if sample code already exists
-    const existing = await this.prisma.labSample.findUnique({
-      where: { sampleCode: dto.sampleCode },
+    // Check if sample code already exists within tenant scope
+    const existing = await this.prisma.labSample.findFirst({
+      where: { sampleCode: dto.sampleCode, tenantId },
     });
 
     if (existing) {

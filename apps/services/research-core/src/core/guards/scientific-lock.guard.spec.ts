@@ -11,6 +11,7 @@ describe("ScientificLockGuard", () => {
     prisma = {
       experiment: {
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         update: jest.fn(),
       },
       experimentAuditLog: {
@@ -93,7 +94,7 @@ describe("ScientificLockGuard", () => {
       const tenantId = "tenant-002";
       const lockedAt = new Date("2026-01-01");
 
-      prisma.experiment.findUnique.mockResolvedValue({
+      prisma.experiment.findFirst.mockResolvedValue({
         tenantId,
         status: "locked",
         lockedAt,
@@ -118,7 +119,7 @@ describe("ScientificLockGuard", () => {
 
     it("should include old lock state in audit log", async () => {
       const lockedAt = new Date("2026-01-01");
-      prisma.experiment.findUnique.mockResolvedValue({
+      prisma.experiment.findFirst.mockResolvedValue({
         tenantId: "tenant-001",
         status: "locked",
         lockedAt,
@@ -142,7 +143,7 @@ describe("ScientificLockGuard", () => {
     });
 
     it("should select tenantId from experiment", async () => {
-      prisma.experiment.findUnique.mockResolvedValue({
+      prisma.experiment.findFirst.mockResolvedValue({
         tenantId: "tenant-001",
         status: "locked",
         lockedAt: new Date(),
@@ -153,14 +154,14 @@ describe("ScientificLockGuard", () => {
 
       await guard.unlockExperiment("exp-001", "user-002", "Done");
 
-      expect(prisma.experiment.findUnique).toHaveBeenCalledWith({
+      expect(prisma.experiment.findFirst).toHaveBeenCalledWith({
         where: { id: "exp-001" },
         select: expect.objectContaining({ tenantId: true }),
       });
     });
 
     it("should throw ForbiddenException if experiment is not locked", async () => {
-      prisma.experiment.findUnique.mockResolvedValue({
+      prisma.experiment.findFirst.mockResolvedValue({
         tenantId: "tenant-001",
         status: "active",
         lockedAt: null,
@@ -173,7 +174,7 @@ describe("ScientificLockGuard", () => {
     });
 
     it("should throw ForbiddenException if experiment not found", async () => {
-      prisma.experiment.findUnique.mockResolvedValue(null);
+      prisma.experiment.findFirst.mockResolvedValue(null);
 
       await expect(
         guard.unlockExperiment("exp-999", "user-001", "reason"),
@@ -204,7 +205,7 @@ describe("ScientificLockGuard", () => {
       });
       jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
 
-      prisma.experiment.findUnique.mockResolvedValue({
+      prisma.experiment.findFirst.mockResolvedValue({
         id: "exp-001",
         status: "locked",
         lockedAt: new Date(),

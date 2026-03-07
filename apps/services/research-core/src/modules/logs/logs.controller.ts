@@ -19,6 +19,7 @@ import {
 import { LogsService } from "./logs.service";
 import { CreateLogDto, UpdateLogDto, SyncLogDto } from "./dto/log.dto";
 import { ScientificLockGuard } from "@/core/guards/scientific-lock.guard";
+import { extractTenantId } from "../../utils/tenant.utils";
 
 @ApiTags("logs")
 @ApiBearerAuth()
@@ -34,7 +35,7 @@ export class LogsController {
     @Body() dto: CreateLogDto,
     @Request() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.create(
       { ...dto, experimentId },
       req.user?.id || "system",
@@ -60,7 +61,7 @@ export class LogsController {
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findAll(experimentId, tenantId, {
       plotId,
       category,
@@ -74,14 +75,14 @@ export class LogsController {
   @Get(":id")
   @ApiOperation({ summary: "Get log details - تفاصيل السجل" })
   findOne(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findOne(id, tenantId);
   }
 
   @Get(":id/verify")
   @ApiOperation({ summary: "Verify log integrity - التحقق من سلامة السجل" })
   verifyIntegrity(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.verifyLogIntegrity(id, tenantId);
   }
 
@@ -92,21 +93,21 @@ export class LogsController {
     @Body() dto: UpdateLogDto,
     @Request() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.update(id, dto, req.user?.id || "system", tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete log - حذف السجل" })
   delete(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.delete(id, tenantId);
   }
 
   @Post("sync")
   @ApiOperation({ summary: "Sync offline logs - مزامنة السجلات غير المتصلة" })
   syncOffline(@Body() logs: SyncLogDto[], @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.syncOfflineLogs(logs, req.user?.id || "system", tenantId);
   }
 }

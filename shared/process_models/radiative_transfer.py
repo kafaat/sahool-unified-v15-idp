@@ -136,9 +136,6 @@ def sail_canopy_reflectance(
     k_ex = 0.5 / max(
         0.1, math.cos(math.radians(canopy.leaf_angle_deg))
     )  # G(θ)/cos(θ_s)
-    theta_s_rad = math.radians(canopy.sun_zenith_deg)
-    theta_v_rad = math.radians(canopy.view_zenith_deg)
-
     # Beer-Lambert gap fraction
     gap_frac = math.exp(-k_ex * canopy.lai)
 

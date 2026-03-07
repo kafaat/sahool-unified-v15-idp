@@ -181,6 +181,7 @@ export class ScientificLockGuard implements CanActivate {
           lockReason: reason,
         },
       },
+      select: { id: true, tenantId: true },
     });
 
     // Log the lock action

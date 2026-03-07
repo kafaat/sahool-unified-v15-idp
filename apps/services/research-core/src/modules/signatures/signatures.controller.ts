@@ -1,6 +1,23 @@
-import { Controller, Get, Post, Body, Param, Request } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Request,
+  BadRequestException,
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { SignaturesService } from "./signatures.service";
+
+function extractTenantId(req: any): string {
+  const tenantId =
+    req.tenantId || req.user?.tenantId || req.headers?.["x-tenant-id"];
+  if (!tenantId) {
+    throw new BadRequestException("Missing tenantId");
+  }
+  return tenantId;
+}
 
 @ApiTags("signatures")
 @ApiBearerAuth()
@@ -26,7 +43,7 @@ export class SignaturesController {
       req.user?.id || "system",
       body.purpose,
       body.data,
-      req.user?.tenantId || req.headers?.["x-tenant-id"] || "",
+      extractTenantId(req),
       { ip: req.ip, userAgent: req.headers?.["user-agent"] },
     );
   }
@@ -40,8 +57,14 @@ export class SignaturesController {
       entityId: string;
       data: Record<string, unknown>;
     },
+    @Request() req: any,
   ) {
-    return this.service.verifyEntity(body.entityType, body.entityId, body.data);
+    return this.service.verifyEntity(
+      body.entityType,
+      body.entityId,
+      body.data,
+      extractTenantId(req),
+    );
   }
 
   @Get(":entityType/:entityId/history")
@@ -49,8 +72,13 @@ export class SignaturesController {
   getHistory(
     @Param("entityType") entityType: string,
     @Param("entityId") entityId: string,
+    @Request() req: any,
   ) {
-    return this.service.getSignatureHistory(entityType, entityId);
+    return this.service.getSignatureHistory(
+      entityType,
+      entityId,
+      extractTenantId(req),
+    );
   }
 
   @Post(":id/invalidate")
@@ -64,6 +92,7 @@ export class SignaturesController {
       id,
       body.reason,
       req.user?.id || "system",
+      extractTenantId(req),
     );
   }
 }

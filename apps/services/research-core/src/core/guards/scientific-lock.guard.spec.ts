@@ -68,6 +68,22 @@ describe("ScientificLockGuard", () => {
         }),
       });
     });
+
+    it("should use select to limit returned fields from experiment.update", async () => {
+      prisma.experiment.update.mockResolvedValue({
+        id: "exp-001",
+        tenantId: "tenant-001",
+      });
+      prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
+
+      await guard.lockExperiment("exp-001", "user-001");
+
+      expect(prisma.experiment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: { id: true, tenantId: true },
+        }),
+      );
+    });
   });
 
   describe("unlockExperiment", () => {

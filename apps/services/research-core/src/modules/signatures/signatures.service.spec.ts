@@ -1,4 +1,4 @@
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { SignaturesService } from "./signatures.service";
 
 describe("SignaturesService", () => {
@@ -11,6 +11,7 @@ describe("SignaturesService", () => {
       digitalSignature: {
         create: jest.fn(),
         findMany: jest.fn(),
+        findFirst: jest.fn(),
         findUnique: jest.fn(),
         update: jest.fn(),
       },
@@ -55,6 +56,19 @@ describe("SignaturesService", () => {
           purpose: "approval",
         }),
       });
+    });
+
+    it("should throw BadRequestException when tenantId is empty", async () => {
+      await expect(
+        service.signEntity(
+          "experiment",
+          "exp-001",
+          "user-001",
+          "approval",
+          {},
+          "",
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it("should pass request info when provided", async () => {
@@ -137,9 +151,25 @@ describe("SignaturesService", () => {
     it("should return not verified when no signatures found", async () => {
       prisma.digitalSignature.findMany.mockResolvedValue([]);
 
-      const result = await service.verifyEntity("experiment", "exp-001", {});
+      const result = await service.verifyEntity(
+        "experiment",
+        "exp-001",
+        {},
+        "tenant-001",
+      );
 
       expect(result.verified).toBe(false);
+    });
+
+    it("should filter by tenantId when querying signatures", async () => {
+      prisma.digitalSignature.findMany.mockResolvedValue([]);
+
+      await service.verifyEntity("experiment", "exp-001", {}, "tenant-001");
+
+      expect(prisma.digitalSignature.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({ tenantId: "tenant-001" }),
+        orderBy: { timestamp: "desc" },
+      });
     });
 
     it("should verify with the latest signature", async () => {
@@ -157,32 +187,72 @@ describe("SignaturesService", () => {
         message: "Signature verified successfully",
       });
 
-      const result = await service.verifyEntity("experiment", "exp-001", {
-        data: "test",
-      });
+      const result = await service.verifyEntity(
+        "experiment",
+        "exp-001",
+        { data: "test" },
+        "tenant-001",
+      );
 
       expect(result.verified).toBe(true);
       expect(signatureService.verifySignature).toHaveBeenCalled();
     });
   });
 
+  describe("getSignatureHistory", () => {
+    it("should filter by tenantId when querying history", async () => {
+      prisma.digitalSignature.findMany.mockResolvedValue([]);
+
+      await service.getSignatureHistory("experiment", "exp-001", "tenant-001");
+
+      expect(prisma.digitalSignature.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({ tenantId: "tenant-001" }),
+        orderBy: { timestamp: "desc" },
+      });
+    });
+  });
+
   describe("invalidateSignature", () => {
     it("should throw NotFoundException when signature not found", async () => {
-      prisma.digitalSignature.findUnique.mockResolvedValue(null);
+      prisma.digitalSignature.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.invalidateSignature("sig-999", "reason", "user-001"),
+        service.invalidateSignature("sig-999", "reason", "user-001", "tenant-001"),
       ).rejects.toThrow(NotFoundException);
     });
 
-    it("should invalidate an existing signature", async () => {
-      prisma.digitalSignature.findUnique.mockResolvedValue({ id: "sig-001" });
+    it("should scope lookup by tenantId", async () => {
+      prisma.digitalSignature.findFirst.mockResolvedValue({ id: "sig-001" });
       prisma.digitalSignature.update.mockResolvedValue({
         id: "sig-001",
         isValid: false,
       });
 
-      await service.invalidateSignature("sig-001", "Superseded", "user-001");
+      await service.invalidateSignature(
+        "sig-001",
+        "Superseded",
+        "user-001",
+        "tenant-001",
+      );
+
+      expect(prisma.digitalSignature.findFirst).toHaveBeenCalledWith({
+        where: { id: "sig-001", tenantId: "tenant-001" },
+      });
+    });
+
+    it("should invalidate an existing signature", async () => {
+      prisma.digitalSignature.findFirst.mockResolvedValue({ id: "sig-001" });
+      prisma.digitalSignature.update.mockResolvedValue({
+        id: "sig-001",
+        isValid: false,
+      });
+
+      await service.invalidateSignature(
+        "sig-001",
+        "Superseded",
+        "user-001",
+        "tenant-001",
+      );
 
       expect(prisma.digitalSignature.update).toHaveBeenCalledWith({
         where: { id: "sig-001" },

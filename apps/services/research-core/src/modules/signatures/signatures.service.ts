@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { PrismaService } from "@/config/prisma.service";
 import {
   SignatureService,
@@ -27,6 +32,10 @@ export class SignaturesService {
     tenantId: string,
     request?: { ip?: string; userAgent?: string },
   ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId is required for signature creation");
+    }
+
     this.logger.log(`Signing ${entityType}:${entityId} by user ${signerId}`);
 
     const payload: SignaturePayload = {
@@ -71,9 +80,11 @@ export class SignaturesService {
     entityType: string,
     entityId: string,
     data: Record<string, unknown>,
+    tenantId: string,
   ) {
     const signatures = await this.prisma.digitalSignature.findMany({
       where: {
+        tenantId,
         entityType,
         entityId,
         isValid: true,
@@ -120,9 +131,13 @@ export class SignaturesService {
    * Get signature history for an entity
    * الحصول على تاريخ التوقيعات لكيان
    */
-  async getSignatureHistory(entityType: string, entityId: string) {
+  async getSignatureHistory(
+    entityType: string,
+    entityId: string,
+    tenantId: string,
+  ) {
     return this.prisma.digitalSignature.findMany({
-      where: { entityType, entityId },
+      where: { tenantId, entityType, entityId },
       orderBy: { timestamp: "desc" },
     });
   }
@@ -131,9 +146,14 @@ export class SignaturesService {
    * Invalidate a signature
    * إبطال توقيع
    */
-  async invalidateSignature(id: string, reason: string, userId: string) {
-    const signature = await this.prisma.digitalSignature.findUnique({
-      where: { id },
+  async invalidateSignature(
+    id: string,
+    reason: string,
+    userId: string,
+    tenantId: string,
+  ) {
+    const signature = await this.prisma.digitalSignature.findFirst({
+      where: { id, tenantId },
     });
 
     if (!signature) {

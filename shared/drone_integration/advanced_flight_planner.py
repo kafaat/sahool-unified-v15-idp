@@ -206,11 +206,33 @@ class DroneFlightPlanner:
 
         waypoints = []
 
+        # Boustrophedon (serpentine/lawnmower) waypoint pattern.
+        # Lines run north–south; flight direction alternates each pass.
+        # Approximate conversions: 1 m ≈ 1/111111 deg lat, 1 m ≈ 1/(111111·cos(lat)) deg lon.
+        DEG_PER_METER_LAT = 1.0 / 111_111.0
+        deg_per_meter_lon = 1.0 / (111_111.0 * max(math.cos(math.radians(center_lat)), 1e-6))
+
+        half_side_lat = (side_m / 2.0) * DEG_PER_METER_LAT
+        line_spacing_deg = side_m * deg_per_meter_lon / max(flight_lines, 1)
+
         for i in range(flight_lines):
+            line_lon = center_lon - (side_m / 2.0) * deg_per_meter_lon + (i + 0.5) * line_spacing_deg
             if i % 2 == 0:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                # Even lines: fly south→north
+                waypoints.append(Waypoint(
+                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
+                waypoints.append(Waypoint(
+                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
             else:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                # Odd lines: fly north→south (reversed direction)
+                waypoints.append(Waypoint(
+                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
+                waypoints.append(Waypoint(
+                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
 
         return FlightPlan(
             plan_id=f"FLT-{field_id}-{datetime.now().strftime('%Y%m%d%H%M')}",

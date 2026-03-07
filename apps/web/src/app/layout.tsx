@@ -6,8 +6,7 @@ import { Providers } from "./providers";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { getDirection, type Locale } from "@sahool/i18n";
 
-// Use CSS variable for font family — Tajawal loaded via globals.css @import
-// This avoids next/font/google build failures in offline/CI environments
+// Use CSS variable for font family — Tajawal loaded non-blocking via <link> in <head>
 const tajawal = { variable: "--font-tajawal" };
 
 export const metadata: Metadata = {
@@ -47,6 +46,26 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={direction} className={tajawal.variable}>
       <head>
+        {/*
+          Tajawal Arabic font loaded asynchronously — not render-blocking.
+          Uses preconnect + media="print" with onLoad swap trick so the font
+          download does not delay first paint. Fallback fonts apply immediately.
+        */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+          media="print"
+          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
+          onLoad="this.media='all'"
+        />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+          />
+        </noscript>
         {/*
           Leaflet CSS loaded asynchronously - not render-blocking.
           Uses media="print" with onLoad swap trick for non-blocking CSS.

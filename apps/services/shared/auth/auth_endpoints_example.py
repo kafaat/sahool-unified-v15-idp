@@ -162,8 +162,11 @@ async def login(
 
     # Log login attempt for security monitoring
     logger.info(
-        f"Login attempt - Email: {credentials.email}, IP: {request.client.host}, "
-        f"Remaining: {remaining}/{limit}"
+        "Login attempt - Email: %s, IP: %s, Remaining: %d/%d",
+        str(credentials.email).replace("\n", " ").replace("\r", " "),
+        str(request.client.host).replace("\n", " ").replace("\r", " "),
+        remaining,
+        limit,
     )
 
     # TODO: Implement actual authentication logic

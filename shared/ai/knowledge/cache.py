@@ -108,11 +108,8 @@ class KnowledgeCache:
     def invalidate_collection(self, collection: str) -> int:
         """Invalidate all cached entries for a collection.
         إبطال جميع الإدخالات المخزنة مؤقتا لمجموعة معينة"""
-        # Collection info is embedded in the cache key via make_key,
-        # so we search for keys whose entries contain the collection marker.
-        # Since keys are hashes, we maintain a reverse index approach:
-        # iterate and check entries whose key was built with this collection.
-        # For efficiency, we use prefix-based invalidation with the collection hash segment.
+        # Collection name is stored in the CacheEntry.key field (the original un-hashed key).
+        # We iterate all entries and remove those whose original key contains the collection name.
         keys_to_remove = []
         for key, entry in self._cache.items():
             # Check if this entry's key incorporates the collection

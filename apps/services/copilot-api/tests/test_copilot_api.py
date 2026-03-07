@@ -239,12 +239,12 @@ class TestMultiLLMProviderDetection:
         settings = Settings()
 
         # Ollama should always be listed
-        providers = (
+        available_providers = (
             settings.get_available_providers()
             if hasattr(settings, "get_available_providers")
             else []
         )
-        # In production, this would check actual providers
+        assert isinstance(available_providers, list)
 
 
 class TestConfigSettings:

@@ -245,6 +245,7 @@ class TestMultiLLMProviderDetection:
             else []
         )
         assert isinstance(available_providers, list)
+        assert "ollama" in available_providers
 
 
 class TestConfigSettings:

@@ -312,7 +312,7 @@ async def record_consent(
         "Consent recorded: user=%s, purpose=%s, granted=%s",
         str(consent.user_id).replace("\n", " ").replace("\r", " "),
         str(consent.purpose).replace("\n", " ").replace("\r", " "),
-        consent.granted,
+        bool(consent.granted),
     )
 
     return ConsentResponse(user_id=consent.user_id, consents=[consent.model_dump()])

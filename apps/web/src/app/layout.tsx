@@ -57,8 +57,7 @@ export default async function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
           media="print"
-          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
-          onLoad="this.media='all'"
+          onLoad={(e: React.SyntheticEvent<HTMLLinkElement>) => { e.currentTarget.media = 'all'; }}
         />
         <noscript>
           <link
@@ -77,8 +76,7 @@ export default async function RootLayout({
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin="anonymous"
           media="print"
-          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
-          onLoad="this.media='all'"
+          onLoad={(e: React.SyntheticEvent<HTMLLinkElement>) => { e.currentTarget.media = 'all'; }}
         />
         <noscript>
           <link

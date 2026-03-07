@@ -53,12 +53,12 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-# 1. Install compile-time deps needed by nestjs-auth (@liaoliaots/nestjs-redis@10
-#    is required for @nestjs/common@10.x peer dep resolution)
+# 1. Install compile-time deps needed by nestjs-auth (@liaoliaots/nestjs-redis@9
+#    satisfies the ^9.0.0 peer dep declared in nestjs-auth/package.json)
 # 2. Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
 # 3. Run tsc with local binary, falling back to npx if not found
 RUN npm install --no-save --legacy-peer-deps \
-    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 && \
+    typescript@5.9.3 "@liaoliaots/nestjs-redis@9" ioredis@5 && \
     ln -sf /workspace/crop-growth-model/node_modules /workspace/nestjs-auth/node_modules && \
     (/workspace/crop-growth-model/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
      npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \

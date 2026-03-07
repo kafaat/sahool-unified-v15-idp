@@ -4,6 +4,7 @@ Tests for JWT Configuration
 """
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -51,7 +52,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -63,7 +64,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -75,7 +76,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -87,7 +88,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -99,7 +100,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -111,7 +112,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -122,7 +123,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -135,7 +136,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -147,7 +148,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -159,7 +160,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -171,7 +172,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -183,7 +184,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -195,7 +196,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -207,7 +208,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -218,7 +219,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -231,7 +232,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -245,7 +246,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -261,7 +262,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -276,7 +277,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -290,7 +291,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -304,7 +305,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -317,7 +318,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -329,7 +330,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -340,7 +341,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -355,7 +356,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -370,7 +371,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -385,7 +386,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -400,7 +401,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -415,7 +416,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -431,7 +432,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -447,7 +448,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -463,7 +464,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -479,7 +480,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -500,7 +501,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -514,7 +515,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -536,7 +537,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -551,7 +552,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -577,7 +578,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -589,7 +590,7 @@ class TestJWTConfig:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", str(Path(__file__).parents[3] / "shared" / "auth" / "config.py")
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

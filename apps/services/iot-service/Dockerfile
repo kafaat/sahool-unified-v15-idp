@@ -80,11 +80,11 @@ LABEL service="iot-service"
 LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
-# Install curl for healthcheck and OpenSSL for Prisma native query engine
+# Install curl for healthcheck, OpenSSL for Prisma, and tini for signal handling
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends curl openssl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends curl openssl tini && \
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 WORKDIR /app
 
@@ -140,12 +140,10 @@ COPY --from=builder /workspace/iot-service/node_modules/@prisma/client ./node_mo
 # Copy built application
 COPY --from=builder /workspace/iot-service/dist ./dist
 
-# Create non-root user
-RUN groupadd -g 1001 nodejs && \
-    useradd -u 1001 -g nodejs -s /bin/bash -m nodejs && \
-    chown -R nodejs:nodejs /app
+# Use built-in node user (UID 1000, already exists in node:*-bookworm-slim)
+RUN chown -R node:node /app
 
-USER nodejs
+USER node
 
 # Environment
 ENV NODE_ENV=production \
@@ -157,6 +155,12 @@ EXPOSE 8117
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8117/health || exit 1
+
+# Signal handling
+STOPSIGNAL SIGTERM
+
+# Init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run application
 CMD ["node", "dist/main.js"]

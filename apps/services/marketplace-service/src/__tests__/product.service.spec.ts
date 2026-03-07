@@ -14,6 +14,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { MarketService } from "../market/market.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { CacheService } from "../cache/cache.service";
 import { NotFoundException } from "@nestjs/common";
 
 describe("MarketService - Product Operations", () => {
@@ -45,6 +46,18 @@ describe("MarketService - Product Operations", () => {
     publishInventoryLowStock: jest.fn(),
   };
 
+  const mockCacheService = {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
+    delByPattern: jest.fn().mockResolvedValue(undefined),
+    getOrSet: jest.fn(),
+    invalidateProduct: jest.fn().mockResolvedValue(undefined),
+    invalidateWallet: jest.fn().mockResolvedValue(undefined),
+    invalidateOrder: jest.fn().mockResolvedValue(undefined),
+    isHealthy: jest.fn().mockResolvedValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -56,6 +69,10 @@ describe("MarketService - Product Operations", () => {
         {
           provide: EventsService,
           useValue: mockEventsService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -112,7 +129,7 @@ describe("MarketService - Product Operations", () => {
       const result = await service.findAllProducts({});
 
       expect(result.data).toEqual(mockProducts);
-      expect(result.total).toBe(2);
+      expect(result.meta.total).toBe(2);
       expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { status: "AVAILABLE" },
@@ -203,7 +220,7 @@ describe("MarketService - Product Operations", () => {
       mockPrismaService.product.findMany.mockResolvedValue([]);
       mockPrismaService.product.count.mockResolvedValue(100);
 
-      await service.findAllProducts({ page: 2, pageSize: 20 });
+      await service.findAllProducts({ page: 2, limit: 20 });
 
       expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -611,12 +628,14 @@ describe("MarketService - Product Operations", () => {
 
       const result = await service.getMarketStats();
 
-      expect(result).toEqual({
-        totalProducts: 150,
-        totalHarvests: 45,
-        totalOrders: 320,
-        recentProducts: recentProducts,
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          totalProducts: 150,
+          totalHarvests: 45,
+          totalOrders: 320,
+          recentProducts: recentProducts,
+        }),
+      );
     });
 
     it("should handle empty marketplace", async () => {
@@ -629,12 +648,14 @@ describe("MarketService - Product Operations", () => {
 
       const result = await service.getMarketStats();
 
-      expect(result).toEqual({
-        totalProducts: 0,
-        totalHarvests: 0,
-        totalOrders: 0,
-        recentProducts: [],
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          totalProducts: 0,
+          totalHarvests: 0,
+          totalOrders: 0,
+          recentProducts: [],
+        }),
+      );
     });
   });
 
@@ -665,10 +686,10 @@ describe("MarketService - Product Operations", () => {
       );
       mockPrismaService.product.count.mockResolvedValue(1000);
 
-      const result = await service.findAllProducts({ page: 1, pageSize: 20 });
+      const result = await service.findAllProducts({ page: 1, limit: 20 });
 
       expect(result.data).toHaveLength(20);
-      expect(result.total).toBe(1000);
+      expect(result.meta.total).toBe(1000);
     });
 
     it("should handle products with special characters in names", async () => {

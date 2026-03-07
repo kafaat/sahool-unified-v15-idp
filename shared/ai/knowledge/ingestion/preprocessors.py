@@ -25,8 +25,15 @@ class ArabicTextPreprocessor:
     _TATWEEL = re.compile(r"\u0640")
     _EXTRA_SPACES = re.compile(r"\s+")
 
-    def normalize(self, text: str) -> str:
-        """Apply standard Arabic text normalization."""
+    def normalize(self, text: str, normalize_taa_marbuta: bool = False) -> str:
+        """Apply standard Arabic text normalization.
+
+        Args:
+            text: Arabic text to normalize
+            normalize_taa_marbuta: If True, normalize taa marbuta (ة→ه).
+                Disabled by default as it can change word meaning
+                (e.g., مدرسة→مدرسه). Enable only for search indexing.
+        """
         if not text:
             return text
 
@@ -39,8 +46,9 @@ class ArabicTextPreprocessor:
         # Normalize alef variants
         text = self._ALEF_VARIANTS.sub("ا", text)
 
-        # Normalize taa marbuta
-        text = text.replace("ة", "ه")
+        # Normalize taa marbuta (optional - can change meaning)
+        if normalize_taa_marbuta:
+            text = text.replace("ة", "ه")
 
         # Normalize alef maqsura
         text = text.replace("ى", "ي")
@@ -241,6 +249,19 @@ class MetadataEnricher:
             "RTK",
             "معدل متغير",
             "خريطة إنتاجية",
+        ],
+        KnowledgeDomain.DIGITAL_TWIN: [
+            "digital twin",
+            "simulation",
+            "virtual model",
+            "3D model",
+            "cyber-physical",
+            "real-time replica",
+            "farm simulation",
+            "توأم رقمي",
+            "محاكاة",
+            "نموذج افتراضي",
+            "نسخة رقمية",
         ],
     }
 

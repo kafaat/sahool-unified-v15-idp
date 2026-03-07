@@ -608,6 +608,20 @@ SAHOOL_SPRAY_ALL = "sahool.spray.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Knowledge Base Events
+# أحداث قاعدة المعرفة
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_KNOWLEDGE_DOCUMENT_INGESTED = "sahool.knowledge.document_ingested"
+SAHOOL_KNOWLEDGE_DOCUMENT_VERIFIED = "sahool.knowledge.document_verified"
+SAHOOL_KNOWLEDGE_DOCUMENT_EXPIRED = "sahool.knowledge.document_expired"
+SAHOOL_KNOWLEDGE_COLLECTION_POPULATED = "sahool.knowledge.collection_populated"
+SAHOOL_KNOWLEDGE_INGESTION_FAILED = "sahool.knowledge.ingestion_failed"
+
+SAHOOL_KNOWLEDGE_ALL = "sahool.knowledge.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Utility Functions
 # ─────────────────────────────────────────────────────────────────────────────
 

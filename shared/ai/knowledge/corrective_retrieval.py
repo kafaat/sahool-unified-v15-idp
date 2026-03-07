@@ -96,6 +96,15 @@ class CRAGResult:
         }
 
 
+class SemanticSimilarityProvider:
+    """Protocol for semantic similarity providers (GAP-18).
+    بروتوكول لمزودي التشابه الدلالي"""
+
+    def similarity(self, text_a: str, text_b: str) -> float:
+        """Compute semantic similarity between two texts (0.0 to 1.0)."""
+        raise NotImplementedError
+
+
 class CorrectiveRetrievalEngine:
     """CRAG-based engine for evaluating and refining retrieved knowledge chunks.
 
@@ -110,6 +119,7 @@ class CorrectiveRetrievalEngine:
     - Freshness scoring for time-sensitive agricultural advice
     - Knowledge refinement (sentence-level filtering)
     - Bilingual (AR/EN) support
+    - Optional semantic similarity via EmbeddingsAdapter (GAP-18)
     """
 
     # Relevance thresholds
@@ -124,6 +134,10 @@ class CorrectiveRetrievalEngine:
         "fertilizer": ["nitrogen", "phosphorus", "potassium", "urea", "NPK", "سماد", "نيتروجين"],
         "soil": ["pH", "EC", "organic matter", "texture", "drainage", "تربة", "حموضة"],
         "weather": ["temperature", "rainfall", "frost", "drought", "wind", "حرارة", "أمطار", "جفاف"],
+        "remote_sensing": ["NDVI", "satellite", "Sentinel", "LAI", "spectral", "استشعار عن بعد", "قمر صناعي"],
+        "smart_agriculture": ["IoT", "drone", "sensor", "blockchain", "edge", "إنترنت الأشياء", "مزرعة ذكية"],
+        "precision_farming": ["VRA", "variable rate", "GPS", "RTK", "yield map", "زراعة دقيقة", "معدل متغير"],
+        "digital_twin": ["digital twin", "simulation", "virtual model", "3D", "توأم رقمي", "محاكاة", "نموذج افتراضي"],
     }
 
     # Safety-critical keywords that boost relevance for safety queries
@@ -139,11 +153,13 @@ class CorrectiveRetrievalEngine:
         ambiguous_threshold: float = 0.4,
         max_refined_chunks: int = 10,
         min_sentence_relevance: float = 0.3,
+        semantic_provider: SemanticSimilarityProvider | None = None,
     ) -> None:
         self.CORRECT_THRESHOLD = correct_threshold
         self.AMBIGUOUS_THRESHOLD = ambiguous_threshold
         self._max_refined = max_refined_chunks
         self._min_sentence_relevance = min_sentence_relevance
+        self._semantic_provider = semantic_provider
 
     def evaluate_and_refine(
         self,
@@ -286,7 +302,12 @@ class CorrectiveRetrievalEngine:
     def _score_chunk_relevance(
         self, query: str, chunk: dict[str, Any], query_domain: str
     ) -> float:
-        """Score a single chunk's relevance to the query."""
+        """Score a single chunk's relevance to the query.
+
+        When a semantic_provider is configured (GAP-18), uses embedding-based
+        similarity instead of word overlap for more accurate scoring of
+        paraphrased or multilingual content.
+        """
         content = chunk.get("content", "") or chunk.get("text", "")
         metadata = chunk.get("metadata", {})
 
@@ -297,12 +318,25 @@ class CorrectiveRetrievalEngine:
         query_lower = query.lower()
         content_lower = content.lower()
 
-        # 1. Term overlap (word-level)
-        query_words = set(query_lower.split())
-        content_words = set(content_lower.split())
-        if query_words:
-            overlap = len(query_words & content_words) / len(query_words)
-            score += 0.3 * overlap
+        # 1. Term overlap or semantic similarity
+        if self._semantic_provider:
+            # GAP-18: Use semantic similarity for better paraphrase handling
+            try:
+                sem_score = self._semantic_provider.similarity(query, content[:2000])
+                score += 0.3 * min(1.0, sem_score)
+            except Exception:
+                # Fallback to keyword-based if semantic provider fails
+                query_words = set(query_lower.split())
+                content_words = set(content_lower.split())
+                if query_words:
+                    overlap = len(query_words & content_words) / len(query_words)
+                    score += 0.3 * overlap
+        else:
+            query_words = set(query_lower.split())
+            content_words = set(content_lower.split())
+            if query_words:
+                overlap = len(query_words & content_words) / len(query_words)
+                score += 0.3 * overlap
 
         # 2. Domain signal matching
         if query_domain and query_domain in self._DOMAIN_SIGNALS:
@@ -530,6 +564,10 @@ class CorrectiveRetrievalEngine:
             "soil": [FERTILIZER_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
             "weather": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
             "remote_sensing": [CROP_KNOWLEDGE, GENERAL_AGRICULTURE],
+            "smart_agriculture": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "precision_farming": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "digital_twin": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, GENERAL_AGRICULTURE],
+            "general": [CROP_KNOWLEDGE, IRRIGATION_PRACTICES, PEST_KNOWLEDGE],
         }
 
         suggestions = fallback_map.get(query_domain, [GENERAL_AGRICULTURE])

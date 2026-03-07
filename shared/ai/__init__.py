@@ -29,8 +29,18 @@ Modules:
     - models_registry: Agricultural AI Models Registry (50+ models from global institutions)
     - guardrails: Tool guardrails for safe AI operations
 
+    - feedback_training_pipeline: Unified feedback→training→experience pipeline
+    - knowledge_service_bridge: Service-level knowledge base access
+    - agent_orchestration_bridge: Reliable agent orchestration with circuit breakers
+    - vision_knowledge_bridge: CropVision→Knowledge Base integration
+    - mcp_rag_bridge: MCP server→UltraRAG tool integration
+    - arabic_models: Arabic-specialized model configurations
+    - unified_embeddings: Consistent embeddings across all AI layers
+    - training_orchestrator: Model training and GRPO fine-tuning orchestration
+    - ab_testing: A/B testing for models and RAG configurations
+
 Author: SAHOOL Platform Team
-Updated: January 2026
+Updated: March 2026
 """
 
 # Audit logging
@@ -377,7 +387,119 @@ from .vector_store import (
     SearchResult as VectorSearchResult,
 )
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"
+
+# ─── New Bridge & Integration Modules (Gap Fixes) ───────────────────────────
+
+# Arabic model configurations (G-02)
+try:
+    from .arabic_models import (
+        ARABIC_MODELS,
+        ArabicModelConfig,
+        ArabicModelTask,
+        get_arabic_embedding_model,
+        get_arabic_model,
+        get_recommended_models_for_agriculture,
+    )
+    from .arabic_models import (
+        list_arabic_models as list_arabic_model_configs,
+    )
+
+    ARABIC_MODELS_AVAILABLE = True
+except ImportError:
+    ARABIC_MODELS_AVAILABLE = False
+
+# Unified embeddings consistency (G-05)
+try:
+    from .unified_embeddings import (
+        EmbeddingConsistencyConfig,
+        UnifiedEmbeddingsManager,
+        get_unified_embeddings,
+    )
+
+    UNIFIED_EMBEDDINGS_AVAILABLE = True
+except ImportError:
+    UNIFIED_EMBEDDINGS_AVAILABLE = False
+
+# Feedback-training pipeline (G-07, G-12)
+try:
+    from .feedback_training_pipeline import (
+        FeedbackTrainingPipeline,
+        get_feedback_training_pipeline,
+    )
+
+    FEEDBACK_TRAINING_AVAILABLE = True
+except ImportError:
+    FEEDBACK_TRAINING_AVAILABLE = False
+
+# Knowledge service bridge (G-04, G-09)
+try:
+    from .knowledge_service_bridge import (
+        KnowledgeServiceBridge,
+        get_knowledge_bridge,
+    )
+
+    KNOWLEDGE_BRIDGE_AVAILABLE = True
+except ImportError:
+    KNOWLEDGE_BRIDGE_AVAILABLE = False
+
+# Agent orchestration bridge (G-10, G-14, G-24)
+try:
+    from .agent_orchestration_bridge import (
+        OrchestrationManager,
+        get_orchestration_manager,
+    )
+
+    AGENT_ORCHESTRATION_BRIDGE_AVAILABLE = True
+except ImportError:
+    AGENT_ORCHESTRATION_BRIDGE_AVAILABLE = False
+
+# Vision-knowledge bridge (G-11)
+try:
+    from .vision_knowledge_bridge import (
+        VisionKnowledgeBridge,
+        VisionKnowledgeResult,
+    )
+
+    VISION_KNOWLEDGE_BRIDGE_AVAILABLE = True
+except ImportError:
+    VISION_KNOWLEDGE_BRIDGE_AVAILABLE = False
+
+# MCP-RAG bridge (G-19)
+try:
+    from .mcp_rag_bridge import (
+        MCPRAGBridge,
+        create_mcp_rag_bridge,
+    )
+
+    MCP_RAG_BRIDGE_AVAILABLE = True
+except ImportError:
+    MCP_RAG_BRIDGE_AVAILABLE = False
+
+# Training orchestrator (G-13, G-18)
+try:
+    from .training_orchestrator import (
+        TrainingOrchestrator,
+        TrainingOrchestratorJob,
+        get_training_orchestrator,
+    )
+
+    TRAINING_ORCHESTRATOR_AVAILABLE = True
+except ImportError:
+    TRAINING_ORCHESTRATOR_AVAILABLE = False
+
+# A/B testing (G-16, G-17)
+try:
+    from .ab_testing import (
+        ABTest,
+        ABTestManager,
+        ABTestResult,
+        ABTestStatus,
+    )
+
+    AB_TESTING_AVAILABLE = True
+except ImportError:
+    AB_TESTING_AVAILABLE = False
 
 __all__ = [
     # Context Engineering - Compression
@@ -991,3 +1113,61 @@ if QUALITY_ORCHESTRATOR_AVAILABLE:
             "QUALITY_ORCHESTRATOR_AVAILABLE",
         ]
     )
+
+# ─── New Bridge & Integration Module Exports ────────────────────────────────
+
+if ARABIC_MODELS_AVAILABLE:
+    __all__.extend([
+        "ArabicModelConfig", "ArabicModelTask", "ARABIC_MODELS",
+        "get_arabic_model", "get_arabic_embedding_model",
+        "list_arabic_model_configs", "get_recommended_models_for_agriculture",
+        "ARABIC_MODELS_AVAILABLE",
+    ])
+
+if UNIFIED_EMBEDDINGS_AVAILABLE:
+    __all__.extend([
+        "UnifiedEmbeddingsManager", "EmbeddingConsistencyConfig",
+        "get_unified_embeddings", "UNIFIED_EMBEDDINGS_AVAILABLE",
+    ])
+
+if FEEDBACK_TRAINING_AVAILABLE:
+    __all__.extend([
+        "FeedbackTrainingPipeline", "get_feedback_training_pipeline",
+        "FEEDBACK_TRAINING_AVAILABLE",
+    ])
+
+if KNOWLEDGE_BRIDGE_AVAILABLE:
+    __all__.extend([
+        "KnowledgeServiceBridge", "get_knowledge_bridge",
+        "KNOWLEDGE_BRIDGE_AVAILABLE",
+    ])
+
+if AGENT_ORCHESTRATION_BRIDGE_AVAILABLE:
+    __all__.extend([
+        "OrchestrationManager", "get_orchestration_manager",
+        "AGENT_ORCHESTRATION_BRIDGE_AVAILABLE",
+    ])
+
+if VISION_KNOWLEDGE_BRIDGE_AVAILABLE:
+    __all__.extend([
+        "VisionKnowledgeBridge", "VisionKnowledgeResult",
+        "VISION_KNOWLEDGE_BRIDGE_AVAILABLE",
+    ])
+
+if MCP_RAG_BRIDGE_AVAILABLE:
+    __all__.extend([
+        "MCPRAGBridge", "create_mcp_rag_bridge",
+        "MCP_RAG_BRIDGE_AVAILABLE",
+    ])
+
+if TRAINING_ORCHESTRATOR_AVAILABLE:
+    __all__.extend([
+        "TrainingOrchestrator", "TrainingOrchestratorJob",
+        "get_training_orchestrator", "TRAINING_ORCHESTRATOR_AVAILABLE",
+    ])
+
+if AB_TESTING_AVAILABLE:
+    __all__.extend([
+        "ABTestManager", "ABTest", "ABTestResult", "ABTestStatus",
+        "AB_TESTING_AVAILABLE",
+    ])

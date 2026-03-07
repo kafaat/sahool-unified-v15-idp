@@ -7,10 +7,6 @@ ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
-LABEL maintainer="SAHOOL Team"
-LABEL service="lai-estimation"
-LABEL version="16.0.0"
-
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 
@@ -30,6 +26,12 @@ WORKDIR /workspace/lai-estimation
 
 # Replace workspace dependency with local file path for Docker build
 RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
+
+# Disable nestjs-auth prepare script to prevent premature tsc build during install
+# (nestjs-auth is built explicitly in a later step with proper peer deps available)
+WORKDIR /workspace/nestjs-auth
+RUN npm pkg delete scripts.prepare
+WORKDIR /workspace/lai-estimation
 
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
@@ -51,11 +53,11 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
-RUN cd /workspace/nestjs-auth && \
-    ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    (echo "ERROR: nestjs-auth build failed" && exit 1)
+# Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
+RUN ln -sf /workspace/lai-estimation/node_modules /workspace/nestjs-auth/node_modules && \
+    (/workspace/lai-estimation/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
+     (echo "ERROR: nestjs-auth build failed" && exit 1))
 
 # Build the application
 RUN npx nest build
@@ -63,16 +65,19 @@ RUN npx nest build
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
-# Re-declare build arg for this stage
-ARG NODE_VERSION=20
+LABEL maintainer="SAHOOL Team" \
+      service="lai-estimation" \
+      version="16.0.0" \
+      org.opencontainers.image.title="SAHOOL LAI Estimation Service" \
+      org.opencontainers.image.vendor="KAFAAT"
 
 WORKDIR /app
 
-# Install curl for health checks
+# Install curl for health checks and tini for proper signal handling
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends curl tini && \
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Copy only nestjs-auth dist + package.json for runtime (avoid builder's node_modules symlink)
 # Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
@@ -127,8 +132,14 @@ USER node
 ENV NODE_ENV=production
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:3022/healthz || exit 1
+
+# Signal handling
+STOPSIGNAL SIGTERM
+
+# Init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run the application
 CMD ["node", "dist/main.js"]

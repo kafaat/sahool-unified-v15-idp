@@ -103,8 +103,8 @@ generate_userlist() {
 "${DB_USER}" "${DB_PASSWORD}"
 
 ;; Admin users for PgBouncer admin console (same password for simplicity)
-"pgbouncer_admin" "${DB_PASSWORD}"
-"pgbouncer_stats" "${DB_PASSWORD}"
+"pgbouncer_admin" "${PGBOUNCER_ADMIN_PASSWORD:-${DB_PASSWORD}}"
+"pgbouncer_stats" "${PGBOUNCER_STATS_PASSWORD:-${DB_PASSWORD}}"
 EOF
 
     # Set proper permissions (readable by pgbouncer process)

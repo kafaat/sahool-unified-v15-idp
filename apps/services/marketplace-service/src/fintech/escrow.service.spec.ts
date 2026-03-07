@@ -141,7 +141,9 @@ describe("EscrowService", () => {
 
       expect(result.duplicate).toBe(false);
       expect(result.escrow.status).toBe("HELD");
-      expect(result.wallet.balance).toBe(4000);
+      // Non-duplicate branch includes wallet details
+      const nonDupResult = result as typeof result & { wallet: { balance: number } };
+      expect(nonDupResult.wallet.balance).toBe(4000);
     });
 
     it("should throw error if escrow already exists for order", async () => {
@@ -323,7 +325,9 @@ describe("EscrowService", () => {
 
       expect(result.duplicate).toBe(false);
       expect(result.escrow.status).toBe("REFUNDED");
-      expect(result.wallet.balance).toBe(6000);
+      // Non-duplicate branch includes wallet details
+      const nonDupResult = result as typeof result & { wallet: { balance: number } };
+      expect(nonDupResult.wallet.balance).toBe(6000);
     });
 
     it("should allow refund of disputed escrow", async () => {
@@ -612,8 +616,9 @@ describe("EscrowService", () => {
           creditEvent: {
             create: jest.fn().mockResolvedValue({}),
           },
-          $queryRaw: jest.fn().mockImplementation((query) => {
-            if (query.includes("buyer")) {
+          $queryRaw: jest.fn().mockImplementation((_strings, ...values) => {
+            const walletId = values[0];
+            if (walletId === "buyer-wallet") {
               return Promise.resolve([
                 {
                   id: "buyer-wallet",
@@ -680,13 +685,14 @@ describe("EscrowService", () => {
               status: "HELD",
             }),
           },
-          $queryRaw: jest.fn().mockImplementation((query) => {
-            if (query.includes("buyer")) {
+          $queryRaw: jest.fn().mockImplementation((_strings, ...values) => {
+            const walletId = values[0];
+            if (walletId === "buyer-wallet") {
               return Promise.resolve([
                 {
                   id: "buyer-wallet",
                   balance: 5000,
-                  escrowBalance: 500, // Less than escrow amount
+                  escrowBalance: 500,
                   version: 1,
                 },
               ]);
@@ -1072,9 +1078,8 @@ describe("EscrowService", () => {
 
     describe("Authorization & Access Control", () => {
       it("should verify order ownership before escrow operations", async () => {
-        // This test simulates controller-level authorization
-        const userId = "user-123";
-        const orderBuyerId = "user-456";
+        const userId: string = "user-123";
+        const orderBuyerId: string = "user-456";
 
         const isAuthorized = userId === orderBuyerId;
         expect(isAuthorized).toBe(false);
@@ -1174,8 +1179,11 @@ describe("EscrowService", () => {
           1000,
         );
 
-        expect(result.wallet.balance).toBe(4000);
-        expect(result.wallet.escrowBalance).toBe(1000);
+        expect(result.duplicate).toBe(false);
+        // Non-duplicate branch includes wallet details
+        const nonDupResult = result as typeof result & { wallet: { balance: number; escrowBalance: number } };
+        expect(nonDupResult.wallet.balance).toBe(4000);
+        expect(nonDupResult.wallet.escrowBalance).toBe(1000);
       });
     });
   });

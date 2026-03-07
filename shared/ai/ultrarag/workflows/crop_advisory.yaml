@@ -88,10 +88,28 @@ steps:
       top_k: "${default_rerank_k}"
       method: cross_encoder
       model: cross-encoder/ms-marco-MiniLM-L-6-v2
-    next_step: check_confidence
+    next_step: crag_evaluate
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # Step 6: Check Confidence
+  # Step 6: CRAG - Corrective Retrieval Evaluation
+  # الاسترجاع التصحيحي المعزز للتوليد
+  # ═══════════════════════════════════════════════════════════════════════════
+  - id: crag_evaluate
+    type: crag
+    name: Evaluate retrieval quality (CRAG)
+    config:
+      domain: crops
+      region: "${region}"
+      correct_threshold: 0.7
+      ambiguous_threshold: 0.4
+      max_refined_chunks: 8
+      on_correct: generate_advisory
+      on_ambiguous: generate_advisory
+      on_incorrect: fallback_search
+    next_step: generate_advisory
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Step 6b: Check Confidence (legacy fallback)
   # ═══════════════════════════════════════════════════════════════════════════
   - id: check_confidence
     type: condition

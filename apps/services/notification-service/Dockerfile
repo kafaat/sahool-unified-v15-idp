@@ -62,8 +62,8 @@ ENV PATH=/home/sahool/.local/bin:$PATH
 # Copy root shared modules first (shared.cache, shared.middleware.security_headers, etc.)
 COPY --chown=sahool:sahool shared/ ./shared/
 
-# Copy services shared modules overlay (shared.errors_py, shared.logging_config, etc.)
-COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+# Copy services shared modules (merge into shared/ without overwriting root modules)
+COPY --chown=sahool:sahool apps/services/shared/ ./services_shared/
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/
@@ -79,4 +79,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')" || exit 1
 
 # Run the application (uses PORT environment variable)
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8110"]

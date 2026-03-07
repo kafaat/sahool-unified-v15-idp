@@ -49,29 +49,21 @@ scrape_configs:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # PostgreSQL Database - قاعدة البيانات المكانية
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['postgres:5432']
-        labels:
-          tier: 'infrastructure'
-          component: 'database'
-          service: 'postgres'
-          description: 'PostGIS Spatial Database'
-          description_ar: 'قاعدة البيانات المكانية PostGIS'
-    metrics_path: /metrics
-    scrape_interval: 30s
+  # NOTE: PostgreSQL does not natively expose /metrics on port 5432.
+  # Use postgres_exporter (e.g., wrouesnel/postgres_exporter) to expose metrics.
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+  #   metrics_path: /metrics
+  #   scrape_interval: 30s
 
   # Redis Cache - ذاكرة التخزين المؤقت
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis:6379']
-        labels:
-          tier: 'infrastructure'
-          component: 'cache'
-          service: 'redis'
-          description: 'Redis Cache & Session Store'
-          description_ar: 'ذاكرة التخزين المؤقت والجلسات'
-    scrape_interval: 30s
+  # NOTE: Redis does not natively expose Prometheus metrics on port 6379.
+  # Use redis_exporter (e.g., oliver006/redis_exporter) to expose metrics.
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+  #   scrape_interval: 30s
 
   # NATS Message Queue - نظام الرسائل
   - job_name: 'nats'
@@ -141,47 +133,27 @@ scrape_configs:
   # Core Geospatial Service - خدمة الحقول الجغرافية
   # ─────────────────────────────────────────────────────────────────────────────
 
-  - job_name: 'field-core'
-    static_configs:
-      - targets: ['field_core:3000']
-        labels:
-          tier: 'core'
-          component: 'geospatial'
-          service: 'field-core'
-          language: 'nodejs'
-          description: 'Field Core Geospatial Service'
-          description_ar: 'خدمة الحقول الجغرافية الأساسية'
-    metrics_path: /metrics
+  # DEPRECATED: field-core has been replaced by field-management-service
+  # - job_name: 'field-core'
+  #   static_configs:
+  #     - targets: ['field_core:3000']
+  #   metrics_path: /metrics
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Application Services (Python/FastAPI) - خدمات التطبيق
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Field Operations - عمليات الحقول
-  - job_name: 'field-ops'
-    static_configs:
-      - targets: ['field_ops:8080']
-        labels:
-          tier: 'application'
-          component: 'field-management'
-          service: 'field-ops'
-          language: 'python'
-          description: 'Field Operations Service'
-          description_ar: 'خدمة عمليات الحقول'
-    metrics_path: /metrics
+  # DEPRECATED: field-ops has been replaced by field-management-service
+  # - job_name: 'field-ops'
+  #   static_configs:
+  #     - targets: ['field_ops:8080']
+  #   metrics_path: /metrics
 
-  # NDVI Engine - محرك NDVI
-  - job_name: 'ndvi-engine'
-    static_configs:
-      - targets: ['ndvi_engine:8107']
-        labels:
-          tier: 'application'
-          component: 'satellite-analysis'
-          service: 'ndvi-engine'
-          language: 'python'
-          description: 'NDVI Vegetation Index Engine'
-          description_ar: 'محرك مؤشر الغطاء النباتي NDVI'
-    metrics_path: /metrics
+  # DEPRECATED: ndvi-engine has been replaced by vegetation-analysis-service
+  # - job_name: 'ndvi-engine'
+  #   static_configs:
+  #     - targets: ['ndvi_engine:8107']
+  #   metrics_path: /metrics
 
   # Weather Service - خدمة الطقس (Unified)
   - job_name: 'weather-service'
@@ -196,18 +168,11 @@ scrape_configs:
           description_ar: 'خدمة الطقس الموحدة متعددة المزودين'
     metrics_path: /metrics
 
-  # Field Chat - دردشة الحقول
-  - job_name: 'field-chat'
-    static_configs:
-      - targets: ['field_chat:8099']
-        labels:
-          tier: 'application'
-          component: 'communication'
-          service: 'field-chat'
-          language: 'python'
-          description: 'Field Chat Service'
-          description_ar: 'خدمة دردشة الحقول'
-    metrics_path: /metrics
+  # DEPRECATED: field-chat has been replaced by chat-service
+  # - job_name: 'field-chat'
+  #   static_configs:
+  #     - targets: ['field_chat:8099']
+  #   metrics_path: /metrics
 
   # IoT Gateway - بوابة إنترنت الأشياء
   - job_name: 'iot-gateway'
@@ -222,18 +187,11 @@ scrape_configs:
           description_ar: 'بوابة إنترنت الأشياء للمستشعرات الزراعية'
     metrics_path: /metrics
 
-  # Agro Advisor - المستشار الزراعي
-  - job_name: 'agro-advisor'
-    static_configs:
-      - targets: ['agro_advisor:8105']
-        labels:
-          tier: 'application'
-          component: 'advisory'
-          service: 'agro-advisor'
-          language: 'python'
-          description: 'Agricultural Advisory Service'
-          description_ar: 'خدمة الاستشارات الزراعية'
-    metrics_path: /metrics
+  # DEPRECATED: agro-advisor has been replaced by advisory-service
+  # - job_name: 'agro-advisor'
+  #   static_configs:
+  #     - targets: ['agro_advisor:8105']
+  #   metrics_path: /metrics
 
   # WebSocket Gateway - بوابة WebSocket
   - job_name: 'ws-gateway'
@@ -248,18 +206,11 @@ scrape_configs:
           description_ar: 'بوابة WebSocket للتحديثات الفورية'
     metrics_path: /metrics
 
-  # Crop Health - صحة المحاصيل
-  - job_name: 'crop-health'
-    static_configs:
-      - targets: ['crop_health:8100']
-        labels:
-          tier: 'application'
-          component: 'crop-monitoring'
-          service: 'crop-health'
-          language: 'python'
-          description: 'Crop Health Monitoring'
-          description_ar: 'مراقبة صحة المحاصيل'
-    metrics_path: /metrics
+  # DEPRECATED: crop-health has been replaced by crop-intelligence-service
+  # - job_name: 'crop-health'
+  #   static_configs:
+  #     - targets: ['crop_health:8100']
+  #   metrics_path: /metrics
 
   # Agro Rules Worker - عامل القواعد الزراعية
   - job_name: 'agro-rules'
@@ -317,18 +268,11 @@ scrape_configs:
   # AI & ML Services - خدمات الذكاء الاصطناعي والتعلم الآلي
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
-  - job_name: 'crop-health-ai'
-    static_configs:
-      - targets: ['crop_health_ai:8095']
-        labels:
-          tier: 'ai-ml'
-          component: 'computer-vision'
-          service: 'crop-health-ai'
-          language: 'python'
-          description: 'AI-Powered Crop Disease Detection'
-          description_ar: 'كشف أمراض المحاصيل بالذكاء الاصطناعي'
-    metrics_path: /metrics
+  # DEPRECATED: crop-health-ai has been replaced by crop-intelligence-service
+  # - job_name: 'crop-health-ai'
+  #   static_configs:
+  #     - targets: ['crop_health_ai:8095']
+  #   metrics_path: /metrics
 
   # Virtual Sensors - المستشعرات الافتراضية
   - job_name: 'virtual-sensors'
@@ -343,18 +287,11 @@ scrape_configs:
           description_ar: 'محرك المستشعرات الافتراضية (FAO-56)'
     metrics_path: /metrics
 
-  # Yield Engine - محرك التنبؤ بالإنتاجية
-  - job_name: 'yield-engine'
-    static_configs:
-      - targets: ['yield_engine:8098']
-        labels:
-          tier: 'ai-ml'
-          component: 'prediction'
-          service: 'yield-engine'
-          language: 'python'
-          description: 'ML-Based Crop Yield Prediction'
-          description_ar: 'التنبؤ بإنتاجية المحاصيل بالتعلم الآلي'
-    metrics_path: /metrics
+  # DEPRECATED: yield-engine has been replaced by yield-prediction-service
+  # - job_name: 'yield-engine'
+  #   static_configs:
+  #     - targets: ['yield_engine:8098']
+  #   metrics_path: /metrics
 
   # AI Advisor - المستشار الذكي
   - job_name: 'ai-advisor'
@@ -386,18 +323,11 @@ scrape_configs:
           description_ar: 'إدارة الري الذكي (FAO-56)'
     metrics_path: /metrics
 
-  # Fertilizer Advisor - مستشار التسميد
-  - job_name: 'fertilizer-advisor'
-    static_configs:
-      - targets: ['fertilizer_advisor:8093']
-        labels:
-          tier: 'smart-agriculture'
-          component: 'fertilization'
-          service: 'fertilizer-advisor'
-          language: 'python'
-          description: 'Smart Fertilization Recommendations'
-          description_ar: 'توصيات التسميد الذكية'
-    metrics_path: /metrics
+  # DEPRECATED: fertilizer-advisor has been replaced by advisory-service
+  # - job_name: 'fertilizer-advisor'
+  #   static_configs:
+  #     - targets: ['fertilizer_advisor:8093']
+  #   metrics_path: /metrics
 
   # Indicators Service - خدمة المؤشرات
   - job_name: 'indicators-service'
@@ -416,31 +346,17 @@ scrape_configs:
   # Satellite & Weather Services - خدمات الأقمار الصناعية والطقس
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Satellite Service - خدمة الأقمار الصناعية
-  - job_name: 'satellite-service'
-    static_configs:
-      - targets: ['satellite_service:8090']
-        labels:
-          tier: 'remote-sensing'
-          component: 'satellite'
-          service: 'satellite-service'
-          language: 'python'
-          description: 'Multi-Provider Satellite Imagery & NDVI'
-          description_ar: 'صور الأقمار الصناعية ومؤشر NDVI'
-    metrics_path: /metrics
+  # DEPRECATED: satellite-service has been replaced by vegetation-analysis-service
+  # - job_name: 'satellite-service'
+  #   static_configs:
+  #     - targets: ['satellite_service:8090']
+  #   metrics_path: /metrics
 
-  # Weather Advanced - الطقس المتقدم
-  - job_name: 'weather-advanced'
-    static_configs:
-      - targets: ['weather_advanced:8092']
-        labels:
-          tier: 'remote-sensing'
-          component: 'weather'
-          service: 'weather-advanced'
-          language: 'python'
-          description: 'Advanced Agricultural Weather Forecasting'
-          description_ar: 'التنبؤ الجوي الزراعي المتقدم'
-    metrics_path: /metrics
+  # DEPRECATED: weather-advanced has been replaced by weather-service
+  # - job_name: 'weather-advanced'
+  #   static_configs:
+  #     - targets: ['weather_advanced:8092']
+  #   metrics_path: /metrics
 
   # Astronomical Calendar - التقويم الفلكي
   - job_name: 'astronomical-calendar'
@@ -459,18 +375,11 @@ scrape_configs:
   # Communication Services - خدمات الاتصالات
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Community Chat - دردشة المجتمع
-  - job_name: 'community-chat'
-    static_configs:
-      - targets: ['community_chat:8097']
-        labels:
-          tier: 'communication'
-          component: 'chat'
-          service: 'community-chat'
-          language: 'nodejs'
-          description: 'Real-time Community Chat (Socket.io)'
-          description_ar: 'دردشة المجتمع الفورية'
-    metrics_path: /metrics
+  # DEPRECATED: community-chat has been replaced by chat-service
+  # - job_name: 'community-chat'
+  #   static_configs:
+  #     - targets: ['community_chat:8097']
+  #   metrics_path: /metrics
 
   # Notification Service - خدمة الإشعارات
   - job_name: 'notification-service'
@@ -699,18 +608,11 @@ scrape_configs:
   # Advanced Analytics Services - خدمات التحليلات المتقدمة
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # NDVI Processor - معالج NDVI
-  - job_name: 'ndvi-processor'
-    static_configs:
-      - targets: ['ndvi_processor:8118']
-        labels:
-          tier: 'analytics'
-          component: 'vegetation-index'
-          service: 'ndvi-processor'
-          language: 'python'
-          description: 'NDVI Processing Pipeline'
-          description_ar: 'خط معالجة مؤشر NDVI'
-    metrics_path: /metrics
+  # DEPRECATED: ndvi-processor has been replaced by vegetation-analysis-service
+  # - job_name: 'ndvi-processor'
+  #   static_configs:
+  #     - targets: ['ndvi_processor:8118']
+  #   metrics_path: /metrics
 
   # Field Intelligence - ذكاء الحقول
   - job_name: 'field-intelligence'
@@ -911,7 +813,7 @@ scrape_configs:
   # Edge Orchestrator Service - خدمة تنسيق الحافة
   - job_name: 'edge-orchestrator-service'
     static_configs:
-      - targets: ['edge_orchestrator_service:8190']
+      - targets: ['edge_orchestrator_service:8180']
         labels:
           tier: 'edge'
           component: 'edge-management'

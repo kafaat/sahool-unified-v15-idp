@@ -6,10 +6,6 @@ ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
-LABEL maintainer="SAHOOL Team"
-LABEL service="marketplace-service"
-LABEL version="16.0.0"
-
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 
@@ -24,10 +20,16 @@ COPY packages/nestjs-auth ./packages/nestjs-auth/
 # Build errors are logged but non-fatal since local guards handle auth at runtime
 WORKDIR /workspace/packages/nestjs-auth
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
-    (npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
-     npx tsc --skipLibCheck) || \
-    echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"
+    npm config set registry https://registry.npmmirror.com; \
+    if npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
+       npx tsc --skipLibCheck; then \
+        echo "INFO: nestjs-auth built successfully"; \
+    else \
+        echo "WARN: nestjs-auth build skipped (marketplace uses local auth guards)"; \
+    fi
+# Clean nestjs-auth node_modules after pre-build to prevent npm 'extraneous' errors
+# when marketplace-service resolves the file: dependency during its own npm install
+RUN rm -rf node_modules
 
 # Copy service to maintain relative path
 WORKDIR /workspace
@@ -35,8 +37,15 @@ COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
 
-# Fix the file: path reference for Docker build context
+# Fix the file: path reference for Docker build context (both package.json and lock file)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:../packages/nestjs-auth|g' package.json || true
+RUN sed -i 's|\.\./\.\./\.\./packages/nestjs-auth|../packages/nestjs-auth|g' package-lock.json || true
+
+# Disable nestjs-auth prepare script to prevent premature tsc build during install
+# (nestjs-auth is built explicitly in a later step with proper peer deps available)
+WORKDIR /workspace/packages/nestjs-auth
+RUN npm pkg delete scripts.prepare
+WORKDIR /workspace/marketplace-service
 
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries
@@ -77,16 +86,19 @@ RUN npx nest build && \
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
-# Re-declare build arg for this stage
-ARG NODE_VERSION=20
+LABEL maintainer="SAHOOL Team" \
+      service="marketplace-service" \
+      version="16.0.0" \
+      org.opencontainers.image.title="SAHOOL Marketplace Service" \
+      org.opencontainers.image.vendor="KAFAAT"
 
 WORKDIR /app
 
-# Install OpenSSL for Prisma native query engine (bookworm-slim ships OpenSSL 3.x)
+# Install OpenSSL for Prisma, curl for health checks, and tini for signal handling
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openssl curl tini && \
+    rm -rf /var/lib/apt/lists/* && apt-get clean
 
 # Copy nestjs-auth package (needed for file: dependency resolution)
 COPY --from=builder /workspace/packages ./packages
@@ -145,9 +157,15 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check (using Node.js built-in fetch — no curl dependency needed)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD node -e "fetch('http://localhost:3010/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+# Health check (using curl for consistency across all services)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:3010/healthz || exit 1
+
+# Signal handling
+STOPSIGNAL SIGTERM
+
+# Init system for proper signal handling and zombie reaping
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run the application
 CMD ["node", "dist/main.js"]

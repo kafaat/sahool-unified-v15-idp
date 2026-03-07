@@ -140,7 +140,7 @@ services:
   # Application Services - Resource Limits
   # ─────────────────────────────────────────────────────────────────────────────
 
-  field_core:
+  iot-gateway:
     deploy:
       resources:
         limits:
@@ -155,97 +155,7 @@ services:
         max-size: "50m"
         max-file: "3"
 
-  field_ops:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  ndvi_engine:
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 256M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  weather_core:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  field_chat:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  iot_gateway:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  agro_advisor:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  ws_gateway:
+  ws-gateway:
     deploy:
       resources:
         limits:
@@ -264,7 +174,7 @@ services:
   # AI Services - Higher Resource Limits
   # ─────────────────────────────────────────────────────────────────────────────
 
-  ai_advisor:
+  ai-advisor:
     deploy:
       resources:
         limits:

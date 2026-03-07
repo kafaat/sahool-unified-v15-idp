@@ -360,3 +360,119 @@ sources:
     languages: [en]
     region_coverage: [global]
     notes: "RDW-YOLO, RS-YOLO, AI+IoT edge devices for crop protection"
+
+  # ─── Precision Farming Sources (الزراعة الدقيقة) ────────────────────────────
+
+  - name: "ISPA - International Society of Precision Agriculture"
+    name_ar: "الجمعية الدولية للزراعة الدقيقة"
+    url_patterns:
+      - "ispag.org"
+      - "precisionag.com"
+    credibility: 4
+    domains: [precision_farming, smart_agriculture, remote_sensing]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Precision Agriculture journal, VRA, site-specific management"
+
+  - name: "John Deere - Precision Agriculture"
+    name_ar: "جون دير - الزراعة الدقيقة"
+    url_patterns:
+      - "deere.com"
+      - "stellarsupport.deere.com"
+    credibility: 2
+    domains: [precision_farming, smart_agriculture]
+    languages: [en, ar]
+    region_coverage: [global]
+    notes: "GPS guidance, variable rate technology, yield mapping"
+
+  - name: "Trimble Agriculture"
+    name_ar: "تريمبل للزراعة"
+    url_patterns:
+      - "agriculture.trimble.com"
+      - "trimble.com"
+    credibility: 2
+    domains: [precision_farming, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "RTK guidance, water management, farm management software"
+
+  # ─── Digital Twin Sources (التوأم الرقمي) ──────────────────────────────────
+
+  - name: "FAO - Digital Agriculture"
+    name_ar: "الفاو - الزراعة الرقمية"
+    url_patterns:
+      - "fao.org/digital-agriculture"
+      - "fao.org/3"
+    credibility: 5
+    domains: [digital_twin, smart_agriculture, general]
+    languages: [en, ar]
+    region_coverage: [global]
+    notes: "FAO Digital Agriculture Roadmap, digital twin guidelines for food systems"
+
+  - name: "IEEE - Digital Twin Agriculture"
+    name_ar: "IEEE - التوأم الرقمي الزراعي"
+    url_patterns:
+      - "ieee.org"
+      - "ieeexplore.ieee.org"
+    credibility: 4
+    domains: [digital_twin, smart_agriculture, precision_farming]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Digital twin architectures, IoT-enabled farm simulation, edge computing"
+
+  - name: "Wageningen University - Digital Twins"
+    name_ar: "جامعة فاخنينغن - التوائم الرقمية"
+    url_patterns:
+      - "wur.nl"
+      - "edepot.wur.nl"
+    credibility: 4
+    domains: [digital_twin, precision_farming, crops, soil]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Leading research on crop digital twins, greenhouse simulation, soil modeling"
+
+  # ─── Mechanized Irrigation Sources (الري الميكانيكي) ─────────────────────────
+
+  - name: "Valley Irrigation (Valmont Industries)"
+    name_ar: "فالي للري (فالمونت إندستريز)"
+    url_patterns:
+      - "valleyirrigation.com"
+      - "valmont.com/agriculture"
+      - "agsense365.com"
+    credibility: 3
+    domains: [irrigation, precision_farming, smart_agriculture]
+    languages: [en, ar]
+    region_coverage: [global, mena, saudi_arabia]
+    notes: "World leader in center pivot irrigation, LEPA/LESA, VRI, AgSense 365 telemetry"
+
+  - name: "Lindsay Corporation (Zimmatic)"
+    name_ar: "ليندسي كوربوريشن (زيماتيك)"
+    url_patterns:
+      - "lindsay.com"
+      - "zimmatic.com"
+      - "fieldnet.com"
+    credibility: 3
+    domains: [irrigation, precision_farming]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Zimmatic pivots, FieldNET remote management, GPS guidance"
+
+  - name: "Reinke Manufacturing"
+    name_ar: "رينكي للتصنيع"
+    url_patterns:
+      - "reinke.com"
+    credibility: 2
+    domains: [irrigation, precision_farming]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Center pivot and lateral move irrigation systems, electrogator"
+
+  - name: "Irrigation Association"
+    name_ar: "جمعية الري"
+    url_patterns:
+      - "irrigation.org"
+    credibility: 4
+    domains: [irrigation, precision_farming, smart_agriculture]
+    languages: [en]
+    region_coverage: [global]
+    notes: "Industry standards, certification, best practices for mechanized irrigation"

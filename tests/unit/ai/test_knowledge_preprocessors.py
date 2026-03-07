@@ -75,10 +75,14 @@ class TestArabicTextPreprocessor:
     @pytest.mark.unit
     @pytest.mark.arabic
     def test_normalize_taa_marbuta(self, arabic_preprocessor: ArabicTextPreprocessor):
-        """Test taa marbuta normalization | اختبار توحيد التاء المربوطة"""
+        """Test taa marbuta normalization is disabled by default to preserve meaning."""
         text = "الزراعة"
+        # Default: taa marbuta NOT normalized (preserves semantic meaning)
         result = arabic_preprocessor.normalize(text)
-        assert result == "الزراعه"
+        assert result == "الزراعة"
+        # Opt-in: taa marbuta normalized for search indexing
+        result_with_normalization = arabic_preprocessor.normalize(text, normalize_taa_marbuta=True)
+        assert result_with_normalization == "الزراعه"
 
     @pytest.mark.unit
     @pytest.mark.arabic
@@ -265,6 +269,27 @@ class TestMetadataEnricher:
         text = "Use Sentinel-2 satellite NDVI and LAI for crop monitoring."
         domains = metadata_enricher.detect_domains(text)
         assert KnowledgeDomain.REMOTE_SENSING in domains
+
+    @pytest.mark.unit
+    def test_detect_smart_agriculture_domain(self, metadata_enricher: MetadataEnricher):
+        """Test smart agriculture domain detection."""
+        text = "IoT sensors and blockchain enable smart farming with edge computing drones."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.SMART_AGRICULTURE in domains
+
+    @pytest.mark.unit
+    def test_detect_precision_farming_domain(self, metadata_enricher: MetadataEnricher):
+        """Test precision farming domain detection | كشف مجال الزراعة الدقيقة"""
+        text = "Variable rate application using GPS and RTK guidance for yield map analysis."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.PRECISION_FARMING in domains
+
+    @pytest.mark.unit
+    def test_detect_digital_twin_domain(self, metadata_enricher: MetadataEnricher):
+        """Test digital twin domain detection | كشف مجال التوأم الرقمي"""
+        text = "Digital twin simulation creates a virtual model for farm cyber-physical system."
+        domains = metadata_enricher.detect_domains(text)
+        assert KnowledgeDomain.DIGITAL_TWIN in domains
 
     @pytest.mark.unit
     @pytest.mark.arabic

@@ -9,10 +9,14 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import structlog
 
 logger = structlog.get_logger(__name__)
+
+# Default maximum file size for extraction: 50 MB
+DEFAULT_MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
 
 
 @dataclass
@@ -37,12 +41,28 @@ class MarkdownExtractor:
     _HEADING_RE = re.compile(r"^(#{1,6})\s+(.+)$", re.MULTILINE)
     _WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 
+    def __init__(self, max_file_size: int = DEFAULT_MAX_FILE_SIZE_BYTES) -> None:
+        self._max_file_size = max_file_size
+
     def extract(self, file_path: str | Path) -> ExtractedContent:
         """Extract content from a Markdown file."""
         path = Path(file_path)
         if not path.exists():
             logger.error("file_not_found", path=str(path))
             return ExtractedContent(source_path=str(path), source_type="md")
+
+        # File size check (Security: GAP-08 / Section 7)
+        file_size = path.stat().st_size
+        if file_size > self._max_file_size:
+            logger.error(
+                "file_too_large",
+                path=str(path),
+                size=file_size,
+                max_size=self._max_file_size,
+            )
+            result = ExtractedContent(source_path=str(path), source_type="md")
+            result.metadata["error"] = f"File size {file_size} exceeds limit {self._max_file_size}"
+            return result
 
         text = path.read_text(encoding="utf-8")
         result = ExtractedContent(source_path=str(path), source_type="md")
@@ -143,6 +163,9 @@ class PDFExtractor:
     """Extracts content from PDF files.
     يستخرج المحتوى من ملفات PDF"""
 
+    def __init__(self, max_file_size: int = DEFAULT_MAX_FILE_SIZE_BYTES) -> None:
+        self._max_file_size = max_file_size
+
     def extract(self, file_path: str | Path) -> ExtractedContent:
         """Extract text content from a PDF file."""
         path = Path(file_path)
@@ -152,10 +175,27 @@ class PDFExtractor:
             logger.error("file_not_found", path=str(path))
             return result
 
+        # File size check (Security: Section 7)
+        file_size = path.stat().st_size
+        if file_size > self._max_file_size:
+            logger.error(
+                "file_too_large",
+                path=str(path),
+                size=file_size,
+                max_size=self._max_file_size,
+            )
+            result.metadata["error"] = f"File size {file_size} exceeds limit {self._max_file_size}"
+            return result
+
         try:
             import fitz  # PyMuPDF
         except ImportError:
-            logger.warning("pymupdf_not_installed", msg="pip install PyMuPDF for PDF support")
+            logger.error(
+                "pymupdf_not_installed",
+                msg="PDF extraction requires PyMuPDF. Install with: pip install PyMuPDF",
+                path=str(path),
+            )
+            result.metadata["error"] = "PyMuPDF not installed. Run: pip install PyMuPDF"
             return result
 
         try:
@@ -229,4 +269,88 @@ class HTMLExtractor:
         result.content = text
 
         logger.debug("html_extracted", source=source, length=len(text))
+        return result
+
+
+class URLExtractor:
+    """Extracts content from URLs (GAP-17).
+    يستخرج المحتوى من عناوين URL
+
+    Fetches URL content and delegates to MarkdownExtractor or HTMLExtractor
+    based on content type. Requires the ``httpx`` package (optional dependency).
+    """
+
+    _ALLOWED_SCHEMES = {"http", "https"}
+    _MAX_CONTENT_LENGTH = DEFAULT_MAX_FILE_SIZE_BYTES
+
+    def __init__(self, timeout: int = 30) -> None:
+        self._timeout = timeout
+        self._md_extractor = MarkdownExtractor()
+        self._html_extractor = HTMLExtractor()
+
+    def extract(self, url: str) -> ExtractedContent:
+        """Fetch URL content and extract text.
+        جلب محتوى URL واستخراج النص"""
+        result = ExtractedContent(source_path=url, source_type="url")
+
+        # Validate URL scheme
+        parsed = urlparse(url)
+        if parsed.scheme not in self._ALLOWED_SCHEMES:
+            logger.error("invalid_url_scheme", url=url, scheme=parsed.scheme)
+            result.metadata["error"] = f"Invalid URL scheme: {parsed.scheme}. Only http/https allowed."
+            return result
+
+        if not parsed.hostname:
+            logger.error("invalid_url_no_host", url=url)
+            result.metadata["error"] = "URL has no hostname"
+            return result
+
+        try:
+            import httpx
+        except ImportError:
+            logger.error(
+                "httpx_not_installed",
+                msg="URL extraction requires httpx. Install with: pip install httpx",
+            )
+            result.metadata["error"] = "httpx not installed. Run: pip install httpx"
+            return result
+
+        try:
+            with httpx.Client(timeout=self._timeout, follow_redirects=True) as client:
+                response = client.get(url)
+                response.raise_for_status()
+
+                # Check content length
+                content_length = len(response.content)
+                if content_length > self._MAX_CONTENT_LENGTH:
+                    result.metadata["error"] = (
+                        f"Content size {content_length} exceeds limit {self._MAX_CONTENT_LENGTH}"
+                    )
+                    return result
+
+                content_type = response.headers.get("content-type", "")
+                text = response.text
+
+                # Route to appropriate extractor based on content type
+                if "text/html" in content_type or "<html" in text[:500].lower():
+                    extracted = self._html_extractor.extract_from_html(text, source=url)
+                else:
+                    extracted = self._md_extractor.extract_from_text(text, source=url)
+
+                result.title = extracted.title
+                result.title_ar = extracted.title_ar
+                result.content = extracted.content
+                result.content_ar = extracted.content_ar
+                result.sections = extracted.sections
+                result.metadata.update(extracted.metadata)
+                result.metadata["url"] = url
+                result.metadata["content_type"] = content_type
+                result.metadata["content_length"] = content_length
+
+                logger.info("url_extracted", url=url, content_length=content_length)
+
+        except Exception:
+            logger.exception("url_extraction_failed", url=url)
+            result.metadata["error"] = f"Failed to fetch URL: {url}"
+
         return result

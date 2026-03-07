@@ -7,6 +7,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { MarketService } from "./market.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { CacheService } from "../cache/cache.service";
 
 describe("MarketService", () => {
   let service: MarketService;
@@ -34,6 +35,18 @@ describe("MarketService", () => {
     publishInventoryLowStock: jest.fn(),
   };
 
+  const mockCacheService = {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
+    delByPattern: jest.fn().mockResolvedValue(undefined),
+    getOrSet: jest.fn(),
+    invalidateProduct: jest.fn().mockResolvedValue(undefined),
+    invalidateWallet: jest.fn().mockResolvedValue(undefined),
+    invalidateOrder: jest.fn().mockResolvedValue(undefined),
+    isHealthy: jest.fn().mockResolvedValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -45,6 +58,10 @@ describe("MarketService", () => {
         {
           provide: EventsService,
           useValue: mockEventsService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -65,39 +82,47 @@ describe("MarketService", () => {
       ];
 
       mockPrismaService.product.findMany.mockResolvedValue(mockProducts);
+      mockPrismaService.product.count.mockResolvedValue(2);
 
       const result = await service.findAllProducts({});
 
-      expect(result).toEqual(mockProducts);
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: { status: "AVAILABLE" },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta.total).toBe(2);
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: "AVAILABLE" },
+          orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+        }),
+      );
     });
 
     it("should filter products by category", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([]);
+      mockPrismaService.product.count.mockResolvedValue(0);
 
       await service.findAllProducts({ category: "HARVEST" });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: { status: "AVAILABLE", category: "HARVEST" },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: "AVAILABLE", category: "HARVEST" },
+        }),
+      );
     });
 
     it("should filter products by price range", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([]);
+      mockPrismaService.product.count.mockResolvedValue(0);
 
       await service.findAllProducts({ minPrice: 500, maxPrice: 2000 });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          price: { gte: 500, lte: 2000 },
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            status: "AVAILABLE",
+            price: { gte: 500, lte: 2000 },
+          },
+        }),
+      );
     });
   });
 
@@ -192,12 +217,15 @@ describe("MarketService", () => {
 
       const result = await service.getMarketStats();
 
-      expect(result).toEqual({
-        totalProducts: 100,
-        totalHarvests: 30,
-        totalOrders: 50,
-        recentProducts: [],
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          totalProducts: 100,
+          totalHarvests: 30,
+          totalOrders: 50,
+          recentProducts: [],
+        }),
+      );
+      expect(result.timestamp).toBeDefined();
     });
   });
 });

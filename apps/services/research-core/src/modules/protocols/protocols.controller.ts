@@ -19,6 +19,7 @@ import {
 import { ProtocolsService } from "./protocols.service";
 import { CreateProtocolDto, UpdateProtocolDto } from "./dto/protocol.dto";
 import { ScientificLockGuard } from "@/core/guards/scientific-lock.guard";
+import { extractTenantId } from "../../utils/tenant.utils";
 
 @ApiTags("protocols")
 @ApiBearerAuth()
@@ -34,7 +35,7 @@ export class ProtocolsController {
     @Body() dto: CreateProtocolDto,
     @Request() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.create({ ...dto, experimentId }, tenantId);
   }
 
@@ -48,35 +49,35 @@ export class ProtocolsController {
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findAll(experimentId, tenantId, { page, limit });
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get protocol details - تفاصيل البروتوكول" })
   findOne(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.findOne(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update protocol - تحديث البروتوكول" })
   update(@Param("id") id: string, @Body() dto: UpdateProtocolDto, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.update(id, dto, tenantId);
   }
 
   @Post(":id/approve")
   @ApiOperation({ summary: "Approve protocol - اعتماد البروتوكول" })
   approve(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.approve(id, req.user?.id || "system", tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete protocol - حذف البروتوكول" })
   delete(@Param("id") id: string, @Request() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = extractTenantId(req);
     return this.service.delete(id, tenantId);
   }
 }

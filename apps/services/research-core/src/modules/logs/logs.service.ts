@@ -215,9 +215,9 @@ export class LogsService {
           tenantId,
         );
 
-        // Update sync timestamp
+        // Update sync timestamp (scoped to tenant)
         await this.prisma.researchDailyLog.updateMany({
-          where: { offlineId: log.offlineId },
+          where: { offlineId: log.offlineId, tenantId },
           data: { syncedAt: new Date() },
         });
 

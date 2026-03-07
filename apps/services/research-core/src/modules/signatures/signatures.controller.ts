@@ -5,19 +5,10 @@ import {
   Body,
   Param,
   Request,
-  BadRequestException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { SignaturesService } from "./signatures.service";
-
-function extractTenantId(req: any): string {
-  const tenantId =
-    req.tenantId || req.user?.tenantId || req.headers?.["x-tenant-id"];
-  if (!tenantId) {
-    throw new BadRequestException("Missing tenantId");
-  }
-  return tenantId;
-}
+import { extractTenantId } from "../../utils/tenant.utils";
 
 @ApiTags("signatures")
 @ApiBearerAuth()

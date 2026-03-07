@@ -153,13 +153,13 @@ export class ExperimentsService {
 
     const [logsCount, samplesCount, lastLog] = await Promise.all([
       this.prisma.researchDailyLog.count({
-        where: { experimentId: id },
+        where: { experimentId: id, tenantId },
       }),
       this.prisma.labSample.count({
-        where: { experimentId: id },
+        where: { experimentId: id, tenantId },
       }),
       this.prisma.researchDailyLog.findFirst({
-        where: { experimentId: id },
+        where: { experimentId: id, tenantId },
         orderBy: { logDate: "desc" },
         select: { logDate: true, title: true },
       }),

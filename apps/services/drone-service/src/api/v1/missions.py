@@ -11,6 +11,13 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+# Unified error handling
+try:
+    from shared.errors_py import NotFoundException, ValidationException
+except ImportError:
+    NotFoundException = None
+    ValidationException = None
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -86,8 +93,19 @@ def _mission_to_response(m: dict) -> dict:
     }
 
 
+def _raise_not_found():
+    if NotFoundException:
+        raise NotFoundException(message="Mission not found", message_ar="المهمة غير موجودة", resource_type="mission")
+    raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+
+
 def _validate_transition(current: str, target: str) -> None:
     if target not in VALID_TRANSITIONS.get(current, []):
+        if ValidationException:
+            raise ValidationException(
+                message=f"Cannot transition from {current} to {target}",
+                message_ar=f"لا يمكن الانتقال من {current} إلى {target}",
+            )
         raise HTTPException(
             status_code=400,
             detail={
@@ -165,11 +183,11 @@ async def get_mission(mission_id: str, req: Request, user=Depends(get_current_us
     if repo:
         row = await repo.get_mission(mission_id, tenant_id)
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+            _raise_not_found()
         return MissionResponse(**_mission_to_response(row))
 
     if mission_id not in _missions or _missions[mission_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+        _raise_not_found()
     return MissionResponse(**_mission_to_response(_missions[mission_id]))
 
 
@@ -182,13 +200,13 @@ async def _transition_mission(
     if repo:
         current_row = await repo.get_mission(mission_id, tenant_id)
         if not current_row:
-            raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+            _raise_not_found()
         _validate_transition(current_row["status"], target)
         updated = await repo.update_mission_status(mission_id, tenant_id, target)
         return updated or current_row
 
     if mission_id not in _missions or _missions[mission_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+        _raise_not_found()
     mission = _missions[mission_id]
     _validate_transition(mission["status"], target)
     mission["status"] = target

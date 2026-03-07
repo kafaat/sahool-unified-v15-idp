@@ -59,6 +59,10 @@ def app(mock_user):
     errors_mock = MagicMock()
     errors_mock.setup_exception_handlers = lambda app: None
     errors_mock.add_request_id_middleware = lambda app: None
+    # Exception classes must be None so routers fall back to HTTPException
+    errors_mock.NotFoundException = None
+    errors_mock.ValidationException = None
+    errors_mock.ForbiddenException = None
 
     # Create a no-op tenant middleware class
     from starlette.middleware.base import BaseHTTPMiddleware
@@ -157,13 +161,15 @@ class TestHealthEndpoints:
         assert data["service"] == "drone-service"
         assert data["version"] == "16.0.0"
 
-    def test_readyz(self, client):
-        """Test readiness probe."""
+    def test_readyz_not_ready(self, client):
+        """Test readiness probe returns 503 when no DB/NATS."""
         r = client.get("/readyz")
-        assert r.status_code == 200
+        assert r.status_code == 503
         data = r.json()
-        assert "database" in data
-        assert "nats" in data
+        assert data["status"] == "not_ready"
+        assert "checks" in data
+        assert data["checks"]["database"] == "disconnected"
+        assert data["checks"]["nats"] == "disconnected"
 
     def test_health_comprehensive(self, client):
         """Test comprehensive health check."""
@@ -863,3 +869,143 @@ class TestEventsModule:
         assert FLIGHT_PLANNED == "sahool.drone.flight_planned"
         assert MISSION_CREATED == "sahool.drone.mission_created"
         assert VRA_PRESCRIPTION_CREATED == "sahool.drone.vra_prescription_created"
+
+
+class TestEventEnvelope:
+    """Tests for EventEnvelope wrapper class."""
+
+    def test_create_envelope(self):
+        from src.events import EventEnvelope
+        envelope = EventEnvelope.create(
+            event_type="drone_registered",
+            version=1,
+            aggregate_id="DRN-001",
+            tenant_id="tenant-001",
+            correlation_id="corr-001",
+            payload={"drone_id": "DRN-001", "model": "DJI Agras T40"},
+        )
+        assert envelope.event_type == "drone_registered"
+        assert envelope.version == 1
+        assert envelope.aggregate_id == "DRN-001"
+        assert envelope.tenant_id == "tenant-001"
+        assert envelope.correlation_id == "corr-001"
+        assert envelope.event_id  # UUID generated
+        assert envelope.timestamp  # Timestamp generated
+
+    def test_envelope_to_dict(self):
+        from src.events import EventEnvelope
+        envelope = EventEnvelope.create(
+            event_type="mission_created",
+            version=1,
+            aggregate_id="MSN-001",
+            tenant_id="tenant-001",
+            correlation_id="corr-002",
+            payload={"mission_id": "MSN-001"},
+        )
+        d = envelope.to_dict()
+        assert d["event_type"] == "mission_created"
+        assert d["aggregate_id"] == "MSN-001"
+        assert d["tenant_id"] == "tenant-001"
+        assert "event_id" in d
+        assert "timestamp" in d
+        assert d["payload"] == {"mission_id": "MSN-001"}
+
+    def test_envelope_unique_ids(self):
+        from src.events import EventEnvelope
+        e1 = EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
+        e2 = EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
+        assert e1.event_id != e2.event_id
+
+
+class TestDronePublisher:
+    """Tests for DronePublisher lifecycle and publishing."""
+
+    @pytest.mark.asyncio
+    async def test_publish_without_connection(self):
+        from src.events import DronePublisher
+        publisher = DronePublisher()
+        # Should return empty string, not raise
+        event_id = await publisher.publish(
+            "drone_registered", "tenant-001", "DRN-001",
+            {"drone_id": "DRN-001"},
+        )
+        assert event_id == ""
+
+    @pytest.mark.asyncio
+    async def test_publish_with_mock_nc(self):
+        from src.events import DronePublisher
+        publisher = DronePublisher()
+        publisher.nc = AsyncMock()
+        event_id = await publisher.publish(
+            "drone_registered", "tenant-001", "DRN-001",
+            {"drone_id": "DRN-001", "model": "T40"},
+        )
+        assert event_id  # Non-empty UUID
+        assert publisher.nc.publish.call_count == 2  # base + tenant-scoped
+
+    @pytest.mark.asyncio
+    async def test_publish_drone_registered(self):
+        from src.events import DronePublisher
+        publisher = DronePublisher()
+        publisher.nc = AsyncMock()
+        event_id = await publisher.publish_drone_registered(
+            tenant_id="tenant-001", drone_id="DRN-001", model="DJI Agras T40",
+        )
+        assert event_id
+        assert publisher.nc.publish.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_publish_mission_event(self):
+        from src.events import DronePublisher
+        publisher = DronePublisher()
+        publisher.nc = AsyncMock()
+        event_id = await publisher.publish_mission_event(
+            "mission_started", "tenant-001", "MSN-001", drone_id="DRN-001",
+        )
+        assert event_id
+        # Verify the published data contains EventEnvelope structure
+        call_args = publisher.nc.publish.call_args_list[0]
+        import json
+        data = json.loads(call_args[0][1].decode())
+        assert "event_id" in data
+        assert "event_type" in data
+        assert data["event_type"] == "mission_started"
+        assert data["payload"]["mission_id"] == "MSN-001"
+
+    @pytest.mark.asyncio
+    async def test_close_without_connection(self):
+        from src.events import DronePublisher
+        publisher = DronePublisher()
+        # Should not raise
+        await publisher.close()
+
+
+class TestEventTypes:
+    """Tests for event types, subjects, and versioning."""
+
+    def test_subjects_dict(self):
+        from src.events.types import SUBJECTS, DRONE_REGISTERED, MISSION_CREATED
+        assert SUBJECTS[DRONE_REGISTERED] == "sahool.drone.registered"
+        assert SUBJECTS[MISSION_CREATED] == "sahool.drone.mission_created"
+
+    def test_versions_dict(self):
+        from src.events.types import VERSIONS, DRONE_REGISTERED, FLIGHT_PLANNED
+        assert VERSIONS[DRONE_REGISTERED] == 1
+        assert VERSIONS[FLIGHT_PLANNED] == 1
+
+    def test_get_subject(self):
+        from src.events.types import get_subject
+        assert get_subject("drone_registered") == "sahool.drone.registered"
+        # Unknown type falls back to prefix
+        assert get_subject("unknown_event") == "sahool.drone.unknown_event"
+
+    def test_get_version(self):
+        from src.events.types import get_version
+        assert get_version("drone_registered") == 1
+        # Unknown defaults to 1
+        assert get_version("unknown_event") == 1
+
+    def test_cross_service_subjects(self):
+        from src.events.types import VISION_PEST_DETECTED, WEATHER_ALERT
+        assert VISION_PEST_DETECTED == "sahool.vision.pest_detected"
+        assert WEATHER_ALERT == "sahool.weather.alert"

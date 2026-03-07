@@ -9,6 +9,12 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+# Unified error handling
+try:
+    from shared.errors_py import NotFoundException
+except ImportError:
+    NotFoundException = None
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -71,6 +77,16 @@ class SpotSprayRequest(BaseModel):
 
 def _get_tenant_id(user) -> str:
     return getattr(user, "tenant_id", "default")
+
+
+def _raise_not_found():
+    if NotFoundException:
+        raise NotFoundException(
+            message="Prescription not found",
+            message_ar="الوصفة غير موجودة",
+            resource_type="prescription",
+        )
+    raise HTTPException(status_code=404, detail={"error": "Prescription not found", "error_ar": "الوصفة غير موجودة"})
 
 
 @router.post("/prescription/ndvi", status_code=201)
@@ -217,5 +233,5 @@ async def get_prescription(prescription_id: str, user=Depends(get_current_user))
     """Get prescription map details - تفاصيل خريطة الوصفة"""
     tenant_id = _get_tenant_id(user)
     if prescription_id not in _prescriptions or _prescriptions[prescription_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Prescription not found", "error_ar": "الوصفة غير موجودة"})
+        _raise_not_found()
     return _prescriptions[prescription_id]

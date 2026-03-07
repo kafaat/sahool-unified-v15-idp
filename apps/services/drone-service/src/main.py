@@ -17,6 +17,12 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+try:
+    from shared.middleware.security_headers import setup_security_headers
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+
 logger = structlog.get_logger()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -60,19 +66,23 @@ async def lifespan(app: FastAPI):
         app.state.db_pool = None
         logger.warning("DATABASE_URL not set, running without database")
 
-    # NATS connection
+    # NATS connection & publisher
     app.state.nats_connected = False
+    app.state.publisher = None
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         try:
-            import nats
-            app.state.nc = await nats.connect(nats_url)
+            from src.events import DronePublisher, subscribe_cross_service_events
+
+            publisher = DronePublisher(nats_url)
+            await publisher.connect()
+            app.state.nc = publisher.nc
+            app.state.publisher = publisher
             app.state.nats_connected = True
             logger.info("NATS connection established", url=nats_url)
 
             # Subscribe to cross-service events
             try:
-                from src.events import subscribe_cross_service_events
                 app.state.pending_detections = []
                 await subscribe_cross_service_events(app.state.nc, app.state)
             except Exception as e:
@@ -94,7 +104,10 @@ async def lifespan(app: FastAPI):
         await app.state.db_pool.close()
         logger.info("Database connection pool closed")
 
-    if hasattr(app.state, "nc") and app.state.nc:
+    if getattr(app.state, "publisher", None):
+        await app.state.publisher.close()
+        logger.info("Drone publisher closed")
+    elif hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
         logger.info("NATS connection closed")
 
@@ -126,6 +139,9 @@ try:
     add_request_id_middleware(app)
 except ImportError:
     pass
+
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
@@ -181,11 +197,24 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Readiness probe - فحص الجاهزية"""
-    return {
-        "status": "ok",
-        "database": getattr(app.state, "db_connected", False),
-        "nats": getattr(app.state, "nats_connected", False),
+    from fastapi.responses import JSONResponse
+
+    db_ok = getattr(app.state, "db_connected", False)
+    nats_ok = getattr(app.state, "nats_connected", False)
+    is_ready = db_ok or nats_ok  # At least one connection required
+
+    checks = {
+        "database": "connected" if db_ok else "disconnected",
+        "nats": "connected" if nats_ok else "disconnected",
     }
+
+    if not is_ready:
+        return JSONResponse(
+            content={"status": "not_ready", "service": "drone-service", "version": "16.0.0", "checks": checks},
+            status_code=503,
+        )
+
+    return {"status": "ready", "service": "drone-service", "version": "16.0.0", "checks": checks}
 
 
 @app.get("/health")

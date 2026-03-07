@@ -12,6 +12,12 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+# Unified error handling
+try:
+    from shared.errors_py import NotFoundException
+except ImportError:
+    NotFoundException = None
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -92,6 +98,12 @@ def _get_repo(req: Request):
 
 def _get_tenant_id(user) -> str:
     return getattr(user, "tenant_id", "default")
+
+
+def _raise_plan_not_found():
+    if NotFoundException:
+        raise NotFoundException(message="Plan not found", message_ar="الخطة غير موجودة", resource_type="flight_plan")
+    raise HTTPException(status_code=404, detail={"error": "Plan not found", "error_ar": "الخطة غير موجودة"})
 
 
 @router.post("/plan/spray", status_code=201)
@@ -376,9 +388,9 @@ async def get_flight_plan(plan_id: str, req: Request, user=Depends(get_current_u
     if repo:
         row = await repo.get_flight_plan(plan_id, tenant_id)
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Plan not found", "error_ar": "الخطة غير موجودة"})
+            _raise_plan_not_found()
         return {k: str(v) if k == "id" else v for k, v in row.items()}
 
     if plan_id not in _flight_plans or _flight_plans[plan_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Plan not found", "error_ar": "الخطة غير موجودة"})
+        _raise_plan_not_found()
     return _flight_plans[plan_id]

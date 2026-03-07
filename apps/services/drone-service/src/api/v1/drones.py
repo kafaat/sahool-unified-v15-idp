@@ -10,6 +10,13 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+# Unified error handling
+try:
+    from shared.errors_py import ForbiddenException, NotFoundException
+except ImportError:
+    ForbiddenException = None
+    NotFoundException = None
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -75,6 +82,17 @@ def _get_repo(req: Request):
 def _get_tenant_id(user) -> str:
     """Extract tenant_id from user object."""
     return getattr(user, "tenant_id", "default")
+
+
+def _raise_not_found(resource: str = "Drone", resource_ar: str = "الطائرة"):
+    """Raise NotFoundException (platform) or HTTPException (fallback)."""
+    if NotFoundException:
+        raise NotFoundException(
+            message=f"{resource} not found",
+            message_ar=f"{resource_ar} غير موجودة",
+            resource_type="drone",
+        )
+    raise HTTPException(status_code=404, detail={"error": f"{resource} not found", "error_ar": f"{resource_ar} غير موجودة"})
 
 
 def _drone_to_response(d: dict) -> dict:
@@ -147,11 +165,11 @@ async def get_drone(drone_id: str, req: Request, user=Depends(get_current_user))
     if repo:
         row = await repo.get_drone(drone_id, tenant_id)
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
         return DroneResponse(**_drone_to_response(row))
 
     if drone_id not in _drones or _drones[drone_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+        _raise_not_found()
     return DroneResponse(**_drone_to_response(_drones[drone_id]))
 
 
@@ -164,11 +182,11 @@ async def update_drone(drone_id: str, drone: DroneCreate, req: Request, user=Dep
     if repo:
         row = await repo.update_drone(drone_id, tenant_id, drone.model_dump())
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
         result = DroneResponse(**_drone_to_response(row))
     else:
         if drone_id not in _drones or _drones[drone_id].get("tenant_id") != tenant_id:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
         _drones[drone_id].update(drone.model_dump(exclude_none=True))
         result = DroneResponse(**_drone_to_response(_drones[drone_id]))
 
@@ -192,10 +210,10 @@ async def delete_drone(drone_id: str, req: Request, user=Depends(get_current_use
     if repo:
         success = await repo.delete_drone(drone_id, tenant_id)
         if not success:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
     else:
         if drone_id not in _drones or _drones[drone_id].get("tenant_id") != tenant_id:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
         del _drones[drone_id]
 
     try:
@@ -217,7 +235,7 @@ async def get_drone_status(drone_id: str, req: Request, user=Depends(get_current
     if repo:
         row = await repo.get_drone(drone_id, tenant_id)
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
         return {
             "drone_id": str(row["id"]), "status": row["status"],
             "battery_percent": float(row.get("battery_percent", 100)),
@@ -226,7 +244,7 @@ async def get_drone_status(drone_id: str, req: Request, user=Depends(get_current
         }
 
     if drone_id not in _drones or _drones[drone_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+        _raise_not_found()
     d = _drones[drone_id]
     return {
         "drone_id": drone_id, "status": d["status"],
@@ -245,9 +263,9 @@ async def get_drone_telemetry(drone_id: str, req: Request, user=Depends(get_curr
     if repo:
         row = await repo.get_drone(drone_id, tenant_id)
         if not row:
-            raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+            _raise_not_found()
     elif drone_id not in _drones or _drones[drone_id].get("tenant_id") != tenant_id:
-        raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
+        _raise_not_found()
 
     return {
         "drone_id": drone_id, "telemetry": [],

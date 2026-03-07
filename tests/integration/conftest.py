@@ -365,6 +365,7 @@ class RetryTransport(httpx.AsyncHTTPTransport):
                     raise
 
             await asyncio.sleep(2**attempt)  # Exponential backoff
+        return None
 
 
 @pytest.fixture(scope="session")

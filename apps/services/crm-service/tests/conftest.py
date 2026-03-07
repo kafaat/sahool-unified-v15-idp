@@ -131,6 +131,9 @@ class MockFarmerStatusEnum:
             return self.value == other
         return False
 
+    def __hash__(self):
+        return hash(self.value)
+
 
 class MockDealStageEnum:
     """Mock DealStage enum value."""

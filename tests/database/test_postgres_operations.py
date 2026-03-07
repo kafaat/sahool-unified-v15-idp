@@ -289,6 +289,7 @@ class TestConnectionRetry:
                     if attempts >= max_retries:
                         raise
                     continue
+            return None
 
         conn = await connect_with_retry()
         assert conn is not None

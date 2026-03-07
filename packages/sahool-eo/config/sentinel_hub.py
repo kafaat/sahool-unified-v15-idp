@@ -22,7 +22,9 @@ class SatelliteDataSource(str, Enum):
     SENTINEL2_L1C = "sentinel-2-l1c"
     SENTINEL1_GRD = "sentinel-1-grd"
     LANDSAT8_L2 = "landsat-ot-l2"
-    LANDSAT9_L2 = "landsat-ot-l2"
+    # Landsat 8 and 9 share the same Sentinel Hub collection (LANDSAT_OT_L2).
+    # LANDSAT9_L2 is an intentional alias — both satellites use "landsat-ot-l2".
+    LANDSAT9_L2 = "landsat-ot-l2"  # noqa: PIE796
     MODIS = "modis"
     DEM = "dem"
 
@@ -373,6 +375,7 @@ class SahoolEOClient:
             SatelliteDataSource.SENTINEL2_L1C: DataCollection.SENTINEL2_L1C,
             SatelliteDataSource.SENTINEL1_GRD: DataCollection.SENTINEL1,
             SatelliteDataSource.LANDSAT8_L2: DataCollection.LANDSAT_OT_L2,
+            SatelliteDataSource.LANDSAT9_L2: DataCollection.LANDSAT_OT_L2,
         }
 
         collection = collection_map.get(data_source, DataCollection.SENTINEL2_L2A)

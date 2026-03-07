@@ -109,17 +109,11 @@ class AnomalyLocation(BaseModel):
     lon: float = Field(..., ge=-180, le=180)
 
     # Optional bounding box for area anomalies
-    bbox_coords: list[dict] | None = Field(
-        default=None, description="List of {lat, lon} for anomaly boundary"
-    )
+    bbox_coords: list[dict] | None = Field(default=None, description="List of {lat, lon} for anomaly boundary")
 
     # Affected area
-    affected_area_hectares: float | None = Field(
-        default=None, ge=0, description="Estimated affected area in hectares"
-    )
-    affected_area_percent: float | None = Field(
-        default=None, ge=0, le=100, description="Percentage of field affected"
-    )
+    affected_area_hectares: float | None = Field(default=None, ge=0, description="Estimated affected area in hectares")
+    affected_area_percent: float | None = Field(default=None, ge=0, le=100, description="Percentage of field affected")
 
 
 class AnomalyDetection(BaseModel):
@@ -134,16 +128,12 @@ class AnomalyDetection(BaseModel):
     # Anomaly classification
     anomaly_type: AnomalyType
     anomaly_type_ar: str = Field(default="", description="Anomaly type in Arabic")
-    sub_type: str | None = Field(
-        default=None, description="More specific classification (e.g., pest species)"
-    )
+    sub_type: str | None = Field(default=None, description="More specific classification (e.g., pest species)")
 
     # Severity
     severity: AnomalySeverity
     severity_ar: str = Field(default="", description="Severity in Arabic")
-    response_deadline_hours: int = Field(
-        default=168, description="Recommended response time in hours"
-    )
+    response_deadline_hours: int = Field(default=168, description="Recommended response time in hours")
 
     # Confidence
     confidence: float = Field(..., ge=0.0, le=1.0)
@@ -158,14 +148,10 @@ class AnomalyDetection(BaseModel):
     # Evidence
     source_frame_id: str = Field(..., description="Frame where first detected")
     source_frame_url: str | None = None
-    additional_frames: list[str] = Field(
-        default_factory=list, description="Additional supporting frame IDs"
-    )
+    additional_frames: list[str] = Field(default_factory=list, description="Additional supporting frame IDs")
 
     # Detection details
-    detection_method: str = Field(
-        default="mllm", description="Method: mllm, cv_model, change_detection"
-    )
+    detection_method: str = Field(default="mllm", description="Method: mllm, cv_model, change_detection")
     model_version: str | None = None
 
     # Timestamps
@@ -175,21 +161,15 @@ class AnomalyDetection(BaseModel):
     )
 
     # Progression tracking
-    is_recurring: bool = Field(
-        default=False, description="Whether this anomaly has occurred before"
-    )
+    is_recurring: bool = Field(default=False, description="Whether this anomaly has occurred before")
     previous_occurrence_id: str | None = None
-    progression_status: str = Field(
-        default="new", description="new, spreading, stable, improving, resolved"
-    )
+    progression_status: str = Field(default="new", description="new, spreading, stable, improving, resolved")
 
     # Multi-tenancy
     tenant_id: str
 
     # Resolution tracking
-    status: str = Field(
-        default="open", description="open, acknowledged, investigating, resolved, false_positive"
-    )
+    status: str = Field(default="open", description="open, acknowledged, investigating, resolved, false_positive")
     acknowledged_by: str | None = None
     acknowledged_at: datetime | None = None
     resolved_by: str | None = None
@@ -294,6 +274,4 @@ class AnomalySummary(BaseModel):
 
     # Trends
     trend: str = Field(default="stable", description="increasing, decreasing, stable")
-    comparison_to_previous: float | None = Field(
-        default=None, description="Percentage change from previous period"
-    )
+    comparison_to_previous: float | None = Field(default=None, description="Percentage change from previous period")

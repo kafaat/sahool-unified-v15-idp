@@ -182,10 +182,10 @@ class TestAlertCreation:
             "recommendations": ["Check irrigation"],
         }
 
-        with patch(
-            "src.main.create_alert_internal", new=AsyncMock(return_value=mock_alert.to_dict())
-        ):
-            response = app_client.post("/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+        with patch("src.main.create_alert_internal", new=AsyncMock(return_value=mock_alert.to_dict())):
+            response = app_client.post(
+                "/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+            )
             assert response.status_code == 200
             data = response.json()
             assert data["field_id"] == "field-123"
@@ -211,7 +211,9 @@ class TestAlertCreation:
             # Missing required fields
         }
 
-        response = app_client.post("/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+        response = app_client.post(
+            "/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+        )
         assert response.status_code == 422
 
     def test_create_alert_tenant_mismatch(self, app_client):
@@ -225,7 +227,9 @@ class TestAlertCreation:
             "message": "Test",
         }
 
-        response = app_client.post("/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+        response = app_client.post(
+            "/alerts", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+        )
         assert response.status_code == 403
 
 
@@ -246,7 +250,9 @@ class TestAlertRetrieval:
         """Test getting non-existent alert"""
         with patch("src.main.get_alert", return_value=None):
             alert_id = str(uuid4())
-            response = app_client.get(f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+            response = app_client.get(
+                f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+            )
             assert response.status_code == 404
 
     def test_get_alert_invalid_id(self, app_client):
@@ -379,7 +385,9 @@ class TestAlertUpdate:
         with patch("src.main.get_alert", return_value=mock_alert):
             with patch("src.main.update_alert_status", return_value=mock_alert):
                 response = app_client.patch(
-                    f"/alerts/{mock_alert.id}", json=payload, headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+                    f"/alerts/{mock_alert.id}",
+                    json=payload,
+                    headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"},
                 )
                 assert response.status_code == 200
 
@@ -413,7 +421,9 @@ class TestAlertDeletion:
         """Test deleting non-existent alert"""
         with patch("src.main.get_alert", return_value=None):
             alert_id = str(uuid4())
-            response = app_client.delete(f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+            response = app_client.delete(
+                f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+            )
             assert response.status_code == 404
 
 
@@ -434,9 +444,7 @@ class TestAlertRules:
         }
 
         with patch("src.main.create_alert_rule", return_value=mock_alert_rule):
-            response = app_client.post(
-                "/alerts/rules", json=payload, headers={"X-Tenant-Id": tenant_id}
-            )
+            response = app_client.post("/alerts/rules", json=payload, headers={"X-Tenant-Id": tenant_id})
             assert response.status_code == 200
             data = response.json()
             assert data["field_id"] == "field-123"
@@ -496,9 +504,7 @@ class TestAlertRules:
         mock_db.execute = MagicMock(return_value=mock_result)
 
         rule_id = str(uuid4())
-        response = app_client.delete(
-            f"/alerts/rules/{rule_id}", headers={"X-Tenant-Id": tenant_id}
-        )
+        response = app_client.delete(f"/alerts/rules/{rule_id}", headers={"X-Tenant-Id": tenant_id})
         assert response.status_code == 404
 
 
@@ -623,7 +629,9 @@ class TestErrorHandling:
         """Test handling database errors"""
         with patch("src.main.get_alert", side_effect=Exception("DB Error")):
             alert_id = str(uuid4())
-            response = app_client.get(f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"})
+            response = app_client.get(
+                f"/alerts/{alert_id}", headers={"X-Tenant-Id": "11111111-1111-1111-1111-111111111111"}
+            )
             # Shared error handler returns 500 for unhandled exceptions
             assert response.status_code == 500
 

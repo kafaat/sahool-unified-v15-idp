@@ -158,9 +158,7 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, username)
-        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(
-            key, AUTH_RATE_CONFIGS.LOGIN
-        )
+        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(key, AUTH_RATE_CONFIGS.LOGIN)
 
         if not allowed:
             logger.warning(f"Login rate limit exceeded for {username} from {request.client.host}")
@@ -199,9 +197,7 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(
-                f"Password reset rate limit exceeded for {email} from {request.client.host}"
-            )
+            logger.warning(f"Password reset rate limit exceeded for {email} from {request.client.host}")
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -273,9 +269,7 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(
-                f"Token refresh rate limit exceeded for user {user_id} from {request.client.host}"
-            )
+            logger.warning(f"Token refresh rate limit exceeded for user {user_id} from {request.client.host}")
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={

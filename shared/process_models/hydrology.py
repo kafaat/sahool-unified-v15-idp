@@ -272,9 +272,7 @@ class HydrologyEngine:
 
         for day_idx, (weather, et0) in enumerate(zip(weather_series, et0_series)):
             irr = irrigation_schedule.get(day_idx, 0.0)
-            state = soil_water_daily_step(
-                state, weather, soil, et0, crop_coefficient, cn, irr
-            )
+            state = soil_water_daily_step(state, weather, soil, et0, crop_coefficient, cn, irr)
             daily_log.append(
                 {
                     "day": day_idx + 1,
@@ -324,9 +322,7 @@ class HydrologyEngine:
             "precipitation_mm": precipitation_mm,
             "runoff_mm": round(runoff, 2),
             "infiltration_mm": round(precipitation_mm - runoff, 2),
-            "runoff_coefficient": (
-                round(runoff / precipitation_mm, 3) if precipitation_mm > 0 else 0.0
-            ),
+            "runoff_coefficient": (round(runoff / precipitation_mm, 3) if precipitation_mm > 0 else 0.0),
         }
 
     def estimate_green_ampt_event(

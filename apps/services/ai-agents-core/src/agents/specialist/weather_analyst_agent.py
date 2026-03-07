@@ -138,9 +138,7 @@ class WeatherAnalystAgent(BaseAgent):
                     "alert_type": alert[0],
                     "severity": alert[1],
                     "message_ar": alert[2],
-                    "all_alerts": [
-                        {"type": a[0], "severity": a[1], "message": a[2]} for a in alerts
-                    ],
+                    "all_alerts": [{"type": a[0], "severity": a[1], "message": a[2]} for a in alerts],
                     "gdd_accumulated": self.internal_model["gdd_accumulated"],
                 },
                 confidence=0.9,

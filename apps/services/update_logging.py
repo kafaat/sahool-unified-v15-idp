@@ -91,10 +91,7 @@ def has_logging_configured(main_file: Path) -> tuple[bool, str]:
 
     content = main_file.read_text()
 
-    if (
-        "from shared.logging_config import" in content
-        or "from ..shared.logging_config import" in content
-    ):
+    if "from shared.logging_config import" in content or "from ..shared.logging_config import" in content:
         return True, "already_configured"
 
     if "structlog.configure" in content:

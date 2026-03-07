@@ -170,9 +170,7 @@ class TestRateLimiter:
             burst_limit=2,
         )
         limiter = RateLimiter()
-        limiter.tier_config = TierConfig(
-            free=config, standard=config, premium=config, internal=config
-        )
+        limiter.tier_config = TierConfig(free=config, standard=config, premium=config, internal=config)
 
         request = self.create_mock_request()
 
@@ -194,9 +192,7 @@ class TestRateLimiter:
             burst_limit=10,
         )
         limiter = RateLimiter()
-        limiter.tier_config = TierConfig(
-            free=config, standard=config, premium=config, internal=config
-        )
+        limiter.tier_config = TierConfig(free=config, standard=config, premium=config, internal=config)
 
         request = self.create_mock_request()
 
@@ -237,9 +233,7 @@ class TestRateLimiter:
         limiter = RateLimiter()
 
         # User with premium tier from JWT
-        request_premium = self.create_mock_request(
-            user_id="user-1", tier="premium"
-        )
+        request_premium = self.create_mock_request(user_id="user-1", tier="premium")
         allowed, headers = limiter.check_rate_limit(request_premium)
         assert allowed is True
         limit = int(headers.get("X-RateLimit-Limit", "0"))

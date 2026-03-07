@@ -35,6 +35,8 @@ def sanitize_log_input(value: str) -> str:
     if not isinstance(value, str):
         value = str(value)
     return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .handlers import WebSocketMessageHandler
@@ -346,7 +348,9 @@ async def websocket_endpoint(
             f"Connection ID: {connection_id}, User: {sanitize_log_input(user_id or '')}, Tenant: {sanitize_log_input(tenant_id)}"
         )
     except ValueError as e:
-        logger.error(f"JWT validation failed for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}")
+        logger.error(
+            f"JWT validation failed for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}"
+        )
         await websocket.close(code=4001, reason="Invalid authentication token")
         return
     except Exception as e:
@@ -488,7 +492,9 @@ async def broadcast_message(
             if "super_admin" not in roles:
                 raise HTTPException(status_code=403, detail="Cannot broadcast to a different tenant")
 
-        logger.info(f"Broadcast by user {sanitize_log_input(payload.get('sub', ''))} to tenant {sanitize_log_input(req.tenant_id)}")
+        logger.info(
+            f"Broadcast by user {sanitize_log_input(payload.get('sub', ''))} to tenant {sanitize_log_input(req.tenant_id)}"
+        )
 
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e)) from e

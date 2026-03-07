@@ -75,15 +75,11 @@ def test_wheat_phenology():
 
         print(f"Current Stage: {result.current_stage.label_en} ({result.current_stage.label_ar})")
         print(f"Days in Stage: {result.days_in_stage}")
-        print(
-            f"Next Stage: {result.expected_next_stage.label_en} in {result.days_to_next_stage} days"
-        )
+        print(f"Next Stage: {result.expected_next_stage.label_en} in {result.days_to_next_stage} days")
         print(f"Season Progress: {result.season_progress_percent:.1f}%")
         print(f"NDVI: {result.ndvi_at_detection}")
         print(f"Confidence: {result.confidence:.2f}")
-        print(
-            f"Recommendations (AR): {result.recommendations_ar[0] if result.recommendations_ar else 'None'}"
-        )
+        print(f"Recommendations (AR): {result.recommendations_ar[0] if result.recommendations_ar else 'None'}")
 
 
 def test_timeline_generation():
@@ -109,9 +105,7 @@ def test_timeline_generation():
         print(f"Season Length: {timeline.season_length_days} days")
         print("\nStages:")
         for stage in timeline.stages[:3]:  # Show first 3 stages
-            print(
-                f"  - {stage['stage_en']} ({stage['stage_ar']}): {stage['start_date']} to {stage['end_date']}"
-            )
+            print(f"  - {stage['stage_en']} ({stage['stage_ar']}): {stage['start_date']} to {stage['end_date']}")
 
         if timeline.critical_periods:
             print("\nCritical Periods:")
@@ -149,9 +143,7 @@ def test_supported_crops():
         print(f"{category}:")
         for crop_info in crops:
             if crop_info["id"] in crop_list:
-                print(
-                    f"  - {crop_info['name_en']} ({crop_info['name_ar']}): {crop_info['season_length_days']} days"
-                )
+                print(f"  - {crop_info['name_en']} ({crop_info['name_ar']}): {crop_info['season_length_days']} days")
         print()
 
 

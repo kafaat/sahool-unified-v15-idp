@@ -401,9 +401,7 @@ class TraditionalSeasonInfo:
             "season": self.season.value,
             "name_ar": self.name_ar,
             "name_en": self.name_en,
-            "start_date_approx": self.start_date_approx.isoformat()
-            if self.start_date_approx
-            else None,
+            "start_date_approx": self.start_date_approx.isoformat() if self.start_date_approx else None,
             "end_date_approx": self.end_date_approx.isoformat() if self.end_date_approx else None,
             "duration_days": self.duration_days,
             "star_name_ar": self.star_name_ar,
@@ -656,9 +654,7 @@ class PlantingWindow:
                 "max": self.expected_yield_tons_ha_max,
                 "avg": self.expected_yield_tons_ha_avg,
             },
-            "traditional_season": self.traditional_season.value
-            if self.traditional_season
-            else None,
+            "traditional_season": self.traditional_season.value if self.traditional_season else None,
             "traditional_guidance_ar": self.traditional_guidance_ar,
             "confidence": self.confidence.value,
             "notes_ar": self.notes_ar,
@@ -764,15 +760,11 @@ class CalendarEvent:
             "description_ar": self.description_ar,
             "date_gregorian": self.date_gregorian.isoformat() if self.date_gregorian else None,
             "date_hijri": self.date_hijri.to_dict() if self.date_hijri else None,
-            "end_date_gregorian": self.end_date_gregorian.isoformat()
-            if self.end_date_gregorian
-            else None,
+            "end_date_gregorian": self.end_date_gregorian.isoformat() if self.end_date_gregorian else None,
             "duration_days": self.duration_days,
             "priority": self.priority.value,
             "priority_icon": self.get_priority_icon(),
-            "traditional_season": self.traditional_season.value
-            if self.traditional_season
-            else None,
+            "traditional_season": self.traditional_season.value if self.traditional_season else None,
             "recommended_actions_en": self.recommended_actions_en,
             "recommended_actions_ar": self.recommended_actions_ar,
             "reminder_days_before": self.reminder_days_before,
@@ -871,20 +863,12 @@ class PlantingRecommendation:
             "crop_variety": self.crop_variety,
             "crop_name_ar": self.crop_name_ar,
             "recommended_planting": {
-                "start": self.recommended_planting_start.isoformat()
-                if self.recommended_planting_start
-                else None,
-                "end": self.recommended_planting_end.isoformat()
-                if self.recommended_planting_end
-                else None,
-                "optimal": self.recommended_planting_optimal.isoformat()
-                if self.recommended_planting_optimal
-                else None,
+                "start": self.recommended_planting_start.isoformat() if self.recommended_planting_start else None,
+                "end": self.recommended_planting_end.isoformat() if self.recommended_planting_end else None,
+                "optimal": self.recommended_planting_optimal.isoformat() if self.recommended_planting_optimal else None,
             },
             "expected_harvest": {
-                "start": self.expected_harvest_start.isoformat()
-                if self.expected_harvest_start
-                else None,
+                "start": self.expected_harvest_start.isoformat() if self.expected_harvest_start else None,
                 "end": self.expected_harvest_end.isoformat() if self.expected_harvest_end else None,
             },
             "alternative_windows": self.alternative_windows,
@@ -894,16 +878,10 @@ class PlantingRecommendation:
             "reasoning_ar": self.reasoning_ar,
             "factors_en": self.factors_en,
             "factors_ar": self.factors_ar,
-            "traditional_season": self.traditional_season.value
-            if self.traditional_season
-            else None,
+            "traditional_season": self.traditional_season.value if self.traditional_season else None,
             "traditional_guidance_ar": self.traditional_guidance_ar,
-            "planting_start_hijri": self.planting_start_hijri.to_dict()
-            if self.planting_start_hijri
-            else None,
-            "planting_end_hijri": self.planting_end_hijri.to_dict()
-            if self.planting_end_hijri
-            else None,
+            "planting_start_hijri": self.planting_start_hijri.to_dict() if self.planting_start_hijri else None,
+            "planting_end_hijri": self.planting_end_hijri.to_dict() if self.planting_end_hijri else None,
             "weather_adjusted": self.weather_adjusted,
             "expected_yield_tons_ha": self.expected_yield_tons_ha,
             "expected_growing_days": self.expected_growing_days,
@@ -990,11 +968,7 @@ class SeasonalCalendar:
         today = date.today()
         end_date = today + timedelta(days=days_ahead)
 
-        return [
-            e
-            for e in self.upcoming_events
-            if e.date_gregorian and today <= e.date_gregorian <= end_date
-        ]
+        return [e for e in self.upcoming_events if e.date_gregorian and today <= e.date_gregorian <= end_date]
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -1014,9 +988,7 @@ class SeasonalCalendar:
             "upcoming_events": [e.to_dict() for e in self.upcoming_events],
             "islamic_events": [e.to_dict() for e in self.islamic_events],
             "traditional_seasons": [t.to_dict() for t in self.traditional_seasons],
-            "active_crops_by_month": {
-                k: [c.value for c in v] for k, v in self.active_crops_by_month.items()
-            },
+            "active_crops_by_month": {k: [c.value for c in v] for k, v in self.active_crops_by_month.items()},
             "key_dates": self.key_dates,
             "summary_ar": self.summary_ar,
             "summary_en": self.summary_en,

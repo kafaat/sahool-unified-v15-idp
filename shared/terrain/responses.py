@@ -73,12 +73,8 @@ MESSAGES = {
     "analysis_complete": BilingualMessage(
         en="Terrain analysis completed successfully", ar="تم إكمال تحليل التضاريس بنجاح"
     ),
-    "slope_complete": BilingualMessage(
-        en="Slope analysis completed successfully", ar="تم إكمال تحليل الميل بنجاح"
-    ),
-    "flow_complete": BilingualMessage(
-        en="Flow analysis completed successfully", ar="تم إكمال تحليل التدفق بنجاح"
-    ),
+    "slope_complete": BilingualMessage(en="Slope analysis completed successfully", ar="تم إكمال تحليل الميل بنجاح"),
+    "flow_complete": BilingualMessage(en="Flow analysis completed successfully", ar="تم إكمال تحليل التدفق بنجاح"),
     "twi_complete": BilingualMessage(
         en="TWI analysis completed successfully", ar="تم إكمال تحليل مؤشر الرطوبة الطبوغرافية بنجاح"
     ),
@@ -100,9 +96,7 @@ MESSAGES = {
     "batch_complete": BilingualMessage(
         en="Batch processing completed successfully", ar="تم إكمال المعالجة الدفعية بنجاح"
     ),
-    "cached_result": BilingualMessage(
-        en="Result retrieved from cache", ar="تم استرداد النتيجة من التخزين المؤقت"
-    ),
+    "cached_result": BilingualMessage(en="Result retrieved from cache", ar="تم استرداد النتيجة من التخزين المؤقت"),
 }
 
 # Standard error messages
@@ -115,12 +109,8 @@ ERROR_MESSAGES = {
     "processing_error": BilingualMessage(en="Error processing request", ar="خطأ في معالجة الطلب"),
     "timeout_error": BilingualMessage(en="Request timed out", ar="انتهت مهلة الطلب"),
     "internal_error": BilingualMessage(en="Internal server error", ar="خطأ داخلي في الخادم"),
-    "invalid_geometry": BilingualMessage(
-        en="Invalid geometry provided", ar="الهندسة المقدمة غير صالحة"
-    ),
-    "insufficient_data": BilingualMessage(
-        en="Insufficient data for analysis", ar="بيانات غير كافية للتحليل"
-    ),
+    "invalid_geometry": BilingualMessage(en="Invalid geometry provided", ar="الهندسة المقدمة غير صالحة"),
+    "insufficient_data": BilingualMessage(en="Insufficient data for analysis", ar="بيانات غير كافية للتحليل"),
 }
 
 
@@ -147,15 +137,9 @@ class ProcessingMeta(BaseModel):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique request identifier | معرف الطلب الفريد",
     )
-    processed_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Processing timestamp | وقت المعالجة"
-    )
-    processing_time_ms: float = Field(
-        0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
-    )
-    cached: bool = Field(
-        False, description="Result was retrieved from cache | تم استرداد النتيجة من التخزين المؤقت"
-    )
+    processed_at: datetime = Field(default_factory=datetime.utcnow, description="Processing timestamp | وقت المعالجة")
+    processing_time_ms: float = Field(0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية")
+    cached: bool = Field(False, description="Result was retrieved from cache | تم استرداد النتيجة من التخزين المؤقت")
     service_version: str = Field("16.0.0", description="Service version | إصدار الخدمة")
 
 
@@ -165,12 +149,8 @@ class TerrainResponseMeta(BaseModel):
     processing: ProcessingMeta = Field(
         default_factory=ProcessingMeta, description="Processing metadata | بيانات المعالجة"
     )
-    pagination: PaginationMeta | None = Field(
-        None, description="Pagination metadata | بيانات الترقيم"
-    )
-    warnings: list[str] = Field(
-        default_factory=list, description="Processing warnings | تحذيرات المعالجة"
-    )
+    pagination: PaginationMeta | None = Field(None, description="Pagination metadata | بيانات الترقيم")
+    warnings: list[str] = Field(default_factory=list, description="Processing warnings | تحذيرات المعالجة")
     warnings_ar: list[str] = Field(
         default_factory=list,
         description="Processing warnings in Arabic | تحذيرات المعالجة بالعربية",
@@ -185,9 +165,7 @@ class TerrainSuccessResponse(BaseModel):
     message: str = Field("", description="Response message (English)")
     message_ar: str = Field("", description="Response message (Arabic)")
     data: Any = Field(None, description="Response data")
-    meta: TerrainResponseMeta = Field(
-        default_factory=TerrainResponseMeta, description="Response metadata"
-    )
+    meta: TerrainResponseMeta = Field(default_factory=TerrainResponseMeta, description="Response metadata")
 
 
 class TerrainErrorResponse(BaseModel):
@@ -201,9 +179,7 @@ class TerrainErrorResponse(BaseModel):
     detail: str | None = Field(None, description="Detailed error information")
     detail_ar: str | None = Field(None, description="Detailed error information (Arabic)")
     field: str | None = Field(None, description="Field that caused the error")
-    request_id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()), description="Request identifier for debugging"
-    )
+    request_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Request identifier for debugging")
 
 
 # =============================================================================

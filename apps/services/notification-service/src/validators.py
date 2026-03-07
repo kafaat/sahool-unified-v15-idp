@@ -79,10 +79,7 @@ def validate_phone_yemen(phone: str | None) -> str | None:
 
     # Now we should have 9 digits starting with 7
     if not (len(cleaned) == 9 and cleaned.startswith("7") and cleaned.isdigit()):
-        raise ValueError(
-            f"Invalid Yemen phone number: {phone}. "
-            "Expected format: 7XXXXXXXX (9 digits starting with 7)"
-        )
+        raise ValueError(f"Invalid Yemen phone number: {phone}. Expected format: 7XXXXXXXX (9 digits starting with 7)")
 
     return f"+967{cleaned}"
 
@@ -125,8 +122,7 @@ def validate_text_content(
     # Check length
     if len(text) > max_length:
         raise ValueError(
-            f"{field_name} is too long. Maximum {max_length} characters allowed, "
-            f"got {len(text)} characters"
+            f"{field_name} is too long. Maximum {max_length} characters allowed, got {len(text)} characters"
         )
 
     # Check for XSS patterns
@@ -149,9 +145,7 @@ def validate_time_format(time_str: str | None, field_name: str) -> str | None:
     try:
         datetime.strptime(time_str, "%H:%M")
     except ValueError as e:
-        raise ValueError(
-            f"Invalid {field_name} format: {time_str}. Expected HH:MM format (e.g., 22:00)"
-        ) from e
+        raise ValueError(f"Invalid {field_name} format: {time_str}. Expected HH:MM format (e.g., 22:00)") from e
 
     return time_str
 
@@ -169,8 +163,7 @@ def validate_farmer_id(farmer_id: str) -> str:
     # Allow alphanumeric, underscores, and hyphens
     if not re.match(r"^[a-zA-Z0-9_\-]+$", farmer_id):
         raise ValueError(
-            "Farmer ID contains invalid characters. "
-            "Only alphanumeric, underscores, and hyphens are allowed"
+            "Farmer ID contains invalid characters. Only alphanumeric, underscores, and hyphens are allowed"
         )
 
     return farmer_id
@@ -195,9 +188,7 @@ def validate_alert_type(alert_type: str) -> str:
     alert_type = alert_type.lower().strip()
 
     if alert_type not in VALID_ALERT_TYPES:
-        raise ValueError(
-            f"Invalid alert type: {alert_type}. Valid types: {', '.join(VALID_ALERT_TYPES)}"
-        )
+        raise ValueError(f"Invalid alert type: {alert_type}. Valid types: {', '.join(VALID_ALERT_TYPES)}")
 
     return alert_type
 
@@ -213,9 +204,7 @@ def validate_expected_date(expected_date: date) -> date:
     # Cannot be more than 14 days in the future
     max_date = today + timedelta(days=14)
     if expected_date > max_date:
-        raise ValueError(
-            f"Expected date cannot be more than 14 days in the future: {expected_date}"
-        )
+        raise ValueError(f"Expected date cannot be more than 14 days in the future: {expected_date}")
 
     return expected_date
 

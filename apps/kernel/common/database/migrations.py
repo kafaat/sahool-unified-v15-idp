@@ -52,9 +52,7 @@ class MigrationManager:
     يدير هجرة مخطط قاعدة البيانات باستخدام Alembic.
     """
 
-    def __init__(
-        self, database_url: str, migrations_dir: str | None = None, alembic_ini: str | None = None
-    ):
+    def __init__(self, database_url: str, migrations_dir: str | None = None, alembic_ini: str | None = None):
         """
         Initialize migration manager.
         تهيئة مدير الهجرة.
@@ -334,8 +332,7 @@ datefmt = %H:%M:%S
             with self.engine.connect() as conn:
                 result = conn.execute(
                     text(
-                        "SELECT revision, description, applied_at, checksum "
-                        "FROM sahool_migrations ORDER BY applied_at"
+                        "SELECT revision, description, applied_at, checksum FROM sahool_migrations ORDER BY applied_at"
                     )
                 )
                 for row in result:
@@ -476,9 +473,7 @@ class PostGISMigrationHelper:
         conn.commit()
 
     @staticmethod
-    def add_geography_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
-    ) -> None:
+    def add_geography_column(conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT") -> None:
         """
         إضافة عمود جغرافي
         Add geography column
@@ -490,15 +485,11 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID (default: 4326 for WGS84)
             geometry_type: Geometry type (POINT, LINESTRING, POLYGON, etc.)
         """
-        conn.execute(
-            text(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})")
-        )
+        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})"))
         conn.commit()
 
     @staticmethod
-    def add_geometry_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
-    ) -> None:
+    def add_geometry_column(conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT") -> None:
         """
         إضافة عمود هندسي
         Add geometry column
@@ -510,7 +501,5 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID
             geometry_type: Geometry type
         """
-        conn.execute(
-            text(f"SELECT AddGeometryColumn('{table}', '{column}', {srid}, '{geometry_type}', 2)")
-        )
+        conn.execute(text(f"SELECT AddGeometryColumn('{table}', '{column}', {srid}, '{geometry_type}', 2)"))
         conn.commit()

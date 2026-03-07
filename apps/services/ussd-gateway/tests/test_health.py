@@ -1,4 +1,5 @@
 """Health endpoint tests for ussd-gateway."""
+
 import pytest
 
 

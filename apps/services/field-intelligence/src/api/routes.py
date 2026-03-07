@@ -182,20 +182,25 @@ async def create_event(
         nc = getattr(request.app.state, "nc", None)
         if nc:
             try:
-                nats_payload = json.dumps({
-                    "event_id": event_response.event_id,
-                    "tenant_id": event_response.tenant_id,
-                    "field_id": event_response.field_id,
-                    "event_type": event_response.event_type.value,
-                    "severity": event_response.severity.value if hasattr(event_response.severity, "value") else str(event_response.severity),
-                    "status": event_response.status.value,
-                    "title": event_response.title,
-                    "source_service": event_response.source_service,
-                    "triggered_rules": event_response.triggered_rules,
-                    "created_tasks": event_response.created_tasks,
-                    "notifications_sent": event_response.notifications_sent,
-                    "timestamp": datetime.now(UTC).isoformat(),
-                }, default=str).encode()
+                nats_payload = json.dumps(
+                    {
+                        "event_id": event_response.event_id,
+                        "tenant_id": event_response.tenant_id,
+                        "field_id": event_response.field_id,
+                        "event_type": event_response.event_type.value,
+                        "severity": event_response.severity.value
+                        if hasattr(event_response.severity, "value")
+                        else str(event_response.severity),
+                        "status": event_response.status.value,
+                        "title": event_response.title,
+                        "source_service": event_response.source_service,
+                        "triggered_rules": event_response.triggered_rules,
+                        "created_tasks": event_response.created_tasks,
+                        "notifications_sent": event_response.notifications_sent,
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    },
+                    default=str,
+                ).encode()
                 subject = "sahool.field_intelligence.event_processed"
                 await nc.publish(subject, nats_payload)
                 logger.info("NATS event published: %s for %s", subject, _sanitize_log_input(event_response.event_id))

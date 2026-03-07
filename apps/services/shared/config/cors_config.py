@@ -238,10 +238,7 @@ def setup_cors_middleware(
     )
 
     # Log CORS configuration
-    logger.info(
-        f"CORS configured: environment={environment}, "
-        f"origins={origins}, credentials={allow_credentials}"
-    )
+    logger.info(f"CORS configured: environment={environment}, origins={origins}, credentials={allow_credentials}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

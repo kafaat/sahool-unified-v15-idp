@@ -322,14 +322,10 @@ class VisionKnowledgeBridge:
                 all_confidences.append(enriched.confidence)
 
         result.total_citations = total_citations
-        result.knowledge_confidence = (
-            sum(all_confidences) / len(all_confidences) if all_confidences else 0.0
-        )
+        result.knowledge_confidence = sum(all_confidences) / len(all_confidences) if all_confidences else 0.0
 
         # Generate general advisory summary
-        result.general_advisory, result.general_advisory_ar = (
-            self._generate_general_advisory(vision_result, result)
-        )
+        result.general_advisory, result.general_advisory_ar = self._generate_general_advisory(vision_result, result)
 
         logger.info(
             "vision_knowledge_enrichment_complete",
@@ -386,18 +382,14 @@ class VisionKnowledgeBridge:
 
         # Enhance with knowledge context
         if crag_result and crag_result.refined_chunks:
-            kb_context = " ".join(
-                chunk.content[:200] for chunk in crag_result.refined_chunks[:2]
-            )
+            kb_context = " ".join(chunk.content[:200] for chunk in crag_result.refined_chunks[:2])
             if kb_context and combined_rec_en:
                 combined_rec_en += f". Knowledge base: {kb_context}"
             elif kb_context:
                 combined_rec_en = kb_context
 
             kb_context_ar = " ".join(
-                chunk.content_ar[:200]
-                for chunk in crag_result.refined_chunks[:2]
-                if chunk.content_ar
+                chunk.content_ar[:200] for chunk in crag_result.refined_chunks[:2] if chunk.content_ar
             )
             if kb_context_ar and combined_rec_ar:
                 combined_rec_ar += f". قاعدة المعرفة: {kb_context_ar}"
@@ -462,18 +454,14 @@ class VisionKnowledgeBridge:
         combined_rec_ar = "; ".join(detection.recommendations_ar) if detection.recommendations_ar else ""
 
         if crag_result and crag_result.refined_chunks:
-            kb_context = " ".join(
-                chunk.content[:200] for chunk in crag_result.refined_chunks[:2]
-            )
+            kb_context = " ".join(chunk.content[:200] for chunk in crag_result.refined_chunks[:2])
             if kb_context and combined_rec_en:
                 combined_rec_en += f". Knowledge base: {kb_context}"
             elif kb_context:
                 combined_rec_en = kb_context
 
             kb_context_ar = " ".join(
-                chunk.content_ar[:200]
-                for chunk in crag_result.refined_chunks[:2]
-                if chunk.content_ar
+                chunk.content_ar[:200] for chunk in crag_result.refined_chunks[:2] if chunk.content_ar
             )
             if kb_context_ar and combined_rec_ar:
                 combined_rec_ar += f". قاعدة المعرفة: {kb_context_ar}"
@@ -559,13 +547,15 @@ class VisionKnowledgeBridge:
         # Convert VectorSearchResult to chunk dicts for CRAG engine
         chunks_for_crag: list[dict[str, Any]] = []
         for result in search_results:
-            chunks_for_crag.append({
-                "content": result.content,
-                "content_ar": result.content_ar,
-                "score": result.score,
-                "collection": result.collection,
-                "metadata": result.metadata,
-            })
+            chunks_for_crag.append(
+                {
+                    "content": result.content,
+                    "content_ar": result.content_ar,
+                    "score": result.score,
+                    "collection": result.collection,
+                    "metadata": result.metadata,
+                }
+            )
 
         try:
             crag_result = self._crag_engine.evaluate_and_refine(
@@ -659,14 +649,23 @@ class VisionKnowledgeBridge:
                     if len(sentence) > 20 and any(
                         keyword in sentence.lower()
                         for keyword in [
-                            "apply", "treat", "spray", "remove", "use",
-                            "control", "manage", "prevent", "inject",
+                            "apply",
+                            "treat",
+                            "spray",
+                            "remove",
+                            "use",
+                            "control",
+                            "manage",
+                            "prevent",
+                            "inject",
                         ]
                     ):
-                        treatment_options.append({
-                            "en": sentence[:200],
-                            "ar": content_ar[:200] if content_ar else "",
-                        })
+                        treatment_options.append(
+                            {
+                                "en": sentence[:200],
+                                "ar": content_ar[:200] if content_ar else "",
+                            }
+                        )
                         break
 
         return treatment_options[:5]
@@ -688,8 +687,7 @@ class VisionKnowledgeBridge:
                 "Continue regular monitoring and maintenance."
             )
             summary_ar = (
-                f"المحصول ({crop}) يبدو بصحة جيدة مع درجة صحة عامة {health:.0%}. "
-                "استمر في المراقبة والصيانة المنتظمة."
+                f"المحصول ({crop}) يبدو بصحة جيدة مع درجة صحة عامة {health:.0%}. استمر في المراقبة والصيانة المنتظمة."
             )
         elif health >= 0.5:
             issues = []
@@ -720,8 +718,7 @@ class VisionKnowledgeBridge:
                 "Immediate action required. Review all treatment recommendations below."
             )
             summary_ar = (
-                f"تنبيه: صحة المحصول ({crop}) حرجة ({health:.0%}). "
-                "إجراء فوري مطلوب. راجع جميع توصيات العلاج أدناه."
+                f"تنبيه: صحة المحصول ({crop}) حرجة ({health:.0%}). إجراء فوري مطلوب. راجع جميع توصيات العلاج أدناه."
             )
 
         # Add knowledge confidence note

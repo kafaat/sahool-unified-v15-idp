@@ -188,15 +188,11 @@ PERM_CROP_DELETE = Permission("crop:delete", "Delete crops", "crop", ["delete"])
 
 # Sensor permissions
 PERM_SENSOR_READ = Permission("sensor:read", "View sensor data", "sensor", ["read"])
-PERM_SENSOR_MANAGE = Permission(
-    "sensor:manage", "Manage sensors", "sensor", ["create", "update", "delete"]
-)
+PERM_SENSOR_MANAGE = Permission("sensor:manage", "Manage sensors", "sensor", ["create", "update", "delete"])
 
 # Irrigation permissions
 PERM_IRRIGATION_VIEW = Permission("irrigation:view", "View irrigation", "irrigation", ["read"])
-PERM_IRRIGATION_CONTROL = Permission(
-    "irrigation:control", "Control irrigation", "irrigation", ["update"]
-)
+PERM_IRRIGATION_CONTROL = Permission("irrigation:control", "Control irrigation", "irrigation", ["update"])
 
 # Report permissions
 PERM_REPORT_VIEW = Permission("report:view", "View reports", "report", ["read"])
@@ -204,9 +200,7 @@ PERM_REPORT_EXPORT = Permission("report:export", "Export reports", "report", ["e
 
 # Billing permissions
 PERM_BILLING_VIEW = Permission("billing:view", "View billing", "billing", ["read"])
-PERM_BILLING_MANAGE = Permission(
-    "billing:manage", "Manage billing", "billing", ["create", "update", "delete"]
-)
+PERM_BILLING_MANAGE = Permission("billing:manage", "Manage billing", "billing", ["create", "update", "delete"])
 
 # User management permissions
 PERM_USER_READ = Permission("user:read", "View users", "user", ["read"])

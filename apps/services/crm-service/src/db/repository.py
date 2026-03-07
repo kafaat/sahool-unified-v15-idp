@@ -245,9 +245,7 @@ class FarmerRepository:
             "phone": row["phone"],
             "email": row["email"],
             "national_id": row["national_id"],
-            "farm_size_hectares": float(row["farm_size_hectares"])
-            if row["farm_size_hectares"]
-            else None,
+            "farm_size_hectares": float(row["farm_size_hectares"]) if row["farm_size_hectares"] else None,
             "location": row["location"],
             "location_ar": row["location_ar"],
             "crops": row["crops"] if row["crops"] else [],
@@ -549,9 +547,7 @@ class DealRepository:
             "quantity_tons": float(row["quantity_tons"]),
             "price_per_ton": float(row["price_per_ton"]) if row["price_per_ton"] else None,
             "total_value": float(row["total_value"]) if row["total_value"] else None,
-            "actual_quantity_tons": float(row["actual_quantity_tons"])
-            if row["actual_quantity_tons"]
-            else None,
+            "actual_quantity_tons": float(row["actual_quantity_tons"]) if row["actual_quantity_tons"] else None,
             "actual_harvest_date": row["actual_harvest_date"],
             "expected_harvest_date": row["expected_harvest_date"],
             "stage": row["stage"],

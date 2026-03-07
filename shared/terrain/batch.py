@@ -194,9 +194,7 @@ class BatchItemResultModel(BaseModel):
     result: Any = Field(None, description="Processing result | نتيجة المعالجة")
     error: str | None = Field(None, description="Error message | رسالة الخطأ")
     error_ar: str | None = Field(None, description="Error message (Arabic) | رسالة الخطأ بالعربية")
-    processing_time_ms: float = Field(
-        0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
-    )
+    processing_time_ms: float = Field(0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية")
 
 
 class BatchResultModel(BaseModel):
@@ -210,9 +208,7 @@ class BatchResultModel(BaseModel):
     results: list[BatchItemResultModel] = Field(
         default_factory=list, description="Individual results | النتائج الفردية"
     )
-    total_processing_time_ms: float = Field(
-        0.0, description="Total processing time | إجمالي وقت المعالجة"
-    )
+    total_processing_time_ms: float = Field(0.0, description="Total processing time | إجمالي وقت المعالجة")
     average_processing_time_ms: float = Field(
         0.0, description="Average processing time per item | متوسط وقت المعالجة لكل عنصر"
     )
@@ -399,10 +395,7 @@ async def process_batch_with_priority(
     Returns:
         BatchResult with all results
     """
-    requests = [
-        BatchRequest(data=item, priority=priority, id=str(i))
-        for i, (item, priority) in enumerate(items)
-    ]
+    requests = [BatchRequest(data=item, priority=priority, id=str(i)) for i, (item, priority) in enumerate(items)]
 
     processor = BatchProcessor[T, R](max_concurrent=max_concurrent)
     return await processor.process(requests, handler)
@@ -468,9 +461,7 @@ def format_batch_result(
         "timing": {
             "started_at": datetime.fromtimestamp(batch_result.started_at).isoformat(),
             "completed_at": (
-                datetime.fromtimestamp(batch_result.completed_at).isoformat()
-                if batch_result.completed_at
-                else None
+                datetime.fromtimestamp(batch_result.completed_at).isoformat() if batch_result.completed_at else None
             ),
             "total_processing_time_ms": batch_result.total_processing_time_ms,
             "average_processing_time_ms": batch_result.average_processing_time_ms,

@@ -54,13 +54,9 @@ class WeatherData:
             "temperature_min_c": round(self.temperature_min_c, 1),
             "temperature_max_c": round(self.temperature_max_c, 1),
             "precipitation_mm": round(self.precipitation_mm, 2),
-            "humidity_percent": (
-                round(self.humidity_percent, 1) if self.humidity_percent else None
-            ),
+            "humidity_percent": (round(self.humidity_percent, 1) if self.humidity_percent else None),
             "wind_speed_ms": (round(self.wind_speed_ms, 2) if self.wind_speed_ms else None),
-            "solar_radiation_wm2": (
-                round(self.solar_radiation_wm2, 1) if self.solar_radiation_wm2 else None
-            ),
+            "solar_radiation_wm2": (round(self.solar_radiation_wm2, 1) if self.solar_radiation_wm2 else None),
             "et0_mm": round(self.et0_mm, 2) if self.et0_mm else None,
         }
 
@@ -191,9 +187,7 @@ class WeatherIntegration:
         """Close HTTP client"""
         await self.client.aclose()
 
-    async def get_forecast(
-        self, latitude: float, longitude: float, days: int = 7
-    ) -> WeatherForecast:
+    async def get_forecast(self, latitude: float, longitude: float, days: int = 7) -> WeatherForecast:
         """
         Get weather forecast for next N days.
         Includes ET0 for irrigation planning.
@@ -371,9 +365,7 @@ class WeatherIntegration:
                 "min_temp_c": round(min(temps), 1) if temps else 0,
                 "max_temp_c": round(max(temps), 1) if temps else 0,
                 "total_precipitation_mm": round(sum(precips), 1),
-                "avg_daily_precipitation_mm": (
-                    round(sum(precips) / len(precips), 2) if precips else 0
-                ),
+                "avg_daily_precipitation_mm": (round(sum(precips) / len(precips), 2) if precips else 0),
                 "total_et0_mm": round(sum(et0s), 1) if et0s else None,
                 "avg_daily_et0_mm": round(sum(et0s) / len(et0s), 2) if et0s else None,
                 "gdd_base_10": round(gdd, 1),
@@ -583,9 +575,7 @@ class WeatherIntegration:
             recommendation_ar = f"ري معتدل مطلوب كل {freq_days} أيام."
         else:
             freq_days = 2
-            recommendation_en = (
-                f"Heavy irrigation required every {freq_days} days due to high water demand."
-            )
+            recommendation_en = f"Heavy irrigation required every {freq_days} days due to high water demand."
             recommendation_ar = f"ري كثيف مطلوب كل {freq_days} أيام بسبب الطلب المائي العالي."
 
         # Add growth stage specific advice
@@ -620,9 +610,7 @@ class WeatherIntegration:
             confidence=confidence,
         )
 
-    async def get_frost_risk(
-        self, latitude: float, longitude: float, days: int = 7
-    ) -> list[FrostRisk]:
+    async def get_frost_risk(self, latitude: float, longitude: float, days: int = 7) -> list[FrostRisk]:
         """
         Assess frost risk for next N days.
         Important for Yemen highlands (Sanaa, Ibb, Dhamar).

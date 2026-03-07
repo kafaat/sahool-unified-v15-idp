@@ -118,9 +118,7 @@ class CodeFixClient:
                 base_url=ollama_url or OLLAMA_URL,
                 model=ollama_model or OLLAMA_MODEL,
             )
-            logger.info(
-                "ollama_enabled", url=ollama_url or OLLAMA_URL, model=ollama_model or OLLAMA_MODEL
-            )
+            logger.info("ollama_enabled", url=ollama_url or OLLAMA_URL, model=ollama_model or OLLAMA_MODEL)
         else:
             self.ollama = None
 
@@ -157,9 +155,7 @@ class CodeFixClient:
                 logger.error("analyze_failed", error=str(e))
                 return {"success": False, "error": str(e)}
 
-    async def fix_code(
-        self, code: str, errors: list[dict], language: str, strategy: str = "minimal"
-    ) -> dict[str, Any]:
+    async def fix_code(self, code: str, errors: list[dict], language: str, strategy: str = "minimal") -> dict[str, Any]:
         """Fix code errors"""
         if self.use_ollama and self.ollama:
             # Use Ollama for fixing
@@ -296,9 +292,7 @@ async def process_file(
 
 async def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(
-        description="Batch fix code errors using Ollama DeepSeek-Coder"
-    )
+    parser = argparse.ArgumentParser(description="Batch fix code errors using Ollama DeepSeek-Coder")
     parser.add_argument(
         "--language",
         choices=["python", "dart", "all"],
@@ -450,11 +444,7 @@ async def main():
     )
 
     print("\n" + "=" * 60)
-    print(
-        "BATCH FIX SUMMARY - Powered by Ollama DeepSeek-Coder"
-        if use_ollama
-        else "BATCH FIX SUMMARY"
-    )
+    print("BATCH FIX SUMMARY - Powered by Ollama DeepSeek-Coder" if use_ollama else "BATCH FIX SUMMARY")
     print("=" * 60)
     print(f"Total files scanned: {results['total']}")
     print(f"Files fixed: {results['fixed']}")

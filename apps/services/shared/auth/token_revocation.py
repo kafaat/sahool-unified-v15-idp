@@ -290,9 +290,7 @@ class RedisTokenRevocationStore:
             logger.info(
                 "All user tokens revoked",
                 extra={
-                    "user_id_prefix": _sanitize_log_value(
-                        user_id[:8] if len(user_id) > 8 else user_id
-                    ),
+                    "user_id_prefix": _sanitize_log_value(user_id[:8] if len(user_id) > 8 else user_id),
                     "reason": _sanitize_log_value(reason),
                 },
             )
@@ -335,9 +333,7 @@ class RedisTokenRevocationStore:
             logger.error(f"Error checking user token revocation: {e}")
             return False
 
-    async def revoke_all_tenant_tokens(
-        self, tenant_id: str, reason: str = "tenant_suspended"
-    ) -> bool:
+    async def revoke_all_tenant_tokens(self, tenant_id: str, reason: str = "tenant_suspended") -> bool:
         """
         Revoke all tokens for a tenant
 
@@ -367,9 +363,7 @@ class RedisTokenRevocationStore:
             logger.info(
                 "All tenant tokens revoked",
                 extra={
-                    "tenant_id_prefix": _sanitize_log_value(
-                        tenant_id[:8] if len(tenant_id) > 8 else tenant_id
-                    ),
+                    "tenant_id_prefix": _sanitize_log_value(tenant_id[:8] if len(tenant_id) > 8 else tenant_id),
                     "reason": _sanitize_log_value(reason),
                 },
             )
@@ -412,9 +406,7 @@ class RedisTokenRevocationStore:
             logger.error(f"Error checking tenant token revocation: {e}")
             return False
 
-    async def revoke_token_family(
-        self, family_id: str, reason: str = "refresh_token_rotation"
-    ) -> bool:
+    async def revoke_token_family(self, family_id: str, reason: str = "refresh_token_rotation") -> bool:
         """
         Revoke all tokens in a token family (for refresh token rotation)
 
@@ -444,9 +436,7 @@ class RedisTokenRevocationStore:
             logger.info(
                 "Token family revoked",
                 extra={
-                    "family_id_prefix": _sanitize_log_value(
-                        family_id[:8] if len(family_id) > 8 else family_id
-                    ),
+                    "family_id_prefix": _sanitize_log_value(family_id[:8] if len(family_id) > 8 else family_id),
                     "reason": _sanitize_log_value(reason),
                 },
             )

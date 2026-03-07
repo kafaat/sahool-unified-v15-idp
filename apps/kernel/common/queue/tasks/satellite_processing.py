@@ -135,9 +135,7 @@ class ProcessingResult:
 # ======================================================================
 
 
-def simulate_band_download(
-    image_url: str, field_id: str, bands: list[str], satellite_type: str
-) -> dict[str, BandData]:
+def simulate_band_download(image_url: str, field_id: str, bands: list[str], satellite_type: str) -> dict[str, BandData]:
     """
     محاكاة تحميل نطاقات الصورة (للتطوير/الاختبار)
     Simulate downloading image bands (for development/testing)
@@ -292,9 +290,7 @@ def detect_clouds(band_data: dict[str, BandData]) -> tuple[np.ndarray, float]:
     return cloud_mask, float(cloud_coverage)
 
 
-def crop_to_field_boundary(
-    band_data: dict[str, BandData], field_geometry: dict | None
-) -> dict[str, BandData]:
+def crop_to_field_boundary(band_data: dict[str, BandData], field_geometry: dict | None) -> dict[str, BandData]:
     """
     قص الصورة حسب حدود الحقل
     Crop image to field boundary
@@ -486,9 +482,7 @@ def process_satellite_image(payload: dict[str, Any]) -> ProcessingResult:
 
         # Check cloud coverage threshold
         if cloud_coverage > MAX_CLOUD_COVERAGE_PERCENT:
-            logger.warning(
-                f"High cloud coverage ({cloud_coverage:.1f}%) - results may be unreliable"
-            )
+            logger.warning(f"High cloud coverage ({cloud_coverage:.1f}%) - results may be unreliable")
 
         # Step 4: Crop to field boundary - قص حسب حدود الحقل
         logger.info("Step 4: Cropping to field boundary")
@@ -579,10 +573,7 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
         if not image_url or not field_id:
             raise ValueError("image_url and field_id are required")
 
-        logger.info(
-            f"Starting satellite processing: field={field_id}, "
-            f"satellite={satellite_type}, bands={bands}"
-        )
+        logger.info(f"Starting satellite processing: field={field_id}, satellite={satellite_type}, bands={bands}")
 
         # ==========================================================
         # Step 2: Execute processing pipeline - تنفيذ خط المعالجة
@@ -602,10 +593,7 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
         # Step 3: Prepare response - إعداد الاستجابة
         # ==========================================================
         if not processing_result.success:
-            logger.error(
-                f"Satellite processing failed for field {field_id}: "
-                f"{processing_result.error_message}"
-            )
+            logger.error(f"Satellite processing failed for field {field_id}: {processing_result.error_message}")
             raise RuntimeError(processing_result.error_message)
 
         # Get satellite resolution - الحصول على دقة القمر الصناعي
@@ -624,9 +612,7 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
             },
             "processing_time": processing_result.processing_duration_sec,
             "status": "success",
-            "vegetation_indices": (
-                processing_result.indices.to_dict() if processing_result.indices else None
-            ),
+            "vegetation_indices": (processing_result.indices.to_dict() if processing_result.indices else None),
         }
 
         logger.info(

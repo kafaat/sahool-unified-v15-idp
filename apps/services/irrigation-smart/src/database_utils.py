@@ -343,9 +343,7 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
             command_timeout=config.command_timeout,
         )
 
-        logger.info(
-            f"Database pool created (min={config.min_connections}, max={config.max_connections})"
-        )
+        logger.info(f"Database pool created (min={config.min_connections}, max={config.max_connections})")
 
         return pool
 

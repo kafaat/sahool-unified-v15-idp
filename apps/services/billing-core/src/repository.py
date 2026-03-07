@@ -126,9 +126,7 @@ class PlanRepository:
     async def delete(self, plan_id: str) -> bool:
         """Delete plan (soft delete by setting is_active=False) - حذف خطة"""
         result = await self.db.execute(
-            update(Plan)
-            .where(Plan.plan_id == plan_id)
-            .values(is_active=False, updated_at=datetime.now(UTC))
+            update(Plan).where(Plan.plan_id == plan_id).values(is_active=False, updated_at=datetime.now(UTC))
         )
         await self.db.commit()
 
@@ -265,9 +263,7 @@ class TenantRepository:
     async def delete(self, tenant_id: str) -> bool:
         """Delete tenant (soft delete by setting is_active=False) - حذف مستأجر"""
         result = await self.db.execute(
-            update(Tenant)
-            .where(Tenant.tenant_id == tenant_id)
-            .values(is_active=False, updated_at=datetime.now(UTC))
+            update(Tenant).where(Tenant.tenant_id == tenant_id).values(is_active=False, updated_at=datetime.now(UTC))
         )
         await self.db.commit()
 
@@ -334,9 +330,7 @@ class SubscriptionRepository:
 
     async def get_by_id(self, subscription_id: uuid.UUID) -> Subscription | None:
         """Get subscription by ID - الحصول على اشتراك بواسطة المعرف"""
-        result = await self.db.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
+        result = await self.db.execute(select(Subscription).where(Subscription.id == subscription_id))
         return result.scalar_one_or_none()
 
     async def get_by_tenant(
@@ -351,9 +345,7 @@ class SubscriptionRepository:
             query = query.where(Subscription.status == status)
         else:
             # Get active or trial subscriptions
-            query = query.where(
-                Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL])
-            )
+            query = query.where(Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]))
 
         query = query.order_by(desc(Subscription.created_at))
 
@@ -385,9 +377,7 @@ class SubscriptionRepository:
         # Add updated_at timestamp
         kwargs["updated_at"] = datetime.now(UTC)
 
-        await self.db.execute(
-            update(Subscription).where(Subscription.id == subscription_id).values(**kwargs)
-        )
+        await self.db.execute(update(Subscription).where(Subscription.id == subscription_id).values(**kwargs))
         await self.db.commit()
 
         return await self.get_by_id(subscription_id)
@@ -411,9 +401,7 @@ class SubscriptionRepository:
             update_data["status"] = SubscriptionStatus.CANCELED
             update_data["end_date"] = date.today()
 
-        await self.db.execute(
-            update(Subscription).where(Subscription.id == subscription_id).values(**update_data)
-        )
+        await self.db.execute(update(Subscription).where(Subscription.id == subscription_id).values(**update_data))
         await self.db.commit()
 
         return await self.get_by_id(subscription_id)
@@ -530,9 +518,7 @@ class InvoiceRepository:
 
     async def get_by_invoice_number(self, invoice_number: str) -> Invoice | None:
         """Get invoice by invoice number - الحصول على فاتورة بواسطة رقم الفاتورة"""
-        result = await self.db.execute(
-            select(Invoice).where(Invoice.invoice_number == invoice_number)
-        )
+        result = await self.db.execute(select(Invoice).where(Invoice.invoice_number == invoice_number))
         return result.scalar_one_or_none()
 
     async def list_by_tenant(
@@ -790,9 +776,7 @@ class PaymentRepository:
         end_date: date | None = None,
     ) -> dict[str, Decimal]:
         """Get total payments by method - إجمالي المدفوعات حسب الطريقة"""
-        query = select(Payment.method, func.sum(Payment.amount)).where(
-            Payment.status == PaymentStatus.SUCCEEDED
-        )
+        query = select(Payment.method, func.sum(Payment.amount)).where(Payment.status == PaymentStatus.SUCCEEDED)
 
         if start_date:
             query = query.where(Payment.paid_at >= start_date)

@@ -1,4 +1,5 @@
 """Health endpoint tests for agent-registry."""
+
 import pytest
 
 

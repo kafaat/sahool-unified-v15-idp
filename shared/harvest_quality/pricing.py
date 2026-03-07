@@ -429,9 +429,7 @@ class QualityPricingEngine:
         """Set adjustment rules"""
         self.adjustment_rules = rules
 
-    def get_price_matrix_for_crop(
-        self, crop_type: str, variety: str | None = None
-    ) -> GradePriceMatrix | None:
+    def get_price_matrix_for_crop(self, crop_type: str, variety: str | None = None) -> GradePriceMatrix | None:
         """Get price matrix for a crop type"""
         # Try with variety first
         if variety:
@@ -495,11 +493,7 @@ class QualityPricingEngine:
                 moisture_threshold = 13.0  # Standard threshold
                 if test_values["moisture"] > moisture_threshold:
                     excess = test_values["moisture"] - moisture_threshold
-                    adjustment = (
-                        -matrix.moisture_adjustment_per_percent
-                        * Decimal(str(excess))
-                        * Decimal(str(quantity))
-                    )
+                    adjustment = -matrix.moisture_adjustment_per_percent * Decimal(str(excess)) * Decimal(str(quantity))
                     adjustments.append(
                         {
                             "reason": f"Moisture above {moisture_threshold}%: {test_values['moisture']:.1f}%",
@@ -512,11 +506,7 @@ class QualityPricingEngine:
                 protein_threshold = 12.0  # Standard threshold
                 if test_values["protein"] > protein_threshold:
                     excess = test_values["protein"] - protein_threshold
-                    adjustment = (
-                        matrix.protein_bonus_per_percent
-                        * Decimal(str(excess))
-                        * Decimal(str(quantity))
-                    )
+                    adjustment = matrix.protein_bonus_per_percent * Decimal(str(excess)) * Decimal(str(quantity))
                     adjustments.append(
                         {
                             "reason": f"Protein above {protein_threshold}%: {test_values['protein']:.1f}%",
@@ -530,9 +520,7 @@ class QualityPricingEngine:
                 if test_values["foreign_matter"] > fm_threshold:
                     excess = test_values["foreign_matter"] - fm_threshold
                     adjustment = (
-                        -matrix.foreign_matter_deduction_per_percent
-                        * Decimal(str(excess))
-                        * Decimal(str(quantity))
+                        -matrix.foreign_matter_deduction_per_percent * Decimal(str(excess)) * Decimal(str(quantity))
                     )
                     adjustments.append(
                         {
@@ -569,9 +557,7 @@ class QualityPricingEngine:
             )
 
         if self.config.seasonal_adjustment_percent != 0:
-            seasonal_adj = calc.subtotal * Decimal(
-                str(self.config.seasonal_adjustment_percent / 100)
-            )
+            seasonal_adj = calc.subtotal * Decimal(str(self.config.seasonal_adjustment_percent / 100))
             adjustments.append(
                 {
                     "reason": f"Seasonal adjustment: {self.config.seasonal_adjustment_percent:+.1f}%",
@@ -615,9 +601,7 @@ class QualityPricingEngine:
 
         # Calculate comparison percentages
         if base_price > 0:
-            calc.vs_base_price_percent = float(
-                (calc.final_price_per_unit - base_price) / base_price * 100
-            )
+            calc.vs_base_price_percent = float((calc.final_price_per_unit - base_price) / base_price * 100)
 
         calc.calculated_at = datetime.now(UTC)
 
@@ -641,9 +625,7 @@ class QualityPricingEngine:
             PriceCalculation with detailed breakdown
         """
         # Get appropriate price matrix
-        matrix = price_matrix or self.get_price_matrix_for_crop(
-            test_record.crop_type, test_record.variety
-        )
+        matrix = price_matrix or self.get_price_matrix_for_crop(test_record.crop_type, test_record.variety)
         if not matrix:
             matrix = self.price_matrix
 
@@ -712,9 +694,7 @@ class QualityPricingEngine:
             # Calculate difference from Grade B (standard)
             base_total = matrix.base_price * Decimal(str(quantity))
             difference = total - base_total
-            difference_percent = (
-                float((total - base_total) / base_total * 100) if base_total > 0 else 0
-            )
+            difference_percent = float((total - base_total) / base_total * 100) if base_total > 0 else 0
 
             comparison[grade.value] = {
                 "grade": grade.value,

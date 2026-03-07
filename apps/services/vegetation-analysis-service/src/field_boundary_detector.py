@@ -343,9 +343,7 @@ class FieldBoundaryDetector:
             radius = self._calculate_average_radius(previous_coords, centroid)
 
             # Detect current boundary
-            current_boundaries = await self.detect_boundary(
-                centroid[1], centroid[0], radius * 1.5, current_date
-            )
+            current_boundaries = await self.detect_boundary(centroid[1], centroid[0], radius * 1.5, current_date)
 
             # Find the boundary that best matches the previous one
             current_boundary = self._find_matching_boundary(previous_coords, current_boundaries)
@@ -379,9 +377,7 @@ class FieldBoundaryDetector:
                 change_type = "contraction"
 
             # Find affected coordinates (symmetric difference)
-            affected = self._calculate_boundary_difference(
-                previous_coords, current_boundary.coordinates
-            )
+            affected = self._calculate_boundary_difference(previous_coords, current_boundary.coordinates)
 
             # Calculate average boundary shift
             shift = self._calculate_boundary_shift(previous_coords, current_boundary.coordinates)
@@ -567,9 +563,7 @@ class FieldBoundaryDetector:
     # Private Helper Methods
     # =========================================================================
 
-    async def _fetch_ndvi_data(
-        self, lat: float, lon: float, radius: float, date: datetime
-    ) -> dict[str, Any]:
+    async def _fetch_ndvi_data(self, lat: float, lon: float, radius: float, date: datetime) -> dict[str, Any]:
         """Fetch NDVI data for the specified area"""
         # In production, this would fetch real satellite data
         # For now, return simulated data structure
@@ -584,9 +578,7 @@ class FieldBoundaryDetector:
             },
         }
 
-    def _detect_edges(
-        self, ndvi_data: dict[str, Any], high_sensitivity: bool = False
-    ) -> list[list[tuple[int, int]]]:
+    def _detect_edges(self, ndvi_data: dict[str, Any], high_sensitivity: bool = False) -> list[list[tuple[int, int]]]:
         """Detect edges in NDVI image using gradient analysis"""
         # Simplified edge detection - in production would use Sobel/Canny
         # Returns list of edge pixel coordinates
@@ -622,9 +614,7 @@ class FieldBoundaryDetector:
 
         return (round(lon_sum / n, 6), round(lat_sum / n, 6))
 
-    def _calculate_confidence(
-        self, coords: list[tuple[float, float]], area: float, perimeter: float
-    ) -> float:
+    def _calculate_confidence(self, coords: list[tuple[float, float]], area: float, perimeter: float) -> float:
         """Calculate detection confidence based on shape regularity"""
         # Use isoperimetric quotient as a measure of shape regularity
         # Perfect circle = 1.0, irregular shape = closer to 0
@@ -648,16 +638,12 @@ class FieldBoundaryDetector:
 
         return round(confidence, 2)
 
-    def _calculate_mean_ndvi(
-        self, coords: list[tuple[float, float]], ndvi_data: dict[str, Any]
-    ) -> float:
+    def _calculate_mean_ndvi(self, coords: list[tuple[float, float]], ndvi_data: dict[str, Any]) -> float:
         """Calculate mean NDVI within boundary"""
         # Simplified - would sample NDVI values within polygon
         return 0.65
 
-    def _calculate_quality_score(
-        self, coords: list[tuple[float, float]], area: float, perimeter: float
-    ) -> float:
+    def _calculate_quality_score(self, coords: list[tuple[float, float]], area: float, perimeter: float) -> float:
         """Calculate quality score based on shape characteristics"""
         # Combine multiple factors:
         # 1. Shape regularity (isoperimetric quotient)
@@ -698,17 +684,12 @@ class FieldBoundaryDetector:
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
 
-        a = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
-        )
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
         c = 2 * math.asin(math.sqrt(a))
 
         return R * c
 
-    def _calculate_average_radius(
-        self, coords: list[tuple[float, float]], centroid: tuple[float, float]
-    ) -> float:
+    def _calculate_average_radius(self, coords: list[tuple[float, float]], centroid: tuple[float, float]) -> float:
         """Calculate average distance from centroid to boundary"""
         if not coords:
             return 0.0

@@ -65,9 +65,7 @@ class CalibrationResult:
     best_cost: float  # Final cost (RMSE or NLL) | قيمة دالة التكلفة النهائية
     n_evaluations: int  # Number of model runs | عدد تشغيلات النموذج
     cost_history: list[float] = field(default_factory=list)
-    predictions: dict[str, dict[str, float]] = field(
-        default_factory=dict
-    )  # Final predictions | التنبؤات النهائية
+    predictions: dict[str, dict[str, float]] = field(default_factory=dict)  # Final predictions | التنبؤات النهائية
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

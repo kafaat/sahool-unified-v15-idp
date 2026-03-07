@@ -107,12 +107,8 @@ class QueuedNotification:
             status=NotificationStatus(data.get("status", "queued")),
             retry_count=data.get("retry_count", 0),
             max_retries=data.get("max_retries", 3),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            scheduled_at=datetime.fromisoformat(data["scheduled_at"])
-            if data.get("scheduled_at")
-            else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            scheduled_at=datetime.fromisoformat(data["scheduled_at"]) if data.get("scheduled_at") else None,
             tenant_id=data.get("tenant_id"),
         )
 
@@ -272,9 +268,7 @@ class NotificationQueueProcessor:
 
         if scheduled_at and scheduled_at > datetime.now(UTC):
             # Add to scheduled set with score as timestamp
-            await self._redis.zadd(
-                self.SCHEDULED_SET, {notification_json: scheduled_at.timestamp()}
-            )
+            await self._redis.zadd(self.SCHEDULED_SET, {notification_json: scheduled_at.timestamp()})
             logger.debug(f"Scheduled notification {notification.id} for {scheduled_at}")
         else:
             # Add to priority queue
@@ -423,9 +417,7 @@ class NotificationQueueProcessor:
             await self._redis.zadd(self.SCHEDULED_SET, {notification_json: retry_at.timestamp()})
 
             await self._increment_stat("retries")
-            logger.info(
-                f"Scheduled retry {notification.retry_count}/{notification.max_retries} for {notification.id}"
-            )
+            logger.info(f"Scheduled retry {notification.retry_count}/{notification.max_retries} for {notification.id}")
 
         else:
             # Move to dead letter queue

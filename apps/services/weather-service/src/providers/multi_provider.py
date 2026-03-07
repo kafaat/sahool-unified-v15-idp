@@ -131,15 +131,11 @@ class WeatherProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         pass
 
     @abstractmethod
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> list[HourlyForecast]:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
         pass
 
     # Helper functions
@@ -229,9 +225,7 @@ class OpenMeteoProvider(WeatherProvider):
             provider=self.name,
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         client = await self._get_client()
 
         params = {
@@ -268,8 +262,7 @@ class OpenMeteoProvider(WeatherProvider):
                     temp_max_c=daily.get("temperature_2m_max", [0])[i],
                     temp_min_c=daily.get("temperature_2m_min", [0])[i],
                     precipitation_mm=daily.get("precipitation_sum", [0])[i] or 0,
-                    precipitation_probability_pct=daily.get("precipitation_probability_max", [0])[i]
-                    or 0,
+                    precipitation_probability_pct=daily.get("precipitation_probability_max", [0])[i] or 0,
                     wind_speed_max_kmh=daily.get("wind_speed_10m_max", [0])[i],
                     uv_index_max=daily.get("uv_index_max", [0])[i] or 0,
                     condition=self._wmo_to_condition(weather_code),
@@ -282,9 +275,7 @@ class OpenMeteoProvider(WeatherProvider):
 
         return forecasts
 
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> list[HourlyForecast]:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
         client = await self._get_client()
 
         params = {
@@ -319,8 +310,7 @@ class OpenMeteoProvider(WeatherProvider):
                     temperature_c=hourly.get("temperature_2m", [0])[i],
                     humidity_pct=hourly.get("relative_humidity_2m", [0])[i],
                     precipitation_mm=hourly.get("precipitation", [0])[i] or 0,
-                    precipitation_probability_pct=hourly.get("precipitation_probability", [0])[i]
-                    or 0,
+                    precipitation_probability_pct=hourly.get("precipitation_probability", [0])[i] or 0,
                     wind_speed_kmh=hourly.get("wind_speed_10m", [0])[i],
                     cloud_cover_pct=hourly.get("cloud_cover", [0])[i],
                     condition=self._wmo_to_condition(weather_code),
@@ -445,9 +435,7 @@ class OpenWeatherMapProvider(WeatherProvider):
             provider=self.name,
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
@@ -495,9 +483,7 @@ class OpenWeatherMapProvider(WeatherProvider):
 
         return forecasts
 
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> list[HourlyForecast]:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
@@ -603,9 +589,7 @@ class WeatherAPIProvider(WeatherProvider):
             provider=self.name,
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
@@ -645,9 +629,7 @@ class WeatherAPIProvider(WeatherProvider):
 
         return forecasts
 
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> list[HourlyForecast]:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
@@ -750,9 +732,7 @@ class MultiWeatherService:
             try:
                 data = await provider.get_current(lat, lon)
                 self._set_cached(cache_key, data)
-                return WeatherResult(
-                    data=data, provider=provider.name, failed_providers=failed_providers
-                )
+                return WeatherResult(data=data, provider=provider.name, failed_providers=failed_providers)
             except Exception as e:
                 failed_providers.append(f"{provider.name}: {str(e)}")
 

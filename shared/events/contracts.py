@@ -40,12 +40,8 @@ class BaseEvent(BaseModel):
     Conformance: causation_id, trace_id, span_id.
     """
 
-    event_id: str = Field(
-        default_factory=lambda: str(uuid4()), description="Unique event identifier"
-    )
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Event timestamp"
-    )
+    event_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique event identifier")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
     tenant_id_header: str | None = Field(
@@ -185,12 +181,8 @@ class SatelliteDataReadyEvent(BaseEvent):
     tenant_id: UUID = Field(..., description="Tenant identifier")
     satellite_source: str = Field(..., description="Satellite source (e.g., Sentinel-2, Landsat)")
     capture_date: datetime = Field(..., description="Image capture date")
-    processing_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Processing date"
-    )
-    cloud_coverage: float | None = Field(
-        None, ge=0, le=100, description="Cloud coverage percentage"
-    )
+    processing_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Processing date")
+    cloud_coverage: float | None = Field(None, ge=0, le=100, description="Cloud coverage percentage")
 
     # Vegetation indices
     ndvi_mean: float | None = Field(None, ge=-1, le=1, description="Mean NDVI value")
@@ -223,17 +215,11 @@ class SatelliteAnomalyEvent(BaseEvent):
         pattern="^(ndvi_drop|vegetation_loss|water_stress|disease_pattern|growth_delay)$",
         description="Anomaly type",
     )
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Anomaly severity"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Anomaly severity")
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
     affected_area_hectares: float | None = Field(None, ge=0, description="Affected area size")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of field affected"
-    )
-    detection_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Detection date"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of field affected")
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Detection date")
 
     # Comparison values
     current_value: float | None = Field(None, description="Current index value")
@@ -242,9 +228,7 @@ class SatelliteAnomalyEvent(BaseEvent):
 
     # Location
     centroid_lat: float | None = Field(None, ge=-90, le=90, description="Anomaly centroid latitude")
-    centroid_lon: float | None = Field(
-        None, ge=-180, le=180, description="Anomaly centroid longitude"
-    )
+    centroid_lon: float | None = Field(None, ge=-180, le=180, description="Anomaly centroid longitude")
     geometry_wkt: str | None = Field(None, description="Affected area geometry")
 
     # Recommendations
@@ -270,21 +254,15 @@ class DiseaseDetectedEvent(BaseEvent):
 
     disease_name: str = Field(..., description="Disease name")
     disease_name_ar: str | None = Field(None, description="Arabic disease name")
-    disease_category: str | None = Field(
-        None, description="Disease category (fungal, bacterial, viral, pest)"
-    )
+    disease_category: str | None = Field(None, description="Disease category (fungal, bacterial, viral, pest)")
 
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Disease severity"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Disease severity")
 
     # Detection details
     detection_method: str | None = Field(None, description="Detection method (AI, manual, sensor)")
     affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
-    symptoms_observed: list[str] | None = Field(
-        default_factory=list, description="Observed symptoms"
-    )
+    symptoms_observed: list[str] | None = Field(default_factory=list, description="Observed symptoms")
 
     # Images
     image_urls: list[str] | None = Field(default_factory=list, description="Disease image URLs")
@@ -293,9 +271,7 @@ class DiseaseDetectedEvent(BaseEvent):
     treatment_recommendation: str | None = Field(None, description="Treatment recommendation")
     treatment_recommendation_ar: str | None = Field(None, description="Arabic treatment")
     urgency_level: str | None = Field(None, description="Treatment urgency")
-    estimated_yield_impact: float | None = Field(
-        None, ge=0, le=100, description="Est. yield impact %"
-    )
+    estimated_yield_impact: float | None = Field(None, ge=0, le=100, description="Est. yield impact %")
 
 
 class CropStressEvent(BaseEvent):
@@ -313,9 +289,7 @@ class CropStressEvent(BaseEvent):
         pattern="^(water|nutrient|heat|cold|salinity|compaction)$",
         description="Stress type",
     )
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Stress severity"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Stress severity")
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
 
     # Indicators
@@ -325,16 +299,12 @@ class CropStressEvent(BaseEvent):
     soil_moisture_value: float | None = Field(None, ge=0, le=100, description="Soil moisture %")
 
     affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
-    detection_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Detection date"
-    )
+    detection_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Detection date")
 
     # Recommendations
     action_required: str | None = Field(None, description="Required action")
     action_required_ar: str | None = Field(None, description="Arabic action required")
-    time_sensitivity: str | None = Field(
-        None, description="Time sensitivity (immediate, soon, monitor)"
-    )
+    time_sensitivity: str | None = Field(None, description="Time sensitivity (immediate, soon, monitor)")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -394,9 +364,7 @@ class BatchExpiredEvent(BaseEvent):
     quantity: float = Field(..., ge=0, description="Batch quantity")
     unit_of_measure: str = Field(..., description="Unit of measure")
 
-    status: str = Field(
-        ..., pattern="^(expiring_soon|expired|critical)$", description="Expiry status"
-    )
+    status: str = Field(..., pattern="^(expiring_soon|expired|critical)$", description="Expiry status")
     days_until_expiry: int = Field(..., description="Days until expiry (negative if expired)")
 
     value_at_risk: float | None = Field(None, ge=0, description="Value of at-risk inventory")
@@ -424,13 +392,9 @@ class SubscriptionCreatedEvent(BaseEvent):
 
     plan_id: str = Field(..., description="Subscription plan ID")
     plan_name: str = Field(..., description="Plan name")
-    plan_tier: str = Field(
-        ..., pattern="^(free|basic|professional|enterprise)$", description="Plan tier"
-    )
+    plan_tier: str = Field(..., pattern="^(free|basic|professional|enterprise)$", description="Plan tier")
 
-    billing_cycle: str = Field(
-        ..., pattern="^(monthly|quarterly|annual)$", description="Billing cycle"
-    )
+    billing_cycle: str = Field(..., pattern="^(monthly|quarterly|annual)$", description="Billing cycle")
 
     start_date: datetime = Field(..., description="Subscription start date")
     end_date: datetime | None = Field(None, description="Subscription end date")
@@ -471,9 +435,7 @@ class PaymentCompletedEvent(BaseEvent):
     payment_provider: str | None = Field(None, description="Payment provider (Stripe, Tap, etc.)")
 
     transaction_id: str = Field(..., description="Payment gateway transaction ID")
-    payment_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Payment date"
-    )
+    payment_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Payment date")
 
     # Payment details
     description: str | None = Field(None, description="Payment description")
@@ -497,9 +459,7 @@ class SubscriptionRenewedEvent(BaseEvent):
 
     subscription_id: UUID = Field(..., description="Subscription identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    renewal_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Renewal date"
-    )
+    renewal_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Renewal date")
     previous_end_date: datetime = Field(..., description="Previous end date")
     new_end_date: datetime = Field(..., description="New end date")
     payment_id: UUID | None = Field(None, description="Related payment")
@@ -772,9 +732,7 @@ class WeChatMessageReceivedEvent(BaseEvent):
     media_id: str | None = Field(None, description="Media ID (for media messages)")
     location_lat: float | None = Field(None, ge=-90, le=90, description="Location latitude")
     location_lon: float | None = Field(None, ge=-180, le=180, description="Location longitude")
-    received_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Message received time"
-    )
+    received_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Message received time")
 
 
 class WeChatMessageSentEvent(BaseEvent):
@@ -795,9 +753,7 @@ class WeChatMessageSentEvent(BaseEvent):
     content: str | None = Field(None, description="Message content")
     template_id: str | None = Field(None, description="Template ID for template messages")
     status: str = Field(default="sent", description="Send status (sent, delivered, failed)")
-    sent_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Message sent time"
-    )
+    sent_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Message sent time")
     error_message: str | None = Field(None, description="Error message if failed")
 
 
@@ -818,9 +774,7 @@ class WeChatContactAddedEvent(BaseEvent):
     country: str | None = Field(None, description="Country")
     language: str | None = Field(None, description="Language preference")
     farmer_id: str | None = Field(None, description="Linked farmer ID in CRM")
-    subscribed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Subscription time"
-    )
+    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Subscription time")
 
 
 class WeChatMomentPublishedEvent(BaseEvent):
@@ -838,9 +792,7 @@ class WeChatMomentPublishedEvent(BaseEvent):
     link_url: str | None = Field(None, description="External link URL")
     link_title: str | None = Field(None, description="Link title")
     visibility: str = Field(default="public", description="Visibility (public, contacts, private)")
-    published_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Publish time"
-    )
+    published_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Publish time")
     target_audience: list[str] = Field(default_factory=list, description="Target audience tags")
 
 

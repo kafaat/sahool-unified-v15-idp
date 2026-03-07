@@ -114,9 +114,7 @@ class KnowledgeCache:
         # Each CacheEntry stores the collection it belongs to (set via put()).
         # Since cache keys are SHA-256 hashes (via make_key), we cannot infer
         # the collection from the key itself — we match on the stored field.
-        keys_to_remove = [
-            key for key, entry in self._cache.items() if entry.collection == collection
-        ]
+        keys_to_remove = [key for key, entry in self._cache.items() if entry.collection == collection]
         for key in keys_to_remove:
             del self._cache[key]
         if keys_to_remove:

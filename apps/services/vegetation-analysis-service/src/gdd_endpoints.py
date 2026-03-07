@@ -221,9 +221,7 @@ def register_gdd_endpoints(app):
         try:
             # Validate
             if current_gdd >= target_gdd:
-                raise HTTPException(
-                    status_code=400, detail="current_gdd must be less than target_gdd"
-                )
+                raise HTTPException(status_code=400, detail="current_gdd must be less than target_gdd")
 
             valid_methods = ["simple", "modified", "sine"]
             if method not in valid_methods:
@@ -395,9 +393,7 @@ def register_gdd_endpoints(app):
             requirements = await tracker.get_crop_requirements(crop_code_upper)
 
             # Get current stage
-            current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(
-                crop_code_upper, gdd
-            )
+            current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(crop_code_upper, gdd)
 
             # Find stage details
             stages = requirements.stages
@@ -425,12 +421,8 @@ def register_gdd_endpoints(app):
                         "name_ar": current_ar,
                         "gdd_start": (current_stage_info["gdd_start"] if current_stage_info else 0),
                         "gdd_end": (current_stage_info["gdd_end"] if current_stage_info else 0),
-                        "description_ar": (
-                            current_stage_info["description_ar"] if current_stage_info else ""
-                        ),
-                        "description_en": (
-                            current_stage_info["description_en"] if current_stage_info else ""
-                        ),
+                        "description_ar": (current_stage_info["description_ar"] if current_stage_info else ""),
+                        "description_en": (current_stage_info["description_en"] if current_stage_info else ""),
                     }
                     if current_stage_info
                     else None
@@ -441,12 +433,8 @@ def register_gdd_endpoints(app):
                         "name_ar": next_ar,
                         "gdd_start": (next_stage_info["gdd_start"] if next_stage_info else 0),
                         "gdd_end": next_stage_info["gdd_end"] if next_stage_info else 0,
-                        "description_ar": (
-                            next_stage_info["description_ar"] if next_stage_info else ""
-                        ),
-                        "description_en": (
-                            next_stage_info["description_en"] if next_stage_info else ""
-                        ),
+                        "description_ar": (next_stage_info["description_ar"] if next_stage_info else ""),
+                        "description_en": (next_stage_info["description_en"] if next_stage_info else ""),
                     }
                     if next_stage_info
                     else None

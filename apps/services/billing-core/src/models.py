@@ -171,9 +171,7 @@ class Plan(Base):
     )
 
     # Limits (stored as JSONB)
-    limits: Mapped[dict] = mapped_column(
-        JSONB, nullable=False, default={}, server_default="{}", comment="حدود الخطة"
-    )
+    limits: Mapped[dict] = mapped_column(JSONB, nullable=False, default={}, server_default="{}", comment="حدود الخطة")
 
     # Status
     is_active: Mapped[bool] = mapped_column(
@@ -325,13 +323,9 @@ class Subscription(Base):
     )
 
     # Foreign Keys
-    tenant_id: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True, comment="المستأجر/العميل"
-    )
+    tenant_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, comment="المستأجر/العميل")
 
-    plan_id: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True, comment="معرف الخطة"
-    )
+    plan_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, comment="معرف الخطة")
 
     # Status
     status: Mapped[SubscriptionStatus] = mapped_column(
@@ -361,22 +355,16 @@ class Subscription(Base):
 
     end_date: Mapped[date] = mapped_column(Date, nullable=False, comment="تاريخ الانتهاء")
 
-    trial_end_date: Mapped[date | None] = mapped_column(
-        Date, nullable=True, comment="تاريخ انتهاء الفترة التجريبية"
-    )
+    trial_end_date: Mapped[date | None] = mapped_column(Date, nullable=True, comment="تاريخ انتهاء الفترة التجريبية")
 
     canceled_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, comment="تاريخ الإلغاء"
     )
 
     # Billing Dates
-    next_billing_date: Mapped[date] = mapped_column(
-        Date, nullable=False, index=True, comment="تاريخ الفوترة التالي"
-    )
+    next_billing_date: Mapped[date] = mapped_column(Date, nullable=False, index=True, comment="تاريخ الفوترة التالي")
 
-    last_billing_date: Mapped[date | None] = mapped_column(
-        Date, nullable=True, comment="تاريخ آخر فوترة"
-    )
+    last_billing_date: Mapped[date | None] = mapped_column(Date, nullable=True, comment="تاريخ آخر فوترة")
 
     # Payment Method
     payment_method: Mapped[PaymentMethod | None] = mapped_column(
@@ -469,9 +457,7 @@ class Invoice(Base):
     )
 
     # Foreign Keys
-    tenant_id: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True, comment="المستأجر/العميل"
-    )
+    tenant_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, comment="المستأجر/العميل")
 
     subscription_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -498,20 +484,14 @@ class Invoice(Base):
     )
 
     # Dates
-    issue_date: Mapped[date] = mapped_column(
-        Date, nullable=False, index=True, comment="تاريخ الإصدار"
-    )
+    issue_date: Mapped[date] = mapped_column(Date, nullable=False, index=True, comment="تاريخ الإصدار")
 
-    due_date: Mapped[date] = mapped_column(
-        Date, nullable=False, index=True, comment="تاريخ الاستحقاق"
-    )
+    due_date: Mapped[date] = mapped_column(Date, nullable=False, index=True, comment="تاريخ الاستحقاق")
 
     paid_date: Mapped[date | None] = mapped_column(Date, nullable=True, comment="تاريخ الدفع")
 
     # Amounts (stored as Numeric for precision)
-    subtotal: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False, comment="المجموع الفرعي"
-    )
+    subtotal: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, comment="المجموع الفرعي")
 
     tax_rate: Mapped[Decimal] = mapped_column(
         Numeric(5, 2),
@@ -547,9 +527,7 @@ class Invoice(Base):
         comment="المبلغ المدفوع",
     )
 
-    amount_due: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False, comment="المبلغ المستحق"
-    )
+    amount_due: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, comment="المبلغ المستحق")
 
     # Line Items (stored as JSONB for flexibility)
     line_items: Mapped[list] = mapped_column(
@@ -638,9 +616,7 @@ class Payment(Base):
         comment="معرف الفاتورة",
     )
 
-    tenant_id: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True, comment="المستأجر/العميل"
-    )
+    tenant_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, comment="المستأجر/العميل")
 
     # Amount
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, comment="المبلغ")
@@ -687,9 +663,7 @@ class Payment(Base):
         String(255), nullable=True, index=True, comment="معرف المعاملة في ثروات"
     )
 
-    receipt_url: Mapped[str | None] = mapped_column(
-        String(500), nullable=True, comment="رابط الإيصال"
-    )
+    receipt_url: Mapped[str | None] = mapped_column(String(500), nullable=True, comment="رابط الإيصال")
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
     extra_metadata: Mapped[dict | None] = mapped_column(
@@ -754,9 +728,7 @@ class UsageRecord(Base):
         comment="معرف الاشتراك",
     )
 
-    tenant_id: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True, comment="المستأجر/العميل"
-    )
+    tenant_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, comment="المستأجر/العميل")
 
     # Metric Details
     metric_type: Mapped[str] = mapped_column(

@@ -33,10 +33,7 @@ def update_python_service(service_path: Path, service_name: str) -> bool:
     content = main_file.read_text()
 
     # Skip if already configured
-    if (
-        "from shared.logging_config import" in content
-        or "from ..shared.logging_config import" in content
-    ):
+    if "from shared.logging_config import" in content or "from ..shared.logging_config import" in content:
         print("  ✓  Already configured")
         return True
 
@@ -91,9 +88,7 @@ logger = get_logger(__name__)
     # This is service-specific and would need careful handling
     new_content = re.sub(
         r'print\("(.+?)"\)',
-        lambda m: (
-            f'logger.info("{m.group(1).lower().replace(" ", "_").replace("!", "").replace("...", "").strip()}")'
-        ),
+        lambda m: f'logger.info("{m.group(1).lower().replace(" ", "_").replace("!", "").replace("...", "").strip()}")',
         new_content,
     )
 

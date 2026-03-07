@@ -338,12 +338,15 @@ async def get_execution_counts(tenant_id: str | None = None) -> dict[str, int]:
     try:
         async with _pool.acquire() as conn:
             if tenant_id:
-                rows = await conn.fetch("""
+                rows = await conn.fetch(
+                    """
                     SELECT status, COUNT(*) as count
                     FROM agent_executions
                     WHERE tenant_id = $1
                     GROUP BY status
-                """, tenant_id)
+                """,
+                    tenant_id,
+                )
             else:
                 rows = await conn.fetch("""
                     SELECT status, COUNT(*) as count

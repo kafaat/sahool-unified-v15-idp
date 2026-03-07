@@ -1,4 +1,5 @@
 """Health endpoint tests for ai-chat-assistant."""
+
 import pytest
 
 

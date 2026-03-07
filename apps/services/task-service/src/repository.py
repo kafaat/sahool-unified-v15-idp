@@ -116,12 +116,7 @@ class TaskRepository:
         total = query.count()
 
         # Apply sorting and pagination
-        tasks = (
-            query.order_by(Task.due_date.asc(), Task.priority.asc())
-            .offset(offset)
-            .limit(limit)
-            .all()
-        )
+        tasks = query.order_by(Task.due_date.asc(), Task.priority.asc()).offset(offset).limit(limit).all()
 
         return tasks, total
 
@@ -474,9 +469,7 @@ class TaskRepository:
             # Note: Not committing here as this is called within other transactions
 
         except Exception as e:
-            logger.error(
-                "Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__
-            )
+            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)
             # Don't raise, just log - history should not block main operations
 
 
@@ -549,6 +542,4 @@ class AsyncTaskRepository:
             self.db.add(history)
 
         except Exception as e:
-            logger.error(
-                "Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__
-            )
+            logger.error("Error recording history for task %s: %s", _sanitize_id(task_id), type(e).__name__)

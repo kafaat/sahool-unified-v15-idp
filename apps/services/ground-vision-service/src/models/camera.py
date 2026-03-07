@@ -100,9 +100,7 @@ class TowerCamera(BaseModel):
     extrinsics: CameraExtrinsics
 
     # Field of View coverage (GeoJSON polygon)
-    fov_polygon: dict | None = Field(
-        default=None, description="Ground coverage area as GeoJSON Polygon"
-    )
+    fov_polygon: dict | None = Field(default=None, description="Ground coverage area as GeoJSON Polygon")
 
     # Capabilities
     zoom_min: float = Field(default=1.0, description="Minimum zoom factor")
@@ -117,9 +115,7 @@ class TowerCamera(BaseModel):
 
     # Multi-tenancy
     tenant_id: str = Field(..., description="Tenant identifier")
-    fields_covered: list[str] = Field(
-        default_factory=list, description="List of field IDs in camera coverage"
-    )
+    fields_covered: list[str] = Field(default_factory=list, description="List of field IDs in camera coverage")
 
     # Timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)

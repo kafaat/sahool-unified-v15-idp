@@ -522,9 +522,7 @@ class TestRateLimiting:
 
         # Make multiple requests quickly
         for _ in range(5):
-            response = api_client.post(
-                "/api/v1/analyze", json=request_data, headers=rate_limit_headers
-            )
+            response = api_client.post("/api/v1/analyze", json=request_data, headers=rate_limit_headers)
             # Internal service should not be rate limited
             assert response.status_code in [
                 status.HTTP_200_OK,

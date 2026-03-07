@@ -44,6 +44,7 @@ def sanitize_log_input(value: str) -> str:
         value = str(value)
     return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
 
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -398,7 +399,9 @@ async def create_notification(
         )
 
         if not should_send:
-            logger.debug(f"Skipping notification for user {sanitize_log_input(farmer_id)} - event type disabled in preferences")
+            logger.debug(
+                f"Skipping notification for user {sanitize_log_input(farmer_id)} - event type disabled in preferences"
+            )
             continue
 
         # Use preferred channels if available, otherwise use provided channels
@@ -684,7 +687,9 @@ async def send_push_notification(notification, farmer_id: str):
                 status="sent",
                 provider_message_id=message_id,
             )
-            logger.info(f"Push notification sent to {sanitize_log_input(farmer_id)}: {sanitize_log_input(str(message_id))}")
+            logger.info(
+                f"Push notification sent to {sanitize_log_input(farmer_id)}: {sanitize_log_input(str(message_id))}"
+            )
         else:
             raise Exception("Failed to send push notification")
 
@@ -1486,7 +1491,9 @@ async def register_farmer(profile: FarmerProfile):
             language=profile.language,
         )
 
-        logger.info(f"Farmer registered: {sanitize_log_input(profile.farmer_id)} ({sanitize_log_input(profile.name_ar or '')})")
+        logger.info(
+            f"Farmer registered: {sanitize_log_input(profile.farmer_id)} ({sanitize_log_input(profile.name_ar or '')})"
+        )
 
         return {
             "success": True,

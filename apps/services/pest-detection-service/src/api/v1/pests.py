@@ -21,7 +21,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -29,6 +31,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger(__name__)
 
@@ -395,11 +398,7 @@ async def search_pests(
     results = []
 
     for pest in PEST_DATABASE.values():
-        if (
-            q_lower in pest.name_en.lower()
-            or q_lower in pest.name_ar
-            or q_lower in pest.scientific_name.lower()
-        ):
+        if q_lower in pest.name_en.lower() or q_lower in pest.name_ar or q_lower in pest.scientific_name.lower():
             results.append(pest)
 
     return results
@@ -411,9 +410,7 @@ async def get_pests_by_crop(crop: str):
     Get pests that affect a specific crop.
     الحصول على الآفات التي تصيب محصولاً معيناً.
     """
-    pests = [
-        p for p in PEST_DATABASE.values() if crop.lower() in [c.lower() for c in p.affected_crops]
-    ]
+    pests = [p for p in PEST_DATABASE.values() if crop.lower() in [c.lower() for c in p.affected_crops]]
     return pests
 
 
@@ -505,18 +502,21 @@ async def identify_pest_from_image(
         nc = getattr(request.app.state, "nc", None)
         if nc:
             try:
-                event_payload = json.dumps({
-                    "event_type": "pest_detected",
-                    "pest_id": result.pest_id,
-                    "pest_name_en": result.pest_name_en,
-                    "pest_name_ar": result.pest_name_ar,
-                    "confidence": result.confidence,
-                    "severity": result.severity.value,
-                    "is_quarantine": pest_info.is_quarantine if pest_info else False,
-                    "detection_id": str(uuid4()),
-                    "source": "pest-detection-service",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                }, default=str).encode()
+                event_payload = json.dumps(
+                    {
+                        "event_type": "pest_detected",
+                        "pest_id": result.pest_id,
+                        "pest_name_en": result.pest_name_en,
+                        "pest_name_ar": result.pest_name_ar,
+                        "confidence": result.confidence,
+                        "severity": result.severity.value,
+                        "is_quarantine": pest_info.is_quarantine if pest_info else False,
+                        "detection_id": str(uuid4()),
+                        "source": "pest-detection-service",
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    },
+                    default=str,
+                ).encode()
                 await nc.publish("sahool.vision.pest_detected", event_payload)
                 logger.info("nats_event_published", subject="sahool.vision.pest_detected", pest_id=result.pest_id)
             except Exception as pub_err:
@@ -617,9 +617,7 @@ async def get_seasonal_predictions(
     predicted_pests = [PEST_DATABASE[pid] for pid in seasonal_risks[season] if pid in PEST_DATABASE]
 
     if crop:
-        predicted_pests = [
-            p for p in predicted_pests if crop.lower() in [c.lower() for c in p.affected_crops]
-        ]
+        predicted_pests = [p for p in predicted_pests if crop.lower() in [c.lower() for c in p.affected_crops]]
 
     return {
         "season": season,

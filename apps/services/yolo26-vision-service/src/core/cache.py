@@ -273,9 +273,7 @@ class InMemoryCache:
         """
         async with self._lock:
             keys_to_remove = [
-                key
-                for key, entry in self._cache.items()
-                if all(entry.metadata.get(k) == v for k, v in match.items())
+                key for key, entry in self._cache.items() if all(entry.metadata.get(k) == v for k, v in match.items())
             ]
             for key in keys_to_remove:
                 entry = self._cache.pop(key)

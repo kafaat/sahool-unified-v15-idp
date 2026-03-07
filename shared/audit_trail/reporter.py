@@ -149,13 +149,9 @@ class AuditReportGenerator:
 
         # Security events
         login_count = sum(1 for e in user_entries if e.action == AuditActionType.LOGIN)
-        failed_login_count = sum(
-            1 for e in user_entries if e.action == AuditActionType.LOGIN_FAILED
-        )
+        failed_login_count = sum(1 for e in user_entries if e.action == AuditActionType.LOGIN_FAILED)
         password_changes = sum(
-            1
-            for e in user_entries
-            if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
+            1 for e in user_entries if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
         )
         permission_changes = sum(
             1
@@ -186,15 +182,11 @@ class AuditReportGenerator:
 
         # Check for unusual patterns
         if failed_login_count >= 5:
-            unusual_activity_flags.append(
-                "Multiple failed login attempts | محاولات تسجيل دخول فاشلة متعددة"
-            )
+            unusual_activity_flags.append("Multiple failed login attempts | محاولات تسجيل دخول فاشلة متعددة")
         if failed_actions > total_actions * 0.3:
             unusual_activity_flags.append("High failure rate | معدل فشل مرتفع")
         if high_severity_events >= 3:
-            unusual_activity_flags.append(
-                "Multiple high severity events | أحداث عالية الخطورة متعددة"
-            )
+            unusual_activity_flags.append("Multiple high severity events | أحداث عالية الخطورة متعددة")
 
         return UserActivitySummary(
             user_id=user_id,
@@ -265,16 +257,12 @@ class AuditReportGenerator:
         # Security statistics
         security_entries = [e for e in entries if e.category == AuditCategory.SECURITY]
         security_incidents = sum(
-            1
-            for e in security_entries
-            if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
+            1 for e in security_entries if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         )
 
         # High risk events
         high_risk_events = [
-            e.to_dict()
-            for e in entries
-            if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
+            e.to_dict() for e in entries if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         ][:20]  # Limit to 20
 
         # Sample entries
@@ -288,10 +276,8 @@ class AuditReportGenerator:
             description_ar="تقرير نشاط شامل للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="activity",
-            period_start=period_start
-            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end
-            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -340,9 +326,7 @@ class AuditReportGenerator:
         if period_end:
             entries = [e for e in entries if e.timestamp <= period_end]
 
-        compliance_entries = [
-            e for e in entries if e.category in [AuditCategory.COMPLIANCE, AuditCategory.GLOBALGAP]
-        ]
+        compliance_entries = [e for e in entries if e.category in [AuditCategory.COMPLIANCE, AuditCategory.GLOBALGAP]]
 
         # Calculate compliance metrics
         total_checks = len(compliance_entries)
@@ -351,9 +335,7 @@ class AuditReportGenerator:
 
         # Non-conformances
         nc_entries = [
-            e
-            for e in compliance_entries
-            if e.action in [AuditActionType.NC_RAISED, AuditActionType.NC_CLOSED]
+            e for e in compliance_entries if e.action in [AuditActionType.NC_RAISED, AuditActionType.NC_CLOSED]
         ]
         non_conformances = [
             {
@@ -379,10 +361,8 @@ class AuditReportGenerator:
             description_ar="تقرير حالة الامتثال للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="compliance",
-            period_start=period_start
-            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end
-            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -439,9 +419,7 @@ class AuditReportGenerator:
         globalgap_entries = [e for e in entries if e.category == AuditCategory.GLOBALGAP]
 
         # Control point completion
-        control_points_checked = {
-            e.metadata.control_point_id for e in globalgap_entries if e.metadata.control_point_id
-        }
+        control_points_checked = {e.metadata.control_point_id for e in globalgap_entries if e.metadata.control_point_id}
 
         # Findings and NCs
         findings = [e for e in globalgap_entries if e.action == AuditActionType.FINDING_RECORDED]
@@ -455,9 +433,7 @@ class AuditReportGenerator:
                 "timestamp": e.timestamp.isoformat(),
                 "description": e.action_description,
                 "description_ar": e.action_description_ar,
-                "status": "closed"
-                if any(nc.resource_id == e.resource_id for nc in ncs_closed)
-                else "open",
+                "status": "closed" if any(nc.resource_id == e.resource_id for nc in ncs_closed) else "open",
             }
             for e in ncs_raised
         ]
@@ -480,18 +456,14 @@ class AuditReportGenerator:
 
         report = AuditReport(
             id=str(uuid4()),
-            title=f"GlobalGAP Audit Report - {ggn}"
-            if self.language == "en"
-            else f"تقرير تدقيق GlobalGAP - {ggn}",
+            title=f"GlobalGAP Audit Report - {ggn}" if self.language == "en" else f"تقرير تدقيق GlobalGAP - {ggn}",
             title_ar=f"تقرير تدقيق GlobalGAP - {ggn}",
             description=f"GlobalGAP compliance audit report for GGN {ggn}",
             description_ar=f"تقرير تدقيق امتثال GlobalGAP للرقم {ggn}",
             tenant_id=self.tenant_id,
             report_type="globalgap",
-            period_start=period_start
-            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end
-            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -563,25 +535,13 @@ class AuditReportGenerator:
         ]
 
         # Password changes
-        [
-            e
-            for e in security_entries
-            if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
-        ]
+        [e for e in security_entries if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]]
 
         # 2FA changes
-        [
-            e
-            for e in security_entries
-            if e.action in [AuditActionType.TWOFA_ENABLED, AuditActionType.TWOFA_DISABLED]
-        ]
+        [e for e in security_entries if e.action in [AuditActionType.TWOFA_ENABLED, AuditActionType.TWOFA_DISABLED]]
 
         # High risk events
-        high_risk_events = [
-            e.to_dict()
-            for e in entries
-            if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
-        ]
+        high_risk_events = [e.to_dict() for e in entries if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]]
 
         # Security incidents (critical events or patterns)
         security_incidents = len(high_risk_events)
@@ -612,10 +572,8 @@ class AuditReportGenerator:
             description_ar="تقرير تدقيق الأمان للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="security",
-            period_start=period_start
-            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end
-            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -728,17 +686,11 @@ class AuditReportGenerator:
                 "actor_type": entry.actor_type.value,
                 "actor_name": entry.actor_name or entry.actor_name_ar,
                 "action": entry.action.value,
-                "action_label": ACTION_LABELS.get(entry.action, {}).get(
-                    self.language, entry.action.value
-                ),
+                "action_label": ACTION_LABELS.get(entry.action, {}).get(self.language, entry.action.value),
                 "category": entry.category.value,
-                "category_label": CATEGORY_LABELS.get(entry.category, {}).get(
-                    self.language, entry.category.value
-                ),
+                "category_label": CATEGORY_LABELS.get(entry.category, {}).get(self.language, entry.category.value),
                 "severity": entry.severity.value,
-                "severity_label": SEVERITY_LABELS.get(entry.severity, {}).get(
-                    self.language, entry.severity.value
-                ),
+                "severity_label": SEVERITY_LABELS.get(entry.severity, {}).get(self.language, entry.severity.value),
                 "resource_type": entry.resource_type,
                 "resource_id": entry.resource_id,
                 "resource_name": entry.resource_name or entry.resource_name_ar,
@@ -750,9 +702,7 @@ class AuditReportGenerator:
             }
 
             if include_changes:
-                row["changes"] = json.dumps(
-                    [c.to_dict() for c in entry.changes], ensure_ascii=False
-                )
+                row["changes"] = json.dumps([c.to_dict() for c in entry.changes], ensure_ascii=False)
 
             writer.writerow(row)
 
@@ -780,9 +730,7 @@ class AuditReportGenerator:
             from openpyxl import Workbook
             from openpyxl.styles import Font, PatternFill
         except ImportError:
-            raise ImportError(
-                "openpyxl is required for Excel export. Install with: pip install openpyxl"
-            )
+            raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
 
         entries = entries or self.entries
         wb = Workbook()
@@ -827,16 +775,12 @@ class AuditReportGenerator:
             ws_entries.cell(
                 row=row,
                 column=5,
-                value=CATEGORY_LABELS.get(entry.category, {}).get(
-                    self.language, entry.category.value
-                ),
+                value=CATEGORY_LABELS.get(entry.category, {}).get(self.language, entry.category.value),
             )
             ws_entries.cell(
                 row=row,
                 column=6,
-                value=SEVERITY_LABELS.get(entry.severity, {}).get(
-                    self.language, entry.severity.value
-                ),
+                value=SEVERITY_LABELS.get(entry.severity, {}).get(self.language, entry.severity.value),
             )
             ws_entries.cell(row=row, column=7, value=entry.resource_type)
             ws_entries.cell(row=row, column=8, value=entry.resource_id)
@@ -923,9 +867,7 @@ class AuditReportGenerator:
         elif format_ == ExportFormat.XML:
             return self._export_to_xml(entries, report)
         elif format_ == ExportFormat.PDF:
-            raise NotImplementedError(
-                "PDF export requires external library (reportlab). Use export_to_pdf() directly."
-            )
+            raise NotImplementedError("PDF export requires external library (reportlab). Use export_to_pdf() directly.")
         else:
             raise ValueError(f"Unsupported export format: {format_}")
 

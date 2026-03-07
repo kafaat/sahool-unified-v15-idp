@@ -50,13 +50,9 @@ class RegistryConfig(BaseModel):
     health_check_interval_seconds: int = Field(
         default=60, description="How often to check agent health", ge=10, le=3600
     )
-    health_check_timeout_seconds: int = Field(
-        default=5, description="Health check request timeout", ge=1, le=60
-    )
+    health_check_timeout_seconds: int = Field(default=5, description="Health check request timeout", ge=1, le=60)
     max_retries: int = Field(default=3, description="Max health check retries", ge=0, le=10)
-    enable_auto_discovery: bool = Field(
-        default=False, description="Enable automatic agent discovery"
-    )
+    enable_auto_discovery: bool = Field(default=False, description="Enable automatic agent discovery")
     ttl_seconds: int = Field(default=3600, description="Agent registration TTL", ge=60)
 
 
@@ -173,9 +169,7 @@ class AgentRegistry:
             return True
 
         except Exception as e:
-            self._logger.error(
-                "agent_registration_failed", agent_id=agent_card.agent_id, error=str(e)
-            )
+            self._logger.error("agent_registration_failed", agent_id=agent_card.agent_id, error=str(e))
             raise
 
     async def deregister_agent(self, agent_id: str) -> bool:
@@ -341,9 +335,7 @@ class AgentRegistry:
         start_time = datetime.now(UTC)
 
         try:
-            async with httpx.AsyncClient(
-                timeout=self.config.health_check_timeout_seconds
-            ) as client:
+            async with httpx.AsyncClient(timeout=self.config.health_check_timeout_seconds) as client:
                 response = await client.get(str(agent_card.health_endpoint))
 
                 response_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
@@ -367,9 +359,7 @@ class AgentRegistry:
                 )
 
         except Exception as e:
-            result = HealthCheckResult(
-                agent_id=agent_id, status=HealthStatus.UNHEALTHY, error=str(e)
-            )
+            result = HealthCheckResult(agent_id=agent_id, status=HealthStatus.UNHEALTHY, error=str(e))
 
         # Cache result
         self._health_status[agent_id] = result
@@ -407,9 +397,7 @@ class AgentRegistry:
         Returns:
             Dictionary with registry statistics
         """
-        healthy_count = sum(
-            1 for status in self._health_status.values() if status.status == HealthStatus.HEALTHY
-        )
+        healthy_count = sum(1 for status in self._health_status.values() if status.status == HealthStatus.HEALTHY)
 
         return {
             "total_agents": len(self._agents),
@@ -436,9 +424,7 @@ class AgentRegistry:
                 await asyncio.sleep(self.config.health_check_interval_seconds)
 
                 # Check health of all active agents
-                active_agents = [
-                    a for a in self._agents.values() if a.status == "active" and a.health_endpoint
-                ]
+                active_agents = [a for a in self._agents.values() if a.status == "active" and a.health_endpoint]
 
                 self._logger.debug("running_health_checks", count=len(active_agents))
 

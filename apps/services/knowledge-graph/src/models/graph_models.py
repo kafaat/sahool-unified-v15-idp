@@ -33,9 +33,7 @@ class Crop(BaseModel):
     name_ar: str = Field(..., description="Arabic crop name")
     description_en: str | None = Field(None, description="English description")
     description_ar: str | None = Field(None, description="Arabic description")
-    growing_season: str | None = Field(
-        None, description="Growing season (spring/summer/fall/winter)"
-    )
+    growing_season: str | None = Field(None, description="Growing season (spring/summer/fall/winter)")
     family: str | None = Field(None, description="Botanical family")
     attributes: dict[str, Any] = Field(default_factory=dict, description="Additional attributes")
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -61,9 +59,7 @@ class Disease(BaseModel):
     name_ar: str = Field(..., description="Arabic disease name")
     description_en: str | None = Field(None, description="English description")
     description_ar: str | None = Field(None, description="Arabic description")
-    pathogen_type: str | None = Field(
-        None, description="Type of pathogen (fungal, bacterial, viral, etc.)"
-    )
+    pathogen_type: str | None = Field(None, description="Type of pathogen (fungal, bacterial, viral, etc.)")
     symptoms_en: list[str] | None = Field(None, description="List of English symptoms")
     symptoms_ar: list[str] | None = Field(None, description="List of Arabic symptoms")
     severity_level: int | None = Field(None, ge=1, le=10, description="Severity level (1-10)")
@@ -93,17 +89,11 @@ class Treatment(BaseModel):
     name_ar: str = Field(..., description="Arabic treatment name")
     description_en: str | None = Field(None, description="English description")
     description_ar: str | None = Field(None, description="Arabic description")
-    treatment_type: str | None = Field(
-        None, description="Type (fungicide, bactericide, insecticide, etc.)"
-    )
+    treatment_type: str | None = Field(None, description="Type (fungicide, bactericide, insecticide, etc.)")
     active_ingredient: str | None = Field(None, description="Active ingredient")
     concentration: str | None = Field(None, description="Concentration/dosage (e.g., '0.2%')")
-    application_method: str | None = Field(
-        None, description="Application method (spray, drench, dust, etc.)"
-    )
-    safety_level: int | None = Field(
-        None, ge=1, le=5, description="Safety level (1=very safe, 5=dangerous)"
-    )
+    application_method: str | None = Field(None, description="Application method (spray, drench, dust, etc.)")
+    safety_level: int | None = Field(None, ge=1, le=5, description="Safety level (1=very safe, 5=dangerous)")
     environmental_impact: str | None = Field(None, description="Environmental impact")
     cost_per_liter: float | None = Field(None, description="Cost per liter/unit")
     attributes: dict[str, Any] = Field(default_factory=dict, description="Additional attributes")

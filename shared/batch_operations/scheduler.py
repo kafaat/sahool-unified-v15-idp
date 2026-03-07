@@ -128,13 +128,9 @@ class BatchSchedule:
             "batch_id": self.batch_id,
             "schedule_type": self.schedule_type.value,
             "scheduled_time": self.scheduled_time.isoformat() if self.scheduled_time else None,
-            "recurrence_pattern": self.recurrence_pattern.value
-            if self.recurrence_pattern
-            else None,
+            "recurrence_pattern": self.recurrence_pattern.value if self.recurrence_pattern else None,
             "recurrence_interval": self.recurrence_interval,
-            "recurrence_end_date": self.recurrence_end_date.isoformat()
-            if self.recurrence_end_date
-            else None,
+            "recurrence_end_date": self.recurrence_end_date.isoformat() if self.recurrence_end_date else None,
             "max_executions": self.max_executions,
             "execution_count": self.execution_count,
             "last_execution": self.last_execution.isoformat() if self.last_execution else None,
@@ -366,16 +362,11 @@ class BatchScheduler:
             {
                 "schedule_id": schedule.id,
                 "schedule_type": schedule_type.value,
-                "next_execution": schedule.next_execution.isoformat()
-                if schedule.next_execution
-                else None,
+                "next_execution": schedule.next_execution.isoformat() if schedule.next_execution else None,
             },
         )
 
-        logger.info(
-            f"Batch {batch.id} scheduled: type={schedule_type.value}, "
-            f"next={schedule.next_execution}"
-        )
+        logger.info(f"Batch {batch.id} scheduled: type={schedule_type.value}, next={schedule.next_execution}")
 
         return schedule
 
@@ -766,9 +757,7 @@ class BatchScheduler:
                     "name": queued.batch.name,
                     "name_ar": queued.batch.name_ar,
                     "priority": queued.batch.priority.value,
-                    "scheduled_time": queued.scheduled_time.isoformat()
-                    if queued.scheduled_time
-                    else None,
+                    "scheduled_time": queued.scheduled_time.isoformat() if queued.scheduled_time else None,
                     "enqueued_at": queued.enqueued_at.isoformat(),
                     "item_count": queued.batch.get_item_count(),
                 }

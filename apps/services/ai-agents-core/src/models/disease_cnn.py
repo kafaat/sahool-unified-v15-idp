@@ -162,9 +162,7 @@ class DiseaseCNNModel:
         # علم ONNX للمعالجة الخاصة
         self._is_onnx = False
 
-        logger.info(
-            f"Initialized DiseaseCNNModel with framework: {self.framework}, device: {self.device}"
-        )
+        logger.info(f"Initialized DiseaseCNNModel with framework: {self.framework}, device: {self.device}")
 
     def _detect_framework(self, framework: str) -> str:
         """
@@ -243,9 +241,7 @@ class DiseaseCNNModel:
                         self._is_onnx = True
                         logger.info("Model loaded successfully with ONNX Runtime")
                     except ImportError:
-                        raise RuntimeError(
-                            "onnxruntime required for ONNX models: pip install onnxruntime"
-                        )
+                        raise RuntimeError("onnxruntime required for ONNX models: pip install onnxruntime")
                 elif model_path.endswith(".safetensors"):
                     # SafeTensors format - safe alternative to pickle
                     # صيغة SafeTensors - بديل آمن لـ pickle
@@ -381,9 +377,7 @@ class DiseaseCNNModel:
 
         return image
 
-    def augment_for_inference(
-        self, image: np.ndarray, n_augmentations: int = 5
-    ) -> list[np.ndarray]:
+    def augment_for_inference(self, image: np.ndarray, n_augmentations: int = 5) -> list[np.ndarray]:
         """
         Apply Test Time Augmentation (TTA) for robust predictions
         تطبيق التعزيز في وقت الاختبار للتنبؤات القوية
@@ -523,9 +517,7 @@ class DiseaseCNNModel:
             logger.warning(f"Could not estimate disease region: {e}")
             return None
 
-    def get_top_k_predictions(
-        self, image: str | np.ndarray | Image.Image, k: int = 3
-    ) -> list[dict[str, Any]]:
+    def get_top_k_predictions(self, image: str | np.ndarray | Image.Image, k: int = 3) -> list[dict[str, Any]]:
         """
         Get top K disease predictions
         الحصول على أعلى K تنبؤات للأمراض
@@ -720,9 +712,9 @@ class DiseaseCNNModel:
 
         try:
             # Create dummy image - إنشاء صورة وهمية
-            dummy_image = np.random.rand(
-                self.config.DEFAULT_INPUT_SIZE, self.config.DEFAULT_INPUT_SIZE, 3
-            ).astype(np.float32)
+            dummy_image = np.random.rand(self.config.DEFAULT_INPUT_SIZE, self.config.DEFAULT_INPUT_SIZE, 3).astype(
+                np.float32
+            )
 
             # Run predictions - تشغيل التنبؤات
             for _i in range(num_iterations):
@@ -918,9 +910,7 @@ class DiseaseCNNModel:
                     "severity": disease_info["severity"],
                     "treatment": disease_info["treatment"],
                     "treatment_ar": disease_info["treatment_ar"],
-                    "priority": "high"
-                    if disease_info["severity"] in ["critical", "high"]
-                    else "medium",
+                    "priority": "high" if disease_info["severity"] in ["critical", "high"] else "medium",
                 }
             )
 

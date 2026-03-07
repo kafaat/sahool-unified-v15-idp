@@ -41,7 +41,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -49,6 +51,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/leveling", tags=["Leveling | التسوية"])
 
@@ -212,10 +215,7 @@ def _get_equipment_recommendations(
         ]
 
     # Add laser leveler for precision methods
-    if (
-        method == LevelingMethod.SINGLE_PLANE
-        and EquipmentType.LASER_LEVELER not in primary_equipment
-    ):
+    if method == LevelingMethod.SINGLE_PLANE and EquipmentType.LASER_LEVELER not in primary_equipment:
         primary_equipment.append(EquipmentType.LASER_LEVELER)
 
     for eq_type in primary_equipment:
@@ -265,7 +265,9 @@ def _get_equipment_recommendations(
         500: {"model": ErrorResponse, "description": "Analysis failed"},
     },
 )
-async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request: Request, _user=Depends(get_current_user)):
+async def analyze_field_leveling(
+    request: LevelingAnalysisRequest, http_request: Request, _user=Depends(get_current_user)
+):
     """
     Analyze a field for leveling requirements and generate an optimal plan.
 
@@ -325,8 +327,7 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
 
         # Create design plane model
         design_plane = DesignPlane(
-            centroid_elevation=plane.c
-            + plane.a * (stats.get("min_elevation", 0) + stats.get("max_elevation", 0)) / 2,
+            centroid_elevation=plane.c + plane.a * (stats.get("min_elevation", 0) + stats.get("max_elevation", 0)) / 2,
             grade_x_percent=round(plane.a * 100, 3),
             grade_y_percent=round(plane.b * 100, 3),
             plane_equation=f"z = {plane.a:.6f}*x + {plane.b:.6f}*y + {plane.c:.3f}",
@@ -357,9 +358,7 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
         )
 
         # Get equipment recommendations
-        equipment_recommendations = _get_equipment_recommendations(
-            cut_fill, haul_distance, request.method
-        )
+        equipment_recommendations = _get_equipment_recommendations(cut_fill, haul_distance, request.method)
 
         # Calculate cost estimate if requested
         cost_estimate = None
@@ -390,12 +389,8 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
         recommendations_ar = []
 
         if balance_ratio < 0.8 or balance_ratio > 1.2:
-            recommendations_en.append(
-                "Consider adjusting design elevation to better balance cut and fill volumes."
-            )
-            recommendations_ar.append(
-                "فكر في تعديل ارتفاع التصميم لتحقيق توازن أفضل بين أحجام القطع والردم."
-            )
+            recommendations_en.append("Consider adjusting design elevation to better balance cut and fill volumes.")
+            recommendations_ar.append("فكر في تعديل ارتفاع التصميم لتحقيق توازن أفضل بين أحجام القطع والردم.")
 
         if design_plane.grade_x_percent < settings.MIN_DRAINAGE_GRADE:
             recommendations_en.append(
@@ -409,9 +404,7 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
             recommendations_en.append(
                 f"Maximum cut depth ({cut_fill.max_cut_depth_m:.2f}m) may require heavy equipment."
             )
-            recommendations_ar.append(
-                f"أقصى عمق قطع ({cut_fill.max_cut_depth_m:.2f} م) قد يتطلب معدات ثقيلة."
-            )
+            recommendations_ar.append(f"أقصى عمق قطع ({cut_fill.max_cut_depth_m:.2f} م) قد يتطلب معدات ثقيلة.")
 
         # Create leveling plan
         plan = LevelingPlan(
@@ -425,9 +418,7 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
             field_area_hectares=round(field_area_hectares, 4),
             original_elevation_range=round(elevation_range, 3),
             leveled_elevation_range=round(
-                max(design_plane.grade_x_percent, design_plane.grade_y_percent)
-                / 100
-                * max(p.x for p in points)
+                max(design_plane.grade_x_percent, design_plane.grade_y_percent) / 100 * max(p.x for p in points)
                 if points
                 else 0,
                 3,
@@ -455,19 +446,24 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request:
             try:
                 import json
 
-                event_payload = json.dumps({
-                    "event_type": "leveling_analyzed",
-                    "field_id": request.field_id,
-                    "method": request.method.value,
-                    "cut_volume_m3": cut_fill.cut_volume_m3,
-                    "fill_volume_m3": cut_fill.fill_volume_m3,
-                    "field_area_hectares": round(field_area_hectares, 4),
-                    "total_cost_sar": cost_estimate.total_cost_sar if cost_estimate else None,
-                    "plan_id": plan.plan_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }, default=str).encode()
+                event_payload = json.dumps(
+                    {
+                        "event_type": "leveling_analyzed",
+                        "field_id": request.field_id,
+                        "method": request.method.value,
+                        "cut_volume_m3": cut_fill.cut_volume_m3,
+                        "fill_volume_m3": cut_fill.fill_volume_m3,
+                        "field_area_hectares": round(field_area_hectares, 4),
+                        "total_cost_sar": cost_estimate.total_cost_sar if cost_estimate else None,
+                        "plan_id": plan.plan_id,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    },
+                    default=str,
+                ).encode()
                 await nc.publish("sahool.terrain.leveling_recommended", event_payload)
-                logger.info("nats_event_published", subject="sahool.terrain.leveling_recommended", field_id=request.field_id)
+                logger.info(
+                    "nats_event_published", subject="sahool.terrain.leveling_recommended", field_id=request.field_id
+                )
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 
@@ -565,12 +561,8 @@ async def get_cost_estimation(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
     cut_volume_m3: float = Query(..., description="Cut volume (m³) | حجم القطع (م³)"),
     fill_volume_m3: float = Query(..., description="Fill volume (m³) | حجم الردم (م³)"),
-    field_area_hectares: float = Query(
-        ..., description="Field area (hectares) | مساحة الحقل (هكتار)"
-    ),
-    haul_distance_m: float = Query(
-        default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"
-    ),
+    field_area_hectares: float = Query(..., description="Field area (hectares) | مساحة الحقل (هكتار)"),
+    haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
 ):
     """
     Get detailed cost estimation for leveling operation.
@@ -599,14 +591,10 @@ async def get_cost_estimation(
     )
 
     # Get equipment recommendations
-    equipment_recommendations = _get_equipment_recommendations(
-        cut_fill, haul_distance_m, LevelingMethod.SINGLE_PLANE
-    )
+    equipment_recommendations = _get_equipment_recommendations(cut_fill, haul_distance_m, LevelingMethod.SINGLE_PLANE)
 
     # Calculate cost estimate
-    cost_estimate = _calculate_cost_estimate(
-        cut_fill, field_area_hectares, haul_distance_m, equipment_recommendations
-    )
+    cost_estimate = _calculate_cost_estimate(cut_fill, field_area_hectares, haul_distance_m, equipment_recommendations)
 
     return cost_estimate
 
@@ -618,15 +606,9 @@ async def get_cost_estimation(
 )
 async def get_equipment_recommendations(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
-    total_volume_m3: float = Query(
-        ..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"
-    ),
-    haul_distance_m: float = Query(
-        default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"
-    ),
-    method: LevelingMethod = Query(
-        default=LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"
-    ),
+    total_volume_m3: float = Query(..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"),
+    haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
+    method: LevelingMethod = Query(default=LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"),
 ):
     """
     Get equipment recommendations for leveling operation.
@@ -718,18 +700,14 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
         simulated_points = []
         for p in points:
             design_z = plane.a * p.x + plane.b * p.y + plane.c
-            simulated_points.append(
-                ElevationPoint(x=p.x, y=p.y, elevation=design_z, point_id=p.point_id)
-            )
+            simulated_points.append(ElevationPoint(x=p.x, y=p.y, elevation=design_z, point_id=p.point_id))
 
         # Convert cut/fill points
         cut_points = [
-            ElevationPoint(x=p.x, y=p.y, elevation=p.z, point_id=p.point_id)
-            for p in cut_fill_result.cut_points
+            ElevationPoint(x=p.x, y=p.y, elevation=p.z, point_id=p.point_id) for p in cut_fill_result.cut_points
         ]
         fill_points = [
-            ElevationPoint(x=p.x, y=p.y, elevation=p.z, point_id=p.point_id)
-            for p in cut_fill_result.fill_points
+            ElevationPoint(x=p.x, y=p.y, elevation=p.z, point_id=p.point_id) for p in cut_fill_result.fill_points
         ]
 
         # Calculate simulated statistics
@@ -741,9 +719,7 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
 
         # Calculate uniformity improvement
         uniformity_improvement = (
-            (original_std_dev - simulated_std_dev) / original_std_dev * 100
-            if original_std_dev > 0
-            else 0
+            (original_std_dev - simulated_std_dev) / original_std_dev * 100 if original_std_dev > 0 else 0
         )
 
         # Create design plane model
@@ -760,9 +736,7 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
         # Create cut/fill volume model
         net_volume = cut_fill_result.cut_volume - cut_fill_result.fill_volume
         balance_ratio = (
-            cut_fill_result.cut_volume / cut_fill_result.fill_volume
-            if cut_fill_result.fill_volume > 0
-            else 999.0
+            cut_fill_result.cut_volume / cut_fill_result.fill_volume if cut_fill_result.fill_volume > 0 else 999.0
         )
 
         cut_fill = CutFillVolume(
@@ -807,16 +781,21 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
             try:
                 import json
 
-                event_payload = json.dumps({
-                    "event_type": "leveling_simulated",
-                    "field_id": request.field_id,
-                    "cut_volume_m3": cut_fill.cut_volume_m3,
-                    "fill_volume_m3": cut_fill.fill_volume_m3,
-                    "uniformity_improvement": round(uniformity_improvement, 2),
-                    "timestamp": datetime.utcnow().isoformat(),
-                }, default=str).encode()
+                event_payload = json.dumps(
+                    {
+                        "event_type": "leveling_simulated",
+                        "field_id": request.field_id,
+                        "cut_volume_m3": cut_fill.cut_volume_m3,
+                        "fill_volume_m3": cut_fill.fill_volume_m3,
+                        "uniformity_improvement": round(uniformity_improvement, 2),
+                        "timestamp": datetime.utcnow().isoformat(),
+                    },
+                    default=str,
+                ).encode()
                 await nc.publish("sahool.terrain.simulation_completed", event_payload)
-                logger.info("nats_event_published", subject="sahool.terrain.simulation_completed", field_id=request.field_id)
+                logger.info(
+                    "nats_event_published", subject="sahool.terrain.simulation_completed", field_id=request.field_id
+                )
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 

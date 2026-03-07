@@ -465,26 +465,15 @@ class FarmerCRMService:
             "farmer": farmer.to_dict(),
             "deals": {
                 "total": len(farmer_deals),
-                "active": len(
-                    [
-                        d
-                        for d in farmer_deals
-                        if d.stage not in (DealStage.PAID, DealStage.CLOSED_LOST)
-                    ]
-                ),
+                "active": len([d for d in farmer_deals if d.stage not in (DealStage.PAID, DealStage.CLOSED_LOST)]),
                 "won": len([d for d in farmer_deals if d.stage == DealStage.PAID]),
                 "total_value": sum(d.expected_value for d in farmer_deals),
             },
             "interactions": {
                 "total": len(farmer_interactions),
-                "by_type": {
-                    t.value: len([i for i in farmer_interactions if i.type == t])
-                    for t in InteractionType
-                },
+                "by_type": {t.value: len([i for i in farmer_interactions if i.type == t]) for t in InteractionType},
             },
-            "engagement_score": self._calculate_engagement_score(
-                farmer, farmer_deals, farmer_interactions
-            ),
+            "engagement_score": self._calculate_engagement_score(farmer, farmer_deals, farmer_interactions),
         }
 
     def _calculate_engagement_score(

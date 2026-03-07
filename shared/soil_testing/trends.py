@@ -157,9 +157,7 @@ class SoilTrendAnalyzer:
         for trend in nutrient_trends:
             if trend.trend_direction == "increasing":
                 # Check if increasing is good (for most nutrients) or bad (for some)
-                if trend.nutrient_code in ["Na", "Cl"] or (
-                    trend.data_points and self._is_excessive(trend)
-                ):
+                if trend.nutrient_code in ["Na", "Cl"] or (trend.data_points and self._is_excessive(trend)):
                     declining.append(trend.nutrient_name)
                     declining_ar.append(trend.nutrient_name_ar)
                 else:
@@ -178,9 +176,7 @@ class SoilTrendAnalyzer:
                 stable_ar.append(trend.nutrient_name_ar)
 
         # Determine overall trend
-        overall_trend, overall_trend_ar = self._determine_overall_trend(
-            improving, declining, stable
-        )
+        overall_trend, overall_trend_ar = self._determine_overall_trend(improving, declining, stable)
 
         # Calculate soil health scores over time
         health_scores = self._calculate_health_scores(filtered_tests)
@@ -191,9 +187,7 @@ class SoilTrendAnalyzer:
         )
 
         # Generate summary
-        summary_en, summary_ar = self._generate_trend_summary(
-            filtered_tests, overall_trend, improving, declining
-        )
+        summary_en, summary_ar = self._generate_trend_summary(filtered_tests, overall_trend, improving, declining)
 
         return TrendReport(
             field_id=field_id,
@@ -335,11 +329,7 @@ class SoilTrendAnalyzer:
                     "period2_mean": round(p2_mean, 2),
                     "absolute_change": round(change, 2),
                     "percent_change": round(change_percent, 1),
-                    "direction": "increased"
-                    if change > 0
-                    else "decreased"
-                    if change < 0
-                    else "stable",
+                    "direction": "increased" if change > 0 else "decreased" if change < 0 else "stable",
                 }
 
         # Compare properties
@@ -738,25 +728,19 @@ class SoilTrendAnalyzer:
                     recommendations_en.append(
                         f"Increase {trend.nutrient_name} fertilization to reverse declining trend"
                     )
-                    recommendations_ar.append(
-                        f"زد تسميد {trend.nutrient_name_ar} لعكس الاتجاه المتراجع"
-                    )
+                    recommendations_ar.append(f"زد تسميد {trend.nutrient_name_ar} لعكس الاتجاه المتراجع")
 
         # pH trends
         if ph_trend and ph_trend.trend_direction == "decreasing" and ph_trend.mean_value < 6.5:
             recommendations_en.append("Apply lime to prevent further pH decline")
             recommendations_ar.append("طبق الجير لمنع المزيد من انخفاض الحموضة")
         elif ph_trend and ph_trend.trend_direction == "increasing" and ph_trend.mean_value > 7.5:
-            recommendations_en.append(
-                "Monitor alkalinity; consider acidifying amendments if needed"
-            )
+            recommendations_en.append("Monitor alkalinity; consider acidifying amendments if needed")
             recommendations_ar.append("راقب القلوية؛ نظر في التعديلات المحمضة إذا لزم الأمر")
 
         # EC/salinity trends
         if ec_trend and ec_trend.trend_direction in ["increasing", "increasing_rapidly"]:
-            recommendations_en.append(
-                "Implement salinity management: leaching, drainage improvement"
-            )
+            recommendations_en.append("Implement salinity management: leaching, drainage improvement")
             recommendations_ar.append("طبق إدارة الملوحة: غسيل، تحسين الصرف")
 
         # Organic matter trends
@@ -906,6 +890,4 @@ def compare_soil_periods(
         Comparison dictionary
     """
     analyzer = SoilTrendAnalyzer()
-    return analyzer.compare_periods(
-        soil_tests, period1_start, period1_end, period2_start, period2_end
-    )
+    return analyzer.compare_periods(soil_tests, period1_start, period1_end, period2_start, period2_end)

@@ -85,9 +85,7 @@ class IrrigationIntegration:
         self.event_publisher = event_publisher
         self.logger = logging.getLogger(__name__)
 
-    async def map_irrigation_to_spring(
-        self, irrigation_data: dict, field_id: str, tenant_id: str
-    ) -> dict[str, Any]:
+    async def map_irrigation_to_spring(self, irrigation_data: dict, field_id: str, tenant_id: str) -> dict[str, Any]:
         """
         تعيين بيانات الري إلى متطلبات إدارة المياه SPRING
         Map irrigation data to SPRING water management requirements
@@ -219,9 +217,7 @@ class IrrigationIntegration:
             compliance_status = "compliant" if len(non_compliant) == 0 else "non_compliant"
 
             # Generate recommendations
-            recommendations = self._generate_water_recommendations(
-                total_volume, source_breakdown, irrigation_records
-            )
+            recommendations = self._generate_water_recommendations(total_volume, source_breakdown, irrigation_records)
 
             report = WaterUsageReport(
                 farm_id=farm_id,
@@ -328,9 +324,7 @@ class IrrigationIntegration:
                 )
 
             # Publish compliance update
-            overall_status = (
-                "compliant" if compliance_results["non_compliant_sources"] == 0 else "non_compliant"
-            )
+            overall_status = "compliant" if compliance_results["non_compliant_sources"] == 0 else "non_compliant"
             await self.event_publisher.publish_compliance_updated(
                 tenant_id=tenant_id,
                 farm_id=farm_id,
@@ -420,18 +414,12 @@ class IrrigationIntegration:
             recommendations.append("Diversify water sources to improve resilience")
 
         # Check for non-compliant records
-        non_compliant_count = sum(
-            1 for r in records if r.water_quality_status == WaterQualityStatus.NON_COMPLIANT
-        )
+        non_compliant_count = sum(1 for r in records if r.water_quality_status == WaterQualityStatus.NON_COMPLIANT)
         if non_compliant_count > 0:
-            recommendations.append(
-                f"Address {non_compliant_count} water quality issues immediately"
-            )
+            recommendations.append(f"Address {non_compliant_count} water quality issues immediately")
 
         # Check for pending tests
-        pending_count = sum(
-            1 for r in records if r.water_quality_status == WaterQualityStatus.PENDING_TEST
-        )
+        pending_count = sum(1 for r in records if r.water_quality_status == WaterQualityStatus.PENDING_TEST)
         if pending_count > 0:
             recommendations.append(f"Complete {pending_count} pending water quality tests")
 

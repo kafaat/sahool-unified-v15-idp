@@ -19,10 +19,17 @@ logger = structlog.get_logger()
 
 # Valid domain and resource_type values matching the DB CHECK constraints
 VALID_DOMAINS = frozenset({"field", "satellite", "terrain", "iot", "weather", "ndvi"})
-VALID_RESOURCE_TYPES = frozenset({
-    "field_boundary", "ndvi_reading", "dem_analysis", "satellite_image",
-    "sensor_data", "weather_observation", "weather_forecast",
-})
+VALID_RESOURCE_TYPES = frozenset(
+    {
+        "field_boundary",
+        "ndvi_reading",
+        "dem_analysis",
+        "satellite_image",
+        "sensor_data",
+        "weather_observation",
+        "weather_forecast",
+    }
+)
 
 
 class GeospatialMetadataRepository:
@@ -68,9 +75,7 @@ class GeospatialMetadataRepository:
         """
         domain = record.get("domain")
         if domain and domain not in VALID_DOMAINS:
-            raise ValueError(
-                f"Invalid domain '{domain}'. Must be one of: {', '.join(sorted(VALID_DOMAINS))}"
-            )
+            raise ValueError(f"Invalid domain '{domain}'. Must be one of: {', '.join(sorted(VALID_DOMAINS))}")
         resource_type = record.get("resource_type")
         if resource_type and resource_type not in VALID_RESOURCE_TYPES:
             raise ValueError(
@@ -333,16 +338,32 @@ class GeospatialMetadataRepository:
             True if record was updated, False if not found
         """
         # Allowlist of updatable columns to prevent SQL injection
-        allowed_columns = frozenset({
-            "title", "title_ar", "abstract", "abstract_ar",
-            "purpose", "purpose_ar", "status",
-            "keywords", "keywords_ar", "tags",
-            "is_published", "maintenance_frequency",
-            "bbox_west", "bbox_east", "bbox_south", "bbox_north",
-            "temporal_begin", "temporal_end",
-            "vertical_min_m", "vertical_max_m",
-            "data_quality", "metadata_json",
-        })
+        allowed_columns = frozenset(
+            {
+                "title",
+                "title_ar",
+                "abstract",
+                "abstract_ar",
+                "purpose",
+                "purpose_ar",
+                "status",
+                "keywords",
+                "keywords_ar",
+                "tags",
+                "is_published",
+                "maintenance_frequency",
+                "bbox_west",
+                "bbox_east",
+                "bbox_south",
+                "bbox_north",
+                "temporal_begin",
+                "temporal_end",
+                "vertical_min_m",
+                "vertical_max_m",
+                "data_quality",
+                "metadata_json",
+            }
+        )
 
         filtered = {k: v for k, v in updates.items() if k in allowed_columns}
         if not filtered:

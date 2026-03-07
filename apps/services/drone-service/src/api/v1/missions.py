@@ -17,7 +17,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -25,6 +27,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/missions", tags=["missions"])
 
@@ -67,18 +70,27 @@ async def create_mission(mission: MissionCreate, req: Request):
     """Create a new mission - إنشاء مهمة جديدة"""
     mission_id = f"MSN-{uuid.uuid4().hex[:8].upper()}"
     mission_data = {
-        "id": mission_id, "drone_id": mission.drone_id,
-        "flight_plan_id": mission.flight_plan_id, "mission_type": mission.mission_type,
-        "name": mission.name, "name_ar": mission.name_ar,
-        "field_id": mission.field_id, "status": "planned",
-        "progress_percent": 0, "created_at": datetime.utcnow().isoformat(),
-        "started_at": None, "completed_at": None,
+        "id": mission_id,
+        "drone_id": mission.drone_id,
+        "flight_plan_id": mission.flight_plan_id,
+        "mission_type": mission.mission_type,
+        "name": mission.name,
+        "name_ar": mission.name_ar,
+        "field_id": mission.field_id,
+        "status": "planned",
+        "progress_percent": 0,
+        "created_at": datetime.utcnow().isoformat(),
+        "started_at": None,
+        "completed_at": None,
     }
     _missions[mission_id] = mission_data
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish("sahool.drone.mission_created", json.dumps({"mission_id": mission_id, "drone_id": mission.drone_id}).encode())
+        await nc.publish(
+            "sahool.drone.mission_created",
+            json.dumps({"mission_id": mission_id, "drone_id": mission.drone_id}).encode(),
+        )
 
     logger.info("mission_created", mission_id=mission_id, type=mission.mission_type)
     return MissionResponse(**{k: mission_data[k] for k in MissionResponse.model_fields})
@@ -101,7 +113,10 @@ def _transition_mission(mission_id: str, target_status: str) -> dict:
     if target_status not in VALID_TRANSITIONS.get(current, []):
         raise HTTPException(
             status_code=400,
-            detail={"error": f"Cannot transition from {current} to {target_status}", "error_ar": f"لا يمكن الانتقال من {current} إلى {target_status}"},
+            detail={
+                "error": f"Cannot transition from {current} to {target_status}",
+                "error_ar": f"لا يمكن الانتقال من {current} إلى {target_status}",
+            },
         )
     mission["status"] = target_status
     if target_status == "active" and not mission.get("started_at"):
@@ -126,7 +141,12 @@ async def start_mission(mission_id: str, req: Request):
 async def pause_mission(mission_id: str):
     """Pause mission - إيقاف المهمة مؤقتاً"""
     _transition_mission(mission_id, "paused")
-    return {"mission_id": mission_id, "status": "paused", "message": "Mission paused", "message_ar": "المهمة متوقفة مؤقتاً"}
+    return {
+        "mission_id": mission_id,
+        "status": "paused",
+        "message": "Mission paused",
+        "message_ar": "المهمة متوقفة مؤقتاً",
+    }
 
 
 @router.post("/{mission_id}/resume")
@@ -143,4 +163,9 @@ async def abort_mission(mission_id: str, req: Request):
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish("sahool.drone.mission_aborted", json.dumps({"mission_id": mission_id}).encode())
-    return {"mission_id": mission_id, "status": "aborted", "message": "Mission aborted", "message_ar": "تم إلغاء المهمة"}
+    return {
+        "mission_id": mission_id,
+        "status": "aborted",
+        "message": "Mission aborted",
+        "message_ar": "تم إلغاء المهمة",
+    }

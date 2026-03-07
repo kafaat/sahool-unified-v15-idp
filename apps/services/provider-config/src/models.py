@@ -51,9 +51,7 @@ class ProviderConfig(Base):
     provider_type = Column(
         String(50), nullable=False, index=True
     )  # map, weather, satellite, payment, sms, notification
-    provider_name = Column(
-        String(100), nullable=False, index=True
-    )  # openstreetmap, google_maps, etc.
+    provider_name = Column(String(100), nullable=False, index=True)  # openstreetmap, google_maps, etc.
 
     # Configuration
     api_key = Column(Text, nullable=True)  # Encrypted in production
@@ -77,9 +75,7 @@ class ProviderConfig(Base):
     __table_args__ = (
         Index("idx_tenant_provider_type", "tenant_id", "provider_type"),
         Index("idx_tenant_provider_name", "tenant_id", "provider_name"),
-        Index(
-            "idx_tenant_type_enabled", "tenant_id", "provider_type", "enabled"
-        ),  # For active providers query
+        Index("idx_tenant_type_enabled", "tenant_id", "provider_type", "enabled"),  # For active providers query
         Index(
             "idx_tenant_type_priority",
             "tenant_id",

@@ -87,9 +87,7 @@ def main():
         field_id="field_tomato_001",
         metadata={"recommendation_id": "rec_001", "action_taken": "scheduled_irrigation"},
     )
-    print(
-        f"✓ تم تتبع تطبيق التوصية - Recommendation application tracked: {rec_apply_event.event_id}"
-    )
+    print(f"✓ تم تتبع تطبيق التوصية - Recommendation application tracked: {rec_apply_event.event_id}")
 
     # تتبع استلام تنبيه - Track alert received
     alert_received_event = analytics.track_event(
@@ -111,9 +109,7 @@ def main():
         field_id="field_tomato_001",
         metadata={"alert_id": "alert_001", "action_taken": "increased_irrigation"},
     )
-    print(
-        f"✓ تم تتبع الاطلاع على التنبيه - Alert acknowledgment tracked: {alert_ack_event.event_id}"
-    )
+    print(f"✓ تم تتبع الاطلاع على التنبيه - Alert acknowledgment tracked: {alert_ack_event.event_id}")
 
     # تتبع إضافة مستشعر - Track sensor addition
     sensor_event = analytics.track_event(
@@ -125,9 +121,7 @@ def main():
     print(f"✓ تم تتبع إضافة المستشعر - Sensor addition tracked: {sensor_event.event_id}")
 
     # تتبع تسجيل الخروج - Track logout
-    logout_event = analytics.track_event(
-        user_id="farmer_001", event_type=EventType.LOGOUT, session_id="session_123"
-    )
+    logout_event = analytics.track_event(user_id="farmer_001", event_type=EventType.LOGOUT, session_id="session_123")
     print(f"✓ تم تتبع تسجيل الخروج - Logout tracked: {logout_event.event_id}\n")
 
     # ============== 3. الحصول على مقاييس التفاعل - Get Engagement Metrics ==============
@@ -141,16 +135,12 @@ def main():
     print("\nمقاييس المستخدم farmer_001 - User Metrics for farmer_001:")
     print(f"  • إجمالي الأحداث - Total Events: {metrics.total_events}")
     print(f"  • أيام النشاط - Active Days: {metrics.unique_days_active}")
-    print(
-        f"  • متوسط مدة الجلسة - Avg Session Duration: {metrics.average_session_duration_minutes:.2f} دقيقة"
-    )
+    print(f"  • متوسط مدة الجلسة - Avg Session Duration: {metrics.average_session_duration_minutes:.2f} دقيقة")
     print(f"  • الحقول المنشأة - Fields Created: {metrics.fields_created}")
     print(f"  • الحقول المشاهدة - Fields Viewed: {metrics.fields_viewed}")
     print(f"  • التوصيات المشاهدة - Recommendations Viewed: {metrics.recommendations_viewed}")
     print(f"  • التوصيات المطبقة - Recommendations Applied: {metrics.recommendations_applied}")
-    print(
-        f"  • معدل تطبيق التوصيات - Recommendation Rate: {metrics.recommendation_application_rate:.2%}"
-    )
+    print(f"  • معدل تطبيق التوصيات - Recommendation Rate: {metrics.recommendation_application_rate:.2%}")
     print(f"  • التنبيهات المستلمة - Alerts Received: {metrics.alerts_received}")
     print(f"  • التنبيهات المطلع عليها - Alerts Acknowledged: {metrics.alerts_acknowledged}")
     print(f"  • معدل الاستجابة للتنبيهات - Alert Response Rate: {metrics.alert_response_rate:.2%}")
@@ -189,9 +179,7 @@ def main():
     print("\nميزة إدارة الحقول - Field Management Feature:")
     print(f"  • إجمالي الاستخدامات - Total Uses: {field_usage.total_uses}")
     print(f"  • المستخدمون الفريدون - Unique Users: {field_usage.unique_users}")
-    print(
-        f"  • متوسط الاستخدامات لكل مستخدم - Avg Uses per User: {field_usage.average_uses_per_user:.2f}"
-    )
+    print(f"  • متوسط الاستخدامات لكل مستخدم - Avg Uses per User: {field_usage.average_uses_per_user:.2f}")
     print(f"  • معدل التبني - Adoption Rate: {field_usage.adoption_rate:.2%}\n")
 
     # ============== 6. تحليلات المزارعين - Farmer Analytics ==============
@@ -210,9 +198,7 @@ def main():
     # وقت الاستجابة للتنبيهات - Alert response time
     response_time = analytics.alerts_response_time("farmer_001")
     if response_time:
-        print(
-            f"  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: {response_time:.2f} ساعة\n"
-        )
+        print(f"  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: {response_time:.2f} ساعة\n")
     else:
         print("  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: لا توجد بيانات كافية\n")
 
@@ -245,9 +231,7 @@ def main():
     print("=" * 70)
 
     # حساب معدل الاحتفاظ للفوج - Calculate cohort retention
-    cohort_analysis = analytics.calculate_retention_rate(
-        cohort="2024-01", cohort_period=date(2024, 1, 1), days=90
-    )
+    cohort_analysis = analytics.calculate_retention_rate(cohort="2024-01", cohort_period=date(2024, 1, 1), days=90)
 
     print(f"\nتحليل الفوج {cohort_analysis.cohort_name} - Cohort Analysis:")
     print(f"  • إجمالي المستخدمين - Total Users: {cohort_analysis.total_users}")
@@ -276,9 +260,7 @@ def simulate_farmer_activity():
     # Morning: Login and check fields
     print("صباحاً (8:00 AM) - Morning:")
     analytics.track_session("farmer_002", "session_morning", "start")
-    analytics.track_event(
-        "farmer_002", EventType.FIELD_VIEWED, field_id="field_001", metadata={"time": "08:00"}
-    )
+    analytics.track_event("farmer_002", EventType.FIELD_VIEWED, field_id="field_001", metadata={"time": "08:00"})
     analytics.track_event(
         "farmer_002",
         EventType.SENSOR_DATA_VIEWED,
@@ -299,9 +281,7 @@ def simulate_farmer_activity():
     # ظهراً: جدولة الري
     # Noon: Schedule irrigation
     print("\nظهراً (12:00 PM) - Noon:")
-    analytics.track_event(
-        "farmer_002", EventType.ALERT_ACKNOWLEDGED, metadata={"alert_id": "alert_morning"}
-    )
+    analytics.track_event("farmer_002", EventType.ALERT_ACKNOWLEDGED, metadata={"alert_id": "alert_morning"})
     analytics.track_event(
         "farmer_002",
         EventType.IRRIGATION_SCHEDULED,
@@ -318,9 +298,7 @@ def simulate_farmer_activity():
         EventType.RECOMMENDATION_VIEWED,
         metadata={"recommendation": "تطبيق سماد عضوي"},
     )
-    analytics.track_event(
-        "farmer_002", EventType.RECOMMENDATION_APPLIED, metadata={"action": "fertilizer_applied"}
-    )
+    analytics.track_event("farmer_002", EventType.RECOMMENDATION_APPLIED, metadata={"action": "fertilizer_applied"})
     analytics.track_event(
         "farmer_002",
         EventType.REPORT_GENERATED,

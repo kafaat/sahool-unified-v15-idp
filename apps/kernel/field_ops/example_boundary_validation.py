@@ -40,9 +40,7 @@ try:
         "properties": {"name": "حقل القمح - Wheat Field", "crop": "wheat", "area_ha": 2.5},
         "geometry": {
             "type": "Polygon",
-            "coordinates": [
-                [[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]
-            ],
+            "coordinates": [[[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]],
         },
     }
 
@@ -64,12 +62,8 @@ try:
 
     # عرض معلومات اليمن - Display Yemen info
     print("\n3. معلومات حدود اليمن - Yemen bounds information:")
-    print(
-        f"   - خط الطول / Longitude: {YEMEN_BOUNDS['longitude']['min']}° - {YEMEN_BOUNDS['longitude']['max']}°"
-    )
-    print(
-        f"   - خط العرض / Latitude: {YEMEN_BOUNDS['latitude']['min']}° - {YEMEN_BOUNDS['latitude']['max']}°"
-    )
+    print(f"   - خط الطول / Longitude: {YEMEN_BOUNDS['longitude']['min']}° - {YEMEN_BOUNDS['longitude']['max']}°")
+    print(f"   - خط العرض / Latitude: {YEMEN_BOUNDS['latitude']['min']}° - {YEMEN_BOUNDS['latitude']['max']}°")
     print(f"   - الحد الأدنى للمساحة / Min area: {AREA_LIMITS['min_hectares']} هكتار / ha")
     print(f"   - الحد الأقصى للمساحة / Max area: {AREA_LIMITS['max_hectares']} هكتار / ha")
 
@@ -77,9 +71,7 @@ try:
     print("\n4. اختبار حقل صغير جداً - Testing too small field...")
     small_field = {
         "type": "Polygon",
-        "coordinates": [
-            [[44.2, 15.35], [44.201, 15.35], [44.201, 15.351], [44.2, 15.351], [44.2, 15.35]]
-        ],
+        "coordinates": [[[44.2, 15.35], [44.201, 15.35], [44.201, 15.351], [44.2, 15.351], [44.2, 15.35]]],
     }
 
     result2 = validator.validate_geometry(small_field)
@@ -97,9 +89,7 @@ try:
 
     new_field = {
         "type": "Polygon",
-        "coordinates": [
-            [[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]
-        ],
+        "coordinates": [[[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]],
     }
 
     existing_fields = [
@@ -109,9 +99,7 @@ try:
             "user_id": "user_123",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [
-                    [[44.21, 15.36], [44.23, 15.36], [44.23, 15.38], [44.21, 15.38], [44.21, 15.36]]
-                ],
+                "coordinates": [[[44.21, 15.36], [44.23, 15.36], [44.23, 15.38], [44.21, 15.38], [44.21, 15.36]]],
             },
         }
     ]
@@ -122,9 +110,7 @@ try:
 
     print(f"   - يوجد تداخل / Has overlap: {overlap_result.has_overlap}")
     if overlap_result.has_overlap:
-        print(
-            f"   - عدد الحقول المتداخلة / Overlapping fields: {len(overlap_result.overlapping_fields)}"
-        )
+        print(f"   - عدد الحقول المتداخلة / Overlapping fields: {len(overlap_result.overlapping_fields)}")
         print(f"   - أقصى نسبة تداخل / Max overlap: {overlap_result.max_overlap_percentage:.2f}%")
 
     # عرض ملف حدود اليمن - Display Yemen boundaries file

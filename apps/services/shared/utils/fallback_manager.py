@@ -116,8 +116,7 @@ class CircuitBreaker:
                     self._transition_to_half_open()
                 else:
                     logger.warning(
-                        f"الدائرة مفتوحة - Circuit is OPEN. "
-                        f"وقت الانتظار المتبقي: {self._time_until_retry():.1f}s"
+                        f"الدائرة مفتوحة - Circuit is OPEN. وقت الانتظار المتبقي: {self._time_until_retry():.1f}s"
                     )
                     raise Exception("Circuit breaker is OPEN")
 
@@ -141,8 +140,7 @@ class CircuitBreaker:
             if self.state == CircuitState.HALF_OPEN:
                 self.success_count += 1
                 logger.info(
-                    f"نجاح في وضع نصف مفتوح - Success in HALF_OPEN: "
-                    f"{self.success_count}/{self.success_threshold}"
+                    f"نجاح في وضع نصف مفتوح - Success in HALF_OPEN: {self.success_count}/{self.success_threshold}"
                 )
 
                 # إغلاق الدائرة إذا تم تحقيق العتبة - Close circuit if threshold met
@@ -157,9 +155,7 @@ class CircuitBreaker:
             self.failure_count += 1
             self.last_failure_time = time.time()
 
-            logger.warning(
-                f"فشل مسجل - Failure recorded: {self.failure_count}/{self.failure_threshold}"
-            )
+            logger.warning(f"فشل مسجل - Failure recorded: {self.failure_count}/{self.failure_threshold}")
 
             # فتح الدائرة إذا تم تجاوز العتبة - Open circuit if threshold exceeded
             if self.failure_count >= self.failure_threshold:
@@ -250,13 +246,9 @@ class CircuitBreaker:
                 "failure_threshold": self.failure_threshold,
                 "success_threshold": self.success_threshold,
                 "recovery_timeout": self.recovery_timeout,
-                "time_until_retry": (
-                    self._time_until_retry() if self.state == CircuitState.OPEN else 0
-                ),
+                "time_until_retry": (self._time_until_retry() if self.state == CircuitState.OPEN else 0),
                 "last_failure_time": (
-                    datetime.fromtimestamp(self.last_failure_time).isoformat()
-                    if self.last_failure_time
-                    else None
+                    datetime.fromtimestamp(self.last_failure_time).isoformat() if self.last_failure_time else None
                 ),
             }
 
@@ -319,9 +311,7 @@ class FallbackManager:
             )
             logger.info(f"✅ تم تسجيل احتياطي للخدمة - Registered fallback for: {service_name}")
 
-    def execute_with_fallback(
-        self, service_name: str, primary_fn: Callable, *args, **kwargs
-    ) -> Any:
+    def execute_with_fallback(self, service_name: str, primary_fn: Callable, *args, **kwargs) -> Any:
         """
         تنفيذ دالة مع احتياطي
         Execute function with fallback
@@ -365,9 +355,7 @@ class FallbackManager:
                     result = fallback_fn(*args, **kwargs)
                     return result
                 except Exception as fallback_error:
-                    logger.error(
-                        f"❌ فشل الاحتياطي أيضاً - Fallback also failed: {str(fallback_error)}"
-                    )
+                    logger.error(f"❌ فشل الاحتياطي أيضاً - Fallback also failed: {str(fallback_error)}")
 
             # محاولة استخدام النتيجة المخزنة - Try cached result
             cached_result = self._get_cached_result(service_name)
@@ -376,10 +364,7 @@ class FallbackManager:
                 return cached_result
 
             # إذا فشل كل شيء - If everything fails
-            raise Exception(
-                f"كل المحاولات فشلت للخدمة {service_name} - "
-                f"All attempts failed for service {service_name}"
-            )
+            raise Exception(f"كل المحاولات فشلت للخدمة {service_name} - All attempts failed for service {service_name}")
 
     def _cache_result(self, service_name: str, result: Any):
         """
@@ -459,9 +444,7 @@ class FallbackManager:
 # ===== الديكوريتورز - Decorators =====
 
 
-def circuit_breaker(
-    failure_threshold: int = 5, recovery_timeout: int = 30, success_threshold: int = 3
-):
+def circuit_breaker(failure_threshold: int = 5, recovery_timeout: int = 30, success_threshold: int = 3):
     """
     ديكوريتور قاطع الدائرة
     Circuit Breaker Decorator
@@ -529,15 +512,12 @@ def with_fallback(fallback_fn: Callable):
                 return func(*args, **kwargs)
             except Exception as e:
                 logger.warning(
-                    f"⚠️ فشل {func.__name__}، استخدام الاحتياطي - "
-                    f"{func.__name__} failed, using fallback: {str(e)}"
+                    f"⚠️ فشل {func.__name__}، استخدام الاحتياطي - {func.__name__} failed, using fallback: {str(e)}"
                 )
                 try:
                     return fallback_fn(*args, **kwargs)
                 except Exception as fallback_error:
-                    logger.error(
-                        f"❌ فشل الاحتياطي أيضاً - Fallback also failed: {str(fallback_error)}"
-                    )
+                    logger.error(f"❌ فشل الاحتياطي أيضاً - Fallback also failed: {str(fallback_error)}")
                     raise e
 
         return wrapper
@@ -688,9 +668,7 @@ global_fallback_manager.register_fallback(
     recovery_timeout=60,
 )
 
-global_fallback_manager.register_fallback(
-    "ai", ServiceFallbacks.ai_fallback, failure_threshold=5, recovery_timeout=30
-)
+global_fallback_manager.register_fallback("ai", ServiceFallbacks.ai_fallback, failure_threshold=5, recovery_timeout=30)
 
 global_fallback_manager.register_fallback(
     "crop_health",

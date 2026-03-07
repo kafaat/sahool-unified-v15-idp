@@ -108,9 +108,7 @@ class UserAnalyticsService:
 
         return event
 
-    def track_session(
-        self, user_id: str, session_id: str, action: str = "start", **kwargs
-    ) -> AnalyticsEvent:
+    def track_session(self, user_id: str, session_id: str, action: str = "start", **kwargs) -> AnalyticsEvent:
         """
         تتبع جلسة المستخدم
         Track user session
@@ -123,9 +121,7 @@ class UserAnalyticsService:
         """
         event_type = EventType.LOGIN if action == "start" else EventType.LOGOUT
 
-        return self.track_event(
-            user_id=user_id, event_type=event_type, session_id=session_id, **kwargs
-        )
+        return self.track_event(user_id=user_id, event_type=event_type, session_id=session_id, **kwargs)
 
     # ============== مقاييس التفاعل - Engagement Metrics ==============
 
@@ -156,9 +152,7 @@ class UserAnalyticsService:
             start_date = self._get_period_start(end_date, period)
 
         # الحصول على أحداث المستخدم - Get user events
-        user_events = self.storage.get_user_events(
-            user_id=user_id, start_date=start_date, end_date=end_date
-        )
+        user_events = self.storage.get_user_events(user_id=user_id, start_date=start_date, end_date=end_date)
 
         # حساب المقاييس - Calculate metrics
         metrics = self._calculate_user_metrics(
@@ -210,9 +204,7 @@ class UserAnalyticsService:
 
         # مقاييس التنبيهات - Alert metrics
         alerts_received = len([e for e in events if e.event_type == EventType.ALERT_RECEIVED])
-        alerts_acknowledged = len(
-            [e for e in events if e.event_type == EventType.ALERT_ACKNOWLEDGED]
-        )
+        alerts_acknowledged = len([e for e in events if e.event_type == EventType.ALERT_ACKNOWLEDGED])
         alert_rate = alerts_acknowledged / alerts_received if alerts_received > 0 else 0
 
         # وقت الاستجابة للتنبيهات - Alert response time
@@ -231,12 +223,8 @@ class UserAnalyticsService:
         crops_harvested = len([e for e in events if e.event_type == EventType.CROP_HARVESTED])
 
         # مقاييس الري - Irrigation metrics
-        irrigation_scheduled = len(
-            [e for e in events if e.event_type == EventType.IRRIGATION_SCHEDULED]
-        )
-        irrigation_completed = len(
-            [e for e in events if e.event_type == EventType.IRRIGATION_COMPLETED]
-        )
+        irrigation_scheduled = len([e for e in events if e.event_type == EventType.IRRIGATION_SCHEDULED])
+        irrigation_completed = len([e for e in events if e.event_type == EventType.IRRIGATION_COMPLETED])
 
         # استخدام الميزات - Feature usage
         feature_usage = self._calculate_feature_usage(events)
@@ -283,9 +271,7 @@ class UserAnalyticsService:
 
     # ============== معدلات الاحتفاظ - Retention Rates ==============
 
-    def calculate_retention_rate(
-        self, cohort: str, cohort_period: date, days: int = 30
-    ) -> CohortAnalysis:
+    def calculate_retention_rate(self, cohort: str, cohort_period: date, days: int = 30) -> CohortAnalysis:
         """
         حساب معدل الاحتفاظ لفوج معين
         Calculate retention rate for a specific cohort
@@ -481,9 +467,7 @@ class UserAnalyticsService:
         events = self.storage.get_events_in_range(start_time, end_time)
         return len({event.user_id for event in events})
 
-    def average_session_duration(
-        self, start_date: datetime | None = None, end_date: datetime | None = None
-    ) -> float:
+    def average_session_duration(self, start_date: datetime | None = None, end_date: datetime | None = None) -> float:
         """
         متوسط مدة الجلسة
         Average session duration in minutes
@@ -604,9 +588,7 @@ class UserAnalyticsService:
                 alert_id = event.metadata.get("alert_id")
                 if alert_id and alert_id in alert_received_times:
                     received_time = alert_received_times[alert_id]
-                    response_time = (
-                        event.timestamp - received_time
-                    ).total_seconds() / 3600  # hours
+                    response_time = (event.timestamp - received_time).total_seconds() / 3600  # hours
                     response_times.append(response_time)
 
         if not response_times:
@@ -674,12 +656,8 @@ class UserAnalyticsService:
             return None
 
         # حساب متوسط الإنتاجية - Calculate average yield
-        baseline_yield = sum(e.metadata.get("yield", 0) for e in baseline_harvests) / len(
-            baseline_harvests
-        )
-        current_yield = sum(e.metadata.get("yield", 0) for e in current_harvests) / len(
-            current_harvests
-        )
+        baseline_yield = sum(e.metadata.get("yield", 0) for e in baseline_harvests) / len(baseline_harvests)
+        current_yield = sum(e.metadata.get("yield", 0) for e in current_harvests) / len(current_harvests)
 
         if baseline_yield == 0:
             return None
@@ -908,15 +886,11 @@ class InMemoryStorage:
         """
         self.events.append(event)
 
-    def get_user_events(
-        self, user_id: str, start_date: datetime, end_date: datetime
-    ) -> list[AnalyticsEvent]:
+    def get_user_events(self, user_id: str, start_date: datetime, end_date: datetime) -> list[AnalyticsEvent]:
         """
         الحصول على أحداث مستخدم معين - Get user events
         """
-        return [
-            e for e in self.events if e.user_id == user_id and start_date <= e.timestamp <= end_date
-        ]
+        return [e for e in self.events if e.user_id == user_id and start_date <= e.timestamp <= end_date]
 
     def get_events_in_range(self, start_date: datetime, end_date: datetime) -> list[AnalyticsEvent]:
         """
@@ -924,9 +898,7 @@ class InMemoryStorage:
         """
         return [e for e in self.events if start_date <= e.timestamp <= end_date]
 
-    def get_feature_events(
-        self, feature_name: str, start_date: datetime, end_date: datetime
-    ) -> list[AnalyticsEvent]:
+    def get_feature_events(self, feature_name: str, start_date: datetime, end_date: datetime) -> list[AnalyticsEvent]:
         """
         الحصول على أحداث ميزة معينة - Get feature events
         """
@@ -952,11 +924,7 @@ class InMemoryStorage:
         start = datetime.combine(cohort_period, time.min)
         end = start + timedelta(days=30)  # شهر واحد - One month
 
-        signup_events = [
-            e
-            for e in self.events
-            if e.event_type == EventType.LOGIN and start <= e.timestamp <= end
-        ]
+        signup_events = [e for e in self.events if e.event_type == EventType.LOGIN and start <= e.timestamp <= end]
 
         return list({e.user_id for e in signup_events})
 

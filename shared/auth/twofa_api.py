@@ -41,15 +41,17 @@ class TwoFASetupResponse(BaseModel):
     issuer: str = Field(..., description="Issuer name")
     account_name: str = Field(..., description="Account name (email)")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "secret": "JBSWY3DPEHPK3PXP",
-            "qr_code": "data:image/png;base64,iVBORw0KG...",
-            "manual_entry_key": "JBSWY3DPEHPK3PXP",
-            "issuer": "SAHOOL Agricultural Platform",
-            "account_name": "admin@sahool.io",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "secret": "JBSWY3DPEHPK3PXP",
+                "qr_code": "data:image/png;base64,iVBORw0KG...",
+                "manual_entry_key": "JBSWY3DPEHPK3PXP",
+                "issuer": "SAHOOL Agricultural Platform",
+                "account_name": "admin@sahool.io",
+            }
         }
-    })
+    )
 
 
 class TwoFAVerifyRequest(BaseModel):
@@ -67,13 +69,15 @@ class TwoFAVerifyResponse(BaseModel):
     backup_codes: list[str] = Field(..., description="Backup codes for account recovery")
     message: str = Field(..., description="Success message")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "success": True,
-            "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-            "message": "Two-factor authentication enabled successfully",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
+                "message": "Two-factor authentication enabled successfully",
+            }
         }
-    })
+    )
 
 
 class TwoFADisableRequest(BaseModel):
@@ -99,12 +103,14 @@ class BackupCodesResponse(BaseModel):
     backup_codes: list[str] = Field(..., description="New backup codes")
     message: str = Field(..., description="Warning message")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-            "message": "Previous backup codes have been invalidated",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
+                "message": "Previous backup codes have been invalidated",
+            }
         }
-    })
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -296,9 +302,7 @@ async def disable_twofa(
         # If not valid TOTP, try as backup code
         is_valid_backup = False
         if not is_valid_totp and user_data.twofa_backup_codes:
-            is_valid_backup, _ = twofa_service.verify_backup_code(
-                request.token, user_data.twofa_backup_codes
-            )
+            is_valid_backup, _ = twofa_service.verify_backup_code(request.token, user_data.twofa_backup_codes)
 
         if not is_valid_totp and not is_valid_backup:
             logger.warning(f"Invalid code provided for 2FA disable by user {user.id}")

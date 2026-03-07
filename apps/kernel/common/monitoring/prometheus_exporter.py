@@ -60,9 +60,7 @@ class PrometheusExporter:
             registry: Custom registry (default: global REGISTRY)
         """
         if not PROMETHEUS_AVAILABLE:
-            raise ImportError(
-                "prometheus_client is required. Install with: pip install prometheus-client"
-            )
+            raise ImportError("prometheus_client is required. Install with: pip install prometheus-client")
 
         self.service_name = service_name
         self.namespace = namespace
@@ -217,20 +215,16 @@ class PrometheusExporter:
             service=self.service_name, method=method, endpoint=endpoint, status=str(status)
         ).inc()
 
-        self.http_request_duration_seconds.labels(
-            service=self.service_name, method=method, endpoint=endpoint
-        ).observe(duration_seconds)
+        self.http_request_duration_seconds.labels(service=self.service_name, method=method, endpoint=endpoint).observe(
+            duration_seconds
+        )
 
         # Track errors
         if status >= 400:
             status_category = "4xx" if status < 500 else "5xx"
-            self.http_errors_total.labels(
-                service=self.service_name, status_category=status_category
-            ).inc()
+            self.http_errors_total.labels(service=self.service_name, status_category=status_category).inc()
 
-    def record_db_query(
-        self, query_type: str, duration_seconds: float, table: str = "unknown", success: bool = True
-    ):
+    def record_db_query(self, query_type: str, duration_seconds: float, table: str = "unknown", success: bool = True):
         """
         تسجيل استعلام قاعدة البيانات
         Record database query
@@ -245,18 +239,14 @@ class PrometheusExporter:
         self.monitor.track_db_query(query_type, duration_seconds * 1000, success, table)
 
         # Update Prometheus metrics
-        self.db_queries_total.labels(
-            service=self.service_name, query_type=query_type, table=table
-        ).inc()
+        self.db_queries_total.labels(service=self.service_name, query_type=query_type, table=table).inc()
 
-        self.db_query_duration_seconds.labels(
-            service=self.service_name, query_type=query_type, table=table
-        ).observe(duration_seconds)
+        self.db_query_duration_seconds.labels(service=self.service_name, query_type=query_type, table=table).observe(
+            duration_seconds
+        )
 
         if not success:
-            self.db_query_errors_total.labels(
-                service=self.service_name, query_type=query_type
-            ).inc()
+            self.db_query_errors_total.labels(service=self.service_name, query_type=query_type).inc()
 
     def record_external_api_call(
         self, target: str, duration_seconds: float, success: bool, endpoint: str | None = None
@@ -275,13 +265,9 @@ class PrometheusExporter:
         self.monitor.track_external_api(target, duration_seconds * 1000, success, endpoint)
 
         # Update Prometheus metrics
-        self.external_api_calls_total.labels(
-            service=self.service_name, target=target, success=str(success)
-        ).inc()
+        self.external_api_calls_total.labels(service=self.service_name, target=target, success=str(success)).inc()
 
-        self.external_api_duration_seconds.labels(service=self.service_name, target=target).observe(
-            duration_seconds
-        )
+        self.external_api_duration_seconds.labels(service=self.service_name, target=target).observe(duration_seconds)
 
     def update_system_metrics(self):
         """
@@ -320,9 +306,7 @@ class PrometheusExporter:
 
         self.alerts_active.labels(service=self.service_name, severity="warning").set(warning_count)
 
-        self.alerts_active.labels(service=self.service_name, severity="critical").set(
-            critical_count
-        )
+        self.alerts_active.labels(service=self.service_name, severity="critical").set(critical_count)
 
         # Increment total alerts counter
         for alert in alerts:

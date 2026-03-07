@@ -223,9 +223,7 @@ class TestProfitabilityAPI:
 
     def test_get_benchmarks_invalid_crop(self):
         """Test benchmarks with invalid crop"""
-        response = client.get(
-            "/v1/profitability/benchmarks/invalid_crop", params={"region": "sanaa"}
-        )
+        response = client.get("/v1/profitability/benchmarks/invalid_crop", params={"region": "sanaa"})
         assert response.status_code == 404
 
     def test_cost_breakdown(self):

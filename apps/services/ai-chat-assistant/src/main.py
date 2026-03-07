@@ -7,6 +7,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 

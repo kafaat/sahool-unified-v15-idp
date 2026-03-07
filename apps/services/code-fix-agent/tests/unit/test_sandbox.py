@@ -195,9 +195,7 @@ while True:
 
         # Imports should fail when __import__ is blocked
         assert result.status == ExecutionStatus.ERROR
-        assert (
-            "__import__" in result.error_message.lower() or "import" in result.error_message.lower()
-        )
+        assert "__import__" in result.error_message.lower() or "import" in result.error_message.lower()
 
     @pytest.mark.asyncio
     async def test_math_operations_without_import(self, sandbox):

@@ -287,9 +287,7 @@ def field_id_validator(cls: Any, v: str | None) -> str | None:
         raise ValueError("Field ID too long: max 100 characters")
 
     if not FIELD_ID_PATTERN.match(v):
-        raise ValueError(
-            f"Invalid field ID format: {v}. Only alphanumeric, underscore, and hyphen allowed"
-        )
+        raise ValueError(f"Invalid field ID format: {v}. Only alphanumeric, underscore, and hyphen allowed")
 
     return v
 

@@ -471,9 +471,7 @@ class PriceAnalyzer:
                 )
 
         if not market_prices:
-            raise MarketPriceException(
-                MarketPriceErrors.NO_PRICE_DATA, f"No recent price data for {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.NO_PRICE_DATA, f"No recent price data for {crop_id}")
 
         # Sort by price (ascending for buying, descending for selling)
         market_prices.sort(key=lambda x: x["price_decimal"])
@@ -490,9 +488,7 @@ class PriceAnalyzer:
         worst = market_prices[0]  # Lowest price
 
         price_spread = best["price_decimal"] - worst["price_decimal"]
-        price_spread_pct = (
-            float(price_spread / worst["price_decimal"] * 100) if worst["price_decimal"] else 0
-        )
+        price_spread_pct = float(price_spread / worst["price_decimal"] * 100) if worst["price_decimal"] else 0
 
         # Recommendation (best market for selling)
         potential_gain = best["price_decimal"] - avg_price
@@ -664,9 +660,7 @@ class PriceAnalyzer:
                     recommended_date = date.today() + timedelta(days=wait_days)
                     expected_gain_pct = (best_factor - current_seasonal) / current_seasonal * 100
 
-                    reasons.append(
-                        f"Seasonal prices typically {expected_gain_pct:.0f}% higher in {wait_days} days"
-                    )
+                    reasons.append(f"Seasonal prices typically {expected_gain_pct:.0f}% higher in {wait_days} days")
                     reasons_ar.append(
                         f"الأسعار الموسمية عادة أعلى بنسبة {expected_gain_pct:.0f}% خلال {wait_days} يومًا"
                     )
@@ -704,9 +698,7 @@ class PriceAnalyzer:
             recommended_market_name_ar = comparison.recommended_market_name_ar
 
             if comparison.price_spread_percent > 15:
-                reasons.append(
-                    f"Price difference of {comparison.price_spread_percent:.0f}% between markets"
-                )
+                reasons.append(f"Price difference of {comparison.price_spread_percent:.0f}% between markets")
                 reasons_ar.append(f"فرق سعر {comparison.price_spread_percent:.0f}% بين الأسواق")
 
         elif preferred_region_id:

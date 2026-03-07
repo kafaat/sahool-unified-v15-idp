@@ -661,10 +661,7 @@ class QRCodeData:
     # Compact format for QR
     def to_compact_string(self) -> str:
         """Generate compact string for QR encoding"""
-        return (
-            f"SAHOOL|{self.batch_code}|{self.product_name_en}|"
-            f"{self.harvest_date}|{self.verification_url}"
-        )
+        return f"SAHOOL|{self.batch_code}|{self.product_name_en}|{self.harvest_date}|{self.verification_url}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

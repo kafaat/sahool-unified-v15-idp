@@ -356,12 +356,8 @@ def example_9_dynamic_rate_limits():
         # Define tier-specific limits
         tier_limits = {
             "free": RateLimitConfig(requests_per_minute=30, requests_per_hour=500, burst_limit=5),
-            "standard": RateLimitConfig(
-                requests_per_minute=60, requests_per_hour=2000, burst_limit=10
-            ),
-            "premium": RateLimitConfig(
-                requests_per_minute=120, requests_per_hour=5000, burst_limit=20
-            ),
+            "standard": RateLimitConfig(requests_per_minute=60, requests_per_hour=2000, burst_limit=10),
+            "premium": RateLimitConfig(requests_per_minute=120, requests_per_hour=5000, burst_limit=20),
         }
 
         config = tier_limits.get(tier, tier_limits["free"])

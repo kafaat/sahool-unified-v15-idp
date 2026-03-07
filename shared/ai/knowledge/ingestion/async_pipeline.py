@@ -68,7 +68,10 @@ class AsyncKnowledgeIngestionPipeline:
             self._executor,
             partial(
                 self._pipeline.ingest_file,
-                file_path, source_url, target_collection, extra_metadata,
+                file_path,
+                source_url,
+                target_collection,
+                extra_metadata,
             ),
         )
 
@@ -86,7 +89,10 @@ class AsyncKnowledgeIngestionPipeline:
             self._executor,
             partial(
                 self._pipeline.ingest_text,
-                text, title, source_url, target_collection,
+                text,
+                title,
+                source_url,
+                target_collection,
             ),
         )
 
@@ -103,7 +109,9 @@ class AsyncKnowledgeIngestionPipeline:
             self._executor,
             partial(
                 self._pipeline.ingest_directory,
-                directory, patterns, target_collection,
+                directory,
+                patterns,
+                target_collection,
             ),
         )
 
@@ -131,9 +139,7 @@ class AsyncKnowledgeIngestionPipeline:
 
         async def _ingest_one(path: str | Path) -> IngestionResult:
             async with semaphore:
-                return await self.ingest_file(
-                    path, source_url, target_collection
-                )
+                return await self.ingest_file(path, source_url, target_collection)
 
         tasks = [_ingest_one(p) for p in file_paths]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -141,20 +147,14 @@ class AsyncKnowledgeIngestionPipeline:
         for r in results:
             if isinstance(r, Exception):
                 report.failed += 1
-                report.results.append(
-                    IngestionResult(errors=[str(r)])
-                )
+                report.results.append(IngestionResult(errors=[str(r)]))
             else:
                 report.results.append(r)
                 if r.success:
                     report.succeeded += 1
-                    report.by_collection[r.collection] = (
-                        report.by_collection.get(r.collection, 0) + 1
-                    )
+                    report.by_collection[r.collection] = report.by_collection.get(r.collection, 0) + 1
                     for d in r.domains_detected:
-                        report.by_domain[d] = (
-                            report.by_domain.get(d, 0) + 1
-                        )
+                        report.by_domain[d] = report.by_domain.get(d, 0) + 1
                 else:
                     report.failed += 1
 

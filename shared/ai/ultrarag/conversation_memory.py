@@ -252,11 +252,7 @@ class ConversationMemory:
         """Remove all expired sessions. Returns count of removed sessions.
         إزالة جميع الجلسات المنتهية الصلاحية. يرجع عدد الجلسات المحذوفة"""
         now = time.time()
-        expired = [
-            sid
-            for sid, session in self._sessions.items()
-            if now - session.last_active > self._session_ttl
-        ]
+        expired = [sid for sid, session in self._sessions.items() if now - session.last_active > self._session_ttl]
 
         for sid in expired:
             del self._sessions[sid]
@@ -301,13 +297,9 @@ class RAGConversationManager:
 
     # Conversation context injection template
     _CONTEXT_PREFIX_EN = (
-        "Previous conversation:\n{history}\n\n"
-        "Based on the above conversation, answer the following question:\n"
+        "Previous conversation:\n{history}\n\nBased on the above conversation, answer the following question:\n"
     )
-    _CONTEXT_PREFIX_AR = (
-        "المحادثة السابقة:\n{history}\n\n"
-        "بناءً على المحادثة أعلاه، أجب عن السؤال التالي:\n"
-    )
+    _CONTEXT_PREFIX_AR = "المحادثة السابقة:\n{history}\n\nبناءً على المحادثة أعلاه، أجب عن السؤال التالي:\n"
 
     def __init__(
         self,

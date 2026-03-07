@@ -39,24 +39,16 @@ class TierConfig:
     """Tiered rate limiting configuration"""
 
     free: RateLimitConfig = field(
-        default_factory=lambda: RateLimitConfig(
-            requests_per_minute=30, requests_per_hour=500, burst_limit=5
-        )
+        default_factory=lambda: RateLimitConfig(requests_per_minute=30, requests_per_hour=500, burst_limit=5)
     )
     standard: RateLimitConfig = field(
-        default_factory=lambda: RateLimitConfig(
-            requests_per_minute=60, requests_per_hour=2000, burst_limit=10
-        )
+        default_factory=lambda: RateLimitConfig(requests_per_minute=60, requests_per_hour=2000, burst_limit=10)
     )
     premium: RateLimitConfig = field(
-        default_factory=lambda: RateLimitConfig(
-            requests_per_minute=120, requests_per_hour=5000, burst_limit=20
-        )
+        default_factory=lambda: RateLimitConfig(requests_per_minute=120, requests_per_hour=5000, burst_limit=20)
     )
     internal: RateLimitConfig = field(
-        default_factory=lambda: RateLimitConfig(
-            requests_per_minute=1000, requests_per_hour=50000, burst_limit=100
-        )
+        default_factory=lambda: RateLimitConfig(requests_per_minute=1000, requests_per_hour=50000, burst_limit=100)
     )
 
 

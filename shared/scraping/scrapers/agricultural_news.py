@@ -392,9 +392,7 @@ class AgriculturalNewsScraper(BaseScraper):
                     continue
 
                 try:
-                    src_articles = await self._scrape_source(
-                        src, source_config, query, limit - len(articles)
-                    )
+                    src_articles = await self._scrape_source(src, source_config, query, limit - len(articles))
                     articles.extend(src_articles)
 
                     if len(articles) >= limit:
@@ -407,9 +405,7 @@ class AgriculturalNewsScraper(BaseScraper):
             # Filter by category if specified
             if category:
                 articles = [
-                    a
-                    for a in articles
-                    if a.category == category or self._classify_category(a.title) == category
+                    a for a in articles if a.category == category or self._classify_category(a.title) == category
                 ]
 
             # Limit results
@@ -533,9 +529,7 @@ class AgriculturalNewsScraper(BaseScraper):
             NewsArticle or None.
         """
         # Title
-        title_element = await element.query_selector(
-            "h1, h2, h3, .title, .headline, [class*='title']"
-        )
+        title_element = await element.query_selector("h1, h2, h3, .title, .headline, [class*='title']")
         title = ""
         if title_element:
             title = await title_element.text_content()
@@ -555,9 +549,7 @@ class AgriculturalNewsScraper(BaseScraper):
                 url = f"{base_url}/{url.lstrip('/')}"
 
         # Summary
-        summary_element = await element.query_selector(
-            "p, .summary, .excerpt, .description, [class*='summary']"
-        )
+        summary_element = await element.query_selector("p, .summary, .excerpt, .description, [class*='summary']")
         summary = ""
         if summary_element:
             summary = await summary_element.text_content()
@@ -640,9 +632,7 @@ class AgriculturalNewsScraper(BaseScraper):
                 # Filter out navigation links
                 if len(text) < 20:
                     continue
-                if any(
-                    skip in text.lower() for skip in ["menu", "home", "about", "contact", "login"]
-                ):
+                if any(skip in text.lower() for skip in ["menu", "home", "about", "contact", "login"]):
                     continue
 
                 language = detect_language(text)

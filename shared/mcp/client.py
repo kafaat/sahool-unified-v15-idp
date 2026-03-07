@@ -116,9 +116,7 @@ class MCPClient:
         self.capabilities = result.get("capabilities", {})
         self.server_info = result.get("serverInfo", {})
 
-        logger.info(
-            f"Connected to {self.server_info.get('name')} v{self.server_info.get('version')}"
-        )
+        logger.info(f"Connected to {self.server_info.get('name')} v{self.server_info.get('version')}")
 
         return result
 
@@ -266,9 +264,7 @@ class MCPClient:
 
         return response.get("result", {}).get("prompts", [])
 
-    async def get_prompt(
-        self, name: str, arguments: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    async def get_prompt(self, name: str, arguments: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Get a prompt template
 
@@ -326,9 +322,7 @@ class MCPClient:
 
     # ==================== High-level Helper Methods ====================
 
-    async def get_weather_forecast(
-        self, latitude: float, longitude: float, days: int = 7
-    ) -> dict[str, Any]:
+    async def get_weather_forecast(self, latitude: float, longitude: float, days: int = 7) -> dict[str, Any]:
         """
         Get weather forecast (convenience method)
 
@@ -358,9 +352,7 @@ class MCPClient:
 
         return {}
 
-    async def analyze_crop_health(
-        self, field_id: str, analysis_type: str = "ndvi"
-    ) -> dict[str, Any]:
+    async def analyze_crop_health(self, field_id: str, analysis_type: str = "ndvi") -> dict[str, Any]:
         """
         Analyze crop health (convenience method)
 

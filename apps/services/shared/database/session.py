@@ -159,9 +159,7 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
             return result.scalars().all()
     """
     if not ASYNC_AVAILABLE:
-        raise RuntimeError(
-            "Async SQLAlchemy not available. Install sqlalchemy[asyncio] and asyncpg"
-        )
+        raise RuntimeError("Async SQLAlchemy not available. Install sqlalchemy[asyncio] and asyncpg")
 
     if _AsyncSessionLocal is None:
         init_db(async_mode=True)

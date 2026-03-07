@@ -167,14 +167,8 @@ class TestUtilityFunction:
 
     def test_severity_multipliers(self, agent):
         """اختبار مضاعفات الشدة"""
-        assert (
-            agent.SEVERITY_MULTIPLIERS[IssueSeverity.CRITICAL]
-            > agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
-        )
-        assert (
-            agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
-            > agent.SEVERITY_MULTIPLIERS[IssueSeverity.LOW]
-        )
+        assert agent.SEVERITY_MULTIPLIERS[IssueSeverity.CRITICAL] > agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
+        assert agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH] > agent.SEVERITY_MULTIPLIERS[IssueSeverity.LOW]
 
 
 class TestLearning:

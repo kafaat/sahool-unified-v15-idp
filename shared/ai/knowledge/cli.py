@@ -490,13 +490,15 @@ class KnowledgeCLI:
             domain_headers = ["Domain | المجال", "Fresh", "Expiring", "Expired", "No Expiry"]
             domain_rows = []
             for domain, counts in sorted(report.by_domain.items()):
-                domain_rows.append([
-                    domain,
-                    str(counts.get("fresh", 0)),
-                    str(counts.get("expiring_soon", 0)),
-                    str(counts.get("expired", 0)),
-                    str(counts.get("no_expiration", 0)),
-                ])
+                domain_rows.append(
+                    [
+                        domain,
+                        str(counts.get("fresh", 0)),
+                        str(counts.get("expiring_soon", 0)),
+                        str(counts.get("expired", 0)),
+                        str(counts.get("no_expiration", 0)),
+                    ]
+                )
             self._print_table(domain_headers, domain_rows)
 
         return 0
@@ -558,10 +560,7 @@ class KnowledgeCLI:
             print()
             print("Files by Extension | الملفات حسب الامتداد:")
             ext_headers = ["Extension | الامتداد", "Count | العدد"]
-            ext_rows = [
-                [ext, str(count)]
-                for ext, count in sorted(files_by_extension.items(), key=lambda x: -x[1])
-            ]
+            ext_rows = [[ext, str(count)] for ext, count in sorted(files_by_extension.items(), key=lambda x: -x[1])]
             self._print_table(ext_headers, ext_rows)
 
         # Files per collection (non-empty only)
@@ -570,10 +569,7 @@ class KnowledgeCLI:
             print()
             print("Files per Collection | الملفات حسب المجموعة:")
             coll_headers = ["Collection | المجموعة", "Files | الملفات"]
-            coll_rows = [
-                [coll, str(count)]
-                for coll, count in sorted(non_empty.items(), key=lambda x: -x[1])
-            ]
+            coll_rows = [[coll, str(count)] for coll, count in sorted(non_empty.items(), key=lambda x: -x[1])]
             self._print_table(coll_headers, coll_rows)
 
         # Empty collections
@@ -621,20 +617,14 @@ class KnowledgeCLI:
             print()
             print("By Collection | حسب المجموعة:")
             coll_headers = ["Collection | المجموعة", "Documents | الوثائق"]
-            coll_rows = [
-                [coll, str(count)]
-                for coll, count in sorted(by_collection.items(), key=lambda x: -x[1])
-            ]
+            coll_rows = [[coll, str(count)] for coll, count in sorted(by_collection.items(), key=lambda x: -x[1])]
             self._print_table(coll_headers, coll_rows)
 
         if by_domain:
             print()
             print("By Domain | حسب المجال:")
             domain_headers = ["Domain | المجال", "Documents | الوثائق"]
-            domain_rows = [
-                [domain, str(count)]
-                for domain, count in sorted(by_domain.items(), key=lambda x: -x[1])
-            ]
+            domain_rows = [[domain, str(count)] for domain, count in sorted(by_domain.items(), key=lambda x: -x[1])]
             self._print_table(domain_headers, domain_rows)
 
     def _print_table(self, headers: list[str], rows: list[list[str]]) -> None:

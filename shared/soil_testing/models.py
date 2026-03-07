@@ -884,9 +884,7 @@ class NutrientTrend:
             "nutrient_name": self.nutrient_name,
             "nutrient_name_ar": self.nutrient_name_ar,
             "unit": self.unit,
-            "data_points": [
-                {"date": dp.date.isoformat(), "value": dp.value} for dp in self.data_points
-            ],
+            "data_points": [{"date": dp.date.isoformat(), "value": dp.value} for dp in self.data_points],
             "statistics": {
                 "min": self.min_value,
                 "max": self.max_value,

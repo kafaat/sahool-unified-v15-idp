@@ -185,8 +185,7 @@ async def auto_purchase(
     "/compare",
     response_model=SupplierComparison,
     summary="Compare Suppliers | مقارنة الموردين",
-    description="Compare quotes from multiple suppliers for a product. "
-    "مقارنة عروض الأسعار من موردين متعددين لمنتج.",
+    description="Compare quotes from multiple suppliers for a product. مقارنة عروض الأسعار من موردين متعددين لمنتج.",
 )
 async def compare_suppliers(
     product_id: UUID,
@@ -252,8 +251,7 @@ async def compare_suppliers(
     response_model=BulkPurchaseResult,
     status_code=201,
     summary="Bulk Purchase | شراء بالجملة",
-    description="Purchase multiple items at once with optimization. "
-    "شراء عناصر متعددة مرة واحدة مع التحسين.",
+    description="Purchase multiple items at once with optimization. شراء عناصر متعددة مرة واحدة مع التحسين.",
 )
 async def bulk_purchase(
     request: BulkPurchaseRequest,

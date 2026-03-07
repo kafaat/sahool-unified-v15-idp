@@ -154,11 +154,7 @@ class CircuitBreaker:
             self.half_open_calls += 1
 
         try:
-            result = (
-                await func(*args, **kwargs)
-                if asyncio.iscoroutinefunction(func)
-                else func(*args, **kwargs)
-            )
+            result = await func(*args, **kwargs) if asyncio.iscoroutinefunction(func) else func(*args, **kwargs)
             self.record_success()
             return result
 
@@ -181,9 +177,7 @@ class CircuitBreaker:
             "state": self.state.value,
             "failure_count": self.failure_count,
             "success_count": self.success_count,
-            "last_failure": (
-                self.last_failure_time.isoformat() if self.last_failure_time else None
-            ),
+            "last_failure": (self.last_failure_time.isoformat() if self.last_failure_time else None),
         }
 
     def reset(self):

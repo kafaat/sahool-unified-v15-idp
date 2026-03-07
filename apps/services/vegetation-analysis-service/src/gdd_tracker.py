@@ -1046,9 +1046,7 @@ class GDDTracker:
 
         # Fetch historical weather data
         weather_service = get_weather_service()
-        historical = await weather_service.get_historical(
-            latitude, longitude, planting_date, end_date
-        )
+        historical = await weather_service.get_historical(latitude, longitude, planting_date, end_date)
 
         # Calculate daily GDD
         daily_data = []
@@ -1085,8 +1083,8 @@ class GDDTracker:
         avg_daily_gdd = total_gdd / max(1, days_since_planting)
 
         # Determine current stage and next stage
-        current_stage, current_stage_ar, next_stage, next_stage_ar, gdd_to_next = (
-            self.get_current_stage(crop_code, total_gdd)
+        current_stage, current_stage_ar, next_stage, next_stage_ar, gdd_to_next = self.get_current_stage(
+            crop_code, total_gdd
         )
 
         # Generate milestones
@@ -1302,9 +1300,7 @@ class GDDTracker:
                 theta = math.asin((base_temp - avg) / amplitude)
 
                 # GDD accumulated (integral of sine curve above base)
-                gdd = (1 / math.pi) * (
-                    (avg - base_temp) * (math.pi - 2 * theta) + 2 * amplitude * math.cos(theta)
-                )
+                gdd = (1 / math.pi) * ((avg - base_temp) * (math.pi - 2 * theta) + 2 * amplitude * math.cos(theta))
 
                 return max(0, gdd)
 
@@ -1313,9 +1309,7 @@ class GDDTracker:
             avg_temp = (temp_max + temp_min) / 2
             return max(0, avg_temp - base_temp)
 
-    def get_current_stage(
-        self, crop_code: str, accumulated_gdd: float
-    ) -> tuple[str, str, str, str, float]:
+    def get_current_stage(self, crop_code: str, accumulated_gdd: float) -> tuple[str, str, str, str, float]:
         """
         Get current growth stage based on accumulated GDD.
 
@@ -1467,18 +1461,14 @@ class GDDTracker:
             for year in sample_years:
                 try:
                     # Calculate start date for this historical year
-                    start_date = date.today().replace(year=year) - timedelta(
-                        days=days_since_planting
-                    )
+                    start_date = date.today().replace(year=year) - timedelta(days=days_since_planting)
                     end_date = date.today().replace(year=year)
 
                     # Skip if dates are in the future
                     if end_date > date.today():
                         continue
 
-                    historical = await weather_service.get_historical(
-                        latitude, longitude, start_date, end_date
-                    )
+                    historical = await weather_service.get_historical(latitude, longitude, start_date, end_date)
 
                     # Calculate GDD for this period
                     gdd_sum = 0.0
@@ -1508,14 +1498,10 @@ class GDDTracker:
 
             # Generate descriptions
             if percent_diff > 10:
-                desc_ar = (
-                    f"متقدم بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أسرع من المتوقع"
-                )
+                desc_ar = f"متقدم بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أسرع من المتوقع"
                 desc_en = f"{abs(percent_diff):.1f}% ahead of normal - faster growth than expected"
             elif percent_diff < -10:
-                desc_ar = (
-                    f"متأخر بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أبطأ من المتوقع"
-                )
+                desc_ar = f"متأخر بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أبطأ من المتوقع"
                 desc_en = f"{abs(percent_diff):.1f}% behind normal - slower growth than expected"
             else:
                 desc_ar = "ضمن المعدل الطبيعي - نمو طبيعي"

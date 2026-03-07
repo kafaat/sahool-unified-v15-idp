@@ -19,7 +19,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -27,6 +29,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger(__name__)
 
@@ -380,7 +383,5 @@ async def get_scouting_statistics(
         "total_reports": len(reports),
         "total_observations": total_observations,
         "top_pests": [{"pest_id": p[0], "count": p[1]} for p in top_pests],
-        "reports_by_status": {
-            status.value: len([r for r in reports if r.status == status]) for status in ReportStatus
-        },
+        "reports_by_status": {status.value: len([r for r in reports if r.status == status]) for status in ReportStatus},
     }

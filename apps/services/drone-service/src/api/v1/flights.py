@@ -18,7 +18,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -26,6 +28,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/flights", tags=["flight-planning"])
 
@@ -113,7 +116,10 @@ async def create_spray_flight_plan(request: SprayFlightRequest, req: Request, _u
         logger.info("spray_flight_planned", plan_id=plan_id, distance=result.total_distance_m)
         return plan_data
     except ImportError:
-        raise HTTPException(status_code=503, detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"})
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"},
+        )
 
 
 @router.post("/plan/mapping", status_code=201)
@@ -148,7 +154,10 @@ async def create_mapping_flight_plan(request: MappingFlightRequest, req: Request
         logger.info("mapping_flight_planned", plan_id=plan_id)
         return plan_data
     except ImportError:
-        raise HTTPException(status_code=503, detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"})
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"},
+        )
 
 
 @router.post("/weather-check")
@@ -200,7 +209,10 @@ async def estimate_flight_resources(request: ResourceEstimateRequest):
             "estimated_cost_factor": estimate["estimated_cost_factor"],
         }
     except ImportError:
-        raise HTTPException(status_code=503, detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"})
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"},
+        )
 
 
 @router.get("/plans")

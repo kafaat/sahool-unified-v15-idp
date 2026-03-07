@@ -147,9 +147,7 @@ class ComponentMaterial:
     is_container: bool = False
     is_draggable: bool = True
     is_resizable: bool = True
-    default_size: dict[str, Any] = field(
-        default_factory=lambda: {"width": "100%", "height": "auto"}
-    )
+    default_size: dict[str, Any] = field(default_factory=lambda: {"width": "100%", "height": "auto"})
 
     # Data binding
     supports_data_binding: bool = True
@@ -553,12 +551,8 @@ class LowCodeEngine:
                 icon="📅",
                 props=[
                     PropDefinition(name="label", name_ar="التسمية", type="string"),
-                    PropDefinition(
-                        name="format", name_ar="التنسيق", type="string", default="YYYY-MM-DD"
-                    ),
-                    PropDefinition(
-                        name="use_hijri", name_ar="استخدام الهجري", type="boolean", default=False
-                    ),
+                    PropDefinition(name="format", name_ar="التنسيق", type="string", default="YYYY-MM-DD"),
+                    PropDefinition(name="use_hijri", name_ar="استخدام الهجري", type="boolean", default=False),
                 ],
             )
         )
@@ -573,15 +567,9 @@ class LowCodeEngine:
                 icon="📊",
                 props=[
                     PropDefinition(name="columns", name_ar="الأعمدة", type="array"),
-                    PropDefinition(
-                        name="pagination", name_ar="ترقيم الصفحات", type="boolean", default=True
-                    ),
-                    PropDefinition(
-                        name="page_size", name_ar="حجم الصفحة", type="number", default=10
-                    ),
-                    PropDefinition(
-                        name="sortable", name_ar="قابل للفرز", type="boolean", default=True
-                    ),
+                    PropDefinition(name="pagination", name_ar="ترقيم الصفحات", type="boolean", default=True),
+                    PropDefinition(name="page_size", name_ar="حجم الصفحة", type="number", default=10),
+                    PropDefinition(name="sortable", name_ar="قابل للفرز", type="boolean", default=True),
                 ],
                 supports_data_binding=True,
             )
@@ -621,9 +609,7 @@ class LowCodeEngine:
                 description_ar="خريطة تفاعلية تظهر حدود الحقل وصحته",
                 props=[
                     PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                    PropDefinition(
-                        name="show_ndvi", name_ar="إظهار NDVI", type="boolean", default=True
-                    ),
+                    PropDefinition(name="show_ndvi", name_ar="إظهار NDVI", type="boolean", default=True),
                     PropDefinition(
                         name="show_sensors",
                         name_ar="إظهار المستشعرات",
@@ -683,12 +669,8 @@ class LowCodeEngine:
                 icon="💧",
                 props=[
                     PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                    PropDefinition(
-                        name="auto_schedule", name_ar="جدولة تلقائية", type="boolean", default=False
-                    ),
-                    PropDefinition(
-                        name="show_forecast", name_ar="إظهار التوقعات", type="boolean", default=True
-                    ),
+                    PropDefinition(name="auto_schedule", name_ar="جدولة تلقائية", type="boolean", default=False),
+                    PropDefinition(name="show_forecast", name_ar="إظهار التوقعات", type="boolean", default=True),
                 ],
                 events=[
                     EventDefinition(name="onScheduleCreate", name_ar="عند إنشاء جدول"),
@@ -713,9 +695,7 @@ class LowCodeEngine:
                         type="enum",
                         enum_values=["soil_moisture", "temperature", "humidity", "ec"],
                     ),
-                    PropDefinition(
-                        name="show_history", name_ar="إظهار السجل", type="boolean", default=True
-                    ),
+                    PropDefinition(name="show_history", name_ar="إظهار السجل", type="boolean", default=True),
                     PropDefinition(name="alert_threshold", name_ar="حد التنبيه", type="number"),
                 ],
             )
@@ -731,9 +711,7 @@ class LowCodeEngine:
                 icon="🌱",
                 props=[
                     PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                    PropDefinition(
-                        name="show_score", name_ar="إظهار الدرجة", type="boolean", default=True
-                    ),
+                    PropDefinition(name="show_score", name_ar="إظهار الدرجة", type="boolean", default=True),
                     PropDefinition(
                         name="show_recommendations",
                         name_ar="إظهار التوصيات",

@@ -850,10 +850,7 @@ class LLMProviderManager:
 
             # Check if the configured model is available
             available_models = [m.get("name", "") for m in api_data.get("models", [])]
-            model_ready = any(
-                config.model in m or m.startswith(config.model.split(":")[0])
-                for m in available_models
-            )
+            model_ready = any(config.model in m or m.startswith(config.model.split(":")[0]) for m in available_models)
 
             # Attempt a lightweight generation to verify model is loaded
             model_loaded = False
@@ -921,9 +918,7 @@ class LLMProviderManager:
                     "api_reachable": False,
                 }
 
-    async def _check_cloud_provider_health(
-        self, provider: LLMProvider, config: LLMConfig
-    ) -> dict[str, Any]:
+    async def _check_cloud_provider_health(self, provider: LLMProvider, config: LLMConfig) -> dict[str, Any]:
         """
         Check cloud provider health (Anthropic, OpenAI, Google, DeepSeek).
 
@@ -1221,8 +1216,10 @@ class LLMProviderManager:
                         tokens_input=len(prompt) // 4,
                         tokens_output=estimated_output_tokens,
                         cost_usd=calculate_cost(
-                            provider.value, config.model,
-                            len(prompt) // 4, estimated_output_tokens,
+                            provider.value,
+                            config.model,
+                            len(prompt) // 4,
+                            estimated_output_tokens,
                         ),
                         success=True,
                     )
@@ -1545,8 +1542,10 @@ class LLMProviderManager:
             config = self.configs[prov]
             output_tokens = max_tokens or config.max_tokens
             estimated_cost = calculate_cost(
-                prov.value, config.model,
-                estimated_input_tokens, output_tokens,
+                prov.value,
+                config.model,
+                estimated_input_tokens,
+                output_tokens,
             )
 
             estimates[prov.value] = {
@@ -1596,10 +1595,7 @@ class LLMProviderManager:
             period=period,
             hard_limit=hard_limit,
         )
-        logger.info(
-            f"Budget set for tenant {self.tenant_id}: "
-            f"${budget_usd:.2f}/{period} (hard_limit={hard_limit})"
-        )
+        logger.info(f"Budget set for tenant {self.tenant_id}: ${budget_usd:.2f}/{period} (hard_limit={hard_limit})")
 
     def get_tenant_budget_status(self) -> dict[str, Any]:
         """
@@ -1649,8 +1645,10 @@ class LLMProviderManager:
             return {"allowed": True, "budget_set": True}
 
         estimated_cost = calculate_cost(
-            prov.value, config.model,
-            estimated_tokens // 2, estimated_tokens // 2,
+            prov.value,
+            config.model,
+            estimated_tokens // 2,
+            estimated_tokens // 2,
         )
 
         remaining = status.get("remaining_usd", float("inf"))

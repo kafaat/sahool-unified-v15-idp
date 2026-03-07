@@ -98,9 +98,7 @@ async def get_user_notification_history(
     user_id: str,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    status: str | None = Query(
-        default=None, description="Filter by status: pending, sent, failed, read"
-    ),
+    status: str | None = Query(default=None, description="Filter by status: pending, sent, failed, read"),
     type: str | None = Query(default=None, description="Filter by notification type"),
     channel: str | None = Query(default=None, description="Filter by channel"),
     start_date: datetime | None = Query(default=None, description="Filter from date"),
@@ -418,9 +416,7 @@ async def get_notification_stats(
 
 @router.delete("/old")
 async def cleanup_old_notifications(
-    days: int = Query(
-        default=30, ge=7, le=365, description="Delete notifications older than this many days"
-    ),
+    days: int = Query(default=30, ge=7, le=365, description="Delete notifications older than this many days"),
 ):
     """
     تنظيف الإشعارات القديمة

@@ -134,20 +134,16 @@ def validate_coordinate(
     # Check latitude range
     if not bounds["lat_min"] <= lat <= bounds["lat_max"]:
         raise ValidationError(
-            message=f"Latitude {lat} is outside valid range "
-            f"[{bounds['lat_min']}, {bounds['lat_max']}]",
-            message_ar=f"خط العرض {lat} خارج النطاق الصالح "
-            f"[{bounds['lat_min']}, {bounds['lat_max']}]",
+            message=f"Latitude {lat} is outside valid range [{bounds['lat_min']}, {bounds['lat_max']}]",
+            message_ar=f"خط العرض {lat} خارج النطاق الصالح [{bounds['lat_min']}, {bounds['lat_max']}]",
             field=field_name,
         )
 
     # Check longitude range
     if not bounds["lon_min"] <= lon <= bounds["lon_max"]:
         raise ValidationError(
-            message=f"Longitude {lon} is outside valid range "
-            f"[{bounds['lon_min']}, {bounds['lon_max']}]",
-            message_ar=f"خط الطول {lon} خارج النطاق الصالح "
-            f"[{bounds['lon_min']}, {bounds['lon_max']}]",
+            message=f"Longitude {lon} is outside valid range [{bounds['lon_min']}, {bounds['lon_max']}]",
+            message_ar=f"خط الطول {lon} خارج النطاق الصالح [{bounds['lon_min']}, {bounds['lon_max']}]",
             field=field_name,
         )
 
@@ -599,9 +595,7 @@ def validate_field_id(
     ]
 
     if allow_uuid:
-        patterns.append(
-            r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-        )
+        patterns.append(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
         # Also allow simple alphanumeric IDs
         patterns.append(r"^[A-Za-z0-9\-_]{6,36}$")
 
@@ -702,9 +696,7 @@ class ElevationPointModel(TerrainValidatedModel):
     @classmethod
     def validate_elevation_value(cls, v: float) -> float:
         if not ELEVATION_MIN_M <= v <= ELEVATION_MAX_M:
-            raise ValueError(
-                f"Elevation {v}m must be between {ELEVATION_MIN_M}m and {ELEVATION_MAX_M}m"
-            )
+            raise ValueError(f"Elevation {v}m must be between {ELEVATION_MIN_M}m and {ELEVATION_MAX_M}m")
         return v
 
 
@@ -718,9 +710,7 @@ class GradeModel(TerrainValidatedModel):
     @classmethod
     def validate_grade(cls, v: float | None) -> float | None:
         if v is not None and not MIN_GRADE_PERCENT <= v <= MAX_GRADE_PERCENT:
-            raise ValueError(
-                f"Grade {v}% must be between {MIN_GRADE_PERCENT}% and {MAX_GRADE_PERCENT}%"
-            )
+            raise ValueError(f"Grade {v}% must be between {MIN_GRADE_PERCENT}% and {MAX_GRADE_PERCENT}%")
         return v
 
 

@@ -87,9 +87,7 @@ class OllamaProvider(LLMProvider):
             config: Ollama configuration (uses global config if None)
         """
         if not HTTPX_AVAILABLE:
-            raise ImportError(
-                "httpx is required for OllamaProvider. Install with: pip install httpx"
-            )
+            raise ImportError("httpx is required for OllamaProvider. Install with: pip install httpx")
 
         self._config = config or get_config().ollama
         self._client: httpx.AsyncClient | None = None
@@ -524,8 +522,6 @@ async def get_ollama_provider() -> OllamaProvider:
     provider = OllamaProvider()
     if not await provider.is_available():
         raise ProviderUnavailableError(
-            "Ollama server is not available. "
-            "Please ensure Ollama is running at "
-            f"{provider.base_url}"
+            f"Ollama server is not available. Please ensure Ollama is running at {provider.base_url}"
         )
     return provider

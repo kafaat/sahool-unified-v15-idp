@@ -64,13 +64,7 @@ class BaseRepository(Generic[ModelType]):
         limit: int = 100,
     ) -> list[ModelType]:
         """Get all records for a specific tenant"""
-        return (
-            self.db.query(self.model)
-            .filter(self.model.tenant_id == tenant_id)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        return self.db.query(self.model).filter(self.model.tenant_id == tenant_id).offset(skip).limit(limit).all()
 
     def get_by_field(
         self,
@@ -106,9 +100,7 @@ class BaseRepository(Generic[ModelType]):
 
     def exists(self, id: UUID | str) -> bool:
         """Check if a record exists"""
-        return self.db.query(
-            self.db.query(self.model).filter(self.model.id == id).exists()
-        ).scalar()
+        return self.db.query(self.db.query(self.model).filter(self.model.id == id).exists()).scalar()
 
     # =============================================================================
     # Write Operations
@@ -249,11 +241,7 @@ class TenantRepository(BaseRepository[ModelType]):
 
     def get_by_id(self, id: UUID | str) -> ModelType | None:
         """Get a single record by ID (tenant-scoped)"""
-        return (
-            self.db.query(self.model)
-            .filter(self.model.id == id, self.model.tenant_id == self.tenant_id)
-            .first()
-        )
+        return self.db.query(self.model).filter(self.model.id == id, self.model.tenant_id == self.tenant_id).first()
 
     def create(self, obj_in: dict[str, Any]) -> ModelType:
         """Create a new record with tenant_id"""

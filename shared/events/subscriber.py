@@ -101,18 +101,12 @@ class SubscriberConfig(BaseModel):
     error_retry_delay: float = Field(default=1.0, description="Delay between error retries")
 
     # Performance
-    max_concurrent_messages: int = Field(
-        default=10, description="Max concurrent message processing"
-    )
+    max_concurrent_messages: int = Field(default=10, description="Max concurrent message processing")
     pending_messages_limit: int = Field(default=1000, description="Pending messages limit")
 
     # Dead Letter Queue
-    enable_dlq: bool = Field(
-        default=True, description="Enable Dead Letter Queue for failed messages"
-    )
-    dlq_config: DLQConfig | None = Field(
-        None, description="DLQ configuration (uses defaults if None)"
-    )
+    enable_dlq: bool = Field(default=True, description="Enable Dead Letter Queue for failed messages")
+    dlq_config: DLQConfig | None = Field(None, description="DLQ configuration (uses defaults if None)")
 
 
 class Subscription(BaseModel):
@@ -331,9 +325,7 @@ class EventSubscriber:
                     try:
                         await create_dlq_streams(self._js, self._dlq_config)
                         self._dlq_initialized = True
-                        logger.info(
-                            f"✅ DLQ initialized (max retries: {self._dlq_config.max_retry_attempts})"
-                        )
+                        logger.info(f"✅ DLQ initialized (max retries: {self._dlq_config.max_retry_attempts})")
                     except Exception as e:
                         logger.warning(f"⚠️  Failed to initialize DLQ: {e}")
 
@@ -514,7 +506,7 @@ class EventSubscriber:
             # ack_wait: time (ns) JetStream waits for ACK before redelivering.
             consumer_cfg = ConsumerConfig(
                 ack_wait=30 * 1_000_000_000,  # 30 seconds in nanoseconds
-                max_deliver=5,                 # max redeliveries at JetStream level
+                max_deliver=5,  # max redeliveries at JetStream level
             )
             return await self._js.subscribe(
                 subscription.subject,
@@ -588,9 +580,7 @@ class EventSubscriber:
                 subject = msg.subject
                 data = msg.data.decode("utf-8")
 
-                logger.debug(
-                    f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})"
-                )
+                logger.debug(f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})")
 
                 # ── 2. Deserialize ─────────────────────────────────────
                 event = await self._deserialize_message(data, subscription.event_class)

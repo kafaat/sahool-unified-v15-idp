@@ -127,9 +127,7 @@ class GroundVisionPublisher:
                 "operation_type_ar": detection.operation_type_ar,
                 "confidence": detection.confidence,
                 "confidence_level": detection.confidence_level.value,
-                "equipment_type": detection.equipment_type.value
-                if detection.equipment_type
-                else None,
+                "equipment_type": detection.equipment_type.value if detection.equipment_type else None,
                 "equipment_type_ar": detection.equipment_type_ar,
                 "center_lat": detection.center_lat,
                 "center_lon": detection.center_lon,
@@ -139,10 +137,7 @@ class GroundVisionPublisher:
         )
 
         await self._publish(subject, payload)
-        logger.info(
-            f"Published operation_detected: {detection.operation_type.value} "
-            f"in {detection.field_id}"
-        )
+        logger.info(f"Published operation_detected: {detection.operation_type.value} in {detection.field_id}")
 
     async def publish_growth_stage_changed(
         self,
@@ -235,8 +230,7 @@ class GroundVisionPublisher:
 
         await self._publish(subject, payload)
         logger.warning(
-            f"Published anomaly_detected: {anomaly.anomaly_type.value} "
-            f"({anomaly.severity.value}) in {anomaly.field_id}"
+            f"Published anomaly_detected: {anomaly.anomaly_type.value} ({anomaly.severity.value}) in {anomaly.field_id}"
         )
 
     async def publish_timeline_updated(

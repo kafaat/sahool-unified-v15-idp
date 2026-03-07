@@ -1072,9 +1072,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
 # قائمة التحقق الكاملة
 # =============================================================================
 
-IFA_V6_CHECKLIST: dict[str, ChecklistCategory] = {
-    category.code: category for category in CHECKLIST_CATEGORIES_DETAIL
-}
+IFA_V6_CHECKLIST: dict[str, ChecklistCategory] = {category.code: category for category in CHECKLIST_CATEGORIES_DETAIL}
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -1130,9 +1128,7 @@ def get_items_by_compliance_level(
     """
     items = []
 
-    categories_to_search = (
-        [IFA_V6_CHECKLIST[category_code]] if category_code else IFA_V6_CHECKLIST.values()
-    )
+    categories_to_search = [IFA_V6_CHECKLIST[category_code]] if category_code else IFA_V6_CHECKLIST.values()
 
     for category in categories_to_search:
         for item in category.items:
@@ -1203,8 +1199,7 @@ def calculate_compliance_score(findings: list[dict[str, any]]) -> dict[str, any]
 
     # Overall pass/fail
     overall_pass = (
-        results[ComplianceLevel.MAJOR_MUST.value]["passes"]
-        and results[ComplianceLevel.MINOR_MUST.value]["passes"]
+        results[ComplianceLevel.MAJOR_MUST.value]["passes"] and results[ComplianceLevel.MINOR_MUST.value]["passes"]
     )
 
     return {
@@ -1244,15 +1239,9 @@ def get_statistics() -> dict[str, any]:
         "total_categories": len(IFA_V6_CHECKLIST),
         "total_items": len(all_items),
         "by_compliance_level": {
-            ComplianceLevel.MAJOR_MUST.value: len(
-                get_items_by_compliance_level(ComplianceLevel.MAJOR_MUST)
-            ),
-            ComplianceLevel.MINOR_MUST.value: len(
-                get_items_by_compliance_level(ComplianceLevel.MINOR_MUST)
-            ),
-            ComplianceLevel.RECOMMENDATION.value: len(
-                get_items_by_compliance_level(ComplianceLevel.RECOMMENDATION)
-            ),
+            ComplianceLevel.MAJOR_MUST.value: len(get_items_by_compliance_level(ComplianceLevel.MAJOR_MUST)),
+            ComplianceLevel.MINOR_MUST.value: len(get_items_by_compliance_level(ComplianceLevel.MINOR_MUST)),
+            ComplianceLevel.RECOMMENDATION.value: len(get_items_by_compliance_level(ComplianceLevel.RECOMMENDATION)),
         },
         "categories": [
             {

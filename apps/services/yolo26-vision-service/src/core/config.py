@@ -138,9 +138,7 @@ class Settings(BaseSettings):
     def warn_empty_jwt_secret(cls, v: str) -> str:
         """Warn if JWT secret key is not configured."""
         if not v:
-            logger.warning(
-                "JWT_SECRET_KEY not set — authentication will reject all tokens"
-            )
+            logger.warning("JWT_SECRET_KEY not set — authentication will reject all tokens")
         return v
 
     @field_validator("cors_origins", mode="before")

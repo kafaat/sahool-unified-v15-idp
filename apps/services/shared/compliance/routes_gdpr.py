@@ -45,9 +45,7 @@ class DataDeletionRequest(BaseModel):
 
     user_id: UUID = Field(..., description="User requesting deletion")
     reason: str = Field(default="user_request", description="Reason for deletion")
-    anonymize_audit: bool = Field(
-        default=True, description="Anonymize audit logs instead of deleting"
-    )
+    anonymize_audit: bool = Field(default=True, description="Anonymize audit logs instead of deleting")
 
 
 class DataDeletionResponse(BaseModel):
@@ -108,10 +106,7 @@ async def request_data_export(
     """
     request_id = uuid4()
 
-    logger.info(
-        f"GDPR export request: user={request.user_id}, "
-        f"format={request.format}, request_id={request_id}"
-    )
+    logger.info(f"GDPR export request: user={request.user_id}, format={request.format}, request_id={request_id}")
 
     # Queue background export job
     background_tasks.add_task(
@@ -205,10 +200,7 @@ async def request_data_deletion(
     """
     request_id = uuid4()
 
-    logger.info(
-        f"GDPR deletion request: user={request.user_id}, "
-        f"reason={request.reason}, request_id={request_id}"
-    )
+    logger.info(f"GDPR deletion request: user={request.user_id}, reason={request.reason}, request_id={request_id}")
 
     # Queue background deletion job
     background_tasks.add_task(
@@ -304,10 +296,7 @@ async def record_consent(
 
     Required for GDPR lawful basis of processing.
     """
-    logger.info(
-        f"Consent recorded: user={consent.user_id}, "
-        f"purpose={consent.purpose}, granted={consent.granted}"
-    )
+    logger.info(f"Consent recorded: user={consent.user_id}, purpose={consent.purpose}, granted={consent.granted}")
 
     return ConsentResponse(user_id=consent.user_id, consents=[consent.model_dump()])
 

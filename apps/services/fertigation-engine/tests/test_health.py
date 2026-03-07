@@ -101,10 +101,7 @@ class TestFertigationPlan:
         assert data["ec_total"] > 0
         # With small volume and high ec_water, likely exceeds limit
         if not data["ec_within_limit"]:
-            assert any(
-                "EC" in r or "الموصلية" in r
-                for r in data["recommendations"] + data["recommendations_ar"]
-            )
+            assert any("EC" in r or "الموصلية" in r for r in data["recommendations"] + data["recommendations_ar"])
 
     def test_unknown_crop_fallback(self, client):
         """Test that unknown crops use generic NPK fallback."""

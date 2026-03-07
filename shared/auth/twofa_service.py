@@ -51,9 +51,7 @@ class TwoFactorAuthService:
             issuer: The issuer name for TOTP (shown in authenticator apps)
         """
         if not PYOTP_AVAILABLE:
-            raise ImportError(
-                "pyotp and qrcode are required for 2FA. Install with: pip install pyotp qrcode[pil]"
-            )
+            raise ImportError("pyotp and qrcode are required for 2FA. Install with: pip install pyotp qrcode[pil]")
         self.issuer = issuer
 
     def generate_secret(self) -> str:
@@ -164,9 +162,7 @@ class TwoFactorAuthService:
 
         return is_valid
 
-    def generate_backup_codes(
-        self, count: int = BACKUP_CODE_COUNT, length: int = BACKUP_CODE_LENGTH
-    ) -> list[str]:
+    def generate_backup_codes(self, count: int = BACKUP_CODE_COUNT, length: int = BACKUP_CODE_LENGTH) -> list[str]:
         """
         Generate backup codes for account recovery.
 

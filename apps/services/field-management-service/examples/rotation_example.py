@@ -124,9 +124,7 @@ async def main():
         print(f"  {h.year}: {h.crop_name_en} ({h.crop_name_ar})")
     print()
 
-    suggestions = await planner.suggest_next_crop(
-        field_id="FIELD_002", history=history, season="winter"
-    )
+    suggestions = await planner.suggest_next_crop(field_id="FIELD_002", history=history, season="winter")
 
     print("Top 5 Crop Suggestions for Winter 2025:")
     print()

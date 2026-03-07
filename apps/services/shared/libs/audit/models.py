@@ -143,10 +143,7 @@ class AuditLog(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<AuditLog(id={self.id}, action={self.action}, "
-            f"resource={self.resource_type}/{self.resource_id})>"
-        )
+        return f"<AuditLog(id={self.id}, action={self.action}, resource={self.resource_type}/{self.resource_id})>"
 
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses"""

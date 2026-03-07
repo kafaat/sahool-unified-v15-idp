@@ -59,9 +59,7 @@ class SensorDataProcessor:
 
         # Trim old readings
         if len(self._readings[reading.sensor_id]) > self._max_readings:
-            self._readings[reading.sensor_id] = self._readings[reading.sensor_id][
-                -self._max_readings :
-            ]
+            self._readings[reading.sensor_id] = self._readings[reading.sensor_id][-self._max_readings :]
 
         # Check thresholds
         if sensor:
@@ -298,9 +296,7 @@ class SensorDataProcessor:
         )
 
 
-def aggregate_readings(
-    readings: list[SensorReading], interval_minutes: int = 60
-) -> list[SensorAggregation]:
+def aggregate_readings(readings: list[SensorReading], interval_minutes: int = 60) -> list[SensorAggregation]:
     """
     Aggregate readings into time intervals
     تجميع القراءات في فترات زمنية
@@ -352,9 +348,7 @@ def aggregate_readings(
     return aggregations
 
 
-def detect_anomalies(
-    readings: list[SensorReading], threshold_std: float = 3.0
-) -> list[SensorReading]:
+def detect_anomalies(readings: list[SensorReading], threshold_std: float = 3.0) -> list[SensorReading]:
     """
     Detect anomalous readings using statistical analysis
     اكتشاف القراءات الشاذة باستخدام التحليل الإحصائي
@@ -476,9 +470,7 @@ def interpolate_field_moisture(
     avg_moisture = sum(all_values) / len(all_values) if all_values else 0
     min_moisture = min(all_values) if all_values else 0
     max_moisture = max(all_values) if all_values else 0
-    variance = (
-        sum((v - avg_moisture) ** 2 for v in all_values) / len(all_values) if all_values else 0
-    )
+    variance = sum((v - avg_moisture) ** 2 for v in all_values) / len(all_values) if all_values else 0
     std_moisture = math.sqrt(variance)
 
     # Find dry and wet zones
@@ -567,8 +559,7 @@ def generate_moisture_alert(
             reading_unit="%",
             title_en="⚠️ Low Soil Moisture - Plan Irrigation",
             title_ar="⚠️ رطوبة تربة منخفضة - خطط للري",
-            message_en=f"Average soil moisture is low at {avg:.1f}%. "
-            f"Plan irrigation within 24-48 hours.",
+            message_en=f"Average soil moisture is low at {avg:.1f}%. Plan irrigation within 24-48 hours.",
             message_ar=f"متوسط رطوبة التربة منخفض عند {avg:.1f}%. خطط للري خلال 24-48 ساعة.",
         )
 

@@ -66,18 +66,10 @@ class WaterSource(BaseModel):
     name_en: str = Field(..., description="Source name in English / اسم المصدر بالإنجليزية")
     name_ar: str = Field(..., description="Source name in Arabic / اسم المصدر بالعربية")
     location: str | None = Field(None, description="Source location / موقع المصدر")
-    depth_meters: float | None = Field(
-        None, description="Depth in meters (for wells) / العمق بالأمتار (للآبار)"
-    )
-    capacity_cubic_meters: float | None = Field(
-        None, description="Capacity in cubic meters / السعة بالمتر المكعب"
-    )
-    legal_permit_number: str | None = Field(
-        None, description="Water rights permit number / رقم تصريح حقوق المياه"
-    )
-    permit_expiry_date: date | None = Field(
-        None, description="Permit expiry date / تاريخ انتهاء التصريح"
-    )
+    depth_meters: float | None = Field(None, description="Depth in meters (for wells) / العمق بالأمتار (للآبار)")
+    capacity_cubic_meters: float | None = Field(None, description="Capacity in cubic meters / السعة بالمتر المكعب")
+    legal_permit_number: str | None = Field(None, description="Water rights permit number / رقم تصريح حقوق المياه")
+    permit_expiry_date: date | None = Field(None, description="Permit expiry date / تاريخ انتهاء التصريح")
     max_daily_extraction_m3: float | None = Field(
         None, description="Maximum daily extraction (m³) / الحد الأقصى للاستخراج اليومي"
     )
@@ -115,29 +107,15 @@ class WaterQualityTest(BaseModel):
     test_date: date = Field(..., description="Test date / تاريخ الاختبار")
     laboratory: str | None = Field(None, description="Testing laboratory / المختبر")
     ph_level: float | None = Field(None, ge=0, le=14, description="pH level / مستوى الحموضة")
-    ec_ds_per_m: float | None = Field(
-        None, description="Electrical conductivity (dS/m) / التوصيل الكهربائي"
-    )
-    tds_ppm: float | None = Field(
-        None, description="Total dissolved solids (ppm) / المواد الصلبة الذائبة الكلية"
-    )
+    ec_ds_per_m: float | None = Field(None, description="Electrical conductivity (dS/m) / التوصيل الكهربائي")
+    tds_ppm: float | None = Field(None, description="Total dissolved solids (ppm) / المواد الصلبة الذائبة الكلية")
     salinity_ppm: float | None = Field(None, description="Salinity (ppm) / الملوحة")
-    nitrate_ppm: float | None = Field(
-        None, description="Nitrate concentration (ppm) / تركيز النترات"
-    )
-    phosphate_ppm: float | None = Field(
-        None, description="Phosphate concentration (ppm) / تركيز الفوسفات"
-    )
+    nitrate_ppm: float | None = Field(None, description="Nitrate concentration (ppm) / تركيز النترات")
+    phosphate_ppm: float | None = Field(None, description="Phosphate concentration (ppm) / تركيز الفوسفات")
     bacterial_count: int | None = Field(None, description="Bacterial count / عدد البكتيريا")
-    heavy_metals: dict[str, float] | None = Field(
-        None, description="Heavy metals (ppm) / المعادن الثقيلة"
-    )
-    quality_status: WaterQualityStatus = Field(
-        ..., description="Overall quality status / حالة الجودة الإجمالية"
-    )
-    meets_irrigation_standards: bool = Field(
-        ..., description="Meets irrigation standards / تلبي معايير الري"
-    )
+    heavy_metals: dict[str, float] | None = Field(None, description="Heavy metals (ppm) / المعادن الثقيلة")
+    quality_status: WaterQualityStatus = Field(..., description="Overall quality status / حالة الجودة الإجمالية")
+    meets_irrigation_standards: bool = Field(..., description="Meets irrigation standards / تلبي معايير الري")
     notes: str | None = Field(None, description="Test notes / ملاحظات الاختبار")
 
     model_config = ConfigDict(
@@ -177,18 +155,10 @@ class WaterUsageMetric(BaseModel):
     field_id: str | None = Field(None, description="Field identifier / معرف الحقل")
     crop_type: str | None = Field(None, description="Crop type / نوع المحصول")
     measurement_date: date = Field(..., description="Measurement date / تاريخ القياس")
-    volume_cubic_meters: float = Field(
-        ..., gt=0, description="Water volume used (m³) / حجم المياه المستخدم"
-    )
-    crop_area_hectares: float | None = Field(
-        None, gt=0, description="Irrigated area (ha) / المساحة المروية"
-    )
-    irrigation_method: IrrigationMethod | None = Field(
-        None, description="Irrigation method / طريقة الري"
-    )
-    duration_hours: float | None = Field(
-        None, gt=0, description="Irrigation duration (hours) / مدة الري"
-    )
+    volume_cubic_meters: float = Field(..., gt=0, description="Water volume used (m³) / حجم المياه المستخدم")
+    crop_area_hectares: float | None = Field(None, gt=0, description="Irrigated area (ha) / المساحة المروية")
+    irrigation_method: IrrigationMethod | None = Field(None, description="Irrigation method / طريقة الري")
+    duration_hours: float | None = Field(None, gt=0, description="Irrigation duration (hours) / مدة الري")
     flow_rate_m3_per_hour: float | None = Field(None, description="Flow rate (m³/h) / معدل التدفق")
 
     @field_validator("flow_rate_m3_per_hour", mode="before")
@@ -226,14 +196,10 @@ class IrrigationEfficiency(BaseModel):
 
     efficiency_id: str = Field(..., description="Efficiency record ID / معرف سجل الكفاءة")
     field_id: str = Field(..., description="Field identifier / معرف الحقل")
-    measurement_period_start: date = Field(
-        ..., description="Period start date / تاريخ بداية الفترة"
-    )
+    measurement_period_start: date = Field(..., description="Period start date / تاريخ بداية الفترة")
     measurement_period_end: date = Field(..., description="Period end date / تاريخ نهاية الفترة")
     irrigation_method: IrrigationMethod = Field(..., description="Irrigation method / طريقة الري")
-    water_applied_m3: float = Field(
-        ..., gt=0, description="Total water applied (m³) / المياه المطبقة الكلية"
-    )
+    water_applied_m3: float = Field(..., gt=0, description="Total water applied (m³) / المياه المطبقة الكلية")
     water_stored_in_root_zone_m3: float = Field(
         ..., gt=0, description="Water in root zone (m³) / المياه في منطقة الجذور"
     )
@@ -247,15 +213,9 @@ class IrrigationEfficiency(BaseModel):
         None, description="Water use efficiency (kg/m³) / كفاءة استخدام المياه"
     )
     crop_yield_kg: float | None = Field(None, description="Crop yield (kg) / إنتاج المحصول")
-    irrigation_scheduling_method: str | None = Field(
-        None, description="Scheduling method / طريقة الجدولة"
-    )
-    soil_moisture_monitoring: bool = Field(
-        False, description="Uses soil moisture sensors / يستخدم أجهزة رطوبة التربة"
-    )
-    weather_based_scheduling: bool = Field(
-        False, description="Weather-based scheduling / جدولة بناءً على الطقس"
-    )
+    irrigation_scheduling_method: str | None = Field(None, description="Scheduling method / طريقة الجدولة")
+    soil_moisture_monitoring: bool = Field(False, description="Uses soil moisture sensors / يستخدم أجهزة رطوبة التربة")
+    weather_based_scheduling: bool = Field(False, description="Weather-based scheduling / جدولة بناءً على الطقس")
     notes: str | None = Field(None, description="Additional notes / ملاحظات إضافية")
 
     @field_validator("application_efficiency_percent", mode="before")
@@ -304,17 +264,11 @@ class RainfallHarvesting(BaseModel):
     collection_date: date = Field(..., description="Collection date / تاريخ التجميع")
     rainfall_mm: float = Field(..., ge=0, description="Rainfall amount (mm) / كمية الأمطار")
     collection_area_m2: float = Field(..., gt=0, description="Collection area (m²) / منطقة التجميع")
-    collected_volume_m3: float = Field(
-        ..., ge=0, description="Collected volume (m³) / الحجم المجمع"
-    )
+    collected_volume_m3: float = Field(..., ge=0, description="Collected volume (m³) / الحجم المجمع")
     storage_location: str = Field(..., description="Storage location / موقع التخزين")
     storage_capacity_m3: float = Field(..., gt=0, description="Storage capacity (m³) / سعة التخزين")
-    current_storage_level_m3: float = Field(
-        ..., ge=0, description="Current level (m³) / المستوى الحالي"
-    )
-    water_treatment_applied: bool = Field(
-        False, description="Treatment applied / تم تطبيق المعالجة"
-    )
+    current_storage_level_m3: float = Field(..., ge=0, description="Current level (m³) / المستوى الحالي")
+    water_treatment_applied: bool = Field(False, description="Treatment applied / تم تطبيق المعالجة")
     treatment_method: str | None = Field(None, description="Treatment method / طريقة المعالجة")
     intended_use: str = Field(..., description="Intended use / الاستخدام المقصود")
     notes: str | None = Field(None, description="Additional notes / ملاحظات إضافية")
@@ -365,63 +319,37 @@ class WaterEfficiencyScore(BaseModel):
     assessment_period_end: date = Field(..., description="Period end / نهاية الفترة")
 
     # Water sources
-    total_water_sources: int = Field(
-        ..., ge=0, description="Total water sources / مجموع مصادر المياه"
-    )
-    sources_with_legal_permits: int = Field(
-        ..., ge=0, description="Sources with permits / المصادر بتصاريح"
-    )
+    total_water_sources: int = Field(..., ge=0, description="Total water sources / مجموع مصادر المياه")
+    sources_with_legal_permits: int = Field(..., ge=0, description="Sources with permits / المصادر بتصاريح")
 
     # Water usage
-    total_water_used_m3: float = Field(
-        ..., ge=0, description="Total water used (m³) / المياه المستخدمة الكلية"
-    )
-    total_irrigated_area_ha: float = Field(
-        ..., gt=0, description="Irrigated area (ha) / المساحة المروية"
-    )
-    water_use_per_hectare_m3: float = Field(
-        ..., ge=0, description="Water per hectare (m³/ha) / المياه لكل هكتار"
-    )
+    total_water_used_m3: float = Field(..., ge=0, description="Total water used (m³) / المياه المستخدمة الكلية")
+    total_irrigated_area_ha: float = Field(..., gt=0, description="Irrigated area (ha) / المساحة المروية")
+    water_use_per_hectare_m3: float = Field(..., ge=0, description="Water per hectare (m³/ha) / المياه لكل هكتار")
 
     # Efficiency metrics
     average_application_efficiency: float = Field(
         ..., ge=0, le=100, description="Avg efficiency (%) / الكفاءة المتوسطة"
     )
-    drip_irrigation_percentage: float = Field(
-        ..., ge=0, le=100, description="Drip irrigation (%) / نسبة الري بالتنقيط"
-    )
+    drip_irrigation_percentage: float = Field(..., ge=0, le=100, description="Drip irrigation (%) / نسبة الري بالتنقيط")
     soil_moisture_monitoring_coverage: float = Field(
         ..., ge=0, le=100, description="Sensor coverage (%) / تغطية الأجهزة"
     )
 
     # Rainwater harvesting
-    rainwater_harvested_m3: float = Field(
-        0, ge=0, description="Rainwater harvested (m³) / مياه الأمطار المحصودة"
-    )
-    rainwater_percentage: float = Field(
-        0, ge=0, le=100, description="Rainwater % / نسبة مياه الأمطار"
-    )
+    rainwater_harvested_m3: float = Field(0, ge=0, description="Rainwater harvested (m³) / مياه الأمطار المحصودة")
+    rainwater_percentage: float = Field(0, ge=0, le=100, description="Rainwater % / نسبة مياه الأمطار")
 
     # Water quality
-    water_quality_tests_conducted: int = Field(
-        0, ge=0, description="Quality tests / اختبارات الجودة"
-    )
-    sources_meeting_standards: int = Field(
-        0, ge=0, description="Sources meeting standards / المصادر المطابقة"
-    )
+    water_quality_tests_conducted: int = Field(0, ge=0, description="Quality tests / اختبارات الجودة")
+    sources_meeting_standards: int = Field(0, ge=0, description="Sources meeting standards / المصادر المطابقة")
 
     # Overall score
-    overall_spring_score: float = Field(
-        ..., ge=0, le=100, description="Overall SPRING score / درجة SPRING الإجمالية"
-    )
+    overall_spring_score: float = Field(..., ge=0, le=100, description="Overall SPRING score / درجة SPRING الإجمالية")
     compliance_level: str = Field(..., description="Compliance level / مستوى الامتثال")
 
-    recommendations_en: list[str] = Field(
-        default_factory=list, description="Recommendations (EN) / التوصيات"
-    )
-    recommendations_ar: list[str] = Field(
-        default_factory=list, description="Recommendations (AR) / التوصيات"
-    )
+    recommendations_en: list[str] = Field(default_factory=list, description="Recommendations (EN) / التوصيات")
+    recommendations_ar: list[str] = Field(default_factory=list, description="Recommendations (AR) / التوصيات")
 
     @field_validator("water_use_per_hectare_m3", mode="before")
     @classmethod
@@ -440,9 +368,7 @@ class WaterEfficiencyScore(BaseModel):
         if v is None or v == 0:
             if info.data.get("rainwater_harvested_m3") and info.data.get("total_water_used_m3"):
                 if info.data["total_water_used_m3"] > 0:
-                    return (
-                        info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]
-                    ) * 100
+                    return (info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]) * 100
         return v
 
     model_config = ConfigDict(

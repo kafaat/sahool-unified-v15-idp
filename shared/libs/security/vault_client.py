@@ -181,9 +181,7 @@ class VaultClient:
             logger.info(f"Using {env_var} from environment (Vault fallback)")
             return value
 
-        raise ValueError(
-            f"Secret not found in Vault ({vault_path}/{vault_key}) or environment ({env_var})"
-        )
+        raise ValueError(f"Secret not found in Vault ({vault_path}/{vault_key}) or environment ({env_var})")
 
 
 def from_env() -> VaultClient:

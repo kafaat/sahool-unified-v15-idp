@@ -143,9 +143,7 @@ class InMemoryAuthStore:
                 return user
         return None
 
-    def create_user(
-        self, email: str, password_hash: str, full_name: str, phone: str | None = None
-    ) -> dict:
+    def create_user(self, email: str, password_hash: str, full_name: str, phone: str | None = None) -> dict:
         """Create a new user"""
         user_id = f"user_{secrets.token_hex(8)}"
         user = {

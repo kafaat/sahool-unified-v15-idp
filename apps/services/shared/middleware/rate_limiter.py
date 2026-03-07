@@ -223,9 +223,7 @@ class RedisRateLimiter:
         except Exception as e:
             logger.warning(f"Redis connection failed: {e}, falling back to in-memory")
 
-    async def check_rate_limit(
-        self, key: str, config: RateLimitConfig
-    ) -> tuple[bool, int, int, int]:
+    async def check_rate_limit(self, key: str, config: RateLimitConfig) -> tuple[bool, int, int, int]:
         """Check if request is within rate limits using Redis.
 
         Args:
@@ -315,9 +313,7 @@ class RateLimiter:
         """Get rate limit configuration for a tier."""
         return self._tier_configs.get(tier, self._tier_configs[RateLimitTier.STANDARD])
 
-    async def check(
-        self, key: str, tier: RateLimitTier = RateLimitTier.STANDARD
-    ) -> tuple[bool, int, int, int]:
+    async def check(self, key: str, tier: RateLimitTier = RateLimitTier.STANDARD) -> tuple[bool, int, int, int]:
         """Check rate limit for a key.
 
         Args:

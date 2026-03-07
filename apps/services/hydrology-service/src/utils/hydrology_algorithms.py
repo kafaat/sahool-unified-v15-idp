@@ -223,9 +223,7 @@ def calculate_flow_accumulation(dem: DEMData, flow_dir: np.ndarray) -> np.ndarra
     return accumulation
 
 
-def calculate_topographic_wetness_index(
-    dem: DEMData, flow_accumulation: np.ndarray, slope: np.ndarray
-) -> np.ndarray:
+def calculate_topographic_wetness_index(dem: DEMData, flow_accumulation: np.ndarray, slope: np.ndarray) -> np.ndarray:
     """
     Calculate Topographic Wetness Index (TWI).
     حساب مؤشر الرطوبة الطبوغرافي
@@ -256,9 +254,7 @@ def calculate_topographic_wetness_index(
     return twi
 
 
-def fill_depressions(
-    dem: DEMData, max_depth: float = 2.0
-) -> tuple[np.ndarray, list[DepressionData]]:
+def fill_depressions(dem: DEMData, max_depth: float = 2.0) -> tuple[np.ndarray, list[DepressionData]]:
     """
     Fill depressions/sinks in DEM.
     ملء المنخفضات في نموذج الارتفاع
@@ -312,9 +308,7 @@ def fill_depressions(
     return filled, depressions
 
 
-def calculate_stream_order(
-    flow_accumulation: np.ndarray, flow_dir: np.ndarray, threshold: int = 100
-) -> np.ndarray:
+def calculate_stream_order(flow_accumulation: np.ndarray, flow_dir: np.ndarray, threshold: int = 100) -> np.ndarray:
     """
     Calculate Strahler stream order.
     حساب رتبة المجرى (طريقة ستراهلر)
@@ -685,17 +679,13 @@ class HydrologyAnalyzer:
         self.twi = calculate_topographic_wetness_index(filled_dem, flow_acc, slope)
 
         # Step 6: Extract drainage network
-        self.drainage_segments = extract_drainage_network(
-            filled_dem, flow_dir, flow_acc, threshold=flow_threshold
-        )
+        self.drainage_segments = extract_drainage_network(filled_dem, flow_dir, flow_acc, threshold=flow_threshold)
 
         # Step 7: Classify drainage pattern
         drainage_pattern = classify_drainage_pattern(filled_dem, flow_dir, slope)
 
         # Step 8: Delineate basins
-        self.basins = delineate_basins(
-            filled_dem, flow_dir, flow_acc, min_area_cells=min_basin_cells
-        )
+        self.basins = delineate_basins(filled_dem, flow_dir, flow_acc, min_area_cells=min_basin_cells)
 
         # Compile results
         return {
@@ -703,15 +693,9 @@ class HydrologyAnalyzer:
                 "rows": self.dem.rows,
                 "cols": self.dem.cols,
                 "resolution_m": self.dem.resolution,
-                "mean_elevation": float(
-                    np.mean(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
-                ),
-                "min_elevation": float(
-                    np.min(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
-                ),
-                "max_elevation": float(
-                    np.max(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
-                ),
+                "mean_elevation": float(np.mean(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
+                "min_elevation": float(np.min(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
+                "max_elevation": float(np.max(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
             },
             "slope_stats": {
                 "mean_slope_deg": float(np.mean(slope)),
@@ -737,9 +721,7 @@ class HydrologyAnalyzer:
             },
         }
 
-    def get_wetness_zones(
-        self, thresholds: tuple[float, ...] = (5.0, 8.0, 10.0, 12.0, 15.0)
-    ) -> list[dict[str, Any]]:
+    def get_wetness_zones(self, thresholds: tuple[float, ...] = (5.0, 8.0, 10.0, 12.0, 15.0)) -> list[dict[str, Any]]:
         """
         Classify wetness zones based on TWI thresholds.
         تصنيف مناطق الرطوبة
@@ -770,9 +752,7 @@ class HydrologyAnalyzer:
                         "cell_count": int(cell_count),
                         "percentage": float(cell_count / total_cells * 100),
                         "twi_range": (lower, upper),
-                        "area_ha": float(cell_count * self.dem.cell_area / 10000)
-                        if self.dem
-                        else 0,
+                        "area_ha": float(cell_count * self.dem.cell_area / 10000) if self.dem else 0,
                     }
                 )
 

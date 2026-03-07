@@ -69,9 +69,7 @@ class TokenRevocationService:
 
         with self._lock:
             # Cleanup expired token revocations
-            expired_tokens = [
-                jti for jti, entry in self._revoked_tokens.items() if entry.expires_at < now
-            ]
+            expired_tokens = [jti for jti, entry in self._revoked_tokens.items() if entry.expires_at < now]
             for jti in expired_tokens:
                 del self._revoked_tokens[jti]
 

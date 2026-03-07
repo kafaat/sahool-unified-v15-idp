@@ -19,7 +19,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -27,6 +29,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/soil", tags=["soil-analysis"])
 
@@ -108,7 +111,6 @@ class PeriodCompareRequest(BaseModel):
     period1_end: datetime
     period2_start: datetime
     period2_end: datetime
-
 
 
 class TrendRequest(BaseModel):
@@ -255,13 +257,15 @@ async def interpret_soil_test(request: InterpretRequest, req: Request):
             try:
                 await nc.publish(
                     "sahool.soil.test_interpreted",
-                    json.dumps({
-                        "test_id": request.test_id,
-                        "crop": request.crop,
-                        "overall_health": report.overall_health,
-                        "field_id": test_data.get("field_id"),
-                        "tenant_id": test_data.get("tenant_id"),
-                    }).encode(),
+                    json.dumps(
+                        {
+                            "test_id": request.test_id,
+                            "crop": request.crop,
+                            "overall_health": report.overall_health,
+                            "field_id": test_data.get("field_id"),
+                            "tenant_id": test_data.get("tenant_id"),
+                        }
+                    ).encode(),
                 )
             except Exception:
                 logger.warning("nats_publish_failed", subject="sahool.soil.test_interpreted")
@@ -293,7 +297,9 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
             raise HTTPException(status_code=400, detail="Soil test object not available")
 
         recommender = SoilAmendmentRecommender()
-        plan = recommender.generate_plan(soil_test_obj, crop=request.crop, target_yield=request.target_yield_t_ha, field_area_ha=request.area_ha)
+        plan = recommender.generate_plan(
+            soil_test_obj, crop=request.crop, target_yield=request.target_yield_t_ha, field_area_ha=request.area_ha
+        )
 
         result = {
             "test_id": request.test_id,
@@ -321,14 +327,16 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
             try:
                 await nc.publish(
                     "sahool.soil.amendment_plan_generated",
-                    json.dumps({
-                        "test_id": request.test_id,
-                        "crop": request.crop,
-                        "area_ha": request.area_ha,
-                        "total_cost": plan.total_cost,
-                        "field_id": test_data.get("field_id"),
-                        "tenant_id": test_data.get("tenant_id"),
-                    }).encode(),
+                    json.dumps(
+                        {
+                            "test_id": request.test_id,
+                            "crop": request.crop,
+                            "area_ha": request.area_ha,
+                            "total_cost": plan.total_cost,
+                            "field_id": test_data.get("field_id"),
+                            "tenant_id": test_data.get("tenant_id"),
+                        }
+                    ).encode(),
                 )
             except Exception:
                 logger.warning("nats_publish_failed", subject="sahool.soil.amendment_plan_generated")
@@ -346,10 +354,17 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
 @router.post("/trends")
 async def analyze_soil_trends(request: TrendRequest, req: Request):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
-    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
+    field_tests = [
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+    ]
 
     if not field_tests:
-        return {"field_id": request.field_id, "message": "No soil tests found for this field", "message_ar": "لا توجد تحاليل تربة لهذا الحقل", "trends": []}
+        return {
+            "field_id": request.field_id,
+            "message": "No soil tests found for this field",
+            "message_ar": "لا توجد تحاليل تربة لهذا الحقل",
+            "trends": [],
+        }
 
     try:
         from shared.soil_testing import SoilTrendAnalyzer
@@ -381,18 +396,25 @@ async def analyze_soil_trends(request: TrendRequest, req: Request):
             try:
                 await nc.publish(
                     "sahool.soil.trends_analyzed",
-                    json.dumps({
-                        "field_id": request.field_id,
-                        "tenant_id": request.tenant_id,
-                        "trends_count": len(report.trends),
-                    }).encode(),
+                    json.dumps(
+                        {
+                            "field_id": request.field_id,
+                            "tenant_id": request.tenant_id,
+                            "trends_count": len(report.trends),
+                        }
+                    ).encode(),
                 )
             except Exception:
                 logger.warning("nats_publish_failed", subject="sahool.soil.trends_analyzed")
 
         return result
     except ImportError:
-        return {"field_id": request.field_id, "message": "Trend analysis module not available", "message_ar": "وحدة تحليل الاتجاهات غير متوفرة", "trends": []}
+        return {
+            "field_id": request.field_id,
+            "message": "Trend analysis module not available",
+            "message_ar": "وحدة تحليل الاتجاهات غير متوفرة",
+            "trends": [],
+        }
 
 
 @router.get("/products")
@@ -418,7 +440,6 @@ async def get_crop_nutrient_requirements(crop: str):
         return {"crop": crop, "requirements": None, "message": "Crop requirements data not available"}
 
 
-
 @router.post("/interpretation/nutrient-status")
 async def check_nutrient_status(request: NutrientStatusRequest):
     """Check individual nutrient status - فحص حالة عنصر غذائي فردي"""
@@ -441,7 +462,12 @@ async def check_nutrient_status(request: NutrientStatusRequest):
             "extraction_method": request.extraction_method,
         }
     except ImportError:
-        return {"nutrient": request.nutrient, "value": request.value, "status": None, "message": "Nutrient status module not available"}
+        return {
+            "nutrient": request.nutrient,
+            "value": request.value,
+            "status": None,
+            "message": "Nutrient status module not available",
+        }
 
 
 @router.post("/interpretation/ph-status")
@@ -490,10 +516,17 @@ async def calculate_rate(request: FertilizerRateRequest):
 @router.post("/trends/nutrient")
 async def get_single_nutrient_trend(request: NutrientTrendRequest):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
-    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
+    field_tests = [
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+    ]
 
     if not field_tests:
-        return {"field_id": request.field_id, "nutrient": request.nutrient, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}
+        return {
+            "field_id": request.field_id,
+            "nutrient": request.nutrient,
+            "message": "No soil tests found",
+            "message_ar": "لا توجد تحاليل تربة",
+        }
 
     try:
         from shared.soil_testing import get_nutrient_trend
@@ -511,13 +544,19 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest):
             "unit": trend.unit,
         }
     except ImportError:
-        return {"field_id": request.field_id, "nutrient": request.nutrient, "message": "Nutrient trend module not available"}
+        return {
+            "field_id": request.field_id,
+            "nutrient": request.nutrient,
+            "message": "Nutrient trend module not available",
+        }
 
 
 @router.post("/trends/compare-periods")
 async def compare_periods(request: PeriodCompareRequest):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
-    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
+    field_tests = [
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+    ]
 
     if not field_tests:
         return {"field_id": request.field_id, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}

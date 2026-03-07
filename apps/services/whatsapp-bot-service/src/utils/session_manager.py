@@ -348,9 +348,7 @@ class SessionManager:
                 count = 0
                 cursor = 0
                 while True:
-                    cursor, keys = await self.redis_client.scan(
-                        cursor, match=f"{self.SESSION_PREFIX}*", count=100
-                    )
+                    cursor, keys = await self.redis_client.scan(cursor, match=f"{self.SESSION_PREFIX}*", count=100)
                     count += len(keys)
                     if cursor == 0:
                         break
@@ -383,9 +381,7 @@ class SessionManager:
 
         now = datetime.now(UTC)
         expired = [
-            phone
-            for phone, session in self._memory_sessions.items()
-            if session.expires_at and session.expires_at < now
+            phone for phone, session in self._memory_sessions.items() if session.expires_at and session.expires_at < now
         ]
 
         for phone in expired:

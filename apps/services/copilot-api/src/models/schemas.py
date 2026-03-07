@@ -39,9 +39,7 @@ class ChatMessage(BaseModel):
     name: str | None = None
     tool_call_id: str | None = None
 
-    model_config = {
-        "json_schema_extra": {"example": {"role": "user", "content": "ما هي حالة الحقول اليوم؟"}}
-    }
+    model_config = {"json_schema_extra": {"example": {"role": "user", "content": "ما هي حالة الحقول اليوم؟"}}}
 
 
 class ChatRequest(BaseModel):
@@ -115,15 +113,11 @@ class ToolCallRequest(BaseModel):
         import re
 
         if not re.match(r"^[a-zA-Z][a-zA-Z0-9._]*$", v):
-            raise ValueError(
-                "Tool name must start with letter and contain only alphanumeric, dots, underscores"
-            )
+            raise ValueError("Tool name must start with letter and contain only alphanumeric, dots, underscores")
         return v
 
     model_config = {
-        "json_schema_extra": {
-            "example": {"tool": "rag.search", "args": {"query": "irrigation schedule", "k": 5}}
-        }
+        "json_schema_extra": {"example": {"tool": "rag.search", "args": {"query": "irrigation schedule", "k": 5}}}
     }
 
 
@@ -155,9 +149,7 @@ class GuardDecision(BaseModel):
     reason: str
     details: dict[str, Any] | None = None
 
-    model_config = {
-        "json_schema_extra": {"example": {"allowed": True, "reason": "Tool is in allowlist"}}
-    }
+    model_config = {"json_schema_extra": {"example": {"allowed": True, "reason": "Tool is in allowlist"}}}
 
 
 class RAGDocument(BaseModel):

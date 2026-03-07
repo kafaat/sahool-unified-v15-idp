@@ -47,9 +47,7 @@ class NotificationPayload(BaseModel):
     """
 
     notification_type: NotificationType = Field(..., description="نوع الإشعار")
-    priority: NotificationPriority = Field(
-        default=NotificationPriority.MEDIUM, description="الأولوية"
-    )
+    priority: NotificationPriority = Field(default=NotificationPriority.MEDIUM, description="الأولوية")
     title: str = Field(..., description="العنوان (English)")
     title_ar: str = Field(..., description="العنوان (العربية)")
     body: str = Field(..., description="النص (English)")
@@ -307,9 +305,7 @@ class NotificationTemplate:
     }
 
     @staticmethod
-    def format_template(
-        notification_type: NotificationType, language: str = "ar", **kwargs
-    ) -> dict[str, str]:
+    def format_template(notification_type: NotificationType, language: str = "ar", **kwargs) -> dict[str, str]:
         """
         تنسيق قالب الإشعار
 
@@ -373,9 +369,7 @@ class NotificationTemplate:
 # =============================================================================
 
 
-def create_weather_notification(
-    weather_type: str, governorate: str, **extra_data
-) -> NotificationPayload:
+def create_weather_notification(weather_type: str, governorate: str, **extra_data) -> NotificationPayload:
     """
     إنشاء إشعار طقس
 
@@ -406,9 +400,7 @@ def create_weather_notification(
     return NotificationPayload(
         notification_type=NotificationType.WEATHER_ALERT,
         priority=(
-            NotificationPriority.HIGH
-            if weather_type in ["frost", "storm", "flood"]
-            else NotificationPriority.MEDIUM
+            NotificationPriority.HIGH if weather_type in ["frost", "storm", "flood"] else NotificationPriority.MEDIUM
         ),
         title=en_template["title"],
         title_ar=ar_template["title"],

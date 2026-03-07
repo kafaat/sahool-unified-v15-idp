@@ -525,9 +525,7 @@ class TestQueryDealsByStage:
     @pytest.mark.asyncio
     async def test_query_deals_prospecting(self, crm_service):
         """Test filtering deals in prospecting stage."""
-        prospecting_deals = [
-            d for d in crm_service._deals.values() if d.stage == DealStage.PROSPECTING
-        ]
+        prospecting_deals = [d for d in crm_service._deals.values() if d.stage == DealStage.PROSPECTING]
 
         assert len(prospecting_deals) == 1
         assert prospecting_deals[0].crop_type == "wheat"
@@ -535,9 +533,7 @@ class TestQueryDealsByStage:
     @pytest.mark.asyncio
     async def test_query_deals_negotiation(self, crm_service):
         """Test filtering deals in negotiation stage."""
-        negotiation_deals = [
-            d for d in crm_service._deals.values() if d.stage == DealStage.NEGOTIATION
-        ]
+        negotiation_deals = [d for d in crm_service._deals.values() if d.stage == DealStage.NEGOTIATION]
 
         assert len(negotiation_deals) == 1
         assert negotiation_deals[0].crop_type == "dates"

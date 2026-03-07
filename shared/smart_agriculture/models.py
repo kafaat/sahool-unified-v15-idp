@@ -305,9 +305,7 @@ class EnvironmentThreshold:
             "date_palm": {"temp": (25, 45), "humidity": (30, 60), "light": 12},
         }
 
-        base = crop_thresholds.get(
-            crop_type.lower(), {"temp": (15, 30), "humidity": (50, 80), "light": 12}
-        )
+        base = crop_thresholds.get(crop_type.lower(), {"temp": (15, 30), "humidity": (50, 80), "light": 12})
 
         # Adjust for growth stage
         stage_adjustment = {

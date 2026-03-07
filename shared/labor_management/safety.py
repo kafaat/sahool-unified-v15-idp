@@ -945,11 +945,7 @@ class SafetyComplianceManager:
 
         # Check if all mandatory items completed
         if not check.is_complete():
-            incomplete = [
-                i
-                for i in check.checklist_items
-                if i.is_mandatory and i.item_id not in check.completed_items
-            ]
+            incomplete = [i for i in check.checklist_items if i.is_mandatory and i.item_id not in check.completed_items]
             for item in incomplete:
                 issues.append(f"Incomplete: {item.description}")
                 issues_ar.append(f"غير مكتمل: {item.description_ar}")

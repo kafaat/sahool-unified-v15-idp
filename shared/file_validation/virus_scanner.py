@@ -109,9 +109,7 @@ class ClamAVScanner(VirusScannerInterface):
                 return True
 
             # Send INSTREAM command to ClamAV
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self.host, self.port), timeout=self.timeout
-            )
+            reader, writer = await asyncio.wait_for(asyncio.open_connection(self.host, self.port), timeout=self.timeout)
 
             try:
                 # Send INSTREAM command
@@ -173,9 +171,7 @@ class ClamAVScanner(VirusScannerInterface):
 
         try:
             # Try to connect and send PING command
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self.host, self.port), timeout=5
-            )
+            reader, writer = await asyncio.wait_for(asyncio.open_connection(self.host, self.port), timeout=5)
 
             try:
                 writer.write(b"zPING\0")
@@ -391,9 +387,7 @@ class CloudVirusScanner(VirusScannerInterface):
                         return is_safe
 
                     elif status in ("queued", "in-progress"):
-                        logger.debug(
-                            "Analysis in progress, attempt %d/%d", attempt + 1, max_attempts
-                        )
+                        logger.debug("Analysis in progress, attempt %d/%d", attempt + 1, max_attempts)
                         await asyncio.sleep(poll_interval)
                         continue
 

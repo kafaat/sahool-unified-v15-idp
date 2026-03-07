@@ -491,9 +491,7 @@ class MultiProviderSMSClient:
                 result = await provider.send_sms(to, content, sender_id)
                 if result.success:
                     return result
-                logger.warning(
-                    f"Preferred provider {preferred_provider.value} failed: {result.error}"
-                )
+                logger.warning(f"Preferred provider {preferred_provider.value} failed: {result.error}")
 
         # Get best provider for the number
         provider = self._get_best_provider_for_number(to)

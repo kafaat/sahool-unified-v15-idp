@@ -211,9 +211,7 @@ class SentinelHubProvider(SatelliteProvider):
             response.raise_for_status()
             data = response.json()
             self._token = data["access_token"]
-            self._token_expires = datetime.now(UTC) + timedelta(
-                seconds=data.get("expires_in", 3600) - 60
-            )
+            self._token_expires = datetime.now(UTC) + timedelta(seconds=data.get("expires_in", 3600) - 60)
             return self._token
         except Exception as e:
             logger.error(f"Sentinel Hub auth failed: {e}")
@@ -262,9 +260,7 @@ class SentinelHubProvider(SatelliteProvider):
                     SatelliteScene(
                         scene_id=feature.get("id", ""),
                         satellite=satellite or SatelliteType.SENTINEL2,
-                        acquisition_date=datetime.fromisoformat(
-                            props.get("datetime", "").replace("Z", "")
-                        ),
+                        acquisition_date=datetime.fromisoformat(props.get("datetime", "").replace("Z", "")),
                         cloud_cover_pct=props.get("eo:cloud_cover", 0),
                         sun_elevation=props.get("view:sun_elevation", 45),
                         bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
@@ -706,9 +702,7 @@ class MultiSatelliteService:
                 continue
 
             try:
-                scenes = await provider.search_scenes(
-                    lat, lon, start_date, end_date, max_cloud_cover, satellite
-                )
+                scenes = await provider.search_scenes(lat, lon, start_date, end_date, max_cloud_cover, satellite)
                 if scenes:
                     self._set_cached(cache_key, scenes)
                     return SatelliteResult(

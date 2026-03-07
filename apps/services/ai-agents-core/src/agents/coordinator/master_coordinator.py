@@ -168,12 +168,7 @@ class MasterCoordinatorAgent(BaseAgent):
         urgency_factor = 1.0 if action.priority == 1 else (0.8 if action.priority == 2 else 0.6)
 
         # Combined utility
-        utility = (
-            0.35 * priority_score
-            + 0.25 * confidence_factor
-            + 0.20 * resource_factor
-            + 0.20 * urgency_factor
-        )
+        utility = 0.35 * priority_score + 0.25 * confidence_factor + 0.20 * resource_factor + 0.20 * urgency_factor
 
         return utility
 
@@ -184,9 +179,7 @@ class MasterCoordinatorAgent(BaseAgent):
         # Check water
         if "water" in action.action_type.lower() or "irrigation" in action.action_type.lower():
             water_needed = params.get("amount_mm", 0) * 100  # Approximate liters
-            water_available = (
-                self.RESOURCES["water"]["daily_limit_liters"] - self.RESOURCES["water"]["used"]
-            )
+            water_available = self.RESOURCES["water"]["daily_limit_liters"] - self.RESOURCES["water"]["used"]
             if water_needed > water_available:
                 return 0.3
             return 1.0
@@ -194,9 +187,7 @@ class MasterCoordinatorAgent(BaseAgent):
         # Check budget
         cost = params.get("cost_yer", 0)
         if cost > 0:
-            budget_available = (
-                self.RESOURCES["budget"]["daily_yer"] - self.RESOURCES["budget"]["used"]
-            )
+            budget_available = self.RESOURCES["budget"]["daily_yer"] - self.RESOURCES["budget"]["used"]
             if cost > budget_available:
                 return 0.4
             return 1.0
@@ -318,18 +309,11 @@ class MasterCoordinatorAgent(BaseAgent):
     def _check_conflict(self, action1: AgentAction, action2: AgentAction) -> ConflictType | None:
         """التحقق من وجود تعارض"""
         # Resource conflict
-        if (
-            "irrigation" in action1.action_type.lower()
-            and "irrigation" in action2.action_type.lower()
-        ):
+        if "irrigation" in action1.action_type.lower() and "irrigation" in action2.action_type.lower():
             return ConflictType.RESOURCE_CONFLICT
 
         # Timing conflict
-        if (
-            action1.priority == 1
-            and action2.priority == 1
-            and action1.action_type != action2.action_type
-        ):
+        if action1.priority == 1 and action2.priority == 1 and action1.action_type != action2.action_type:
             return ConflictType.TIMING_CONFLICT
 
         # Priority conflict
@@ -351,14 +335,10 @@ class MasterCoordinatorAgent(BaseAgent):
 
         if utility1 >= utility2:
             selected = action1
-            reasoning = (
-                f"تم اختيار {action1.action_type} لأن منفعته أعلى ({utility1:.2f} > {utility2:.2f})"
-            )
+            reasoning = f"تم اختيار {action1.action_type} لأن منفعته أعلى ({utility1:.2f} > {utility2:.2f})"
         else:
             selected = action2
-            reasoning = (
-                f"تم اختيار {action2.action_type} لأن منفعته أعلى ({utility2:.2f} > {utility1:.2f})"
-            )
+            reasoning = f"تم اختيار {action2.action_type} لأن منفعته أعلى ({utility2:.2f} > {utility1:.2f})"
 
         resolution_method = {
             ConflictType.RESOURCE_CONFLICT: "تم حل تعارض الموارد باختيار الإجراء الأكثر كفاءة",
@@ -387,9 +367,7 @@ class MasterCoordinatorAgent(BaseAgent):
                     excluded_actions.add(id(a))
 
         # Filter valid recommendations
-        valid_actions = [
-            rec.action for rec in recommendations if id(rec.action) not in excluded_actions
-        ]
+        valid_actions = [rec.action for rec in recommendations if id(rec.action) not in excluded_actions]
 
         if not valid_actions:
             # Use first recommendation as fallback
@@ -397,9 +375,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         # Sort by priority and utility
         ctx = self.context or AgentContext()
-        sorted_actions = sorted(
-            valid_actions, key=lambda a: (a.priority, -self.calculate_utility(a, ctx))
-        )
+        sorted_actions = sorted(valid_actions, key=lambda a: (a.priority, -self.calculate_utility(a, ctx)))
 
         primary = sorted_actions[0] if sorted_actions else None
         supporting = sorted_actions[1:4] if len(sorted_actions) > 1 else []
@@ -466,9 +442,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         # Run coordination
         result = await self.run(
-            AgentPercept(
-                percept_type="full_analysis_request", data={"context": "full"}, source="user"
-            )
+            AgentPercept(percept_type="full_analysis_request", data={"context": "full"}, source="user")
         )
 
         return result

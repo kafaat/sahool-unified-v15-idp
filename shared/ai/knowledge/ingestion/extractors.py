@@ -323,9 +323,7 @@ class URLExtractor:
                 # Check content length
                 content_length = len(response.content)
                 if content_length > self._MAX_CONTENT_LENGTH:
-                    result.metadata["error"] = (
-                        f"Content size {content_length} exceeds limit {self._MAX_CONTENT_LENGTH}"
-                    )
+                    result.metadata["error"] = f"Content size {content_length} exceeds limit {self._MAX_CONTENT_LENGTH}"
                     return result
 
                 content_type = response.headers.get("content-type", "")

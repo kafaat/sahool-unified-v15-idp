@@ -429,21 +429,15 @@ class MCPRAGBridge:
                         name=schema.name,
                         description=schema.description,
                         input_schema=schema.input_schema,
-                        handler=lambda args, _name=schema.name: self.handle_tool_call(
-                            _name, args
-                        ),
+                        handler=lambda args, _name=schema.name: self.handle_tool_call(_name, args),
                     )
                     registered += 1
-                elif hasattr(mcp_server, "tools") and hasattr(
-                    mcp_server.tools, "register_tool"
-                ):
+                elif hasattr(mcp_server, "tools") and hasattr(mcp_server.tools, "register_tool"):
                     mcp_server.tools.register_tool(
                         name=schema.name,
                         description=schema.description,
                         input_schema=schema.input_schema,
-                        handler=lambda args, _name=schema.name: self.handle_tool_call(
-                            _name, args
-                        ),
+                        handler=lambda args, _name=schema.name: self.handle_tool_call(_name, args),
                     )
                     registered += 1
                 else:
@@ -455,8 +449,7 @@ class MCPRAGBridge:
                 logger.warning("Failed to register tool %s: %s", schema.name, exc)
 
         logger.info(
-            "Registered %d RAG bridge tools with MCP server | "
-            "تم تسجيل %d أدوات جسر RAG مع خادم MCP",
+            "Registered %d RAG bridge tools with MCP server | تم تسجيل %d أدوات جسر RAG مع خادم MCP",
             registered,
             registered,
         )
@@ -643,9 +636,7 @@ class MCPRAGBridge:
                     doc = await self._knowledge_base.get_chunk(document_id)
 
                 if doc is not None:
-                    doc_data = (
-                        doc.to_dict() if hasattr(doc, "to_dict") else {"id": document_id}
-                    )
+                    doc_data = doc.to_dict() if hasattr(doc, "to_dict") else {"id": document_id}
                     return BridgeResult(
                         success=True,
                         data=doc_data,
@@ -704,9 +695,7 @@ class MCPRAGBridge:
                     return BridgeResult(
                         success=True,
                         data={
-                            "document_id": (
-                                doc.id if hasattr(doc, "id") else str(uuid.uuid4())
-                            ),
+                            "document_id": (doc.id if hasattr(doc, "id") else str(uuid.uuid4())),
                             "title": title,
                             "collection": collection,
                             "chunks_count": chunks_count,
@@ -756,10 +745,7 @@ class MCPRAGBridge:
         if workflow_name not in valid_workflows:
             return BridgeResult(
                 success=False,
-                error=(
-                    f"Unknown workflow: {workflow_name}. "
-                    f"Valid workflows: {sorted(valid_workflows)}"
-                ),
+                error=(f"Unknown workflow: {workflow_name}. Valid workflows: {sorted(valid_workflows)}"),
                 error_ar=f"سير عمل غير معروف: {workflow_name}",
             )
 
@@ -771,9 +757,7 @@ class MCPRAGBridge:
                     variables={"query": query, "language": language, **context},
                 )
 
-                output = (
-                    wf_result.output if hasattr(wf_result, "output") else {}
-                )
+                output = wf_result.output if hasattr(wf_result, "output") else {}
                 if isinstance(output, dict):
                     data = output
                 else:
@@ -788,17 +772,14 @@ class MCPRAGBridge:
 
             except Exception as exc:
                 logger.warning(
-                    "Workflow engine execution failed for %s, "
-                    "falling back to pipeline: %s",
+                    "Workflow engine execution failed for %s, falling back to pipeline: %s",
                     workflow_name,
                     exc,
                 )
 
         # Fallback: route to pipeline with workflow-appropriate collections
         if self._pipeline is not None:
-            return await self._workflow_via_pipeline(
-                workflow_name, query, context, language
-            )
+            return await self._workflow_via_pipeline(workflow_name, query, context, language)
 
         return BridgeResult(
             success=False,
@@ -819,9 +800,7 @@ class MCPRAGBridge:
         appropriate collection selection.
         تنفيذ سير العمل عبر خط أنابيب RAG مع اختيار المجموعة المناسبة.
         """
-        collections = WORKFLOW_COLLECTION_MAP.get(
-            workflow_name, ["general_agriculture"]
-        )
+        collections = WORKFLOW_COLLECTION_MAP.get(workflow_name, ["general_agriculture"])
         primary_collection = collections[0] if collections else "general_agriculture"
 
         # Enrich query with workflow context
@@ -839,18 +818,14 @@ class MCPRAGBridge:
 
             rag_result = await self._pipeline.run(request)
 
-            citations = _extract_citations(
-                rag_result.retrieval_results, min_score=0.2
-            )
+            citations = _extract_citations(rag_result.retrieval_results, min_score=0.2)
             answer = ""
             answer_ar = None
             confidence = 0.0
 
             if rag_result.generation_result:
                 answer = rag_result.generation_result.answer or ""
-                answer_ar = getattr(
-                    rag_result.generation_result, "answer_ar", None
-                )
+                answer_ar = getattr(rag_result.generation_result, "answer_ar", None)
                 confidence = rag_result.generation_result.confidence or 0.0
 
             data: dict[str, Any] = {
@@ -871,9 +846,7 @@ class MCPRAGBridge:
             )
 
         except Exception as exc:
-            logger.exception(
-                "Pipeline workflow fallback failed for %s", workflow_name
-            )
+            logger.exception("Pipeline workflow fallback failed for %s", workflow_name)
             return BridgeResult(
                 success=False,
                 error=str(exc),

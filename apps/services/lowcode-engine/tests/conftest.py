@@ -107,9 +107,7 @@ def sample_component() -> ComponentMaterial:
             PropDefinition(name="required", name_ar="مطلوب", type="boolean", default=False),
         ],
         slots=[SlotDefinition(name="content", name_ar="المحتوى", description="Content slot")],
-        events=[
-            EventDefinition(name="onClick", name_ar="عند النقر", description="Triggered on click")
-        ],
+        events=[EventDefinition(name="onClick", name_ar="عند النقر", description="Triggered on click")],
         is_container=False,
         icon="test-icon",
     )

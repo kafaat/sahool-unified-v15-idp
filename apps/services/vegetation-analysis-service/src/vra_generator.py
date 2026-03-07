@@ -316,9 +316,7 @@ class VRAGenerator:
         5. Calculate savings vs. flat rate
         6. Generate GeoJSON prescription
         """
-        logger.info(
-            f"Generating VRA prescription for field {field_id}, type={vra_type.value}, zones={num_zones}"
-        )
+        logger.info(f"Generating VRA prescription for field {field_id}, type={vra_type.value}, zones={num_zones}")
 
         # Validate inputs
         if num_zones not in [3, 5]:
@@ -395,9 +393,7 @@ class VRAGenerator:
         # Store prescription
         self._prescription_store[prescription.id] = prescription
 
-        logger.info(
-            f"VRA prescription generated: {prescription.id}, savings={savings_percent:.1f}%"
-        )
+        logger.info(f"VRA prescription generated: {prescription.id}, savings={savings_percent:.1f}%")
 
         return prescription
 
@@ -710,9 +706,7 @@ class VRAGenerator:
         """
         return self._prescription_store.get(prescription_id)
 
-    async def get_field_prescriptions(
-        self, field_id: str, limit: int = 10
-    ) -> list[PrescriptionMap]:
+    async def get_field_prescriptions(self, field_id: str, limit: int = 10) -> list[PrescriptionMap]:
         """
         Get all prescriptions for a field
 

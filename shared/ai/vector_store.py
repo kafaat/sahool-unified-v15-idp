@@ -1011,10 +1011,7 @@ class QdrantBackend(VectorStoreBackendBase):
             self._client.get_collections()
             logger.info(f"Qdrant backend initialized at {self.host}:{self.port}")
         except ImportError:
-            raise ImportError(
-                "qdrant-client is required for Qdrant backend. "
-                "Install with: pip install qdrant-client"
-            )
+            raise ImportError("qdrant-client is required for Qdrant backend. Install with: pip install qdrant-client")
         except Exception as e:
             raise ConnectionError(f"Failed to connect to Qdrant at {self.host}:{self.port}: {e}")
 
@@ -1210,9 +1207,7 @@ class QdrantBackend(VectorStoreBackendBase):
         if filter:
             conditions = []
             for key, value in filter.items():
-                conditions.append(
-                    FieldCondition(key=key, match=MatchValue(value=value))
-                )
+                conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
             qdrant_filter = Filter(must=conditions)
 
         hits = self._client.search(

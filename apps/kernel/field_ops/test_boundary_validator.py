@@ -221,9 +221,7 @@ def test_overlap_detection():
     # حقل جديد - New field
     new_field = {
         "type": "Polygon",
-        "coordinates": [
-            [[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]
-        ],
+        "coordinates": [[[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]],
     }
 
     # قاعدة بيانات الحقول الموجودة - Existing fields database
@@ -234,9 +232,7 @@ def test_overlap_detection():
             "user_id": "user_123",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [
-                    [[44.21, 15.36], [44.23, 15.36], [44.23, 15.38], [44.21, 15.38], [44.21, 15.36]]
-                ],
+                "coordinates": [[[44.21, 15.36], [44.23, 15.36], [44.23, 15.38], [44.21, 15.38], [44.21, 15.36]]],
             },
         },
         {
@@ -245,9 +241,7 @@ def test_overlap_detection():
             "user_id": "user_456",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [
-                    [[44.19, 15.34], [44.2, 15.34], [44.2, 15.36], [44.19, 15.36], [44.19, 15.34]]
-                ],
+                "coordinates": [[[44.19, 15.34], [44.2, 15.34], [44.2, 15.36], [44.19, 15.36], [44.19, 15.34]]],
             },
         },
     ]
@@ -356,9 +350,7 @@ def test_with_yemen_boundaries():
         # حقل في صنعاء - Field in Sana'a
         field_in_sanaa = {
             "type": "Polygon",
-            "coordinates": [
-                [[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]
-            ],
+            "coordinates": [[[44.2, 15.35], [44.22, 15.35], [44.22, 15.37], [44.2, 15.37], [44.2, 15.35]]],
         }
 
         result = validator.validate_geometry(field_in_sanaa)
@@ -445,12 +437,8 @@ def test_simplification():
         print(f"Simplified area: {simplified_area:.6f} hectares")
 
         difference = abs(result.area_hectares - simplified_area)
-        print(
-            f"\nالفرق في المساحة: {difference:.6f} هكتار ({difference / result.area_hectares * 100:.2f}%)"
-        )
-        print(
-            f"Area difference: {difference:.6f} hectares ({difference / result.area_hectares * 100:.2f}%)"
-        )
+        print(f"\nالفرق في المساحة: {difference:.6f} هكتار ({difference / result.area_hectares * 100:.2f}%)")
+        print(f"Area difference: {difference:.6f} hectares ({difference / result.area_hectares * 100:.2f}%)")
 
     return result
 

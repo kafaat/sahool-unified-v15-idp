@@ -151,9 +151,7 @@ class QuietHours:
         """Create from dictionary"""
         return cls(
             enabled=data.get("enabled", True),
-            start_time=time.fromisoformat(data["start_time"])
-            if data.get("start_time")
-            else time(22, 0),
+            start_time=time.fromisoformat(data["start_time"]) if data.get("start_time") else time(22, 0),
             end_time=time.fromisoformat(data["end_time"]) if data.get("end_time") else time(6, 0),
             timezone=data.get("timezone", "Asia/Riyadh"),
             days=[DayOfWeek(d) for d in data.get("days", [])],
@@ -215,12 +213,8 @@ class ChannelConfig:
             enabled=data.get("enabled", True),
             address=data.get("address"),
             verified=data.get("verified", False),
-            verified_at=datetime.fromisoformat(data["verified_at"])
-            if data.get("verified_at")
-            else None,
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
-            if data.get("quiet_hours")
-            else None,
+            verified_at=datetime.fromisoformat(data["verified_at"]) if data.get("verified_at") else None,
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else None,
             max_per_hour=data.get("max_per_hour", 10),
             batch_urgency=AlertUrgency(data.get("batch_urgency", "low")),
             batch_interval_minutes=data.get("batch_interval_minutes", 60),
@@ -283,9 +277,7 @@ class AlertTypePreference:
             enabled=data.get("enabled", True),
             channels=[NotificationChannel(c) for c in data.get("channels", [])],
             min_urgency=AlertUrgency(data.get("min_urgency", "low")),
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
-            if data.get("quiet_hours")
-            else None,
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else None,
             batch_enabled=data.get("batch_enabled", False),
             batch_interval_minutes=data.get("batch_interval_minutes", 60),
             sound_enabled=data.get("sound_enabled", True),
@@ -362,17 +354,13 @@ class TimeBasedRule:
             name=data.get("name", ""),
             name_ar=data.get("name_ar", ""),
             enabled=data.get("enabled", True),
-            start_time=time.fromisoformat(data["start_time"])
-            if data.get("start_time")
-            else time(22, 0),
+            start_time=time.fromisoformat(data["start_time"]) if data.get("start_time") else time(22, 0),
             end_time=time.fromisoformat(data["end_time"]) if data.get("end_time") else time(6, 0),
             days=[DayOfWeek(d) for d in data.get("days", [])],
             channels=[NotificationChannel(c) for c in data.get("channels", [])],
             alert_types=[AlertType(a) for a in data.get("alert_types", [])],
             action=data.get("action", "hold"),
-            fallback_channel=NotificationChannel(data["fallback_channel"])
-            if data.get("fallback_channel")
-            else None,
+            fallback_channel=NotificationChannel(data["fallback_channel"]) if data.get("fallback_channel") else None,
             exempt_urgencies=[AlertUrgency(u) for u in data.get("exempt_urgencies", ["critical"])],
             priority=data.get("priority", 0),
         )
@@ -537,24 +525,14 @@ class UserNotificationPreferences:
             tenant_id=data.get("tenant_id"),
             language=Language(data.get("language", "ar")),
             notifications_enabled=data.get("notifications_enabled", True),
-            default_channels=[
-                NotificationChannel(c) for c in data.get("default_channels", ["push", "in_app"])
-            ],
+            default_channels=[NotificationChannel(c) for c in data.get("default_channels", ["push", "in_app"])],
             channel_configs=[ChannelConfig.from_dict(c) for c in data.get("channel_configs", [])],
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
-            if data.get("quiet_hours")
-            else QuietHours(),
-            alert_preferences=[
-                AlertTypePreference.from_dict(p) for p in data.get("alert_preferences", [])
-            ],
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else QuietHours(),
+            alert_preferences=[AlertTypePreference.from_dict(p) for p in data.get("alert_preferences", [])],
             time_rules=[TimeBasedRule.from_dict(r) for r in data.get("time_rules", [])],
-            urgency_overrides=[
-                UrgencyOverride.from_dict(o) for o in data.get("urgency_overrides", [])
-            ],
+            urgency_overrides=[UrgencyOverride.from_dict(o) for o in data.get("urgency_overrides", [])],
             digest_enabled=data.get("digest_enabled", False),
-            digest_time=time.fromisoformat(data["digest_time"])
-            if data.get("digest_time")
-            else None,
+            digest_time=time.fromisoformat(data["digest_time"]) if data.get("digest_time") else None,
             digest_days=[DayOfWeek(d) for d in data.get("digest_days", [])],
             digest_channel=NotificationChannel(data.get("digest_channel", "email")),
             summary_enabled=data.get("summary_enabled", True),
@@ -564,12 +542,8 @@ class UserNotificationPreferences:
             show_badge_count=data.get("show_badge_count", True),
             show_preview=data.get("show_preview", True),
             show_preview_on_lock_screen=data.get("show_preview_on_lock_screen", False),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
             version=data.get("version", 1),
         )
 
@@ -721,9 +695,7 @@ class RoutingDecision:
 # =============================================================================
 
 
-def create_default_preferences(
-    user_id: str, tenant_id: str | None = None
-) -> UserNotificationPreferences:
+def create_default_preferences(user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences:
     """
     Create default notification preferences for a new user
     إنشاء تفضيلات إشعارات افتراضية لمستخدم جديد
@@ -775,9 +747,7 @@ def create_default_preferences(
     )
 
 
-def create_minimal_preferences(
-    user_id: str, tenant_id: str | None = None
-) -> UserNotificationPreferences:
+def create_minimal_preferences(user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences:
     """
     Create minimal notification preferences (critical only)
     إنشاء تفضيلات إشعارات بسيطة (حرجة فقط)

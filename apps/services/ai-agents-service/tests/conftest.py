@@ -496,5 +496,3 @@ def populated_executions(client):
 
     # Cleanup
     main_module.executions.clear()
-
-

@@ -256,9 +256,7 @@ class MockApiClient:
                     "lng": 44.1910 + random.uniform(-0.5, 0.5),
                 },
                 "ndvi_latest": round(random.uniform(0.3, 0.8), 3),
-                "created_at": (
-                    datetime.now() - timedelta(days=random.randint(30, 365))
-                ).isoformat(),
+                "created_at": (datetime.now() - timedelta(days=random.randint(30, 365))).isoformat(),
             }
             for i in range(1, 6)
         ]
@@ -504,9 +502,7 @@ class MobileAppSimulator:
 
         return self.storage.get_fields()
 
-    async def create_field(
-        self, name: str, area: float, crop_type: str | None = None
-    ) -> Field | None:
+    async def create_field(self, name: str, area: float, crop_type: str | None = None) -> Field | None:
         """Create a new field"""
         self.log(f"جاري إنشاء حقل جديد: {name}", "INFO")
 
@@ -756,9 +752,7 @@ async def run_simulation():
     assert len(fields) > 0, "No fields returned"
 
     for field in fields[:3]:
-        print(
-            f"   🌿 {field.name}: {field.area_hectares} هكتار (NDVI: {field.ndvi_latest or 'N/A'})"
-        )
+        print(f"   🌿 {field.name}: {field.area_hectares} هكتار (NDVI: {field.ndvi_latest or 'N/A'})")
 
     # Test cache
     cached_fields = await app.fetch_fields()

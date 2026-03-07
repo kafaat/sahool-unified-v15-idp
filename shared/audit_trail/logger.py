@@ -783,13 +783,9 @@ class AuditTrailLogger:
         if filter_.ggn:
             entries = [e for e in entries if e.metadata.ggn == filter_.ggn]
         if filter_.audit_session_id:
-            entries = [
-                e for e in entries if e.metadata.audit_session_id == filter_.audit_session_id
-            ]
+            entries = [e for e in entries if e.metadata.audit_session_id == filter_.audit_session_id]
         if filter_.control_point_id:
-            entries = [
-                e for e in entries if e.metadata.control_point_id == filter_.control_point_id
-            ]
+            entries = [e for e in entries if e.metadata.control_point_id == filter_.control_point_id]
         if filter_.correlation_id:
             entries = [e for e in entries if e.metadata.correlation_id == filter_.correlation_id]
         if filter_.tags:
@@ -945,9 +941,7 @@ def get_audit_logger(tenant_id: str = "sahool") -> AuditTrailLogger:
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
         # Default to /var/lib/sahool in production, /tmp for development only
         default_path = (
-            "/var/lib/sahool/audit_trail"
-            if os.getenv("ENVIRONMENT") == "production"
-            else "/tmp/sahool_audit_trail"
+            "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"
         )  # nosec B108
         storage_path = os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         _global_logger = AuditTrailLogger(tenant_id=tenant_id, storage_path=storage_path)

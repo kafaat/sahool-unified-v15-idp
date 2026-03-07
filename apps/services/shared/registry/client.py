@@ -57,9 +57,7 @@ class AgentInvocationResponse(BaseModel):
     output_data: dict[str, Any] | None = Field(None, description="Output data from the agent")
     error: str | None = Field(None, description="Error message if failed")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Response metadata")
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Response timestamp"
-    )
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Response timestamp")
     response_time_ms: float | None = Field(None, description="Response time in milliseconds")
 
     model_config = ConfigDict(
@@ -226,9 +224,7 @@ class RegistryClient:
             return [AgentCard.from_dict(agent) for agent in data.get("agents", [])]
 
         except Exception as e:
-            self._logger.error(
-                "discover_by_capability_error", capability=capability_name, error=str(e)
-            )
+            self._logger.error("discover_by_capability_error", capability=capability_name, error=str(e))
             raise
 
     async def discover_by_skill(self, skill_id: str) -> list[AgentCard]:
@@ -243,9 +239,7 @@ class RegistryClient:
             List of agents with the specified skill
         """
         try:
-            response = await self._client.get(
-                "/v1/registry/discover/skill", params={"skill": skill_id}
-            )
+            response = await self._client.get("/v1/registry/discover/skill", params={"skill": skill_id})
             response.raise_for_status()
 
             data = response.json()
@@ -336,9 +330,7 @@ class RegistryClient:
             # Add authentication if required
             if agent_card.requires_authentication:
                 if not auth_token and not self.api_key:
-                    raise ValueError(
-                        f"Agent {agent_id} requires authentication but no token provided"
-                    )
+                    raise ValueError(f"Agent {agent_id} requires authentication but no token provided")
 
                 token = auth_token or self.api_key
                 if agent_card.security_scheme == SecurityScheme.BEARER:

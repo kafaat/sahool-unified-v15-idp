@@ -276,8 +276,7 @@ class MarketPriceScraper(BaseScraper):
 
             duration_ms = (time.time() - start_time) * 1000
             logger.info(
-                f"Market prices scraped for {market_normalized} "
-                f"({len(report.prices)} items) in {duration_ms:.0f}ms"
+                f"Market prices scraped for {market_normalized} ({len(report.prices)} items) in {duration_ms:.0f}ms"
             )
 
             return ScrapingResult(
@@ -359,9 +358,7 @@ class MarketPriceScraper(BaseScraper):
 
             # Filter by specific crops if specified
             if crops:
-                if not any(
-                    c.lower() in crop_name.lower() or c == translation.get("ar") for c in crops
-                ):
+                if not any(c.lower() in crop_name.lower() or c == translation.get("ar") for c in crops):
                     continue
 
             crop_price = CropPrice(

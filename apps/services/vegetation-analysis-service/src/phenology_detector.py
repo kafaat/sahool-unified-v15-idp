@@ -632,27 +632,19 @@ class PhenologyDetector:
 
         crop_type = crop_type.lower()
         if crop_type not in self.YEMEN_CROP_SEASONS:
-            raise ValueError(
-                f"Unknown crop type: {crop_type}. Must be one of {list(self.YEMEN_CROP_SEASONS.keys())}"
-            )
+            raise ValueError(f"Unknown crop type: {crop_type}. Must be one of {list(self.YEMEN_CROP_SEASONS.keys())}")
 
         crop_params = self.YEMEN_CROP_SEASONS[crop_type]
 
         # Sort by date
         ndvi_series = sorted(
             ndvi_series,
-            key=lambda x: (
-                x["date"]
-                if isinstance(x["date"], date)
-                else datetime.fromisoformat(x["date"]).date()
-            ),
+            key=lambda x: x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date(),
         )
 
         # Smooth the series
         smoothed = self._smooth_ndvi_series([x["value"] for x in ndvi_series])
-        ndvi_smooth = [
-            {"date": ndvi_series[i]["date"], "value": smoothed[i]} for i in range(len(ndvi_series))
-        ]
+        ndvi_smooth = [{"date": ndvi_series[i]["date"], "value": smoothed[i]} for i in range(len(ndvi_series))]
 
         # Detect phenological events
         sos_date = self._detect_sos(ndvi_smooth, planting_date)
@@ -713,9 +705,7 @@ class PhenologyDetector:
             estimated_harvest_date=harvest_date,
         )
 
-    def get_phenology_timeline(
-        self, field_id: str, crop_type: str, planting_date: date
-    ) -> PhenologyTimeline:
+    def get_phenology_timeline(self, field_id: str, crop_type: str, planting_date: date) -> PhenologyTimeline:
         """
         Generate expected phenology timeline for planning.
 
@@ -807,9 +797,7 @@ class PhenologyDetector:
 
         return smoothed
 
-    def _detect_sos(
-        self, ndvi_series: list[dict], planting_date: date | None = None
-    ) -> date | None:
+    def _detect_sos(self, ndvi_series: list[dict], planting_date: date | None = None) -> date | None:
         """
         Detect Start of Season (SOS).
 
@@ -822,11 +810,7 @@ class PhenologyDetector:
             ndvi_series = [
                 x
                 for x in ndvi_series
-                if (
-                    x["date"]
-                    if isinstance(x["date"], date)
-                    else datetime.fromisoformat(x["date"]).date()
-                )
+                if (x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date())
                 >= planting_date
             ]
 
@@ -874,12 +858,7 @@ class PhenologyDetector:
             ndvi_series = [
                 x
                 for x in ndvi_series
-                if (
-                    x["date"]
-                    if isinstance(x["date"], date)
-                    else datetime.fromisoformat(x["date"]).date()
-                )
-                > pos_date
+                if (x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date()) > pos_date
             ]
 
         for point in ndvi_series:
@@ -974,9 +953,7 @@ class PhenologyDetector:
 
         return next_stage, days_remaining
 
-    def _calculate_confidence(
-        self, ndvi_series: list[dict], detected_stage: GrowthStage, crop_params: dict
-    ) -> float:
+    def _calculate_confidence(self, ndvi_series: list[dict], detected_stage: GrowthStage, crop_params: dict) -> float:
         """
         Calculate confidence in stage detection.
 

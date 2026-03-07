@@ -135,9 +135,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_reorder_recommendations_endpoint(self, client):
         """Test reorder recommendations endpoint"""
-        response = client.get(
-            "/v1/analytics/reorder-recommendations", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/reorder-recommendations", params={"tenant_id": "test-tenant"})
 
         assert response.status_code in [200, 500]
 

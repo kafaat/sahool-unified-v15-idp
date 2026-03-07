@@ -101,9 +101,7 @@ class NotificationRouter:
                 decision.should_deliver = False
                 decision.rejection_reasons.append("Notifications disabled")
                 decision.rejection_reasons_ar.append("الإشعارات معطلة")
-                logger.debug(
-                    f"Notification {request.id} rejected: notifications disabled for user {request.user_id}"
-                )
+                logger.debug(f"Notification {request.id} rejected: notifications disabled for user {request.user_id}")
                 return decision
 
         # Step 2: Alert type check
@@ -113,12 +111,8 @@ class NotificationRouter:
             urgency_override = preferences.get_urgency_override(request.urgency)
             if not urgency_override:
                 decision.should_deliver = False
-                decision.rejection_reasons.append(
-                    f"Alert type '{request.alert_type.value}' disabled"
-                )
-                decision.rejection_reasons_ar.append(
-                    f"نوع التنبيه '{request.alert_type.value}' معطل"
-                )
+                decision.rejection_reasons.append(f"Alert type '{request.alert_type.value}' disabled")
+                decision.rejection_reasons_ar.append(f"نوع التنبيه '{request.alert_type.value}' معطل")
                 logger.debug(f"Notification {request.id} rejected: alert type disabled")
                 return decision
 
@@ -162,9 +156,7 @@ class NotificationRouter:
                 decision.immediate = False
                 decision.deliver_at = self._calculate_quiet_hours_end(preferences.quiet_hours, now)
                 decision.applied_rules.append("quiet_hours_hold")
-                logger.debug(
-                    f"Notification {request.id} held until {decision.deliver_at} (quiet hours)"
-                )
+                logger.debug(f"Notification {request.id} held until {decision.deliver_at} (quiet hours)")
 
         # Step 6: Apply time-based rules
         time_rules_result = self._apply_time_rules(
@@ -271,11 +263,7 @@ class NotificationRouter:
         # Convert to user timezone
         try:
             tz = ZoneInfo(quiet.timezone)
-            local_now = (
-                now.astimezone(tz)
-                if now.tzinfo
-                else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
-            )
+            local_now = now.astimezone(tz) if now.tzinfo else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
         except Exception:
             local_now = now
 
@@ -325,11 +313,7 @@ class NotificationRouter:
         """
         try:
             tz = ZoneInfo(quiet.timezone)
-            local_now = (
-                now.astimezone(tz)
-                if now.tzinfo
-                else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
-            )
+            local_now = now.astimezone(tz) if now.tzinfo else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
         except Exception:
             local_now = now
 
@@ -384,11 +368,7 @@ class NotificationRouter:
             # Check if rule applies to current time
             try:
                 tz = ZoneInfo(preferences.quiet_hours.timezone)
-                local_now = (
-                    now.astimezone(tz)
-                    if now.tzinfo
-                    else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
-                )
+                local_now = now.astimezone(tz) if now.tzinfo else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
             except Exception:
                 local_now = now
 
@@ -413,9 +393,7 @@ class NotificationRouter:
 
             # Check channel restriction
             affected_channels = (
-                [c for c in result["channels"] if c in rule.channels]
-                if rule.channels
-                else result["channels"]
+                [c for c in result["channels"] if c in rule.channels] if rule.channels else result["channels"]
             )
 
             if not affected_channels:
@@ -427,24 +405,19 @@ class NotificationRouter:
 
             if rule.action == "hold":
                 # Calculate when rule ends
-                result["hold_until"] = self._calculate_rule_end(
-                    rule, now, preferences.quiet_hours.timezone
-                )
+                result["hold_until"] = self._calculate_rule_end(rule, now, preferences.quiet_hours.timezone)
                 logger.debug(f"Rule '{rule.name}' holding until {result['hold_until']}")
 
             elif rule.action == "drop":
                 # Remove affected channels
                 result["channels"] = [c for c in result["channels"] if c not in affected_channels]
-                logger.debug(
-                    f"Rule '{rule.name}' dropped channels: {[c.value for c in affected_channels]}"
-                )
+                logger.debug(f"Rule '{rule.name}' dropped channels: {[c.value for c in affected_channels]}")
 
             elif rule.action == "channel_fallback":
                 # Replace affected channels with fallback
                 if rule.fallback_channel:
                     result["channels"] = [
-                        rule.fallback_channel if c in affected_channels else c
-                        for c in result["channels"]
+                        rule.fallback_channel if c in affected_channels else c for c in result["channels"]
                     ]
                     # Remove duplicates
                     result["channels"] = list(dict.fromkeys(result["channels"]))
@@ -468,11 +441,7 @@ class NotificationRouter:
         """
         try:
             tz = ZoneInfo(timezone)
-            local_now = (
-                now.astimezone(tz)
-                if now.tzinfo
-                else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
-            )
+            local_now = now.astimezone(tz) if now.tzinfo else now.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
         except Exception:
             local_now = now
 

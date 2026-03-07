@@ -162,9 +162,7 @@ class FileValidator:
         detected_mime = get_mime_from_magic_bytes(file_content)
 
         if detected_mime:
-            is_valid = validate_mime_match(
-                declared_mime, file_content, strict=self.config.strict_mime_check
-            )
+            is_valid = validate_mime_match(declared_mime, file_content, strict=self.config.strict_mime_check)
 
             if not is_valid:
                 raise FileValidationError(
@@ -232,9 +230,7 @@ class FileValidator:
         is_safe = await self.virus_scanner.scan(file_content, filename)
 
         if not is_safe:
-            raise FileValidationError(
-                "تم اكتشاف فيروس في الملف / Virus detected in file", error_code="VIRUS_DETECTED"
-            )
+            raise FileValidationError("تم اكتشاف فيروس في الملف / Virus detected in file", error_code="VIRUS_DETECTED")
 
 
 def sanitize_filename(filename: str) -> str:

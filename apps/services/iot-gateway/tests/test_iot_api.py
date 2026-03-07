@@ -104,9 +104,7 @@ class TestSensorEndpoints:
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
     @pytest.mark.asyncio
-    async def test_post_sensor_reading_success(
-        self, mock_pub, mock_reg, test_client, mock_registry, mock_publisher
-    ):
+    async def test_post_sensor_reading_success(self, mock_pub, mock_reg, test_client, mock_registry, mock_publisher):
         """Test successful sensor reading submission"""
         mock_reg.__bool__ = lambda x: True
         mock_reg.get = mock_registry.get
@@ -135,9 +133,7 @@ class TestSensorEndpoints:
 
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
-    def test_post_sensor_reading_device_not_found(
-        self, mock_pub, mock_reg, test_client, mock_publisher
-    ):
+    def test_post_sensor_reading_device_not_found(self, mock_pub, mock_reg, test_client, mock_publisher):
         """Test sensor reading with unregistered device"""
         mock_reg.get = MagicMock(return_value=None)
         mock_pub.__bool__ = lambda x: True
@@ -157,9 +153,7 @@ class TestSensorEndpoints:
 
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
-    def test_post_sensor_reading_invalid_value_range(
-        self, mock_pub, mock_reg, test_client, mock_registry
-    ):
+    def test_post_sensor_reading_invalid_value_range(self, mock_pub, mock_reg, test_client, mock_registry):
         """Test sensor reading with value out of range"""
         mock_reg.get = mock_registry.get
         mock_pub.__bool__ = lambda x: True
@@ -225,9 +219,7 @@ class TestSensorEndpoints:
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
     @pytest.mark.asyncio
-    async def test_post_batch_readings_success(
-        self, mock_pub, mock_reg, test_client, mock_registry, mock_publisher
-    ):
+    async def test_post_batch_readings_success(self, mock_pub, mock_reg, test_client, mock_registry, mock_publisher):
         """Test successful batch reading submission"""
         mock_reg.__bool__ = lambda x: True
         mock_reg.get = mock_registry.get

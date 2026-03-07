@@ -8,6 +8,7 @@ from datetime import datetime
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
 logger = structlog.get_logger()
 
 # Authentication dependency
@@ -15,7 +16,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -23,6 +26,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/vra", tags=["vra"])
 
@@ -97,7 +101,9 @@ async def create_ndvi_prescription(request: NDVIPrescriptionRequest, _user=Depen
         logger.info("ndvi_prescription_created", prescription_id=prescription.id, field_id=request.field_id)
         return result
     except ImportError:
-        raise HTTPException(status_code=503, detail={"error": "VRA module not available", "error_ar": "وحدة التطبيق المتغير غير متوفرة"})
+        raise HTTPException(
+            status_code=503, detail={"error": "VRA module not available", "error_ar": "وحدة التطبيق المتغير غير متوفرة"}
+        )
 
 
 @router.post("/prescription/spot-spray", status_code=201)
@@ -132,7 +138,9 @@ async def create_spot_spray(request: SpotSprayRequest):
         logger.info("spot_spray_map_created", prescription_id=prescription.id, detection_type=request.detection_type)
         return result
     except ImportError:
-        raise HTTPException(status_code=503, detail={"error": "VRA module not available", "error_ar": "وحدة التطبيق المتغير غير متوفرة"})
+        raise HTTPException(
+            status_code=503, detail={"error": "VRA module not available", "error_ar": "وحدة التطبيق المتغير غير متوفرة"}
+        )
 
 
 @router.get("/prescriptions")
@@ -148,5 +156,7 @@ async def list_prescriptions(field_id: str | None = None):
 async def get_prescription(prescription_id: str):
     """Get prescription map details - تفاصيل خريطة الوصفة"""
     if prescription_id not in _prescriptions:
-        raise HTTPException(status_code=404, detail={"error": "Prescription not found", "error_ar": "الوصفة غير موجودة"})
+        raise HTTPException(
+            status_code=404, detail={"error": "Prescription not found", "error_ar": "الوصفة غير موجودة"}
+        )
     return _prescriptions[prescription_id]

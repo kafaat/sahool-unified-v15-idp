@@ -525,9 +525,7 @@ def get_mandatory_items() -> list[dict]:
     return [item for item in SPRING_CHECKLIST if item["compliance_level"] == "MANDATORY"]
 
 
-def calculate_spring_compliance(
-    compliant_items: list[str], all_items: list[str] | None = None
-) -> dict[str, float]:
+def calculate_spring_compliance(compliant_items: list[str], all_items: list[str] | None = None) -> dict[str, float]:
     """
     Calculate SPRING compliance score
     حساب درجة امتثال SPRING
@@ -551,15 +549,11 @@ def calculate_spring_compliance(
     category_compliance = {}
     for category_code in SPRING_CATEGORIES:
         category_items = [
-            item["item_id"]
-            for item in get_items_by_category(category_code)
-            if item["item_id"] in all_items
+            item["item_id"] for item in get_items_by_category(category_code) if item["item_id"] in all_items
         ]
         category_compliant = [item for item in compliant_items if item in category_items]
         category_total = len(category_items)
-        category_percentage = (
-            (len(category_compliant) / category_total * 100) if category_total > 0 else 0
-        )
+        category_percentage = (len(category_compliant) / category_total * 100) if category_total > 0 else 0
         category_compliance[category_code] = category_percentage
 
     return {

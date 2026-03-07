@@ -72,9 +72,7 @@ class ActionTemplate(BaseModel):
     """
 
     # === Identity ===
-    action_id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()), description="معرف فريد للإجراء"
-    )
+    action_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="معرف فريد للإجراء")
     action_type: ActionType = Field(..., description="نوع الإجراء")
 
     # === What (ماذا) ===
@@ -85,13 +83,9 @@ class ActionTemplate(BaseModel):
     summary_ar: str | None = Field(None, max_length=500, description="ملخص قصير للعرض في الإشعارات")
 
     # === Why (لماذا) - Analysis Source ===
-    source_service: str = Field(
-        ..., description="اسم الخدمة المصدر مثل: satellite-service, crop-health-ai"
-    )
+    source_service: str = Field(..., description="اسم الخدمة المصدر مثل: satellite-service, crop-health-ai")
     source_analysis_id: str | None = Field(None, description="معرف التحليل المصدر")
-    source_analysis_type: str | None = Field(
-        None, description="نوع التحليل مثل: ndvi_drop, disease_detected"
-    )
+    source_analysis_type: str | None = Field(None, description="نوع التحليل مثل: ndvi_drop, disease_detected")
     confidence: float = Field(..., ge=0, le=1, description="مستوى الثقة في التوصية (0-1)")
     reasoning_ar: str | None = Field(None, description="شرح سبب التوصية بالعربية")
     reasoning_en: str | None = Field(None, description="شرح سبب التوصية بالإنجليزية")
@@ -103,9 +97,7 @@ class ActionTemplate(BaseModel):
 
     # === Where (أين) ===
     field_id: str = Field(..., description="معرف الحقل")
-    zone_ids: list[str] = Field(
-        default_factory=list, description="معرفات المناطق المحددة داخل الحقل"
-    )
+    zone_ids: list[str] = Field(default_factory=list, description="معرفات المناطق المحددة داخل الحقل")
     geometry: dict[str, Any] | None = Field(None, description="GeoJSON للمنطقة المستهدفة")
 
     # === How (كيف) ===
@@ -117,9 +109,7 @@ class ActionTemplate(BaseModel):
 
     # === Field-First: Offline Support ===
     offline_executable: bool = Field(default=True, description="هل يمكن تنفيذه بدون اتصال؟")
-    fallback_instructions_ar: str = Field(
-        ..., description="تعليمات Fallback بالعربية في حال عدم الاتصال"
-    )
+    fallback_instructions_ar: str = Field(..., description="تعليمات Fallback بالعربية في حال عدم الاتصال")
     fallback_instructions_en: str = Field(..., description="تعليمات Fallback بالإنجليزية")
     requires_sync_before: bool = Field(default=False, description="هل يتطلب مزامنة قبل التنفيذ؟")
 
@@ -127,9 +117,7 @@ class ActionTemplate(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     status: ActionStatus = Field(default=ActionStatus.PENDING)
-    priority_score: float = Field(
-        default=0, ge=0, le=100, description="درجة الأولوية للترتيب (0-100)"
-    )
+    priority_score: float = Field(default=0, ge=0, le=100, description="درجة الأولوية للترتيب (0-100)")
     tags: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -138,24 +126,26 @@ class ActionTemplate(BaseModel):
     created_by_service: str | None = None
     version: str = "1.0"
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "action_id": "act_123e4567-e89b-12d3-a456-426614174000",
-            "action_type": "irrigation",
-            "title_ar": "ري الحقل - انخفاض رطوبة التربة",
-            "title_en": "Field Irrigation - Low Soil Moisture",
-            "description_ar": "رطوبة التربة انخفضت إلى 25%، يُنصح بالري خلال 24 ساعة",
-            "description_en": "Soil moisture dropped to 25%, irrigation recommended within 24 hours",
-            "source_service": "irrigation-smart",
-            "confidence": 0.92,
-            "urgency": "high",
-            "field_id": "field_abc123",
-            "estimated_duration_minutes": 120,
-            "offline_executable": True,
-            "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بري الحقل لمدة ساعتين في الصباح الباكر",
-            "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "action_id": "act_123e4567-e89b-12d3-a456-426614174000",
+                "action_type": "irrigation",
+                "title_ar": "ري الحقل - انخفاض رطوبة التربة",
+                "title_en": "Field Irrigation - Low Soil Moisture",
+                "description_ar": "رطوبة التربة انخفضت إلى 25%، يُنصح بالري خلال 24 ساعة",
+                "description_en": "Soil moisture dropped to 25%, irrigation recommended within 24 hours",
+                "source_service": "irrigation-smart",
+                "confidence": 0.92,
+                "urgency": "high",
+                "field_id": "field_abc123",
+                "estimated_duration_minutes": 120,
+                "offline_executable": True,
+                "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بري الحقل لمدة ساعتين في الصباح الباكر",
+                "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning",
+            }
         }
-    })
+    )
 
     def calculate_priority_score(self) -> float:
         """حساب درجة الأولوية بناءً على الاستعجال والثقة"""

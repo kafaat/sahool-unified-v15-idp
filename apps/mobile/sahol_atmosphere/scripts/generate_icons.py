@@ -79,9 +79,7 @@ def draw_atmosphere_glow(draw: ImageDraw, center: tuple, size: int, color: tuple
         radius = size // 2 + i * 20
         alpha = int(30 * (6 - i) / 5)
         glow_color = color + (alpha,)
-        draw.ellipse(
-            [cx - radius, cy - radius, cx + radius, cy + radius], outline=glow_color, width=10
-        )
+        draw.ellipse([cx - radius, cy - radius, cx + radius, cy + radius], outline=glow_color, width=10)
 
 
 def generate_app_icon(output_path: str, size: int = 1024):
@@ -108,9 +106,7 @@ def generate_app_icon(output_path: str, size: int = 1024):
     # Draw plant icon
     plant_size = size // 2
     plant_center = (size // 2, size // 2 - size // 10)
-    draw_plant_icon(
-        draw, plant_center, plant_size, hex_to_rgb(COLORS["success"]), hex_to_rgb(COLORS["glow"])
-    )
+    draw_plant_icon(draw, plant_center, plant_size, hex_to_rgb(COLORS["success"]), hex_to_rgb(COLORS["glow"]))
 
     # Add "SAHOOL" text at bottom (optional, commented out for clean icon)
     # try:

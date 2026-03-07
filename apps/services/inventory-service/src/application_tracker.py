@@ -91,9 +91,7 @@ class InputApplication:
             "applied_by": self.applied_by,
             "equipment_used": self.equipment_used,
             "withholding_period_days": self.withholding_period_days,
-            "safe_harvest_date": (
-                self.safe_harvest_date.isoformat() if self.safe_harvest_date else None
-            ),
+            "safe_harvest_date": (self.safe_harvest_date.isoformat() if self.safe_harvest_date else None),
             "ppe_used": self.ppe_used,
             "unit_cost": self.unit_cost,
             "total_cost": self.total_cost,
@@ -113,9 +111,7 @@ class ApplicationPlan:
     crop_type: str
 
     # Schedule
-    planned_applications: list[dict] = field(
-        default_factory=list
-    )  # [{date, item_id, quantity, purpose}]
+    planned_applications: list[dict] = field(default_factory=list)  # [{date, item_id, quantity, purpose}]
     total_fertilizer_kg: float = 0.0
     total_pesticide_l: float = 0.0
     estimated_cost: float = 0.0
@@ -217,8 +213,7 @@ class ApplicationTracker:
         # Check available quantity
         if item.availableQuantity < quantity:
             raise ValueError(
-                f"Insufficient stock for {item.name_en}. "
-                f"Available: {item.availableQuantity}, Requested: {quantity}"
+                f"Insufficient stock for {item.name_en}. Available: {item.availableQuantity}, Requested: {quantity}"
             )
 
         # Step 2: Calculate rate per hectare
@@ -339,9 +334,7 @@ class ApplicationTracker:
             deduct = min(remaining, batch.remainingQty)
             new_remaining = batch.remainingQty - deduct
 
-            await self.db.batchlot.update(
-                where={"id": batch.id}, data={"remainingQty": new_remaining}
-            )
+            await self.db.batchlot.update(where={"id": batch.id}, data={"remainingQty": new_remaining})
 
             remaining -= deduct
             used_batch_id = batch.id
@@ -448,9 +441,7 @@ class ApplicationTracker:
             summary["by_category"][category]["total_cost"] += app.total_cost
 
             # By purpose
-            purpose = (
-                app.purpose.value if isinstance(app.purpose, ApplicationPurpose) else app.purpose
-            )
+            purpose = app.purpose.value if isinstance(app.purpose, ApplicationPurpose) else app.purpose
             if purpose not in summary["by_purpose"]:
                 summary["by_purpose"][purpose] = {"count": 0, "total_cost": 0.0}
             summary["by_purpose"][purpose]["count"] += 1
@@ -688,9 +679,7 @@ class ApplicationTracker:
             "total_cost": summary["total_cost"],
             "by_category": summary["by_category"],
             "cost_per_application": (
-                summary["total_cost"] / summary["total_applications"]
-                if summary["total_applications"] > 0
-                else 0
+                summary["total_cost"] / summary["total_applications"] if summary["total_applications"] > 0 else 0
             ),
         }
 

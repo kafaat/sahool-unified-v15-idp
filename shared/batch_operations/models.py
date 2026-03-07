@@ -101,22 +101,14 @@ class BilingualMessage:
 # Standard messages
 BATCH_MESSAGES = {
     "started": BilingualMessage(en="Batch operation started", ar="بدأت عملية الدفعة"),
-    "completed": BilingualMessage(
-        en="Batch operation completed successfully", ar="اكتملت عملية الدفعة بنجاح"
-    ),
-    "partially_completed": BilingualMessage(
-        en="Batch operation partially completed", ar="اكتملت عملية الدفعة جزئياً"
-    ),
+    "completed": BilingualMessage(en="Batch operation completed successfully", ar="اكتملت عملية الدفعة بنجاح"),
+    "partially_completed": BilingualMessage(en="Batch operation partially completed", ar="اكتملت عملية الدفعة جزئياً"),
     "failed": BilingualMessage(en="Batch operation failed", ar="فشلت عملية الدفعة"),
     "cancelled": BilingualMessage(en="Batch operation cancelled", ar="تم إلغاء عملية الدفعة"),
-    "rolled_back": BilingualMessage(
-        en="Batch operation rolled back", ar="تم التراجع عن عملية الدفعة"
-    ),
+    "rolled_back": BilingualMessage(en="Batch operation rolled back", ar="تم التراجع عن عملية الدفعة"),
     "paused": BilingualMessage(en="Batch operation paused", ar="تم إيقاف عملية الدفعة مؤقتاً"),
     "resumed": BilingualMessage(en="Batch operation resumed", ar="تم استئناف عملية الدفعة"),
-    "item_completed": BilingualMessage(
-        en="Item processed successfully", ar="تمت معالجة العنصر بنجاح"
-    ),
+    "item_completed": BilingualMessage(en="Item processed successfully", ar="تمت معالجة العنصر بنجاح"),
     "item_failed": BilingualMessage(en="Item processing failed", ar="فشلت معالجة العنصر"),
     "rollback_started": BilingualMessage(en="Rollback started", ar="بدأ التراجع"),
     "rollback_completed": BilingualMessage(en="Rollback completed", ar="اكتمل التراجع"),
@@ -624,9 +616,7 @@ class BatchResult:
             "failed_items": self.failed_items,
             "skipped_items": self.skipped_items,
             "duration_seconds": round(self.duration_seconds, 2),
-            "success_rate": round(
-                (self.completed_items / self.total_items * 100) if self.total_items > 0 else 0, 2
-            ),
+            "success_rate": round((self.completed_items / self.total_items * 100) if self.total_items > 0 else 0, 2),
             "errors": self.errors,
             "rollback_performed": self.rollback_performed,
             "rollback_successful": self.rollback_successful,

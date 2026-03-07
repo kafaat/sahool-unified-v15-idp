@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 

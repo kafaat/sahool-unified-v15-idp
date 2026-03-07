@@ -472,9 +472,7 @@ class ChatSummarizerAgent(BaseWeChatAgent):
                 fields_mentioned.update(field_matches)
 
                 # Simple key point extraction (messages with questions or important info)
-                if "?" in msg.content or any(
-                    kw in msg.content.lower() for kw in ["important", "مهم", "need", "احتاج"]
-                ):
+                if "?" in msg.content or any(kw in msg.content.lower() for kw in ["important", "مهم", "need", "احتاج"]):
                     key_points.append(msg.content[:100])
 
             # Calculate overall sentiment
@@ -740,9 +738,7 @@ class AutoReplierAgent(BaseWeChatAgent):
             )
 
             # Get response template
-            template = self.RESPONSE_TEMPLATES.get(
-                main_topic, self.RESPONSE_TEMPLATES[TopicCategory.GENERAL]
-            )
+            template = self.RESPONSE_TEMPLATES.get(main_topic, self.RESPONSE_TEMPLATES[TopicCategory.GENERAL])
 
             # Generate reply
             reply_text = template["en"]
@@ -803,9 +799,7 @@ class AutoReplierAgent(BaseWeChatAgent):
         text_lower = text.lower()
 
         # Question intents
-        if "?" in text or any(
-            w in text_lower for w in ["when", "how", "what", "متى", "كيف", "ماذا"]
-        ):
+        if "?" in text or any(w in text_lower for w in ["when", "how", "what", "متى", "كيف", "ماذا"]):
             if any(w in text_lower for w in ["water", "irrigation", "ري", "سقي"]):
                 return "irrigation_query", "استفسار عن الري"
             if any(w in text_lower for w in ["fertilizer", "سماد"]):
@@ -870,11 +864,7 @@ class AutoReplierAgent(BaseWeChatAgent):
         topic_alts = alternatives.get(topic, {})
         return topic_alts.get(
             language,
-            [
-                "Would you like more information?"
-                if language == "en"
-                else "هل تريد مزيداً من المعلومات؟"
-            ],
+            ["Would you like more information?" if language == "en" else "هل تريد مزيداً من المعلومات؟"],
         )
 
 
@@ -1233,9 +1223,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
             )
 
             # Generate recommendations
-            recommendations = self._generate_recommendations(
-                urgent_chats, high_priority_chats, agricultural_alerts
-            )
+            recommendations = self._generate_recommendations(urgent_chats, high_priority_chats, agricultural_alerts)
 
             status = MultiChatStatus(
                 total_chats=len(chat_ids),
@@ -1314,9 +1302,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
                     )
 
             # Check if response needed
-            needs_response = (
-                last_message and last_message.sender_id != "self" and not last_message.is_read
-            )
+            needs_response = last_message and last_message.sender_id != "self" and not last_message.is_read
 
             return {
                 "chat_id": chat_id,
@@ -1345,9 +1331,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         elif pending_count > 0:
             return f"You have {pending_count} pending response(s) across {total_chats} chats. No urgent items."
         else:
-            return (
-                f"All clear! {total_chats} chats checked with no urgent items or pending responses."
-            )
+            return f"All clear! {total_chats} chats checked with no urgent items or pending responses."
 
     def _generate_status_summary_ar(
         self,
@@ -1361,9 +1345,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         elif pending_count > 0:
             return f"لديك {pending_count} رد معلق عبر {total_chats} محادثة. لا توجد عناصر عاجلة."
         else:
-            return (
-                f"كل شيء على ما يرام! تم فحص {total_chats} محادثة بدون عناصر عاجلة أو ردود معلقة."
-            )
+            return f"كل شيء على ما يرام! تم فحص {total_chats} محادثة بدون عناصر عاجلة أو ردود معلقة."
 
     def _generate_recommendations(
         self,
@@ -1505,9 +1487,7 @@ class ChatInsightsAgent(BaseWeChatAgent):
 
             # Response time analysis
             response_times = self._calculate_response_times(messages)
-            avg_response_time = (
-                sum(response_times) / len(response_times) if response_times else None
-            )
+            avg_response_time = sum(response_times) / len(response_times) if response_times else None
 
             # Sentiment analysis
             sentiments = [self._detect_sentiment(m.content)[0] for m in messages]
@@ -1532,13 +1512,9 @@ class ChatInsightsAgent(BaseWeChatAgent):
                 topic_counts[topic.value] = topic_counts.get(topic.value, 0) + 1
 
             total_topics = sum(topic_counts.values())
-            topic_distribution = (
-                {k: v / total_topics for k, v in topic_counts.items()} if total_topics > 0 else {}
-            )
+            topic_distribution = {k: v / total_topics for k, v in topic_counts.items()} if total_topics > 0 else {}
 
-            frequent_topics = sorted(
-                topic_counts.keys(), key=lambda t: topic_counts[t], reverse=True
-            )[:5]
+            frequent_topics = sorted(topic_counts.keys(), key=lambda t: topic_counts[t], reverse=True)[:5]
 
             # Activity analysis
             message_hours = [m.timestamp.hour for m in messages]
@@ -1557,9 +1533,7 @@ class ChatInsightsAgent(BaseWeChatAgent):
             )
 
             # Determine relationship type
-            relationship_type, relationship_type_ar = self._determine_relationship_type(
-                contact, frequent_topics
-            )
+            relationship_type, relationship_type_ar = self._determine_relationship_type(contact, frequent_topics)
 
             # Generate engagement suggestions
             suggestions = self._generate_engagement_suggestions(

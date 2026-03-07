@@ -38,9 +38,7 @@ except ImportError:
 class NATSConfig(BaseModel):
     """NATS connection configuration"""
 
-    servers: list[str] = Field(
-        default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")]
-    )
+    servers: list[str] = Field(default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")])
     name: str = Field(default="sahool-publisher")
     reconnect_time_wait: int = Field(default=2)
     max_reconnect_attempts: int = Field(default=60)

@@ -81,11 +81,15 @@ async def update_drone(drone_id: str, drone: DroneCreate):
     """Update drone information - تحديث معلومات الطائرة"""
     if drone_id not in _drones:
         raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
-    _drones[drone_id].update({
-        "name": drone.name, "name_ar": drone.name_ar,
-        "model": drone.model, "serial_number": drone.serial_number,
-        "drone_type": drone.drone_type,
-    })
+    _drones[drone_id].update(
+        {
+            "name": drone.name,
+            "name_ar": drone.name_ar,
+            "model": drone.model,
+            "serial_number": drone.serial_number,
+            "drone_type": drone.drone_type,
+        }
+    )
     logger.info("drone_updated", drone_id=drone_id)
     d = _drones[drone_id]
     return DroneResponse(**{k: d[k] for k in DroneResponse.model_fields})
@@ -107,7 +111,8 @@ async def get_drone_status(drone_id: str):
         raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
     d = _drones[drone_id]
     return {
-        "drone_id": drone_id, "status": d["status"],
+        "drone_id": drone_id,
+        "status": d["status"],
         "battery_percent": d.get("battery_percent", 100),
         "total_flight_hours": d.get("total_flight_hours", 0),
         "last_updated": datetime.utcnow().isoformat(),
@@ -120,7 +125,8 @@ async def get_drone_telemetry(drone_id: str):
     if drone_id not in _drones:
         raise HTTPException(status_code=404, detail={"error": "Drone not found", "error_ar": "الطائرة غير موجودة"})
     return {
-        "drone_id": drone_id, "telemetry": [],
+        "drone_id": drone_id,
+        "telemetry": [],
         "message": "Telemetry data collected during active flights",
         "message_ar": "يتم جمع بيانات القياس عن بعد أثناء الرحلات النشطة",
     }

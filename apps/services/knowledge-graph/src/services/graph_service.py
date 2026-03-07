@@ -35,6 +35,7 @@ from models import (
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../shared"))
 try:
     from shared.ai.knowledge.graph_builder import build_agricultural_knowledge_graph
+
     _HAS_SHARED_KG = True
 except ImportError:
     _HAS_SHARED_KG = False
@@ -74,53 +75,63 @@ class KnowledgeGraphService:
 
         # Type mapping from builder entity_type to service node types
         _type_handlers = {
-            "crop": lambda e: self.add_crop(Crop(
-                id=e.id.replace("crop_", ""),
-                name_en=e.name,
-                name_ar=e.name_ar,
-                growing_season=e.properties.get("growing_season", e.properties.get("season", "")),
-                family=e.properties.get("family", ""),
-            )),
-            "disease": lambda e: self.add_disease(Disease(
-                id=e.id.replace("disease_", ""),
-                name_en=e.name,
-                name_ar=e.name_ar,
-                pathogen_type=e.properties.get("pathogen_type", ""),
-                severity_level=e.properties.get("severity_level", 5),
-                symptoms_en=e.properties.get("symptoms_en", []),
-                symptoms_ar=e.properties.get("symptoms_ar", []),
-            )),
-            "pest": lambda e: self.add_disease(Disease(
-                id=e.id.replace("pest_", ""),
-                name_en=e.name,
-                name_ar=e.name_ar,
-                pathogen_type=e.properties.get("type", "insect"),
-                severity_level=e.properties.get("severity_level", 5),
-                symptoms_en=e.properties.get("symptoms_en", []),
-                symptoms_ar=e.properties.get("symptoms_ar", []),
-            )),
-            "treatment": lambda e: self.add_treatment(Treatment(
-                id=e.id.replace("treat_", ""),
-                name_en=e.name,
-                name_ar=e.name_ar,
-                treatment_type=e.properties.get("treatment_type", e.properties.get("type", "")),
-                active_ingredient=e.properties.get("active_ingredient", ""),
-                concentration=str(e.properties.get("concentration", "")),
-                application_method=e.properties.get("application_method", ""),
-                safety_level=e.properties.get("safety_level", 2),
-                cost_per_liter=e.properties.get("cost_per_liter", 0.0),
-            )),
-            "fertilizer": lambda e: self.add_treatment(Treatment(
-                id=e.id.replace("fert_", ""),
-                name_en=e.name,
-                name_ar=e.name_ar,
-                treatment_type="fertilizer",
-                active_ingredient=e.properties.get("type", ""),
-                concentration="",
-                application_method="broadcast",
-                safety_level=1,
-                cost_per_liter=0.0,
-            )),
+            "crop": lambda e: self.add_crop(
+                Crop(
+                    id=e.id.replace("crop_", ""),
+                    name_en=e.name,
+                    name_ar=e.name_ar,
+                    growing_season=e.properties.get("growing_season", e.properties.get("season", "")),
+                    family=e.properties.get("family", ""),
+                )
+            ),
+            "disease": lambda e: self.add_disease(
+                Disease(
+                    id=e.id.replace("disease_", ""),
+                    name_en=e.name,
+                    name_ar=e.name_ar,
+                    pathogen_type=e.properties.get("pathogen_type", ""),
+                    severity_level=e.properties.get("severity_level", 5),
+                    symptoms_en=e.properties.get("symptoms_en", []),
+                    symptoms_ar=e.properties.get("symptoms_ar", []),
+                )
+            ),
+            "pest": lambda e: self.add_disease(
+                Disease(
+                    id=e.id.replace("pest_", ""),
+                    name_en=e.name,
+                    name_ar=e.name_ar,
+                    pathogen_type=e.properties.get("type", "insect"),
+                    severity_level=e.properties.get("severity_level", 5),
+                    symptoms_en=e.properties.get("symptoms_en", []),
+                    symptoms_ar=e.properties.get("symptoms_ar", []),
+                )
+            ),
+            "treatment": lambda e: self.add_treatment(
+                Treatment(
+                    id=e.id.replace("treat_", ""),
+                    name_en=e.name,
+                    name_ar=e.name_ar,
+                    treatment_type=e.properties.get("treatment_type", e.properties.get("type", "")),
+                    active_ingredient=e.properties.get("active_ingredient", ""),
+                    concentration=str(e.properties.get("concentration", "")),
+                    application_method=e.properties.get("application_method", ""),
+                    safety_level=e.properties.get("safety_level", 2),
+                    cost_per_liter=e.properties.get("cost_per_liter", 0.0),
+                )
+            ),
+            "fertilizer": lambda e: self.add_treatment(
+                Treatment(
+                    id=e.id.replace("fert_", ""),
+                    name_en=e.name,
+                    name_ar=e.name_ar,
+                    treatment_type="fertilizer",
+                    active_ingredient=e.properties.get("type", ""),
+                    concentration="",
+                    application_method="broadcast",
+                    safety_level=1,
+                    cost_per_liter=0.0,
+                )
+            ),
             "irrigation": self._add_generic_entity,
             "equipment": self._add_generic_entity,
         }
@@ -194,10 +205,7 @@ class KnowledgeGraphService:
             if success:
                 rel_count += 1
 
-        logger.info(
-            f"Loaded {entity_count} entities, {rel_count} relationships "
-            f"from shared knowledge graph builder"
-        )
+        logger.info(f"Loaded {entity_count} entities, {rel_count} relationships from shared knowledge graph builder")
 
     async def _add_generic_entity(self, entity):
         """Add a generic entity (e.g., irrigation method) to the graph"""
@@ -221,10 +229,14 @@ class KnowledgeGraphService:
     async def _load_fallback_data(self):
         """Minimal fallback data when shared builder is not available"""
         crops = [
-            {"id": "wheat", "name_en": "Wheat", "name_ar": "القمح",
-             "growing_season": "winter", "family": "Poaceae"},
-            {"id": "tomato", "name_en": "Tomato", "name_ar": "الطماطم",
-             "growing_season": "summer", "family": "Solanaceae"},
+            {"id": "wheat", "name_en": "Wheat", "name_ar": "القمح", "growing_season": "winter", "family": "Poaceae"},
+            {
+                "id": "tomato",
+                "name_en": "Tomato",
+                "name_ar": "الطماطم",
+                "growing_season": "summer",
+                "family": "Solanaceae",
+            },
         ]
         for crop in crops:
             await self.add_crop(Crop(**crop))

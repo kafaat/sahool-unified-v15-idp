@@ -83,9 +83,7 @@ class SAHOOLSkillsTools:
                 ContextCompressor,
             )
 
-            self.compressor = ContextCompressor(
-                default_strategy=CompressionStrategy.HYBRID, max_tokens=4000
-            )
+            self.compressor = ContextCompressor(default_strategy=CompressionStrategy.HYBRID, max_tokens=4000)
             self.compression_available = True
         except ImportError:
             logger.warning("Context compression module not available")
@@ -332,9 +330,7 @@ class SAHOOLSkillsTools:
                 "confidence_threshold": confidence_threshold,
             }
 
-            response = await self.client.post(
-                f"{self.base_url}/api/skills/crop-advisor", json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/api/skills/crop-advisor", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -457,9 +453,7 @@ class SAHOOLSkillsTools:
             strategy = CompressionStrategy(compression_strategy)
 
             if data_type == "field":
-                result = self.compressor.compress_field_data(
-                    data, strategy=strategy, target_ratio=target_ratio
-                )
+                result = self.compressor.compress_field_data(data, strategy=strategy, target_ratio=target_ratio)
             elif data_type == "weather":
                 result = self.compressor.compress_weather_data(data, strategy=strategy)
             elif data_type == "history":
@@ -486,9 +480,7 @@ class SAHOOLSkillsTools:
             return ToolResult(
                 success=True,
                 data={
-                    "original_text_preview": result.original_text[:200]
-                    if result.original_text
-                    else "",
+                    "original_text_preview": result.original_text[:200] if result.original_text else "",
                     "compressed_text": result.compressed_text,
                     "original_tokens": result.original_tokens,
                     "compressed_tokens": result.compressed_tokens,

@@ -125,19 +125,13 @@ class BilingualMessage:
 # Standard sync messages
 SYNC_MESSAGES = {
     "sync_started": BilingualMessage(en="Synchronization started", ar="بدأت المزامنة"),
-    "sync_completed": BilingualMessage(
-        en="Synchronization completed successfully", ar="اكتملت المزامنة بنجاح"
-    ),
+    "sync_completed": BilingualMessage(en="Synchronization completed successfully", ar="اكتملت المزامنة بنجاح"),
     "sync_failed": BilingualMessage(en="Synchronization failed", ar="فشلت المزامنة"),
-    "sync_partial": BilingualMessage(
-        en="Synchronization partially completed", ar="اكتملت المزامنة جزئياً"
-    ),
+    "sync_partial": BilingualMessage(en="Synchronization partially completed", ar="اكتملت المزامنة جزئياً"),
     "conflict_detected": BilingualMessage(
         en="Conflict detected, manual resolution required", ar="تم اكتشاف تعارض، يلزم حل يدوي"
     ),
-    "conflict_resolved": BilingualMessage(
-        en="Conflict resolved successfully", ar="تم حل التعارض بنجاح"
-    ),
+    "conflict_resolved": BilingualMessage(en="Conflict resolved successfully", ar="تم حل التعارض بنجاح"),
     "network_unavailable": BilingualMessage(
         en="Network unavailable, changes saved locally",
         ar="الشبكة غير متاحة، تم حفظ التغييرات محلياً",
@@ -147,33 +141,23 @@ SYNC_MESSAGES = {
     ),
     "upload_completed": BilingualMessage(en="Upload completed", ar="اكتمل الرفع"),
     "download_completed": BilingualMessage(en="Download completed", ar="اكتمل التنزيل"),
-    "delta_sync_available": BilingualMessage(
-        en="Incremental sync available", ar="المزامنة التزايدية متاحة"
-    ),
+    "delta_sync_available": BilingualMessage(en="Incremental sync available", ar="المزامنة التزايدية متاحة"),
     "full_sync_required": BilingualMessage(en="Full sync required", ar="يلزم مزامنة كاملة"),
 }
 
 # Error messages
 SYNC_ERRORS = {
-    "network_error": BilingualMessage(
-        en="Network error occurred during sync", ar="حدث خطأ في الشبكة أثناء المزامنة"
-    ),
+    "network_error": BilingualMessage(en="Network error occurred during sync", ar="حدث خطأ في الشبكة أثناء المزامنة"),
     "server_error": BilingualMessage(en="Server error occurred", ar="حدث خطأ في الخادم"),
-    "timeout_error": BilingualMessage(
-        en="Sync operation timed out", ar="انتهت مهلة عملية المزامنة"
-    ),
-    "validation_error": BilingualMessage(
-        en="Data validation failed", ar="فشل التحقق من صحة البيانات"
-    ),
+    "timeout_error": BilingualMessage(en="Sync operation timed out", ar="انتهت مهلة عملية المزامنة"),
+    "validation_error": BilingualMessage(en="Data validation failed", ar="فشل التحقق من صحة البيانات"),
     "authentication_error": BilingualMessage(
         en="Authentication failed, please login again",
         ar="فشلت المصادقة، يرجى تسجيل الدخول مرة أخرى",
     ),
     "quota_exceeded": BilingualMessage(en="Sync quota exceeded", ar="تم تجاوز حصة المزامنة"),
     "version_mismatch": BilingualMessage(en="Data version mismatch", ar="عدم تطابق إصدار البيانات"),
-    "conflict_unresolved": BilingualMessage(
-        en="Unresolved conflict exists", ar="يوجد تعارض لم يُحل"
-    ),
+    "conflict_unresolved": BilingualMessage(en="Unresolved conflict exists", ar="يوجد تعارض لم يُحل"),
     "storage_full": BilingualMessage(en="Local storage is full", ar="التخزين المحلي ممتلئ"),
     "invalid_entity": BilingualMessage(en="Invalid entity for sync", ar="كيان غير صالح للمزامنة"),
 }
@@ -298,9 +282,7 @@ class SyncItem:
             "user_id": self.user_id,
             "device_id": self.device_id,
             "local_modified_at": self.local_modified_at.isoformat(),
-            "server_modified_at": self.server_modified_at.isoformat()
-            if self.server_modified_at
-            else None,
+            "server_modified_at": self.server_modified_at.isoformat() if self.server_modified_at else None,
             "created_at": self.created_at.isoformat(),
             "queued_at": self.queued_at.isoformat() if self.queued_at else None,
             "synced_at": self.synced_at.isoformat() if self.synced_at else None,
@@ -378,9 +360,7 @@ class SyncConflict:
             "server_modified_at": self.server_modified_at.isoformat(),
             "local_modified_by": self.local_modified_by,
             "server_modified_by": self.server_modified_by,
-            "resolution_strategy": self.resolution_strategy.value
-            if self.resolution_strategy
-            else None,
+            "resolution_strategy": self.resolution_strategy.value if self.resolution_strategy else None,
             "resolved_data": self.resolved_data,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
             "resolved_by": self.resolved_by,
@@ -446,12 +426,8 @@ class SyncProgress:
             "percent_complete": round(self.percent_complete, 2),
             "is_complete": self.is_complete,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "estimated_completion": self.estimated_completion.isoformat()
-            if self.estimated_completion
-            else None,
-            "current_entity_type": self.current_entity_type.value
-            if self.current_entity_type
-            else None,
+            "estimated_completion": self.estimated_completion.isoformat() if self.estimated_completion else None,
+            "current_entity_type": self.current_entity_type.value if self.current_entity_type else None,
             "current_entity_id": self.current_entity_id,
         }
 
@@ -518,17 +494,13 @@ class SyncSession:
             "timeout_seconds": self.timeout_seconds,
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
-            "last_activity_at": self.last_activity_at.isoformat()
-            if self.last_activity_at
-            else None,
+            "last_activity_at": self.last_activity_at.isoformat() if self.last_activity_at else None,
             "items_processed": self.items_processed,
             "conflicts_detected": self.conflicts_detected,
             "conflicts_resolved": self.conflicts_resolved,
             "errors": self.errors,
             "sync_token": self.sync_token,
-            "server_timestamp": self.server_timestamp.isoformat()
-            if self.server_timestamp
-            else None,
+            "server_timestamp": self.server_timestamp.isoformat() if self.server_timestamp else None,
             "client_timestamp": self.client_timestamp.isoformat(),
         }
 
@@ -641,9 +613,7 @@ class SyncResult:
             "failed_items": self.failed_items,
             "conflict_items": self.conflict_items,
             "skipped_items": self.skipped_items,
-            "success_rate": round(
-                (self.synced_items / self.total_items * 100) if self.total_items > 0 else 0, 2
-            ),
+            "success_rate": round((self.synced_items / self.total_items * 100) if self.total_items > 0 else 0, 2),
             "duration_seconds": round(self.duration_seconds, 2),
             "bytes_transferred": self.bytes_transferred,
             "delta_savings_bytes": self.delta_savings_bytes,

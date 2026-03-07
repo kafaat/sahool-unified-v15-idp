@@ -56,9 +56,7 @@ def test_field_analysis_export():
         print(f"\n{export_format.value.upper()} Format:")
         print("-" * 40)
 
-        result = exporter.export_field_analysis(
-            field_id="FIELD_001", analysis_data=analysis_data, format=export_format
-        )
+        result = exporter.export_field_analysis(field_id="FIELD_001", analysis_data=analysis_data, format=export_format)
 
         print(f"Filename: {result.filename}")
         print(f"Content-Type: {result.content_type}")
@@ -117,9 +115,7 @@ def test_timeseries_export():
     exporter = DataExporter()
 
     # Test CSV format (most common for timeseries)
-    result = exporter.export_timeseries(
-        field_id="FIELD_001", timeseries_data=timeseries_data, format=ExportFormat.CSV
-    )
+    result = exporter.export_timeseries(field_id="FIELD_001", timeseries_data=timeseries_data, format=ExportFormat.CSV)
 
     print("\nCSV Export:")
     print(f"Filename: {result.filename}")
@@ -207,9 +203,7 @@ def test_yield_prediction_export():
     exporter = DataExporter()
 
     # Test JSON format
-    result = exporter.export_yield_prediction(
-        prediction_data=prediction_data, format=ExportFormat.JSON
-    )
+    result = exporter.export_yield_prediction(prediction_data=prediction_data, format=ExportFormat.JSON)
 
     print("\nJSON Export:")
     print(f"Filename: {result.filename}")
@@ -268,9 +262,7 @@ def test_filename_generation():
     exporter = DataExporter()
 
     for export_format in ExportFormat:
-        filename = exporter.generate_filename(
-            prefix="test_export", field_id="FIELD_ABC_123", format=export_format
-        )
+        filename = exporter.generate_filename(prefix="test_export", field_id="FIELD_ABC_123", format=export_format)
         print(f"{export_format.value}: {filename}")
 
 

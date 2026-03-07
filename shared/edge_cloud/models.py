@@ -311,9 +311,7 @@ class SamplingConfig(BaseModel):
     def validate_interval_range(cls, v: int, info) -> int:
         """Ensure max_interval >= min_interval"""
         if info.data.get("min_interval") and v < info.data["min_interval"]:
-            raise ValueError(
-                "max_interval must be >= min_interval | الحد الأقصى يجب أن يكون >= الحد الأدنى"
-            )
+            raise ValueError("max_interval must be >= min_interval | الحد الأقصى يجب أن يكون >= الحد الأدنى")
         return v
 
 
@@ -331,9 +329,7 @@ class DeviceConfig(BaseModel):
         )
     """
 
-    device_id: str = Field(
-        ..., min_length=1, description="Unique device identifier | معرف الجهاز الفريد"
-    )
+    device_id: str = Field(..., min_length=1, description="Unique device identifier | معرف الجهاز الفريد")
 
     protocol: DeviceProtocol = Field(..., description="Communication protocol | بروتوكول الاتصال")
 
@@ -363,22 +359,16 @@ class DeviceConfig(BaseModel):
     )
 
     # Location
-    latitude: float | None = Field(
-        None, ge=-90, le=90, description="Device latitude | خط عرض الجهاز"
-    )
+    latitude: float | None = Field(None, ge=-90, le=90, description="Device latitude | خط عرض الجهاز")
 
-    longitude: float | None = Field(
-        None, ge=-180, le=180, description="Device longitude | خط طول الجهاز"
-    )
+    longitude: float | None = Field(None, ge=-180, le=180, description="Device longitude | خط طول الجهاز")
 
     zone_id: str = Field(default="", description="Field zone identifier | معرف منطقة الحقل")
 
     # Metadata
     is_active: bool = Field(default=True, description="Whether device is active | هل الجهاز نشط")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 # =============================================================================
@@ -415,37 +405,25 @@ class SensorReading(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="Reading timestamp | وقت القراءة"
     )
 
-    quality: DataQuality = Field(
-        default=DataQuality.GOOD, description="Data quality assessment | تقييم جودة البيانات"
-    )
+    quality: DataQuality = Field(default=DataQuality.GOOD, description="Data quality assessment | تقييم جودة البيانات")
 
-    confidence: float = Field(
-        default=1.0, ge=0.0, le=1.0, description="Confidence in reading (0-1) | الثقة في القراءة"
-    )
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence in reading (0-1) | الثقة في القراءة")
 
     # Location context
-    latitude: float | None = Field(
-        None, ge=-90, le=90, description="Reading latitude | خط عرض القراءة"
-    )
+    latitude: float | None = Field(None, ge=-90, le=90, description="Reading latitude | خط عرض القراءة")
 
-    longitude: float | None = Field(
-        None, ge=-180, le=180, description="Reading longitude | خط طول القراءة"
-    )
+    longitude: float | None = Field(None, ge=-180, le=180, description="Reading longitude | خط طول القراءة")
 
     zone_id: str = Field(default="", description="Field zone identifier | معرف منطقة الحقل")
 
     # Raw data
-    raw_value: Any = Field(
-        None, description="Raw value before processing | القيمة الخام قبل المعالجة"
-    )
+    raw_value: Any = Field(None, description="Raw value before processing | القيمة الخام قبل المعالجة")
 
     calibration_applied: bool = Field(
         default=False, description="Whether calibration was applied | هل تم تطبيق المعايرة"
     )
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -490,9 +468,7 @@ class EdgeDecision(BaseModel):
 
     action: str = Field(..., description="Action to execute | الإجراء المراد تنفيذه")
 
-    action_ar: str = Field(
-        default="", description="Action description (Arabic) | وصف الإجراء (عربي)"
-    )
+    action_ar: str = Field(default="", description="Action description (Arabic) | وصف الإجراء (عربي)")
 
     # Performance metrics
     latency_ms: float = Field(
@@ -511,22 +487,14 @@ class EdgeDecision(BaseModel):
         description="Sensor readings that triggered decision | القراءات المحفزة للقرار",
     )
 
-    rule_id: str = Field(
-        default="", description="Rule that triggered decision | القاعدة المحفزة للقرار"
-    )
+    rule_id: str = Field(default="", description="Rule that triggered decision | القاعدة المحفزة للقرار")
 
-    confidence: float = Field(
-        default=0.8, ge=0.0, le=1.0, description="Confidence in decision (0-1) | الثقة في القرار"
-    )
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0, description="Confidence in decision (0-1) | الثقة في القرار")
 
-    priority: int = Field(
-        default=5, ge=1, le=10, description="Decision priority (1=highest) | أولوية القرار"
-    )
+    priority: int = Field(default=5, ge=1, le=10, description="Decision priority (1=highest) | أولوية القرار")
 
     # Execution
-    executed: bool = Field(
-        default=False, description="Whether decision was executed | هل تم تنفيذ القرار"
-    )
+    executed: bool = Field(default=False, description="Whether decision was executed | هل تم تنفيذ القرار")
 
     executed_at: datetime | None = Field(None, description="Execution timestamp | وقت التنفيذ")
 
@@ -537,20 +505,14 @@ class EdgeDecision(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="Creation timestamp | وقت الإنشاء"
     )
 
-    expires_at: datetime | None = Field(
-        None, description="Decision expiration time | وقت انتهاء صلاحية القرار"
-    )
+    expires_at: datetime | None = Field(None, description="Decision expiration time | وقت انتهاء صلاحية القرار")
 
     # Cloud sync
-    synced_to_cloud: bool = Field(
-        default=False, description="Synced to cloud | تمت المزامنة مع السحابة"
-    )
+    synced_to_cloud: bool = Field(default=False, description="Synced to cloud | تمت المزامنة مع السحابة")
 
     synced_at: datetime | None = Field(None, description="Sync timestamp | وقت المزامنة")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -594,9 +556,7 @@ class CloudInference(BaseModel):
         )
     """
 
-    id: UUID = Field(
-        default_factory=uuid4, description="Unique inference ID | معرف الاستدلال الفريد"
-    )
+    id: UUID = Field(default_factory=uuid4, description="Unique inference ID | معرف الاستدلال الفريد")
 
     model_name: str = Field(..., description="Name of AI model used | اسم نموذج الذكاء الاصطناعي")
 
@@ -606,9 +566,7 @@ class CloudInference(BaseModel):
 
     prediction_ar: str = Field(default="", description="Prediction (Arabic) | التنبؤ (عربي)")
 
-    confidence: float = Field(
-        ..., ge=0.0, le=1.0, description="Prediction confidence (0-1) | ثقة التنبؤ"
-    )
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Prediction confidence (0-1) | ثقة التنبؤ")
 
     # Performance
     processing_time_ms: float = Field(
@@ -633,18 +591,12 @@ class CloudInference(BaseModel):
     )
 
     # Error estimation
-    error_margin: float = Field(
-        default=0.03, ge=0.0, le=1.0, description="Estimated error margin | هامش الخطأ المقدر"
-    )
+    error_margin: float = Field(default=0.03, ge=0.0, le=1.0, description="Estimated error margin | هامش الخطأ المقدر")
 
     # Input context
-    input_type: str = Field(
-        default="sensor_data", description="Type of input data | نوع بيانات الإدخال"
-    )
+    input_type: str = Field(default="sensor_data", description="Type of input data | نوع بيانات الإدخال")
 
-    input_summary: str = Field(
-        default="", description="Summary of input data | ملخص بيانات الإدخال"
-    )
+    input_summary: str = Field(default="", description="Summary of input data | ملخص بيانات الإدخال")
 
     # Timestamps
     requested_at: datetime = Field(
@@ -658,9 +610,7 @@ class CloudInference(BaseModel):
 
     field_id: str = Field(default="", description="Field identifier | معرف الحقل")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -700,9 +650,7 @@ class Recommendation(BaseModel):
         )
     """
 
-    id: UUID = Field(
-        default_factory=uuid4, description="Unique recommendation ID | معرف التوصية الفريد"
-    )
+    id: UUID = Field(default_factory=uuid4, description="Unique recommendation ID | معرف التوصية الفريد")
 
     title: str = Field(..., description="Recommendation title | عنوان التوصية")
 
@@ -714,19 +662,13 @@ class Recommendation(BaseModel):
 
     category: str = Field(default="general", description="Recommendation category | فئة التوصية")
 
-    priority: int = Field(
-        default=5, ge=1, le=10, description="Priority level (1=highest) | مستوى الأولوية"
-    )
+    priority: int = Field(default=5, ge=1, le=10, description="Priority level (1=highest) | مستوى الأولوية")
 
-    action_required: bool = Field(
-        default=False, description="Whether action is required | هل يلزم إجراء"
-    )
+    action_required: bool = Field(default=False, description="Whether action is required | هل يلزم إجراء")
 
     suggested_action: str = Field(default="", description="Suggested action | الإجراء المقترح")
 
-    suggested_action_ar: str = Field(
-        default="", description="Suggested action (Arabic) | الإجراء المقترح (عربي)"
-    )
+    suggested_action_ar: str = Field(default="", description="Suggested action (Arabic) | الإجراء المقترح (عربي)")
 
     confidence: float = Field(
         default=0.8, ge=0.0, le=1.0, description="Confidence in recommendation | الثقة في التوصية"
@@ -737,17 +679,13 @@ class Recommendation(BaseModel):
         description="Data sources/models used | مصادر البيانات/النماذج المستخدمة",
     )
 
-    valid_until: datetime | None = Field(
-        None, description="Recommendation validity period | فترة صلاحية التوصية"
-    )
+    valid_until: datetime | None = Field(None, description="Recommendation validity period | فترة صلاحية التوصية")
 
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Creation timestamp | وقت الإنشاء"
     )
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 class PestDetection(BaseModel):
@@ -775,9 +713,7 @@ class PestDetection(BaseModel):
 
     confidence: float = Field(..., ge=0.0, le=1.0, description="Detection confidence | ثقة الكشف")
 
-    severity: str = Field(
-        default="medium", description="Severity level: low/medium/high/critical | مستوى الشدة"
-    )
+    severity: str = Field(default="medium", description="Severity level: low/medium/high/critical | مستوى الشدة")
 
     # Bounding box
     bbox_x: float | None = Field(None, description="Bounding box X coordinate | إحداثي X للمربع")
@@ -793,13 +729,9 @@ class PestDetection(BaseModel):
         None, ge=0, le=100, description="Percentage of affected area | نسبة المنطقة المتضررة"
     )
 
-    recommended_treatment: str = Field(
-        default="", description="Recommended treatment | العلاج الموصى به"
-    )
+    recommended_treatment: str = Field(default="", description="Recommended treatment | العلاج الموصى به")
 
-    recommended_treatment_ar: str = Field(
-        default="", description="Treatment (Arabic) | العلاج (عربي)"
-    )
+    recommended_treatment_ar: str = Field(default="", description="Treatment (Arabic) | العلاج (عربي)")
 
     detected_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Detection timestamp | وقت الكشف"
@@ -807,9 +739,7 @@ class PestDetection(BaseModel):
 
     image_id: str = Field(default="", description="Source image identifier | معرف الصورة المصدر")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 class MoisturePrediction(BaseModel):
@@ -830,9 +760,7 @@ class MoisturePrediction(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique prediction ID | معرف التنبؤ الفريد")
 
     # Predictions
-    predictions: list[float] = Field(
-        ..., description="Daily moisture predictions (%) | التنبؤات اليومية (%)"
-    )
+    predictions: list[float] = Field(..., description="Daily moisture predictions (%) | التنبؤات اليومية (%)")
 
     prediction_horizon_days: int = Field(
         default=3, ge=1, le=30, description="Number of days predicted | عدد أيام التنبؤ"
@@ -880,9 +808,7 @@ class MoisturePrediction(BaseModel):
 
     zone_id: str = Field(default="", description="Zone identifier | معرف المنطقة")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 class YieldEstimation(BaseModel):
@@ -901,9 +827,7 @@ class YieldEstimation(BaseModel):
         )
     """
 
-    id: UUID = Field(
-        default_factory=uuid4, description="Unique estimation ID | معرف التقدير الفريد"
-    )
+    id: UUID = Field(default_factory=uuid4, description="Unique estimation ID | معرف التقدير الفريد")
 
     # Crop context
     crop_type: str = Field(..., description="Crop type | نوع المحصول")
@@ -917,40 +841,26 @@ class YieldEstimation(BaseModel):
         ..., ge=0, description="Estimated yield in kg/hectare | الإنتاجية المقدرة كجم/هكتار"
     )
 
-    yield_curve: list[float] = Field(
-        default_factory=list, description="15-day yield curve | منحنى الإنتاجية لـ 15 يوم"
-    )
+    yield_curve: list[float] = Field(default_factory=list, description="15-day yield curve | منحنى الإنتاجية لـ 15 يوم")
 
-    min_yield_kg_ha: float | None = Field(
-        None, ge=0, description="Minimum yield estimate | الحد الأدنى للإنتاجية"
-    )
+    min_yield_kg_ha: float | None = Field(None, ge=0, description="Minimum yield estimate | الحد الأدنى للإنتاجية")
 
-    max_yield_kg_ha: float | None = Field(
-        None, ge=0, description="Maximum yield estimate | الحد الأقصى للإنتاجية"
-    )
+    max_yield_kg_ha: float | None = Field(None, ge=0, description="Maximum yield estimate | الحد الأقصى للإنتاجية")
 
     # Confidence
-    confidence: float = Field(
-        default=0.8, ge=0.0, le=1.0, description="Estimation confidence | ثقة التقدير"
-    )
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0, description="Estimation confidence | ثقة التقدير")
 
     # Factors
     contributing_factors: dict[str, float] = Field(
         default_factory=dict, description="Factors and their weights | العوامل وأوزانها"
     )
 
-    risk_factors: list[str] = Field(
-        default_factory=list, description="Identified risk factors | عوامل الخطر المحددة"
-    )
+    risk_factors: list[str] = Field(default_factory=list, description="Identified risk factors | عوامل الخطر المحددة")
 
-    risk_factors_ar: list[str] = Field(
-        default_factory=list, description="Risk factors (Arabic) | عوامل الخطر (عربي)"
-    )
+    risk_factors_ar: list[str] = Field(default_factory=list, description="Risk factors (Arabic) | عوامل الخطر (عربي)")
 
     # Input data
-    field_area_ha: float = Field(
-        default=0.0, ge=0, description="Field area in hectares | مساحة الحقل بالهكتار"
-    )
+    field_area_ha: float = Field(default=0.0, ge=0, description="Field area in hectares | مساحة الحقل بالهكتار")
 
     weather_forecast_used: bool = Field(
         default=True, description="Whether weather forecast was used | هل تم استخدام توقعات الطقس"
@@ -975,9 +885,7 @@ class YieldEstimation(BaseModel):
 
     farm_id: str = Field(default="", description="Farm identifier | معرف المزرعة")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 # =============================================================================
@@ -1016,13 +924,9 @@ class SystemMetrics(BaseModel):
     )
 
     # Accuracy metrics
-    edge_accuracy: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Edge layer accuracy | دقة طبقة الحافة"
-    )
+    edge_accuracy: float = Field(default=0.0, ge=0.0, le=1.0, description="Edge layer accuracy | دقة طبقة الحافة")
 
-    cloud_accuracy: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Cloud layer accuracy | دقة طبقة السحابة"
-    )
+    cloud_accuracy: float = Field(default=0.0, ge=0.0, le=1.0, description="Cloud layer accuracy | دقة طبقة السحابة")
 
     moisture_prediction_error: float = Field(
         default=0.03,
@@ -1049,39 +953,27 @@ class SystemMetrics(BaseModel):
         default=0.0, ge=0, description="Sensor readings per minute | القراءات في الدقيقة"
     )
 
-    decisions_per_minute: float = Field(
-        default=0.0, ge=0, description="Decisions per minute | القرارات في الدقيقة"
-    )
+    decisions_per_minute: float = Field(default=0.0, ge=0, description="Decisions per minute | القرارات في الدقيقة")
 
     inferences_per_minute: float = Field(
         default=0.0, ge=0, description="Cloud inferences per minute | الاستدلالات في الدقيقة"
     )
 
     # Device metrics
-    total_devices: int = Field(
-        default=0, ge=0, description="Total registered devices | إجمالي الأجهزة المسجلة"
-    )
+    total_devices: int = Field(default=0, ge=0, description="Total registered devices | إجمالي الأجهزة المسجلة")
 
-    active_devices: int = Field(
-        default=0, ge=0, description="Currently active devices | الأجهزة النشطة حالياً"
-    )
+    active_devices: int = Field(default=0, ge=0, description="Currently active devices | الأجهزة النشطة حالياً")
 
-    offline_devices: int = Field(
-        default=0, ge=0, description="Offline devices | الأجهزة غير المتصلة"
-    )
+    offline_devices: int = Field(default=0, ge=0, description="Offline devices | الأجهزة غير المتصلة")
 
     # Sync metrics
     sync_success_rate: float = Field(
         default=0.0, ge=0.0, le=1.0, description="Edge-cloud sync success rate | معدل نجاح المزامنة"
     )
 
-    pending_sync_count: int = Field(
-        default=0, ge=0, description="Pending items to sync | العناصر المعلقة للمزامنة"
-    )
+    pending_sync_count: int = Field(default=0, ge=0, description="Pending items to sync | العناصر المعلقة للمزامنة")
 
-    last_sync_at: datetime | None = Field(
-        None, description="Last successful sync | آخر مزامنة ناجحة"
-    )
+    last_sync_at: datetime | None = Field(None, description="Last successful sync | آخر مزامنة ناجحة")
 
     # Timestamps
     measured_at: datetime = Field(
@@ -1092,9 +984,7 @@ class SystemMetrics(BaseModel):
         default=60, ge=1, description="Measurement period in seconds | فترة القياس بالثواني"
     )
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 # =============================================================================
@@ -1115,21 +1005,15 @@ class RuleCondition(BaseModel):
         )
     """
 
-    sensor_type: SensorType = Field(
-        ..., description="Sensor type to monitor | نوع المستشعر للمراقبة"
-    )
+    sensor_type: SensorType = Field(..., description="Sensor type to monitor | نوع المستشعر للمراقبة")
 
-    operator: str = Field(
-        ..., description="Comparison operator (<, >, <=, >=, ==, !=) | عامل المقارنة"
-    )
+    operator: str = Field(..., description="Comparison operator (<, >, <=, >=, ==, !=) | عامل المقارنة")
 
     threshold: float = Field(..., description="Threshold value | قيمة العتبة")
 
     unit: str = Field(default="", description="Unit of measurement | وحدة القياس")
 
-    zone_id: str | None = Field(
-        None, description="Specific zone (optional) | المنطقة المحددة (اختياري)"
-    )
+    zone_id: str | None = Field(None, description="Specific zone (optional) | المنطقة المحددة (اختياري)")
 
 
 class RuleAction(BaseModel):
@@ -1148,13 +1032,9 @@ class RuleAction(BaseModel):
 
     action_type_ar: str = Field(default="", description="Action type (Arabic) | نوع الإجراء (عربي)")
 
-    parameters: dict[str, Any] = Field(
-        default_factory=dict, description="Action parameters | معلمات الإجراء"
-    )
+    parameters: dict[str, Any] = Field(default_factory=dict, description="Action parameters | معلمات الإجراء")
 
-    delay_seconds: int = Field(
-        default=0, ge=0, description="Delay before execution | التأخير قبل التنفيذ"
-    )
+    delay_seconds: int = Field(default=0, ge=0, description="Delay before execution | التأخير قبل التنفيذ")
 
 
 class IFTTTRule(BaseModel):
@@ -1189,20 +1069,14 @@ class IFTTTRule(BaseModel):
         ..., min_length=1, description="Conditions that must all be true | الشروط التي يجب أن تتحقق"
     )
 
-    condition_logic: str = Field(
-        default="AND", description="Logic between conditions (AND/OR) | المنطق بين الشروط"
-    )
+    condition_logic: str = Field(default="AND", description="Logic between conditions (AND/OR) | المنطق بين الشروط")
 
-    actions: list[RuleAction] = Field(
-        ..., min_length=1, description="Actions to execute | الإجراءات المراد تنفيذها"
-    )
+    actions: list[RuleAction] = Field(..., min_length=1, description="Actions to execute | الإجراءات المراد تنفيذها")
 
     # Execution settings
     is_active: bool = Field(default=True, description="Whether rule is active | هل القاعدة نشطة")
 
-    priority: int = Field(
-        default=5, ge=1, le=10, description="Rule priority (1=highest) | أولوية القاعدة"
-    )
+    priority: int = Field(default=5, ge=1, le=10, description="Rule priority (1=highest) | أولوية القاعدة")
 
     cooldown_minutes: int = Field(
         default=60,
@@ -1219,23 +1093,15 @@ class IFTTTRule(BaseModel):
         None, ge=0, le=23, description="Start hour for rule (0-23) | ساعة بدء القاعدة"
     )
 
-    active_hours_end: int | None = Field(
-        None, ge=0, le=23, description="End hour for rule (0-23) | ساعة نهاية القاعدة"
-    )
+    active_hours_end: int | None = Field(None, ge=0, le=23, description="End hour for rule (0-23) | ساعة نهاية القاعدة")
 
     # Metadata
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Creation timestamp | وقت الإنشاء"
     )
 
-    last_triggered_at: datetime | None = Field(
-        None, description="Last trigger time | آخر وقت تفعيل"
-    )
+    last_triggered_at: datetime | None = Field(None, description="Last trigger time | آخر وقت تفعيل")
 
-    trigger_count: int = Field(
-        default=0, ge=0, description="Total trigger count | إجمالي عدد التفعيلات"
-    )
+    trigger_count: int = Field(default=0, ge=0, description="Total trigger count | إجمالي عدد التفعيلات")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")

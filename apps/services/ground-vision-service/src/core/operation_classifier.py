@@ -81,9 +81,7 @@ class OperationClassifier:
         EquipmentType.WORKER: OperationType.UNKNOWN,  # Could be multiple operations
     }
 
-    def __init__(
-        self, model_path: str | None = None, confidence_threshold: float = 0.5, device: str = "cuda"
-    ):
+    def __init__(self, model_path: str | None = None, confidence_threshold: float = 0.5, device: str = "cuda"):
         """
         Initialize operation classifier.
 
@@ -325,9 +323,7 @@ class OperationClassifier:
                     "max_confidence": 0,
                 }
             aggregated[eq_type]["count"] += 1
-            aggregated[eq_type]["max_confidence"] = max(
-                aggregated[eq_type]["max_confidence"], eq["confidence"]
-            )
+            aggregated[eq_type]["max_confidence"] = max(aggregated[eq_type]["max_confidence"], eq["confidence"])
 
         return list(aggregated.values())
 
@@ -404,9 +400,7 @@ class OperationTracker:
                             "operation_type": op["operation_type"].value,
                             "started_at": op["started_at"].isoformat(),
                             "ended_at": op["last_seen_at"].isoformat(),
-                            "duration_minutes": int(
-                                (op["last_seen_at"] - op["started_at"]).total_seconds() / 60
-                            ),
+                            "duration_minutes": int((op["last_seen_at"] - op["started_at"]).total_seconds() / 60),
                             "detection_count": op["detection_count"],
                         }
                     )
@@ -422,9 +416,7 @@ class OperationTracker:
                 "field_id": op["field_id"],
                 "operation_type": op["operation_type"].value,
                 "started_at": op["started_at"].isoformat(),
-                "duration_minutes": int(
-                    (datetime.now(UTC) - op["started_at"]).total_seconds() / 60
-                ),
+                "duration_minutes": int((datetime.now(UTC) - op["started_at"]).total_seconds() / 60),
                 "detection_count": op["detection_count"],
             }
             for op in self.active_operations.values()

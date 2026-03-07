@@ -178,8 +178,7 @@ async def predict_yield(request: YieldPredictionRequest):
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
             # Generate realistic NDVI series based on crop growth
             request.ndvi_series = [
-                max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
-                for i in range(10)
+                max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05))) for i in range(10)
             ]
             data_sources.append("simulated_ndvi")
     else:
@@ -358,9 +357,7 @@ async def get_yield_history(
             "total_predictions": len(history),
             "completed_harvests": len([h for h in history if h.actual_yield_ton_ha]),
             "average_predicted_yield": (
-                round(sum(h.predicted_yield_ton_ha for h in history) / len(history), 2)
-                if history
-                else 0
+                round(sum(h.predicted_yield_ton_ha for h in history) / len(history), 2) if history else 0
             ),
             "average_actual_yield": (
                 round(
@@ -475,9 +472,7 @@ async def get_regional_yields(
             "total_crops": len(regional_stats),
             "total_fields": sum(s.field_count for s in regional_stats),
             "highest_yield_crop": (
-                max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en
-                if regional_stats
-                else None
+                max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en if regional_stats else None
             ),
         },
         "note": "Production system would aggregate real field data. Currently showing simulated regional averages.",

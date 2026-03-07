@@ -247,16 +247,12 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
     Note: Requires FastAPI to be installed. Will raise RuntimeError if not available.
     """
     if not FASTAPI_AVAILABLE:
-        raise RuntimeError(
-            "FastAPI is required for setup_metrics(). Install it with: pip install fastapi"
-        )
+        raise RuntimeError("FastAPI is required for setup_metrics(). Install it with: pip install fastapi")
 
     registry = get_registry(service_name)
 
     # Create standard metrics
-    request_counter = registry.counter(
-        "http_requests_total", "Total HTTP requests", {"service": service_name}
-    )
+    request_counter = registry.counter("http_requests_total", "Total HTTP requests", {"service": service_name})
 
     request_latency = registry.histogram(
         "http_request_duration_seconds",
@@ -270,9 +266,7 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
         {"service": service_name},
     )
 
-    error_counter = registry.counter(
-        "http_errors_total", "Total HTTP errors", {"service": service_name}
-    )
+    error_counter = registry.counter("http_errors_total", "Total HTTP errors", {"service": service_name})
 
     @app.middleware("http")
     async def metrics_middleware(request: Request, call_next: Callable) -> Response:
@@ -334,9 +328,7 @@ def track_db_query(func: Callable):
 
     query_counter = registry.counter("db_queries_total", "Total database queries")
 
-    query_latency = registry.histogram(
-        "db_query_duration_seconds", "Database query latency in seconds"
-    )
+    query_latency = registry.histogram("db_query_duration_seconds", "Database query latency in seconds")
 
     query_errors = registry.counter("db_query_errors_total", "Total database query errors")
 
@@ -368,9 +360,7 @@ def track_external_call(service_name: str):
     """Decorator to track external service calls"""
     registry = get_registry()
 
-    call_counter = registry.counter(
-        "external_calls_total", "Total external service calls", {"target": service_name}
-    )
+    call_counter = registry.counter("external_calls_total", "Total external service calls", {"target": service_name})
 
     call_latency = registry.histogram(
         "external_call_duration_seconds",
@@ -778,9 +768,7 @@ class PerformanceMetrics:
             app: FastAPI application instance.
         """
         if not FASTAPI_AVAILABLE:
-            logger.warning(
-                "FastAPI not available; cannot register /api/analytics/performance endpoint"
-            )
+            logger.warning("FastAPI not available; cannot register /api/analytics/performance endpoint")
             return
 
         @app.get(

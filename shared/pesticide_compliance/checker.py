@@ -44,12 +44,8 @@ class PesticideComplianceChecker:
         pesticide = get_pesticide(application.pesticide_id)
         if pesticide:
             # Calculate PHI and REI expiry
-            application.phi_expiry_date = application.application_date + timedelta(
-                days=pesticide.phi_days
-            )
-            application.rei_expiry_time = application.application_date + timedelta(
-                hours=pesticide.rei_hours
-            )
+            application.phi_expiry_date = application.application_date + timedelta(days=pesticide.phi_days)
+            application.rei_expiry_time = application.application_date + timedelta(hours=pesticide.rei_hours)
         self.applications.append(application)
 
     def check_phi_compliance(
@@ -70,9 +66,7 @@ class PesticideComplianceChecker:
 
         # Get applications for this field
         field_applications = [
-            app
-            for app in self.applications
-            if app.field_id == field_id and app.application_date <= check_date
+            app for app in self.applications if app.field_id == field_id and app.application_date <= check_date
         ]
 
         for app in field_applications:
@@ -152,11 +146,7 @@ class PesticideComplianceChecker:
                 # Get PPE for early entry
                 early_entry_ppe = None
                 if hours_remaining <= (pesticide.rei_hours / 2):
-                    early_entry_ppe = (
-                        PPE_MAXIMUM
-                        if pesticide.toxicity_class.value in ["Ia", "Ib"]
-                        else PPE_ENHANCED
-                    )
+                    early_entry_ppe = PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
 
                 violation = REIViolation(
                     field_id=field_id,
@@ -207,11 +197,7 @@ class PesticideComplianceChecker:
         # Check tank mix for recent applications
         tank_mix_issues = []
         tank_mix_status = ComplianceStatus.COMPLIANT
-        recent_apps = [
-            app
-            for app in self.applications
-            if app.field_id == field_id and len(app.tank_mix_products) > 1
-        ]
+        recent_apps = [app for app in self.applications if app.field_id == field_id and len(app.tank_mix_products) > 1]
         for app in recent_apps:
             for i, product_a in enumerate(app.tank_mix_products):
                 for product_b in app.tank_mix_products[i + 1 :]:
@@ -252,12 +238,8 @@ class PesticideComplianceChecker:
             overall_status = ComplianceStatus.COMPLIANT
 
         # Generate summary
-        summary_en = self._generate_summary_en(
-            phi_violations, rei_violations, tank_mix_issues, drift_assessment
-        )
-        summary_ar = self._generate_summary_ar(
-            phi_violations, rei_violations, tank_mix_issues, drift_assessment
-        )
+        summary_en = self._generate_summary_en(phi_violations, rei_violations, tank_mix_issues, drift_assessment)
+        summary_ar = self._generate_summary_ar(phi_violations, rei_violations, tank_mix_issues, drift_assessment)
 
         # Generate recommendations
         recommendations_en, recommendations_ar = self._generate_recommendations(
@@ -434,9 +416,7 @@ def check_rei_compliance(
         # Get PPE for early entry
         early_entry_ppe = None
         if hours_remaining <= (pesticide.rei_hours / 2):
-            early_entry_ppe = (
-                PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
-            )
+            early_entry_ppe = PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
 
         return REIViolation(
             field_id="",
@@ -474,9 +454,7 @@ def check_tank_mix_compatibility(
     product_a_name = product_a.trade_name if product_a else product_a_id
     product_b_name = product_b.trade_name if product_b else product_b_id
 
-    compatibility, warnings_en, warnings_ar, mixing_order = db_get_compatibility(
-        product_a_id, product_b_id
-    )
+    compatibility, warnings_en, warnings_ar, mixing_order = db_get_compatibility(product_a_id, product_b_id)
 
     if compatibility == MixCompatibility.COMPATIBLE:
         message_en = f"✅ {product_a_name} and {product_b_name} are compatible for tank mixing."
@@ -563,34 +541,20 @@ def assess_spray_drift_risk(
     recommendations_ar = []
 
     if wind_speed_kmh > 15:
-        recommendations_en.append(
-            f"Wind speed ({wind_speed_kmh} km/h) too high. Wait for calmer conditions."
-        )
-        recommendations_ar.append(
-            f"سرعة الرياح ({wind_speed_kmh} كم/س) مرتفعة جداً. انتظر ظروفاً أهدأ."
-        )
+        recommendations_en.append(f"Wind speed ({wind_speed_kmh} km/h) too high. Wait for calmer conditions.")
+        recommendations_ar.append(f"سرعة الرياح ({wind_speed_kmh} كم/س) مرتفعة جداً. انتظر ظروفاً أهدأ.")
 
     if delta_t > 8:
-        recommendations_en.append(
-            "High evaporation conditions. Spray early morning or late evening."
-        )
+        recommendations_en.append("High evaporation conditions. Spray early morning or late evening.")
         recommendations_ar.append("ظروف تبخر عالية. رش في الصباح الباكر أو المساء.")
 
     if temperature_c > 30:
-        recommendations_en.append(
-            f"Temperature ({temperature_c}°C) too high. Risk of phytotoxicity."
-        )
-        recommendations_ar.append(
-            f"درجة الحرارة ({temperature_c}°م) مرتفعة جداً. خطر السمية النباتية."
-        )
+        recommendations_en.append(f"Temperature ({temperature_c}°C) too high. Risk of phytotoxicity.")
+        recommendations_ar.append(f"درجة الحرارة ({temperature_c}°م) مرتفعة جداً. خطر السمية النباتية.")
 
     if can_spray:
-        recommendations_en.append(
-            f"Maintain minimum {recommended_buffer_m}m buffer from sensitive areas."
-        )
-        recommendations_ar.append(
-            f"حافظ على مسافة عازلة {recommended_buffer_m} متر من المناطق الحساسة."
-        )
+        recommendations_en.append(f"Maintain minimum {recommended_buffer_m}m buffer from sensitive areas.")
+        recommendations_ar.append(f"حافظ على مسافة عازلة {recommended_buffer_m} متر من المناطق الحساسة.")
         recommendations_en.append("Use low-drift nozzles and reduce pressure if possible.")
         recommendations_ar.append("استخدم فوهات منخفضة الانجراف وقلل الضغط إن أمكن.")
 
@@ -599,9 +563,7 @@ def assess_spray_drift_risk(
         message_en = f"✅ Spray conditions acceptable with {risk_level} drift risk. Buffer: {recommended_buffer_m}m"
         message_ar = f"✅ ظروف الرش مقبولة مع خطر انجراف {risk_level_ar}. المسافة العازلة: {recommended_buffer_m}م"
     else:
-        message_en = (
-            f"❌ DO NOT SPRAY. {risk_level.upper()} drift risk. Wind: {wind_speed_kmh} km/h"
-        )
+        message_en = f"❌ DO NOT SPRAY. {risk_level.upper()} drift risk. Wind: {wind_speed_kmh} km/h"
         message_ar = f"❌ لا ترش. خطر انجراف {risk_level_ar}. الرياح: {wind_speed_kmh} كم/س"
 
     return SprayDriftRisk(

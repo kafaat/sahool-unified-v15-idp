@@ -564,9 +564,7 @@ class QualityTestRecord:
             "harvest_location": self.harvest_location,
             "sample_id": self.sample_id,
             "sample_size_kg": self.sample_size_kg,
-            "sample_collected_at": self.sample_collected_at.isoformat()
-            if self.sample_collected_at
-            else None,
+            "sample_collected_at": self.sample_collected_at.isoformat() if self.sample_collected_at else None,
             "sample_collector_id": self.sample_collector_id,
             "sample_collector_name": self.sample_collector_name,
             "status": self.status.value,
@@ -1028,9 +1026,7 @@ class GradePriceMatrix:
         elif grade == QualityGrade.GRADE_C:
             return self.grade_c_price or self.base_price * Decimal(str(self.grade_c_multiplier))
         elif grade == QualityGrade.INDUSTRIAL:
-            return self.industrial_price or self.base_price * Decimal(
-                str(self.industrial_multiplier)
-            )
+            return self.industrial_price or self.base_price * Decimal(str(self.industrial_multiplier))
         else:
             return Decimal("0")  # Rejected
 

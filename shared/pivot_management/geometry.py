@@ -27,9 +27,7 @@ def _radians_to_degrees(rad: float) -> float:
     return rad * 180.0 / math.pi
 
 
-def _destination_point(
-    lon: float, lat: float, bearing_deg: float, distance_m: float
-) -> tuple[float, float]:
+def _destination_point(lon: float, lat: float, bearing_deg: float, distance_m: float) -> tuple[float, float]:
     """
     Calculate destination point given start, bearing, and distance.
     حساب نقطة الوصول بمعرفة البداية والاتجاه والمسافة.
@@ -50,9 +48,7 @@ def _destination_point(
     bearing = _degrees_to_radians(bearing_deg)
     d = distance_m / EARTH_RADIUS_M
 
-    lat2 = math.asin(
-        math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing)
-    )
+    lat2 = math.asin(math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing))
     lon2 = lon1 + math.atan2(
         math.sin(bearing) * math.sin(d) * math.cos(lat1),
         math.cos(d) - math.sin(lat1) * math.sin(lat2),
@@ -260,9 +256,7 @@ def create_pivot_sector(
             boundary.append((lon, lat))
     else:
         # Full sector from center
-        boundary.append(
-            _destination_point(center_lon, center_lat, start_angle_deg, 0.001)
-        )
+        boundary.append(_destination_point(center_lon, center_lat, start_angle_deg, 0.001))
 
         # Outer arc
         for i in range(points_per_arc + 1):
@@ -411,9 +405,12 @@ def create_pivot_zone_grid(
 
             # Create cell boundary polygon
             boundary = _create_annular_sector_boundary(
-                center_lon, center_lat,
-                start_angle, end_angle,
-                inner_r, outer_r,
+                center_lon,
+                center_lat,
+                start_angle,
+                end_angle,
+                inner_r,
+                outer_r,
                 points_per_arc,
             )
 
@@ -469,9 +466,7 @@ def _create_annular_sector_boundary(
 
     if inner_r < 1.0:
         # Sector from center (first span)
-        boundary.append(
-            _destination_point(center_lon, center_lat, start_angle, 0.5)
-        )
+        boundary.append(_destination_point(center_lon, center_lat, start_angle, 0.5))
         for i in range(points_per_arc + 1):
             bearing = start_angle + i * angle_step
             lon, lat = _destination_point(center_lon, center_lat, bearing, outer_r)

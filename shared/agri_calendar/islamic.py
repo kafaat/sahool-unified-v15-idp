@@ -109,8 +109,7 @@ def _create_islamic_events() -> list[IslamicEvent]:
                 "cucumbers), and herbs. Prices typically increase 20-40%."
             ),
             market_impact_ar=(
-                "طلب عالي على التمور والخضروات (خاصة الطماطم والبصل والخيار) "
-                "والأعشاب. ترتفع الأسعار عادة 20-40%."
+                "طلب عالي على التمور والخضروات (خاصة الطماطم والبصل والخيار) والأعشاب. ترتفع الأسعار عادة 20-40%."
             ),
             affects_labor=True,
             labor_impact_en=(
@@ -139,17 +138,14 @@ def _create_islamic_events() -> list[IslamicEvent]:
                 "Plan harvests before or after the holiday."
             ),
             agricultural_significance_ar=(
-                "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 4-5 أيام. "
-                "خطط للحصاد قبل أو بعد العطلة."
+                "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 4-5 أيام. خطط للحصاد قبل أو بعد العطلة."
             ),
             affects_market=True,
             market_impact_en=(
-                "Markets closed. Pre-holiday rush for produce. "
-                "Post-holiday prices may drop due to reduced demand."
+                "Markets closed. Pre-holiday rush for produce. Post-holiday prices may drop due to reduced demand."
             ),
             market_impact_ar=(
-                "الأسواق مغلقة. اندفاع قبل العطلة على المنتجات. "
-                "قد تنخفض الأسعار بعد العطلة بسبب تراجع الطلب."
+                "الأسواق مغلقة. اندفاع قبل العطلة على المنتجات. قد تنخفض الأسعار بعد العطلة بسبب تراجع الطلب."
             ),
             affects_labor=True,
             labor_impact_en="All workers on leave for 4-5 days minimum",
@@ -183,8 +179,7 @@ def _create_islamic_events() -> list[IslamicEvent]:
                 "Fresh produce markets closed during holiday."
             ),
             market_impact_ar=(
-                "أسواق الماشية تبلغ ذروتها قبل العيد. ترتفع أسعار الأعلاف. "
-                "أسواق المنتجات الطازجة مغلقة خلال العطلة."
+                "أسواق الماشية تبلغ ذروتها قبل العيد. ترتفع أسعار الأعلاف. أسواق المنتجات الطازجة مغلقة خلال العطلة."
             ),
             affects_labor=True,
             labor_impact_en="All workers on leave for 5-7 days minimum",
@@ -218,8 +213,7 @@ def _create_islamic_events() -> list[IslamicEvent]:
                 "Good opportunity for suppliers near holy sites."
             ),
             market_impact_ar=(
-                "طلب عالي في منطقة مكة/المدينة. تحديات في النقل. "
-                "فرصة جيدة للموردين قرب الأماكن المقدسة."
+                "طلب عالي في منطقة مكة/المدينة. تحديات في النقل. فرصة جيدة للموردين قرب الأماكن المقدسة."
             ),
             affects_labor=True,
             labor_impact_en="Some workers may take Hajj leave (varies by arrangement)",
@@ -242,8 +236,7 @@ def _create_islamic_events() -> list[IslamicEvent]:
                 "Traditional time to assess previous year's performance."
             ),
             agricultural_significance_ar=(
-                "عطلة رسمية. وقت مناسب للتخطيط الزراعي للعام الجديد. "
-                "وقت تقليدي لتقييم أداء العام السابق."
+                "عطلة رسمية. وقت مناسب للتخطيط الزراعي للعام الجديد. وقت تقليدي لتقييم أداء العام السابق."
             ),
             affects_market=True,
             market_impact_en="Markets closed for 1-2 days",
@@ -264,12 +257,8 @@ def _create_islamic_events() -> list[IslamicEvent]:
             description_ar="العاشر من محرم",
             hijri_month=HijriMonth.MUHARRAM,
             hijri_day=10,
-            agricultural_significance_en=(
-                "Many Muslims fast on this day. Consider reduced productivity."
-            ),
-            agricultural_significance_ar=(
-                "كثير من المسلمين يصومون في هذا اليوم. يُتوقع انخفاض في الإنتاجية."
-            ),
+            agricultural_significance_en=("Many Muslims fast on this day. Consider reduced productivity."),
+            agricultural_significance_ar=("كثير من المسلمين يصومون في هذا اليوم. يُتوقع انخفاض في الإنتاجية."),
             affects_labor=True,
             labor_impact_en="Some workers may fast",
             labor_impact_ar="بعض العمال قد يصومون",
@@ -304,12 +293,9 @@ def _create_islamic_events() -> list[IslamicEvent]:
             hijri_month=HijriMonth.RAMADAN,
             hijri_day=21,  # Starts from 21st
             agricultural_significance_en=(
-                "Many workers increase religious observance. "
-                "Expect minimal availability for night work."
+                "Many workers increase religious observance. Expect minimal availability for night work."
             ),
-            agricultural_significance_ar=(
-                "كثير من العمال يزيدون من العبادة. توقع الحد الأدنى من التوفر للعمل الليلي."
-            ),
+            agricultural_significance_ar=("كثير من العمال يزيدون من العبادة. توقع الحد الأدنى من التوفر للعمل الليلي."),
             affects_labor=True,
             labor_impact_en="Workers focused on worship, especially at night",
             labor_impact_ar="العمال مركزون على العبادة، خاصة في الليل",
@@ -502,13 +488,7 @@ class HijriCalendar:
         a = math.floor(year / 100)
         b = 2 - a + math.floor(a / 4)
 
-        jd = (
-            math.floor(365.25 * (year + 4716))
-            + math.floor(30.6001 * (month + 1))
-            + day
-            + b
-            - 1524.5
-        )
+        jd = math.floor(365.25 * (year + 4716)) + math.floor(30.6001 * (month + 1)) + day + b - 1524.5
         return jd
 
     def _jd_to_gregorian(self, jd: float) -> date:
@@ -872,8 +852,5 @@ def format_dual_date(gregorian_date: date) -> dict[str, str]:
         "hijri": f"{hijri.year}-{hijri.month:02d}-{hijri.day:02d}",
         "hijri_formatted_ar": f"{hijri.day} {hijri.month_name_ar} {hijri.year} هـ",
         "hijri_formatted_en": f"{hijri.day} {hijri.month_name_en} {hijri.year} AH",
-        "combined": (
-            f"{gregorian_date.strftime('%Y-%m-%d')} / "
-            f"{hijri.day} {hijri.month_name_ar} {hijri.year} هـ"
-        ),
+        "combined": (f"{gregorian_date.strftime('%Y-%m-%d')} / {hijri.day} {hijri.month_name_ar} {hijri.year} هـ"),
     }

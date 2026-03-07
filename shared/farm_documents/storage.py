@@ -768,9 +768,7 @@ class DocumentStorageService:
             description_ar=old_document.description_ar,
             category_id=old_document.category_id,
             expiry_date=(
-                datetime.combine(old_document.expiry_date, datetime.min.time())
-                if old_document.expiry_date
-                else None
+                datetime.combine(old_document.expiry_date, datetime.min.time()) if old_document.expiry_date else None
             ),
             tags=old_document.tags,
             tags_ar=old_document.tags_ar,

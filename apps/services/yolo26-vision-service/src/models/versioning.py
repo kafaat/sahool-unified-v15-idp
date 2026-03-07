@@ -273,9 +273,7 @@ class ModelVersionRegistry:
         # Trim old versions
         if len(self._versions[task_variant]) > self.max_versions_per_model:
             old_versions = self._versions[task_variant][self.max_versions_per_model :]
-            self._versions[task_variant] = self._versions[task_variant][
-                : self.max_versions_per_model
-            ]
+            self._versions[task_variant] = self._versions[task_variant][: self.max_versions_per_model]
             for old in old_versions:
                 logger.info("model_version_archived", model_key=old.model_key)
 
@@ -334,9 +332,7 @@ class ModelVersionRegistry:
         logger.warning("version_not_found", task_variant=task_variant, version=version)
         return False
 
-    def rollback(
-        self, task: str, variant: str, to_version: str | None = None
-    ) -> ModelVersion | None:
+    def rollback(self, task: str, variant: str, to_version: str | None = None) -> ModelVersion | None:
         """
         Rollback to a previous model version.
 
@@ -424,8 +420,7 @@ class ModelVersionRegistry:
                 "recall_diff": v_b.metrics.recall - v_a.metrics.recall,
                 "f1_diff": v_b.metrics.f1_score - v_a.metrics.f1_score,
                 "map50_diff": v_b.metrics.map50 - v_a.metrics.map50,
-                "inference_time_diff": v_b.metrics.inference_time_ms
-                - v_a.metrics.inference_time_ms,
+                "inference_time_diff": v_b.metrics.inference_time_ms - v_a.metrics.inference_time_ms,
             },
             "improved": v_b.metrics.map50 > v_a.metrics.map50,
         }

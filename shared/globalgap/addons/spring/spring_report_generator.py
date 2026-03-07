@@ -46,15 +46,11 @@ class WaterBalanceCalculation(BaseModel):
     # Inputs (المدخلات)
     irrigation_water_m3: float = Field(..., ge=0, description="Irrigation water (m³) / مياه الري")
     rainfall_m3: float = Field(0, ge=0, description="Rainfall (m³) / الأمطار")
-    recycled_water_m3: float = Field(
-        0, ge=0, description="Recycled water (m³) / المياه المعاد تدويرها"
-    )
+    recycled_water_m3: float = Field(0, ge=0, description="Recycled water (m³) / المياه المعاد تدويرها")
     total_input_m3: float = Field(..., ge=0, description="Total input (m³) / المدخلات الكلية")
 
     # Outputs (المخرجات)
-    crop_evapotranspiration_m3: float = Field(
-        ..., ge=0, description="Crop ET (m³) / التبخر النتح للمحصول"
-    )
+    crop_evapotranspiration_m3: float = Field(..., ge=0, description="Crop ET (m³) / التبخر النتح للمحصول")
     runoff_m3: float = Field(0, ge=0, description="Surface runoff (m³) / الجريان السطحي")
     deep_percolation_m3: float = Field(0, ge=0, description="Deep percolation (m³) / الترشح العميق")
     evaporation_m3: float = Field(0, ge=0, description="Direct evaporation (m³) / التبخر المباشر")
@@ -68,9 +64,7 @@ class WaterBalanceCalculation(BaseModel):
     beneficial_use_efficiency_percent: float = Field(
         ..., ge=0, le=100, description="Beneficial use (%) / الاستخدام المفيد"
     )
-    water_productivity_kg_per_m3: float | None = Field(
-        None, description="Water productivity (kg/m³) / إنتاجية المياه"
-    )
+    water_productivity_kg_per_m3: float | None = Field(None, description="Water productivity (kg/m³) / إنتاجية المياه")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -108,9 +102,7 @@ class SpringReportSection(BaseModel):
     content_en: str = Field(..., description="Section content (English) / محتوى القسم")
     content_ar: str = Field(..., description="Section content (Arabic) / محتوى القسم")
     order: int = Field(..., description="Display order / ترتيب العرض")
-    subsections: list[SpringReportSection] = Field(
-        default_factory=list, description="Subsections / الأقسام الفرعية"
-    )
+    subsections: list[SpringReportSection] = Field(default_factory=list, description="Subsections / الأقسام الفرعية")
 
 
 class SpringReport(BaseModel):
@@ -138,35 +130,21 @@ class SpringReport(BaseModel):
     water_balance: WaterBalanceCalculation = Field(..., description="Water balance / توازن المياه")
 
     # Efficiency Score
-    efficiency_score: WaterEfficiencyScore = Field(
-        ..., description="Efficiency score / درجة الكفاءة"
-    )
+    efficiency_score: WaterEfficiencyScore = Field(..., description="Efficiency score / درجة الكفاءة")
 
     # Compliance Assessment
-    compliance_summary: dict[str, Any] = Field(
-        ..., description="Compliance summary / ملخص الامتثال"
-    )
+    compliance_summary: dict[str, Any] = Field(..., description="Compliance summary / ملخص الامتثال")
 
     # Sections
-    sections: list[SpringReportSection] = Field(
-        default_factory=list, description="Report sections / أقسام التقرير"
-    )
+    sections: list[SpringReportSection] = Field(default_factory=list, description="Report sections / أقسام التقرير")
 
     # Recommendations
-    recommendations_en: list[str] = Field(
-        default_factory=list, description="Recommendations (EN) / التوصيات"
-    )
-    recommendations_ar: list[str] = Field(
-        default_factory=list, description="Recommendations (AR) / التوصيات"
-    )
+    recommendations_en: list[str] = Field(default_factory=list, description="Recommendations (EN) / التوصيات")
+    recommendations_ar: list[str] = Field(default_factory=list, description="Recommendations (AR) / التوصيات")
 
     # Yemen-specific insights
-    yemen_context_notes_en: str | None = Field(
-        None, description="Yemen context (EN) / السياق اليمني"
-    )
-    yemen_context_notes_ar: str | None = Field(
-        None, description="Yemen context (AR) / السياق اليمني"
-    )
+    yemen_context_notes_en: str | None = Field(None, description="Yemen context (EN) / السياق اليمني")
+    yemen_context_notes_ar: str | None = Field(None, description="Yemen context (AR) / السياق اليمني")
 
     model_config = ConfigDict()
 
@@ -477,28 +455,18 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         if lang == "en":
             content = f"Total Quality Tests: {len(tests)}\n"
             content += f"Tests Meeting Standards: {passing_tests}/{len(tests)}\n"
-            content += (
-                f"Compliance Rate: {(passing_tests / len(tests) * 100):.1f}%\n"
-                if len(tests) > 0
-                else ""
-            )
+            content += f"Compliance Rate: {(passing_tests / len(tests) * 100):.1f}%\n" if len(tests) > 0 else ""
         else:
             content = f"إجمالي اختبارات الجودة: {len(tests)}\n"
             content += f"الاختبارات المطابقة للمعايير: {passing_tests}/{len(tests)}\n"
-            content += (
-                f"معدل الامتثال: {(passing_tests / len(tests) * 100):.1f}%\n"
-                if len(tests) > 0
-                else ""
-            )
+            content += f"معدل الامتثال: {(passing_tests / len(tests) * 100):.1f}%\n" if len(tests) > 0 else ""
 
         return content
 
     def _format_efficiency_section(self, records: list[IrrigationEfficiency], lang: str) -> str:
         """Format efficiency section"""
         if not records:
-            return (
-                "No efficiency records available" if lang == "en" else "لا توجد سجلات كفاءة متاحة"
-            )
+            return "No efficiency records available" if lang == "en" else "لا توجد سجلات كفاءة متاحة"
 
         avg_efficiency = sum(r.application_efficiency_percent for r in records) / len(records)
 
@@ -574,9 +542,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
             recommendations_en.append(
                 "Install soil moisture sensors to improve irrigation scheduling and reduce water waste."
             )
-            recommendations_ar.append(
-                "تركيب أجهزة استشعار رطوبة التربة لتحسين جدولة الري وتقليل هدر المياه."
-            )
+            recommendations_ar.append("تركيب أجهزة استشعار رطوبة التربة لتحسين جدولة الري وتقليل هدر المياه.")
 
         # Rainwater harvesting
         if efficiency.rainwater_percentage < 5:
@@ -590,9 +556,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
             recommendations_en.append(
                 "Increase water quality testing frequency to quarterly (minimum 4 tests per year)."
             )
-            recommendations_ar.append(
-                "زيادة تكرار اختبارات جودة المياه إلى فصلياً (4 اختبارات على الأقل سنوياً)."
-            )
+            recommendations_ar.append("زيادة تكرار اختبارات جودة المياه إلى فصلياً (4 اختبارات على الأقل سنوياً).")
 
         # Efficiency improvement
         if efficiency.average_application_efficiency < 75:
@@ -603,21 +567,15 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
 
         # Legal compliance
         if efficiency.sources_with_legal_permits < efficiency.total_water_sources:
-            recommendations_en.append(
-                "Obtain legal water extraction permits for all water sources."
-            )
-            recommendations_ar.append(
-                "الحصول على تصاريح استخراج المياه القانونية لجميع مصادر المياه."
-            )
+            recommendations_en.append("Obtain legal water extraction permits for all water sources.")
+            recommendations_ar.append("الحصول على تصاريح استخراج المياه القانونية لجميع مصادر المياه.")
 
         # Deep percolation
         if balance.deep_percolation_m3 / balance.total_input_m3 > 0.15:
             recommendations_en.append(
                 "Reduce deep percolation losses by improving irrigation scheduling and system design."
             )
-            recommendations_ar.append(
-                "تقليل خسائر الترشح العميق من خلال تحسين جدولة الري وتصميم النظام."
-            )
+            recommendations_ar.append("تقليل خسائر الترشح العميق من خلال تحسين جدولة الري وتصميم النظام.")
 
         return recommendations_en, recommendations_ar
 

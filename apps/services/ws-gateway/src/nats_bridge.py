@@ -139,9 +139,7 @@ class NATSBridge:
                     event_type = EventType.FIELD_DELETED
 
                 # Create WebSocket message
-                ws_message = self._create_event_message(
-                    event_type=event_type, data=data, subject=msg.subject
-                )
+                ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
                 # Send to field room
                 await self.room_manager.send_to_field(field_id, ws_message)
@@ -166,9 +164,7 @@ class NATSBridge:
             if "alert" in msg.subject:
                 event_type = EventType.WEATHER_ALERT
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Broadcast to weather room
             await self.room_manager.broadcast_to_room(RoomType.WEATHER, ws_message)
@@ -198,9 +194,7 @@ class NATSBridge:
             elif "failed" in msg.subject:
                 event_type = EventType.SATELLITE_FAILED
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to field if field_id present
             field_id = data.get("field_id")
@@ -226,9 +220,7 @@ class NATSBridge:
             if "analysis" in msg.subject:
                 event_type = EventType.NDVI_ANALYSIS_READY
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to field
             field_id = data.get("field_id")
@@ -256,9 +248,7 @@ class NATSBridge:
             elif "out_of_stock" in msg.subject:
                 event_type = EventType.OUT_OF_STOCK
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to tenant
             tenant_id = data.get("tenant_id")
@@ -285,9 +275,7 @@ class NATSBridge:
             elif "pest" in msg.subject:
                 event_type = EventType.PEST_DETECTED
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to field
             field_id = data.get("field_id")
@@ -318,9 +306,7 @@ class NATSBridge:
             elif "warning" in msg.subject:
                 event_type = EventType.SPRAY_WARNING
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to field
             field_id = data.get("field_id")
@@ -348,9 +334,7 @@ class NATSBridge:
             elif "read" in msg.subject:
                 event_type = EventType.CHAT_READ
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to chat room
             chat_room_id = data.get("room_id") or data.get("chat_id")
@@ -376,9 +360,7 @@ class NATSBridge:
             elif "overdue" in msg.subject:
                 event_type = EventType.TASK_OVERDUE
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to assigned user
             assigned_to = data.get("assigned_to")
@@ -406,9 +388,7 @@ class NATSBridge:
             elif "offline" in msg.subject:
                 event_type = EventType.IOT_OFFLINE
 
-            ws_message = self._create_event_message(
-                event_type=event_type, data=data, subject=msg.subject
-            )
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
             # Send to field
             field_id = data.get("field_id")
@@ -456,9 +436,7 @@ class NATSBridge:
             logger.error(f"Error handling alert event: {e}", exc_info=True)
             self._track_error(msg.subject)
 
-    def _create_event_message(
-        self, event_type: EventType, data: dict[str, Any], subject: str
-    ) -> dict:
+    def _create_event_message(self, event_type: EventType, data: dict[str, Any], subject: str) -> dict:
         """
         Create standardized WebSocket event message
         إنشاء رسالة حدث موحدة
@@ -487,9 +465,7 @@ class NATSBridge:
             "subscription_errors": self.subscription_errors.copy(),
             "total_errors": self.total_errors,
             "total_messages_processed": self.total_messages_processed,
-            "last_message_received": (
-                self.last_message_received.isoformat() if self.last_message_received else None
-            ),
+            "last_message_received": (self.last_message_received.isoformat() if self.last_message_received else None),
         }
 
     def get_subscription_health(self) -> dict:

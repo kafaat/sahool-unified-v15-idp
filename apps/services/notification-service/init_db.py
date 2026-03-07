@@ -26,17 +26,13 @@ from src.database import (
     wait_for_db,
 )
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("init_db")
 
 
 async def main():
     """Main initialization function"""
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Notification Service Database Initialization"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Notification Service Database Initialization")
     parser.add_argument(
         "--create-schema",
         action="store_true",

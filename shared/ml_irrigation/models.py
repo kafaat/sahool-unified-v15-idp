@@ -442,9 +442,7 @@ class IrrigationFeatures:
             "crop": self.crop.to_dict(),
             "irrigation_type": self.irrigation_type.value,
             "system_efficiency": self.system_efficiency,
-            "last_irrigation_date": self.last_irrigation_date.isoformat()
-            if self.last_irrigation_date
-            else None,
+            "last_irrigation_date": self.last_irrigation_date.isoformat() if self.last_irrigation_date else None,
             "last_irrigation_amount_mm": self.last_irrigation_amount_mm,
             "days_since_irrigation": self.days_since_irrigation,
             "request_id": self.request_id,
@@ -455,9 +453,7 @@ class IrrigationFeatures:
 
     def to_feature_vector(self) -> list[float]:
         """Convert to numerical feature vector for ML models"""
-        irrigation_type_encoding = list(IrrigationType).index(self.irrigation_type) / len(
-            IrrigationType
-        )
+        irrigation_type_encoding = list(IrrigationType).index(self.irrigation_type) / len(IrrigationType)
         days_since = self.days_since_irrigation if self.days_since_irrigation else 7.0
 
         return (
@@ -678,9 +674,7 @@ class IrrigationAnomaly:
             "confidence": self.confidence,
             "detection_method": self.detection_method,
             "detected_at": self.detected_at.isoformat(),
-            "first_occurrence": self.first_occurrence.isoformat()
-            if self.first_occurrence
-            else None,
+            "first_occurrence": self.first_occurrence.isoformat() if self.first_occurrence else None,
             "acknowledged": self.acknowledged,
             "resolved": self.resolved,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,

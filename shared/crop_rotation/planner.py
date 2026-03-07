@@ -974,9 +974,7 @@ class CropRotationPlanner:
 
                 # Track family frequency
                 family = crop_info.crop_family.value
-                analysis["family_frequency"][family] = (
-                    analysis["family_frequency"].get(family, 0) + 1
-                )
+                analysis["family_frequency"][family] = analysis["family_frequency"].get(family, 0) + 1
 
                 # Track consecutive
                 if prev_family == crop_info.crop_family:
@@ -1010,34 +1008,26 @@ class CropRotationPlanner:
             analysis["pest_disease_pressure"].append(
                 {
                     "type": "pests",
-                    "issues": dict(
-                        sorted(pest_issues.items(), key=lambda x: x[1], reverse=True)[:5]
-                    ),
+                    "issues": dict(sorted(pest_issues.items(), key=lambda x: x[1], reverse=True)[:5]),
                 }
             )
         if disease_issues:
             analysis["pest_disease_pressure"].append(
                 {
                     "type": "diseases",
-                    "issues": dict(
-                        sorted(disease_issues.items(), key=lambda x: x[1], reverse=True)[:5]
-                    ),
+                    "issues": dict(sorted(disease_issues.items(), key=lambda x: x[1], reverse=True)[:5]),
                 }
             )
 
         # Generate recommendations based on analysis
         if max_consecutive > 2:
-            analysis["recommendations"].append(
-                f"Reduce consecutive same-family crops (current max: {max_consecutive})"
-            )
+            analysis["recommendations"].append(f"Reduce consecutive same-family crops (current max: {max_consecutive})")
             analysis["recommendations_ar"].append(
                 f"تقليل المحاصيل المتتالية من نفس العائلة (الحد الأقصى الحالي: {max_consecutive})"
             )
 
         if analysis["legume_frequency"] < 20:
-            analysis["recommendations"].append(
-                "Increase legume frequency to improve nitrogen cycling"
-            )
+            analysis["recommendations"].append("Increase legume frequency to improve nitrogen cycling")
             analysis["recommendations_ar"].append("زيادة تكرار البقوليات لتحسين دورة النيتروجين")
 
         return analysis
@@ -1216,12 +1206,8 @@ class CropRotationPlanner:
         )
 
         # Identify factors
-        positive_factors, positive_factors_ar = self._identify_positive_factors(
-            best_crop, previous_crops
-        )
-        negative_factors, negative_factors_ar = self._identify_negative_factors(
-            best_crop, previous_crops, conditions
-        )
+        positive_factors, positive_factors_ar = self._identify_positive_factors(best_crop, previous_crops)
+        negative_factors, negative_factors_ar = self._identify_negative_factors(best_crop, previous_crops, conditions)
 
         # Generate warnings
         warnings, warnings_ar = self._generate_warnings(best_crop, previous_crops)
@@ -1230,9 +1216,7 @@ class CropRotationPlanner:
         projected_yield = self._estimate_yield(best_crop, conditions)
         projected_revenue = self._estimate_revenue(best_crop, projected_yield, area_ha)
         projected_cost = self._estimate_cost(best_crop, area_ha)
-        projected_profit = (
-            projected_revenue - projected_cost if projected_revenue and projected_cost else None
-        )
+        projected_profit = projected_revenue - projected_cost if projected_revenue and projected_cost else None
 
         # Determine benefits
         expected_benefits = self._determine_benefits(best_crop, previous_crops)
@@ -1261,19 +1245,13 @@ class CropRotationPlanner:
             warnings=warnings,
             warnings_ar=warnings_ar,
             projected_yield_tons_ha=projected_yield,
-            projected_revenue_per_ha=projected_revenue / area_ha
-            if projected_revenue and area_ha
-            else None,
+            projected_revenue_per_ha=projected_revenue / area_ha if projected_revenue and area_ha else None,
             projected_cost_per_ha=projected_cost / area_ha if projected_cost and area_ha else None,
-            projected_profit_per_ha=projected_profit / area_ha
-            if projected_profit and area_ha
-            else None,
+            projected_profit_per_ha=projected_profit / area_ha if projected_profit and area_ha else None,
             confidence=min(0.95, best_score + 0.1),
         )
 
-    def _calculate_soil_health_impact(
-        self, crop: CropType, previous_crops: list[CropType]
-    ) -> float:
+    def _calculate_soil_health_impact(self, crop: CropType, previous_crops: list[CropType]) -> float:
         """Calculate soil health impact score (0-100)"""
         crop_info = self.get_crop_info(crop)
         if not crop_info:
@@ -1361,9 +1339,7 @@ class CropRotationPlanner:
         else:
             return 60.0
 
-    def _calculate_water_efficiency_score(
-        self, crop: CropType, water_available: float | None
-    ) -> float:
+    def _calculate_water_efficiency_score(self, crop: CropType, water_available: float | None) -> float:
         """Calculate water efficiency score (0-100)"""
         crop_info = self.get_crop_info(crop)
         if not crop_info:
@@ -1427,16 +1403,12 @@ class CropRotationPlanner:
             reasons_en.append("Suitable crop for the planned season and field conditions")
             reasons_ar.append("محصول مناسب للموسم المخطط وظروف الحقل")
 
-        reasoning_en = (
-            f"{crop_info.name_en} is recommended because it: " + "; ".join(reasons_en) + "."
-        )
+        reasoning_en = f"{crop_info.name_en} is recommended because it: " + "; ".join(reasons_en) + "."
         reasoning_ar = f"يوصى بـ {crop_info.name_ar} لأنه: " + "؛ ".join(reasons_ar) + "."
 
         return reasoning_en, reasoning_ar
 
-    def _identify_positive_factors(
-        self, crop: CropType, previous_crops: list[CropType]
-    ) -> tuple[list[str], list[str]]:
+    def _identify_positive_factors(self, crop: CropType, previous_crops: list[CropType]) -> tuple[list[str], list[str]]:
         """Identify positive factors for the recommendation"""
         factors_en = []
         factors_ar = []
@@ -1501,9 +1473,7 @@ class CropRotationPlanner:
 
         return factors_en, factors_ar
 
-    def _generate_warnings(
-        self, crop: CropType, previous_crops: list[CropType]
-    ) -> tuple[list[str], list[str]]:
+    def _generate_warnings(self, crop: CropType, previous_crops: list[CropType]) -> tuple[list[str], list[str]]:
         """Generate warnings for the recommendation"""
         warnings_en = []
         warnings_ar = []
@@ -1556,9 +1526,7 @@ class CropRotationPlanner:
         }
         return base_yields.get(crop)
 
-    def _estimate_revenue(
-        self, crop: CropType, yield_tons: float | None, area_ha: float
-    ) -> float | None:
+    def _estimate_revenue(self, crop: CropType, yield_tons: float | None, area_ha: float) -> float | None:
         """Estimate revenue"""
         if not yield_tons:
             return None
@@ -1581,9 +1549,7 @@ class CropRotationPlanner:
         cost_per_ha = base_costs.get(crop, 5000)
         return cost_per_ha * area_ha
 
-    def _determine_benefits(
-        self, crop: CropType, previous_crops: list[CropType]
-    ) -> list[RotationBenefit]:
+    def _determine_benefits(self, crop: CropType, previous_crops: list[CropType]) -> list[RotationBenefit]:
         """Determine rotation benefits provided by crop"""
         benefits = []
         crop_info = self.get_crop_info(crop)
@@ -1655,9 +1621,7 @@ class CropRotationPlanner:
                     season=season,
                     field_conditions=conditions,
                 )
-                rec.recommended_planting_window_start = date(
-                    current_year, 10 if season == Season.WINTER else 4, 1
-                )
+                rec.recommended_planting_window_start = date(current_year, 10 if season == Season.WINTER else 4, 1)
                 yearly_recommendations.append(rec)
 
                 # Add to history for next iteration
@@ -1668,29 +1632,21 @@ class CropRotationPlanner:
 
         # Calculate cumulative projections
         total_revenue = sum(
-            r.projected_revenue_per_ha * area_ha
-            for r in yearly_recommendations
-            if r.projected_revenue_per_ha
+            r.projected_revenue_per_ha * area_ha for r in yearly_recommendations if r.projected_revenue_per_ha
         )
-        total_cost = sum(
-            r.projected_cost_per_ha * area_ha
-            for r in yearly_recommendations
-            if r.projected_cost_per_ha
-        )
+        total_cost = sum(r.projected_cost_per_ha * area_ha for r in yearly_recommendations if r.projected_cost_per_ha)
         total_profit = total_revenue - total_cost
 
         # Calculate nutrient balance
         nutrient_balance = self._calculate_nutrient_balance(yearly_recommendations)
 
         # Risk assessment
-        risk_level, risk_factors, risk_factors_ar, mitigation, mitigation_ar = (
-            self._assess_plan_risks(yearly_recommendations)
+        risk_level, risk_factors, risk_factors_ar, mitigation, mitigation_ar = self._assess_plan_risks(
+            yearly_recommendations
         )
 
         # Generate summary
-        summary_en, summary_ar = self._generate_plan_summary(
-            yearly_recommendations, total_profit, area_ha, years
-        )
+        summary_en, summary_ar = self._generate_plan_summary(yearly_recommendations, total_profit, area_ha, years)
 
         # Key recommendations
         key_recs, key_recs_ar = self._generate_key_recommendations(yearly_recommendations)
@@ -1721,9 +1677,7 @@ class CropRotationPlanner:
             key_recommendations_ar=key_recs_ar,
         )
 
-    def _calculate_nutrient_balance(
-        self, recommendations: list[RotationRecommendation]
-    ) -> NutrientBalance:
+    def _calculate_nutrient_balance(self, recommendations: list[RotationRecommendation]) -> NutrientBalance:
         """Calculate overall nutrient balance for plan"""
         balance = NutrientBalance()
 
@@ -1906,14 +1860,10 @@ class CropRotationPlanner:
                 break_crops_scores[crop] = break_crops_scores.get(crop, 0) + 1
 
         # Sort by frequency (how many risks they help with)
-        recommended_crops = sorted(
-            break_crops_scores.keys(), key=lambda c: break_crops_scores[c], reverse=True
-        )[:5]
+        recommended_crops = sorted(break_crops_scores.keys(), key=lambda c: break_crops_scores[c], reverse=True)[:5]
 
         # Calculate expected improvement
-        avg_yield_loss = sum(r.yield_loss_potential_percent for r in relevant_risks) / len(
-            relevant_risks
-        )
+        avg_yield_loss = sum(r.yield_loss_potential_percent for r in relevant_risks) / len(relevant_risks)
         expected_reduction = min(80, avg_yield_loss * 0.7)
 
         # Generate reasoning
@@ -1936,20 +1886,14 @@ class CropRotationPlanner:
         warnings_ar = []
         for risk in relevant_risks:
             if risk.soil_persistence_years > 2:
-                warnings_en.append(
-                    f"{risk.name_en} persists in soil for {risk.soil_persistence_years} years"
-                )
-                warnings_ar.append(
-                    f"{risk.name_ar} يستمر في التربة لـ {risk.soil_persistence_years} سنوات"
-                )
+                warnings_en.append(f"{risk.name_en} persists in soil for {risk.soil_persistence_years} years")
+                warnings_ar.append(f"{risk.name_ar} يستمر في التربة لـ {risk.soil_persistence_years} سنوات")
 
         return PestBreakRecommendation(
             field_id=field_id,
             current_crop=current_crop,
             pest_disease_risks=relevant_risks,
-            priority=RecommendationPriority.HIGH
-            if len(relevant_risks) > 1
-            else RecommendationPriority.MEDIUM,
+            priority=RecommendationPriority.HIGH if len(relevant_risks) > 1 else RecommendationPriority.MEDIUM,
             recommended_break_crops=recommended_crops,
             minimum_break_years=max_break_years,
             reasoning_en=reasoning_en,

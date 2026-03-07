@@ -112,9 +112,7 @@ class JWTConfig:
                 warnings.append(f"WARNING: {msg} (development mode)")
 
         # Validate token expiration times
-        if not (
-            MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES
-        ):
+        if not (MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES):
             errors.append(
                 f"ACCESS_TOKEN_EXPIRE_MINUTES must be between {MIN_ACCESS_TOKEN_MINUTES} and {MAX_ACCESS_TOKEN_MINUTES} "
                 f"(currently {cls.ACCESS_TOKEN_EXPIRE_MINUTES})"
@@ -141,11 +139,7 @@ class JWTConfig:
                     f"(currently {cls.RATE_LIMIT_REQUESTS})"
                 )
 
-            if not (
-                MIN_RATE_LIMIT_WINDOW_SECONDS
-                <= cls.RATE_LIMIT_WINDOW_SECONDS
-                <= MAX_RATE_LIMIT_WINDOW_SECONDS
-            ):
+            if not (MIN_RATE_LIMIT_WINDOW_SECONDS <= cls.RATE_LIMIT_WINDOW_SECONDS <= MAX_RATE_LIMIT_WINDOW_SECONDS):
                 errors.append(
                     f"RATE_LIMIT_WINDOW_SECONDS must be between {MIN_RATE_LIMIT_WINDOW_SECONDS} and {MAX_RATE_LIMIT_WINDOW_SECONDS} "
                     f"(currently {cls.RATE_LIMIT_WINDOW_SECONDS})"
@@ -155,21 +149,15 @@ class JWTConfig:
         if cls.TOKEN_REVOCATION_ENABLED:
             if not (MIN_REDIS_PORT <= cls.REDIS_PORT <= MAX_REDIS_PORT):
                 errors.append(
-                    f"REDIS_PORT must be between {MIN_REDIS_PORT} and {MAX_REDIS_PORT} "
-                    f"(currently {cls.REDIS_PORT})"
+                    f"REDIS_PORT must be between {MIN_REDIS_PORT} and {MAX_REDIS_PORT} (currently {cls.REDIS_PORT})"
                 )
 
             if not (MIN_REDIS_DB <= cls.REDIS_DB <= MAX_REDIS_DB):
-                errors.append(
-                    f"REDIS_DB must be between {MIN_REDIS_DB} and {MAX_REDIS_DB} "
-                    f"(currently {cls.REDIS_DB})"
-                )
+                errors.append(f"REDIS_DB must be between {MIN_REDIS_DB} and {MAX_REDIS_DB} (currently {cls.REDIS_DB})")
 
             # Warn if neither REDIS_URL nor HOST is properly configured
             if not cls.REDIS_URL and not cls.REDIS_HOST:
-                errors.append(
-                    "Either REDIS_URL or REDIS_HOST must be configured when TOKEN_REVOCATION_ENABLED is true"
-                )
+                errors.append("Either REDIS_URL or REDIS_HOST must be configured when TOKEN_REVOCATION_ENABLED is true")
 
         # Log warnings
         for warning in warnings:
@@ -177,9 +165,7 @@ class JWTConfig:
 
         # Raise error if any validation failed
         if errors:
-            error_message = "JWT Configuration validation failed:\n" + "\n".join(
-                f"  - {error}" for error in errors
-            )
+            error_message = "JWT Configuration validation failed:\n" + "\n".join(f"  - {error}" for error in errors)
             raise JWTConfigError(error_message)
 
         logger.info("JWT Configuration validation passed")
@@ -215,9 +201,7 @@ class JWTConfig:
                 warnings.append(msg)
 
         # Validate token expiration times
-        if not (
-            MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES
-        ):
+        if not (MIN_ACCESS_TOKEN_MINUTES <= cls.ACCESS_TOKEN_EXPIRE_MINUTES <= MAX_ACCESS_TOKEN_MINUTES):
             errors.append(
                 f"ACCESS_TOKEN_EXPIRE_MINUTES {cls.ACCESS_TOKEN_EXPIRE_MINUTES} out of range "
                 f"[{MIN_ACCESS_TOKEN_MINUTES}, {MAX_ACCESS_TOKEN_MINUTES}]"
@@ -244,11 +228,7 @@ class JWTConfig:
                     f"[{MIN_RATE_LIMIT_REQUESTS}, {MAX_RATE_LIMIT_REQUESTS}]"
                 )
 
-            if not (
-                MIN_RATE_LIMIT_WINDOW_SECONDS
-                <= cls.RATE_LIMIT_WINDOW_SECONDS
-                <= MAX_RATE_LIMIT_WINDOW_SECONDS
-            ):
+            if not (MIN_RATE_LIMIT_WINDOW_SECONDS <= cls.RATE_LIMIT_WINDOW_SECONDS <= MAX_RATE_LIMIT_WINDOW_SECONDS):
                 errors.append(
                     f"RATE_LIMIT_WINDOW_SECONDS {cls.RATE_LIMIT_WINDOW_SECONDS} out of range "
                     f"[{MIN_RATE_LIMIT_WINDOW_SECONDS}, {MAX_RATE_LIMIT_WINDOW_SECONDS}]"
@@ -263,9 +243,7 @@ class JWTConfig:
                 errors.append(f"REDIS_DB {cls.REDIS_DB} out of valid range [0, 15]")
 
             if not cls.REDIS_URL and not cls.REDIS_HOST:
-                errors.append(
-                    "Redis configuration incomplete: neither REDIS_URL nor REDIS_HOST configured"
-                )
+                errors.append("Redis configuration incomplete: neither REDIS_URL nor REDIS_HOST configured")
 
         return {
             "valid": len(errors) == 0,

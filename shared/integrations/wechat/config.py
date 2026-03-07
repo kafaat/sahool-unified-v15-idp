@@ -322,13 +322,9 @@ class WeChatConfig:
             if not self.api_key:
                 errors.append("API key required for production | مطلوب مفتاح API للإنتاج")
             if not self.app_id:
-                errors.append(
-                    "WeChat App ID required for production | مطلوب معرف تطبيق WeChat للإنتاج"
-                )
+                errors.append("WeChat App ID required for production | مطلوب معرف تطبيق WeChat للإنتاج")
             if not self.app_secret:
-                errors.append(
-                    "WeChat App Secret required for production | مطلوب سر تطبيق WeChat للإنتاج"
-                )
+                errors.append("WeChat App Secret required for production | مطلوب سر تطبيق WeChat للإنتاج")
 
         # Validate timeouts
         if self.connect_timeout <= 0:
@@ -338,13 +334,9 @@ class WeChatConfig:
 
         # Validate agent settings
         if self.agent_temperature < 0 or self.agent_temperature > 2:
-            errors.append(
-                "Agent temperature must be between 0 and 2 | يجب أن تكون درجة حرارة الوكيل بين 0 و 2"
-            )
+            errors.append("Agent temperature must be between 0 and 2 | يجب أن تكون درجة حرارة الوكيل بين 0 و 2")
         if self.agent_max_tokens < 100:
-            errors.append(
-                "Agent max tokens must be at least 100 | يجب أن يكون الحد الأقصى لرموز الوكيل 100 على الأقل"
-            )
+            errors.append("Agent max tokens must be at least 100 | يجب أن يكون الحد الأقصى لرموز الوكيل 100 على الأقل")
 
         # Validate language
         if self.default_language not in self.supported_languages:

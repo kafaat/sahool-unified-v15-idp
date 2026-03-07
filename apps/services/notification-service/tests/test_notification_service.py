@@ -57,9 +57,7 @@ class TestNotificationRepository:
     @pytest.mark.asyncio
     async def test_create_notification(self, mock_notification):
         """Test creating a notification in repository"""
-        with patch(
-            "src.repository.Notification.create", new=AsyncMock(return_value=mock_notification)
-        ):
+        with patch("src.repository.Notification.create", new=AsyncMock(return_value=mock_notification)):
             from src.repository import NotificationRepository
 
             result = await NotificationRepository.create(
@@ -261,9 +259,7 @@ class TestNotificationChannelRepository:
 
             from src.repository import NotificationChannelRepository
 
-            result = await NotificationChannelRepository.verify_channel(
-                uuid4(), verification_code="123456"
-            )
+            result = await NotificationChannelRepository.verify_channel(uuid4(), verification_code="123456")
             assert result is True
             assert mock_channel.verified is True
 
@@ -325,9 +321,7 @@ class TestNotificationPreferenceRepository:
 
             from src.repository import NotificationPreferenceRepository
 
-            result = await NotificationPreferenceRepository.get_event_preference(
-                "user-123", "weather_alert"
-            )
+            result = await NotificationPreferenceRepository.get_event_preference("user-123", "weather_alert")
             assert result.user_id == "user-123"
 
     @pytest.mark.asyncio
@@ -344,9 +338,7 @@ class TestNotificationPreferenceRepository:
 
             from src.repository import NotificationPreferenceRepository
 
-            result = await NotificationPreferenceRepository.is_event_enabled(
-                "user-123", "weather_alert"
-            )
+            result = await NotificationPreferenceRepository.is_event_enabled("user-123", "weather_alert")
             assert result is True
 
     @pytest.mark.asyncio
@@ -364,9 +356,7 @@ class TestNotificationPreferenceRepository:
 
             from src.repository import NotificationPreferenceRepository
 
-            result = await NotificationPreferenceRepository.get_preferred_channels(
-                "user-123", "weather_alert"
-            )
+            result = await NotificationPreferenceRepository.get_preferred_channels("user-123", "weather_alert")
             assert result == ["push", "email"]
 
 

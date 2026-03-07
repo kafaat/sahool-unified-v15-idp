@@ -199,10 +199,7 @@ class CropGrowthPredictor:
         start = min(self._sowing_date, first_obs - timedelta(days=self._config.spinup_days))
 
         if (end - start).days > self._config.max_days:
-            raise ValueError(
-                f"Calibration window too large: {(end - start).days} days "
-                f"(max {self._config.max_days})"
-            )
+            raise ValueError(f"Calibration window too large: {(end - start).days} days (max {self._config.max_days})")
         return start, end
 
     def _build_weather_series(self, start: date, end: date) -> list[DailyWeather]:
@@ -215,9 +212,7 @@ class CropGrowthPredictor:
             cur += timedelta(days=1)
         return series
 
-    def _extract_daily_values(
-        self, daily_log: list[dict], start: date
-    ) -> dict[str, dict[str, float]]:
+    def _extract_daily_values(self, daily_log: list[dict], start: date) -> dict[str, dict[str, float]]:
         """
         Convert CropGrowthEngine daily_log (day-indexed) → date-keyed dicts.
 
@@ -240,9 +235,7 @@ class CropGrowthPredictor:
 
         return values
 
-    def predict(
-        self, theta: dict[str, float], targets: list[CalibrationTarget]
-    ) -> dict[str, dict[str, float]]:
+    def predict(self, theta: dict[str, float], targets: list[CalibrationTarget]) -> dict[str, dict[str, float]]:
         """
         Main interface consumed by CalibrationEngine.
         الواجهة الرئيسية التي يستهلكها محرك المعايرة.

@@ -137,9 +137,7 @@ class TestBroadcastEndpoint:
 
         assert response.status_code == 401
 
-    def test_broadcast_with_invalid_token(
-        self, client, invalid_jwt_token, sample_broadcast_request
-    ):
+    def test_broadcast_with_invalid_token(self, client, invalid_jwt_token, sample_broadcast_request):
         """Test broadcast with invalid token"""
         response = client.post(
             "/broadcast",
@@ -226,9 +224,7 @@ class TestDataModels:
         """Test BroadcastRequest model"""
         from src.main import BroadcastRequest
 
-        request = BroadcastRequest(
-            tenant_id="tenant-123", message={"type": "test", "body": "hello"}
-        )
+        request = BroadcastRequest(tenant_id="tenant-123", message={"type": "test", "body": "hello"})
 
         assert request.tenant_id == "tenant-123"
         assert request.message["type"] == "test"

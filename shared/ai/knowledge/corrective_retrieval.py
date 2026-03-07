@@ -142,9 +142,18 @@ class CorrectiveRetrievalEngine:
 
     # Safety-critical keywords that boost relevance for safety queries
     _SAFETY_SIGNALS = [
-        "PHI", "pre-harvest interval", "re-entry interval", "REI",
-        "toxicity", "LD50", "banned", "restricted",
-        "فترة ما قبل الحصاد", "سمية", "محظور", "مقيد",
+        "PHI",
+        "pre-harvest interval",
+        "re-entry interval",
+        "REI",
+        "toxicity",
+        "LD50",
+        "banned",
+        "restricted",
+        "فترة ما قبل الحصاد",
+        "سمية",
+        "محظور",
+        "مقيد",
     ]
 
     def __init__(
@@ -299,9 +308,7 @@ class CorrectiveRetrievalEngine:
             overall_score=overall,
         )
 
-    def _score_chunk_relevance(
-        self, query: str, chunk: dict[str, Any], query_domain: str
-    ) -> float:
+    def _score_chunk_relevance(self, query: str, chunk: dict[str, Any], query_domain: str) -> float:
         """Score a single chunk's relevance to the query.
 
         When a semantic_provider is configured (GAP-18), uses embedding-based
@@ -424,12 +431,10 @@ class CorrectiveRetrievalEngine:
 
     # ─── Refinement ───────────────────────────────────────────────────────────
 
-    def _light_refine(
-        self, query: str, chunks: list[dict[str, Any]], query_domain: str
-    ) -> list[RefinedChunk]:
+    def _light_refine(self, query: str, chunks: list[dict[str, Any]], query_domain: str) -> list[RefinedChunk]:
         """Light refinement for high-quality retrievals - keep most content."""
         refined = []
-        for chunk in chunks[:self._max_refined]:
+        for chunk in chunks[: self._max_refined]:
             content = chunk.get("content", "") or chunk.get("text", "")
             content_ar = chunk.get("content_ar", "")
             metadata = chunk.get("metadata", {})
@@ -438,25 +443,25 @@ class CorrectiveRetrievalEngine:
             if score < 0.1:
                 continue
 
-            refined.append(RefinedChunk(
-                content=content,
-                content_ar=content_ar,
-                relevance_score=score,
-                source=metadata.get("source", chunk.get("source", "")),
-                collection=metadata.get("collection", chunk.get("collection", "")),
-                agrovoc_concepts=metadata.get("agrovoc_concepts", []),
-                region_relevance=metadata.get("region_relevance", {}).get("overall_score", 0.5)
-                if isinstance(metadata.get("region_relevance"), dict)
-                else 0.5,
-                metadata=metadata,
-            ))
+            refined.append(
+                RefinedChunk(
+                    content=content,
+                    content_ar=content_ar,
+                    relevance_score=score,
+                    source=metadata.get("source", chunk.get("source", "")),
+                    collection=metadata.get("collection", chunk.get("collection", "")),
+                    agrovoc_concepts=metadata.get("agrovoc_concepts", []),
+                    region_relevance=metadata.get("region_relevance", {}).get("overall_score", 0.5)
+                    if isinstance(metadata.get("region_relevance"), dict)
+                    else 0.5,
+                    metadata=metadata,
+                )
+            )
 
         refined.sort(key=lambda r: r.relevance_score, reverse=True)
         return refined
 
-    def _deep_refine(
-        self, query: str, chunks: list[dict[str, Any]], query_domain: str
-    ) -> list[RefinedChunk]:
+    def _deep_refine(self, query: str, chunks: list[dict[str, Any]], query_domain: str) -> list[RefinedChunk]:
         """Deep refinement for ambiguous retrievals - filter at sentence level."""
         refined = []
         query_lower = query.lower()
@@ -495,22 +500,22 @@ class CorrectiveRetrievalEngine:
                 refined_content = " ".join(relevant_sentences)
                 chunk_score = self._score_chunk_relevance(query, chunk, query_domain)
 
-                refined.append(RefinedChunk(
-                    content=refined_content,
-                    content_ar=chunk.get("content_ar", ""),
-                    relevance_score=chunk_score,
-                    source=metadata.get("source", ""),
-                    collection=metadata.get("collection", ""),
-                    agrovoc_concepts=metadata.get("agrovoc_concepts", []),
-                    metadata=metadata,
-                ))
+                refined.append(
+                    RefinedChunk(
+                        content=refined_content,
+                        content_ar=chunk.get("content_ar", ""),
+                        relevance_score=chunk_score,
+                        source=metadata.get("source", ""),
+                        collection=metadata.get("collection", ""),
+                        agrovoc_concepts=metadata.get("agrovoc_concepts", []),
+                        metadata=metadata,
+                    )
+                )
 
         refined.sort(key=lambda r: r.relevance_score, reverse=True)
-        return refined[:self._max_refined]
+        return refined[: self._max_refined]
 
-    def _salvage_refine(
-        self, query: str, chunks: list[dict[str, Any]], query_domain: str
-    ) -> list[RefinedChunk]:
+    def _salvage_refine(self, query: str, chunks: list[dict[str, Any]], query_domain: str) -> list[RefinedChunk]:
         """Salvage any usable content from low-quality retrievals."""
         refined = []
         for chunk in chunks:
@@ -518,13 +523,15 @@ class CorrectiveRetrievalEngine:
             if score >= 0.2:  # Very low bar - just salvage what we can
                 content = chunk.get("content", "") or chunk.get("text", "")
                 metadata = chunk.get("metadata", {})
-                refined.append(RefinedChunk(
-                    content=content,
-                    relevance_score=score,
-                    source=metadata.get("source", ""),
-                    collection=metadata.get("collection", ""),
-                    metadata=metadata,
-                ))
+                refined.append(
+                    RefinedChunk(
+                        content=content,
+                        relevance_score=score,
+                        source=metadata.get("source", ""),
+                        collection=metadata.get("collection", ""),
+                        metadata=metadata,
+                    )
+                )
 
         refined.sort(key=lambda r: r.relevance_score, reverse=True)
         return refined[:3]  # Only keep top 3 salvaged chunks
@@ -534,15 +541,13 @@ class CorrectiveRetrievalEngine:
         import re
 
         # Split on sentence-ending punctuation
-        sentences = re.split(r'[.!?؟。]\s+', text)
+        sentences = re.split(r"[.!?؟。]\s+", text)
         # Filter very short sentences (likely artifacts)
         return [s.strip() for s in sentences if len(s.strip()) > 20]
 
     # ─── Fallback Collection Suggestions ──────────────────────────────────────
 
-    def suggest_fallback_collections(
-        self, query_domain: str, current_collection: str
-    ) -> list[str]:
+    def suggest_fallback_collections(self, query_domain: str, current_collection: str) -> list[str]:
         """Suggest alternative collections to search when retrieval fails."""
         from .collections import (
             CROP_KNOWLEDGE,

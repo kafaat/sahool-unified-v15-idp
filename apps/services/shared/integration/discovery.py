@@ -196,11 +196,7 @@ class ServiceDiscovery:
 
     def get_healthy_services(self) -> list[str]:
         """Get list of healthy services"""
-        return [
-            name
-            for name, health in self._health_cache.items()
-            if health.status == HealthStatus.HEALTHY
-        ]
+        return [name for name, health in self._health_cache.items() if health.status == HealthStatus.HEALTHY]
 
     def get_unhealthy_services(self) -> list[str]:
         """Get list of unhealthy services"""
@@ -214,12 +210,8 @@ class ServiceDiscovery:
         """Get health summary"""
         total = len(SERVICE_PORTS)
         healthy = len([h for h in self._health_cache.values() if h.status == HealthStatus.HEALTHY])
-        degraded = len(
-            [h for h in self._health_cache.values() if h.status == HealthStatus.DEGRADED]
-        )
-        unhealthy = len(
-            [h for h in self._health_cache.values() if h.status == HealthStatus.UNHEALTHY]
-        )
+        degraded = len([h for h in self._health_cache.values() if h.status == HealthStatus.DEGRADED])
+        unhealthy = len([h for h in self._health_cache.values() if h.status == HealthStatus.UNHEALTHY])
 
         return {
             "total_services": total,

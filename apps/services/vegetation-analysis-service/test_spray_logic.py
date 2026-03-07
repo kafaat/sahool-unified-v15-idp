@@ -198,15 +198,9 @@ def test_delta_t_ranges():
             else:
                 classification = "⚠️  Too high"
 
-            status = (
-                "✅"
-                if expected in classification or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8)
-                else "⚠️ "
-            )
+            status = "✅" if expected in classification or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8) else "⚠️ "
 
-            print(
-                f"{temp}°C    {humidity}%       {delta_t:.1f}°C      {classification:<25} {status}"
-            )
+            print(f"{temp}°C    {humidity}%       {delta_t:.1f}°C      {classification:<25} {status}")
         else:
             print(f"{temp}°C    {humidity}%       N/A         Error                     ❌")
 

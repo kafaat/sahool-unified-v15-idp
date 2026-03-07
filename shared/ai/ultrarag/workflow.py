@@ -87,9 +87,13 @@ class WorkflowEngine:
             "confidence_above": lambda ctx, params: ctx.variables.get("confidence", 0) > params.get("threshold", 0.5),
             "result_count_above": lambda ctx, params: len(ctx.variables.get("results", [])) > params.get("count", 0),
             "language_is": lambda ctx, params: ctx.variables.get("language") == params.get("lang"),
-            "crag_action_is": lambda ctx, params: ctx.variables.get("crag_action", "") == params.get("action", "correct"),
+            "crag_action_is": lambda ctx, params: (
+                ctx.variables.get("crag_action", "") == params.get("action", "correct")
+            ),
             "needs_fallback": lambda ctx, params: ctx.variables.get("crag_fallback_used", False),
-            "relevance_above": lambda ctx, params: ctx.variables.get("crag_overall_score", 0) > params.get("threshold", 0.5),
+            "relevance_above": lambda ctx, params: (
+                ctx.variables.get("crag_overall_score", 0) > params.get("threshold", 0.5)
+            ),
         }
 
     def register_workflow(self, config: WorkflowConfig):
@@ -587,15 +591,17 @@ class WorkflowEngine:
         chunks_for_crag: list[dict] = []
         for r in results:
             if hasattr(r, "chunk"):
-                chunks_for_crag.append({
-                    "content": r.chunk.text,
-                    "content_ar": r.chunk.text_ar or "",
-                    "metadata": {
-                        **r.chunk.metadata,
-                        "collection": r.chunk.collection,
-                        "source": r.chunk.document_id,
-                    },
-                })
+                chunks_for_crag.append(
+                    {
+                        "content": r.chunk.text,
+                        "content_ar": r.chunk.text_ar or "",
+                        "metadata": {
+                            **r.chunk.metadata,
+                            "collection": r.chunk.collection,
+                            "source": r.chunk.document_id,
+                        },
+                    }
+                )
             elif isinstance(r, dict):
                 chunks_for_crag.append(r)
 

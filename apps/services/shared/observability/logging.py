@@ -54,9 +54,7 @@ class SensitiveDataMasker:
         # Authorization headers
         "auth_header": re.compile(r"(Authorization\s*:\s*)(.+?)(\s|$)", re.IGNORECASE),
         # Database URLs with credentials
-        "database_url": re.compile(
-            r"((?:postgresql|mysql|mongodb)://[^:]+:)([^@]+)(@)", re.IGNORECASE
-        ),
+        "database_url": re.compile(r"((?:postgresql|mysql|mongodb)://[^:]+:)([^@]+)(@)", re.IGNORECASE),
         # AWS Keys
         "aws_access_key": re.compile(r"((?:AKIA|ASIA)[A-Z0-9]{16})"),
         "aws_secret_key": re.compile(
@@ -124,11 +122,7 @@ class SensitiveDataMasker:
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "bearer_token":
                 result = pattern.sub(r"\1***REDACTED***", result)
-            elif (
-                pattern_name == "access_token"
-                or pattern_name == "auth_header"
-                or pattern_name == "database_url"
-            ):
+            elif pattern_name == "access_token" or pattern_name == "auth_header" or pattern_name == "database_url":
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "aws_access_key":
                 result = pattern.sub(r"***AWS_KEY_REDACTED***", result)

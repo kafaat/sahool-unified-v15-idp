@@ -123,11 +123,7 @@ def assess_from_symptoms(
 
         # Calculate symptom match score
         disease_symptoms = [s.lower() for s in disease[symptoms_field]]
-        matches = sum(
-            1
-            for symptom in symptoms_lower
-            if any(symptom in ds or ds in symptom for ds in disease_symptoms)
-        )
+        matches = sum(1 for symptom in symptoms_lower if any(symptom in ds or ds in symptom for ds in disease_symptoms))
 
         if matches > 0:
             match_ratio = matches / len(disease_symptoms)

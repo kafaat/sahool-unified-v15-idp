@@ -85,9 +85,7 @@ class OpenAICompatProvider(LLMProvider):
             config: Configuration (uses global config if None)
         """
         if not HTTPX_AVAILABLE:
-            raise ImportError(
-                "httpx is required for OpenAICompatProvider. Install with: pip install httpx"
-            )
+            raise ImportError("httpx is required for OpenAICompatProvider. Install with: pip install httpx")
 
         self._config = config or get_config().openai_compat
         self._client: httpx.AsyncClient | None = None
@@ -454,9 +452,7 @@ async def get_openai_compat_provider(
 
     provider = OpenAICompatProvider(config)
     if not await provider.is_available():
-        raise ProviderUnavailableError(
-            f"OpenAI-compatible server is not available at {config.base_url}"
-        )
+        raise ProviderUnavailableError(f"OpenAI-compatible server is not available at {config.base_url}")
     return provider
 
 

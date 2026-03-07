@@ -115,32 +115,36 @@ class KnowledgeFreshnessMonitor:
                 report.expired_count += 1
                 report.by_domain[domain_key]["expired"] += 1
                 report.by_collection[collection]["expired"] += 1
-                report.alerts.append(FreshnessAlert(
-                    document_id=doc.id,
-                    title=doc.title,
-                    domain=domain_key,
-                    severity="expired",
-                    expiration_date=exp_date,
-                    days_until_expiry=days_until,
-                    message=f"Document expired {abs(days_until)} days ago",
-                    message_ar=f"انتهت صلاحية الوثيقة منذ {abs(days_until)} يوم",
-                ))
+                report.alerts.append(
+                    FreshnessAlert(
+                        document_id=doc.id,
+                        title=doc.title,
+                        domain=domain_key,
+                        severity="expired",
+                        expiration_date=exp_date,
+                        days_until_expiry=days_until,
+                        message=f"Document expired {abs(days_until)} days ago",
+                        message_ar=f"انتهت صلاحية الوثيقة منذ {abs(days_until)} يوم",
+                    )
+                )
 
             elif days_until <= self._warning_days:
                 # Expiring soon
                 report.expiring_soon_count += 1
                 report.by_domain[domain_key]["expiring_soon"] += 1
                 report.by_collection[collection]["expiring_soon"] += 1
-                report.alerts.append(FreshnessAlert(
-                    document_id=doc.id,
-                    title=doc.title,
-                    domain=domain_key,
-                    severity="expiring_soon",
-                    expiration_date=exp_date,
-                    days_until_expiry=days_until,
-                    message=f"Document expires in {days_until} days",
-                    message_ar=f"تنتهي صلاحية الوثيقة خلال {days_until} يوم",
-                ))
+                report.alerts.append(
+                    FreshnessAlert(
+                        document_id=doc.id,
+                        title=doc.title,
+                        domain=domain_key,
+                        severity="expiring_soon",
+                        expiration_date=exp_date,
+                        days_until_expiry=days_until,
+                        message=f"Document expires in {days_until} days",
+                        message_ar=f"تنتهي صلاحية الوثيقة خلال {days_until} يوم",
+                    )
+                )
 
             else:
                 # Fresh

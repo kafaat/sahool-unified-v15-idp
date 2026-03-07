@@ -37,10 +37,7 @@ def haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> fl
     delta_lat = math.radians(lat2 - lat1)
     delta_lng = math.radians(lng2 - lng1)
 
-    a = (
-        math.sin(delta_lat / 2) ** 2
-        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng / 2) ** 2
-    )
+    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return EARTH_RADIUS_M * c
@@ -70,9 +67,7 @@ def point_in_polygon(lat: float, lng: float, boundary: list[LatLng]) -> bool:
             if lng <= max(p1_lng, p2_lng):
                 if lat <= max(p1_lat, p2_lat):
                     if p1_lng != p2_lng:
-                        lat_intersect = (lng - p1_lng) * (p2_lat - p1_lat) / (
-                            p2_lng - p1_lng
-                        ) + p1_lat
+                        lat_intersect = (lng - p1_lng) * (p2_lat - p1_lat) / (p2_lng - p1_lng) + p1_lat
 
                     if p1_lat == p2_lat or lat <= lat_intersect:
                         inside = not inside
@@ -105,9 +100,7 @@ def distance_to_polygon_boundary(lat: float, lng: float, boundary: list[LatLng])
     return min_distance
 
 
-def point_to_line_distance(
-    px: float, py: float, x1: float, y1: float, x2: float, y2: float
-) -> float:
+def point_to_line_distance(px: float, py: float, x1: float, y1: float, x2: float, y2: float) -> float:
     """
     Calculate distance from point to line segment
     حساب المسافة من نقطة إلى قطعة مستقيمة
@@ -246,8 +239,7 @@ class GeofenceEngine:
         return [
             gf
             for gf in self.geofences.values()
-            if equipment_id in gf.equipment_ids
-            or not gf.equipment_ids  # Include tenant-wide geofences
+            if equipment_id in gf.equipment_ids or not gf.equipment_ids  # Include tenant-wide geofences
         ]
 
     def update_position(self, update: PositionUpdate) -> list[GeofenceAlert]:
@@ -270,30 +262,22 @@ class GeofenceEngine:
         geofences = [
             gf
             for gf in self.geofences.values()
-            if gf.tenant_id == tenant_id
-            and gf.is_active
-            and (equipment_id in gf.equipment_ids or not gf.equipment_ids)
+            if gf.tenant_id == tenant_id and gf.is_active and (equipment_id in gf.equipment_ids or not gf.equipment_ids)
         ]
 
         generated_alerts = []
 
         for geofence in geofences:
             # Check current position
-            is_inside, distance_to_boundary = check_position_in_geofence(
-                update.lat, update.lng, geofence
-            )
+            is_inside, distance_to_boundary = check_position_in_geofence(update.lat, update.lng, geofence)
 
             # Check previous position if available
             was_inside = None
             if prev_update:
-                was_inside, _ = check_position_in_geofence(
-                    prev_update.lat, prev_update.lng, geofence
-                )
+                was_inside, _ = check_position_in_geofence(prev_update.lat, prev_update.lng, geofence)
 
             # Generate alerts based on transitions
-            alert = self._check_for_alert(
-                update, geofence, is_inside, was_inside, distance_to_boundary
-            )
+            alert = self._check_for_alert(update, geofence, is_inside, was_inside, distance_to_boundary)
             if alert:
                 self.alerts.append(alert)
                 generated_alerts.append(alert)
@@ -332,11 +316,7 @@ class GeofenceEngine:
             return self._generate_entry_alert(update, geofence)
 
         # Approaching boundary (within buffer zone and heading out)
-        if (
-            is_inside
-            and distance_to_boundary < geofence.buffer_distance_m
-            and geofence.alert_on_exit
-        ):
+        if is_inside and distance_to_boundary < geofence.buffer_distance_m and geofence.alert_on_exit:
             # Could add approaching alert here
             pass
 
@@ -435,10 +415,8 @@ class GeofenceEngine:
             speed_kmh=update.speed_kmh,
             title_en=f"⚡ Speed Limit Exceeded in {geofence.name}",
             title_ar=f"⚡ تجاوز حد السرعة في {geofence.name_ar}",
-            message_en=f"Equipment traveling at {update.speed_kmh:.1f} km/h. "
-            f"Limit: {geofence.max_speed_kmh} km/h",
-            message_ar=f"المعدة تسير بسرعة {update.speed_kmh:.1f} كم/س. "
-            f"الحد: {geofence.max_speed_kmh} كم/س",
+            message_en=f"Equipment traveling at {update.speed_kmh:.1f} km/h. Limit: {geofence.max_speed_kmh} km/h",
+            message_ar=f"المعدة تسير بسرعة {update.speed_kmh:.1f} كم/س. الحد: {geofence.max_speed_kmh} كم/س",
             channels=["push"],  # Speed alerts usually less urgent
         )
 
@@ -464,18 +442,12 @@ class GeofenceEngine:
         allowed_zones = [gf for gf in geofences if gf.geofence_type == GeofenceType.ALLOWED]
         farm_boundaries = [gf for gf in geofences if gf.geofence_type == GeofenceType.FARM_BOUNDARY]
 
-        in_any_allowed = any(
-            check_position_in_geofence(update.lat, update.lng, gf)[0] for gf in allowed_zones
-        )
+        in_any_allowed = any(check_position_in_geofence(update.lat, update.lng, gf)[0] for gf in allowed_zones)
 
-        in_farm = any(
-            check_position_in_geofence(update.lat, update.lng, gf)[0] for gf in farm_boundaries
-        )
+        in_farm = any(check_position_in_geofence(update.lat, update.lng, gf)[0] for gf in farm_boundaries)
 
         # Check movement
-        distance_moved = haversine_distance(
-            prev_update.lat, prev_update.lng, update.lat, update.lng
-        )
+        distance_moved = haversine_distance(prev_update.lat, prev_update.lng, update.lat, update.lng)
         time_diff = (update.timestamp - prev_update.timestamp).total_seconds() / 3600  # hours
         if time_diff > 0:
             speed_kmh = (distance_moved / 1000) / time_diff
@@ -577,9 +549,7 @@ class GeofenceEngine:
 
         # Get active alerts for this equipment
         active_alerts = [
-            alert.alert_id
-            for alert in self.alerts
-            if alert.equipment_id == equipment_id and not alert.acknowledged
+            alert.alert_id for alert in self.alerts if alert.equipment_id == equipment_id and not alert.acknowledged
         ]
 
         return EquipmentZoneStatus(
@@ -591,9 +561,7 @@ class GeofenceEngine:
             zones=zones,
             is_within_allowed_zones=is_within_allowed,
             is_in_restricted_zone=is_in_restricted,
-            nearest_boundary_distance_m=round(nearest_distance, 1)
-            if nearest_distance != float("inf")
-            else None,
+            nearest_boundary_distance_m=round(nearest_distance, 1) if nearest_distance != float("inf") else None,
             active_alerts=active_alerts,
         )
 
@@ -617,11 +585,7 @@ class GeofenceEngine:
         equipment_id: str | None = None,
     ) -> list[GeofenceAlert]:
         """Get all unacknowledged alerts"""
-        alerts = [
-            alert
-            for alert in self.alerts
-            if alert.tenant_id == tenant_id and not alert.acknowledged
-        ]
+        alerts = [alert for alert in self.alerts if alert.tenant_id == tenant_id and not alert.acknowledged]
         if equipment_id:
             alerts = [a for a in alerts if a.equipment_id == equipment_id]
         return alerts

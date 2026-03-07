@@ -283,9 +283,7 @@ class AgriculturalCrew:
             # Execute crew
             from crewai import Crew
 
-            selected_agents = [
-                self._agents[role] for role in selected_roles if role in self._agents
-            ]
+            selected_agents = [self._agents[role] for role in selected_roles if role in self._agents]
             crew = Crew(
                 agents=selected_agents,
                 tasks=tasks,
@@ -316,16 +314,11 @@ class AgriculturalCrew:
         selected = []
 
         # Disease/pest related
-        if any(
-            kw in query_lower
-            for kw in ["disease", "مرض", "بقع", "اصفرار", "ذبول", "rust", "blight"]
-        ):
+        if any(kw in query_lower for kw in ["disease", "مرض", "بقع", "اصفرار", "ذبول", "rust", "blight"]):
             selected.append(AgentRole.DISEASE_DIAGNOSTICIAN)
 
         # Pest related
-        if any(
-            kw in query_lower for kw in ["pest", "آفة", "حشرة", "سوسة", "دودة", "weevil", "insect"]
-        ):
+        if any(kw in query_lower for kw in ["pest", "آفة", "حشرة", "سوسة", "دودة", "weevil", "insect"]):
             selected.append(AgentRole.PEST_CONTROLLER)
 
         # Irrigation related
@@ -333,16 +326,11 @@ class AgriculturalCrew:
             selected.append(AgentRole.IRRIGATION_EXPERT)
 
         # Soil related
-        if any(
-            kw in query_lower
-            for kw in ["soil", "fertilizer", "تربة", "سماد", "nitrogen", "نيتروجين"]
-        ):
+        if any(kw in query_lower for kw in ["soil", "fertilizer", "تربة", "سماد", "nitrogen", "نيتروجين"]):
             selected.append(AgentRole.SOIL_ANALYST)
 
         # Yield/production related
-        if any(
-            kw in query_lower for kw in ["yield", "production", "إنتاج", "محصول", "harvest", "حصاد"]
-        ):
+        if any(kw in query_lower for kw in ["yield", "production", "إنتاج", "محصول", "harvest", "حصاد"]):
             selected.append(AgentRole.YIELD_PREDICTOR)
 
         # Market related
@@ -399,10 +387,7 @@ class AgriculturalCrew:
                 "I'd be happy to help with your agricultural query. "
                 "Please provide more details about your crop and field conditions."
             )
-            answer_ar = (
-                "يسعدني مساعدتك في استفسارك الزراعي. "
-                "يرجى تقديم مزيد من التفاصيل حول محصولك وظروف الحقل."
-            )
+            answer_ar = "يسعدني مساعدتك في استفسارك الزراعي. يرجى تقديم مزيد من التفاصيل حول محصولك وظروف الحقل."
 
         return CrewResult(
             query=query,

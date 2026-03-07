@@ -76,11 +76,7 @@ class ArabicModelConfig:
         return lang_code.lower() in self.language_support
 
     def __repr__(self) -> str:
-        return (
-            f"ArabicModelConfig(id={self.model_id!r}, "
-            f"task={self.task.value!r}, "
-            f"name_ar={self.model_name_ar!r})"
-        )
+        return f"ArabicModelConfig(id={self.model_id!r}, task={self.task.value!r}, name_ar={self.model_name_ar!r})"
 
 
 # ---------------------------------------------------------------------------
@@ -273,8 +269,7 @@ def get_arabic_model(task: ArabicModelTask) -> ArabicModelConfig:
             return config
 
     raise ValueError(
-        f"No Arabic model registered for task '{task.value}'. "
-        f"Available tasks: {[t.value for t in ArabicModelTask]}"
+        f"No Arabic model registered for task '{task.value}'. Available tasks: {[t.value for t in ArabicModelTask]}"
     )
 
 

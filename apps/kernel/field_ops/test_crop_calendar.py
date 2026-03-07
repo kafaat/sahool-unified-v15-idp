@@ -59,10 +59,7 @@ def test_get_calendar():
     print(f"المحصول / Crop: {calendar.name_ar} / {calendar.name_en}")
     print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
-        print(
-            f"  {stage_data['order']}. {stage_data['name_ar']} ({stage_name}): "
-            f"{stage_data['duration_days']} يوم"
-        )
+        print(f"  {stage_data['order']}. {stage_data['name_ar']} ({stage_name}): {stage_data['duration_days']} يوم")
         print(f"     احتياج مائي / Water: {stage_data['water_requirement']}")
 
 
@@ -265,8 +262,7 @@ def test_additional_features():
         print(f"\n{info['name_ar']} ({info['name_en']}):")
         print(f"  المناخ / Climate: {info['climate']}")
         print(
-            f"  درجة الحرارة / Temperature: {info['average_temp_range']['min']}-"
-            f"{info['average_temp_range']['max']}°C"
+            f"  درجة الحرارة / Temperature: {info['average_temp_range']['min']}-{info['average_temp_range']['max']}°C"
         )
         print(f"  نمط الأمطار / Rainfall: {info['rainfall_pattern']}")
         print(f"  الخصائص / Characteristics: {', '.join(info['characteristics'])}")
@@ -304,9 +300,7 @@ def test_comprehensive_scenario():
     print(f"\nدورة الحياة / Life cycle: {calendar.total_cycle_days} يوم")
     print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
-        print(
-            f"  {stage_data['order']}. {stage_data['name_ar']}: {stage_data['duration_days']} يوم"
-        )
+        print(f"  {stage_data['order']}. {stage_data['name_ar']}: {stage_data['duration_days']} يوم")
 
     # 3. افترض أن أحمد زرع قبل 50 يوم
     # 3. Assume Ahmed planted 50 days ago

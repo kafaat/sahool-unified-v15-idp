@@ -1,4 +1,5 @@
 """Health endpoint tests for terrain-core-service."""
+
 import pytest
 
 

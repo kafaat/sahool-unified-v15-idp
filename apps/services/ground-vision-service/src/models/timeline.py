@@ -132,15 +132,11 @@ class CropTimelineEntry(BaseModel):
     growth_stage: GrowthStage
     growth_stage_ar: str = Field(default="", description="Growth stage in Arabic")
     days_in_stage: int | None = Field(default=None, description="Days since entering this stage")
-    expected_days_remaining: int | None = Field(
-        default=None, description="Expected days until next stage"
-    )
+    expected_days_remaining: int | None = Field(default=None, description="Expected days until next stage")
 
     # Confidence and evidence
     confidence: float = Field(..., ge=0.0, le=1.0)
-    evidence_frames: list[str] = Field(
-        default_factory=list, description="Frame IDs supporting this assessment"
-    )
+    evidence_frames: list[str] = Field(default_factory=list, description="Frame IDs supporting this assessment")
 
     # Analysis details
     observed_at: datetime = Field(default_factory=datetime.utcnow)
@@ -274,9 +270,7 @@ class FieldContext(BaseModel):
     expected_harvest_date: datetime | None = None
 
     # History
-    rotation_history: list[dict] = Field(
-        default_factory=list, description="Previous crop rotations"
-    )
+    rotation_history: list[dict] = Field(default_factory=list, description="Previous crop rotations")
 
     # Conditions
     soil_type: str | None = None

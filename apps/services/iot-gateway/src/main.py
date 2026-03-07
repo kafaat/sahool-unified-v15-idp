@@ -346,7 +346,6 @@ setup_cors(app)
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 
-
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass
@@ -714,7 +713,9 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
             unit = reading.get("unit") or reading.get("u") or ""
 
             if not sensor_type or value is None:
-                logger.warning(f"Skipping reading {idx}: missing sensor_type or value. Device: {sanitize_log_value(req.device_id)}")
+                logger.warning(
+                    f"Skipping reading {idx}: missing sensor_type or value. Device: {sanitize_log_value(req.device_id)}"
+                )
                 continue
 
             # Validate value range
@@ -756,7 +757,9 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
     else:
         registry.update_status(device_id=req.device_id)
 
-    logger.info(f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}")
+    logger.info(
+        f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}"
+    )
 
     return {
         "status": "ok",

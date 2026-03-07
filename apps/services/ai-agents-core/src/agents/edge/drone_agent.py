@@ -268,9 +268,7 @@ class DroneAgent(BaseAgent):
         # Check latest tiles for critical issues
         recent_tiles = self.tiles[-5:] if len(self.tiles) >= 5 else self.tiles
 
-        stress_count = sum(
-            1 for t in recent_tiles if t.health_status in ["stressed", "moderate_stress"]
-        )
+        stress_count = sum(1 for t in recent_tiles if t.health_status in ["stressed", "moderate_stress"])
         anomaly_count = sum(1 for t in recent_tiles if t.anomaly_detected)
 
         if anomaly_count >= 2:
@@ -336,9 +334,7 @@ class DroneAgent(BaseAgent):
         elif action.action_type == "return_to_base":
             result["flight_command"] = {
                 "type": "rtl",  # Return to Launch
-                "reason": (
-                    "mission_complete" if action.parameters.get("mission_complete") else "manual"
-                ),
+                "reason": ("mission_complete" if action.parameters.get("mission_complete") else "manual"),
             }
             # Generate mission report
             result["mission_report"] = await self._generate_mission_report()
@@ -391,9 +387,7 @@ class DroneAgent(BaseAgent):
             },
             "health_distribution": health_counts,
             "anomalies_detected": len(anomalies),
-            "anomaly_locations": [
-                {"tile_id": t.tile_id, "lat": t.center_lat, "lon": t.center_lon} for t in anomalies
-            ],
+            "anomaly_locations": [{"tile_id": t.tile_id, "lat": t.center_lat, "lon": t.center_lon} for t in anomalies],
             "flight_duration_minutes": len(self.flight_path) * 0.5,  # Approximate
             "battery_remaining": self.battery_level,
             "timestamp": datetime.now().isoformat(),

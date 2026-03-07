@@ -249,9 +249,7 @@ class TestFarmerModelValidation:
                 FarmerCreateRequest(**data)
 
             errors = exc_info.value.errors()
-            assert any(e["loc"] == ("phone",) for e in errors), (
-                f"Expected phone validation error for: {phone}"
-            )
+            assert any(e["loc"] == ("phone",) for e in errors), f"Expected phone validation error for: {phone}"
 
     def test_farmer_create_request_valid_phone_formats(self):
         """Test valid phone number formats."""
@@ -289,9 +287,7 @@ class TestFarmerModelValidation:
                 FarmerCreateRequest(**data)
 
             errors = exc_info.value.errors()
-            assert any(e["loc"] == ("email",) for e in errors), (
-                f"Expected email validation error for: {email}"
-            )
+            assert any(e["loc"] == ("email",) for e in errors), f"Expected email validation error for: {email}"
 
     def test_farmer_create_request_valid_email(self):
         """Test valid email formats."""

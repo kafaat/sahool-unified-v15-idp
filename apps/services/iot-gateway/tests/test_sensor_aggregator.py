@@ -52,9 +52,7 @@ class TestSensorAggregator(unittest.TestCase):
         """اختبار اكتشاف القيم الشاذة (Z-Score)"""
         # إنشاء قراءات تجريبية مع قيمة شاذة
         # Create sample readings with an outlier
-        readings = create_sample_readings(
-            self.device_id, self.field_id, self.sensor_type, count=10, base_value=25.0
-        )
+        readings = create_sample_readings(self.device_id, self.field_id, self.sensor_type, count=10, base_value=25.0)
 
         # إضافة قيمة شاذة - Add outlier
         outlier = SensorReading(
@@ -107,13 +105,9 @@ class TestSensorAggregator(unittest.TestCase):
     def test_aggregate_by_field(self):
         """اختبار التجميع حسب الحقل"""
         # إنشاء قراءات متعددة
-        readings = create_sample_readings(
-            self.device_id, self.field_id, "air_temperature", count=24
-        )
+        readings = create_sample_readings(self.device_id, self.field_id, "air_temperature", count=24)
         readings.extend(
-            create_sample_readings(
-                self.device_id, self.field_id, "air_humidity", count=24, base_value=60.0
-            )
+            create_sample_readings(self.device_id, self.field_id, "air_humidity", count=24, base_value=60.0)
         )
 
         time_range = (
@@ -121,9 +115,7 @@ class TestSensorAggregator(unittest.TestCase):
             datetime.now(UTC),
         )
 
-        aggregated = self.aggregator.aggregate_by_field(
-            self.field_id, time_range, readings, TimeGranularity.DAILY
-        )
+        aggregated = self.aggregator.aggregate_by_field(self.field_id, time_range, readings, TimeGranularity.DAILY)
 
         # يجب أن يكون هناك نوعان من المستشعرات
         # Should have two sensor types
@@ -137,9 +129,7 @@ class TestSensorAggregator(unittest.TestCase):
         """اختبار التجميع حسب نوع المستشعر"""
         # إنشاء قراءات لحقول مختلفة
         readings = create_sample_readings("device_001", "field_001", "soil_moisture", count=24)
-        readings.extend(
-            create_sample_readings("device_002", "field_002", "soil_moisture", count=24)
-        )
+        readings.extend(create_sample_readings("device_002", "field_002", "soil_moisture", count=24))
 
         time_range = (
             datetime.now(UTC) - timedelta(hours=24),
@@ -232,9 +222,7 @@ class TestSensorAggregator(unittest.TestCase):
             )
             readings.append(reading)
 
-        drift_detected, drift_magnitude = self.aggregator.detect_sensor_drift(
-            readings, window_size=10
-        )
+        drift_detected, drift_magnitude = self.aggregator.detect_sensor_drift(readings, window_size=10)
 
         # يجب اكتشاف الانحراف - Should detect drift
         self.assertTrue(drift_detected)

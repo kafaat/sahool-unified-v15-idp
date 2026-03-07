@@ -19,7 +19,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -27,6 +29,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 router = APIRouter(prefix="/api/v1/traceability", tags=["traceability"])
 
@@ -40,6 +43,7 @@ def _get_tracker():
     if _tracker is None:
         try:
             from shared.traceability import SupplyChainTracker
+
             _tracker = SupplyChainTracker()
         except ImportError:
             pass
@@ -100,7 +104,6 @@ class BatchUpdateRequest(BaseModel):
     status: str | None = None
 
 
-
 class BatchSplitRequest(BaseModel):
     batch_id: str
     quantities: list[float]
@@ -111,7 +114,6 @@ class GenerateCodeRequest(BaseModel):
     year: int | None = None
     sequence: int = Field(..., ge=1)
     farm_code: str | None = Field(None, min_length=3, max_length=3)
-
 
 
 # === Endpoints ===
@@ -161,7 +163,9 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
             if nc:
                 await nc.publish(
                     "sahool.traceability.batch_created",
-                    json.dumps({"batch_id": batch.id, "batch_code": batch_code, "tenant_id": request.tenant_id}).encode(),
+                    json.dumps(
+                        {"batch_id": batch.id, "batch_code": batch_code, "tenant_id": request.tenant_id}
+                    ).encode(),
                 )
 
             logger.info("batch_created", batch_id=batch.id, batch_code=batch_code)
@@ -173,7 +177,8 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
         batch_id = f"BATCH-{uuid.uuid4().hex[:8].upper()}"
         batch_data = {
             "id": batch_id,
-            "batch_code": request.batch_code or f"{request.product_name_en[:2].upper()}-{datetime.utcnow().strftime('%y')}-{uuid.uuid4().hex[:4].upper()}",
+            "batch_code": request.batch_code
+            or f"{request.product_name_en[:2].upper()}-{datetime.utcnow().strftime('%y')}-{uuid.uuid4().hex[:4].upper()}",
             "product_name_en": request.product_name_en,
             "product_name_ar": request.product_name_ar,
             "quantity": request.quantity,
@@ -253,7 +258,12 @@ async def record_processing_event(batch_id: str, request: ProcessingEventRequest
     if batch_id not in _batches:
         raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
 
-    event = {"type": "processing", "timestamp": datetime.utcnow().isoformat(), "facility": request.facility_name, "process_type": request.process_type}
+    event = {
+        "type": "processing",
+        "timestamp": datetime.utcnow().isoformat(),
+        "facility": request.facility_name,
+        "process_type": request.process_type,
+    }
     _batches[batch_id].setdefault("events", []).append(event)
     return {"status": "recorded", "event": event}
 
@@ -264,7 +274,13 @@ async def record_storage_event(batch_id: str, request: StorageEventRequest):
     if batch_id not in _batches:
         raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
 
-    event = {"type": "storage", "timestamp": datetime.utcnow().isoformat(), "location": request.location, "temperature_c": request.temperature_c, "humidity_percent": request.humidity_percent}
+    event = {
+        "type": "storage",
+        "timestamp": datetime.utcnow().isoformat(),
+        "location": request.location,
+        "temperature_c": request.temperature_c,
+        "humidity_percent": request.humidity_percent,
+    }
     _batches[batch_id].setdefault("events", []).append(event)
     return {"status": "recorded", "event": event}
 
@@ -275,7 +291,13 @@ async def record_transport_event(batch_id: str, request: TransportEventRequest):
     if batch_id not in _batches:
         raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
 
-    event = {"type": "transport", "timestamp": datetime.utcnow().isoformat(), "origin": request.origin, "destination": request.destination, "mode": request.transport_mode}
+    event = {
+        "type": "transport",
+        "timestamp": datetime.utcnow().isoformat(),
+        "origin": request.origin,
+        "destination": request.destination,
+        "mode": request.transport_mode,
+    }
     _batches[batch_id].setdefault("events", []).append(event)
     return {"status": "recorded", "event": event}
 
@@ -411,10 +433,13 @@ async def split_batch(batch_id: str, request: BatchSplitRequest):
     parent_qty = parent.get("quantity", 0)
     total_split = sum(request.quantities)
     if total_split > parent_qty:
-        raise HTTPException(status_code=400, detail={
-            "error": f"Split total ({total_split}) exceeds batch quantity ({parent_qty})",
-            "error_ar": f"مجموع التقسيم ({total_split}) يتجاوز كمية الدفعة ({parent_qty})",
-        })
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"Split total ({total_split}) exceeds batch quantity ({parent_qty})",
+                "error_ar": f"مجموع التقسيم ({total_split}) يتجاوز كمية الدفعة ({parent_qty})",
+            },
+        )
 
     child_batches = []
     for i, qty in enumerate(request.quantities, 1):

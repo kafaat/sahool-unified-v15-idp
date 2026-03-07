@@ -104,15 +104,11 @@ class KnowledgeQualityGate:
 
         return result
 
-    def _check_bilingual_coverage(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_bilingual_coverage(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check what % of docs have Arabic content.
         فحص نسبة الوثائق التي تحتوي على محتوى عربي"""
         total = len(docs)
-        bilingual_count = sum(
-            1 for doc in docs if (doc.title_ar or doc.content_ar)
-        )
+        bilingual_count = sum(1 for doc in docs if (doc.title_ar or doc.content_ar))
         ratio = bilingual_count / max(1, total)
         passed = ratio >= self._min_bilingual_ratio
         details = (
@@ -121,9 +117,7 @@ class KnowledgeQualityGate:
         )
         return passed, round(ratio, 3), details
 
-    def _check_freshness(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_freshness(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check document freshness based on updated_at timestamps.
         فحص حداثة الوثائق بناء على تواريخ التحديث"""
         now = datetime.utcnow()
@@ -151,9 +145,7 @@ class KnowledgeQualityGate:
         )
         return passed, round(score, 3), details
 
-    def _check_source_credibility(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_source_credibility(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check average source credibility level.
         فحص متوسط مستوى مصداقية المصادر"""
         total = len(docs)
@@ -178,17 +170,12 @@ class KnowledgeQualityGate:
         )
         return passed, round(score, 3), details
 
-    def _check_verification_status(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_verification_status(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check % of verified (approved) documents.
         فحص نسبة الوثائق الموثقة (المعتمدة)"""
         total = len(docs)
         unverified_count = sum(
-            1
-            for doc in docs
-            if doc.verification_status
-            in (VerificationStatus.PENDING, VerificationStatus.REJECTED)
+            1 for doc in docs if doc.verification_status in (VerificationStatus.PENDING, VerificationStatus.REJECTED)
         )
         unverified_ratio = unverified_count / max(1, total)
         verified_ratio = 1.0 - unverified_ratio
@@ -209,9 +196,7 @@ class KnowledgeQualityGate:
         )
         return passed, round(verified_ratio, 3), details
 
-    def _check_domain_coverage(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_domain_coverage(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check that minimum number of domains are covered.
         فحص تغطية الحد الأدنى من المجالات"""
         covered_domains = {doc.domain for doc in docs}
@@ -232,9 +217,7 @@ class KnowledgeQualityGate:
         )
         return passed, round(score, 3), details
 
-    def _check_tag_quality(
-        self, docs: list[BaseKnowledgeDocument]
-    ) -> tuple[bool, float, str]:
+    def _check_tag_quality(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check that docs have adequate tags for discoverability.
         فحص أن الوثائق تحتوي على علامات كافية للاكتشاف"""
         total = len(docs)

@@ -16,9 +16,7 @@ def test_main_module_structure():
     try:
         import importlib.util
 
-        spec = importlib.util.spec_from_file_location(
-            "main", Path(__file__).parent.parent / "src" / "main.py"
-        )
+        spec = importlib.util.spec_from_file_location("main", Path(__file__).parent.parent / "src" / "main.py")
         assert spec is not None
         assert spec.loader is not None
         print("✓ main.py module structure valid")

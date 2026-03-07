@@ -174,9 +174,7 @@ class TestDataModelEndpoints:
     """Tests for data model endpoints."""
 
     @pytest.mark.asyncio
-    async def test_create_data_model(
-        self, async_client: AsyncClient, data_model_create_request: dict
-    ):
+    async def test_create_data_model(self, async_client: AsyncClient, data_model_create_request: dict):
         """Test creating a new data model."""
         response = await async_client.post(
             "/api/v1/models",
@@ -222,9 +220,7 @@ class TestDataModelEndpoints:
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
-    async def test_list_data_models(
-        self, async_client: AsyncClient, data_model_create_request: dict
-    ):
+    async def test_list_data_models(self, async_client: AsyncClient, data_model_create_request: dict):
         """Test listing data models."""
         # First create a model
         await async_client.post("/api/v1/models", json=data_model_create_request)
@@ -447,9 +443,7 @@ class TestAISuggestionEndpoints:
     """Tests for AI suggestion endpoints."""
 
     @pytest.mark.asyncio
-    async def test_ai_suggest_components(
-        self, async_client: AsyncClient, ai_suggestion_request: dict
-    ):
+    async def test_ai_suggest_components(self, async_client: AsyncClient, ai_suggestion_request: dict):
         """Test AI component suggestions."""
         response = await async_client.post("/api/v1/ai/suggest", json=ai_suggestion_request)
 

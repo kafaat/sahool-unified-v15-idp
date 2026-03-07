@@ -77,17 +77,11 @@ class WaterUsageAlert(BaseModel):
     threshold_value: float | None = Field(None, description="Threshold value / قيمة العتبة")
     actual_value: float | None = Field(None, description="Actual value / القيمة الفعلية")
 
-    recommended_action_en: str | None = Field(
-        None, description="Recommended action (EN) / الإجراء الموصى به"
-    )
-    recommended_action_ar: str | None = Field(
-        None, description="Recommended action (AR) / الإجراء الموصى به"
-    )
+    recommended_action_en: str | None = Field(None, description="Recommended action (EN) / الإجراء الموصى به")
+    recommended_action_ar: str | None = Field(None, description="Recommended action (AR) / الإجراء الموصى به")
 
     is_acknowledged: bool = Field(False, description="Alert acknowledged / تم الإقرار بالتنبيه")
-    acknowledged_date: datetime | None = Field(
-        None, description="Acknowledgement date / تاريخ الإقرار"
-    )
+    acknowledged_date: datetime | None = Field(None, description="Acknowledgement date / تاريخ الإقرار")
 
     is_resolved: bool = Field(False, description="Alert resolved / تم حل التنبيه")
     resolved_date: datetime | None = Field(None, description="Resolution date / تاريخ الحل")
@@ -108,31 +102,17 @@ class CropWaterFootprint(BaseModel):
     production_kg: float = Field(..., gt=0, description="Production (kg) / الإنتاج")
 
     # Water footprint components (m³/kg)
-    green_water_m3_per_kg: float = Field(
-        0, ge=0, description="Green water (rainfall) / المياه الخضراء"
-    )
-    blue_water_m3_per_kg: float = Field(
-        0, ge=0, description="Blue water (irrigation) / المياه الزرقاء"
-    )
-    grey_water_m3_per_kg: float = Field(
-        0, ge=0, description="Grey water (pollution) / المياه الرمادية"
-    )
+    green_water_m3_per_kg: float = Field(0, ge=0, description="Green water (rainfall) / المياه الخضراء")
+    blue_water_m3_per_kg: float = Field(0, ge=0, description="Blue water (irrigation) / المياه الزرقاء")
+    grey_water_m3_per_kg: float = Field(0, ge=0, description="Grey water (pollution) / المياه الرمادية")
 
-    total_water_footprint_m3_per_kg: float = Field(
-        ..., ge=0, description="Total footprint (m³/kg) / البصمة الكلية"
-    )
+    total_water_footprint_m3_per_kg: float = Field(..., ge=0, description="Total footprint (m³/kg) / البصمة الكلية")
 
     # Benchmarks
-    regional_benchmark_m3_per_kg: float | None = Field(
-        None, description="Regional benchmark / المعيار الإقليمي"
-    )
-    global_benchmark_m3_per_kg: float | None = Field(
-        None, description="Global benchmark / المعيار العالمي"
-    )
+    regional_benchmark_m3_per_kg: float | None = Field(None, description="Regional benchmark / المعيار الإقليمي")
+    global_benchmark_m3_per_kg: float | None = Field(None, description="Global benchmark / المعيار العالمي")
 
-    performance_vs_benchmark: str | None = Field(
-        None, description="Performance rating / تقييم الأداء"
-    )
+    performance_vs_benchmark: str | None = Field(None, description="Performance rating / تقييم الأداء")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -161,29 +141,17 @@ class SeasonalPattern(BaseModel):
     start_date: date = Field(..., description="Season start / بداية الموسم")
     end_date: date = Field(..., description="Season end / نهاية الموسم")
 
-    total_water_use_m3: float = Field(
-        ..., ge=0, description="Total water use (m³) / استخدام المياه الكلي"
-    )
-    average_daily_use_m3: float = Field(
-        ..., ge=0, description="Avg daily use (m³) / الاستخدام اليومي المتوسط"
-    )
-    peak_daily_use_m3: float = Field(
-        ..., ge=0, description="Peak daily use (m³) / الاستخدام اليومي الأقصى"
-    )
+    total_water_use_m3: float = Field(..., ge=0, description="Total water use (m³) / استخدام المياه الكلي")
+    average_daily_use_m3: float = Field(..., ge=0, description="Avg daily use (m³) / الاستخدام اليومي المتوسط")
+    peak_daily_use_m3: float = Field(..., ge=0, description="Peak daily use (m³) / الاستخدام اليومي الأقصى")
 
     rainfall_contribution_m3: float = Field(0, ge=0, description="Rainfall (m³) / الأمطار")
     rainfall_percentage: float = Field(0, ge=0, le=100, description="Rainfall % / نسبة الأمطار")
 
-    dominant_crops: list[str] = Field(
-        default_factory=list, description="Dominant crops / المحاصيل السائدة"
-    )
-    irrigation_methods_used: list[str] = Field(
-        default_factory=list, description="Irrigation methods / طرق الري"
-    )
+    dominant_crops: list[str] = Field(default_factory=list, description="Dominant crops / المحاصيل السائدة")
+    irrigation_methods_used: list[str] = Field(default_factory=list, description="Irrigation methods / طرق الري")
 
-    average_efficiency_percent: float | None = Field(
-        None, description="Avg efficiency % / الكفاءة المتوسطة"
-    )
+    average_efficiency_percent: float | None = Field(None, description="Avg efficiency % / الكفاءة المتوسطة")
 
     notes: str | None = Field(None, description="Season notes / ملاحظات الموسم")
 
@@ -231,9 +199,7 @@ class SpringIntegration:
             api_key: API key for authentication
         """
         self.farm_id = farm_id
-        self.irrigation_service_url = (
-            irrigation_service_url or "http://irrigation-smart:8080/api/v1"
-        )
+        self.irrigation_service_url = irrigation_service_url or "http://irrigation-smart:8080/api/v1"
         self.api_key = api_key
 
     def pull_irrigation_data(
@@ -519,9 +485,7 @@ class SpringIntegration:
 
     # ==================== Mock Data Generation Methods ====================
 
-    def _generate_mock_usage_records(
-        self, start_date: date, end_date: date
-    ) -> list[dict[str, Any]]:
+    def _generate_mock_usage_records(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
         """Generate realistic mock water usage records for the period"""
         import random
         from datetime import timedelta
@@ -587,9 +551,7 @@ class SpringIntegration:
 
         return records
 
-    def _generate_mock_sensor_readings(
-        self, start_date: date, end_date: date
-    ) -> list[dict[str, Any]]:
+    def _generate_mock_sensor_readings(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
         """Generate realistic mock soil moisture sensor readings"""
         import random
         from datetime import timedelta
@@ -675,9 +637,7 @@ class SpringIntegration:
             else 0,
         }
 
-    def _generate_mock_irrigation_schedules(
-        self, start_date: date, end_date: date
-    ) -> list[dict[str, Any]]:
+    def _generate_mock_irrigation_schedules(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
         """Generate realistic mock irrigation schedules for planned events"""
         import random
         from datetime import timedelta
@@ -800,36 +760,22 @@ class SpringIntegration:
 
                     # Alert if approaching limit (>90%)
                     if daily_avg > source.max_daily_extraction_m3 * 0.9:
-                        alerts.append(
-                            self._create_permit_limit_alert(
-                                source, daily_avg, AlertSeverity.WARNING
-                            )
-                        )
+                        alerts.append(self._create_permit_limit_alert(source, daily_avg, AlertSeverity.WARNING))
 
                     # Critical alert if exceeding limit
                     if daily_avg > source.max_daily_extraction_m3:
-                        alerts.append(
-                            self._create_permit_limit_alert(
-                                source, daily_avg, AlertSeverity.CRITICAL
-                            )
-                        )
+                        alerts.append(self._create_permit_limit_alert(source, daily_avg, AlertSeverity.CRITICAL))
 
         # Check for excessive usage increase
         if previous_month_usage_m3 and current_month_usage_m3 > previous_month_usage_m3 * 1.3:
-            alerts.append(
-                self._create_excessive_usage_alert(current_month_usage_m3, previous_month_usage_m3)
-            )
+            alerts.append(self._create_excessive_usage_alert(current_month_usage_m3, previous_month_usage_m3))
 
         # Check groundwater depletion (critical for Yemen)
         if groundwater_level_change_m and groundwater_level_change_m < -1.0:
             alerts.append(self._create_groundwater_depletion_alert(groundwater_level_change_m))
 
         # Check for qat vs food crops water use (Yemen-specific)
-        qat_usage = sum(
-            u.volume_cubic_meters
-            for u in usage_records
-            if u.crop_type and "qat" in u.crop_type.lower()
-        )
+        qat_usage = sum(u.volume_cubic_meters for u in usage_records if u.crop_type and "qat" in u.crop_type.lower())
         if qat_usage > 0:
             total_usage = sum(u.volume_cubic_meters for u in usage_records)
             qat_percentage = (qat_usage / total_usage * 100) if total_usage > 0 else 0
@@ -863,9 +809,7 @@ class SpringIntegration:
         patterns = []
 
         for season in seasons:
-            season_records = [
-                r for r in usage_records if season["start"] <= r.measurement_date <= season["end"]
-            ]
+            season_records = [r for r in usage_records if season["start"] <= r.measurement_date <= season["end"]]
 
             if not season_records:
                 continue
@@ -881,14 +825,10 @@ class SpringIntegration:
             for r in season_records:
                 if r.crop_type:
                     crop_counts[r.crop_type] = crop_counts.get(r.crop_type, 0) + 1
-            dominant_crops = sorted(crop_counts.keys(), key=lambda k: crop_counts[k], reverse=True)[
-                :5
-            ]
+            dominant_crops = sorted(crop_counts.keys(), key=lambda k: crop_counts[k], reverse=True)[:5]
 
             # Irrigation methods
-            methods = list(
-                {r.irrigation_method.value for r in season_records if r.irrigation_method}
-            )
+            methods = list({r.irrigation_method.value for r in season_records if r.irrigation_method})
 
             pattern = SeasonalPattern(
                 season=season["name"],
@@ -954,17 +894,17 @@ class SpringIntegration:
         severity: AlertSeverity,
     ) -> WaterUsageAlert:
         """Create permit limit alert"""
-        percentage = (
-            (actual_usage / source.max_daily_extraction_m3 * 100)
-            if source.max_daily_extraction_m3
-            else 0
-        )
+        percentage = (actual_usage / source.max_daily_extraction_m3 * 100) if source.max_daily_extraction_m3 else 0
 
         if severity == AlertSeverity.CRITICAL:
             title_en = f"Permit Limit Exceeded - {source.name_en}"
             title_ar = f"تجاوز حد التصريح - {source.name_ar}"
-            message_en = f"Water extraction from {source.name_en} exceeds permitted daily limit by {percentage - 100:.1f}%"
-            message_ar = f"استخراج المياه من {source.name_ar} يتجاوز الحد اليومي المسموح به بنسبة {percentage - 100:.1f}%"
+            message_en = (
+                f"Water extraction from {source.name_en} exceeds permitted daily limit by {percentage - 100:.1f}%"
+            )
+            message_ar = (
+                f"استخراج المياه من {source.name_ar} يتجاوز الحد اليومي المسموح به بنسبة {percentage - 100:.1f}%"
+            )
             action_en = "Immediately reduce water extraction or risk permit violation"
             action_ar = "تقليل استخراج المياه فوراً أو خطر انتهاك التصريح"
             alert_type = AlertType.PERMIT_LIMIT_EXCEEDED

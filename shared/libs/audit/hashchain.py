@@ -99,9 +99,7 @@ def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
 
         # Check prev_hash matches expected
         if stored_prev_hash != prev_hash:
-            errors.append(
-                f"Entry {i}: prev_hash mismatch. Expected {prev_hash}, got {stored_prev_hash}"
-            )
+            errors.append(f"Entry {i}: prev_hash mismatch. Expected {prev_hash}, got {stored_prev_hash}")
 
         # Recompute entry hash
         canonical = build_canonical_string(
@@ -118,9 +116,7 @@ def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
         computed_hash = compute_entry_hash(prev_hash=stored_prev_hash, canonical=canonical)
 
         if computed_hash != stored_entry_hash:
-            errors.append(
-                f"Entry {i}: entry_hash mismatch. Expected {computed_hash}, got {stored_entry_hash}"
-            )
+            errors.append(f"Entry {i}: entry_hash mismatch. Expected {computed_hash}, got {stored_entry_hash}")
 
         prev_hash = stored_entry_hash
 

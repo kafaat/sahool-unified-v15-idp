@@ -16,9 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Import only what we need
 import importlib.util
 
-spec = importlib.util.spec_from_file_location(
-    "crop_calendar", Path(__file__).parent / "services" / "crop_calendar.py"
-)
+spec = importlib.util.spec_from_file_location("crop_calendar", Path(__file__).parent / "services" / "crop_calendar.py")
 crop_calendar_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(crop_calendar_module)
 
@@ -202,9 +200,7 @@ def example_7_regional_info():
         info = service.get_regional_climate_info(region)
         print(f"\n{info['name_ar']} ({info['name_en']}):")
         print(f"  المناخ: {info['climate']}")
-        print(
-            f"  الحرارة: {info['average_temp_range']['min']}-{info['average_temp_range']['max']}°C"
-        )
+        print(f"  الحرارة: {info['average_temp_range']['min']}-{info['average_temp_range']['max']}°C")
         print(f"  الأمطار: {info['rainfall_pattern']}")
 
 

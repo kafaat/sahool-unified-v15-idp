@@ -244,18 +244,10 @@ def classify_zones(ndvi_array: np.ndarray) -> ZoneClassification:
     # Classify zones
     water = np.sum(valid_values < NDVI_THRESHOLDS["water"]) / total * 100
     bare_soil = (
-        np.sum(
-            (valid_values >= NDVI_THRESHOLDS["water"])
-            & (valid_values < NDVI_THRESHOLDS["bare_soil"])
-        )
-        / total
-        * 100
+        np.sum((valid_values >= NDVI_THRESHOLDS["water"]) & (valid_values < NDVI_THRESHOLDS["bare_soil"])) / total * 100
     )
     critical = (
-        np.sum(
-            (valid_values >= NDVI_THRESHOLDS["bare_soil"])
-            & (valid_values < NDVI_THRESHOLDS["sparse_vegetation"])
-        )
+        np.sum((valid_values >= NDVI_THRESHOLDS["bare_soil"]) & (valid_values < NDVI_THRESHOLDS["sparse_vegetation"]))
         / total
         * 100
     )
@@ -511,9 +503,7 @@ def handle_ndvi_calculation(payload: dict[str, Any]) -> dict[str, Any]:
         if not image_url or not field_id:
             raise ValueError("image_url and field_id are required")
 
-        logger.info(
-            f"Processing NDVI for field {field_id} using bands {red_band_name}/{nir_band_name}"
-        )
+        logger.info(f"Processing NDVI for field {field_id} using bands {red_band_name}/{nir_band_name}")
 
         # =================================================================
         # Step 1: Load or simulate band data - تحميل أو محاكاة بيانات النطاقات
@@ -622,9 +612,7 @@ def handle_ndvi_calculation(payload: dict[str, Any]) -> dict[str, Any]:
 # =============================================================================
 
 
-def calculate_ndvi_simple(
-    red_band: np.ndarray | list, nir_band: np.ndarray | list
-) -> dict[str, Any]:
+def calculate_ndvi_simple(red_band: np.ndarray | list, nir_band: np.ndarray | list) -> dict[str, Any]:
     """
     واجهة مبسطة لحساب NDVI
     Simplified interface for NDVI calculation

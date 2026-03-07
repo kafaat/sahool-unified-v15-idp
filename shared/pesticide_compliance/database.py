@@ -370,9 +370,7 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
 
 # Tank Mix Compatibility Matrix - مصفوفة توافق الخلط
 # Format: (product_a, product_b) -> (compatibility, warnings_en, warnings_ar, mixing_order)
-TANK_MIX_COMPATIBILITY: dict[
-    tuple[str, str], tuple[MixCompatibility, list[str], list[str], list[str]]
-] = {
+TANK_MIX_COMPATIBILITY: dict[tuple[str, str], tuple[MixCompatibility, list[str], list[str], list[str]]] = {
     # Fungicide + Insecticide combinations
     ("mancozeb_80wp", "imidacloprid_200sl"): (
         MixCompatibility.COMPATIBLE,

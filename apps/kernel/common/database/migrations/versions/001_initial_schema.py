@@ -390,9 +390,7 @@ def upgrade() -> None:
     # فهارس جدول قراءات الاستشعار / Sensor readings table indexes
     op.create_index("ix_sensor_readings_sensor_id", "sensor_readings", ["sensor_id"])
     op.create_index("ix_sensor_readings_timestamp", "sensor_readings", ["timestamp"])
-    op.create_index(
-        "ix_sensor_readings_sensor_timestamp", "sensor_readings", ["sensor_id", "timestamp"]
-    )
+    op.create_index("ix_sensor_readings_sensor_timestamp", "sensor_readings", ["sensor_id", "timestamp"])
     op.create_index("ix_sensor_readings_reading_type", "sensor_readings", ["reading_type"])
 
     # =========================================================================

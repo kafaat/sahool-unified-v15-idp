@@ -410,12 +410,8 @@ class SalinityModule:
         # Leaching recommendation
         if lf > 0.05:
             lf_pct = round(lf * 100, 0)
-            recs.append(
-                f"Apply {lf_pct:.0f}% extra water for leaching to maintain soil salinity below threshold."
-            )
-            recs_ar.append(
-                f"أضف {lf_pct:.0f}% مياه إضافية للغسيل للحفاظ على ملوحة التربة دون الحد الأقصى."
-            )
+            recs.append(f"Apply {lf_pct:.0f}% extra water for leaching to maintain soil salinity below threshold.")
+            recs_ar.append(f"أضف {lf_pct:.0f}% مياه إضافية للغسيل للحفاظ على ملوحة التربة دون الحد الأقصى.")
 
         # High SAR
         if sar > 6.0:
@@ -425,12 +421,10 @@ class SalinityModule:
         # Yield impact
         if yield_reduction > 10.0:
             recs.append(
-                f"Expected yield reduction: {yield_reduction:.0f}%. "
-                "Consider switching to more salt-tolerant varieties."
+                f"Expected yield reduction: {yield_reduction:.0f}%. Consider switching to more salt-tolerant varieties."
             )
             recs_ar.append(
-                f"الانخفاض المتوقع في الإنتاج: {yield_reduction:.0f}%. "
-                "يُنصح بالتحول إلى أصناف أكثر تحملاً للملوحة."
+                f"الانخفاض المتوقع في الإنتاج: {yield_reduction:.0f}%. يُنصح بالتحول إلى أصناف أكثر تحملاً للملوحة."
             )
 
         # Severe risk
@@ -439,9 +433,7 @@ class SalinityModule:
                 "CRITICAL: Severe salinity risk. Immediate intervention required. "
                 "Consider blending water sources or alternative water supply."
             )
-            recs_ar.append(
-                "حرج: خطر ملوحة شديد. يلزم تدخل فوري. يُنصح بخلط مصادر المياه أو البحث عن مصدر بديل."
-            )
+            recs_ar.append("حرج: خطر ملوحة شديد. يلزم تدخل فوري. يُنصح بخلط مصادر المياه أو البحث عن مصدر بديل.")
 
         # Drip irrigation recommendation for saline water
         if ec_water > 1.5:

@@ -42,18 +42,20 @@ logger = logging.getLogger(__name__)
 
 class RemediationType(StrEnum):
     """Types of remediation actions."""
-    AUTO_FIX = "auto_fix"           # Can be fixed automatically
-    MANUAL_FIX = "manual_fix"       # Requires human intervention
-    RESTART = "restart"             # Service restart
-    ROLLBACK = "rollback"           # Deploy rollback
-    SCALE = "scale"                 # Scale up/down
-    PAUSE = "pause"                 # Pause (e.g., consumer)
-    CREATE_ISSUE = "create_issue"   # Open tracking issue
-    ALERT = "alert"                 # Send alert notification
+
+    AUTO_FIX = "auto_fix"  # Can be fixed automatically
+    MANUAL_FIX = "manual_fix"  # Requires human intervention
+    RESTART = "restart"  # Service restart
+    ROLLBACK = "rollback"  # Deploy rollback
+    SCALE = "scale"  # Scale up/down
+    PAUSE = "pause"  # Pause (e.g., consumer)
+    CREATE_ISSUE = "create_issue"  # Open tracking issue
+    ALERT = "alert"  # Send alert notification
 
 
 class RemediationStatus(StrEnum):
     """Status of a remediation action."""
+
     PLANNED = "planned"
     EXECUTING = "executing"
     COMPLETED = "completed"
@@ -64,6 +66,7 @@ class RemediationStatus(StrEnum):
 @dataclass
 class RemediationAction:
     """A single remediation action to take."""
+
     action_type: RemediationType
     severity: str  # critical, high, medium, low
     resource: str  # What to act on
@@ -79,6 +82,7 @@ class RemediationAction:
 @dataclass
 class RemediationPlan:
     """A plan of remediation actions."""
+
     actions: list[RemediationAction] = field(default_factory=list)
     dry_run: bool = True
 

@@ -134,14 +134,9 @@ class FieldOperationProcessor(ItemProcessor[FieldOperationItem]):
 
     def __init__(
         self,
-        execute_operation: Callable[
-            [FieldOperationItem, BatchOperation], Coroutine[Any, Any, dict[str, Any]]
-        ]
+        execute_operation: Callable[[FieldOperationItem, BatchOperation], Coroutine[Any, Any, dict[str, Any]]]
         | None = None,
-        rollback_operation: Callable[
-            [FieldOperationItem, BatchOperation], Coroutine[Any, Any, bool]
-        ]
-        | None = None,
+        rollback_operation: Callable[[FieldOperationItem, BatchOperation], Coroutine[Any, Any, bool]] | None = None,
     ):
         """
         Initialize processor with optional custom handlers.
@@ -153,9 +148,7 @@ class FieldOperationProcessor(ItemProcessor[FieldOperationItem]):
         self._execute = execute_operation
         self._rollback = rollback_operation
 
-    async def process(
-        self, item: FieldOperationItem, batch: BatchOperation
-    ) -> tuple[bool, dict[str, Any] | None]:
+    async def process(self, item: FieldOperationItem, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
         """Process a field operation item."""
         try:
             if self._execute:
@@ -204,8 +197,7 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
 
     def __init__(
         self,
-        create_harvest_record: Callable[[HarvestEntry, BatchOperation], Coroutine[Any, Any, str]]
-        | None = None,
+        create_harvest_record: Callable[[HarvestEntry, BatchOperation], Coroutine[Any, Any, str]] | None = None,
         delete_harvest_record: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         """
@@ -218,9 +210,7 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
         self._create = create_harvest_record
         self._delete = delete_harvest_record
 
-    async def process(
-        self, item: HarvestEntry, batch: BatchOperation
-    ) -> tuple[bool, dict[str, Any] | None]:
+    async def process(self, item: HarvestEntry, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
         """Process a harvest entry."""
         try:
             if self._create:
@@ -230,8 +220,7 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
 
             # Default mock implementation
             logger.info(
-                f"Creating harvest entry: field_id={item.field_id}, "
-                f"crop={item.crop_type}, yield={item.yield_kg}kg"
+                f"Creating harvest entry: field_id={item.field_id}, crop={item.crop_type}, yield={item.yield_kg}kg"
             )
 
             await asyncio.sleep(0.1)
@@ -273,16 +262,13 @@ class EquipmentAssignmentProcessor(ItemProcessor[EquipmentAssignment]):
 
     def __init__(
         self,
-        create_assignment: Callable[[EquipmentAssignment, BatchOperation], Coroutine[Any, Any, str]]
-        | None = None,
+        create_assignment: Callable[[EquipmentAssignment, BatchOperation], Coroutine[Any, Any, str]] | None = None,
         delete_assignment: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         self._create = create_assignment
         self._delete = delete_assignment
 
-    async def process(
-        self, item: EquipmentAssignment, batch: BatchOperation
-    ) -> tuple[bool, dict[str, Any] | None]:
+    async def process(self, item: EquipmentAssignment, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
         """Process an equipment assignment."""
         try:
             if self._create:
@@ -291,10 +277,7 @@ class EquipmentAssignmentProcessor(ItemProcessor[EquipmentAssignment]):
                 return True, {"assignment_id": assignment_id}
 
             # Default mock implementation
-            logger.info(
-                f"Creating equipment assignment: equipment_id={item.equipment_id}, "
-                f"task_id={item.task_id}"
-            )
+            logger.info(f"Creating equipment assignment: equipment_id={item.equipment_id}, task_id={item.task_id}")
 
             await asyncio.sleep(0.1)
 
@@ -333,34 +316,24 @@ class AlertAcknowledgmentProcessor(ItemProcessor[AlertAcknowledgment]):
 
     def __init__(
         self,
-        acknowledge_alert: Callable[
-            [AlertAcknowledgment, BatchOperation], Coroutine[Any, Any, bool]
-        ]
-        | None = None,
+        acknowledge_alert: Callable[[AlertAcknowledgment, BatchOperation], Coroutine[Any, Any, bool]] | None = None,
         unacknowledge_alert: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         self._acknowledge = acknowledge_alert
         self._unacknowledge = unacknowledge_alert
 
-    async def process(
-        self, item: AlertAcknowledgment, batch: BatchOperation
-    ) -> tuple[bool, dict[str, Any] | None]:
+    async def process(self, item: AlertAcknowledgment, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
         """Process an alert acknowledgment."""
         try:
             if self._acknowledge:
                 success = await self._acknowledge(item, batch)
                 if success:
                     item.acknowledged_at = datetime.now(UTC)
-                return success, {
-                    "acknowledged_at": item.acknowledged_at.isoformat()
-                    if item.acknowledged_at
-                    else None
-                }
+                return success, {"acknowledged_at": item.acknowledged_at.isoformat() if item.acknowledged_at else None}
 
             # Default mock implementation
             logger.info(
-                f"Acknowledging alert: alert_id={item.alert_id}, "
-                f"type={item.alert_type}, severity={item.severity}"
+                f"Acknowledging alert: alert_id={item.alert_id}, type={item.alert_type}, severity={item.severity}"
             )
 
             await asyncio.sleep(0.05)
@@ -560,21 +533,15 @@ class BatchExecutor:
         try:
             # Process items with concurrency control
             if config.max_concurrent > 1:
-                completed, failed, skipped, errors = await self._execute_concurrent(
-                    batch, items, processor, config
-                )
+                completed, failed, skipped, errors = await self._execute_concurrent(batch, items, processor, config)
             else:
-                completed, failed, skipped, errors = await self._execute_sequential(
-                    batch, items, processor, config
-                )
+                completed, failed, skipped, errors = await self._execute_sequential(batch, items, processor, config)
 
             # Check for cancellation
             if self._cancel_requested:
                 batch.status = BatchStatus.CANCELLED
                 batch.cancelled_at = datetime.now(UTC)
-                raise BatchCancelledException(
-                    "Batch operation was cancelled", "تم إلغاء عملية الدفعة"
-                )
+                raise BatchCancelledException("Batch operation was cancelled", "تم إلغاء عملية الدفعة")
 
             # Determine final status
             if failed == 0:
@@ -799,11 +766,7 @@ class BatchExecutor:
                         item.rollback_data = result_data.copy()
                     return True, None
 
-                last_error = (
-                    result_data.get("error", "Unknown error")
-                    if result_data
-                    else "Processing failed"
-                )
+                last_error = result_data.get("error", "Unknown error") if result_data else "Processing failed"
 
             except TimeoutError:
                 last_error = f"Timeout after {config.timeout_per_item_seconds}s"

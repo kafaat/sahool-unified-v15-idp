@@ -189,9 +189,7 @@ class AgriculturalRulesEngine:
                     )
 
         # Rule 2: Check for division by zero protection in NDVI formula
-        ndvi_formula_pattern = re.compile(
-            r"\(.*nir.*[-−].*red.*\)\s*/\s*\(.*nir.*[+].*red.*\)", re.IGNORECASE
-        )
+        ndvi_formula_pattern = re.compile(r"\(.*nir.*[-−].*red.*\)\s*/\s*\(.*nir.*[+].*red.*\)", re.IGNORECASE)
         for i, line in enumerate(lines, 1):
             if ndvi_formula_pattern.search(line):
                 # Check if there's division by zero protection nearby
@@ -217,9 +215,7 @@ class AgriculturalRulesEngine:
 
         # Rule 4: Warn about magic numbers in NDVI thresholds
         ndvi_threshold_pattern = re.compile(r"ndvi\s*[<>]=?\s*(-?0\.\d+)", re.IGNORECASE)
-        threshold_comments = re.compile(
-            r"#.*vegetation|#.*healthy|#.*sparse|//.*vegetation", re.IGNORECASE
-        )
+        threshold_comments = re.compile(r"#.*vegetation|#.*healthy|#.*sparse|//.*vegetation", re.IGNORECASE)
         for i, line in enumerate(lines, 1):
             if ndvi_threshold_pattern.search(line) and not threshold_comments.search(line):
                 analysis.add_issue(
@@ -399,9 +395,7 @@ class AgriculturalRulesEngine:
                     )
                 )
 
-    def _check_general_agricultural_practices(
-        self, code: str, lines: list[str], analysis: AgriculturalAnalysis
-    ):
+    def _check_general_agricultural_practices(self, code: str, lines: list[str], analysis: AgriculturalAnalysis):
         """Check general agricultural coding best practices"""
 
         # Rule 1: Date/time handling for agricultural data

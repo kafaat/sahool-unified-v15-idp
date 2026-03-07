@@ -107,12 +107,14 @@ class VRIPrescription:
             start_angle = idx * (360.0 / self.angular_divisions)
             # Speed is inverse of rate: higher rate = slower speed
             speed_percent = round(100.0 * 100.0 / max(avg_rate, 1.0), 1)
-            table.append({
-                "angle_index": idx,
-                "start_angle": start_angle,
-                "application_rate_percent": round(avg_rate, 1),
-                "speed_percent": min(100.0, speed_percent),
-            })
+            table.append(
+                {
+                    "angle_index": idx,
+                    "start_angle": start_angle,
+                    "application_rate_percent": round(avg_rate, 1),
+                    "speed_percent": min(100.0, speed_percent),
+                }
+            )
 
         return table
 
@@ -121,10 +123,7 @@ class VRIPrescription:
         Convert to zone control matrix [span][angle] of rate percentages.
         تحويل إلى مصفوفة التحكم بالمنطقة.
         """
-        matrix = [
-            [100.0] * self.angular_divisions
-            for _ in range(self.span_count)
-        ]
+        matrix = [[100.0] * self.angular_divisions for _ in range(self.span_count)]
 
         for zone in self.zones:
             span_idx = zone.span_number - 1
@@ -217,15 +216,23 @@ def ndvi_to_vri_prescription(
         mid_radius = (zone_cell.inner_radius_m + zone_cell.outer_radius_m) / 2.0
 
         center_lon, center_lat = _destination_point(
-            zone_grid.center_lon, zone_grid.center_lat,
-            mid_angle, mid_radius,
+            zone_grid.center_lon,
+            zone_grid.center_lat,
+            mid_angle,
+            mid_radius,
         )
 
         # Sample NDVI at cell center
         ndvi_value = _sample_ndvi(
-            center_lon, center_lat,
-            ndvi_data, ndvi_rows, ndvi_cols,
-            min_lon, min_lat, max_lon, max_lat,
+            center_lon,
+            center_lat,
+            ndvi_data,
+            ndvi_rows,
+            ndvi_cols,
+            min_lon,
+            min_lat,
+            max_lon,
+            max_lat,
         )
 
         # Convert NDVI to application rate
@@ -329,8 +336,10 @@ def vra_to_vri_prescription(
         mid_radius = (zone_cell.inner_radius_m + zone_cell.outer_radius_m) / 2.0
 
         center_lon, center_lat = _destination_point(
-            zone_grid.center_lon, zone_grid.center_lat,
-            mid_angle, mid_radius,
+            zone_grid.center_lon,
+            zone_grid.center_lat,
+            mid_angle,
+            mid_radius,
         )
 
         # Find which VRA zone this cell center falls in
@@ -391,11 +400,15 @@ def vra_to_vri_prescription(
 
 
 def _sample_ndvi(
-    lon: float, lat: float,
+    lon: float,
+    lat: float,
     ndvi_data: list[list[float]],
-    rows: int, cols: int,
-    min_lon: float, min_lat: float,
-    max_lon: float, max_lat: float,
+    rows: int,
+    cols: int,
+    min_lon: float,
+    min_lat: float,
+    max_lon: float,
+    max_lat: float,
 ) -> float:
     """Sample NDVI value at a geographic coordinate using nearest neighbor."""
     if max_lon <= min_lon or max_lat <= min_lat:
@@ -424,9 +437,7 @@ def _ndvi_to_rate(ndvi: float, cfg: VRIConverterConfig) -> float:
         return cfg.ndvi_high_rate
 
 
-def _point_in_polygon_simple(
-    px: float, py: float, polygon: list[tuple[float, float]]
-) -> bool:
+def _point_in_polygon_simple(px: float, py: float, polygon: list[tuple[float, float]]) -> bool:
     """Ray casting point-in-polygon test."""
     n = len(polygon)
     inside = False

@@ -206,9 +206,7 @@ class TestEquipmentLocation:
 
     def test_update_location(self, client):
         """Test updating equipment GPS location"""
-        response = client.post(
-            "/api/v1/equipment/eq_001/location?lat=15.5&lon=44.2&location_name=New%20Location"
-        )
+        response = client.post("/api/v1/equipment/eq_001/location?lat=15.5&lon=44.2&location_name=New%20Location")
         assert response.status_code == 200
         data = response.json()
         assert data["current_lat"] == 15.5
@@ -316,8 +314,6 @@ class TestMaintenanceTypes:
         ]
         for m_type in types:
             response = client.post(
-                f"/api/v1/equipment/eq_001/maintenance"
-                f"?maintenance_type={m_type}"
-                f"&description=Test%20{m_type}"
+                f"/api/v1/equipment/eq_001/maintenance?maintenance_type={m_type}&description=Test%20{m_type}"
             )
             assert response.status_code == 201, f"Failed for type: {m_type}"

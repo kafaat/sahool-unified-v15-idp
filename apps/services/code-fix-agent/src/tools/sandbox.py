@@ -445,9 +445,7 @@ else:
         """تعيين حدود العملية (Unix only)"""
         try:
             # CPU time limit
-            resource.setrlimit(
-                resource.RLIMIT_CPU, (self.config.cpu_time_limit, self.config.cpu_time_limit)
-            )
+            resource.setrlimit(resource.RLIMIT_CPU, (self.config.cpu_time_limit, self.config.cpu_time_limit))
 
             # Memory limit
             mem_bytes = self.config.memory_limit_mb * 1024 * 1024
@@ -458,9 +456,7 @@ else:
             resource.setrlimit(resource.RLIMIT_FSIZE, (file_bytes, file_bytes))
 
             # Process limit
-            resource.setrlimit(
-                resource.RLIMIT_NPROC, (self.config.max_processes, self.config.max_processes)
-            )
+            resource.setrlimit(resource.RLIMIT_NPROC, (self.config.max_processes, self.config.max_processes))
 
         except Exception as e:
             logger.warning("failed_to_set_limits", error=str(e))

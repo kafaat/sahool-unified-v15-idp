@@ -101,10 +101,7 @@ class CalibrationEngine:
         self,
         predictor: Predictor,
         bounds: list[ParameterBound],
-        cost_fn: Callable[
-            [dict[str, dict[str, float]], list[CalibrationTarget]], float
-        ]
-        | None = None,
+        cost_fn: Callable[[dict[str, dict[str, float]], list[CalibrationTarget]], float] | None = None,
         seed: int = 42,
     ) -> None:
         self._predictor = predictor
@@ -113,17 +110,10 @@ class CalibrationEngine:
         self._rng = random.Random(seed)
 
     def _sample_theta(self) -> dict[str, float]:
-        return {
-            b.name: self._rng.uniform(b.lower, b.upper) for b in self._bounds
-        }
+        return {b.name: self._rng.uniform(b.lower, b.upper) for b in self._bounds}
 
     def _initial_theta(self) -> dict[str, float]:
-        return {
-            b.name: (
-                b.initial if b.initial is not None else (b.lower + b.upper) / 2.0
-            )
-            for b in self._bounds
-        }
+        return {b.name: (b.initial if b.initial is not None else (b.lower + b.upper) / 2.0) for b in self._bounds}
 
     def _perturb(self, theta: dict[str, float], scale: float = 0.1) -> dict[str, float]:
         perturbed = {}
@@ -341,17 +331,13 @@ class BayesianCalibration:
         if rmse_lai is not None and rmse_lai == rmse_lai:  # NaN check
             if rmse_lai > self._config.max_rmse_lai:
                 safe = False
-                violations["LAI"] = (
-                    f"RMSE {rmse_lai:.3f} > threshold {self._config.max_rmse_lai}"
-                )
+                violations["LAI"] = f"RMSE {rmse_lai:.3f} > threshold {self._config.max_rmse_lai}"
 
         rmse_bio = val.rmse.get("biomass")
         if rmse_bio is not None and rmse_bio == rmse_bio:
             if rmse_bio > self._config.max_rmse_biomass:
                 safe = False
-                violations["biomass"] = (
-                    f"RMSE {rmse_bio:.1f} > threshold {self._config.max_rmse_biomass}"
-                )
+                violations["biomass"] = f"RMSE {rmse_bio:.1f} > threshold {self._config.max_rmse_biomass}"
 
         logger.info(
             "bayesian_calibration_complete",

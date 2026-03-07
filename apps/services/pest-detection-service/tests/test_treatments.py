@@ -214,9 +214,7 @@ class TestTreatmentDataIntegrity:
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        all_options = (
-            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
-        )
+        all_options = data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         for option in all_options:
             opt_id = option["id"]
             assert option["name_ar"], f"Missing Arabic name for option {opt_id}"
@@ -238,9 +236,7 @@ class TestTreatmentDataIntegrity:
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        all_options = (
-            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
-        )
+        all_options = data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         for option in all_options:
             assert "effectiveness_rating" in option
             assert 0 <= option["effectiveness_rating"] <= 5
@@ -250,9 +246,7 @@ class TestTreatmentDataIntegrity:
         response = client.get("/api/v1/treatments/protocols/rpw")
         data = response.json()
 
-        all_options = (
-            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
-        )
+        all_options = data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         for option in all_options:
             opt_id = option["id"]
             assert option["environmental_impact"], f"Missing env impact for {opt_id}"

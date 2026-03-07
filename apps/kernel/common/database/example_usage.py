@@ -225,9 +225,7 @@ def example_create_migration():
     print(f"إنشاء هجرة جديدة: {migration_name}")
 
     try:
-        result = manager.create_migration(
-            name=migration_name, description=description, autogenerate=False
-        )
+        result = manager.create_migration(name=migration_name, description=description, autogenerate=False)
 
         print(f"\n✓ {result}")
 

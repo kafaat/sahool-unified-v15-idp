@@ -376,9 +376,7 @@ class MyWidget extends StatefulWidget {
         result = await analyzer.analyze(code)
 
         # Should detect Flutter patterns
-        best_practice_issues = [
-            i for i in result.issues if i.category == IssueCategory.BEST_PRACTICE
-        ]
+        best_practice_issues = [i for i in result.issues if i.category == IssueCategory.BEST_PRACTICE]
         # Empty setState should be detected
 
     @pytest.mark.asyncio

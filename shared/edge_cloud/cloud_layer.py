@@ -71,9 +71,7 @@ class PestDetectionModel:
         """Initialize pest detection model."""
         self._logger = structlog.get_logger(__name__).bind(model=self.MODEL_NAME)
 
-    async def detect(
-        self, image_data: bytes | str, confidence_threshold: float = 0.5
-    ) -> list[PestDetection]:
+    async def detect(self, image_data: bytes | str, confidence_threshold: float = 0.5) -> list[PestDetection]:
         """
         Detect pests in an image.
         كشف الآفات في صورة
@@ -568,9 +566,7 @@ class CloudAILayer:
             message_ar="تم تهيئة طبقة السحابة",
         )
 
-    async def pest_detection(
-        self, image: bytes | str, confidence_threshold: float = 0.5
-    ) -> tuple[str, float]:
+    async def pest_detection(self, image: bytes | str, confidence_threshold: float = 0.5) -> tuple[str, float]:
         """
         Detect pests in crop image using YOLOv5-style model.
         كشف الآفات في صورة المحصول باستخدام نموذج بأسلوب YOLOv5
@@ -638,9 +634,7 @@ class CloudAILayer:
 
         return pest_type, confidence
 
-    async def pest_detection_full(
-        self, image: bytes | str, confidence_threshold: float = 0.5
-    ) -> list[PestDetection]:
+    async def pest_detection_full(self, image: bytes | str, confidence_threshold: float = 0.5) -> list[PestDetection]:
         """
         Get full pest detection results including all detections.
         الحصول على نتائج كشف الآفات الكاملة
@@ -1028,9 +1022,7 @@ class CloudAILayer:
         if len(self._inferences) > self._max_inference_history:
             self._inferences = self._inferences[-self._max_inference_history :]
 
-    def get_inference_history(
-        self, model_name: str | None = None, limit: int = 100
-    ) -> list[CloudInference]:
+    def get_inference_history(self, model_name: str | None = None, limit: int = 100) -> list[CloudInference]:
         """
         Get inference history.
         الحصول على سجل الاستدلال
@@ -1058,9 +1050,7 @@ class CloudAILayer:
             Dictionary of statistics
         """
         avg_processing_time = (
-            self._total_processing_time_ms / self._total_inferences
-            if self._total_inferences > 0
-            else 0.0
+            self._total_processing_time_ms / self._total_inferences if self._total_inferences > 0 else 0.0
         )
 
         return {

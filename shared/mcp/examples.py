@@ -63,9 +63,7 @@ async def example_http_client():
         logger.info("=" * 60)
 
         try:
-            field_data = await client.get_field_data(
-                field_id="field-123", include_history=True, include_sensors=True
-            )
+            field_data = await client.get_field_data(field_id="field-123", include_history=True, include_sensors=True)
             logger.info(f"Field data: {field_data}")
         except Exception as e:
             logger.error(f"Get field data failed: {e}")
@@ -151,9 +149,7 @@ async def example_http_client():
         logger.info("=" * 60)
 
         try:
-            prompt = await client.get_prompt(
-                name="field_analysis", arguments={"field_id": "field-123"}
-            )
+            prompt = await client.get_prompt(name="field_analysis", arguments={"field_id": "field-123"})
             logger.info(f"Prompt: {prompt}")
         except Exception as e:
             logger.error(f"Get prompt failed: {e}")

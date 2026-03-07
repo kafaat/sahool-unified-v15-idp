@@ -139,9 +139,7 @@ class CropHealthIntegration:
         self.event_publisher = event_publisher
         self.logger = logging.getLogger(__name__)
 
-    async def map_detection_to_ipm(
-        self, detection_data: dict, field_id: str, tenant_id: str
-    ) -> dict[str, Any]:
+    async def map_detection_to_ipm(self, detection_data: dict, field_id: str, tenant_id: str) -> dict[str, Any]:
         """
         تعيين بيانات اكتشاف الآفات/الأمراض إلى وثائق IPM
         Map pest/disease detection to IPM documentation
@@ -182,9 +180,7 @@ class CropHealthIntegration:
                     "economic_threshold_exceeded": self._check_economic_threshold(detection_data),
                 },
                 # IPM recommendations
-                "ipm_recommendations": self._generate_ipm_recommendations(
-                    threat_type, severity, detection_data
-                ),
+                "ipm_recommendations": self._generate_ipm_recommendations(threat_type, severity, detection_data),
                 # Documentation
                 "evidence": {
                     "images": detection_data.get("image_urls", []),
@@ -413,11 +409,7 @@ class CropHealthIntegration:
                 compliance_results["applications"].append(app_compliance)
 
             # Determine overall compliance
-            overall_status = (
-                "compliant"
-                if compliance_results["non_compliant_applications"] == 0
-                else "non_compliant"
-            )
+            overall_status = "compliant" if compliance_results["non_compliant_applications"] == 0 else "non_compliant"
 
             # Publish compliance update
             await self.event_publisher.publish_compliance_updated(
@@ -545,9 +537,7 @@ class CropHealthIntegration:
 
         # Check chemical usage ratio
         if chemical_count > non_chemical_count:
-            recommendations.append(
-                "Increase use of non-chemical IPM methods to reduce reliance on pesticides"
-            )
+            recommendations.append("Increase use of non-chemical IPM methods to reduce reliance on pesticides")
 
         # Check for recurring threats
         threat_counts = {}
@@ -556,16 +546,12 @@ class CropHealthIntegration:
 
         recurring = [name for name, count in threat_counts.items() if count > 2]
         if recurring:
-            recommendations.append(
-                f"Implement preventive measures for recurring threats: {', '.join(recurring)}"
-            )
+            recommendations.append(f"Implement preventive measures for recurring threats: {', '.join(recurring)}")
 
         # Check effectiveness
         low_effectiveness = sum(1 for r in ipm_records if r.effectiveness and r.effectiveness < 0.5)
         if low_effectiveness > 0:
-            recommendations.append(
-                "Review and improve intervention strategies with low effectiveness"
-            )
+            recommendations.append("Review and improve intervention strategies with low effectiveness")
 
         return recommendations
 

@@ -186,9 +186,7 @@ class MCPServer:
             ]
         }
 
-    async def handle_resources_templates_list(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_resources_templates_list(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle resources/templates/list request"""
         return {"resourceTemplates": self.resources.get_resource_templates()}
 
@@ -493,12 +491,8 @@ if __name__ == "__main__":
         default="stdio",
         help="Transport type (default: stdio)",
     )
-    parser.add_argument(
-        "--host", default="0.0.0.0", help="Host for SSE transport (default: 0.0.0.0)"
-    )
-    parser.add_argument(
-        "--port", type=int, default=8200, help="Port for SSE transport (default: 8200)"
-    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host for SSE transport (default: 0.0.0.0)")
+    parser.add_argument("--port", type=int, default=8200, help="Port for SSE transport (default: 8200)")
 
     args = parser.parse_args()
 

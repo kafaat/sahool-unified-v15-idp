@@ -137,7 +137,7 @@ class QueryBuilder:
         if not self._TABLE_NAME_PATTERN.match(table):
             raise ValueError(f"Invalid table name: {table}")
         # Quote the identifier to prevent SQL injection
-        self.table = '"' + table.replace('"', '') + '"'
+        self.table = '"' + table.replace('"', "") + '"'
         self._columns: list[str] = ["*"]
         self._conditions: list[str] = []
         self._params: list[Any] = []
@@ -441,8 +441,7 @@ async def batch_insert(
 
         # Adjust placeholders for this batch size
         batch_placeholders = ", ".join(
-            f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})"
-            for j in range(len(batch))
+            f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})" for j in range(len(batch))
         )
 
         sql = f"""

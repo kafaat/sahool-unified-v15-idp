@@ -130,9 +130,7 @@ class InsectPhenoParams:
     t_upper_c: float = 35.0  # Upper threshold (°C) | العتبة العليا
     dd_egg_hatch: float = 120.0  # DD to egg hatch | وحدات الحرارة للفقس
     dd_adult_emergence: float = 350.0  # DD to adult | وحدات الحرارة للبلوغ
-    dd_generation: float = (
-        600.0  # DD per complete generation | وحدات الحرارة للجيل الكامل
-    )
+    dd_generation: float = 600.0  # DD per complete generation | وحدات الحرارة للجيل الكامل
 
 
 # Pre-calibrated insect parameters for key regional pests
@@ -194,9 +192,7 @@ class LVState:
     """
 
     pest_density: float = 100.0  # Pest population (ind. m⁻²) | كثافة الآفة
-    enemy_density: float = (
-        5.0  # Natural enemy population (ind. m⁻²) | كثافة العدو الطبيعي
-    )
+    enemy_density: float = 5.0  # Natural enemy population (ind. m⁻²) | كثافة العدو الطبيعي
 
 
 def lv_daily_step(
@@ -359,9 +355,7 @@ class PestEpidemiologyEngine:
                 generation_1_day = day_idx + 1
                 break  # stop after first generation
 
-            daily_log.append(
-                {"day": day_idx + 1, "dd": round(dd, 2), "cum_dd": round(cum_dd, 1)}
-            )
+            daily_log.append({"day": day_idx + 1, "dd": round(dd, 2), "cum_dd": round(cum_dd, 1)})
 
         logger.info(
             "pest_phenology_simulation_complete",
@@ -397,9 +391,7 @@ class PestEpidemiologyEngine:
         Lotka-Volterra predator-prey dynamics for IPM.
         ديناميكيات المفترس-الفريسة لإدارة الآفات المتكاملة.
         """
-        state = LVState(
-            pest_density=initial_pest_density, enemy_density=initial_enemy_density
-        )
+        state = LVState(pest_density=initial_pest_density, enemy_density=initial_enemy_density)
         daily_log = []
 
         for day in range(1, days + 1):

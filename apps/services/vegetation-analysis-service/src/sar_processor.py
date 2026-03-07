@@ -226,11 +226,7 @@ class SARProcessor:
 
         # Empirical soil moisture model calibrated for Yemen
         # SM = A + B * log10(VV/VH) + C * incidence_angle
-        sm_percent = (
-            self.CALIB_A
-            + self.CALIB_B * math.log10(max(ratio, 0.1))
-            + self.CALIB_C * incidence_angle
-        )
+        sm_percent = self.CALIB_A + self.CALIB_B * math.log10(max(ratio, 0.1)) + self.CALIB_C * incidence_angle
 
         # Clamp to realistic range (0-100%)
         sm_percent = max(0.0, min(100.0, sm_percent))
@@ -341,17 +337,13 @@ class SARProcessor:
 
             # In a real implementation, would download and process SAR imagery
             # For now, simulate realistic values based on season/location
-            vv_db, vh_db, incidence_angle = self._simulate_sar_data(
-                latitude, longitude, target_date
-            )
+            vv_db, vh_db, incidence_angle = self._simulate_sar_data(latitude, longitude, target_date)
 
             data_source = "sentinel-1"
             logger.info(f"Using Sentinel-1 scene {scene['scene_id']} for soil moisture")
         else:
             # Fallback to simulated data
-            vv_db, vh_db, incidence_angle = self._simulate_sar_data(
-                latitude, longitude, target_date
-            )
+            vv_db, vh_db, incidence_angle = self._simulate_sar_data(latitude, longitude, target_date)
             data_source = "simulated"
             logger.info("No Sentinel-1 data available, using simulated values")
 
@@ -460,9 +452,7 @@ class SARProcessor:
         while current <= end_date:
             # Simulate SAR acquisition
             if latitude and longitude:
-                vv_db, vh_db, incidence_angle = self._simulate_sar_data(
-                    latitude, longitude, current
-                )
+                vv_db, vh_db, incidence_angle = self._simulate_sar_data(latitude, longitude, current)
             else:
                 # Default values if no coordinates
                 import random

@@ -464,9 +464,7 @@ def test_all_algorithms():
         print("\n2. Testing bcrypt (legacy)...")
         import bcrypt
 
-        bcrypt_hash = bcrypt.hashpw(
-            test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+        bcrypt_hash = bcrypt.hashpw(test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
         is_valid, needs_rehash = hasher.verify_password(test_password, bcrypt_hash)
         print(f"   Hash: {bcrypt_hash[:50]}...")
         print(f"   Verification: {'✓ PASS' if is_valid else '✗ FAIL'}")

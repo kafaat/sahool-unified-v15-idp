@@ -1,4 +1,5 @@
 """Health endpoint tests for field-intelligence."""
+
 import pytest
 
 

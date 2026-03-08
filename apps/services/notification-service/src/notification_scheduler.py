@@ -330,8 +330,7 @@ class NotificationScheduler:
                 scheduled_notif.scheduled_time = datetime.now(UTC) + retry_delay
                 heapq.heappush(self._queue, scheduled_notif)
                 logger.info(
-                    f"🔄 Retry {scheduled_notif.retry_count}/{scheduled_notif.max_retries} "
-                    f"scheduled in {retry_delay}"
+                    f"🔄 Retry {scheduled_notif.retry_count}/{scheduled_notif.max_retries} scheduled in {retry_delay}"
                 )
 
             return False

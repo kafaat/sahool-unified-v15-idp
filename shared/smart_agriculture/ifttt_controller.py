@@ -656,9 +656,7 @@ class IFTTTEnvironmentController:
                 )
 
             # Calculate projected savings
-            optimization_results["projected_energy_saving"] += (
-                rule.energy_cost * rule.trigger_count * saving_multiplier
-            )
+            optimization_results["projected_energy_saving"] += rule.energy_cost * rule.trigger_count * saving_multiplier
 
         return optimization_results
 
@@ -678,11 +676,7 @@ class IFTTTEnvironmentController:
 
         # Calculate actual energy saving
         if self._total_energy_baseline > 0:
-            energy_saving = (
-                (self._total_energy_baseline - self._total_energy_used)
-                / self._total_energy_baseline
-                * 100
-            )
+            energy_saving = (self._total_energy_baseline - self._total_energy_used) / self._total_energy_baseline * 100
         else:
             energy_saving = 20.0  # Default documented value
 
@@ -711,9 +705,7 @@ class IFTTTEnvironmentController:
                 "enabled": rule.enabled,
                 "cooldown_seconds": rule.cooldown_seconds,
                 "trigger_count": rule.trigger_count,
-                "last_triggered": (
-                    rule.last_triggered.isoformat() if rule.last_triggered else None
-                ),
+                "last_triggered": (rule.last_triggered.isoformat() if rule.last_triggered else None),
             }
             for rule in self._rules.values()
         ]

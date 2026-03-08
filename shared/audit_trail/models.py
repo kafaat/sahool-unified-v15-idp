@@ -454,9 +454,7 @@ class AuditEntry:
             prev_hash=data.get("prev_hash"),
             entry_hash=data.get("entry_hash"),
             retention_period=RetentionPeriod(data.get("retention_period", "globalgap")),
-            expires_at=(
-                datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-            ),
+            expires_at=(datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None),
         )
 
 

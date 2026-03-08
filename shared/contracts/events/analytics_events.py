@@ -28,12 +28,8 @@ class NDVICalculatedEvent(BaseEvent):
             "field_id": str(self.field_id),
             "ndvi_value": self.ndvi_value,
             "satellite_source": self.satellite_source,
-            "acquisition_date": (
-                self.acquisition_date.isoformat() if self.acquisition_date else None
-            ),
-            "calculation_date": (
-                self.calculation_date.isoformat() if self.calculation_date else None
-            ),
+            "acquisition_date": (self.acquisition_date.isoformat() if self.acquisition_date else None),
+            "calculation_date": (self.calculation_date.isoformat() if self.calculation_date else None),
             "cloud_cover_percent": self.cloud_cover_percent,
             "quality_flag": self.quality_flag,
         }

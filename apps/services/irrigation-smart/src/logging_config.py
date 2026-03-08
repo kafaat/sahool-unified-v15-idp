@@ -130,9 +130,7 @@ class IrrigationLogger:
         if use_json:
             handler.setFormatter(StructuredFormatter(name))
         else:
-            handler.setFormatter(
-                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-            )
+            handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
         self._logger.addHandler(handler)
         self._logger.propagate = False

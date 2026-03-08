@@ -1446,25 +1446,7 @@ services:
           policy: local
           fault_tolerant: true
 
-  # Agro Rules Worker - عامل القواعد الزراعية
-  # NATS subscriber with HTTP health endpoint
-  # مشترك NATS مع نقطة نهاية صحة HTTP
-  - name: agro-rules
-    host: agro-rules
-    port: 8151
-    protocol: http
-    routes:
-      - name: agro-rules-route
-        paths: ["/api/v1/agro-rules", "/agro-rules"]
-        strip_path: true
-        protocols: ["http", "https"]
-    plugins:
-      - name: rate-limiting
-        config:
-          minute: 60
-          hour: 2000
-          policy: local
-          fault_tolerant: true
+  # NOTE: agro-rules is now a NATS-only worker (no HTTP port) — Kong route removed
 
 # ------------------------------------------------------------------------------
 # Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
@@ -1472,6 +1454,7 @@ services:
 # - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
 # - etcd, etcd-init, minio, milvus
 # - ollama / ollama-model-loader (internal LLM, expose only if needed)
+# - agro-rules (NATS worker, no HTTP port)
 #
 # Deprecated services REMOVED from Kong (no backend, returned 502):
 # الخدمات المهملة التي أُزيلت من Kong (لا يوجد خادم، كانت تُرجع 502):

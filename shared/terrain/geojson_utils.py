@@ -251,9 +251,7 @@ def create_linestring(
     Returns:
         GeoJSON Feature dictionary
     """
-    coords = [
-        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates
-    ]
+    coords = [[round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates]
     feature = {
         "type": "Feature",
         "geometry": {
@@ -286,9 +284,7 @@ def create_polygon(
     Returns:
         GeoJSON Feature dictionary
     """
-    coords = [
-        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates
-    ]
+    coords = [[round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates]
 
     # Ensure the polygon is closed
     if ensure_closed and coords and coords[0] != coords[-1]:
@@ -374,10 +370,7 @@ def haversine_distance(lon1: float, lat1: float, lon2: float, lat2: float) -> fl
     delta_lat = degrees_to_radians(lat2 - lat1)
     delta_lon = degrees_to_radians(lon2 - lon1)
 
-    a = (
-        math.sin(delta_lat / 2) ** 2
-        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
-    )
+    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return EARTH_RADIUS_M * c

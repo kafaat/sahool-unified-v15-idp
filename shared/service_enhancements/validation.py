@@ -99,9 +99,7 @@ def validate_field_id(value: str) -> str:
     ]
 
     if not any(re.match(pattern, value) for pattern in patterns):
-        raise ValueError(
-            f"Invalid field ID format: {value}. Expected format: FIELD-XXXXXXXX or valid UUID"
-        )
+        raise ValueError(f"Invalid field ID format: {value}. Expected format: FIELD-XXXXXXXX or valid UUID")
 
     return value
 
@@ -126,10 +124,7 @@ def validate_phone(value: str, country_code: str = "967") -> str:
     # Yemen mobile: 7XXXXXXXX (9 digits)
     # Yemen landline: 1XXXXXXXX or 2XXXXXXXX (8-9 digits)
     if not (8 <= len(digits) <= 9):
-        raise ValueError(
-            f"Invalid phone number length: {len(digits)} digits. "
-            "Expected 8-9 digits for Yemen numbers."
-        )
+        raise ValueError(f"Invalid phone number length: {len(digits)} digits. Expected 8-9 digits for Yemen numbers.")
 
     # Mobile numbers start with 7
     if len(digits) == 9 and not digits.startswith("7"):
@@ -152,14 +147,12 @@ def validate_coordinates(lat: float, lon: float) -> tuple[float, float]:
 
     if not (yemen_bounds["lat_min"] <= lat <= yemen_bounds["lat_max"]):
         raise ValueError(
-            f"Latitude {lat} is outside Yemen bounds "
-            f"({yemen_bounds['lat_min']} to {yemen_bounds['lat_max']})"
+            f"Latitude {lat} is outside Yemen bounds ({yemen_bounds['lat_min']} to {yemen_bounds['lat_max']})"
         )
 
     if not (yemen_bounds["lon_min"] <= lon <= yemen_bounds["lon_max"]):
         raise ValueError(
-            f"Longitude {lon} is outside Yemen bounds "
-            f"({yemen_bounds['lon_min']} to {yemen_bounds['lon_max']})"
+            f"Longitude {lon} is outside Yemen bounds ({yemen_bounds['lon_min']} to {yemen_bounds['lon_max']})"
         )
 
     return lat, lon
@@ -191,9 +184,7 @@ def validate_date_range(
 
         days_diff = (end_date - start_date).days
         if days_diff > max_days:
-            raise ValueError(
-                f"Date range exceeds maximum of {max_days} days (requested: {days_diff} days)"
-            )
+            raise ValueError(f"Date range exceeds maximum of {max_days} days (requested: {days_diff} days)")
 
     if not allow_future:
         if start_date and start_date > today:

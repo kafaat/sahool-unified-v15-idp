@@ -351,6 +351,7 @@ class AgentCircuitBreaker:
 # Agent Registration
 # ---------------------------------------------------------------------------
 
+
 def register_all_agents(
     router: AgentRouter | None = None,
     additional_agents: list[dict[str, Any]] | None = None,
@@ -411,6 +412,7 @@ def register_all_agents(
 # ---------------------------------------------------------------------------
 # Orchestration Manager
 # ---------------------------------------------------------------------------
+
 
 class OrchestrationManager:
     """
@@ -736,9 +738,7 @@ class OrchestrationManager:
                 result = await executor(task)
                 result.started_at = started_at
                 result.completed_at = datetime.now(UTC)
-                result.execution_time_ms = (
-                    result.completed_at - started_at
-                ).total_seconds() * 1000
+                result.execution_time_ms = (result.completed_at - started_at).total_seconds() * 1000
                 return result
             except Exception as e:
                 logger.error("Custom executor failed: %s", e)
@@ -752,9 +752,7 @@ class OrchestrationManager:
                         result = await fb(task)
                         result.started_at = started_at
                         result.completed_at = datetime.now(UTC)
-                        result.execution_time_ms = (
-                            result.completed_at - started_at
-                        ).total_seconds() * 1000
+                        result.execution_time_ms = (result.completed_at - started_at).total_seconds() * 1000
                         return result
                     except Exception as e:
                         logger.error("Fallback executor for %s failed: %s", cap.value, e)
@@ -773,9 +771,7 @@ class OrchestrationManager:
             execution_time_ms=(completed_at - started_at).total_seconds() * 1000,
         )
 
-    def _get_executor_for_agent(
-        self, agent_id: str
-    ) -> Callable[[Task], Coroutine[Any, Any, TaskResult]]:
+    def _get_executor_for_agent(self, agent_id: str) -> Callable[[Task], Coroutine[Any, Any, TaskResult]]:
         """Get the executor for a specific agent (swarm-based or simulated)."""
         if self.swarm and agent_id in self.swarm._agent_executors:
             executor = self.swarm._agent_executors[agent_id]

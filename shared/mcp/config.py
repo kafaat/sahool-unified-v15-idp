@@ -93,9 +93,7 @@ class ServerConfig:
     version: str = "1.0.0"
     host: str = field(default_factory=lambda: os.getenv("MCP_HOST", "0.0.0.0"))
     port: int = field(default_factory=lambda: int(os.getenv("MCP_PORT", "8200")))
-    transport: TransportType = field(
-        default_factory=lambda: TransportType(os.getenv("MCP_TRANSPORT", "http"))
-    )
+    transport: TransportType = field(default_factory=lambda: TransportType(os.getenv("MCP_TRANSPORT", "http")))
     debug: bool = field(default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true")
     cors_origins: list[str] = field(
         default_factory=lambda: os.getenv("MCP_CORS_ORIGINS", "http://localhost:3000,http://localhost:8200").split(",")
@@ -125,23 +123,17 @@ class APIConfig:
     Configures endpoints for various SAHOOL services that MCP tools connect to.
     """
 
-    base_url: str = field(
-        default_factory=lambda: os.getenv("SAHOOL_API_URL", "http://localhost:8000")
-    )
+    base_url: str = field(default_factory=lambda: os.getenv("SAHOOL_API_URL", "http://localhost:8000"))
 
     # Service URLs
     field_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "FIELD_SERVICE_URL", "http://field-management-service:3000"
-        )
+        default_factory=lambda: os.getenv("FIELD_SERVICE_URL", "http://field-management-service:3000")
     )
     weather_service_url: str = field(
         default_factory=lambda: os.getenv("WEATHER_SERVICE_URL", "http://weather-service:8092")
     )
     crop_intelligence_url: str = field(
-        default_factory=lambda: os.getenv(
-            "CROP_INTELLIGENCE_URL", "http://crop-intelligence-service:8095"
-        )
+        default_factory=lambda: os.getenv("CROP_INTELLIGENCE_URL", "http://crop-intelligence-service:8095")
     )
     irrigation_service_url: str = field(
         default_factory=lambda: os.getenv("IRRIGATION_SERVICE_URL", "http://irrigation-smart:8094")
@@ -149,19 +141,13 @@ class APIConfig:
     advisory_service_url: str = field(
         default_factory=lambda: os.getenv("ADVISORY_SERVICE_URL", "http://advisory-service:8093")
     )
-    user_service_url: str = field(
-        default_factory=lambda: os.getenv("USER_SERVICE_URL", "http://user-service:3025")
-    )
+    user_service_url: str = field(default_factory=lambda: os.getenv("USER_SERVICE_URL", "http://user-service:3025"))
     notification_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "NOTIFICATION_SERVICE_URL", "http://notification-service:8110"
-        )
+        default_factory=lambda: os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8110")
     )
 
     # Timeouts (seconds)
-    default_timeout: float = field(
-        default_factory=lambda: float(os.getenv("MCP_DEFAULT_TIMEOUT", "30"))
-    )
+    default_timeout: float = field(default_factory=lambda: float(os.getenv("MCP_DEFAULT_TIMEOUT", "30")))
     long_timeout: float = field(default_factory=lambda: float(os.getenv("MCP_LONG_TIMEOUT", "120")))
 
     def to_dict(self) -> dict[str, Any]:
@@ -188,11 +174,11 @@ class AuthConfig:
     Settings for JWT authentication and API key validation.
     """
 
-    jwt_secret_key: str = field(default_factory=lambda: os.getenv("JWT_SECRET_KEY", ""))  # Empty = auth rejects all tokens
+    jwt_secret_key: str = field(
+        default_factory=lambda: os.getenv("JWT_SECRET_KEY", "")
+    )  # Empty = auth rejects all tokens
     jwt_algorithm: str = field(default_factory=lambda: os.getenv("JWT_ALGORITHM", "HS256"))
-    jwt_expiry_minutes: int = field(
-        default_factory=lambda: int(os.getenv("JWT_EXPIRY_MINUTES", "60"))
-    )
+    jwt_expiry_minutes: int = field(default_factory=lambda: int(os.getenv("JWT_EXPIRY_MINUTES", "60")))
     api_key_header: str = "X-API-Key"
     bearer_header: str = "Authorization"
 
@@ -228,20 +214,14 @@ class AgentConfig:
 
     # Agent pool settings
     max_agents: int = field(default_factory=lambda: int(os.getenv("MCP_MAX_AGENTS", "10")))
-    agent_timeout_seconds: int = field(
-        default_factory=lambda: int(os.getenv("MCP_AGENT_TIMEOUT", "300"))
-    )
+    agent_timeout_seconds: int = field(default_factory=lambda: int(os.getenv("MCP_AGENT_TIMEOUT", "300")))
     agent_cleanup_interval_seconds: int = field(
         default_factory=lambda: int(os.getenv("MCP_AGENT_CLEANUP_INTERVAL", "60"))
     )
 
     # Model settings
-    default_model: str = field(
-        default_factory=lambda: os.getenv("MCP_DEFAULT_MODEL", "claude-3-sonnet")
-    )
-    ollama_url: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    )
+    default_model: str = field(default_factory=lambda: os.getenv("MCP_DEFAULT_MODEL", "claude-3-sonnet"))
+    ollama_url: str = field(default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
     ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "codellama:7b"))
 
     # Agent types configuration
@@ -268,12 +248,8 @@ class BilingualConfig:
     Settings for Arabic/English bilingual support.
     """
 
-    default_language: Language = field(
-        default_factory=lambda: Language(os.getenv("MCP_DEFAULT_LANGUAGE", "en"))
-    )
-    include_both_languages: bool = field(
-        default_factory=lambda: os.getenv("MCP_BILINGUAL", "true").lower() == "true"
-    )
+    default_language: Language = field(default_factory=lambda: Language(os.getenv("MCP_DEFAULT_LANGUAGE", "en")))
+    include_both_languages: bool = field(default_factory=lambda: os.getenv("MCP_BILINGUAL", "true").lower() == "true")
     arabic_rtl: bool = True  # Always use RTL for Arabic
 
     # Common translations
@@ -432,8 +408,7 @@ class ToolDescriptions:
     IRRIGATION_RECOMMENDATION = {
         "en": "Calculate optimal irrigation requirements based on soil moisture, "
         "weather forecast, crop type, and growth stage.",
-        "ar": "حساب متطلبات الري المثلى بناءً على رطوبة التربة "
-        "وتوقعات الطقس ونوع المحصول ومرحلة النمو.",
+        "ar": "حساب متطلبات الري المثلى بناءً على رطوبة التربة وتوقعات الطقس ونوع المحصول ومرحلة النمو.",
     }
 
     FERTILIZER_RECOMMENDATION = {
@@ -446,20 +421,17 @@ class ToolDescriptions:
     GET_FARMER_INFO = {
         "en": "Retrieve farmer profile information including contact details, "
         "farm portfolio, preferences, and interaction history.",
-        "ar": "استرجاع معلومات ملف المزارع بما في ذلك بيانات الاتصال "
-        "ومحفظة المزرعة والتفضيلات وسجل التفاعلات.",
+        "ar": "استرجاع معلومات ملف المزارع بما في ذلك بيانات الاتصال ومحفظة المزرعة والتفضيلات وسجل التفاعلات.",
     }
 
     LOG_INTERACTION = {
         "en": "Log an interaction with a farmer. Records advisory given, "
         "farmer response, and follow-up actions needed.",
-        "ar": "تسجيل تفاعل مع مزارع. يسجل الاستشارة المقدمة "
-        "واستجابة المزارع والإجراءات المطلوبة للمتابعة.",
+        "ar": "تسجيل تفاعل مع مزارع. يسجل الاستشارة المقدمة واستجابة المزارع والإجراءات المطلوبة للمتابعة.",
     }
 
     GET_RECOMMENDATIONS_HISTORY = {
-        "en": "Get history of recommendations given to a farmer, "
-        "including outcomes and feedback received.",
+        "en": "Get history of recommendations given to a farmer, including outcomes and feedback received.",
         "ar": "الحصول على سجل التوصيات المقدمة للمزارع بما في ذلك النتائج والتعليقات المستلمة.",
     }
 
@@ -478,10 +450,8 @@ class ToolDescriptions:
     }
 
     GET_AGENT_STATUS = {
-        "en": "Check the status of a spawned AI agent including activity, "
-        "resource usage, and pending tasks.",
-        "ar": "التحقق من حالة وكيل الذكاء الاصطناعي بما في ذلك النشاط "
-        "واستخدام الموارد والمهام المعلقة.",
+        "en": "Check the status of a spawned AI agent including activity, resource usage, and pending tasks.",
+        "ar": "التحقق من حالة وكيل الذكاء الاصطناعي بما في ذلك النشاط واستخدام الموارد والمهام المعلقة.",
     }
 
     @classmethod

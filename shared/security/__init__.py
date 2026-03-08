@@ -31,11 +31,14 @@ def __getattr__(name: str):
 
     if name in _deps_attrs:
         from . import deps
+
         return getattr(deps, name)
     if name in _guard_attrs:
         from . import guard
+
         return getattr(guard, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __version__ = "15.4.0"
 

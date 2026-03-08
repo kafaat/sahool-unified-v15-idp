@@ -447,18 +447,10 @@ class IrrigationSchedule:
             "field_id": self.field_id,
             "crop_type": self.crop_type.value,
             "recommendation": self.recommendation.value,
-            "recommended_date": self.recommended_date.isoformat()
-            if self.recommended_date
-            else None,
-            "recommended_time": self.recommended_time.isoformat()
-            if self.recommended_time
-            else None,
-            "optimal_window_start": self.optimal_window_start.isoformat()
-            if self.optimal_window_start
-            else None,
-            "optimal_window_end": self.optimal_window_end.isoformat()
-            if self.optimal_window_end
-            else None,
+            "recommended_date": self.recommended_date.isoformat() if self.recommended_date else None,
+            "recommended_time": self.recommended_time.isoformat() if self.recommended_time else None,
+            "optimal_window_start": self.optimal_window_start.isoformat() if self.optimal_window_start else None,
+            "optimal_window_end": self.optimal_window_end.isoformat() if self.optimal_window_end else None,
             "recommended_amount_mm": self.recommended_amount_mm,
             "original_amount_mm": self.original_amount_mm,
             "adjustment_factor": self.adjustment_factor,

@@ -174,7 +174,6 @@ else:
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 
-
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass

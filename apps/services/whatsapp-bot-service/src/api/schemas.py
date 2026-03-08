@@ -422,9 +422,7 @@ class ConversationState(BaseModel):
 
     def get_context_for_llm(self, limit: int = 10) -> list[dict[str, str]]:
         """Get conversation context formatted for LLM."""
-        return [
-            {"role": msg.role, "content": msg.content} for msg in self.get_recent_messages(limit)
-        ]
+        return [{"role": msg.role, "content": msg.content} for msg in self.get_recent_messages(limit)]
 
 
 # ============================================================================

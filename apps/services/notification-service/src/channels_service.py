@@ -262,9 +262,7 @@ class ChannelsService:
                     "channel": channel.channel.value,
                     "address": channel.address,
                     "verified": channel.verified,
-                    "verified_at": (
-                        channel.verified_at.isoformat() if channel.verified_at else None
-                    ),
+                    "verified_at": (channel.verified_at.isoformat() if channel.verified_at else None),
                     "enabled": channel.enabled,
                     "metadata": channel.metadata,
                     "created_at": channel.created_at.isoformat(),

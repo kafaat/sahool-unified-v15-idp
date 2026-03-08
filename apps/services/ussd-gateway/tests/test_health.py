@@ -1,5 +1,5 @@
 """Health endpoint tests for ussd-gateway."""
-import pytest
+
 
 
 class TestHealthEndpoints:

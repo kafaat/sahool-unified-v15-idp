@@ -36,6 +36,7 @@ except ImportError:
     def add_request_id_middleware(app):
         pass
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -137,7 +138,6 @@ except Exception as e:
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
-
 
     app.add_middleware(TenantContextMiddleware)
 except ImportError:

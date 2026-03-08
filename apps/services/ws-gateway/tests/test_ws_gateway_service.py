@@ -58,9 +58,7 @@ class TestWebSocketConnection:
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_success(self, mock_validate, client):
         """Test successful WebSocket connection (query param - deprecated)"""
-        mock_validate.return_value = AsyncMock(
-            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
-        )
+        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
 
         with client.websocket_connect("/ws?tenant_id=tenant_123&token=valid_token") as websocket:
             data = websocket.receive_json()
@@ -72,9 +70,7 @@ class TestWebSocketConnection:
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_with_auth_header(self, mock_validate, client):
         """Test successful WebSocket connection with Authorization header (preferred)"""
-        mock_validate.return_value = AsyncMock(
-            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
-        )
+        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
 
         # Note: TestClient may not support custom headers for websocket_connect
         # This is a placeholder for the expected behavior
@@ -129,9 +125,7 @@ class TestWebSocketMessaging:
     @patch("src.main.room_manager")
     def test_send_message_to_room(self, mock_room_manager, mock_validate, client):
         """Test sending message to a room"""
-        mock_validate.return_value = AsyncMock(
-            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
-        )
+        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
 
         mock_room_manager.broadcast_to_room = AsyncMock(return_value=5)
 
@@ -149,9 +143,7 @@ class TestWebSocketMessaging:
     @patch("src.main.validate_jwt_token")
     def test_websocket_message_echo(self, mock_validate, client):
         """Test message echo functionality"""
-        mock_validate.return_value = AsyncMock(
-            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
-        )
+        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
 
         with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:
             # Receive connection confirmation
@@ -209,9 +201,7 @@ class TestBroadcastAPI:
 
         broadcast_data = {"tenant_id": "tenant_123", "message": {"type": "test"}}
 
-        response = client.post(
-            "/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"}
-        )
+        response = client.post("/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"})
 
         assert response.status_code == 403
 
@@ -229,9 +219,7 @@ class TestBroadcastAPI:
             "message": {"type": "direct_message", "content": "Hello user"},
         }
 
-        response = client.post(
-            "/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"}
-        )
+        response = client.post("/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"})
 
         assert response.status_code == 200
         assert response.json()["recipients"] == 1
@@ -250,9 +238,7 @@ class TestBroadcastAPI:
             "message": {"type": "field_update", "content": "Field status changed"},
         }
 
-        response = client.post(
-            "/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"}
-        )
+        response = client.post("/broadcast", json=broadcast_data, headers={"Authorization": "Bearer token"})
 
         assert response.status_code == 200
         assert response.json()["recipients"] == 3
@@ -332,9 +318,7 @@ class TestCompleteWorkflow:
             websocket.send_json({"type": "join_room", "room": "field_123"})
 
             # Step 3: Send a message to the room
-            websocket.send_json(
-                {"type": "message", "room": "field_123", "content": "Hello from user"}
-            )
+            websocket.send_json({"type": "message", "room": "field_123", "content": "Hello from user"})
 
             # Connection should remain active
             assert websocket is not None

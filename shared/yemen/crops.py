@@ -507,9 +507,7 @@ def get_yemen_crop(name: str) -> YemenCropParameters | None:
     return YEMEN_CROPS.get(name.lower().replace(" ", "_"))
 
 
-def list_yemen_crops(
-    crop_type: str | None = None, region: str | None = None
-) -> list[YemenCropParameters]:
+def list_yemen_crops(crop_type: str | None = None, region: str | None = None) -> list[YemenCropParameters]:
     """List crops with optional filtering by type or region."""
     crops = list(YEMEN_CROPS.values())
     if crop_type:

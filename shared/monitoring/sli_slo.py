@@ -574,9 +574,7 @@ class SAHOOLSLORegistry:
         """Initialize SLOs for all SAHOOL services."""
 
         # Critical Infrastructure
-        self.services["postgres"] = create_critical_service_slos(
-            "postgres", "قاعدة البيانات PostgreSQL"
-        )
+        self.services["postgres"] = create_critical_service_slos("postgres", "قاعدة البيانات PostgreSQL")
         self.services["redis"] = create_critical_service_slos("redis", "ذاكرة التخزين المؤقت Redis")
         self.services["nats"] = create_critical_service_slos("nats", "نظام الرسائل NATS")
 
@@ -584,24 +582,14 @@ class SAHOOLSLORegistry:
         self.services["field-management-service"] = create_essential_service_slos(
             "field-management-service", "خدمة إدارة الحقول"
         )
-        self.services["user-service"] = create_essential_service_slos(
-            "user-service", "خدمة المستخدمين"
-        )
+        self.services["user-service"] = create_essential_service_slos("user-service", "خدمة المستخدمين")
         self.services["kong"] = create_essential_service_slos("kong", "بوابة API")
 
         # Standard Application Services
-        self.services["weather-service"] = create_standard_service_slos(
-            "weather-service", "خدمة الطقس"
-        )
-        self.services["advisory-service"] = create_standard_service_slos(
-            "advisory-service", "خدمة الاستشارات"
-        )
-        self.services["notification-service"] = create_standard_service_slos(
-            "notification-service", "خدمة الإشعارات"
-        )
-        self.services["irrigation-smart"] = create_standard_service_slos(
-            "irrigation-smart", "خدمة الري الذكي"
-        )
+        self.services["weather-service"] = create_standard_service_slos("weather-service", "خدمة الطقس")
+        self.services["advisory-service"] = create_standard_service_slos("advisory-service", "خدمة الاستشارات")
+        self.services["notification-service"] = create_standard_service_slos("notification-service", "خدمة الإشعارات")
+        self.services["irrigation-smart"] = create_standard_service_slos("irrigation-smart", "خدمة الري الذكي")
         self.services["task-service"] = create_standard_service_slos("task-service", "خدمة المهام")
 
         # Analytics/ML Services
@@ -614,15 +602,11 @@ class SAHOOLSLORegistry:
         self.services["yolo26-vision-service"] = create_analytics_service_slos(
             "yolo26-vision-service", "خدمة الرؤية الحاسوبية"
         )
-        self.services["yield-engine"] = create_analytics_service_slos(
-            "yield-engine", "محرك التنبؤ بالإنتاجية"
-        )
+        self.services["yield-engine"] = create_analytics_service_slos("yield-engine", "محرك التنبؤ بالإنتاجية")
         self.services["terrain-core-service"] = create_analytics_service_slos(
             "terrain-core-service", "خدمة تحليل التضاريس"
         )
-        self.services["hydrology-service"] = create_analytics_service_slos(
-            "hydrology-service", "خدمة الهيدرولوجيا"
-        )
+        self.services["hydrology-service"] = create_analytics_service_slos("hydrology-service", "خدمة الهيدرولوجيا")
 
     def get_service_slos(self, service_name: str) -> ServiceSLOs | None:
         """Get SLOs for a specific service."""
@@ -654,9 +638,7 @@ class SAHOOLSLORegistry:
                 rules.append(f"      - alert: SLOBurnRateCritical_{service_name.replace('-', '_')}")
                 rules.append("        expr: |")
                 rules.append(f"          # 1h burn rate > {slo.alert_burn_rate_1h}")
-                rules.append(
-                    f"          (1 - {slo.sli.prometheus_query.format(service=service_name, window='1h')})"
-                )
+                rules.append(f"          (1 - {slo.sli.prometheus_query.format(service=service_name, window='1h')})")
                 rules.append(f"          / {slo.error_budget}")
                 rules.append(f"          > {slo.alert_burn_rate_1h}")
                 rules.append("        for: 2m")
@@ -666,9 +648,7 @@ class SAHOOLSLORegistry:
                 rules.append(f"          slo: {slo.name}")
                 rules.append("        annotations:")
                 rules.append(f'          summary: "SLO burn rate critical for {service_name}"')
-                rules.append(
-                    f'          summary_ar: "معدل حرق SLO حرج لـ {service_slos.service_name_ar}"'
-                )
+                rules.append(f'          summary_ar: "معدل حرق SLO حرج لـ {service_slos.service_name_ar}"')
                 rules.append("")
 
         return "\n".join(rules)

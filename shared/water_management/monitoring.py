@@ -262,15 +262,12 @@ class WaterLevelMonitor:
                         severity=AlertSeverity.CRITICAL,
                         title_en="Critical Low Water Level",
                         title_ar="مستوى مياه منخفض حرج",
-                        message_en=f"Water level at {reading.level_percent:.1f}% - "
-                        f"immediate action required",
-                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - "
-                        f"يتطلب إجراء فوري",
+                        message_en=f"Water level at {reading.level_percent:.1f}% - immediate action required",
+                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - يتطلب إجراء فوري",
                         triggered_value=reading.level_percent,
                         threshold_value=self.CRITICAL_LOW_PERCENT,
                         unit="%",
-                        recommended_action_en="Reduce water usage immediately and "
-                        "arrange for water delivery",
+                        recommended_action_en="Reduce water usage immediately and arrange for water delivery",
                         recommended_action_ar="قلل استخدام المياه فوراً ورتب لتوصيل المياه",
                     )
                 )
@@ -283,14 +280,12 @@ class WaterLevelMonitor:
                         severity=AlertSeverity.HIGH,
                         title_en="Low Water Level Warning",
                         title_ar="تحذير انخفاض مستوى المياه",
-                        message_en=f"Water level at {reading.level_percent:.1f}% - "
-                        f"plan for replenishment",
+                        message_en=f"Water level at {reading.level_percent:.1f}% - plan for replenishment",
                         message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - خطط للتجديد",
                         triggered_value=reading.level_percent,
                         threshold_value=self.WARNING_LOW_PERCENT,
                         unit="%",
-                        recommended_action_en="Schedule water replenishment within "
-                        "the next 2-3 days",
+                        recommended_action_en="Schedule water replenishment within the next 2-3 days",
                         recommended_action_ar="جدول تجديد المياه خلال يومين إلى ثلاثة أيام",
                     )
                 )
@@ -303,8 +298,7 @@ class WaterLevelMonitor:
                         severity=AlertSeverity.HIGH,
                         title_en="Critical High Water Level - Overflow Risk",
                         title_ar="مستوى مياه مرتفع حرج - خطر فيضان",
-                        message_en=f"Water level at {reading.level_percent:.1f}% - "
-                        f"risk of overflow",
+                        message_en=f"Water level at {reading.level_percent:.1f}% - risk of overflow",
                         message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - خطر فيضان",
                         triggered_value=reading.level_percent,
                         threshold_value=self.CRITICAL_HIGH_PERCENT,
@@ -324,8 +318,7 @@ class WaterLevelMonitor:
                         severity=AlertSeverity.CRITICAL,
                         title_en="Critical Well Drawdown",
                         title_ar="انخفاض حرج في مستوى البئر",
-                        message_en=f"Well drawdown at {reading.drawdown_m:.1f}m - "
-                        f"reduce pumping immediately",
+                        message_en=f"Well drawdown at {reading.drawdown_m:.1f}m - reduce pumping immediately",
                         message_ar=f"انخفاض البئر عند {reading.drawdown_m:.1f}م - قلل الضخ فوراً",
                         triggered_value=reading.drawdown_m,
                         threshold_value=self.DRAWDOWN_CRITICAL_M,
@@ -403,9 +396,7 @@ class WaterLevelMonitor:
 
             if first_reading.level_m3 is not None and last_reading.level_m3 is not None:
                 change = last_reading.level_m3 - first_reading.level_m3
-                time_diff_days = (
-                    last_reading.timestamp - first_reading.timestamp
-                ).total_seconds() / 86400
+                time_diff_days = (last_reading.timestamp - first_reading.timestamp).total_seconds() / 86400
 
                 if time_diff_days > 0:
                     trend.change_rate_m3_day = change / time_diff_days
@@ -424,9 +415,7 @@ class WaterLevelMonitor:
                     # Calculate days until empty/full
                     if trend.change_rate_m3_day and trend.change_rate_m3_day < 0:
                         if last_reading.level_m3:
-                            trend.days_until_empty = abs(
-                                last_reading.level_m3 / trend.change_rate_m3_day
-                            )
+                            trend.days_until_empty = abs(last_reading.level_m3 / trend.change_rate_m3_day)
 
         return trend
 
@@ -484,9 +473,7 @@ class WaterQualityMonitor:
         self.standards = SaudiWaterStandards()
         self._test_history: dict[str, list[WaterQualityTest]] = {}
 
-    def evaluate_quality(
-        self, test: WaterQualityTest
-    ) -> tuple[WaterQualityClass, list[WaterQualityParameter]]:
+    def evaluate_quality(self, test: WaterQualityTest) -> tuple[WaterQualityClass, list[WaterQualityParameter]]:
         """
         Evaluate water quality and return classification and issues.
         تقييم جودة المياه وإرجاع التصنيف والمشاكل
@@ -636,21 +623,16 @@ class WaterQualityMonitor:
                     severity=AlertSeverity.CRITICAL,
                     title_en="Water Unfit for Irrigation",
                     title_ar="مياه غير صالحة للري",
-                    message_en="Water quality test indicates water is unfit "
-                    "for any agricultural use",
+                    message_en="Water quality test indicates water is unfit for any agricultural use",
                     message_ar="يشير اختبار جودة المياه إلى أن المياه غير صالحة لأي استخدام زراعي",
-                    recommended_action_en="Stop using this water source. "
-                    "Consult water treatment specialist",
-                    recommended_action_ar="توقف عن استخدام مصدر المياه هذا. "
-                    "استشر متخصص معالجة المياه",
+                    recommended_action_en="Stop using this water source. Consult water treatment specialist",
+                    recommended_action_ar="توقف عن استخدام مصدر المياه هذا. استشر متخصص معالجة المياه",
                 )
             )
 
         # Alert for specific parameter issues
         for issue in issues:
-            severity = (
-                AlertSeverity.HIGH if issue.parameter in ("EC", "SAR") else AlertSeverity.MEDIUM
-            )
+            severity = AlertSeverity.HIGH if issue.parameter in ("EC", "SAR") else AlertSeverity.MEDIUM
 
             alerts.append(
                 WaterAlert(
@@ -752,9 +734,7 @@ class WaterQualityMonitor:
         period_tests.sort(key=lambda t: t.tested_at)
 
         # Track key parameters
-        ec_values = [
-            t.electrical_conductivity_ds_m for t in period_tests if t.electrical_conductivity_ds_m
-        ]
+        ec_values = [t.electrical_conductivity_ds_m for t in period_tests if t.electrical_conductivity_ds_m]
         tds_values = [t.tds_ppm for t in period_tests if t.tds_ppm]
         ph_values = [t.ph for t in period_tests if t.ph]
 
@@ -950,24 +930,17 @@ class GroundwaterMonitor:
         if utilization > 100:
             status = "over_extraction"
             status_ar = "استخراج مفرط"
-            recommendations_en.append(
-                f"Reduce extraction by {utilization - 100:.0f}% to comply with regional limits"
-            )
-            recommendations_ar.append(
-                f"قلل الاستخراج بنسبة {utilization - 100:.0f}% للامتثال للحدود الإقليمية"
-            )
+            recommendations_en.append(f"Reduce extraction by {utilization - 100:.0f}% to comply with regional limits")
+            recommendations_ar.append(f"قلل الاستخراج بنسبة {utilization - 100:.0f}% للامتثال للحدود الإقليمية")
         elif utilization > 80:
             status = "high_utilization"
             status_ar = "استخدام عالي"
-            recommendations_en.append(
-                "Monitor extraction closely and plan for efficiency improvements"
-            )
+            recommendations_en.append("Monitor extraction closely and plan for efficiency improvements")
             recommendations_ar.append("راقب الاستخراج عن كثب وخطط لتحسينات الكفاءة")
 
         if level_change_m_year is not None and level_change_m_year < -0.5:
             recommendations_en.append(
-                f"Water table declining at {abs(level_change_m_year):.1f}m/year. "
-                "Consider reducing pumping"
+                f"Water table declining at {abs(level_change_m_year):.1f}m/year. Consider reducing pumping"
             )
             recommendations_ar.append(
                 f"منسوب المياه ينخفض بمعدل {abs(level_change_m_year):.1f}م/سنة. فكر في تقليل الضخ"
@@ -998,10 +971,7 @@ class GroundwaterMonitor:
             issues.append("expired_license")
 
         # Check extraction vs allocation
-        if (
-            source.licensed_extraction_m3_year
-            and source.total_extracted_m3_ytd > source.licensed_extraction_m3_year
-        ):
+        if source.licensed_extraction_m3_year and source.total_extracted_m3_ytd > source.licensed_extraction_m3_year:
             issues.append("exceeded_allocation")
 
         # Check meter requirement

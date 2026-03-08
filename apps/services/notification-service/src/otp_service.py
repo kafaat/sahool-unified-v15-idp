@@ -200,9 +200,7 @@ class InMemoryStorage:
 
         # Clean old entries
         if key in self._rate_limit_store:
-            self._rate_limit_store[key] = [
-                t for t in self._rate_limit_store[key] if t > window_start
-            ]
+            self._rate_limit_store[key] = [t for t in self._rate_limit_store[key] if t > window_start]
         else:
             self._rate_limit_store[key] = []
 
@@ -607,9 +605,7 @@ class OTPService:
     # OTP Message Templates
     # ─────────────────────────────────────────────────────────────────────────
 
-    def _get_otp_message(
-        self, otp_code: str, purpose: str, language: str = "ar"
-    ) -> tuple[str, str]:
+    def _get_otp_message(self, otp_code: str, purpose: str, language: str = "ar") -> tuple[str, str]:
         """
         الحصول على رسالة OTP
 
@@ -662,9 +658,7 @@ SAHOOL - Smart Agriculture Platform"""
 
         return subject, body
 
-    def _get_otp_html_email(
-        self, otp_code: str, purpose: str, language: str = "ar"
-    ) -> tuple[str, str]:
+    def _get_otp_html_email(self, otp_code: str, purpose: str, language: str = "ar") -> tuple[str, str]:
         """
         الحصول على رسالة OTP بصيغة HTML للبريد
 
@@ -797,9 +791,7 @@ SAHOOL - Smart Agriculture Platform"""
     # OTP Delivery
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _send_otp_via_sms(
-        self, phone: str, otp_code: str, purpose: str, language: str
-    ) -> str | None:
+    async def _send_otp_via_sms(self, phone: str, otp_code: str, purpose: str, language: str) -> str | None:
         """إرسال OTP عبر SMS"""
         client = self._get_sms_client()
         if not client:
@@ -813,9 +805,7 @@ SAHOOL - Smart Agriculture Platform"""
             to=phone, body=body if language != "ar" else body_ar, body_ar=body_ar, language=language
         )
 
-    async def _send_otp_via_whatsapp(
-        self, phone: str, otp_code: str, purpose: str, language: str
-    ) -> str | None:
+    async def _send_otp_via_whatsapp(self, phone: str, otp_code: str, purpose: str, language: str) -> str | None:
         """إرسال OTP عبر WhatsApp"""
         client = self._get_whatsapp_client()
         if not client:
@@ -824,9 +814,7 @@ SAHOOL - Smart Agriculture Platform"""
 
         return await client.send_otp(to=phone, otp_code=otp_code, language=language)
 
-    async def _send_otp_via_telegram(
-        self, chat_id: str, otp_code: str, purpose: str, language: str
-    ) -> int | None:
+    async def _send_otp_via_telegram(self, chat_id: str, otp_code: str, purpose: str, language: str) -> int | None:
         """إرسال OTP عبر Telegram"""
         client = self._get_telegram_client()
         if not client:
@@ -835,9 +823,7 @@ SAHOOL - Smart Agriculture Platform"""
 
         return await client.send_otp(chat_id=chat_id, otp_code=otp_code, language=language)
 
-    async def _send_otp_via_email(
-        self, email: str, otp_code: str, purpose: str, language: str
-    ) -> str | None:
+    async def _send_otp_via_email(self, email: str, otp_code: str, purpose: str, language: str) -> str | None:
         """إرسال OTP عبر Email"""
         client = self._get_email_client()
         if not client:
@@ -942,21 +928,13 @@ SAHOOL - Smart Agriculture Platform"""
         delivery_id = None
         try:
             if channel == OTPChannel.SMS:
-                delivery_id = await self._send_otp_via_sms(
-                    phone_or_email, otp_code, purpose.value, language
-                )
+                delivery_id = await self._send_otp_via_sms(phone_or_email, otp_code, purpose.value, language)
             elif channel == OTPChannel.WHATSAPP:
-                delivery_id = await self._send_otp_via_whatsapp(
-                    phone_or_email, otp_code, purpose.value, language
-                )
+                delivery_id = await self._send_otp_via_whatsapp(phone_or_email, otp_code, purpose.value, language)
             elif channel == OTPChannel.TELEGRAM:
-                delivery_id = await self._send_otp_via_telegram(
-                    phone_or_email, otp_code, purpose.value, language
-                )
+                delivery_id = await self._send_otp_via_telegram(phone_or_email, otp_code, purpose.value, language)
             elif channel == OTPChannel.EMAIL:
-                delivery_id = await self._send_otp_via_email(
-                    phone_or_email, otp_code, purpose.value, language
-                )
+                delivery_id = await self._send_otp_via_email(phone_or_email, otp_code, purpose.value, language)
         except Exception as e:
             logger.error(f"Failed to send OTP via {channel.value}: {e}")
             return OTPResult(
@@ -989,9 +967,7 @@ SAHOOL - Smart Agriculture Platform"""
         # Record rate limit
         await self._record_rate_limit(user_id, channel.value)
 
-        logger.info(
-            f"OTP generated and sent to user {user_id} via {channel.value} for {purpose.value}"
-        )
+        logger.info(f"OTP generated and sent to user {user_id} via {channel.value} for {purpose.value}")
 
         return OTPResult(
             success=True,
@@ -1084,9 +1060,7 @@ SAHOOL - Smart Agriculture Platform"""
             await self._update_otp(otp_key, otp_record)
 
             attempts_remaining = otp_record.max_attempts - otp_record.attempts
-            logger.warning(
-                f"Invalid OTP attempt for user {user_id}. Attempts remaining: {attempts_remaining}"
-            )
+            logger.warning(f"Invalid OTP attempt for user {user_id}. Attempts remaining: {attempts_remaining}")
 
             return OTPResult(
                 success=False,

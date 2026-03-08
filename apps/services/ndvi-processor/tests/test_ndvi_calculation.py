@@ -17,7 +17,13 @@ import pytest
 # Derive project root from this file's path (4 dirs above tests/)
 _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 _module_path = os.path.join(
-    _project_root, "apps", "kernel", "common", "queue", "tasks", "ndvi_calculation.py",
+    _project_root,
+    "apps",
+    "kernel",
+    "common",
+    "queue",
+    "tasks",
+    "ndvi_calculation.py",
 )
 _spec = importlib.util.spec_from_file_location("ndvi_calculation", _module_path)
 _ndvi = importlib.util.module_from_spec(_spec)

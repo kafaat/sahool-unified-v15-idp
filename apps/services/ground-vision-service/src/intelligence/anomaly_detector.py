@@ -303,9 +303,7 @@ class AnomalyDetector:
             self.background_model = gray.copy()
         else:
             # Exponential moving average
-            self.background_model = (
-                1 - self.background_alpha
-            ) * self.background_model + self.background_alpha * gray
+            self.background_model = (1 - self.background_alpha) * self.background_model + self.background_alpha * gray
 
     def _rgb_to_hsv(self, rgb: np.ndarray) -> np.ndarray:
         """Convert RGB to HSV color space."""
@@ -347,14 +345,7 @@ class AnomalyDetector:
         """Create mask for colors in range."""
         h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
 
-        mask = (
-            (h >= lower[0])
-            & (h <= upper[0])
-            & (s >= lower[1])
-            & (s <= upper[1])
-            & (v >= lower[2])
-            & (v <= upper[2])
-        )
+        mask = (h >= lower[0]) & (h <= upper[0]) & (s >= lower[1]) & (s <= upper[1]) & (v >= lower[2]) & (v <= upper[2])
 
         return mask.astype(np.uint8)
 

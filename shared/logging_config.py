@@ -205,11 +205,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Extract or generate correlation ID
-        correlation_id = (
-            request.headers.get("x-correlation-id")
-            or request.headers.get("x-request-id")
-            or str(uuid4())
-        )
+        correlation_id = request.headers.get("x-correlation-id") or request.headers.get("x-request-id") or str(uuid4())
 
         # Extract tenant and user IDs
         tenant_id = request.headers.get("x-tenant-id")

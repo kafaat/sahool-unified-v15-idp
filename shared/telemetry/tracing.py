@@ -131,9 +131,7 @@ def init_tracer(
             endpoint=otlp_endpoint,
             insecure=True,  # Use TLS in production
         )
-        _tracer_provider.add_span_processor(
-            BatchSpanProcessor(otlp_exporter, max_export_batch_size=512)
-        )
+        _tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter, max_export_batch_size=512))
         logger.info(f"OTLP trace exporter configured: {otlp_endpoint}")
     except Exception as e:
         logger.warning(f"Failed to configure OTLP exporter: {e}")

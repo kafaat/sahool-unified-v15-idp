@@ -148,9 +148,7 @@ class APIDocsGenerator:
         self.services_dir = Path(services_dir)
         self.output_dir = Path(output_dir)
         self.services: dict[str, Service] = {}
-        self.endpoints_by_category: dict[APICategory, list[Endpoint]] = {
-            category: [] for category in APICategory
-        }
+        self.endpoints_by_category: dict[APICategory, list[Endpoint]] = {category: [] for category in APICategory}
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -335,9 +333,7 @@ class APIDocsGenerator:
                             description = "\n".join(lines[1:])
 
                 # Extract parameters
-                parameters = self._extract_parameters(
-                    content[func_def_start : func_def_start + 1000]
-                )
+                parameters = self._extract_parameters(content[func_def_start : func_def_start + 1000])
 
                 # Create endpoint
                 endpoint = Endpoint(
@@ -390,11 +386,7 @@ class APIDocsGenerator:
             param_name = match.group(1)
             if param_name not in ["request", "response", "background_tasks", "db"]:
                 param_type = match.group(2)
-                parameters.append(
-                    Parameter(
-                        name=param_name, type=param_type.lower(), required=True, location="path"
-                    )
-                )
+                parameters.append(Parameter(name=param_name, type=param_type.lower(), required=True, location="path"))
 
         return parameters
 
@@ -1198,9 +1190,7 @@ Authorization: Bearer <access_token>
         if endpoints:
             for endpoint in sorted(endpoints, key=lambda x: (x.service_port, x.path)):
                 content += f"\n### {endpoint.method} {endpoint.path}\n\n"
-                content += (
-                    f"**Service:** {endpoint.service_name} (Port: {endpoint.service_port})\n\n"
-                )
+                content += f"**Service:** {endpoint.service_name} (Port: {endpoint.service_port})\n\n"
 
                 if endpoint.summary:
                     content += f"**Summary:** {endpoint.summary}\n\n"
@@ -1219,7 +1209,9 @@ Authorization: Bearer <access_token>
                     content += "|------|------|----------|----------|-------------|\n"
                     for param in endpoint.parameters:
                         required = "✓" if param.required else ""
-                        content += f"| `{param.name}` | {param.type} | {required} | {param.location} | {param.description} |\n"
+                        content += (
+                            f"| `{param.name}` | {param.type} | {required} | {param.location} | {param.description} |\n"
+                        )
                     content += "\n"
 
                 # Example
@@ -2329,9 +2321,7 @@ interface DiagnosisResult {{
         ai_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {ai_path}")
 
-    def generate_postman_collection(
-        self, output_file: str = "SAHOOL.postman_collection.json"
-    ) -> str:
+    def generate_postman_collection(self, output_file: str = "SAHOOL.postman_collection.json") -> str:
         """
         Generate Postman collection
         إنشاء مجموعة Postman
@@ -2373,9 +2363,7 @@ interface DiagnosisResult {{
                     "name": f"{endpoint.method} {endpoint.path}",
                     "request": {
                         "method": endpoint.method,
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json", "type": "text"}
-                        ],
+                        "header": [{"key": "Content-Type", "value": "application/json", "type": "text"}],
                         "url": {
                             "raw": f"{{{{base_url}}}}:{service.port}{endpoint.path}",
                             "host": ["{{base_url}}"],
@@ -2392,8 +2380,7 @@ interface DiagnosisResult {{
                     query_params = [p for p in endpoint.parameters if p.location == "query"]
                     if query_params:
                         request_item["request"]["url"]["query"] = [
-                            {"key": p.name, "value": "", "description": p.description}
-                            for p in query_params
+                            {"key": p.name, "value": "", "description": p.description} for p in query_params
                         ]
 
                 folder["item"].append(request_item)
@@ -2428,9 +2415,7 @@ interface DiagnosisResult {{
                         "header": [{"key": "Content-Type", "value": "application/json"}],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps(
-                                {"email": "farmer@example.com", "password": "password123"}, indent=2
-                            ),
+                            "raw": json.dumps({"email": "farmer@example.com", "password": "password123"}, indent=2),
                         },
                         "url": {
                             "raw": "{{base_url}}:8000/auth/login",

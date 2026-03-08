@@ -344,17 +344,13 @@ class WaterSource:
             },
             "quality": {
                 "class": self.water_quality_class.value,
-                "last_test_at": (
-                    self.last_quality_test_at.isoformat() if self.last_quality_test_at else None
-                ),
+                "last_test_at": (self.last_quality_test_at.isoformat() if self.last_quality_test_at else None),
                 "salinity_ppm": self.salinity_ppm,
                 "ph_level": self.ph_level,
             },
             "license": {
                 "number": self.license_number,
-                "expiry_at": (
-                    self.license_expiry_at.isoformat() if self.license_expiry_at else None
-                ),
+                "expiry_at": (self.license_expiry_at.isoformat() if self.license_expiry_at else None),
                 "licensed_extraction_m3_day": self.licensed_extraction_m3_day,
                 "licensed_extraction_m3_year": self.licensed_extraction_m3_year,
                 "is_valid": self.is_license_valid,
@@ -580,9 +576,7 @@ class WaterAllocation:
             "irrigation": {
                 "method": self.irrigation_method.value,
                 "count": self.irrigation_count,
-                "last_at": (
-                    self.last_irrigation_at.isoformat() if self.last_irrigation_at else None
-                ),
+                "last_at": (self.last_irrigation_at.isoformat() if self.last_irrigation_at else None),
             },
             "priority": self.priority,
         }
@@ -1028,9 +1022,7 @@ class WaterAlert:
             "status": {
                 "acknowledged": self.acknowledged,
                 "acknowledged_by": self.acknowledged_by,
-                "acknowledged_at": (
-                    self.acknowledged_at.isoformat() if self.acknowledged_at else None
-                ),
+                "acknowledged_at": (self.acknowledged_at.isoformat() if self.acknowledged_at else None),
                 "resolved": self.resolved,
                 "resolved_at": (self.resolved_at.isoformat() if self.resolved_at else None),
             },

@@ -328,9 +328,7 @@ class Market:
     # Operating hours
     opening_time: str = "06:00"
     closing_time: str = "18:00"
-    operating_days: list[str] = field(
-        default_factory=lambda: ["sat", "sun", "mon", "tue", "wed", "thu"]
-    )
+    operating_days: list[str] = field(default_factory=lambda: ["sat", "sun", "mon", "tue", "wed", "thu"])
 
     # Supported crops
     supported_crops: list[str] = field(default_factory=list)
@@ -365,9 +363,7 @@ class Market:
             "supported_crops": self.supported_crops,
             "is_active": self.is_active,
             "data_source": self.data_source,
-            "last_price_update": self.last_price_update.isoformat()
-            if self.last_price_update
-            else None,
+            "last_price_update": self.last_price_update.isoformat() if self.last_price_update else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -724,12 +720,8 @@ class CropPrice:
             max_price=Decimal(str(data["max_price"])) if data.get("max_price") else None,
             available_quantity=data.get("available_quantity"),
             quantity_unit=PriceUnit(data.get("quantity_unit", "ton")),
-            price_date=date.fromisoformat(data["price_date"])
-            if data.get("price_date")
-            else date.today(),
-            recorded_at=datetime.fromisoformat(data["recorded_at"])
-            if data.get("recorded_at")
-            else datetime.now(UTC),
+            price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else date.today(),
+            recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.now(UTC),
             source=data.get("source", "market_report"),
             source_id=data.get("source_id"),
             verified=data.get("verified", False),
@@ -875,13 +867,9 @@ class PriceAlert:
             "notify_push": self.notify_push,
             "phone_number": self.phone_number[-4:] if self.phone_number else "",  # Masked
             "email": self.email,
-            "last_triggered_at": self.last_triggered_at.isoformat()
-            if self.last_triggered_at
-            else None,
+            "last_triggered_at": self.last_triggered_at.isoformat() if self.last_triggered_at else None,
             "trigger_count": self.trigger_count,
-            "last_triggered_price": str(self.last_triggered_price)
-            if self.last_triggered_price
-            else None,
+            "last_triggered_price": str(self.last_triggered_price) if self.last_triggered_price else None,
             "last_triggered_market_id": self.last_triggered_market_id,
             "valid_from": self.valid_from.isoformat(),
             "valid_until": self.valid_until.isoformat() if self.valid_until else None,
@@ -971,9 +959,7 @@ class PriceTrend:
             "data_points": self.data_points,
             "volatility_score": self.volatility_score,
             "is_volatile": self.is_volatile,
-            "predicted_direction": self.predicted_direction.value
-            if self.predicted_direction
-            else None,
+            "predicted_direction": self.predicted_direction.value if self.predicted_direction else None,
             "predicted_price": str(self.predicted_price) if self.predicted_price else None,
             "prediction_confidence": self.prediction_confidence,
             "is_seasonal_peak": self.is_seasonal_peak,
@@ -1134,9 +1120,7 @@ class SellingRecommendation:
             "action": self.action,
             "action_ar": self.action_ar,
             "confidence": self.confidence,
-            "recommended_date": self.recommended_date.isoformat()
-            if self.recommended_date
-            else None,
+            "recommended_date": self.recommended_date.isoformat() if self.recommended_date else None,
             "recommended_date_range_start": self.recommended_date_range_start.isoformat()
             if self.recommended_date_range_start
             else None,
@@ -1149,9 +1133,7 @@ class SellingRecommendation:
             "recommended_market_name": self.recommended_market_name,
             "recommended_market_name_ar": self.recommended_market_name_ar,
             "expected_price": str(self.expected_price),
-            "expected_price_range_low": str(self.expected_price_range_low)
-            if self.expected_price_range_low
-            else None,
+            "expected_price_range_low": str(self.expected_price_range_low) if self.expected_price_range_low else None,
             "expected_price_range_high": str(self.expected_price_range_high)
             if self.expected_price_range_high
             else None,

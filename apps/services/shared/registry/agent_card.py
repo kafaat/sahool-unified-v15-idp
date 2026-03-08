@@ -57,9 +57,7 @@ class AgentCapability(BaseModel):
     description_ar: str | None = Field(None, description="Arabic description")
     input_schema: dict[str, Any] | None = Field(None, description="JSON Schema for input")
     output_schema: dict[str, Any] | None = Field(None, description="JSON Schema for output")
-    examples: list[dict[str, Any]] | None = Field(
-        default_factory=list, description="Usage examples"
-    )
+    examples: list[dict[str, Any]] | None = Field(default_factory=list, description="Usage examples")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -98,9 +96,7 @@ class AgentSkill(BaseModel):
     skill_id: str = Field(..., description="Unique skill identifier")
     name: str = Field(..., description="Skill name")
     name_ar: str | None = Field(None, description="Arabic name")
-    level: Literal["beginner", "intermediate", "advanced", "expert"] = Field(
-        ..., description="Proficiency level"
-    )
+    level: Literal["beginner", "intermediate", "advanced", "expert"] = Field(..., description="Proficiency level")
     keywords: list[str] = Field(default_factory=list, description="Search keywords")
 
     model_config = ConfigDict(
@@ -123,9 +119,7 @@ class AgentEndpoint(BaseModel):
     """
 
     url: HttpUrl = Field(..., description="Endpoint URL")
-    method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] = Field(
-        default="POST", description="HTTP method"
-    )
+    method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] = Field(default="POST", description="HTTP method")
     headers: dict[str, str] | None = Field(default_factory=dict, description="Required headers")
     timeout_seconds: int = Field(default=30, description="Request timeout")
 
@@ -155,9 +149,7 @@ class AgentMetadata(BaseModel):
     documentation: HttpUrl | None = Field(None, description="Documentation URL")
     source_code: HttpUrl | None = Field(None, description="Source code repository")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    updated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Last update timestamp"
-    )
+    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -196,9 +188,7 @@ class AgentCard(BaseModel):
     description_ar: str | None = Field(None, description="Arabic description")
 
     # Capabilities / القدرات
-    capabilities: list[AgentCapability] = Field(
-        default_factory=list, description="Agent capabilities"
-    )
+    capabilities: list[AgentCapability] = Field(default_factory=list, description="Agent capabilities")
     skills: list[AgentSkill] = Field(default_factory=list, description="Agent skills/expertise")
 
     # Communication / التواصل
@@ -216,22 +206,14 @@ class AgentCard(BaseModel):
     health_endpoint: HttpUrl | None = Field(None, description="Health check endpoint")
 
     # Security / الأمان
-    security_scheme: SecurityScheme = Field(
-        default=SecurityScheme.BEARER, description="Authentication scheme"
-    )
-    requires_authentication: bool = Field(
-        default=True, description="Whether authentication is required"
-    )
+    security_scheme: SecurityScheme = Field(default=SecurityScheme.BEARER, description="Authentication scheme")
+    requires_authentication: bool = Field(default=True, description="Whether authentication is required")
 
     # Dependencies / التبعيات
-    dependencies: list[str] = Field(
-        default_factory=list, description="Other agents this agent depends on"
-    )
+    dependencies: list[str] = Field(default_factory=list, description="Other agents this agent depends on")
 
     # Metadata / البيانات الوصفية
-    metadata: AgentMetadata = Field(
-        default_factory=AgentMetadata, description="Additional metadata"
-    )
+    metadata: AgentMetadata = Field(default_factory=AgentMetadata, description="Additional metadata")
 
     # Status / الحالة
     status: Literal["active", "inactive", "deprecated", "maintenance"] = Field(
@@ -256,9 +238,7 @@ class AgentCard(BaseModel):
     def validate_agent_id(cls, v: str) -> str:
         """Validate agent ID format"""
         if not v.replace("-", "").replace("_", "").isalnum():
-            raise ValueError(
-                "Agent ID must contain only alphanumeric characters, hyphens, and underscores"
-            )
+            raise ValueError("Agent ID must contain only alphanumeric characters, hyphens, and underscores")
         return v
 
     def to_dict(self) -> dict[str, Any]:

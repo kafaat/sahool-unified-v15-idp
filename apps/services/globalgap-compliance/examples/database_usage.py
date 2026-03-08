@@ -113,9 +113,7 @@ async def example_3_add_checklist_responses(compliance_record_id):
     )
 
     print(f"Created {len(batch_responses) + 1} checklist responses")
-    print(
-        f"Non-compliant items: {sum(1 for r in batch_responses if r['response'] == 'NON_COMPLIANT')}"
-    )
+    print(f"Non-compliant items: {sum(1 for r in batch_responses if r['response'] == 'NON_COMPLIANT')}")
 
     return batch_responses
 
@@ -284,9 +282,7 @@ async def example_9_analytics_queries():
 
         print("\nCompliance by Scope:")
         for row in results:
-            print(
-                f"  {row['scope']}: {row['avg_compliance']:.2f}% avg ({row['audit_count']} audits)"
-            )
+            print(f"  {row['scope']}: {row['avg_compliance']:.2f}% avg ({row['audit_count']} audits)")
 
         # Most common non-conformances
         nc_results = await conn.fetch(
@@ -305,10 +301,7 @@ async def example_9_analytics_queries():
 
         print("\nTop Non-Conformances:")
         for row in nc_results:
-            print(
-                f"  {row['checklist_item_id']} ({row['severity']}): "
-                f"{row['occurrence_count']} occurrences"
-            )
+            print(f"  {row['checklist_item_id']} ({row['severity']}): {row['occurrence_count']} occurrences")
 
 
 async def main():

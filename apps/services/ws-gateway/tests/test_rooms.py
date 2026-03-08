@@ -203,9 +203,7 @@ class TestRoomManager:
         await manager.join_room("conn-2", "test-room")
 
         message = {"type": "test", "data": "hello"}
-        sent_count = await manager.broadcast_to_room(
-            "test-room", message, exclude_connection="conn-1"
-        )
+        sent_count = await manager.broadcast_to_room("test-room", message, exclude_connection="conn-1")
 
         assert sent_count == 1
         ws1.send_json.assert_not_called()

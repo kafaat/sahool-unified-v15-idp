@@ -312,16 +312,11 @@ class TestDetectionEndpoints:
         sample_detection_request: dict[str, Any],
     ):
         """Test pest detection endpoint with mocked model."""
-        # Mock the inference
-        mock_yolo_model.predict.return_value = [
-            MagicMock(
-                boxes=MagicMock(
-                    xyxy=[[100, 100, 200, 200]],
-                    conf=[0.85],
-                    cls=[0],
-                )
-            )
-        ]
+        # Mock the inference -- note: 'cls' cannot be passed as keyword to MagicMock()
+        # because it conflicts with MagicMock.__new__(cls, ...). Set it as attribute instead.
+        mock_boxes = MagicMock(xyxy=[[100, 100, 200, 200]], conf=[0.85])
+        mock_boxes.cls = [0]
+        mock_yolo_model.predict.return_value = [MagicMock(boxes=mock_boxes)]
 
         # Simulate endpoint call
         result = {

@@ -65,9 +65,7 @@ def example_get_alerts_by_field(field_id: str):
     """مثال على جلب تنبيهات حقل معين"""
     db = SessionLocal()
     try:
-        alerts, total = repository.get_alerts_by_field(
-            db, field_id=field_id, status="active", skip=0, limit=10
-        )
+        alerts, total = repository.get_alerts_by_field(db, field_id=field_id, status="active", skip=0, limit=10)
 
         print(f"\n📋 تنبيهات الحقل {field_id}:")
         print(f"   إجمالي: {total}")

@@ -57,9 +57,7 @@ class ComplianceService:
         # عد نقاط التحكم حسب الحالة
         total_points = len(assessments)
         compliant_points = sum(1 for a in assessments if a.status == ControlPointStatus.COMPLIANT)
-        non_compliant_points = sum(
-            1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
-        )
+        non_compliant_points = sum(1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT)
 
         # Count Major Must and Minor Must failures
         # عد إخفاقات النقاط الإلزامية الرئيسية والثانوية
@@ -79,12 +77,8 @@ class ComplianceService:
 
         # Calculate compliance percentage
         # حساب نسبة الامتثال
-        applicable_points = total_points - sum(
-            1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE
-        )
-        compliance_percentage = (
-            (compliant_points / applicable_points * 100) if applicable_points > 0 else 0.0
-        )
+        applicable_points = total_points - sum(1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE)
+        compliance_percentage = (compliant_points / applicable_points * 100) if applicable_points > 0 else 0.0
 
         # Determine overall status
         # تحديد الحالة الإجمالية
@@ -111,9 +105,7 @@ class ComplianceService:
 
         return compliance_record
 
-    def _determine_overall_status(
-        self, major_must_fails: int, compliance_percentage: float
-    ) -> ComplianceStatus:
+    def _determine_overall_status(self, major_must_fails: int, compliance_percentage: float) -> ComplianceStatus:
         """
         Determine overall compliance status based on IFA rules
         تحديد حالة الامتثال الإجمالية بناءً على قواعد IFA
@@ -209,9 +201,7 @@ class ComplianceService:
             non_conformities = [nc for nc in non_conformities if nc.severity == severity]
 
         if resolved is not None:
-            non_conformities = [
-                nc for nc in non_conformities if nc.corrective_action_completed == resolved
-            ]
+            non_conformities = [nc for nc in non_conformities if nc.corrective_action_completed == resolved]
 
         return non_conformities
 
@@ -277,9 +267,7 @@ class ComplianceService:
 
         return None
 
-    async def get_compliance_trends(
-        self, farm_id: str, tenant_id: str, months: int = 12
-    ) -> list[dict[str, Any]]:
+    async def get_compliance_trends(self, farm_id: str, tenant_id: str, months: int = 12) -> list[dict[str, Any]]:
         """
         Get compliance trends over time
         الحصول على اتجاهات الامتثال عبر الزمن

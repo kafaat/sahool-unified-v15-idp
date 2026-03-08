@@ -133,9 +133,7 @@ def test_repository():
 def test_migration_file():
     """Test that migration file exists"""
     print("\nTesting migration files...")
-    migration_file = (
-        Path(__file__).parent / "src" / "migrations" / "versions" / "s16_0001_alerts_initial.py"
-    )
+    migration_file = Path(__file__).parent / "src" / "migrations" / "versions" / "s16_0001_alerts_initial.py"
 
     if migration_file.exists():
         print(f"  ✅ Migration file exists: {migration_file.name}")

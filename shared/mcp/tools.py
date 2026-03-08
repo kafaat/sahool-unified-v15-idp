@@ -570,9 +570,7 @@ class SAHOOLTools:
                 "include_sensors": include_sensors,
             }
 
-            response = await self.client.get(
-                f"{self.base_url}/api/fields/{field_id}", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/fields/{field_id}", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -635,9 +633,7 @@ class SAHOOLTools:
                 params["date"] = date
             params["include_recommendations"] = include_recommendations
 
-            response = await self.client.get(
-                f"{self.base_url}/api/crop-health/analyze", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/crop-health/analyze", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -778,9 +774,7 @@ class SAHOOLTools:
             if growth_stage:
                 payload["growth_stage"] = growth_stage
 
-            response = await self.client.post(
-                f"{self.base_url}/api/irrigation/calculate", json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/api/irrigation/calculate", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -851,9 +845,7 @@ class SAHOOLTools:
             if growth_stage:
                 payload["growth_stage"] = growth_stage
 
-            response = await self.client.post(
-                f"{self.base_url}/api/fertilizer/recommend", json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/api/fertilizer/recommend", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -919,9 +911,7 @@ class SAHOOLTools:
                 "include_interaction_history": include_interaction_history,
             }
 
-            response = await self.client.get(
-                f"{self.base_url}/api/farmers/{farmer_id}", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/farmers/{farmer_id}", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -940,9 +930,7 @@ class SAHOOLTools:
                     "preferences": data.get("preferences", {}) if include_preferences else None,
                     "subscription_tier": data.get("subscription_tier"),
                     "member_since": data.get("member_since"),
-                    "interaction_history": data.get("interaction_history", [])
-                    if include_interaction_history
-                    else None,
+                    "interaction_history": data.get("interaction_history", []) if include_interaction_history else None,
                     "last_interaction_date": data.get("last_interaction_date"),
                     "active_recommendations": data.get("active_recommendations", 0),
                 },
@@ -1021,9 +1009,7 @@ class SAHOOLTools:
             if tags:
                 payload["tags"] = tags
 
-            response = await self.client.post(
-                f"{self.base_url}/api/farmers/{farmer_id}/interactions", json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/api/farmers/{farmer_id}/interactions", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -1089,9 +1075,7 @@ class SAHOOLTools:
             if recommendation_type:
                 params["recommendation_type"] = recommendation_type
 
-            response = await self.client.get(
-                f"{self.base_url}/api/farmers/{farmer_id}/recommendations", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/farmers/{farmer_id}/recommendations", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -1108,9 +1092,7 @@ class SAHOOLTools:
                         "average_rating": data.get("average_rating"),
                         "by_type": data.get("by_type", {}),
                     },
-                    "recent_outcomes": data.get("recent_outcomes", [])
-                    if include_outcomes
-                    else None,
+                    "recent_outcomes": data.get("recent_outcomes", []) if include_outcomes else None,
                 },
                 metadata={
                     "query_period_days": days,
@@ -1217,9 +1199,7 @@ class SAHOOLTools:
                 },
                 metadata={
                     "created_at": now.isoformat(),
-                    "expires_at": (now + timedelta(seconds=timeout_seconds)).isoformat()
-                    if timeout_seconds
-                    else None,
+                    "expires_at": (now + timedelta(seconds=timeout_seconds)).isoformat() if timeout_seconds else None,
                 },
             )
         except Exception as e:
@@ -1391,9 +1371,7 @@ class SAHOOLTools:
                         "query_count": agent.query_count,
                         "uptime_seconds": uptime_seconds,
                         "idle_seconds": idle_seconds,
-                        "queries_per_minute": (
-                            agent.query_count / (uptime_seconds / 60) if uptime_seconds > 0 else 0
-                        ),
+                        "queries_per_minute": (agent.query_count / (uptime_seconds / 60) if uptime_seconds > 0 else 0),
                     }
 
                 return ToolResult(

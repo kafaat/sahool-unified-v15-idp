@@ -114,12 +114,7 @@ def register_spray_endpoints(app):
                 "summary": {
                     "total_suitable_hours": sum(day.hours_suitable for day in forecast),
                     "days_with_good_conditions": len(
-                        [
-                            d
-                            for d in forecast
-                            if d.overall_condition
-                            in [SprayCondition.EXCELLENT, SprayCondition.GOOD]
-                        ]
+                        [d for d in forecast if d.overall_condition in [SprayCondition.EXCELLENT, SprayCondition.GOOD]]
                     ),
                     "best_day": (
                         max(

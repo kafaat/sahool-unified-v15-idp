@@ -58,9 +58,7 @@ MIN_POOL_SIZE = int(os.getenv("DB_MIN_POOL_SIZE", "5"))
 MAX_POOL_SIZE = int(os.getenv("DB_MAX_POOL_SIZE", "20"))
 POOL_COMMAND_TIMEOUT = int(os.getenv("DB_COMMAND_TIMEOUT", "60"))  # seconds
 POOL_MAX_QUERIES = int(os.getenv("DB_MAX_QUERIES", "50000"))  # queries per connection
-POOL_MAX_INACTIVE_CONNECTION_LIFETIME = float(
-    os.getenv("DB_MAX_INACTIVE_LIFETIME", "300.0")
-)  # seconds
+POOL_MAX_INACTIVE_CONNECTION_LIFETIME = float(os.getenv("DB_MAX_INACTIVE_LIFETIME", "300.0"))  # seconds
 
 # =============================================================================
 # Connection Pool Management
@@ -427,9 +425,7 @@ class ComplianceRecordRepository(BaseRepository):
         row = await self._fetchrow(query, record_id)
         return dict(row) if row else None
 
-    async def get_by_registration(
-        self, registration_id: UUID, limit: int | None = None
-    ) -> list[dict[str, Any]]:
+    async def get_by_registration(self, registration_id: UUID, limit: int | None = None) -> list[dict[str, Any]]:
         """
         Get all compliance records for a registration
         الحصول على جميع سجلات الامتثال لتسجيل
@@ -500,9 +496,7 @@ class ComplianceRecordRepository(BaseRepository):
             WHERE id = $1
             RETURNING *
         """
-        row = await self._fetchrow(
-            query, record_id, major_must_score, minor_must_score, overall_compliance
-        )
+        row = await self._fetchrow(query, record_id, major_must_score, minor_must_score, overall_compliance)
         return dict(row) if row else None
 
     async def delete(self, record_id: UUID) -> bool:
@@ -558,9 +552,7 @@ class ChecklistResponseRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def create_batch(
-        self, compliance_record_id: UUID, responses: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    async def create_batch(self, compliance_record_id: UUID, responses: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Create multiple checklist responses in a batch
         إنشاء استجابات قائمة التحقق متعددة دفعة واحدة
@@ -617,9 +609,7 @@ class ChecklistResponseRepository(BaseRepository):
         rows = await self._fetch(query, compliance_record_id)
         return [dict(row) for row in rows]
 
-    async def get_responses_by_item(
-        self, checklist_item_id: str, limit: int | None = 100
-    ) -> list[dict[str, Any]]:
+    async def get_responses_by_item(self, checklist_item_id: str, limit: int | None = 100) -> list[dict[str, Any]]:
         """
         Get all responses for a specific checklist item across audits
         الحصول على جميع الاستجابات لعنصر قائمة التحقق عبر التدقيقات
@@ -804,9 +794,7 @@ class NonConformanceRepository(BaseRepository):
 
         return await self.update_status(nc_id, "RESOLVED", corrective_action, resolved_date)
 
-    async def get_by_checklist_item(
-        self, checklist_item_id: str, limit: int | None = 100
-    ) -> list[dict[str, Any]]:
+    async def get_by_checklist_item(self, checklist_item_id: str, limit: int | None = 100) -> list[dict[str, Any]]:
         """
         Get non-conformances for a specific checklist item
         الحصول على عدم المطابقات لعنصر قائمة التحقق المحدد

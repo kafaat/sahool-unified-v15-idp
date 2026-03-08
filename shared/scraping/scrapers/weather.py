@@ -56,9 +56,7 @@ class WeatherData:
             "uv_index": self.uv_index,
             "condition": self.condition,
             "condition_ar": self.condition_ar,
-            "observation_time": (
-                self.observation_time.isoformat() if self.observation_time else None
-            ),
+            "observation_time": (self.observation_time.isoformat() if self.observation_time else None),
         }
 
 

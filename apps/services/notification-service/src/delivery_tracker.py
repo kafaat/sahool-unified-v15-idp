@@ -153,9 +153,7 @@ class DeliveryTracker:
 
             # Update notification status in database
             if new_status == DeliveryStatus.SENT:
-                await NotificationRepository.update_status(
-                    notif_uuid, status="sent", sent_at=datetime.now(UTC)
-                )
+                await NotificationRepository.update_status(notif_uuid, status="sent", sent_at=datetime.now(UTC))
             elif new_status == DeliveryStatus.FAILED:
                 await NotificationRepository.update_status(notif_uuid, status="failed")
             elif new_status == DeliveryStatus.READ:
@@ -168,9 +166,7 @@ class DeliveryTracker:
                 status=new_status.value,
                 error_message=details.get("error") if details else None,
                 provider_response=provider_response,
-                provider_message_id=provider_response.get("message_id")
-                if provider_response
-                else None,
+                provider_message_id=provider_response.get("message_id") if provider_response else None,
             )
 
             # Trigger callbacks and webhooks

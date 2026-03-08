@@ -369,9 +369,7 @@ class EnhancedHealthChecker:
 
         # Liveness fails only if critical checks fail
         critical_failures = [
-            d
-            for d in dependencies
-            if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
+            d for d in dependencies if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
         ]
 
         if critical_failures:
@@ -419,9 +417,7 @@ class EnhancedHealthChecker:
 
         # Readiness fails if any critical dependency is down
         critical_failures = [
-            d
-            for d in dependencies
-            if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
+            d for d in dependencies if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
         ]
 
         if self.graceful_shutdown or critical_failures:
@@ -465,9 +461,7 @@ class EnhancedHealthChecker:
             dependencies.append(health)
 
         # Startup complete if all startup checks pass
-        all_healthy = all(
-            d.status in [HealthStatus.HEALTHY, HealthStatus.DEGRADED] for d in dependencies
-        )
+        all_healthy = all(d.status in [HealthStatus.HEALTHY, HealthStatus.DEGRADED] for d in dependencies)
 
         if all_healthy:
             self.startup_complete = True

@@ -55,9 +55,7 @@ class InventoryService:
 
     async def get_item(self, item_id: str) -> InventoryItem | None:
         """Get item by ID"""
-        item = await self.db.inventoryitem.find_unique(
-            where={"id": item_id}, include={"supplier": True}
-        )
+        item = await self.db.inventoryitem.find_unique(where={"id": item_id}, include={"supplier": True})
         return item
 
     async def list_items(
@@ -356,16 +354,12 @@ class InventoryService:
 
     async def get_supplier(self, supplier_id: str) -> Supplier | None:
         """Get supplier by ID"""
-        supplier = await self.db.supplier.find_unique(
-            where={"id": supplier_id}, include={"items": True}
-        )
+        supplier = await self.db.supplier.find_unique(where={"id": supplier_id}, include={"items": True})
         return supplier
 
     async def list_suppliers(self, skip: int = 0, limit: int = 100) -> tuple[list[Supplier], int]:
         """List suppliers with pagination"""
-        suppliers = await self.db.supplier.find_many(
-            skip=skip, take=limit, order={"createdAt": "desc"}
-        )
+        suppliers = await self.db.supplier.find_many(skip=skip, take=limit, order={"createdAt": "desc"})
 
         total = await self.db.supplier.count()
 

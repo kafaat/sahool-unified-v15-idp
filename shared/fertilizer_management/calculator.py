@@ -465,40 +465,22 @@ class FertilizerCalculator:
 
         # Calculate variance
         if target_n_kg_ha > 0:
-            blend.n_variance_percent = (
-                (blend.total_n_kg_ha - target_n_kg_ha) / target_n_kg_ha
-            ) * 100
+            blend.n_variance_percent = ((blend.total_n_kg_ha - target_n_kg_ha) / target_n_kg_ha) * 100
         if target_p_kg_ha > 0:
-            blend.p_variance_percent = (
-                (blend.total_p_kg_ha - target_p_kg_ha) / target_p_kg_ha
-            ) * 100
+            blend.p_variance_percent = ((blend.total_p_kg_ha - target_p_kg_ha) / target_p_kg_ha) * 100
         if target_k_kg_ha > 0:
-            blend.k_variance_percent = (
-                (blend.total_k_kg_ha - target_k_kg_ha) / target_k_kg_ha
-            ) * 100
+            blend.k_variance_percent = ((blend.total_k_kg_ha - target_k_kg_ha) / target_k_kg_ha) * 100
 
         # Add warnings if there are remaining unfulfilled needs
         if remaining_n > 5:
-            blend.warnings_en.append(
-                f"Unable to fully meet N requirement. {remaining_n:.1f} kg/ha short."
-            )
-            blend.warnings_ar.append(
-                f"لم يتم تلبية احتياج النيتروجين بالكامل. نقص {remaining_n:.1f} كجم/هكتار."
-            )
+            blend.warnings_en.append(f"Unable to fully meet N requirement. {remaining_n:.1f} kg/ha short.")
+            blend.warnings_ar.append(f"لم يتم تلبية احتياج النيتروجين بالكامل. نقص {remaining_n:.1f} كجم/هكتار.")
         if remaining_p > 5:
-            blend.warnings_en.append(
-                f"Unable to fully meet P2O5 requirement. {remaining_p:.1f} kg/ha short."
-            )
-            blend.warnings_ar.append(
-                f"لم يتم تلبية احتياج الفسفور بالكامل. نقص {remaining_p:.1f} كجم/هكتار."
-            )
+            blend.warnings_en.append(f"Unable to fully meet P2O5 requirement. {remaining_p:.1f} kg/ha short.")
+            blend.warnings_ar.append(f"لم يتم تلبية احتياج الفسفور بالكامل. نقص {remaining_p:.1f} كجم/هكتار.")
         if remaining_k > 5:
-            blend.warnings_en.append(
-                f"Unable to fully meet K2O requirement. {remaining_k:.1f} kg/ha short."
-            )
-            blend.warnings_ar.append(
-                f"لم يتم تلبية احتياج البوتاسيوم بالكامل. نقص {remaining_k:.1f} كجم/هكتار."
-            )
+            blend.warnings_en.append(f"Unable to fully meet K2O requirement. {remaining_k:.1f} kg/ha short.")
+            blend.warnings_ar.append(f"لم يتم تلبية احتياج البوتاسيوم بالكامل. نقص {remaining_k:.1f} كجم/هكتار.")
 
         return blend
 
@@ -542,9 +524,7 @@ class FertilizerCalculator:
             compliance.recommendations_en.append(
                 "Approaching nitrogen application limit. Consider reducing future applications."
             )
-            compliance.recommendations_ar.append(
-                "اقتراب من حد تطبيق النيتروجين. ينصح بتقليل التطبيقات المستقبلية."
-            )
+            compliance.recommendations_ar.append("اقتراب من حد تطبيق النيتروجين. ينصح بتقليل التطبيقات المستقبلية.")
 
         # Check P compliance
         if compliance.total_p_applied_kg_ha > self.ENVIRONMENTAL_LIMITS["P_max_annual"]:
@@ -578,9 +558,7 @@ class FertilizerCalculator:
                 compliance.recommendations_en.append(
                     "Apply fertilizer only outside buffer zone or use precision application."
                 )
-                compliance.recommendations_ar.append(
-                    "طبق السماد فقط خارج المنطقة العازلة أو استخدم التطبيق الدقيق."
-                )
+                compliance.recommendations_ar.append("طبق السماد فقط خارج المنطقة العازلة أو استخدم التطبيق الدقيق.")
 
         # Determine overall status
         if (
@@ -589,10 +567,7 @@ class FertilizerCalculator:
             or compliance.buffer_compliance == ComplianceLevel.VIOLATION
         ):
             compliance.overall_status = ComplianceLevel.VIOLATION
-        elif (
-            compliance.n_compliance == ComplianceLevel.WARNING
-            or compliance.p_compliance == ComplianceLevel.WARNING
-        ):
+        elif compliance.n_compliance == ComplianceLevel.WARNING or compliance.p_compliance == ComplianceLevel.WARNING:
             compliance.overall_status = ComplianceLevel.WARNING
 
         return compliance
@@ -646,9 +621,7 @@ class FertilizerCalculator:
             costs_by_fertilizer[fert_id]["cost"] += app.total_cost
 
         analysis.total_cost = analysis.total_fertilizer_cost + analysis.total_application_cost
-        analysis.cost_per_ha = (
-            analysis.total_cost / Decimal(str(area_ha)) if area_ha > 0 else Decimal("0.00")
-        )
+        analysis.cost_per_ha = analysis.total_cost / Decimal(str(area_ha)) if area_ha > 0 else Decimal("0.00")
 
         # Cost per kg nutrient
         if total_n > 0:
@@ -672,21 +645,16 @@ class FertilizerCalculator:
                     "Consider soil testing to optimize application rates."
                 )
                 analysis.savings_opportunities_ar.append(
-                    f"ارتفعت التكاليف {change:.1f}% عن الموسم السابق. "
-                    "ينصح بإجراء تحليل تربة لتحسين معدلات التطبيق."
+                    f"ارتفعت التكاليف {change:.1f}% عن الموسم السابق. ينصح بإجراء تحليل تربة لتحسين معدلات التطبيق."
                 )
 
         # Identify savings opportunities
         if analysis.cost_per_kg_n > Decimal("6.00"):
-            analysis.savings_opportunities_en.append(
-                "Consider using more cost-effective nitrogen sources like Urea."
-            )
+            analysis.savings_opportunities_en.append("Consider using more cost-effective nitrogen sources like Urea.")
             analysis.savings_opportunities_ar.append(
                 "ينصح باستخدام مصادر نيتروجين أكثر فعالية من حيث التكلفة مثل اليوريا."
             )
-            analysis.potential_savings = (analysis.cost_per_kg_n - Decimal("5.50")) * Decimal(
-                str(total_n)
-            )
+            analysis.potential_savings = (analysis.cost_per_kg_n - Decimal("5.50")) * Decimal(str(total_n))
 
         return analysis
 
@@ -811,9 +779,7 @@ def quick_rate_calculation(
     """
     calculator = FertilizerCalculator()
     try:
-        result = calculator.calculate_rate_for_nutrient(
-            fertilizer_code, target_nutrient, target_kg_per_ha, area_ha
-        )
+        result = calculator.calculate_rate_for_nutrient(fertilizer_code, target_nutrient, target_kg_per_ha, area_ha)
         return result.to_dict()
     except ValueError as e:
         return {"error": str(e)}

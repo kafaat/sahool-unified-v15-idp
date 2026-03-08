@@ -52,6 +52,7 @@ def _get_event_publisher(request) -> VisionEventPublisher | None:
         return VisionEventPublisher(nc)
     return None
 
+
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 
 
@@ -173,9 +174,7 @@ def generate_density_map(
         return "", grid_counts
 
 
-def estimate_ripeness_stage(
-    class_probs: np.ndarray | None, class_id: int
-) -> tuple[RipenessStage, float]:
+def estimate_ripeness_stage(class_probs: np.ndarray | None, class_id: int) -> tuple[RipenessStage, float]:
     """
     Estimate ripeness stage from classification probabilities.
 
@@ -334,9 +333,7 @@ async def count_plants(
     generate_density_map_flag: Annotated[bool, Query(alias="generate_density_map")] = True,
     grid_size: Annotated[int, Query(ge=8, le=128)] = 32,
     count_per_unit_area: bool = True,
-    gsd_meters: Annotated[
-        float | None, Query(gt=0.0, description="Ground sampling distance in meters/pixel")
-    ] = None,
+    gsd_meters: Annotated[float | None, Query(gt=0.0, description="Ground sampling distance in meters/pixel")] = None,
     manager: YOLO26ModelManager = Depends(get_manager),
 ) -> PlantCountResponse:
     """
@@ -391,9 +388,7 @@ async def count_plants(
 
         if gsd_meters and count_per_unit_area:
             # Calculate image area in square meters
-            image_area_sqm = (image_metadata.width * gsd_meters) * (
-                image_metadata.height * gsd_meters
-            )
+            image_area_sqm = (image_metadata.width * gsd_meters) * (image_metadata.height * gsd_meters)
             if image_area_sqm > 0:
                 density_per_sqm = total_count / image_area_sqm
 
@@ -469,9 +464,7 @@ async def classify_ripeness(
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.3,
     model_variant: ModelVariant = ModelVariant.MEDIUM,
-    fruit_type: Annotated[
-        str | None, Query(description="Type of fruit (tomato, date, grape, etc.)")
-    ] = None,
+    fruit_type: Annotated[str | None, Query(description="Type of fruit (tomato, date, grape, etc.)")] = None,
     return_stage_distribution: bool = True,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
@@ -780,9 +773,7 @@ async def segment_leaves(
         # Estimate LAI (Leaf Area Index)
         lai = None
         if gsd_meters and total_area_sqm > 0:
-            ground_area_sqm = (image_metadata.width * gsd_meters) * (
-                image_metadata.height * gsd_meters
-            )
+            ground_area_sqm = (image_metadata.width * gsd_meters) * (image_metadata.height * gsd_meters)
             if ground_area_sqm > 0:
                 lai = total_area_sqm / ground_area_sqm
 
@@ -794,9 +785,7 @@ async def segment_leaves(
             mask_base64 = _create_mask_visualization(image_bytes, result.masks)
 
         if return_visualization:
-            visualization_base64 = _create_segmentation_visualization(
-                image_bytes, segments, result.masks
-            )
+            visualization_base64 = _create_segmentation_visualization(image_bytes, segments, result.masks)
 
         logger.info(
             "leaf_segmentation_complete",
@@ -894,11 +883,7 @@ def _create_segmentation_visualization(
             font = ImageFont.load_default()
 
         for segment in segments:
-            color = (
-                "#00FF00"
-                if segment.health_indicator and segment.health_indicator > 0.7
-                else "#FFFF00"
-            )
+            color = "#00FF00" if segment.health_indicator and segment.health_indicator > 0.7 else "#FFFF00"
             bbox = segment.bbox
 
             draw.rectangle(
@@ -1010,11 +995,7 @@ async def track_objects(
             confidence = float(result.scores[i])
 
             # Get track ID
-            track_id = (
-                int(result.track_ids[i])
-                if result.track_ids is not None and i < len(result.track_ids)
-                else i
-            )
+            track_id = int(result.track_ids[i]) if result.track_ids is not None and i < len(result.track_ids) else i
             active_track_ids.add(track_id)
 
             # Check if new track

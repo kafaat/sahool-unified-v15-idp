@@ -224,12 +224,8 @@ def register_weather_endpoints(app):
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         crop_type: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
-        growth_stage: str = Query(
-            ..., description="Growth stage (initial, development, mid, late, harvest)"
-        ),
-        soil_moisture: float | None = Query(
-            None, description="Current soil moisture (0-1)", ge=0, le=1
-        ),
+        growth_stage: str = Query(..., description="Growth stage (initial, development, mid, late, harvest)"),
+        soil_moisture: float | None = Query(None, description="Current soil moisture (0-1)", ge=0, le=1),
         field_id: str | None = Query(None, description="Field identifier"),
     ):
         """
@@ -356,9 +352,7 @@ def register_weather_endpoints(app):
                 "frost_risks": [risk.to_dict() for risk in frost_risks],
                 "summary": {
                     "days_with_frost_risk": len([r for r in frost_risks if r.risk_level != "none"]),
-                    "days_with_high_risk": len(
-                        [r for r in frost_risks if r.risk_level in ["severe", "high"]]
-                    ),
+                    "days_with_high_risk": len([r for r in frost_risks if r.risk_level in ["severe", "high"]]),
                     "min_temperature_c": min(r.min_temp_c for r in frost_risks),
                 },
             }

@@ -117,9 +117,7 @@ class DEMMetadata:
             "height": self.height,
             "nodata_value": self.nodata_value,
             "vertical_datum": self.vertical_datum,
-            "acquisition_date": (
-                self.acquisition_date.isoformat() if self.acquisition_date else None
-            ),
+            "acquisition_date": (self.acquisition_date.isoformat() if self.acquisition_date else None),
         }
 
 
@@ -371,8 +369,7 @@ class DEMProcessor:
                 0.0,
                 bounds.min_lon,
                 0.0,
-                -resolution_m
-                / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
+                -resolution_m / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
                 bounds.max_lat,
             )
             if RASTERIO_AVAILABLE
@@ -576,9 +573,7 @@ class DEMProcessor:
         if np.any(dem_data.nodata_mask):
             from scipy.ndimage import zoom as zoom_mask
 
-            nodata_mask = (
-                zoom_mask(dem_data.nodata_mask.astype(np.float32), scale_factor, order=0) > 0.5
-            )
+            nodata_mask = zoom_mask(dem_data.nodata_mask.astype(np.float32), scale_factor, order=0) > 0.5
 
         return DEMData(
             data=resampled,
@@ -732,9 +727,7 @@ class DEMProcessor:
                 filled[valid_indices]
 
                 # For each nodata point, find nearest valid point
-                distances, indices = distance_transform_edt(
-                    mask, return_distances=True, return_indices=True
-                )
+                distances, indices = distance_transform_edt(mask, return_distances=True, return_indices=True)
 
                 # Fill using nearest valid value
                 filled[mask] = filled[indices[0][mask], indices[1][mask]]

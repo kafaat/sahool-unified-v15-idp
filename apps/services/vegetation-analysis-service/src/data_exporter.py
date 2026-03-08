@@ -9,7 +9,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from xml.dom import minidom
+from defusedxml.minidom import parseString as safe_parseString
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 
@@ -123,9 +123,7 @@ class DataExporter:
                             "type": "Point",
                             "coordinates": [point["longitude"], point["latitude"]],
                         },
-                        "properties": {
-                            k: v for k, v in point.items() if k not in ["latitude", "longitude"]
-                        },
+                        "properties": {k: v for k, v in point.items() if k not in ["latitude", "longitude"]},
                     }
                     features.append(feature)
 
@@ -153,9 +151,7 @@ class DataExporter:
             generated_at=datetime.now(),
         )
 
-    def export_boundaries(
-        self, boundaries: list[dict], format: ExportFormat = ExportFormat.GEOJSON
-    ) -> ExportResult:
+    def export_boundaries(self, boundaries: list[dict], format: ExportFormat = ExportFormat.GEOJSON) -> ExportResult:
         """
         Export field boundaries as GeoJSON or KML.
 
@@ -178,9 +174,7 @@ class DataExporter:
                             "coordinates": boundary.get("coordinates", []),
                         },
                     ),
-                    "properties": {
-                        k: v for k, v in boundary.items() if k not in ["geometry", "coordinates"]
-                    },
+                    "properties": {k: v for k, v in boundary.items() if k not in ["geometry", "coordinates"]},
                 }
                 features.append(feature)
 
@@ -221,9 +215,7 @@ class DataExporter:
             generated_at=datetime.now(),
         )
 
-    def export_yield_prediction(
-        self, prediction_data: dict, format: ExportFormat = ExportFormat.JSON
-    ) -> ExportResult:
+    def export_yield_prediction(self, prediction_data: dict, format: ExportFormat = ExportFormat.JSON) -> ExportResult:
         """
         Export yield prediction results.
 
@@ -258,9 +250,7 @@ class DataExporter:
             generated_at=datetime.now(),
         )
 
-    def export_changes_report(
-        self, changes: list[dict], format: ExportFormat = ExportFormat.CSV
-    ) -> ExportResult:
+    def export_changes_report(self, changes: list[dict], format: ExportFormat = ExportFormat.CSV) -> ExportResult:
         """
         Export change detection report.
 
@@ -293,9 +283,7 @@ class DataExporter:
                             "type": "Point",
                             "coordinates": [change["longitude"], change["latitude"]],
                         },
-                        "properties": {
-                            k: v for k, v in change.items() if k not in ["latitude", "longitude"]
-                        },
+                        "properties": {k: v for k, v in change.items() if k not in ["latitude", "longitude"]},
                     }
                     features.append(feature)
 
@@ -353,9 +341,7 @@ class DataExporter:
 
         # Create properties (exclude coordinate fields)
         properties = {
-            k: v
-            for k, v in data.items()
-            if k not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]
+            k: v for k, v in data.items() if k not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]
         }
 
         feature = {"type": "Feature", "geometry": geometry, "properties": properties}
@@ -439,7 +425,7 @@ class DataExporter:
 
         # Convert to pretty XML string
         xml_string = tostring(kml, encoding="unicode")
-        dom = minidom.parseString(xml_string)
+        dom = safe_parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
     def _boundaries_to_kml(self, boundaries: list[dict]) -> str:
@@ -486,7 +472,7 @@ class DataExporter:
 
         # Convert to pretty XML string
         xml_string = tostring(kml, encoding="unicode")
-        dom = minidom.parseString(xml_string)
+        dom = safe_parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
     def _format_kml_description(self, data: dict) -> str:

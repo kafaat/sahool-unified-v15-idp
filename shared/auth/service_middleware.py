@@ -111,9 +111,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                 request.state.calling_service = payload["service_name"]
                 request.state.is_service_request = True
 
-                logger.debug(
-                    f"Service request: {payload['service_name']} -> {self.current_service}"
-                )
+                logger.debug(f"Service request: {payload['service_name']} -> {self.current_service}")
 
             except Exception as e:
                 logger.warning(f"Service authentication failed: {str(e)}")

@@ -181,9 +181,7 @@ class VaultClient:
             logger.info(f"Using {env_var} from environment (Vault fallback)")
             return value
 
-        raise ValueError(
-            f"Secret not found in Vault ({vault_path}/{vault_key}) or environment ({env_var})"
-        )
+        raise ValueError(f"Secret not found in Vault ({vault_path}/{vault_key}) or environment ({env_var})")
 
 
 def from_env() -> VaultClient:
@@ -206,8 +204,7 @@ def from_env() -> VaultClient:
     addr = os.getenv("VAULT_ADDR", "http://localhost:8200")
     if addr.startswith("http://") and "localhost" not in addr and "127.0.0.1" not in addr:
         logger.warning(
-            "VAULT_ADDR uses HTTP for a non-localhost address. "
-            "Use HTTPS in production to protect secrets in transit."
+            "VAULT_ADDR uses HTTP for a non-localhost address. Use HTTPS in production to protect secrets in transit."
         )
     token = os.getenv("VAULT_TOKEN")
     namespace = os.getenv("VAULT_NAMESPACE")

@@ -100,9 +100,7 @@ class CircuitBreaker:
         last_error = None
         for endpoint in self._endpoints:
             try:
-                result = await self._try_endpoint(
-                    endpoint, service, path, method, timeout, **kwargs
-                )
+                result = await self._try_endpoint(endpoint, service, path, method, timeout, **kwargs)
                 await self._on_success(service)
 
                 # Cache successful response

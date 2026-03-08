@@ -508,9 +508,7 @@ class SensorAggregator:
         else:
             return timestamp.isoformat()
 
-    def _get_time_range_from_bucket(
-        self, bucket_key: str, granularity: TimeGranularity
-    ) -> tuple[datetime, datetime]:
+    def _get_time_range_from_bucket(self, bucket_key: str, granularity: TimeGranularity) -> tuple[datetime, datetime]:
         """
         الحصول على نطاق الوقت من مفتاح الفترة
         Get time range from bucket key
@@ -586,9 +584,7 @@ class SensorAggregator:
         outlier_percentage = (len(outliers) / len(readings)) * 100 if readings else 0
 
         # تحديد الحالة - Determine status
-        status = self._determine_sensor_status(
-            quality_score, uptime_percentage, drift_detected, outlier_percentage
-        )
+        status = self._determine_sensor_status(quality_score, uptime_percentage, drift_detected, outlier_percentage)
 
         # جمع التنبيهات والتوصيات - Collect alerts and recommendations
         alerts, recommendations_ar, recommendations_en = self._generate_alerts_and_recommendations(
@@ -601,9 +597,7 @@ class SensorAggregator:
         )
 
         # آخر قراءة ناجحة - Last successful reading
-        sorted_readings = sorted(
-            readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True
-        )
+        sorted_readings = sorted(readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True)
         last_successful = sorted_readings[0].timestamp if sorted_readings else None
 
         # استخراج معلومات البطارية والإشارة - Extract battery and signal info
@@ -634,9 +628,7 @@ class SensorAggregator:
             recommendations_en=recommendations_en,
         )
 
-    def detect_sensor_drift(
-        self, readings: list[SensorReading], window_size: int = 10
-    ) -> tuple[bool, float | None]:
+    def detect_sensor_drift(self, readings: list[SensorReading], window_size: int = 10) -> tuple[bool, float | None]:
         """
         اكتشاف انحراف المستشعر
         Detect sensor drift (gradual degradation)
@@ -706,9 +698,7 @@ class SensorAggregator:
 
         # 3. توقيت البيانات - Data timeliness (20 points)
         # على أساس حداثة آخر قراءة - Based on recency of last reading
-        sorted_readings = sorted(
-            readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True
-        )
+        sorted_readings = sorted(readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True)
         last_reading_time = datetime.fromisoformat(sorted_readings[0].timestamp)
         now = datetime.now(UTC)
 
@@ -797,9 +787,7 @@ class SensorAggregator:
         # توصيات خاصة بنوع المستشعر - Sensor-type specific recommendations
         threshold = get_threshold(sensor_type)
         if threshold:
-            recommendations_ar.append(
-                f"النطاق الموصى به: {threshold.min_value}-{threshold.max_value} {threshold.unit}"
-            )
+            recommendations_ar.append(f"النطاق الموصى به: {threshold.min_value}-{threshold.max_value} {threshold.unit}")
             recommendations_en.append(
                 f"Recommended range: {threshold.min_value}-{threshold.max_value} {threshold.unit}"
             )

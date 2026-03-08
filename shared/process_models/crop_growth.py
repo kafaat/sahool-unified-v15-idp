@@ -49,14 +49,10 @@ class PhenologyState:
     doy: int = 1  # Day of year | يوم السنة
     gdd_cumulative: float = 0.0  # Cumulative GDD since sowing | وحدات الحرارة التراكمية
     stage: GrowthStage = GrowthStage.SOWING
-    dvs: float = (
-        0.0  # Development stage (0=sowing, 1=heading, 2=maturity) | مرحلة التطور
-    )
+    dvs: float = 0.0  # Development stage (0=sowing, 1=heading, 2=maturity) | مرحلة التطور
 
 
-def compute_gdd(
-    weather: DailyWeather, base_temp: float = 0.0, max_temp_cap: float = 35.0
-) -> float:
+def compute_gdd(weather: DailyWeather, base_temp: float = 0.0, max_temp_cap: float = 35.0) -> float:
     """
     Compute Growing Degree Days for a single day.
     حساب وحدات الحرارة الزراعية ليوم واحد.
@@ -67,9 +63,7 @@ def compute_gdd(
     return max(0.0, tmean - base_temp)
 
 
-def update_phenology(
-    state: PhenologyState, gdd_today: float, params: CropParameters
-) -> PhenologyState:
+def update_phenology(state: PhenologyState, gdd_today: float, params: CropParameters) -> PhenologyState:
     """
     Advance phenological stage based on accumulated GDD.
     تحديث مرحلة النمو استنادًا إلى وحدات الحرارة المتراكمة.
@@ -84,14 +78,10 @@ def update_phenology(
         state.dvs = 0.0
     elif gdd < params.gdd_heading:
         state.stage = GrowthStage.VEGETATIVE
-        state.dvs = (gdd - params.gdd_emergence) / max(
-            1.0, params.gdd_heading - params.gdd_emergence
-        )
+        state.dvs = (gdd - params.gdd_emergence) / max(1.0, params.gdd_heading - params.gdd_emergence)
     elif gdd < params.gdd_maturity:
         state.stage = GrowthStage.GRAIN_FILL
-        state.dvs = 1.0 + (gdd - params.gdd_heading) / max(
-            1.0, params.gdd_maturity - params.gdd_heading
-        )
+        state.dvs = 1.0 + (gdd - params.gdd_heading) / max(1.0, params.gdd_maturity - params.gdd_heading)
     else:
         state.stage = GrowthStage.MATURITY
         state.dvs = 2.0
@@ -103,9 +93,7 @@ def update_phenology(
 # ---------------------------------------------------------------------------
 
 
-def compute_intercepted_radiation(
-    solar_rad_mj_m2: float, lai: float, k: float = 0.5
-) -> float:
+def compute_intercepted_radiation(solar_rad_mj_m2: float, lai: float, k: float = 0.5) -> float:
     """
     Intercepted PAR using Beer-Lambert law.
     الإشعاع الفعال المعترض باستخدام قانون بير-لامبرت.
@@ -118,9 +106,7 @@ def compute_intercepted_radiation(
     return par * fpar
 
 
-def compute_biomass_increment(
-    intercepted_par_mj: float, rue_g_mj: float, stress_factor: float = 1.0
-) -> float:
+def compute_biomass_increment(intercepted_par_mj: float, rue_g_mj: float, stress_factor: float = 1.0) -> float:
     """
     Daily biomass increment via Radiation Use Efficiency.
     الزيادة اليومية في الكتلة الحيوية باستخدام كفاءة استخدام الإشعاع.
@@ -197,9 +183,7 @@ def partition_biomass(delta_bm: float, dvs: float) -> PartitioningResult:
 # ---------------------------------------------------------------------------
 
 
-def water_stress_factor(
-    soil_water_mm: float, field_capacity_mm: float, wilting_point_mm: float
-) -> float:
+def water_stress_factor(soil_water_mm: float, field_capacity_mm: float, wilting_point_mm: float) -> float:
     """
     Water stress factor Ws ∈ [0, 1].
     معامل إجهاد الرطوبة.
@@ -285,9 +269,7 @@ class CropGrowthEngine:
         Returns:
             ModelResult with grain_yield_t_ha, biomass_t_ha, and daily log.
         """
-        state = CropGrowthState(
-            soil_water_mm=soil.field_capacity_mm_per_m * soil.depth_m * 0.75
-        )
+        state = CropGrowthState(soil_water_mm=soil.field_capacity_mm_per_m * soil.depth_m * 0.75)
         state.n_supply_kg_ha = n_supply_kg_ha
 
         fc_mm = soil.field_capacity_mm_per_m * soil.depth_m
@@ -303,14 +285,8 @@ class CropGrowthEngine:
             dvs = state.phenology.dvs
 
             # 2. Soil water balance (simplified FAO-56 daily step)
-            et0_approx = max(
-                0.0, (weather.solar_radiation_mj_m2 * 0.0135 * (weather.tmean_c + 17.8))
-            )
-            kcb = (
-                crop.crop_coefficient_kcb_mid * min(1.0, dvs + 0.1)
-                if dvs < 2.0
-                else 0.2
-            )
+            et0_approx = max(0.0, (weather.solar_radiation_mj_m2 * 0.0135 * (weather.tmean_c + 17.8)))
+            kcb = crop.crop_coefficient_kcb_mid * min(1.0, dvs + 0.1) if dvs < 2.0 else 0.2
             etc_mm = et0_approx * kcb
             state.soil_water_mm += weather.precipitation_mm
             state.soil_water_mm = min(state.soil_water_mm, fc_mm)
@@ -318,18 +294,14 @@ class CropGrowthEngine:
             state.soil_water_mm = max(wp_mm * 0.1, state.soil_water_mm - etc_mm)
 
             # 3. N stress
-            n_demand = (
-                crop.n_requirement_kg_per_ton / 1000.0
-            ) * state.total_biomass_g_m2 * 0.01 + 0.05
+            n_demand = (crop.n_requirement_kg_per_ton / 1000.0) * state.total_biomass_g_m2 * 0.01 + 0.05
             wn = nitrogen_stress_factor(state.n_supply_kg_ha, n_demand)
             state.n_supply_kg_ha = max(0.0, state.n_supply_kg_ha - n_demand * 0.05)
 
             combined_stress = ws * wn
 
             # 4. Photosynthesis / biomass
-            ipar = compute_intercepted_radiation(
-                weather.solar_radiation_mj_m2, state.lai, crop.k_extinction
-            )
+            ipar = compute_intercepted_radiation(weather.solar_radiation_mj_m2, state.lai, crop.k_extinction)
             delta_bm = compute_biomass_increment(
                 ipar, crop.rue_g_mj, combined_stress
             )  # g m⁻² d⁻¹ (IPAR_MJ × RUE_g/MJ × stress = g m⁻²)
@@ -343,9 +315,7 @@ class CropGrowthEngine:
 
             # 6. Update LAI (SLA-based; SLA ≈ 20 cm² g⁻¹)
             sla_cm2_g = 20.0
-            state.lai = max(
-                0.01, min(crop.lai_max, state.leaves_g_m2 * sla_cm2_g / 10000.0)
-            )
+            state.lai = max(0.01, min(crop.lai_max, state.leaves_g_m2 * sla_cm2_g / 10000.0))
 
             state.daily_log.append(
                 {

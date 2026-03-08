@@ -136,10 +136,7 @@ class DistributedTracer:
             self.config.service_version,
         )
 
-        logger.info(
-            f"OpenTelemetry tracing initialized for {self.config.service_name} "
-            f"v{self.config.service_version}"
-        )
+        logger.info(f"OpenTelemetry tracing initialized for {self.config.service_name} v{self.config.service_version}")
 
     def _add_exporters(self, provider: "TracerProvider") -> None:
         """Add span exporters based on configuration."""
@@ -153,9 +150,7 @@ class DistributedTracer:
                     project_id=self.config.gcp_project_id,
                 )
                 provider.add_span_processor(BatchSpanProcessor(cloud_trace_exporter))
-                logger.info(
-                    f"Google Cloud Trace exporter enabled for project: {self.config.gcp_project_id}"
-                )
+                logger.info(f"Google Cloud Trace exporter enabled for project: {self.config.gcp_project_id}")
             except Exception as e:
                 logger.warning(f"Failed to setup Google Cloud Trace exporter: {e}")
 

@@ -108,10 +108,7 @@ def publish_pending(
             # Record failure
             event.retry_count += 1
             event.last_error = str(e)
-            logger.error(
-                f"Failed to publish event {event.id}: {e} "
-                f"(attempt {event.retry_count}/{max_retries})"
-            )
+            logger.error(f"Failed to publish event {event.id}: {e} (attempt {event.retry_count}/{max_retries})")
 
     return published_count
 

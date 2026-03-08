@@ -102,16 +102,12 @@ class SendOTPRequest(BaseModel):
         max_length=255,
         description="Phone number (E.164) or email address | رقم الهاتف أو البريد الإلكتروني",
     )
-    channel: OTPChannel = Field(
-        ..., description="Delivery channel: sms, whatsapp, telegram, email | قناة الإرسال"
-    )
+    channel: OTPChannel = Field(..., description="Delivery channel: sms, whatsapp, telegram, email | قناة الإرسال")
     purpose: OTPPurpose = Field(
         ...,
         description="OTP purpose: login, password_reset, verify_phone, verify_email, two_factor | غرض OTP",
     )
-    language: Language = Field(
-        default=Language.ARABIC, description="Preferred language: ar, en | اللغة المفضلة"
-    )
+    language: Language = Field(default=Language.ARABIC, description="Preferred language: ar, en | اللغة المفضلة")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy | معرف المستأجر")
 
     @field_validator("identifier")
@@ -163,9 +159,7 @@ class VerifyOTPRequest(BaseModel):
         max_length=255,
         description="Phone number or email used to send OTP | رقم الهاتف أو البريد",
     )
-    otp_code: str = Field(
-        ..., min_length=4, max_length=8, description="OTP code received | رمز التحقق"
-    )
+    otp_code: str = Field(..., min_length=4, max_length=8, description="OTP code received | رمز التحقق")
     purpose: OTPPurpose = Field(..., description="OTP purpose (must match the sent OTP) | غرض OTP")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy | معرف المستأجر")
 
@@ -179,9 +173,7 @@ class VerifyOTPRequest(BaseModel):
         return v
 
     class Config:
-        json_schema_extra = {
-            "example": {"identifier": "+967771234567", "otp_code": "123456", "purpose": "login"}
-        }
+        json_schema_extra = {"example": {"identifier": "+967771234567", "otp_code": "123456", "purpose": "login"}}
 
 
 class VerifyOTPResponse(BaseModel):
@@ -191,9 +183,7 @@ class VerifyOTPResponse(BaseModel):
     message: str = Field(..., description="Response message (bilingual)")
     message_en: str = Field(..., description="English message")
     message_ar: str = Field(..., description="Arabic message")
-    token: str | None = Field(
-        None, description="Reset token (only for password_reset purpose) | رمز إعادة التعيين"
-    )
+    token: str | None = Field(None, description="Reset token (only for password_reset purpose) | رمز إعادة التعيين")
 
 
 class OTPStatusResponse(BaseModel):
@@ -460,9 +450,7 @@ class OTPStorage:
     def cleanup_expired(self):
         """Clean up expired OTPs from in-memory storage"""
         now = time.time()
-        expired_keys = [
-            key for key, data in self._storage.items() if data.get("expires_at", 0) < now
-        ]
+        expired_keys = [key for key, data in self._storage.items() if data.get("expires_at", 0) < now]
         for key in expired_keys:
             del self._storage[key]
 
@@ -562,11 +550,7 @@ async def send_otp_via_channel(
                 logger.warning("Email client not initialized")
                 return False
 
-            subject = (
-                "SAHOOL Verification Code"
-                if language == Language.ENGLISH
-                else "رمز التحقق من SAHOOL"
-            )
+            subject = "SAHOOL Verification Code" if language == Language.ENGLISH else "رمز التحقق من SAHOOL"
             result = await email_client.send_email(
                 to=identifier,
                 subject=subject,
@@ -582,9 +566,7 @@ async def send_otp_via_channel(
             return False
 
     except Exception as e:
-        logger.error(
-            f"Failed to send OTP via {sanitize_for_log(channel.value)}: {sanitize_for_log(e)}"
-        )
+        logger.error(f"Failed to send OTP via {sanitize_for_log(channel.value)}: {sanitize_for_log(e)}")
         return False
 
 
@@ -705,9 +687,7 @@ async def send_otp(request: Request, body: SendOTPRequest):
 
     return SendOTPResponse(
         success=True,
-        message="تم إرسال رمز التحقق بنجاح"
-        if body.language == Language.ARABIC
-        else "OTP sent successfully",
+        message="تم إرسال رمز التحقق بنجاح" if body.language == Language.ARABIC else "OTP sent successfully",
         message_en="OTP sent successfully",
         message_ar="تم إرسال رمز التحقق بنجاح",
         expires_in_seconds=expires_in,
@@ -784,9 +764,7 @@ async def verify_otp(body: VerifyOTPRequest):
     },
 )
 async def get_otp_status(
-    identifier: str = Query(
-        ..., min_length=3, description="Phone number or email | رقم الهاتف أو البريد"
-    ),
+    identifier: str = Query(..., min_length=3, description="Phone number or email | رقم الهاتف أو البريد"),
     purpose: OTPPurpose = Query(..., description="OTP purpose | غرض OTP"),
     tenant_id: str | None = Query(None, description="Tenant ID | معرف المستأجر"),
 ):

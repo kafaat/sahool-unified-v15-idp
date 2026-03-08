@@ -90,9 +90,7 @@ class TestCropRotationPlanner:
     @pytest.mark.asyncio
     async def test_suggest_next_crop(self, planner, sample_history):
         """Test suggesting next crop based on history"""
-        suggestions = await planner.suggest_next_crop(
-            field_id="F001", history=sample_history, season="winter"
-        )
+        suggestions = await planner.suggest_next_crop(field_id="F001", history=sample_history, season="winter")
 
         assert len(suggestions) > 0
         assert all(0 <= s.suitability_score <= 100 for s in suggestions)

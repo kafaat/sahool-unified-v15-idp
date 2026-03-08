@@ -43,10 +43,7 @@ async def get_current_user(
         if JWT_ALGORITHM not in ALLOWED_ALGORITHMS:
             raise jwt.InvalidTokenError(f"Algorithm {JWT_ALGORITHM} not allowed")
 
-        payload = jwt.decode(
-            token, JWT_SECRET_KEY, algorithms=ALLOWED_ALGORITHMS,
-            options={"require": ["exp", "sub"]}
-        )
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=ALLOWED_ALGORITHMS, options={"require": ["exp", "sub"]})
 
         user_id = payload.get("sub") or payload.get("user_id")
         if not user_id:

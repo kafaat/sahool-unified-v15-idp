@@ -250,16 +250,10 @@ class BaseEdgeEvent(BaseModel):
     النموذج الأساسي لجميع أحداث أجهزة الحافة
     """
 
-    event_id: str = Field(
-        default_factory=lambda: str(uuid4()), description="Unique event identifier"
-    )
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Event timestamp"
-    )
+    event_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique event identifier")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
-    source_service: str = Field(
-        default="edge-orchestrator", description="Service that emitted the event"
-    )
+    source_service: str = Field(default="edge-orchestrator", description="Service that emitted the event")
     correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
     @property
@@ -287,9 +281,7 @@ class DeviceCapabilities(BaseModel):
     has_gps: bool = Field(default=True, description="Has GPS capability")
     storage_gb: float | None = Field(None, ge=0, description="Storage capacity in GB")
     ram_gb: float | None = Field(None, ge=0, description="RAM in GB")
-    supported_models: list[str] = Field(
-        default_factory=list, description="Supported AI model types"
-    )
+    supported_models: list[str] = Field(default_factory=list, description="Supported AI model types")
     max_inference_fps: float | None = Field(None, ge=0, description="Maximum inference FPS")
 
 
@@ -303,9 +295,7 @@ class DeviceHealth(BaseModel):
     memory_usage_percent: float = Field(..., ge=0, le=100, description="Memory usage")
     storage_usage_percent: float = Field(..., ge=0, le=100, description="Storage usage")
     temperature_celsius: float | None = Field(None, description="Device temperature")
-    battery_percent: float | None = Field(
-        None, ge=0, le=100, description="Battery level if applicable"
-    )
+    battery_percent: float | None = Field(None, ge=0, le=100, description="Battery level if applicable")
     uptime_seconds: int = Field(..., ge=0, description="Device uptime")
     last_reboot: datetime | None = Field(None, description="Last reboot time")
 
@@ -401,9 +391,7 @@ class DeviceOnlineEvent(BaseEdgeEvent):
 
     # State
     was_graceful_shutdown: bool = Field(default=True, description="Previous shutdown was graceful")
-    offline_duration_seconds: int | None = Field(
-        None, ge=0, description="Duration device was offline"
-    )
+    offline_duration_seconds: int | None = Field(None, ge=0, description="Duration device was offline")
 
     # Pending work
     pending_sync_count: int = Field(default=0, ge=0, description="Pending sync records")
@@ -505,12 +493,8 @@ class DeviceHealthUpdateEvent(BaseEdgeEvent):
     issues: list[str] = Field(default_factory=list, description="Current issues detected")
 
     # Resource trends
-    cpu_trend: str | None = Field(
-        None, pattern="^(stable|increasing|decreasing)$", description="CPU usage trend"
-    )
-    memory_trend: str | None = Field(
-        None, pattern="^(stable|increasing|decreasing)$", description="Memory usage trend"
-    )
+    cpu_trend: str | None = Field(None, pattern="^(stable|increasing|decreasing)$", description="CPU usage trend")
+    memory_trend: str | None = Field(None, pattern="^(stable|increasing|decreasing)$", description="Memory usage trend")
     storage_trend: str | None = Field(
         None, pattern="^(stable|increasing|decreasing)$", description="Storage usage trend"
     )
@@ -598,9 +582,7 @@ class JobStartedEvent(BaseEdgeEvent):
     job_name: str = Field(..., description="Job name")
 
     # Execution context
-    started_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Start time"
-    )
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Start time")
     estimated_duration_seconds: int | None = Field(None, ge=0, description="Estimated duration")
     queue_wait_seconds: int | None = Field(None, ge=0, description="Time spent in queue")
 
@@ -630,9 +612,7 @@ class JobProgressEvent(BaseEdgeEvent):
 
     # Timing
     elapsed_seconds: int = Field(..., ge=0, description="Elapsed time")
-    estimated_remaining_seconds: int | None = Field(
-        None, ge=0, description="Estimated remaining time"
-    )
+    estimated_remaining_seconds: int | None = Field(None, ge=0, description="Estimated remaining time")
 
 
 class JobCompletedEvent(BaseEdgeEvent):
@@ -652,9 +632,7 @@ class JobCompletedEvent(BaseEdgeEvent):
 
     # Timing
     started_at: datetime = Field(..., description="Start time")
-    completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion time"
-    )
+    completed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion time")
     duration_seconds: int = Field(..., ge=0, description="Total duration")
 
     # Results
@@ -663,9 +641,7 @@ class JobCompletedEvent(BaseEdgeEvent):
 
     # Resource usage
     cpu_usage_avg_percent: float | None = Field(None, ge=0, le=100, description="Average CPU usage")
-    memory_usage_max_percent: float | None = Field(
-        None, ge=0, le=100, description="Peak memory usage"
-    )
+    memory_usage_max_percent: float | None = Field(None, ge=0, le=100, description="Peak memory usage")
     gpu_usage_avg_percent: float | None = Field(None, ge=0, le=100, description="Average GPU usage")
 
     # Output
@@ -695,9 +671,7 @@ class JobFailedEvent(BaseEdgeEvent):
 
     # Timing
     started_at: datetime = Field(..., description="Start time")
-    failed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Failure time"
-    )
+    failed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Failure time")
     duration_seconds: int = Field(..., ge=0, description="Duration before failure")
 
     # Partial results
@@ -726,9 +700,7 @@ class JobCancelledEvent(BaseEdgeEvent):
     was_running: bool = Field(default=False, description="Was running when cancelled")
 
     # Partial results
-    progress_at_cancellation: float | None = Field(
-        None, ge=0, le=100, description="Progress when cancelled"
-    )
+    progress_at_cancellation: float | None = Field(None, ge=0, le=100, description="Progress when cancelled")
     partial_results: JobResult | None = Field(None, description="Partial results if any")
 
 
@@ -816,9 +788,7 @@ class SyncCompletedEvent(BaseEdgeEvent):
 
     # Timing
     started_at: datetime = Field(..., description="Sync start time")
-    completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion time"
-    )
+    completed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion time")
     duration_seconds: int = Field(..., ge=0, description="Total duration")
 
     # Transfer details
@@ -946,9 +916,7 @@ class ModelDeployedEvent(BaseEdgeEvent):
     # Deployment details
     deployment_type: str = Field(..., description="Deployment type")
     started_at: datetime = Field(..., description="Deployment start time")
-    completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion time"
-    )
+    completed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion time")
     duration_seconds: int = Field(..., ge=0, description="Deployment duration")
 
     # Validation
@@ -1129,9 +1097,7 @@ class FirmwareUpdateCompletedEvent(BaseEdgeEvent):
 
     # Update details
     started_at: datetime = Field(..., description="Update start time")
-    completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion time"
-    )
+    completed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion time")
     duration_seconds: int = Field(..., ge=0, description="Update duration")
     reboot_count: int = Field(default=1, ge=0, description="Number of reboots")
 

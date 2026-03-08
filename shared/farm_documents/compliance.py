@@ -306,9 +306,7 @@ class ComplianceService:
         Create a new certification record
         إنشاء سجل شهادة جديد
         """
-        cert_body = (
-            self._certification_bodies.get(certification_body_id) if certification_body_id else None
-        )
+        cert_body = self._certification_bodies.get(certification_body_id) if certification_body_id else None
 
         certification = Certification(
             tenant_id=tenant_id,
@@ -467,12 +465,8 @@ class ComplianceService:
 
         summary = CertificationSummary(
             total_certifications=len(certs),
-            active_certifications=sum(
-                1 for c in certs if c.status == CertificationStatus.ACTIVE and c.is_valid
-            ),
-            expired_certifications=sum(
-                1 for c in certs if c.status == CertificationStatus.EXPIRED or not c.is_valid
-            ),
+            active_certifications=sum(1 for c in certs if c.status == CertificationStatus.ACTIVE and c.is_valid),
+            expired_certifications=sum(1 for c in certs if c.status == CertificationStatus.EXPIRED or not c.is_valid),
             pending_certifications=sum(1 for c in certs if c.status == CertificationStatus.PENDING),
         )
 
@@ -497,9 +491,7 @@ class ComplianceService:
                 )
 
         # Next audit date
-        next_audits = [
-            c.next_audit_date for c in certs if c.next_audit_date and c.next_audit_date >= today
-        ]
+        next_audits = [c.next_audit_date for c in certs if c.next_audit_date and c.next_audit_date >= today]
         if next_audits:
             summary.next_audit_date = min(next_audits)
 
@@ -637,9 +629,7 @@ class ComplianceService:
             linked_docs = [
                 doc
                 for doc in self._compliance_docs.values()
-                if doc.tenant_id == tenant_id
-                and doc.farm_id == farm_id
-                and doc.requirement_id == req.id
+                if doc.tenant_id == tenant_id and doc.farm_id == farm_id and doc.requirement_id == req.id
             ]
 
             # Determine status
@@ -772,12 +762,8 @@ class ComplianceService:
                     minor_must_compliant += 1
 
         # GlobalGAP requires 100% Major Must and 95% Minor Must
-        major_must_percentage = (
-            (major_must_compliant / major_must_total * 100) if major_must_total > 0 else 100
-        )
-        minor_must_percentage = (
-            (minor_must_compliant / minor_must_total * 100) if minor_must_total > 0 else 100
-        )
+        major_must_percentage = (major_must_compliant / major_must_total * 100) if major_must_total > 0 else 100
+        minor_must_percentage = (minor_must_compliant / minor_must_total * 100) if minor_must_total > 0 else 100
 
         is_eligible = major_must_percentage >= 100 and minor_must_percentage >= 95
 
@@ -800,15 +786,9 @@ class ComplianceService:
             "mandatory_total": mandatory_total,
             "issues": issues,
             "message_en": (
-                "Farm is eligible for certification"
-                if is_eligible
-                else "Farm does not meet certification requirements"
+                "Farm is eligible for certification" if is_eligible else "Farm does not meet certification requirements"
             ),
-            "message_ar": (
-                "المزرعة مؤهلة للحصول على الشهادة"
-                if is_eligible
-                else "المزرعة لا تستوفي متطلبات الشهادة"
-            ),
+            "message_ar": ("المزرعة مؤهلة للحصول على الشهادة" if is_eligible else "المزرعة لا تستوفي متطلبات الشهادة"),
         }
 
     # ─────────────────────────────────────────────────────────────────────────

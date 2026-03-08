@@ -83,9 +83,7 @@ try:
         # Metadata (for extensibility)
         metadata = fields.JSONField(null=True)
         source_system = fields.CharField(max_length=64, null=True)
-        user_role_snapshot = fields.CharField(
-            max_length=128, null=True
-        )  # User role at time of event
+        user_role_snapshot = fields.CharField(max_length=128, null=True)  # User role at time of event
 
         # Timestamp
         created_at = fields.DatetimeField(auto_now_add=True, index=True)

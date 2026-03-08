@@ -260,12 +260,14 @@ class InMemoryKnowledgeRepository(KnowledgeRepository):
         # Free-text search across title, content, and Arabic variants
         if query.text_search:
             search_lower = query.text_search.lower()
-            searchable = " ".join([
-                doc.title.lower(),
-                doc.title_ar,
-                doc.content.lower(),
-                doc.content_ar,
-            ])
+            searchable = " ".join(
+                [
+                    doc.title.lower(),
+                    doc.title_ar,
+                    doc.content.lower(),
+                    doc.content_ar,
+                ]
+            )
             if search_lower not in searchable:
                 return False
 

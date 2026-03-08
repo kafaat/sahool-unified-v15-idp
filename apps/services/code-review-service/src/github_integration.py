@@ -53,9 +53,7 @@ class GitHubIntegration:
         if not signature or not signature.startswith("sha256="):
             return False
 
-        expected = (
-            "sha256=" + hmac.new(self.webhook_secret.encode(), payload, hashlib.sha256).hexdigest()
-        )
+        expected = "sha256=" + hmac.new(self.webhook_secret.encode(), payload, hashlib.sha256).hexdigest()
 
         return hmac.compare_digest(signature, expected)
 
@@ -115,9 +113,7 @@ class GitHubIntegration:
             logger.error(f"Error getting file content: {e}")
             return None
 
-    async def create_pr_comment(
-        self, owner: str, repo: str, pr_number: int, body: str
-    ) -> dict | None:
+    async def create_pr_comment(self, owner: str, repo: str, pr_number: int, body: str) -> dict | None:
         """Create a comment on a PR"""
         try:
             session = await self._get_session()
@@ -303,9 +299,7 @@ class GitHubIntegration:
             file_name = review.get("file", "Unknown")
             score = review.get("score", 0)
             emoji = "✅" if score >= 80 else "⚠️" if score >= 60 else "❌"
-            lines.append(
-                f"| `{file_name}` | {emoji} {score} | {review.get('summary', 'N/A')[:50]}... |"
-            )
+            lines.append(f"| `{file_name}` | {emoji} {score} | {review.get('summary', 'N/A')[:50]}... |")
 
         # Aggregate issues
         all_critical = []
@@ -373,9 +367,7 @@ class PRReviewResult:
     def _update_score(self):
         """Update total score"""
         if self.file_reviews:
-            self.total_score = sum(r.get("score", 0) for r in self.file_reviews) // len(
-                self.file_reviews
-            )
+            self.total_score = sum(r.get("score", 0) for r in self.file_reviews) // len(self.file_reviews)
 
     def get_conclusion(self) -> str:
         """Get GitHub check run conclusion"""

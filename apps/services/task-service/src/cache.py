@@ -461,9 +461,7 @@ class TaskCache:
         key = f"health:{field_id}"
         return await self._cache.get(key)
 
-    async def set_field_health(
-        self, field_id: str, health_data: dict, ttl_seconds: int = 600
-    ) -> bool:
+    async def set_field_health(self, field_id: str, health_data: dict, ttl_seconds: int = 600) -> bool:
         """Cache field health data (10 min default TTL)"""
         key = f"health:{field_id}"
         return await self._cache.set(key, health_data, ttl_seconds)
@@ -473,9 +471,7 @@ class TaskCache:
         key = f"suggestions:{field_id}"
         return await self._cache.get(key)
 
-    async def set_suggestions(
-        self, field_id: str, suggestions: list, ttl_seconds: int = 1800
-    ) -> bool:
+    async def set_suggestions(self, field_id: str, suggestions: list, ttl_seconds: int = 1800) -> bool:
         """Cache task suggestions (30 min default TTL)"""
         key = f"suggestions:{field_id}"
         return await self._cache.set(key, suggestions, ttl_seconds)

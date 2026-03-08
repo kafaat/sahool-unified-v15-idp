@@ -65,8 +65,7 @@ class DatabaseConfig:
         self.url = url or os.getenv("DATABASE_URL")
         if not self.url:
             raise ValueError(
-                "Database URL not configured. "
-                "Set DATABASE_URL environment variable or pass url parameter."
+                "Database URL not configured. Set DATABASE_URL environment variable or pass url parameter."
             )
 
         self.pool_size = int(os.getenv("DB_POOL_SIZE", pool_size))
@@ -77,9 +76,7 @@ class DatabaseConfig:
 
         self.max_retries = int(os.getenv("DB_MAX_RETRIES", max_retries))
         self.retry_delay = float(os.getenv("DB_RETRY_DELAY_SECONDS", retry_delay))
-        self.retry_backoff_factor = float(
-            os.getenv("DB_RETRY_BACKOFF_FACTOR", retry_backoff_factor)
-        )
+        self.retry_backoff_factor = float(os.getenv("DB_RETRY_BACKOFF_FACTOR", retry_backoff_factor))
 
 
 class DatabaseManager:
@@ -90,9 +87,7 @@ class DatabaseManager:
 
     def __init__(self, config: DatabaseConfig):
         if not SQLALCHEMY_AVAILABLE:
-            raise ImportError(
-                "SQLAlchemy is required. Install with: pip install sqlalchemy[asyncio]"
-            )
+            raise ImportError("SQLAlchemy is required. Install with: pip install sqlalchemy[asyncio]")
 
         self.config = config
         self._engine: AsyncEngine | None = None
@@ -139,8 +134,7 @@ class DatabaseManager:
         self._register_event_listeners(engine.sync_engine)
 
         logger.info(
-            f"Database engine created: pool_size={self.config.pool_size}, "
-            f"max_overflow={self.config.max_overflow}"
+            f"Database engine created: pool_size={self.config.pool_size}, max_overflow={self.config.max_overflow}"
         )
 
         return engine

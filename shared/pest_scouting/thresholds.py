@@ -51,8 +51,7 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         threshold_unit="detection",
         threshold_description="Zero tolerance pest. Any detection (trap catch, acoustic detection, "
         "or visual symptoms) requires immediate action.",
-        threshold_description_ar="آفة لا تحمل أي حد. أي اكتشاف (مصيدة، كشف صوتي، أو أعراض بصرية) "
-        "يتطلب تدخلاً فورياً.",
+        threshold_description_ar="آفة لا تحمل أي حد. أي اكتشاف (مصيدة، كشف صوتي، أو أعراض بصرية) يتطلب تدخلاً فورياً.",
         sampling_method="Pheromone traps (5-10/ha), acoustic detection devices, visual inspection",
         sampling_method_ar="مصائد فرمونية (5-10/هكتار)، أجهزة كشف صوتي، فحص بصري",
         sampling_frequency="Weekly trap checks, monthly acoustic surveys",

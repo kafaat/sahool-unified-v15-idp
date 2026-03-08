@@ -158,9 +158,7 @@ class TestReorderRecommendations:
 
     def test_get_reorder_recommendations(self, client):
         """Test getting reorder recommendations"""
-        response = client.get(
-            "/v1/analytics/reorder-recommendations", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/reorder-recommendations", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
         data = response.json()
@@ -408,9 +406,7 @@ class TestCompleteWorkflow:
         assert forecast_response.status_code == 200
 
         # Step 3: Get reorder recommendations
-        reorder_response = client.get(
-            "/v1/analytics/reorder-recommendations", params={"tenant_id": tenant_id}
-        )
+        reorder_response = client.get("/v1/analytics/reorder-recommendations", params={"tenant_id": tenant_id})
         assert reorder_response.status_code == 200
 
         # Step 4: Get valuation

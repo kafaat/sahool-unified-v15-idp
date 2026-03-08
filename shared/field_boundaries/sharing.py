@@ -359,9 +359,7 @@ class BoundarySharingManager:
 
         return None
 
-    def has_permission(
-        self, boundary_id: str, user_id: str, required_level: PermissionLevel
-    ) -> bool:
+    def has_permission(self, boundary_id: str, user_id: str, required_level: PermissionLevel) -> bool:
         """Check if user has required permission level."""
         permission = self.get_permission(boundary_id, user_id)
 
@@ -567,9 +565,7 @@ class BoundarySharingManager:
                     self._conflicts[conflict.id] = conflict
             else:
                 # Check for gaps (near but not touching)
-                min_distance = self._calculate_min_boundary_distance(
-                    boundary_coords, neighbor_coords
-                )
+                min_distance = self._calculate_min_boundary_distance(boundary_coords, neighbor_coords)
 
                 if min_distance <= gap_threshold_m:
                     conflict = BoundaryConflict(
@@ -623,11 +619,7 @@ class BoundarySharingManager:
         conflicts = list(self._conflicts.values())
 
         if boundary_id:
-            conflicts = [
-                c
-                for c in conflicts
-                if c.boundary_id_a == boundary_id or c.boundary_id_b == boundary_id
-            ]
+            conflicts = [c for c in conflicts if c.boundary_id_a == boundary_id or c.boundary_id_b == boundary_id]
 
         if user_id:
             conflicts = [c for c in conflicts if c.owner_id_a == user_id or c.owner_id_b == user_id]
@@ -677,9 +669,7 @@ class BoundarySharingManager:
         self._resolutions[resolution.id] = resolution
         return resolution
 
-    def approve_resolution(
-        self, resolution_id: str, user_id: str, is_party_a: bool
-    ) -> tuple[bool, str]:
+    def approve_resolution(self, resolution_id: str, user_id: str, is_party_a: bool) -> tuple[bool, str]:
         """
         Approve a resolution by one of the parties.
         الموافقة على الحل من قبل أحد الأطراف.
@@ -842,9 +832,7 @@ def generate_postgis_neighbor_notification_query(
     import re
 
     # Validate boundary_id is a UUID format to prevent SQL injection
-    uuid_pattern = re.compile(
-        r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I
-    )
+    uuid_pattern = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
     if not uuid_pattern.match(boundary_id):
         raise ValueError("Invalid boundary_id format: must be UUID")
 

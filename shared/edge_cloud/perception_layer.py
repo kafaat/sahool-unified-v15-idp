@@ -190,9 +190,7 @@ class MQTTAdapter(ProtocolAdapter):
         if device_id not in self._connections:
             return False
 
-        self._logger.info(
-            "mqtt_command_sent", device_id=device_id, command=command, parameters=parameters
-        )
+        self._logger.info("mqtt_command_sent", device_id=device_id, command=command, parameters=parameters)
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
@@ -290,9 +288,7 @@ class HTTPAdapter(ProtocolAdapter):
         if device_id not in self._endpoints:
             return False
 
-        self._logger.info(
-            "http_command_sent", device_id=device_id, command=command, parameters=parameters
-        )
+        self._logger.info("http_command_sent", device_id=device_id, command=command, parameters=parameters)
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
@@ -377,9 +373,7 @@ class ModbusAdapter(ProtocolAdapter):
         if device_id not in self._connections:
             return False
 
-        self._logger.info(
-            "modbus_command_sent", device_id=device_id, command=command, parameters=parameters
-        )
+        self._logger.info("modbus_command_sent", device_id=device_id, command=command, parameters=parameters)
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
@@ -450,9 +444,7 @@ class OPCUAAdapter(ProtocolAdapter):
         if device_id not in self._connections:
             return False
 
-        self._logger.info(
-            "opcua_command_sent", device_id=device_id, command=command, parameters=parameters
-        )
+        self._logger.info("opcua_command_sent", device_id=device_id, command=command, parameters=parameters)
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
@@ -522,9 +514,7 @@ class CoAPAdapter(ProtocolAdapter):
         if device_id not in self._endpoints:
             return False
 
-        self._logger.info(
-            "coap_command_sent", device_id=device_id, command=command, parameters=parameters
-        )
+        self._logger.info("coap_command_sent", device_id=device_id, command=command, parameters=parameters)
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
@@ -634,9 +624,7 @@ class PerceptionLayer:
         # Logger
         self._logger = structlog.get_logger(__name__).bind(farm_id=farm_id, layer="perception")
 
-        self._logger.info(
-            "perception_layer_initialized", farm_id=farm_id, message_ar="تم تهيئة طبقة الإدراك"
-        )
+        self._logger.info("perception_layer_initialized", farm_id=farm_id, message_ar="تم تهيئة طبقة الإدراك")
 
     async def register_device(
         self, device_id: str, protocol: DeviceProtocol, config: DeviceConfig | dict[str, Any]
@@ -676,9 +664,7 @@ class PerceptionLayer:
             # Get appropriate adapter
             adapter = self._adapters.get(protocol)
             if not adapter:
-                self._logger.error(
-                    "unsupported_protocol", protocol=protocol.value, device_id=device_id
-                )
+                self._logger.error("unsupported_protocol", protocol=protocol.value, device_id=device_id)
                 return False
 
             # Connect to device
@@ -729,9 +715,7 @@ class PerceptionLayer:
         del self._devices[device_id]
         del self._device_status[device_id]
 
-        self._logger.info(
-            "device_unregistered", device_id=device_id, message_ar="تم إلغاء تسجيل الجهاز"
-        )
+        self._logger.info("device_unregistered", device_id=device_id, message_ar="تم إلغاء تسجيل الجهاز")
         return True
 
     async def collect_sensor_data(
@@ -951,9 +935,7 @@ class PerceptionLayer:
         Returns:
             Dictionary of statistics
         """
-        online_count = sum(
-            1 for status in self._device_status.values() if status == SystemStatus.ONLINE
-        )
+        online_count = sum(1 for status in self._device_status.values() if status == SystemStatus.ONLINE)
         return {
             "farm_id": self.farm_id,
             "total_devices": len(self._devices),
@@ -967,9 +949,7 @@ class PerceptionLayer:
                 else 0.0
             ),
             "buffer_size": len(self._reading_buffer),
-            "last_collection": (
-                self._last_collection_time.isoformat() if self._last_collection_time else None
-            ),
+            "last_collection": (self._last_collection_time.isoformat() if self._last_collection_time else None),
             "sampling_interval_minutes": self.default_sampling_config.interval_minutes,
             "supported_device_types": self.SUPPORTED_DEVICE_TYPES,
         }
@@ -1041,9 +1021,7 @@ class PerceptionLayer:
             await self.unregister_device(device_id)
 
         self._reading_buffer.clear()
-        self._logger.info(
-            "perception_layer_shutdown_complete", message_ar="اكتمل إيقاف طبقة الإدراك"
-        )
+        self._logger.info("perception_layer_shutdown_complete", message_ar="اكتمل إيقاف طبقة الإدراك")
 
 
 # =============================================================================
@@ -1051,9 +1029,7 @@ class PerceptionLayer:
 # =============================================================================
 
 
-def get_perception_layer(
-    farm_id: str, sampling_config: SamplingConfig | None = None
-) -> PerceptionLayer:
+def get_perception_layer(farm_id: str, sampling_config: SamplingConfig | None = None) -> PerceptionLayer:
     """
     Get a perception layer instance.
     الحصول على مثيل طبقة الإدراك

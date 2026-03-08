@@ -255,12 +255,8 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
             # إرجاع الخطأ كنتيجة مهمة
             return TaskResultMessage(
                 sender_agent_id=agent.agent_id,
-                receiver_agent_id=(
-                    task.sender_agent_id if hasattr(task, "sender_agent_id") else "unknown"
-                ),
-                conversation_id=(
-                    task.conversation_id if hasattr(task, "conversation_id") else None
-                ),
+                receiver_agent_id=(task.sender_agent_id if hasattr(task, "sender_agent_id") else "unknown"),
+                conversation_id=(task.conversation_id if hasattr(task, "conversation_id") else None),
                 task_id=task.task_id if hasattr(task, "task_id") else "unknown",
                 state=TaskState.FAILED,
                 result={"error": str(e)},

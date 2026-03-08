@@ -97,9 +97,7 @@ def validate_compliance_percentage(
     return round(percentage, 2), True
 
 
-def check_major_must_compliance(
-    findings: list[dict], checklist_items: list[dict]
-) -> tuple[bool, dict]:
+def check_major_must_compliance(findings: list[dict], checklist_items: list[dict]) -> tuple[bool, dict]:
     """
     Check if Major Must requirements are met
     التحقق من استيفاء المتطلبات الإلزامية الرئيسية
@@ -115,11 +113,7 @@ def check_major_must_compliance(
         Tuple of (is_compliant, details_dict)
     """
     # Filter Major Must items
-    major_must_items = [
-        item
-        for item in checklist_items
-        if item.get("compliance_level") == ComplianceLevel.MAJOR_MUST
-    ]
+    major_must_items = [item for item in checklist_items if item.get("compliance_level") == ComplianceLevel.MAJOR_MUST]
 
     if not major_must_items:
         return True, {
@@ -191,9 +185,7 @@ def check_major_must_compliance(
     }
 
 
-def check_minor_must_compliance(
-    findings: list[dict], checklist_items: list[dict]
-) -> tuple[bool, dict]:
+def check_minor_must_compliance(findings: list[dict], checklist_items: list[dict]) -> tuple[bool, dict]:
     """
     Check if Minor Must requirements are met
     التحقق من استيفاء المتطلبات الإلزامية الثانوية
@@ -209,11 +201,7 @@ def check_minor_must_compliance(
         Tuple of (is_compliant, details_dict)
     """
     # Filter Minor Must items
-    minor_must_items = [
-        item
-        for item in checklist_items
-        if item.get("compliance_level") == ComplianceLevel.MINOR_MUST
-    ]
+    minor_must_items = [item for item in checklist_items if item.get("compliance_level") == ComplianceLevel.MINOR_MUST]
 
     if not minor_must_items:
         return True, {
@@ -340,11 +328,7 @@ def validate_certificate_validity(
         "check_date": check_date.isoformat(),
         "days_remaining": days_remaining,
         "needs_renewal_warning": needs_renewal_warning,
-        "status": (
-            "valid"
-            if is_currently_valid
-            else ("expired" if days_remaining < 0 else "not_yet_valid")
-        ),
+        "status": ("valid" if is_currently_valid else ("expired" if days_remaining < 0 else "not_yet_valid")),
     }
 
 
@@ -411,9 +395,7 @@ def validate_farm_registration(farm_data: dict) -> tuple[bool, list[str]]:
     return is_valid, errors
 
 
-def validate_audit_completion(
-    audit_data: dict, findings: list[dict], checklist_items: list[dict]
-) -> tuple[bool, dict]:
+def validate_audit_completion(audit_data: dict, findings: list[dict], checklist_items: list[dict]) -> tuple[bool, dict]:
     """
     Validate if audit is complete and ready for certification decision
     التحقق من اكتمال التدقيق والجاهزية لقرار الشهادة
@@ -463,9 +445,7 @@ def validate_audit_completion(
         )
 
     # Check for critical non-conformances
-    critical_ncs = [
-        nc for nc in audit_data.get("non_conformances", []) if nc.get("severity") == "CRITICAL"
-    ]
+    critical_ncs = [nc for nc in audit_data.get("non_conformances", []) if nc.get("severity") == "CRITICAL"]
     if critical_ncs:
         errors.append(f"{len(critical_ncs)} critical non-conformances found")
 
@@ -497,9 +477,7 @@ def validate_audit_completion(
     }
 
 
-def validate_corrective_action(
-    corrective_action: dict, non_conformance: dict
-) -> tuple[bool, list[str]]:
+def validate_corrective_action(corrective_action: dict, non_conformance: dict) -> tuple[bool, list[str]]:
     """
     Validate corrective action plan
     التحقق من صحة خطة الإجراء التصحيحي

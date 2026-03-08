@@ -617,29 +617,7 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Agro Rules Worker (has HTTP endpoints)
-  - name: agro-rules
-    url: http://agro-rules:8151
-    connect_timeout: 5000
-    read_timeout: 30000
-    retries: 2
-    routes:
-      - name: agro-rules-route
-        paths:
-          - /api/v1/agro-rules
-        strip_path: true
-    plugins:
-      - name: rate-limiting
-        config:
-          minute: 500
-          hour: 25000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
+  # NOTE: agro-rules is now a NATS-only worker (no HTTP port) — Kong route removed
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Business Layer Services - طبقة الأعمال

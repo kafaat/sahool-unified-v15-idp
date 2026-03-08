@@ -342,18 +342,14 @@ class TestRuleBasedBehavior:
         def condition1(ctx):
             return ctx.sensor_data.get("temperature", 0) > 20
 
-        action1 = AgentAction(
-            action_type="action1", parameters={}, confidence=0.9, priority=1, reasoning="Rule 1"
-        )
+        action1 = AgentAction(action_type="action1", parameters={}, confidence=0.9, priority=1, reasoning="Rule 1")
         agent.add_rule(condition1, action1)
 
         # Rule 2
         def condition2(ctx):
             return ctx.sensor_data.get("temperature", 0) > 15
 
-        action2 = AgentAction(
-            action_type="action2", parameters={}, confidence=0.9, priority=2, reasoning="Rule 2"
-        )
+        action2 = AgentAction(action_type="action2", parameters={}, confidence=0.9, priority=2, reasoning="Rule 2")
         agent.add_rule(condition2, action2)
 
         result = agent.evaluate_rules(sample_context)

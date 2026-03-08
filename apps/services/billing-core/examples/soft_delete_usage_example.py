@@ -43,9 +43,7 @@ class SoftDeleteExamplesService:
     # Basic Operations - العمليات الأساسية
     # ════════════════════════════════════════════════════════════════════════
 
-    def soft_delete_subscription(
-        self, subscription_id: str, deleted_by: str
-    ) -> Subscription | None:
+    def soft_delete_subscription(self, subscription_id: str, deleted_by: str) -> Subscription | None:
         """
         Example 1: Soft delete a subscription
         مثال 1: حذف ناعم لاشتراك
@@ -57,9 +55,7 @@ class SoftDeleteExamplesService:
         Returns:
             The soft-deleted subscription or None if not found
         """
-        subscription = soft_delete_record(
-            self.session, Subscription, subscription_id, deleted_by=deleted_by
-        )
+        subscription = soft_delete_record(self.session, Subscription, subscription_id, deleted_by=deleted_by)
 
         if subscription:
             print(f"Subscription {subscription_id} soft-deleted by {deleted_by}")
@@ -178,14 +174,10 @@ class SoftDeleteExamplesService:
         )
 
         # Delete invoices
-        counts["invoices"] = soft_delete_many(
-            self.session, Invoice, deleted_by=deleted_by, tenant_id=tenant_id
-        )
+        counts["invoices"] = soft_delete_many(self.session, Invoice, deleted_by=deleted_by, tenant_id=tenant_id)
 
         # Delete payments
-        counts["payments"] = soft_delete_many(
-            self.session, Payment, deleted_by=deleted_by, tenant_id=tenant_id
-        )
+        counts["payments"] = soft_delete_many(self.session, Payment, deleted_by=deleted_by, tenant_id=tenant_id)
 
         self.session.commit()
 
@@ -235,9 +227,7 @@ class SoftDeleteExamplesService:
             Dictionary with deletion status and metadata
         """
         # Get subscription including deleted ones
-        subscription = (
-            self.session.query(Subscription).filter(Subscription.id == subscription_id).first()
-        )
+        subscription = self.session.query(Subscription).filter(Subscription.id == subscription_id).first()
 
         if not subscription:
             return {"found": False, "deleted": False, "metadata": None}
@@ -308,9 +298,7 @@ class SoftDeleteExamplesService:
         cutoff_time = datetime.utcnow() - timedelta(hours=hours)
 
         # Find recently deleted subscriptions
-        recent_deleted = (
-            self.session.query(Subscription).filter(Subscription.deleted_at >= cutoff_time).all()
-        )
+        recent_deleted = self.session.query(Subscription).filter(Subscription.deleted_at >= cutoff_time).all()
 
         count = 0
         for subscription in recent_deleted:
@@ -395,9 +383,7 @@ class SoftDeleteExamplesService:
         cutoff_date = datetime.utcnow() - timedelta(days=days)
 
         # Find old deleted subscriptions
-        old_deleted = (
-            self.session.query(Subscription).filter(Subscription.deleted_at < cutoff_date).all()
-        )
+        old_deleted = self.session.query(Subscription).filter(Subscription.deleted_at < cutoff_date).all()
 
         count = len(old_deleted)
 

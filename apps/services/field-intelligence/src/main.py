@@ -60,8 +60,6 @@ except ImportError:
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 
-
-
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers

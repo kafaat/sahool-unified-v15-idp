@@ -239,10 +239,7 @@ class FeedbackTrainingPipeline:
             try:
                 self._trainer = ModelTrainer()
             except ImportError:
-                raise ImportError(
-                    "httpx is required for ModelTrainer. "
-                    "Install with: pip install httpx"
-                )
+                raise ImportError("httpx is required for ModelTrainer. Install with: pip install httpx")
         return self._trainer
 
     # ------------------------------------------------------------------
@@ -283,11 +280,13 @@ class FeedbackTrainingPipeline:
 
         elif feedback.feedback_type == FeedbackType.COMMENT:
             # Comments are informational; record but don't trigger pipeline
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.IGNORED,
-                details={"reason": "comment_only", "sentiment": feedback.sentiment.value},
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.IGNORED,
+                    details={"reason": "comment_only", "sentiment": feedback.sentiment.value},
+                )
+            )
 
         self._events.extend(events)
         return events
@@ -298,25 +297,29 @@ class FeedbackTrainingPipeline:
 
         if feedback.rating and feedback.rating >= self.config.min_rating_for_training:
             self._training_examples_count += 1
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.TRAINING_EXPORT,
-                details={
-                    "rating": feedback.rating,
-                    "recommendation_type": feedback.recommendation_type.value,
-                    "queued": True,
-                },
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.TRAINING_EXPORT,
+                    details={
+                        "rating": feedback.rating,
+                        "recommendation_type": feedback.recommendation_type.value,
+                        "queued": True,
+                    },
+                )
+            )
         else:
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.IGNORED,
-                details={
-                    "reason": "rating_below_threshold",
-                    "rating": feedback.rating,
-                    "threshold": self.config.min_rating_for_training,
-                },
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.IGNORED,
+                    details={
+                        "reason": "rating_below_threshold",
+                        "rating": feedback.rating,
+                        "threshold": self.config.min_rating_for_training,
+                    },
+                )
+            )
 
         return events
 
@@ -326,15 +329,17 @@ class FeedbackTrainingPipeline:
 
         if self.config.include_corrections_in_training:
             self._training_examples_count += 1
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.TRAINING_EXPORT,
-                details={
-                    "type": "correction",
-                    "recommendation_type": feedback.recommendation_type.value,
-                    "has_original": bool(feedback.context.get("original_recommendation")),
-                },
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.TRAINING_EXPORT,
+                    details={
+                        "type": "correction",
+                        "recommendation_type": feedback.recommendation_type.value,
+                        "has_original": bool(feedback.context.get("original_recommendation")),
+                    },
+                )
+            )
 
         return events
 
@@ -345,20 +350,24 @@ class FeedbackTrainingPipeline:
         if feedback.thumbs_up:
             # Positive thumbs can supplement training data
             self._training_examples_count += 1
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.TRAINING_EXPORT,
-                details={
-                    "thumbs_up": True,
-                    "recommendation_type": feedback.recommendation_type.value,
-                },
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.TRAINING_EXPORT,
+                    details={
+                        "thumbs_up": True,
+                        "recommendation_type": feedback.recommendation_type.value,
+                    },
+                )
+            )
         else:
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.IGNORED,
-                details={"reason": "thumbs_down_no_correction"},
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.IGNORED,
+                    details={"reason": "thumbs_down_no_correction"},
+                )
+            )
 
         return events
 
@@ -433,29 +442,33 @@ class FeedbackTrainingPipeline:
             metadata={"source": "feedback_pipeline"},
         )
 
-        events.append(PipelineEvent(
-            feedback_id=feedback.id,
-            action=PipelineAction.EXPERIENCE_RECORD,
-            details={
-                "execution_id": execution.id,
-                "task_type": task_type,
-                "status": exec_status.value,
-                "outcome_score": outcome_score,
-            },
-        ))
+        events.append(
+            PipelineEvent(
+                feedback_id=feedback.id,
+                action=PipelineAction.EXPERIENCE_RECORD,
+                details={
+                    "execution_id": execution.id,
+                    "task_type": task_type,
+                    "status": exec_status.value,
+                    "outcome_score": outcome_score,
+                },
+            )
+        )
 
         # If successful outcome, also queue for training
         if feedback.outcome == OutcomeStatus.SUCCESS:
             self._training_examples_count += 1
-            events.append(PipelineEvent(
-                feedback_id=feedback.id,
-                action=PipelineAction.TRAINING_EXPORT,
-                details={
-                    "type": "successful_outcome",
-                    "yield_impact": feedback.yield_impact,
-                    "cost_impact": feedback.cost_impact,
-                },
-            ))
+            events.append(
+                PipelineEvent(
+                    feedback_id=feedback.id,
+                    action=PipelineAction.TRAINING_EXPORT,
+                    details={
+                        "type": "successful_outcome",
+                        "yield_impact": feedback.yield_impact,
+                        "cost_impact": feedback.cost_impact,
+                    },
+                )
+            )
 
         # Check if we should trigger automatic SOP update
         if self.config.auto_sop_enabled and feedback.outcome == OutcomeStatus.SUCCESS:
@@ -472,42 +485,41 @@ class FeedbackTrainingPipeline:
         """Check if enough successful outcomes have accumulated to create/update SOP."""
         events: list[PipelineEvent] = []
 
-        successful_execs = await self.learner.store.get_executions_by_type(
-            task_type, status=ExecutionStatus.SUCCESS
-        )
+        successful_execs = await self.learner.store.get_executions_by_type(task_type, status=ExecutionStatus.SUCCESS)
 
         # Filter by yield impact threshold if configured
         if self.config.min_yield_impact_for_sop > 0:
-            successful_execs = [
-                e for e in successful_execs
-                if (e.outcome_score or 0) >= 0.5
-            ]
+            successful_execs = [e for e in successful_execs if (e.outcome_score or 0) >= 0.5]
 
         if len(successful_execs) >= self.config.min_outcomes_for_sop:
             existing_sops = await self.learner.store.get_sops_by_type(task_type)
 
             if existing_sops:
                 self._sops_updated += 1
-                events.append(PipelineEvent(
-                    feedback_id=feedback.id,
-                    action=PipelineAction.SOP_UPDATE,
-                    details={
-                        "task_type": task_type,
-                        "sop_id": existing_sops[0].id,
-                        "successful_executions": len(successful_execs),
-                        "confidence": existing_sops[0].confidence.value,
-                    },
-                ))
+                events.append(
+                    PipelineEvent(
+                        feedback_id=feedback.id,
+                        action=PipelineAction.SOP_UPDATE,
+                        details={
+                            "task_type": task_type,
+                            "sop_id": existing_sops[0].id,
+                            "successful_executions": len(successful_execs),
+                            "confidence": existing_sops[0].confidence.value,
+                        },
+                    )
+                )
             else:
                 self._sops_created += 1
-                events.append(PipelineEvent(
-                    feedback_id=feedback.id,
-                    action=PipelineAction.SOP_CREATE,
-                    details={
-                        "task_type": task_type,
-                        "successful_executions": len(successful_execs),
-                    },
-                ))
+                events.append(
+                    PipelineEvent(
+                        feedback_id=feedback.id,
+                        action=PipelineAction.SOP_CREATE,
+                        details={
+                            "task_type": task_type,
+                            "successful_executions": len(successful_execs),
+                        },
+                    )
+                )
 
         return events
 
@@ -551,8 +563,7 @@ class FeedbackTrainingPipeline:
         # Filter by recommendation type if specified
         if recommendation_type:
             raw_training_data = [
-                d for d in raw_training_data
-                if d.get("recommendation_type") == recommendation_type.value
+                d for d in raw_training_data if d.get("recommendation_type") == recommendation_type.value
             ]
 
         # Build the training dataset
@@ -675,29 +686,33 @@ class FeedbackTrainingPipeline:
 
             if existing_sops:
                 self._sops_updated += 1
-                events.append(PipelineEvent(
-                    feedback_id="",
-                    action=PipelineAction.SOP_UPDATE,
-                    details={
-                        "task_type": task_type,
-                        "sop_id": sop.id,
-                        "successful_executions": len(recent_successful),
-                        "confidence": sop.confidence.value,
-                        "success_rate": f"{sop.success_rate:.1%}",
-                    },
-                ))
+                events.append(
+                    PipelineEvent(
+                        feedback_id="",
+                        action=PipelineAction.SOP_UPDATE,
+                        details={
+                            "task_type": task_type,
+                            "sop_id": sop.id,
+                            "successful_executions": len(recent_successful),
+                            "confidence": sop.confidence.value,
+                            "success_rate": f"{sop.success_rate:.1%}",
+                        },
+                    )
+                )
             else:
                 self._sops_created += 1
-                events.append(PipelineEvent(
-                    feedback_id="",
-                    action=PipelineAction.SOP_CREATE,
-                    details={
-                        "task_type": task_type,
-                        "sop_id": sop.id,
-                        "successful_executions": len(recent_successful),
-                        "confidence": sop.confidence.value,
-                    },
-                ))
+                events.append(
+                    PipelineEvent(
+                        feedback_id="",
+                        action=PipelineAction.SOP_CREATE,
+                        details={
+                            "task_type": task_type,
+                            "sop_id": sop.id,
+                            "successful_executions": len(recent_successful),
+                            "confidence": sop.confidence.value,
+                        },
+                    )
+                )
 
             logger.info(
                 "SOP %s for task_type=%s confidence=%s executions=%d",
@@ -835,12 +850,14 @@ class FeedbackTrainingPipeline:
         yield_change = latest.avg_yield_impact - previous.avg_yield_impact
 
         # Determine overall direction
-        positive_signals = sum([
-            rating_change > 0,
-            success_change > 0,
-            yield_change > 0,
-            latest.sops_created > 0 or latest.sops_updated > 0,
-        ])
+        positive_signals = sum(
+            [
+                rating_change > 0,
+                success_change > 0,
+                yield_change > 0,
+                latest.sops_created > 0 or latest.sops_updated > 0,
+            ]
+        )
 
         if positive_signals >= 3:
             direction = "improving"

@@ -347,9 +347,7 @@ class Worker:
         """Get full name in Arabic"""
         return f"{self.first_name_ar} {self.last_name_ar}"
 
-    def has_skill(
-        self, skill_category: SkillCategory, min_level: SkillLevel = SkillLevel.BEGINNER
-    ) -> bool:
+    def has_skill(self, skill_category: SkillCategory, min_level: SkillLevel = SkillLevel.BEGINNER) -> bool:
         """Check if worker has a skill at minimum level"""
         skill_order = [
             SkillLevel.NONE,
@@ -367,9 +365,7 @@ class Worker:
                     return True
         return False
 
-    def has_valid_certification(
-        self, cert_type: SafetyCertification, check_date: date | None = None
-    ) -> bool:
+    def has_valid_certification(self, cert_type: SafetyCertification, check_date: date | None = None) -> bool:
         """Check if worker has valid certification of given type"""
         return any(cert.certification_type == cert_type and cert.is_valid(check_date) for cert in self.certifications)
 
@@ -899,9 +895,7 @@ def create_worker(
     )
 
 
-def create_task(
-    tenant_id: str, farm_id: str, title: str, title_ar: str, category: TaskCategory, **kwargs
-) -> Task:
+def create_task(tenant_id: str, farm_id: str, title: str, title_ar: str, category: TaskCategory, **kwargs) -> Task:
     """Factory function to create a new task"""
     return Task(
         task_id=generate_id("TSK"),

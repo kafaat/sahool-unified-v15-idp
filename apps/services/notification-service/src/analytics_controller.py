@@ -68,9 +68,7 @@ class DashboardSummaryResponse(BaseModel):
 
 @router.get("/delivery-stats")
 async def get_delivery_statistics(
-    time_range: str = Query(
-        default="day", description="Time range: hour, day, week, month, quarter, year"
-    ),
+    time_range: str = Query(default="day", description="Time range: hour, day, week, month, quarter, year"),
     tenant_id: str | None = Query(default=None, description="Tenant ID filter"),
 ):
     """
@@ -399,9 +397,7 @@ async def compare_time_periods(
                 "delivery_rate": calc_change(
                     current_stats.get("delivery_rate", 0), previous_stats.get("delivery_rate", 0)
                 ),
-                "read_rate": calc_change(
-                    current_stats.get("read_rate", 0), previous_stats.get("read_rate", 0)
-                ),
+                "read_rate": calc_change(current_stats.get("read_rate", 0), previous_stats.get("read_rate", 0)),
             },
         }
 

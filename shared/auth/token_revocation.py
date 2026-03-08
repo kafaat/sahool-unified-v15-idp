@@ -72,9 +72,7 @@ class RedisTokenRevocationStore:
             redis_url: Redis connection URL (defaults to config)
         """
         if not REDIS_AVAILABLE:
-            raise ImportError(
-                "redis is required for token revocation. Install with: pip install redis[asyncio]"
-            )
+            raise ImportError("redis is required for token revocation. Install with: pip install redis[asyncio]")
 
         self._redis: aioredis.Redis | None = None
         self._redis_url = redis_url or config.REDIS_URL or self._build_redis_url()
@@ -83,10 +81,7 @@ class RedisTokenRevocationStore:
     def _build_redis_url(self) -> str:
         """Build Redis URL from configuration"""
         if config.REDIS_PASSWORD:
-            return (
-                f"redis://:{config.REDIS_PASSWORD}@"
-                f"{config.REDIS_HOST}:{config.REDIS_PORT}/{config.REDIS_DB}"
-            )
+            return f"redis://:{config.REDIS_PASSWORD}@{config.REDIS_HOST}:{config.REDIS_PORT}/{config.REDIS_DB}"
         return f"redis://{config.REDIS_HOST}:{config.REDIS_PORT}/{config.REDIS_DB}"
 
     async def initialize(self) -> None:

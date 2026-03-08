@@ -122,9 +122,7 @@ class VRAConfig:
     )
 
     # Rate multipliers
-    rate_multipliers: dict[VRAZoneType, float] = field(
-        default_factory=lambda: DEFAULT_RATE_MULTIPLIERS.copy()
-    )
+    rate_multipliers: dict[VRAZoneType, float] = field(default_factory=lambda: DEFAULT_RATE_MULTIPLIERS.copy())
 
     # Exclusion zones
     exclude_water_bodies: bool = True
@@ -261,7 +259,17 @@ class VRAGenerator:
             PrescriptionMap | خريطة الوصفة
         """
         rows = len(ndvi_data)
-        len(ndvi_data[0]) if rows > 0 else 0
+        cols = len(ndvi_data[0]) if rows > 0 else 0
+
+        if rows == 0 or cols == 0:
+            return PrescriptionMap(
+                id=generate_id("vrm"),
+                tenant_id=tenant_id,
+                field_id=field_id,
+                name=name,
+                name_ar=name_ar,
+                zones=[],
+            )
 
         # Convert to raster data structure
         raster = self._create_raster_from_array(
@@ -622,9 +630,7 @@ class VRAGenerator:
         max_val = max(all_values) if all_values else 1
         mean_val = sum(all_values) / len(all_values) if all_values else 0.5
         std_val = (
-            math.sqrt(sum((v - mean_val) ** 2 for v in all_values) / len(all_values))
-            if len(all_values) > 1
-            else 0
+            math.sqrt(sum((v - mean_val) ** 2 for v in all_values) / len(all_values)) if len(all_values) > 1 else 0
         )
 
         return VRARasterData(
@@ -647,9 +653,7 @@ class VRAGenerator:
         zone_count = self.config.zone_count
 
         # Get all valid values
-        values = [
-            cell.value for row in raster.cells for cell in row if cell.value != raster.no_data_value
-        ]
+        values = [cell.value for row in raster.cells for cell in row if cell.value != raster.no_data_value]
 
         if not values:
             return
@@ -664,10 +668,7 @@ class VRAGenerator:
             interval = (raster.max_value - raster.min_value) / zone_count
             thresholds = [raster.min_value + i * interval for i in range(1, zone_count)]
         elif method == ClassificationMethod.STANDARD_DEVIATION:
-            thresholds = [
-                raster.mean_value + (i - zone_count // 2) * raster.std_value
-                for i in range(1, zone_count)
-            ]
+            thresholds = [raster.mean_value + (i - zone_count // 2) * raster.std_value for i in range(1, zone_count)]
         elif method == ClassificationMethod.MANUAL:
             thresholds = self.config.custom_thresholds
         else:  # JENKS - simplified approximation
@@ -736,9 +737,7 @@ class VRAGenerator:
                     cell.rate_l_ha = base_rate * multiplier
 
                 # Apply limits
-                cell.rate_l_ha = max(
-                    self.config.min_rate_l_ha, min(self.config.max_rate_l_ha, cell.rate_l_ha)
-                )
+                cell.rate_l_ha = max(self.config.min_rate_l_ha, min(self.config.max_rate_l_ha, cell.rate_l_ha))
 
     def _cells_to_zones(self, raster: VRARasterData, bounds: BoundingBox) -> list[VRAZone]:
         """Convert classified cells to VRA zones"""
@@ -788,9 +787,7 @@ class VRAGenerator:
                 area_ha=area_ha,
                 centroid=self._calculate_centroid(cells),
                 rate_l_ha=avg_rate,
-                rate_percent=(avg_rate / self.config.base_rate_l_ha * 100)
-                if self.config.base_rate_l_ha > 0
-                else 100,
+                rate_percent=(avg_rate / self.config.base_rate_l_ha * 100) if self.config.base_rate_l_ha > 0 else 100,
                 ndvi_mean=ndvi_mean,
                 ndvi_std=ndvi_std,
                 source_date=datetime.now(UTC),
@@ -802,9 +799,7 @@ class VRAGenerator:
 
         return zones
 
-    def _create_zone_boundary(
-        self, cells: list[GridCell], lat_step: float, lng_step: float
-    ) -> list[Coordinate]:
+    def _create_zone_boundary(self, cells: list[GridCell], lat_step: float, lng_step: float) -> list[Coordinate]:
         """Create simplified boundary polygon for zone cells"""
         if not cells:
             return []
@@ -850,9 +845,7 @@ class VRAGenerator:
 
         return hull
 
-    def _cross(
-        self, o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]
-    ) -> float:
+    def _cross(self, o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
         """Cross product for convex hull"""
         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
@@ -896,9 +889,7 @@ class VRAGenerator:
         lats = [c.lat for c in boundary]
         lngs = [c.lng for c in boundary]
 
-        return BoundingBox(
-            min_lat=min(lats), max_lat=max(lats), min_lng=min(lngs), max_lng=max(lngs)
-        )
+        return BoundingBox(min_lat=min(lats), max_lat=max(lats), min_lng=min(lngs), max_lng=max(lngs))
 
     def _point_in_polygon(self, point: Coordinate, polygon: list[Coordinate]) -> bool:
         """Check if point is inside polygon"""
@@ -909,9 +900,7 @@ class VRAGenerator:
         for i in range(n):
             if ((polygon[i].lat > point.lat) != (polygon[j].lat > point.lat)) and (
                 point.lng
-                < (polygon[j].lng - polygon[i].lng)
-                * (point.lat - polygon[i].lat)
-                / (polygon[j].lat - polygon[i].lat)
+                < (polygon[j].lng - polygon[i].lng) * (point.lat - polygon[i].lat) / (polygon[j].lat - polygon[i].lat)
                 + polygon[i].lng
             ):
                 inside = not inside
@@ -1085,9 +1074,7 @@ def export_prescription_to_shapefile(prescription: PrescriptionMap, output_path:
             },
         }
 
-        with fiona.open(
-            output_path, "w", driver="ESRI Shapefile", crs="EPSG:4326", schema=schema
-        ) as output:
+        with fiona.open(output_path, "w", driver="ESRI Shapefile", crs="EPSG:4326", schema=schema) as output:
             for zone in prescription.zones:
                 if len(zone.boundary) < 3:
                     continue

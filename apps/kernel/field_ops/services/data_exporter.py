@@ -403,9 +403,7 @@ class DataExporter:
             },
         }
 
-    def _get_ndvi_history(
-        self, field_id: str, date_range: tuple[date, date] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_ndvi_history(self, field_id: str, date_range: tuple[date, date] | None = None) -> list[dict[str, Any]]:
         """Get NDVI history - placeholder"""
         # In real implementation, fetch from database
         history = []
@@ -428,9 +426,7 @@ class DataExporter:
 
         return history
 
-    def _get_sensor_readings(
-        self, field_id: str, date_range: tuple[date, date] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_sensor_readings(self, field_id: str, date_range: tuple[date, date] | None = None) -> list[dict[str, Any]]:
         """Get sensor readings - placeholder"""
         return [
             {
@@ -443,9 +439,7 @@ class DataExporter:
             }
         ]
 
-    def _get_weather_data(
-        self, field_id: str, date_range: tuple[date, date] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_weather_data(self, field_id: str, date_range: tuple[date, date] | None = None) -> list[dict[str, Any]]:
         """Get weather data - placeholder"""
         return [
             {
@@ -458,9 +452,7 @@ class DataExporter:
             }
         ]
 
-    def _get_recommendations(
-        self, field_id: str, date_range: tuple[date, date] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_recommendations(self, field_id: str, date_range: tuple[date, date] | None = None) -> list[dict[str, Any]]:
         """Get recommendations - placeholder"""
         return [
             {
@@ -474,9 +466,7 @@ class DataExporter:
             }
         ]
 
-    def _get_actions_taken(
-        self, field_id: str, date_range: tuple[date, date] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_actions_taken(self, field_id: str, date_range: tuple[date, date] | None = None) -> list[dict[str, Any]]:
         """Get actions taken - placeholder"""
         return [
             {
@@ -710,19 +700,13 @@ class DataExporter:
                 "type": "Point",
                 "coordinates": [coords.get("lng", 0), coords.get("lat", 0)],
             },
-            "properties": {
-                k: v
-                for k, v in data.items()
-                if k not in ["metadata"] and not isinstance(v, list | dict)
-            },
+            "properties": {k: v for k, v in data.items() if k not in ["metadata"] and not isinstance(v, list | dict)},
         }
 
         # Add time series as properties
         if "ndvi_history" in data:
             feature["properties"]["ndvi_count"] = len(data["ndvi_history"])
-            feature["properties"]["latest_ndvi"] = (
-                data["ndvi_history"][-1] if data["ndvi_history"] else None
-            )
+            feature["properties"]["latest_ndvi"] = data["ndvi_history"][-1] if data["ndvi_history"] else None
 
         return json.dumps(feature, indent=2, ensure_ascii=False, default=str)
 
@@ -954,9 +938,7 @@ class DataExporter:
         else:
             end_date = date(year, month + 1, 1) - timedelta(days=1)
 
-        data = self.export_field_data(
-            field_id=field_id, format=ExportFormat.EXCEL, date_range=(start_date, end_date)
-        )
+        data = self.export_field_data(field_id=field_id, format=ExportFormat.EXCEL, date_range=(start_date, end_date))
 
         return data
 

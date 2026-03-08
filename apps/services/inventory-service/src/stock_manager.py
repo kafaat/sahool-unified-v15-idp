@@ -73,9 +73,7 @@ class StockManager:
                 remaining_to_consume -= consume_from_batch
 
             if remaining_to_consume > 0:
-                raise ValueError(
-                    f"Insufficient stock. Required: {quantity}, Available: {total_consumed}"
-                )
+                raise ValueError(f"Insufficient stock. Required: {quantity}, Available: {total_consumed}")
 
         return consumed_batches, total_consumed
 
@@ -133,8 +131,7 @@ class StockManager:
         else:
             if item.availableQuantity < quantity_change:
                 raise ValueError(
-                    f"Insufficient available stock. "
-                    f"Required: {quantity_change}, Available: {item.availableQuantity}"
+                    f"Insufficient available stock. Required: {quantity_change}, Available: {item.availableQuantity}"
                 )
             new_current = item.currentQuantity - quantity_change
             new_available = item.availableQuantity - quantity_change
@@ -231,8 +228,7 @@ class StockManager:
 
             if item.reservedQuantity < quantity:
                 raise ValueError(
-                    f"Cannot release more than reserved. "
-                    f"Requested: {quantity}, Reserved: {item.reservedQuantity}"
+                    f"Cannot release more than reserved. Requested: {quantity}, Reserved: {item.reservedQuantity}"
                 )
 
             updated_item = await transaction.inventoryitem.update(
@@ -245,17 +241,13 @@ class StockManager:
 
         return updated_item
 
-    async def get_batches_for_item(
-        self, item_id: str, include_empty: bool = False
-    ) -> list[BatchLot]:
+    async def get_batches_for_item(self, item_id: str, include_empty: bool = False) -> list[BatchLot]:
         """Get all batches for an item"""
         where_clause = {"itemId": item_id}
         if not include_empty:
             where_clause["remainingQty"] = {"gt": 0}
 
-        batches = await self.db.batchlot.find_many(
-            where=where_clause, order={"receivedDate": "asc"}
-        )
+        batches = await self.db.batchlot.find_many(where=where_clause, order={"receivedDate": "asc"})
 
         return batches
 
@@ -276,9 +268,7 @@ class StockManager:
 
         # Filter in Python for accurate comparison
         low_stock_items = [
-            item
-            for item in items
-            if item.reorderLevel is not None and item.currentQuantity <= item.reorderLevel
+            item for item in items if item.reorderLevel is not None and item.currentQuantity <= item.reorderLevel
         ]
 
         return low_stock_items

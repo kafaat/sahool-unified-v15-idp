@@ -37,9 +37,7 @@ async def test_cloud_cover_analysis():
     longitude = 44.2075
     date = datetime(2024, 3, 15)
 
-    result = await masker.analyze_cloud_cover(
-        field_id=field_id, latitude=latitude, longitude=longitude, date=date
-    )
+    result = await masker.analyze_cloud_cover(field_id=field_id, latitude=latitude, longitude=longitude, date=date)
 
     print(f"\n📍 Field: {result.field_id}")
     print(f"📅 Date: {result.timestamp.strftime('%Y-%m-%d')}")
@@ -51,9 +49,7 @@ async def test_cloud_cover_analysis():
     print(f"💡 Recommendation: {result.recommendation}")
 
     print("\n📊 SCL Distribution:")
-    for class_name, percent in sorted(
-        result.scl_distribution.items(), key=lambda x: x[1], reverse=True
-    ):
+    for class_name, percent in sorted(result.scl_distribution.items(), key=lambda x: x[1], reverse=True):
         if percent > 0:
             print(f"   {class_name}: {percent}%")
 
@@ -251,9 +247,7 @@ async def test_interpolation():
     print("\n📊 Interpolated NDVI Series:")
     for obs in interpolated:
         if obs.get("interpolated", False):
-            print(
-                f"   {obs['date']}: {obs['ndvi']:.3f} 🔄 INTERPOLATED ({obs['interpolation_method']})"
-            )
+            print(f"   {obs['date']}: {obs['ndvi']:.3f} 🔄 INTERPOLATED ({obs['interpolation_method']})")
         else:
             status = "☁️ CLOUDY" if obs.get("cloudy", False) else "✅ CLEAR"
             print(f"   {obs['date']}: {obs['ndvi']:.3f} {status}")
@@ -302,9 +296,7 @@ async def test_scl_distribution():
     )
 
     print("\n📈 Distribution Results:")
-    for class_name, percent in sorted(
-        result.scl_distribution.items(), key=lambda x: x[1], reverse=True
-    ):
+    for class_name, percent in sorted(result.scl_distribution.items(), key=lambda x: x[1], reverse=True):
         print(f"   {class_name}: {percent}%")
 
     print("\n📊 Coverage Summary:")

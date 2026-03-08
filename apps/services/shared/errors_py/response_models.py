@@ -26,15 +26,17 @@ class FieldErrorModel(BaseModel):
     constraint: str | None = Field(None, description="Validation constraint that failed")
     value: Any | None = Field(None, description="Invalid value that was provided")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "field": "email",
-            "message": "Invalid email format",
-            "message_ar": "تنسيق البريد الإلكتروني غير صالح",
-            "constraint": "email",
-            "value": "invalid-email",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "field": "email",
+                "message": "Invalid email format",
+                "message_ar": "تنسيق البريد الإلكتروني غير صالح",
+                "constraint": "email",
+                "value": "invalid-email",
+            }
         }
-    })
+    )
 
 
 class ErrorDetailsModel(BaseModel):
@@ -54,18 +56,20 @@ class ErrorDetailsModel(BaseModel):
     requestId: str | None = Field(None, description="Request ID for tracking")
     stack: str | None = Field(None, description="Stack trace (only in development)")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "code": "ERR_4002",
-            "message": "Farm not found",
-            "messageAr": "المزرعة غير موجودة",
-            "category": "NOT_FOUND",
-            "retryable": False,
-            "timestamp": "2025-12-31T10:30:00.000Z",
-            "path": "/api/v1/farms/123",
-            "requestId": "req-123-456-789",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "code": "ERR_4002",
+                "message": "Farm not found",
+                "messageAr": "المزرعة غير موجودة",
+                "category": "NOT_FOUND",
+                "retryable": False,
+                "timestamp": "2025-12-31T10:30:00.000Z",
+                "path": "/api/v1/farms/123",
+                "requestId": "req-123-456-789",
+            }
         }
-    })
+    )
 
 
 class ErrorResponseModel(BaseModel):
@@ -77,21 +81,23 @@ class ErrorResponseModel(BaseModel):
     success: bool = Field(False, description="Success indicator (always false for errors)")
     error: ErrorDetailsModel = Field(..., description="Error details")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "success": False,
-            "error": {
-                "code": "ERR_4002",
-                "message": "Farm not found",
-                "messageAr": "المزرعة غير موجودة",
-                "category": "NOT_FOUND",
-                "retryable": False,
-                "timestamp": "2025-12-31T10:30:00.000Z",
-                "path": "/api/v1/farms/123",
-                "requestId": "req-123-456-789",
-            },
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": False,
+                "error": {
+                    "code": "ERR_4002",
+                    "message": "Farm not found",
+                    "messageAr": "المزرعة غير موجودة",
+                    "category": "NOT_FOUND",
+                    "retryable": False,
+                    "timestamp": "2025-12-31T10:30:00.000Z",
+                    "path": "/api/v1/farms/123",
+                    "requestId": "req-123-456-789",
+                },
+            }
         }
-    })
+    )
 
 
 T = TypeVar("T")
@@ -112,15 +118,17 @@ class SuccessResponseModel(BaseModel, Generic[T]):
         description="Response timestamp",
     )
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "success": True,
-            "data": {"id": "123", "name": "My Farm"},
-            "message": "Farm retrieved successfully",
-            "messageAr": "تم استرداد المزرعة بنجاح",
-            "timestamp": "2025-12-31T10:30:00.000Z",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "data": {"id": "123", "name": "My Farm"},
+                "message": "Farm retrieved successfully",
+                "messageAr": "تم استرداد المزرعة بنجاح",
+                "timestamp": "2025-12-31T10:30:00.000Z",
+            }
         }
-    })
+    )
 
 
 class PaginationMetaModel(BaseModel):
@@ -133,16 +141,18 @@ class PaginationMetaModel(BaseModel):
     hasNextPage: bool = Field(..., description="Whether there is a next page")
     hasPreviousPage: bool = Field(..., description="Whether there is a previous page")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "page": 1,
-            "limit": 20,
-            "total": 100,
-            "totalPages": 5,
-            "hasNextPage": True,
-            "hasPreviousPage": False,
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "page": 1,
+                "limit": 20,
+                "total": 100,
+                "totalPages": 5,
+                "hasNextPage": True,
+                "hasPreviousPage": False,
+            }
         }
-    })
+    )
 
 
 class PaginatedResponseModel(BaseModel, Generic[T]):
@@ -161,21 +171,23 @@ class PaginatedResponseModel(BaseModel, Generic[T]):
         description="Response timestamp",
     )
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "success": True,
-            "data": [{"id": "1", "name": "Farm 1"}, {"id": "2", "name": "Farm 2"}],
-            "meta": {
-                "page": 1,
-                "limit": 20,
-                "total": 100,
-                "totalPages": 5,
-                "hasNextPage": True,
-                "hasPreviousPage": False,
-            },
-            "timestamp": "2025-12-31T10:30:00.000Z",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "data": [{"id": "1", "name": "Farm 1"}, {"id": "2", "name": "Farm 2"}],
+                "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 100,
+                    "totalPages": 5,
+                    "hasNextPage": True,
+                    "hasPreviousPage": False,
+                },
+                "timestamp": "2025-12-31T10:30:00.000Z",
+            }
         }
-    })
+    )
 
 
 def create_success_response(

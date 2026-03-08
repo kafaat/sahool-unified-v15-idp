@@ -475,9 +475,7 @@ def get_default_harvester_schedules(equipment_id: str, tenant_id: str) -> list[M
     ]
 
 
-def get_default_irrigation_schedules(
-    equipment_id: str, tenant_id: str
-) -> list[MaintenanceSchedule]:
+def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[MaintenanceSchedule]:
     """
     Get default maintenance schedules for irrigation systems
     الحصول على جداول الصيانة الافتراضية لأنظمة الري
@@ -877,9 +875,7 @@ class MaintenanceScheduler:
 
         # Hours-based scheduling
         if schedule.hours_interval:
-            hours_remaining = schedule.hours_interval - (
-                equipment.total_hours - (schedule.last_executed_hours or 0)
-            )
+            hours_remaining = schedule.hours_interval - (equipment.total_hours - (schedule.last_executed_hours or 0))
             if hours_remaining <= 0:
                 return from_date  # Due now
             # Estimate based on average usage (assume 8 hours/day if active)
@@ -1063,9 +1059,7 @@ class MaintenanceScheduler:
             scheduled_date=scheduled_date,
             due_date=scheduled_date + timedelta(days=7),  # Default 7 days to complete
             estimated_duration_hours=schedule.estimated_duration_hours,
-            triggered_by_hours=equipment.total_hours
-            if equipment and schedule.hours_interval
-            else None,
+            triggered_by_hours=equipment.total_hours if equipment and schedule.hours_interval else None,
             triggered_by_date=bool(schedule.calendar_interval_days),
             triggered_by_condition=triggered_by == "condition",
             checklist=checklist,
@@ -1281,9 +1275,7 @@ class MaintenanceScheduler:
             # Create alert messages
             if "hours" in trigger_reason:
                 hours_since = equipment.total_hours - (schedule.last_executed_hours or 0)
-                message = (
-                    f"Maintenance due at {schedule.hours_interval}h. Current: {hours_since:.0f}h"
-                )
+                message = f"Maintenance due at {schedule.hours_interval}h. Current: {hours_since:.0f}h"
                 message_ar = f"الصيانة مستحقة عند {schedule.hours_interval} ساعة. الحالي: {hours_since:.0f} ساعة"
                 trigger_value = f"{hours_since:.0f}h"
                 threshold_value = f"{schedule.hours_interval}h"
@@ -1297,9 +1289,7 @@ class MaintenanceScheduler:
                 id=generate_id("alert"),
                 tenant_id=schedule.tenant_id,
                 equipment_id=schedule.equipment_id,
-                alert_type=AlertType.SCHEDULED_DUE
-                if "approaching" in trigger_reason
-                else AlertType.OVERDUE,
+                alert_type=AlertType.SCHEDULED_DUE if "approaching" in trigger_reason else AlertType.OVERDUE,
                 severity=severity,
                 title=f"Maintenance Due: {schedule.name}",
                 title_ar=f"صيانة مستحقة: {schedule.name_ar}",

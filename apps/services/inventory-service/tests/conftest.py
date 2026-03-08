@@ -22,6 +22,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
     """Test base class for SQLAlchemy models"""
+
     pass
 
 
@@ -45,9 +46,7 @@ async def async_engine():
 @pytest.fixture(scope="function")
 async def async_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
     """Create an async database session for testing"""
-    async_session_maker = async_sessionmaker(
-        async_engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session_maker = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session_maker() as session:
         yield session

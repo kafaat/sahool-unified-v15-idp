@@ -13,7 +13,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -21,6 +23,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger()
 
@@ -165,9 +168,7 @@ async def list_products(
 
     if search:
         search_lower = search.lower()
-        products = [
-            p for p in products if search_lower in p.name.lower() or search_lower in p.name_ar
-        ]
+        products = [p for p in products if search_lower in p.name.lower() or search_lower in p.name_ar]
 
     if is_available:
         products = [p for p in products if p.is_available]
@@ -190,8 +191,7 @@ async def list_products(
     "/search",
     response_model=ProductListResponse,
     summary="Search Products | البحث عن المنتجات",
-    description="Search products by name, category, or description. "
-    "البحث عن المنتجات بالاسم أو الفئة أو الوصف.",
+    description="Search products by name, category, or description. البحث عن المنتجات بالاسم أو الفئة أو الوصف.",
 )
 async def search_products(
     q: str = Query(..., min_length=2, description="Search query"),
@@ -244,8 +244,7 @@ async def search_products(
     "/{product_id}",
     response_model=Product,
     summary="Get Product | الحصول على منتج",
-    description="Get detailed information about a specific product. "
-    "الحصول على معلومات تفصيلية عن منتج محدد.",
+    description="Get detailed information about a specific product. الحصول على معلومات تفصيلية عن منتج محدد.",
 )
 async def get_product(product_id: UUID) -> Product:
     """Get product by ID."""

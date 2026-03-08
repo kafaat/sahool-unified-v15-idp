@@ -605,7 +605,7 @@ class SQLiteBackend(VectorStoreBackendBase):
 
         # Using parameterized query with ? placeholders - safe from SQL injection
         placeholders = ",".join("?" * len(ids))
-        cursor.execute(
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
             f"""
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
@@ -614,7 +614,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         )  # nosec B608 - parameterized query
 
         # Delete from FTS
-        cursor.execute(
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
             f"""
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
@@ -1011,10 +1011,7 @@ class QdrantBackend(VectorStoreBackendBase):
             self._client.get_collections()
             logger.info(f"Qdrant backend initialized at {self.host}:{self.port}")
         except ImportError:
-            raise ImportError(
-                "qdrant-client is required for Qdrant backend. "
-                "Install with: pip install qdrant-client"
-            )
+            raise ImportError("qdrant-client is required for Qdrant backend. Install with: pip install qdrant-client")
         except Exception as e:
             raise ConnectionError(f"Failed to connect to Qdrant at {self.host}:{self.port}: {e}")
 
@@ -1210,9 +1207,7 @@ class QdrantBackend(VectorStoreBackendBase):
         if filter:
             conditions = []
             for key, value in filter.items():
-                conditions.append(
-                    FieldCondition(key=key, match=MatchValue(value=value))
-                )
+                conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
             qdrant_filter = Filter(must=conditions)
 
         hits = self._client.search(

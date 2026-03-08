@@ -91,8 +91,7 @@ class FieldHealthData:
             val = getattr(self, attr)
             if not (-1.0 <= val <= 1.0):
                 raise ValueError(
-                    f"{attr} ({val}) outside valid NDVI range [-1.0, 1.0] | "
-                    f"قيمة {attr} ({val}) خارج نطاق NDVI الصالح"
+                    f"{attr} ({val}) outside valid NDVI range [-1.0, 1.0] | قيمة {attr} ({val}) خارج نطاق NDVI الصالح"
                 )
 
     def to_dict(self) -> dict[str, Any]:
@@ -196,9 +195,7 @@ class NDVIClient:
             return self._parse_ndvi_response(field_id, data)
 
         except httpx.HTTPError as e:
-            logger.warning(
-                "NDVI service unavailable, using local calculation: %s", type(e).__name__
-            )
+            logger.warning("NDVI service unavailable, using local calculation: %s", type(e).__name__)
             # Fall back to local calculation
             return await self._calculate_locally(field_id, image_url, red_band_data, nir_band_data)
 
@@ -465,9 +462,7 @@ def get_task_suggestions_from_health(
                 "reason": f"Health score: {health_data.health_score}/10",
                 "reason_ar": f"درجة الصحة: {health_data.health_score}/10",
                 "confidence": 0.9 if health_data.health_status == HealthStatus.CRITICAL else 0.8,
-                "suggested_due_days": 1
-                if health_data.health_status == HealthStatus.CRITICAL
-                else 2,
+                "suggested_due_days": 1 if health_data.health_status == HealthStatus.CRITICAL else 2,
             }
         )
 

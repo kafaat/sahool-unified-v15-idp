@@ -465,9 +465,7 @@ class LabelGenerator:
         """
         qr_img = ""
         if label_data.qr_code_base64:
-            qr_img = (
-                f'<img src="data:image/png;base64,{label_data.qr_code_base64}" alt="QR Code" />'
-            )
+            qr_img = f'<img src="data:image/png;base64,{label_data.qr_code_base64}" alt="QR Code" />'
 
         expiry_html = ""
         if label_data.expiry_date:

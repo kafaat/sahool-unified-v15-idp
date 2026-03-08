@@ -100,9 +100,7 @@ class HallucinationDetector:
         # Compile patterns
         self.uncertainty_regex = re.compile("|".join(self.uncertainty_markers), re.IGNORECASE)
         self.unverifiable_regex = re.compile("|".join(self.unverifiable_patterns), re.IGNORECASE)
-        self.self_reference_regex = re.compile(
-            "|".join(self.self_reference_patterns), re.IGNORECASE
-        )
+        self.self_reference_regex = re.compile("|".join(self.self_reference_patterns), re.IGNORECASE)
 
     def detect(self, text: str) -> tuple[bool, list[str], float]:
         """
@@ -215,9 +213,7 @@ class SafetyContentChecker:
 
         # Compile patterns
         self.harmful_regex = re.compile("|".join(self.harmful_patterns), re.IGNORECASE)
-        self.dangerous_ag_regex = re.compile(
-            "|".join(self.dangerous_agricultural_patterns), re.IGNORECASE
-        )
+        self.dangerous_ag_regex = re.compile("|".join(self.dangerous_agricultural_patterns), re.IGNORECASE)
 
     def check_safety(self, text: str) -> tuple[bool, list[str]]:
         """
@@ -245,9 +241,7 @@ class SafetyContentChecker:
             r"i (must|should) not",
             r"that would be (dangerous|harmful|illegal)",
         ]
-        refusal_count = sum(
-            1 for pattern in refusal_patterns if re.search(pattern, text, re.IGNORECASE)
-        )
+        refusal_count = sum(1 for pattern in refusal_patterns if re.search(pattern, text, re.IGNORECASE))
         if refusal_count > 2:
             issues.append("excessive_refusals")
 
@@ -496,10 +490,7 @@ class OutputFilter:
         # Add SAHOOL context for agricultural advice
         if add_context:
             if language == "ar":
-                context = (
-                    "\n\nسهول - منصة الزراعة الذكية"
-                    "\nللمزيد من المعلومات، تواصل مع مهندس زراعي معتمد."
-                )
+                context = "\n\nسهول - منصة الزراعة الذكية\nللمزيد من المعلومات، تواصل مع مهندس زراعي معتمد."
             else:
                 context = (
                     "\n\nSAHOOL - Smart Agriculture Platform"

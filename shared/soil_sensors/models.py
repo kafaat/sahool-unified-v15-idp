@@ -203,9 +203,7 @@ class SensorCalibration:
             return raw_value
 
         normalized = (raw_value - self.dry_value) / (self.wet_value - self.dry_value)
-        calibrated = self.known_dry_percent + normalized * (
-            self.known_wet_percent - self.known_dry_percent
-        )
+        calibrated = self.known_dry_percent + normalized * (self.known_wet_percent - self.known_dry_percent)
 
         # Apply offset and scale
         calibrated = (calibrated * self.scale) + self.offset

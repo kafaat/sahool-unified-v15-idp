@@ -109,9 +109,7 @@ class ComplianceUpdatedEvent(BaseEvent):
     ggn: str = Field(..., description="GlobalGAP Number")
 
     # Compliance metrics
-    overall_compliance_score: float = Field(
-        ..., ge=0, le=100, description="Overall compliance percentage"
-    )
+    overall_compliance_score: float = Field(..., ge=0, le=100, description="Overall compliance percentage")
     major_must_compliance: float = Field(..., ge=0, le=100, description="Major Must compliance %")
     minor_must_compliance: float = Field(..., ge=0, le=100, description="Minor Must compliance %")
 
@@ -120,9 +118,7 @@ class ComplianceUpdatedEvent(BaseEvent):
     certification_eligible: bool = Field(..., description="Eligible for certification")
 
     # Change tracking
-    previous_score: float | None = Field(
-        None, ge=0, le=100, description="Previous compliance score"
-    )
+    previous_score: float | None = Field(None, ge=0, le=100, description="Previous compliance score")
     score_change: float | None = Field(None, description="Score change amount")
 
     # Categories
@@ -155,9 +151,7 @@ class ComplianceRequirementFailedEvent(BaseEvent):
         description="Requirement level",
     )
 
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Failure severity"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Failure severity")
 
     failure_reason_en: str | None = Field(None, description="Failure reason in English")
     failure_reason_ar: str | None = Field(None, description="Failure reason in Arabic")
@@ -190,14 +184,10 @@ class AuditScheduledEvent(BaseEvent):
         description="Type of audit",
     )
 
-    audit_scope: list[str] = Field(
-        default_factory=lambda: ["FV"], description="Audit scope (FV, CROPS_BASE, etc.)"
-    )
+    audit_scope: list[str] = Field(default_factory=lambda: ["FV"], description="Audit scope (FV, CROPS_BASE, etc.)")
 
     scheduled_date: date = Field(..., description="Scheduled audit date")
-    estimated_duration_hours: int | None = Field(
-        None, ge=1, description="Estimated duration in hours"
-    )
+    estimated_duration_hours: int | None = Field(None, ge=1, description="Estimated duration in hours")
 
     # Auditor information
     lead_auditor_name: str | None = Field(None, description="Lead auditor name")
@@ -210,9 +200,7 @@ class AuditScheduledEvent(BaseEvent):
 
     # Preparation
     preparation_checklist_url: str | None = Field(None, description="Preparation checklist URL")
-    documents_required: list[str] | None = Field(
-        default_factory=list, description="Required documents for audit"
-    )
+    documents_required: list[str] | None = Field(default_factory=list, description="Required documents for audit")
 
     scheduled_by: UUID | None = Field(None, description="User who scheduled the audit")
 
@@ -229,9 +217,7 @@ class AuditCompletedEvent(BaseEvent):
     ggn: str = Field(..., description="GlobalGAP Number")
 
     audit_type: str = Field(..., description="Type of audit")
-    completion_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion date"
-    )
+    completion_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion date")
 
     # Results
     total_items_checked: int = Field(..., ge=0, description="Total items checked")
@@ -239,9 +225,7 @@ class AuditCompletedEvent(BaseEvent):
     non_compliant_items: int = Field(..., ge=0, description="Number of non-compliant items")
     not_applicable_items: int = Field(..., ge=0, description="Number of N/A items")
 
-    overall_compliance_score: float = Field(
-        ..., ge=0, le=100, description="Overall compliance percentage"
-    )
+    overall_compliance_score: float = Field(..., ge=0, le=100, description="Overall compliance percentage")
 
     # Non-conformances
     critical_non_conformances: int = Field(default=0, ge=0, description="Critical NCs")
@@ -302,9 +286,7 @@ class NonConformanceDetectedEvent(BaseEvent):
     root_cause_ar: str | None = Field(None, description="Root cause in Arabic")
 
     # Dates
-    identified_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Date identified"
-    )
+    identified_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Date identified")
     due_date: datetime = Field(..., description="Correction due date")
 
     # Evidence
@@ -336,9 +318,7 @@ class CorrectiveActionCompletedEvent(BaseEvent):
     farm_id: UUID = Field(..., description="Farm registration ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
-    completion_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion date"
-    )
+    completion_date: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion date")
     planned_date: date = Field(..., description="Originally planned date")
 
     # Status
@@ -346,12 +326,8 @@ class CorrectiveActionCompletedEvent(BaseEvent):
     days_overdue: int | None = Field(None, description="Days overdue (if late)")
 
     # Evidence
-    completion_evidence_photos: list[str] = Field(
-        default_factory=list, description="Completion photos"
-    )
-    completion_evidence_documents: list[str] = Field(
-        default_factory=list, description="Completion documents"
-    )
+    completion_evidence_photos: list[str] = Field(default_factory=list, description="Completion photos")
+    completion_evidence_documents: list[str] = Field(default_factory=list, description="Completion documents")
 
     # Verification
     effectiveness_verified: bool = Field(default=False, description="Effectiveness verified")
@@ -386,9 +362,7 @@ class CertificateExpiringEvent(BaseEvent):
 
     # Expiry details
     days_until_expiry: int = Field(..., description="Days until expiry")
-    expiry_urgency: str = Field(
-        ..., pattern="^(info|warning|critical)$", description="Urgency level"
-    )
+    expiry_urgency: str = Field(..., pattern="^(info|warning|critical)$", description="Urgency level")
 
     # Renewal information
     renewal_required: bool = Field(default=True, description="Renewal required")
@@ -427,12 +401,8 @@ class CertificateIssuedEvent(BaseEvent):
     certification_scope: list[str] = Field(
         default_factory=list, description="Certification scope (FV, CROPS_BASE, etc.)"
     )
-    product_types_en: list[str] = Field(
-        default_factory=list, description="Certified products (English)"
-    )
-    product_types_ar: list[str] = Field(
-        default_factory=list, description="Certified products (Arabic)"
-    )
+    product_types_en: list[str] = Field(default_factory=list, description="Certified products (English)")
+    product_types_ar: list[str] = Field(default_factory=list, description="Certified products (Arabic)")
 
     # Certification body
     certification_body: str = Field(..., description="Certification body name")
@@ -480,9 +450,7 @@ class WaterUsageRecordedEvent(BaseEvent):
     irrigation_efficiency: float | None = Field(None, ge=0, le=100, description="Efficiency %")
 
     # Compliance
-    spring_water_requirement_met: bool = Field(
-        ..., description="SPRING water requirement compliance"
-    )
+    spring_water_requirement_met: bool = Field(..., description="SPRING water requirement compliance")
     water_rights_documented: bool = Field(..., description="Water rights documented")
 
     recorded_by: UUID | None = Field(None, description="User who recorded")
@@ -509,15 +477,11 @@ class IPMActivityRecordedEvent(BaseEvent):
     # Pest/Disease information
     pest_or_disease_name_en: str = Field(..., description="Pest/disease name (English)")
     pest_or_disease_name_ar: str | None = Field(None, description="Pest/disease name (Arabic)")
-    pest_category: str | None = Field(
-        None, description="Category (insect, fungal, bacterial, etc.)"
-    )
+    pest_category: str | None = Field(None, description="Category (insect, fungal, bacterial, etc.)")
 
     # Detection
     detection_method: str = Field(..., description="Detection method (AI, manual, trap, etc.)")
-    severity_level: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Severity level"
-    )
+    severity_level: str = Field(..., pattern="^(low|medium|high|critical)$", description="Severity level")
 
     # Treatment (if applicable)
     treatment_applied: bool = Field(default=False, description="Treatment applied")
@@ -557,9 +521,7 @@ class FertilizerApplicationRecordedEvent(BaseEvent):
     area_applied_ha: float | None = Field(None, ge=0, description="Area applied in hectares")
 
     # Method
-    application_method: str = Field(
-        ..., description="Application method (broadcast, banding, foliar, etc.)"
-    )
+    application_method: str = Field(..., description="Application method (broadcast, banding, foliar, etc.)")
 
     # Compliance
     based_on_soil_test: bool = Field(..., description="Based on soil test results")
@@ -596,9 +558,7 @@ class TraceabilityRecordCreatedEvent(BaseEvent):
 
     # Quantities
     quantity_kg: float = Field(..., ge=0, description="Quantity in kg")
-    quantity_units: int | None = Field(
-        None, ge=0, description="Quantity in units (boxes, pallets, etc.)"
-    )
+    quantity_units: int | None = Field(None, ge=0, description="Quantity in units (boxes, pallets, etc.)")
 
     # Traceability
     ggn: str = Field(..., description="GlobalGAP Number")
@@ -607,16 +567,12 @@ class TraceabilityRecordCreatedEvent(BaseEvent):
     # Activities tracked
     irrigation_records_linked: int = Field(default=0, ge=0, description="Linked irrigation records")
     fertilizer_records_linked: int = Field(default=0, ge=0, description="Linked fertilizer records")
-    pest_control_records_linked: int = Field(
-        default=0, ge=0, description="Linked pest control records"
-    )
+    pest_control_records_linked: int = Field(default=0, ge=0, description="Linked pest control records")
     harvest_records_linked: int = Field(default=0, ge=0, description="Linked harvest records")
 
     # Compliance
     full_traceability: bool = Field(..., description="Full farm-to-fork traceability")
-    withdrawal_period_respected: bool = Field(
-        default=True, description="Withdrawal period respected"
-    )
+    withdrawal_period_respected: bool = Field(default=True, description="Withdrawal period respected")
 
     created_by: UUID | None = Field(None, description="User who created record")
 

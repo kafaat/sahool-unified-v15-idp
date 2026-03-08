@@ -91,13 +91,13 @@ class TestBilingualText:
 
 class TestWorkerSkill:
     def _make_skill(self, **kwargs):
-        defaults = dict(
-            skill_id="SKL001",
-            skill_name="Tractor Operation",
-            skill_name_ar="تشغيل الجرار",
-            category=SkillCategory.EQUIPMENT_OPERATION,
-            level=SkillLevel.ADVANCED,
-        )
+        defaults = {
+            "skill_id": "SKL001",
+            "skill_name": "Tractor Operation",
+            "skill_name_ar": "تشغيل الجرار",
+            "category": SkillCategory.EQUIPMENT_OPERATION,
+            "level": SkillLevel.ADVANCED,
+        }
         defaults.update(kwargs)
         return WorkerSkill(**defaults)
 
@@ -168,16 +168,16 @@ class TestWorkerCertification:
 
 class TestWorker:
     def _make_worker(self, **kwargs):
-        defaults = dict(
-            worker_id="WRK001",
-            tenant_id="t1",
-            farm_id="f1",
-            first_name="Ali",
-            last_name="Ahmed",
-            first_name_ar="علي",
-            last_name_ar="أحمد",
-            phone="0501234567",
-        )
+        defaults = {
+            "worker_id": "WRK001",
+            "tenant_id": "t1",
+            "farm_id": "f1",
+            "first_name": "Ali",
+            "last_name": "Ahmed",
+            "first_name_ar": "علي",
+            "last_name_ar": "أحمد",
+            "phone": "0501234567",
+        }
         defaults.update(kwargs)
         return Worker(**defaults)
 

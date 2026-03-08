@@ -139,9 +139,7 @@ class TwilioWhatsAppProvider(BaseWhatsAppProvider):
             # Ensure proper WhatsApp format
             whatsapp_to = f"whatsapp:{to}" if not to.startswith("whatsapp:") else to
             whatsapp_from = (
-                f"whatsapp:{self._from_number}"
-                if not self._from_number.startswith("whatsapp:")
-                else self._from_number
+                f"whatsapp:{self._from_number}" if not self._from_number.startswith("whatsapp:") else self._from_number
             )
 
             message = await asyncio.to_thread(
@@ -266,10 +264,7 @@ class MetaCloudWhatsAppProvider(BaseWhatsAppProvider):
                 components.append(
                     {
                         "type": "body",
-                        "parameters": [
-                            {"type": "text", "text": param}
-                            for param in template_params["body_params"]
-                        ],
+                        "parameters": [{"type": "text", "text": param} for param in template_params["body_params"]],
                     }
                 )
 

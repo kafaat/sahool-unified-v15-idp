@@ -158,9 +158,7 @@ class KnowledgeSerializer:
             "documents": serialized,
         }
 
-    def import_documents(
-        self, input_path: str | Path
-    ) -> tuple[list[BaseKnowledgeDocument], ImportResult]:
+    def import_documents(self, input_path: str | Path) -> tuple[list[BaseKnowledgeDocument], ImportResult]:
         """Import documents from a file. Returns (documents, result).
         استيراد الوثائق من ملف. يُرجع (الوثائق، النتيجة)"""
         input_path = Path(input_path)
@@ -227,9 +225,7 @@ class KnowledgeSerializer:
 
         return self.import_from_dict(data)
 
-    def import_from_dict(
-        self, data: dict[str, Any]
-    ) -> tuple[list[BaseKnowledgeDocument], ImportResult]:
+    def import_from_dict(self, data: dict[str, Any]) -> tuple[list[BaseKnowledgeDocument], ImportResult]:
         """Import from a dictionary.
         استيراد من قاموس"""
         raw_documents = data.get("documents", [])
@@ -282,9 +278,7 @@ class KnowledgeSerializer:
         data = self._convert_dates_recursive(data)
         return data
 
-    def _deserialize_document(
-        self, data: dict[str, Any], index: int = 0
-    ) -> BaseKnowledgeDocument | None:
+    def _deserialize_document(self, data: dict[str, Any], index: int = 0) -> BaseKnowledgeDocument | None:
         """Deserialize a single document. Returns None on error.
         إلغاء تسلسل وثيقة واحدة. يُرجع None عند الخطأ"""
         try:

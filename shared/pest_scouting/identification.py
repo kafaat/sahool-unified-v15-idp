@@ -59,8 +59,7 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         "اليرقات على الأنسجة الداخلية، مما يؤدي غالباً إلى موت الشجرة.",
         adult_description="Large weevil (35-40mm), reddish-brown to black with dark spots on thorax. "
         "Long curved snout (rostrum).",
-        adult_description_ar="خنفساء كبيرة (35-40 مم)، بنية محمرة إلى سوداء مع بقع داكنة على الصدر. "
-        "خرطوم طويل منحني.",
+        adult_description_ar="خنفساء كبيرة (35-40 مم)، بنية محمرة إلى سوداء مع بقع داكنة على الصدر. خرطوم طويل منحني.",
         larva_description="Cream-colored, legless grub up to 50mm long with brown head capsule.",
         larva_description_ar="يرقة بيضاء كريمية بدون أرجل يصل طولها إلى 50 مم برأس بني.",
         egg_description="Creamy white, elongated oval, 2-3mm long, laid in wounds in palm tissue.",
@@ -131,8 +130,7 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         description_ar="دوباس النخيل هو آفة رئيسية لأشجار النخيل في الشرق الأوسط. "
         "تمتص الحوريات والحشرات الكاملة العصارة من الأوراق وتفرز الندوة العسلية "
         "التي تؤدي إلى نمو العفن الهبابي.",
-        adult_description="Small (5-6mm), greenish-yellow to brownish insect with transparent wings. "
-        "Good jumpers.",
+        adult_description="Small (5-6mm), greenish-yellow to brownish insect with transparent wings. Good jumpers.",
         adult_description_ar="حشرة صغيرة (5-6 مم)، خضراء مصفرة إلى بنية بأجنحة شفافة. قافزة جيدة.",
         larva_description="N/A - Hemimetabolous (nymphs, not larvae)",
         larva_description_ar="لا ينطبق - تطور ناقص (حوريات وليس يرقات)",
@@ -888,9 +886,7 @@ def get_high_priority_pests() -> list[PestIdentification]:
     Get pests with very high economic importance.
     الحصول على الآفات ذات الأهمية الاقتصادية العالية جداً.
     """
-    return [
-        pest for pest in PEST_DATABASE.values() if pest.economic_importance in ("very_high", "high")
-    ]
+    return [pest for pest in PEST_DATABASE.values() if pest.economic_importance in ("very_high", "high")]
 
 
 # =============================================================================
@@ -915,11 +911,7 @@ def identify_by_symptoms(
 
     for pest in PEST_DATABASE.values():
         # Skip if crop filter doesn't match
-        if (
-            crop_type
-            and crop_type not in pest.primary_hosts
-            and crop_type not in pest.secondary_hosts
-        ):
+        if crop_type and crop_type not in pest.primary_hosts and crop_type not in pest.secondary_hosts:
             continue
 
         # Calculate symptom match score
@@ -965,11 +957,7 @@ def identify_by_description(
         max_score = 4.0  # Maximum possible score
 
         # Check description match
-        all_desc = (
-            pest.adult_description.lower()
-            + pest.larva_description.lower()
-            + pest.description.lower()
-        )
+        all_desc = pest.adult_description.lower() + pest.larva_description.lower() + pest.description.lower()
         if desc_lower:
             words = desc_lower.split()
             word_matches = sum(1 for word in words if word in all_desc and len(word) > 3)
@@ -1130,9 +1118,9 @@ def get_similar_pests(pest_id: str) -> list[PestIdentification]:
             continue
 
         # Similar hosts
-        shared_hosts = set(pest.primary_hosts) & set(other_pest.primary_hosts) or set(
-            pest.primary_hosts
-        ) & set(other_pest.secondary_hosts)
+        shared_hosts = set(pest.primary_hosts) & set(other_pest.primary_hosts) or set(pest.primary_hosts) & set(
+            other_pest.secondary_hosts
+        )
         if not shared_hosts:
             continue
 
@@ -1183,11 +1171,7 @@ def get_seasonal_pests(month: int, crop_type: CropType | None = None) -> list[Pe
         if month in active_months:
             pest = get_pest_by_id(pest_id)
             if pest:
-                if (
-                    crop_type is None
-                    or crop_type in pest.primary_hosts
-                    or crop_type in pest.secondary_hosts
-                ):
+                if crop_type is None or crop_type in pest.primary_hosts or crop_type in pest.secondary_hosts:
                     results.append(pest)
 
     return results

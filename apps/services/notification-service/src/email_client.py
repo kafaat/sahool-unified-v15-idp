@@ -254,9 +254,7 @@ class EmailClient:
             response = await asyncio.to_thread(self._send_sync, mail=mail)
 
             if response:
-                logger.info(
-                    f"📧 Email sent successfully to {mask_email(to)}: {sanitize_for_log(response)}"
-                )
+                logger.info(f"📧 Email sent successfully to {mask_email(to)}: {sanitize_for_log(response)}")
                 return response
             else:
                 logger.error(f"Failed to send email to {mask_email(to)}")

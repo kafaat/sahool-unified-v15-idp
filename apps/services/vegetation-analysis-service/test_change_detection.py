@@ -59,9 +59,7 @@ async def test_change_detector():
         ndvi_timeseries=ndvi_series,
     )
 
-    print(
-        f"✓ Analysis Period: {report.analysis_period['start_date']} to {report.analysis_period['end_date']}"
-    )
+    print(f"✓ Analysis Period: {report.analysis_period['start_date']} to {report.analysis_period['end_date']}")
     print(f"✓ Events Detected: {len(report.events)}")
     print(f"✓ Overall Trend: {report.overall_trend.value}")
     print(f"✓ NDVI Trend Slope: {report.ndvi_trend:.6f}")

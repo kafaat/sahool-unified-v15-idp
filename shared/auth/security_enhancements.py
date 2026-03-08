@@ -461,9 +461,7 @@ class RefreshTokenRotationManager:
 
         # Check rotation limit
         if family.rotation_count >= family.max_rotations:
-            logger.warning(
-                f"Max rotations reached for family {family_id[:8]}... User must re-authenticate"
-            )
+            logger.warning(f"Max rotations reached for family {family_id[:8]}... User must re-authenticate")
             await self._revoke_family(family_id, reason="max_rotations_reached")
             return None
 

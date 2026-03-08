@@ -290,12 +290,8 @@ class RotationSlot:
             "crop_variety": self.crop_variety,
             "season": self.season.value,
             "year": self.year,
-            "planned_planting_date": self.planned_planting_date.isoformat()
-            if self.planned_planting_date
-            else None,
-            "planned_harvest_date": self.planned_harvest_date.isoformat()
-            if self.planned_harvest_date
-            else None,
+            "planned_planting_date": self.planned_planting_date.isoformat() if self.planned_planting_date else None,
+            "planned_harvest_date": self.planned_harvest_date.isoformat() if self.planned_harvest_date else None,
             "area_ha": self.area_ha,
             "expected_yield_tons_ha": self.expected_yield_tons_ha,
             "expected_nitrogen_contribution_kg_ha": self.expected_nitrogen_contribution_kg_ha,
@@ -791,9 +787,7 @@ class SoilHealthReport:
             "field_name_ar": self.field_name_ar,
             "report_date": self.report_date.isoformat(),
             "reporting_period_years": self.reporting_period_years,
-            "latest_measurement": self.latest_measurement.to_dict()
-            if self.latest_measurement
-            else None,
+            "latest_measurement": self.latest_measurement.to_dict() if self.latest_measurement else None,
             "trends": [t.to_dict() for t in self.trends],
             "overall_score": self.overall_score,
             "overall_rating": self.overall_rating,

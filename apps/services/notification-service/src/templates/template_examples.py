@@ -193,9 +193,7 @@ def example_list_templates():
     for template_id in all_templates:
         template = manager.get_template(template_id)
         if template:
-            print(
-                f"  - {template_id} ({template.category.value}): {template.title.get('ar', 'N/A')}"
-            )
+            print(f"  - {template_id} ({template.category.value}): {template.title.get('ar', 'N/A')}")
 
     print("\nALERT Templates:")
     alerts = manager.list_templates(category=TemplateCategory.ALERT)

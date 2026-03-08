@@ -451,15 +451,11 @@ class SoilTestInterpreter:
 
         # Interpret macronutrients
         if soil_test.macronutrients:
-            interpretations.extend(
-                self._interpret_macronutrients(soil_test.macronutrients, ph, crop)
-            )
+            interpretations.extend(self._interpret_macronutrients(soil_test.macronutrients, ph, crop))
 
         # Interpret micronutrients
         if soil_test.micronutrients:
-            interpretations.extend(
-                self._interpret_micronutrients(soil_test.micronutrients, ph, crop)
-            )
+            interpretations.extend(self._interpret_micronutrients(soil_test.micronutrients, ph, crop))
 
         # Calculate overall scores and identify issues
         deficiencies = []
@@ -490,9 +486,7 @@ class SoilTestInterpreter:
             ec_status, ec_status_ar = self._interpret_ec(soil_test.soil_properties.ec_ds_m)
             salinity_status = ec_status
             salinity_status_ar = ec_status_ar
-            om_status, om_status_ar = self._interpret_om(
-                soil_test.soil_properties.organic_matter_percent
-            )
+            om_status, om_status_ar = self._interpret_om(soil_test.soil_properties.organic_matter_percent)
 
             # Adjust fertility score based on properties
             if soil_test.soil_properties.is_saline:
@@ -606,9 +600,7 @@ class SoilTestInterpreter:
             priority = 3
 
         # Generate action description
-        action_en, action_ar = self._generate_action_description(
-            nutrient_code, status, value, thresholds
-        )
+        action_en, action_ar = self._generate_action_description(nutrient_code, status, value, thresholds)
 
         # Generate crop impact
         crop_impact, crop_impact_ar = self._generate_crop_impact(nutrient_code, status, crop)
@@ -659,15 +651,11 @@ class SoilTestInterpreter:
 
         # Calcium
         if macros.calcium_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Ca", macros.calcium_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Ca", macros.calcium_ppm, ph, crop))
 
         # Magnesium
         if macros.magnesium_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Mg", macros.magnesium_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Mg", macros.magnesium_ppm, ph, crop))
 
         # Sulfur
         if macros.sulfur_ppm > 0:
@@ -694,15 +682,11 @@ class SoilTestInterpreter:
 
         # Manganese
         if micros.manganese_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Mn", micros.manganese_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Mn", micros.manganese_ppm, ph, crop))
 
         # Copper
         if micros.copper_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Cu", micros.copper_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Cu", micros.copper_ppm, ph, crop))
 
         # Boron
         if micros.boron_ppm > 0:
@@ -710,9 +694,7 @@ class SoilTestInterpreter:
 
         # Molybdenum
         if micros.molybdenum_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Mo", micros.molybdenum_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Mo", micros.molybdenum_ppm, ph, crop))
 
         return interpretations
 
@@ -872,17 +854,11 @@ class SoilTestInterpreter:
         summary_en_parts = []
 
         if fertility_score >= 80:
-            summary_en_parts.append(
-                f"Overall soil fertility is good (score: {fertility_score:.0f}/100)."
-            )
+            summary_en_parts.append(f"Overall soil fertility is good (score: {fertility_score:.0f}/100).")
         elif fertility_score >= 60:
-            summary_en_parts.append(
-                f"Soil fertility is moderate (score: {fertility_score:.0f}/100)."
-            )
+            summary_en_parts.append(f"Soil fertility is moderate (score: {fertility_score:.0f}/100).")
         else:
-            summary_en_parts.append(
-                f"Soil fertility needs improvement (score: {fertility_score:.0f}/100)."
-            )
+            summary_en_parts.append(f"Soil fertility needs improvement (score: {fertility_score:.0f}/100).")
 
         if deficiencies:
             summary_en_parts.append(f"Deficient nutrients: {', '.join(deficiencies)}.")
@@ -903,15 +879,11 @@ class SoilTestInterpreter:
         summary_ar_parts = []
 
         if fertility_score >= 80:
-            summary_ar_parts.append(
-                f"خصوبة التربة العامة جيدة (الدرجة: {fertility_score:.0f}/100)."
-            )
+            summary_ar_parts.append(f"خصوبة التربة العامة جيدة (الدرجة: {fertility_score:.0f}/100).")
         elif fertility_score >= 60:
             summary_ar_parts.append(f"خصوبة التربة متوسطة (الدرجة: {fertility_score:.0f}/100).")
         else:
-            summary_ar_parts.append(
-                f"خصوبة التربة تحتاج تحسين (الدرجة: {fertility_score:.0f}/100)."
-            )
+            summary_ar_parts.append(f"خصوبة التربة تحتاج تحسين (الدرجة: {fertility_score:.0f}/100).")
 
         if deficiencies:
             deficiencies_ar_text = self._translate_nutrient_list(deficiencies)

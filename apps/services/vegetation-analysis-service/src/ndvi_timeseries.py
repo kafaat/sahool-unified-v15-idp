@@ -27,9 +27,7 @@ from typing import Any
 try:
     import numpy as np
 except ImportError:
-    raise ImportError(
-        "NumPy is required for NDVI time-series analysis. Install with: pip install numpy"
-    )
+    raise ImportError("NumPy is required for NDVI time-series analysis. Install with: pip install numpy")
 
 
 # =============================================================================
@@ -172,9 +170,7 @@ class SeasonalMetrics:
             "season_end": self.season_end.isoformat() if self.season_end else None,
             "season_length": self.season_length,
             "peak_ndvi": round(self.peak_ndvi, 4) if self.peak_ndvi else None,
-            "seasonal_amplitude": round(self.seasonal_amplitude, 4)
-            if self.seasonal_amplitude
-            else None,
+            "seasonal_amplitude": round(self.seasonal_amplitude, 4) if self.seasonal_amplitude else None,
             "integrated_ndvi": round(self.integrated_ndvi, 2) if self.integrated_ndvi else None,
         }
 
@@ -300,9 +296,7 @@ class NDVITimeSeriesAnalyzer:
     # Anomaly Detection - كشف الشذوذ
     # =========================================================================
 
-    def detect_anomalies(
-        self, ndvi_series: list[NDVIPoint], threshold: float = 2.0
-    ) -> list[AnomalyResult]:
+    def detect_anomalies(self, ndvi_series: list[NDVIPoint], threshold: float = 2.0) -> list[AnomalyResult]:
         """
         كشف الشذوذ في سلسلة NDVI الزمنية باستخدام Z-score
         Detect anomalies in NDVI time-series using Z-score method
@@ -341,9 +335,7 @@ class NDVITimeSeriesAnalyzer:
         # كشف الشذوذات
         # Detect anomalies
         anomalies = []
-        for _i, (z_score, value, expected, date_val) in enumerate(
-            zip(z_scores, values, smoothed, dates, strict=False)
-        ):
+        for _i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates, strict=False)):
             if abs(z_score) > threshold:
                 # تحديد نوع الشذوذ
                 # Determine anomaly type
@@ -472,9 +464,7 @@ class NDVITimeSeriesAnalyzer:
     # Forecasting - التنبؤ
     # =========================================================================
 
-    def predict_next_values(
-        self, ndvi_series: list[NDVIPoint], periods: int = 7
-    ) -> list[tuple[date, float]]:
+    def predict_next_values(self, ndvi_series: list[NDVIPoint], periods: int = 7) -> list[tuple[date, float]]:
         """
         التنبؤ بقيم NDVI المستقبلية باستخدام المتوسط المتحرك والاتجاه
         Predict future NDVI values using moving average and trend
@@ -533,9 +523,7 @@ class NDVITimeSeriesAnalyzer:
     # Phenological Stage Detection - كشف مراحل النمو
     # =========================================================================
 
-    def detect_phenological_stages(
-        self, ndvi_curve: list[NDVIPoint]
-    ) -> list[tuple[date, PhenologicalStage, float]]:
+    def detect_phenological_stages(self, ndvi_curve: list[NDVIPoint]) -> list[tuple[date, PhenologicalStage, float]]:
         """
         كشف مراحل النمو الفينولوجية من منحنى NDVI
         Detect phenological stages from NDVI curve
@@ -609,9 +597,7 @@ class NDVITimeSeriesAnalyzer:
     # Seasonal Analysis - التحليل الموسمي
     # =========================================================================
 
-    def identify_growing_season_start(
-        self, ndvi_series: list[NDVIPoint], threshold: float = 0.2
-    ) -> date | None:
+    def identify_growing_season_start(self, ndvi_series: list[NDVIPoint], threshold: float = 0.2) -> date | None:
         """
         تحديد بداية موسم النمو
         Identify start of growing season
@@ -697,9 +683,7 @@ class NDVITimeSeriesAnalyzer:
     # Change Detection - كشف التغيير
     # =========================================================================
 
-    def compare_periods(
-        self, period1_ndvi: list[float], period2_ndvi: list[float]
-    ) -> ChangeDetectionResult:
+    def compare_periods(self, period1_ndvi: list[float], period2_ndvi: list[float]) -> ChangeDetectionResult:
         """
         مقارنة فترتين لكشف التغييرات
         Compare two periods to detect changes
@@ -824,9 +808,7 @@ class NDVITimeSeriesAnalyzer:
 
         return sudden_changes
 
-    def generate_change_map(
-        self, before_image: np.ndarray, after_image: np.ndarray
-    ) -> dict[str, Any]:
+    def generate_change_map(self, before_image: np.ndarray, after_image: np.ndarray) -> dict[str, Any]:
         """
         إنشاء خريطة التغيير بين صورتين
         Generate change map between two images
@@ -1060,9 +1042,7 @@ class NDVITimeSeriesAnalyzer:
 
         # تطبيق المتوسط المتحرك
         # Apply moving average
-        smoothed = np.convolve(
-            values, np.ones(self.smoothing_window) / self.smoothing_window, mode="same"
-        )
+        smoothed = np.convolve(values, np.ones(self.smoothing_window) / self.smoothing_window, mode="same")
 
         return smoothed
 

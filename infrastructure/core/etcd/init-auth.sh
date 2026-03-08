@@ -57,8 +57,17 @@ retry 3 2 etcdctl endpoint health || {
 echo "Etcd is healthy, proceeding with authentication setup..."
 
 # Check if authentication is already enabled
+# FIX: Try both with and without auth credentials to handle all states:
+# 1. Auth disabled: 'etcdctl user list' works without credentials
+# 2. Auth enabled: 'etcdctl user list' requires credentials (use ETCD_ROOT env vars)
 if etcdctl user list 2>/dev/null | grep -q "root"; then
-  echo "Authentication already configured. Root user exists."
+  echo "Authentication already configured (auth not yet enabled). Root user exists."
+  exit 0
+fi
+
+# Try with credentials (auth already enabled from a previous run)
+if etcdctl --user "${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD}" user list 2>/dev/null | grep -q "root"; then
+  echo "Authentication already configured and enabled. Root user exists."
   exit 0
 fi
 
@@ -99,6 +108,6 @@ retry 3 2 etcdctl auth enable || {
   exit 1
 }
 
-echo "✓ Etcd authentication setup completed successfully!"
-echo "  - Root username: ${ETCD_ROOT_USERNAME}"
+echo "Etcd authentication setup completed successfully!"
+echo "  - Root user: configured"
 echo "  - Authentication: ENABLED"

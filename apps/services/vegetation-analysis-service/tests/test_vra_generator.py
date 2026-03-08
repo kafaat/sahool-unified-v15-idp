@@ -92,9 +92,7 @@ async def test_generate_seed_prescription():
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
     for zone in prescription.zones:
-        print(
-            f"   {zone.zone_name}: {zone.recommended_rate:.0f} {zone.unit} ({zone.area_ha:.2f} ha)"
-        )
+        print(f"   {zone.zone_name}: {zone.recommended_rate:.0f} {zone.unit} ({zone.area_ha:.2f} ha)")
 
 
 @pytest.mark.asyncio

@@ -549,9 +549,7 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
                 "model_type": model_type,
                 "framework": framework if use_real_model else "simulated",
                 "input_shape": list(input_shape) if isinstance(input_shape, tuple) else input_shape,
-                "output_classes": len(output_classes)
-                if output_classes
-                else len(filtered_predictions),
+                "output_classes": len(output_classes) if output_classes else len(filtered_predictions),
                 "trained_on": "SAHOOL Dataset v2.3",
                 "is_real_model": use_real_model,
             },
@@ -559,9 +557,7 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
             "confidence_scores": confidence_scores,
             "statistics": {
                 "total_predictions": len(filtered_predictions),
-                "high_confidence_count": len(
-                    [p for p in filtered_predictions if p.get("confidence", 0) > 0.9]
-                ),
+                "high_confidence_count": len([p for p in filtered_predictions if p.get("confidence", 0) > 0.9]),
                 "average_confidence": round(avg_confidence, 3),
                 "below_threshold_count": below_threshold_count,
             },
@@ -782,9 +778,7 @@ def _run_tabular_inference(
 
         # Process based on model type - معالجة حسب نوع النموذج
         if "yield_prediction" in model_name:
-            predicted_value = (
-                float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
-            )
+            predicted_value = float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
 
             # Calculate confidence interval (simple approximation)
             std_dev = predicted_value * 0.08  # 8% standard deviation
@@ -812,15 +806,9 @@ def _run_tabular_inference(
             predictions.append(
                 {
                     "fertilizer_recommendation": {
-                        "nitrogen_needed_kg": round(
-                            float(output_values[0]) if len(output_values) > 0 else 0, 2
-                        ),
-                        "phosphorus_needed_kg": round(
-                            float(output_values[1]) if len(output_values) > 1 else 0, 2
-                        ),
-                        "potassium_needed_kg": round(
-                            float(output_values[2]) if len(output_values) > 2 else 0, 2
-                        ),
+                        "nitrogen_needed_kg": round(float(output_values[0]) if len(output_values) > 0 else 0, 2),
+                        "phosphorus_needed_kg": round(float(output_values[1]) if len(output_values) > 1 else 0, 2),
+                        "potassium_needed_kg": round(float(output_values[2]) if len(output_values) > 2 else 0, 2),
                     },
                     "confidence": 0.85,
                     "input_analysis": {
@@ -833,9 +821,7 @@ def _run_tabular_inference(
 
         else:
             # Generic regression output - مخرجات انحدار عامة
-            output_value = (
-                float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
-            )
+            output_value = float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
             predictions.append(
                 {
                     "predicted_value": round(output_value, 4),
@@ -933,9 +919,7 @@ def _generate_simulated_predictions(
                 "class": diseases_ar[disease_idx],
                 "class_en": diseases[disease_idx],
                 "confidence": round(0.78 + np.random.random() * 0.17, 3),
-                "severity": "none"
-                if disease_idx == 0
-                else ["low", "medium", "high"][np.random.randint(0, 3)],
+                "severity": "none" if disease_idx == 0 else ["low", "medium", "high"][np.random.randint(0, 3)],
             }
         ]
 

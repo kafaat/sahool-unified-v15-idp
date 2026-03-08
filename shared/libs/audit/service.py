@@ -33,10 +33,7 @@ def get_last_hash(db: Session, tenant_id: UUID) -> str | None:
         Last entry hash or None if no entries exist
     """
     stmt = (
-        select(AuditLog.entry_hash)
-        .where(AuditLog.tenant_id == tenant_id)
-        .order_by(AuditLog.created_at.desc())
-        .limit(1)
+        select(AuditLog.entry_hash).where(AuditLog.tenant_id == tenant_id).order_by(AuditLog.created_at.desc()).limit(1)
     )
     return db.execute(stmt).scalar_one_or_none()
 
@@ -182,9 +179,7 @@ def query_audit_logs(
     Returns:
         List of matching AuditLog entries
     """
-    stmt = (
-        select(AuditLog).where(AuditLog.tenant_id == tenant_id).order_by(AuditLog.created_at.desc())
-    )
+    stmt = select(AuditLog).where(AuditLog.tenant_id == tenant_id).order_by(AuditLog.created_at.desc())
 
     if actor_id:
         stmt = stmt.where(AuditLog.actor_id == actor_id)

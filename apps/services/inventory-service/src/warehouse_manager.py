@@ -122,9 +122,7 @@ class WarehouseManager:
 
         return self._warehouse_to_dataclass(warehouse)
 
-    async def get_warehouses(
-        self, warehouse_type: str | None = None, is_active: bool = True
-    ) -> list[Warehouse]:
+    async def get_warehouses(self, warehouse_type: str | None = None, is_active: bool = True) -> list[Warehouse]:
         """
         Get all warehouses, optionally filtered
 
@@ -153,9 +151,7 @@ class WarehouseManager:
         Returns:
             Warehouse object or None
         """
-        warehouse = await self.db.warehouse.find_unique(
-            where={"id": warehouse_id}, include={"zones": True}
-        )
+        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
 
         if not warehouse:
             return None
@@ -172,9 +168,7 @@ class WarehouseManager:
         Returns:
             Dictionary with utilization metrics
         """
-        warehouse = await self.db.warehouse.find_unique(
-            where={"id": warehouse_id}, include={"zones": True}
-        )
+        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
 
         if not warehouse:
             return {"error": "Warehouse not found"}
@@ -190,9 +184,7 @@ class WarehouseManager:
                     "zone_name": zone.name,
                     "capacity": zone.capacity,
                     "usage": zone.currentUsage,
-                    "utilization_pct": (
-                        (zone.currentUsage / zone.capacity * 100) if zone.capacity > 0 else 0
-                    ),
+                    "utilization_pct": ((zone.currentUsage / zone.capacity * 100) if zone.capacity > 0 else 0),
                     "available": zone.capacity - zone.currentUsage,
                 }
             )
@@ -372,9 +364,7 @@ class WarehouseManager:
             "completed_at": (transfer.completedAt.isoformat() if transfer.completedAt else None),
         }
 
-    async def get_warehouse_inventory(
-        self, warehouse_id: str, category: str | None = None
-    ) -> list[dict]:
+    async def get_warehouse_inventory(self, warehouse_id: str, category: str | None = None) -> list[dict]:
         """
         Get all inventory in a warehouse
 
@@ -469,9 +459,7 @@ class WarehouseManager:
 
         result = []
         for item in items:
-            days_until_expiry = (
-                (item.expiryDate - datetime.now(UTC)).days if item.expiryDate else None
-            )
+            days_until_expiry = (item.expiryDate - datetime.now(UTC)).days if item.expiryDate else None
             result.append(
                 {
                     "item_id": item.id,
@@ -530,9 +518,7 @@ class WarehouseManager:
             "condition": zone.condition,
         }
 
-    async def create_storage_location(
-        self, zone_id: str, aisle: str, shelf: str, bin: str, capacity: float
-    ) -> dict:
+    async def create_storage_location(self, zone_id: str, aisle: str, shelf: str, bin: str, capacity: float) -> dict:
         """
         Create a storage location within a zone
 
@@ -648,9 +634,7 @@ class WarehouseManager:
             current_utilization=warehouse.currentUsage,
             storage_condition=StorageCondition(warehouse.storageCondition.lower()),
             temperature_range=(
-                {"min": warehouse.tempMin, "max": warehouse.tempMax}
-                if warehouse.tempMin or warehouse.tempMax
-                else None
+                {"min": warehouse.tempMin, "max": warehouse.tempMax} if warehouse.tempMin or warehouse.tempMax else None
             ),
             humidity_range=(
                 {"min": warehouse.humidityMin, "max": warehouse.humidityMax}

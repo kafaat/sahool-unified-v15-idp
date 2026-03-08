@@ -324,9 +324,7 @@ class GitTools:
                 message="Status retrieved successfully",
                 data={
                     "branch": branch_info,
-                    "changes": [
-                        {"path": f.path, "type": f.change_type.value} for f in file_changes
-                    ],
+                    "changes": [{"path": f.path, "type": f.change_type.value} for f in file_changes],
                     "clean": len(file_changes) == 0,
                 },
                 duration_ms=duration,

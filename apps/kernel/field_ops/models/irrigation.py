@@ -128,22 +128,16 @@ class WeatherData(BaseModel):
     # الرطوبة - Humidity (%)
     humidity_max: float | None = Field(None, ge=0, le=100, description="أقصى رطوبة - Max humidity")
     humidity_min: float | None = Field(None, ge=0, le=100, description="أدنى رطوبة - Min humidity")
-    humidity_mean: float | None = Field(
-        None, ge=0, le=100, description="متوسط الرطوبة - Mean humidity"
-    )
+    humidity_mean: float | None = Field(None, ge=0, le=100, description="متوسط الرطوبة - Mean humidity")
 
     # سرعة الرياح - Wind speed (m/s)
     wind_speed: float = Field(2.0, ge=0, le=50, description="سرعة الرياح - Wind speed at 2m height")
 
     # الإشعاع الشمسي - Solar radiation (MJ/m²/day)
-    solar_radiation: float | None = Field(
-        None, ge=0, le=50, description="الإشعاع الشمسي - Solar radiation"
-    )
+    solar_radiation: float | None = Field(None, ge=0, le=50, description="الإشعاع الشمسي - Solar radiation")
 
     # ساعات السطوع - Sunshine hours
-    sunshine_hours: float | None = Field(
-        None, ge=0, le=24, description="ساعات السطوع - Sunshine hours"
-    )
+    sunshine_hours: float | None = Field(None, ge=0, le=24, description="ساعات السطوع - Sunshine hours")
 
     # الأمطار - Rainfall (mm)
     rainfall: float = Field(0.0, ge=0, description="كمية الأمطار - Rainfall amount")
@@ -172,25 +166,17 @@ class SoilProperties(BaseModel):
     soil_type: SoilType = Field(..., description="نوع التربة - Soil type")
 
     # سعة احتفاظ المياه - Water holding capacity
-    field_capacity: float = Field(
-        ..., ge=0, le=1, description="السعة الحقلية - Field capacity (m³/m³)"
-    )
-    wilting_point: float = Field(
-        ..., ge=0, le=1, description="نقطة الذبول - Permanent wilting point (m³/m³)"
-    )
+    field_capacity: float = Field(..., ge=0, le=1, description="السعة الحقلية - Field capacity (m³/m³)")
+    wilting_point: float = Field(..., ge=0, le=1, description="نقطة الذبول - Permanent wilting point (m³/m³)")
 
     # عمق الجذور - Root depth
     root_depth: float = Field(0.3, ge=0.1, le=3.0, description="عمق الجذور - Root depth (m)")
 
     # معدل التسرب - Infiltration rate
-    infiltration_rate: float = Field(
-        ..., ge=0, description="معدل التسرب - Infiltration rate (mm/hr)"
-    )
+    infiltration_rate: float = Field(..., ge=0, description="معدل التسرب - Infiltration rate (mm/hr)")
 
     # الكثافة الظاهرية - Bulk density
-    bulk_density: float = Field(
-        1.3, ge=0.8, le=2.0, description="الكثافة الظاهرية - Bulk density (g/cm³)"
-    )
+    bulk_density: float = Field(1.3, ge=0.8, le=2.0, description="الكثافة الظاهرية - Bulk density (g/cm³)")
 
     @property
     def total_available_water(self) -> float:
@@ -227,9 +213,7 @@ class CropCoefficient(BaseModel):
     stage_duration_days: int = Field(..., ge=1, description="مدة المرحلة بالأيام - Stage duration")
 
     # عامل الإجهاد المائي - Water stress factor
-    p_value: float = Field(
-        0.5, ge=0.1, le=1.0, description="عامل استنزاف المياه - Depletion factor"
-    )
+    p_value: float = Field(0.5, ge=0.1, le=1.0, description="عامل استنزاف المياه - Depletion factor")
 
 
 # ============== نماذج توازن المياه - Water Balance Models ==============
@@ -256,16 +240,12 @@ class WaterBalance(BaseModel):
     etc: float = Field(..., ge=0, description="تبخر المحصول - Crop evapotranspiration")
 
     # الرصيد المائي - Water content
-    soil_water_content: float = Field(
-        ..., ge=0, description="محتوى المياه - Soil water content (mm)"
-    )
+    soil_water_content: float = Field(..., ge=0, description="محتوى المياه - Soil water content (mm)")
     water_deficit: float = Field(0.0, description="عجز المياه - Water deficit (mm)")
     drainage: float = Field(0.0, ge=0, description="التصريف - Drainage (mm)")
 
     # كفاءة الري - Irrigation efficiency
-    irrigation_efficiency: float = Field(
-        0.85, ge=0.3, le=1.0, description="كفاءة الري - Irrigation efficiency"
-    )
+    irrigation_efficiency: float = Field(0.85, ge=0.3, le=1.0, description="كفاءة الري - Irrigation efficiency")
 
     @property
     def water_balance(self) -> float:
@@ -298,18 +278,14 @@ class IrrigationEvent(BaseModel):
 
     # كمية المياه - Water amount
     water_amount_mm: float = Field(..., ge=0, description="كمية المياه (مم) - Water amount (mm)")
-    water_amount_m3: float | None = Field(
-        None, ge=0, description="كمية المياه (م³) - Water amount (m³)"
-    )
+    water_amount_m3: float | None = Field(None, ge=0, description="كمية المياه (م³) - Water amount (m³)")
 
     # التفاصيل - Details
     irrigation_type: IrrigationType = Field(..., description="نوع الري - Irrigation type")
     status: IrrigationStatus = Field(IrrigationStatus.SCHEDULED, description="الحالة - Status")
 
     # التحسين - Optimization factors
-    is_night_irrigation: bool = Field(
-        False, description="ري ليلي - Night irrigation (lower electricity cost)"
-    )
+    is_night_irrigation: bool = Field(False, description="ري ليلي - Night irrigation (lower electricity cost)")
     priority: int = Field(1, ge=1, le=5, description="الأولوية - Priority (1=highest)")
 
     # البيانات الإضافية - Additional data
@@ -354,43 +330,29 @@ class IrrigationSchedule(BaseModel):
     soil_type: SoilType = Field(..., description="نوع التربة - Soil type")
 
     # أحداث الري - Irrigation events
-    events: list[IrrigationEvent] = Field(
-        default_factory=list, description="أحداث الري - Irrigation events"
-    )
+    events: list[IrrigationEvent] = Field(default_factory=list, description="أحداث الري - Irrigation events")
 
     # الإحصائيات - Statistics
     total_water_mm: float = Field(0.0, ge=0, description="إجمالي المياه (مم) - Total water (mm)")
     total_water_m3: float = Field(0.0, ge=0, description="إجمالي المياه (م³) - Total water (m³)")
-    average_interval_days: float = Field(
-        0.0, ge=0, description="متوسط الفترة بين الريات - Average interval"
-    )
+    average_interval_days: float = Field(0.0, ge=0, description="متوسط الفترة بين الريات - Average interval")
 
     # تكاليف - Costs
     estimated_electricity_cost: float | None = Field(
         None, description="تكلفة الكهرباء المقدرة - Estimated electricity cost"
     )
-    estimated_water_cost: float | None = Field(
-        None, description="تكلفة المياه المقدرة - Estimated water cost"
-    )
+    estimated_water_cost: float | None = Field(None, description="تكلفة المياه المقدرة - Estimated water cost")
 
     # التحسين - Optimization
-    optimization_score: float | None = Field(
-        None, ge=0, le=100, description="نقاط التحسين - Optimization score"
-    )
+    optimization_score: float | None = Field(None, ge=0, le=100, description="نقاط التحسين - Optimization score")
     water_efficiency_score: float | None = Field(
         None, ge=0, le=100, description="نقاط كفاءة المياه - Water efficiency score"
     )
 
     # البيانات الإضافية - Metadata
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="تاريخ الإنشاء - Created at"
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="تاريخ التحديث - Updated at"
-    )
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="بيانات إضافية - Additional metadata"
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="تاريخ الإنشاء - Created at")
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="تاريخ التحديث - Updated at")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Additional metadata")
 
     def add_event(self, event: IrrigationEvent) -> None:
         """
@@ -413,8 +375,7 @@ class IrrigationSchedule(BaseModel):
         return [
             event
             for event in self.events
-            if event.status == IrrigationStatus.SCHEDULED
-            and now <= event.scheduled_date <= future_date
+            if event.status == IrrigationStatus.SCHEDULED and now <= event.scheduled_date <= future_date
         ]
 
     @property
@@ -441,25 +402,17 @@ class IrrigationRecommendation(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     field_id: str = Field(..., description="معرّف الحقل - Field ID")
-    recommendation_date: date = Field(
-        default_factory=date.today, description="تاريخ التوصية - Recommendation date"
-    )
+    recommendation_date: date = Field(default_factory=date.today, description="تاريخ التوصية - Recommendation date")
 
     # التوصية - Recommendation
     should_irrigate: bool = Field(..., description="هل يجب الري - Should irrigate")
-    recommended_amount_mm: float = Field(
-        0.0, ge=0, description="الكمية الموصى بها (مم) - Recommended amount"
-    )
+    recommended_amount_mm: float = Field(0.0, ge=0, description="الكمية الموصى بها (مم) - Recommended amount")
     urgency: str = Field("low", description="الأهمية - Urgency: low/medium/high/critical")
 
     # الأسباب - Reasoning
     water_deficit_mm: float = Field(0.0, description="عجز المياه (مم) - Water deficit")
-    days_since_last_irrigation: int = Field(
-        0, ge=0, description="أيام منذ آخر ري - Days since last irrigation"
-    )
-    rainfall_forecast_mm: float = Field(
-        0.0, ge=0, description="توقعات الأمطار (مم) - Rainfall forecast"
-    )
+    days_since_last_irrigation: int = Field(0, ge=0, description="أيام منذ آخر ري - Days since last irrigation")
+    rainfall_forecast_mm: float = Field(0.0, ge=0, description="توقعات الأمطار (مم) - Rainfall forecast")
 
     # التوقيت الأمثل - Optimal timing
     best_time_start: datetime | None = Field(None, description="أفضل وقت للبدء - Best start time")

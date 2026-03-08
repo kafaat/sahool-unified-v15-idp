@@ -334,10 +334,7 @@ class AlertRule(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<AlertRule(id={self.id}, field_id={self.field_id}, "
-            f"name={self.name}, enabled={self.enabled})>"
-        )
+        return f"<AlertRule(id={self.id}, field_id={self.field_id}, name={self.name}, enabled={self.enabled})>"
 
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses"""
@@ -351,9 +348,7 @@ class AlertRule(Base):
             "condition": self.condition,
             "alert_config": self.alert_config,
             "cooldown_hours": self.cooldown_hours,
-            "last_triggered_at": (
-                self.last_triggered_at.isoformat() if self.last_triggered_at else None
-            ),
+            "last_triggered_at": (self.last_triggered_at.isoformat() if self.last_triggered_at else None),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

@@ -77,9 +77,7 @@ async def check_field_soil_moisture():
         print("\n\n2. Recent Irrigation Events | أحداث الري الأخيرة")
         print("-" * 80)
 
-        response = await client.get(
-            f"{base_url}/v1/irrigation-events/{field_id}", params={"days": 30}
-        )
+        response = await client.get(f"{base_url}/v1/irrigation-events/{field_id}", params={"days": 30})
 
         if response.status_code == 200:
             data = response.json()

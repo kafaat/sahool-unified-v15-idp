@@ -42,12 +42,8 @@ class ModelCapability(StrEnum):
 class OllamaConfig:
     """Configuration for Ollama local LLM server."""
 
-    base_url: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    )
-    default_model: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_DEFAULT_MODEL", "llama3.2")
-    )
+    base_url: str = field(default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+    default_model: str = field(default_factory=lambda: os.getenv("OLLAMA_DEFAULT_MODEL", "llama3.2"))
     timeout: float = 120.0
     max_retries: int = 3
     retry_delay: float = 1.0
@@ -59,9 +55,7 @@ class OllamaConfig:
 class OpenAICompatConfig:
     """Configuration for OpenAI-compatible endpoints (Ollama, vLLM, LM Studio)."""
 
-    base_url: str = field(
-        default_factory=lambda: os.getenv("OPENAI_COMPAT_BASE_URL", "http://localhost:11434/v1")
-    )
+    base_url: str = field(default_factory=lambda: os.getenv("OPENAI_COMPAT_BASE_URL", "http://localhost:11434/v1"))
     api_key: str = field(default_factory=lambda: os.getenv("OPENAI_COMPAT_API_KEY", "ollama"))
     default_model: str = field(default_factory=lambda: os.getenv("OPENAI_COMPAT_MODEL", "llama3.2"))
     timeout: float = 120.0
@@ -79,9 +73,7 @@ class CloudConfig:
 
     # Anthropic
     anthropic_api_key: str | None = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
-    anthropic_model: str = field(
-        default_factory=lambda: os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307")
-    )
+    anthropic_model: str = field(default_factory=lambda: os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307"))
 
     timeout: float = 120.0
 
@@ -108,9 +100,7 @@ class LLMConfig:
     environment: Environment = field(
         default_factory=lambda: Environment(os.getenv("ENVIRONMENT", "development").lower())
     )
-    development_mode: bool = field(
-        default_factory=lambda: os.getenv("DEVELOPMENT_MODE", "true").lower() == "true"
-    )
+    development_mode: bool = field(default_factory=lambda: os.getenv("DEVELOPMENT_MODE", "true").lower() == "true")
 
     # Provider configs
     ollama: OllamaConfig = field(default_factory=OllamaConfig)
@@ -298,11 +288,7 @@ def get_models_by_capability(capability: ModelCapability) -> list[str]:
 
     الحصول على جميع النماذج ذات قدرة محددة
     """
-    return [
-        model
-        for model, info in MODEL_REGISTRY.items()
-        if capability in info.get("capabilities", [])
-    ]
+    return [model for model, info in MODEL_REGISTRY.items() if capability in info.get("capabilities", [])]
 
 
 def get_local_models() -> list[str]:

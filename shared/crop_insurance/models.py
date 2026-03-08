@@ -213,12 +213,8 @@ class CoverageDetails:
             "deductible_percentage": self.deductible_percentage,
             "deductible_amount": str(self.deductible_amount) if self.deductible_amount else None,
             "max_payout": str(self.max_payout) if self.max_payout else None,
-            "coverage_start_date": self.coverage_start_date.isoformat()
-            if self.coverage_start_date
-            else None,
-            "coverage_end_date": self.coverage_end_date.isoformat()
-            if self.coverage_end_date
-            else None,
+            "coverage_start_date": self.coverage_start_date.isoformat() if self.coverage_start_date else None,
+            "coverage_end_date": self.coverage_end_date.isoformat() if self.coverage_end_date else None,
             "drought_coverage": self.drought_coverage,
             "flood_coverage": self.flood_coverage,
             "hail_coverage": self.hail_coverage,
@@ -361,9 +357,7 @@ class ParametricTrigger:
             "==": lambda a, b: a == b,
         }
 
-        is_triggered = operators.get(self.threshold_operator, lambda a, b: False)(
-            measured_value, self.threshold_value
-        )
+        is_triggered = operators.get(self.threshold_operator, lambda a, b: False)(measured_value, self.threshold_value)
 
         if not is_triggered:
             return False, 0.0
@@ -371,9 +365,7 @@ class ParametricTrigger:
         if self.graduated_payout and self.payout_tiers:
             # Find applicable tier
             payout_pct = 0.0
-            for tier in sorted(
-                self.payout_tiers, key=lambda x: x.get("threshold", 0), reverse=True
-            ):
+            for tier in sorted(self.payout_tiers, key=lambda x: x.get("threshold", 0), reverse=True):
                 tier_threshold = tier.get("threshold", 0)
                 if self.threshold_operator in ["<", "<="]:
                     if measured_value <= tier_threshold:
@@ -571,12 +563,8 @@ class InsurancePolicy:
 
     def calculate_guaranteed_value(self) -> Decimal:
         """Calculate guaranteed production value"""
-        total_expected_yield = Decimal(
-            str(self.expected_yield_per_hectare * self.field_area_hectares)
-        )
-        guaranteed_yield = total_expected_yield * Decimal(
-            str(self.guaranteed_yield_percentage / 100)
-        )
+        total_expected_yield = Decimal(str(self.expected_yield_per_hectare * self.field_area_hectares))
+        guaranteed_yield = total_expected_yield * Decimal(str(self.guaranteed_yield_percentage / 100))
         return guaranteed_yield * self.price_per_unit
 
     def to_dict(self) -> dict[str, Any]:
@@ -600,9 +588,7 @@ class InsurancePolicy:
             "crop_type_ar": self.crop_type_ar,
             "crop_variety": self.crop_variety,
             "planting_date": self.planting_date.isoformat() if self.planting_date else None,
-            "expected_harvest_date": self.expected_harvest_date.isoformat()
-            if self.expected_harvest_date
-            else None,
+            "expected_harvest_date": self.expected_harvest_date.isoformat() if self.expected_harvest_date else None,
             "latitude": self.latitude,
             "longitude": self.longitude,
             "region": self.region,
@@ -627,9 +613,7 @@ class InsurancePolicy:
             "approved_by": self.approved_by,
             "approved_at": self.approved_at.isoformat() if self.approved_at else None,
             "terms_accepted": self.terms_accepted,
-            "terms_accepted_at": self.terms_accepted_at.isoformat()
-            if self.terms_accepted_at
-            else None,
+            "terms_accepted_at": self.terms_accepted_at.isoformat() if self.terms_accepted_at else None,
             "special_conditions": self.special_conditions,
             "special_conditions_ar": self.special_conditions_ar,
             "documents": self.documents,

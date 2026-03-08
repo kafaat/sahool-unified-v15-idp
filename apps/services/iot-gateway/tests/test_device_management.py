@@ -223,12 +223,8 @@ class TestDeviceRetrieval:
         registry = DeviceRegistry()
 
         # Tenant 1, Field 1
-        registry.register(
-            "dev_t1_f1_s1", "tenant_1", "field_1", "soil_sensor", "حساس 1", "Sensor 1"
-        )
-        registry.register(
-            "dev_t1_f1_s2", "tenant_1", "field_1", "soil_sensor", "حساس 2", "Sensor 2"
-        )
+        registry.register("dev_t1_f1_s1", "tenant_1", "field_1", "soil_sensor", "حساس 1", "Sensor 1")
+        registry.register("dev_t1_f1_s2", "tenant_1", "field_1", "soil_sensor", "حساس 2", "Sensor 2")
         registry.register(
             "dev_t1_f1_w1",
             "tenant_1",
@@ -239,9 +235,7 @@ class TestDeviceRetrieval:
         )
 
         # Tenant 1, Field 2
-        registry.register(
-            "dev_t1_f2_s1", "tenant_1", "field_2", "soil_sensor", "حساس 3", "Sensor 3"
-        )
+        registry.register("dev_t1_f2_s1", "tenant_1", "field_2", "soil_sensor", "حساس 3", "Sensor 3")
 
         # Tenant 2, Field 3
         registry.register("dev_t2_f3_s1", "tenant_2", "field_3", "water_sensor", "ماء 1", "Water 1")
@@ -497,9 +491,7 @@ class TestRegistryStatistics:
 
         # Register 5 devices
         for i in range(3):
-            registry.register(
-                f"soil_{i}", "tenant_1", "field_1", "soil_sensor", f"حساس {i}", f"S{i}"
-            )
+            registry.register(f"soil_{i}", "tenant_1", "field_1", "soil_sensor", f"حساس {i}", f"S{i}")
 
         for i in range(2):
             registry.register(
@@ -711,9 +703,7 @@ class TestConcurrentOperations:
 
         # Register
         for i in range(10):
-            registry.register(
-                f"dev_{i}", "tenant_1", f"field_{i % 3}", "soil_sensor", f"ح{i}", f"S{i}"
-            )
+            registry.register(f"dev_{i}", "tenant_1", f"field_{i % 3}", "soil_sensor", f"ح{i}", f"S{i}")
 
         # Update some
         for i in range(5):

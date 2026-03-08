@@ -91,7 +91,9 @@ class Settings(BaseSettings):
     enable_agricultural_rules: bool = True
 
     # Agricultural patterns to check
-    agricultural_keywords: str = "ndvi,lai,evapotranspiration,soil_moisture,crop_health,irrigation,harvest,yield,fertilizer,pesticide,sensor,iot"
+    agricultural_keywords: str = (
+        "ndvi,lai,evapotranspiration,soil_moisture,crop_health,irrigation,harvest,yield,fertilizer,pesticide,sensor,iot"
+    )
 
     # NDVI value range validation
     ndvi_min_value: float = -1.0

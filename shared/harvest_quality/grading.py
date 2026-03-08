@@ -792,9 +792,7 @@ class QualityGradingEngine:
             if p.mandatory and p.parameter_name in parameter_grades
         ]
         if mandatory_grades:
-            worst_mandatory = max(
-                mandatory_grades, key=lambda g: list(self.GRADE_SCORES.keys()).index(g)
-            )
+            worst_mandatory = max(mandatory_grades, key=lambda g: list(self.GRADE_SCORES.keys()).index(g))
             grade_order = list(self.GRADE_SCORES.keys())
             if grade_order.index(worst_mandatory) > grade_order.index(overall_grade):
                 overall_grade = worst_mandatory
@@ -803,9 +801,7 @@ class QualityGradingEngine:
         confidence = self._calculate_confidence(
             total_parameters=len(std.parameters),
             tested_parameters=len(test_values),
-            mandatory_tested=sum(
-                1 for p in std.parameters if p.mandatory and p.parameter_name in test_values
-            ),
+            mandatory_tested=sum(1 for p in std.parameters if p.mandatory and p.parameter_name in test_values),
             mandatory_total=sum(1 for p in std.parameters if p.mandatory),
         )
 
@@ -878,9 +874,7 @@ class QualityGradingEngine:
         confidence = 0.7 * mandatory_coverage + 0.3 * optional_coverage
         return min(confidence, 1.0)
 
-    def grade_test_record(
-        self, test_record: QualityTestRecord
-    ) -> tuple[QualityTestRecord, GradingResult]:
+    def grade_test_record(self, test_record: QualityTestRecord) -> tuple[QualityTestRecord, GradingResult]:
         """
         Grade a complete test record and update it with results
 
@@ -1028,9 +1022,7 @@ class BuyerMatchingEngine:
         if grade_met:
             score += 30
         else:
-            unmet.append(
-                f"Grade {test_record.overall_grade.value} below minimum {requirement.minimum_grade.value}"
-            )
+            unmet.append(f"Grade {test_record.overall_grade.value} below minimum {requirement.minimum_grade.value}")
             unmet_ar.append(
                 f"الدرجة {test_record.overall_grade.value} أقل من الحد الأدنى {requirement.minimum_grade.value}"
             )
@@ -1051,12 +1043,8 @@ class BuyerMatchingEngine:
                     }
                 )
             else:
-                unmet.append(
-                    f"Moisture {actual_moisture}% exceeds max {requirement.max_moisture_percent}%"
-                )
-                unmet_ar.append(
-                    f"الرطوبة {actual_moisture}% تتجاوز الحد الأقصى {requirement.max_moisture_percent}%"
-                )
+                unmet.append(f"Moisture {actual_moisture}% exceeds max {requirement.max_moisture_percent}%")
+                unmet_ar.append(f"الرطوبة {actual_moisture}% تتجاوز الحد الأقصى {requirement.max_moisture_percent}%")
                 param_met.append(
                     {
                         "parameter": "moisture",
@@ -1083,12 +1071,8 @@ class BuyerMatchingEngine:
                     }
                 )
             else:
-                unmet.append(
-                    f"Protein {actual_protein}% below min {requirement.min_protein_percent}%"
-                )
-                unmet_ar.append(
-                    f"البروتين {actual_protein}% أقل من الحد الأدنى {requirement.min_protein_percent}%"
-                )
+                unmet.append(f"Protein {actual_protein}% below min {requirement.min_protein_percent}%")
+                unmet_ar.append(f"البروتين {actual_protein}% أقل من الحد الأدنى {requirement.min_protein_percent}%")
                 param_met.append(
                     {
                         "parameter": "protein",
@@ -1106,12 +1090,8 @@ class BuyerMatchingEngine:
             if actual_sugar >= requirement.min_sugar_brix:
                 score += 15
             else:
-                unmet.append(
-                    f"Sugar {actual_sugar} Brix below min {requirement.min_sugar_brix} Brix"
-                )
-                unmet_ar.append(
-                    f"السكر {actual_sugar} بريكس أقل من الحد الأدنى {requirement.min_sugar_brix} بريكس"
-                )
+                unmet.append(f"Sugar {actual_sugar} Brix below min {requirement.min_sugar_brix} Brix")
+                unmet_ar.append(f"السكر {actual_sugar} بريكس أقل من الحد الأدنى {requirement.min_sugar_brix} بريكس")
 
         # Check quantity (15 points)
         max_score += 15
@@ -1119,15 +1099,11 @@ class BuyerMatchingEngine:
         if requirement.min_quantity_kg and quantity_kg < requirement.min_quantity_kg:
             quantity_met = False
             unmet.append(f"Quantity {quantity_kg}kg below min {requirement.min_quantity_kg}kg")
-            unmet_ar.append(
-                f"الكمية {quantity_kg}كجم أقل من الحد الأدنى {requirement.min_quantity_kg}كجم"
-            )
+            unmet_ar.append(f"الكمية {quantity_kg}كجم أقل من الحد الأدنى {requirement.min_quantity_kg}كجم")
         elif requirement.max_quantity_kg and quantity_kg > requirement.max_quantity_kg:
             quantity_met = False
             unmet.append(f"Quantity {quantity_kg}kg exceeds max {requirement.max_quantity_kg}kg")
-            unmet_ar.append(
-                f"الكمية {quantity_kg}كجم تتجاوز الحد الأقصى {requirement.max_quantity_kg}كجم"
-            )
+            unmet_ar.append(f"الكمية {quantity_kg}كجم تتجاوز الحد الأقصى {requirement.max_quantity_kg}كجم")
         if quantity_met:
             score += 15
 
@@ -1135,9 +1111,7 @@ class BuyerMatchingEngine:
         max_score += 10
         cert_met = True
         if requirement.required_certifications:
-            missing_certs = [
-                c for c in requirement.required_certifications if c not in certifications
-            ]
+            missing_certs = [c for c in requirement.required_certifications if c not in certifications]
             if missing_certs:
                 cert_met = False
                 unmet.append(f"Missing certifications: {', '.join(missing_certs)}")
@@ -1166,9 +1140,7 @@ class BuyerMatchingEngine:
         # Generate recommendation
         if is_eligible:
             recommendation = "This harvest meets all buyer requirements. Contact buyer to proceed."
-            recommendation_ar = (
-                "هذا المحصول يستوفي جميع متطلبات المشتري. تواصل مع المشتري للمتابعة."
-            )
+            recommendation_ar = "هذا المحصول يستوفي جميع متطلبات المشتري. تواصل مع المشتري للمتابعة."
         elif match_score >= 80:
             recommendation = "Close to meeting requirements. Minor adjustments may secure the sale."
             recommendation_ar = "قريب من استيفاء المتطلبات. تعديلات طفيفة قد تضمن البيع."
@@ -1264,9 +1236,7 @@ class QualityTrendAnalyzer:
                 data_points.append(point)
 
                 # Collect for statistics
-                grade_counts[record.overall_grade.value] = (
-                    grade_counts.get(record.overall_grade.value, 0) + 1
-                )
+                grade_counts[record.overall_grade.value] = grade_counts.get(record.overall_grade.value, 0) + 1
                 grade_scores.append(record.grade_score)
 
                 if record.moisture_percent is not None:
@@ -1291,37 +1261,21 @@ class QualityTrendAnalyzer:
         trend_direction, trend_strength = self._calculate_trend(grade_scores)
 
         # Parameter-specific trends
-        moisture_trend = (
-            self._calculate_trend_direction(moisture_values)
-            if moisture_values
-            else TrendDirection.STABLE
-        )
-        protein_trend = (
-            self._calculate_trend_direction(protein_values)
-            if protein_values
-            else TrendDirection.STABLE
-        )
-        sugar_trend = (
-            self._calculate_trend_direction(sugar_values) if sugar_values else TrendDirection.STABLE
-        )
+        moisture_trend = self._calculate_trend_direction(moisture_values) if moisture_values else TrendDirection.STABLE
+        protein_trend = self._calculate_trend_direction(protein_values) if protein_values else TrendDirection.STABLE
+        sugar_trend = self._calculate_trend_direction(sugar_values) if sugar_values else TrendDirection.STABLE
 
         # Generate recommendations
         recommendations: list[str] = []
         recommendations_ar: list[str] = []
 
         if trend_direction == TrendDirection.DECLINING:
-            recommendations.append(
-                "Quality is declining. Review production practices and input quality."
-            )
+            recommendations.append("Quality is declining. Review production practices and input quality.")
             recommendations_ar.append("الجودة في تراجع. راجع ممارسات الإنتاج وجودة المدخلات.")
 
         if moisture_trend == TrendDirection.IMPROVING and moisture_values:
-            recommendations.append(
-                "Moisture levels improving. Continue current drying/storage practices."
-            )
-            recommendations_ar.append(
-                "مستويات الرطوبة تتحسن. استمر في ممارسات التجفيف/التخزين الحالية."
-            )
+            recommendations.append("Moisture levels improving. Continue current drying/storage practices.")
+            recommendations_ar.append("مستويات الرطوبة تتحسن. استمر في ممارسات التجفيف/التخزين الحالية.")
 
         # Calculate confidence
         confidence = min(len(data_points) / 10, 1.0)  # Max confidence at 10+ samples
@@ -1349,12 +1303,8 @@ class QualityTrendAnalyzer:
             moisture_trend=moisture_trend,
             protein_trend=protein_trend,
             sugar_trend=sugar_trend,
-            avg_moisture_percent=(
-                sum(moisture_values) / len(moisture_values) if moisture_values else None
-            ),
-            avg_protein_percent=(
-                sum(protein_values) / len(protein_values) if protein_values else None
-            ),
+            avg_moisture_percent=(sum(moisture_values) / len(moisture_values) if moisture_values else None),
+            avg_protein_percent=(sum(protein_values) / len(protein_values) if protein_values else None),
             avg_sugar_brix=(sum(sugar_values) / len(sugar_values) if sugar_values else None),
             avg_defect_percent=(sum(defect_values) / len(defect_values) if defect_values else None),
             recommendations=recommendations,

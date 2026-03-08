@@ -35,8 +35,7 @@ class CropInfo:
 
 # Try multiple possible shared paths (local dev vs Docker container)
 SHARED_PATHS = [
-    Path(__file__).parent.parent.parent
-    / "shared",  # Local dev: apps/services/vegetation-analysis-service/../shared
+    Path(__file__).parent.parent.parent / "shared",  # Local dev: apps/services/vegetation-analysis-service/../shared
     Path(__file__).parent.parent / "shared",  # Docker: /app/shared
     Path("/app/shared"),  # Absolute Docker path
 ]
@@ -266,9 +265,7 @@ class YieldPredictor:
         )
 
         # Ensemble prediction (weighted average)
-        predicted_yield = (
-            0.40 * ndvi_yield + 0.30 * gdd_yield + 0.20 * water_yield + 0.10 * soil_yield
-        )
+        predicted_yield = 0.40 * ndvi_yield + 0.30 * gdd_yield + 0.20 * water_yield + 0.10 * soil_yield
 
         # Calculate confidence based on data quality and consistency
         confidence = self.calculate_confidence(
@@ -414,9 +411,7 @@ class YieldPredictor:
         Predict yield from NDVI using empirical relationship.
         Yield = base_yield * (1 + k * (NDVI_integral - baseline))
         """
-        coeffs = self.NDVI_YIELD_COEFFICIENTS.get(
-            crop_code, self.NDVI_YIELD_COEFFICIENTS["DEFAULT"]
-        )
+        coeffs = self.NDVI_YIELD_COEFFICIENTS.get(crop_code, self.NDVI_YIELD_COEFFICIENTS["DEFAULT"])
 
         k = coeffs["k"]
         baseline = coeffs["baseline_integral"]
@@ -632,15 +627,11 @@ class YieldPredictor:
             )
         elif soil_moisture and soil_moisture > 0.7:
             recommendations_ar.append("⚠️ رطوبة التربة عالية - تقليل الري لتجنب تشبع الجذور")
-            recommendations_en.append(
-                "⚠️ High soil moisture - reduce irrigation to avoid root waterlogging"
-            )
+            recommendations_en.append("⚠️ High soil moisture - reduce irrigation to avoid root waterlogging")
 
         # Vegetation health
         if ndvi_peak < 0.5:
-            recommendations_ar.append(
-                f"🌱 صحة النباتات ضعيفة (NDVI: {ndvi_peak:.2f}) - تطبيق سماد نيتروجيني فوري"
-            )
+            recommendations_ar.append(f"🌱 صحة النباتات ضعيفة (NDVI: {ndvi_peak:.2f}) - تطبيق سماد نيتروجيني فوري")
             recommendations_en.append(
                 f"🌱 Poor vegetation health (NDVI: {ndvi_peak:.2f}) - apply nitrogen fertilizer immediately"
             )
@@ -658,9 +649,7 @@ class YieldPredictor:
                 f"📉 Low yield potential ({int(yield_ratio * 100)}% of capacity) - intensify management"
             )
         elif yield_ratio > 1.2:
-            recommendations_ar.append(
-                f"✨ أداء ممتاز! الإنتاجية المتوقعة {int(yield_ratio * 100)}% من الطاقة القاعدية"
-            )
+            recommendations_ar.append(f"✨ أداء ممتاز! الإنتاجية المتوقعة {int(yield_ratio * 100)}% من الطاقة القاعدية")
             recommendations_en.append(
                 f"✨ Excellent performance! Predicted yield is {int(yield_ratio * 100)}% of base capacity"
             )
@@ -671,14 +660,10 @@ class YieldPredictor:
             recommendations_en.append("🌸 Flowering stage - avoid water stress and apply potassium")
         elif growth_stage == "fruiting":
             recommendations_ar.append("🍅 مرحلة الإثمار - الحفاظ على رطوبة ثابتة وحماية من الآفات")
-            recommendations_en.append(
-                "🍅 Fruiting stage - maintain consistent moisture and protect from pests"
-            )
+            recommendations_en.append("🍅 Fruiting stage - maintain consistent moisture and protect from pests")
         elif growth_stage == "ripening":
             recommendations_ar.append("🌾 مرحلة النضج - تقليل الري تدريجياً والاستعداد للحصاد")
-            recommendations_en.append(
-                "🌾 Ripening stage - gradually reduce irrigation and prepare for harvest"
-            )
+            recommendations_en.append("🌾 Ripening stage - gradually reduce irrigation and prepare for harvest")
 
         # Critical factors
         critical_factors = [k for k, v in factors.items() if v < 0.5]
@@ -706,11 +691,7 @@ class YieldPredictor:
 
         # If no issues
         if not recommendations_ar:
-            recommendations_ar.append(
-                f"✅ {crop_name_ar} في حالة جيدة - استمر في الممارسات الحالية"
-            )
-            recommendations_en.append(
-                f"✅ {crop_name_en} is in good condition - continue current practices"
-            )
+            recommendations_ar.append(f"✅ {crop_name_ar} في حالة جيدة - استمر في الممارسات الحالية")
+            recommendations_en.append(f"✅ {crop_name_en} is in good condition - continue current practices")
 
         return recommendations_ar, recommendations_en

@@ -116,12 +116,8 @@ class Task:
             if data[key]:
                 data[key] = data[key].isoformat() if isinstance(data[key], datetime) else data[key]
         # تحويل Enums إلى strings
-        data["task_type"] = (
-            data["task_type"].value if isinstance(data["task_type"], Enum) else data["task_type"]
-        )
-        data["status"] = (
-            data["status"].value if isinstance(data["status"], Enum) else data["status"]
-        )
+        data["task_type"] = data["task_type"].value if isinstance(data["task_type"], Enum) else data["task_type"]
+        data["status"] = data["status"].value if isinstance(data["status"], Enum) else data["status"]
         return data
 
     @classmethod
@@ -130,9 +126,7 @@ class Task:
         # تحويل strings إلى datetime
         for key in ["created_at", "updated_at", "scheduled_at", "started_at", "completed_at"]:
             if data.get(key):
-                data[key] = (
-                    datetime.fromisoformat(data[key]) if isinstance(data[key], str) else data[key]
-                )
+                data[key] = datetime.fromisoformat(data[key]) if isinstance(data[key], str) else data[key]
         # تحويل strings إلى Enums
         if isinstance(data.get("task_type"), str):
             data["task_type"] = TaskType(data["task_type"])
@@ -291,11 +285,7 @@ class TaskQueue:
                 task_ids = self.redis.zrangebyscore(queue_key, 0, now, start=0, num=1)
 
                 if task_ids:
-                    task_id = (
-                        task_ids[0].decode("utf-8")
-                        if isinstance(task_ids[0], bytes)
-                        else task_ids[0]
-                    )
+                    task_id = task_ids[0].decode("utf-8") if isinstance(task_ids[0], bytes) else task_ids[0]
 
                     # الحصول على بيانات المهمة
                     # Get task data
@@ -343,9 +333,7 @@ class TaskQueue:
             logger.error(f"Failed to process next task: {e}")
             raise
 
-    def complete_task(
-        self, task_id: str, result: dict[str, Any] | None = None, worker_id: str | None = None
-    ) -> bool:
+    def complete_task(self, task_id: str, result: dict[str, Any] | None = None, worker_id: str | None = None) -> bool:
         """
         تمييز المهمة كمكتملة
         Mark task as completed
@@ -403,9 +391,7 @@ class TaskQueue:
             logger.error(f"Failed to complete task {task_id}: {e}")
             return False
 
-    def fail_task(
-        self, task_id: str, error_message: str, worker_id: str | None = None, retry: bool = True
-    ) -> bool:
+    def fail_task(self, task_id: str, error_message: str, worker_id: str | None = None, retry: bool = True) -> bool:
         """
         تمييز المهمة كفاشلة
         Mark task as failed
@@ -760,9 +746,7 @@ class TaskQueue:
                         # إزالة من مجموعة المهام قيد المعالجة
                         # Remove from processing tasks set
                         if task.worker_id:
-                            processing_key = self.processing_key_pattern.format(
-                                worker_id=task.worker_id
-                            )
+                            processing_key = self.processing_key_pattern.format(worker_id=task.worker_id)
                             self.redis.srem(processing_key, task.task_id)
 
                         timed_out.append(task.task_id)

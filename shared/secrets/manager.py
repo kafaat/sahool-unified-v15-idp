@@ -289,9 +289,7 @@ class AWSSecretsProvider(SecretsProvider):
             logger.info("AWS Secrets Manager provider initialized")
             return True
         except ImportError:
-            raise ImportError(
-                "boto3 library required for AWS Secrets Manager. Install with: pip install boto3"
-            )
+            raise ImportError("boto3 library required for AWS Secrets Manager. Install with: pip install boto3")
 
     async def disconnect(self) -> None:
         self._connected = False

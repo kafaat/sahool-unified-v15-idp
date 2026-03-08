@@ -261,9 +261,7 @@ class DiseaseExpertAgent(BaseAgent):
         weights = urgency_weights.get(urgency, urgency_weights["scheduled"])
 
         utility = (
-            weights["effectiveness"] * effectiveness
-            + weights["cost"] * cost_factor
-            + weights["wait"] * wait_factor
+            weights["effectiveness"] * effectiveness + weights["cost"] * cost_factor + weights["wait"] * wait_factor
         )
 
         return utility

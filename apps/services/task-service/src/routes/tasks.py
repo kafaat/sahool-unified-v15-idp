@@ -101,9 +101,7 @@ class TaskCreateRequest(BaseModel):
     zone_id: str | None = None
     assigned_to: str | None = None
     due_date: datetime | None = None
-    scheduled_time: str | None = Field(
-        None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$"
-    )
+    scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
 
@@ -129,9 +127,7 @@ class TaskUpdateRequest(BaseModel):
     zone_id: str | None = None
     assigned_to: str | None = None
     due_date: datetime | None = None
-    scheduled_time: str | None = Field(
-        None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$"
-    )
+    scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     status: TaskStatus | None = None
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
@@ -583,9 +579,7 @@ async def cancel_task(
             },
         )
 
-    logger.info(
-        "Task cancelled: %s (reason: %s)", sanitize_for_log(task_id), sanitize_for_log(reason)
-    )
+    logger.info("Task cancelled: %s (reason: %s)", sanitize_for_log(task_id), sanitize_for_log(reason))
 
     return db_task_to_dict(task)
 

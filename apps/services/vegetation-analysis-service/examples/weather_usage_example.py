@@ -266,9 +266,7 @@ async def example_6_seasonal_comparison():
 
     # Calculate differences
     temp_diff = this_year.summary["avg_temp_c"] - last_year.summary["avg_temp_c"]
-    precip_diff = (
-        this_year.summary["total_precipitation_mm"] - last_year.summary["total_precipitation_mm"]
-    )
+    precip_diff = this_year.summary["total_precipitation_mm"] - last_year.summary["total_precipitation_mm"]
     gdd_diff = this_year.summary["gdd_base_10"] - last_year.summary["gdd_base_10"]
 
     print("\n  📈 Year-over-Year Changes:")

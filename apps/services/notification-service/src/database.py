@@ -30,9 +30,7 @@ if not DATABASE_URL:
 # Normalize the URL scheme for Tortoise ORM compatibility
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgres://", 1)
-    logger.info(
-        "Normalized DATABASE_URL scheme from 'postgresql://' to 'postgres://' for Tortoise ORM"
-    )
+    logger.info("Normalized DATABASE_URL scheme from 'postgresql://' to 'postgres://' for Tortoise ORM")
 
 # Tortoise ORM configuration with SSL/TLS encryption
 TORTOISE_ORM = {
@@ -119,9 +117,7 @@ async def init_notification_db(create_schema: bool = False) -> None:
 
         # Generate schemas (only in development!)
         if create_schema:
-            logger.warning(
-                "⚠️  Creating database schemas - this should only be done in development!"
-            )
+            logger.warning("⚠️  Creating database schemas - this should only be done in development!")
             await Tortoise.generate_schemas()
             logger.info("✅ Database schemas created")
         else:

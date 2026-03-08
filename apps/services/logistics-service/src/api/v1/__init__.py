@@ -66,9 +66,7 @@ class CollectionSummary(BaseModel):
     by_crop: list[dict[str, Any]] = Field(
         default_factory=list, description="Breakdown by crop type | تفصيل حسب نوع المحصول"
     )
-    by_priority: dict[str, int] = Field(
-        default_factory=dict, description="Breakdown by priority | تفصيل حسب الأولوية"
-    )
+    by_priority: dict[str, int] = Field(default_factory=dict, description="Breakdown by priority | تفصيل حسب الأولوية")
     message: str = Field("", description="Summary message")
     message_ar: str = Field("", description="ملخص بالعربية")
 
@@ -118,9 +116,7 @@ class WeeklyReportResponse(BaseModel):
     route_optimization_savings_km: float = Field(
         0.0, description="Estimated distance saved (km) | المسافة الموفرة المقدرة (كم)"
     )
-    daily_breakdown: list[dict] = Field(
-        default_factory=list, description="Daily breakdown | التفصيل اليومي"
-    )
+    daily_breakdown: list[dict] = Field(default_factory=list, description="Daily breakdown | التفصيل اليومي")
     message: str = Field("", description="Report summary")
     message_ar: str = Field("", description="ملخص التقرير")
     generated_at: str = Field(description="Generation timestamp | وقت الإنشاء")
@@ -139,12 +135,8 @@ class MonthlyReportResponse(BaseModel):
     shipments: ShipmentSummary
     collections: CollectionSummary
     costs: CostSummary
-    weekly_breakdown: list[dict] = Field(
-        default_factory=list, description="Weekly breakdown | التفصيل الأسبوعي"
-    )
-    performance_metrics: dict = Field(
-        default_factory=dict, description="Performance metrics | مقاييس الأداء"
-    )
+    weekly_breakdown: list[dict] = Field(default_factory=list, description="Weekly breakdown | التفصيل الأسبوعي")
+    performance_metrics: dict = Field(default_factory=dict, description="Performance metrics | مقاييس الأداء")
     message: str = Field("", description="Report summary")
     message_ar: str = Field("", description="ملخص التقرير")
     generated_at: str = Field(description="Generation timestamp | وقت الإنشاء")
@@ -353,9 +345,7 @@ def _build_collection_summary(collections: list[dict]) -> CollectionSummary:
         by_crop=list(crop_groups.values()),
         by_priority=by_priority,
         message=f"{len(collections)} collections, {round(total_estimated, 0)} kg estimated across {len(fields)} fields",
-        message_ar=(
-            f"{len(collections)} عملية جمع، {round(total_estimated, 0)} كجم مقدرة عبر {len(fields)} حقول"
-        ),
+        message_ar=(f"{len(collections)} عملية جمع، {round(total_estimated, 0)} كجم مقدرة عبر {len(fields)} حقول"),
     )
 
 
@@ -488,12 +478,8 @@ async def get_weekly_report(
     today = date.today()
     week_start_date = today - timedelta(days=today.weekday()) + timedelta(weeks=week_offset)
     week_end_date = week_start_date + timedelta(days=6)
-    week_start = datetime(
-        week_start_date.year, week_start_date.month, week_start_date.day, 0, 0, 0, tzinfo=UTC
-    )
-    week_end = datetime(
-        week_end_date.year, week_end_date.month, week_end_date.day, 23, 59, 59, tzinfo=UTC
-    )
+    week_start = datetime(week_start_date.year, week_start_date.month, week_start_date.day, 0, 0, 0, tzinfo=UTC)
+    week_end = datetime(week_end_date.year, week_end_date.month, week_end_date.day, 23, 59, 59, tzinfo=UTC)
 
     logger.info(
         "Generating weekly report",
@@ -549,14 +535,16 @@ async def get_weekly_report(
         day_deliveries = len([s for s in day_shipments if s["status"] == SS.DELIVERED.value])
         day_collections = _filter_records_by_date(weekly_collections, day_dt_start, day_dt_end, "scheduled_date")
 
-        daily_breakdown.append({
-            "date": str(day),
-            "date_label": day.strftime("%A"),
-            "shipments": len(day_shipments),
-            "deliveries": day_deliveries,
-            "collections": len(day_collections),
-            "weight_kg": round(sum(s.get("weight_kg", 0) for s in day_shipments), 2),
-        })
+        daily_breakdown.append(
+            {
+                "date": str(day),
+                "date_label": day.strftime("%A"),
+                "shipments": len(day_shipments),
+                "deliveries": day_deliveries,
+                "collections": len(day_collections),
+                "weight_kg": round(sum(s.get("weight_kg", 0) for s in day_shipments), 2),
+            }
+        )
 
     return WeeklyReportResponse(
         week_start=str(week_start_date),
@@ -708,41 +696,37 @@ async def get_monthly_report(
         w_start_dt = datetime(
             current_week_start.year, current_week_start.month, current_week_start.day, 0, 0, 0, tzinfo=UTC
         )
-        w_end_dt = datetime(
-            current_week_end.year, current_week_end.month, current_week_end.day, 23, 59, 59, tzinfo=UTC
-        )
+        w_end_dt = datetime(current_week_end.year, current_week_end.month, current_week_end.day, 23, 59, 59, tzinfo=UTC)
 
         w_shipments = _filter_records_by_date(monthly_shipments, w_start_dt, w_end_dt, "created_at")
         w_collections = _filter_records_by_date(monthly_collections, w_start_dt, w_end_dt, "scheduled_date")
         w_delivered = len([s for s in w_shipments if s["status"] == SS.DELIVERED.value])
         w_weight = sum(s.get("weight_kg", 0) for s in w_shipments)
 
-        weekly_breakdown.append({
-            "week": week_num,
-            "start": str(current_week_start),
-            "end": str(current_week_end),
-            "shipments": len(w_shipments),
-            "deliveries": w_delivered,
-            "collections": len(w_collections),
-            "weight_kg": round(w_weight, 2),
-        })
+        weekly_breakdown.append(
+            {
+                "week": week_num,
+                "start": str(current_week_start),
+                "end": str(current_week_end),
+                "shipments": len(w_shipments),
+                "deliveries": w_delivered,
+                "collections": len(w_collections),
+                "weight_kg": round(w_weight, 2),
+            }
+        )
 
         current_week_start = current_week_end + timedelta(days=1)
         week_num += 1
 
     # ── Performance metrics ──
     avg_fuel_levels = [
-        v.get("fuel_level_percent", 0)
-        for v in tenant_vehicles
-        if v.get("fuel_level_percent") is not None
+        v.get("fuel_level_percent", 0) for v in tenant_vehicles if v.get("fuel_level_percent") is not None
     ]
     avg_fuel = sum(avg_fuel_levels) / len(avg_fuel_levels) if avg_fuel_levels else 0.0
 
     # Fleet downtime: (maintenance + out_of_service) / total
     fleet_downtime = (
-        (vehicles.maintenance + vehicles.out_of_service) / vehicles.total * 100
-        if vehicles.total > 0
-        else 0.0
+        (vehicles.maintenance + vehicles.out_of_service) / vehicles.total * 100 if vehicles.total > 0 else 0.0
     )
 
     performance_metrics = {

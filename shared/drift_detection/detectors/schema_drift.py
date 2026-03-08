@@ -48,9 +48,7 @@ _ALTER_ADD_NOT_NULL_RE = re.compile(
 )
 
 # Regex to detect CREATE INDEX without CONCURRENTLY (only risky on non-init migrations)
-_NON_CONCURRENT_INDEX_RE = re.compile(
-    r"\bCREATE\s+INDEX\b(?!\s+CONCURRENTLY)", re.IGNORECASE
-)
+_NON_CONCURRENT_INDEX_RE = re.compile(r"\bCREATE\s+INDEX\b(?!\s+CONCURRENTLY)", re.IGNORECASE)
 
 # Migration path patterns considered "initial" (CREATE TABLE from scratch, no existing data)
 _INIT_MIGRATION_RE = re.compile(r"(^|\/)0*1[_-]|init|initial|create[_-]tables", re.IGNORECASE)
@@ -275,8 +273,12 @@ class SchemaDriftDetector(BaseDriftDetector):
             for model_name, model_body in models:
                 # Skip system/config/join-table models that don't need tenant isolation
                 skip_models = {
-                    "migration", "prisma", "session", "account",
-                    "verificationtoken", "authenticator",
+                    "migration",
+                    "prisma",
+                    "session",
+                    "account",
+                    "verificationtoken",
+                    "authenticator",
                 }
                 if model_name.lower() in skip_models:
                     continue
@@ -284,11 +286,7 @@ class SchemaDriftDetector(BaseDriftDetector):
                 # - tenantId (camelCase field name)
                 # - tenant_id (snake_case in @map or raw SQL)
                 # - @map("tenant_id") (explicit column mapping)
-                has_tenant = (
-                    "tenant_id" in model_body
-                    or "tenantId" in model_body
-                    or '@map("tenant_id")' in model_body
-                )
+                has_tenant = "tenant_id" in model_body or "tenantId" in model_body or '@map("tenant_id")' in model_body
                 if not has_tenant:
                     self.add_result(
                         DriftResult(

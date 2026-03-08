@@ -191,9 +191,7 @@ class TestAutoPurchaseEndpoints:
 
     def test_compare_suppliers(self, test_client: TestClient, sample_product_id: str) -> None:
         """Test comparing suppliers for a product."""
-        response = test_client.post(
-            f"/api/v1/auto-purchase/compare?product_id={sample_product_id}&quantity=100"
-        )
+        response = test_client.post(f"/api/v1/auto-purchase/compare?product_id={sample_product_id}&quantity=100")
         assert response.status_code == 200
 
         data = response.json()

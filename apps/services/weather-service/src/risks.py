@@ -952,9 +952,7 @@ def calculate_heat_stress_index(
     }
 
 
-def _get_heat_mitigation_measures(
-    stress_level: str, temp_c: float, humidity_pct: float
-) -> list[dict]:
+def _get_heat_mitigation_measures(stress_level: str, temp_c: float, humidity_pct: float) -> list[dict]:
     """Get heat stress mitigation measures"""
     measures = []
 

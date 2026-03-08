@@ -173,40 +173,42 @@ class AlertService:
             priority = AlertPriority.CRITICAL
             title_en = f"Document Expired: {document.title_en}"
             title_ar = f"وثيقة منتهية الصلاحية: {document.title_ar}"
-            message_en = f"The document '{document.title_en}' has expired on {document.expiry_date}. Immediate renewal required."
+            message_en = (
+                f"The document '{document.title_en}' has expired on {document.expiry_date}. Immediate renewal required."
+            )
             message_ar = f"انتهت صلاحية الوثيقة '{document.title_ar}' في {document.expiry_date}. مطلوب تجديد فوري."
         elif days_until_expiry <= self.config.critical_threshold:
             priority = AlertPriority.CRITICAL
             title_en = f"Document Expiring Soon: {document.title_en}"
             title_ar = f"وثيقة تنتهي قريباً: {document.title_ar}"
-            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days ({document.expiry_date})."
-            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} أيام ({document.expiry_date})."
+            message_en = (
+                f"The document '{document.title_en}' will expire in {days_until_expiry} days ({document.expiry_date})."
+            )
+            message_ar = (
+                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} أيام ({document.expiry_date})."
+            )
         elif days_until_expiry <= self.config.high_threshold:
             priority = AlertPriority.HIGH
             title_en = f"Document Expiring: {document.title_en}"
             title_ar = f"وثيقة تنتهي: {document.title_ar}"
-            message_en = (
-                f"The document '{document.title_en}' will expire in {days_until_expiry} days."
-            )
-            message_ar = (
-                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
-            )
+            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days."
+            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
         elif days_until_expiry <= self.config.medium_threshold:
             priority = AlertPriority.MEDIUM
             title_en = f"Document Renewal Reminder: {document.title_en}"
             title_ar = f"تذكير تجديد الوثيقة: {document.title_ar}"
-            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days. Please plan for renewal."
-            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً. يرجى التخطيط للتجديد."
+            message_en = (
+                f"The document '{document.title_en}' will expire in {days_until_expiry} days. Please plan for renewal."
+            )
+            message_ar = (
+                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً. يرجى التخطيط للتجديد."
+            )
         elif days_until_expiry <= self.config.low_threshold:
             priority = AlertPriority.LOW
             title_en = f"Upcoming Document Expiry: {document.title_en}"
             title_ar = f"انتهاء صلاحية قادم: {document.title_ar}"
-            message_en = (
-                f"The document '{document.title_en}' will expire in {days_until_expiry} days."
-            )
-            message_ar = (
-                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
-            )
+            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days."
+            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
         else:
             return None  # Not within alert threshold
 
@@ -262,13 +264,17 @@ class AlertService:
             title_en = f"Certification Renewal Required: {certification.name_en}"
             title_ar = f"مطلوب تجديد الشهادة: {certification.name_ar}"
             message_en = f"The certification '{certification.name_en}' will expire in {days_until_expiry} days. Contact certification body."
-            message_ar = f"ستنتهي صلاحية الشهادة '{certification.name_ar}' خلال {days_until_expiry} يوماً. تواصل مع جهة الشهادة."
+            message_ar = (
+                f"ستنتهي صلاحية الشهادة '{certification.name_ar}' خلال {days_until_expiry} يوماً. تواصل مع جهة الشهادة."
+            )
         elif days_until_expiry <= self.config.certification_medium:
             priority = AlertPriority.MEDIUM
             title_en = f"Certification Renewal Reminder: {certification.name_en}"
             title_ar = f"تذكير تجديد الشهادة: {certification.name_ar}"
             message_en = f"The certification '{certification.name_en}' will expire in {days_until_expiry} days. Start renewal process."
-            message_ar = f"ستنتهي صلاحية الشهادة '{certification.name_ar}' خلال {days_until_expiry} يوماً. ابدأ عملية التجديد."
+            message_ar = (
+                f"ستنتهي صلاحية الشهادة '{certification.name_ar}' خلال {days_until_expiry} يوماً. ابدأ عملية التجديد."
+            )
         else:
             return None
 
@@ -313,21 +319,15 @@ class AlertService:
             priority = AlertPriority.HIGH
             title_en = f"Missing Compliance Document: {requirement_title_en}"
             title_ar = f"وثيقة امتثال مفقودة: {requirement_title_ar}"
-            message_en = (
-                f"Required document for '{requirement_title_en}' ({requirement_code}) is missing."
-            )
-            message_ar = (
-                f"الوثيقة المطلوبة لـ '{requirement_title_ar}' ({requirement_code}) مفقودة."
-            )
+            message_en = f"Required document for '{requirement_title_en}' ({requirement_code}) is missing."
+            message_ar = f"الوثيقة المطلوبة لـ '{requirement_title_ar}' ({requirement_code}) مفقودة."
             action_en = "Upload the required document to maintain compliance"
             action_ar = "تحميل الوثيقة المطلوبة للحفاظ على الامتثال"
         elif alert_subtype == "EXPIRED":
             priority = AlertPriority.HIGH
             title_en = f"Expired Compliance Document: {requirement_title_en}"
             title_ar = f"وثيقة امتثال منتهية: {requirement_title_ar}"
-            message_en = (
-                f"The document for '{requirement_title_en}' ({requirement_code}) has expired."
-            )
+            message_en = f"The document for '{requirement_title_en}' ({requirement_code}) has expired."
             message_ar = f"انتهت صلاحية الوثيقة لـ '{requirement_title_ar}' ({requirement_code})."
             action_en = "Upload a renewed document to maintain compliance"
             action_ar = "تحميل وثيقة متجددة للحفاظ على الامتثال"
@@ -476,18 +476,10 @@ class AlertService:
             "unread": sum(1 for a in alerts if not a.is_read),
             "unresolved": sum(1 for a in alerts if not a.is_resolved),
             "by_priority": {
-                "critical": sum(
-                    1 for a in alerts if a.priority == AlertPriority.CRITICAL and not a.is_resolved
-                ),
-                "high": sum(
-                    1 for a in alerts if a.priority == AlertPriority.HIGH and not a.is_resolved
-                ),
-                "medium": sum(
-                    1 for a in alerts if a.priority == AlertPriority.MEDIUM and not a.is_resolved
-                ),
-                "low": sum(
-                    1 for a in alerts if a.priority == AlertPriority.LOW and not a.is_resolved
-                ),
+                "critical": sum(1 for a in alerts if a.priority == AlertPriority.CRITICAL and not a.is_resolved),
+                "high": sum(1 for a in alerts if a.priority == AlertPriority.HIGH and not a.is_resolved),
+                "medium": sum(1 for a in alerts if a.priority == AlertPriority.MEDIUM and not a.is_resolved),
+                "low": sum(1 for a in alerts if a.priority == AlertPriority.LOW and not a.is_resolved),
             },
             "by_type": {},
         }

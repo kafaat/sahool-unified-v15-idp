@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 # Try structured logging first
 try:
     import structlog
+
     logger = structlog.get_logger(__name__)
 except ImportError:
     pass
@@ -204,8 +205,7 @@ class LocalKnowledgeIndex:
                     "Tolerates salinity better than wheat."
                 ),
                 "content_ar": (
-                    "الشعير محصول يتحمل الجفاف وينمو في تربة بدرجة حموضة 6.0-8.5. "
-                    "يتحمل الملوحة أفضل من القمح."
+                    "الشعير محصول يتحمل الجفاف وينمو في تربة بدرجة حموضة 6.0-8.5. يتحمل الملوحة أفضل من القمح."
                 ),
                 "tags": ["barley", "شعير", "drought", "cereal"],
             },
@@ -223,8 +223,7 @@ class LocalKnowledgeIndex:
                     "Fertigation can be integrated for precise nutrient delivery."
                 ),
                 "content_ar": (
-                    "يحقق الري بالتنقيط كفاءة استخدام مياه 90-95%. "
-                    "المسافة بين النقاطات تعتمد على نوع التربة."
+                    "يحقق الري بالتنقيط كفاءة استخدام مياه 90-95%. المسافة بين النقاطات تعتمد على نوع التربة."
                 ),
                 "tags": ["drip", "irrigation", "ري", "تنقيط", "efficiency"],
             },
@@ -254,10 +253,7 @@ class LocalKnowledgeIndex:
                     "Date palm Kc: 0.90-1.0 year-round. "
                     "Barley Kc: initial 0.3, mid 1.15, end 0.25."
                 ),
-                "content_ar": (
-                    "استخدام المياه للمحصول = ET0 × Kc. "
-                    "معامل القمح: أولي 0.4، منتصف 1.15، نهاية 0.25."
-                ),
+                "content_ar": ("استخدام المياه للمحصول = ET0 × Kc. معامل القمح: أولي 0.4، منتصف 1.15، نهاية 0.25."),
                 "tags": ["water", "ETc", "Kc", "requirement", "احتياج_مائي"],
             },
         ]
@@ -288,10 +284,7 @@ class LocalKnowledgeIndex:
                     "lacewings. Chemical control: Imidacloprid, Thiamethoxam. "
                     "Scout weekly during tillering to heading."
                 ),
-                "content_ar": (
-                    "حشرات المن تسبب خسائر في المحصول تصل إلى 70%. "
-                    "العتبة الاقتصادية: 10-15 حشرة لكل شطء."
-                ),
+                "content_ar": ("حشرات المن تسبب خسائر في المحصول تصل إلى 70%. العتبة الاقتصادية: 10-15 حشرة لكل شطء."),
                 "tags": ["aphid", "من", "wheat", "قمح", "pest", "ipm"],
             },
         ]
@@ -323,9 +316,7 @@ class LocalKnowledgeIndex:
                     "Potassium (K) improves drought tolerance and grain quality. "
                     "MOP (0-0-60): 40-60 kg K2O/ha. Soil test: P > 15 ppm, K > 120 ppm."
                 ),
-                "content_ar": (
-                    "الفسفور يعزز نمو الجذور والإزهار. البوتاسيوم يحسن تحمل الجفاف."
-                ),
+                "content_ar": ("الفسفور يعزز نمو الجذور والإزهار. البوتاسيوم يحسن تحمل الجفاف."),
                 "tags": ["phosphorus", "potassium", "فسفور", "بوتاسيوم", "fertilizer"],
             },
         ]
@@ -341,10 +332,7 @@ class LocalKnowledgeIndex:
                     "heat wave, apply potassium, use reflective mulch. "
                     "Date palms tolerate up to 50°C but fruit quality declines above 45°C."
                 ),
-                "content_ar": (
-                    "يحدث الإجهاد الحراري فوق 35 درجة مئوية لمعظم المحاصيل. "
-                    "القمح حساس أثناء الإزهار."
-                ),
+                "content_ar": ("يحدث الإجهاد الحراري فوق 35 درجة مئوية لمعظم المحاصيل. القمح حساس أثناء الإزهار."),
                 "tags": ["heat", "stress", "حرارة", "إجهاد", "temperature"],
             },
             {
@@ -356,10 +344,7 @@ class LocalKnowledgeIndex:
                     "Critical temperatures: wheat -5°C (vegetative), citrus -2°C, "
                     "tomato 0°C. Monitor weather alerts 48h ahead."
                 ),
-                "content_ar": (
-                    "يحدث ضرر الصقيع تحت 0 درجة مئوية. "
-                    "الحماية: رشاشات علوية، مراوح هوائية، أغطية."
-                ),
+                "content_ar": ("يحدث ضرر الصقيع تحت 0 درجة مئوية. الحماية: رشاشات علوية، مراوح هوائية، أغطية."),
                 "tags": ["frost", "صقيع", "protection", "cold", "برد"],
             },
         ]
@@ -391,8 +376,7 @@ class LocalKnowledgeIndex:
                     "Use drip irrigation to manage salt accumulation at root zone edges."
                 ),
                 "content_ar": (
-                    "ملوحة التربة تحدٍ كبير في المناطق الجافة. "
-                    "محاصيل متحملة للملوحة: الشعير، النخيل، القمح."
+                    "ملوحة التربة تحدٍ كبير في المناطق الجافة. محاصيل متحملة للملوحة: الشعير، النخيل، القمح."
                 ),
                 "tags": ["salinity", "ملوحة", "arid", "جاف", "soil", "leaching"],
             },
@@ -552,9 +536,7 @@ class KnowledgeServiceBridge:
         if _ULTRARAG_AVAILABLE and self._workflow_dir.exists():
             try:
                 # Initialize workflow engine
-                self._workflow_engine = WorkflowEngine(
-                    rag_pipeline=self._rag_pipeline
-                )
+                self._workflow_engine = WorkflowEngine(rag_pipeline=self._rag_pipeline)
 
                 # Load all workflow configurations
                 workflows = load_workflows_from_directory(str(self._workflow_dir))
@@ -953,9 +935,7 @@ class KnowledgeServiceBridge:
         top_k: int = 5,
     ) -> KnowledgeQueryResult:
         """Execute query using local keyword-based knowledge index."""
-        collections = DOMAIN_COLLECTION_MAP.get(
-            domain, DOMAIN_COLLECTION_MAP[QueryDomain.GENERAL]
-        )
+        collections = DOMAIN_COLLECTION_MAP.get(domain, DOMAIN_COLLECTION_MAP[QueryDomain.GENERAL])
 
         results = self._local_index.search(
             query=query,
@@ -972,12 +952,14 @@ class KnowledgeServiceBridge:
             answer_parts.append(doc.get("content", ""))
             if doc.get("content_ar"):
                 answer_ar_parts.append(doc["content_ar"])
-            sources.append({
-                "title": doc.get("title", ""),
-                "title_ar": doc.get("title_ar", ""),
-                "collection": doc.get("collection", ""),
-                "score": doc.get("score", 0),
-            })
+            sources.append(
+                {
+                    "title": doc.get("title", ""),
+                    "title_ar": doc.get("title_ar", ""),
+                    "collection": doc.get("collection", ""),
+                    "score": doc.get("score", 0),
+                }
+            )
 
         answer = "\n\n".join(answer_parts) if answer_parts else ""
         answer_ar = "\n\n".join(answer_ar_parts) if answer_ar_parts else ""
@@ -1004,29 +986,100 @@ class KnowledgeServiceBridge:
 
         domain_keywords: dict[QueryDomain, list[str]] = {
             QueryDomain.IRRIGATION: [
-                "irrigat", "water", "ري", "مياه", "drip", "sprinkler", "تنقيط",
-                "moisture", "رطوبة", "ETc", "ET0",
+                "irrigat",
+                "water",
+                "ري",
+                "مياه",
+                "drip",
+                "sprinkler",
+                "تنقيط",
+                "moisture",
+                "رطوبة",
+                "ETc",
+                "ET0",
             ],
             QueryDomain.PEST: [
-                "pest", "insect", "آفة", "حشرة", "weevil", "سوسة", "aphid", "من",
-                "worm", "locust", "جراد", "whitefly", "ذبابة",
+                "pest",
+                "insect",
+                "آفة",
+                "حشرة",
+                "weevil",
+                "سوسة",
+                "aphid",
+                "من",
+                "worm",
+                "locust",
+                "جراد",
+                "whitefly",
+                "ذبابة",
             ],
             QueryDomain.FERTILIZER: [
-                "fertiliz", "nutrient", "سماد", "nitrogen", "نيتروجين", "phosphor",
-                "فسفور", "potassium", "بوتاسيوم", "urea", "يوريا", "NPK", "deficien",
+                "fertiliz",
+                "nutrient",
+                "سماد",
+                "nitrogen",
+                "نيتروجين",
+                "phosphor",
+                "فسفور",
+                "potassium",
+                "بوتاسيوم",
+                "urea",
+                "يوريا",
+                "NPK",
+                "deficien",
             ],
             QueryDomain.WEATHER: [
-                "weather", "طقس", "temperature", "حرارة", "rain", "مطر", "frost",
-                "صقيع", "heat", "drought", "جفاف", "wind", "رياح", "climate", "مناخ",
+                "weather",
+                "طقس",
+                "temperature",
+                "حرارة",
+                "rain",
+                "مطر",
+                "frost",
+                "صقيع",
+                "heat",
+                "drought",
+                "جفاف",
+                "wind",
+                "رياح",
+                "climate",
+                "مناخ",
             ],
             QueryDomain.SOIL: [
-                "soil", "تربة", "pH", "salinity", "ملوحة", "clay", "sand", "رمل",
-                "organic matter", "EC", "drainage", "صرف",
+                "soil",
+                "تربة",
+                "pH",
+                "salinity",
+                "ملوحة",
+                "clay",
+                "sand",
+                "رمل",
+                "organic matter",
+                "EC",
+                "drainage",
+                "صرف",
             ],
             QueryDomain.CROP: [
-                "crop", "محصول", "wheat", "قمح", "barley", "شعير", "date", "نخيل",
-                "tomato", "طماطم", "growth", "نمو", "yield", "إنتاج", "planting", "زراعة",
-                "harvest", "حصاد", "variety", "صنف",
+                "crop",
+                "محصول",
+                "wheat",
+                "قمح",
+                "barley",
+                "شعير",
+                "date",
+                "نخيل",
+                "tomato",
+                "طماطم",
+                "growth",
+                "نمو",
+                "yield",
+                "إنتاج",
+                "planting",
+                "زراعة",
+                "harvest",
+                "حصاد",
+                "variety",
+                "صنف",
             ],
         }
 

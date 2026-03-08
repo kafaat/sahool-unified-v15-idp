@@ -74,12 +74,8 @@ class ChecklistItem(BaseModel):
     # Content | المحتوى
     title_ar: str = Field(..., description="Title in Arabic | العنوان بالعربية")
     title_en: str = Field(..., description="Title in English | العنوان بالإنجليزية")
-    requirement_ar: str = Field(
-        ..., description="Requirement description in Arabic | وصف المتطلب بالعربية"
-    )
-    requirement_en: str = Field(
-        ..., description="Requirement description in English | وصف المتطلب بالإنجليزية"
-    )
+    requirement_ar: str = Field(..., description="Requirement description in Arabic | وصف المتطلب بالعربية")
+    requirement_en: str = Field(..., description="Requirement description in English | وصف المتطلب بالإنجليزية")
 
     # Compliance criteria | معايير الامتثال
     compliance_criteria_ar: list[str] = Field(
@@ -221,9 +217,7 @@ class Checklist(BaseModel):
         default=0,
         description="Number of Minor Must items | عدد العناصر الإلزامية الثانوية",
     )
-    recommendation_count: int = Field(
-        default=0, description="Number of Recommendations | عدد التوصيات"
-    )
+    recommendation_count: int = Field(default=0, description="Number of Recommendations | عدد التوصيات")
 
     # Metadata | بيانات وصفية
     is_active: bool = True

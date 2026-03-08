@@ -198,9 +198,7 @@ class WebSocketMessageHandler:
         }
 
         # Broadcast (excluding sender)
-        sent_count = await self.room_manager.broadcast_to_room(
-            room_id, broadcast_msg, exclude_connection=connection_id
-        )
+        sent_count = await self.room_manager.broadcast_to_room(room_id, broadcast_msg, exclude_connection=connection_id)
 
         return {
             "type": "broadcast_sent",
@@ -287,9 +285,7 @@ class WebSocketMessageHandler:
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
-        await self.room_manager.broadcast_to_room(
-            room_id, typing_msg, exclude_connection=connection_id
-        )
+        await self.room_manager.broadcast_to_room(room_id, typing_msg, exclude_connection=connection_id)
 
         return {
             "type": "typing_sent",
@@ -321,9 +317,7 @@ class WebSocketMessageHandler:
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
-        await self.room_manager.broadcast_to_room(
-            room_id, read_msg, exclude_connection=connection_id
-        )
+        await self.room_manager.broadcast_to_room(room_id, read_msg, exclude_connection=connection_id)
 
         return {
             "type": "read_sent",

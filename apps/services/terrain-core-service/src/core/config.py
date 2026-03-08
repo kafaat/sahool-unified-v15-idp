@@ -65,9 +65,7 @@ class Settings(BaseSettings):
 
     # Redis Configuration
     REDIS_URL: str | None = Field(default=None, description="Redis URL | رابط Redis")
-    CACHE_TTL_SECONDS: int = Field(
-        default=3600, description="Cache TTL in seconds | مدة التخزين المؤقت"
-    )
+    CACHE_TTL_SECONDS: int = Field(default=3600, description="Cache TTL in seconds | مدة التخزين المؤقت")
 
     # DEM Data Sources
     DEFAULT_DEM_SOURCE: DEMSource = Field(
@@ -94,33 +92,21 @@ class Settings(BaseSettings):
     MAX_PROCESSING_AREA_KM2: float = Field(
         default=1000.0, description="Maximum processing area in km² | أقصى مساحة معالجة"
     )
-    DEFAULT_CRS: str = Field(
-        default="EPSG:32637", description="Default CRS (UTM 37N for Middle East)"
-    )
+    DEFAULT_CRS: str = Field(default="EPSG:32637", description="Default CRS (UTM 37N for Middle East)")
     RESAMPLING_METHOD: ResamplingMethod = Field(
         default=ResamplingMethod.BILINEAR,
         description="Default resampling method | طريقة إعادة التشكيل الافتراضية",
     )
 
     # Terrain Analysis Configuration
-    CONTOUR_INTERVAL_M: float = Field(
-        default=5.0, description="Contour interval in meters | فترة خطوط الكنتور"
-    )
-    MIN_SLOPE_DEGREES: float = Field(
-        default=0.0, description="Minimum slope threshold | أدنى حد للميل"
-    )
-    MAX_SLOPE_DEGREES: float = Field(
-        default=90.0, description="Maximum slope threshold | أقصى حد للميل"
-    )
-    FLOW_THRESHOLD: int = Field(
-        default=100, description="Flow accumulation threshold | عتبة تراكم التدفق"
-    )
+    CONTOUR_INTERVAL_M: float = Field(default=5.0, description="Contour interval in meters | فترة خطوط الكنتور")
+    MIN_SLOPE_DEGREES: float = Field(default=0.0, description="Minimum slope threshold | أدنى حد للميل")
+    MAX_SLOPE_DEGREES: float = Field(default=90.0, description="Maximum slope threshold | أقصى حد للميل")
+    FLOW_THRESHOLD: int = Field(default=100, description="Flow accumulation threshold | عتبة تراكم التدفق")
 
     # Storage Configuration
     TEMP_DIR: str = Field(default="/tmp/terrain", description="Temporary directory | المجلد المؤقت")
-    MAX_UPLOAD_SIZE_MB: int = Field(
-        default=500, description="Maximum upload size in MB | أقصى حجم للرفع"
-    )
+    MAX_UPLOAD_SIZE_MB: int = Field(default=500, description="Maximum upload size in MB | أقصى حجم للرفع")
     DEM_CACHE_DIR: str = Field(
         default="/tmp/terrain/dem_cache",
         description="DEM cache directory | مجلد تخزين الارتفاعات",

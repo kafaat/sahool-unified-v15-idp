@@ -399,10 +399,7 @@ If this wasn't you, change your password immediately."""
             # Delay to respect rate limits
             await asyncio.sleep(delay_between_messages)
 
-        logger.info(
-            f"📱 Telegram bulk send: {success_count} successful, "
-            f"{failure_count} failed out of {len(chat_ids)}"
-        )
+        logger.info(f"📱 Telegram bulk send: {success_count} successful, {failure_count} failed out of {len(chat_ids)}")
 
         return {
             "success_count": success_count,

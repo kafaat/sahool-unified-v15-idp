@@ -78,11 +78,13 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Only modules within this package are allowed — the set is hardcoded
 # to prevent arbitrary code loading (addresses Semgrep importlib finding).
-_ALLOWED_MODULES: frozenset[str] = frozenset({
-    "shared.drift_detection.engine",
-    "shared.drift_detection.quality_gates",
-    "shared.drift_detection.remediation",
-})
+_ALLOWED_MODULES: frozenset[str] = frozenset(
+    {
+        "shared.drift_detection.engine",
+        "shared.drift_detection.quality_gates",
+        "shared.drift_detection.remediation",
+    }
+)
 
 _lazy_imports: dict[str, tuple[str, str]] = {
     "DriftDetectionEngine": ("shared.drift_detection.engine", "DriftDetectionEngine"),
@@ -98,9 +100,7 @@ def __getattr__(name: str):
     if name in _lazy_imports:
         module_path, attr = _lazy_imports[name]
         if module_path not in _ALLOWED_MODULES:  # noqa: S105 — not a password
-            raise ImportError(
-                f"Module {module_path!r} is not in the allow-list"
-            )
+            raise ImportError(f"Module {module_path!r} is not in the allow-list")
         import importlib
 
         mod = importlib.import_module(module_path)  # nosemgrep: python.lang.security.audit.non-literal-import

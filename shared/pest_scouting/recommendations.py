@@ -1031,11 +1031,7 @@ def generate_treatment_recommendation(
         urgency = TreatmentUrgency.IMMEDIATE
     elif infestation_level == InfestationLevel.HIGH:
         urgency = TreatmentUrgency.URGENT
-    elif (
-        infestation_level == InfestationLevel.MODERATE
-        or assessment
-        and assessment.exceeds_action_threshold
-    ):
+    elif infestation_level == InfestationLevel.MODERATE or assessment and assessment.exceeds_action_threshold:
         urgency = TreatmentUrgency.SOON
     else:
         urgency = TreatmentUrgency.MONITOR
@@ -1099,9 +1095,7 @@ def generate_treatment_recommendation(
 
     # Weather requirements
     rec.weather_requirements = "Temperature 15-30C, wind <15 km/h, no rain expected for 4+ hours"
-    rec.weather_requirements_ar = (
-        "درجة حرارة 15-30 مئوية، رياح <15 كم/ساعة، لا أمطار متوقعة لـ 4+ ساعات"
-    )
+    rec.weather_requirements_ar = "درجة حرارة 15-30 مئوية، رياح <15 كم/ساعة، لا أمطار متوقعة لـ 4+ ساعات"
 
     # Set optimal window
     now = datetime.now(UTC)

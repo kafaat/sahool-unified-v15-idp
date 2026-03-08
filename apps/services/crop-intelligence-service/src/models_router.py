@@ -53,6 +53,7 @@ except ImportError:
         """Fallback for dev/test when shared.auth is not importable."""
         return {"id": "anonymous", "tenant_id": "default"}
 
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/models", tags=["Process Models"], dependencies=[Depends(get_current_user)])
@@ -79,28 +80,14 @@ class ET0Request(BaseModel):
 
     tmax_c: float = Field(..., ge=-50, le=60, description="Max temperature °C")
     tmin_c: float = Field(..., ge=-50, le=60, description="Min temperature °C")
-    solar_radiation_mj_m2: float = Field(
-        ..., ge=0, le=50, description="Daily solar radiation MJ/m²"
-    )
-    relative_humidity_pct: float = Field(
-        ..., ge=0, le=100, description="Mean relative humidity %"
-    )
-    wind_speed_m_s: float = Field(
-        ..., ge=0, le=50, description="Mean wind speed at 2 m m/s"
-    )
-    elevation_m: float = Field(
-        default=0.0, ge=-500, le=5000, description="Site elevation m a.s.l."
-    )
-    latitude_deg: float = Field(
-        default=25.0, ge=-90, le=90, description="Site latitude °"
-    )
-    day_of_year: int = Field(
-        default=180, ge=1, le=366, description="Day of year (1-366)"
-    )
+    solar_radiation_mj_m2: float = Field(..., ge=0, le=50, description="Daily solar radiation MJ/m²")
+    relative_humidity_pct: float = Field(..., ge=0, le=100, description="Mean relative humidity %")
+    wind_speed_m_s: float = Field(..., ge=0, le=50, description="Mean wind speed at 2 m m/s")
+    elevation_m: float = Field(default=0.0, ge=-500, le=5000, description="Site elevation m a.s.l.")
+    latitude_deg: float = Field(default=25.0, ge=-90, le=90, description="Site latitude °")
+    day_of_year: int = Field(default=180, ge=1, le=366, description="Day of year (1-366)")
     # Optional Shuttleworth-Wallace dual-source
-    lai: float | None = Field(
-        default=None, ge=0, le=15, description="Leaf Area Index (for dual-source ET)"
-    )
+    lai: float | None = Field(default=None, ge=0, le=15, description="Leaf Area Index (for dual-source ET)")
     kc: float | None = Field(
         default=None,
         ge=0,
@@ -140,9 +127,7 @@ def run_et0(req: ET0Request) -> ModelRunResponse:
             wind_speed_m_s=req.wind_speed_m_s,
         )
 
-        et0 = penman_monteith_et0(
-            weather, elevation_m=req.elevation_m, lat_deg=req.latitude_deg
-        )
+        et0 = penman_monteith_et0(weather, elevation_m=req.elevation_m, lat_deg=req.latitude_deg)
 
         warnings: list[str] = []
         result: dict[str, Any] = {
@@ -186,33 +171,19 @@ def run_et0(req: ET0Request) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("ET0 run failed")
-        raise HTTPException(
-            http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
 
 
 # ── 2. QUEFTS fertiliser recommendation ─────────────────────────────────────
 
 
 class QUEFTSRequest(BaseModel):
-    crop_type: str = Field(
-        default="wheat", description="Crop type (wheat, maize, rice)"
-    )
-    target_yield_t_ha: float = Field(
-        ..., ge=0.1, le=30.0, description="Target yield t/ha"
-    )
-    soil_n_kg_ha: float = Field(
-        default=50.0, ge=0, le=500, description="Soil N supply kg N/ha"
-    )
-    soil_p_kg_ha: float = Field(
-        default=20.0, ge=0, le=200, description="Soil P supply kg P/ha"
-    )
-    soil_k_kg_ha: float = Field(
-        default=100.0, ge=0, le=800, description="Soil K supply kg K/ha"
-    )
-    field_efficiency: float = Field(
-        default=0.85, ge=0.1, le=1.0, description="Nutrient use efficiency (0-1)"
-    )
+    crop_type: str = Field(default="wheat", description="Crop type (wheat, maize, rice)")
+    target_yield_t_ha: float = Field(..., ge=0.1, le=30.0, description="Target yield t/ha")
+    soil_n_kg_ha: float = Field(default=50.0, ge=0, le=500, description="Soil N supply kg N/ha")
+    soil_p_kg_ha: float = Field(default=20.0, ge=0, le=200, description="Soil P supply kg P/ha")
+    soil_k_kg_ha: float = Field(default=100.0, ge=0, le=800, description="Soil K supply kg K/ha")
+    field_efficiency: float = Field(default=0.85, ge=0.1, le=1.0, description="Nutrient use efficiency (0-1)")
 
 
 @router.post("/quefts/recommend", response_model=ModelRunResponse)
@@ -243,20 +214,14 @@ def run_quefts(req: QUEFTSRequest) -> ModelRunResponse:
             k_supply_kg_ha=req.soil_k_kg_ha,
         )
 
-        result_obj = model.recommend(
-            crop, supply, target_yield_t_ha=req.target_yield_t_ha
-        )
+        result_obj = model.recommend(crop, supply, target_yield_t_ha=req.target_yield_t_ha)
         rec = result_obj.outputs
 
         warnings: list[str] = []
         if req.soil_n_kg_ha < 10:
-            warnings.append(
-                "Very low soil N – consider soil test confirmation before applying"
-            )
+            warnings.append("Very low soil N – consider soil test confirmation before applying")
         if req.target_yield_t_ha > 10:
-            warnings.append(
-                "High target yield – verify against local yield potential records"
-            )
+            warnings.append("High target yield – verify against local yield potential records")
 
         return ModelRunResponse(
             model_name="QUEFTS",
@@ -266,32 +231,20 @@ def run_quefts(req: QUEFTSRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("QUEFTS run failed")
-        raise HTTPException(
-            http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
 
 
 # ── 3. Soil carbon / N cycling simulation ────────────────────────────────────
 
 
 class SoilCarbonRequest(BaseModel):
-    soc_active_t_ha: float = Field(
-        default=0.5, ge=0, le=50, description="Active C pool t C/ha"
-    )
-    soc_slow_t_ha: float = Field(
-        default=10.0, ge=0, le=200, description="Slow C pool t C/ha"
-    )
-    soc_passive_t_ha: float = Field(
-        default=30.0, ge=0, le=500, description="Passive C pool t C/ha"
-    )
-    clay_fraction: float = Field(
-        default=0.25, ge=0, le=1.0, description="Clay fraction 0-1"
-    )
+    soc_active_t_ha: float = Field(default=0.5, ge=0, le=50, description="Active C pool t C/ha")
+    soc_slow_t_ha: float = Field(default=10.0, ge=0, le=200, description="Slow C pool t C/ha")
+    soc_passive_t_ha: float = Field(default=30.0, ge=0, le=500, description="Passive C pool t C/ha")
+    clay_fraction: float = Field(default=0.25, ge=0, le=1.0, description="Clay fraction 0-1")
     mean_annual_temp_c: float = Field(default=18.0, ge=-20, le=50)
     mean_annual_precip_mm: float = Field(default=400.0, ge=0, le=5000)
-    carbon_input_t_ha_yr: float = Field(
-        default=2.0, ge=0, le=50, description="Annual C input t C/ha/yr"
-    )
+    carbon_input_t_ha_yr: float = Field(default=2.0, ge=0, le=50, description="Annual C input t C/ha/yr")
     simulation_years: int = Field(default=1, ge=1, le=100)
 
 
@@ -332,9 +285,7 @@ def run_soil_carbon(req: SoilCarbonRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("Soil carbon simulation failed")
-        raise HTTPException(
-            http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
 
 
 # ── 4. Soil water balance (SWB) ─────────────────────────────────────────────
@@ -350,16 +301,12 @@ class SWBRequest(BaseModel):
     irrigation_mm: float = Field(default=0.0, ge=0, le=500)
     kc: float = Field(default=1.0, ge=0, le=2.0)
     # Soil
-    soil_water_mm: float = Field(
-        default=200.0, ge=0, le=1000, description="Current soil water mm"
-    )
+    soil_water_mm: float = Field(default=200.0, ge=0, le=1000, description="Current soil water mm")
     field_capacity_mm: float = Field(default=250.0, ge=10, le=1000)
     wilting_point_mm: float = Field(default=100.0, ge=0, le=800)
     total_available_water_mm: float = Field(default=150.0, ge=0, le=800)
     # SCS-CN
-    curve_number: float = Field(
-        default=75.0, ge=30, le=100, description="SCS curve number"
-    )
+    curve_number: float = Field(default=75.0, ge=30, le=100, description="SCS curve number")
     latitude_deg: float = Field(default=25.0, ge=-90, le=90)
     day_of_year: int = Field(default=180, ge=1, le=366)
 
@@ -392,9 +339,7 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
 
         # Runoff via SCS-CN
         cn = int(round(req.curve_number))
-        runoff_data = hydro.estimate_event_runoff(
-            precipitation_mm=req.precipitation_mm, cn=cn
-        )
+        runoff_data = hydro.estimate_event_runoff(precipitation_mm=req.precipitation_mm, cn=cn)
 
         # Simple daily balance
         effective_rain = req.precipitation_mm - runoff_data.get("runoff_mm", 0.0)
@@ -419,9 +364,7 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("SWB run failed")
-        raise HTTPException(
-            http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
 
 
 # ── 5. PROSAIL inversion ─────────────────────────────────────────────────────
@@ -432,9 +375,7 @@ class PROSAILRequest(BaseModel):
 
     red: float = Field(..., ge=0, le=1, description="Red band reflectance (0-1)")
     nir: float = Field(..., ge=0, le=1, description="NIR band reflectance (0-1)")
-    swir: float | None = Field(
-        default=None, ge=0, le=1, description="SWIR reflectance (optional)"
-    )
+    swir: float | None = Field(default=None, ge=0, le=1, description="SWIR reflectance (optional)")
     solar_zenith_deg: float = Field(default=30.0, ge=0, le=90)
     view_zenith_deg: float = Field(default=0.0, ge=0, le=90)
     hot_spot: float = Field(default=0.05, ge=0, le=1)
@@ -477,9 +418,7 @@ def run_prosail_inversion(req: PROSAILRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("PROSAIL inversion failed")
-        raise HTTPException(
-            http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
 
 
 # ── Helper ───────────────────────────────────────────────────────────────────
@@ -490,6 +429,4 @@ def _doy_to_date(doy: int):
     from datetime import date
 
     year = date.today().year
-    return date(year, 1, 1).replace(year=year) + __import__("datetime").timedelta(
-        days=doy - 1
-    )
+    return date(year, 1, 1).replace(year=year) + __import__("datetime").timedelta(days=doy - 1)

@@ -48,12 +48,8 @@ class PreferencesService:
                     "event_type": pref.event_type,
                     "channels": pref.channels or [],
                     "enabled": pref.enabled,
-                    "quiet_hours_start": (
-                        pref.quiet_hours_start.strftime("%H:%M") if pref.quiet_hours_start else None
-                    ),
-                    "quiet_hours_end": (
-                        pref.quiet_hours_end.strftime("%H:%M") if pref.quiet_hours_end else None
-                    ),
+                    "quiet_hours_start": (pref.quiet_hours_start.strftime("%H:%M") if pref.quiet_hours_start else None),
+                    "quiet_hours_end": (pref.quiet_hours_end.strftime("%H:%M") if pref.quiet_hours_end else None),
                     "metadata": pref.metadata,
                     "created_at": pref.created_at.isoformat(),
                     "updated_at": pref.updated_at.isoformat(),
@@ -61,11 +57,15 @@ class PreferencesService:
                 for pref in preferences
             ]
 
-            logger.info(f"Retrieved {len(result)} preferences for user {user_id}")
+            logger.info(
+                "Retrieved %d preferences for user %s",
+                len(result),
+                str(user_id).replace("\n", " ").replace("\r", " "),
+            )
             return result
 
         except Exception as e:
-            logger.error(f"Error getting user preferences: {e}")
+            logger.error("Error getting user preferences: %s", type(e).__name__)
             raise
 
     @staticmethod
@@ -109,7 +109,11 @@ class PreferencesService:
                 metadata=metadata,
             )
 
-            logger.info(f"Updated preference for user {user_id}, event {event_type}")
+            logger.info(
+                "Updated preference for user %s, event %s",
+                str(user_id).replace("\n", " ").replace("\r", " "),
+                str(event_type).replace("\n", " ").replace("\r", " "),
+            )
 
             return {
                 "id": str(preference.id),
@@ -118,21 +122,17 @@ class PreferencesService:
                 "channels": preference.channels,
                 "enabled": preference.enabled,
                 "quiet_hours_start": (
-                    preference.quiet_hours_start.strftime("%H:%M")
-                    if preference.quiet_hours_start
-                    else None
+                    preference.quiet_hours_start.strftime("%H:%M") if preference.quiet_hours_start else None
                 ),
                 "quiet_hours_end": (
-                    preference.quiet_hours_end.strftime("%H:%M")
-                    if preference.quiet_hours_end
-                    else None
+                    preference.quiet_hours_end.strftime("%H:%M") if preference.quiet_hours_end else None
                 ),
                 "metadata": preference.metadata,
                 "updated_at": preference.updated_at.isoformat(),
             }
 
         except Exception as e:
-            logger.error(f"Error updating event preference: {e}")
+            logger.error("Error updating event preference: %s", type(e).__name__)
             raise
 
     @staticmethod
@@ -163,9 +163,7 @@ class PreferencesService:
                     if not (0 <= hour <= 23 and 0 <= minute <= 59):
                         raise ValueError
                 except (ValueError, AttributeError):
-                    raise ValueError(
-                        f"Invalid time format for quiet_hours_start: {quiet_hours_start}. Expected HH:MM"
-                    )
+                    raise ValueError(f"Invalid time format for quiet_hours_start: {quiet_hours_start}. Expected HH:MM")
 
             if quiet_hours_end:
                 try:
@@ -173,9 +171,7 @@ class PreferencesService:
                     if not (0 <= hour <= 23 and 0 <= minute <= 59):
                         raise ValueError
                 except (ValueError, AttributeError):
-                    raise ValueError(
-                        f"Invalid time format for quiet_hours_end: {quiet_hours_end}. Expected HH:MM"
-                    )
+                    raise ValueError(f"Invalid time format for quiet_hours_end: {quiet_hours_end}. Expected HH:MM")
 
             # Update quiet hours
             success = await NotificationPreferenceRepository.update_quiet_hours(
@@ -186,7 +182,7 @@ class PreferencesService:
             )
 
             if success:
-                logger.info(f"Updated quiet hours for user {user_id}")
+                logger.info("Updated quiet hours for user %s", str(user_id).replace("\n", " ").replace("\r", " "))
                 return {
                     "success": True,
                     "message": "Quiet hours updated successfully",
@@ -200,10 +196,10 @@ class PreferencesService:
                 }
 
         except ValueError as e:
-            logger.warning(f"Invalid quiet hours: {e}")
+            logger.warning("Invalid quiet hours: %s", type(e).__name__)
             raise
         except Exception as e:
-            logger.error(f"Error setting quiet hours: {e}")
+            logger.error("Error setting quiet hours: %s", type(e).__name__)
             raise
 
     @staticmethod
@@ -256,7 +252,11 @@ class PreferencesService:
                 )
                 updated_count += 1
 
-            logger.info(f"Bulk updated {updated_count} preferences for user {user_id}")
+            logger.info(
+                "Bulk updated %d preferences for user %s",
+                updated_count,
+                str(user_id).replace("\n", " ").replace("\r", " "),
+            )
 
             return {
                 "success": True,
@@ -266,7 +266,7 @@ class PreferencesService:
             }
 
         except Exception as e:
-            logger.error(f"Error in bulk update preferences: {e}")
+            logger.error("Error in bulk update preferences: %s", type(e).__name__)
             raise
 
     @staticmethod
@@ -304,14 +304,10 @@ class PreferencesService:
                 "channels": preference.channels or [],
                 "enabled": preference.enabled,
                 "quiet_hours_start": (
-                    preference.quiet_hours_start.strftime("%H:%M")
-                    if preference.quiet_hours_start
-                    else None
+                    preference.quiet_hours_start.strftime("%H:%M") if preference.quiet_hours_start else None
                 ),
                 "quiet_hours_end": (
-                    preference.quiet_hours_end.strftime("%H:%M")
-                    if preference.quiet_hours_end
-                    else None
+                    preference.quiet_hours_end.strftime("%H:%M") if preference.quiet_hours_end else None
                 ),
                 "metadata": preference.metadata,
                 "created_at": preference.created_at.isoformat(),
@@ -319,7 +315,7 @@ class PreferencesService:
             }
 
         except Exception as e:
-            logger.error(f"Error getting event preference: {e}")
+            logger.error("Error getting event preference: %s", type(e).__name__)
             raise
 
     @staticmethod
@@ -349,7 +345,11 @@ class PreferencesService:
             )
 
             if not is_enabled:
-                logger.debug(f"Event {event_type} disabled for user {user_id}")
+                logger.debug(
+                    "Event %s disabled for user %s",
+                    str(event_type).replace("\n", " ").replace("\r", " "),
+                    str(user_id).replace("\n", " ").replace("\r", " "),
+                )
                 return False, []
 
             # Get preferred channels
@@ -364,11 +364,14 @@ class PreferencesService:
                 channels = ["in_app", "push"]
 
             logger.debug(
-                f"Notification allowed for user {user_id}, event {event_type}, channels: {channels}"
+                "Notification allowed for user %s, event %s, channels: %s",
+                str(user_id).replace("\n", " ").replace("\r", " "),
+                str(event_type).replace("\n", " ").replace("\r", " "),
+                channels,
             )
             return True, channels
 
         except Exception as e:
-            logger.error(f"Error checking if should send: {e}")
+            logger.error("Error checking if should send: %s", type(e).__name__)
             # Default to allowing notification with in_app channel on error
             return True, ["in_app"]

@@ -182,8 +182,4 @@ def get_all_locations() -> list:
 
 def get_locations_by_region(region: str) -> list:
     """Get locations filtered by region (highland, coastal, desert, island)"""
-    return [
-        {"id": loc_id, **data}
-        for loc_id, data in YEMEN_LOCATIONS.items()
-        if data.get("region") == region
-    ]
+    return [{"id": loc_id, **data} for loc_id, data in YEMEN_LOCATIONS.items() if data.get("region") == region]

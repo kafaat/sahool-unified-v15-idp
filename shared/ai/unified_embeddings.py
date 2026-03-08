@@ -62,9 +62,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _ARABIC_PATTERN = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+")
-_DIACRITICS_PATTERN = re.compile(
-    r"[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]"
-)
+_DIACRITICS_PATTERN = re.compile(r"[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]")
 
 # Tatweel (kashida) character used for stretching Arabic text
 _TATWEEL = "\u0640"
@@ -103,7 +101,7 @@ class EmbeddingConsistencyConfig:
     default_dimension: int = 384
     fallback_models: list[str] = field(
         default_factory=lambda: [
-            "nomic-embed-text",        # Ollama fallback
+            "nomic-embed-text",  # Ollama fallback
             "text-embedding-3-small",  # OpenAI fallback
         ]
     )
@@ -270,8 +268,7 @@ class UnifiedEmbeddingsManager:
                 # Validate dimension
                 if len(result.embedding) != self._config.default_dimension:
                     raise ValueError(
-                        f"Dimension mismatch: got {len(result.embedding)}, "
-                        f"expected {self._config.default_dimension}"
+                        f"Dimension mismatch: got {len(result.embedding)}, expected {self._config.default_dimension}"
                     )
 
                 # Optional normalisation
@@ -329,10 +326,7 @@ class UnifiedEmbeddingsManager:
         result_ar = await self.embed(text_ar)
 
         # Combined = element-wise average of the two vectors
-        combined = [
-            (a + b) / 2.0
-            for a, b in zip(result_en.embedding, result_ar.embedding)
-        ]
+        combined = [(a + b) / 2.0 for a, b in zip(result_en.embedding, result_ar.embedding)]
         if self._config.normalize:
             combined = _l2_normalize(combined)
 
@@ -587,7 +581,9 @@ class UnifiedEmbedder:
                 # Project if needed
                 if self._target_dimension and len(result.embedding) != self._target_dimension:
                     result.embedding[:] = _project_embedding(
-                        result.embedding, len(result.embedding), self._target_dimension,
+                        result.embedding,
+                        len(result.embedding),
+                        self._target_dimension,
                     )
                 return result
             except Exception as exc:

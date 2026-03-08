@@ -200,9 +200,7 @@ async def example_batch_tasks():
 
     print(f"📤 Sending {len(tasks)} tasks in batch...")
 
-    results = await client.batch_send_tasks(
-        tasks=tasks, agent_card=agent_card, conversation_id="batch-example-123"
-    )
+    results = await client.batch_send_tasks(tasks=tasks, agent_card=agent_card, conversation_id="batch-example-123")
 
     print(f"\n📥 Received {len(results)} results:")
     for i, result in enumerate(results, 1):

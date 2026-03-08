@@ -193,9 +193,7 @@ def test_get_user_audit_trail():
     from src.main import app
 
     client = TestClient(app)
-    response = client.get(
-        "/api/v1/audit/users/user-123/trail", headers={"X-Tenant-Id": "test-tenant"}
-    )
+    response = client.get("/api/v1/audit/users/user-123/trail", headers={"X-Tenant-Id": "test-tenant"})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -207,9 +205,7 @@ def test_get_resource_audit_trail():
     from src.main import app
 
     client = TestClient(app)
-    response = client.get(
-        "/api/v1/audit/resources/field/field-123/trail", headers={"X-Tenant-Id": "test-tenant"}
-    )
+    response = client.get("/api/v1/audit/resources/field/field-123/trail", headers={"X-Tenant-Id": "test-tenant"})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data

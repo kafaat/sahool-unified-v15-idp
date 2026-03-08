@@ -133,9 +133,7 @@ class WeatherPublisher:
         subject = get_subject(WEATHER_ALERT)
         await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
 
-        print(
-            f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}"
-        )
+        print(f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}")
         return env.event_id
 
     async def publish_forecast_issued(

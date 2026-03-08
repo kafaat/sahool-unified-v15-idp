@@ -300,7 +300,9 @@ class KnowledgeValidator:
                 )
 
         if doc.temporal_resolution_days is not None:
-            if not (self.TEMPORAL_RESOLUTION_RANGE[0] <= doc.temporal_resolution_days <= self.TEMPORAL_RESOLUTION_RANGE[1]):
+            if not (
+                self.TEMPORAL_RESOLUTION_RANGE[0] <= doc.temporal_resolution_days <= self.TEMPORAL_RESOLUTION_RANGE[1]
+            ):
                 result.add_warning(
                     "temporal_resolution_days",
                     f"Temporal resolution {doc.temporal_resolution_days} days outside typical range 1-365",
@@ -346,7 +348,9 @@ class KnowledgeValidator:
                 )
 
         if doc.soil_sampling_grid_m is not None:
-            if not (self.SOIL_SAMPLING_GRID_M_RANGE[0] <= doc.soil_sampling_grid_m <= self.SOIL_SAMPLING_GRID_M_RANGE[1]):
+            if not (
+                self.SOIL_SAMPLING_GRID_M_RANGE[0] <= doc.soil_sampling_grid_m <= self.SOIL_SAMPLING_GRID_M_RANGE[1]
+            ):
                 result.add_warning(
                     "soil_sampling_grid_m",
                     f"Soil sampling grid {doc.soil_sampling_grid_m}m outside typical range {self.SOIL_SAMPLING_GRID_M_RANGE[0]}-{self.SOIL_SAMPLING_GRID_M_RANGE[1]}",

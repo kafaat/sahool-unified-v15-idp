@@ -55,9 +55,7 @@ class AuditService:
         """
         # Count findings by severity
         # عد النتائج حسب الخطورة
-        critical_findings = sum(
-            1 for nc in non_conformities if nc.severity == SeverityLevel.CRITICAL
-        )
+        critical_findings = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.CRITICAL)
         major_findings = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.MAJOR)
         minor_findings = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.MINOR)
         observations = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.OBSERVATION)
@@ -110,9 +108,7 @@ class AuditService:
             executive_summary_en=executive_summary_en,
             recommendations=recommendations,
             follow_up_required=(audit_status != "passed"),
-            follow_up_deadline=(
-                datetime.now(UTC) + timedelta(days=90) if audit_status != "passed" else None
-            ),
+            follow_up_deadline=(datetime.now(UTC) + timedelta(days=90) if audit_status != "passed" else None),
         )
 
         return audit_result
@@ -200,20 +196,15 @@ class AuditService:
             if "1." in nc.control_point_number  # AF.1.x.x = Site Management/Records
         )
         if record_keeping_issues > 2:
-            recommendations.append(
-                "تحسين نظام حفظ السجلات والوثائق - Improve record keeping and documentation system"
-            )
+            recommendations.append("تحسين نظام حفظ السجلات والوثائق - Improve record keeping and documentation system")
 
         # General recommendations
         # توصيات عامة
         if len(non_conformities) > 0:
             recommendations.append(
-                "تدريب الموظفين على متطلبات معايير GlobalGAP IFA - "
-                "Train staff on GlobalGAP IFA standard requirements"
+                "تدريب الموظفين على متطلبات معايير GlobalGAP IFA - Train staff on GlobalGAP IFA standard requirements"
             )
-            recommendations.append(
-                "إجراء تدقيق داخلي منتظم كل 6 أشهر - Conduct regular internal audits every 6 months"
-            )
+            recommendations.append("إجراء تدقيق داخلي منتظم كل 6 أشهر - Conduct regular internal audits every 6 months")
 
         return recommendations
 
@@ -227,9 +218,7 @@ class AuditService:
         Generate executive summary in Arabic
         إنشاء الملخص التنفيذي بالعربية
         """
-        status_text = {"passed": "ناجح", "failed": "فاشل", "conditional": "مشروط"}.get(
-            audit_status, "غير محدد"
-        )
+        status_text = {"passed": "ناجح", "failed": "فاشل", "conditional": "مشروط"}.get(audit_status, "غير محدد")
 
         summary = f"""
 ملخص تنفيذي لتدقيق الامتثال لمعايير GlobalGAP IFA v6.0
@@ -312,9 +301,7 @@ Recommendation: {"Immediate corrective actions required" if audit_status != "pas
         """
         return self.audit_results.get(audit_id)
 
-    async def get_farm_audit_history(
-        self, farm_id: str, tenant_id: str, limit: int = 10
-    ) -> list[AuditResult]:
+    async def get_farm_audit_history(self, farm_id: str, tenant_id: str, limit: int = 10) -> list[AuditResult]:
         """
         Get audit history for a farm
         الحصول على سجل التدقيق للمزرعة
@@ -330,9 +317,7 @@ Recommendation: {"Immediate corrective actions required" if audit_status != "pas
         # In real implementation, query database
         # في التطبيق الفعلي، الاستعلام من قاعدة البيانات
         results = [
-            audit
-            for audit in self.audit_results.values()
-            if audit.farm_id == farm_id and audit.tenant_id == tenant_id
+            audit for audit in self.audit_results.values() if audit.farm_id == farm_id and audit.tenant_id == tenant_id
         ]
 
         # Sort by date descending
@@ -341,9 +326,7 @@ Recommendation: {"Immediate corrective actions required" if audit_status != "pas
 
         return results[:limit]
 
-    async def schedule_follow_up_audit(
-        self, audit_id: str, follow_up_date: datetime
-    ) -> dict[str, Any] | None:
+    async def schedule_follow_up_audit(self, audit_id: str, follow_up_date: datetime) -> dict[str, Any] | None:
         """
         Schedule a follow-up audit
         جدولة تدقيق متابعة

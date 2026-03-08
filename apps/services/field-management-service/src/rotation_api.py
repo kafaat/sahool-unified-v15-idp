@@ -132,9 +132,7 @@ async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> d
                     crop_name_ar=h.crop_name_ar,
                     crop_name_en=h.crop_name_en,
                     crop_family=CropFamily(h.crop_family),
-                    planting_date=(
-                        date.fromisoformat(h.planting_date) if h.planting_date else None
-                    ),
+                    planting_date=(date.fromisoformat(h.planting_date) if h.planting_date else None),
                     harvest_date=(date.fromisoformat(h.harvest_date) if h.harvest_date else None),
                     expected_yield=h.expected_yield,
                     notes=h.notes,
@@ -154,9 +152,7 @@ async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> d
     return to_dict(plan)
 
 
-async def suggest_next_crop_endpoint(
-    field_id: str, season: str = "winter", history_json: str | None = None
-) -> dict:
+async def suggest_next_crop_endpoint(field_id: str, season: str = "winter", history_json: str | None = None) -> dict:
     """
     Suggest best crops for next season
     اقتراح أفضل المحاصيل للموسم القادم

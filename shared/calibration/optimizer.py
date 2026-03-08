@@ -77,8 +77,7 @@ class BayesianOptimizer:
     ) -> None:
         if not _HAS_OPTUNA:
             raise RuntimeError(
-                "optuna is not installed; run `pip install optuna` "
-                "or fall back to CalibrationEngine (random-restart)."
+                "optuna is not installed; run `pip install optuna` or fall back to CalibrationEngine (random-restart)."
             )
         if not param_space:
             raise ValueError("param_space must contain at least one parameter")

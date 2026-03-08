@@ -118,7 +118,8 @@ class LocalStorageProvider(StorageProvider):
 
     def __init__(self, base_path: str):
         self.base_path = Path(base_path).resolve()
-        self.base_path.mkdir(parents=True, exist_ok=True)
+        # Directory is created lazily on first store() to avoid PermissionError
+        # when the path requires elevated privileges (e.g. /var/sahool in tests).
 
     def _safe_path(self, storage_path: str) -> Path:
         """Resolve path and prevent path traversal outside base_path."""
@@ -768,9 +769,7 @@ class DocumentStorageService:
             description_ar=old_document.description_ar,
             category_id=old_document.category_id,
             expiry_date=(
-                datetime.combine(old_document.expiry_date, datetime.min.time())
-                if old_document.expiry_date
-                else None
+                datetime.combine(old_document.expiry_date, datetime.min.time()) if old_document.expiry_date else None
             ),
             tags=old_document.tags,
             tags_ar=old_document.tags_ar,

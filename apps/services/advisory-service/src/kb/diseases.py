@@ -198,9 +198,7 @@ def get_disease(disease_id: str) -> dict | None:
 
 def get_diseases_by_crop(crop: str) -> list[dict]:
     """Get all diseases for a specific crop"""
-    return [
-        {"id": k, **v} for k, v in DISEASES.items() if v["crop"] == crop or v["crop"] == "general"
-    ]
+    return [{"id": k, **v} for k, v in DISEASES.items() if v["crop"] == crop or v["crop"] == "general"]
 
 
 def search_diseases(query: str, lang: str = "ar") -> list[dict]:

@@ -477,7 +477,6 @@ except ImportError:
     HTTPX_AVAILABLE = False
 
 
-
 class SignificanceLevel(StrEnum):
     """Statistical significance levels | مستويات الدلالة الإحصائية"""
 
@@ -541,13 +540,9 @@ class ABTestConfig:
     variant_a: ModelVariant = field(default_factory=lambda: ModelVariant(name="control"))
     variant_b: ModelVariant = field(default_factory=lambda: ModelVariant(name="treatment"))
     split_ratio: float = 0.5  # Fraction of traffic to variant B
-    metric_names: list[str] = field(
-        default_factory=lambda: ["accuracy", "latency_ms"]
-    )
+    metric_names: list[str] = field(default_factory=lambda: ["accuracy", "latency_ms"])
     # Metrics where lower values are better (e.g., latency_ms, cost)
-    lower_is_better_metrics: set[str] = field(
-        default_factory=lambda: {"latency_ms", "cost"}
-    )
+    lower_is_better_metrics: set[str] = field(default_factory=lambda: {"latency_ms", "cost"})
     min_samples: int = 30  # Minimum samples per variant before significance test
     max_samples: int = 1000  # Maximum samples before auto-completion
     significance_threshold: float = 0.05  # p-value threshold
@@ -653,9 +648,14 @@ class ABTestRunnerResult:
 # Statistical Helpers
 # ---------------------------------------------------------------------------
 
+
 def _welch_t_test(
-    mean_a: float, std_a: float, n_a: int,
-    mean_b: float, std_b: float, n_b: int,
+    mean_a: float,
+    std_a: float,
+    n_a: int,
+    mean_b: float,
+    std_b: float,
+    n_b: int,
 ) -> float:
     """
     Compute approximate p-value using Welch's t-test (two-sample, unequal
@@ -664,7 +664,7 @@ def _welch_t_test(
     if n_a < 2 or n_b < 2:
         return 1.0
 
-    se = math.sqrt(std_a ** 2 / n_a + std_b ** 2 / n_b)
+    se = math.sqrt(std_a**2 / n_a + std_b**2 / n_b)
     if se < 1e-10:
         return 1.0 if abs(mean_a - mean_b) < 1e-10 else 0.0
 
@@ -699,6 +699,7 @@ def _classify_significance(p_value: float, threshold: float = 0.05) -> Significa
 # ---------------------------------------------------------------------------
 # ABTestRunner
 # ---------------------------------------------------------------------------
+
 
 class ABTestRunner:
     """
@@ -836,10 +837,14 @@ class ABTestRunner:
             vals_b = [s["metrics"].get(metric_name, 0.0) for s in samples_b if metric_name in s["metrics"]]
 
             if not vals_a or not vals_b:
-                comparisons.append(MetricComparison(
-                    metric=metric_name, a_count=len(vals_a), b_count=len(vals_b),
-                    lower_is_better=lower_better,
-                ))
+                comparisons.append(
+                    MetricComparison(
+                        metric=metric_name,
+                        a_count=len(vals_a),
+                        b_count=len(vals_b),
+                        lower_is_better=lower_better,
+                    )
+                )
                 continue
 
             mean_a = sum(vals_a) / len(vals_a)
@@ -861,13 +866,23 @@ class ABTestRunner:
                     a_wins += 1
             total_scored += 1
 
-            comparisons.append(MetricComparison(
-                metric=metric_name, a_mean=mean_a, a_std=std_a, a_count=len(vals_a),
-                b_mean=mean_b, b_std=std_b, b_count=len(vals_b),
-                difference=diff, relative_change_pct=rel_change,
-                p_value=p, significance=sig, winner=winner,
-                lower_is_better=lower_better,
-            ))
+            comparisons.append(
+                MetricComparison(
+                    metric=metric_name,
+                    a_mean=mean_a,
+                    a_std=std_a,
+                    a_count=len(vals_a),
+                    b_mean=mean_b,
+                    b_std=std_b,
+                    b_count=len(vals_b),
+                    difference=diff,
+                    relative_change_pct=rel_change,
+                    p_value=p,
+                    significance=sig,
+                    winner=winner,
+                    lower_is_better=lower_better,
+                )
+            )
 
         overall_winner = "none"
         if b_wins > a_wins:
@@ -876,7 +891,8 @@ class ABTestRunner:
             overall_winner = "a"
 
         sig_count = sum(
-            1 for c in comparisons
+            1
+            for c in comparisons
             if c.significance in (SignificanceLevel.SIGNIFICANT, SignificanceLevel.HIGHLY_SIGNIFICANT)
         )
         overall_confidence = sig_count / max(total_scored, 1)
@@ -919,8 +935,12 @@ class ABTestRunner:
                 f"يُنصح بجمع المزيد من العينات.",
             )
         wv = config.variant_b if winner == "b" else config.variant_a
-        sig_metrics = [c for c in comparisons if c.winner == winner
-                       and c.significance in (SignificanceLevel.SIGNIFICANT, SignificanceLevel.HIGHLY_SIGNIFICANT)]
+        sig_metrics = [
+            c
+            for c in comparisons
+            if c.winner == winner
+            and c.significance in (SignificanceLevel.SIGNIFICANT, SignificanceLevel.HIGHLY_SIGNIFICANT)
+        ]
         detail = ", ".join(f"{c.metric} ({c.relative_change_pct:+.1f}%)" for c in sig_metrics)
         en = f"Recommend deploying '{wv.name}' (confidence: {confidence:.0%}). Significant improvements: {detail}."
         ar = f"يُوصى بنشر '{wv.name_ar or wv.name}' (ثقة: {confidence:.0%}). تحسينات دالة: {detail}."
@@ -936,8 +956,12 @@ class ABTestRunner:
             async with httpx.AsyncClient(timeout=60.0) as client:
                 resp = await client.post(
                     f"{base_url}/api/generate",
-                    json={"model": variant.model, "prompt": prompt, "stream": False,
-                          "options": {"temperature": variant.temperature}},
+                    json={
+                        "model": variant.model,
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {"temperature": variant.temperature},
+                    },
                 )
                 return resp.json().get("response", "") if resp.status_code == 200 else ""
 
@@ -946,8 +970,12 @@ class ABTestRunner:
             async with httpx.AsyncClient(timeout=120.0) as client:
                 resp = await client.post(
                     f"{base_url}/completions",
-                    json={"model": variant.model, "prompt": prompt,
-                          "max_tokens": variant.max_tokens, "temperature": variant.temperature},
+                    json={
+                        "model": variant.model,
+                        "prompt": prompt,
+                        "max_tokens": variant.max_tokens,
+                        "temperature": variant.temperature,
+                    },
                     headers={"Authorization": f"Bearer {variant.api_key or 'dummy'}"},
                 )
                 if resp.status_code == 200:
@@ -979,8 +1007,7 @@ class ABTestRunner:
     def list_tests(self) -> list[dict[str, Any]]:
         """List all tests."""
         return [
-            {"test_id": tid, "name": t["config"].name,
-             "samples": len(t["samples_a"]) + len(t["samples_b"])}
+            {"test_id": tid, "name": t["config"].name, "samples": len(t["samples_a"]) + len(t["samples_b"])}
             for tid, t in self._tests.items()
         ]
 
@@ -988,6 +1015,7 @@ class ABTestRunner:
 # ---------------------------------------------------------------------------
 # Model Version Tracker (G-17)
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ModelVersion:
@@ -1145,11 +1173,17 @@ class ModelVersionTracker:
             if a_val is not None and b_val is not None:
                 diff = b_val - a_val
                 rel = (diff / a_val * 100) if abs(a_val) > 1e-10 else 0.0
-                comps[m] = {"a": round(a_val, 4), "b": round(b_val, 4),
-                            "difference": round(diff, 4), "relative_change_pct": round(rel, 2)}
+                comps[m] = {
+                    "a": round(a_val, 4),
+                    "b": round(b_val, 4),
+                    "difference": round(diff, 4),
+                    "relative_change_pct": round(rel, 2),
+                }
             else:
-                comps[m] = {"a": round(a_val, 4) if a_val is not None else None,
-                            "b": round(b_val, 4) if b_val is not None else None}
+                comps[m] = {
+                    "a": round(a_val, 4) if a_val is not None else None,
+                    "b": round(b_val, 4) if b_val is not None else None,
+                }
 
         return {
             "version_a": {"id": va.version_id, "version": va.version, "model": va.model_name},

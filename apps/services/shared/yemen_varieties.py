@@ -1068,9 +1068,7 @@ def search_varieties(query: str) -> list[Variety]:
     return [
         v
         for v in ALL_VARIETIES
-        if query_lower in v.name_en.lower()
-        or query in v.name_ar
-        or (v.name_local and query in v.name_local)
+        if query_lower in v.name_en.lower() or query in v.name_ar or (v.name_local and query in v.name_local)
     ]
 
 

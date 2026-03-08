@@ -369,9 +369,7 @@ class TerrainIndicatorCalculator:
         total_valid = np.sum(~dem_data.nodata_mask)
         if total_valid > 0:
             # Flat areas
-            distribution["flat"] = float(
-                np.sum(flat_mask & ~dem_data.nodata_mask) / total_valid * 100
-            )
+            distribution["flat"] = float(np.sum(flat_mask & ~dem_data.nodata_mask) / total_valid * 100)
 
             # Directional distribution
             for direction, (low, high) in self.ASPECT_CLASSES.items():
@@ -382,9 +380,7 @@ class TerrainIndicatorCalculator:
                     count = np.sum((valid_aspect >= low) | (valid_aspect < high))
                 else:
                     count = np.sum((valid_aspect >= low) & (valid_aspect < high))
-                distribution[direction] = (
-                    float(count / len(valid_aspect) * 100) if len(valid_aspect) > 0 else 0
-                )
+                distribution[direction] = float(count / len(valid_aspect) * 100) if len(valid_aspect) > 0 else 0
 
         # Find dominant direction
         dominant = max(distribution.items(), key=lambda x: x[1])[0]
@@ -563,9 +559,7 @@ class TerrainIndicatorCalculator:
         drainage_density = channel_length_km / total_area_km2 if total_area_km2 > 0 else 0
 
         # Extract stream network as GeoJSON (simplified)
-        streams = self._extract_streams(
-            accumulation, channel_mask, dem_data.metadata, dem_data.transform
-        )
+        streams = self._extract_streams(accumulation, channel_mask, dem_data.metadata, dem_data.transform)
 
         return FlowAccumulationResult(
             data=accumulation,

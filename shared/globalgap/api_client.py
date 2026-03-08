@@ -781,9 +781,7 @@ class GlobalGAPClient:
                     name=item.get("name", ""),
                     country=item.get("country", ""),
                     products=item.get("products", []),
-                    certification_status=CertificateStatus(
-                        item.get("certification_status", "valid").lower()
-                    ),
+                    certification_status=CertificateStatus(item.get("certification_status", "valid").lower()),
                     ggn=item.get("ggn"),
                     location=item.get("location"),
                     certification_date=(

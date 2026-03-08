@@ -30,9 +30,7 @@ class VRARequest(BaseModel):
     field_id: str = Field(..., description="معرف الحقل")
     latitude: float = Field(..., ge=-90, le=90, description="خط العرض")
     longitude: float = Field(..., ge=-180, le=180, description="خط الطول")
-    vra_type: str = Field(
-        ..., description="نوع التطبيق (fertilizer, seed, lime, pesticide, irrigation)"
-    )
+    vra_type: str = Field(..., description="نوع التطبيق (fertilizer, seed, lime, pesticide, irrigation)")
     target_rate: float = Field(..., gt=0, description="المعدل المستهدف")
     unit: str = Field(..., description="وحدة القياس (kg/ha, seeds/ha, L/ha, mm/ha)")
     num_zones: int = Field(default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)")
@@ -216,9 +214,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             logger.error(f"Error generating VRA prescription: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to generate prescription: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to generate prescription: {str(e)}")
 
     @app.get("/v1/vra/zones/{field_id}")
     async def get_management_zones(
@@ -280,9 +276,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     @app.get("/v1/vra/prescriptions/{field_id}")
     async def get_field_prescriptions(
         field_id: str,
-        limit: int = Query(
-            10, description="Maximum number of prescriptions to return", ge=1, le=50
-        ),
+        limit: int = Query(10, description="Maximum number of prescriptions to return", ge=1, le=50),
     ):
         """
         سجل الوصفات | Get Prescription History

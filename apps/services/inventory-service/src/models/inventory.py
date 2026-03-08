@@ -258,18 +258,14 @@ class InventoryMovement(TenantEntity):
     __tablename__ = "inventory_movements"
 
     # Movement details
-    movement_type: Mapped[str] = mapped_column(
-        SQLEnum(MovementType, name="movement_type"), nullable=False
-    )
+    movement_type: Mapped[str] = mapped_column(SQLEnum(MovementType, name="movement_type"), nullable=False)
 
     movement_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
     # Item and warehouse
-    item_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False
-    )
+    item_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False)
 
     warehouse_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=False
@@ -323,18 +319,14 @@ class InventoryTransaction(TenantEntity):
     __tablename__ = "inventory_transactions"
 
     # Transaction details
-    transaction_type: Mapped[str] = mapped_column(
-        SQLEnum(TransactionType, name="transaction_type"), nullable=False
-    )
+    transaction_type: Mapped[str] = mapped_column(SQLEnum(TransactionType, name="transaction_type"), nullable=False)
 
     transaction_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
     # Item
-    item_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False
-    )
+    item_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False)
 
     # Quantity and amount
     quantity: Mapped[float] = mapped_column(Float, nullable=False)

@@ -138,9 +138,7 @@ async def request_size_middleware(request: Request, call_next: Callable) -> Resp
             status_code=status_code or 400,
             content={
                 "error": error_message,
-                "error_ar": (
-                    "حجم الطلب غير مسموح به" if status_code == 413 else "نوع المحتوى غير مدعوم"
-                ),
+                "error_ar": ("حجم الطلب غير مسموح به" if status_code == 413 else "نوع المحتوى غير مدعوم"),
             },
         )
 

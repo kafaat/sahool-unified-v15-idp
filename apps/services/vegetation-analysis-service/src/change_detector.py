@@ -249,16 +249,10 @@ class ChangeDetector:
             return self._create_empty_report(field_id, start_date, end_date)
 
         # Filter out cloudy observations
-        clean_data = [
-            point
-            for point in ndvi_timeseries
-            if point.cloud_cover <= self.THRESHOLDS["max_cloud_cover"]
-        ]
+        clean_data = [point for point in ndvi_timeseries if point.cloud_cover <= self.THRESHOLDS["max_cloud_cover"]]
 
         if len(clean_data) < 3:
-            logger.warning(
-                f"Insufficient clean data points ({len(clean_data)}) for field {field_id}"
-            )
+            logger.warning(f"Insufficient clean data points ({len(clean_data)}) for field {field_id}")
             return self._create_empty_report(field_id, start_date, end_date)
 
         # Calculate expected pattern if crop type is known
@@ -292,14 +286,10 @@ class ChangeDetector:
         change_type_summary = self._count_by_change_type(events)
 
         # Generate summary text
-        summary_ar, summary_en = self._generate_summary(
-            events, ndvi_trend, overall_trend, start_date, end_date
-        )
+        summary_ar, summary_en = self._generate_summary(events, ndvi_trend, overall_trend, start_date, end_date)
 
         # Generate recommendations
-        recommendations_ar, recommendations_en = self._generate_recommendations(
-            events, overall_trend, crop_type
-        )
+        recommendations_ar, recommendations_en = self._generate_recommendations(events, overall_trend, crop_type)
 
         return ChangeReport(
             field_id=field_id,
@@ -378,9 +368,7 @@ class ChangeDetector:
         )
 
         # Generate descriptions and recommendations
-        desc_ar, desc_en = self._generate_change_description(
-            change_type, ndvi_change, change_percent, date1, date2
-        )
+        desc_ar, desc_en = self._generate_change_description(change_type, ndvi_change, change_percent, date1, date2)
         rec_ar, rec_en = self.generate_recommendation(change_type, severity, None)
 
         # Additional metrics
@@ -436,10 +424,7 @@ class ChangeDetector:
 
         if expected_pattern and len(expected_pattern) == len(ndvi_values):
             # Deviation-based anomaly detection
-            deviations = [
-                actual - expected
-                for actual, expected in zip(ndvi_values, expected_pattern, strict=False)
-            ]
+            deviations = [actual - expected for actual, expected in zip(ndvi_values, expected_pattern, strict=False)]
 
             # Calculate statistics on deviations
             mean_dev = statistics.mean(deviations)
@@ -552,11 +537,7 @@ class ChangeDetector:
             return ChangeType.LAND_CLEARING
 
         # Crop damage (moderate rapid decrease)
-        if (
-            ndvi_change < -0.2
-            and days_between <= self.THRESHOLDS["rapid_change_days"]
-            and ndvi_before > 0.3
-        ):
+        if ndvi_change < -0.2 and days_between <= self.THRESHOLDS["rapid_change_days"] and ndvi_before > 0.3:
             return ChangeType.CROP_DAMAGE
 
         # Pest/disease (gradual decrease from healthy state)
@@ -679,9 +660,7 @@ class ChangeDetector:
             recommendations_en=["Collect more satellite data"],
         )
 
-    def _calculate_expected_pattern(
-        self, data_points: list[NDVIDataPoint], crop_type: str
-    ) -> list[float]:
+    def _calculate_expected_pattern(self, data_points: list[NDVIDataPoint], crop_type: str) -> list[float]:
         """Calculate expected seasonal NDVI pattern for a crop"""
         pattern_info = self.SEASONAL_PATTERNS.get(crop_type, {})
 
@@ -695,9 +674,7 @@ class ChangeDetector:
 
             # Perennial crops have stable high NDVI
             if pattern_info["planting_month"] is None:
-                expected_ndvi = pattern_info["base_ndvi"] + 0.1 * math.sin(
-                    2 * math.pi * day_of_year / 365
-                )
+                expected_ndvi = pattern_info["base_ndvi"] + 0.1 * math.sin(2 * math.pi * day_of_year / 365)
             else:
                 # Annual crops have clear planting-harvest cycle
                 planting_day = pattern_info["planting_month"] * 30
@@ -1011,9 +988,7 @@ class ChangeDetector:
 
         if critical_count > 0:
             summary_ar += f"تنبيه: {critical_count} حدث حرج يتطلب اهتمام فوري. "
-            summary_en += (
-                f"Alert: {critical_count} critical event(s) requiring immediate attention. "
-            )
+            summary_en += f"Alert: {critical_count} critical event(s) requiring immediate attention. "
         elif high_count > 0:
             summary_ar += f"{high_count} حدث عالي الخطورة. "
             summary_en += f"{high_count} high-severity event(s). "
@@ -1057,9 +1032,7 @@ class ChangeDetector:
         # Add general recommendations based on trend
         if overall_trend == TrendDirection.DECLINING:
             recommendations_ar.append("فحص شامل للحقل لتحديد أسباب التدهور")
-            recommendations_en.append(
-                "Comprehensive field inspection to identify causes of decline"
-            )
+            recommendations_en.append("Comprehensive field inspection to identify causes of decline")
 
         # Always add monitoring recommendation
         recommendations_ar.append("مراقبة مستمرة باستخدام الأقمار الصناعية")

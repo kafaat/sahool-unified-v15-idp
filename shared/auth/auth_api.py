@@ -41,13 +41,15 @@ class LoginRequest(BaseModel):
     password: str = Field(..., description="User password", min_length=6)
     totp_code: str | None = Field(None, description="6-digit TOTP code if 2FA is enabled")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "email": "admin@sahool.io",
-            "password": "SecurePassword123",
-            "totp_code": "123456",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "email": "admin@sahool.io",
+                "password": "SecurePassword123",
+                "totp_code": "123456",
+            }
         }
-    })
+    )
 
 
 class LoginResponse(BaseModel):
@@ -59,19 +61,21 @@ class LoginResponse(BaseModel):
     requires_2fa: bool = Field(default=False, description="Whether 2FA is required")
     temp_token: str | None = Field(None, description="Temporary token for 2FA verification")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            "token_type": "bearer",
-            "user": {
-                "id": "user-123",
-                "email": "admin@sahool.io",
-                "name": "Admin User",
-                "role": "admin",
-            },
-            "requires_2fa": False,
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+                "user": {
+                    "id": "user-123",
+                    "email": "admin@sahool.io",
+                    "name": "Admin User",
+                    "role": "admin",
+                },
+                "requires_2fa": False,
+            }
         }
-    })
+    )
 
 
 class TwoFALoginRequest(BaseModel):

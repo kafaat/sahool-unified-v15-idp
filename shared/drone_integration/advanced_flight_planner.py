@@ -1,6 +1,13 @@
 """
 Drone Flight Planning Module | وحدة تخطيط مسارات الطائرات بدون طيار
 
+.. deprecated:: 16.0.0
+    This module is deprecated. Use ``shared.drone_integration.flight_planner``
+    (FlightPlanner, create_spray_flight_plan, create_mapping_flight_plan) instead.
+    This module will be removed in v17.0.0.
+
+    هذه الوحدة مهملة. استخدم shared.drone_integration.flight_planner بدلاً منها.
+
 Provides:
 - Automatic flight path planning for field mapping
 - High-resolution NDVI from drone imagery
@@ -9,6 +16,8 @@ Provides:
 """
 
 from __future__ import annotations
+
+import warnings
 
 import logging
 import math
@@ -136,7 +145,17 @@ class DroneFlightPlanner:
     """Plans drone flights for agricultural operations.
 
     يخطط رحلات الطائرات بدون طيار للعمليات الزراعية.
+
+    .. deprecated:: 16.0.0
+        Use ``shared.drone_integration.flight_planner.FlightPlanner`` instead.
     """
+
+    def __init__(self):
+        warnings.warn(
+            "DroneFlightPlanner is deprecated. Use shared.drone_integration.flight_planner.FlightPlanner instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     def calculate_gsd(
         self, altitude_m: float, focal_length_mm: float = 8.8, sensor_width_mm: float = 13.2, image_width_px: int = 5472
@@ -205,12 +224,37 @@ class DroneFlightPlanner:
         total_images = self.estimate_images(side_m, side_m, altitude_m, overlap, sidelap)
 
         waypoints = []
+        half = side_m / 2
+        ground_width = 2 * altitude_m * math.tan(math.radians(38.5))
+        spacing = ground_width * (1 - sidelap / 100)
+
+        # Boustrophedon (serpentine/lawnmower) waypoint pattern.
+        # Lines run north–south; flight direction alternates each pass.
+        # Approximate conversions: 1 m ≈ 1/111111 deg lat, 1 m ≈ 1/(111111·cos(lat)) deg lon.
+        DEG_PER_METER_LAT = 1.0 / 111_111.0
+        deg_per_meter_lon = 1.0 / (111_111.0 * max(math.cos(math.radians(center_lat)), 1e-6))
+
+        half_side_lat = (side_m / 2.0) * DEG_PER_METER_LAT
+        line_spacing_deg = side_m * deg_per_meter_lon / max(flight_lines, 1)
 
         for i in range(flight_lines):
+            line_lon = center_lon - (side_m / 2.0) * deg_per_meter_lon + (i + 0.5) * line_spacing_deg
             if i % 2 == 0:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                # Even lines: fly south→north
+                waypoints.append(Waypoint(
+                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
+                waypoints.append(Waypoint(
+                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
             else:
-                waypoints.append(Waypoint(latitude=center_lat, longitude=center_lon, altitude_m=altitude_m))
+                # Odd lines: fly north→south (reversed direction)
+                waypoints.append(Waypoint(
+                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
+                waypoints.append(Waypoint(
+                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
+                ))
 
         return FlightPlan(
             plan_id=f"FLT-{field_id}-{datetime.now().strftime('%Y%m%d%H%M')}",

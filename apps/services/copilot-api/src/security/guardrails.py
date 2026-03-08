@@ -370,9 +370,7 @@ class ToolGuard:
             return False
 
         # Exact match or subdomain match
-        return any(
-            host == domain or host.endswith("." + domain) for domain in self.domain_allowlist
-        )
+        return any(host == domain or host.endswith("." + domain) for domain in self.domain_allowlist)
 
     def _record_block(self, layer: str, context: ToolCallContext, decision: GuardDecision) -> None:
         """Record a blocked call"""
@@ -395,9 +393,7 @@ class ToolGuard:
         return {
             **self._stats,
             "block_rate": (
-                self._stats["blocked"] / self._stats["total_checks"]
-                if self._stats["total_checks"] > 0
-                else 0
+                self._stats["blocked"] / self._stats["total_checks"] if self._stats["total_checks"] > 0 else 0
             ),
         }
 

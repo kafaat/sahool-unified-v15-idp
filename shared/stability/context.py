@@ -196,9 +196,7 @@ def get_request_context() -> RequestContext:
     """
     ctx = _request_context.get()
     if ctx is None:
-        raise RuntimeError(
-            "Request context not available. Ensure UnifiedContextMiddleware is configured."
-        )
+        raise RuntimeError("Request context not available. Ensure UnifiedContextMiddleware is configured.")
     return ctx
 
 
@@ -249,6 +247,7 @@ def clear_context() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # Backward-compatibility bridge to existing ContextVars
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _sync_to_legacy_contextvars(ctx: RequestContext) -> None:
     """
@@ -304,6 +303,7 @@ def _clear_legacy_contextvars() -> None:
 # OTel trace extraction
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _extract_otel_trace() -> tuple[str | None, str | None]:
     """Extract trace_id and span_id from the current OTel span."""
     try:
@@ -322,18 +322,20 @@ def _extract_otel_trace() -> tuple[str | None, str | None]:
 # Unified Context Middleware
 # ─────────────────────────────────────────────────────────────────────────────
 
-_EXEMPT_PATHS = frozenset({
-    "/healthz",
-    "/readyz",
-    "/livez",
-    "/health",
-    "/health/live",
-    "/health/ready",
-    "/metrics",
-    "/docs",
-    "/redoc",
-    "/openapi.json",
-})
+_EXEMPT_PATHS = frozenset(
+    {
+        "/healthz",
+        "/readyz",
+        "/livez",
+        "/health",
+        "/health/live",
+        "/health/ready",
+        "/metrics",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+    }
+)
 
 
 class UnifiedContextMiddleware(BaseHTTPMiddleware):
@@ -382,9 +384,7 @@ class UnifiedContextMiddleware(BaseHTTPMiddleware):
 
         # ── 1. Correlation ID ──
         correlation_id = (
-            request.headers.get("X-Correlation-ID")
-            or request.headers.get("X-Request-ID")
-            or str(uuid.uuid4())
+            request.headers.get("X-Correlation-ID") or request.headers.get("X-Request-ID") or str(uuid.uuid4())
         )
         request_id = request.headers.get("X-Request-ID") or correlation_id
 

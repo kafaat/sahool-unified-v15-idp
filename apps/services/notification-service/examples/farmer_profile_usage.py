@@ -262,9 +262,7 @@ if __name__ == "__main__":
     if not os.getenv("DATABASE_URL"):
         print("❌ ERROR: DATABASE_URL environment variable not set!")
         print("   Set it in .env or export it:")
-        print(
-            "   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'"
-        )
+        print("   export DATABASE_URL='postgresql://user:password@localhost:5432/sahool_notifications'")
         sys.exit(1)
 
     # Run examples

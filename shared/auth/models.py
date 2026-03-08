@@ -197,13 +197,9 @@ class AuthErrors:
         code="rate_limit_exceeded",
     )
 
-    INVALID_ISSUER = AuthErrorMessage(
-        en="Invalid token issuer", ar="مصدر الرمز غير صالح", code="invalid_issuer"
-    )
+    INVALID_ISSUER = AuthErrorMessage(en="Invalid token issuer", ar="مصدر الرمز غير صالح", code="invalid_issuer")
 
-    INVALID_AUDIENCE = AuthErrorMessage(
-        en="Invalid token audience", ar="جمهور الرمز غير صالح", code="invalid_audience"
-    )
+    INVALID_AUDIENCE = AuthErrorMessage(en="Invalid token audience", ar="جمهور الرمز غير صالح", code="invalid_audience")
 
 
 class AuthException(Exception):

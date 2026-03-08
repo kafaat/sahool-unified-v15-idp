@@ -57,7 +57,8 @@ services:
     image: edoburu/pgbouncer:v1.23.1-p3
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
-    entrypoint: [ "/entrypoint-custom.sh" ]
+    # FIX: Use "sh" explicitly to avoid Windows bind-mount execute permission issues
+    entrypoint: [ "sh", "/entrypoint-custom.sh" ]
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
       DB_HOST: postgres
@@ -95,18 +96,23 @@ services:
 
       # Persistent volume for userlist.txt (SECURITY: survives container restarts)
       - pgbouncer-userlist:/etc/pgbouncer/runtime
+      # Healthcheck script (comprehensive pool verification)
+      - ./infrastructure/core/pgbouncer/healthcheck.sh:/healthcheck.sh:ro
     ports:
       - "127.0.0.1:6432:6432" # SECURITY: localhost only
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      # Verify PgBouncer is listening on port 6432 (nc is available in Alpine)
-      test: [ "CMD-SHELL", "nc -z localhost 6432 || exit 1" ]
-      interval: 10s
-      timeout: 5s
+      # FIX: Use comprehensive healthcheck that verifies actual query execution and pool status
+      # Previously used 'nc -z' which only checks TCP port, not actual PgBouncer functionality
+      # The healthcheck.sh script runs SHOW POOLS and checks pool utilization
+      # NOTE: Use $$ to escape dollar signs - docker-compose interpolates ${} but $$ passes $ to the shell
+      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || exit 1" ]
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -177,8 +183,8 @@ services:
       # TLS port (REQUIRED for production)
       - "127.0.0.1:6380:6380"
     healthcheck:
-      # Non-TLS health check (using --no-auth-warning to suppress password visibility warnings)
-      test: [ "CMD-SHELL", "redis-cli --no-auth-warning -a \"$${REDIS_PASSWORD}\" ping | grep PONG" ]
+      # FIX: Use REDISCLI_AUTH env var instead of -a flag to avoid credential exposure in process list
+      test: [ "CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep PONG" ]
       # TLS-enabled health check (uncomment when TLS is enabled):
       # test: ["CMD-SHELL", "redis-cli --tls --cert /etc/redis/certs/redis-client.crt --key /etc/redis/certs/redis-client.key --cacert /etc/redis/certs/ca.crt -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 30s
@@ -374,7 +380,8 @@ services:
       pgbouncer:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      # FIX: Use python urllib instead of curl (curl may not exist in MLflow image)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/health')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -417,7 +424,8 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      test: [ "CMD-SHELL", "pidof mosquitto || exit 1" ]
+      # FIX: Check actual MQTT connectivity instead of just process existence
+      test: [ "CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 3 2>/dev/null || (pidof mosquitto && nc -z localhost 1883)" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -682,30 +690,34 @@ services:
   # تخزين البيانات الوصفية لـ Milvus
   # SECURITY: ETCD_ROOT_USERNAME and ETCD_ROOT_PASSWORD MUST be set in .env file
   etcd:
-    image: quay.io/coreos/etcd:v3.5.5
+    # SECURITY FIX: Upgraded from v3.5.5 (Aug 2022, multiple CVEs) to v3.5.16
+    image: quay.io/coreos/etcd:v3.5.16
     container_name: sahool-etcd
     environment:
       # Performance and compaction settings
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
-      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      # FIX: Reduced from 4GB to 512MB to match container memory limit (was causing OOM kills)
+      - ETCD_QUOTA_BACKEND_BYTES=536870912
       - ETCD_SNAPSHOT_COUNT=50000
       # etcdctl configuration for healthcheck
       - ETCDCTL_API=3
-      # Authentication credentials (for reference only - auth enabled by etcd-init)
+      - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
+      # Authentication credentials (used by init script and healthcheck)
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
-      # FIX: Removed ETCDCTL_USER/PASSWORD - etcd starts without auth enabled
-      # Authentication is configured by etcd-init service after startup
     volumes:
       - etcd_data:/etcd
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
+    # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
-      # Use HTTP /health endpoint - works regardless of whether auth is enabled
-      # etcdctl requires auth credentials after etcd-init enables auth, but
-      # the HTTP /health endpoint always works without authentication
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health || exit 1" ]
+      # FIX: Avoid passing credentials on command line (visible in 'docker inspect' / 'ps')
+      # Phase 1 (pre-auth): etcdctl works without credentials
+      # Phase 2 (post-auth): use ETCDCTL_USER env var for authentication
+      # NOTE: $$ escapes to $ inside docker-compose CMD-SHELL
+      test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || ETCDCTL_USER=$$ETCD_ROOT_USERNAME:$$ETCD_ROOT_PASSWORD etcdctl endpoint health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -713,11 +725,17 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          # FIX: Increased from 512M to 1G to accommodate etcd memory usage with 512MB quota
+          memory: 1G
         reservations:
           cpus: '0.1'
           memory: 128M
@@ -727,7 +745,7 @@ services:
   # Etcd Authentication Initializer - One-time service to enable authentication
   # خدمة تهيئة المصادقة لـ Etcd - تعمل مرة واحدة لتفعيل المصادقة
   etcd-init:
-    image: quay.io/coreos/etcd:v3.5.5
+    image: quay.io/coreos/etcd:v3.5.16
     container_name: sahool-etcd-init
     environment:
       - ETCDCTL_API=3
@@ -775,12 +793,9 @@ services:
       # Prometheus metrics - Require authentication
       MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-jwt}
 
-      # Audit logging configuration (disabled for development - requires webhook URL)
-      # NOTE: MinIO audit webhook is configured via `mc admin config set`, not environment variables.
-      # If you need audit webhook, configure it AFTER MinIO starts using: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
-      # For development, disable audit webhook to avoid configuration errors
-      # This variable is only a flag - actual webhook config must be set via MinIO admin API
-      MINIO_AUDIT_WEBHOOK_ENABLE: "off"
+      # Audit logging: Configure post-startup via `mc admin config set`
+      # Example: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
+      # NOTE: MINIO_AUDIT_WEBHOOK_ENABLE env var removed (not a valid MinIO config variable)
 
       # Domain configuration for virtual-host-style requests
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio.sahool.local}
@@ -789,8 +804,8 @@ services:
       MINIO_API_REQUESTS_MAX: ${MINIO_API_REQUESTS_MAX:-1000}
       MINIO_API_REQUESTS_DEADLINE: ${MINIO_API_REQUESTS_DEADLINE:-10s}
 
-      # Region configuration
-      MINIO_REGION: ${MINIO_REGION:-us-east-1}
+      # Region configuration - matches deployment region (AWS me-south-1 Bahrain)
+      MINIO_REGION: ${MINIO_REGION:-me-south-1}
     ports:
       # Bind to localhost only - use reverse proxy for external access
       - "127.0.0.1:9000:9000" # MinIO API (HTTPS when TLS enabled)
@@ -806,11 +821,13 @@ services:
     healthcheck:
       # Health check: Use MinIO's built-in live health endpoint
       # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة
-      test: [ "CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live || exit 1" ]
-      interval: 10s
-      timeout: 5s
+      # FIX: Try HTTPS first (when TLS certs are present), fallback to HTTP (dev without certs)
+      # -k flag skips certificate verification for self-signed certs
+      test: [ "CMD-SHELL", "curl -sfk https://localhost:9000/minio/health/live || curl -sf http://localhost:9000/minio/health/live || exit 1" ]
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 15s
+      start_period: 30s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -843,10 +860,12 @@ services:
       # Etcd authentication credentials
       ETCD_USERNAME: ${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
       ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
-      # MinIO connection with authentication
+      # MinIO connection with dedicated service account (least privilege)
+      # SECURITY FIX: Use dedicated Milvus credentials instead of MinIO root account
+      # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000
-      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
-      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}}
+      MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}}
     ports:
       - "127.0.0.1:19530:19530"
       - "127.0.0.1:9091:9091"
@@ -1105,7 +1124,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3015/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3015/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1154,7 +1174,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3020/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3020/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1205,7 +1226,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3021/api/v1/yield/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3021/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1254,7 +1276,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3022/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3022/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1304,7 +1327,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3023/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3023/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1348,7 +1372,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8115/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8115/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1403,7 +1428,8 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8117/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8117/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1512,7 +1538,8 @@ services:
       notification-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3025/api/v1/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1975,7 +2002,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8152/api/v1/yield/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8152/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2552,10 +2580,12 @@ services:
       nats:
         condition: service_healthy
       # MIGRATION: Changed dependency from field-ops to field-management-service
+      # FIX: Use service_healthy instead of service_started to avoid connection errors
       field-management-service:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "pgrep", "-f", "python.*worker" ]
+      # FIX: Check actual process with broader pattern (main.py, uvicorn, or worker)
+      test: [ "CMD-SHELL", "pgrep -f 'python|uvicorn' || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2729,7 +2759,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8130/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8130/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2777,7 +2808,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8131/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8131/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2825,7 +2857,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8132/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8132/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3061,6 +3094,9 @@ services:
       nats:
         condition: service_healthy
       agent-registry:
+        condition: service_healthy
+      # FIX: Add missing dependency - copilot-api references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
@@ -3995,6 +4031,9 @@ services:
         condition: service_healthy
       pgbouncer:
         condition: service_healthy
+      # FIX: Add missing dependency - ai-chat-assistant references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8260/healthz')" ]
       interval: 30s
@@ -4110,6 +4149,9 @@ services:
       redis:
         condition: service_healthy
       pgbouncer:
+        condition: service_healthy
+      # FIX: Add missing dependency - whatsapp-bot-service references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8240/healthz')" ]

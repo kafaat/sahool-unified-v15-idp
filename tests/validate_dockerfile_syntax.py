@@ -133,7 +133,7 @@ def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     dockerfiles = find_dockerfiles(root)
 
-    print(f"Dockerfile Syntax Validation")
+    print("Dockerfile Syntax Validation")
     print(f"Found {len(dockerfiles)} Dockerfiles")
     print("=" * 80)
 

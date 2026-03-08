@@ -182,9 +182,7 @@ class OpenMeteoProvider:
                         temp_max_c=daily.get("temperature_2m_max", [0])[i],
                         temp_min_c=daily.get("temperature_2m_min", [0])[i],
                         precipitation_mm=daily.get("precipitation_sum", [0])[i],
-                        precipitation_probability_pct=daily.get(
-                            "precipitation_probability_max", [0]
-                        )[i],
+                        precipitation_probability_pct=daily.get("precipitation_probability_max", [0])[i],
                         wind_speed_max_kmh=daily.get("wind_speed_10m_max", [0])[i],
                         uv_index_max=daily.get("uv_index_max", [0])[i],
                         sunrise=daily.get("sunrise", [""])[i],
@@ -248,9 +246,7 @@ class OpenMeteoProvider:
                         temperature_c=hourly.get("temperature_2m", [0])[i],
                         humidity_pct=hourly.get("relative_humidity_2m", [0])[i],
                         precipitation_mm=hourly.get("precipitation", [0])[i],
-                        precipitation_probability_pct=hourly.get("precipitation_probability", [0])[
-                            i
-                        ],
+                        precipitation_probability_pct=hourly.get("precipitation_probability", [0])[i],
                         wind_speed_kmh=hourly.get("wind_speed_10m", [0])[i],
                         cloud_cover_pct=hourly.get("cloud_cover", [0])[i],
                     )
@@ -280,9 +276,7 @@ class MockWeatherProvider:
             timestamp=datetime.now(UTC).isoformat(),
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         from datetime import timedelta
 
         forecasts = []

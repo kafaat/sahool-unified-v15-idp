@@ -91,9 +91,7 @@ def verify_basic_functionality():
             datetime.now(UTC) - timedelta(hours=24),
             datetime.now(UTC),
         )
-        agg = aggregator.aggregate_by_field(
-            "test_field", time_range, readings, TimeGranularity.DAILY
-        )
+        agg = aggregator.aggregate_by_field("test_field", time_range, readings, TimeGranularity.DAILY)
         print(f"✓ Aggregated by field: {len(agg)} sensor types")
 
         return True
@@ -133,9 +131,7 @@ def verify_yemen_thresholds():
         for sensor_type in expected_sensors:
             threshold = get_threshold(sensor_type)
             if threshold:
-                print(
-                    f"✓ {sensor_type}: {threshold.min_value}-{threshold.max_value} {threshold.unit}"
-                )
+                print(f"✓ {sensor_type}: {threshold.min_value}-{threshold.max_value} {threshold.unit}")
             else:
                 print(f"✗ Missing threshold for {sensor_type}")
                 return False
@@ -145,9 +141,7 @@ def verify_yemen_thresholds():
         print(f"\n✓ Value check works: 25°C is valid={is_valid}, severity={severity}")
 
         is_valid, severity = check_value_in_range("air_temperature", 60.0)
-        print(
-            f"✓ Value check works: 60°C is valid={is_valid}, severity={severity} (should be critical)"
-        )
+        print(f"✓ Value check works: 60°C is valid={is_valid}, severity={severity} (should be critical)")
 
         return True
 

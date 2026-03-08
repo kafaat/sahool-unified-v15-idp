@@ -42,9 +42,7 @@ class Settings(BaseSettings):
 
     # Compliance Settings | إعدادات الامتثال
     audit_retention_days: int = 1825  # 5 years | 5 سنوات
-    certificate_renewal_warning_days: int = (
-        90  # Warn 90 days before expiry | تحذير قبل 90 يوم من انتهاء الصلاحية
-    )
+    certificate_renewal_warning_days: int = 90  # Warn 90 days before expiry | تحذير قبل 90 يوم من انتهاء الصلاحية
 
     # Checklist Configuration | إعدادات قوائم المراجعة
     enable_auto_checklist_generation: bool = True

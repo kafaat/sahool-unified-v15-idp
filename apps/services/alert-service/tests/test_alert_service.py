@@ -192,9 +192,7 @@ class TestAlertRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        alerts = get_alerts_by_tenant(
-            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678")
-        )
+        alerts = get_alerts_by_tenant(mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"))
 
         assert len(alerts) == 1
 
@@ -227,9 +225,7 @@ class TestAlertRepository:
         mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        result = update_alert_status(
-            mock_db_session, alert_id=mock_alert.id, status="acknowledged", user_id="user-123"
-        )
+        result = update_alert_status(mock_db_session, alert_id=mock_alert.id, status="acknowledged", user_id="user-123")
 
         assert result == mock_alert
         assert mock_alert.status == "acknowledged"
@@ -266,9 +262,7 @@ class TestAlertRepository:
         mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        result = update_alert_status(
-            mock_db_session, alert_id=mock_alert.id, status="dismissed", user_id="user-123"
-        )
+        result = update_alert_status(mock_db_session, alert_id=mock_alert.id, status="dismissed", user_id="user-123")
 
         assert result == mock_alert
         assert mock_alert.status == "dismissed"
@@ -408,9 +402,7 @@ class TestAlertRuleRepository:
         mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert_rule)
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        result = update_alert_rule(
-            mock_db_session, rule_id=mock_alert_rule.id, enabled=False, cooldown_hours=48
-        )
+        result = update_alert_rule(mock_db_session, rule_id=mock_alert_rule.id, enabled=False, cooldown_hours=48)
 
         assert result == mock_alert_rule
         assert mock_alert_rule.enabled is False
@@ -485,9 +477,7 @@ class TestAlertStatistics:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        stats = get_alert_statistics(
-            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
-        )
+        stats = get_alert_statistics(mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30)
 
         assert "total_alerts" in stats
         assert "active_alerts" in stats
@@ -523,9 +513,7 @@ class TestAlertStatistics:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        stats = get_alert_statistics(
-            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
-        )
+        stats = get_alert_statistics(mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30)
 
         assert "average_resolution_hours" in stats
         if stats["average_resolution_hours"] is not None:
@@ -539,9 +527,7 @@ class TestAlertStatistics:
         mock_result.scalars = MagicMock(return_value=[])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        stats = get_alert_statistics(
-            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
-        )
+        stats = get_alert_statistics(mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30)
 
         assert stats["total_alerts"] == 0
         assert stats["active_alerts"] == 0
@@ -643,9 +629,7 @@ class TestAlertValidation:
 
         condition = RuleCondition(metric="soil_moisture", operator=ConditionOperator.LT, value=20.0)
 
-        alert_config = AlertRuleConfig(
-            type=AlertType.IRRIGATION, severity=AlertSeverity.HIGH, title="Low Moisture"
-        )
+        alert_config = AlertRuleConfig(type=AlertType.IRRIGATION, severity=AlertSeverity.HIGH, title="Low Moisture")
 
         rule_data = AlertRuleCreate(
             field_id="field-123",
@@ -810,9 +794,7 @@ class TestComplexQueries:
         mock_result.scalars = MagicMock(return_value=alerts)
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        stats = get_alert_statistics(
-            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
-        )
+        stats = get_alert_statistics(mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30)
 
         assert stats["total_alerts"] == 5
         assert "ndvi_low" in stats["by_type"]

@@ -97,12 +97,8 @@ class TaskResultMessage(A2AMessage):
     result: dict[str, Any] | None = None
     progress: float | None = Field(default=None, ge=0.0, le=1.0, description="Task progress 0-1")
     is_final: bool = Field(default=True, description="Is this the final result?")
-    partial_result: dict[str, Any] | None = Field(
-        default=None, description="Partial result for streaming"
-    )
-    execution_time_ms: int | None = Field(
-        default=None, description="Execution time in milliseconds"
-    )
+    partial_result: dict[str, Any] | None = Field(default=None, description="Partial result for streaming")
+    execution_time_ms: int | None = Field(default=None, description="Execution time in milliseconds")
 
 
 class ErrorMessage(A2AMessage):
@@ -258,9 +254,7 @@ class ConversationContext:
         Returns:
             Number of tasks cleared
         """
-        completed_tasks = [
-            task_id for task_id, state in self.tasks.items() if state == TaskState.COMPLETED
-        ]
+        completed_tasks = [task_id for task_id, state in self.tasks.items() if state == TaskState.COMPLETED]
         for task_id in completed_tasks:
             del self.tasks[task_id]
         return len(completed_tasks)
@@ -321,11 +315,7 @@ class TaskQueue:
         Returns:
             List of pending tasks
         """
-        pending = [
-            task
-            for task_id, task in self.tasks.items()
-            if self.states[task_id] == TaskState.PENDING
-        ]
+        pending = [task for task_id, task in self.tasks.items() if self.states[task_id] == TaskState.PENDING]
         return sorted(pending, key=lambda t: t.priority, reverse=True)
 
     def remove_task(self, task_id: str) -> bool:

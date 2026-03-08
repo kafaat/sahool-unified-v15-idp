@@ -299,9 +299,7 @@ class AgMLDatasetManager:
             datasets = [d for d in datasets if d.dataset_type == dataset_type]
 
         if crop_type:
-            datasets = [
-                d for d in datasets if d.crop_type == crop_type or d.crop_type == CropType.GENERAL
-            ]
+            datasets = [d for d in datasets if d.crop_type == crop_type or d.crop_type == CropType.GENERAL]
 
         return datasets
 

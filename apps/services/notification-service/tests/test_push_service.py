@@ -36,9 +36,7 @@ def firebase_client():
 class TestFirebaseClientInitialization:
     """Test Firebase client initialization"""
 
-    def test_initialize_with_credentials_path(
-        self, firebase_client, mock_firebase_credentials, tmp_path
-    ):
+    def test_initialize_with_credentials_path(self, firebase_client, mock_firebase_credentials, tmp_path):
         """Test initialization with credentials file path"""
         # Create temporary credentials file
         creds_file = tmp_path / "firebase-creds.json"
@@ -62,9 +60,7 @@ class TestFirebaseClientInitialization:
     def test_initialize_from_environment(self, firebase_client, mock_firebase_credentials):
         """Test initialization from environment variables"""
         with (
-            patch.dict(
-                "os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}
-            ),
+            patch.dict("os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}),
             patch("firebase_admin.initialize_app"),
         ):
             result = firebase_client.initialize()
@@ -184,9 +180,7 @@ class TestSingleNotificationSending:
         """Test sending notification when client not initialized"""
         firebase_client._initialized = False
 
-        result = firebase_client.send_notification(
-            token="device-token-123", title="Test", body="Test"
-        )
+        result = firebase_client.send_notification(token="device-token-123", title="Test", body="Test")
 
         assert result is None
 
@@ -195,9 +189,7 @@ class TestSingleNotificationSending:
         firebase_client._initialized = True
 
         with patch("firebase_admin.messaging.send", side_effect=Exception("Send failed")):
-            result = firebase_client.send_notification(
-                token="device-token-123", title="Test", body="Test"
-            )
+            result = firebase_client.send_notification(token="device-token-123", title="Test", body="Test")
 
             assert result is None
 
@@ -313,9 +305,7 @@ class TestMulticastNotifications:
         """Test multicast when not initialized"""
         firebase_client._initialized = False
 
-        result = firebase_client.send_multicast(
-            tokens=["token-1", "token-2"], title="Test", body="Test"
-        )
+        result = firebase_client.send_multicast(tokens=["token-1", "token-2"], title="Test", body="Test")
 
         assert result["success_count"] == 0
         assert result["failure_count"] == 2
@@ -347,9 +337,7 @@ class TestTopicSubscription:
         mock_response.failure_count = 0
 
         with patch("firebase_admin.messaging.subscribe_to_topic", return_value=mock_response):
-            result = firebase_client.subscribe_to_topic(
-                tokens=["token-1", "token-2", "token-3"], topic="pest_alerts"
-            )
+            result = firebase_client.subscribe_to_topic(tokens=["token-1", "token-2", "token-3"], topic="pest_alerts")
 
             assert result["success_count"] == 3
 
@@ -362,9 +350,7 @@ class TestTopicSubscription:
         mock_response.failure_count = 1
 
         with patch("firebase_admin.messaging.subscribe_to_topic", return_value=mock_response):
-            result = firebase_client.subscribe_to_topic(
-                tokens=["token-1", "invalid-token", "token-3"], topic="alerts"
-            )
+            result = firebase_client.subscribe_to_topic(tokens=["token-1", "invalid-token", "token-3"], topic="alerts")
 
             assert result["success_count"] == 2
             assert result["failure_count"] == 1
@@ -378,9 +364,7 @@ class TestTopicSubscription:
         mock_response.failure_count = 0
 
         with patch("firebase_admin.messaging.unsubscribe_from_topic", return_value=mock_response):
-            result = firebase_client.unsubscribe_from_topic(
-                tokens=["token-1", "token-2"], topic="weather_alerts"
-            )
+            result = firebase_client.unsubscribe_from_topic(tokens=["token-1", "token-2"], topic="weather_alerts")
 
             assert result["success_count"] == 2
             assert result["failure_count"] == 0
@@ -394,9 +378,7 @@ class TestRetryLogic:
         firebase_client._initialized = True
 
         with patch("firebase_admin.messaging.send", return_value="msg-123"):
-            result = firebase_client.send_with_retry(
-                token="token-123", title="Test", body="Test", max_retries=3
-            )
+            result = firebase_client.send_with_retry(token="token-123", title="Test", body="Test", max_retries=3)
 
             assert result == "msg-123"
 
@@ -408,9 +390,7 @@ class TestRetryLogic:
         mock_send = MagicMock(side_effect=[None, None, "msg-123"])
 
         with patch.object(firebase_client, "send_notification", mock_send):
-            result = firebase_client.send_with_retry(
-                token="token-123", title="Test", body="Test", max_retries=3
-            )
+            result = firebase_client.send_with_retry(token="token-123", title="Test", body="Test", max_retries=3)
 
             assert result == "msg-123"
             assert mock_send.call_count == 3
@@ -420,9 +400,7 @@ class TestRetryLogic:
         firebase_client._initialized = True
 
         with patch.object(firebase_client, "send_notification", return_value=None):
-            result = firebase_client.send_with_retry(
-                token="token-123", title="Test", body="Test", max_retries=3
-            )
+            result = firebase_client.send_with_retry(token="token-123", title="Test", body="Test", max_retries=3)
 
             assert result is None
 
@@ -449,9 +427,7 @@ class TestGlobalClientInstance:
         src.firebase_client._firebase_client = None
 
         with patch.dict("os.environ", {"FIREBASE_CREDENTIALS_PATH": "/path/to/creds.json"}):
-            with patch(
-                "src.firebase_client.FirebaseClient.initialize", return_value=True
-            ) as mock_init:
+            with patch("src.firebase_client.FirebaseClient.initialize", return_value=True) as mock_init:
                 client = get_firebase_client()
 
                 assert client is not None

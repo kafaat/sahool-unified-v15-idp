@@ -44,9 +44,7 @@ class RedisSentinelConfig:
 
     def __init__(self):
         # Sentinel configuration
-        self.sentinel_hosts = os.getenv(
-            "REDIS_SENTINEL_HOSTS", "localhost,localhost,localhost"
-        ).split(",")
+        self.sentinel_hosts = os.getenv("REDIS_SENTINEL_HOSTS", "localhost,localhost,localhost").split(",")
         self.sentinel_port = int(os.getenv("REDIS_SENTINEL_PORT", "26379"))
         self.sentinel_ports = [26379, 26380, 26381]  # Multiple sentinel ports
 
@@ -54,8 +52,7 @@ class RedisSentinelConfig:
         self.password = os.getenv("REDIS_PASSWORD")
         if not self.password:
             logger.warning(
-                "REDIS_PASSWORD environment variable is not set. "
-                "Redis authentication will fail in production."
+                "REDIS_PASSWORD environment variable is not set. Redis authentication will fail in production."
             )
         self.master_name = os.getenv("REDIS_MASTER_NAME", "sahool-master")
         self.db = int(os.getenv("REDIS_DB", "0"))
@@ -182,9 +179,7 @@ class RedisSentinelClient:
         self._sentinel = None
         self._master = None
         self._slave = None
-        self._circuit_breaker = CircuitBreaker(
-            failure_threshold=5, recovery_timeout=60, expected_exception=RedisError
-        )
+        self._circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60, expected_exception=RedisError)
         self._initialize_sentinel()
 
     def _initialize_sentinel(self):
@@ -273,9 +268,7 @@ class RedisSentinelClient:
         finally:
             pass  # Connection pooling handles cleanup
 
-    def _execute_with_retry(
-        self, func, *args, max_retries: int = 3, retry_delay: float = 0.5, **kwargs
-    ) -> Any:
+    def _execute_with_retry(self, func, *args, max_retries: int = 3, retry_delay: float = 0.5, **kwargs) -> Any:
         """
         تنفيذ عملية مع إعادة المحاولة
 
@@ -495,9 +488,7 @@ class RedisSentinelClient:
         max_score: float | str,
     ) -> int:
         """إزالة عناصر من مجموعة مرتبة حسب النتيجة"""
-        return self._execute_with_retry(
-            self._master.zremrangebyscore, name, min_score, max_score
-        )
+        return self._execute_with_retry(self._master.zremrangebyscore, name, min_score, max_score)
 
     def scan_iter(self, match: str = "*", count: int = 100):
         """

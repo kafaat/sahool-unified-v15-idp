@@ -227,13 +227,11 @@ class SprayWindowCalculator:
             # Linear interpolation
             if temp < self.config.temp_optimal_min:
                 scores["temperature"] = 70.0 + 30.0 * (
-                    (temp - self.config.temp_min)
-                    / (self.config.temp_optimal_min - self.config.temp_min)
+                    (temp - self.config.temp_min) / (self.config.temp_optimal_min - self.config.temp_min)
                 )
             else:
                 scores["temperature"] = 70.0 + 30.0 * (
-                    (self.config.temp_max - temp)
-                    / (self.config.temp_max - self.config.temp_optimal_max)
+                    (self.config.temp_max - temp) / (self.config.temp_max - self.config.temp_optimal_max)
                 )
         else:
             scores["temperature"] = 0.0
@@ -270,8 +268,7 @@ class SprayWindowCalculator:
             scores["wind"] = 100.0
         elif wind <= self.config.wind_max:
             scores["wind"] = 70.0 + 30.0 * (
-                (self.config.wind_max - wind)
-                / (self.config.wind_max - self.config.wind_optimal_max)
+                (self.config.wind_max - wind) / (self.config.wind_max - self.config.wind_optimal_max)
             )
             risks["drift"] = "medium"
         else:
@@ -299,8 +296,7 @@ class SprayWindowCalculator:
             hour = forecast.hour
             if hour is not None:
                 is_inversion_hour = (
-                    hour >= self.config.inversion_typical_start_hour
-                    or hour < self.config.inversion_typical_end_hour
+                    hour >= self.config.inversion_typical_start_hour or hour < self.config.inversion_typical_end_hour
                 )
                 if is_inversion_hour and forecast.wind_speed < 3:
                     # Low wind during typical inversion hours - likely inversion
@@ -402,19 +398,13 @@ class SprayWindowCalculator:
         )
 
         # Determine product suitability
-        suitable_volatile = (
-            avg_temp <= 25 and avg_humidity >= 60 and drift_risk not in ["high", "very_high"]
-        )
+        suitable_volatile = avg_temp <= 25 and avg_humidity >= 60 and drift_risk not in ["high", "very_high"]
 
         first_forecast = forecasts[0]
         last_forecast = forecasts[-1]
 
-        start_time = datetime.combine(
-            first_forecast.forecast_date, time(hour=first_forecast.hour or 0)
-        )
-        end_time = datetime.combine(
-            last_forecast.forecast_date, time(hour=(last_forecast.hour or 0) + 1)
-        )
+        start_time = datetime.combine(first_forecast.forecast_date, time(hour=first_forecast.hour or 0))
+        end_time = datetime.combine(last_forecast.forecast_date, time(hour=(last_forecast.hour or 0) + 1))
 
         return SprayWindow(
             start_time=start_time,
@@ -609,14 +599,10 @@ class SprayWindowCalculator:
 
             if is_inversion:
                 if current_start is None:
-                    current_start = datetime.combine(
-                        forecast.forecast_date, time(hour=forecast.hour or 0)
-                    )
+                    current_start = datetime.combine(forecast.forecast_date, time(hour=forecast.hour or 0))
             else:
                 if current_start is not None:
-                    end_time = datetime.combine(
-                        forecast.forecast_date, time(hour=forecast.hour or 0)
-                    )
+                    end_time = datetime.combine(forecast.forecast_date, time(hour=forecast.hour or 0))
                     inversion_periods.append((current_start, end_time))
                     current_start = None
 
@@ -647,8 +633,7 @@ class SprayWindowCalculator:
         hour = forecast.hour
         if hour is not None:
             is_inversion_hour = (
-                hour >= self.config.inversion_typical_start_hour
-                or hour < self.config.inversion_typical_end_hour
+                hour >= self.config.inversion_typical_start_hour or hour < self.config.inversion_typical_end_hour
             )
         else:
             is_inversion_hour = False
@@ -706,8 +691,7 @@ class SprayWindowCalculator:
             lines.append("=== Spray Window Summary ===")
             if window.start_time and window.end_time:
                 lines.append(
-                    f"Time: {window.start_time.strftime('%Y-%m-%d %H:%M')} - "
-                    f"{window.end_time.strftime('%H:%M')}"
+                    f"Time: {window.start_time.strftime('%Y-%m-%d %H:%M')} - {window.end_time.strftime('%H:%M')}"
                 )
             lines.append(f"Duration: {window.duration_hours:.1f} hours")
             lines.append(f"Condition: {window.overall_condition.value.upper()}")
@@ -718,9 +702,7 @@ class SprayWindowCalculator:
                 f"(avg {window.temperature_avg:.1f}C)"
             )
             lines.append(f"Humidity: {window.humidity_avg:.0f}%")
-            lines.append(
-                f"Wind: avg {window.wind_speed_avg:.1f}, max {window.wind_speed_max:.1f} km/h"
-            )
+            lines.append(f"Wind: avg {window.wind_speed_avg:.1f}, max {window.wind_speed_max:.1f} km/h")
             lines.append("")
             lines.append(f"Drift Risk: {window.drift_risk}")
             lines.append(f"Evaporation Risk: {window.evaporation_risk}")
@@ -745,8 +727,7 @@ class SprayWindowCalculator:
             lines.append("=== ملخص نافذة الرش ===")
             if window.start_time and window.end_time:
                 lines.append(
-                    f"الوقت: {window.start_time.strftime('%Y-%m-%d %H:%M')} - "
-                    f"{window.end_time.strftime('%H:%M')}"
+                    f"الوقت: {window.start_time.strftime('%Y-%m-%d %H:%M')} - {window.end_time.strftime('%H:%M')}"
                 )
             lines.append(f"المدة: {window.duration_hours:.1f} ساعات")
             lines.append(f"الحالة: {window.overall_condition.value.upper()}")
@@ -757,9 +738,7 @@ class SprayWindowCalculator:
                 f"(متوسط {window.temperature_avg:.1f}م)"
             )
             lines.append(f"الرطوبة: {window.humidity_avg:.0f}%")
-            lines.append(
-                f"الرياح: متوسط {window.wind_speed_avg:.1f}، أقصى {window.wind_speed_max:.1f} كم/ساعة"
-            )
+            lines.append(f"الرياح: متوسط {window.wind_speed_avg:.1f}، أقصى {window.wind_speed_max:.1f} كم/ساعة")
             lines.append("")
             lines.append(f"خطر الانجراف: {window.drift_risk_ar}")
             lines.append(f"خطر التبخر: {window.evaporation_risk_ar}")

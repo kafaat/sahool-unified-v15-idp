@@ -221,9 +221,7 @@ class IntelligenceCache:
             try:
                 cursor = 0
                 while True:
-                    cursor, keys = await self._redis_client.scan(
-                        cursor, match="crop_intel:*", count=100
-                    )
+                    cursor, keys = await self._redis_client.scan(cursor, match="crop_intel:*", count=100)
                     if keys:
                         await self._redis_client.delete(*keys)
                     if cursor == 0:

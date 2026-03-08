@@ -38,9 +38,7 @@ def test_basic_token_creation():
 
     try:
         # Create a token
-        token = create_service_token(
-            service_name="farm-service", target_service="field-service", ttl=300
-        )
+        token = create_service_token(service_name="farm-service", target_service="field-service", ttl=300)
         print("✓ Token created successfully")
         print(f"  Token (first 50 chars): {token[:50]}...")
 
@@ -99,9 +97,7 @@ def test_unauthorized_service():
 
     try:
         # This should fail - notification-service cannot call farm-service
-        create_service_token(
-            service_name="notification-service", target_service="farm-service", ttl=300
-        )
+        create_service_token(service_name="notification-service", target_service="farm-service", ttl=300)
         print("✗ Test failed: Should have raised an exception")
         return False
 
@@ -116,9 +112,7 @@ def test_invalid_service():
 
     try:
         # This should fail - invalid service name
-        create_service_token(
-            service_name="invalid-service", target_service="field-service", ttl=300
-        )
+        create_service_token(service_name="invalid-service", target_service="field-service", ttl=300)
         print("✗ Test failed: Should have raised an exception")
         return False
 
@@ -220,9 +214,7 @@ def test_token_expiration():
 
     try:
         # Create token with 1 second TTL
-        token = create_service_token(
-            service_name="farm-service", target_service="field-service", ttl=1
-        )
+        token = create_service_token(service_name="farm-service", target_service="field-service", ttl=1)
         print("✓ Token created with 1 second TTL")
 
         # Verify immediately (should work)
@@ -253,9 +245,7 @@ def test_service_token_revocation():
 
     try:
         # Create a token
-        token = create_service_token(
-            service_name="crop-service", target_service="advisory-service", ttl=300
-        )
+        token = create_service_token(service_name="crop-service", target_service="advisory-service", ttl=300)
         print("✓ Token created")
 
         # Verify it works
@@ -346,9 +336,7 @@ def test_rate_limiting():
 
         # Check rate limit multiple times
         for i in range(3):
-            allowed, remaining = check_service_call_rate_limit(
-                "advisory-service", "notification-service"
-            )
+            allowed, remaining = check_service_call_rate_limit("advisory-service", "notification-service")
             print(f"  Call {i + 1}: Allowed={allowed}, Remaining={remaining}")
 
         # Test stats

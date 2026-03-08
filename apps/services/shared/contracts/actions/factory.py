@@ -40,9 +40,7 @@ class ActionTemplateFactory:
         }.get(method, method)
 
         reasoning_ar = (
-            f"رطوبة التربة: {soil_moisture_percent}%"
-            if soil_moisture_percent
-            else "بناءً على تحليل احتياجات المحصول"
+            f"رطوبة التربة: {soil_moisture_percent}%" if soil_moisture_percent else "بناءً على تحليل احتياجات المحصول"
         )
 
         steps = [
@@ -145,9 +143,7 @@ class ActionTemplateFactory:
         }
 
         fert_ar, fert_en = fertilizer_names.get(fertilizer_type, (fertilizer_type, fertilizer_type))
-        method_ar, method_en = method_names.get(
-            application_method, (application_method, application_method)
-        )
+        method_ar, method_en = method_names.get(application_method, (application_method, application_method))
 
         steps = [
             ActionStep(
@@ -207,12 +203,8 @@ class ActionTemplateFactory:
             source_analysis_id=source_analysis_id,
             source_analysis_type="npk_recommendation",
             confidence=confidence,
-            reasoning_ar=(
-                f"نسبة NPK الموصى بها: {npk_ratio}" if npk_ratio else "بناءً على تحليل التربة"
-            ),
-            reasoning_en=(
-                f"Recommended NPK ratio: {npk_ratio}" if npk_ratio else "Based on soil analysis"
-            ),
+            reasoning_ar=(f"نسبة NPK الموصى بها: {npk_ratio}" if npk_ratio else "بناءً على تحليل التربة"),
+            reasoning_en=(f"Recommended NPK ratio: {npk_ratio}" if npk_ratio else "Based on soil analysis"),
             urgency=urgency,
             deadline=deadline or datetime.now(UTC) + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
@@ -379,10 +371,8 @@ class ActionTemplateFactory:
 
         return ActionTemplate(
             action_type=action_type,
-            title_ar=f"رش {pesticide_name_ar}"
-            + (f" ضد {target_pest_ar}" if target_pest_ar else ""),
-            title_en=f"Spray {pesticide_name_en}"
-            + (f" against {target_pest_en}" if target_pest_en else ""),
+            title_ar=f"رش {pesticide_name_ar}" + (f" ضد {target_pest_ar}" if target_pest_ar else ""),
+            title_en=f"Spray {pesticide_name_en}" + (f" against {target_pest_en}" if target_pest_en else ""),
             description_ar=f"رش {pesticide_name_ar} بتركيز {concentration} على مساحة {area_hectares:.2f} هكتار",
             description_en=f"Apply {pesticide_name_en} at {concentration} over {area_hectares:.2f} hectares",
             summary_ar=f"رش {pesticide_name_ar} - {area_hectares:.1f} هكتار",

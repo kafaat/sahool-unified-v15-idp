@@ -420,9 +420,7 @@ def _apply_single_change(data: dict[str, Any], change: DeltaChange) -> None:
         if change.operation == "unset" or change.operation == "remove":
             # Remove item
             current[field_name] = [
-                item
-                for item in current[field_name]
-                if not (isinstance(item, dict) and str(item.get("id")) == item_id)
+                item for item in current[field_name] if not (isinstance(item, dict) and str(item.get("id")) == item_id)
             ]
         elif change.operation == "append":
             current[field_name].append(change.new_value)
@@ -583,9 +581,7 @@ class DeltaSyncStats:
             "total_syncs": self.total_syncs,
             "delta_syncs": self.delta_syncs,
             "full_syncs": self.full_syncs,
-            "delta_rate": round(
-                (self.delta_syncs / self.total_syncs * 100) if self.total_syncs > 0 else 0, 2
-            ),
+            "delta_rate": round((self.delta_syncs / self.total_syncs * 100) if self.total_syncs > 0 else 0, 2),
             "total_bytes_saved": self.total_bytes_saved,
             "total_bytes_transferred": self.total_bytes_transferred,
             "average_savings_percent": round(self.average_savings_percent, 2),
@@ -857,9 +853,7 @@ class BatchDeltaResult:
             "total_items": self.total_items,
             "delta_items": self.delta_items,
             "full_sync_items": self.full_sync_items,
-            "delta_rate": round(
-                (self.delta_items / self.total_items * 100) if self.total_items > 0 else 0, 2
-            ),
+            "delta_rate": round((self.delta_items / self.total_items * 100) if self.total_items > 0 else 0, 2),
             "total_bytes_original": self.total_bytes_original,
             "total_bytes_transferred": self.total_bytes_transferred,
             "savings_bytes": self.savings_bytes,

@@ -299,14 +299,10 @@ class FertilizerIntegration:
             self.logger.info(f"Generating nutrient management plan for field {field_id}")
 
             # Calculate nutrient requirements based on crop and yield
-            nutrient_requirements = self._calculate_nutrient_requirements(
-                crop_type, target_yield_kg_per_ha, soil_test
-            )
+            nutrient_requirements = self._calculate_nutrient_requirements(crop_type, target_yield_kg_per_ha, soil_test)
 
             # Generate application schedule
-            planned_applications = self._generate_application_schedule(
-                crop_type, nutrient_requirements, soil_test
-            )
+            planned_applications = self._generate_application_schedule(crop_type, nutrient_requirements, soil_test)
 
             # Check compliance with GlobalGAP requirements
             compliance_status = "compliant"
@@ -481,31 +477,19 @@ class FertilizerIntegration:
             self.logger.info(f"Generating input management report for field {field_id}")
 
             # Count application types
-            organic_count = sum(
-                1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC
-            )
+            organic_count = sum(1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC)
             inorganic_count = len(applications) - organic_count
 
             # Calculate total nutrients applied
-            total_n = sum(
-                app.npk_composition.get("N", 0.0) * app.quantity_kg / 100 for app in applications
-            )
-            total_p = sum(
-                app.npk_composition.get("P", 0.0) * app.quantity_kg / 100 for app in applications
-            )
-            total_k = sum(
-                app.npk_composition.get("K", 0.0) * app.quantity_kg / 100 for app in applications
-            )
+            total_n = sum(app.npk_composition.get("N", 0.0) * app.quantity_kg / 100 for app in applications)
+            total_p = sum(app.npk_composition.get("P", 0.0) * app.quantity_kg / 100 for app in applications)
+            total_k = sum(app.npk_composition.get("K", 0.0) * app.quantity_kg / 100 for app in applications)
 
             # Check compliance factors
-            records_complete = all(
-                app.applicator_name and app.equipment_calibrated for app in applications
-            )
+            records_complete = all(app.applicator_name and app.equipment_calibrated for app in applications)
 
             # Generate recommendations
-            recommendations = self._generate_input_recommendations(
-                applications, total_n, total_p, total_k
-            )
+            recommendations = self._generate_input_recommendations(applications, total_n, total_p, total_k)
 
             report = InputManagementReport(
                 farm_id=farm_id,
@@ -673,18 +657,12 @@ class FertilizerIntegration:
 
         # Check NPK balance
         if total_n > total_p * 5:
-            recommendations.append(
-                "Nitrogen application is high relative to phosphorus - consider balancing"
-            )
+            recommendations.append("Nitrogen application is high relative to phosphorus - consider balancing")
 
         # Check organic matter
-        organic_count = sum(
-            1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC
-        )
+        organic_count = sum(1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC)
         if organic_count == 0:
-            recommendations.append(
-                "Consider incorporating organic fertilizers to improve soil health"
-            )
+            recommendations.append("Consider incorporating organic fertilizers to improve soil health")
 
         # Check calibration
         uncalibrated = sum(1 for app in applications if not app.equipment_calibrated)

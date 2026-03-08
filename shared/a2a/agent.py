@@ -81,9 +81,7 @@ class AgentCard(BaseModel):
 
     # Rate limits
     # حدود المعدل
-    rate_limit: dict[str, Any] | None = Field(
-        None, description="Rate limit information (requests_per_minute, etc.)"
-    )
+    rate_limit: dict[str, Any] | None = Field(None, description="Rate limit information (requests_per_minute, etc.)")
 
     # Authentication
     # المصادقة
@@ -95,9 +93,7 @@ class AgentCard(BaseModel):
 
     # Status
     # الحالة
-    status: str = Field(
-        default="active", description="Agent status (active, maintenance, deprecated)"
-    )
+    status: str = Field(default="active", description="Agent status (active, maintenance, deprecated)")
     last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = ConfigDict()

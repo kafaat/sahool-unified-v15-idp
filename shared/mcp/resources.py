@@ -116,12 +116,8 @@ class FieldDataResource(ResourceProvider):
                             uri=f"field://{field_id}/boundaries",
                             name=f"Field {field_name} - Boundaries",
                             name_ar=f"حقل {field_name_ar} - الحدود",
-                            description=ResourceDescriptions.get(
-                                "field_boundaries", Language.ENGLISH
-                            ),
-                            description_ar=ResourceDescriptions.get(
-                                "field_boundaries", Language.ARABIC
-                            ),
+                            description=ResourceDescriptions.get("field_boundaries", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("field_boundaries", Language.ARABIC),
                             mimeType="application/geo+json",
                         ),
                         Resource(
@@ -136,9 +132,7 @@ class FieldDataResource(ResourceProvider):
                             name=f"Field {field_name} - Sensors",
                             name_ar=f"حقل {field_name_ar} - المستشعرات",
                             description=ResourceDescriptions.get("field_sensors", Language.ENGLISH),
-                            description_ar=ResourceDescriptions.get(
-                                "field_sensors", Language.ARABIC
-                            ),
+                            description_ar=ResourceDescriptions.get("field_sensors", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"field://{field_id}/activities",
@@ -189,9 +183,7 @@ class FieldDataResource(ResourceProvider):
             response.raise_for_status()
             data = response.json()
 
-            mime_type = (
-                "application/geo+json" if resource_type == "boundaries" else "application/json"
-            )
+            mime_type = "application/geo+json" if resource_type == "boundaries" else "application/json"
 
             return ResourceContent(
                 uri=uri,
@@ -236,21 +228,15 @@ class FarmerDataResource(ResourceProvider):
                             uri=f"farmer://{farmer_id}/profile",
                             name=f"Farmer {farmer_name} - Profile",
                             name_ar=f"مزارع {farmer_name_ar} - الملف الشخصي",
-                            description=ResourceDescriptions.get(
-                                "farmer_profile", Language.ENGLISH
-                            ),
-                            description_ar=ResourceDescriptions.get(
-                                "farmer_profile", Language.ARABIC
-                            ),
+                            description=ResourceDescriptions.get("farmer_profile", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("farmer_profile", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"farmer://{farmer_id}/farms",
                             name=f"Farmer {farmer_name} - Farms",
                             name_ar=f"مزارع {farmer_name_ar} - المزارع",
                             description=ResourceDescriptions.get("farmer_farms", Language.ENGLISH),
-                            description_ar=ResourceDescriptions.get(
-                                "farmer_farms", Language.ARABIC
-                            ),
+                            description_ar=ResourceDescriptions.get("farmer_farms", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"farmer://{farmer_id}/preferences",
@@ -387,16 +373,12 @@ class WeatherDataResource(ResourceProvider):
                 response = await self.client.get(f"{self.base_url}/api/weather/current")
             elif resource_path.startswith("forecast/"):
                 days = resource_path.split("/")[1].replace("day", "")
-                response = await self.client.get(
-                    f"{self.base_url}/api/weather/forecast", params={"days": days}
-                )
+                response = await self.client.get(f"{self.base_url}/api/weather/forecast", params={"days": days})
             elif resource_path == "advisories":
                 response = await self.client.get(f"{self.base_url}/api/weather/advisories")
             elif resource_path.startswith("historical/"):
                 days = resource_path.split("/")[1].replace("day", "")
-                response = await self.client.get(
-                    f"{self.base_url}/api/weather/historical", params={"days": days}
-                )
+                response = await self.client.get(f"{self.base_url}/api/weather/historical", params={"days": days})
             elif resource_path == "alerts":
                 response = await self.client.get(f"{self.base_url}/api/weather/alerts")
             else:
@@ -464,34 +446,22 @@ class CropCatalogResource(ResourceProvider):
                             uri=f"crops://{crop_id}/growing-guide",
                             name=f"{crop_name} - Growing Guide",
                             name_ar=f"{crop_name_ar} - دليل الزراعة",
-                            description=ResourceDescriptions.get(
-                                "knowledge_crops", Language.ENGLISH
-                            ),
-                            description_ar=ResourceDescriptions.get(
-                                "knowledge_crops", Language.ARABIC
-                            ),
+                            description=ResourceDescriptions.get("knowledge_crops", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("knowledge_crops", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"crops://{crop_id}/pests",
                             name=f"{crop_name} - Pest Management",
                             name_ar=f"{crop_name_ar} - إدارة الآفات",
-                            description=ResourceDescriptions.get(
-                                "knowledge_pests", Language.ENGLISH
-                            ),
-                            description_ar=ResourceDescriptions.get(
-                                "knowledge_pests", Language.ARABIC
-                            ),
+                            description=ResourceDescriptions.get("knowledge_pests", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("knowledge_pests", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"crops://{crop_id}/diseases",
                             name=f"{crop_name} - Disease Management",
                             name_ar=f"{crop_name_ar} - إدارة الأمراض",
-                            description=ResourceDescriptions.get(
-                                "knowledge_diseases", Language.ENGLISH
-                            ),
-                            description_ar=ResourceDescriptions.get(
-                                "knowledge_diseases", Language.ARABIC
-                            ),
+                            description=ResourceDescriptions.get("knowledge_diseases", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("knowledge_diseases", Language.ARABIC),
                         ),
                         Resource(
                             uri=f"crops://{crop_id}/varieties",
@@ -693,9 +663,7 @@ class KnowledgeBaseResource(ResourceProvider):
                 topic_id = parts[0]
                 subtopic = parts[1]
 
-                response = await self.client.get(
-                    f"{self.base_url}/api/knowledge/{topic_id}/{subtopic}"
-                )
+                response = await self.client.get(f"{self.base_url}/api/knowledge/{topic_id}/{subtopic}")
                 response.raise_for_status()
                 data = response.json()
 

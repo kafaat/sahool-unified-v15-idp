@@ -252,32 +252,20 @@ class IrrigationGoal(BaseModel):
     name: str = Field(default="", description="Goal name (English) | اسم الهدف (إنجليزي)")
     name_ar: str = Field(default="", description="Goal name (Arabic) | اسم الهدف (عربي)")
     description: str = Field(default="", description="Goal description | وصف الهدف")
-    description_ar: str = Field(
-        default="", description="Goal description (Arabic) | وصف الهدف (عربي)"
-    )
-    target_value: float | None = Field(
-        None, description="Target metric value | القيمة المستهدفة للمقياس"
-    )
+    description_ar: str = Field(default="", description="Goal description (Arabic) | وصف الهدف (عربي)")
+    target_value: float | None = Field(None, description="Target metric value | القيمة المستهدفة للمقياس")
     target_reduction: float | None = Field(
         None,
         ge=0.0,
         le=1.0,
         description="Target reduction percentage (0-1) | نسبة التخفيض المستهدفة",
     )
-    priority: int = Field(
-        default=1, ge=1, le=10, description="Priority level (1=highest) | مستوى الأولوية"
-    )
-    is_primary: bool = Field(
-        default=False, description="Is this the primary goal | هل هذا الهدف الرئيسي"
-    )
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    priority: int = Field(default=1, ge=1, le=10, description="Priority level (1=highest) | مستوى الأولوية")
+    is_primary: bool = Field(default=False, description="Is this the primary goal | هل هذا الهدف الرئيسي")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
     model_config = {
-        "json_schema_extra": {
-            "example": {"goal_type": "water_saving", "target_reduction": 0.3, "priority": 1}
-        }
+        "json_schema_extra": {"example": {"goal_type": "water_saving", "target_reduction": 0.3, "priority": 1}}
     }
 
 
@@ -302,9 +290,7 @@ class EcologicalConstraint(BaseModel):
     name: str = Field(default="", description="Constraint name | اسم القيد")
     name_ar: str = Field(default="", description="Constraint name (Arabic) | اسم القيد (عربي)")
     description: str = Field(default="", description="Constraint description | وصف القيد")
-    description_ar: str = Field(
-        default="", description="Constraint description (Arabic) | وصف القيد (عربي)"
-    )
+    description_ar: str = Field(default="", description="Constraint description (Arabic) | وصف القيد (عربي)")
 
     # Water constraints
     water_quota_m3: float | None = Field(
@@ -356,12 +342,8 @@ class EcologicalConstraint(BaseModel):
         default_factory=dict, description="Seasonal restrictions | قيود موسمية"
     )
 
-    is_mandatory: bool = Field(
-        default=True, description="Whether constraint is mandatory | هل القيد إلزامي"
-    )
-    enforcement_level: str = Field(
-        default="strict", description="Enforcement level: strict/warning | مستوى التنفيذ"
-    )
+    is_mandatory: bool = Field(default=True, description="Whether constraint is mandatory | هل القيد إلزامي")
+    enforcement_level: str = Field(default="strict", description="Enforcement level: strict/warning | مستوى التنفيذ")
 
     @field_validator("soil_moisture_max")
     @classmethod
@@ -397,56 +379,36 @@ class ExperienceRule(BaseModel):
     name: str = Field(default="", description="Rule name | اسم القاعدة")
     name_ar: str = Field(default="", description="Rule name (Arabic) | اسم القاعدة (عربي)")
 
-    condition: str = Field(
-        ..., min_length=1, description="Condition that triggers the rule | الشرط الذي يفعّل القاعدة"
-    )
-    condition_ar: str = Field(
-        default="", description="Condition description (Arabic) | وصف الشرط (عربي)"
-    )
+    condition: str = Field(..., min_length=1, description="Condition that triggers the rule | الشرط الذي يفعّل القاعدة")
+    condition_ar: str = Field(default="", description="Condition description (Arabic) | وصف الشرط (عربي)")
 
     action: str = Field(
         ...,
         min_length=1,
         description="Action to take when condition is met | الإجراء عند تحقق الشرط",
     )
-    action_ar: str = Field(
-        default="", description="Action description (Arabic) | وصف الإجراء (عربي)"
-    )
+    action_ar: str = Field(default="", description="Action description (Arabic) | وصف الإجراء (عربي)")
 
-    source: ExperienceSource = Field(
-        ..., description="Source of the experience rule | مصدر قاعدة الخبرة"
-    )
+    source: ExperienceSource = Field(..., description="Source of the experience rule | مصدر قاعدة الخبرة")
     source_detail: str = Field(
         default="",
         description="Detailed source info (farmer name, study reference) | تفاصيل المصدر",
     )
 
-    rationale: str = Field(
-        default="", description="Explanation of why this rule works | شرح سبب نجاح هذه القاعدة"
-    )
+    rationale: str = Field(default="", description="Explanation of why this rule works | شرح سبب نجاح هذه القاعدة")
     rationale_ar: str = Field(default="", description="Rationale in Arabic | المبرر بالعربية")
 
     # Applicability
-    crop_types: list[str] = Field(
-        default_factory=list, description="Applicable crop types | أنواع المحاصيل المطبقة"
-    )
-    soil_types: list[SoilType] = Field(
-        default_factory=list, description="Applicable soil types | أنواع التربة المطبقة"
-    )
-    seasons: list[str] = Field(
-        default_factory=list, description="Applicable seasons | المواسم المطبقة"
-    )
-    growth_stages: list[str] = Field(
-        default_factory=list, description="Applicable growth stages | مراحل النمو المطبقة"
-    )
+    crop_types: list[str] = Field(default_factory=list, description="Applicable crop types | أنواع المحاصيل المطبقة")
+    soil_types: list[SoilType] = Field(default_factory=list, description="Applicable soil types | أنواع التربة المطبقة")
+    seasons: list[str] = Field(default_factory=list, description="Applicable seasons | المواسم المطبقة")
+    growth_stages: list[str] = Field(default_factory=list, description="Applicable growth stages | مراحل النمو المطبقة")
 
     # Validation
     confidence: float = Field(
         default=0.8, ge=0.0, le=1.0, description="Confidence in the rule (0-1) | الثقة في القاعدة"
     )
-    validation_count: int = Field(
-        default=0, ge=0, description="Number of times validated | عدد مرات التحقق"
-    )
+    validation_count: int = Field(default=0, ge=0, description="Number of times validated | عدد مرات التحقق")
     success_rate: float | None = Field(
         None, ge=0.0, le=1.0, description="Historical success rate | معدل النجاح التاريخي"
     )
@@ -457,9 +419,7 @@ class ExperienceRule(BaseModel):
     )
     created_by: str = Field(default="", description="Creator (user/system) | المُنشئ")
 
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
 
 
 class HumanDecision(BaseModel):
@@ -480,20 +440,14 @@ class HumanDecision(BaseModel):
     """
 
     id: UUID = Field(default_factory=uuid4, description="Unique decision ID | معرف القرار الفريد")
-    session_id: UUID | None = Field(
-        None, description="Associated session ID | معرف الجلسة المرتبطة"
-    )
+    session_id: UUID | None = Field(None, description="Associated session ID | معرف الجلسة المرتبطة")
     recommendation_id: UUID | None = Field(
         None, description="AI recommendation being decided on | توصية الذكاء الاصطناعي المُقررة"
     )
 
-    decision_type: DecisionType = Field(
-        ..., description="Type of decision made | نوع القرار المتخذ"
-    )
+    decision_type: DecisionType = Field(..., description="Type of decision made | نوع القرار المتخذ")
 
-    rationale: str = Field(
-        default="", description="Human's reasoning for the decision | مبرر الإنسان للقرار"
-    )
+    rationale: str = Field(default="", description="Human's reasoning for the decision | مبرر الإنسان للقرار")
     rationale_ar: str = Field(default="", description="Rationale in Arabic | المبرر بالعربية")
 
     override_ai: bool = Field(
@@ -527,9 +481,7 @@ class HumanDecision(BaseModel):
     )
 
     # For audit and learning
-    tags: list[str] = Field(
-        default_factory=list, description="Tags for categorization | علامات للتصنيف"
-    )
+    tags: list[str] = Field(default_factory=list, description="Tags for categorization | علامات للتصنيف")
     feedback_collected: bool = Field(
         default=False, description="Whether feedback was collected | هل جُمعت التغذية الراجعة"
     )
@@ -553,22 +505,14 @@ class CalibrationResult(BaseModel):
     """
 
     id: UUID = Field(default_factory=uuid4, description="Unique result ID | معرف النتيجة الفريد")
-    session_id: UUID | None = Field(
-        None, description="Associated session ID | معرف الجلسة المرتبطة"
-    )
+    session_id: UUID | None = Field(None, description="Associated session ID | معرف الجلسة المرتبطة")
     program_id: UUID | None = Field(None, description="Program being calibrated | البرنامج المُعاير")
 
-    method: CalibrationMethod = Field(
-        ..., description="Calibration method used | طريقة المعايرة المستخدمة"
-    )
+    method: CalibrationMethod = Field(..., description="Calibration method used | طريقة المعايرة المستخدمة")
 
     # Test results
-    simulation_passed: bool = Field(
-        default=False, description="Simulation test passed | اجتاز اختبار المحاكاة"
-    )
-    field_test_passed: bool = Field(
-        default=False, description="Field test passed | اجتاز الاختبار الحقلي"
-    )
+    simulation_passed: bool = Field(default=False, description="Simulation test passed | اجتاز اختبار المحاكاة")
+    field_test_passed: bool = Field(default=False, description="Field test passed | اجتاز الاختبار الحقلي")
 
     # Predicted outcomes
     predicted_water_saving: float | None = Field(
@@ -577,17 +521,13 @@ class CalibrationResult(BaseModel):
     predicted_yield_impact: float | None = Field(
         None, description="Predicted yield impact percentage | تأثير الإنتاجية المتوقع"
     )
-    predicted_cost_saving: float | None = Field(
-        None, description="Predicted cost saving | توفير التكلفة المتوقع"
-    )
+    predicted_cost_saving: float | None = Field(None, description="Predicted cost saving | توفير التكلفة المتوقع")
 
     # Issues and recommendations
     issues_found: list[str] = Field(
         default_factory=list, description="Issues identified during calibration | المشاكل المكتشفة"
     )
-    issues_found_ar: list[str] = Field(
-        default_factory=list, description="Issues in Arabic | المشاكل بالعربية"
-    )
+    issues_found_ar: list[str] = Field(default_factory=list, description="Issues in Arabic | المشاكل بالعربية")
 
     recommendations: list[str] = Field(
         default_factory=list,
@@ -598,17 +538,13 @@ class CalibrationResult(BaseModel):
     )
 
     # Comparison with control (if A/B test)
-    control_method: str | None = Field(
-        None, description="Control method for comparison | طريقة المقارنة"
-    )
+    control_method: str | None = Field(None, description="Control method for comparison | طريقة المقارنة")
     improvement_over_control: float | None = Field(
         None, description="Percentage improvement over control | نسبة التحسن عن المقارنة"
     )
 
     # Metadata
-    duration_hours: float | None = Field(
-        None, ge=0, description="Duration of calibration test | مدة اختبار المعايرة"
-    )
+    duration_hours: float | None = Field(None, ge=0, description="Duration of calibration test | مدة اختبار المعايرة")
     test_area_hectares: float | None = Field(
         None, ge=0, description="Area used for testing | المساحة المستخدمة للاختبار"
     )
@@ -616,13 +552,9 @@ class CalibrationResult(BaseModel):
     started_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Test start time | وقت بدء الاختبار"
     )
-    completed_at: datetime | None = Field(
-        None, description="Test completion time | وقت اكتمال الاختبار"
-    )
+    completed_at: datetime | None = Field(None, description="Test completion time | وقت اكتمال الاختبار")
 
-    raw_data: dict[str, Any] = Field(
-        default_factory=dict, description="Raw test data | البيانات الخام للاختبار"
-    )
+    raw_data: dict[str, Any] = Field(default_factory=dict, description="Raw test data | البيانات الخام للاختبار")
 
     @property
     def is_successful(self) -> bool:
@@ -648,38 +580,26 @@ class ZoneConfiguration(BaseModel):
         )
     """
 
-    zone_id: str = Field(
-        ..., min_length=1, description="Unique zone identifier | معرف المنطقة الفريد"
-    )
+    zone_id: str = Field(..., min_length=1, description="Unique zone identifier | معرف المنطقة الفريد")
     name: str = Field(default="", description="Zone name | اسم المنطقة")
     name_ar: str = Field(default="", description="Zone name (Arabic) | اسم المنطقة (عربي)")
     description: str = Field(default="", description="Zone description | وصف المنطقة")
 
     # Physical characteristics
-    soil_type: SoilType | None = Field(
-        None, description="Soil type in zone | نوع التربة في المنطقة"
-    )
+    soil_type: SoilType | None = Field(None, description="Soil type in zone | نوع التربة في المنطقة")
     productivity_level: ProductivityLevel = Field(
         default=ProductivityLevel.MEDIUM,
         description="Historical productivity level | مستوى الإنتاجية التاريخي",
     )
-    area_hectares: float | None = Field(
-        None, ge=0, description="Zone area in hectares | مساحة المنطقة بالهكتار"
-    )
-    slope_percent: float | None = Field(
-        None, ge=0, le=100, description="Terrain slope percentage | نسبة ميل التضاريس"
-    )
+    area_hectares: float | None = Field(None, ge=0, description="Zone area in hectares | مساحة المنطقة بالهكتار")
+    slope_percent: float | None = Field(None, ge=0, le=100, description="Terrain slope percentage | نسبة ميل التضاريس")
 
     # Irrigation infrastructure
-    irrigation_type: str = Field(
-        default="drip", description="Irrigation type: drip/sprinkler/flood | نوع الري"
-    )
+    irrigation_type: str = Field(default="drip", description="Irrigation type: drip/sprinkler/flood | نوع الري")
     emitter_rate_lph: float | None = Field(
         None, ge=0, description="Emitter rate (liters/hour) | معدل المنقط (لتر/ساعة)"
     )
-    emitter_spacing_m: float | None = Field(
-        None, ge=0, description="Emitter spacing (meters) | المسافة بين المنقطات"
-    )
+    emitter_spacing_m: float | None = Field(None, ge=0, description="Emitter spacing (meters) | المسافة بين المنقطات")
 
     # Custom parameters
     custom_params: dict[str, Any] = Field(
@@ -716,25 +636,17 @@ class CollaborativeChecklistItem(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique item ID | معرف العنصر الفريد")
     dimension: ChecklistDimension = Field(..., description="HMC framework dimension | بُعد إطار HMC")
 
-    item: str = Field(
-        ..., min_length=1, description="Checklist item description | وصف عنصر القائمة"
-    )
-    item_ar: str = Field(
-        ..., min_length=1, description="Item description (Arabic) | الوصف بالعربية"
-    )
+    item: str = Field(..., min_length=1, description="Checklist item description | وصف عنصر القائمة")
+    item_ar: str = Field(..., min_length=1, description="Item description (Arabic) | الوصف بالعربية")
 
     checked: bool = Field(default=False, description="Whether item is completed | هل اكتمل العنصر")
-    checked_at: datetime | None = Field(
-        None, description="When item was checked | وقت التحقق من العنصر"
-    )
+    checked_at: datetime | None = Field(None, description="When item was checked | وقت التحقق من العنصر")
     checked_by: str = Field(default="", description="Who checked the item | من حقق العنصر")
 
     notes: str = Field(default="", description="Additional notes for this item | ملاحظات إضافية")
     notes_ar: str = Field(default="", description="Notes in Arabic | الملاحظات بالعربية")
 
-    is_mandatory: bool = Field(
-        default=True, description="Whether item is mandatory | هل العنصر إلزامي"
-    )
+    is_mandatory: bool = Field(default=True, description="Whether item is mandatory | هل العنصر إلزامي")
     order: int = Field(default=0, description="Display order within dimension | ترتيب العرض")
 
     evidence: dict[str, Any] = Field(
@@ -756,9 +668,7 @@ class IrrigationSchedule(BaseModel):
 
     start_time: datetime = Field(..., description="Scheduled start time | وقت البدء المجدول")
     duration_minutes: int = Field(..., ge=1, description="Duration in minutes | المدة بالدقائق")
-    volume_m3: float | None = Field(
-        None, ge=0, description="Planned water volume (m3) | حجم المياه المخطط"
-    )
+    volume_m3: float | None = Field(None, ge=0, description="Planned water volume (m3) | حجم المياه المخطط")
 
     # Conditions
     preconditions: dict[str, Any] = Field(
@@ -802,9 +712,7 @@ class IrrigationProgram(BaseModel):
     growth_stage: str = Field(default="", description="Current growth stage | مرحلة النمو الحالية")
 
     # Schedule
-    schedules: list[IrrigationSchedule] = Field(
-        default_factory=list, description="Irrigation events | أحداث الري"
-    )
+    schedules: list[IrrigationSchedule] = Field(default_factory=list, description="Irrigation events | أحداث الري")
     start_date: datetime | None = Field(None, description="Program start date | تاريخ بدء البرنامج")
     end_date: datetime | None = Field(None, description="Program end date | تاريخ انتهاء البرنامج")
 
@@ -819,9 +727,7 @@ class IrrigationProgram(BaseModel):
 
     # Generation info
     generated_by: str = Field(default="ai", description="Who generated: ai/human/hybrid | من أنشأ")
-    generation_model: str = Field(
-        default="", description="AI model used for generation | نموذج الذكاء الاصطناعي"
-    )
+    generation_model: str = Field(default="", description="AI model used for generation | نموذج الذكاء الاصطناعي")
     confidence_score: float = Field(
         default=0.8,
         ge=0.0,
@@ -830,9 +736,7 @@ class IrrigationProgram(BaseModel):
     )
 
     # Goals and constraints applied
-    goals_applied: list[UUID] = Field(
-        default_factory=list, description="Goal IDs applied | معرفات الأهداف المطبقة"
-    )
+    goals_applied: list[UUID] = Field(default_factory=list, description="Goal IDs applied | معرفات الأهداف المطبقة")
     constraints_applied: list[UUID] = Field(
         default_factory=list, description="Constraint IDs applied | معرفات القيود المطبقة"
     )
@@ -847,17 +751,13 @@ class IrrigationProgram(BaseModel):
     approved_at: datetime | None = Field(None, description="Approval time | وقت الموافقة")
 
     # Metadata
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Creation time | وقت الإنشاء"
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Creation time | وقت الإنشاء")
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Last update time | وقت آخر تحديث"
     )
     version: int = Field(default=1, ge=1, description="Program version | إصدار البرنامج")
 
-    parameters: dict[str, Any] = Field(
-        default_factory=dict, description="Additional parameters | معلمات إضافية"
-    )
+    parameters: dict[str, Any] = Field(default_factory=dict, description="Additional parameters | معلمات إضافية")
 
 
 class ValidationReport(BaseModel):
@@ -870,16 +770,12 @@ class ValidationReport(BaseModel):
     """
 
     id: UUID = Field(default_factory=uuid4, description="Report ID | معرف التقرير")
-    session_id: UUID | None = Field(
-        None, description="Associated session ID | معرف الجلسة المرتبطة"
-    )
+    session_id: UUID | None = Field(None, description="Associated session ID | معرف الجلسة المرتبطة")
     generated_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Generation time | وقت الإنشاء"
     )
 
-    is_complete: bool = Field(
-        default=False, description="All mandatory items complete | اكتملت جميع العناصر الإلزامية"
-    )
+    is_complete: bool = Field(default=False, description="All mandatory items complete | اكتملت جميع العناصر الإلزامية")
     completion_percentage: float = Field(
         default=0.0,
         ge=0.0,
@@ -901,21 +797,15 @@ class ValidationReport(BaseModel):
         default_factory=list, description="Blocking issues in Arabic | المشاكل المانعة بالعربية"
     )
 
-    warnings: list[str] = Field(
-        default_factory=list, description="Non-blocking warnings | تحذيرات غير مانعة"
-    )
-    warnings_ar: list[str] = Field(
-        default_factory=list, description="Warnings in Arabic | التحذيرات بالعربية"
-    )
+    warnings: list[str] = Field(default_factory=list, description="Non-blocking warnings | تحذيرات غير مانعة")
+    warnings_ar: list[str] = Field(default_factory=list, description="Warnings in Arabic | التحذيرات بالعربية")
 
     recommendations: list[str] = Field(
         default_factory=list, description="Recommendations for improvement | توصيات للتحسين"
     )
 
     # Ready for execution
-    ready_for_execution: bool = Field(
-        default=False, description="Ready for program execution | جاهز لتنفيذ البرنامج"
-    )
+    ready_for_execution: bool = Field(default=False, description="Ready for program execution | جاهز لتنفيذ البرنامج")
 
 
 class SessionOutcome(BaseModel):
@@ -935,49 +825,33 @@ class SessionOutcome(BaseModel):
     actual_water_usage_m3: float | None = Field(
         None, ge=0, description="Actual water used (m3) | المياه المستخدمة فعلياً"
     )
-    actual_yield: float | None = Field(
-        None, ge=0, description="Actual yield achieved | الإنتاجية الفعلية"
-    )
+    actual_yield: float | None = Field(None, ge=0, description="Actual yield achieved | الإنتاجية الفعلية")
     actual_cost: float | None = Field(None, ge=0, description="Actual cost | التكلفة الفعلية")
 
     # Performance metrics
-    water_saving_achieved: float | None = Field(
-        None, description="Water saving achieved (%) | توفير المياه المحقق"
-    )
-    yield_vs_baseline: float | None = Field(
-        None, description="Yield vs baseline (%) | الإنتاجية مقابل الأساس"
-    )
-    cost_vs_baseline: float | None = Field(
-        None, description="Cost vs baseline (%) | التكلفة مقابل الأساس"
-    )
+    water_saving_achieved: float | None = Field(None, description="Water saving achieved (%) | توفير المياه المحقق")
+    yield_vs_baseline: float | None = Field(None, description="Yield vs baseline (%) | الإنتاجية مقابل الأساس")
+    cost_vs_baseline: float | None = Field(None, description="Cost vs baseline (%) | التكلفة مقابل الأساس")
 
     # Quality indicators
     overall_success: bool = Field(default=False, description="Overall success | النجاح الإجمالي")
-    farmer_satisfaction: int | None = Field(
-        None, ge=1, le=5, description="Farmer satisfaction (1-5) | رضا المزارع"
-    )
+    farmer_satisfaction: int | None = Field(None, ge=1, le=5, description="Farmer satisfaction (1-5) | رضا المزارع")
 
     # Lessons learned
     lessons_learned: list[str] = Field(
         default_factory=list, description="Lessons for future sessions | الدروس المستفادة"
     )
-    lessons_learned_ar: list[str] = Field(
-        default_factory=list, description="Lessons in Arabic | الدروس بالعربية"
-    )
+    lessons_learned_ar: list[str] = Field(default_factory=list, description="Lessons in Arabic | الدروس بالعربية")
 
     new_rules_extracted: list[UUID] = Field(
         default_factory=list,
         description="New experience rules extracted | قواعد خبرة جديدة مستخرجة",
     )
 
-    recorded_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Recording time | وقت التسجيل"
-    )
+    recorded_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Recording time | وقت التسجيل")
     recorded_by: str = Field(default="", description="Who recorded | من سجل")
 
-    raw_data: dict[str, Any] = Field(
-        default_factory=dict, description="Raw outcome data | البيانات الخام للنتيجة"
-    )
+    raw_data: dict[str, Any] = Field(default_factory=dict, description="Raw outcome data | البيانات الخام للنتيجة")
 
 
 class DecisionSession(BaseModel):
@@ -994,14 +868,10 @@ class DecisionSession(BaseModel):
     field_id: UUID | None = Field(None, description="Field ID | معرف الحقل")
     farmer_id: str = Field(..., description="Farmer user ID | معرف المزارع")
 
-    status: SessionStatus = Field(
-        default=SessionStatus.INITIALIZED, description="Session status | حالة الجلسة"
-    )
+    status: SessionStatus = Field(default=SessionStatus.INITIALIZED, description="Session status | حالة الجلسة")
 
     # Goals and constraints
-    goals: list[IrrigationGoal] = Field(
-        default_factory=list, description="Irrigation goals | أهداف الري"
-    )
+    goals: list[IrrigationGoal] = Field(default_factory=list, description="Irrigation goals | أهداف الري")
     constraints: list[EcologicalConstraint] = Field(
         default_factory=list, description="Ecological constraints | القيود البيئية"
     )
@@ -1045,26 +915,18 @@ class DecisionSession(BaseModel):
     )
 
     # Context
-    context: dict[str, Any] = Field(
-        default_factory=dict, description="Session context data | بيانات سياق الجلسة"
-    )
+    context: dict[str, Any] = Field(default_factory=dict, description="Session context data | بيانات سياق الجلسة")
 
     # Timestamps
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Creation time | وقت الإنشاء"
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Creation time | وقت الإنشاء")
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Last update time | وقت آخر تحديث"
     )
     completed_at: datetime | None = Field(None, description="Completion time | وقت الإكمال")
 
     # Iteration tracking
-    iteration_count: int = Field(
-        default=1, ge=1, description="Number of iteration cycles | عدد دورات التكرار"
-    )
-    max_iterations: int = Field(
-        default=10, ge=1, description="Maximum allowed iterations | الحد الأقصى للتكرارات"
-    )
+    iteration_count: int = Field(default=1, ge=1, description="Number of iteration cycles | عدد دورات التكرار")
+    max_iterations: int = Field(default=10, ge=1, description="Maximum allowed iterations | الحد الأقصى للتكرارات")
 
     notes: str = Field(default="", description="Session notes | ملاحظات الجلسة")
     notes_ar: str = Field(default="", description="Notes in Arabic | الملاحظات بالعربية")
@@ -1084,18 +946,10 @@ class HMCError(BaseModel):
     code: str = Field(..., description="Error code | رمز الخطأ")
     message: str = Field(..., description="Error message (English) | رسالة الخطأ (إنجليزي)")
     message_ar: str = Field(..., description="Error message (Arabic) | رسالة الخطأ (عربي)")
-    details: dict[str, Any] = Field(
-        default_factory=dict, description="Additional error details | تفاصيل إضافية للخطأ"
-    )
-    recoverable: bool = Field(
-        default=True, description="Whether error is recoverable | هل الخطأ قابل للاسترداد"
-    )
-    suggested_action: str = Field(
-        default="", description="Suggested action to resolve | الإجراء المقترح للحل"
-    )
-    suggested_action_ar: str = Field(
-        default="", description="Suggested action (Arabic) | الإجراء المقترح (عربي)"
-    )
+    details: dict[str, Any] = Field(default_factory=dict, description="Additional error details | تفاصيل إضافية للخطأ")
+    recoverable: bool = Field(default=True, description="Whether error is recoverable | هل الخطأ قابل للاسترداد")
+    suggested_action: str = Field(default="", description="Suggested action to resolve | الإجراء المقترح للحل")
+    suggested_action_ar: str = Field(default="", description="Suggested action (Arabic) | الإجراء المقترح (عربي)")
 
 
 # =============================================================================
@@ -1165,4 +1019,13 @@ class HMCErrors:
         message_ar="تم الوصول إلى الحد الأقصى للتكرارات",
         suggested_action="Approve current program or reset session",
         suggested_action_ar="وافق على البرنامج الحالي أو أعد تعيين الجلسة",
+    )
+
+    SESSION_INIT_ERROR = HMCError(
+        code="SESSION_INIT_ERROR",
+        message="Session not properly initialized",
+        message_ar="لم يتم تهيئة الجلسة بشكل صحيح",
+        recoverable=False,
+        suggested_action="Call start_session() before using this method",
+        suggested_action_ar="استدعِ start_session() قبل استخدام هذه الطريقة",
     )

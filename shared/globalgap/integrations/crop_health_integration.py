@@ -171,9 +171,7 @@ class PestDetectionRecord(BaseModel):
 
     # Affected area
     affected_area_ha: float | None = Field(None, ge=0, description="Affected area in hectares")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="% of field affected"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="% of field affected")
 
     # Symptoms and evidence
     symptoms_observed: list[str] = Field(default_factory=list, description="Observed symptoms")
@@ -209,9 +207,7 @@ class PPPApplicationRecord(BaseModel):
     ppp_name: str = Field(..., description="PPP product name")
     ppp_type: PPPType = Field(..., description="PPP type")
     active_ingredient: str = Field(..., description="Active ingredient")
-    active_ingredient_concentration: str | None = Field(
-        None, description="Concentration (e.g., 25% EC)"
-    )
+    active_ingredient_concentration: str | None = Field(None, description="Concentration (e.g., 25% EC)")
 
     # Dosage
     dosage_per_ha: float = Field(..., ge=0, description="Dosage per hectare")
@@ -237,21 +233,15 @@ class PPPApplicationRecord(BaseModel):
     justification_ar: str | None = Field(None, description="Application justification (Arabic)")
 
     threshold_exceeded: bool = Field(..., description="Economic threshold exceeded")
-    alternative_methods_tried: bool = Field(
-        default=False, description="Non-chemical methods tried first"
-    )
+    alternative_methods_tried: bool = Field(default=False, description="Non-chemical methods tried first")
 
     # Weather conditions
-    weather_conditions: str | None = Field(
-        None, description="Weather conditions during application"
-    )
+    weather_conditions: str | None = Field(None, description="Weather conditions during application")
     wind_speed_kmh: float | None = Field(None, ge=0, description="Wind speed during application")
 
     # Operator
     operator_name: str | None = Field(None, description="Operator name")
-    operator_certified: bool = Field(
-        default=False, description="Operator certified for PPP application"
-    )
+    operator_certified: bool = Field(default=False, description="Operator certified for PPP application")
 
     # Evidence
     application_record_url: str | None = Field(None, description="Application record document URL")
@@ -286,31 +276,19 @@ class IPMReport(BaseModel):
         default_factory=dict,
         description="Detections by category (e.g., {'INSECT': 10, 'FUNGAL': 5})",
     )
-    detections_by_severity: dict[str, int] = Field(
-        default_factory=dict, description="Detections by severity level"
-    )
+    detections_by_severity: dict[str, int] = Field(default_factory=dict, description="Detections by severity level")
 
     # Monitoring
-    monitoring_frequency_avg_days: float | None = Field(
-        None, description="Average monitoring frequency"
-    )
-    systematic_monitoring_in_place: bool = Field(
-        ..., description="Systematic monitoring program in place"
-    )
+    monitoring_frequency_avg_days: float | None = Field(None, description="Average monitoring frequency")
+    systematic_monitoring_in_place: bool = Field(..., description="Systematic monitoring program in place")
 
     # IPM activities
     total_ipm_activities: int = Field(..., ge=0, description="Total IPM activities")
     prevention_activities: int = Field(default=0, ge=0, description="Prevention activities")
     monitoring_activities: int = Field(default=0, ge=0, description="Monitoring activities")
-    biological_control_activities: int = Field(
-        default=0, ge=0, description="Biological control activities"
-    )
-    cultural_control_activities: int = Field(
-        default=0, ge=0, description="Cultural control activities"
-    )
-    chemical_control_activities: int = Field(
-        default=0, ge=0, description="Chemical control activities"
-    )
+    biological_control_activities: int = Field(default=0, ge=0, description="Biological control activities")
+    cultural_control_activities: int = Field(default=0, ge=0, description="Cultural control activities")
+    chemical_control_activities: int = Field(default=0, ge=0, description="Chemical control activities")
 
     # PPP usage
     total_ppp_applications: int = Field(..., ge=0, description="Total PPP applications")
@@ -324,41 +302,25 @@ class IPMReport(BaseModel):
     mrl_compliance_rate: float = Field(..., ge=0, le=100, description="MRL compliance rate %")
 
     # Chemical usage breakdown
-    total_active_ingredients_used: int = Field(
-        ..., ge=0, description="Number of different active ingredients"
-    )
-    active_ingredients_list: list[str] = Field(
-        default_factory=list, description="List of active ingredients"
-    )
+    total_active_ingredients_used: int = Field(..., ge=0, description="Number of different active ingredients")
+    active_ingredients_list: list[str] = Field(default_factory=list, description="List of active ingredients")
 
     # IPM principles compliance
-    economic_thresholds_used: bool = Field(
-        ..., description="Economic thresholds used for decisions"
-    )
+    economic_thresholds_used: bool = Field(..., description="Economic thresholds used for decisions")
     preventive_measures_priority: bool = Field(..., description="Preventive measures prioritized")
     non_chemical_methods_first: bool = Field(..., description="Non-chemical methods tried first")
     chemical_last_resort: bool = Field(..., description="Chemicals used as last resort")
 
     # Overall compliance
-    overall_ipm_compliance_score: float = Field(
-        ..., ge=0, le=100, description="Overall IPM compliance %"
-    )
+    overall_ipm_compliance_score: float = Field(..., ge=0, le=100, description="Overall IPM compliance %")
     is_ipm_compliant: bool = Field(..., description="Meets GlobalGAP IPM requirements")
 
     # Issues and recommendations
-    compliance_issues_en: list[str] = Field(
-        default_factory=list, description="Compliance issues (English)"
-    )
-    compliance_issues_ar: list[str] = Field(
-        default_factory=list, description="Compliance issues (Arabic)"
-    )
+    compliance_issues_en: list[str] = Field(default_factory=list, description="Compliance issues (English)")
+    compliance_issues_ar: list[str] = Field(default_factory=list, description="Compliance issues (Arabic)")
 
-    recommendations_en: list[str] = Field(
-        default_factory=list, description="Recommendations (English)"
-    )
-    recommendations_ar: list[str] = Field(
-        default_factory=list, description="Recommendations (Arabic)"
-    )
+    recommendations_en: list[str] = Field(default_factory=list, description="Recommendations (English)")
+    recommendations_ar: list[str] = Field(default_factory=list, description="Recommendations (Arabic)")
 
     # Report metadata
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -702,9 +664,7 @@ class CropHealthIntegration:
         )
 
         # Overall compliance score (weighted)
-        compliance_score = (
-            ppp_justification_rate * 0.3 + ppp_approval_rate * 0.3 + mrl_compliance_rate * 0.4
-        )
+        compliance_score = ppp_justification_rate * 0.3 + ppp_approval_rate * 0.3 + mrl_compliance_rate * 0.4
         is_compliant = compliance_score >= 95.0  # GlobalGAP requires 95%+ for Major Must
 
         # Issues and recommendations
@@ -714,13 +674,9 @@ class CropHealthIntegration:
         recommendations_ar = []
 
         if ppp_justification_rate < 100:
-            issues_en.append(
-                f"Not all PPP applications justified (Current: {ppp_justification_rate:.1f}%)"
-            )
+            issues_en.append(f"Not all PPP applications justified (Current: {ppp_justification_rate:.1f}%)")
             issues_ar.append(f"ليست جميع تطبيقات PPP مبررة (الحالي: {ppp_justification_rate:.1f}%)")
-            recommendations_en.append(
-                "Ensure all PPP applications are based on economic thresholds"
-            )
+            recommendations_en.append("Ensure all PPP applications are based on economic thresholds")
             recommendations_ar.append("تأكد من أن جميع تطبيقات PPP تستند إلى عتبات اقتصادية")
 
         if ppp_approval_rate < 100:

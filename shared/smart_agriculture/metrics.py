@@ -97,11 +97,7 @@ class EfficiencyMetrics:
     def improvement_percentage(self) -> float:
         """Calculate improvement percentage."""
         if self.management_radius_before > 0:
-            return (
-                (self.management_radius_after - self.management_radius_before)
-                / self.management_radius_before
-                * 100
-            )
+            return (self.management_radius_after - self.management_radius_before) / self.management_radius_before * 100
         return 0.0
 
 
@@ -145,11 +141,7 @@ class ResponseMetrics:
     def improvement_percentage(self) -> float:
         """Calculate response time improvement."""
         if self.response_time_before > 0:
-            return (
-                (self.response_time_before - self.response_time_after)
-                / self.response_time_before
-                * 100
-            )
+            return (self.response_time_before - self.response_time_after) / self.response_time_before * 100
         return 0.0
 
 
@@ -199,9 +191,7 @@ class CostMetrics:
     @property
     def total_savings(self) -> float:
         """Calculate total cost savings."""
-        return (
-            self.fertilizer_cost_reduction + self.water_cost_reduction + self.energy_cost_reduction
-        )
+        return self.fertilizer_cost_reduction + self.water_cost_reduction + self.energy_cost_reduction
 
     @property
     def net_benefit(self) -> float:
@@ -520,9 +510,7 @@ class OperationalMetrics:
                 "rejection_rate": self.quality.rejection_rate,
                 "shelf_life_improvement_days": self.quality.shelf_life_improvement,
             },
-            "custom_metrics": {
-                name: metric.to_dict() for name, metric in self._custom_metrics.items()
-            },
+            "custom_metrics": {name: metric.to_dict() for name, metric in self._custom_metrics.items()},
             "tracking_since": self._tracking_start.isoformat(),
             "observation_count": len(self._history),
         }
@@ -733,9 +721,7 @@ Shelf Life Improvement: +{self.quality.shelf_life_improvement} days
             "workers_saved": round(workers_saved, 1),
             "labor_hours_saved": round(hours_saved, 0),
             "annual_savings_yuan": round(annual_savings, 0),
-            "response_time_improvement_hours": (
-                self.response.response_time_before - self.response.response_time_after
-            ),
+            "response_time_improvement_hours": (self.response.response_time_before - self.response.response_time_after),
             "early_warning_days": self.ai_performance.early_detection_average,
         }
 
@@ -759,10 +745,7 @@ Shelf Life Improvement: +{self.quality.shelf_life_improvement} days
             metrics = self.get_metric_values()
             lines = ["name,name_ar,value,unit,baseline,improvement,category"]
             for m in metrics:
-                lines.append(
-                    f"{m.name},{m.name_ar},{m.value},{m.unit},"
-                    f"{m.baseline},{m.improvement},{m.category.value}"
-                )
+                lines.append(f"{m.name},{m.name_ar},{m.value},{m.unit},{m.baseline},{m.improvement},{m.category.value}")
             return "\n".join(lines)
 
         elif format == "markdown":

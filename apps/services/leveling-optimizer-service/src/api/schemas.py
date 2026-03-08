@@ -101,9 +101,7 @@ class ElevationPoint(BaseModel):
             if len(v) == 0:
                 return None
             if len(v) > 64:
-                raise ValueError(
-                    "Point ID must be 64 characters or less | معرف النقطة يجب أن يكون 64 حرفاً أو أقل"
-                )
+                raise ValueError("Point ID must be 64 characters or less | معرف النقطة يجب أن يكون 64 حرفاً أو أقل")
         return v
 
 
@@ -122,15 +120,13 @@ class FieldBoundary(BaseModel):
         """Validate boundary coordinates."""
         if len(v) < 3:
             raise ValueError(
-                "Boundary must have at least 3 coordinate pairs | "
-                "يجب أن تحتوي الحدود على 3 أزواج إحداثيات على الأقل"
+                "Boundary must have at least 3 coordinate pairs | يجب أن تحتوي الحدود على 3 أزواج إحداثيات على الأقل"
             )
 
         for i, coord in enumerate(v):
             if not isinstance(coord, (list, tuple)) or len(coord) < 2:
                 raise ValueError(
-                    f"Coordinate at index {i} must be [x, y] array | "
-                    f"الإحداثية في الفهرس {i} يجب أن تكون مصفوفة [س، ص]"
+                    f"Coordinate at index {i} must be [x, y] array | الإحداثية في الفهرس {i} يجب أن تكون مصفوفة [س، ص]"
                 )
             try:
                 float(coord[0])
@@ -147,9 +143,7 @@ class FieldBoundary(BaseModel):
 class LevelingAnalysisRequest(BaseModel):
     """Request for field leveling analysis. | طلب تحليل تسوية الحقل"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
@@ -170,15 +164,11 @@ class LevelingAnalysisRequest(BaseModel):
         le=MAX_GRADE_PERCENT,
         description="Target grade in Y direction (%) | الميل المستهدف بالاتجاه الصادي (%)",
     )
-    method: LevelingMethod = Field(
-        LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"
-    )
+    method: LevelingMethod = Field(LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية")
     priority: LevelingPriority = Field(
         LevelingPriority.MINIMIZE_COST, description="Optimization priority | أولوية التحسين"
     )
-    include_cost_estimate: bool = Field(
-        True, description="Include cost estimate | تضمين تقدير التكلفة"
-    )
+    include_cost_estimate: bool = Field(True, description="Include cost estimate | تضمين تقدير التكلفة")
 
     @field_validator("field_id")
     @classmethod
@@ -188,9 +178,7 @@ class LevelingAnalysisRequest(BaseModel):
         if not v:
             raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
         if len(v) > 64:
-            raise ValueError(
-                "Field ID must be 64 characters or less | معرف الحقل يجب أن يكون 64 حرفاً أو أقل"
-            )
+            raise ValueError("Field ID must be 64 characters or less | معرف الحقل يجب أن يكون 64 حرفاً أو أقل")
         return v
 
     @field_validator("target_grade_x", "target_grade_y")
@@ -224,9 +212,7 @@ class LevelingAnalysisRequest(BaseModel):
 class SimulationRequest(BaseModel):
     """Request for leveling simulation. | طلب محاكاة التسوية"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     elevation_points: list[ElevationPoint] = Field(
         ...,
         description="Survey elevation points | نقاط المسح الطبوغرافي",
@@ -252,9 +238,7 @@ class SimulationRequest(BaseModel):
         description="Target grade in Y direction (%) | الميل المستهدف بالاتجاه الصادي (%)",
     )
     soil_type: SoilType = Field(SoilType.LOAMY, description="Soil type | نوع التربة")
-    method: LevelingMethod = Field(
-        LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"
-    )
+    method: LevelingMethod = Field(LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية")
 
     @field_validator("field_id")
     @classmethod
@@ -296,9 +280,7 @@ class CutFillVolume(BaseModel):
 
     cut_volume_m3: float = Field(..., description="Volume to cut (m³) | حجم القطع (م³)")
     fill_volume_m3: float = Field(..., description="Volume to fill (m³) | حجم الردم (م³)")
-    net_volume_m3: float = Field(
-        ..., description="Net volume (cut - fill) (m³) | الحجم الصافي (القطع - الردم) (م³)"
-    )
+    net_volume_m3: float = Field(..., description="Net volume (cut - fill) (m³) | الحجم الصافي (القطع - الردم) (م³)")
     cut_area_m2: float = Field(..., description="Area requiring cut (m²) | مساحة القطع (م²)")
     fill_area_m2: float = Field(..., description="Area requiring fill (m²) | مساحة الردم (م²)")
     balance_ratio: float = Field(..., description="Cut/Fill balance ratio | نسبة توازن القطع/الردم")
@@ -311,18 +293,10 @@ class CutFillVolume(BaseModel):
 class DesignPlane(BaseModel):
     """Design plane parameters. | معلمات مستوى التصميم"""
 
-    centroid_elevation: float = Field(
-        ..., description="Elevation at centroid (m) | الارتفاع عند مركز الثقل (م)"
-    )
-    grade_x_percent: float = Field(
-        ..., description="Grade in X direction (%) | الميل بالاتجاه السيني (%)"
-    )
-    grade_y_percent: float = Field(
-        ..., description="Grade in Y direction (%) | الميل بالاتجاه الصادي (%)"
-    )
-    plane_equation: str = Field(
-        ..., description="Plane equation: z = a*x + b*y + c | معادلة المستوى"
-    )
+    centroid_elevation: float = Field(..., description="Elevation at centroid (m) | الارتفاع عند مركز الثقل (م)")
+    grade_x_percent: float = Field(..., description="Grade in X direction (%) | الميل بالاتجاه السيني (%)")
+    grade_y_percent: float = Field(..., description="Grade in Y direction (%) | الميل بالاتجاه الصادي (%)")
+    plane_equation: str = Field(..., description="Plane equation: z = a*x + b*y + c | معادلة المستوى")
     coefficient_a: float = Field(..., description="Coefficient a (grade X)")
     coefficient_b: float = Field(..., description="Coefficient b (grade Y)")
     coefficient_c: float = Field(..., description="Coefficient c (elevation offset)")
@@ -331,30 +305,16 @@ class DesignPlane(BaseModel):
 class CostEstimate(BaseModel):
     """Detailed cost estimation in SAR. | تقدير التكلفة المفصل بالريال السعودي"""
 
-    total_cost_sar: float = Field(
-        ..., description="Total estimated cost (SAR) | إجمالي التكلفة المقدرة (ريال)"
-    )
-    earthwork_cost_sar: float = Field(
-        ..., description="Earthwork cost (SAR) | تكلفة الحفريات (ريال)"
-    )
-    equipment_cost_sar: float = Field(
-        ..., description="Equipment rental cost (SAR) | تكلفة استئجار المعدات (ريال)"
-    )
+    total_cost_sar: float = Field(..., description="Total estimated cost (SAR) | إجمالي التكلفة المقدرة (ريال)")
+    earthwork_cost_sar: float = Field(..., description="Earthwork cost (SAR) | تكلفة الحفريات (ريال)")
+    equipment_cost_sar: float = Field(..., description="Equipment rental cost (SAR) | تكلفة استئجار المعدات (ريال)")
     labor_cost_sar: float = Field(..., description="Labor cost (SAR) | تكلفة العمالة (ريال)")
     fuel_cost_sar: float = Field(..., description="Fuel cost (SAR) | تكلفة الوقود (ريال)")
     surveying_cost_sar: float = Field(..., description="Surveying cost (SAR) | تكلفة المسح (ريال)")
-    contingency_sar: float = Field(
-        ..., description="Contingency (10%) (SAR) | احتياطي (10%) (ريال)"
-    )
-    cost_per_m3_sar: float = Field(
-        ..., description="Cost per cubic meter (SAR/m³) | التكلفة للمتر المكعب (ريال/م³)"
-    )
-    cost_per_hectare_sar: float = Field(
-        ..., description="Cost per hectare (SAR/ha) | التكلفة للهكتار (ريال/هـ)"
-    )
-    estimated_duration_hours: float = Field(
-        ..., description="Estimated duration (hours) | المدة المقدرة (ساعات)"
-    )
+    contingency_sar: float = Field(..., description="Contingency (10%) (SAR) | احتياطي (10%) (ريال)")
+    cost_per_m3_sar: float = Field(..., description="Cost per cubic meter (SAR/m³) | التكلفة للمتر المكعب (ريال/م³)")
+    cost_per_hectare_sar: float = Field(..., description="Cost per hectare (SAR/ha) | التكلفة للهكتار (ريال/هـ)")
+    estimated_duration_hours: float = Field(..., description="Estimated duration (hours) | المدة المقدرة (ساعات)")
     estimated_duration_days: float = Field(
         ..., description="Estimated duration (8-hour days) | المدة المقدرة (أيام عمل)"
     )
@@ -372,13 +332,9 @@ class EquipmentRecommendation(BaseModel):
     equipment_name_ar: str = Field(..., description="اسم المعدات (عربي)")
     quantity: int = Field(..., description="Recommended quantity | الكمية الموصى بها")
     hours_required: float = Field(..., description="Hours required | الساعات المطلوبة")
-    cost_per_hour_sar: float = Field(
-        ..., description="Cost per hour (SAR) | التكلفة بالساعة (ريال)"
-    )
+    cost_per_hour_sar: float = Field(..., description="Cost per hour (SAR) | التكلفة بالساعة (ريال)")
     total_cost_sar: float = Field(..., description="Total cost (SAR) | إجمالي التكلفة (ريال)")
-    productivity_m3_per_hour: float = Field(
-        ..., description="Productivity (m³/hour) | الإنتاجية (م³/ساعة)"
-    )
+    productivity_m3_per_hour: float = Field(..., description="Productivity (m³/hour) | الإنتاجية (م³/ساعة)")
     recommended_for: str = Field(..., description="Recommended use case | الاستخدام الموصى به")
     priority: int = Field(..., description="Priority rank (1 = highest) | ترتيب الأولوية")
 
@@ -388,14 +344,10 @@ class LevelingPlan(BaseModel):
 
     plan_id: str = Field(..., description="Plan identifier | معرف الخطة")
     field_id: str = Field(..., description="Field identifier | معرف الحقل")
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp | وقت الإنشاء"
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp | وقت الإنشاء")
 
     # Design parameters
-    design_plane: DesignPlane = Field(
-        ..., description="Design plane parameters | معلمات مستوى التصميم"
-    )
+    design_plane: DesignPlane = Field(..., description="Design plane parameters | معلمات مستوى التصميم")
     method: LevelingMethod = Field(..., description="Leveling method | طريقة التسوية")
 
     # Volumes
@@ -403,20 +355,14 @@ class LevelingPlan(BaseModel):
 
     # Field statistics
     field_area_m2: float = Field(..., description="Field area (m²) | مساحة الحقل (م²)")
-    field_area_hectares: float = Field(
-        ..., description="Field area (hectares) | مساحة الحقل (هكتار)"
-    )
-    original_elevation_range: float = Field(
-        ..., description="Original elevation range (m) | نطاق الارتفاع الأصلي (م)"
-    )
+    field_area_hectares: float = Field(..., description="Field area (hectares) | مساحة الحقل (هكتار)")
+    original_elevation_range: float = Field(..., description="Original elevation range (m) | نطاق الارتفاع الأصلي (م)")
     leveled_elevation_range: float = Field(
         ..., description="Leveled elevation range (m) | نطاق الارتفاع بعد التسوية (م)"
     )
 
     # Haul analysis
-    avg_haul_distance_m: float = Field(
-        ..., description="Average haul distance (m) | متوسط مسافة النقل (م)"
-    )
+    avg_haul_distance_m: float = Field(..., description="Average haul distance (m) | متوسط مسافة النقل (م)")
 
     # Recommendations
     equipment_recommendations: list[EquipmentRecommendation] = Field(
@@ -429,9 +375,7 @@ class LevelingPlan(BaseModel):
     # Bilingual summaries
     summary_en: str = Field(..., description="Plan summary in English")
     summary_ar: str = Field(..., description="ملخص الخطة بالعربية")
-    recommendations_en: list[str] = Field(
-        default_factory=list, description="Recommendations in English"
-    )
+    recommendations_en: list[str] = Field(default_factory=list, description="Recommendations in English")
     recommendations_ar: list[str] = Field(default_factory=list, description="التوصيات بالعربية")
 
 
@@ -457,37 +401,25 @@ class SimulationResult(BaseModel):
     )
 
     # Original vs Simulated
-    original_points: list[ElevationPoint] = Field(
-        ..., description="Original elevation points | نقاط الارتفاع الأصلية"
-    )
+    original_points: list[ElevationPoint] = Field(..., description="Original elevation points | نقاط الارتفاع الأصلية")
     simulated_points: list[ElevationPoint] = Field(
         ..., description="Simulated leveled points | نقاط المحاكاة بعد التسوية"
     )
-    cut_points: list[ElevationPoint] = Field(
-        ..., description="Points requiring cut | نقاط تحتاج قطع"
-    )
-    fill_points: list[ElevationPoint] = Field(
-        ..., description="Points requiring fill | نقاط تحتاج ردم"
-    )
+    cut_points: list[ElevationPoint] = Field(..., description="Points requiring cut | نقاط تحتاج قطع")
+    fill_points: list[ElevationPoint] = Field(..., description="Points requiring fill | نقاط تحتاج ردم")
 
     # Design plane
-    design_plane: DesignPlane = Field(
-        ..., description="Applied design plane | مستوى التصميم المطبق"
-    )
+    design_plane: DesignPlane = Field(..., description="Applied design plane | مستوى التصميم المطبق")
 
     # Volumes
     cut_fill: CutFillVolume = Field(..., description="Cut and fill volumes | أحجام القطع والردم")
 
     # Statistics
-    original_std_dev: float = Field(
-        ..., description="Original elevation std dev (m) | الانحراف المعياري الأصلي (م)"
-    )
+    original_std_dev: float = Field(..., description="Original elevation std dev (m) | الانحراف المعياري الأصلي (م)")
     simulated_std_dev: float = Field(
         ..., description="Simulated elevation std dev (m) | الانحراف المعياري بعد المحاكاة (م)"
     )
-    uniformity_improvement: float = Field(
-        ..., description="Uniformity improvement (%) | تحسن التجانس (%)"
-    )
+    uniformity_improvement: float = Field(..., description="Uniformity improvement (%) | تحسن التجانس (%)")
 
     # Bilingual summary
     summary_en: str = Field(..., description="Simulation summary (English)")
@@ -500,9 +432,7 @@ class HealthResponse(BaseModel):
     status: str = Field(..., description="Service status | حالة الخدمة")
     service: str = Field(..., description="Service name | اسم الخدمة")
     version: str = Field(..., description="Service version | إصدار الخدمة")
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Check timestamp | وقت الفحص"
-    )
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Check timestamp | وقت الفحص")
 
 
 class ReadinessResponse(BaseModel):
@@ -511,9 +441,7 @@ class ReadinessResponse(BaseModel):
     status: str = Field(..., description="Readiness status | حالة الجاهزية")
     database: bool = Field(..., description="Database connected | الاتصال بقاعدة البيانات")
     nats: bool = Field(..., description="NATS connected | الاتصال بـ NATS")
-    checks: dict[str, bool] = Field(
-        default_factory=dict, description="Additional checks | فحوصات إضافية"
-    )
+    checks: dict[str, bool] = Field(default_factory=dict, description="Additional checks | فحوصات إضافية")
 
 
 class ErrorResponse(BaseModel):

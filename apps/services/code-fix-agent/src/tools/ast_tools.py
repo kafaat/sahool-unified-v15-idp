@@ -196,9 +196,7 @@ class ASTAnalyzer:
                         symbols.append(
                             Symbol(
                                 name=target.id,
-                                symbol_type=SymbolType.CONSTANT
-                                if target.id.isupper()
-                                else SymbolType.VARIABLE,
+                                symbol_type=SymbolType.CONSTANT if target.id.isupper() else SymbolType.VARIABLE,
                                 line_start=node.lineno,
                                 line_end=node.end_lineno or node.lineno,
                                 column_start=node.col_offset,
@@ -214,24 +212,16 @@ class ASTAnalyzer:
                             line_start=node.lineno,
                             line_end=node.end_lineno or node.lineno,
                             column_start=node.col_offset,
-                            metadata={
-                                "annotation": ast.unparse(node.annotation)
-                                if node.annotation
-                                else None
-                            },
+                            metadata={"annotation": ast.unparse(node.annotation) if node.annotation else None},
                         )
                     )
 
         return symbols
 
-    def _function_to_symbol(
-        self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool
-    ) -> Symbol:
+    def _function_to_symbol(self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool) -> Symbol:
         """تحويل دالة إلى رمز"""
         # Get decorators
-        decorators = [
-            ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list
-        ]
+        decorators = [ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list]
 
         # Get parameters
         params = []
@@ -244,9 +234,7 @@ class ASTAnalyzer:
         # Get return type
         return_type = None
         if node.returns:
-            return_type = (
-                ast.unparse(node.returns) if hasattr(ast, "unparse") else str(node.returns)
-            )
+            return_type = ast.unparse(node.returns) if hasattr(ast, "unparse") else str(node.returns)
 
         # Get docstring
         docstring = ast.get_docstring(node)
@@ -271,9 +259,7 @@ class ASTAnalyzer:
     def _class_to_symbol(self, node: ast.ClassDef) -> Symbol:
         """تحويل فئة إلى رمز"""
         # Get decorators
-        decorators = [
-            ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list
-        ]
+        decorators = [ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list]
 
         # Get docstring
         docstring = ast.get_docstring(node)
@@ -520,9 +506,7 @@ class ASTAnalyzer:
         for node in ast.walk(self._tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 if node.name == function_name:
-                    return self._function_to_symbol(
-                        node, is_async=isinstance(node, ast.AsyncFunctionDef)
-                    )
+                    return self._function_to_symbol(node, is_async=isinstance(node, ast.AsyncFunctionDef))
         return None
 
     def get_class_info(self, class_name: str) -> Symbol | None:

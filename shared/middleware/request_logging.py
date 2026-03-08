@@ -100,9 +100,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Generate or extract correlation ID
         correlation_id = (
-            request.headers.get("X-Correlation-ID")
-            or request.headers.get("X-Request-ID")
-            or str(uuid.uuid4())
+            request.headers.get("X-Correlation-ID") or request.headers.get("X-Request-ID") or str(uuid.uuid4())
         )
 
         # Extract tenant and user IDs
@@ -291,8 +289,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 redacted[key] = self._redact_sensitive_data(value)
             elif isinstance(value, list):
                 redacted[key] = [
-                    (self._redact_sensitive_data(item) if isinstance(item, dict) else item)
-                    for item in value
+                    (self._redact_sensitive_data(item) if isinstance(item, dict) else item) for item in value
                 ]
             else:
                 redacted[key] = value

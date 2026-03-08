@@ -322,9 +322,7 @@ class RuleEngine:
 
         return triggered
 
-    def _evaluate_conditions(
-        self, rule: IFTTTRule, readings_by_type: dict[SensorType, list[SensorReading]]
-    ) -> bool:
+    def _evaluate_conditions(self, rule: IFTTTRule, readings_by_type: dict[SensorType, list[SensorReading]]) -> bool:
         """
         Evaluate rule conditions.
         تقييم شروط القاعدة
@@ -346,9 +344,7 @@ class RuleEngine:
             avg_value = statistics.mean(r.value for r in readings)
 
             # Evaluate condition
-            condition_met = self._evaluate_condition(
-                avg_value, condition.operator, condition.threshold
-            )
+            condition_met = self._evaluate_condition(avg_value, condition.operator, condition.threshold)
             results.append(condition_met)
 
         # Apply logic (AND/OR)
@@ -743,9 +739,7 @@ class EdgeComputingLayer:
 
         # Determine decision type and action
         decision_result = result.get("result", {})
-        decision_type, action, action_ar = self._interpret_inference_result(
-            model_name, decision_result
-        )
+        decision_type, action, action_ar = self._interpret_inference_result(model_name, decision_result)
 
         # Create decision
         decision = EdgeDecision(
@@ -799,9 +793,7 @@ class EdgeComputingLayer:
 
         return result
 
-    def _interpret_inference_result(
-        self, model_name: str, result: dict[str, Any]
-    ) -> tuple[DecisionType, str, str]:
+    def _interpret_inference_result(self, model_name: str, result: dict[str, Any]) -> tuple[DecisionType, str, str]:
         """Interpret inference result into decision type and action."""
         if model_name == "irrigation_decision":
             decision = result.get("decision", "monitor")
@@ -869,9 +861,7 @@ class EdgeComputingLayer:
 
         loaded_rules = self._rule_engine.get_rules()
 
-        self._logger.info(
-            "rules_loaded", rule_count=len(loaded_rules), message_ar="تم تحميل القواعد"
-        )
+        self._logger.info("rules_loaded", rule_count=len(loaded_rules), message_ar="تم تحميل القواعد")
 
         return loaded_rules
 
@@ -939,9 +929,7 @@ class EdgeComputingLayer:
         )
         return True
 
-    def auto_irrigation_trigger(
-        self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None
-    ) -> IFTTTRule:
+    def auto_irrigation_trigger(self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None) -> IFTTTRule:
         """
         Set up automatic irrigation triggering based on soil moisture.
         إعداد تشغيل الري التلقائي بناءً على رطوبة التربة
@@ -1103,19 +1091,13 @@ class EdgeComputingLayer:
             "offline_autonomy": self.offline_autonomy,
             "total_decisions": self._total_decisions,
             "offline_decisions": self._offline_decisions,
-            "offline_ratio": (
-                self._offline_decisions / self._total_decisions
-                if self._total_decisions > 0
-                else 0.0
-            ),
+            "offline_ratio": (self._offline_decisions / self._total_decisions if self._total_decisions > 0 else 0.0),
             "average_latency_ms": self.response_latency,
             "target_latency_ms": self.TARGET_LATENCY_MS,
             "latency_within_target": self.response_latency <= self.TARGET_LATENCY_MS,
             "active_rules": len(self._rule_engine.get_rules(active_only=True)),
             "pending_sync_count": pending_sync,
-            "last_cloud_sync": (
-                self._last_cloud_sync.isoformat() if self._last_cloud_sync else None
-            ),
+            "last_cloud_sync": (self._last_cloud_sync.isoformat() if self._last_cloud_sync else None),
         }
 
     def on_decision(self, callback: Callable[[EdgeDecision], None]) -> None:
@@ -1147,9 +1129,7 @@ class EdgeComputingLayer:
 # =============================================================================
 
 
-def get_edge_layer(
-    gateway_id: str, location: str, offline_autonomy: bool = True
-) -> EdgeComputingLayer:
+def get_edge_layer(gateway_id: str, location: str, offline_autonomy: bool = True) -> EdgeComputingLayer:
     """
     Get an edge computing layer instance.
     الحصول على مثيل طبقة الحوسبة الطرفية

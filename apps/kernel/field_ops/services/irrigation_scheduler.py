@@ -356,10 +356,7 @@ class IrrigationScheduler:
             RH_mean = weather_data.humidity_mean
             ea = es * (RH_mean / 100)
         elif weather_data.humidity_max and weather_data.humidity_min:
-            ea = (
-                e_T_min * (weather_data.humidity_max / 100)
-                + e_T_max * (weather_data.humidity_min / 100)
-            ) / 2
+            ea = (e_T_min * (weather_data.humidity_max / 100) + e_T_max * (weather_data.humidity_min / 100)) / 2
         else:
             ea = es * 0.7  # افتراض 70% رطوبة - Assume 70% humidity
 
@@ -369,9 +366,7 @@ class IrrigationScheduler:
         else:
             # تقدير الإشعاع الشمسي من ساعات السطوع
             # Estimate solar radiation from sunshine hours
-            Rs = self._estimate_solar_radiation(
-                lat, weather_data.observation_date, weather_data.sunshine_hours or 8
-            )
+            Rs = self._estimate_solar_radiation(lat, weather_data.observation_date, weather_data.sunshine_hours or 8)
 
         # الإشعاع خارج الغلاف الجوي - Extraterrestrial radiation
         Ra = self._calculate_extraterrestrial_radiation(lat, weather_data.observation_date)
@@ -406,9 +401,7 @@ class IrrigationScheduler:
 
         return et0
 
-    def _estimate_solar_radiation(
-        self, latitude: float, date_val: date, sunshine_hours: float
-    ) -> float:
+    def _estimate_solar_radiation(self, latitude: float, date_val: date, sunshine_hours: float) -> float:
         """
         تقدير الإشعاع الشمسي من ساعات السطوع
         Estimate solar radiation from sunshine hours
@@ -457,10 +450,7 @@ class IrrigationScheduler:
             (24 * 60 / math.pi)
             * Gsc
             * dr
-            * (
-                ws * math.sin(lat_rad) * math.sin(delta)
-                + math.cos(lat_rad) * math.cos(delta) * math.sin(ws)
-            )
+            * (ws * math.sin(lat_rad) * math.sin(delta) + math.cos(lat_rad) * math.cos(delta) * math.sin(ws))
         )
 
         return Ra
@@ -551,9 +541,7 @@ class IrrigationScheduler:
         etc = et0 * kc
 
         # حساب الأمطار الفعالة - Calculate effective rainfall
-        effective_rain = self.calculate_effective_rainfall(
-            weather_data.rainfall, soil_properties.soil_type
-        )
+        effective_rain = self.calculate_effective_rainfall(weather_data.rainfall, soil_properties.soil_type)
 
         # المحتوى المائي السابق - Previous water content
         previous_content = (
@@ -672,15 +660,11 @@ class IrrigationScheduler:
             )
 
             # تحديد ما إذا كان الري مطلوباً - Determine if irrigation is needed
-            irrigation_needed = self._is_irrigation_needed(
-                temp_balance, soil_properties, crop_type, growth_stage
-            )
+            irrigation_needed = self._is_irrigation_needed(temp_balance, soil_properties, crop_type, growth_stage)
 
             if irrigation_needed:
                 # حساب كمية الري المطلوبة - Calculate required irrigation
-                irrigation_amount = self._calculate_irrigation_amount(
-                    temp_balance, soil_properties, irrigation_type
-                )
+                irrigation_amount = self._calculate_irrigation_amount(temp_balance, soil_properties, irrigation_type)
 
                 # إعادة حساب التوازن مع الري - Recalculate with irrigation
                 current_balance = self.calculate_water_balance(
@@ -698,16 +682,12 @@ class IrrigationScheduler:
                 if optimize_for_cost:
                     # الري الليلي (23:00 - 05:00) لتوفير الكهرباء
                     # Night irrigation (23:00 - 05:00) to save electricity
-                    scheduled_time = datetime.combine(
-                        current_date, datetime.min.time()
-                    ) + timedelta(hours=23)
+                    scheduled_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=23)
                     is_night = True
                 else:
                     # الري الصباحي (06:00) لتقليل التبخر
                     # Morning irrigation (06:00) to reduce evaporation
-                    scheduled_time = datetime.combine(
-                        current_date, datetime.min.time()
-                    ) + timedelta(hours=6)
+                    scheduled_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=6)
                     is_night = False
 
                 # حساب مدة الري - Calculate irrigation duration
@@ -897,18 +877,14 @@ class IrrigationScheduler:
         Get irrigation recommendation
         """
         # تحديد ما إذا كان الري مطلوباً
-        should_irrigate = self._is_irrigation_needed(
-            water_balance, soil_properties, crop_type, growth_stage
-        )
+        should_irrigate = self._is_irrigation_needed(water_balance, soil_properties, crop_type, growth_stage)
 
         # حساب الكمية الموصى بها
         recommended_amount = 0.0
         urgency = "low"
 
         if should_irrigate:
-            recommended_amount = self._calculate_irrigation_amount(
-                water_balance, soil_properties, IrrigationType.DRIP
-            )
+            recommended_amount = self._calculate_irrigation_amount(water_balance, soil_properties, IrrigationType.DRIP)
 
             # تحديد الأهمية
             water_percent = water_balance.soil_water_content / soil_properties.total_available_water

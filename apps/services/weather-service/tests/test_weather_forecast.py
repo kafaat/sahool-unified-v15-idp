@@ -263,9 +263,7 @@ class TestHeatWaveDetection:
         alerts = detect_heat_wave(heat_forecast)
 
         assert len(alerts) > 0
-        assert any(
-            "irrigation" in rec.lower() or "ري" in rec for rec in alerts[0].recommendations_en
-        )
+        assert any("irrigation" in rec.lower() or "ري" in rec for rec in alerts[0].recommendations_en)
 
 
 class TestHeavyRainDetection:
@@ -450,9 +448,7 @@ class TestDroughtDetection:
                 date=f"2026-01-{10 + i}",
                 temp_max_c=30.0,
                 temp_min_c=20.0,
-                precipitation_mm=15.0
-                if i % 3 == 0
-                else 0.0,  # Regular rain (5 days * 15mm = 75mm total)
+                precipitation_mm=15.0 if i % 3 == 0 else 0.0,  # Regular rain (5 days * 15mm = 75mm total)
                 precipitation_probability_pct=60.0 if i % 3 == 0 else 20.0,
                 wind_speed_max_kmh=15.0,
                 uv_index_max=8.0,

@@ -67,9 +67,7 @@ class CircularBuffer:
         with self._lock:
             self.data.append(item)
 
-    def get_range(
-        self, start_time: datetime, end_time: datetime | None = None
-    ) -> list[MetricPoint]:
+    def get_range(self, start_time: datetime, end_time: datetime | None = None) -> list[MetricPoint]:
         """الحصول على البيانات في نطاق زمني محدد"""
         if end_time is None:
             end_time = datetime.now()
@@ -129,21 +127,15 @@ class PerformanceMonitor:
         self.retention_period = timedelta(hours=retention_period_hours)
 
         # Request metrics - مقاييس الطلبات
-        self.request_latencies: dict[str, CircularBuffer] = defaultdict(
-            lambda: CircularBuffer(buffer_size)
-        )
+        self.request_latencies: dict[str, CircularBuffer] = defaultdict(lambda: CircularBuffer(buffer_size))
         self.request_counts: dict[str, int] = defaultdict(int)
         self.error_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"4xx": 0, "5xx": 0})
 
         # Database metrics - مقاييس قاعدة البيانات
-        self.db_query_times: dict[str, CircularBuffer] = defaultdict(
-            lambda: CircularBuffer(buffer_size)
-        )
+        self.db_query_times: dict[str, CircularBuffer] = defaultdict(lambda: CircularBuffer(buffer_size))
 
         # External API metrics - مقاييس الخدمات الخارجية
-        self.external_api_latencies: dict[str, CircularBuffer] = defaultdict(
-            lambda: CircularBuffer(buffer_size)
-        )
+        self.external_api_latencies: dict[str, CircularBuffer] = defaultdict(lambda: CircularBuffer(buffer_size))
         self.external_api_success: dict[str, int] = defaultdict(int)
         self.external_api_failures: dict[str, int] = defaultdict(int)
 
@@ -195,9 +187,7 @@ class PerformanceMonitor:
 
         logger.debug(f"Tracked request: {method} {endpoint} - {duration_ms}ms - {status}")
 
-    def track_db_query(
-        self, query_type: str, duration_ms: float, success: bool = True, table: str | None = None
-    ):
+    def track_db_query(self, query_type: str, duration_ms: float, success: bool = True, table: str | None = None):
         """
         تتبع استعلام قاعدة البيانات
         Track a database query
@@ -229,9 +219,7 @@ class PerformanceMonitor:
 
         logger.debug(f"Tracked DB query: {key} - {duration_ms}ms - success={success}")
 
-    def track_external_api(
-        self, service: str, duration_ms: float, success: bool, endpoint: str | None = None
-    ):
+    def track_external_api(self, service: str, duration_ms: float, success: bool, endpoint: str | None = None):
         """
         تتبع استدعاء خدمة خارجية
         Track an external API call
@@ -298,9 +286,7 @@ class PerformanceMonitor:
         except Exception as e:
             logger.error(f"Error recording system metrics: {e}")
 
-    def get_metrics_summary(
-        self, period: str = "1h", endpoint: str | None = None
-    ) -> dict[str, Any]:
+    def get_metrics_summary(self, period: str = "1h", endpoint: str | None = None) -> dict[str, Any]:
         """
         الحصول على ملخص المقاييس لفترة زمنية محددة
         Get metrics summary for a specific time period
@@ -342,9 +328,7 @@ class PerformanceMonitor:
 
         return summary
 
-    def _get_request_summary(
-        self, start_time: datetime, endpoint_filter: str | None = None
-    ) -> dict[str, Any]:
+    def _get_request_summary(self, start_time: datetime, endpoint_filter: str | None = None) -> dict[str, Any]:
         """Get summary of HTTP request metrics"""
         all_latencies = []
         total_requests = 0
@@ -377,9 +361,7 @@ class PerformanceMonitor:
         # Calculate throughput and error rate
         period_seconds = (datetime.now() - start_time).total_seconds()
         throughput = total_requests / period_seconds if period_seconds > 0 else 0
-        error_rate = (
-            (total_errors_4xx + total_errors_5xx) / total_requests if total_requests > 0 else 0
-        )
+        error_rate = (total_errors_4xx + total_errors_5xx) / total_requests if total_requests > 0 else 0
 
         return {
             "total_requests": total_requests,
@@ -473,9 +455,7 @@ class PerformanceMonitor:
         return {
             "memory": {
                 "current_percent": round(memory_values[-1] * 100, 2) if memory_values else 0,
-                "avg_percent": round(statistics.mean(memory_values) * 100, 2)
-                if memory_values
-                else 0,
+                "avg_percent": round(statistics.mean(memory_values) * 100, 2) if memory_values else 0,
                 "max_percent": round(max(memory_values) * 100, 2) if memory_values else 0,
             },
             "cpu": {

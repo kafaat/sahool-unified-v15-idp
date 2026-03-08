@@ -309,9 +309,7 @@ class WeChatMCPClient:
                 "limit": request.limit,
                 "since": request.since.isoformat() if request.since else None,
                 "until": request.until.isoformat() if request.until else None,
-                "message_types": [mt.value for mt in request.message_types]
-                if request.message_types
-                else None,
+                "message_types": [mt.value for mt in request.message_types] if request.message_types else None,
             },
         )
 
@@ -390,9 +388,7 @@ class WeChatMCPClient:
                 "content_ar": request.content_ar,
                 "type": request.type.value,
                 "reply_to_id": request.reply_to_id,
-                "attachments": [a.model_dump() for a in request.attachments]
-                if request.attachments
-                else None,
+                "attachments": [a.model_dump() for a in request.attachments] if request.attachments else None,
                 "location": request.location.model_dump() if request.location else None,
             },
         )
@@ -981,8 +977,7 @@ class WeChatMCPClient:
                 last_error = e
                 if attempt < self.config.retry.max_retries:
                     delay = min(
-                        self.config.retry.base_delay_seconds
-                        * (self.config.retry.exponential_base**attempt),
+                        self.config.retry.base_delay_seconds * (self.config.retry.exponential_base**attempt),
                         self.config.retry.max_delay_seconds,
                     )
                     logger.warning(

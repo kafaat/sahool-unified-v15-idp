@@ -281,9 +281,7 @@ class BaseAgent(ABC):
         self.status = AgentStatus.LEARNING
 
         # Store feedback
-        self.feedback_history.append(
-            {"feedback": feedback, "timestamp": datetime.now().isoformat()}
-        )
+        self.feedback_history.append({"feedback": feedback, "timestamp": datetime.now().isoformat()})
 
         # Calculate reward
         reward = feedback.get("reward", 0.0)
@@ -308,15 +306,9 @@ class BaseAgent(ABC):
 
     def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""
-        avg_response_time = (
-            self.total_response_time_ms / self.total_requests if self.total_requests > 0 else 0
-        )
-        success_rate = (
-            self.successful_requests / self.total_requests * 100 if self.total_requests > 0 else 0
-        )
-        avg_reward = (
-            sum(self.reward_history) / len(self.reward_history) if self.reward_history else 0
-        )
+        avg_response_time = self.total_response_time_ms / self.total_requests if self.total_requests > 0 else 0
+        success_rate = self.successful_requests / self.total_requests * 100 if self.total_requests > 0 else 0
+        avg_reward = sum(self.reward_history) / len(self.reward_history) if self.reward_history else 0
 
         return {
             "agent_id": self.agent_id,
@@ -329,9 +321,7 @@ class BaseAgent(ABC):
             "success_rate_percent": round(success_rate, 2),
             "avg_response_time_ms": round(avg_response_time, 2),
             "avg_reward": round(avg_reward, 4),
-            "last_action_time": self.last_action_time.isoformat()
-            if self.last_action_time
-            else None,
+            "last_action_time": self.last_action_time.isoformat() if self.last_action_time else None,
         }
 
     def to_dict(self) -> dict[str, Any]:

@@ -109,9 +109,7 @@ class SecretManager:
                     )
                     self.config.backend = SecretBackend.ENVIRONMENT
                 else:
-                    raise ValueError(
-                        "Vault authentication not configured and env fallback is disabled"
-                    )
+                    raise ValueError("Vault authentication not configured and env fallback is disabled")
                 return
 
             # Verify connection
@@ -128,14 +126,11 @@ class SecretManager:
         except ImportError:
             if self.config.allow_env_fallback:
                 logger.warning(
-                    "hvac library not installed, falling back to environment variables. "
-                    "Install with: pip install hvac"
+                    "hvac library not installed, falling back to environment variables. Install with: pip install hvac"
                 )
                 self.config.backend = SecretBackend.ENVIRONMENT
             else:
-                raise ImportError(
-                    "hvac library required for Vault backend. Install with: pip install hvac"
-                )
+                raise ImportError("hvac library required for Vault backend. Install with: pip install hvac")
         except Exception as e:
             if self.config.allow_env_fallback:
                 logger.error(

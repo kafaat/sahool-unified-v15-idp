@@ -323,9 +323,7 @@ class TestYemenData:
         assert response.status_code == 200
         data = response.json()
         assert data["total"] > 0
-        assert all(
-            "highland" in p["name"].lower() or p["region"] == "highlands" for p in data["profiles"]
-        )
+        assert all("highland" in p["name"].lower() or p["region"] == "highlands" for p in data["profiles"])
 
     def test_crop_not_found(self, client):
         response = client.get("/api/v1/yemen/crops/nonexistent_crop")

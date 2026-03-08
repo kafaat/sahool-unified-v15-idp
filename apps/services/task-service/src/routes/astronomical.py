@@ -93,9 +93,7 @@ class AstronomicalTaskCreateRequest(BaseModel):
     assigned_to: str | None = Field(None, description="المستخدم المعين للمهمة")
     zone_id: str | None = Field(None, description="معرف المنطقة")
     priority: TaskPriority = Field(default=TaskPriority.MEDIUM, description="أولوية المهمة")
-    estimated_duration_minutes: int | None = Field(
-        None, ge=1, le=1440, description="المدة المقدرة بالدقائق"
-    )
+    estimated_duration_minutes: int | None = Field(None, ge=1, le=1440, description="المدة المقدرة بالدقائق")
     search_days: int = Field(default=30, ge=7, le=90, description="عدد الأيام للبحث عن أفضل تاريخ")
 
 
@@ -265,12 +263,10 @@ async def create_task_with_astronomical_recommendation(
                     "hijri_date": best_day.get("hijri_date"),
                 }
 
-                logger.info(
-                    f"Selected astronomical date: {due_date_str} with score {best_day.get('score')}"
-                )
+                logger.info(f"Selected astronomical date: {due_date_str} with score {best_day.get('score')}")
             else:
                 logger.warning(
-                    f"No suitable astronomical days found for {data.activity}, using default scheduling"
+                    f"No suitable astronomical days found for {sanitize_for_log(data.activity)}, using default scheduling"
                 )
                 due_date = now + timedelta(days=7)
                 astronomical_metadata = {
@@ -280,9 +276,7 @@ async def create_task_with_astronomical_recommendation(
                 }
 
         except (AstronomicalServiceError, AstronomicalServiceTimeoutError) as e:
-            logger.warning(
-                "Astronomical service error: %s, using default scheduling", type(e).__name__
-            )
+            logger.warning("Astronomical service error: %s, using default scheduling", type(e).__name__)
             due_date = now + timedelta(days=7)
             astronomical_metadata = {
                 "astronomical_recommendation": False,
@@ -319,9 +313,7 @@ async def create_task_with_astronomical_recommendation(
     repo = TaskRepository(db)
     created_task = repo.create_task(db_task)
 
-    logger.info(
-        f"Created astronomical task {task_id} with due date {due_date.isoformat() if due_date else 'None'}"
-    )
+    logger.info(f"Created astronomical task {task_id} with due date {due_date.isoformat() if due_date else 'None'}")
 
     return db_task_to_dict(created_task)
 

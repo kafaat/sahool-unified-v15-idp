@@ -100,13 +100,10 @@ class InputSanitizationMiddleware(BaseHTTPMiddleware):
 
     SANITIZE_METHODS = {"POST", "PUT", "PATCH"}
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Only sanitize state-changing methods with JSON bodies
-        if (
-            request.method in self.SANITIZE_METHODS
-            and request.headers.get("content-type", "").startswith("application/json")
+        if request.method in self.SANITIZE_METHODS and request.headers.get("content-type", "").startswith(
+            "application/json"
         ):
             try:
                 body = await request.json()

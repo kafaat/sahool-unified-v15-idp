@@ -107,7 +107,7 @@ class TestServicePortConflicts:
                 seen[port] = name
 
         assert not duplicates, (
-            f"Duplicate service ports detected:\n" + "\n".join(duplicates)
+            "Duplicate service ports detected:\n" + "\n".join(duplicates)
         )
 
     def test_ports_in_valid_range(self, service_ports: dict[str, int]):
@@ -118,7 +118,7 @@ class TestServicePortConflicts:
                 invalid.append(f"{name}: {port}")
 
         assert not invalid, (
-            f"Ports outside valid range (1024-65535):\n" + "\n".join(invalid)
+            "Ports outside valid range (1024-65535):\n" + "\n".join(invalid)
         )
 
     def test_no_well_known_port_conflicts(self, service_ports: dict[str, int]):
@@ -129,7 +129,7 @@ class TestServicePortConflicts:
             if port < 1024
         ]
         assert not well_known, (
-            f"Services using well-known ports (<1024): "
+            "Services using well-known ports (<1024): "
             + ", ".join(f"{n}:{p}" for n, p in well_known)
         )
 
@@ -199,7 +199,7 @@ class TestEventSubjectConflicts:
                 seen[subject] = name
 
         assert not duplicates, (
-            f"Duplicate NATS subject values:\n" + "\n".join(duplicates)
+            "Duplicate NATS subject values:\n" + "\n".join(duplicates)
         )
 
     def test_subjects_follow_naming_convention(self, event_subjects: dict[str, str]):
@@ -215,7 +215,7 @@ class TestEventSubjectConflicts:
                 )
 
         assert not invalid, (
-            f"Subjects violating naming convention:\n" + "\n".join(invalid)
+            "Subjects violating naming convention:\n" + "\n".join(invalid)
         )
 
     def test_subject_registry_values_match_constants(
@@ -236,7 +236,7 @@ class TestEventSubjectConflicts:
                 )
 
         assert not mismatches, (
-            f"Stale SUBJECT_REGISTRY entries:\n" + "\n".join(mismatches)
+            "Stale SUBJECT_REGISTRY entries:\n" + "\n".join(mismatches)
         )
 
     def test_no_duplicate_registry_keys(self, subject_registry: dict[str, str]):
@@ -253,7 +253,7 @@ class TestEventSubjectConflicts:
                 seen_values[value] = key
 
         assert not duplicates, (
-            f"Duplicate subject values in SUBJECT_REGISTRY:\n"
+            "Duplicate subject values in SUBJECT_REGISTRY:\n"
             + "\n".join(duplicates)
         )
 
@@ -265,7 +265,7 @@ class TestEventSubjectConflicts:
             if " " in subj or "\t" in subj or "\n" in subj
         ]
         assert not invalid, (
-            f"Subjects with whitespace:\n" + "\n".join(invalid)
+            "Subjects with whitespace:\n" + "\n".join(invalid)
         )
 
 
@@ -370,7 +370,7 @@ class TestAPIEndpointConflicts:
                     invalid.append(f"{group_name}.{key}: '{path}'")
 
         assert not invalid, (
-            f"Paths not starting with /api/v1/:\n" + "\n".join(invalid)
+            "Paths not starting with /api/v1/:\n" + "\n".join(invalid)
         )
 
     def test_no_trailing_slashes(
@@ -384,7 +384,7 @@ class TestAPIEndpointConflicts:
                     trailing.append(f"{group_name}.{key}: '{path}'")
 
         assert not trailing, (
-            f"Paths with trailing slashes:\n" + "\n".join(trailing)
+            "Paths with trailing slashes:\n" + "\n".join(trailing)
         )
 
     def test_paths_are_lowercase(
@@ -400,7 +400,7 @@ class TestAPIEndpointConflicts:
                     uppercase.append(f"{group_name}.{key}: '{path}'")
 
         assert not uppercase, (
-            f"Paths with uppercase characters:\n" + "\n".join(uppercase)
+            "Paths with uppercase characters:\n" + "\n".join(uppercase)
         )
 
 
@@ -496,7 +496,7 @@ class TestErrorCodeConflicts:
                 seen[value] = key
 
         assert not duplicates, (
-            f"Duplicate error code values:\n" + "\n".join(duplicates)
+            "Duplicate error code values:\n" + "\n".join(duplicates)
         )
 
     def test_all_generic_error_codes_have_messages(
@@ -520,7 +520,7 @@ class TestErrorCodeConflicts:
                 missing.append(key)
 
         assert not missing, (
-            f"Generic error codes without messages (EN/AR):\n" + "\n".join(missing)
+            "Generic error codes without messages (EN/AR):\n" + "\n".join(missing)
         )
 
     def test_all_messages_have_arabic_translation(
@@ -533,7 +533,7 @@ class TestErrorCodeConflicts:
                 missing_ar.append(key)
 
         assert not missing_ar, (
-            f"Error messages missing Arabic translation:\n"
+            "Error messages missing Arabic translation:\n"
             + "\n".join(missing_ar)
         )
 
@@ -864,7 +864,7 @@ class TestDockerComposePortConflicts:
                 )
 
         assert not conflicts, (
-            f"Docker Compose host port conflicts:\n" + "\n".join(conflicts)
+            "Docker Compose host port conflicts:\n" + "\n".join(conflicts)
         )
 
 
@@ -912,7 +912,7 @@ class TestGovernanceServicesRegistry:
                 duplicates.append(f"'{name}' appears {count} times")
 
         assert not duplicates, (
-            f"Duplicate service names in services.yaml:\n" + "\n".join(duplicates)
+            "Duplicate service names in services.yaml:\n" + "\n".join(duplicates)
         )
 
 

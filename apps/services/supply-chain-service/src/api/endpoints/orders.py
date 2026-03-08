@@ -309,10 +309,6 @@ async def track_order(
         status_ar=status_ar_mapping.get(delivery_status, "غير معروف"),
         eta=order.estimated_delivery,
         tracking_url=f"https://delivery.sahool.local/track/{order_id}",
-        current_location="Warehouse"
-        if delivery_status == DeliveryStatusEnum.PREPARING
-        else "In Transit",
-        current_location_ar="المستودع"
-        if delivery_status == DeliveryStatusEnum.PREPARING
-        else "في الطريق",
+        current_location="Warehouse" if delivery_status == DeliveryStatusEnum.PREPARING else "In Transit",
+        current_location_ar="المستودع" if delivery_status == DeliveryStatusEnum.PREPARING else "في الطريق",
     )

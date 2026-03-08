@@ -130,9 +130,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             # max-age=31536000: 1 year in seconds
             # includeSubDomains: Apply to all subdomains
             # preload: Allow inclusion in browser HSTS preload lists
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains; preload"
-            )
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
         # ═══════════════════════════════════════════════════════════════════
         # Content Security Policy

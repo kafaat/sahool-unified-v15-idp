@@ -58,8 +58,6 @@ export const SERVICE_PORTS = {
   YIELD_PREDICTION: 8152,
   /** Yield engine (legacy) - محرك الإنتاجية */
   YIELD_ENGINE: 8098,
-  /** Agronomic rules engine - محرك القواعد الزراعية */
-  AGRO_RULES: 8151,
 
   // ── Business Layer ───────────────────────────────────────────────────
   /** Task management - إدارة المهام */
@@ -116,10 +114,6 @@ export const SERVICE_PORTS = {
   KNOWLEDGE_GRAPH: 8140,
   /** Code fix agent - وكيل إصلاح الكود */
   CODE_FIX_AGENT: 8162,
-  /** Code review agent (CLI tool, no HTTP server) - وكيل مراجعة الكود */
-  // NOTE: code-review-agent is a CLI agent, not a web service.
-  // Port retained for registry completeness but no HTTP server listens on it.
-  CODE_REVIEW_AGENT: 8145,
   /** Code review service - خدمة مراجعة الكود */
   CODE_REVIEW_SERVICE: 8102,
 
@@ -136,6 +130,8 @@ export const SERVICE_PORTS = {
   LEVELING_OPTIMIZER: 8170,
   /** Edge device management - إدارة الأجهزة الطرفية */
   EDGE_ORCHESTRATOR: 8180,
+  /** vLLM DeepSeek inference server - خادم استدلال vLLM ديب سيك */
+  VLLM_DEEPSEEK: 8270,
 
   // ── Agriculture Domain ───────────────────────────────────────────────
   /** Soil analysis - تحليل التربة */
@@ -176,8 +172,12 @@ export const SERVICE_PORTS = {
   DIGITAL_TWIN: 8253,
   /** MCP server - خادم MCP (changed from 8200 to avoid Vault conflict) */
   MCP_SERVER: 8201,
-  /** Demo data generator - مولد البيانات التجريبية */
-  DEMO_DATA: 8261,
+
+  // ── Applications ─────────────────────────────────────────────────────
+  /** Admin portal - لوحة الإدارة */
+  ADMIN: 3001,
+  /** Web dashboard - لوحة القيادة */
+  WEB: 3002,
 
   // ── Infrastructure ───────────────────────────────────────────────────
   /** Kong API Gateway - بوابة API */
@@ -411,6 +411,15 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     deprecated: true,
     replacedBy: "CHAT_SERVICE",
   },
+  "vllm-deepseek": {
+    key: "VLLM_DEEPSEEK",
+    port: SERVICE_PORTS.VLLM_DEEPSEEK,
+    name: "vLLM DeepSeek Inference Server",
+    nameAr: "خادم استدلال vLLM ديب سيك",
+    kongRoute: "/api/v1/llm",
+    type: "python",
+    layer: "intelligence",
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -459,6 +468,7 @@ export const SERVICE_PORT_ALIASES = {
   hydrology: SERVICE_PORTS.HYDROLOGY,
   levelingOptimizer: SERVICE_PORTS.LEVELING_OPTIMIZER,
   edgeOrchestrator: SERVICE_PORTS.EDGE_ORCHESTRATOR,
+  vllmDeepseek: SERVICE_PORTS.VLLM_DEEPSEEK,
 } as const;
 
 // ---------------------------------------------------------------------------

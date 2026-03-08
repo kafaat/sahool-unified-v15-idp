@@ -218,9 +218,7 @@ def generate_irrigation_recommendations(
                     en="Fair" if mean_slope_pct < 10 else "Poor",
                     ar="مقبول" if mean_slope_pct < 10 else "ضعيف",
                 ),
-                recommended_method=BilingualField(
-                    en="Micro-sprinkler or Drip", ar="الرش الدقيق أو التنقيط"
-                ),
+                recommended_method=BilingualField(en="Micro-sprinkler or Drip", ar="الرش الدقيق أو التنقيط"),
                 water_retention_capacity="low",
                 erosion_risk="high" if mean_slope_pct > 10 else "moderate",
                 notes=BilingualField(
@@ -332,21 +330,13 @@ async def analyze_terrain(
         # Flow direction and accumulation
         flow_dir_result = None
         flow_acc_result = None
-        if (
-            request_data.include_flow_direction
-            or request_data.include_flow_accumulation
-            or request_data.include_twi
-        ):
+        if request_data.include_flow_direction or request_data.include_flow_accumulation or request_data.include_twi:
             flow_method = FlowMethod(request_data.flow_method.value)
-            flow_dir_result = terrain_calculator.calculate_flow_direction(
-                dem_data, method=flow_method
-            )
+            flow_dir_result = terrain_calculator.calculate_flow_direction(dem_data, method=flow_method)
             results["flow_direction"] = flow_dir_result
 
             if request_data.include_flow_accumulation or request_data.include_twi:
-                flow_acc_result = terrain_calculator.calculate_flow_accumulation(
-                    dem_data, flow_dir_result
-                )
+                flow_acc_result = terrain_calculator.calculate_flow_accumulation(dem_data, flow_dir_result)
                 results["flow_accumulation"] = flow_acc_result
 
         # TWI
@@ -362,12 +352,8 @@ async def analyze_terrain(
         plan_curv_result = None
         profile_curv_result = None
         if request_data.include_curvature:
-            plan_curv_result = terrain_calculator.calculate_curvature(
-                dem_data, CalcCurvatureType.PLAN
-            )
-            profile_curv_result = terrain_calculator.calculate_curvature(
-                dem_data, CalcCurvatureType.PROFILE
-            )
+            plan_curv_result = terrain_calculator.calculate_curvature(dem_data, CalcCurvatureType.PLAN)
+            profile_curv_result = terrain_calculator.calculate_curvature(dem_data, CalcCurvatureType.PROFILE)
             results["plan_curvature"] = plan_curv_result
             results["profile_curvature"] = profile_curv_result
 
@@ -446,12 +432,8 @@ async def analyze_terrain(
             flow_dir_schema = FlowDirectionResultSchema(
                 method=FlowDirectionMethod(flow_dir_result.method.value),
                 method_name=BilingualField(
-                    en="D8 Algorithm"
-                    if flow_dir_result.method == FlowMethod.D8
-                    else flow_dir_result.method.value,
-                    ar="خوارزمية D8"
-                    if flow_dir_result.method == FlowMethod.D8
-                    else flow_dir_result.method.value,
+                    en="D8 Algorithm" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
+                    ar="خوارزمية D8" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
                 ),
                 dominant_direction=flow_dir_result.dominant_direction,
                 direction_distribution=flow_dir_result.direction_distribution,
@@ -680,9 +662,7 @@ async def get_flow_analysis(
             source=DEMSource(dem_source.value),
         )
 
-        flow_dir_result = terrain_calculator.calculate_flow_direction(
-            dem_data, method=FlowMethod(method.value)
-        )
+        flow_dir_result = terrain_calculator.calculate_flow_direction(dem_data, method=FlowMethod(method.value))
         flow_acc_result = terrain_calculator.calculate_flow_accumulation(
             dem_data, flow_dir_result, threshold=accumulation_threshold
         )

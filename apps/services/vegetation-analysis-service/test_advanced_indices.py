@@ -168,9 +168,7 @@ def test_stress_detection():
 
     # Scenario 1: Water stress
     print("\nScenario 1: Water Stress (NDWI = -0.25)")
-    water_stress = interpreter.interpret_index(
-        "ndwi", -0.25, CropType.WHEAT, GrowthStage.REPRODUCTIVE
-    )
+    water_stress = interpreter.interpret_index("ndwi", -0.25, CropType.WHEAT, GrowthStage.REPRODUCTIVE)
     print(f"  Status: {water_stress.status.value}")
     print(f"  Action: {water_stress.description_en}")
 

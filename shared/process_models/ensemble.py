@@ -175,27 +175,17 @@ def compute_skill_scores(
         if len(preds) != n:
             continue
         bias = statistics.mean([p - o for p, o in zip(preds, observations)])
-        rmse = math.sqrt(
-            statistics.mean([(p - o) ** 2 for p, o in zip(preds, observations)])
-        )
+        rmse = math.sqrt(statistics.mean([(p - o) ** 2 for p, o in zip(preds, observations)]))
 
         # Pearson r
-        cov = statistics.mean(
-            [
-                (p - statistics.mean(preds)) * (o - obs_mean)
-                for p, o in zip(preds, observations)
-            ]
-        )
+        cov = statistics.mean([(p - statistics.mean(preds)) * (o - obs_mean) for p, o in zip(preds, observations)])
         std_p = statistics.stdev(preds) if n > 1 else 1.0
         std_o = statistics.stdev(observations) if n > 1 else 1.0
         r = cov / (std_p * std_o) if std_p * std_o > 0 else 0.0
 
         # Willmott d (1981)
         num_d = sum((p - o) ** 2 for p, o in zip(preds, observations))
-        den_d = sum(
-            (abs(p - obs_mean) + abs(o - obs_mean)) ** 2
-            for p, o in zip(preds, observations)
-        )
+        den_d = sum((abs(p - obs_mean) + abs(o - obs_mean)) ** 2 for p, o in zip(preds, observations))
         d = 1.0 - num_d / den_d if den_d > 0 else 0.0
 
         scores.append(
@@ -251,9 +241,7 @@ class EnsembleModelFramework:
     def register(self, model: RegisteredModel) -> None:
         """Register a process model in the ensemble. تسجيل نموذج في الأنسامبل."""
         self._models.append(model)
-        logger.info(
-            "ensemble_model_registered", name=model.name, model_type=model.model_type
-        )
+        logger.info("ensemble_model_registered", name=model.name, model_type=model.model_type)
 
     def list_models(self) -> list[dict[str, str]]:
         """List registered models. قائمة النماذج المسجّلة."""
@@ -331,9 +319,7 @@ class EnsembleModelFramework:
         skill_scores_out: list[dict] = []
         if observations:
             pred_series = [[v] for v in scalar_values]
-            skill_list = compute_skill_scores(
-                model_names_with_values, pred_series, observations
-            )
+            skill_list = compute_skill_scores(model_names_with_values, pred_series, observations)
             skill_scores_out = [
                 {
                     "model": s.model_name,

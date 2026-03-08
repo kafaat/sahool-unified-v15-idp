@@ -300,9 +300,7 @@ class SoilHealthTracker:
 
         # Calculate change
         if trend.initial_value and trend.initial_value != 0:
-            trend.change_percent = (
-                (trend.current_value - trend.initial_value) / trend.initial_value * 100
-            )
+            trend.change_percent = (trend.current_value - trend.initial_value) / trend.initial_value * 100
 
         # Calculate annual rate of change
         if dates and len(dates) >= 2:
@@ -319,9 +317,7 @@ class SoilHealthTracker:
             trend.trend_direction = TrendDirection.STABLE.value
 
         # Determine status based on optimal ranges
-        trend.status, trend.status_ar = self._assess_indicator_status(
-            indicator, trend.current_value
-        )
+        trend.status, trend.status_ar = self._assess_indicator_status(indicator, trend.current_value)
 
         # Get target value
         optimal = OPTIMAL_RANGES.get(indicator, {})
@@ -329,9 +325,7 @@ class SoilHealthTracker:
             trend.target_value = (optimal.get("optimal_min", 0) + optimal.get("optimal_max", 0)) / 2
 
         # Generate recommendations
-        trend.recommendations, trend.recommendations_ar = self._generate_indicator_recommendations(
-            indicator, trend
-        )
+        trend.recommendations, trend.recommendations_ar = self._generate_indicator_recommendations(indicator, trend)
 
         return trend
 
@@ -575,21 +569,15 @@ class SoilHealthTracker:
         nutrient_scores = []
         if measurement.nitrogen_available_kg_ha is not None:
             nutrient_scores.append(
-                self._calculate_component_score(
-                    SoilHealthIndicator.NITROGEN, measurement.nitrogen_available_kg_ha
-                )
+                self._calculate_component_score(SoilHealthIndicator.NITROGEN, measurement.nitrogen_available_kg_ha)
             )
         if measurement.phosphorus_ppm is not None:
             nutrient_scores.append(
-                self._calculate_component_score(
-                    SoilHealthIndicator.PHOSPHORUS, measurement.phosphorus_ppm
-                )
+                self._calculate_component_score(SoilHealthIndicator.PHOSPHORUS, measurement.phosphorus_ppm)
             )
         if measurement.potassium_ppm is not None:
             nutrient_scores.append(
-                self._calculate_component_score(
-                    SoilHealthIndicator.POTASSIUM, measurement.potassium_ppm
-                )
+                self._calculate_component_score(SoilHealthIndicator.POTASSIUM, measurement.potassium_ppm)
             )
 
         if nutrient_scores:
@@ -629,9 +617,7 @@ class SoilHealthTracker:
         # Chemical balance score (15%) - pH and EC
         chemical_scores = []
         if measurement.ph is not None:
-            chemical_scores.append(
-                self._calculate_component_score(SoilHealthIndicator.PH, measurement.ph)
-            )
+            chemical_scores.append(self._calculate_component_score(SoilHealthIndicator.PH, measurement.ph))
         if measurement.ec_ds_m is not None:
             # For EC, lower is better (invert the score)
             ec_score = max(0, min(100, (4.0 - measurement.ec_ds_m) * 25))
@@ -744,12 +730,8 @@ class SoilHealthTracker:
 
         analysis["organic_matter_impact"] = total_om_change
         analysis["nitrogen_balance"] = total_n_change
-        analysis["soil_structure_score"] = (
-            statistics.mean(structure_impacts) * 100 if structure_impacts else 50
-        )
-        analysis["legume_frequency_percent"] = (
-            (legume_count / len(crop_history) * 100) if crop_history else 0
-        )
+        analysis["soil_structure_score"] = statistics.mean(structure_impacts) * 100 if structure_impacts else 50
+        analysis["legume_frequency_percent"] = (legume_count / len(crop_history) * 100) if crop_history else 0
         analysis["biodiversity_score"] = min(100, len(crop_families) * 20)  # More families = better
 
         # Overall rating
@@ -779,23 +761,15 @@ class SoilHealthTracker:
 
         # Generate recommendations
         if total_om_change < 0:
-            analysis["recommendations"].append(
-                "Add more organic matter through residue return or amendments"
-            )
-            analysis["recommendations_ar"].append(
-                "إضافة المزيد من المادة العضوية من خلال إعادة المخلفات أو المصلحات"
-            )
+            analysis["recommendations"].append("Add more organic matter through residue return or amendments")
+            analysis["recommendations_ar"].append("إضافة المزيد من المادة العضوية من خلال إعادة المخلفات أو المصلحات")
 
         if analysis["legume_frequency_percent"] < 25:
-            analysis["recommendations"].append(
-                "Increase legume frequency to improve nitrogen cycling"
-            )
+            analysis["recommendations"].append("Increase legume frequency to improve nitrogen cycling")
             analysis["recommendations_ar"].append("زيادة تكرار البقوليات لتحسين دورة النيتروجين")
 
         if analysis["biodiversity_score"] < 60:
-            analysis["recommendations"].append(
-                "Diversify crop families in rotation for better soil health"
-            )
+            analysis["recommendations"].append("Diversify crop families in rotation for better soil health")
             analysis["recommendations_ar"].append("تنويع عائلات المحاصيل في الدورة لصحة تربة أفضل")
 
         return analysis
@@ -829,9 +803,7 @@ class SoilHealthTracker:
         if not measurements:
             report.key_findings.append("No soil health measurements available for this period")
             report.key_findings_ar.append("لا تتوفر قياسات صحة التربة لهذه الفترة")
-            report.recommendations.append(
-                "Schedule soil testing to establish baseline measurements"
-            )
+            report.recommendations.append("Schedule soil testing to establish baseline measurements")
             report.recommendations_ar.append("جدولة اختبار التربة لإنشاء قياسات أساسية")
             return report
 
@@ -840,9 +812,7 @@ class SoilHealthTracker:
 
         # Calculate overall score
         if report.latest_measurement:
-            overall_score, component_scores = self.calculate_soil_health_score(
-                report.latest_measurement
-            )
+            overall_score, component_scores = self.calculate_soil_health_score(report.latest_measurement)
             report.overall_score = overall_score
             report.physical_health_score = component_scores.get("physical", 50)
             report.chemical_health_score = component_scores.get("chemical", 50)
@@ -895,22 +865,14 @@ class SoilHealthTracker:
             report.key_findings_ar.append(f"مؤشرات متحسنة: {', '.join(improving_indicators)}")
 
         if declining_indicators:
-            report.key_findings.append(
-                f"Declining indicators requiring attention: {', '.join(declining_indicators)}"
-            )
-            report.key_findings_ar.append(
-                f"مؤشرات متراجعة تتطلب انتباه: {', '.join(declining_indicators)}"
-            )
+            report.key_findings.append(f"Declining indicators requiring attention: {', '.join(declining_indicators)}")
+            report.key_findings_ar.append(f"مؤشرات متراجعة تتطلب انتباه: {', '.join(declining_indicators)}")
 
         # Identify improvement areas
         for trend in report.trends:
             if trend.status in ["critical", "deficient", "low"]:
-                report.improvement_areas.append(
-                    f"{trend.indicator.value}: Currently {trend.status}"
-                )
-                report.improvement_areas_ar.append(
-                    f"{trend.indicator.value}: حاليًا {trend.status_ar}"
-                )
+                report.improvement_areas.append(f"{trend.indicator.value}: Currently {trend.status}")
+                report.improvement_areas_ar.append(f"{trend.indicator.value}: حاليًا {trend.status_ar}")
 
         # Collect recommendations from all trends
         for trend in report.trends:
@@ -998,9 +960,7 @@ class SoilHealthTracker:
 
         if legume_count == 0:
             estimate["risks_identified"].append("No legumes in rotation - nitrogen depletion risk")
-            estimate["risks_identified_ar"].append(
-                "لا توجد بقوليات في الدورة - خطر استنزاف النيتروجين"
-            )
+            estimate["risks_identified_ar"].append("لا توجد بقوليات في الدورة - خطر استنزاف النيتروجين")
 
         return estimate
 
@@ -1053,9 +1013,7 @@ class SoilHealthTracker:
         # Determine next test dates
         if measurements:
             last_test = measurements[-1].measurement_date
-            next_basic = last_test + timedelta(
-                days=self.config.recommended_test_frequency_months * 30
-            )
+            next_basic = last_test + timedelta(days=self.config.recommended_test_frequency_months * 30)
             next_full = last_test + timedelta(days=365)
         else:
             next_basic = today
@@ -1161,9 +1119,7 @@ def get_organic_matter_trend_summary(
 
     # Get organic matter values
     om_values = [
-        (m.measurement_date, m.organic_matter_percent)
-        for m in measurements
-        if m.organic_matter_percent is not None
+        (m.measurement_date, m.organic_matter_percent) for m in measurements if m.organic_matter_percent is not None
     ]
 
     if len(om_values) < 2:

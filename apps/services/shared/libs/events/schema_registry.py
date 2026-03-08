@@ -142,15 +142,11 @@ class SchemaRegistry:
             jsonschema.ValidationError: If payload is invalid
         """
         if not HAS_JSONSCHEMA:
-            raise RuntimeError(
-                "jsonschema is not installed. Add it to dependencies: pip install jsonschema"
-            )
+            raise RuntimeError("jsonschema is not installed. Add it to dependencies: pip install jsonschema")
 
         schema = self.get_schema(schema_ref)
         # Enable format validation for UUIDs, dates, etc.
-        validator = jsonschema.Draft202012Validator(
-            schema, format_checker=jsonschema.FormatChecker()
-        )
+        validator = jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker())
         validator.validate(payload)
 
     def list_schemas(self) -> list[SchemaEntry]:

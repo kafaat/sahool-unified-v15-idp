@@ -73,8 +73,7 @@ async def _handle_failed_message_with_dlq(
     # Check if error is retriable
     if not is_retriable_error(error):
         logger.warning(
-            f"⚠️  Non-retriable error for {msg.subject}: {error.__class__.__name__}. "
-            f"Moving to DLQ immediately."
+            f"⚠️  Non-retriable error for {msg.subject}: {error.__class__.__name__}. Moving to DLQ immediately."
         )
         await self._move_to_dlq(
             msg=msg,
@@ -101,8 +100,7 @@ async def _handle_failed_message_with_dlq(
     else:
         # Move to DLQ
         logger.warning(
-            f"⚠️  Max retries ({self._dlq_config.max_retry_attempts}) exceeded for {msg.subject}. "
-            f"Moving to DLQ."
+            f"⚠️  Max retries ({self._dlq_config.max_retry_attempts}) exceeded for {msg.subject}. Moving to DLQ."
         )
         await self._move_to_dlq(
             msg=msg,
@@ -239,8 +237,7 @@ async def _move_to_dlq(
             self._dlq_count += 1
 
             logger.warning(
-                f"📮 Moved message to DLQ: {dlq_subject} "
-                f"(retries: {retry_count}, error: {error.__class__.__name__})"
+                f"📮 Moved message to DLQ: {dlq_subject} (retries: {retry_count}, error: {error.__class__.__name__})"
             )
 
             # ACK the original message (it's now in DLQ)

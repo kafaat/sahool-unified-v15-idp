@@ -294,12 +294,8 @@ class Equipment:
             "total_hours": self.total_hours,
             "total_kilometers": self.total_kilometers,
             "total_hectares": self.total_hectares,
-            "last_maintenance_date": self.last_maintenance_date.isoformat()
-            if self.last_maintenance_date
-            else None,
-            "next_maintenance_date": self.next_maintenance_date.isoformat()
-            if self.next_maintenance_date
-            else None,
+            "last_maintenance_date": self.last_maintenance_date.isoformat() if self.last_maintenance_date else None,
+            "next_maintenance_date": self.next_maintenance_date.isoformat() if self.next_maintenance_date else None,
             "is_active": self.is_active,
             "location": {
                 "lat": self.current_lat,
@@ -317,33 +313,21 @@ class Equipment:
         return {
             "oil_change": {
                 "hours_remaining": self.specs.oil_change_hours - self.hours_since_last_oil_change,
-                "percent_used": (self.hours_since_last_oil_change / self.specs.oil_change_hours)
-                * 100,
+                "percent_used": (self.hours_since_last_oil_change / self.specs.oil_change_hours) * 100,
                 "is_due": self.hours_since_last_oil_change >= self.specs.oil_change_hours,
-                "is_approaching": self.hours_since_last_oil_change
-                >= self.specs.oil_change_hours * 0.9,
+                "is_approaching": self.hours_since_last_oil_change >= self.specs.oil_change_hours * 0.9,
             },
             "filter_change": {
-                "hours_remaining": self.specs.filter_change_hours
-                - self.hours_since_last_filter_change,
-                "percent_used": (
-                    self.hours_since_last_filter_change / self.specs.filter_change_hours
-                )
-                * 100,
+                "hours_remaining": self.specs.filter_change_hours - self.hours_since_last_filter_change,
+                "percent_used": (self.hours_since_last_filter_change / self.specs.filter_change_hours) * 100,
                 "is_due": self.hours_since_last_filter_change >= self.specs.filter_change_hours,
-                "is_approaching": self.hours_since_last_filter_change
-                >= self.specs.filter_change_hours * 0.9,
+                "is_approaching": self.hours_since_last_filter_change >= self.specs.filter_change_hours * 0.9,
             },
             "major_service": {
-                "hours_remaining": self.specs.major_service_hours
-                - self.hours_since_last_major_service,
-                "percent_used": (
-                    self.hours_since_last_major_service / self.specs.major_service_hours
-                )
-                * 100,
+                "hours_remaining": self.specs.major_service_hours - self.hours_since_last_major_service,
+                "percent_used": (self.hours_since_last_major_service / self.specs.major_service_hours) * 100,
                 "is_due": self.hours_since_last_major_service >= self.specs.major_service_hours,
-                "is_approaching": self.hours_since_last_major_service
-                >= self.specs.major_service_hours * 0.9,
+                "is_approaching": self.hours_since_last_major_service >= self.specs.major_service_hours * 0.9,
             },
             "overhaul": {
                 "hours_remaining": self.specs.overhaul_hours - self.hours_since_last_overhaul,
@@ -565,9 +549,7 @@ class MaintenanceSchedule:
             "default_priority": self.default_priority.value,
             "estimated_duration_hours": self.estimated_duration_hours,
             "estimated_cost": str(self.estimated_cost),
-            "last_executed_at": self.last_executed_at.isoformat()
-            if self.last_executed_at
-            else None,
+            "last_executed_at": self.last_executed_at.isoformat() if self.last_executed_at else None,
             "next_due_at": self.next_due_at.isoformat() if self.next_due_at else None,
             "next_due_hours": self.next_due_hours,
             "is_active": self.is_active,
@@ -1164,9 +1146,7 @@ def get_maintenance_type_name(maintenance_type: MaintenanceType, language: str =
         MaintenanceType.SCHEDULED: {"en": "Scheduled Maintenance", "ar": "صيانة مجدولة"},
         MaintenanceType.OVERHAUL: {"en": "Major Overhaul", "ar": "إصلاح شامل"},
     }
-    return names.get(maintenance_type, {"en": "Unknown", "ar": "غير معروف"}).get(
-        language, "Unknown"
-    )
+    return names.get(maintenance_type, {"en": "Unknown", "ar": "غير معروف"}).get(language, "Unknown")
 
 
 def get_alert_severity_name(severity: AlertSeverity, language: str = "en") -> str:

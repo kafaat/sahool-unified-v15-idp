@@ -216,17 +216,13 @@ class TestSubscriptions:
         assert "status" in data
 
     def test_create_subscription(self, client):
-        response = client.post(
-            "/api/v1/tenants/tenant_002/subscription", json={"plan_id": "starter"}
-        )
+        response = client.post("/api/v1/tenants/tenant_002/subscription", json={"plan_id": "starter"})
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "active"
 
     def test_update_subscription(self, client):
-        response = client.put(
-            "/api/v1/tenants/tenant_001/subscription", json={"plan_id": "professional"}
-        )
+        response = client.put("/api/v1/tenants/tenant_001/subscription", json={"plan_id": "professional"})
         assert response.status_code == 200
         data = response.json()
         assert data["plan_id"] == "professional"
@@ -293,9 +289,7 @@ class TestCurrency:
     """Test currency conversion"""
 
     def test_convert_usd_to_yer(self, client):
-        response = client.get(
-            "/api/v1/currency/convert?amount=100&from_currency=USD&to_currency=YER"
-        )
+        response = client.get("/api/v1/currency/convert?amount=100&from_currency=USD&to_currency=YER")
         assert response.status_code == 200
         data = response.json()
         assert data["from"] == "USD"
@@ -303,9 +297,7 @@ class TestCurrency:
         assert data["converted"] == 25000  # 100 * 250
 
     def test_convert_yer_to_usd(self, client):
-        response = client.get(
-            "/api/v1/currency/convert?amount=25000&from_currency=YER&to_currency=USD"
-        )
+        response = client.get("/api/v1/currency/convert?amount=25000&from_currency=YER&to_currency=USD")
         assert response.status_code == 200
         data = response.json()
         assert data["converted"] == 100  # 25000 / 250

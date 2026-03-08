@@ -263,9 +263,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # In-memory fallback storage
         self._request_timestamps: dict[str, list[float]] = defaultdict(list)
-        self._burst_tokens: dict[str, dict] = defaultdict(
-            lambda: {"tokens": burst_limit, "last_update": time.time()}
-        )
+        self._burst_tokens: dict[str, dict] = defaultdict(lambda: {"tokens": burst_limit, "last_update": time.time()})
 
     async def _ensure_redis_connection(self):
         """Lazily initialize Redis connection."""
@@ -451,9 +449,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
                 # Consume one token
                 tokens -= 1
-                await self._redis.set(
-                    burst_key, json.dumps({"tokens": tokens, "last_update": now}), ex=120
-                )
+                await self._redis.set(burst_key, json.dumps({"tokens": tokens, "last_update": now}), ex=120)
             else:
                 # Initialize burst tokens
                 await self._redis.set(

@@ -171,6 +171,7 @@ filterwarnings = [
     "ignore::PendingDeprecationWarning",
     "ignore::DeprecationWarning:tortoise.*",
     "ignore::DeprecationWarning:pydantic.*",
+    "ignore:cannot collect test class '.*' because it has a __init__ constructor:pytest.PytestCollectionWarning",
 ]
 markers = [
     "unit: Unit tests (fast, no I/O)",
@@ -191,6 +192,8 @@ markers = [
     "latency: Tests for latency measurement",
     "safety: Tests for safety checking",
     "fixops: FixOps auto-fix engine tests",
+    "llm: Tests for LLM provider functionality",
+    "guardrails: Tests for AI safety guardrails",
 ]
 
 [tool.coverage.run]

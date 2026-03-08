@@ -272,9 +272,7 @@ class TestNotificationRetrieval:
         assert "total" in data
 
     @pytest.mark.asyncio
-    async def test_get_broadcast_notifications_with_filters(
-        self, app_client, mock_notification_repo
-    ):
+    async def test_get_broadcast_notifications_with_filters(self, app_client, mock_notification_repo):
         """Test getting broadcast notifications with filters"""
         response = app_client.get(
             "//broadcast",
@@ -309,9 +307,7 @@ class TestNotificationActions:
         """Test marking non-existent notification"""
         with patch("src.main.NotificationRepository.get_by_id", new=AsyncMock(return_value=None)):
             notification_id = str(uuid4())
-            response = app_client.patch(
-                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
-            )
+            response = app_client.patch(f"//{notification_id}/read", params={"farmer_id": "farmer-123"})
             assert response.status_code == 404
 
     @pytest.mark.asyncio
@@ -323,9 +319,7 @@ class TestNotificationActions:
             mock_get.return_value = mock_notif
 
             notification_id = str(uuid4())
-            response = app_client.patch(
-                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
-            )
+            response = app_client.patch(f"//{notification_id}/read", params={"farmer_id": "farmer-123"})
             assert response.status_code == 403
 
 
@@ -409,9 +403,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_database_error_handling(self, app_client):
         """Test handling database errors gracefully"""
-        with patch(
-            "src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")
-        ):
+        with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
             response = app_client.get("//farmer/farmer-123")
             # Should handle error gracefully, not crash
             assert response.status_code in [200, 500]

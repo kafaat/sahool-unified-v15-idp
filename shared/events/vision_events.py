@@ -138,16 +138,10 @@ class BaseVisionEvent(BaseModel):
     النموذج الأساسي لجميع أحداث اكتشاف الرؤية
     """
 
-    event_id: str = Field(
-        default_factory=lambda: str(uuid4()), description="Unique event identifier"
-    )
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Event timestamp"
-    )
+    event_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique event identifier")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
-    source_service: str = Field(
-        default="vision-ai-service", description="Service that emitted the event"
-    )
+    source_service: str = Field(default="vision-ai-service", description="Service that emitted the event")
     correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
     @property
@@ -255,9 +249,7 @@ class PestDetectedEvent(BaseVisionEvent):
     # Count estimation
     estimated_count: int | None = Field(None, ge=0, description="Estimated pest count")
     affected_area_sqm: float | None = Field(None, ge=0, description="Affected area in m2")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of field affected"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of field affected")
 
     # Recommendations
     recommended_action: str | None = Field(None, description="Recommended action")
@@ -329,19 +321,13 @@ class VisionDiseaseDetectedEvent(BaseVisionEvent):
     crop_type: str | None = Field(None, description="Affected crop type")
     crop_type_ar: str | None = Field(None, description="Arabic crop type")
     growth_stage: str | None = Field(None, description="Crop growth stage")
-    plant_part_affected: str | None = Field(
-        None, description="Plant part affected (leaf, stem, root, fruit)"
-    )
+    plant_part_affected: str | None = Field(None, description="Plant part affected (leaf, stem, root, fruit)")
 
     # Spread estimation
     affected_plants_count: int | None = Field(None, ge=0, description="Number of affected plants")
     affected_area_sqm: float | None = Field(None, ge=0, description="Affected area in m2")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of field affected"
-    )
-    spread_risk: str | None = Field(
-        None, pattern="^(low|medium|high)$", description="Risk of spread"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of field affected")
+    spread_risk: str | None = Field(None, pattern="^(low|medium|high)$", description="Risk of spread")
 
     # Symptoms observed
     symptoms: list[str] = Field(default_factory=list, description="Observed symptoms")
@@ -386,12 +372,8 @@ class WeedDetectedEvent(BaseVisionEvent):
 
     # Detection details
     confidence: float = Field(..., ge=0, le=1, description="Model confidence score")
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Severity/density level"
-    )
-    density: str | None = Field(
-        None, pattern="^(sparse|moderate|dense|very_dense)$", description="Weed density"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Severity/density level")
+    density: str | None = Field(None, pattern="^(sparse|moderate|dense|very_dense)$", description="Weed density")
 
     # Location
     location: BoundingBox = Field(..., description="Bounding box coordinates")
@@ -420,9 +402,7 @@ class WeedDetectedEvent(BaseVisionEvent):
     # Coverage estimation
     estimated_count: int | None = Field(None, ge=0, description="Estimated weed count")
     affected_area_sqm: float | None = Field(None, ge=0, description="Affected area in m2")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of field affected"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of field affected")
     coverage_map_url: str | None = Field(None, description="Weed coverage map URL")
 
     # Control recommendations
@@ -431,12 +411,8 @@ class WeedDetectedEvent(BaseVisionEvent):
         pattern="^(mechanical|chemical|biological|manual|integrated)$",
         description="Recommended control method",
     )
-    herbicide_recommendation: str | None = Field(
-        None, description="Recommended herbicide (if applicable)"
-    )
-    herbicide_recommendation_ar: str | None = Field(
-        None, description="Arabic herbicide recommendation"
-    )
+    herbicide_recommendation: str | None = Field(None, description="Recommended herbicide (if applicable)")
+    herbicide_recommendation_ar: str | None = Field(None, description="Arabic herbicide recommendation")
     optimal_control_window: str | None = Field(None, description="Optimal time window for control")
 
     # Economic impact
@@ -471,12 +447,8 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     # Density metrics
     plants_per_sqm: float | None = Field(None, ge=0, description="Plant density per m2")
     plants_per_hectare: float | None = Field(None, ge=0, description="Plant density per hectare")
-    expected_plants_per_hectare: float | None = Field(
-        None, ge=0, description="Expected plants per hectare"
-    )
-    emergence_rate: float | None = Field(
-        None, ge=0, le=100, description="Emergence rate percentage"
-    )
+    expected_plants_per_hectare: float | None = Field(None, ge=0, description="Expected plants per hectare")
+    emergence_rate: float | None = Field(None, ge=0, le=100, description="Emergence rate percentage")
 
     # Analysis metadata
     analyzed_area_sqm: float = Field(..., ge=0, description="Analyzed area in m2")
@@ -505,9 +477,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     annotated_mosaic_url: str | None = Field(None, description="Annotated mosaic URL")
 
     # Gap analysis
-    gap_locations: list[GeoLocation] = Field(
-        default_factory=list, description="Locations of gaps/missing plants"
-    )
+    gap_locations: list[GeoLocation] = Field(default_factory=list, description="Locations of gaps/missing plants")
     gap_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of gaps")
 
     # Uniformity metrics
@@ -516,9 +486,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     plant_spacing_cm: float | None = Field(None, ge=0, description="Average plant spacing")
 
     # Recommendations
-    reseeding_recommended: bool = Field(
-        default=False, description="Whether reseeding is recommended"
-    )
+    reseeding_recommended: bool = Field(default=False, description="Whether reseeding is recommended")
     reseeding_area_sqm: float | None = Field(None, ge=0, description="Area needing reseeding")
     recommendation: str | None = Field(None, description="Action recommendation")
     recommendation_ar: str | None = Field(None, description="Arabic recommendation")
@@ -559,35 +527,25 @@ class VisionCriticalAlertEvent(BaseVisionEvent):
     priority: int = Field(default=1, ge=1, le=5, description="Priority (1=highest)")
 
     # Related detections
-    related_detection_ids: list[UUID] = Field(
-        default_factory=list, description="Related detection event IDs"
-    )
+    related_detection_ids: list[UUID] = Field(default_factory=list, description="Related detection event IDs")
     detection_count: int = Field(..., ge=1, description="Number of related detections")
 
     # Affected area
     affected_area_sqm: float | None = Field(None, ge=0, description="Total affected area")
-    affected_area_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of field affected"
-    )
+    affected_area_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of field affected")
     geo_location: GeoLocation | None = Field(None, description="Center of affected area")
 
     # Crop impact
     crop_type: str | None = Field(None, description="Affected crop type")
     crop_type_ar: str | None = Field(None, description="Arabic crop type")
-    estimated_loss_percentage: float | None = Field(
-        None, ge=0, le=100, description="Estimated crop loss percentage"
-    )
+    estimated_loss_percentage: float | None = Field(None, ge=0, le=100, description="Estimated crop loss percentage")
     estimated_loss_value: float | None = Field(None, ge=0, description="Estimated monetary loss")
     currency: str = Field(default="SAR", description="Currency code")
 
     # Response required
     response_deadline_hours: int = Field(..., ge=1, description="Hours to respond")
-    recommended_actions: list[str] = Field(
-        default_factory=list, description="Recommended immediate actions"
-    )
-    recommended_actions_ar: list[str] = Field(
-        default_factory=list, description="Arabic recommended actions"
-    )
+    recommended_actions: list[str] = Field(default_factory=list, description="Recommended immediate actions")
+    recommended_actions_ar: list[str] = Field(default_factory=list, description="Arabic recommended actions")
 
     # Escalation
     auto_notify_agronomist: bool = Field(default=True, description="Auto-notify farm agronomist")
@@ -657,9 +615,7 @@ class VisionAnalysisCompletedEvent(BaseVisionEvent):
 
     # Timing
     started_at: datetime = Field(..., description="Analysis start time")
-    completed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Completion time"
-    )
+    completed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Completion time")
     processing_duration_ms: int = Field(..., ge=0, description="Total processing time")
 
     # Output
@@ -688,9 +644,7 @@ class VisionAnalysisFailedEvent(BaseVisionEvent):
 
     # Timing
     started_at: datetime = Field(..., description="Analysis start time")
-    failed_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), description="Failure time"
-    )
+    failed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Failure time")
 
     # Retry info
     retry_count: int = Field(default=0, ge=0, description="Number of retries attempted")

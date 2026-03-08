@@ -345,9 +345,7 @@ class TestCrossServiceContracts:
         invalid = []
         for subject in subjects:
             parts = subject.split(".")
-            if len(parts) < 3:
-                invalid.append(subject)
-            elif parts[0] != "sahool":
+            if len(parts) < 3 or parts[0] != "sahool":
                 invalid.append(subject)
 
         if subjects:

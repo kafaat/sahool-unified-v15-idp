@@ -110,11 +110,14 @@ class TestKnowledgeCache:
 
     @pytest.mark.unit
     def test_invalidate_collection(self, cache: KnowledgeCache):
-        cache.put("collection:crop_knowledge:q1", 1)
-        cache.put("collection:crop_knowledge:q2", 2)
-        cache.put("collection:soil_knowledge:q1", 3)
+        cache.put("key1", 1, collection="crop_knowledge")
+        cache.put("key2", 2, collection="crop_knowledge")
+        cache.put("key3", 3, collection="soil_knowledge")
         removed = cache.invalidate_collection("crop_knowledge")
-        assert removed >= 0  # Depends on key format
+        assert removed == 2
+        assert cache.get("key1") is None
+        assert cache.get("key2") is None
+        assert cache.get("key3") == 3
 
 
 # ─── CacheEntry Tests ─────────────────────────────────────────────────────────

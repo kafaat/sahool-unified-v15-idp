@@ -157,8 +157,7 @@ class APIVersionMiddleware(BaseHTTPMiddleware):
         if version in DEPRECATED_VERSIONS:
             response.headers["X-API-Deprecated"] = "true"
             response.headers["X-API-Deprecation-Info"] = (
-                f"API version {version.value} is deprecated. "
-                f"Please upgrade to {DEFAULT_VERSION.value}"
+                f"API version {version.value} is deprecated. Please upgrade to {DEFAULT_VERSION.value}"
             )
             logger.warning(f"Deprecated API version {version.value} used: {path}")
 

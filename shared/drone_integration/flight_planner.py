@@ -225,9 +225,7 @@ def destination_point(start: Coordinate, bearing_deg: float, distance_m: float) 
 
     d = distance_m / EARTH_RADIUS_M
 
-    lat2 = math.asin(
-        math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing)
-    )
+    lat2 = math.asin(math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing))
     lng2 = lng1 + math.atan2(
         math.sin(bearing) * math.sin(d) * math.cos(lat1),
         math.cos(d) - math.sin(lat1) * math.sin(lat2),
@@ -259,10 +257,7 @@ def calculate_polygon_area(boundary: list[Coordinate]) -> float:
     m_per_deg_lng = 111320 * math.cos(math.radians(center_lat))
 
     # Convert to meters
-    points_m = [
-        ((c.lng - center_lng) * m_per_deg_lng, (c.lat - center_lat) * m_per_deg_lat)
-        for c in boundary
-    ]
+    points_m = [((c.lng - center_lng) * m_per_deg_lng, (c.lat - center_lat) * m_per_deg_lat) for c in boundary]
 
     # Shoelace formula
     n = len(points_m)
@@ -332,9 +327,7 @@ def point_in_polygon(point: Coordinate, boundary: list[Coordinate]) -> bool:
     for i in range(n):
         if ((boundary[i].lat > point.lat) != (boundary[j].lat > point.lat)) and (
             point.lng
-            < (boundary[j].lng - boundary[i].lng)
-            * (point.lat - boundary[i].lat)
-            / (boundary[j].lat - boundary[i].lat)
+            < (boundary[j].lng - boundary[i].lng) * (point.lat - boundary[i].lat) / (boundary[j].lat - boundary[i].lat)
             + boundary[i].lng
         ):
             inside = not inside
@@ -540,9 +533,7 @@ class FlightPlanner:
                     heading_deg=heading if pass_idx % 2 == 0 else (heading + 180) % 360,
                     spray_on=True if self.config.mode == FlightMode.SPRAYING else False,
                     spray_rate_l_ha=self.config.spray_rate_l_ha,
-                    actions=[WaypointAction.START_SPRAY]
-                    if self.config.mode == FlightMode.SPRAYING
-                    else [],
+                    actions=[WaypointAction.START_SPRAY] if self.config.mode == FlightMode.SPRAYING else [],
                     is_turn_point=wp_index > 0,
                 )
                 waypoints.append(wp_start)
@@ -555,9 +546,7 @@ class FlightPlanner:
                     speed_ms=self.config.cruise_speed_ms,
                     heading_deg=heading if pass_idx % 2 == 0 else (heading + 180) % 360,
                     spray_on=False,
-                    actions=[WaypointAction.STOP_SPRAY]
-                    if self.config.mode == FlightMode.SPRAYING
-                    else [],
+                    actions=[WaypointAction.STOP_SPRAY] if self.config.mode == FlightMode.SPRAYING else [],
                     is_turn_point=True,
                 )
                 waypoints.append(wp_end)
@@ -576,11 +565,13 @@ class FlightPlanner:
             result.error_ar = "لا يمكن إنشاء مسار طيران صالح"
             return result
 
-        # Add distance between passes (turn distances)
+        # Add turn distances between passes (only between end of one segment and start of next)
+        # Waypoints are added in pairs (start, end) per segment, so turns occur at odd indices
         for i in range(1, len(waypoints)):
-            total_distance += haversine_distance(
-                waypoints[i - 1].coordinate, waypoints[i].coordinate
-            )
+            if i % 2 == 0:  # Turn from end of previous segment to start of next segment
+                total_distance += haversine_distance(
+                    waypoints[i - 1].coordinate, waypoints[i].coordinate
+                )
 
         # Calculate timing
         flight_time_s = total_distance / self.config.cruise_speed_ms
@@ -666,15 +657,11 @@ class FlightPlanner:
         # Calculate flight altitude from GSD
         # GSD = (sensor_width * altitude) / (focal_length * image_width)
         # altitude = (GSD * focal_length * image_width) / sensor_width
-        altitude_m = (
-            (gsd_cm_px / 100) * camera_focal_length_mm * image_width_px
-        ) / camera_sensor_width_mm
+        altitude_m = ((gsd_cm_px / 100) * camera_focal_length_mm * image_width_px) / camera_sensor_width_mm
 
         # Validate altitude
         if altitude_m > MAX_FLIGHT_ALTITUDE_M:
-            result.error_en = (
-                f"Required altitude ({altitude_m:.1f}m) exceeds maximum ({MAX_FLIGHT_ALTITUDE_M}m)"
-            )
+            result.error_en = f"Required altitude ({altitude_m:.1f}m) exceeds maximum ({MAX_FLIGHT_ALTITUDE_M}m)"
             result.error_ar = f"الارتفاع المطلوب ({altitude_m:.1f}م) يتجاوز الحد الأقصى ({MAX_FLIGHT_ALTITUDE_M}م)"
             return result
 
@@ -696,7 +683,6 @@ class FlightPlanner:
         side_overlap = self.config.side_overlap_percent / 100
 
         photo_spacing_m = ground_height_m * (1 - frontal_overlap)
-        ground_width_m * (1 - side_overlap)
 
         # Update config for path generation
         mapping_config = FlightPlanConfig(
@@ -746,10 +732,8 @@ class FlightPlanner:
             for j in range(num_photos + 1):
                 progress = j / max(1, num_photos)
                 photo_coord = Coordinate(
-                    lat=start_wp.coordinate.lat
-                    + progress * (end_wp.coordinate.lat - start_wp.coordinate.lat),
-                    lng=start_wp.coordinate.lng
-                    + progress * (end_wp.coordinate.lng - start_wp.coordinate.lng),
+                    lat=start_wp.coordinate.lat + progress * (end_wp.coordinate.lat - start_wp.coordinate.lat),
+                    lng=start_wp.coordinate.lng + progress * (end_wp.coordinate.lng - start_wp.coordinate.lng),
                     alt_agl_m=altitude_m,
                 )
 
@@ -1029,9 +1013,7 @@ class FlightPlanner:
                 alt_agl_m=self.config.cruise_altitude_m,
             )
             if point_in_polygon(midpoint, polygon):
-                seg_start = Coordinate(
-                    lat=points[i].lat, lng=points[i].lng, alt_agl_m=self.config.cruise_altitude_m
-                )
+                seg_start = Coordinate(lat=points[i].lat, lng=points[i].lng, alt_agl_m=self.config.cruise_altitude_m)
                 seg_end = Coordinate(
                     lat=points[i + 1].lat,
                     lng=points[i + 1].lng,
@@ -1041,9 +1023,7 @@ class FlightPlanner:
 
         return segments
 
-    def _line_intersection(
-        self, p1: Coordinate, p2: Coordinate, p3: Coordinate, p4: Coordinate
-    ) -> Coordinate | None:
+    def _line_intersection(self, p1: Coordinate, p2: Coordinate, p3: Coordinate, p4: Coordinate) -> Coordinate | None:
         """
         Find intersection point of two line segments.
         إيجاد نقطة تقاطع قطعتي خط.
@@ -1122,12 +1102,8 @@ def assess_flight_weather(
     if wind_speed_ms > max_wind:
         check.condition = WeatherCondition.PROHIBITED
         check.can_fly = False
-        check.message_en = (
-            f"Wind speed ({wind_speed_ms:.1f} m/s) exceeds safe limit ({max_wind} m/s)"
-        )
-        check.message_ar = (
-            f"سرعة الرياح ({wind_speed_ms:.1f} م/ث) تتجاوز الحد الآمن ({max_wind} م/ث)"
-        )
+        check.message_en = f"Wind speed ({wind_speed_ms:.1f} m/s) exceeds safe limit ({max_wind} m/s)"
+        check.message_ar = f"سرعة الرياح ({wind_speed_ms:.1f} م/ث) تتجاوز الحد الآمن ({max_wind} م/ث)"
         return check
     elif wind_speed_ms > max_wind * 0.75:
         check.condition = WeatherCondition.MARGINAL
@@ -1168,9 +1144,10 @@ def assess_flight_weather(
         check.message_ar = f"رؤية منخفضة ({visibility_km} كم) - حافظ على خط البصر"
         return check
 
-    # Delta T for spraying (temperature - wet bulb)
-    # Simplified calculation
-    delta_t = temperature_c - (temperature_c - (100 - humidity_percent) / 5)
+    # Delta T for spraying (dry-bulb minus wet-bulb approximation)
+    # August-Roche-Magnus approximation for wet-bulb depression
+    wet_bulb_c = temperature_c * math.atan(0.151977 * (humidity_percent + 8.313659) ** 0.5) + math.atan(temperature_c + humidity_percent) - math.atan(humidity_percent - 1.676331) + 0.00391838 * humidity_percent ** 1.5 * math.atan(0.023101 * humidity_percent) - 4.686035
+    delta_t = temperature_c - wet_bulb_c
 
     if delta_t < 2:
         warnings_en.append("Low Delta T - risk of evaporation and spray drift")

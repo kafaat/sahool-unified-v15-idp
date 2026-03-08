@@ -444,7 +444,46 @@ shared-types devDep:   zod ^3.24.0
 
 ---
 
-## 13. Specialized/Communication Services (8 خدمات)
+## 13. Shared Python Modules (75+ وحدة)
+
+### اكتشاف معماري: نمط التدهور اللطيف (Graceful Degradation)
+
+المنصة تستخدم نمطاً معمارياً ذكياً حيث تُلف الاعتماديات الاختيارية في كتل `try/except`، مما يسمح للخدمات بالعمل بميزات مخفضة عند غياب الاعتماديات.
+
+#### 13.1 وحدات تعمل في وضع الاحتياط فقط
+**الخطورة**: HIGH (معمارياً - مقصود لكن يجب توثيقه)
+
+| الوحدة | الحالة | الوضع الفعلي | الاعتمادية المفقودة |
+|--------|--------|-------------|---------------------|
+| `shared/nlp/` | **احتياط** | مطابقة كلمات بدلاً من AraBERT ML | `transformers>=4.35.0`, `torch>=2.1.0` |
+| `shared/satellite/` | **نموذج أولي** | بيانات وهمية بدلاً من Sentinel Hub | `sentinelhub>=3.10.0` |
+| `shared/ml/` | **كتالوج ثابت** | بيانات وصفية ثابتة بدلاً من AgML | `agml>=0.4.0` |
+
+**ملاحظة**: هذا التصميم مقصود ويسمح بـ:
+- تشغيل خدمات خفيفة بدون عبء AI
+- التوسع الأفقي مع ميزات AI اختيارية
+- التدهور اللطيف عند غياب الاعتماديات
+
+#### 13.2 وحدات كاملة الاعتماديات
+| الوحدة | الحالة |
+|--------|--------|
+| `shared/auth/` | OK - PyJWT, cryptography, passlib موجودة |
+| `shared/events/` | OK - nats-py 2.13.1 موجود |
+| `shared/cache/` | OK - redis, hiredis موجودة |
+| `shared/observability/` | OK - OpenTelemetry, Prometheus موجودة |
+
+#### 13.3 torch مفقود من ai-advisor requirements
+**الخطورة**: HIGH
+
+```
+ai-advisor → sentence-transformers==5.2.2 → torch>=2.0.0 (transitive, NOT declared)
+```
+
+**المشكلة**: `sentence-transformers` يعتمد على `torch` لكنه غير مصرح في requirements.txt.
+
+---
+
+## 14. Specialized/Communication Services (8 خدمات)
 
 ### المشاكل المكتشفة
 

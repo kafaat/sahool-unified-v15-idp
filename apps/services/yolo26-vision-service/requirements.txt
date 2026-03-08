@@ -13,7 +13,7 @@ pydantic-settings>=2.1.0,<3.0.0
 # Note: torch and torchvision are installed separately in Dockerfile with CUDA support
 ultralytics>=8.1.0,<9.0.0
 opencv-python-headless>=4.8.0,<5.0.0
-Pillow>=10.0.0,<12.0.0
+Pillow>=12.1.1,<13.0.0  # CVE-2026-25990
 numpy>=1.26.0,<2.5.0
 
 # Image Processing

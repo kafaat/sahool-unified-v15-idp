@@ -4,12 +4,12 @@
 # Web Framework
 fastapi>=0.128.5,<1.0.0
 uvicorn[standard]>=0.40.0,<1.0.0
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
+pydantic>=2.10.0,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
 # Database (PostgreSQL async)
 asyncpg>=0.30.0
 # HTTP Client
-httpx>=0.26.0
+httpx>=0.28.1,<1.0.0
 aiohttp>=3.13.3  # CVE-2025-53643 (zip bomb), CVE-2025-69223
 # Async Support
 asyncio-throttle>=1.0.0

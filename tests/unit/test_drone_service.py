@@ -792,7 +792,7 @@ class TestAdvancedFlightPlannerDeprecation:
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            planner = DroneFlightPlanner()
+            _planner = DroneFlightPlanner()  # noqa: F841 - instantiation triggers warning
             assert len(w) == 1
             assert issubclass(w[0].category, DeprecationWarning)
             assert "deprecated" in str(w[0].message).lower()

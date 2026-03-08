@@ -96,9 +96,9 @@ def _get_tenant_id(user) -> str:
 def _raise_not_found(resource: str = "Drone", resource_ar: str = "الطائرة"):
     """Raise NotFoundException (platform or fallback)."""
     raise NotFoundException(
-        message=f"{resource} not found",
-        message_ar=f"{resource_ar} غير موجودة",
-        resource_type="drone",
+        f"{resource} not found",
+        f"{resource_ar} غير موجودة",
+        "drone",
     )
 
 

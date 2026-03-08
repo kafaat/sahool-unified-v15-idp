@@ -92,9 +92,9 @@ def _get_tenant_id(user) -> str:
 def _raise_not_found():
     """Raise NotFoundException for missing prescriptions."""
     raise NotFoundException(
-        message="Prescription not found",
-        message_ar="الوصفة غير موجودة",
-        resource_type="prescription",
+        "Prescription not found",
+        "الوصفة غير موجودة",
+        "prescription",
     )
 
 

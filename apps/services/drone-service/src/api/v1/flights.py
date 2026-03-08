@@ -111,7 +111,7 @@ def _get_tenant_id(user) -> str:
 
 def _raise_plan_not_found():
     """Raise NotFoundException for missing flight plans."""
-    raise NotFoundException(message="Plan not found", message_ar="الخطة غير موجودة", resource_type="flight_plan")
+    raise NotFoundException("Plan not found", "الخطة غير موجودة", "flight_plan")
 
 
 @router.post("/plan/spray", status_code=201)

@@ -112,15 +112,15 @@ def _mission_to_response(m: dict) -> dict:
 
 def _raise_not_found():
     """Raise NotFoundException for missing missions."""
-    raise NotFoundException(message="Mission not found", message_ar="المهمة غير موجودة", resource_type="mission")
+    raise NotFoundException("Mission not found", "المهمة غير موجودة", "mission")
 
 
 def _validate_transition(current: str, target: str) -> None:
     """Validate mission status transition."""
     if target not in VALID_TRANSITIONS.get(current, []):
         raise ValidationException(
-            message=f"Cannot transition from {current} to {target}",
-            message_ar=f"لا يمكن الانتقال من {current} إلى {target}",
+            f"Cannot transition from {current} to {target}",
+            f"لا يمكن الانتقال من {current} إلى {target}",
         )
 
 

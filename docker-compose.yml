@@ -57,7 +57,8 @@ services:
     image: edoburu/pgbouncer:v1.23.1-p3
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
-    entrypoint: [ "/entrypoint-custom.sh" ]
+    # FIX: Use "sh" explicitly to avoid Windows bind-mount execute permission issues
+    entrypoint: [ "sh", "/entrypoint-custom.sh" ]
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
       DB_HOST: postgres
@@ -692,20 +693,18 @@ services:
       - ETCD_SNAPSHOT_COUNT=50000
       # etcdctl configuration for healthcheck
       - ETCDCTL_API=3
+      - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (for reference only - auth enabled by etcd-init)
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
-      # FIX: Removed ETCDCTL_USER/PASSWORD - etcd starts without auth enabled
-      # Authentication is configured by etcd-init service after startup
     volumes:
       - etcd_data:/etcd
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
-      # Use HTTP /health endpoint - works regardless of whether auth is enabled
-      # etcdctl requires auth credentials after etcd-init enables auth, but
-      # the HTTP /health endpoint always works without authentication
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health || exit 1" ]
+      # FIX: Replaced wget (not available in etcd image) with etcdctl
+      # Try without auth first (before etcd-init), fallback to with auth (after etcd-init)
+      test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || etcdctl --user ${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD} endpoint health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -807,10 +806,10 @@ services:
       # Health check: Use MinIO's built-in live health endpoint
       # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة
       test: [ "CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live || exit 1" ]
-      interval: 10s
-      timeout: 5s
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 15s
+      start_period: 30s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

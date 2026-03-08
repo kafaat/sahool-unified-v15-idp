@@ -34,7 +34,7 @@ apscheduler==3.11.2
 
 # Authentication
 PyJWT>=2.8.0,<3.0.0
-cryptography>=43.0.1  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+cryptography>=43.0.1,<45.0.0  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Redis (required by shared.auth token revocation)
 redis>=7.1.0,<8.0.0

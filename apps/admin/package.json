@@ -19,10 +19,10 @@
     "docs": "typedoc --options typedoc.json"
   },
   "dependencies": {
-    "@sahool/api-client": "*",
-    "@sahool/shared-hooks": "*",
-    "@sahool/shared-ui": "*",
-    "@sahool/shared-utils": "*",
+    "@sahool/api-client": "^16.0.0",
+    "@sahool/shared-hooks": "^16.0.0",
+    "@sahool/shared-ui": "^16.0.0",
+    "@sahool/shared-utils": "^16.0.0",
     "@sentry/nextjs": "^9.5.0",
     "axios": "1.13.5",
     "clsx": "2.1.1",

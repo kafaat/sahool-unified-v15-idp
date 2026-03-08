@@ -1,6 +1,13 @@
 """
 Drone Flight Planning Module | وحدة تخطيط مسارات الطائرات بدون طيار
 
+.. deprecated:: 16.0.0
+    This module is deprecated. Use ``shared.drone_integration.flight_planner``
+    (FlightPlanner, create_spray_flight_plan, create_mapping_flight_plan) instead.
+    This module will be removed in v17.0.0.
+
+    هذه الوحدة مهملة. استخدم shared.drone_integration.flight_planner بدلاً منها.
+
 Provides:
 - Automatic flight path planning for field mapping
 - High-resolution NDVI from drone imagery
@@ -9,6 +16,8 @@ Provides:
 """
 
 from __future__ import annotations
+
+import warnings
 
 import logging
 import math
@@ -136,7 +145,17 @@ class DroneFlightPlanner:
     """Plans drone flights for agricultural operations.
 
     يخطط رحلات الطائرات بدون طيار للعمليات الزراعية.
+
+    .. deprecated:: 16.0.0
+        Use ``shared.drone_integration.flight_planner.FlightPlanner`` instead.
     """
+
+    def __init__(self):
+        warnings.warn(
+            "DroneFlightPlanner is deprecated. Use shared.drone_integration.flight_planner.FlightPlanner instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     def calculate_gsd(
         self, altitude_m: float, focal_length_mm: float = 8.8, sensor_width_mm: float = 13.2, image_width_px: int = 5472

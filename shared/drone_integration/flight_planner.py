@@ -576,11 +576,13 @@ class FlightPlanner:
             result.error_ar = "لا يمكن إنشاء مسار طيران صالح"
             return result
 
-        # Add distance between passes (turn distances)
+        # Add turn distances between passes (only between end of one segment and start of next)
+        # Waypoints are added in pairs (start, end) per segment, so turns occur at odd indices
         for i in range(1, len(waypoints)):
-            total_distance += haversine_distance(
-                waypoints[i - 1].coordinate, waypoints[i].coordinate
-            )
+            if i % 2 == 0:  # Turn from end of previous segment to start of next segment
+                total_distance += haversine_distance(
+                    waypoints[i - 1].coordinate, waypoints[i].coordinate
+                )
 
         # Calculate timing
         flight_time_s = total_distance / self.config.cruise_speed_ms
@@ -696,7 +698,6 @@ class FlightPlanner:
         side_overlap = self.config.side_overlap_percent / 100
 
         photo_spacing_m = ground_height_m * (1 - frontal_overlap)
-        ground_width_m * (1 - side_overlap)
 
         # Update config for path generation
         mapping_config = FlightPlanConfig(
@@ -1168,9 +1169,10 @@ def assess_flight_weather(
         check.message_ar = f"رؤية منخفضة ({visibility_km} كم) - حافظ على خط البصر"
         return check
 
-    # Delta T for spraying (temperature - wet bulb)
-    # Simplified calculation
-    delta_t = temperature_c - (temperature_c - (100 - humidity_percent) / 5)
+    # Delta T for spraying (dry-bulb minus wet-bulb approximation)
+    # August-Roche-Magnus approximation for wet-bulb depression
+    wet_bulb_c = temperature_c * math.atan(0.151977 * (humidity_percent + 8.313659) ** 0.5) + math.atan(temperature_c + humidity_percent) - math.atan(humidity_percent - 1.676331) + 0.00391838 * humidity_percent ** 1.5 * math.atan(0.023101 * humidity_percent) - 4.686035
+    delta_t = temperature_c - wet_bulb_c
 
     if delta_t < 2:
         warnings_en.append("Low Delta T - risk of evaporation and spray drift")

@@ -11,6 +11,13 @@ asyncpg==0.31.0
 # Messaging
 nats-py==2.13.1
 
+# Authentication
+PyJWT>=2.8.0
+cryptography>=43.0.1
+
+# HTTP Client
+httpx==0.28.1
+
 # Observability
 structlog==24.4.0
 prometheus-client==0.24.1

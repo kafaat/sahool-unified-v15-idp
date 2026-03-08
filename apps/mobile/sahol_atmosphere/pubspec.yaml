@@ -115,6 +115,9 @@ flutter_native_splash:
   ios: true
   web: false
 
+dependency_overrides:
+  record_platform_interface: 1.2.0
+
 flutter:
   uses-material-design: true
 

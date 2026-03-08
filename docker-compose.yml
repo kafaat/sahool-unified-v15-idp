@@ -464,7 +464,7 @@ services:
     # Qdrant healthcheck - uses HTTP endpoint to verify service is responding
     # فحص صحة Qdrant - يستخدم نقطة نهاية HTTP للتحقق من استجابة الخدمة
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q --spider http://localhost:6333/healthz || exit 1" ]
+      test: [ "CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -719,9 +719,9 @@ services:
       # NOTE: $$ escapes to $ inside docker-compose CMD-SHELL
       test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || ETCDCTL_USER=$$ETCD_ROOT_USERNAME:$$ETCD_ROOT_PASSWORD etcdctl endpoint health" ]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

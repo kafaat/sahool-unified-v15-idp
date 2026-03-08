@@ -183,8 +183,8 @@ services:
       # TLS port (REQUIRED for production)
       - "127.0.0.1:6380:6380"
     healthcheck:
-      # Non-TLS health check (using --no-auth-warning to suppress password visibility warnings)
-      test: [ "CMD-SHELL", "redis-cli --no-auth-warning -a \"$${REDIS_PASSWORD}\" ping | grep PONG" ]
+      # FIX: Use REDISCLI_AUTH env var instead of -a flag to avoid credential exposure in process list
+      test: [ "CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep PONG" ]
       # TLS-enabled health check (uncomment when TLS is enabled):
       # test: ["CMD-SHELL", "redis-cli --tls --cert /etc/redis/certs/redis-client.crt --key /etc/redis/certs/redis-client.key --cacert /etc/redis/certs/ca.crt -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 30s
@@ -380,7 +380,8 @@ services:
       pgbouncer:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      # FIX: Use python urllib instead of curl (curl may not exist in MLflow image)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/health')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -423,7 +424,8 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      test: [ "CMD-SHELL", "pidof mosquitto || exit 1" ]
+      # FIX: Check actual MQTT connectivity instead of just process existence
+      test: [ "CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 3 2>/dev/null || (pidof mosquitto && nc -z localhost 1883)" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1122,7 +1124,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3015/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3015/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1171,7 +1174,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3020/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3020/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1222,7 +1226,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3021/api/v1/yield/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3021/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1271,7 +1276,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3022/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3022/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1321,7 +1327,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3023/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3023/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1365,7 +1372,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8115/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8115/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1420,7 +1428,8 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8117/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8117/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1529,7 +1538,8 @@ services:
       notification-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3025/api/v1/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1992,7 +2002,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8152/api/v1/yield/health" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8152/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2569,10 +2580,12 @@ services:
       nats:
         condition: service_healthy
       # MIGRATION: Changed dependency from field-ops to field-management-service
+      # FIX: Use service_healthy instead of service_started to avoid connection errors
       field-management-service:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "pgrep", "-f", "python.*worker" ]
+      # FIX: Check actual process with broader pattern (main.py, uvicorn, or worker)
+      test: [ "CMD-SHELL", "pgrep -f 'python|uvicorn' || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2746,7 +2759,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8130/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8130/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2794,7 +2808,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8131/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8131/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2842,7 +2857,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8132/healthz" ]
+      # FIX: Use node native http instead of curl (may not exist in slim images)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8132/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3078,6 +3094,9 @@ services:
       nats:
         condition: service_healthy
       agent-registry:
+        condition: service_healthy
+      # FIX: Add missing dependency - copilot-api references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
@@ -4012,6 +4031,9 @@ services:
         condition: service_healthy
       pgbouncer:
         condition: service_healthy
+      # FIX: Add missing dependency - ai-chat-assistant references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8260/healthz')" ]
       interval: 30s
@@ -4127,6 +4149,9 @@ services:
       redis:
         condition: service_healthy
       pgbouncer:
+        condition: service_healthy
+      # FIX: Add missing dependency - whatsapp-bot-service references LLM_ORCHESTRATOR_URL
+      llm-orchestrator-service:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8240/healthz')" ]

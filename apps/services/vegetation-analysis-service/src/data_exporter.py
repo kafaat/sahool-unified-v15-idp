@@ -9,7 +9,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from xml.dom import minidom
+from defusedxml.minidom import parseString as safe_parseString
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 
@@ -425,7 +425,7 @@ class DataExporter:
 
         # Convert to pretty XML string
         xml_string = tostring(kml, encoding="unicode")
-        dom = minidom.parseString(xml_string)
+        dom = safe_parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
     def _boundaries_to_kml(self, boundaries: list[dict]) -> str:
@@ -472,7 +472,7 @@ class DataExporter:
 
         # Convert to pretty XML string
         xml_string = tostring(kml, encoding="unicode")
-        dom = minidom.parseString(xml_string)
+        dom = safe_parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
     def _format_kml_description(self, data: dict) -> str:

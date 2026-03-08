@@ -21,5 +21,8 @@ python-dotenv==1.2.1
 # Redis cache
 redis[hiredis]==7.1.0
 
+# XML Security
+defusedxml>=0.7.1,<1.0.0
+
 # ML/Scientific Computing
 numpy>=1.26.0,<2.5.0

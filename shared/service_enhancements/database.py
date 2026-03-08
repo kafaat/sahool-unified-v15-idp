@@ -31,12 +31,24 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import time
 from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Callable, Generic, TypeVar
 
 logger = logging.getLogger(__name__)
+
+# Pattern for valid SQL identifiers (table names, column names)
+_VALID_IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+
+def _validate_identifier(name: str, kind: str = "identifier") -> str:
+    """Validate a SQL identifier (table or column name) to prevent SQL injection."""
+    if not _VALID_IDENTIFIER.match(name):
+        raise ValueError(f"Invalid SQL {kind}: {name!r}")
+    return name
+
 
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
@@ -422,6 +434,11 @@ async def batch_insert(
     if not records:
         return 0
 
+    # Validate identifiers to prevent SQL injection
+    _validate_identifier(table, "table name")
+    for col in columns:
+        _validate_identifier(col, "column name")
+
     total_inserted = 0
     num_batches = (len(records) + batch_size - 1) // batch_size
 
@@ -450,7 +467,15 @@ async def batch_insert(
         """
 
         if on_conflict:
-            sql += f" ON CONFLICT {on_conflict}"
+            # Validate on_conflict to prevent SQL injection via clause manipulation
+            _safe_conflict = on_conflict.strip()
+            if not re.match(
+                r"^(DO NOTHING|\([a-zA-Z0-9_, ]+\)\s+DO\s+(NOTHING|UPDATE\s+SET\s+.+))$",
+                _safe_conflict,
+                re.IGNORECASE,
+            ):
+                raise ValueError(f"Invalid ON CONFLICT clause: {on_conflict!r}")
+            sql += f" ON CONFLICT {_safe_conflict}"
 
         async with pool.acquire() as conn:
             result = await conn.execute(sql, *params)

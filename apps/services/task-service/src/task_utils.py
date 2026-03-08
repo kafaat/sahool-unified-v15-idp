@@ -13,6 +13,7 @@ import uuid
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
+from urllib.parse import quote as url_quote
 
 import httpx
 
@@ -458,9 +459,11 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     log_field_id = sanitize_for_log(field_id)
 
     try:
+        # URL-encode the path segment to prevent SSRF via path traversal
+        safe_path = url_quote(validated_field_id, safe="")
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             response = await client.get(
-                f"{FIELD_SERVICE_URL}/fields/{validated_field_id}",
+                f"{FIELD_SERVICE_URL}/fields/{safe_path}",
                 headers={
                     "X-Tenant-Id": tenant_id,
                     "Content-Type": "application/json",

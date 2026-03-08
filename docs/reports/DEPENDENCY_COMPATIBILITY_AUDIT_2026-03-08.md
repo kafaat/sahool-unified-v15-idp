@@ -14,10 +14,10 @@
 
 | المقياس | القيمة |
 |---------|--------|
-| **إجمالي المشاكل المكتشفة** | 85 |
-| **حرجة (CRITICAL)** | 14 |
-| **عالية (HIGH)** | 21 |
-| **متوسطة (MEDIUM)** | 30 |
+| **إجمالي المشاكل المكتشفة** | 91 |
+| **حرجة (CRITICAL)** | 17 |
+| **عالية (HIGH)** | 23 |
+| **متوسطة (MEDIUM)** | 31 |
 | **منخفضة (LOW)** | 20 |
 | **الخدمات المتوافقة بالكامل** | ~45% |
 | **الخدمات التي تحتاج إصلاح** | ~55% |
@@ -351,9 +351,51 @@ psycopg2-binary==2.9.9    # متزامن - يخالف نمط async-first
 
 ## 11. Shared npm Packages (12 حزمة)
 
-### الحالة: متوافق
+### المشاكل الحرجة
 
-جميع الحزم المشتركة تعتمد على `react >=18.0.0` كـ peer dependency وهو متوافق مع React 19.2.4 المستخدم في التطبيقات.
+#### 11.1 @types/express غير متوافق مع Express 4.x
+**الخطورة**: CRITICAL
+
+| الحزمة | express | @types/express | المشكلة |
+|--------|---------|----------------|---------|
+| field-shared | ^4.21.2 | **^5.0.0** | Types لـ Express 5 مع Express 4 |
+| shared-audit | ^4.18.0 | **^5.0.0** | نفس المشكلة |
+| shared-types | ^4.21.0 | **^5.0.0** | نفس المشكلة |
+| iot-service | — | ^4.17.21 | صحيح |
+
+**الإصلاح**: تغيير `@types/express` إلى `^4.17.21` في الحزم الثلاث.
+
+#### 11.2 إصدارات Wildcard (*) في التطبيقات
+**الخطورة**: CRITICAL
+
+```json
+// apps/admin & apps/web
+"@sahool/api-client": "*",      // خطير!
+"@sahool/shared-hooks": "*",    // خطير!
+"@sahool/shared-ui": "*",       // خطير!
+"@sahool/shared-utils": "*"     // خطير!
+```
+
+**الإصلاح**: تغيير جميع `*` إلى `^16.0.0`.
+
+#### 11.3 Prisma Client تعارض إصدارات
+**الخطورة**: CRITICAL
+
+| الحزمة | @prisma/client | المشكلة |
+|--------|----------------|---------|
+| shared-db | ^5.8.0 (dependency) | قديم جداً |
+| shared-crypto | ^5.22.0 | المعيار |
+| All services | ^5.22.0 | المعيار |
+
+**الإصلاح**: تحديث shared-db إلى `^5.22.0`.
+
+#### 11.4 Zod peer dependency أقدم من dev dependency
+**الخطورة**: MEDIUM
+
+```
+shared-types peerDep:  zod ^3.23.0
+shared-types devDep:   zod ^3.24.0
+```
 
 ---
 
@@ -403,6 +445,9 @@ edge-orchestrator:      pytest-asyncio>=0.24.0  (متساهل)
 | 4 | sahool_field_app | Remove duplicate app_links: ^3.5.1 |
 | 5 | code-review-agent | Upgrade TypeScript to ^5.9.3, Node to >=20.0.0 |
 | 6 | constraints.txt | Add PyJWT>=2.9.0,<3.0.0 and cryptography>=43.0.1,<45.0.0 |
+| 7 | field-shared, shared-audit, shared-types | Change @types/express from ^5.0.0 to ^4.17.21 |
+| 8 | apps/admin, apps/web | Change wildcard (*) deps to ^16.0.0 |
+| 9 | shared-db | Update @prisma/client from ^5.8.0 to ^5.22.0 |
 
 ### P1 - عالي (هذا الأسبوع)
 

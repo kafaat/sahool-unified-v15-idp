@@ -7,6 +7,7 @@ Provides utilities for managing database migrations with Alembic.
 """
 
 import hashlib
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -25,8 +26,25 @@ from sqlalchemy import (
     String,
     Table,
     create_engine,
+    func,
+    select,
     text,
 )
+from sqlalchemy.schema import DDL
+
+_SAFE_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _validate_identifier(value: str, name: str = "identifier") -> str:
+    """Validate a SQL identifier to prevent injection.
+    التحقق من معرف SQL لمنع الحقن.
+
+    Only allows names matching ``[A-Za-z_][A-Za-z0-9_]*`` which are safe
+    unquoted PostgreSQL identifiers.
+    """
+    if not _SAFE_IDENTIFIER_RE.match(value):
+        raise ValueError(f"Unsafe SQL {name}: {value!r}")
+    return value
 
 
 @dataclass
@@ -472,7 +490,10 @@ class PostGISMigrationHelper:
         if not index_name:
             index_name = f"idx_{table}_{column}_gist"
 
-        conn.execute(text(f"CREATE INDEX {index_name} ON {table} USING GIST ({column})"))
+        _validate_identifier(table, "table name")
+        _validate_identifier(column, "column name")
+        _validate_identifier(index_name, "index name")
+        conn.execute(DDL(f"CREATE INDEX {index_name} ON {table} USING GIST ({column})"))  # noqa: S608
         conn.commit()
 
     @staticmethod
@@ -490,8 +511,11 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID (default: 4326 for WGS84)
             geometry_type: Geometry type (POINT, LINESTRING, POLYGON, etc.)
         """
+        _validate_identifier(table, "table name")
+        _validate_identifier(column, "column name")
+        _validate_identifier(geometry_type, "geometry type")
         conn.execute(
-            text(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})")
+            DDL(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})")  # noqa: S608
         )
         conn.commit()
 
@@ -510,7 +534,10 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID
             geometry_type: Geometry type
         """
+        _validate_identifier(table, "table name")
+        _validate_identifier(column, "column name")
+        _validate_identifier(geometry_type, "geometry type")
         conn.execute(
-            text(f"SELECT AddGeometryColumn('{table}', '{column}', {srid}, '{geometry_type}', 2)")
+            select(func.AddGeometryColumn(table, column, srid, geometry_type, 2))
         )
         conn.commit()

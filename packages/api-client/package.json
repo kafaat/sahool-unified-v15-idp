@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@sahool/shared-types": "^16.0.0",
-    "axios": "^1.7.9"
+    "axios": "^1.13.5"
   },
   "devDependencies": {
     "@types/node": "^20.19.33",

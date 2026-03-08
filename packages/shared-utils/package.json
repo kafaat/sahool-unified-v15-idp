@@ -28,9 +28,6 @@
     "typescript": "^5.9.3",
     "vitest": "^3.2.0"
   },
-  "optionalDependencies": {
-    "@sentry/nextjs": "^9.5.0"
-  },
   "peerDependencies": {
     "react": ">=18.0.0"
   },

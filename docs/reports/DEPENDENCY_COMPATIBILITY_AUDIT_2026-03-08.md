@@ -14,10 +14,10 @@
 
 | المقياس | القيمة |
 |---------|--------|
-| **إجمالي المشاكل المكتشفة** | 78 |
-| **حرجة (CRITICAL)** | 12 |
-| **عالية (HIGH)** | 18 |
-| **متوسطة (MEDIUM)** | 28 |
+| **إجمالي المشاكل المكتشفة** | 85 |
+| **حرجة (CRITICAL)** | 14 |
+| **عالية (HIGH)** | 21 |
+| **متوسطة (MEDIUM)** | 30 |
 | **منخفضة (LOW)** | 20 |
 | **الخدمات المتوافقة بالكامل** | ~45% |
 | **الخدمات التي تحتاج إصلاح** | ~55% |
@@ -67,6 +67,45 @@ copilot-api:   sentence-transformers>=2.2.0  (loose - allows old versions!)
 ```
 
 **الإصلاح**: تثبيت `sentence-transformers==5.2.2` في copilot-api.
+
+#### 1.4 PyJWT و cryptography مفقودان من constraints.txt المركزي
+**الخطورة**: CRITICAL
+
+| الحزمة | constraints.txt | constraints-ai.txt | pyproject.toml |
+|--------|----------------|-------------------|----------------|
+| PyJWT | **مفقود** | `>=2.9.0,<3.0.0` | `>=2.8.0,<3.0.0` |
+| cryptography | **مفقود** | `>=43.0.1,<45.0.0` | `>=43.0.1` (بدون حد أعلى) |
+
+**المشكلة**: حزمتان أمنيتان أساسيتان مفقودتان من ملف القيود المركزي، مما يسمح بتثبيت إصدارات قديمة غير آمنة.
+
+**الإصلاح المطلوب** (`constraints.txt`):
+```diff
++ PyJWT>=2.9.0,<3.0.0
++ cryptography>=43.0.1,<45.0.0
+```
+
+#### 1.5 تعارض حد starlette الأعلى بين ملفات القيود
+**الخطورة**: MEDIUM
+
+```
+constraints.txt:      starlette>=0.49.1,<0.53.0   ← صارم
+constraints-ai.txt:   starlette>=0.49.1,<1.0.0    ← متساهل
+```
+
+**المشكلة**: عند إصدار Starlette 0.53.0، ستتعطل الخدمات التي تستخدم constraints.txt بينما تعمل خدمات AI بشكل طبيعي.
+
+#### 1.6 asyncpg vs psycopg2 في خدمات Core
+**الخطورة**: HIGH
+
+| الخدمة | Driver | النمط |
+|--------|--------|-------|
+| notification-service | asyncpg | async (صحيح) |
+| billing-core | asyncpg | async (صحيح) |
+| task-service | **psycopg2-binary** | **sync (خاطئ)** |
+| equipment-service | **psycopg2-binary** | **sync (خاطئ)** |
+| alert-service | **psycopg2-binary** | **sync (خاطئ)** |
+
+**المشكلة**: 3 خدمات FastAPI تستخدم driver متزامن رغم أن FastAPI مصمم للعمل بشكل غير متزامن.
 
 ---
 
@@ -363,17 +402,20 @@ edge-orchestrator:      pytest-asyncio>=0.24.0  (متساهل)
 | 3 | sahol_atmosphere | Add dependency_overrides for record_platform_interface |
 | 4 | sahool_field_app | Remove duplicate app_links: ^3.5.1 |
 | 5 | code-review-agent | Upgrade TypeScript to ^5.9.3, Node to >=20.0.0 |
+| 6 | constraints.txt | Add PyJWT>=2.9.0,<3.0.0 and cryptography>=43.0.1,<45.0.0 |
 
 ### P1 - عالي (هذا الأسبوع)
 
 | # | الخدمة | الإصلاح |
 |---|--------|---------|
-| 6 | crm-service, logistics-service | Add cryptography upper bound <45.0.0 |
-| 7 | globalgap-compliance | Update minimum versions (fastapi, uvicorn, structlog) |
-| 8 | pest-detection-service | Pin fastapi==0.128.5 |
-| 9 | terrain-core-service | Change scipy to range >=1.14.0,<1.18.0 |
-| 10 | edge-orchestrator-service | Pin websockets==16.0, fastapi==0.128.5 |
-| 11 | llm-orchestrator, knowledge-graph, ai-chat-assistant | Add numpy>=1.26.0,<2.5.0 |
+| 7 | crm-service, logistics-service | Add cryptography upper bound <45.0.0 |
+| 8 | globalgap-compliance | Update minimum versions (fastapi, uvicorn, structlog) |
+| 9 | pest-detection-service | Pin fastapi==0.128.5 |
+| 10 | terrain-core-service | Change scipy to range >=1.14.0,<1.18.0 |
+| 11 | edge-orchestrator-service | Pin websockets==16.0, fastapi==0.128.5 |
+| 12 | llm-orchestrator, knowledge-graph, ai-chat-assistant | Add numpy>=1.26.0,<2.5.0 |
+| 13 | task-service, equipment-service, alert-service | Migrate psycopg2-binary → asyncpg |
+| 14 | constraints.txt | Align starlette upper bound with constraints-ai.txt |
 
 ### P2 - متوسط (الإصدار القادم)
 

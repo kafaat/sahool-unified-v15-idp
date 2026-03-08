@@ -1,6 +1,7 @@
 """Health endpoint tests for ussd-gateway."""
 
 
+
 class TestHealthEndpoints:
     """Test health check endpoints."""
 

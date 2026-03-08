@@ -172,16 +172,26 @@ class ProviderConfigService:
             # Invalidate cache
             self.cache.invalidate(tenant_id, provider_type)
 
-            logger.info(f"Created config for tenant {tenant_id}: {provider_type}/{provider_name}")
+            logger.info(
+                "Created config for tenant %s: %s/%s",
+                str(tenant_id).replace("\n", " ").replace("\r", " "),
+                str(provider_type).replace("\n", " ").replace("\r", " "),
+                str(provider_name).replace("\n", " ").replace("\r", " "),
+            )
             return config
 
         except IntegrityError:
             session.rollback()
-            logger.error(f"Duplicate config: tenant={tenant_id}, type={provider_type}, name={provider_name}")
+            logger.error(
+                "Duplicate config: tenant=%s, type=%s, name=%s",
+                str(tenant_id).replace("\n", " ").replace("\r", " "),
+                str(provider_type).replace("\n", " ").replace("\r", " "),
+                str(provider_name).replace("\n", " ").replace("\r", " "),
+            )
             raise ValueError(f"Configuration already exists for {provider_type}/{provider_name}")
         except Exception as e:
             session.rollback()
-            logger.error(f"Error creating config: {e}")
+            logger.error("Error creating config: %s", type(e).__name__)
             raise
 
     # ─────────────────────────────────────────────────────────────────────────

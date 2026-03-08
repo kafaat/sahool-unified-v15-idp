@@ -106,7 +106,12 @@ async def request_data_export(
     """
     request_id = uuid4()
 
-    logger.info(f"GDPR export request: user={request.user_id}, format={request.format}, request_id={request_id}")
+    logger.info(
+        "GDPR export request: user=%s, format=%s, request_id=%s",
+        str(request.user_id).replace("\n", " ").replace("\r", " "),
+        str(request.format).replace("\n", " ").replace("\r", " "),
+        request_id,
+    )
 
     # Queue background export job
     background_tasks.add_task(
@@ -140,7 +145,7 @@ async def _process_data_export(
     - AI advisor interactions
     - Audit logs (if requested)
     """
-    logger.info(f"Processing export {request_id} for user {user_id}")
+    logger.info("Processing export %s for user %s", request_id, user_id)
 
     try:
         export_data = {
@@ -161,10 +166,10 @@ async def _process_data_export(
             export_data["audit_trail"] = []  # Would fetch audit logs
 
         # In production: save to secure storage, generate signed URL
-        logger.info(f"Export {request_id} completed successfully")
+        logger.info("Export %s completed successfully", request_id)
 
     except Exception as e:
-        logger.error(f"Export {request_id} failed: {e}")
+        logger.error("Export %s failed: %s", request_id, type(e).__name__)
         raise
 
 
@@ -200,10 +205,12 @@ async def request_data_deletion(
     """
     request_id = uuid4()
 
-    safe_reason = (
-        request.reason.replace("\r", "").replace("\n", "") if isinstance(request.reason, str) else request.reason
+    logger.info(
+        "GDPR deletion request: user=%s, reason=%s, request_id=%s",
+        str(request.user_id).replace("\n", " ").replace("\r", " "),
+        str(request.reason or "").replace("\n", " ").replace("\r", " "),
+        request_id,
     )
-    logger.info(f"GDPR deletion request: user={request.user_id}, reason={safe_reason}, request_id={request_id}")
 
     # Queue background deletion job
     background_tasks.add_task(
@@ -236,7 +243,7 @@ async def _process_data_deletion(
     2. Soft delete: User records (retain for legal period)
     3. Anonymize: Audit logs (preserve chain integrity)
     """
-    logger.info(f"Processing deletion {request_id} for user {user_id}")
+    logger.info("Processing deletion %s for user %s", request_id, user_id)
 
     affected = {
         "profile": 0,
@@ -259,10 +266,10 @@ async def _process_data_deletion(
             # This preserves hash chain integrity while removing PII
             pass
 
-        logger.info(f"Deletion {request_id} completed: {affected}")
+        logger.info("Deletion %s completed: %s", request_id, affected)
 
     except Exception as e:
-        logger.error(f"Deletion {request_id} failed: {e}")
+        logger.error("Deletion %s failed: %s", request_id, type(e).__name__)
         raise
 
 
@@ -299,10 +306,12 @@ async def record_consent(
 
     Required for GDPR lawful basis of processing.
     """
-    safe_purpose = (
-        consent.purpose.replace("\r", "").replace("\n", "") if isinstance(consent.purpose, str) else consent.purpose
+    logger.info(
+        "Consent recorded: user=%s, purpose=%s, granted=%s",
+        str(consent.user_id).replace("\n", " ").replace("\r", " "),
+        str(consent.purpose).replace("\n", " ").replace("\r", " "),
+        bool(consent.granted),
     )
-    logger.info(f"Consent recorded: user={consent.user_id}, purpose={safe_purpose}, granted={consent.granted}")
 
     return ConsentResponse(user_id=consent.user_id, consents=[consent.model_dump()])
 
@@ -318,7 +327,11 @@ async def revoke_consent(
     purpose: str,
 ) -> None:
     """Revoke previously granted consent."""
-    logger.info(f"Consent revoked: user={user_id}, purpose={purpose}")
+    logger.info(
+        "Consent revoked: user=%s, purpose=%s",
+        str(user_id).replace("\n", " ").replace("\r", " "),
+        str(purpose).replace("\n", " ").replace("\r", " "),
+    )
 
 
 # ---------------------------------------------------------------------------

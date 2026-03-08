@@ -20,7 +20,7 @@ def _fresh_import(module_name: str):
     return importlib.import_module(module_name)
 
 
-def _import_chain(modules: List[str]):
+def _import_chain(modules: list[str]):
     """Import a chain of modules in order; fail on circular import."""
     for mod_name in modules:
         try:

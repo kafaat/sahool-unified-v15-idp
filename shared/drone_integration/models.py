@@ -13,6 +13,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
+from html import escape as xml_escape
 from typing import Any
 
 # ==============================================================================
@@ -411,11 +412,13 @@ class FlightPath:
         coords = "\n".join(
             f"          {wp.coordinate.lng},{wp.coordinate.lat},{wp.coordinate.alt_agl_m or 0}" for wp in self.waypoints
         )
+        safe_name = xml_escape(self.name)
+        safe_name_ar = xml_escape(self.name_ar)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>{self.name}</name>
-    <description>{self.name_ar}</description>
+    <name>{safe_name}</name>
+    <description>{safe_name_ar}</description>
     <Placemark>
       <name>Flight Path</name>
       <LineString>

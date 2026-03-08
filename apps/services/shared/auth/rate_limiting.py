@@ -197,7 +197,11 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(f"Password reset rate limit exceeded for {email} from {request.client.host}")
+            logger.warning(
+                "Password reset rate limit exceeded for %s from %s",
+                str(email).replace("\n", " ").replace("\r", " "),
+                str(request.client.host if request.client else "unknown").replace("\n", " ").replace("\r", " "),
+            )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={

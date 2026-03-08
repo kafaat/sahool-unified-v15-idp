@@ -491,8 +491,12 @@ if __name__ == "__main__":
         default="stdio",
         help="Transport type (default: stdio)",
     )
-    parser.add_argument("--host", default="0.0.0.0", help="Host for SSE transport (default: 0.0.0.0)")
-    parser.add_argument("--port", type=int, default=8200, help="Port for SSE transport (default: 8200)")
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Host for SSE transport (default: 127.0.0.1)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8200, help="Port for SSE transport (default: 8200)"
+    )
 
     args = parser.parse_args()
 

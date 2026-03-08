@@ -441,7 +441,7 @@ class ResultCache:
 
         # Combine with parameters
         params_str = f"{task}_{variant}_{confidence:.2f}_{iou:.2f}_{image_size}"
-        params_hash = hashlib.md5(params_str.encode()).hexdigest()[:8]
+        params_hash = hashlib.md5(params_str.encode(), usedforsecurity=False).hexdigest()[:8]
 
         return f"{image_hash}_{params_hash}"
 
@@ -475,7 +475,7 @@ class ResultCache:
         except Exception as e:
             # Fallback to random hash
             logger.debug("image_hash_failed", error=str(e))
-            return hashlib.md5(str(time.time()).encode()).hexdigest()[:16]
+            return hashlib.md5(str(time.time()).encode(), usedforsecurity=False).hexdigest()[:16]
 
     async def get(
         self,

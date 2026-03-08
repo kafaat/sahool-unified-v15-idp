@@ -1021,11 +1021,11 @@ class HMCErrors:
         suggested_action_ar="وافق على البرنامج الحالي أو أعد تعيين الجلسة",
     )
 
-    SESSION_INIT_FAILED = HMCError(
-        code="SESSION_INIT_FAILED",
+    SESSION_INIT_ERROR = HMCError(
+        code="SESSION_INIT_ERROR",
         message="Session not properly initialized",
-        message_ar="لم تتم تهيئة الجلسة بشكل صحيح",
+        message_ar="لم يتم تهيئة الجلسة بشكل صحيح",
         recoverable=False,
-        suggested_action="Call start_session() and ensure all dimensions are initialized",
-        suggested_action_ar="استدعِ start_session() وتأكد من تهيئة جميع الأبعاد",
+        suggested_action="Call start_session() before using this method",
+        suggested_action_ar="استدعِ start_session() قبل استخدام هذه الطريقة",
     )

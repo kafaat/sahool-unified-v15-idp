@@ -1,4 +1,4 @@
-import { ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ScientificLockGuard } from "./scientific-lock.guard";
 
@@ -10,7 +10,6 @@ describe("ScientificLockGuard", () => {
   beforeEach(() => {
     prisma = {
       experiment: {
-        findUnique: jest.fn(),
         findFirst: jest.fn(),
         update: jest.fn(),
       },
@@ -199,6 +198,18 @@ describe("ScientificLockGuard", () => {
       expect(result).toBe(true);
     });
 
+    it("should throw BadRequestException when tenantId is missing", async () => {
+      const context = createMockContext("POST", {
+        params: { experimentId: "exp-001" },
+        user: { id: "user-001" },
+      });
+      jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
+
+      await expect(guard.canActivate(context)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
     it("should block POST to locked experiment", async () => {
       const context = createMockContext("POST", {
         params: { experimentId: "exp-001" },
@@ -225,7 +236,7 @@ function createMockContext(method: string, request: any): any {
     params: {},
     query: {},
     body: {},
-    user: { id: "user-001" },
+    user: { id: "user-001", tenantId: "tenant-001" },
     ...request,
   };
   return {

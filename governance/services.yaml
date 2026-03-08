@@ -46,7 +46,7 @@ event_architecture:
 
   events_registry: "packages/shared/events/index.json"
   transport: "nats"
-  subject_pattern: "sahool.{domain}.{action}"  # Global base pattern (no tenant). For tenant-scoped events use get_tenant_subject() → sahool.tenant.{tenant_id}.{domain}.{action}
+  subject_pattern: "sahool.{domain}.{action}"  # Global subjects (no tenant segment). Example tenant-scoped format (if needed): sahool.tenant.{tenant_id}.{domain}.{action}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Source of Truth

@@ -12,7 +12,7 @@ from typing import Literal
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -138,7 +138,7 @@ class Settings(BaseSettings):
     def warn_empty_jwt_secret(cls, v: str) -> str:
         """Warn if JWT secret key is not configured."""
         if not v:
-            logger.warning("JWT_SECRET_KEY not set — authentication will reject all tokens")
+            _logger.warning("JWT_SECRET_KEY not set — authentication will reject all tokens")
         return v
 
     @field_validator("cors_origins", mode="before")

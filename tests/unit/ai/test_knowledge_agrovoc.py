@@ -122,7 +122,7 @@ class TestAgrovocLookup:
         """Test finding wheat by English name."""
         concept = lookup.find("wheat")
         assert concept is not None
-        assert "c_7951" == concept.uri
+        assert concept.uri == "c_7951"
 
     @pytest.mark.unit
     def test_find_wheat_arabic(self, lookup: AgrovocLookup):

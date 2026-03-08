@@ -335,7 +335,7 @@ jobs:
         with:
           name: web-build
           path: apps/web/.next
-          retention-days: 1
+          retention-days: 3
           if-no-files-found: warn
           include-hidden-files: true
 
@@ -569,7 +569,7 @@ jobs:
         with:
           name: admin-build
           path: apps/admin/.next
-          retention-days: 1
+          retention-days: 3
           if-no-files-found: warn
           include-hidden-files: true
 

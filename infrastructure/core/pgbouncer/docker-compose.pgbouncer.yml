@@ -17,7 +17,8 @@ services:
     image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
-    entrypoint: ["/entrypoint-custom.sh"]
+    # FIX: Use "sh" explicitly to avoid Windows bind-mount execute permission issues
+    entrypoint: ["sh", "/entrypoint-custom.sh"]
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
       DB_HOST: postgres

@@ -266,8 +266,7 @@ class PriceAdjustmentRule:
             adjustment = self.adjustment_amount * Decimal(str(deviation))
             if self.threshold_direction == "above":
                 adjustment = -adjustment  # Deduction for exceeding threshold
-            else:
-                adjustment = adjustment  # Bonus for exceeding minimum
+            # else: adjustment stays positive as a bonus for exceeding minimum
 
             # Apply to total quantity
             total_adjustment = adjustment * Decimal(str(quantity))

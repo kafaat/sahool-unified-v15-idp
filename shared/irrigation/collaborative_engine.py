@@ -113,7 +113,7 @@ class SessionInitError(HMCEngineError):
 
     def __init__(self, missing: str):
         super().__init__(
-            HMCErrors.SESSION_INIT_FAILED,
+            HMCErrors.SESSION_INIT_ERROR,
             {"missing_components": missing},
         )
 
@@ -592,7 +592,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._goal_dimension is None or self._checklist is None:
-            raise SessionInitError("session, goal_dimension, or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         all_warnings: list[str] = []
 
@@ -702,13 +702,8 @@ class HMCIrrigationEngine:
             )
         """
         self._ensure_session_active()
-        if (
-            self._current_session is None
-            or self._goal_dimension is None
-            or self._experience_dimension is None
-            or self._checklist is None
-        ):
-            raise SessionInitError("session, goal_dimension, experience_dimension, or checklist")
+        if self._current_session is None or self._goal_dimension is None or self._experience_dimension is None or self._checklist is None:
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         # Check goals are set
         goals = self._goal_dimension.get_all_goals()
@@ -821,7 +816,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._checklist is None:
-            raise SessionInitError("session or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         # Use current program if not provided
         program = program or self._current_session.current_program
@@ -899,7 +894,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._experience_dimension is None or self._checklist is None:
-            raise SessionInitError("session, experience_dimension, or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         # Inject rules
         success, warnings = self._experience_dimension.inject_local_experience(rules, validate)
@@ -964,7 +959,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._calibration_dimension is None or self._checklist is None:
-            raise SessionInitError("session, calibration_dimension, or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         program = self._current_session.current_program
         if not program:
@@ -1042,7 +1037,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._checklist is None:
-            raise SessionInitError("session or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         program = self._current_session.current_program
         if not program:
@@ -1129,7 +1124,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None or self._value_dimension is None or self._checklist is None:
-            raise SessionInitError("session, value_dimension, or checklist")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         program = self._current_session.current_program
         if not program:
@@ -1210,7 +1205,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None:
-            raise SessionInitError("session")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         if self._current_session.iteration_count >= self._current_session.max_iterations:
             raise MaxIterationsReachedError(
@@ -1388,7 +1383,7 @@ class HMCIrrigationEngine:
         """
         self._ensure_session_active()
         if self._current_session is None:
-            raise SessionInitError("session")
+            raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         self._current_session.zone_configs = zones
         self._current_session.updated_at = datetime.now(UTC)

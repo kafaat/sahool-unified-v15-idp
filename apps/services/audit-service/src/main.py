@@ -746,7 +746,7 @@ async def export_audit_logs(
         from fastapi.responses import JSONResponse
 
         return JSONResponse(content=filtered)
-    elif format == "csv":
+    else:  # format == "csv"
         import csv
         import io
 

@@ -25,7 +25,7 @@ class CacheEntry:
     created_at: float = field(default_factory=time.time)
     ttl_seconds: float = 300.0  # 5 minutes default
     hits: int = 0
-    collection: str = ""
+    collection: str = ""  # collection name for targeted invalidation; empty string means no collection tag
 
     @property
     def is_expired(self) -> bool:
@@ -63,7 +63,17 @@ class KnowledgeCache:
         return entry.value
 
     def put(self, key: str, value: Any, ttl: float | None = None, collection: str = "") -> None:
-        """Put value in cache with optional custom TTL and collection tag."""
+        """Put value in cache with optional custom TTL and collection tag.
+
+        Args:
+            key: Cache key (typically a SHA256 hash from ``make_key()``).
+            value: Value to cache.
+            ttl: Time-to-live in seconds; uses ``default_ttl`` when omitted.
+            collection: Collection name to tag this entry for targeted
+                invalidation via ``invalidate_collection()``.  Pass an empty
+                string (default) when the entry is not associated with a
+                specific collection.
+        """
         effective_ttl = ttl if ttl is not None else self._default_ttl
 
         # If key exists, update in place and move to end
@@ -72,7 +82,7 @@ class KnowledgeCache:
                 key=key,
                 value=value,
                 ttl_seconds=effective_ttl,
-                collection=collection or self._cache[key].collection,
+                collection=collection,
             )
             self._cache.move_to_end(key)
             return
@@ -111,10 +121,10 @@ class KnowledgeCache:
     def invalidate_collection(self, collection: str) -> int:
         """Invalidate all cached entries for a collection.
         إبطال جميع الإدخالات المخزنة مؤقتا لمجموعة معينة"""
-        # Uses field-based matching (not prefix-based): each CacheEntry stores
-        # the collection it belongs to (set via put()). Since cache keys are
-        # SHA-256 hashes (via make_key), we match on the stored collection field.
-        keys_to_remove = [key for key, entry in self._cache.items() if entry.collection == collection]
+        keys_to_remove = [
+            key for key, entry in self._cache.items()
+            if entry.collection == collection
+        ]
         for key in keys_to_remove:
             del self._cache[key]
         if keys_to_remove:

@@ -13,7 +13,17 @@ from pydantic import BaseModel
 try:
     from shared.errors_py import NotFoundException
 except ImportError:
-    NotFoundException = None
+
+    class NotFoundException(HTTPException):  # type: ignore[no-redef]
+        """Fallback when shared.errors_py is unavailable."""
+
+        def __init__(self, message: str = "", message_ar: str | None = None, resource_type: str | None = None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            if resource_type:
+                detail["resource_type"] = resource_type
+            super().__init__(status_code=404, detail=detail)
 
 # Authentication dependency
 try:
@@ -80,13 +90,12 @@ def _get_tenant_id(user) -> str:
 
 
 def _raise_not_found():
-    if NotFoundException:
-        raise NotFoundException(
-            message="Prescription not found",
-            message_ar="الوصفة غير موجودة",
-            resource_type="prescription",
-        )
-    raise HTTPException(status_code=404, detail={"error": "Prescription not found", "error_ar": "الوصفة غير موجودة"})
+    """Raise NotFoundException for missing prescriptions."""
+    raise NotFoundException(
+        message="Prescription not found",
+        message_ar="الوصفة غير موجودة",
+        resource_type="prescription",
+    )
 
 
 @router.post("/prescription/ndvi", status_code=201)
@@ -154,7 +163,7 @@ async def create_ndvi_prescription(
             zones_count=len(prescription.zones),
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("ndvi_prescription_created", prescription_id=prescription.id, field_id=request.field_id, tenant_id=tenant_id)
     return result
@@ -209,7 +218,7 @@ async def create_spot_spray(
             detection_type=request.detection_type,
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("spot_spray_map_created", prescription_id=prescription.id, detection_type=request.detection_type, tenant_id=tenant_id)
     return result

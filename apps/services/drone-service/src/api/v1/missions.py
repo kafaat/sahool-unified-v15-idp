@@ -14,8 +14,26 @@ from pydantic import BaseModel
 try:
     from shared.errors_py import NotFoundException, ValidationException
 except ImportError:
-    NotFoundException = None
-    ValidationException = None
+
+    class NotFoundException(HTTPException):  # type: ignore[no-redef]
+        """Fallback when shared.errors_py is unavailable."""
+
+        def __init__(self, message: str = "", message_ar: str | None = None, resource_type: str | None = None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            if resource_type:
+                detail["resource_type"] = resource_type
+            super().__init__(status_code=404, detail=detail)
+
+    class ValidationException(HTTPException):  # type: ignore[no-redef]
+        """Fallback when shared.errors_py is unavailable."""
+
+        def __init__(self, message: str = "", message_ar: str | None = None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            super().__init__(status_code=422, detail=detail)
 
 # Authentication dependency
 try:
@@ -93,24 +111,16 @@ def _mission_to_response(m: dict) -> dict:
 
 
 def _raise_not_found():
-    if NotFoundException:
-        raise NotFoundException(message="Mission not found", message_ar="المهمة غير موجودة", resource_type="mission")
-    raise HTTPException(status_code=404, detail={"error": "Mission not found", "error_ar": "المهمة غير موجودة"})
+    """Raise NotFoundException for missing missions."""
+    raise NotFoundException(message="Mission not found", message_ar="المهمة غير موجودة", resource_type="mission")
 
 
 def _validate_transition(current: str, target: str) -> None:
+    """Validate mission status transition."""
     if target not in VALID_TRANSITIONS.get(current, []):
-        if ValidationException:
-            raise ValidationException(
-                message=f"Cannot transition from {current} to {target}",
-                message_ar=f"لا يمكن الانتقال من {current} إلى {target}",
-            )
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": f"Cannot transition from {current} to {target}",
-                "error_ar": f"لا يمكن الانتقال من {current} إلى {target}",
-            },
+        raise ValidationException(
+            message=f"Cannot transition from {current} to {target}",
+            message_ar=f"لا يمكن الانتقال من {current} إلى {target}",
         )
 
 
@@ -167,7 +177,7 @@ async def create_mission(mission: MissionCreate, req: Request, user=Depends(get_
             mission_type=mission.mission_type, field_id=mission.field_id,
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_created", mission_id=result.id, type=mission.mission_type, tenant_id=tenant_id)
     return result
@@ -227,7 +237,7 @@ async def start_mission(mission_id: str, req: Request, user=Depends(get_current_
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_STARTED, tenant_id, mission_id=mission_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_started", mission_id=mission_id, tenant_id=tenant_id)
     return {"mission_id": mission_id, "status": "active", "message": "Mission started", "message_ar": "بدأت المهمة"}
@@ -244,7 +254,7 @@ async def pause_mission(mission_id: str, req: Request, user=Depends(get_current_
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_PAUSED, tenant_id, mission_id=mission_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     return {"mission_id": mission_id, "status": "paused", "message": "Mission paused", "message_ar": "المهمة متوقفة مؤقتاً"}
 
@@ -260,7 +270,7 @@ async def resume_mission(mission_id: str, req: Request, user=Depends(get_current
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_RESUMED, tenant_id, mission_id=mission_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     return {"mission_id": mission_id, "status": "active", "message": "Mission resumed", "message_ar": "استُؤنفت المهمة"}
 
@@ -276,7 +286,7 @@ async def abort_mission(mission_id: str, req: Request, user=Depends(get_current_
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_ABORTED, tenant_id, mission_id=mission_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_aborted", mission_id=mission_id, tenant_id=tenant_id)
     return {"mission_id": mission_id, "status": "aborted", "message": "Mission aborted", "message_ar": "تم إلغاء المهمة"}
@@ -293,7 +303,7 @@ async def complete_mission(mission_id: str, req: Request, user=Depends(get_curre
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_COMPLETED, tenant_id, mission_id=mission_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_completed", mission_id=mission_id, tenant_id=tenant_id)
     return {"mission_id": mission_id, "status": "completed", "message": "Mission completed", "message_ar": "اكتملت المهمة"}

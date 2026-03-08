@@ -15,7 +15,17 @@ from pydantic import BaseModel
 try:
     from shared.errors_py import NotFoundException
 except ImportError:
-    NotFoundException = None
+
+    class NotFoundException(HTTPException):  # type: ignore[no-redef]
+        """Fallback when shared.errors_py is unavailable."""
+
+        def __init__(self, message: str = "", message_ar: str | None = None, resource_type: str | None = None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            if resource_type:
+                detail["resource_type"] = resource_type
+            super().__init__(status_code=404, detail=detail)
 
 # Authentication dependency
 try:
@@ -100,9 +110,8 @@ def _get_tenant_id(user) -> str:
 
 
 def _raise_plan_not_found():
-    if NotFoundException:
-        raise NotFoundException(message="Plan not found", message_ar="الخطة غير موجودة", resource_type="flight_plan")
-    raise HTTPException(status_code=404, detail={"error": "Plan not found", "error_ar": "الخطة غير موجودة"})
+    """Raise NotFoundException for missing flight plans."""
+    raise NotFoundException(message="Plan not found", message_ar="الخطة غير موجودة", resource_type="flight_plan")
 
 
 @router.post("/plan/spray", status_code=201)
@@ -173,7 +182,7 @@ async def create_spray_flight_plan(
             distance_m=result.total_distance_m,
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("spray_flight_planned", plan_id=plan_id, distance=result.total_distance_m, tenant_id=tenant_id)
 
@@ -253,7 +262,7 @@ async def create_mapping_flight_plan(
             plan_id=plan_id, plan_type="mapping", field_id=request.field_id,
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mapping_flight_planned", plan_id=plan_id, tenant_id=tenant_id)
 

@@ -14,7 +14,17 @@ from pydantic import BaseModel
 try:
     from shared.errors_py import NotFoundException
 except ImportError:
-    NotFoundException = None
+
+    class NotFoundException(HTTPException):  # type: ignore[no-redef]
+        """Fallback when shared.errors_py is unavailable."""
+
+        def __init__(self, message: str = "", message_ar: str | None = None, resource_type: str | None = None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            if resource_type:
+                detail["resource_type"] = resource_type
+            super().__init__(status_code=404, detail=detail)
 
 # Authentication dependency
 try:
@@ -84,14 +94,12 @@ def _get_tenant_id(user) -> str:
 
 
 def _raise_not_found(resource: str = "Drone", resource_ar: str = "الطائرة"):
-    """Raise NotFoundException (platform) or HTTPException (fallback)."""
-    if NotFoundException:
-        raise NotFoundException(
-            message=f"{resource} not found",
-            message_ar=f"{resource_ar} غير موجودة",
-            resource_type="drone",
-        )
-    raise HTTPException(status_code=404, detail={"error": f"{resource} not found", "error_ar": f"{resource_ar} غير موجودة"})
+    """Raise NotFoundException (platform or fallback)."""
+    raise NotFoundException(
+        message=f"{resource} not found",
+        message_ar=f"{resource_ar} غير موجودة",
+        resource_type="drone",
+    )
 
 
 def _drone_to_response(d: dict) -> dict:
@@ -149,7 +157,7 @@ async def register_drone(drone: DroneCreate, req: Request, user=Depends(get_curr
             drone_id=result.id, model=drone.model, serial_number=drone.serial_number,
         )
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("drone_registered", drone_id=result.id, model=drone.model, tenant_id=tenant_id)
     return result
@@ -194,7 +202,7 @@ async def update_drone(drone_id: str, drone: DroneCreate, req: Request, user=Dep
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, DRONE_UPDATED, tenant_id, drone_id=result.id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("drone_updated", drone_id=drone_id, tenant_id=tenant_id)
     return result
@@ -220,7 +228,7 @@ async def delete_drone(drone_id: str, req: Request, user=Depends(get_current_use
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, DRONE_DEREGISTERED, tenant_id, drone_id=drone_id)
     except Exception:
-        pass
+        pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("drone_deregistered", drone_id=drone_id, tenant_id=tenant_id)
 

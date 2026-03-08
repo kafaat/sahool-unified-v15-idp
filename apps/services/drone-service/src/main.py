@@ -132,7 +132,7 @@ try:
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
-    pass
+    pass  # shared.errors_py is optional; service works without unified error handling
 
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)

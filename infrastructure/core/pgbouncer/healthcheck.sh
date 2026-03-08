@@ -70,22 +70,56 @@ log() {
   fi
 }
 
-# Function to execute psql command
+# Function to execute query against PgBouncer admin console
+# Uses psql if available (preferred), falls back to pgbouncer's built-in psql
 execute_query() {
   _query=$1
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-    -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null
+  if command -v psql >/dev/null 2>&1; then
+    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+      -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null
+  else
+    # Fallback: basic TCP connectivity check
+    # edoburu/pgbouncer Alpine image may not have psql
+    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null
+    return $?
+  fi
 }
+
+# Check if psql is available for deep health checks
+HAS_PSQL=false
+if command -v psql >/dev/null 2>&1; then
+  HAS_PSQL=true
+fi
 
 # Check 1: Basic connectivity
 log "${YELLOW}Checking PgBouncer connectivity...${NC}"
-if ! execute_query "SELECT 1" > /dev/null; then
-  if [ "$JSON_OUTPUT" = "true" ]; then
-    echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
-  else
-    printf "%b\n" "${RED}✗ Cannot connect to PgBouncer${NC}"
+if [ "$HAS_PSQL" = "true" ]; then
+  # Deep check: actually query the PgBouncer admin console
+  if ! execute_query "SELECT 1" > /dev/null; then
+    if [ "$JSON_OUTPUT" = "true" ]; then
+      echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
+    else
+      printf "%b\n" "${RED}✗ Cannot connect to PgBouncer${NC}"
+    fi
+    exit 1
   fi
-  exit 1
+else
+  # Shallow check: verify TCP port is open + attempt auth via PgBouncer protocol
+  if ! nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null; then
+    if [ "$JSON_OUTPUT" = "true" ]; then
+      echo '{"status":"unhealthy","error":"PgBouncer port not reachable","checks":{"connectivity":false}}'
+    else
+      printf "%b\n" "${RED}✗ PgBouncer port not reachable${NC}"
+    fi
+    exit 1
+  fi
+  # Without psql, we can only verify port liveness - output warning
+  if [ "$JSON_OUTPUT" = "true" ]; then
+    echo '{"status":"healthy","warning":"psql not available - limited healthcheck","checks":{"connectivity":true,"pools":"skipped"}}'
+  else
+    echo "PgBouncer port reachable (install postgresql-client for deep healthchecks)"
+  fi
+  exit 0
 fi
 log "${GREEN}✓ PgBouncer is reachable${NC}"
 

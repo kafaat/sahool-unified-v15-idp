@@ -26,7 +26,7 @@
     "class-validator": "^0.14.1",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
-    "@sahool/nestjs-auth": "16.0.0",
+    "@sahool/nestjs-auth": "file:../../../packages/nestjs-auth",
     "@liaoliaots/nestjs-redis": "^9.0.0",
     "ioredis": "^5.0.0",
     "redis": "^4.6.0",

@@ -148,6 +148,32 @@ NestJS services:      CommonJS (implicit)
 
 **الإصلاح**: توحيد إلى `ts-jest@^29.2.5`.
 
+#### 2.5 Prisma في root package.json قديم
+**الخطورة**: HIGH
+
+```
+Root package.json:    prisma ^5.10.0    ← قديم
+All NestJS services:  prisma ^5.22.0    ← المعيار
+```
+
+**الإصلاح**: تحديث root package.json إلى `^5.22.0` وإضافة override.
+
+#### 2.6 axios تثبيت متضارب
+**الخطورة**: MEDIUM
+
+```
+apps/web, apps/admin:  axios 1.13.5    (pinned)
+NestJS services:       axios ^1.7.9    (caret - allows any 1.x)
+```
+
+#### 2.7 @sentry/nextjs إصدار منقسم
+**الخطورة**: MEDIUM
+
+```
+apps/web, apps/admin:  @sentry/nextjs ^9.5.0
+shared-ui, shared-utils: @sentry/nextjs ^8.0.0    ← قديم
+```
+
 ---
 
 ## 3. Flutter Mobile Apps (تطبيقان)

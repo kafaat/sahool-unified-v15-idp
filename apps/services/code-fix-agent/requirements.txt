@@ -27,7 +27,7 @@ gitpython>=3.1.0
 
 # Utilities
 structlog>=24.4.0
-python-json-logger>=3.2.0
+python-json-logger>=3.2.0,<4.0.0
 
 # NATS Messaging
 nats-py==2.13.1

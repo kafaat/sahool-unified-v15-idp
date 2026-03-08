@@ -26,8 +26,11 @@ from sqlalchemy import (
     String,
     Table,
     create_engine,
+    func,
+    select,
     text,
 )
+from sqlalchemy.schema import DDL
 
 _SAFE_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -490,7 +493,7 @@ class PostGISMigrationHelper:
         _validate_identifier(table, "table name")
         _validate_identifier(column, "column name")
         _validate_identifier(index_name, "index name")
-        conn.execute(text(f"CREATE INDEX {index_name} ON {table} USING GIST ({column})"))  # noqa: S608  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- validated by _validate_identifier()
+        conn.execute(DDL(f"CREATE INDEX {index_name} ON {table} USING GIST ({column})"))  # noqa: S608
         conn.commit()
 
     @staticmethod
@@ -512,7 +515,7 @@ class PostGISMigrationHelper:
         _validate_identifier(column, "column name")
         _validate_identifier(geometry_type, "geometry type")
         conn.execute(
-            text(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})")  # noqa: S608  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- validated by _validate_identifier()
+            DDL(f"ALTER TABLE {table} ADD COLUMN {column} GEOGRAPHY({geometry_type}, {srid})")  # noqa: S608
         )
         conn.commit()
 
@@ -535,6 +538,6 @@ class PostGISMigrationHelper:
         _validate_identifier(column, "column name")
         _validate_identifier(geometry_type, "geometry type")
         conn.execute(
-            text(f"SELECT AddGeometryColumn('{table}', '{column}', {srid}, '{geometry_type}', 2)")  # noqa: S608  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- validated by _validate_identifier()
+            select(func.AddGeometryColumn(table, column, srid, geometry_type, 2))
         )
         conn.commit()

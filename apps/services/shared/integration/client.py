@@ -384,7 +384,5 @@ async def get_satellite_imagery(field_id: str, date: str = None) -> dict | None:
 async def analyze_crop_health(image_path: str, crop_type: str) -> dict | None:
     """Analyze crop health from image"""
     client = get_service_client(ServiceName.CROP_INTELLIGENCE)
-    response = await client.post(
-        "/v1/analyze", json={"image_path": image_path, "crop_type": crop_type}
-    )
+    response = await client.post("/v1/analyze", json={"image_path": image_path, "crop_type": crop_type})
     return response.data if response.success else None

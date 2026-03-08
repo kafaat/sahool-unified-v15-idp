@@ -178,9 +178,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                 )
 
                 if is_revoked:
-                    logger.warning(
-                        f"Revoked token used: user={user_id}, jti={jti}, reason={reason}"
-                    )
+                    logger.warning(f"Revoked token used: user={user_id}, jti={jti}, reason={reason}")
                     raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
 
             except ImportError:

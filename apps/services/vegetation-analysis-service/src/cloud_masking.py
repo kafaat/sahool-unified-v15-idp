@@ -181,9 +181,7 @@ class CloudMasker:
         )
 
         # Generate recommendation
-        recommendation = self._generate_recommendation(
-            cloud_cover, shadow_cover, clear_cover, usable
-        )
+        recommendation = self._generate_recommendation(cloud_cover, shadow_cover, clear_cover, usable)
 
         return CloudMaskResult(
             field_id=field_id,
@@ -279,14 +277,11 @@ class CloudMasker:
         end_date = target_date + timedelta(days=days_tolerance)
 
         # Find all clear observations in range
-        observations = await self.find_clear_observations(
-            field_id, latitude, longitude, start_date, end_date
-        )
+        observations = await self.find_clear_observations(field_id, latitude, longitude, start_date, end_date)
 
         if not observations:
             logger.warning(
-                f"No clear observations found for {field_id} "
-                f"within {days_tolerance} days of {target_date.date()}"
+                f"No clear observations found for {field_id} within {days_tolerance} days of {target_date.date()}"
             )
             return None
 
@@ -301,9 +296,7 @@ class CloudMasker:
 
         return best
 
-    def calculate_quality_score(
-        self, cloud_percent: float, shadow_percent: float, clear_percent: float
-    ) -> float:
+    def calculate_quality_score(self, cloud_percent: float, shadow_percent: float, clear_percent: float) -> float:
         """
         Calculate overall quality score (0-1).
 
@@ -409,9 +402,7 @@ class CloudMasker:
             return ndvi_series
 
         if len(valid_obs) < 2:
-            logger.warning(
-                f"Not enough valid observations ({len(valid_obs)}) to interpolate for {field_id}"
-            )
+            logger.warning(f"Not enough valid observations ({len(valid_obs)}) to interpolate for {field_id}")
             return ndvi_series
 
         # Interpolate each cloudy observation
@@ -438,10 +429,7 @@ class CloudMasker:
                 interpolated[i]["interpolated"] = True
                 interpolated[i]["interpolation_method"] = method
 
-        logger.info(
-            f"Interpolated {len(cloudy_obs)} cloudy observations for {field_id} "
-            f"using {method} method"
-        )
+        logger.info(f"Interpolated {len(cloudy_obs)} cloudy observations for {field_id} using {method} method")
 
         return interpolated
 
@@ -510,10 +498,7 @@ class CloudMasker:
                 counts["UNKNOWN"] = counts.get("UNKNOWN", 0) + 1
 
         # Convert to percentages
-        distribution = {
-            class_name: round((count / total_pixels) * 100, 2)
-            for class_name, count in counts.items()
-        }
+        distribution = {class_name: round((count / total_pixels) * 100, 2) for class_name, count in counts.items()}
 
         return distribution
 

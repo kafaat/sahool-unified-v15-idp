@@ -87,9 +87,7 @@ class GGNCertificate(BaseModel):
 
     # Certification scope | نطاق الشهادة
     scope: CertificationScope = Field(..., description="Certification scope | نطاق الشهادة")
-    products: list[str] = Field(
-        default_factory=list, description="Certified products | المنتجات المعتمدة"
-    )
+    products: list[str] = Field(default_factory=list, description="Certified products | المنتجات المعتمدة")
     production_methods: list[str] = Field(
         default_factory=list,
         description="e.g., conventional, organic | مثل: تقليدي، عضوي",

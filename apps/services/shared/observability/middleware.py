@@ -297,9 +297,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             "x-auth-token",
         }
 
-        return {
-            k: "***REDACTED***" if k.lower() in sensitive_headers else v for k, v in headers.items()
-        }
+        return {k: "***REDACTED***" if k.lower() in sensitive_headers else v for k, v in headers.items()}
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):

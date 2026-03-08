@@ -222,9 +222,7 @@ class TwinPipeline:
 
         # NOTE: compute_intercepted_radiation already applies the 0.5 PAR
         # fraction internally, so we pass total solar radiation here.
-        ipar = compute_intercepted_radiation(
-            weather.solar_radiation_mj_m2, prev_lai
-        )
+        ipar = compute_intercepted_radiation(weather.solar_radiation_mj_m2, prev_lai)
         delta_bm_potential = ipar * crop.rue_g_mj  # g m⁻² d⁻¹
         delta_bm = delta_bm_potential * water_stress * n_stress
         new_bm = prev_bm + delta_bm * 10.0  # g m⁻² → kg ha⁻¹

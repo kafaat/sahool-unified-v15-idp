@@ -70,9 +70,7 @@ class MigrationManager:
     يدير هجرة مخطط قاعدة البيانات باستخدام Alembic.
     """
 
-    def __init__(
-        self, database_url: str, migrations_dir: str | None = None, alembic_ini: str | None = None
-    ):
+    def __init__(self, database_url: str, migrations_dir: str | None = None, alembic_ini: str | None = None):
         """
         Initialize migration manager.
         تهيئة مدير الهجرة.
@@ -352,8 +350,7 @@ datefmt = %H:%M:%S
             with self.engine.connect() as conn:
                 result = conn.execute(
                     text(
-                        "SELECT revision, description, applied_at, checksum "
-                        "FROM sahool_migrations ORDER BY applied_at"
+                        "SELECT revision, description, applied_at, checksum FROM sahool_migrations ORDER BY applied_at"
                     )
                 )
                 for row in result:
@@ -465,6 +462,52 @@ class PostGISMigrationHelper:
     يوفر أدوات لهجرات PostGIS المحددة.
     """
 
+    _VALID_IDENTIFIER_RE = None
+
+    @staticmethod
+    def _validate_identifier(name: str) -> str:
+        """
+        Validate a SQL identifier (table/column/index name) to prevent SQL injection.
+        Only allows alphanumeric characters and underscores.
+
+        Args:
+            name: The identifier to validate
+
+        Returns:
+            The validated identifier
+
+        Raises:
+            ValueError: If the identifier contains invalid characters
+        """
+        import re
+
+        if PostGISMigrationHelper._VALID_IDENTIFIER_RE is None:
+            PostGISMigrationHelper._VALID_IDENTIFIER_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+        if not PostGISMigrationHelper._VALID_IDENTIFIER_RE.match(name):
+            raise ValueError(f"Invalid SQL identifier: {name!r}")
+        return name
+
+    _VALID_GEOMETRY_TYPES = frozenset(
+        {
+            "POINT",
+            "LINESTRING",
+            "POLYGON",
+            "MULTIPOINT",
+            "MULTILINESTRING",
+            "MULTIPOLYGON",
+            "GEOMETRYCOLLECTION",
+            "GEOMETRY",
+        }
+    )
+
+    @staticmethod
+    def _validate_geometry_type(geometry_type: str) -> str:
+        """Validate geometry type against allowed values."""
+        upper = geometry_type.upper()
+        if upper not in PostGISMigrationHelper._VALID_GEOMETRY_TYPES:
+            raise ValueError(f"Invalid geometry type: {geometry_type!r}")
+        return upper
+
     @staticmethod
     def enable_postgis_extension(conn) -> None:
         """
@@ -487,8 +530,12 @@ class PostGISMigrationHelper:
             column: Geometry column name
             index_name: Custom index name (optional)
         """
+        v = PostGISMigrationHelper._validate_identifier
+        safe_table = v(table)
+        safe_column = v(column)
         if not index_name:
-            index_name = f"idx_{table}_{column}_gist"
+            index_name = f"idx_{safe_table}_{safe_column}_gist"
+        safe_index = v(index_name)
 
         _validate_identifier(table, "table name")
         _validate_identifier(column, "column name")
@@ -497,9 +544,7 @@ class PostGISMigrationHelper:
         conn.commit()
 
     @staticmethod
-    def add_geography_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
-    ) -> None:
+    def add_geography_column(conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT") -> None:
         """
         إضافة عمود جغرافي
         Add geography column
@@ -520,9 +565,7 @@ class PostGISMigrationHelper:
         conn.commit()
 
     @staticmethod
-    def add_geometry_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
-    ) -> None:
+    def add_geometry_column(conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT") -> None:
         """
         إضافة عمود هندسي
         Add geometry column

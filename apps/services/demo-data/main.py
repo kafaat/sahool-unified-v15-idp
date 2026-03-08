@@ -360,9 +360,7 @@ class DemoDataGenerator:
         return {
             "field_id": random.choice(FIELD_IDS),
             "crop_type": random.choice(CROPS),
-            "planting_date": (datetime.now(UTC) - timedelta(days=random.randint(30, 120)))
-            .date()
-            .isoformat(),
+            "planting_date": (datetime.now(UTC) - timedelta(days=random.randint(30, 120))).date().isoformat(),
             "area_hectares": round(random.uniform(5, 150), 2),
             "irrigation_type": random.choice(["drip", "sprinkler", "flood", "center_pivot"]),
             "soil_type": random.choice(["clay", "sandy", "loam", "silt"]),
@@ -567,9 +565,7 @@ class DemoDataGenerator:
         logger.info(f"  Successful: {self.stats['requests_success']}")
         logger.info(f"  Failed: {self.stats['requests_failed']}")
         success_rate = (
-            self.stats["requests_success"] / self.stats["requests_sent"] * 100
-            if self.stats["requests_sent"] > 0
-            else 0
+            self.stats["requests_success"] / self.stats["requests_sent"] * 100 if self.stats["requests_sent"] > 0 else 0
         )
         logger.info(f"  Success rate: {success_rate:.1f}%")
         logger.info("=" * 50)

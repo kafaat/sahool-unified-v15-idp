@@ -98,9 +98,7 @@ class TestFieldBoundaryDetector:
     @pytest.mark.asyncio
     async def test_detect_boundary_simulated(self):
         """Test boundary detection (simulated)"""
-        boundaries = await self.detector.detect_boundary(
-            latitude=15.5527, longitude=44.2075, radius_meters=500
-        )
+        boundaries = await self.detector.detect_boundary(latitude=15.5527, longitude=44.2075, radius_meters=500)
 
         # Should return at least one boundary (simulated)
         assert len(boundaries) > 0
@@ -123,9 +121,7 @@ class TestFieldBoundaryDetector:
             (44.207, 15.553),
         ]
 
-        refined = await self.detector.refine_boundary(
-            initial_coords=initial_coords, buffer_meters=50
-        )
+        refined = await self.detector.refine_boundary(initial_coords=initial_coords, buffer_meters=50)
 
         # Check refined boundary
         assert isinstance(refined, FieldBoundary)

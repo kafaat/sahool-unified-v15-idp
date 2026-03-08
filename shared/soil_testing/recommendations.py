@@ -538,14 +538,10 @@ class SoilAmendmentRecommender:
 
         # 1. Soil property amendments (pH, salinity, organic matter)
         if soil_test.soil_properties:
-            recommendations.extend(
-                self._recommend_soil_amendments(soil_test.soil_properties, crop_data)
-            )
+            recommendations.extend(self._recommend_soil_amendments(soil_test.soil_properties, crop_data))
 
         # 2. Macronutrient fertilizers
-        recommendations.extend(
-            self._recommend_macronutrients(interpretation, soil_test, crop_data, target_yield)
-        )
+        recommendations.extend(self._recommend_macronutrients(interpretation, soil_test, crop_data, target_yield))
 
         # 3. Micronutrient amendments
         recommendations.extend(self._recommend_micronutrients(interpretation, soil_test, crop_data))
@@ -559,39 +555,22 @@ class SoilAmendmentRecommender:
 
         # Calculate totals
         total_cost = sum(r.estimated_cost_per_ha for r in recommendations)
-        total_n = sum(
-            r.nutrients_supplied.get("N", 0) * r.application_rate_kg_ha / 100
-            for r in recommendations
-        )
-        total_p = sum(
-            r.nutrients_supplied.get("P2O5", 0) * r.application_rate_kg_ha / 100
-            for r in recommendations
-        )
-        total_k = sum(
-            r.nutrients_supplied.get("K2O", 0) * r.application_rate_kg_ha / 100
-            for r in recommendations
-        )
+        total_n = sum(r.nutrients_supplied.get("N", 0) * r.application_rate_kg_ha / 100 for r in recommendations)
+        total_p = sum(r.nutrients_supplied.get("P2O5", 0) * r.application_rate_kg_ha / 100 for r in recommendations)
+        total_k = sum(r.nutrients_supplied.get("K2O", 0) * r.application_rate_kg_ha / 100 for r in recommendations)
 
         # Generate phases/timeline
         phases = self._generate_application_phases(recommendations, crop)
 
         # Generate summary
-        summary_en, summary_ar = self._generate_plan_summary(
-            recommendations, crop, crop_ar, total_cost
-        )
+        summary_en, summary_ar = self._generate_plan_summary(recommendations, crop, crop_ar, total_cost)
 
         # Estimate yield improvement
         yield_improvement = self._estimate_yield_improvement(interpretation, recommendations)
 
         # Calculate ROI
-        expected_revenue_improvement = Decimal(
-            str(yield_improvement * target_yield * 1500)
-        )  # Approximate
-        roi = (
-            float(expected_revenue_improvement - total_cost) / float(total_cost) * 100
-            if total_cost > 0
-            else 0
-        )
+        expected_revenue_improvement = Decimal(str(yield_improvement * target_yield * 1500))  # Approximate
+        roi = float(expected_revenue_improvement - total_cost) / float(total_cost) * 100 if total_cost > 0 else 0
 
         return AmendmentPlan(
             plan_id=plan_id,
@@ -711,10 +690,7 @@ class SoilAmendmentRecommender:
 
             n_rate = n_needed / (self.products[n_product]["nutrients"]["N"] / 100)
             priority = (
-                1
-                if n_interp
-                and n_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
-                else 2
+                1 if n_interp and n_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 2
             )
 
             recommendations.append(
@@ -737,10 +713,7 @@ class SoilAmendmentRecommender:
 
             p_rate = p_needed / (self.products[p_product]["nutrients"]["P2O5"] / 100)
             priority = (
-                1
-                if p_interp
-                and p_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
-                else 2
+                1 if p_interp and p_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 2
             )
 
             recommendations.append(
@@ -762,10 +735,7 @@ class SoilAmendmentRecommender:
 
             k_rate = k_needed / (self.products[k_product]["nutrients"]["K2O"] / 100)
             priority = (
-                2
-                if k_interp
-                and k_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
-                else 3
+                2 if k_interp and k_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 3
             )
 
             recommendations.append(
@@ -994,9 +964,7 @@ class SoilAmendmentRecommender:
         phases = []
 
         # Phase 1: Soil amendments (before planting)
-        soil_amendments = [
-            r for r in recommendations if r.amendment_type in ["amendment", "organic"]
-        ]
+        soil_amendments = [r for r in recommendations if r.amendment_type in ["amendment", "organic"]]
         if soil_amendments:
             phases.append(
                 {
@@ -1029,9 +997,7 @@ class SoilAmendmentRecommender:
 
         # Phase 3: Top dressing (during growth)
         topdress = [
-            r
-            for r in recommendations
-            if r.target_nutrient == "N" and r.amendment_type in ["nitrogen", "compound"]
+            r for r in recommendations if r.target_nutrient == "N" and r.amendment_type in ["nitrogen", "compound"]
         ]
         if topdress:
             phases.append(

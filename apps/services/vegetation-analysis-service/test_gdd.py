@@ -37,9 +37,7 @@ def test_gdd_calculations():
     print("  Formula: ((25 + 15) / 2) - 10 = 10.0")
 
     # Modified method
-    gdd_modified = tracker.calculate_daily_gdd(
-        temp_min, temp_max, base_temp, upper_temp, method="modified"
-    )
+    gdd_modified = tracker.calculate_daily_gdd(temp_min, temp_max, base_temp, upper_temp, method="modified")
     print(f"Modified Method: {gdd_modified:.1f} GDD")
 
     # Sine method
@@ -114,9 +112,7 @@ def test_growth_stages():
 
     for gdd in test_gdds:
         current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(crop, gdd)
-        print(
-            f"  {gdd:5.0f} GDD → {current_en:20} ({current_ar:20}) | Next: {next_en:20} in {gdd_to_next:5.1f} GDD"
-        )
+        print(f"  {gdd:5.0f} GDD → {current_en:20} ({current_ar:20}) | Next: {next_en:20} in {gdd_to_next:5.1f} GDD")
 
     print()
 
@@ -158,9 +154,7 @@ def test_all_crops_valid():
             # Check last stage matches total
             last_stage_gdd = req["stages"][-1]["gdd"] if req["stages"] else 0
             if last_stage_gdd != req["total"]:
-                errors.append(
-                    f"{crop_code}: Last stage GDD ({last_stage_gdd}) != total ({req['total']})"
-                )
+                errors.append(f"{crop_code}: Last stage GDD ({last_stage_gdd}) != total ({req['total']})")
 
         except Exception as e:
             errors.append(f"{crop_code}: {str(e)}")

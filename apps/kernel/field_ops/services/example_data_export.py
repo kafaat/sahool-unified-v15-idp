@@ -326,9 +326,7 @@ def example_yield_forecast_report():
 
     exporter = DataExporter()
 
-    result = exporter.generate_report(
-        report_type=ReportType.YIELD_FORECAST, params={"field_id": "FIELD_001"}
-    )
+    result = exporter.generate_report(report_type=ReportType.YIELD_FORECAST, params={"field_id": "FIELD_001"})
 
     print("✓ Yield forecast report generated!")
     print(f"  Filename: {result.filename}")
@@ -389,9 +387,7 @@ def example_custom_arabic_headers():
     # Customize Arabic headers
     exporter.ARABIC_HEADERS.update({"custom_field": "حقل مخصص", "new_metric": "مؤشر جديد"})
 
-    result = exporter.export_field_data(
-        field_id="FIELD_001", format=ExportFormat.CSV, include_ndvi=True
-    )
+    result = exporter.export_field_data(field_id="FIELD_001", format=ExportFormat.CSV, include_ndvi=True)
 
     print("✓ CSV with custom headers exported!")
     print(f"  Filename: {result.filename}")

@@ -1,4 +1,5 @@
 """Health endpoint tests for logistics-service."""
+
 import pytest
 
 

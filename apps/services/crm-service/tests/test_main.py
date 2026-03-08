@@ -728,9 +728,7 @@ class TestDealEndpoints:
 
         # Create multiple deals in different stages
         deal1 = await client.post("/api/v1/deals", json=sample_deal_data)
-        deal2 = await client.post(
-            "/api/v1/deals", json={**sample_deal_data, "price_per_ton": 2000.0}
-        )
+        deal2 = await client.post("/api/v1/deals", json={**sample_deal_data, "price_per_ton": 2000.0})
 
         # Move one to negotiation
         await client.patch(f"/api/v1/deals/{deal2.json()['id']}/stage?stage=negotiation")
@@ -804,9 +802,7 @@ class TestInteractionEndpoints:
         assert updated_farmer.json()["last_interaction_at"] is not None
 
     @pytest.mark.asyncio
-    async def test_get_farmer_interactions(
-        self, client, sample_farmer_data, sample_interaction_data
-    ):
+    async def test_get_farmer_interactions(self, client, sample_farmer_data, sample_interaction_data):
         """Test GET /api/v1/interactions."""
         # Create a farmer and interactions
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -831,9 +827,7 @@ class TestInteractionEndpoints:
         assert len(data) == 2
 
     @pytest.mark.asyncio
-    async def test_get_farmer_interactions_filter_by_type(
-        self, client, sample_farmer_data, sample_interaction_data
-    ):
+    async def test_get_farmer_interactions_filter_by_type(self, client, sample_farmer_data, sample_interaction_data):
         """Test filtering interactions by type."""
         # Create a farmer and interactions
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -851,9 +845,7 @@ class TestInteractionEndpoints:
         )
 
         # Filter by call
-        response = await client.get(
-            f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call"
-        )
+        response = await client.get(f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call")
         assert response.status_code == 200
         assert len(response.json()) == 1
 
@@ -941,9 +933,7 @@ class TestNaturalLanguageQuery:
         assert data["result_count"] == 1
 
     @pytest.mark.asyncio
-    async def test_natural_language_query_deals_in_negotiation(
-        self, client, sample_farmer_data, sample_deal_data
-    ):
+    async def test_natural_language_query_deals_in_negotiation(self, client, sample_farmer_data, sample_deal_data):
         """Test querying for deals in negotiation stage."""
         # Create farmer and deal
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -1015,9 +1005,7 @@ class TestPipelineSummary:
         assert data["average_deal_size"] == 0
 
     @pytest.mark.asyncio
-    async def test_get_pipeline_summary_by_stage(
-        self, client, sample_farmer_data, sample_deal_data
-    ):
+    async def test_get_pipeline_summary_by_stage(self, client, sample_farmer_data, sample_deal_data):
         """Test pipeline summary shows correct stage breakdown."""
         # Create farmer
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -1045,9 +1033,7 @@ class TestPipelineSummary:
         assert data["conversion_rate"] > 33 and data["conversion_rate"] < 34
 
     @pytest.mark.asyncio
-    async def test_get_pipeline_summary_arabic_names(
-        self, client, sample_farmer_data, sample_deal_data
-    ):
+    async def test_get_pipeline_summary_arabic_names(self, client, sample_farmer_data, sample_deal_data):
         """Test pipeline summary includes Arabic stage names."""
         # Create farmer and deal
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -1209,9 +1195,7 @@ class TestSecurityAndValidation:
         """Test query complexity validation (max 5 conditions)."""
         # Query with more than 5 and/or conditions
         # The check_query_complexity function counts: and, or, و, أو
-        complex_query = (
-            "farmers and wheat and barley and dates and tomatoes and cucumbers and carrots"
-        )
+        complex_query = "farmers and wheat and barley and dates and tomatoes and cucumbers and carrots"
         query_data = {
             "query": complex_query,
             "tenant_id": "test-tenant",
@@ -1252,9 +1236,7 @@ class TestSecurityAndValidation:
         assert response.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_tenant_access_denied_on_deals_list(
-        self, client, sample_farmer_data, sample_deal_data
-    ):
+    async def test_tenant_access_denied_on_deals_list(self, client, sample_farmer_data, sample_deal_data):
         """Test tenant access validation on deals list."""
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
         farmer_id = farmer_response.json()["id"]
@@ -1397,9 +1379,7 @@ class TestResponseFormats:
             assert field in data, f"Missing field: {field}"
 
     @pytest.mark.asyncio
-    async def test_interaction_response_has_all_fields(
-        self, client, sample_farmer_data, sample_interaction_data
-    ):
+    async def test_interaction_response_has_all_fields(self, client, sample_farmer_data, sample_interaction_data):
         """Test interaction response includes all expected fields."""
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
         farmer_id = farmer_response.json()["id"]

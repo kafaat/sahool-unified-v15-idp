@@ -173,32 +173,25 @@ class YemenMetAdapter(WeatherProvider):
         الحصول على الطقس الحالي (تطبيق نموذجي)
         """
         raise NotImplementedError(
-            "Yemen Met Service integration not yet implemented - "
-            "تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
+            "Yemen Met Service integration not yet implemented - تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> list[DailyForecast]:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
         """
         Get daily forecast (mock implementation)
         الحصول على التوقعات اليومية (تطبيق نموذجي)
         """
         raise NotImplementedError(
-            "Yemen Met Service integration not yet implemented - "
-            "تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
+            "Yemen Met Service integration not yet implemented - تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
         )
 
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> list[HourlyForecast]:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
         """
         Get hourly forecast (mock implementation)
         الحصول على التوقعات الساعية (تطبيق نموذجي)
         """
         raise NotImplementedError(
-            "Yemen Met Service integration not yet implemented - "
-            "تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
+            "Yemen Met Service integration not yet implemented - تكامل هيئة الأرصاد اليمنية لم يتم تطبيقه بعد"
         )
 
 
@@ -233,20 +226,12 @@ class WeatherForecastService:
 
         # OpenWeatherMap
         owm_config = self.config.providers.get("openweathermap")
-        if (
-            owm_config
-            and getattr(owm_config, "enabled", False)
-            and getattr(owm_config, "api_key", None)
-        ):
+        if owm_config and getattr(owm_config, "enabled", False) and getattr(owm_config, "api_key", None):
             self.providers["openweathermap"] = OpenWeatherMapProvider(owm_config.api_key)
 
         # WeatherAPI
         wa_config = self.config.providers.get("weatherapi")
-        if (
-            wa_config
-            and getattr(wa_config, "enabled", False)
-            and getattr(wa_config, "api_key", None)
-        ):
+        if wa_config and getattr(wa_config, "enabled", False) and getattr(wa_config, "api_key", None):
             self.providers["weatherapi"] = WeatherAPIProvider(wa_config.api_key)
 
         # Yemen Met (mock)
@@ -371,9 +356,7 @@ class WeatherForecastService:
 
         return forecasts
 
-    def aggregate_forecasts(
-        self, sources: list[tuple[str, list[DailyForecast]]]
-    ) -> list[DailyForecast]:
+    def aggregate_forecasts(self, sources: list[tuple[str, list[DailyForecast]]]) -> list[DailyForecast]:
         """
         Aggregate forecasts from multiple sources
         تجميع التوقعات من مصادر متعددة
@@ -415,18 +398,12 @@ class WeatherForecastService:
                     date=date_str,
                     temp_max_c=sum(f.temp_max_c for f in day_forecasts) / len(day_forecasts),
                     temp_min_c=sum(f.temp_min_c for f in day_forecasts) / len(day_forecasts),
-                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts)
+                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts) / len(day_forecasts),
+                    precipitation_probability_pct=sum(f.precipitation_probability_pct for f in day_forecasts)
                     / len(day_forecasts),
-                    precipitation_probability_pct=sum(
-                        f.precipitation_probability_pct for f in day_forecasts
-                    )
-                    / len(day_forecasts),
-                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts)
-                    / len(day_forecasts),
+                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts) / len(day_forecasts),
                     uv_index_max=sum(f.uv_index_max for f in day_forecasts) / len(day_forecasts),
-                    condition=getattr(
-                        day_forecasts[0], "condition", None
-                    ),  # Use first provider's condition
+                    condition=getattr(day_forecasts[0], "condition", None),  # Use first provider's condition
                     condition_ar=getattr(day_forecasts[0], "condition_ar", None),
                     icon=getattr(day_forecasts[0], "icon", None),
                     sunrise=day_forecasts[0].sunrise,

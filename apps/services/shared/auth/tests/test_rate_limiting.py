@@ -194,16 +194,12 @@ class TestAuthKeyGeneration:
         key = auth_rate_limiter._get_auth_key(mock_request, "user@example.com")
         assert key == "auth:192.168.1.100:user@example.com"
 
-    def test_get_auth_key_with_forwarded_for_header(
-        self, auth_rate_limiter, mock_request_with_forwarded
-    ):
+    def test_get_auth_key_with_forwarded_for_header(self, auth_rate_limiter, mock_request_with_forwarded):
         """Test key generation with X-Forwarded-For header."""
         key = auth_rate_limiter._get_auth_key(mock_request_with_forwarded)
         assert key == "auth:10.0.0.50"
 
-    def test_get_auth_key_with_forwarded_for_and_identifier(
-        self, auth_rate_limiter, mock_request_with_forwarded
-    ):
+    def test_get_auth_key_with_forwarded_for_and_identifier(self, auth_rate_limiter, mock_request_with_forwarded):
         """Test key generation with X-Forwarded-For header and identifier."""
         key = auth_rate_limiter._get_auth_key(mock_request_with_forwarded, "testuser")
         assert key == "auth:10.0.0.50:testuser"
@@ -213,9 +209,7 @@ class TestAuthKeyGeneration:
         key = auth_rate_limiter._get_auth_key(mock_request_no_client)
         assert key == "auth:unknown"
 
-    def test_get_auth_key_no_client_with_identifier(
-        self, auth_rate_limiter, mock_request_no_client
-    ):
+    def test_get_auth_key_no_client_with_identifier(self, auth_rate_limiter, mock_request_no_client):
         """Test key generation when client is None but identifier provided."""
         key = auth_rate_limiter._get_auth_key(mock_request_no_client, "admin")
         assert key == "auth:unknown:admin"
@@ -246,9 +240,7 @@ class TestCheckLoginLimit:
     @pytest.mark.asyncio
     async def test_login_limit_allows_first_request(self, auth_rate_limiter, mock_request):
         """Test that first login attempt is allowed."""
-        allowed, remaining, limit, reset = await auth_rate_limiter.check_login_limit(
-            mock_request, "user@example.com"
-        )
+        allowed, remaining, limit, reset = await auth_rate_limiter.check_login_limit(mock_request, "user@example.com")
 
         assert allowed is True
         assert limit == 5  # LOGIN config: 5 per minute
@@ -261,9 +253,7 @@ class TestCheckLoginLimit:
         username = "user@example.com"
 
         for attempt in range(1, 4):
-            allowed, remaining, limit, reset = await auth_rate_limiter.check_login_limit(
-                mock_request, username
-            )
+            allowed, remaining, limit, reset = await auth_rate_limiter.check_login_limit(mock_request, username)
             assert allowed is True
             assert remaining == 5 - attempt
 
@@ -306,9 +296,7 @@ class TestCheckLoginLimit:
             await auth_rate_limiter.check_login_limit(mock_request, "user1@example.com")
 
         # User 2 should still be able to make a request
-        allowed, _, _, _ = await auth_rate_limiter.check_login_limit(
-            mock_request, "user2@example.com"
-        )
+        allowed, _, _, _ = await auth_rate_limiter.check_login_limit(mock_request, "user2@example.com")
         assert allowed is True
 
     @pytest.mark.asyncio
@@ -358,16 +346,12 @@ class TestCheckPasswordResetLimit:
         email = "user@example.com"
 
         for attempt in range(1, 3):
-            allowed, remaining, limit, reset = await auth_rate_limiter.check_password_reset_limit(
-                mock_request, email
-            )
+            allowed, remaining, limit, reset = await auth_rate_limiter.check_password_reset_limit(mock_request, email)
             assert allowed is True
             assert remaining == 3 - attempt
 
     @pytest.mark.asyncio
-    async def test_password_reset_limit_exceeded_raises_exception(
-        self, auth_rate_limiter, mock_request
-    ):
+    async def test_password_reset_limit_exceeded_raises_exception(self, auth_rate_limiter, mock_request):
         """Test that exceeding password reset limit raises HTTPException."""
         email = "user@example.com"
 
@@ -403,9 +387,7 @@ class TestCheckRegistrationLimit:
     @pytest.mark.asyncio
     async def test_registration_limit_allows_first_request(self, auth_rate_limiter, mock_request):
         """Test that first registration request is allowed."""
-        allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(
-            mock_request
-        )
+        allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(mock_request)
 
         assert allowed is True
         assert limit == 10  # REGISTRATION config: 10 per minute
@@ -416,9 +398,7 @@ class TestCheckRegistrationLimit:
     async def test_registration_limit_with_email(self, auth_rate_limiter, mock_request):
         """Test registration limit with email identifier."""
         email = "newuser@example.com"
-        allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(
-            mock_request, email
-        )
+        allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(mock_request, email)
 
         assert allowed is True
         assert limit == 10
@@ -429,16 +409,12 @@ class TestCheckRegistrationLimit:
         email = "newuser@example.com"
 
         for attempt in range(1, 6):
-            allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(
-                mock_request, email
-            )
+            allowed, remaining, limit, reset = await auth_rate_limiter.check_registration_limit(mock_request, email)
             assert allowed is True
             assert remaining == 10 - attempt
 
     @pytest.mark.asyncio
-    async def test_registration_limit_exceeded_raises_exception(
-        self, auth_rate_limiter, mock_request
-    ):
+    async def test_registration_limit_exceeded_raises_exception(self, auth_rate_limiter, mock_request):
         """Test that exceeding registration limit raises HTTPException."""
         # Make 10 successful attempts
         for _ in range(10):
@@ -481,9 +457,7 @@ class TestCheckTokenRefreshLimit:
     @pytest.mark.asyncio
     async def test_token_refresh_limit_allows_first_request(self, auth_rate_limiter, mock_request):
         """Test that first token refresh is allowed."""
-        allowed, remaining, limit, reset = await auth_rate_limiter.check_token_refresh_limit(
-            mock_request, "user123"
-        )
+        allowed, remaining, limit, reset = await auth_rate_limiter.check_token_refresh_limit(mock_request, "user123")
 
         assert allowed is True
         assert limit == 10  # TOKEN_REFRESH config: 10 per minute
@@ -496,16 +470,12 @@ class TestCheckTokenRefreshLimit:
         user_id = "user123"
 
         for attempt in range(1, 6):
-            allowed, remaining, limit, reset = await auth_rate_limiter.check_token_refresh_limit(
-                mock_request, user_id
-            )
+            allowed, remaining, limit, reset = await auth_rate_limiter.check_token_refresh_limit(mock_request, user_id)
             assert allowed is True
             assert remaining == 10 - attempt
 
     @pytest.mark.asyncio
-    async def test_token_refresh_limit_exceeded_raises_exception(
-        self, auth_rate_limiter, mock_request
-    ):
+    async def test_token_refresh_limit_exceeded_raises_exception(self, auth_rate_limiter, mock_request):
         """Test that exceeding token refresh limit raises HTTPException."""
         user_id = "user123"
 
@@ -521,9 +491,7 @@ class TestCheckTokenRefreshLimit:
         assert "token refresh" in exc_info.value.detail["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_token_refresh_limit_different_users_independent(
-        self, auth_rate_limiter, mock_request
-    ):
+    async def test_token_refresh_limit_different_users_independent(self, auth_rate_limiter, mock_request):
         """Test that token refresh limits for different users are independent."""
         # User 1 makes 8 refreshes
         for _ in range(8):
@@ -622,24 +590,18 @@ class TestIntegrationAndEdgeCases:
         assert successful == 3
 
     @pytest.mark.asyncio
-    async def test_multiple_auth_operations_different_methods(
-        self, auth_rate_limiter, mock_request
-    ):
+    async def test_multiple_auth_operations_different_methods(self, auth_rate_limiter, mock_request):
         """Test that different rate limit checks are independent."""
         # Login attempts
         login_allowed, _, _, _ = await auth_rate_limiter.check_login_limit(mock_request, "user1")
         assert login_allowed is True
 
         # Password reset attempts (different endpoint/config)
-        reset_allowed, _, _, _ = await auth_rate_limiter.check_password_reset_limit(
-            mock_request, "user1@example.com"
-        )
+        reset_allowed, _, _, _ = await auth_rate_limiter.check_password_reset_limit(mock_request, "user1@example.com")
         assert reset_allowed is True
 
         # Registration attempts (different endpoint/config)
-        reg_allowed, _, _, _ = await auth_rate_limiter.check_registration_limit(
-            mock_request, "newuser@example.com"
-        )
+        reg_allowed, _, _, _ = await auth_rate_limiter.check_registration_limit(mock_request, "newuser@example.com")
         assert reg_allowed is True
 
     @pytest.mark.asyncio

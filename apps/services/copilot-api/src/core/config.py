@@ -43,9 +43,7 @@ class Settings(BaseSettings):
     # SECURITY
     # ═══════════════════════════════════════════════════════════════════════════
 
-    jwt_secret_key: str = Field(
-        default="changeme-in-production-minimum-32-chars", description="JWT secret key"
-    )
+    jwt_secret_key: str = Field(default="changeme-in-production-minimum-32-chars", description="JWT secret key")
     jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")
     jwt_expiration_minutes: int = Field(default=60, description="JWT expiration")
 
@@ -53,9 +51,7 @@ class Settings(BaseSettings):
     api_key: str | None = Field(default=None, description="API key for authentication")
 
     # CORS
-    cors_origins: str = Field(
-        default="http://localhost:3000,http://localhost:8080", description="Allowed CORS origins"
-    )
+    cors_origins: str = Field(default="http://localhost:3000,http://localhost:8080", description="Allowed CORS origins")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # COPILOT SETTINGS
@@ -90,21 +86,15 @@ class Settings(BaseSettings):
 
     qdrant_host: str = Field(default="localhost", description="Qdrant host")
     qdrant_port: int = Field(default=6333, description="Qdrant port")
-    qdrant_collection: str = Field(
-        default="sahool_copilot_knowledge", description="Qdrant collection name"
-    )
+    qdrant_collection: str = Field(default="sahool_copilot_knowledge", description="Qdrant collection name")
     use_qdrant: bool = Field(default=True, description="Use Qdrant for RAG")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # EMBEDDINGS
     # ═══════════════════════════════════════════════════════════════════════════
 
-    embedding_provider: str = Field(
-        default="sentence_transformers", description="Embedding provider"
-    )
-    embedding_model: str = Field(
-        default="paraphrase-multilingual-MiniLM-L12-v2", description="Embedding model"
-    )
+    embedding_provider: str = Field(default="sentence_transformers", description="Embedding provider")
+    embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2", description="Embedding model")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # DATABASE (PostgreSQL)
@@ -130,22 +120,16 @@ class Settings(BaseSettings):
     # ═══════════════════════════════════════════════════════════════════════════
 
     # Code-Fix-Agent
-    code_fix_agent_url: str = Field(
-        default="http://localhost:8161", description="Code-Fix-Agent URL"
-    )
+    code_fix_agent_url: str = Field(default="http://localhost:8161", description="Code-Fix-Agent URL")
 
     # AI Advisor
     ai_advisor_url: str = Field(default="http://localhost:8112", description="AI Advisor URL")
 
     # Field Management
-    field_management_url: str = Field(
-        default="http://localhost:3000", description="Field Management Service URL"
-    )
+    field_management_url: str = Field(default="http://localhost:3000", description="Field Management Service URL")
 
     # Weather Service
-    weather_service_url: str = Field(
-        default="http://localhost:8108", description="Weather Service URL"
-    )
+    weather_service_url: str = Field(default="http://localhost:8108", description="Weather Service URL")
 
     # ═══════════════════════════════════════════════════════════════════════════
     # COMPUTED PROPERTIES

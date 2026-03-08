@@ -1,4 +1,5 @@
 """Health endpoint tests for globalgap-compliance."""
+
 import pytest
 
 

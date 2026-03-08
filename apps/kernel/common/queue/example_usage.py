@@ -204,9 +204,7 @@ def example_scheduled_tasks():
 
     # جدولة تقرير يومي لـ 6 صباحاً غداً
     # Schedule daily report for 6 AM tomorrow
-    tomorrow_6am = datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0) + timedelta(
-        days=1
-    )
+    tomorrow_6am = datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0) + timedelta(days=1)
 
     task_id = queue.enqueue(
         task_type=TaskType.REPORT_GENERATION,

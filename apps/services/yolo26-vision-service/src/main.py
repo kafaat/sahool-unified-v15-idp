@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
+
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 

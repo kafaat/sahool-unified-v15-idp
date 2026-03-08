@@ -171,9 +171,7 @@ class TestProfitabilityAnalyzer:
             {"field_id": "field-003", "crop_code": "potato", "area_ha": 1.5},
         ]
 
-        result = await analyzer.analyze_season(
-            farmer_id="farmer-001", season_year="2025", crops_data=crops_data
-        )
+        result = await analyzer.analyze_season(farmer_id="farmer-001", season_year="2025", crops_data=crops_data)
 
         assert result.season_year == "2025"
         assert result.total_area_ha == 5.0
@@ -225,9 +223,7 @@ class TestProfitabilityAnalyzer:
     @pytest.mark.asyncio
     async def test_historical_profitability(self, analyzer):
         """Test historical profitability retrieval"""
-        result = await analyzer.get_historical_profitability(
-            field_id="field-001", crop_code="wheat", years=5
-        )
+        result = await analyzer.get_historical_profitability(field_id="field-001", crop_code="wheat", years=5)
 
         assert len(result) == 5
         assert all("year" in item for item in result)

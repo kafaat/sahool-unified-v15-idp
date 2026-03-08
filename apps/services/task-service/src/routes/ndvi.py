@@ -65,15 +65,11 @@ class NdviAlertTaskRequest(BaseModel):
     field_id: str = Field(..., description="Field ID that triggered the alert")
     zone_id: str | None = Field(None, description="Specific zone within field")
     ndvi_value: float = Field(..., ge=-1, le=1, description="Current NDVI value")
-    previous_ndvi: float | None = Field(
-        None, ge=-1, le=1, description="Previous NDVI value for comparison"
-    )
+    previous_ndvi: float | None = Field(None, ge=-1, le=1, description="Previous NDVI value for comparison")
     alert_type: str = Field(..., description="Alert type: 'drop', 'critical', 'anomaly'")
     auto_assign: bool = Field(default=False, description="Auto-assign to field manager")
     assigned_to: str | None = Field(None, description="Specific user to assign to")
-    alert_metadata: dict | None = Field(
-        None, description="Additional alert context (z_score, deviation_pct, etc.)"
-    )
+    alert_metadata: dict | None = Field(None, description="Additional alert context (z_score, deviation_pct, etc.)")
 
 
 class TaskSuggestion(BaseModel):
@@ -123,9 +119,9 @@ async def create_task_from_ndvi_alert(
     - Sends notifications
     """
     safe_field_id = sanitize_for_log(data.field_id)
+    safe_alert_type = sanitize_for_log(str(data.alert_type))
     logger.info(
-        f"Creating task from NDVI alert: field={safe_field_id}, "
-        f"type={data.alert_type}, ndvi={data.ndvi_value:.3f}"
+        f"Creating task from NDVI alert: field={safe_field_id}, type={safe_alert_type}, ndvi={data.ndvi_value:.3f}"
     )
 
     try:
@@ -163,9 +159,7 @@ async def create_task_from_ndvi_alert(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(
-                    "Auto-assigned NDVI task to field manager: %s", sanitize_for_log(assigned_to)
-                )
+                logger.info("Auto-assigned NDVI task to field manager: %s", sanitize_for_log(assigned_to))
             else:
                 logger.warning(
                     "Could not fetch field manager for field %s, task will be created without assignment",
@@ -221,9 +215,9 @@ async def create_task_from_ndvi_alert(
                 notification_type="ndvi_alert_task",
             )
 
+        safe_assigned_to = sanitize_for_log(assigned_to) if assigned_to is not None else None
         logger.info(
-            f"Task created from NDVI alert: {task_id} "
-            f"(priority={priority.value}, assigned_to={assigned_to})"
+            f"Task created from NDVI alert: {task_id} (priority={priority.value}, assigned_to={safe_assigned_to})"
         )
 
         return db_task_to_dict(created_task)
@@ -379,9 +373,7 @@ async def auto_create_tasks(
             field_manager = await fetch_field_manager(data.field_id, tenant_id)
             if field_manager:
                 assigned_to = field_manager
-                logger.info(
-                    "Auto-assigned batch tasks to field manager: %s", sanitize_for_log(assigned_to)
-                )
+                logger.info("Auto-assigned batch tasks to field manager: %s", sanitize_for_log(assigned_to))
             else:
                 logger.warning(
                     "Could not fetch field manager for field %s, tasks will be created without assignment",
@@ -430,9 +422,7 @@ async def auto_create_tasks(
                 )
 
             except Exception as task_error:
-                logger.error(
-                    "Failed to create task from suggestion %d: %s", idx, type(task_error).__name__
-                )
+                logger.error("Failed to create task from suggestion %d: %s", idx, type(task_error).__name__)
                 failed_tasks.append(
                     {
                         "index": idx,
@@ -462,9 +452,7 @@ async def auto_create_tasks(
             except Exception as notif_error:
                 logger.warning("Failed to send batch notification: %s", type(notif_error).__name__)
 
-        logger.info(
-            "Auto-create completed: %d created, %d failed", len(created_tasks), len(failed_tasks)
-        )
+        logger.info("Auto-create completed: %d created, %d failed", len(created_tasks), len(failed_tasks))
 
         return {
             "field_id": data.field_id,

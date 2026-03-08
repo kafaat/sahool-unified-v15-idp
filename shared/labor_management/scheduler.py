@@ -309,10 +309,7 @@ class LaborScheduler:
         shift_end = None
 
         for schedule in self.schedules:
-            if (
-                schedule.worker_id == worker_id
-                and schedule.start_date <= check_date <= schedule.end_date
-            ):
+            if schedule.worker_id == worker_id and schedule.start_date <= check_date <= schedule.end_date:
                 shift_id = schedule.shift_id
                 shift = self._shifts_by_id.get(shift_id)
                 if shift:
@@ -322,11 +319,7 @@ class LaborScheduler:
                 assigned_tasks.extend(schedule.task_ids)
 
         # Calculate remaining hours
-        task_hours = sum(
-            self._tasks_by_id[tid].estimated_hours
-            for tid in assigned_tasks
-            if tid in self._tasks_by_id
-        )
+        task_hours = sum(self._tasks_by_id[tid].estimated_hours for tid in assigned_tasks if tid in self._tasks_by_id)
         remaining_hours = max(0, scheduled_hours - task_hours)
 
         is_available = len(conflicts) == 0 and (
@@ -521,9 +514,7 @@ class LaborScheduler:
 
         # Check REI restrictions if task has a field
         if task.field_id:
-            can_enter, rei_conflicts, _ = self.can_enter_field(
-                worker.worker_id, task.field_id, task.category
-            )
+            can_enter, rei_conflicts, _ = self.can_enter_field(worker.worker_id, task.field_id, task.category)
             if not can_enter:
                 score.is_eligible = False
                 score.ineligibility_reasons.extend([c.message_en for c in rei_conflicts])
@@ -535,9 +526,7 @@ class LaborScheduler:
             for skill_cat, min_level in task.requirements.required_skills:
                 if not worker.has_skill(skill_cat, min_level):
                     score.is_eligible = False
-                    score.ineligibility_reasons.append(
-                        f"Missing skill: {skill_cat.value} at {min_level.value} level"
-                    )
+                    score.ineligibility_reasons.append(f"Missing skill: {skill_cat.value} at {min_level.value} level")
 
             # Certification requirements
             for cert_type in task.requirements.required_certifications:
@@ -555,9 +544,7 @@ class LaborScheduler:
         score.skill_score = self._calculate_skill_score(worker, task)
 
         # Availability score (0-100)
-        score.availability_score = self._calculate_availability_score(
-            availability, task.estimated_hours
-        )
+        score.availability_score = self._calculate_availability_score(availability, task.estimated_hours)
 
         # Certification score (0-100)
         score.certification_score = self._calculate_certification_score(worker, task)
@@ -655,9 +642,7 @@ class LaborScheduler:
 
         return total_score / len(task.requirements.required_skills)
 
-    def _calculate_availability_score(
-        self, availability: WorkerAvailability, task_hours: float
-    ) -> float:
+    def _calculate_availability_score(self, availability: WorkerAvailability, task_hours: float) -> float:
         """Calculate availability score"""
         if not availability.is_available:
             return 0.0
@@ -675,9 +660,7 @@ class LaborScheduler:
             return 50.0  # Neutral if no requirements
 
         valid_certs = sum(
-            1
-            for cert_type in task.requirements.required_certifications
-            if worker.has_valid_certification(cert_type)
+            1 for cert_type in task.requirements.required_certifications if worker.has_valid_certification(cert_type)
         )
 
         total = len(task.requirements.required_certifications)
@@ -815,10 +798,7 @@ class LaborScheduler:
         if task.field_id:
             active_rei_zones = self.check_rei_restrictions(task.field_id)
             for zone in active_rei_zones:
-                if (
-                    zone.early_entry_allowed
-                    and task.category.value in zone.early_entry_tasks_allowed
-                ):
+                if zone.early_entry_allowed and task.category.value in zone.early_entry_tasks_allowed:
                     warnings_en.append(
                         f"Field has active REI zone ({zone.pesticide_name}). "
                         f"Early entry allowed with PPE: {', '.join(p.value for p in zone.early_entry_ppe_required)}"
@@ -879,13 +859,9 @@ class LaborScheduler:
 
         # Get tasks to schedule
         if task_ids:
-            tasks_to_schedule = [
-                self._tasks_by_id[tid] for tid in task_ids if tid in self._tasks_by_id
-            ]
+            tasks_to_schedule = [self._tasks_by_id[tid] for tid in task_ids if tid in self._tasks_by_id]
         else:
-            tasks_to_schedule = [
-                t for t in self.tasks if t.status in [TaskStatus.PENDING, TaskStatus.ASSIGNED]
-            ]
+            tasks_to_schedule = [t for t in self.tasks if t.status in [TaskStatus.PENDING, TaskStatus.ASSIGNED]]
 
         # Sort by priority if requested
         if prioritize_critical:
@@ -1057,9 +1033,7 @@ class LaborScheduler:
         worker_scores = []
         for worker in self.workers:
             if worker.farm_id == task.farm_id:
-                score = self.score_worker_for_task(
-                    worker, task, check_date, SchedulingStrategy.SKILL_PRIORITY
-                )
+                score = self.score_worker_for_task(worker, task, check_date, SchedulingStrategy.SKILL_PRIORITY)
                 if score.is_eligible:
                     worker_scores.append(
                         {
@@ -1083,18 +1057,14 @@ class LaborScheduler:
                 recommendations["rei_status"] = {
                     "is_restricted": True,
                     "earliest_entry": earliest_entry.isoformat(),
-                    "pesticides": [
-                        {"name": z.pesticide_name, "name_ar": z.pesticide_name_ar}
-                        for z in rei_zones
-                    ],
+                    "pesticides": [{"name": z.pesticide_name, "name_ar": z.pesticide_name_ar} for z in rei_zones],
                 }
                 recommendations["recommendations_en"].append(
                     f"Field is restricted until {earliest_entry.strftime('%Y-%m-%d %H:%M')} "
                     f"due to pesticide application(s)"
                 )
                 recommendations["recommendations_ar"].append(
-                    f"الحقل مقيد حتى {earliest_entry.strftime('%Y-%m-%d %H:%M')} "
-                    f"بسبب تطبيق المبيد(ات)"
+                    f"الحقل مقيد حتى {earliest_entry.strftime('%Y-%m-%d %H:%M')} بسبب تطبيق المبيد(ات)"
                 )
             else:
                 recommendations["rei_status"] = {"is_restricted": False}

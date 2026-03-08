@@ -157,9 +157,7 @@ class QuaternionGeoProjector:
 
         logger.info(f"QuaternionGeoProjector initialized at origin ({origin_lat}, {origin_lon})")
 
-    def pixel_to_geo(
-        self, u: float, v: float, terrain_elevation: float | None = None
-    ) -> tuple[float, float]:
+    def pixel_to_geo(self, u: float, v: float, terrain_elevation: float | None = None) -> tuple[float, float]:
         """
         Transform image pixel (u, v) to geographic coordinates (lon, lat).
 
@@ -412,9 +410,7 @@ class OrthoRectifier:
         self.projector = projector
         self.resolution = output_resolution_m
 
-    def compute_output_bounds(
-        self, image_width: int, image_height: int
-    ) -> tuple[float, float, float, float]:
+    def compute_output_bounds(self, image_width: int, image_height: int) -> tuple[float, float, float, float]:
         """
         Compute the geographic bounds of the output ortho image.
 

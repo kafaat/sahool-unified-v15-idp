@@ -35,9 +35,7 @@ def hash_password(password: str) -> str:
     else:
         # Fallback to PBKDF2
         salt = secrets.token_hex(16)
-        hashed = hashlib.pbkdf2_hmac(
-            "sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000
-        )
+        hashed = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000)
         return f"pbkdf2${salt}${hashed.hex()}"
 
 
@@ -56,9 +54,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
                 return False
             salt = parts[1]
             stored_hash = parts[2]
-            computed_hash = hashlib.pbkdf2_hmac(
-                "sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000
-            )
+            computed_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000)
             return hmac.compare_digest(computed_hash.hex(), stored_hash)
     except Exception as e:
         logger.error(f"Password verification error: {e}")

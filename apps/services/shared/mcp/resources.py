@@ -120,15 +120,11 @@ class FieldDataResource(ResourceProvider):
             if resource_type == "info":
                 response = await self.client.get(f"{self.base_url}/api/fields/{field_id}")
             elif resource_type == "boundaries":
-                response = await self.client.get(
-                    f"{self.base_url}/api/fields/{field_id}/boundaries"
-                )
+                response = await self.client.get(f"{self.base_url}/api/fields/{field_id}/boundaries")
             elif resource_type == "soil":
                 response = await self.client.get(f"{self.base_url}/api/fields/{field_id}/soil")
             elif resource_type == "activities":
-                response = await self.client.get(
-                    f"{self.base_url}/api/fields/{field_id}/activities"
-                )
+                response = await self.client.get(f"{self.base_url}/api/fields/{field_id}/activities")
             else:
                 raise ValueError(f"Unknown resource type: {resource_type}")
 
@@ -137,9 +133,7 @@ class FieldDataResource(ResourceProvider):
 
             import json
 
-            mime_type = (
-                "application/geo+json" if resource_type == "boundaries" else "application/json"
-            )
+            mime_type = "application/geo+json" if resource_type == "boundaries" else "application/json"
 
             return ResourceContent(uri=uri, mimeType=mime_type, text=json.dumps(data, indent=2))
 
@@ -199,25 +193,19 @@ class WeatherDataResource(ResourceProvider):
                 response = await self.client.get(f"{self.base_url}/api/weather/current")
             elif resource_path.startswith("forecast/"):
                 days = resource_path.split("/")[1].replace("day", "")
-                response = await self.client.get(
-                    f"{self.base_url}/api/weather/forecast", params={"days": days}
-                )
+                response = await self.client.get(f"{self.base_url}/api/weather/forecast", params={"days": days})
             elif resource_path == "advisories":
                 response = await self.client.get(f"{self.base_url}/api/weather/advisories")
             elif resource_path.startswith("historical/"):
                 days = resource_path.split("/")[1].replace("day", "")
-                response = await self.client.get(
-                    f"{self.base_url}/api/weather/historical", params={"days": days}
-                )
+                response = await self.client.get(f"{self.base_url}/api/weather/historical", params={"days": days})
             else:
                 raise ValueError(f"Unknown weather resource: {resource_path}")
 
             response.raise_for_status()
             data = response.json()
 
-            return ResourceContent(
-                uri=uri, mimeType="application/json", text=json.dumps(data, indent=2)
-            )
+            return ResourceContent(uri=uri, mimeType="application/json", text=json.dumps(data, indent=2))
 
         except httpx.HTTPError as e:
             raise RuntimeError(f"Failed to fetch weather resource: {str(e)}")
@@ -304,24 +292,18 @@ class CropCatalogResource(ResourceProvider):
                 if resource_type == "info":
                     response = await self.client.get(f"{self.base_url}/api/crops/{crop_id}")
                 elif resource_type == "growing-guide":
-                    response = await self.client.get(
-                        f"{self.base_url}/api/crops/{crop_id}/growing-guide"
-                    )
+                    response = await self.client.get(f"{self.base_url}/api/crops/{crop_id}/growing-guide")
                 elif resource_type == "pests":
                     response = await self.client.get(f"{self.base_url}/api/crops/{crop_id}/pests")
                 elif resource_type == "diseases":
-                    response = await self.client.get(
-                        f"{self.base_url}/api/crops/{crop_id}/diseases"
-                    )
+                    response = await self.client.get(f"{self.base_url}/api/crops/{crop_id}/diseases")
                 else:
                     raise ValueError(f"Unknown resource type: {resource_type}")
 
             response.raise_for_status()
             data = response.json()
 
-            return ResourceContent(
-                uri=uri, mimeType="application/json", text=json.dumps(data, indent=2)
-            )
+            return ResourceContent(uri=uri, mimeType="application/json", text=json.dumps(data, indent=2))
 
         except httpx.HTTPError as e:
             raise RuntimeError(f"Failed to fetch crop resource: {str(e)}")

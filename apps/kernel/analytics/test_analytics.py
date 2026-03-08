@@ -153,9 +153,7 @@ def test_feature_usage():
     # إنشاء أحداث لميزة معينة - Create events for a specific feature
     for i in range(10):
         user_id = f"test_user_{i:03d}"
-        analytics.track_event(
-            user_id, EventType.FIELD_VIEWED, metadata={"feature": "field_management"}
-        )
+        analytics.track_event(user_id, EventType.FIELD_VIEWED, metadata={"feature": "field_management"})
 
     # الحصول على إحصائيات الميزة - Get feature statistics
     feature_usage = analytics.get_feature_usage("field_management")
@@ -183,9 +181,7 @@ def test_farmer_analytics():
 
     # إنشاء أحداث مزارع - Create farmer events
     analytics.track_event(user_id, EventType.CROP_PLANTED, crop_type="tomato", field_id="field_001")
-    analytics.track_event(
-        user_id, EventType.CROP_PLANTED, crop_type="cucumber", field_id="field_002"
-    )
+    analytics.track_event(user_id, EventType.CROP_PLANTED, crop_type="cucumber", field_id="field_002")
 
     # التوصيات - Recommendations
     analytics.track_event(
@@ -228,9 +224,7 @@ def test_regional_analytics():
 
     for i, gov in enumerate(governorates):
         user_id = f"user_{gov.value}_{i}"
-        analytics.track_event(
-            user_id, EventType.FIELD_VIEWED, governorate=gov, field_id=f"field_{i}"
-        )
+        analytics.track_event(user_id, EventType.FIELD_VIEWED, governorate=gov, field_id=f"field_{i}")
         analytics.track_event(user_id, EventType.CROP_PLANTED, governorate=gov, crop_type="tomato")
 
     # اختبار التوزيع الإقليمي - Test regional distribution

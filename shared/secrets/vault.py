@@ -96,9 +96,7 @@ class VaultConfig:
             raise ValueError("VAULT_ADDR is required")
 
         if not self.token and not (self.role_id and self.secret_id):
-            raise ValueError(
-                "Either VAULT_TOKEN or both VAULT_ROLE_ID and VAULT_SECRET_ID are required"
-            )
+            raise ValueError("Either VAULT_TOKEN or both VAULT_ROLE_ID and VAULT_SECRET_ID are required")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -138,9 +136,7 @@ class VaultClient:
                 import hvac
             except ImportError:
                 logger.error("hvac library not installed. Install with: pip install hvac")
-                raise ImportError(
-                    "hvac library required for Vault integration. Install with: pip install hvac"
-                )
+                raise ImportError("hvac library required for Vault integration. Install with: pip install hvac")
 
             self.config.validate()
 
@@ -148,9 +144,7 @@ class VaultClient:
             self._client = hvac.Client(
                 url=self.config.address,
                 timeout=self.config.timeout,
-                verify=self.config.verify_ssl
-                if self.config.ca_cert is None
-                else self.config.ca_cert,
+                verify=self.config.verify_ssl if self.config.ca_cert is None else self.config.ca_cert,
                 namespace=self.config.namespace,
             )
 

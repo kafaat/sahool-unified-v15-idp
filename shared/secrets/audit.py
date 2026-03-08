@@ -179,9 +179,7 @@ class SecretAuditLogger:
 
             # Clean old failed attempts
             recent_cutoff = datetime.now(UTC) - timedelta(minutes=15)
-            self._failed_attempts[event.user] = [
-                t for t in self._failed_attempts[event.user] if t > recent_cutoff
-            ]
+            self._failed_attempts[event.user] = [t for t in self._failed_attempts[event.user] if t > recent_cutoff]
 
     async def _check_anomalies(self, event: SecretAccessEvent) -> None:
         """Check for anomalous access patterns"""
@@ -216,22 +214,17 @@ class SecretAuditLogger:
 
     async def _alert_failed_attempts(self, event: SecretAccessEvent, count: int) -> None:
         """Alert on multiple failed attempts"""
-        logger.warning(
-            f"ALERT: Multiple failed secret access attempts - User: {event.user}, Count: {count}"
-        )
+        logger.warning(f"ALERT: Multiple failed secret access attempts - User: {event.user}, Count: {count}")
 
     async def _alert_unusual_time(self, event: SecretAccessEvent) -> None:
         """Alert on unusual access time"""
         logger.warning(
-            f"ALERT: Unusual time secret access - "
-            f"User: {event.user}, Time: {event.timestamp.strftime('%H:%M')}"
+            f"ALERT: Unusual time secret access - User: {event.user}, Time: {event.timestamp.strftime('%H:%M')}"
         )
 
     async def _alert_new_ip(self, event: SecretAccessEvent) -> None:
         """Alert on access from new IP"""
-        logger.warning(
-            f"ALERT: Secret access from new IP - User: {event.user}, IP: {event.source_ip}"
-        )
+        logger.warning(f"ALERT: Secret access from new IP - User: {event.user}, IP: {event.source_ip}")
 
     def get_access_stats(self, hours: int = 24) -> dict[str, Any]:
         """

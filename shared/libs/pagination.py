@@ -50,8 +50,10 @@ class Page(Generic[T]):
         """Convert to dictionary for JSON serialization"""
         return {
             "items": [
-                item.model_dump() if hasattr(item, "model_dump")
-                else item.dict() if hasattr(item, "dict") and callable(item.dict)
+                item.model_dump()
+                if hasattr(item, "model_dump")
+                else item.dict()
+                if hasattr(item, "dict") and callable(item.dict)
                 else item
                 for item in self.items
             ],
@@ -79,8 +81,10 @@ class OffsetPage(Generic[T]):
         """Convert to dictionary for JSON serialization"""
         return {
             "items": [
-                item.model_dump() if hasattr(item, "model_dump")
-                else item.dict() if hasattr(item, "dict") and callable(item.dict)
+                item.model_dump()
+                if hasattr(item, "model_dump")
+                else item.dict()
+                if hasattr(item, "dict") and callable(item.dict)
                 else item
                 for item in self.items
             ],

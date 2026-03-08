@@ -321,9 +321,7 @@ class CropCalendarService:
 
         return current_stage, current_stage_info
 
-    def _parse_growth_stages(
-        self, growth_stages: dict[str, Any]
-    ) -> list[tuple[str, GrowthStageInfo]]:
+    def _parse_growth_stages(self, growth_stages: dict[str, Any]) -> list[tuple[str, GrowthStageInfo]]:
         """
         تحليل مراحل النمو وحساب أيام البداية والنهاية
         Parse growth stages and calculate start/end days
@@ -485,9 +483,7 @@ class CropCalendarService:
         region_windows = planting_windows_data.get(region, {})
 
         if not region_windows:
-            raise ValueError(
-                f"No planting windows found for crop '{crop_type}' in region '{region}'"
-            )
+            raise ValueError(f"No planting windows found for crop '{crop_type}' in region '{region}'")
 
         windows = []
 

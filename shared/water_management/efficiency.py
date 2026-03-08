@@ -564,9 +564,7 @@ class IrrigationEfficiencyCalculator:
         # Get dominant irrigation method
         method_counts: dict[IrrigationMethod, int] = {}
         for event in irrigation_events:
-            method_counts[event.irrigation_method] = (
-                method_counts.get(event.irrigation_method, 0) + 1
-            )
+            method_counts[event.irrigation_method] = method_counts.get(event.irrigation_method, 0) + 1
         irrigation_method = max(method_counts, key=method_counts.get)  # type: ignore
 
         # Calculate totals
@@ -578,19 +576,11 @@ class IrrigationEfficiencyCalculator:
         )
 
         # Calculate average application efficiency from events
-        efficiencies = [
-            e.application_efficiency
-            for e in irrigation_events
-            if e.application_efficiency is not None
-        ]
+        efficiencies = [e.application_efficiency for e in irrigation_events if e.application_efficiency is not None]
         avg_app_efficiency = statistics.mean(efficiencies) if efficiencies else None
 
         # Calculate average uniformity from events
-        uniformities = [
-            e.uniformity_coefficient
-            for e in irrigation_events
-            if e.uniformity_coefficient is not None
-        ]
+        uniformities = [e.uniformity_coefficient for e in irrigation_events if e.uniformity_coefficient is not None]
         avg_uniformity = statistics.mean(uniformities) if uniformities else None
 
         # Create metrics object
@@ -629,9 +619,7 @@ class IrrigationEfficiencyCalculator:
         crop_type: str | None = None,
     ) -> None:
         """Rate efficiency against benchmarks"""
-        min_eff, good_eff, excellent_eff = self.benchmarks.get_app_efficiency_benchmark(
-            metrics.irrigation_method
-        )
+        min_eff, good_eff, excellent_eff = self.benchmarks.get_app_efficiency_benchmark(metrics.irrigation_method)
 
         if metrics.application_efficiency is not None:
             eff = metrics.application_efficiency
@@ -663,37 +651,25 @@ class IrrigationEfficiencyCalculator:
             if metrics.application_efficiency < min_eff:
                 if metrics.irrigation_method == IrrigationMethod.FLOOD:
                     recommendations_en.append(
-                        "Consider upgrading to drip or sprinkler irrigation "
-                        "to improve efficiency by 30-50%"
+                        "Consider upgrading to drip or sprinkler irrigation to improve efficiency by 30-50%"
                     )
-                    recommendations_ar.append(
-                        "فكر في الترقية إلى الري بالتنقيط أو الرش لتحسين الكفاءة بنسبة 30-50%"
-                    )
+                    recommendations_ar.append("فكر في الترقية إلى الري بالتنقيط أو الرش لتحسين الكفاءة بنسبة 30-50%")
                 elif metrics.irrigation_method == IrrigationMethod.FURROW:
                     recommendations_en.append(
-                        "Improve furrow inflow management or consider "
-                        "surge irrigation to reduce deep percolation"
+                        "Improve furrow inflow management or consider surge irrigation to reduce deep percolation"
                     )
-                    recommendations_ar.append(
-                        "حسّن إدارة تدفق الأخاديد أو فكر في الري النبضي لتقليل التسرب العميق"
-                    )
+                    recommendations_ar.append("حسّن إدارة تدفق الأخاديد أو فكر في الري النبضي لتقليل التسرب العميق")
                 else:
                     recommendations_en.append(
                         "Check for system leaks and ensure proper system pressure and maintenance"
                     )
-                    recommendations_ar.append(
-                        "تحقق من تسربات النظام وتأكد من الضغط والصيانة المناسبين للنظام"
-                    )
+                    recommendations_ar.append("تحقق من تسربات النظام وتأكد من الضغط والصيانة المناسبين للنظام")
 
         # Uniformity recommendations
         if metrics.uniformity_coefficient is not None:
             if metrics.uniformity_coefficient < 80:
-                recommendations_en.append(
-                    "Perform system audit to identify emitter clogging or pressure variations"
-                )
-                recommendations_ar.append(
-                    "أجرِ تدقيقاً للنظام لتحديد انسداد النقاطات أو تغيرات الضغط"
-                )
+                recommendations_en.append("Perform system audit to identify emitter clogging or pressure variations")
+                recommendations_ar.append("أجرِ تدقيقاً للنظام لتحديد انسداد النقاطات أو تغيرات الضغط")
 
         # Water productivity recommendations
         if crop_type and metrics.water_use_efficiency_kg_m3 is not None:
@@ -704,24 +680,18 @@ class IrrigationEfficiencyCalculator:
                     "Review irrigation scheduling and crop variety selection"
                 )
                 recommendations_ar.append(
-                    f"الإنتاجية المائية أقل من المعيار لـ {crop_type}. "
-                    "راجع جدولة الري واختيار الصنف"
+                    f"الإنتاجية المائية أقل من المعيار لـ {crop_type}. راجع جدولة الري واختيار الصنف"
                 )
 
         # Method-specific recommendations
         if metrics.irrigation_method == IrrigationMethod.CENTER_PIVOT:
             recommendations_en.append(
-                "Consider LEPA (Low Energy Precision Application) "
-                "nozzles to reduce evaporation losses"
+                "Consider LEPA (Low Energy Precision Application) nozzles to reduce evaporation losses"
             )
-            recommendations_ar.append(
-                "فكر في فوهات LEPA (التطبيق الدقيق منخفض الطاقة) لتقليل فقد التبخر"
-            )
+            recommendations_ar.append("فكر في فوهات LEPA (التطبيق الدقيق منخفض الطاقة) لتقليل فقد التبخر")
 
         if metrics.irrigation_method == IrrigationMethod.DRIP:
-            recommendations_en.append(
-                "Monitor filter pressure differential and flush laterals regularly"
-            )
+            recommendations_en.append("Monitor filter pressure differential and flush laterals regularly")
             recommendations_ar.append("راقب فرق ضغط المرشح واغسل الأنابيب الجانبية بانتظام")
 
         metrics.recommendations_en = recommendations_en
@@ -751,9 +721,7 @@ class IrrigationEfficiencyCalculator:
 
             if potential_savings > 0:
                 metrics.potential_water_savings_m3 = potential_savings
-                metrics.potential_water_savings_percent = (
-                    potential_savings / metrics.water_supplied_m3
-                ) * 100
+                metrics.potential_water_savings_percent = (potential_savings / metrics.water_supplied_m3) * 100
                 metrics.potential_cost_savings_sar = potential_savings * water_cost_sar_m3
 
 
@@ -804,10 +772,8 @@ class EfficiencyAlertGenerator:
                         triggered_value=metrics.application_efficiency,
                         threshold_value=min_eff,
                         unit="%",
-                        recommended_action_en="Review irrigation system for leaks, "
-                        "clogging, or scheduling issues",
-                        recommended_action_ar="راجع نظام الري للتسربات أو "
-                        "الانسداد أو مشاكل الجدولة",
+                        recommended_action_en="Review irrigation system for leaks, clogging, or scheduling issues",
+                        recommended_action_ar="راجع نظام الري للتسربات أو الانسداد أو مشاكل الجدولة",
                     )
                 )
 
@@ -833,8 +799,7 @@ class EfficiencyAlertGenerator:
                         unit="%",
                         recommended_action_en="Perform catch can test and "
                         "check for emitter clogging or pressure issues",
-                        recommended_action_ar="أجرِ اختبار علب الالتقاط و"
-                        "تحقق من انسداد النقاطات أو مشاكل الضغط",
+                        recommended_action_ar="أجرِ اختبار علب الالتقاط وتحقق من انسداد النقاطات أو مشاكل الضغط",
                     )
                 )
 
@@ -859,8 +824,7 @@ class EfficiencyAlertGenerator:
                         unit="%",
                         recommended_action_en="Investigate sources of water loss: "
                         "deep percolation, runoff, or evaporation",
-                        recommended_action_ar="حقق في مصادر فقد المياه: "
-                        "التسرب العميق أو الجريان السطحي أو التبخر",
+                        recommended_action_ar="حقق في مصادر فقد المياه: التسرب العميق أو الجريان السطحي أو التبخر",
                     )
                 )
 
@@ -892,13 +856,11 @@ class EfficiencyAlertGenerator:
                     title_ar="تخصيص المياه على وشك النفاد",
                     message_en=f"Used {utilization:.1f}% of water allocation. "
                     f"Only {allocation.remaining_m3:.0f} m3 remaining",
-                    message_ar=f"استُخدم {utilization:.1f}% من تخصيص المياه. "
-                    f"يتبقى فقط {allocation.remaining_m3:.0f} م3",
+                    message_ar=f"استُخدم {utilization:.1f}% من تخصيص المياه. يتبقى فقط {allocation.remaining_m3:.0f} م3",
                     triggered_value=utilization,
                     threshold_value=critical_threshold,
                     unit="%",
-                    recommended_action_en="Immediately review irrigation schedule "
-                    "and consider water-saving measures",
+                    recommended_action_en="Immediately review irrigation schedule and consider water-saving measures",
                     recommended_action_ar="راجع جدول الري فوراً وفكر في إجراءات توفير المياه",
                 )
             )
@@ -915,8 +877,7 @@ class EfficiencyAlertGenerator:
                     title_ar="تحذير استخدام مرتفع لتخصيص المياه",
                     message_en=f"Used {utilization:.1f}% of water allocation. "
                     f"{allocation.remaining_m3:.0f} m3 remaining",
-                    message_ar=f"استُخدم {utilization:.1f}% من تخصيص المياه. "
-                    f"يتبقى {allocation.remaining_m3:.0f} م3",
+                    message_ar=f"استُخدم {utilization:.1f}% من تخصيص المياه. يتبقى {allocation.remaining_m3:.0f} م3",
                     triggered_value=utilization,
                     threshold_value=warning_threshold,
                     unit="%",
@@ -997,8 +958,7 @@ class WaterConservationCalculator:
             "savings_percent": mulch_reduction_percent,
             "recommendation_en": f"Apply mulch to save approximately {season_savings_m3:.0f} m3 "
             f"over {season_days} days",
-            "recommendation_ar": f"طبق التغطية لتوفير حوالي {season_savings_m3:.0f} م3 "
-            f"خلال {season_days} يوم",
+            "recommendation_ar": f"طبق التغطية لتوفير حوالي {season_savings_m3:.0f} م3 خلال {season_days} يوم",
         }
 
     def calculate_irrigation_upgrade_savings(

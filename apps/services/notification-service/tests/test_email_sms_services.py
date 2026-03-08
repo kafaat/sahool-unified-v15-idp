@@ -28,9 +28,7 @@ class TestSMSClient:
 
         with patch("src.sms_client.TwilioClient") as mock_twilio:
             client = SMSClient()
-            result = client.initialize(
-                account_sid="test_sid", auth_token="test_token", from_number="+1234567890"
-            )
+            result = client.initialize(account_sid="test_sid", auth_token="test_token", from_number="+1234567890")
 
             assert result is True
             assert client._initialized is True
@@ -83,9 +81,7 @@ class TestSMSClient:
         mock_twilio_client.messages.create = MagicMock(return_value=mock_message)
         client._client = mock_twilio_client
 
-        result = await client.send_sms(
-            to="+967771234567", body="Test message", body_ar="رسالة تجريبية"
-        )
+        result = await client.send_sms(to="+967771234567", body="Test message", body_ar="رسالة تجريبية")
 
         assert result == "SM123456"
 
@@ -105,9 +101,7 @@ class TestSMSClient:
         mock_twilio_client.messages.create = MagicMock(return_value=mock_message)
         client._client = mock_twilio_client
 
-        await client.send_sms(
-            to="+967771234567", body="Weather alert", body_ar="تنبيه طقس", language="ar"
-        )
+        await client.send_sms(to="+967771234567", body="Weather alert", body_ar="تنبيه طقس", language="ar")
 
         # Verify Arabic content was sent
         call_args = mock_twilio_client.messages.create.call_args
@@ -357,9 +351,7 @@ class TestEmailClient:
 
         html_body = "<h1>Alert</h1><p>Important message</p>"
 
-        result = await client.send_email(
-            to="farmer@example.com", subject="Alert", body=html_body, is_html=True
-        )
+        result = await client.send_email(to="farmer@example.com", subject="Alert", body=html_body, is_html=True)
 
         assert result == "msg-123456"
 
@@ -645,9 +637,7 @@ class TestBilingualSupport:
         client._client = mock_twilio_client
 
         # Test Arabic
-        await client.send_sms(
-            to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar"
-        )
+        await client.send_sms(to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar")
 
         # Verify Arabic was used
         call_args = mock_twilio_client.messages.create.call_args

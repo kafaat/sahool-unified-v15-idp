@@ -133,9 +133,7 @@ def sail_canopy_reflectance(
     Returns:
         Dictionary {band: canopy_reflectance}.
     """
-    k_ex = 0.5 / max(
-        0.1, math.cos(math.radians(canopy.leaf_angle_deg))
-    )  # G(θ)/cos(θ_s)
+    k_ex = 0.5 / max(0.1, math.cos(math.radians(canopy.leaf_angle_deg)))  # G(θ)/cos(θ_s)
     # Beer-Lambert gap fraction
     gap_frac = math.exp(-k_ex * canopy.lai)
 
@@ -147,10 +145,7 @@ def sail_canopy_reflectance(
 
     result = {}
     for band, r_leaf in leaf_ref.items():
-        r_canopy = (
-            r_leaf * (1.0 - gap_frac) * hotspot_boost
-            + canopy.soil_reflectance * gap_frac
-        )
+        r_canopy = r_leaf * (1.0 - gap_frac) * hotspot_boost + canopy.soil_reflectance * gap_frac
         result[band] = round(max(0.0, min(1.0, r_canopy)), 4)
     return result
 
@@ -207,11 +202,7 @@ def invert_lai_chlorophyll(
     canopies (wheat, barley, maize) over calcareous soils (Middle East).
     """
     # LAI from NDVI (asymptotic relationship)
-    lai_estimated = (
-        -2.0 * math.log(1.0 - max(0.0, min(0.95, observed_ndvi)))
-        if observed_ndvi > 0.05
-        else 0.1
-    )
+    lai_estimated = -2.0 * math.log(1.0 - max(0.0, min(0.95, observed_ndvi))) if observed_ndvi > 0.05 else 0.1
 
     # Chlorophyll from RedEdge NDVI (Gitelson & Merzlyak 1996 relationship)
     chl_estimated = max(5.0, min(80.0, 148.0 * observed_ndre - 20.0))
@@ -248,9 +239,7 @@ class RadiativeTransferModel:
         print(inv.outputs["lai_estimated"])
     """
 
-    def forward(
-        self, leaf: LeafOpticalProperties, canopy: CanopyParameters
-    ) -> ModelResult:
+    def forward(self, leaf: LeafOpticalProperties, canopy: CanopyParameters) -> ModelResult:
         """
         Forward RTM run: parameters → simulated canopy reflectance + indices.
         تشغيل النموذج للأمام: المعاملات ← الانعكاس المحاكى.

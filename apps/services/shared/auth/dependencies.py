@@ -274,9 +274,7 @@ require_super_admin = require_roles(["super_admin"])
 require_farm_access = require_roles(["super_admin", "tenant_admin", "farm_manager"])
 
 # Field operations access
-require_field_access = require_roles(
-    ["super_admin", "tenant_admin", "farm_manager", "field_operator"]
-)
+require_field_access = require_roles(["super_admin", "tenant_admin", "farm_manager", "field_operator"])
 
 # Any authenticated user
 require_authenticated = get_current_active_user

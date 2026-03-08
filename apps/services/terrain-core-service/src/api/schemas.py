@@ -128,18 +128,14 @@ class GeoJSONPoint(BaseModel):
     """GeoJSON Point geometry | هندسة نقطة GeoJSON"""
 
     type: Literal["Point"] = "Point"
-    coordinates: list[float] = Field(
-        ..., description="Point coordinates [lon, lat] | إحداثيات النقطة"
-    )
+    coordinates: list[float] = Field(..., description="Point coordinates [lon, lat] | إحداثيات النقطة")
 
 
 class GeoJSONLineString(BaseModel):
     """GeoJSON LineString geometry | هندسة خط GeoJSON"""
 
     type: Literal["LineString"] = "LineString"
-    coordinates: list[list[float]] = Field(
-        ..., description="LineString coordinates | إحداثيات الخط"
-    )
+    coordinates: list[list[float]] = Field(..., description="LineString coordinates | إحداثيات الخط")
 
 
 class GeoJSONMultiLineString(BaseModel):
@@ -155,9 +151,7 @@ class GeoJSONPolygon(BaseModel):
     """GeoJSON Polygon geometry | هندسة مضلع GeoJSON"""
 
     type: Literal["Polygon"] = "Polygon"
-    coordinates: list[list[list[float]]] = Field(
-        ..., description="Polygon coordinates | إحداثيات المضلع"
-    )
+    coordinates: list[list[list[float]]] = Field(..., description="Polygon coordinates | إحداثيات المضلع")
 
 
 class GeoJSONFeature(BaseModel):
@@ -167,9 +161,7 @@ class GeoJSONFeature(BaseModel):
     geometry: GeoJSONPoint | GeoJSONLineString | GeoJSONMultiLineString | GeoJSONPolygon = Field(
         ..., description="Feature geometry | هندسة الميزة"
     )
-    properties: dict[str, Any] = Field(
-        default_factory=dict, description="Feature properties | خصائص الميزة"
-    )
+    properties: dict[str, Any] = Field(default_factory=dict, description="Feature properties | خصائص الميزة")
     id: str | int | None = Field(None, description="Feature ID | معرف الميزة")
 
 
@@ -177,9 +169,7 @@ class GeoJSONFeatureCollection(BaseModel):
     """GeoJSON FeatureCollection | مجموعة ميزات GeoJSON"""
 
     type: Literal["FeatureCollection"] = "FeatureCollection"
-    features: list[GeoJSONFeature] = Field(
-        default_factory=list, description="Features list | قائمة الميزات"
-    )
+    features: list[GeoJSONFeature] = Field(default_factory=list, description="Features list | قائمة الميزات")
 
 
 class FieldGeometry(BaseModel):
@@ -187,9 +177,7 @@ class FieldGeometry(BaseModel):
 
     field_id: str = Field(..., description="Field identifier | معرف الحقل")
     geometry: GeoJSONPolygon = Field(..., description="Field boundary | حدود الحقل")
-    crs: str = Field(
-        default="EPSG:4326", description="Coordinate Reference System | نظام الإحداثيات"
-    )
+    crs: str = Field(default="EPSG:4326", description="Coordinate Reference System | نظام الإحداثيات")
 
 
 # =============================================================================
@@ -201,15 +189,11 @@ class DEMMetadata(BaseModel):
     """DEM file metadata | بيانات ملف الارتفاعات الوصفية"""
 
     source: DEMSourceType = Field(..., description="DEM source | مصدر الارتفاعات")
-    source_name: BilingualField = Field(
-        ..., description="Source name bilingual | اسم المصدر ثنائي اللغة"
-    )
+    source_name: BilingualField = Field(..., description="Source name bilingual | اسم المصدر ثنائي اللغة")
     resolution_m: float = Field(..., gt=0, description="Resolution in meters | الدقة بالأمتار")
     crs: str = Field(..., description="Coordinate Reference System")
     bounds: BoundingBox = Field(..., description="Data bounds | حدود البيانات")
-    acquisition_date: datetime | None = Field(
-        None, description="Data acquisition date | تاريخ الحصول على البيانات"
-    )
+    acquisition_date: datetime | None = Field(None, description="Data acquisition date | تاريخ الحصول على البيانات")
     vertical_datum: str = Field(default="EGM96", description="Vertical datum | المرجع الرأسي")
     nodata_value: float = Field(default=-9999.0, description="NoData value | قيمة عدم وجود بيانات")
 
@@ -234,12 +218,8 @@ class DEMStatistics(BaseModel):
 class TerrainAnalysisRequest(BaseModel):
     """Request for full terrain analysis | طلب تحليل التضاريس الكامل"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
-    geometry: GeoJSONPolygon | None = Field(
-        None, description="Field boundary (optional if field_id is provided)"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
+    geometry: GeoJSONPolygon | None = Field(None, description="Field boundary (optional if field_id is provided)")
     dem_source: DEMSourceType = Field(
         default=DEMSourceType.COPERNICUS,
         description="DEM data source | مصدر بيانات الارتفاعات",
@@ -247,28 +227,14 @@ class TerrainAnalysisRequest(BaseModel):
     target_resolution_m: float | None = Field(
         default=None, gt=0, le=1000.0, description="Target resolution in meters | الدقة المستهدفة"
     )
-    target_crs: str | None = Field(
-        default=None, max_length=32, description="Target CRS | نظام الإحداثيات المستهدف"
-    )
-    include_slope: bool = Field(
-        default=True, description="Include slope analysis | تضمين تحليل الميل"
-    )
-    include_aspect: bool = Field(
-        default=True, description="Include aspect analysis | تضمين تحليل الجانب"
-    )
-    include_flow_direction: bool = Field(
-        default=True, description="Include flow direction | تضمين اتجاه التدفق"
-    )
-    include_flow_accumulation: bool = Field(
-        default=True, description="Include flow accumulation | تضمين تراكم التدفق"
-    )
-    include_twi: bool = Field(
-        default=True, description="Include TWI | تضمين مؤشر الرطوبة الطبوغرافية"
-    )
+    target_crs: str | None = Field(default=None, max_length=32, description="Target CRS | نظام الإحداثيات المستهدف")
+    include_slope: bool = Field(default=True, description="Include slope analysis | تضمين تحليل الميل")
+    include_aspect: bool = Field(default=True, description="Include aspect analysis | تضمين تحليل الجانب")
+    include_flow_direction: bool = Field(default=True, description="Include flow direction | تضمين اتجاه التدفق")
+    include_flow_accumulation: bool = Field(default=True, description="Include flow accumulation | تضمين تراكم التدفق")
+    include_twi: bool = Field(default=True, description="Include TWI | تضمين مؤشر الرطوبة الطبوغرافية")
     include_curvature: bool = Field(default=True, description="Include curvature | تضمين الانحناء")
-    include_contours: bool = Field(
-        default=True, description="Include contour lines | تضمين خطوط الكنتور"
-    )
+    include_contours: bool = Field(default=True, description="Include contour lines | تضمين خطوط الكنتور")
     contour_interval_m: float | None = Field(
         default=5.0, gt=0, le=100.0, description="Contour interval in meters | فترة خطوط الكنتور"
     )
@@ -276,9 +242,7 @@ class TerrainAnalysisRequest(BaseModel):
     flow_method: FlowDirectionMethod = Field(
         default=FlowDirectionMethod.D8, description="Flow direction method | طريقة اتجاه التدفق"
     )
-    tenant_id: str | None = Field(
-        None, max_length=64, description="Tenant identifier | معرف المستأجر"
-    )
+    tenant_id: str | None = Field(None, max_length=64, description="Tenant identifier | معرف المستأجر")
 
     @field_validator("field_id")
     @classmethod
@@ -309,14 +273,10 @@ class TerrainAnalysisRequest(BaseModel):
 class SlopeAnalysisRequest(BaseModel):
     """Request for slope analysis only | طلب تحليل الميل فقط"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     slope_unit: SlopeUnit = Field(default=SlopeUnit.DEGREES)
-    classify: bool = Field(
-        default=True, description="Classify slopes into categories | تصنيف الميول"
-    )
+    classify: bool = Field(default=True, description="Classify slopes into categories | تصنيف الميول")
 
     @field_validator("field_id")
     @classmethod
@@ -331,9 +291,7 @@ class SlopeAnalysisRequest(BaseModel):
 class FlowAnalysisRequest(BaseModel):
     """Request for flow analysis | طلب تحليل التدفق"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     method: FlowDirectionMethod = Field(default=FlowDirectionMethod.D8)
     accumulation_threshold: int = Field(
@@ -353,9 +311,7 @@ class FlowAnalysisRequest(BaseModel):
 class TWIRequest(BaseModel):
     """Request for Topographic Wetness Index | طلب مؤشر الرطوبة الطبوغرافية"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     flow_method: FlowDirectionMethod = Field(default=FlowDirectionMethod.D8)
 
@@ -372,9 +328,7 @@ class TWIRequest(BaseModel):
 class ContourRequest(BaseModel):
     """Request for contour generation | طلب إنشاء خطوط الكنتور"""
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
-    )
+    field_id: str = Field(..., min_length=1, max_length=64, description="Field identifier | معرف الحقل")
     dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS)
     interval_m: float = Field(
         default=5.0,
@@ -416,8 +370,7 @@ class ContourRequest(BaseModel):
         if self.min_elevation is not None and self.max_elevation is not None:
             if self.min_elevation >= self.max_elevation:
                 raise ValueError(
-                    "min_elevation must be less than max_elevation | "
-                    "أدنى ارتفاع يجب أن يكون أقل من أقصى ارتفاع"
+                    "min_elevation must be less than max_elevation | أدنى ارتفاع يجب أن يكون أقل من أقصى ارتفاع"
                 )
         return self
 
@@ -445,18 +398,12 @@ class SlopeResult(BaseModel):
 class AspectResult(BaseModel):
     """Aspect analysis result | نتيجة تحليل الجانب"""
 
-    dominant_direction: AspectClassification = Field(
-        ..., description="Dominant aspect direction | الاتجاه السائد"
-    )
-    dominant_direction_name: BilingualField = Field(
-        ..., description="Dominant direction name | اسم الاتجاه السائد"
-    )
+    dominant_direction: AspectClassification = Field(..., description="Dominant aspect direction | الاتجاه السائد")
+    dominant_direction_name: BilingualField = Field(..., description="Dominant direction name | اسم الاتجاه السائد")
     distribution: dict[str, float] = Field(
         ..., description="Aspect distribution by direction | توزيع الجوانب حسب الاتجاه"
     )
-    mean_aspect_degrees: float = Field(
-        ..., description="Mean aspect in degrees | متوسط الجانب بالدرجات"
-    )
+    mean_aspect_degrees: float = Field(..., description="Mean aspect in degrees | متوسط الجانب بالدرجات")
     raster_url: str | None = Field(None, description="URL to aspect raster | رابط خريطة الجانب")
 
 
@@ -465,15 +412,11 @@ class FlowDirectionResult(BaseModel):
 
     method: FlowDirectionMethod = Field(..., description="Method used | الطريقة المستخدمة")
     method_name: BilingualField = Field(..., description="Method name | اسم الطريقة")
-    dominant_direction: str = Field(
-        ..., description="Dominant flow direction | اتجاه التدفق السائد"
-    )
+    dominant_direction: str = Field(..., description="Dominant flow direction | اتجاه التدفق السائد")
     direction_distribution: dict[str, float] = Field(
         ..., description="Flow direction distribution | توزيع اتجاه التدفق"
     )
-    raster_url: str | None = Field(
-        None, description="URL to flow direction raster | رابط خريطة اتجاه التدفق"
-    )
+    raster_url: str | None = Field(None, description="URL to flow direction raster | رابط خريطة اتجاه التدفق")
 
 
 class FlowAccumulationResult(BaseModel):
@@ -482,34 +425,26 @@ class FlowAccumulationResult(BaseModel):
     max_accumulation: int = Field(..., description="Maximum flow accumulation | أقصى تراكم تدفق")
     mean_accumulation: float = Field(..., description="Mean flow accumulation | متوسط تراكم التدفق")
     drainage_density: float = Field(..., description="Drainage density | كثافة الصرف")
-    channel_pixels: int = Field(
-        ..., description="Channel pixels (above threshold) | بكسلات القنوات"
-    )
+    channel_pixels: int = Field(..., description="Channel pixels (above threshold) | بكسلات القنوات")
     threshold_used: int = Field(..., description="Threshold used | العتبة المستخدمة")
     streams_geojson: GeoJSONFeatureCollection | None = Field(
         None, description="Stream network GeoJSON | شبكة المجاري بصيغة GeoJSON"
     )
-    raster_url: str | None = Field(
-        None, description="URL to flow accumulation raster | رابط خريطة تراكم التدفق"
-    )
+    raster_url: str | None = Field(None, description="URL to flow accumulation raster | رابط خريطة تراكم التدفق")
 
 
 class TWIResult(BaseModel):
     """Topographic Wetness Index result | نتيجة مؤشر الرطوبة الطبوغرافية"""
 
     name: BilingualField = Field(
-        default_factory=lambda: BilingualField(
-            en="Topographic Wetness Index", ar="مؤشر الرطوبة الطبوغرافية"
-        ),
+        default_factory=lambda: BilingualField(en="Topographic Wetness Index", ar="مؤشر الرطوبة الطبوغرافية"),
         description="Index name | اسم المؤشر",
     )
     min_twi: float = Field(..., description="Minimum TWI | أدنى TWI")
     max_twi: float = Field(..., description="Maximum TWI | أقصى TWI")
     mean_twi: float = Field(..., description="Mean TWI | متوسط TWI")
     std_twi: float = Field(..., description="TWI standard deviation | الانحراف المعياري")
-    high_moisture_area_pct: float = Field(
-        ..., description="High moisture area percentage | نسبة المنطقة عالية الرطوبة"
-    )
+    high_moisture_area_pct: float = Field(..., description="High moisture area percentage | نسبة المنطقة عالية الرطوبة")
     interpretation: BilingualField = Field(..., description="TWI interpretation | تفسير المؤشر")
     raster_url: str | None = Field(None, description="URL to TWI raster | رابط خريطة TWI")
 
@@ -525,9 +460,7 @@ class CurvatureResult(BaseModel):
     convex_pct: float = Field(..., description="Convex area percentage | نسبة المنطقة المحدبة")
     concave_pct: float = Field(..., description="Concave area percentage | نسبة المنطقة المقعرة")
     flat_pct: float = Field(..., description="Flat area percentage | نسبة المنطقة المسطحة")
-    raster_url: str | None = Field(
-        None, description="URL to curvature raster | رابط خريطة الانحناء"
-    )
+    raster_url: str | None = Field(None, description="URL to curvature raster | رابط خريطة الانحناء")
 
 
 class ContourLine(BaseModel):
@@ -548,12 +481,8 @@ class ContourResult(BaseModel):
     min_elevation_m: float = Field(..., description="Minimum elevation | أدنى ارتفاع")
     max_elevation_m: float = Field(..., description="Maximum elevation | أقصى ارتفاع")
     total_contours: int = Field(..., description="Total contour lines | إجمالي خطوط الكنتور")
-    major_interval_m: float = Field(
-        ..., description="Major contour interval | فترة الكنتور الرئيسي"
-    )
-    contours: list[ContourLine] = Field(
-        default_factory=list, description="Contour lines | خطوط الكنتور"
-    )
+    major_interval_m: float = Field(..., description="Major contour interval | فترة الكنتور الرئيسي")
+    contours: list[ContourLine] = Field(default_factory=list, description="Contour lines | خطوط الكنتور")
     geojson_url: str | None = Field(None, description="URL to contours GeoJSON | رابط ملف GeoJSON")
 
 
@@ -567,12 +496,8 @@ class TerrainIrrigationRecommendation(BaseModel):
     mean_twi: float = Field(..., description="Mean TWI | متوسط TWI")
     irrigation_suitability: str = Field(..., description="Suitability category | فئة الملاءمة")
     suitability_name: BilingualField = Field(..., description="Suitability name | اسم الملاءمة")
-    recommended_method: BilingualField = Field(
-        ..., description="Recommended irrigation method | طريقة الري الموصى بها"
-    )
-    water_retention_capacity: str = Field(
-        ..., description="Water retention capacity | قدرة احتفاظ المياه"
-    )
+    recommended_method: BilingualField = Field(..., description="Recommended irrigation method | طريقة الري الموصى بها")
+    water_retention_capacity: str = Field(..., description="Water retention capacity | قدرة احتفاظ المياه")
     erosion_risk: str = Field(..., description="Erosion risk level | مستوى خطر التعرية")
     notes: BilingualField = Field(..., description="Additional notes | ملاحظات إضافية")
 
@@ -592,27 +517,15 @@ class TerrainAnalysisResponse(BaseModel):
     # Terrain Indicators
     slope: SlopeResult | None = Field(None, description="Slope analysis | تحليل الميل")
     aspect: AspectResult | None = Field(None, description="Aspect analysis | تحليل الجانب")
-    flow_direction: FlowDirectionResult | None = Field(
-        None, description="Flow direction | اتجاه التدفق"
-    )
-    flow_accumulation: FlowAccumulationResult | None = Field(
-        None, description="Flow accumulation | تراكم التدفق"
-    )
-    twi: TWIResult | None = Field(
-        None, description="Topographic Wetness Index | مؤشر الرطوبة الطبوغرافية"
-    )
-    plan_curvature: CurvatureResult | None = Field(
-        None, description="Plan curvature | الانحناء الأفقي"
-    )
-    profile_curvature: CurvatureResult | None = Field(
-        None, description="Profile curvature | الانحناء الطولي"
-    )
+    flow_direction: FlowDirectionResult | None = Field(None, description="Flow direction | اتجاه التدفق")
+    flow_accumulation: FlowAccumulationResult | None = Field(None, description="Flow accumulation | تراكم التدفق")
+    twi: TWIResult | None = Field(None, description="Topographic Wetness Index | مؤشر الرطوبة الطبوغرافية")
+    plan_curvature: CurvatureResult | None = Field(None, description="Plan curvature | الانحناء الأفقي")
+    profile_curvature: CurvatureResult | None = Field(None, description="Profile curvature | الانحناء الطولي")
     contours: ContourResult | None = Field(None, description="Contour lines | خطوط الكنتور")
 
     # Recommendations
-    terrain_category: TerrainCategory = Field(
-        ..., description="Overall terrain category | تصنيف التضاريس العام"
-    )
+    terrain_category: TerrainCategory = Field(..., description="Overall terrain category | تصنيف التضاريس العام")
     terrain_category_name: BilingualField = Field(..., description="Category name | اسم التصنيف")
     irrigation_recommendations: list[TerrainIrrigationRecommendation] = Field(
         default_factory=list,
@@ -620,12 +533,8 @@ class TerrainAnalysisResponse(BaseModel):
     )
 
     # Processing info
-    processing_time_ms: int = Field(
-        ..., description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
-    )
-    warnings: list[str] = Field(
-        default_factory=list, description="Processing warnings | تحذيرات المعالجة"
-    )
+    processing_time_ms: int = Field(..., description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية")
+    warnings: list[str] = Field(default_factory=list, description="Processing warnings | تحذيرات المعالجة")
 
 
 # =============================================================================
@@ -710,13 +619,9 @@ class DEMSourceInfo(BaseModel):
 class DEMSourcesResponse(BaseModel):
     """Response for listing DEM sources | استجابة قائمة مصادر الارتفاعات"""
 
-    sources: list[DEMSourceInfo] = Field(
-        ..., description="Available DEM sources | مصادر الارتفاعات المتاحة"
-    )
+    sources: list[DEMSourceInfo] = Field(..., description="Available DEM sources | مصادر الارتفاعات المتاحة")
     default: str = Field(..., description="Default source | المصدر الافتراضي")
-    default_name: BilingualField = Field(
-        ..., description="Default source name | اسم المصدر الافتراضي"
-    )
+    default_name: BilingualField = Field(..., description="Default source name | اسم المصدر الافتراضي")
 
 
 class DEMDataBounds(BaseModel):
@@ -733,12 +638,8 @@ class DEMDataRequest(BaseModel):
 
     field_id: str = Field(..., description="Field identifier | معرف الحقل")
     tenant_id: str | None = Field(None, description="Tenant identifier | معرف المستأجر")
-    dem_source: DEMSourceType = Field(
-        default=DEMSourceType.COPERNICUS, description="DEM source | مصدر الارتفاعات"
-    )
-    resolution_m: float | None = Field(
-        None, description="Target resolution in meters | الدقة المستهدفة بالمتر"
-    )
+    dem_source: DEMSourceType = Field(default=DEMSourceType.COPERNICUS, description="DEM source | مصدر الارتفاعات")
+    resolution_m: float | None = Field(None, description="Target resolution in meters | الدقة المستهدفة بالمتر")
 
 
 class DEMDataResponse(BaseModel):
@@ -758,7 +659,5 @@ class DEMDataResponse(BaseModel):
     elevation_data: list[list[float]] | None = Field(
         None, description="Elevation data array (optional, for small fields) | مصفوفة الارتفاعات"
     )
-    download_url: str | None = Field(
-        None, description="URL to download full DEM data | رابط تنزيل البيانات الكاملة"
-    )
+    download_url: str | None = Field(None, description="URL to download full DEM data | رابط تنزيل البيانات الكاملة")
     analyzed_at: datetime = Field(..., description="Analysis timestamp | وقت التحليل")

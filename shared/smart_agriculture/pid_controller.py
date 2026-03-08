@@ -317,9 +317,7 @@ class WaterFertilizerPIDController:
         # Calculate water volume based on fertilizer concentration
         # Target EC: 2.0-3.0 mS/cm for most crops
         total_fertilizer = n_amount + p_amount + k_amount
-        water_volume = self._calculate_water_volume(
-            total_fertilizer, area_hectares, water_efficiency
-        )
+        water_volume = self._calculate_water_volume(total_fertilizer, area_hectares, water_efficiency)
 
         # Calculate application parameters
         application_rate = 10.0  # L/min baseline
@@ -502,11 +500,7 @@ class WaterFertilizerPIDController:
             fertilizer_efficiency = 40.0  # Default documented value
 
         if self._total_water_baseline > 0:
-            water_saving = (
-                (self._total_water_baseline - self._total_water_actual)
-                / self._total_water_baseline
-                * 100
-            )
+            water_saving = (self._total_water_baseline - self._total_water_actual) / self._total_water_baseline * 100
         else:
             water_saving = 35.0  # Default documented value
 

@@ -55,6 +55,7 @@ def _get_event_publisher(request) -> VisionEventPublisher | None:
         return VisionEventPublisher(nc)
     return None
 
+
 router = APIRouter(prefix="/api/v1", tags=["detection"])
 
 
@@ -530,9 +531,7 @@ async def detect_pests(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = PEST_CLASSES.get(
-                class_id, BilingualLabel(en="Unknown Pest", ar="آفة غير معروفة")
-            )
+            label = PEST_CLASSES.get(class_id, BilingualLabel(en="Unknown Pest", ar="آفة غير معروفة"))
 
             # Calculate severity
             box_area = (box[2] - box[0]) * (box[3] - box[1])
@@ -579,9 +578,7 @@ async def detect_pests(
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(
-                image_bytes, visualization_data, PEST_CLASSES
-            )
+            visualization_base64 = create_visualization(image_bytes, visualization_data, PEST_CLASSES)
 
         logger.info(
             "pest_detection_complete",
@@ -713,17 +710,11 @@ async def detect_diseases(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = DISEASE_CLASSES.get(
-                class_id, BilingualLabel(en="Unknown Disease", ar="مرض غير معروف")
-            )
+            label = DISEASE_CLASSES.get(class_id, BilingualLabel(en="Unknown Disease", ar="مرض غير معروف"))
 
             # Calculate affected area
             box_area = (box[2] - box[0]) * (box[3] - box[1])
-            area_percent = (
-                (box_area / image_area * 100)
-                if image_area > 0 and calculate_affected_area
-                else None
-            )
+            area_percent = (box_area / image_area * 100) if image_area > 0 and calculate_affected_area else None
             if area_percent:
                 total_affected_area += area_percent
 
@@ -738,11 +729,7 @@ async def detect_diseases(
             # Potato Virus Y, Citrus Tristeza, Soybean Rust, Cotton Leaf Curl Virus,
             # Peanut Rust - high spread risk
             if class_id in [4, 12, 13, 37, 38, 42, 44, 52, 56, 63]:
-                spread_risk = (
-                    SeverityLevel.HIGH
-                    if severity != SeverityLevel.CRITICAL
-                    else SeverityLevel.CRITICAL
-                )
+                spread_risk = SeverityLevel.HIGH if severity != SeverityLevel.CRITICAL else SeverityLevel.CRITICAL
 
             # Get treatment recommendations
             treatment = DISEASE_TREATMENTS.get(class_id, {})
@@ -802,9 +789,7 @@ async def detect_diseases(
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(
-                image_bytes, visualization_data, DISEASE_CLASSES
-            )
+            visualization_base64 = create_visualization(image_bytes, visualization_data, DISEASE_CLASSES)
 
         logger.info(
             "disease_detection_complete",
@@ -939,18 +924,14 @@ async def detect_weeds(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = WEED_CLASSES.get(
-                class_id, BilingualLabel(en="Unknown Weed", ar="عشبة غير معروفة")
-            )
+            label = WEED_CLASSES.get(class_id, BilingualLabel(en="Unknown Weed", ar="عشبة غير معروفة"))
 
             # Update species distribution
             species_distribution[label.en] = species_distribution.get(label.en, 0) + 1
 
             # Calculate coverage
             box_area = (box[2] - box[0]) * (box[3] - box[1])
-            coverage_percent = (
-                (box_area / image_area * 100) if image_area > 0 and calculate_coverage else None
-            )
+            coverage_percent = (box_area / image_area * 100) if image_area > 0 and calculate_coverage else None
             if coverage_percent:
                 total_coverage += coverage_percent
 
@@ -990,9 +971,7 @@ async def detect_weeds(
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(
-                image_bytes, visualization_data, WEED_CLASSES
-            )
+            visualization_base64 = create_visualization(image_bytes, visualization_data, WEED_CLASSES)
 
         logger.info(
             "weed_detection_complete",

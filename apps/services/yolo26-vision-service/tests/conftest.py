@@ -30,9 +30,7 @@ def _test_env(monkeypatch):
 @pytest.fixture
 def mock_torch():
     """Mock torch module for tests without GPU."""
-    with patch("torch.cuda.is_available", return_value=False), patch(
-        "torch.cuda.device_count", return_value=0
-    ):
+    with patch("torch.cuda.is_available", return_value=False), patch("torch.cuda.device_count", return_value=0):
         yield
 
 

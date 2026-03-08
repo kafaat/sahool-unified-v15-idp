@@ -146,9 +146,7 @@ def generate_seed_prescription(
     return prescription
 
 
-def preview_management_zones(
-    field_id: str, latitude: float, longitude: float, num_zones: int = 3
-) -> dict[str, Any]:
+def preview_management_zones(field_id: str, latitude: float, longitude: float, num_zones: int = 3) -> dict[str, Any]:
     """
     Preview management zones without generating a prescription
 
@@ -183,9 +181,7 @@ def preview_management_zones(
     print(f"  Total Area: {zones_data['total_area_ha']:.2f} ha")
     print("  NDVI Statistics:")
     print(f"    Mean: {zones_data['ndvi_statistics']['mean']:.3f}")
-    print(
-        f"    Range: {zones_data['ndvi_statistics']['min']:.3f} - {zones_data['ndvi_statistics']['max']:.3f}"
-    )
+    print(f"    Range: {zones_data['ndvi_statistics']['min']:.3f} - {zones_data['ndvi_statistics']['max']:.3f}")
 
     print("\n  Zones:")
     for zone in zones_data["zones"]:

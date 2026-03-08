@@ -212,9 +212,7 @@ class PolicyEngine:
             return self._policies[path]
 
         # Prefix match (longest first)
-        matching = [
-            (p, policy) for p, policy in self._policies.items() if path.startswith(p) and p != "/"
-        ]
+        matching = [(p, policy) for p, policy in self._policies.items() if path.startswith(p) and p != "/"]
         if matching:
             matching.sort(key=lambda x: len(x[0]), reverse=True)
             return matching[0][1]
@@ -286,9 +284,7 @@ class PolicyEngine:
 
             # Super admin bypasses role check
             if not context.is_super_admin and not user_roles.intersection(required_roles):
-                logger.debug(
-                    f"Role check failed for {path}: need {required_roles}, have {user_roles}"
-                )
+                logger.debug(f"Role check failed for {path}: need {required_roles}, have {user_roles}")
                 return PolicyResult(
                     decision=PolicyDecision.REDIRECT,
                     reason="insufficient_role",
@@ -314,9 +310,7 @@ class PolicyEngine:
 
         # Check any permission (at least ONE must match)
         if policy.require_any_permission:
-            has_any = any(
-                self._has_permission(context, perm) for perm in policy.require_any_permission
-            )
+            has_any = any(self._has_permission(context, perm) for perm in policy.require_any_permission)
             if not has_any:
                 logger.debug(f"Any-permission check failed for {path}")
                 return PolicyResult(
@@ -451,6 +445,4 @@ def can_access(
     action: str = "read",
 ) -> PolicyResult:
     """Check if user can access a resource"""
-    return get_policy_engine().can_access_resource(
-        context, resource_type, resource_id, resource_tenant_id, action
-    )
+    return get_policy_engine().can_access_resource(context, resource_type, resource_id, resource_tenant_id, action)

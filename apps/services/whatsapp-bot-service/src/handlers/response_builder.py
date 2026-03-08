@@ -229,9 +229,7 @@ Type "عربي" to switch to Arabic.""",
             response_parts.append("🔍 **Analysis Results:**\n")
 
         for i, detection in enumerate(detections, 1):
-            label = detection.get(
-                "label_ar" if is_arabic else "label", detection.get("label", "Unknown")
-            )
+            label = detection.get("label_ar" if is_arabic else "label", detection.get("label", "Unknown"))
             confidence = detection.get("confidence", 0) * 100
             detection.get("category", "")
 
@@ -241,9 +239,7 @@ Type "عربي" to switch to Arabic.""",
                 response_parts.append(f"{i}. **{label}** (confidence: {confidence:.0f}%)")
 
         # Add recommendations if available
-        recommendations = vision_result.get(
-            "recommendations_ar" if is_arabic else "recommendations", []
-        )
+        recommendations = vision_result.get("recommendations_ar" if is_arabic else "recommendations", [])
         if recommendations:
             if is_arabic:
                 response_parts.append("\n\n📋 **التوصيات:**")
@@ -312,9 +308,7 @@ Type "عربي" to switch to Arabic.""",
         """
         is_arabic = language == Language.ARABIC
 
-        recommendation = irrigation_data.get(
-            "recommendation_ar" if is_arabic else "recommendation", ""
-        )
+        recommendation = irrigation_data.get("recommendation_ar" if is_arabic else "recommendation", "")
         water_amount = irrigation_data.get("water_amount_mm", "N/A")
         next_irrigation = irrigation_data.get("next_irrigation", "")
         soil_moisture = irrigation_data.get("soil_moisture", "N/A")
@@ -353,12 +347,8 @@ Type "عربي" to switch to Arabic.""",
         """
         is_arabic = language == Language.ARABIC
 
-        recommendation = fertilizer_data.get(
-            "recommendation_ar" if is_arabic else "recommendation", ""
-        )
-        fertilizer_type = fertilizer_data.get(
-            "fertilizer_type_ar" if is_arabic else "fertilizer_type", ""
-        )
+        recommendation = fertilizer_data.get("recommendation_ar" if is_arabic else "recommendation", "")
+        fertilizer_type = fertilizer_data.get("fertilizer_type_ar" if is_arabic else "fertilizer_type", "")
         application_rate = fertilizer_data.get("application_rate", "N/A")
         timing = fertilizer_data.get("timing_ar" if is_arabic else "timing", "")
 

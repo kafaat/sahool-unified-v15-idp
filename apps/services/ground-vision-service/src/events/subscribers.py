@@ -404,10 +404,6 @@ class EventCorrelator:
         now = datetime.now(UTC)
 
         for cache in [self._ndvi_cache, self._weather_cache, self._iot_cache]:
-            expired_keys = [
-                k
-                for k, v in cache.items()
-                if (now - v["timestamp"]).total_seconds() > self._cache_ttl
-            ]
+            expired_keys = [k for k, v in cache.items() if (now - v["timestamp"]).total_seconds() > self._cache_ttl]
             for k in expired_keys:
                 del cache[k]

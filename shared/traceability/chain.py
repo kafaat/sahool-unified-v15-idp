@@ -737,9 +737,7 @@ class SupplyChainTracker:
 
         # Get certifications
         certifications = [
-            self._certifications[cert_id]
-            for cert_id in batch.certification_ids
-            if cert_id in self._certifications
+            self._certifications[cert_id] for cert_id in batch.certification_ids if cert_id in self._certifications
         ]
 
         return ProductJourney(
@@ -794,9 +792,7 @@ class SupplyChainTracker:
         events = self.get_events(batch_id)
         producer = self._producers.get(batch.producer_id or "")
         certifications = [
-            self._certifications[cert_id]
-            for cert_id in batch.certification_ids
-            if cert_id in self._certifications
+            self._certifications[cert_id] for cert_id in batch.certification_ids if cert_id in self._certifications
         ]
 
         # Calculate stats

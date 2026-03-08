@@ -163,9 +163,7 @@ class DecisionEngine:
             ar_text = f"لا حاجة للري. العجز {depletion:.0f} ملم < RAW {raw_mm:.0f} ملم (المرحلة={stage})."
 
         confidence = state.confidence * (
-            0.9
-            if "ASSIMILATED" not in [f.value for f in state.assimilation_flags]
-            else 1.0
+            0.9 if "ASSIMILATED" not in [f.value for f in state.assimilation_flags] else 1.0
         )
 
         rec = IrrigationRecommendation(

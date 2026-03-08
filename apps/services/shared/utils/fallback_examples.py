@@ -60,9 +60,7 @@ for i in range(5):
 weather_status = fm.get_circuit_status("weather")
 print("\n📊 حالة دائرة الطقس - Weather Circuit Status:")
 print(f"  الحالة - State: {weather_status['state']}")
-print(
-    f"  الفشل - Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}"
-)
+print(f"  الفشل - Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}")
 
 
 # ===== مثال 2: خدمة الأقمار الصناعية - Example 2: Satellite Service =====
@@ -90,9 +88,7 @@ def satellite_fallback_custom(field_id: str) -> dict[str, Any]:
     }
 
 
-satellite_fm.register_fallback(
-    "satellite_ndvi", satellite_fallback_custom, failure_threshold=3, recovery_timeout=60
-)
+satellite_fm.register_fallback("satellite_ndvi", satellite_fallback_custom, failure_threshold=3, recovery_timeout=60)
 
 
 def get_satellite_ndvi(field_id: str) -> dict[str, Any]:
@@ -115,9 +111,7 @@ def get_satellite_ndvi(field_id: str) -> dict[str, Any]:
 
 print("\nطلب NDVI لـ 3 حقول - Request NDVI for 3 fields:")
 for field_id in ["F001", "F002", "F003"]:
-    result = satellite_fm.execute_with_fallback(
-        "satellite_ndvi", get_satellite_ndvi, field_id=field_id
-    )
+    result = satellite_fm.execute_with_fallback("satellite_ndvi", get_satellite_ndvi, field_id=field_id)
     print(f"  {field_id}: NDVI={result['ndvi']:.2f}, المصدر - Source={result['source']}")
 
 
@@ -235,9 +229,7 @@ def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
 
     # 3. توصيات الذكاء الاصطناعي - AI recommendations
     try:
-        ai = fm.execute_with_fallback(
-            "ai", lambda: {"recommendations": ["Monitor irrigation"], "confidence": 0.85}
-        )
+        ai = fm.execute_with_fallback("ai", lambda: {"recommendations": ["Monitor irrigation"], "confidence": 0.85})
         analysis["ai"] = ai
         analysis["services_status"]["ai"] = "success"
     except Exception as e:

@@ -202,10 +202,7 @@ class RateLimiter:
         self._request_times = [t for t in self._request_times if now - t < 60]
 
         # Check requests per minute
-        if (
-            self._config.requests_per_minute > 0
-            and len(self._request_times) >= self._config.requests_per_minute
-        ):
+        if self._config.requests_per_minute > 0 and len(self._request_times) >= self._config.requests_per_minute:
             sleep_time = 60 - (now - self._request_times[0])
             if sleep_time > 0:
                 logger.debug(f"Rate limit: waiting {sleep_time:.2f}s (requests/min limit)")
@@ -583,9 +580,7 @@ class BaseScraper(ABC):
                     )
                     await asyncio.sleep(total_delay)
 
-        raise ScrapingError(
-            f"{operation} failed after {config.max_retries + 1} attempts: {last_error}"
-        )
+        raise ScrapingError(f"{operation} failed after {config.max_retries + 1} attempts: {last_error}")
 
     def get_cached(
         self,

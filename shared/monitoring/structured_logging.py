@@ -221,8 +221,7 @@ class SensitivePatterns:
                 result[key] = cls.mask_dict(value)
             elif isinstance(value, list):
                 result[key] = [
-                    cls.mask_dict(item) if isinstance(item, dict) else cls.mask_value(key, item)
-                    for item in value
+                    cls.mask_dict(item) if isinstance(item, dict) else cls.mask_value(key, item) for item in value
                 ]
             else:
                 result[key] = cls.mask_value(key, value)
@@ -430,21 +429,15 @@ class StructuredLogger:
 
         self.logger.handle(record)
 
-    def debug(
-        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
-    ) -> None:
+    def debug(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
         """Log debug message."""
         self._log(logging.DEBUG, message, category, **kwargs)
 
-    def info(
-        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
-    ) -> None:
+    def info(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
         """Log info message."""
         self._log(logging.INFO, message, category, **kwargs)
 
-    def warning(
-        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
-    ) -> None:
+    def warning(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
         """Log warning message."""
         self._log(logging.WARNING, message, category, **kwargs)
 
@@ -625,9 +618,7 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
             try:
                 result = await func(*args, **kwargs)
                 duration_ms = (time.perf_counter() - start) * 1000
-                logging.getLogger(func.__module__).info(
-                    f"Operation {operation} completed in {duration_ms:.2f}ms"
-                )
+                logging.getLogger(func.__module__).info(f"Operation {operation} completed in {duration_ms:.2f}ms")
                 return result
             except Exception as e:
                 duration_ms = (time.perf_counter() - start) * 1000
@@ -649,9 +640,7 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
             try:
                 result = func(*args, **kwargs)
                 duration_ms = (time.perf_counter() - start) * 1000
-                logging.getLogger(func.__module__).info(
-                    f"Operation {operation} completed in {duration_ms:.2f}ms"
-                )
+                logging.getLogger(func.__module__).info(f"Operation {operation} completed in {duration_ms:.2f}ms")
                 return result
             except Exception as e:
                 duration_ms = (time.perf_counter() - start) * 1000

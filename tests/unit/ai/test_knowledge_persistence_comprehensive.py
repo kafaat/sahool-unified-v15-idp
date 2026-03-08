@@ -499,8 +499,8 @@ class TestKnowledgeCacheComprehensive:
         from shared.ai.knowledge.cache import KnowledgeCache
 
         cache = KnowledgeCache()
-        cache.put("crop_knowledge_query1", "v1")
-        cache.put("crop_knowledge_query2", "v2")
-        cache.put("soil_knowledge_query", "v3")
+        cache.put("crop_knowledge_query1", "v1", collection="crop_knowledge")
+        cache.put("crop_knowledge_query2", "v2", collection="crop_knowledge")
+        cache.put("soil_knowledge_query", "v3", collection="soil_knowledge")
         count = cache.invalidate_collection("crop_knowledge")
         assert count == 2

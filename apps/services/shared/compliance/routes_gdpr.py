@@ -45,9 +45,7 @@ class DataDeletionRequest(BaseModel):
 
     user_id: UUID = Field(..., description="User requesting deletion")
     reason: str = Field(default="user_request", description="Reason for deletion")
-    anonymize_audit: bool = Field(
-        default=True, description="Anonymize audit logs instead of deleting"
-    )
+    anonymize_audit: bool = Field(default=True, description="Anonymize audit logs instead of deleting")
 
 
 class DataDeletionResponse(BaseModel):

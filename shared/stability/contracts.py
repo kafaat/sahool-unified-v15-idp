@@ -39,13 +39,15 @@ logger = logging.getLogger(__name__)
 
 class ContractSeverity(StrEnum):
     """Severity of contract violations."""
-    BREAKING = "breaking"    # Backward-incompatible change
-    WARNING = "warning"      # Potentially problematic change
-    INFO = "info"            # Safe change
+
+    BREAKING = "breaking"  # Backward-incompatible change
+    WARNING = "warning"  # Potentially problematic change
+    INFO = "info"  # Safe change
 
 
 class ContractType(StrEnum):
     """Types of contracts."""
+
     EVENT_SCHEMA = "event_schema"
     API_ENDPOINT = "api_endpoint"
     HEALTH_CHECK = "health_check"
@@ -55,6 +57,7 @@ class ContractType(StrEnum):
 @dataclass
 class ContractViolation:
     """A single contract violation."""
+
     contract_type: ContractType
     severity: ContractSeverity
     location: str  # e.g., "sahool.field.created" or "/api/v1/fields"
@@ -66,6 +69,7 @@ class ContractViolation:
 @dataclass
 class ContractReport:
     """Result of contract validation."""
+
     violations: list[ContractViolation] = field(default_factory=list)
     checks_run: int = 0
     checks_passed: int = 0
@@ -192,21 +196,25 @@ class ContractValidator:
             value = event_data.get(field_name)
 
             if value is None:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.EVENT_SCHEMA,
-                    severity=ContractSeverity.BREAKING,
-                    location=f"envelope.{field_name}",
-                    message=f"Required field '{field_name}' is missing from event envelope",
-                    message_ar=f"الحقل المطلوب '{field_name}' مفقود من غلاف الحدث",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.EVENT_SCHEMA,
+                        severity=ContractSeverity.BREAKING,
+                        location=f"envelope.{field_name}",
+                        message=f"Required field '{field_name}' is missing from event envelope",
+                        message_ar=f"الحقل المطلوب '{field_name}' مفقود من غلاف الحدث",
+                    )
+                )
             elif not isinstance(value, field_type):
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.EVENT_SCHEMA,
-                    severity=ContractSeverity.BREAKING,
-                    location=f"envelope.{field_name}",
-                    message=f"Field '{field_name}' expected type {field_type.__name__}, got {type(value).__name__}",
-                    message_ar=f"الحقل '{field_name}' يتوقع نوع {field_type.__name__}، الحالي {type(value).__name__}",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.EVENT_SCHEMA,
+                        severity=ContractSeverity.BREAKING,
+                        location=f"envelope.{field_name}",
+                        message=f"Field '{field_name}' expected type {field_type.__name__}, got {type(value).__name__}",
+                        message_ar=f"الحقل '{field_name}' يتوقع نوع {field_type.__name__}، الحالي {type(value).__name__}",
+                    )
+                )
             else:
                 report.checks_passed += 1
 
@@ -216,13 +224,15 @@ class ContractValidator:
             value = event_data.get(field_name)
 
             if value is None:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.EVENT_SCHEMA,
-                    severity=ContractSeverity.INFO,
-                    location=f"envelope.{field_name}",
-                    message=f"Expected field '{field_name}' is missing (recommended for tracing)",
-                    message_ar=f"الحقل المتوقع '{field_name}' مفقود (موصى به للتتبع)",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.EVENT_SCHEMA,
+                        severity=ContractSeverity.INFO,
+                        location=f"envelope.{field_name}",
+                        message=f"Expected field '{field_name}' is missing (recommended for tracing)",
+                        message_ar=f"الحقل المتوقع '{field_name}' مفقود (موصى به للتتبع)",
+                    )
+                )
             else:
                 report.checks_passed += 1
 
@@ -242,13 +252,15 @@ class ContractValidator:
         schemas_dir = self.project_root / "governance" / "events" / "schemas"
 
         if not schemas_dir.is_dir():
-            report.violations.append(ContractViolation(
-                contract_type=ContractType.EVENT_SCHEMA,
-                severity=ContractSeverity.WARNING,
-                location="governance/events/schemas/",
-                message="Event schemas directory not found",
-                message_ar="دليل مخططات الأحداث غير موجود",
-            ))
+            report.violations.append(
+                ContractViolation(
+                    contract_type=ContractType.EVENT_SCHEMA,
+                    severity=ContractSeverity.WARNING,
+                    location="governance/events/schemas/",
+                    message="Event schemas directory not found",
+                    message_ar="دليل مخططات الأحداث غير موجود",
+                )
+            )
             return report
 
         for schema_file in schemas_dir.glob("*.json"):
@@ -259,24 +271,28 @@ class ContractValidator:
 
                 # Validate schema structure
                 if "type" not in schema and "$ref" not in schema:
-                    report.violations.append(ContractViolation(
-                        contract_type=ContractType.EVENT_SCHEMA,
-                        severity=ContractSeverity.WARNING,
-                        location=str(schema_file.relative_to(self.project_root)),
-                        message=f"Schema {schema_file.name} missing 'type' field",
-                        message_ar=f"المخطط {schema_file.name} يفتقد حقل 'type'",
-                    ))
+                    report.violations.append(
+                        ContractViolation(
+                            contract_type=ContractType.EVENT_SCHEMA,
+                            severity=ContractSeverity.WARNING,
+                            location=str(schema_file.relative_to(self.project_root)),
+                            message=f"Schema {schema_file.name} missing 'type' field",
+                            message_ar=f"المخطط {schema_file.name} يفتقد حقل 'type'",
+                        )
+                    )
                 else:
                     report.checks_passed += 1
 
             except json.JSONDecodeError as e:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.EVENT_SCHEMA,
-                    severity=ContractSeverity.BREAKING,
-                    location=str(schema_file.relative_to(self.project_root)),
-                    message=f"Invalid JSON in schema: {e}",
-                    message_ar=f"JSON غير صالح في المخطط: {e}",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.EVENT_SCHEMA,
+                        severity=ContractSeverity.BREAKING,
+                        location=str(schema_file.relative_to(self.project_root)),
+                        message=f"Invalid JSON in schema: {e}",
+                        message_ar=f"JSON غير صالح في المخطط: {e}",
+                    )
+                )
 
         return report
 
@@ -293,13 +309,15 @@ class ContractValidator:
         registry_path = self.project_root / "governance" / "services.yaml"
 
         if not registry_path.is_file():
-            report.violations.append(ContractViolation(
-                contract_type=ContractType.API_ENDPOINT,
-                severity=ContractSeverity.BREAKING,
-                location="governance/services.yaml",
-                message="Service registry file not found",
-                message_ar="ملف سجل الخدمات غير موجود",
-            ))
+            report.violations.append(
+                ContractViolation(
+                    contract_type=ContractType.API_ENDPOINT,
+                    severity=ContractSeverity.BREAKING,
+                    location="governance/services.yaml",
+                    message="Service registry file not found",
+                    message_ar="ملف سجل الخدمات غير موجود",
+                )
+            )
             return report
 
         try:
@@ -331,13 +349,15 @@ class ContractValidator:
 
             missing = [f for f in required_fields if f not in svc_info]
             if missing:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.API_ENDPOINT,
-                    severity=ContractSeverity.WARNING,
-                    location=f"services.yaml:{service_name}",
-                    message=f"Service '{service_name}' missing required fields: {missing}",
-                    message_ar=f"الخدمة '{service_name}' تفتقد الحقول المطلوبة: {missing}",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.API_ENDPOINT,
+                        severity=ContractSeverity.WARNING,
+                        location=f"services.yaml:{service_name}",
+                        message=f"Service '{service_name}' missing required fields: {missing}",
+                        message_ar=f"الخدمة '{service_name}' تفتقد الحقول المطلوبة: {missing}",
+                    )
+                )
             else:
                 report.checks_passed += 1
 
@@ -345,13 +365,15 @@ class ContractValidator:
             lifecycle = svc_info.get("lifecycle", "")
             valid_lifecycles = {"experimental", "internal", "production", "deprecated", "retired"}
             if lifecycle and lifecycle not in valid_lifecycles:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.API_ENDPOINT,
-                    severity=ContractSeverity.WARNING,
-                    location=f"services.yaml:{service_name}",
-                    message=f"Invalid lifecycle '{lifecycle}' for service '{service_name}'",
-                    message_ar=f"دورة حياة غير صالحة '{lifecycle}' للخدمة '{service_name}'",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.API_ENDPOINT,
+                        severity=ContractSeverity.WARNING,
+                        location=f"services.yaml:{service_name}",
+                        message=f"Invalid lifecycle '{lifecycle}' for service '{service_name}'",
+                        message_ar=f"دورة حياة غير صالحة '{lifecycle}' للخدمة '{service_name}'",
+                    )
+                )
 
         return report
 
@@ -387,23 +409,27 @@ class ContractValidator:
                             report.checks_passed += 1
                             break  # One liveness path is enough
                         else:
-                            report.violations.append(ContractViolation(
-                                contract_type=ContractType.HEALTH_CHECK,
-                                severity=ContractSeverity.WARNING,
-                                location=path,
-                                message=f"Health endpoint {path} missing 'status' field",
-                                message_ar=f"نقطة نهاية الصحة {path} تفتقد حقل 'status'",
-                            ))
+                            report.violations.append(
+                                ContractViolation(
+                                    contract_type=ContractType.HEALTH_CHECK,
+                                    severity=ContractSeverity.WARNING,
+                                    location=path,
+                                    message=f"Health endpoint {path} missing 'status' field",
+                                    message_ar=f"نقطة نهاية الصحة {path} تفتقد حقل 'status'",
+                                )
+                            )
                 except Exception:
                     continue
             else:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.HEALTH_CHECK,
-                    severity=ContractSeverity.BREAKING,
-                    location="liveness",
-                    message=f"No liveness endpoint responding at {base_url}",
-                    message_ar=f"لا توجد نقطة نهاية حية تستجيب في {base_url}",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.HEALTH_CHECK,
+                        severity=ContractSeverity.BREAKING,
+                        location="liveness",
+                        message=f"No liveness endpoint responding at {base_url}",
+                        message_ar=f"لا توجد نقطة نهاية حية تستجيب في {base_url}",
+                    )
+                )
 
             # Check readiness
             for path in HEALTH_CONTRACT["readiness"]["paths"]:
@@ -449,21 +475,25 @@ class ContractValidator:
             report.checks_run += 1
             if field_name not in new_props:
                 if field_name in old_required:
-                    report.violations.append(ContractViolation(
-                        contract_type=ContractType.MIGRATION,
-                        severity=ContractSeverity.BREAKING,
-                        location=f"properties.{field_name}",
-                        message=f"Required field '{field_name}' was removed (breaking change)",
-                        message_ar=f"تم إزالة الحقل المطلوب '{field_name}' (تغيير جذري)",
-                    ))
+                    report.violations.append(
+                        ContractViolation(
+                            contract_type=ContractType.MIGRATION,
+                            severity=ContractSeverity.BREAKING,
+                            location=f"properties.{field_name}",
+                            message=f"Required field '{field_name}' was removed (breaking change)",
+                            message_ar=f"تم إزالة الحقل المطلوب '{field_name}' (تغيير جذري)",
+                        )
+                    )
                 else:
-                    report.violations.append(ContractViolation(
-                        contract_type=ContractType.MIGRATION,
-                        severity=ContractSeverity.WARNING,
-                        location=f"properties.{field_name}",
-                        message=f"Optional field '{field_name}' was removed",
-                        message_ar=f"تم إزالة الحقل الاختياري '{field_name}'",
-                    ))
+                    report.violations.append(
+                        ContractViolation(
+                            contract_type=ContractType.MIGRATION,
+                            severity=ContractSeverity.WARNING,
+                            location=f"properties.{field_name}",
+                            message=f"Optional field '{field_name}' was removed",
+                            message_ar=f"تم إزالة الحقل الاختياري '{field_name}'",
+                        )
+                    )
             else:
                 report.checks_passed += 1
 
@@ -474,13 +504,15 @@ class ContractValidator:
                 old_type = old_props[field_name].get("type")
                 new_type = new_props[field_name].get("type")
                 if old_type and new_type and old_type != new_type:
-                    report.violations.append(ContractViolation(
-                        contract_type=ContractType.MIGRATION,
-                        severity=ContractSeverity.BREAKING,
-                        location=f"properties.{field_name}.type",
-                        message=f"Field '{field_name}' type changed from '{old_type}' to '{new_type}'",
-                        message_ar=f"تم تغيير نوع الحقل '{field_name}' من '{old_type}' إلى '{new_type}'",
-                    ))
+                    report.violations.append(
+                        ContractViolation(
+                            contract_type=ContractType.MIGRATION,
+                            severity=ContractSeverity.BREAKING,
+                            location=f"properties.{field_name}.type",
+                            message=f"Field '{field_name}' type changed from '{old_type}' to '{new_type}'",
+                            message_ar=f"تم تغيير نوع الحقل '{field_name}' من '{old_type}' إلى '{new_type}'",
+                        )
+                    )
                 else:
                     report.checks_passed += 1
 
@@ -489,13 +521,15 @@ class ContractValidator:
         for field_name in new_required_fields:
             report.checks_run += 1
             if field_name in new_props and "default" not in new_props[field_name]:
-                report.violations.append(ContractViolation(
-                    contract_type=ContractType.MIGRATION,
-                    severity=ContractSeverity.BREAKING,
-                    location=f"required.{field_name}",
-                    message=f"New required field '{field_name}' has no default value",
-                    message_ar=f"الحقل المطلوب الجديد '{field_name}' ليس له قيمة افتراضية",
-                ))
+                report.violations.append(
+                    ContractViolation(
+                        contract_type=ContractType.MIGRATION,
+                        severity=ContractSeverity.BREAKING,
+                        location=f"required.{field_name}",
+                        message=f"New required field '{field_name}' has no default value",
+                        message_ar=f"الحقل المطلوب الجديد '{field_name}' ليس له قيمة افتراضية",
+                    )
+                )
             else:
                 report.checks_passed += 1
 

@@ -52,8 +52,7 @@ def create_metrics_router(
         async def metrics_unavailable():
             """Prometheus client not installed"""
             return PlainTextResponse(
-                "# Prometheus client not installed\n"
-                "# Install with: pip install prometheus-client\n",
+                "# Prometheus client not installed\n# Install with: pip install prometheus-client\n",
                 status_code=200,
             )
 

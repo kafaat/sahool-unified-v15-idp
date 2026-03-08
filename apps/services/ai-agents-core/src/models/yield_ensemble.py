@@ -595,14 +595,10 @@ class YieldEnsembleModel:
             ensemble_yield *= disease_impact
 
         # Calculate confidence metrics - حساب مقاييس الثقة
-        confidence_metrics = self._calculate_confidence_metrics(
-            field_data, predictions, confidences
-        )
+        confidence_metrics = self._calculate_confidence_metrics(field_data, predictions, confidences)
 
         # Identify limiting factors - تحديد العوامل المحددة
-        limiting_factors = self._identify_limiting_factors(
-            field_data, crop_params, predictions, ensemble_yield
-        )
+        limiting_factors = self._identify_limiting_factors(field_data, crop_params, predictions, ensemble_yield)
 
         # Generate recommendations - إنشاء التوصيات
         recommendations = self._generate_recommendations(field_data, crop_params, limiting_factors)
@@ -614,9 +610,7 @@ class YieldEnsembleModel:
         days_to_harvest = self._calculate_days_to_harvest(field_data, crop_params)
 
         # Calculate confidence interval - حساب فاصل الثقة
-        confidence_interval = self._calculate_confidence_interval(
-            ensemble_yield, confidence_metrics, predictions
-        )
+        confidence_interval = self._calculate_confidence_interval(ensemble_yield, confidence_metrics, predictions)
 
         # Calculate economic projections - حساب التوقعات الاقتصادية
         revenue_per_ha = ensemble_yield * crop_params.market_price_per_kg
@@ -705,9 +699,7 @@ class YieldEnsembleModel:
 
         # Calculate final confidence - حساب الثقة النهائية
         # Weighted combination of metrics
-        final_confidence = (
-            0.4 * data_completeness + 0.3 * model_agreement + 0.3 * historical_accuracy
-        )
+        final_confidence = 0.4 * data_completeness + 0.3 * model_agreement + 0.3 * historical_accuracy
 
         # Adjust based on individual model confidences - التعديل بناءً على ثقة النماذج الفردية
         avg_model_confidence = np.mean(list(confidences.values()))
@@ -737,8 +729,7 @@ class YieldEnsembleModel:
         critical_fields = [
             field_data.ndvi_current is not None or field_data.ndvi_peak is not None,
             field_data.accumulated_gdd is not None or field_data.days_since_planting is not None,
-            field_data.soil_moisture_current is not None
-            or field_data.total_irrigation_mm is not None,
+            field_data.soil_moisture_current is not None or field_data.total_irrigation_mm is not None,
             field_data.planting_date is not None,
         ]
         available_fields += sum(critical_fields)
@@ -1051,9 +1042,7 @@ class YieldEnsembleModel:
 
         return recommendations
 
-    def _determine_growth_stage(
-        self, field_data: FieldData, crop_params: CropParameters
-    ) -> GrowthStage:
+    def _determine_growth_stage(self, field_data: FieldData, crop_params: CropParameters) -> GrowthStage:
         """
         Determine current growth stage
         تحديد مرحلة النمو الحالية
@@ -1102,9 +1091,7 @@ class YieldEnsembleModel:
 
             # Estimate days based on average daily GDD - تقدير الأيام بناءً على متوسط GDD اليومي
             if field_data.current_temperature:
-                avg_daily_gdd = max(
-                    field_data.current_temperature - crop_params.growth.base_temp, 0
-                )
+                avg_daily_gdd = max(field_data.current_temperature - crop_params.growth.base_temp, 0)
                 if avg_daily_gdd > 0:
                     days_remaining = int(gdd_remaining / avg_daily_gdd)
                     return days_remaining

@@ -262,9 +262,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         for tenant in tenants:
             # العثور على مزارع لهذا المستأجر / Find farmers for this tenant
-            tenant_farmers = [
-                u for u in users if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"
-            ]
+            tenant_farmers = [u for u in users if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"]
 
             for i, farm_template in enumerate(farm_templates):
                 if i < len(tenant_farmers):
@@ -440,9 +438,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         return crops
 
-    def _seed_sensors(
-        self, session: Session, tenants: list[dict], fields: list[dict]
-    ) -> list[dict]:
+    def _seed_sensors(self, session: Session, tenants: list[dict], fields: list[dict]) -> list[dict]:
         """
         تعبئة أجهزة الاستشعار
         Seed sensors

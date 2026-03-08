@@ -391,9 +391,7 @@ class RateLimitException(AppException):
         إنشاء استثناء مع معلومات إعادة المحاولة
         """
         retry_after_date = datetime.now(UTC)
-        retry_after_date = retry_after_date.replace(
-            second=retry_after_date.second + retry_after_seconds
-        )
+        retry_after_date = retry_after_date.replace(second=retry_after_date.second + retry_after_seconds)
 
         return cls(
             ErrorCode.RATE_LIMIT_EXCEEDED,

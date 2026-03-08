@@ -63,9 +63,7 @@ async def test_spray_forecast():
                 if day.best_window:
                     w = day.best_window
                     print("\n   ⭐ BEST WINDOW:")
-                    print(
-                        f"      Time: {w.start_time.strftime('%H:%M')} - {w.end_time.strftime('%H:%M')}"
-                    )
+                    print(f"      Time: {w.start_time.strftime('%H:%M')} - {w.end_time.strftime('%H:%M')}")
                     print(f"      Duration: {w.duration_hours:.1f} hours")
                     print(f"      Score: {w.score:.1f}/100")
                     print(f"      Condition: {w.condition.value.upper()}")
@@ -279,9 +277,7 @@ async def test_product_comparison():
             if len(evaluation.risks) > 2:
                 risks_str += f" +{len(evaluation.risks) - 2} more"
 
-            print(
-                f"{name:<30} {evaluation.score:>6.1f}/100  {evaluation.condition.value.upper():<15} {risks_str}"
-            )
+            print(f"{name:<30} {evaluation.score:>6.1f}/100  {evaluation.condition.value.upper():<15} {risks_str}")
 
         except Exception as e:
             print(f"{name:<30} Error: {e}")

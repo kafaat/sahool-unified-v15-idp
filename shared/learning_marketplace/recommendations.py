@@ -350,16 +350,12 @@ class ContentRecommender:
         if not include_enrolled and self.progress_tracker:
             enrollments = await self.progress_tracker.get_enrollments(profile.farmer_id)
             enrolled_course_ids = {
-                e.course_id
-                for e in enrollments
-                if e.status not in [EnrollmentStatus.DROPPED, EnrollmentStatus.EXPIRED]
+                e.course_id for e in enrollments if e.status not in [EnrollmentStatus.DROPPED, EnrollmentStatus.EXPIRED]
             }
 
         # Filter publishedcourses
         available_courses = [
-            c
-            for c in courses
-            if c.status == CourseStatus.PUBLISHED and c.id not in enrolled_course_ids
+            c for c in courses if c.status == CourseStatus.PUBLISHED and c.id not in enrolled_course_ids
         ]
 
         # Score each course
@@ -419,10 +415,7 @@ class ContentRecommender:
             reasons.append(RecommendationReason.SEASONAL)
 
         # Check beginner friendliness
-        if (
-            course.difficulty == DifficultyLevel.BEGINNER
-            and profile.overall_level == DifficultyLevel.BEGINNER
-        ):
+        if course.difficulty == DifficultyLevel.BEGINNER and profile.overall_level == DifficultyLevel.BEGINNER:
             reasons.append(RecommendationReason.BEGINNER_FRIENDLY)
 
         # Determine priority
@@ -763,10 +756,7 @@ class ContentRecommender:
             c
             for c in courses
             if c.status == CourseStatus.PUBLISHED
-            and (
-                c.category == target_skill
-                or any(target_skill in lesson.skills for lesson in c.lessons)
-            )
+            and (c.category == target_skill or any(target_skill in lesson.skills for lesson in c.lessons))
         ]
 
         # Sort by difficulty
@@ -943,8 +933,7 @@ class ContentRecommender:
         quick_courses = [
             c
             for c in courses
-            if c.status == CourseStatus.PUBLISHED
-            and c.estimated_duration_minutes <= max_duration_minutes
+            if c.status == CourseStatus.PUBLISHED and c.estimated_duration_minutes <= max_duration_minutes
         ]
 
         return await self.get_recommendations(profile, quick_courses, limit)

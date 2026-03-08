@@ -289,9 +289,7 @@ def _send_multicast_push(
         if failed_tokens:
             logger.warning(f"Failed to send to {len(failed_tokens)} tokens")
 
-        logger.info(
-            f"Multicast sent: {response.success_count} success, {response.failure_count} failed"
-        )
+        logger.info(f"Multicast sent: {response.success_count} success, {response.failure_count} failed")
 
         return {
             "success_count": response.success_count,
@@ -347,9 +345,7 @@ def _log_delivery_status(
             f"error={error_message}"
         )
     else:
-        logger.info(
-            f"Notification status: {status} | id={notification_id} channel={channel} user={user_id}"
-        )
+        logger.info(f"Notification status: {status} | id={notification_id} channel={channel} user={user_id}")
 
     return log_entry
 

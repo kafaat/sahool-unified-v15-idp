@@ -36,12 +36,8 @@ class Settings(BaseSettings):
     nats_cluster_id: str = Field(default="sahool-cluster", alias="NATS_CLUSTER_ID")
 
     # External Services
-    terrain_service_url: str = Field(
-        default="http://terrain-core-service:8164", alias="TERRAIN_SERVICE_URL"
-    )
-    weather_service_url: str = Field(
-        default="http://weather-service:8108", alias="WEATHER_SERVICE_URL"
-    )
+    terrain_service_url: str = Field(default="http://terrain-core-service:8164", alias="TERRAIN_SERVICE_URL")
+    weather_service_url: str = Field(default="http://weather-service:8108", alias="WEATHER_SERVICE_URL")
 
     # Hydrology Analysis Settings
     default_dem_resolution: float = Field(

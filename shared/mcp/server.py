@@ -278,9 +278,7 @@ class SAHOOLMCPServer:
             ]
         }
 
-    async def handle_resources_templates_list(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_resources_templates_list(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle resources/templates/list request"""
         return {"resourceTemplates": self.resources.get_resource_templates()}
 

@@ -192,9 +192,7 @@ class GeoBoundingBox:
 
     def center(self) -> Coordinate:
         """Get center coordinate"""
-        return Coordinate(
-            lat=(self.min_lat + self.max_lat) / 2, lng=(self.min_lng + self.max_lng) / 2
-        )
+        return Coordinate(lat=(self.min_lat + self.max_lat) / 2, lng=(self.min_lng + self.max_lng) / 2)
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -412,8 +410,7 @@ class FlightPath:
     def to_kml(self) -> str:
         """Export path to KML format"""
         coords = "\n".join(
-            f"          {wp.coordinate.lng},{wp.coordinate.lat},{wp.coordinate.alt_agl_m or 0}"
-            for wp in self.waypoints
+            f"          {wp.coordinate.lng},{wp.coordinate.lat},{wp.coordinate.alt_agl_m or 0}" for wp in self.waypoints
         )
         safe_name = xml_escape(self.name)
         safe_name_ar = xml_escape(self.name_ar)
@@ -818,9 +815,7 @@ class FlightLog:
 
     def get_track_geojson(self) -> dict:
         """Export flight track as GeoJSON"""
-        coordinates = [
-            [t.position.lng, t.position.lat, t.position.alt_agl_m or 0] for t in self.telemetry_log
-        ]
+        coordinates = [[t.position.lng, t.position.lat, t.position.alt_agl_m or 0] for t in self.telemetry_log]
         return {
             "type": "Feature",
             "properties": {

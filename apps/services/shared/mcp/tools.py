@@ -209,9 +209,7 @@ class SAHOOLTools:
 
     # ==================== Tool Implementations ====================
 
-    async def get_weather_forecast(
-        self, latitude: float, longitude: float, days: int = 7
-    ) -> ToolResult:
+    async def get_weather_forecast(self, latitude: float, longitude: float, days: int = 7) -> ToolResult:
         """
         Get weather forecast for a location
 
@@ -268,9 +266,7 @@ class SAHOOLTools:
             if date:
                 params["date"] = date
 
-            response = await self.client.get(
-                f"{self.base_url}/api/crop-health/analyze", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/crop-health/analyze", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -319,9 +315,7 @@ class SAHOOLTools:
                 "include_sensors": include_sensors,
             }
 
-            response = await self.client.get(
-                f"{self.base_url}/api/fields/{field_id}", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/fields/{field_id}", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -429,9 +423,7 @@ class SAHOOLTools:
             if target_yield:
                 payload["target_yield"] = target_yield
 
-            response = await self.client.post(
-                f"{self.base_url}/api/fertilizer/recommend", json=payload
-            )
+            response = await self.client.post(f"{self.base_url}/api/fertilizer/recommend", json=payload)
             response.raise_for_status()
             data = response.json()
 

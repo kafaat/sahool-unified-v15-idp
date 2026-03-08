@@ -215,8 +215,7 @@ class ServiceCallAuditLog:
         log_level = logging.INFO if success else logging.WARNING
         logger.log(
             log_level,
-            f"Service call: {source_service} -> {target_service} | "
-            f"Status: {'success' if success else 'failed'}",
+            f"Service call: {source_service} -> {target_service} | Status: {'success' if success else 'failed'}",
         )
 
     def get_logs_for_service(self, service_name: str, limit: int = 100) -> list[dict]:
@@ -248,11 +247,7 @@ class ServiceCallAuditLog:
             List of failed call entries
         """
         cutoff = datetime.now(UTC) - timedelta(hours=hours)
-        return [
-            entry
-            for entry in self.log_entries
-            if not entry["success"] and entry["timestamp"] > cutoff
-        ]
+        return [entry for entry in self.log_entries if not entry["success"] and entry["timestamp"] > cutoff]
 
 
 class ServiceCallRateLimiter:

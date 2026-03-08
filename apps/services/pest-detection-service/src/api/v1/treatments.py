@@ -18,7 +18,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -26,6 +28,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger(__name__)
 
@@ -230,14 +233,9 @@ TREATMENT_DATABASE: dict[str, TreatmentProtocol] = {
             "4) Remove severely infested trees"
         ),
         ipm_strategy_ar=(
-            "1) مصائد الفرمون للمراقبة، "
-            "2) حقن وقائي للأشجار السليمة، "
-            "3) علاج للمصابة، "
-            "4) إزالة الأشجار المصابة بشدة"
+            "1) مصائد الفرمون للمراقبة، 2) حقن وقائي للأشجار السليمة، 3) علاج للمصابة، 4) إزالة الأشجار المصابة بشدة"
         ),
-        rotation_recommendation_en=(
-            "Rotate between emamectin and imidacloprid to prevent resistance"
-        ),
+        rotation_recommendation_en=("Rotate between emamectin and imidacloprid to prevent resistance"),
         rotation_recommendation_ar="تناوب بين إيمامكتين وإيميداكلوبريد لمنع المقاومة",
     ),
     "aphids": TreatmentProtocol(
@@ -381,13 +379,9 @@ async def get_recommendations(request: RecommendationRequest, _user=Depends(get_
     elif request.severity == "critical":
         options = protocol.chemical_options + protocol.biological_options
     elif request.severity == "high":
-        options = (
-            protocol.chemical_options + protocol.biological_options + protocol.cultural_options
-        )
+        options = protocol.chemical_options + protocol.biological_options + protocol.cultural_options
     else:
-        options = (
-            protocol.biological_options + protocol.cultural_options + protocol.chemical_options
-        )
+        options = protocol.biological_options + protocol.cultural_options + protocol.chemical_options
 
     # Filter by budget if specified
     if request.budget_constraint:

@@ -70,9 +70,7 @@ class SyncManager:
         self._sync_failures = 0
         self._logger = structlog.get_logger(__name__).bind(component="sync_manager")
 
-    async def sync_edge_to_cloud(
-        self, readings: list[SensorReading], decisions: list[EdgeDecision]
-    ) -> dict[str, Any]:
+    async def sync_edge_to_cloud(self, readings: list[SensorReading], decisions: list[EdgeDecision]) -> dict[str, Any]:
         """
         Sync edge data to cloud.
         مزامنة بيانات الحافة إلى السحابة
@@ -341,9 +339,7 @@ class EdgeCloudCooperativeSystem:
                 }
             )
         """
-        return await self._perception_layer.register_device(
-            device_id=device_id, protocol=protocol, config=config
-        )
+        return await self._perception_layer.register_device(device_id=device_id, protocol=protocol, config=config)
 
     async def unregister_device(self, device_id: str) -> bool:
         """
@@ -372,9 +368,7 @@ class EdgeCloudCooperativeSystem:
     # Data Collection - جمع البيانات
     # =========================================================================
 
-    async def start_data_collection(
-        self, interval_seconds: int | None = None, continuous: bool = True
-    ) -> None:
+    async def start_data_collection(self, interval_seconds: int | None = None, continuous: bool = True) -> None:
         """
         Start continuous data collection from devices.
         بدء جمع البيانات المستمر من الأجهزة
@@ -404,9 +398,7 @@ class EdgeCloudCooperativeSystem:
         )
 
         if continuous:
-            self._collection_task = asyncio.create_task(
-                self._continuous_collection(interval_seconds)
-            )
+            self._collection_task = asyncio.create_task(self._continuous_collection(interval_seconds))
         else:
             await self._collect_once()
 
@@ -475,9 +467,7 @@ class EdgeCloudCooperativeSystem:
     # Real-time Processing - المعالجة الآنية
     # =========================================================================
 
-    async def process_realtime(
-        self, use_edge: bool = True, fallback_to_cloud: bool = True
-    ) -> dict[str, Any]:
+    async def process_realtime(self, use_edge: bool = True, fallback_to_cloud: bool = True) -> dict[str, Any]:
         """
         Process data in real-time with edge-first strategy.
         معالجة البيانات في الوقت الحقيقي باستراتيجية الحافة أولاً
@@ -504,9 +494,7 @@ class EdgeCloudCooperativeSystem:
         start_time = datetime.now(UTC)
         results: dict[str, Any] = {
             "timestamp": start_time.isoformat(),
-            "processing_mode": "hybrid"
-            if use_edge and fallback_to_cloud
-            else ("edge" if use_edge else "cloud"),
+            "processing_mode": "hybrid" if use_edge and fallback_to_cloud else ("edge" if use_edge else "cloud"),
             "edge_decisions": [],
             "cloud_inferences": [],
             "recommendations": [],
@@ -663,9 +651,7 @@ class EdgeCloudCooperativeSystem:
         )
         results["cloud_to_edge"] = cloud_result
 
-        results["success"] = edge_result.get("success", False) and cloud_result.get(
-            "success", False
-        )
+        results["success"] = edge_result.get("success", False) and cloud_result.get("success", False)
 
         self._logger.info(
             "edge_cloud_sync_completed",
@@ -681,9 +667,7 @@ class EdgeCloudCooperativeSystem:
     # Cloud AI Features - ميزات الذكاء الاصطناعي السحابي
     # =========================================================================
 
-    async def detect_pests(
-        self, image: bytes | str, confidence_threshold: float = 0.5
-    ) -> tuple[str, float]:
+    async def detect_pests(self, image: bytes | str, confidence_threshold: float = 0.5) -> tuple[str, float]:
         """
         Detect pests in crop image using cloud AI.
         كشف الآفات في صورة المحصول باستخدام الذكاء الاصطناعي السحابي
@@ -704,9 +688,7 @@ class EdgeCloudCooperativeSystem:
         """
         return await self._cloud_layer.pest_detection(image, confidence_threshold)
 
-    async def predict_moisture(
-        self, days: int = 3, weather_forecast: dict[str, Any] | None = None
-    ) -> list[float]:
+    async def predict_moisture(self, days: int = 3, weather_forecast: dict[str, Any] | None = None) -> list[float]:
         """
         Predict soil moisture for upcoming days.
         التنبؤ برطوبة التربة للأيام القادمة
@@ -725,9 +707,9 @@ class EdgeCloudCooperativeSystem:
             print(f"Tomorrow's moisture: {predictions[0]}%")
         """
         # Get moisture history from readings
-        moisture_readings = [
-            r.value for r in self._readings_buffer if r.sensor_type == SensorType.SOIL_MOISTURE
-        ][-100:]  # Last 100 readings
+        moisture_readings = [r.value for r in self._readings_buffer if r.sensor_type == SensorType.SOIL_MOISTURE][
+            -100:
+        ]  # Last 100 readings
 
         if not moisture_readings:
             moisture_readings = [50.0]  # Default
@@ -810,8 +792,7 @@ class EdgeCloudCooperativeSystem:
             edge_latency_ms=edge_stats.get("average_latency_ms", 0.0),
             cloud_latency_ms=cloud_stats.get("average_processing_time_ms", 0.0),
             total_latency_ms=(
-                edge_stats.get("average_latency_ms", 0.0)
-                + cloud_stats.get("average_processing_time_ms", 0.0)
+                edge_stats.get("average_latency_ms", 0.0) + cloud_stats.get("average_processing_time_ms", 0.0)
             ),
             # Accuracy (estimated based on model specs)
             edge_accuracy=0.88,  # Local inference accuracy
@@ -822,18 +803,12 @@ class EdgeCloudCooperativeSystem:
             edge_uptime_percent=100.0 if self._edge_layer.offline_autonomy else uptime_percent,
             cloud_uptime_percent=100.0 if self._cloud_available else 0.0,
             # Throughput
-            readings_per_minute=(
-                self._total_readings / max(1, uptime_seconds / 60) if self._start_time else 0.0
-            ),
+            readings_per_minute=(self._total_readings / max(1, uptime_seconds / 60) if self._start_time else 0.0),
             decisions_per_minute=(
-                self._total_edge_decisions / max(1, uptime_seconds / 60)
-                if self._start_time
-                else 0.0
+                self._total_edge_decisions / max(1, uptime_seconds / 60) if self._start_time else 0.0
             ),
             inferences_per_minute=(
-                self._total_cloud_inferences / max(1, uptime_seconds / 60)
-                if self._start_time
-                else 0.0
+                self._total_cloud_inferences / max(1, uptime_seconds / 60) if self._start_time else 0.0
             ),
             # Devices
             total_devices=perception_stats.get("total_devices", 0),
@@ -842,11 +817,7 @@ class EdgeCloudCooperativeSystem:
             # Sync
             sync_success_rate=sync_success_rate,
             pending_sync_count=edge_stats.get("pending_sync_count", 0),
-            last_sync_at=(
-                datetime.fromisoformat(sync_status["last_sync"])
-                if sync_status.get("last_sync")
-                else None
-            ),
+            last_sync_at=(datetime.fromisoformat(sync_status["last_sync"]) if sync_status.get("last_sync") else None),
         )
 
         return metrics
@@ -901,9 +872,7 @@ class EdgeCloudCooperativeSystem:
         loaded_rules = self._edge_layer.execute_preloaded_logic([rule])
         return len(loaded_rules) > 0
 
-    def setup_auto_irrigation(
-        self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None
-    ) -> IFTTTRule:
+    def setup_auto_irrigation(self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None) -> IFTTTRule:
         """
         Set up automatic irrigation based on soil moisture.
         إعداد الري التلقائي بناءً على رطوبة التربة
@@ -973,9 +942,7 @@ class EdgeCloudCooperativeSystem:
         2. Sync pending data to cloud
         3. Shutdown all layers
         """
-        self._logger.info(
-            "cooperative_system_shutting_down", message_ar="جاري إيقاف النظام التعاوني"
-        )
+        self._logger.info("cooperative_system_shutting_down", message_ar="جاري إيقاف النظام التعاوني")
 
         # Stop data collection
         await self.stop_data_collection()
@@ -1026,6 +993,4 @@ def get_cooperative_system(
             offline_autonomy=True
         )
     """
-    return EdgeCloudCooperativeSystem(
-        farm_id=farm_id, gateway_id=gateway_id, location=location, **kwargs
-    )
+    return EdgeCloudCooperativeSystem(farm_id=farm_id, gateway_id=gateway_id, location=location, **kwargs)

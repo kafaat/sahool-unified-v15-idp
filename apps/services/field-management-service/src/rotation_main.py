@@ -272,9 +272,7 @@ async def check_rotation_compatibility(crop_family: str, previous_crops: str):
     - disease_risk: Disease risk assessment
     """
     crops_list = [c.strip() for c in previous_crops.split(",")]
-    return await check_rotation_compatibility_endpoint(
-        crop_family=crop_family, previous_crops=crops_list
-    )
+    return await check_rotation_compatibility_endpoint(crop_family=crop_family, previous_crops=crops_list)
 
 
 # ============== Documentation ==============

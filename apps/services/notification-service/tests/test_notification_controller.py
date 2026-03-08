@@ -66,9 +66,7 @@ class TestHealthEndpoint:
             ),
             patch(
                 "src.main.get_db_stats",
-                new=AsyncMock(
-                    return_value={"total_notifications": 100, "pending_notifications": 5}
-                ),
+                new=AsyncMock(return_value={"total_notifications": 100, "pending_notifications": 5}),
             ),
         ):
             response = await async_client.get("/healthz")
@@ -234,9 +232,7 @@ class TestNotificationRetrieval:
             assert "unread_count" in data
 
     @pytest.mark.asyncio
-    async def test_get_farmer_notifications_with_filters(
-        self, async_client, mock_notification_data
-    ):
+    async def test_get_farmer_notifications_with_filters(self, async_client, mock_notification_data):
         """Test getting notifications with filters"""
         mock_notification = MagicMock(**mock_notification_data)
 
@@ -310,9 +306,7 @@ class TestNotificationUpdates:
                 new=AsyncMock(return_value=True),
             ),
         ):
-            response = await async_client.patch(
-                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
-            )
+            response = await async_client.patch(f"//{notification_id}/read", params={"farmer_id": "farmer-123"})
 
             assert response.status_code == 200
             data = response.json()
@@ -330,9 +324,7 @@ class TestNotificationUpdates:
             "src.repository.NotificationRepository.get_by_id",
             new=AsyncMock(return_value=mock_notification),
         ):
-            response = await async_client.patch(
-                f"//{notification_id}/read", params={"farmer_id": "wrong-farmer"}
-            )
+            response = await async_client.patch(f"//{notification_id}/read", params={"farmer_id": "wrong-farmer"})
 
             assert response.status_code == 403
 
@@ -341,12 +333,8 @@ class TestNotificationUpdates:
         """Test marking non-existent notification as read"""
         notification_id = str(uuid4())
 
-        with patch(
-            "src.repository.NotificationRepository.get_by_id", new=AsyncMock(return_value=None)
-        ):
-            response = await async_client.patch(
-                f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
-            )
+        with patch("src.repository.NotificationRepository.get_by_id", new=AsyncMock(return_value=None)):
+            response = await async_client.patch(f"//{notification_id}/read", params={"farmer_id": "farmer-123"})
 
             assert response.status_code == 404
 

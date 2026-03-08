@@ -3,6 +3,7 @@
 Note: demo-data is a standalone data generation script, not a FastAPI service.
 These tests verify the module structure rather than HTTP endpoints.
 """
+
 import pytest
 
 

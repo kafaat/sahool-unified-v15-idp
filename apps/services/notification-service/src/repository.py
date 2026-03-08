@@ -65,9 +65,7 @@ class NotificationRepository:
             action_url=action_url,
             target_governorates=target_governorates,
             target_crops=target_crops,
-            expires_at=(
-                datetime.now(UTC) + timedelta(hours=expires_in_hours) if expires_in_hours else None
-            ),
+            expires_at=(datetime.now(UTC) + timedelta(hours=expires_in_hours) if expires_in_hours else None),
         )
 
         logger.info(f"Created notification {notification.id} for user {user_id}")
@@ -195,9 +193,7 @@ class NotificationRepository:
         return False
 
     @staticmethod
-    async def mark_multiple_as_read(
-        notification_ids: list[UUID], read_at: datetime | None = None
-    ) -> int:
+    async def mark_multiple_as_read(notification_ids: list[UUID], read_at: datetime | None = None) -> int:
         """
         تحديد إشعارات متعددة كمقروءة
         Mark multiple notifications as read
@@ -233,9 +229,7 @@ class NotificationRepository:
         return updated
 
     @staticmethod
-    async def update_status(
-        notification_id: UUID, status: str, sent_at: datetime | None = None
-    ) -> bool:
+    async def update_status(notification_id: UUID, status: str, sent_at: datetime | None = None) -> bool:
         """
         تحديث حالة الإشعار
         Update notification status
@@ -595,9 +589,7 @@ class NotificationPreferenceRepository:
         return preference
 
     @staticmethod
-    async def get_user_preferences(
-        user_id: str, tenant_id: str | None = None
-    ) -> list[NotificationPreference]:
+    async def get_user_preferences(user_id: str, tenant_id: str | None = None) -> list[NotificationPreference]:
         """
         الحصول على تفضيلات المستخدم
         Get user notification preferences
@@ -624,9 +616,7 @@ class NotificationPreferenceRepository:
     @staticmethod
     async def is_event_enabled(user_id: str, event_type: str, tenant_id: str | None = None) -> bool:
         """التحقق من تفعيل نوع حدث معين"""
-        preference = await NotificationPreferenceRepository.get_event_preference(
-            user_id, event_type, tenant_id
-        )
+        preference = await NotificationPreferenceRepository.get_event_preference(user_id, event_type, tenant_id)
 
         if not preference:
             # Default to enabled if no preference set
@@ -635,16 +625,12 @@ class NotificationPreferenceRepository:
         return preference.enabled
 
     @staticmethod
-    async def get_preferred_channels(
-        user_id: str, event_type: str, tenant_id: str | None = None
-    ) -> list[str]:
+    async def get_preferred_channels(user_id: str, event_type: str, tenant_id: str | None = None) -> list[str]:
         """
         الحصول على القنوات المفضلة لنوع حدث
         Get preferred channels for an event type
         """
-        preference = await NotificationPreferenceRepository.get_event_preference(
-            user_id, event_type, tenant_id
-        )
+        preference = await NotificationPreferenceRepository.get_event_preference(user_id, event_type, tenant_id)
 
         if not preference or not preference.enabled:
             return []
@@ -850,9 +836,7 @@ class FarmerProfileRepository:
         from .models import FarmerProfile
 
         profile = (
-            await FarmerProfile.filter(farmer_id=farmer_id)
-            .prefetch_related("farmer_crops", "farmer_fields")
-            .first()
+            await FarmerProfile.filter(farmer_id=farmer_id).prefetch_related("farmer_crops", "farmer_fields").first()
         )
         return profile
 
@@ -925,9 +909,7 @@ class FarmerProfileRepository:
             # Remove crops that are no longer in the list
             crops_to_remove = existing_crop_types - new_crop_types
             if crops_to_remove:
-                await FarmerCrop.filter(
-                    farmer=profile, crop_type__in=list(crops_to_remove)
-                ).delete()
+                await FarmerCrop.filter(farmer=profile, crop_type__in=list(crops_to_remove)).delete()
 
             # Add new crops
             crops_to_add = new_crop_types - existing_crop_types
@@ -949,9 +931,7 @@ class FarmerProfileRepository:
             # Remove fields that are no longer in the list
             fields_to_remove = existing_field_ids - new_field_ids
             if fields_to_remove:
-                await FarmerField.filter(
-                    farmer=profile, field_id__in=list(fields_to_remove)
-                ).delete()
+                await FarmerField.filter(farmer=profile, field_id__in=list(fields_to_remove)).delete()
 
             # Add new fields
             fields_to_add = new_field_ids - existing_field_ids
@@ -1007,12 +987,7 @@ class FarmerProfileRepository:
         if is_active is not None:
             query = query.filter(is_active=is_active)
 
-        profiles = (
-            await query.prefetch_related("farmer_crops", "farmer_fields")
-            .offset(offset)
-            .limit(limit)
-            .all()
-        )
+        profiles = await query.prefetch_related("farmer_crops", "farmer_fields").offset(offset).limit(limit).all()
 
         return profiles
 
@@ -1088,9 +1063,7 @@ class FarmerProfileRepository:
         """
         from .models import FarmerProfile
 
-        updated = await FarmerProfile.filter(farmer_id=farmer_id).update(
-            last_login_at=datetime.now(UTC)
-        )
+        updated = await FarmerProfile.filter(farmer_id=farmer_id).update(last_login_at=datetime.now(UTC))
         return updated > 0
 
     @staticmethod

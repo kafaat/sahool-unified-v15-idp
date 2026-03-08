@@ -239,9 +239,7 @@ class PestIdentification:
             "secondary_hosts": [h.value for h in self.secondary_hosts],
             "life_cycle_days": self.life_cycle_days,
             "generations_per_year": self.generations_per_year,
-            "overwintering_stage": self.overwintering_stage.value
-            if self.overwintering_stage
-            else None,
+            "overwintering_stage": self.overwintering_stage.value if self.overwintering_stage else None,
             "optimal_temperature_c": self.optimal_temperature_c,
             "optimal_humidity_pct": self.optimal_humidity_pct,
             "is_quarantine_pest": self.is_quarantine_pest,
@@ -469,9 +467,7 @@ class PestAlert:
 
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    alert_type: str = (
-        "threshold_exceeded"  # threshold_exceeded, new_detection, outbreak, quarantine
-    )
+    alert_type: str = "threshold_exceeded"  # threshold_exceeded, new_detection, outbreak, quarantine
 
     # Priority
     priority: AlertPriority = AlertPriority.MEDIUM
@@ -565,9 +561,7 @@ class PestAlert:
             "growth_stage": self.growth_stage,
             "area_affected_ha": self.area_affected_ha,
             "detected_at": self.detected_at.isoformat(),
-            "response_deadline": self.response_deadline.isoformat()
-            if self.response_deadline
-            else None,
+            "response_deadline": self.response_deadline.isoformat() if self.response_deadline else None,
             "is_active": self.is_active,
             "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,
             "acknowledged_by": self.acknowledged_by,
@@ -686,9 +680,7 @@ class OutbreakRecord:
             "field_ids": self.field_ids,
             "affected_crops": [c.value for c in self.affected_crops],
             "primary_crop": self.primary_crop.value,
-            "first_detection_date": self.first_detection_date.isoformat()
-            if self.first_detection_date
-            else None,
+            "first_detection_date": self.first_detection_date.isoformat() if self.first_detection_date else None,
             "peak_date": self.peak_date.isoformat() if self.peak_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
             "duration_days": self.duration_days,
@@ -852,12 +844,8 @@ class TreatmentRecommendation:
             "expected_yield_saved_pct": self.expected_yield_saved_pct,
             "roi_estimate": self.roi_estimate,
             "currency": self.currency,
-            "optimal_window_start": self.optimal_window_start.isoformat()
-            if self.optimal_window_start
-            else None,
-            "optimal_window_end": self.optimal_window_end.isoformat()
-            if self.optimal_window_end
-            else None,
+            "optimal_window_start": self.optimal_window_start.isoformat() if self.optimal_window_start else None,
+            "optimal_window_end": self.optimal_window_end.isoformat() if self.optimal_window_end else None,
             "weather_requirements": self.weather_requirements,
             "weather_requirements_ar": self.weather_requirements_ar,
             "follow_up_scouting_days": self.follow_up_scouting_days,

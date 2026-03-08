@@ -450,9 +450,7 @@ class RAGTools:
             response_data = {
                 "query": query,
                 "answer": result.generation_result.answer if result.generation_result else None,
-                "confidence": result.generation_result.confidence
-                if result.generation_result
-                else 0.0,
+                "confidence": result.generation_result.confidence if result.generation_result else 0.0,
             }
 
             if language in ["ar", "both"] and result.generation_result:
@@ -461,9 +459,7 @@ class RAGTools:
             if include_sources:
                 response_data["sources"] = [
                     {
-                        "text": r.chunk.text[:300] + "..."
-                        if len(r.chunk.text) > 300
-                        else r.chunk.text,
+                        "text": r.chunk.text[:300] + "..." if len(r.chunk.text) > 300 else r.chunk.text,
                         "text_ar": r.chunk.text_ar[:300] + "..."
                         if r.chunk.text_ar and len(r.chunk.text_ar) > 300
                         else r.chunk.text_ar,

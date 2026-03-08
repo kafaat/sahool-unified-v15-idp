@@ -279,13 +279,7 @@ async def test_frost_risk():
         # Show all days summary
         print("\n   7-Day Frost Risk Summary:")
         for risk in frost_risks:
-            icon = (
-                "❄️"
-                if risk.risk_level in ["severe", "high"]
-                else "⚡"
-                if risk.risk_level == "moderate"
-                else "✅"
-            )
+            icon = "❄️" if risk.risk_level in ["severe", "high"] else "⚡" if risk.risk_level == "moderate" else "✅"
             print(f"   {icon} {risk.date}: {risk.min_temp_c}°C ({risk.risk_level})")
 
         await weather.close()

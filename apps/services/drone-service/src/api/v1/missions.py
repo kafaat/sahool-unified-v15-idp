@@ -59,6 +59,7 @@ except ImportError:
 
 logger = structlog.get_logger()
 
+
 router = APIRouter(prefix="/api/v1/missions", tags=["missions"])
 
 _missions: dict[str, dict] = {}

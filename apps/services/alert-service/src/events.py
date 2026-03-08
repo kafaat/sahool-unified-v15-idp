@@ -142,9 +142,7 @@ class AlertEventPublisher:
             },
         )
 
-    async def publish_alert_acknowledged(
-        self, alert_id: str, field_id: str, acknowledged_by: str
-    ) -> str | None:
+    async def publish_alert_acknowledged(self, alert_id: str, field_id: str, acknowledged_by: str) -> str | None:
         """نشر حدث إقرار بتنبيه"""
         return await self._publish(
             AlertTopics.ALERT_ACKNOWLEDGED,

@@ -107,6 +107,17 @@ class SessionNotFoundError(HMCEngineError):
         )
 
 
+class SessionInitError(HMCEngineError):
+    """Raised when session is not properly initialized with required dimensions.
+    يُطلق عندما لا تتم تهيئة الجلسة بالأبعاد المطلوبة"""
+
+    def __init__(self, missing: str):
+        super().__init__(
+            HMCErrors.SESSION_INIT_ERROR,
+            {"missing_components": missing},
+        )
+
+
 class GoalsNotSetError(HMCEngineError):
     """Raised when goals are required but not set."""
 
@@ -497,27 +508,17 @@ class HMCIrrigationEngine:
             "has_constraints": len(self._current_session.constraints) > 0,
             "has_program": self._current_session.current_program is not None,
             "is_approved": (
-                self._current_session.current_program.is_approved
-                if self._current_session.current_program
-                else False
+                self._current_session.current_program.is_approved if self._current_session.current_program else False
             ),
             "dimension_status": {
-                "goal_anchoring": self._goal_dimension.get_status()
-                if self._goal_dimension
-                else None,
-                "experience_injection": self._experience_dimension.get_status()
-                if self._experience_dimension
-                else None,
+                "goal_anchoring": self._goal_dimension.get_status() if self._goal_dimension else None,
+                "experience_injection": self._experience_dimension.get_status() if self._experience_dimension else None,
                 "supervision_calibration": self._calibration_dimension.get_status()
                 if self._calibration_dimension
                 else None,
-                "value_upgrade": self._value_dimension.get_status()
-                if self._value_dimension
-                else None,
+                "value_upgrade": self._value_dimension.get_status() if self._value_dimension else None,
             },
-            "checklist_complete": self._checklist.validate_all().is_complete
-            if self._checklist
-            else False,
+            "checklist_complete": self._checklist.validate_all().is_complete if self._checklist else False,
             "created_at": self._current_session.created_at.isoformat(),
             "updated_at": self._current_session.updated_at.isoformat(),
         }

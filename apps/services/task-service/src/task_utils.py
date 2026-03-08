@@ -13,6 +13,7 @@ import uuid
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
+from urllib.parse import quote as url_quote
 
 import httpx
 
@@ -30,9 +31,7 @@ logger = logging.getLogger(__name__)
 # Configuration - التكوين
 # ═══════════════════════════════════════════════════════════════════════════
 
-ASTRONOMICAL_SERVICE_URL = os.getenv(
-    "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
-)
+ASTRONOMICAL_SERVICE_URL = os.getenv("ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111")
 FIELD_SERVICE_URL = os.getenv("FIELD_SERVICE_URL", "http://field-service:8115")
 NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8110")
 
@@ -164,12 +163,8 @@ def create_task_model(data: TaskCreateData, task_id: str | None = None):
     if task_id is None:
         task_id = generate_task_id()
 
-    task_type_value = (
-        data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type
-    )
-    priority_value = (
-        data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
-    )
+    task_type_value = data.task_type.value if isinstance(data.task_type, TaskType) else data.task_type
+    priority_value = data.priority.value if isinstance(data.priority, TaskPriority) else data.priority
 
     return TaskModel(
         task_id=task_id,
@@ -464,9 +459,11 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     log_field_id = sanitize_for_log(field_id)
 
     try:
+        # URL-encode the path segment to prevent SSRF via path traversal
+        safe_path = url_quote(validated_field_id, safe="")
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             response = await client.get(
-                f"{FIELD_SERVICE_URL}/fields/{validated_field_id}",
+                f"{FIELD_SERVICE_URL}/fields/{safe_path}",
                 headers={
                     "X-Tenant-Id": tenant_id,
                     "Content-Type": "application/json",
@@ -478,9 +475,7 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
                 manager_id = field_data.get("user_id")
                 if manager_id:
                     log_manager_id = sanitize_for_log(manager_id)
-                    logger.info(
-                        "Fetched field manager for field %s: %s", log_field_id, log_manager_id
-                    )
+                    logger.info("Fetched field manager for field %s: %s", log_field_id, log_manager_id)
                     return manager_id
                 else:
                     logger.warning("Field %s has no user_id/manager assigned", log_field_id)
@@ -613,9 +608,7 @@ async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
                 data = response.json()
                 # Cache the result
                 await astronomical_cache.set_best_days(activity, days, data)
-                logger.info(
-                    "Fetched and cached astronomical data for %s", sanitize_for_log(activity)
-                )
+                logger.info("Fetched and cached astronomical data for %s", sanitize_for_log(activity))
                 return data
             else:
                 logger.error(
@@ -669,9 +662,7 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
                 await astronomical_cache.set_daily_data(date_str, data)
                 return data
             else:
-                logger.error(
-                    f"Astronomical service returned {response.status_code}: {response.text}"
-                )
+                logger.error(f"Astronomical service returned {response.status_code}: {response.text}")
                 raise AstronomicalServiceError(f"Service returned {response.status_code}")
 
     except httpx.TimeoutException:
@@ -725,12 +716,8 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
             # Add warnings for non-optimal conditions
             warnings = []
             if result["score"] < 5:
-                warnings.append(
-                    f"التاريخ المحدد غير مثالي للنشاط ({activity}). الدرجة: {result['score']}/10"
-                )
-                warnings.append(
-                    f"Selected date is not optimal for {task_type.value}. Score: {result['score']}/10"
-                )
+                warnings.append(f"التاريخ المحدد غير مثالي للنشاط ({activity}). الدرجة: {result['score']}/10")
+                warnings.append(f"Selected date is not optimal for {task_type.value}. Score: {result['score']}/10")
 
             if not result["farming_good"]:
                 warnings.append(f"مرحلة القمر ({result['moon_phase_ar']}) غير مناسبة للزراعة")
@@ -767,9 +754,7 @@ def _empty_astronomical_data() -> dict:
     }
 
 
-async def enrich_task_with_astronomy(
-    task_data: TaskCreateData, task_type: TaskType
-) -> TaskCreateData:
+async def enrich_task_with_astronomy(task_data: TaskCreateData, task_type: TaskType) -> TaskCreateData:
     """
     Enrich task data with astronomical information
     إثراء بيانات المهمة بالمعلومات الفلكية
@@ -878,9 +863,7 @@ async def send_task_notification(
         log_user_id = sanitize_for_log(assigned_to)
 
         if notification_client:
-            response = await notification_client.post(
-                "/api/v1/notifications", json=notification_data
-            )
+            response = await notification_client.post("/api/v1/notifications", json=notification_data)
             if response.success:
                 logger.info("Notification sent for task %s to user %s", log_task_id, log_user_id)
                 return True

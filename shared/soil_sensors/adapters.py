@@ -139,9 +139,7 @@ class MQTTAdapter(SensorAdapter):
 
     async def unsubscribe(self, sensor: SoilSensor):
         """Unsubscribe from sensor topic"""
-        topic = (
-            sensor.mqtt_topic or f"sahool/sensors/{sensor.tenant_id}/{sensor.field_id}/{sensor.id}"
-        )
+        topic = sensor.mqtt_topic or f"sahool/sensors/{sensor.tenant_id}/{sensor.field_id}/{sensor.id}"
 
         if topic in self._subscriptions:
             del self._subscriptions[topic]
@@ -162,9 +160,7 @@ class MQTTAdapter(SensorAdapter):
             if "value" in data and "type" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.fromisoformat(
-                        data.get("timestamp", datetime.now(UTC).isoformat())
-                    ),
+                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now(UTC).isoformat())),
                     reading_type=SensorType(data.get("type", sensor.sensor_type.value)),
                     value=float(data["value"]),
                     unit=data.get("unit", "%"),
@@ -312,9 +308,7 @@ class HTTPAdapter(SensorAdapter):
             if "sensor_id" in data and "volumetric_water_content" in data:
                 return SensorReading(
                     sensor_id=sensor.id,
-                    timestamp=datetime.fromisoformat(
-                        data.get("timestamp", datetime.now(UTC).isoformat())
-                    ),
+                    timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now(UTC).isoformat())),
                     reading_type=SensorType.MOISTURE,
                     value=float(data["volumetric_water_content"]) * 100,  # Convert to %
                     unit="%",

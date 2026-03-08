@@ -50,9 +50,7 @@ class LLMResponse(BaseModel):
 class LLMProvider(Protocol):
     """Protocol for LLM providers"""
 
-    async def analyze(
-        self, prompt: str, images: list[dict], response_format: type[BaseModel]
-    ) -> LLMResponse:
+    async def analyze(self, prompt: str, images: list[dict], response_format: type[BaseModel]) -> LLMResponse:
         """Analyze images with prompt."""
         ...
 
@@ -76,9 +74,7 @@ class AnthropicProvider:
                 logger.error("anthropic package not installed")
                 raise
 
-    async def analyze(
-        self, prompt: str, images: list[dict], response_format: type[BaseModel]
-    ) -> LLMResponse:
+    async def analyze(self, prompt: str, images: list[dict], response_format: type[BaseModel]) -> LLMResponse:
         """Analyze images using Claude."""
         self._ensure_client()
 
@@ -155,9 +151,7 @@ class OllamaProvider:
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.model = model
 
-    async def analyze(
-        self, prompt: str, images: list[dict], response_format: type[BaseModel]
-    ) -> LLMResponse:
+    async def analyze(self, prompt: str, images: list[dict], response_format: type[BaseModel]) -> LLMResponse:
         """Analyze images using Ollama."""
         import aiohttp
 
@@ -333,9 +327,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
         # Compute change
         result = await self.change_detector.compute_change(arr1, arr2)
 
-        logger.debug(
-            f"Change score: {result.change_score:.3f}, trigger: {result.should_trigger_analysis}"
-        )
+        logger.debug(f"Change score: {result.change_score:.3f}, trigger: {result.should_trigger_analysis}")
 
         return result.should_trigger_analysis
 
@@ -451,9 +443,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
             expected_planting_date=context.expected_planting_date.isoformat()
             if context.expected_planting_date
             else "غير محدد",
-            rotation_history=str(context.rotation_history)
-            if context.rotation_history
-            else "غير متوفر",
+            rotation_history=str(context.rotation_history) if context.rotation_history else "غير متوفر",
             soil_type=context.soil_type or "غير محدد",
             irrigation_type=context.irrigation_type or "غير محدد",
         )

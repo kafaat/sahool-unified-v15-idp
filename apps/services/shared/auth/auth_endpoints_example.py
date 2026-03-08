@@ -222,9 +222,7 @@ async def register(
     """Registration endpoint with moderate rate limiting (10 req/min)."""
 
     # Check rate limit
-    allowed, remaining, limit, reset = await limiter.check_registration_limit(
-        request, user_data.email
-    )
+    allowed, remaining, limit, reset = await limiter.check_registration_limit(request, user_data.email)
 
     # Add rate limit headers
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
@@ -238,9 +236,7 @@ async def register(
     # - Create user in database
     # - Send verification email
 
-    return MessageResponse(
-        message="Registration successful. Please check your email for verification."
-    )
+    return MessageResponse(message="Registration successful. Please check your email for verification.")
 
 
 @router.post(

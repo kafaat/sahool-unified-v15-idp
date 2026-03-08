@@ -42,9 +42,7 @@ class DiseaseDetectionAgent:
             model_path: Path to pre-trained model - مسار النموذج المدرب مسبقاً
             enable_gpu: Enable GPU acceleration - تفعيل تسريع GPU
         """
-        self.model = DiseaseCNNModel(
-            model_path=model_path, framework="tensorflow", enable_gpu=enable_gpu
-        )
+        self.model = DiseaseCNNModel(model_path=model_path, framework="tensorflow", enable_gpu=enable_gpu)
 
         if model_path:
             self.model.load_model(model_path)
@@ -52,9 +50,7 @@ class DiseaseDetectionAgent:
 
         logger.info("Disease Detection Agent initialized")
 
-    async def analyze_plant_health(
-        self, image: Any, field_id: str = None, crop_type: str = None
-    ) -> dict[str, Any]:
+    async def analyze_plant_health(self, image: Any, field_id: str = None, crop_type: str = None) -> dict[str, Any]:
         """
         Analyze plant health from image
         تحليل صحة النبات من الصورة
@@ -106,9 +102,7 @@ class DiseaseDetectionAgent:
             logger.error(f"Error analyzing plant health: {e}")
             raise
 
-    async def analyze_field_batch(
-        self, field_id: str, images: list[Any], crop_type: str = None
-    ) -> dict[str, Any]:
+    async def analyze_field_batch(self, field_id: str, images: list[Any], crop_type: str = None) -> dict[str, Any]:
         """
         Analyze entire field from multiple images
         تحليل الحقل بالكامل من صور متعددة
@@ -125,9 +119,7 @@ class DiseaseDetectionAgent:
             logger.info(f"Analyzing field {field_id} with {len(images)} images")
 
             # Process field images - معالجة صور الحقل
-            report = await self.model.process_field_images(
-                field_id=field_id, images=images, min_confidence=0.6
-            )
+            report = await self.model.process_field_images(field_id=field_id, images=images, min_confidence=0.6)
 
             # Add crop-specific information - إضافة معلومات خاصة بالمحصول
             if crop_type:

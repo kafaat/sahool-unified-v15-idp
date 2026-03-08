@@ -258,9 +258,7 @@ class HMCIntegrationManager:
         """
         self._irrigation_agent = agent
         self._integrations_status["irrigation_agent"]["registered"] = True
-        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(
-            UTC
-        ).isoformat()
+        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(UTC).isoformat()
 
         logger.info("irrigation_agent_registered")
 
@@ -277,9 +275,7 @@ class HMCIntegrationManager:
         """
         self._weather_service = service
         self._integrations_status["weather_service"]["registered"] = True
-        self._integrations_status["weather_service"]["registered_at"] = datetime.now(
-            UTC
-        ).isoformat()
+        self._integrations_status["weather_service"]["registered_at"] = datetime.now(UTC).isoformat()
 
         logger.info("weather_service_registered")
 
@@ -296,9 +292,7 @@ class HMCIntegrationManager:
         """
         self._fertilization_service = service
         self._integrations_status["fertilization_service"]["registered"] = True
-        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(
-            UTC
-        ).isoformat()
+        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(UTC).isoformat()
 
         logger.info("fertilization_service_registered")
 
@@ -337,14 +331,10 @@ class HMCIntegrationManager:
 
         try:
             if location:
-                result["current_conditions"] = await self._weather_service.get_current_conditions(
-                    location
-                )
+                result["current_conditions"] = await self._weather_service.get_current_conditions(location)
                 result["forecast"] = await self._weather_service.get_forecast(location, days=7)
 
-            self._integrations_status["weather_service"]["last_sync"] = datetime.now(
-                UTC
-            ).isoformat()
+            self._integrations_status["weather_service"]["last_sync"] = datetime.now(UTC).isoformat()
 
             logger.info("weather_service_synced", location=location)
 
@@ -390,15 +380,11 @@ class HMCIntegrationManager:
 
         try:
             if field_id and crop_type and growth_stage:
-                result[
-                    "fertigation_schedule"
-                ] = await self._fertilization_service.get_fertigation_schedule(
+                result["fertigation_schedule"] = await self._fertilization_service.get_fertigation_schedule(
                     field_id, crop_type, growth_stage
                 )
 
-            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(
-                UTC
-            ).isoformat()
+            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(UTC).isoformat()
 
             logger.info(
                 "fertilization_service_synced",
@@ -522,9 +508,7 @@ class HMCIntegrationManager:
             # Get weather forecast
             weather_forecast = {}
             if self._weather_service and context.get("location"):
-                weather_forecast = await self._weather_service.get_forecast(
-                    context["location"], days=7
-                )
+                weather_forecast = await self._weather_service.get_forecast(context["location"], days=7)
 
             # Calculate water requirement
             water_req = await self._irrigation_agent.calculate_water_requirement(
@@ -538,9 +522,7 @@ class HMCIntegrationManager:
             constraints = {}
             if engine.current_session:
                 constraints = {
-                    "ecological_constraints": [
-                        c.model_dump() for c in engine.current_session.constraints
-                    ],
+                    "ecological_constraints": [c.model_dump() for c in engine.current_session.constraints],
                     "goals": [g.model_dump() for g in engine.current_session.goals],
                 }
 
@@ -715,12 +697,8 @@ class HMCIntegrationManager:
         )
 
         # Register callbacks for event publishing
-        engine.on_session_start(
-            lambda session: self._sync_publish_session_event(session, "started")
-        )
-        engine.on_program_generated(
-            lambda program: self._sync_publish_program_event(program, "generated")
-        )
+        engine.on_session_start(lambda session: self._sync_publish_session_event(session, "started"))
+        engine.on_program_generated(lambda program: self._sync_publish_program_event(program, "generated"))
         engine.on_approval(lambda session: self._sync_publish_session_event(session, "approved"))
         engine.on_completion(lambda outcome: self._sync_publish_outcome_event(outcome))
 

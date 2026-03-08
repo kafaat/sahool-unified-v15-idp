@@ -280,8 +280,7 @@ def generate_compliance_summary_alert(
         "message_en": summary_en,
         "message_ar": summary_ar,
         # Flags
-        "action_required": overall_status
-        in [ComplianceStatus.CRITICAL, ComplianceStatus.VIOLATION],
+        "action_required": overall_status in [ComplianceStatus.CRITICAL, ComplianceStatus.VIOLATION],
         "food_safety_risk": phi_count > 0,
         "worker_safety_risk": rei_count > 0,
     }

@@ -255,9 +255,7 @@ class DLQMonitor:
         self._alerts_triggered += 1
         self._last_alert_time = datetime.now(UTC)
 
-        logger.warning(
-            f"⚠️  DLQ ALERT: {alert.message} (severity: {severity}, oldest: {oldest_age_hours:.1f}h)"
-        )
+        logger.warning(f"⚠️  DLQ ALERT: {alert.message} (severity: {severity}, oldest: {oldest_age_hours:.1f}h)")
 
         # Call alert callback
         if self.alert_callback:
@@ -323,9 +321,7 @@ async def send_dlq_alert_to_slack(alert: DLQAlert, webhook_url: str):
                     {
                         "title": "Oldest Message",
                         "value": (
-                            f"{alert.oldest_message_age_hours:.1f} hours"
-                            if alert.oldest_message_age_hours
-                            else "N/A"
+                            f"{alert.oldest_message_age_hours:.1f} hours" if alert.oldest_message_age_hours else "N/A"
                         ),
                         "short": True,
                     },

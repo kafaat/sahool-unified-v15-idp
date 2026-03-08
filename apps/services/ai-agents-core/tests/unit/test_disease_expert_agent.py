@@ -144,9 +144,7 @@ class TestDiseaseDiagnosisImages:
         """Test diagnosis from CNN image classification"""
         agent = DiseaseExpertAgent()
 
-        percept = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
 
         await agent.perceive(percept)
 
@@ -160,9 +158,7 @@ class TestDiseaseDiagnosisImages:
         """Test image classification is stored in agent beliefs"""
         agent = DiseaseExpertAgent()
 
-        percept = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
 
         await agent.perceive(percept)
 
@@ -174,15 +170,11 @@ class TestDiseaseDiagnosisImages:
         agent = DiseaseExpertAgent()
 
         # Add image classification
-        percept1 = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept1 = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
         await agent.perceive(percept1)
 
         # Add reported symptoms
-        percept2 = AgentPercept(
-            percept_type="symptoms_report", data=["yellowing", "orange_spots"], source="farmer"
-        )
+        percept2 = AgentPercept(percept_type="symptoms_report", data=["yellowing", "orange_spots"], source="farmer")
         await agent.perceive(percept2)
 
         diagnosis = await agent._diagnose()
@@ -399,9 +391,7 @@ class TestTreatmentSelection:
         agent = DiseaseExpertAgent()
 
         # Diagnose disease
-        percept = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
 
         await agent.perceive(percept)
         agent.context = AgentContext(crop_type="wheat")
@@ -437,9 +427,7 @@ class TestDiagnosisWorkflow:
         agent.update_context(context)
 
         # Perceive disease
-        percept = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
 
         result = await agent.run(percept)
 
@@ -460,9 +448,7 @@ class TestDiagnosisWorkflow:
         """Test diagnosis history is tracked"""
         agent = DiseaseExpertAgent()
 
-        percept = AgentPercept(
-            percept_type="image_analysis", data=mock_image_data, source="cnn_model"
-        )
+        percept = AgentPercept(percept_type="image_analysis", data=mock_image_data, source="cnn_model")
 
         await agent.perceive(percept)
         await agent.think()

@@ -88,9 +88,7 @@ class BoundingBox(BaseModel):
     y_max: int
 
     # Geographic coordinates (corners)
-    geo_coords: list[dict] | None = Field(
-        default=None, description="List of {lat, lon} for bounding box corners"
-    )
+    geo_coords: list[dict] | None = Field(default=None, description="List of {lat, lon} for bounding box corners")
 
 
 class FieldOperationDetection(BaseModel):

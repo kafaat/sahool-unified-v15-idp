@@ -591,9 +591,7 @@ class SprayAdvisor:
                 recommendations_en.append("Herbicides: Add surfactant to improve absorption")
         elif product_type == SprayProduct.FUNGICIDE:
             if "high_humidity" in risks:
-                recommendations_ar.append(
-                    "مبيدات الفطريات: الرطوبة العالية قد تزيد انتشار الجراثيم"
-                )
+                recommendations_ar.append("مبيدات الفطريات: الرطوبة العالية قد تزيد انتشار الجراثيم")
                 recommendations_en.append("Fungicides: High humidity may increase spore spread")
         elif product_type == SprayProduct.INSECTICIDE and "high_temperature" in risks:
             recommendations_ar.append("مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة")
@@ -610,9 +608,7 @@ class SprayAdvisor:
 
         return {"ar": recommendations_ar, "en": recommendations_en}
 
-    async def _fetch_hourly_forecast(
-        self, latitude: float, longitude: float, days: int
-    ) -> list[dict]:
+    async def _fetch_hourly_forecast(self, latitude: float, longitude: float, days: int) -> list[dict]:
         """
         Fetch hourly weather forecast from Open-Meteo.
 
@@ -654,12 +650,8 @@ class SprayAdvisor:
                         "time": datetime.fromisoformat(hourly_times[i]),
                         "temp": hourly_temp[i] if i < len(hourly_temp) else 20,
                         "humidity": (hourly_humidity[i] if i < len(hourly_humidity) else 60),
-                        "wind_speed": (
-                            hourly_wind[i] * 3.6 if i < len(hourly_wind) else 0
-                        ),  # m/s to km/h
-                        "precipitation_prob": (
-                            hourly_precip_prob[i] if i < len(hourly_precip_prob) else 0
-                        ),
+                        "wind_speed": (hourly_wind[i] * 3.6 if i < len(hourly_wind) else 0),  # m/s to km/h
+                        "precipitation_prob": (hourly_precip_prob[i] if i < len(hourly_precip_prob) else 0),
                         "precipitation": (hourly_precip[i] if i < len(hourly_precip) else 0),
                     }
                 )
@@ -680,9 +672,7 @@ class SprayAdvisor:
             grouped[day].append(hour)
         return grouped
 
-    def _identify_spray_windows(
-        self, hours: list[dict], product_type: SprayProduct | None
-    ) -> list[SprayWindow]:
+    def _identify_spray_windows(self, hours: list[dict], product_type: SprayProduct | None) -> list[SprayWindow]:
         """
         Identify spray windows from hourly data for a single day.
 
@@ -729,9 +719,7 @@ class SprayAdvisor:
 
         return windows
 
-    def _create_window(
-        self, window_hours: list[dict], product_type: SprayProduct | None
-    ) -> SprayWindow:
+    def _create_window(self, window_hours: list[dict], product_type: SprayProduct | None) -> SprayWindow:
         """Create SprayWindow from continuous suitable hours"""
         start_time = window_hours[0]["hour"]["time"]
         end_time = window_hours[-1]["hour"]["time"] + timedelta(hours=1)
@@ -741,9 +729,7 @@ class SprayAdvisor:
         avg_temp = sum(h["hour"]["temp"] for h in window_hours) / len(window_hours)
         avg_humidity = sum(h["hour"]["humidity"] for h in window_hours) / len(window_hours)
         avg_wind = sum(h["hour"]["wind_speed"] for h in window_hours) / len(window_hours)
-        avg_precip_prob = sum(h["hour"]["precipitation_prob"] for h in window_hours) / len(
-            window_hours
-        )
+        avg_precip_prob = sum(h["hour"]["precipitation_prob"] for h in window_hours) / len(window_hours)
 
         # Overall score and condition (use best hour)
         best_hour = max(window_hours, key=lambda h: h["score"])

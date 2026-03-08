@@ -639,9 +639,7 @@ class MessageHandler:
 
             if response.status_code == 200:
                 data = response.json()
-                response_text = data.get(
-                    "response", data.get("response_ar" if is_arabic else "response_en", "")
-                )
+                response_text = data.get("response", data.get("response_ar" if is_arabic else "response_en", ""))
 
                 if response_text:
                     # Send response to user
@@ -760,9 +758,7 @@ class MessageHandler:
         is_arabic = session.language == Language.ARABIC
 
         buttons = self.response_builder.get_main_menu_buttons(session.language)
-        body_text = (
-            "اختر أحد الخيارات التالية:" if is_arabic else "Choose one of the following options:"
-        )
+        body_text = "اختر أحد الخيارات التالية:" if is_arabic else "Choose one of the following options:"
 
         await self.whatsapp_client.send_interactive_buttons(
             to=phone_number,
@@ -794,9 +790,7 @@ class MessageHandler:
         ]
 
         body_text = (
-            "بناءً على موقعك، يمكنني مساعدتك في:"
-            if is_arabic
-            else "Based on your location, I can help you with:"
+            "بناءً على موقعك، يمكنني مساعدتك في:" if is_arabic else "Based on your location, I can help you with:"
         )
 
         await self.whatsapp_client.send_interactive_buttons(
@@ -930,9 +924,7 @@ class MessageHandler:
         buttons = [
             {
                 "id": action.get("id", f"action_{i}"),
-                "title": action.get("title_ar" if is_arabic else "title", action.get("title", ""))[
-                    :20
-                ],
+                "title": action.get("title_ar" if is_arabic else "title", action.get("title", ""))[:20],
             }
             for i, action in enumerate(actions)
         ]

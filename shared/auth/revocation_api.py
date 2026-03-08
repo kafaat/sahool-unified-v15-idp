@@ -31,12 +31,14 @@ class RevokeTokenRequest(BaseModel):
     jti: str = Field(..., description="JWT ID to revoke")
     reason: str | None = Field("manual", description="Reason for revocation")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "jti": "550e8400-e29b-41d4-a716-446655440000",
-            "reason": "user_logout",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "jti": "550e8400-e29b-41d4-a716-446655440000",
+                "reason": "user_logout",
+            }
         }
-    })
+    )
 
 
 class RevokeUserTokensRequest(BaseModel):
@@ -64,13 +66,15 @@ class RevocationResponse(BaseModel):
     message: str = Field(..., description="Response message")
     revoked_count: int | None = Field(None, description="Number of tokens revoked")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "success": True,
-            "message": "Token revoked successfully",
-            "revoked_count": 1,
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "message": "Token revoked successfully",
+                "revoked_count": 1,
+            }
         }
-    })
+    )
 
 
 class TokenStatusResponse(BaseModel):
@@ -80,13 +84,15 @@ class TokenStatusResponse(BaseModel):
     reason: str | None = Field(None, description="Revocation reason")
     revoked_at: float | None = Field(None, description="When token was revoked")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "is_revoked": True,
-            "reason": "user_logout",
-            "revoked_at": 1640000000.0,
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "is_revoked": True,
+                "reason": "user_logout",
+                "revoked_at": 1640000000.0,
+            }
         }
-    })
+    )
 
 
 class RevocationStatsResponse(BaseModel):
@@ -98,15 +104,17 @@ class RevocationStatsResponse(BaseModel):
     revoked_tenants: int = Field(..., description="Number of tenants with revoked tokens")
     redis_url: str | None = Field(None, description="Redis connection URL (masked)")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "initialized": True,
-            "revoked_tokens": 42,
-            "revoked_users": 10,
-            "revoked_tenants": 2,
-            "redis_url": "localhost:6379/0",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "initialized": True,
+                "revoked_tokens": 42,
+                "revoked_users": 10,
+                "revoked_tenants": 2,
+                "redis_url": "localhost:6379/0",
+            }
         }
-    })
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -352,9 +360,7 @@ async def revoke_tenant_tokens_endpoint(
     is_admin = "admin" in current_user.roles or "superadmin" in current_user.roles
 
     if not is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
 
     try:
         store = await get_revocation_store()
@@ -448,9 +454,7 @@ async def get_revocation_stats(
     is_admin = "admin" in current_user.roles or "superadmin" in current_user.roles
 
     if not is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
 
     try:
         store = await get_revocation_store()

@@ -81,19 +81,25 @@ describe("Root Layout SEO", () => {
   });
 
   it("uses Tajawal Arabic font", () => {
+    // Tajawal is referenced in layout via CSS variable
     expect(layoutContent).toContain("Tajawal");
-    expect(layoutContent).toContain("arabic");
-    expect(layoutContent).toContain("latin");
+    // Font loaded via globals.css @import with arabic+latin subsets and weights
+    const cssContent = readFile("globals.css");
+    expect(cssContent).toContain("Tajawal");
   });
 
   it("includes font weights 400, 500, 700", () => {
-    expect(layoutContent).toContain('"400"');
-    expect(layoutContent).toContain('"500"');
-    expect(layoutContent).toContain('"700"');
+    // Font weights are specified in self-hosted @font-face declarations in globals.css
+    const cssContent = readFile("globals.css");
+    expect(cssContent).toContain("font-weight: 400");
+    expect(cssContent).toContain("font-weight: 500");
+    expect(cssContent).toContain("font-weight: 700");
   });
 
   it("sets font display to swap", () => {
-    expect(layoutContent).toContain('display: "swap"');
+    // font-display: swap is set in self-hosted @font-face declarations in globals.css
+    const cssContent = readFile("globals.css");
+    expect(cssContent).toContain("font-display: swap");
   });
 
   it("has CSP nonce support", () => {

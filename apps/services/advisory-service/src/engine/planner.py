@@ -318,8 +318,7 @@ def fertilizer_plan(
     # Calculate nutrient needs for this stage
     total_needs = crop_data["total_needs"]
     stage_needs = {
-        nutrient: total_needs.get(nutrient, 0) * stage_ratios.get(nutrient, 0)
-        for nutrient in ["N", "P", "K"]
+        nutrient: total_needs.get(nutrient, 0) * stage_ratios.get(nutrient, 0) for nutrient in ["N", "P", "K"]
     }
 
     # Adjust for soil fertility
@@ -327,9 +326,7 @@ def fertilizer_plan(
     stage_needs = {k: v * fertility_factor for k, v in stage_needs.items()}
 
     # Select fertilizers based on irrigation type
-    applications = _select_fertilizers(
-        stage_needs, field_size_ha, irrigation_type, budget_constraint
-    )
+    applications = _select_fertilizers(stage_needs, field_size_ha, irrigation_type, budget_constraint)
 
     # Add notes
     notes = []

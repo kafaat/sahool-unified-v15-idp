@@ -83,9 +83,7 @@ def temperature_modifier(temp_c: float) -> float:
     return max(0.1, min(3.0, ft))
 
 
-def moisture_modifier(
-    soil_water_mm: float, field_capacity_mm: float, wilting_point_mm: float
-) -> float:
+def moisture_modifier(soil_water_mm: float, field_capacity_mm: float, wilting_point_mm: float) -> float:
     """
     Moisture modifier for decomposition (0–1).
     معدّل الرطوبة لمعدلات التحلل.
@@ -142,9 +140,7 @@ def annual_decomposition(
       Passive: 100 % → CO₂ (then re-humified fraction is re-added)
     """
     ft = temperature_modifier(mean_temp_c)
-    fm = moisture_modifier(
-        mean_soil_water_mm, soil.field_capacity_mm_per_m, soil.wilting_point_mm_per_m
-    )
+    fm = moisture_modifier(mean_soil_water_mm, soil.field_capacity_mm_per_m, soil.wilting_point_mm_per_m)
     env = ft * fm
 
     # Rate constants (yr⁻¹)
@@ -171,17 +167,9 @@ def annual_decomposition(
         pools.active_t_ha - dec_active + carbon_input_t_ha * 0.50  # FOM → active
     )
     new_slow = (
-        pools.slow_t_ha
-        + fluxes.active_to_slow
-        - dec_slow
-        + carbon_input_t_ha * 0.25  # FOM → slow
+        pools.slow_t_ha + fluxes.active_to_slow - dec_slow + carbon_input_t_ha * 0.25  # FOM → slow
     )
-    new_passive = (
-        pools.passive_t_ha
-        + fluxes.active_to_passive
-        + fluxes.slow_to_passive
-        - dec_passive
-    )
+    new_passive = pools.passive_t_ha + fluxes.active_to_passive + fluxes.slow_to_passive - dec_passive
     # Inert pool is unchanged by decomposition
     new_pools = CarbonPools(
         active_t_ha=max(0.01, new_active),
@@ -205,9 +193,7 @@ def annual_decomposition(
     # Update N pools
     new_nitrogen = NitrogenPools(
         ammonium_kg_ha=max(0.0, nitrogen.ammonium_kg_ha + n_mineralised_kg * 0.6),
-        nitrate_kg_ha=max(
-            0.0, nitrogen.nitrate_kg_ha + n_mineralised_kg * 0.4 - fluxes.n2o_kg_ha
-        ),
+        nitrate_kg_ha=max(0.0, nitrogen.nitrate_kg_ha + n_mineralised_kg * 0.4 - fluxes.n2o_kg_ha),
     )
 
     return new_pools, new_nitrogen, fluxes
@@ -261,13 +247,7 @@ class SoilCarbonModel:
             ModelResult with final SOC, N₂O and CH₄ emissions timeline.
         """
         # Initialise pools from measured SOC
-        initial_soc = (
-            soil.organic_carbon_pct
-            / 100.0
-            * soil.bulk_density_g_cm3
-            * soil.depth_m
-            * 10000.0
-        )
+        initial_soc = soil.organic_carbon_pct / 100.0 * soil.bulk_density_g_cm3 * soil.depth_m * 10000.0
         # Approximate pool partitioning from initial SOC
         pools = CarbonPools(
             active_t_ha=initial_soc * 0.03,
@@ -277,9 +257,7 @@ class SoilCarbonModel:
         )
         nitrogen = NitrogenPools()
 
-        mean_sw_mm = (
-            mean_soil_water_fraction * soil.field_capacity_mm_per_m * soil.depth_m
-        )
+        mean_sw_mm = mean_soil_water_fraction * soil.field_capacity_mm_per_m * soil.depth_m
         annual_log = []
         cumulative_n2o = 0.0
         cumulative_ch4 = 0.0
@@ -310,9 +288,7 @@ class SoilCarbonModel:
             )
 
         final_soc = pools.total_soc_t_ha
-        final_soc_pct = (
-            final_soc / (soil.bulk_density_g_cm3 * soil.depth_m * 10000.0) * 100.0
-        )
+        final_soc_pct = final_soc / (soil.bulk_density_g_cm3 * soil.depth_m * 10000.0) * 100.0
 
         logger.info(
             "soil_carbon_simulation_complete",

@@ -34,12 +34,14 @@ async def publish_copilot_event(nc, event_type: str, data: dict) -> bool:
         return False
 
     try:
-        payload = json.dumps({
-            "timestamp": datetime.utcnow().isoformat(),
-            "service": "copilot-api",
-            "event_type": event_type,
-            **data,
-        }).encode()
+        payload = json.dumps(
+            {
+                "timestamp": datetime.utcnow().isoformat(),
+                "service": "copilot-api",
+                "event_type": event_type,
+                **data,
+            }
+        ).encode()
         await nc.publish(subject, payload)
         logger.info("copilot_event_published", event_type=event_type, subject=subject)
         return True

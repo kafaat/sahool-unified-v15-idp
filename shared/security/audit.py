@@ -149,8 +149,7 @@ async def audit_log(
     log_level = logging.WARNING if not success else logging.INFO
     logger.log(
         log_level,
-        f"AUDIT: {action} | tenant={tenant_id} user={user_id} "
-        f"resource={resource_type}:{resource_id} success={success}",
+        f"AUDIT: {action} | tenant={tenant_id} user={user_id} resource={resource_type}:{resource_id} success={success}",
     )
 
     return log_entry
@@ -462,8 +461,7 @@ async def validate_hash_chain(
             result.valid = False
             result.invalid_entries.append(str(entry.id))
             result.errors.append(
-                f"Entry {entry.id}: prev_hash mismatch. "
-                f"Expected '{expected_prev_hash}', got '{entry.prev_hash}'"
+                f"Entry {entry.id}: prev_hash mismatch. Expected '{expected_prev_hash}', got '{entry.prev_hash}'"
             )
 
         # Recompute and verify entry hash
@@ -482,8 +480,7 @@ async def validate_hash_chain(
             result.valid = False
             result.invalid_entries.append(str(entry.id))
             result.errors.append(
-                f"Entry {entry.id}: Hash mismatch. "
-                f"Stored '{entry.entry_hash}', computed '{computed_hash}'"
+                f"Entry {entry.id}: Hash mismatch. Stored '{entry.entry_hash}', computed '{computed_hash}'"
             )
         else:
             result.validated_entries += 1
@@ -514,9 +511,7 @@ async def get_audit_chain_summary(tenant_id: str) -> dict:
         "tenant_id": tenant_id,
         "total_entries": total_entries,
         "entries_with_hash": entries_with_hash,
-        "chain_coverage_percent": (
-            (entries_with_hash / total_entries * 100) if total_entries > 0 else 0
-        ),
+        "chain_coverage_percent": ((entries_with_hash / total_entries * 100) if total_entries > 0 else 0),
         "first_entry_date": first_entry.created_at.isoformat() if first_entry else None,
         "last_entry_date": last_entry.created_at.isoformat() if last_entry else None,
         "last_entry_hash": last_entry.entry_hash if last_entry else None,
@@ -612,9 +607,7 @@ async def _get_gdpr_metrics(entries: list[AuditLog]) -> dict:
     """Get GDPR-specific compliance metrics."""
     return {
         "data_access_events": sum(
-            1
-            for e in entries
-            if e.category == AuditCategory.DATA.value and "access" in e.action.lower()
+            1 for e in entries if e.category == AuditCategory.DATA.value and "access" in e.action.lower()
         ),
         "data_export_events": sum(1 for e in entries if "export" in e.action.lower()),
         "data_deletion_events": sum(1 for e in entries if "delete" in e.action.lower()),
@@ -625,13 +618,9 @@ async def _get_gdpr_metrics(entries: list[AuditLog]) -> dict:
 async def _get_soc2_metrics(entries: list[AuditLog]) -> dict:
     """Get SOC 2-specific compliance metrics."""
     return {
-        "access_control_events": sum(
-            1 for e in entries if e.category == AuditCategory.ACCESS.value
-        ),
+        "access_control_events": sum(1 for e in entries if e.category == AuditCategory.ACCESS.value),
         "authentication_events": sum(1 for e in entries if e.category == AuditCategory.AUTH.value),
-        "failed_access_attempts": sum(
-            1 for e in entries if e.category == AuditCategory.ACCESS.value and not e.success
-        ),
+        "failed_access_attempts": sum(1 for e in entries if e.category == AuditCategory.ACCESS.value and not e.success),
         "admin_actions": sum(1 for e in entries if e.category == AuditCategory.ADMIN.value),
     }
 
@@ -648,9 +637,7 @@ async def _get_iso27001_metrics(entries: list[AuditLog]) -> dict:
         "access_reviews_completed": sum(1 for e in entries if "review" in e.action.lower()),
         "policy_violations": sum(1 for e in entries if "violation" in e.action.lower()),
         "configuration_changes": sum(
-            1
-            for e in entries
-            if e.category == AuditCategory.ADMIN.value and "config" in e.action.lower()
+            1 for e in entries if e.category == AuditCategory.ADMIN.value and "config" in e.action.lower()
         ),
     }
 

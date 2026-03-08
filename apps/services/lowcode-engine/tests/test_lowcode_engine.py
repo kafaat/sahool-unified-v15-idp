@@ -468,9 +468,7 @@ class TestDataModelFieldTypes:
                 FieldDefinition(name="num_field", name_ar="رقم", type=FieldType.NUMBER),
                 FieldDefinition(name="bool_field", name_ar="منطقي", type=FieldType.BOOLEAN),
                 FieldDefinition(name="date_field", name_ar="تاريخ", type=FieldType.DATE),
-                FieldDefinition(
-                    name="datetime_field", name_ar="وقت تاريخ", type=FieldType.DATETIME
-                ),
+                FieldDefinition(name="datetime_field", name_ar="وقت تاريخ", type=FieldType.DATETIME),
                 FieldDefinition(name="enum_field", name_ar="قائمة", type=FieldType.ENUM),
                 FieldDefinition(name="array_field", name_ar="مصفوفة", type=FieldType.ARRAY),
                 FieldDefinition(name="object_field", name_ar="كائن", type=FieldType.OBJECT),
@@ -857,10 +855,7 @@ class TestAIComponentSuggester:
         engine = LowCodeEngine(tenant_id="test")
         suggester = AIComponentSuggester(engine)
 
-        fields = [
-            FieldDefinition(name=f"field_{i}", name_ar=f"حقل {i}", type=FieldType.STRING)
-            for i in range(5)
-        ]
+        fields = [FieldDefinition(name=f"field_{i}", name_ar=f"حقل {i}", type=FieldType.STRING) for i in range(5)]
 
         layout = suggester.suggest_layout_for_fields(fields)
 
@@ -874,10 +869,7 @@ class TestAIComponentSuggester:
         suggester = AIComponentSuggester(engine)
 
         # Create 7 fields - should result in 3 groups (3+3+1)
-        fields = [
-            FieldDefinition(name=f"field_{i}", name_ar=f"حقل {i}", type=FieldType.STRING)
-            for i in range(7)
-        ]
+        fields = [FieldDefinition(name=f"field_{i}", name_ar=f"حقل {i}", type=FieldType.STRING) for i in range(7)]
 
         layout = suggester.suggest_layout_for_fields(fields)
 

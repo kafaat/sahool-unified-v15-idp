@@ -39,9 +39,7 @@ def example_custom_paths():
     print("=" * 60)
 
     # Custom directories
-    generator = APIDocsGenerator(
-        services_dir="/custom/path/to/services", output_dir="/custom/path/to/output"
-    )
+    generator = APIDocsGenerator(services_dir="/custom/path/to/services", output_dir="/custom/path/to/output")
 
     # Scan and generate
     generator.scan_all_services()
@@ -60,9 +58,7 @@ def example_single_service():
     generator = APIDocsGenerator()
 
     # Scan a specific service
-    service = generator._scan_service(
-        "weather-core", Path("apps/services/weather-core/src/main.py")
-    )
+    service = generator._scan_service("weather-core", Path("apps/services/weather-core/src/main.py"))
 
     if service:
         print(f"Service: {service.title}")
@@ -129,9 +125,7 @@ def example_export_service_list():
     print(f"\n{'Service':<30} {'Port':<6} {'Endpoints':<10} {'Version':<10}")
     print("-" * 60)
     for svc in services_list:
-        print(
-            f"{svc['name']:<30} {svc['port']:<6} {svc['endpoint_count']:<10} {svc['version']:<10}"
-        )
+        print(f"{svc['name']:<30} {svc['port']:<6} {svc['endpoint_count']:<10} {svc['version']:<10}")
 
 
 def example_search_endpoints():

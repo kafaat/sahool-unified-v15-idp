@@ -132,9 +132,7 @@ class ValidationIssue(BaseModel):
     message_en: str = Field(..., description="الرسالة بالإنجليزية - English message")
     location: dict[str, float] | None = Field(None, description="موقع المشكلة - Issue location")
     fixable: bool = Field(False, description="قابل للإصلاح - Can be auto-fixed")
-    details: dict[str, Any] = Field(
-        default_factory=dict, description="تفاصيل إضافية - Additional details"
-    )
+    details: dict[str, Any] = Field(default_factory=dict, description="تفاصيل إضافية - Additional details")
 
 
 class BoundaryValidationResult(BaseModel):
@@ -152,15 +150,11 @@ class BoundaryValidationResult(BaseModel):
     bounding_box: dict[str, float] | None = Field(None, description="المربع المحيط - Bounding box")
 
     # التحسينات - Improvements
-    simplified_geometry: dict[str, Any] | None = Field(
-        None, description="هندسة مبسطة - Simplified geometry"
-    )
+    simplified_geometry: dict[str, Any] | None = Field(None, description="هندسة مبسطة - Simplified geometry")
     fixed_geometry: dict[str, Any] | None = Field(None, description="هندسة مصلحة - Fixed geometry")
 
     # الميتاداتا - Metadata
-    validation_timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت التحقق - Validation time"
-    )
+    validation_timestamp: datetime = Field(default_factory=datetime.utcnow, description="وقت التحقق - Validation time")
     validator_version: str = Field("1.0.0", description="إصدار المحقق - Validator version")
 
 
@@ -173,12 +167,8 @@ class OverlapResult(BaseModel):
     overlapping_fields: list[dict[str, Any]] = Field(
         default_factory=list, description="الحقول المتداخلة - Overlapping fields"
     )
-    total_overlap_area_hectares: float = Field(
-        0.0, description="مساحة التداخل الكلية - Total overlap area"
-    )
-    max_overlap_percentage: float = Field(
-        0.0, description="أقصى نسبة تداخل - Max overlap percentage"
-    )
+    total_overlap_area_hectares: float = Field(0.0, description="مساحة التداخل الكلية - Total overlap area")
+    max_overlap_percentage: float = Field(0.0, description="أقصى نسبة تداخل - Max overlap percentage")
 
 
 # ============== فئة المحقق - Validator Class ==============
@@ -349,9 +339,7 @@ class BoundaryValidator:
             # تبسيط الهندسة - Simplify geometry
             simplified_geom = None
             try:
-                simplified_polygon = self.simplify_geometry(
-                    polygon, DEFAULT_SIMPLIFICATION_TOLERANCE
-                )
+                simplified_polygon = self.simplify_geometry(polygon, DEFAULT_SIMPLIFICATION_TOLERANCE)
                 if simplified_polygon:
                     simplified_geom = mapping(simplified_polygon)
             except Exception:
@@ -485,9 +473,7 @@ class BoundaryValidator:
 
         return issues
 
-    def simplify_geometry(
-        self, polygon: Polygon, tolerance: float = DEFAULT_SIMPLIFICATION_TOLERANCE
-    ) -> Polygon:
+    def simplify_geometry(self, polygon: Polygon, tolerance: float = DEFAULT_SIMPLIFICATION_TOLERANCE) -> Polygon:
         """
         تبسيط الهندسة (تقليل عدد النقاط مع الحفاظ على الشكل)
         Simplify geometry (reduce points while preserving shape)
@@ -561,10 +547,7 @@ class BoundaryValidator:
         bounds = polygon.bounds  # (minx, miny, maxx, maxy)
 
         # التحقق من خطوط الطول - Check longitude
-        if (
-            bounds[0] < YEMEN_BOUNDS["longitude"]["min"]
-            or bounds[2] > YEMEN_BOUNDS["longitude"]["max"]
-        ):
+        if bounds[0] < YEMEN_BOUNDS["longitude"]["min"] or bounds[2] > YEMEN_BOUNDS["longitude"]["max"]:
             issues.append(
                 ValidationIssue(
                     issue_type=BoundarySeverity.OUT_OF_YEMEN.value,
@@ -577,10 +560,7 @@ class BoundaryValidator:
             )
 
         # التحقق من خطوط العرض - Check latitude
-        if (
-            bounds[1] < YEMEN_BOUNDS["latitude"]["min"]
-            or bounds[3] > YEMEN_BOUNDS["latitude"]["max"]
-        ):
+        if bounds[1] < YEMEN_BOUNDS["latitude"]["min"] or bounds[3] > YEMEN_BOUNDS["latitude"]["max"]:
             issues.append(
                 ValidationIssue(
                     issue_type=BoundarySeverity.OUT_OF_YEMEN.value,
@@ -749,9 +729,7 @@ class BoundaryValidator:
         """
         try:
             # تحويل الحد الجديد - Convert new boundary
-            new_polygon = shape(
-                new_boundary if new_boundary.get("type") != "Feature" else new_boundary["geometry"]
-            )
+            new_polygon = shape(new_boundary if new_boundary.get("type") != "Feature" else new_boundary["geometry"])
 
             overlapping_fields = []
             total_overlap_area = 0.0
@@ -768,9 +746,7 @@ class BoundaryValidator:
                 if not field_geom:
                     continue
 
-                field_polygon = shape(
-                    field_geom if field_geom.get("type") != "Feature" else field_geom["geometry"]
-                )
+                field_polygon = shape(field_geom if field_geom.get("type") != "Feature" else field_geom["geometry"])
 
                 # فحص التداخل - Check overlap
                 if new_polygon.intersects(field_polygon):
@@ -779,9 +755,7 @@ class BoundaryValidator:
 
                     # حساب نسبة التداخل - Calculate overlap percentage
                     new_area_ha = self.calculate_area_hectares(new_polygon)
-                    overlap_percentage = (
-                        (overlap_area_ha / new_area_ha * 100) if new_area_ha > 0 else 0
-                    )
+                    overlap_percentage = (overlap_area_ha / new_area_ha * 100) if new_area_ha > 0 else 0
 
                     # إذا كان التداخل أكبر من التفاوت المسموح
                     # If overlap exceeds tolerance

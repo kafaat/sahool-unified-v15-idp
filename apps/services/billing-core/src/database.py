@@ -120,9 +120,7 @@ def get_engine() -> AsyncEngine:
             engine_kwargs["pool_size"] = POOL_SIZE
             engine_kwargs["max_overflow"] = MAX_OVERFLOW
             engine_kwargs["pool_timeout"] = POOL_TIMEOUT
-            logger.info(
-                f"Using async QueuePool for production: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}"
-            )
+            logger.info(f"Using async QueuePool for production: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}")
 
         _engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 

@@ -136,9 +136,7 @@ def handle_data_export(payload: dict[str, Any]) -> dict[str, Any]:
 
         # Calculate file size and checksum
         # حساب حجم الملف والتحقق من التجزئة
-        file_size = (
-            len(file_data) if isinstance(file_data, bytes) else len(file_data.encode("utf-8"))
-        )
+        file_size = len(file_data) if isinstance(file_data, bytes) else len(file_data.encode("utf-8"))
         checksum = _calculate_checksum(file_data)
 
         # 4. Upload to storage
@@ -483,11 +481,7 @@ def _collect_sensor_readings(
                     reading = {k: v for k, v in reading.items() if k in include_fields}
                 all_data.append(reading)
 
-        columns = (
-            list(all_data[0].keys())
-            if all_data
-            else ["timestamp", "field_id", "sensor_type", "value", "unit"]
-        )
+        columns = list(all_data[0].keys()) if all_data else ["timestamp", "field_id", "sensor_type", "value", "unit"]
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -550,9 +544,7 @@ def _collect_ndvi_data(
                 all_data.append(record)
 
         columns = (
-            list(all_data[0].keys())
-            if all_data
-            else ["date", "field_id", "mean", "min", "max", "std", "cloud_cover"]
+            list(all_data[0].keys()) if all_data else ["date", "field_id", "mean", "min", "max", "std", "cloud_cover"]
         )
         return all_data, columns, len(all_data)
 
@@ -582,11 +574,7 @@ def _collect_recommendations_data(
                     record = {k: v for k, v in record.items() if k in include_fields}
                 all_data.append(record)
 
-        columns = (
-            list(all_data[0].keys())
-            if all_data
-            else ["date", "field_id", "type", "recommendation", "priority"]
-        )
+        columns = list(all_data[0].keys()) if all_data else ["date", "field_id", "type", "recommendation", "priority"]
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -927,9 +915,7 @@ def _to_json(
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "data": data,
     }
-    return json.dumps(
-        output, indent=2, ensure_ascii=False, default=str
-    ), "application/json; charset=utf-8"
+    return json.dumps(output, indent=2, ensure_ascii=False, default=str), "application/json; charset=utf-8"
 
 
 def _to_geojson(
@@ -981,9 +967,7 @@ def _to_geojson(
         },
     }
 
-    return json.dumps(
-        geojson, indent=2, ensure_ascii=False, default=str
-    ), "application/geo+json; charset=utf-8"
+    return json.dumps(geojson, indent=2, ensure_ascii=False, default=str), "application/geo+json; charset=utf-8"
 
 
 # ============== Compression and Storage Functions ==============

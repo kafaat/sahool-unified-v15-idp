@@ -254,7 +254,8 @@ async def get_drone_status(drone_id: str, req: Request, user=Depends(get_current
         _raise_not_found()
     d = _drones[drone_id]
     return {
-        "drone_id": drone_id, "status": d["status"],
+        "drone_id": drone_id,
+        "status": d["status"],
         "battery_percent": d.get("battery_percent", 100),
         "total_flight_hours": d.get("total_flight_hours", 0),
         "last_updated": datetime.now(UTC).isoformat(),
@@ -275,7 +276,8 @@ async def get_drone_telemetry(drone_id: str, req: Request, user=Depends(get_curr
         _raise_not_found()
 
     return {
-        "drone_id": drone_id, "telemetry": [],
+        "drone_id": drone_id,
+        "telemetry": [],
         "message": "Telemetry data collected during active flights",
         "message_ar": "يتم جمع بيانات القياس عن بعد أثناء الرحلات النشطة",
     }

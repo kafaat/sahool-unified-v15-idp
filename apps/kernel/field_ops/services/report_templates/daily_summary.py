@@ -202,9 +202,7 @@ class DailySummaryReport:
 
         # Create filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = (
-            f"sahool_daily_summary_{field_id}_{report_date.strftime('%Y%m%d')}_{timestamp}.pdf"
-        )
+        filename = f"sahool_daily_summary_{field_id}_{report_date.strftime('%Y%m%d')}_{timestamp}.pdf"
 
         from ..data_exporter import ExportFormat, ExportResult
 
@@ -382,9 +380,7 @@ class DailySummaryReport:
         summary = data["summary"]
 
         # Section title
-        elements.append(
-            Paragraph("الملخص التنفيذي - Executive Summary", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph("الملخص التنفيذي - Executive Summary", self.styles["BilingualHeading"]))
 
         # Status indicator
         status_style = {
@@ -432,9 +428,7 @@ class DailySummaryReport:
         elements = []
         metadata = data["metadata"]
 
-        elements.append(
-            Paragraph("معلومات الحقل - Field Information", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph("معلومات الحقل - Field Information", self.styles["BilingualHeading"]))
 
         # Field info table
         field_data = [
@@ -463,9 +457,7 @@ class DailySummaryReport:
         """Create NDVI section with trend analysis"""
         elements = []
 
-        elements.append(
-            Paragraph("تحليل NDVI - Vegetation Health Analysis", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph("تحليل NDVI - Vegetation Health Analysis", self.styles["BilingualHeading"]))
 
         # Today's NDVI
         if data.get("ndvi_today"):
@@ -498,9 +490,7 @@ class DailySummaryReport:
                 interpretation = "صحة نباتية ضعيفة / Poor vegetation health"
                 interp_style = self.styles["StatusCritical"]
 
-            elements.append(
-                Paragraph(f"<b>التفسير / Interpretation:</b> {interpretation}", interp_style)
-            )
+            elements.append(Paragraph(f"<b>التفسير / Interpretation:</b> {interpretation}", interp_style))
             elements.append(Spacer(1, 0.2 * inch))
 
         # Weekly trend
@@ -526,9 +516,7 @@ class DailySummaryReport:
         if not sensors:
             return elements
 
-        elements.append(
-            Paragraph("قراءات المستشعرات - Sensor Readings", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph("قراءات المستشعرات - Sensor Readings", self.styles["BilingualHeading"]))
 
         sensor_data = [["النوع / Type", "القيمة / Value", "الوحدة / Unit", "الموقع / Location"]]
 
@@ -574,13 +562,9 @@ class DailySummaryReport:
 
         # Forecast
         if data.get("weather_forecast"):
-            elements.append(
-                Paragraph("توقعات الطقس / Weather Forecast (3 days)", self.styles["EnglishHeading"])
-            )
+            elements.append(Paragraph("توقعات الطقس / Weather Forecast (3 days)", self.styles["EnglishHeading"]))
 
-            forecast_data = [
-                ["التاريخ / Date", "الحرارة / Temp", "احتمال المطر / Rain %", "الحالة / Conditions"]
-            ]
+            forecast_data = [["التاريخ / Date", "الحرارة / Temp", "احتمال المطر / Rain %", "الحالة / Conditions"]]
 
             for forecast in data["weather_forecast"]:
                 forecast_data.append(
@@ -635,9 +619,7 @@ class DailySummaryReport:
         if not actions:
             return elements
 
-        elements.append(
-            Paragraph("الإجراءات المتخذة - Actions Taken", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph("الإجراءات المتخذة - Actions Taken", self.styles["BilingualHeading"]))
 
         action_data = [["النوع / Type", "الوصف / Description", "الكمية / Amount"]]
 

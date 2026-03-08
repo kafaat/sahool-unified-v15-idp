@@ -238,7 +238,10 @@ class CalibrationRepository:
                     WHERE tenant_id=$1 AND field_id=$2
                       AND season_id=$3 AND model_name=$4 AND status='active'
                     """,
-                    tenant_id, field_id, season_id, model_name,
+                    tenant_id,
+                    field_id,
+                    season_id,
+                    model_name,
                 )
 
                 # 2. Deprecate current
@@ -249,7 +252,10 @@ class CalibrationRepository:
                     WHERE tenant_id=$1 AND field_id=$2
                       AND season_id=$3 AND model_name=$4 AND status='active'
                     """,
-                    tenant_id, field_id, season_id, model_name,
+                    tenant_id,
+                    field_id,
+                    season_id,
+                    model_name,
                 )
 
                 # 3. Activate new
@@ -260,7 +266,11 @@ class CalibrationRepository:
                     WHERE id=$1::uuid AND tenant_id=$2 AND field_id=$3
                       AND season_id=$4 AND model_name=$5
                     """,
-                    new_set_id, tenant_id, field_id, season_id, model_name,
+                    new_set_id,
+                    tenant_id,
+                    field_id,
+                    season_id,
+                    model_name,
                 )
 
                 # 4. Audit log
@@ -271,8 +281,14 @@ class CalibrationRepository:
                        from_parameter_set_id, to_parameter_set_id, actor, reason)
                     VALUES ($1, $2, $3, $4, $5::uuid, $6::uuid, $7, $8)
                     """,
-                    tenant_id, field_id, season_id, model_name,
-                    prev_id, new_set_id, actor, reason,
+                    tenant_id,
+                    field_id,
+                    season_id,
+                    model_name,
+                    prev_id,
+                    new_set_id,
+                    actor,
+                    reason,
                 )
 
         logger.info(

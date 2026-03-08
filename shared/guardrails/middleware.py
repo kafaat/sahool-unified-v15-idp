@@ -108,9 +108,7 @@ class ViolationLogger:
         }
 
         self.violations.append(violation_record)
-        self.logger.warning(
-            f"Input violation: request_id={request_id} user_id={user_id} violations={violations}"
-        )
+        self.logger.warning(f"Input violation: request_id={request_id} user_id={user_id} violations={violations}")
 
         # Alert on critical violations
         if metadata.get("injection_patterns") or metadata.get("blocked_topic"):
@@ -134,9 +132,7 @@ class ViolationLogger:
         }
 
         self.violations.append(violation_record)
-        self.logger.warning(
-            f"Output warning: request_id={request_id} user_id={user_id} warnings={warnings}"
-        )
+        self.logger.warning(f"Output warning: request_id={request_id} user_id={user_id} warnings={warnings}")
 
         # Alert on safety issues
         if metadata.get("safety_issues"):
@@ -209,9 +205,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         try:
             # 1. Filter input (for POST/PUT requests with body)
             if request.method in ["POST", "PUT", "PATCH"]:
-                request = await self._filter_input(
-                    request, request_id, user_id, trust_level, strict_check
-                )
+                request = await self._filter_input(request, request_id, user_id, trust_level, strict_check)
 
             # 2. Call next middleware/endpoint
             response = await call_next(request)
@@ -304,9 +298,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
 
                 # Log warnings
                 if result.warnings and self.config.log_violations:
-                    logger.info(
-                        f"Input warnings: request_id={request_id} warnings={result.warnings}"
-                    )
+                    logger.info(f"Input warnings: request_id={request_id} warnings={result.warnings}")
 
             # Update request body with filtered data
             filtered_body = json.dumps(data).encode("utf-8")
@@ -525,11 +517,7 @@ def setup_guardrails(
     config = config or GuardrailsConfig()
     app.add_middleware(GuardrailsMiddleware, config=config, policy_manager=policy_manager)
 
-    logger.info(
-        f"AI Safety Guardrails enabled: "
-        f"block_violations={config.block_violations} "
-        f"mask_pii={config.mask_pii}"
-    )
+    logger.info(f"AI Safety Guardrails enabled: block_violations={config.block_violations} mask_pii={config.mask_pii}")
 
 
 def get_violation_stats() -> dict:
@@ -548,8 +536,7 @@ def get_violation_stats() -> dict:
         "critical_violations": sum(
             1
             for v in violations
-            if v.get("metadata", {}).get("injection_patterns")
-            or v.get("metadata", {}).get("blocked_topic")
+            if v.get("metadata", {}).get("injection_patterns") or v.get("metadata", {}).get("blocked_topic")
         ),
         "by_trust_level": {},
     }

@@ -46,9 +46,7 @@ def test_export_analysis():
                 # Get filename from header
                 content_disp = response.headers.get("Content-Disposition", "")
                 filename = (
-                    content_disp.split("filename=")[1].strip('"')
-                    if "filename=" in content_disp
-                    else f"analysis.{fmt}"
+                    content_disp.split("filename=")[1].strip('"') if "filename=" in content_disp else f"analysis.{fmt}"
                 )
 
                 # Save to file
@@ -59,9 +57,7 @@ def test_export_analysis():
                 # Display info
                 print("  ✓ Success")
                 print(f"  File: {filename}")
-                print(
-                    f"  Size: {response.headers.get('X-Export-Size', len(response.content))} bytes"
-                )
+                print(f"  Size: {response.headers.get('X-Export-Size', len(response.content))} bytes")
                 print(f"  Generated: {response.headers.get('X-Generated-At')}")
                 print(f"  Content-Type: {response.headers.get('Content-Type')}")
 

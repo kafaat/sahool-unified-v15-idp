@@ -207,9 +207,7 @@ class ClaimValidator:
 
         # Check premium payment
         if policy.premium and not policy.premium.paid:
-            result.add_error(
-                "Premium payment is required before claiming", "يجب دفع القسط قبل تقديم المطالبة"
-            )
+            result.add_error("Premium payment is required before claiming", "يجب دفع القسط قبل تقديم المطالبة")
 
         # Check evidence requirements
         min_evidence = self.MIN_EVIDENCE_REQUIREMENTS.get(claim.claim_type, 1)
@@ -221,19 +219,13 @@ class ClaimValidator:
 
         # Check field match
         if claim.field_id != policy.field_id:
-            result.add_error(
-                "Claim field does not match policy field", "حقل المطالبة لا يتطابق مع حقل البوليصة"
-            )
+            result.add_error("Claim field does not match policy field", "حقل المطالبة لا يتطابق مع حقل البوليصة")
 
         # Check loss percentage
         if claim.estimated_loss_percentage <= 0:
-            result.add_error(
-                "Loss percentage must be greater than 0", "يجب أن تكون نسبة الخسارة أكبر من 0"
-            )
+            result.add_error("Loss percentage must be greater than 0", "يجب أن تكون نسبة الخسارة أكبر من 0")
         elif claim.estimated_loss_percentage > 100:
-            result.add_error(
-                "Loss percentage cannot exceed 100%", "لا يمكن أن تتجاوز نسبة الخسارة 100%"
-            )
+            result.add_error("Loss percentage cannot exceed 100%", "لا يمكن أن تتجاوز نسبة الخسارة 100%")
 
         # Check affected area
         if claim.affected_area_hectares > claim.total_field_area_hectares:
@@ -319,11 +311,7 @@ class PayoutCalculator:
         calculation.calculation_steps = []
 
         # Use verified loss if available, otherwise estimated
-        loss_pct = (
-            verified_loss_percentage
-            or claim.verified_loss_percentage
-            or claim.estimated_loss_percentage
-        )
+        loss_pct = verified_loss_percentage or claim.verified_loss_percentage or claim.estimated_loss_percentage
         calculation.loss_percentage = loss_pct
 
         # Step 1: Calculate gross loss
@@ -371,9 +359,7 @@ class PayoutCalculator:
         # Step 3: Apply deductible
         deductible_pct = policy.coverage.deductible_percentage / 100
         if policy.coverage.deductible_amount:
-            deductible = min(
-                policy.coverage.deductible_amount, covered_loss * Decimal(str(deductible_pct))
-            )
+            deductible = min(policy.coverage.deductible_amount, covered_loss * Decimal(str(deductible_pct)))
         else:
             deductible = covered_loss * Decimal(str(deductible_pct))
 
@@ -467,8 +453,12 @@ class PayoutCalculator:
 
         if not is_triggered:
             calculation.is_approved = False
-            calculation.rejection_reason = f"Trigger condition not met: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
-            calculation.rejection_reason_ar = f"شرط المحفز غير مستوفى: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
+            calculation.rejection_reason = (
+                f"Trigger condition not met: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
+            )
+            calculation.rejection_reason_ar = (
+                f"شرط المحفز غير مستوفى: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
+            )
             return calculation
 
         calculation.calculation_steps.append(
@@ -578,7 +568,9 @@ class PayoutCalculator:
         # Check if index is triggered
         if not index.is_triggered():
             calculation.is_approved = False
-            calculation.rejection_reason = f"Weather index not triggered: {index.current_value} vs threshold {index.trigger_threshold}"
+            calculation.rejection_reason = (
+                f"Weather index not triggered: {index.current_value} vs threshold {index.trigger_threshold}"
+            )
             calculation.rejection_reason_ar = (
                 f"مؤشر الطقس غير محفز: {index.current_value} مقابل العتبة {index.trigger_threshold}"
             )
@@ -632,9 +624,7 @@ class PayoutCalculator:
         calculation.covered_loss = net_payout + deductible
         calculation.coverage_percentage = 100.0
         calculation.loss_percentage = (
-            (float(gross_payout / policy.coverage.sum_insured) * 100)
-            if policy.coverage.sum_insured
-            else 0
+            (float(gross_payout / policy.coverage.sum_insured) * 100) if policy.coverage.sum_insured else 0
         )
 
         calculation.calculation_steps.append(
@@ -678,9 +668,7 @@ class ClaimStorage:
             if os.getenv("ENVIRONMENT") == "production"
             else "/tmp/sahool_insurance_claims"
         )  # nosec B108
-        self.storage_path = Path(
-            storage_path or os.getenv("INSURANCE_CLAIMS_STORAGE_PATH", default_path)
-        )
+        self.storage_path = Path(storage_path or os.getenv("INSURANCE_CLAIMS_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -795,15 +783,9 @@ class ClaimStorage:
             title_ar=data.get("title_ar", ""),
             description=data.get("description", ""),
             description_ar=data.get("description_ar", ""),
-            incident_date=date.fromisoformat(data["incident_date"])
-            if data.get("incident_date")
-            else None,
-            discovery_date=date.fromisoformat(data["discovery_date"])
-            if data.get("discovery_date")
-            else None,
-            reported_date=date.fromisoformat(data["reported_date"])
-            if data.get("reported_date")
-            else date.today(),
+            incident_date=date.fromisoformat(data["incident_date"]) if data.get("incident_date") else None,
+            discovery_date=date.fromisoformat(data["discovery_date"]) if data.get("discovery_date") else None,
+            reported_date=date.fromisoformat(data["reported_date"]) if data.get("reported_date") else date.today(),
             field_id=data.get("field_id", ""),
             field_name=data.get("field_name", ""),
             affected_area_hectares=data.get("affected_area_hectares", 0.0),
@@ -824,12 +806,8 @@ class ClaimStorage:
             verified_loss_percentage=data.get("verified_loss_percentage"),
             payout=payout,
             status_history=data.get("status_history", []),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
             contact_phone=data.get("contact_phone", ""),
             contact_email=data.get("contact_email", ""),
             preferred_language=data.get("preferred_language", "ar"),
@@ -1144,15 +1122,11 @@ class ClaimProcessor:
         )
 
         # Calculate payout
-        payout_calc = self.calculator.calculate_parametric_payout(
-            claim, policy, trigger, measured_value
-        )
+        payout_calc = self.calculator.calculate_parametric_payout(claim, policy, trigger, measured_value)
 
         if auto_approve and payout_calc.is_approved and not trigger.requires_verification:
             # Auto-approve the claim
-            claim.add_status_change(
-                ClaimStatus.APPROVED, "system", "Auto-approved parametric claim"
-            )
+            claim.add_status_change(ClaimStatus.APPROVED, "system", "Auto-approved parametric claim")
             claim.verified_loss_percentage = payout_calc.loss_percentage
 
             # Create payout record
@@ -1178,9 +1152,7 @@ class ClaimProcessor:
                 self.on_claim_approved(claim, payout_calc)
         else:
             # Requires manual review
-            claim.add_status_change(
-                ClaimStatus.UNDER_REVIEW, "system", "Parametric claim requires verification"
-            )
+            claim.add_status_change(ClaimStatus.UNDER_REVIEW, "system", "Parametric claim requires verification")
 
         await self.storage.save_claim(claim)
         return claim, payout_calc
@@ -1245,9 +1217,7 @@ class ClaimProcessor:
         payout_calc = self.calculator.calculate_weather_index_payout(claim, policy, index)
 
         if auto_approve and payout_calc.is_approved:
-            claim.add_status_change(
-                ClaimStatus.APPROVED, "system", "Auto-approved weather index claim"
-            )
+            claim.add_status_change(ClaimStatus.APPROVED, "system", "Auto-approved weather index claim")
             claim.verified_loss_percentage = payout_calc.loss_percentage
 
             payout = ClaimPayout(
@@ -1329,13 +1299,9 @@ class ClaimProcessor:
 
         if claim.is_parametric_claim and claim.trigger_id:
             # Find trigger
-            trigger = next(
-                (t for t in policy.parametric_triggers if t.id == claim.trigger_id), None
-            )
+            trigger = next((t for t in policy.parametric_triggers if t.id == claim.trigger_id), None)
             if trigger and claim.index_value is not None:
-                return self.calculator.calculate_parametric_payout(
-                    claim, policy, trigger, claim.index_value
-                )
+                return self.calculator.calculate_parametric_payout(claim, policy, trigger, claim.index_value)
 
         # Traditional claim
         return self.calculator.calculate_traditional_payout(claim, policy)
@@ -1364,9 +1330,7 @@ class ClaimProcessor:
         payout_calc = await self.calculate_payout(claim_id, policy)
 
         if not payout_calc.is_approved:
-            raise InsuranceException(
-                InsuranceErrors.CLAIM_INVALID_STATUS, details=payout_calc.rejection_reason
-            )
+            raise InsuranceException(InsuranceErrors.CLAIM_INVALID_STATUS, details=payout_calc.rejection_reason)
 
         # Create payout record
         payout = ClaimPayout(

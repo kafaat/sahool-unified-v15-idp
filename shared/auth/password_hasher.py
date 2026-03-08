@@ -220,9 +220,7 @@ class PasswordHasher:
             salt = bytes.fromhex(salt_hex)
 
             # Compute hash with same salt
-            computed_hash = hashlib.pbkdf2_hmac(
-                "sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32
-            )
+            computed_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32)
 
             # Constant-time comparison
             is_valid = hmac.compare_digest(computed_hash.hex(), stored_hash_hex)
@@ -244,9 +242,7 @@ class PasswordHasher:
             Hashed password in format: salt$hash (hex encoded)
         """
         salt = secrets.token_bytes(32)
-        hashed = hashlib.pbkdf2_hmac(
-            "sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32
-        )
+        hashed = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32)
         return f"{salt.hex()}${hashed.hex()}"
 
     def needs_rehash(self, hashed_password: str) -> bool:

@@ -204,8 +204,7 @@ class TwoFAEnforcementMiddleware:
         # Check if within grace period
         if self.config.is_within_grace_period(user_created_at):
             logger.warning(
-                f"User {user_id} is within grace period for 2FA setup "
-                f"({self.config.grace_period_days} days)"
+                f"User {user_id} is within grace period for 2FA setup ({self.config.grace_period_days} days)"
             )
             return True, None
 

@@ -865,9 +865,7 @@ class RiskAssessmentEngine:
         profile.determine_risk_level()
 
         # Calculate suggested premium multiplier
-        profile.suggested_premium_multiplier = self.calculator.RISK_MULTIPLIERS.get(
-            profile.overall_risk_level, 1.0
-        )
+        profile.suggested_premium_multiplier = self.calculator.RISK_MULTIPLIERS.get(profile.overall_risk_level, 1.0)
 
         # Generate recommendations
         recommendations_en, recommendations_ar = self._generate_recommendations(profile)
@@ -914,9 +912,7 @@ class RiskAssessmentEngine:
         )
 
         # Salinity risk
-        salinity_score = (
-            min(soil.salinity_ec * 15, 100) if soil.salinity_ec > 2 else soil.salinity_ec * 5
-        )
+        salinity_score = min(soil.salinity_ec * 15, 100) if soil.salinity_ec > 2 else soil.salinity_ec * 5
         factors.append(
             RiskFactor(
                 factor_type="soil",
@@ -1066,10 +1062,7 @@ class RiskAssessmentEngine:
 
         # Combined vulnerability score
         avg_vulnerability = (
-            crop.drought_vulnerability
-            + crop.flood_vulnerability
-            + crop.pest_vulnerability
-            + crop.disease_vulnerability
+            crop.drought_vulnerability + crop.flood_vulnerability + crop.pest_vulnerability + crop.disease_vulnerability
         ) / 4
         factors.append(
             RiskFactor(

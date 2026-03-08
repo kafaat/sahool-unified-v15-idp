@@ -300,11 +300,7 @@ class RedisDeviceRegistry(DeviceRegistry):
         try:
             device_ids = await self._redis.smembers(DEVICE_INDEX)
             for device_id_bytes in device_ids:
-                device_id = (
-                    device_id_bytes.decode()
-                    if isinstance(device_id_bytes, bytes)
-                    else device_id_bytes
-                )
+                device_id = device_id_bytes.decode() if isinstance(device_id_bytes, bytes) else device_id_bytes
                 data = await self._redis.hgetall(f"{DEVICE_PREFIX}{device_id}")
                 if data:
                     device = self._deserialize_device(device_id, data)
@@ -427,9 +423,7 @@ class RedisDeviceRegistry(DeviceRegistry):
         **kwargs,
     ) -> Device:
         """Register a new device with Redis persistence"""
-        device = self.register(
-            device_id, tenant_id, field_id, device_type, name_ar, name_en, **kwargs
-        )
+        device = self.register(device_id, tenant_id, field_id, device_type, name_ar, name_en, **kwargs)
         await self._save_to_redis(device)
         return device
 
@@ -481,11 +475,7 @@ class RedisDeviceRegistry(DeviceRegistry):
             device_ids = await self._redis.smembers(f"{DEVICE_FIELD_INDEX}{field_id}")
             devices = []
             for device_id_bytes in device_ids:
-                device_id = (
-                    device_id_bytes.decode()
-                    if isinstance(device_id_bytes, bytes)
-                    else device_id_bytes
-                )
+                device_id = device_id_bytes.decode() if isinstance(device_id_bytes, bytes) else device_id_bytes
                 device = self.get(device_id)
                 if device:
                     devices.append(device)
@@ -500,11 +490,7 @@ class RedisDeviceRegistry(DeviceRegistry):
             device_ids = await self._redis.smembers(f"{DEVICE_TENANT_INDEX}{tenant_id}")
             devices = []
             for device_id_bytes in device_ids:
-                device_id = (
-                    device_id_bytes.decode()
-                    if isinstance(device_id_bytes, bytes)
-                    else device_id_bytes
-                )
+                device_id = device_id_bytes.decode() if isinstance(device_id_bytes, bytes) else device_id_bytes
                 device = self.get(device_id)
                 if device:
                     devices.append(device)
@@ -519,11 +505,7 @@ class RedisDeviceRegistry(DeviceRegistry):
             device_ids = await self._redis.smembers(f"{DEVICE_TYPE_INDEX}{device_type}")
             devices = []
             for device_id_bytes in device_ids:
-                device_id = (
-                    device_id_bytes.decode()
-                    if isinstance(device_id_bytes, bytes)
-                    else device_id_bytes
-                )
+                device_id = device_id_bytes.decode() if isinstance(device_id_bytes, bytes) else device_id_bytes
                 device = self.get(device_id)
                 if device:
                     devices.append(device)

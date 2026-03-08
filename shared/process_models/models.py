@@ -114,29 +114,17 @@ class DailyWeather:
         if self.tmax_c < self.tmin_c:
             raise ValueError(f"tmax_c ({self.tmax_c}) must be ≥ tmin_c ({self.tmin_c})")
         if not (-50 <= self.tmax_c <= 60):
-            raise ValueError(
-                f"tmax_c ({self.tmax_c}) out of realistic range [-50, 60] °C"
-            )
+            raise ValueError(f"tmax_c ({self.tmax_c}) out of realistic range [-50, 60] °C")
         if not (-50 <= self.tmin_c <= 60):
-            raise ValueError(
-                f"tmin_c ({self.tmin_c}) out of realistic range [-50, 60] °C"
-            )
+            raise ValueError(f"tmin_c ({self.tmin_c}) out of realistic range [-50, 60] °C")
         if not (0 <= self.solar_radiation_mj_m2 <= 50):
-            raise ValueError(
-                f"solar_radiation_mj_m2 ({self.solar_radiation_mj_m2}) out of range [0, 50]"
-            )
+            raise ValueError(f"solar_radiation_mj_m2 ({self.solar_radiation_mj_m2}) out of range [0, 50]")
         if not (0 <= self.relative_humidity_pct <= 100):
-            raise ValueError(
-                f"relative_humidity_pct ({self.relative_humidity_pct}) must be 0-100"
-            )
+            raise ValueError(f"relative_humidity_pct ({self.relative_humidity_pct}) must be 0-100")
         if self.wind_speed_m_s < 0:
-            raise ValueError(
-                f"wind_speed_m_s ({self.wind_speed_m_s}) cannot be negative"
-            )
+            raise ValueError(f"wind_speed_m_s ({self.wind_speed_m_s}) cannot be negative")
         if self.precipitation_mm < 0:
-            raise ValueError(
-                f"precipitation_mm ({self.precipitation_mm}) cannot be negative"
-            )
+            raise ValueError(f"precipitation_mm ({self.precipitation_mm}) cannot be negative")
 
 
 @dataclass
@@ -161,9 +149,7 @@ class SoilProfile:
     @property
     def available_water_capacity_mm(self) -> float:
         """Total available water capacity (mm). الطاقة التخزينية للمياه المتاحة."""
-        return (
-            self.field_capacity_mm_per_m - self.wilting_point_mm_per_m
-        ) * self.depth_m
+        return (self.field_capacity_mm_per_m - self.wilting_point_mm_per_m) * self.depth_m
 
     def __post_init__(self) -> None:
         """Validate physical plausibility of soil inputs."""
@@ -173,9 +159,7 @@ class SoilProfile:
                 f"greater than wilting_point_mm_per_m ({self.wilting_point_mm_per_m})"
             )
         if self.bulk_density_g_cm3 <= 0:
-            raise ValueError(
-                f"bulk_density_g_cm3 ({self.bulk_density_g_cm3}) must be > 0"
-            )
+            raise ValueError(f"bulk_density_g_cm3 ({self.bulk_density_g_cm3}) must be > 0")
         if self.depth_m <= 0:
             raise ValueError(f"depth_m ({self.depth_m}) must be > 0")
         if not (0 <= self.clay_pct <= 100):
@@ -183,9 +167,7 @@ class SoilProfile:
         if not (0 <= self.sand_pct <= 100):
             raise ValueError(f"sand_pct ({self.sand_pct}) must be 0-100")
         if not (0 <= self.organic_carbon_pct <= 100):
-            raise ValueError(
-                f"organic_carbon_pct ({self.organic_carbon_pct}) must be 0-100"
-            )
+            raise ValueError(f"organic_carbon_pct ({self.organic_carbon_pct}) must be 0-100")
 
 
 @dataclass

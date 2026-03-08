@@ -297,9 +297,7 @@ def create_token_pair(
     }
 
 
-def refresh_access_token(
-    refresh_token: str, roles: list[str], permissions: list[str] | None = None
-) -> str:
+def refresh_access_token(refresh_token: str, roles: list[str], permissions: list[str] | None = None) -> str:
     """
     Create a new access token using a refresh token.
 

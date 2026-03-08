@@ -310,8 +310,7 @@ class EX_Extent(BaseModel):
         vmin = info.data.get("vertical_min_m")
         if v is not None and vmin is not None and v < vmin:
             raise ValueError(
-                f"vertical_max_m ({v}) must be >= vertical_min_m ({vmin}) | "
-                "الارتفاع الأقصى يجب أن يكون >= الأدنى"
+                f"vertical_max_m ({v}) must be >= vertical_min_m ({vmin}) | الارتفاع الأقصى يجب أن يكون >= الأدنى"
             )
         return v
 

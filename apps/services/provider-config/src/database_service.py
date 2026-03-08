@@ -113,9 +113,7 @@ class CacheManager:
                 pattern = f"provider_config:{tenant_id}:*"
                 cursor = 0
                 while True:
-                    cursor, keys = await self.redis_client.scan(
-                        cursor, match=pattern, count=100
-                    )
+                    cursor, keys = await self.redis_client.scan(cursor, match=pattern, count=100)
                     if keys:
                         await self.redis_client.delete(*keys)
                     if cursor == 0:
@@ -238,9 +236,7 @@ class ProviderConfigService:
             .first()
         )
 
-    def get_enabled_providers(
-        self, session: Session, tenant_id: str, provider_type: str
-    ) -> list[ProviderConfig]:
+    def get_enabled_providers(self, session: Session, tenant_id: str, provider_type: str) -> list[ProviderConfig]:
         """Get all enabled providers of a specific type for failover"""
         return (
             session.query(ProviderConfig)
@@ -311,9 +307,7 @@ class ProviderConfigService:
     # DELETE
     # ─────────────────────────────────────────────────────────────────────────
 
-    def delete_config(
-        self, session: Session, tenant_id: str, provider_type: str, provider_name: str
-    ) -> bool:
+    def delete_config(self, session: Session, tenant_id: str, provider_type: str, provider_name: str) -> bool:
         """Delete provider configuration"""
         try:
             config = self.get_config_by_name(session, tenant_id, provider_type, provider_name)
@@ -353,9 +347,7 @@ class ProviderConfigService:
 
         return query.order_by(ConfigVersion.changed_at.desc()).limit(limit).all()
 
-    def get_config_version(
-        self, session: Session, config_id: str, version: int
-    ) -> ConfigVersion | None:
+    def get_config_version(self, session: Session, config_id: str, version: int) -> ConfigVersion | None:
         """Get specific version of a configuration"""
         return (
             session.query(ConfigVersion)

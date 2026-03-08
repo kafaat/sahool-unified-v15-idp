@@ -238,15 +238,9 @@ class ChecklistService:
 
         # Count by compliance level
         # العد حسب مستوى الامتثال
-        major_must = sum(
-            1 for item in all_items if item.compliance_level == ComplianceLevel.MAJOR_MUST
-        )
-        minor_must = sum(
-            1 for item in all_items if item.compliance_level == ComplianceLevel.MINOR_MUST
-        )
-        recommendations = sum(
-            1 for item in all_items if item.compliance_level == ComplianceLevel.RECOMMENDATION
-        )
+        major_must = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.MAJOR_MUST)
+        minor_must = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.MINOR_MUST)
+        recommendations = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.RECOMMENDATION)
 
         # Create checklist
         # إنشاء قائمة المراجعة
@@ -344,19 +338,11 @@ class ChecklistService:
         summary = {
             "total_assessments": len(assessments),
             "compliant": sum(1 for a in assessments if a.status == ControlPointStatus.COMPLIANT),
-            "non_compliant": sum(
-                1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
-            ),
-            "not_applicable": sum(
-                1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE
-            ),
-            "not_assessed": sum(
-                1 for a in assessments if a.status == ControlPointStatus.NOT_ASSESSED
-            ),
+            "non_compliant": sum(1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT),
+            "not_applicable": sum(1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE),
+            "not_assessed": sum(1 for a in assessments if a.status == ControlPointStatus.NOT_ASSESSED),
             "completion_percentage": (
-                len([a for a in assessments if a.status != ControlPointStatus.NOT_ASSESSED])
-                / len(assessments)
-                * 100
+                len([a for a in assessments if a.status != ControlPointStatus.NOT_ASSESSED]) / len(assessments) * 100
                 if assessments
                 else 0
             ),
@@ -381,16 +367,10 @@ class ChecklistService:
 
         for item in self.checklist_items.values():
             if language == "ar":
-                if (
-                    query_lower in item.title_ar.lower()
-                    or query_lower in item.requirement_ar.lower()
-                ):
+                if query_lower in item.title_ar.lower() or query_lower in item.requirement_ar.lower():
                     results.append(item)
             else:
-                if (
-                    query_lower in item.title_en.lower()
-                    or query_lower in item.requirement_en.lower()
-                ):
+                if query_lower in item.title_en.lower() or query_lower in item.requirement_en.lower():
                     results.append(item)
 
         return results

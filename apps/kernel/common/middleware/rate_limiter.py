@@ -119,9 +119,7 @@ class RateLimitStrategy(ABC):
         self.redis = redis_client
 
     @abstractmethod
-    async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
+    async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """
         التحقق من حد المعدل
         Check if request is within rate limits.
@@ -173,9 +171,7 @@ class FixedWindowLimiter(RateLimitStrategy):
     Cons: Can allow 2x requests at window boundaries
     """
 
-    async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
+    async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة ثابتة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         # If limit is zero, allow all requests
@@ -252,9 +248,7 @@ class FixedWindowLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(
-                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
-            )
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -279,9 +273,7 @@ class SlidingWindowLimiter(RateLimitStrategy):
     Cons: Higher memory usage, slightly slower
     """
 
-    async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
+    async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة منزلقة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         if config.requests == 0:
@@ -358,9 +350,7 @@ class SlidingWindowLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(
-                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
-            )
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -385,9 +375,7 @@ class TokenBucketLimiter(RateLimitStrategy):
     Cons: More complex to implement
     """
 
-    async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
-    ) -> tuple[bool, int, int]:
+    async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام دلو الرموز"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         if config.requests == 0:
@@ -479,9 +467,7 @@ class TokenBucketLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(
-                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
-            )
+            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
             return False
 
 
@@ -543,18 +529,13 @@ class RateLimiter:
             # اختبار الاتصال
             # Test connection
             await self.redis.ping()
-            logger.info(
-                f"✓ Redis متصل للحد من المعدل - Redis connected for rate limiting: {self.redis_url}"
-            )
+            logger.info(f"✓ Redis متصل للحد من المعدل - Redis connected for rate limiting: {self.redis_url}")
 
         except ImportError as e:
             logger.warning(f"⚠ مكتبة Redis غير متاحة - Redis library not available: {e}")
             self.redis = None
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.warning(
-                f"⚠ Redis غير متاح، حد المعدل معطل - "
-                f"Redis not available, rate limiting disabled: {e}"
-            )
+            logger.warning(f"⚠ Redis غير متاح، حد المعدل معطل - Redis not available, rate limiting disabled: {e}")
             self.redis = None
 
         # إنشاء مثيلات الاستراتيجيات
@@ -689,9 +670,7 @@ class RateLimiter:
                             if cursor == 0:
                                 break
                 except (ConnectionError, TimeoutError, OSError) as e:
-                    logger.error(
-                        f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
-                    )
+                    logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
                     success = False
 
             logger.info(f"إعادة تعيين جميع حدود المعدل - All rate limits reset: client={client_id}")
@@ -837,9 +816,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # التحقق من حد المعدل
         # Check rate limit
-        allowed, remaining, reset = await self.limiter.check_rate_limit(
-            client_id=client_id, endpoint=endpoint
-        )
+        allowed, remaining, reset = await self.limiter.check_rate_limit(client_id=client_id, endpoint=endpoint)
 
         # إعداد رؤوس حد المعدل
         # Prepare rate limit headers

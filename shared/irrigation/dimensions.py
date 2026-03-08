@@ -450,9 +450,7 @@ class GoalAnchoringDimension(HMCDimension):
         # Check goal-constraint compatibility
         if self._primary_goal and self._ecological_constraints:
             for constraint in self._ecological_constraints:
-                compatibility_issues = self._check_goal_constraint_compatibility(
-                    self._primary_goal, constraint
-                )
+                compatibility_issues = self._check_goal_constraint_compatibility(self._primary_goal, constraint)
                 issues.extend(compatibility_issues)
 
         # Check secondary goals don't conflict with primary
@@ -556,8 +554,7 @@ class GoalAnchoringDimension(HMCDimension):
         # Check water quota is positive
         if constraint.water_quota_m3 and constraint.water_quota_m3 < 100:
             warnings.append(
-                "Water quota below 100 m3/ha may be insufficient | "
-                "حصة المياه أقل من 100 م3/هـ قد تكون غير كافية"
+                "Water quota below 100 m3/ha may be insufficient | حصة المياه أقل من 100 م3/هـ قد تكون غير كافية"
             )
 
         return True, warnings
@@ -571,10 +568,7 @@ class GoalAnchoringDimension(HMCDimension):
         conflicts: list[str] = []
 
         # Water saving and high yield can conflict
-        if (
-            goal1.goal_type == IrrigationGoalType.WATER_SAVING
-            and goal2.goal_type == IrrigationGoalType.HIGH_YIELD
-        ):
+        if goal1.goal_type == IrrigationGoalType.WATER_SAVING and goal2.goal_type == IrrigationGoalType.HIGH_YIELD:
             conflicts.append(
                 "Water saving and high yield goals may conflict - consider balanced approach | "
                 "أهداف توفير المياه والإنتاجية العالية قد تتعارض - فكر في نهج متوازن"
@@ -1080,10 +1074,7 @@ class ExperienceInjectionDimension(HMCDimension):
 
         if any(crop in condition_lower for crop in ["wheat", "barley", "tomato", "palm"]):
             self._knowledge_base["crop_specific"].append(rule)
-        elif any(
-            weather in condition_lower
-            for weather in ["rain", "wind", "cold", "heat", "temperature"]
-        ):
+        elif any(weather in condition_lower for weather in ["rain", "wind", "cold", "heat", "temperature"]):
             self._knowledge_base["weather_related"].append(rule)
         elif any(soil in condition_lower for soil in ["soil", "salinity", "moisture"]):
             self._knowledge_base["soil_related"].append(rule)
@@ -1101,10 +1092,7 @@ class ExperienceInjectionDimension(HMCDimension):
         conflicts: list[str] = []
 
         # Simple conflict detection: same condition, different action
-        if (
-            rule1.condition.lower() == rule2.condition.lower()
-            and rule1.action.lower() != rule2.action.lower()
-        ):
+        if rule1.condition.lower() == rule2.condition.lower() and rule1.action.lower() != rule2.action.lower():
             conflicts.append(
                 f"Conflicting actions for same condition: '{rule1.condition}' -> "
                 f"'{rule1.action}' vs '{rule2.action}' | "
@@ -1596,12 +1584,8 @@ class SupervisionCalibrationDimension(HMCDimension):
         # Check schedule timing
         for schedule in program.schedules:
             if schedule.duration_minutes > 180:
-                issues.append(
-                    f"Long irrigation duration in zone {schedule.zone_id}: {schedule.duration_minutes} min"
-                )
-                issues_ar.append(
-                    f"مدة ري طويلة في المنطقة {schedule.zone_id}: {schedule.duration_minutes} دقيقة"
-                )
+                issues.append(f"Long irrigation duration in zone {schedule.zone_id}: {schedule.duration_minutes} min")
+                issues_ar.append(f"مدة ري طويلة في المنطقة {schedule.zone_id}: {schedule.duration_minutes} دقيقة")
 
         result.issues_found = issues
         result.issues_found_ar = issues_ar

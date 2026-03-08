@@ -121,8 +121,7 @@ class IoTAgent(BaseAgent):
         # Critical moisture - immediate irrigation
         self.add_rule(
             condition=lambda ctx: (
-                ctx.sensor_data.get("soil_moisture", 1)
-                < self.THRESHOLDS["soil_moisture"]["critical_low"]
+                ctx.sensor_data.get("soil_moisture", 1) < self.THRESHOLDS["soil_moisture"]["critical_low"]
                 and not self.internal_model["irrigation_in_progress"]
             ),
             action=AgentAction(
@@ -153,8 +152,7 @@ class IoTAgent(BaseAgent):
         # Critical temperature
         self.add_rule(
             condition=lambda ctx: (
-                ctx.sensor_data.get("temperature", 25)
-                > self.THRESHOLDS["temperature"]["critical_hot"]
+                ctx.sensor_data.get("temperature", 25) > self.THRESHOLDS["temperature"]["critical_hot"]
             ),
             action=AgentAction(
                 action_type="heat_emergency",
@@ -167,9 +165,7 @@ class IoTAgent(BaseAgent):
 
         # Frost warning
         self.add_rule(
-            condition=lambda ctx: (
-                ctx.sensor_data.get("temperature", 25) <= self.THRESHOLDS["temperature"]["frost"]
-            ),
+            condition=lambda ctx: ctx.sensor_data.get("temperature", 25) <= self.THRESHOLDS["temperature"]["frost"],
             action=AgentAction(
                 action_type="frost_emergency",
                 parameters={"action": "activate_heating"},
@@ -211,9 +207,7 @@ class IoTAgent(BaseAgent):
             # Batch sensor update
             for sensor_type, value in percept.data.items():
                 if sensor_type in self.sensor_buffers:
-                    self.sensor_buffers[sensor_type].append(
-                        {"value": value, "timestamp": datetime.now()}
-                    )
+                    self.sensor_buffers[sensor_type].append({"value": value, "timestamp": datetime.now()})
 
             # Update context
             if self.context:
@@ -225,9 +219,7 @@ class IoTAgent(BaseAgent):
             sensor_type = percept.data.get("type")
             value = percept.data.get("value")
             if sensor_type and sensor_type in self.sensor_buffers:
-                self.sensor_buffers[sensor_type].append(
-                    {"value": value, "timestamp": datetime.now()}
-                )
+                self.sensor_buffers[sensor_type].append({"value": value, "timestamp": datetime.now()})
                 if self.context:
                     self.context.sensor_data[sensor_type] = value
 
@@ -242,9 +234,7 @@ class IoTAgent(BaseAgent):
         }
 
         # Calculate trends
-        self.internal_model["trend"] = {
-            sensor: self._calculate_trend(sensor) for sensor in self.sensor_buffers
-        }
+        self.internal_model["trend"] = {sensor: self._calculate_trend(sensor) for sensor in self.sensor_buffers}
 
         # Predict next state
         self.internal_model["predicted_state"] = {

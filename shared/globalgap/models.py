@@ -42,9 +42,7 @@ class ChecklistItem(BaseModel):
 
     compliance_level: ComplianceLevel = Field(..., description="Compliance level requirement")
 
-    evidence_required: list[str] = Field(
-        default_factory=list, description="Types of evidence required"
-    )
+    evidence_required: list[str] = Field(default_factory=list, description="Types of evidence required")
 
     guidance_en: str | None = Field(None, description="Implementation guidance in English")
     guidance_ar: str | None = Field(None, description="Implementation guidance in Arabic")
@@ -54,9 +52,7 @@ class ChecklistItem(BaseModel):
         description="Applicable scopes (FV, CROPS_BASE, etc.)",
     )
 
-    not_applicable_allowed: bool = Field(
-        default=False, description="Whether N/A is an acceptable response"
-    )
+    not_applicable_allowed: bool = Field(default=False, description="Whether N/A is an acceptable response")
 
     order: int = Field(..., description="Display order within category")
 
@@ -79,9 +75,7 @@ class ChecklistCategory(BaseModel):
     description_en: str = Field(..., description="Category description in English")
     description_ar: str = Field(..., description="Category description in Arabic")
 
-    items: list[ChecklistItem] = Field(
-        default_factory=list, description="Control points in this category"
-    )
+    items: list[ChecklistItem] = Field(default_factory=list, description="Control points in this category")
 
     order: int = Field(..., description="Display order")
 
@@ -151,9 +145,7 @@ class AuditFinding(BaseModel):
     is_compliant: bool = Field(..., description="Compliance status")
     is_not_applicable: bool = Field(default=False, description="Not applicable flag")
 
-    evidence_collected: list[str] = Field(
-        default_factory=list, description="Evidence types collected"
-    )
+    evidence_collected: list[str] = Field(default_factory=list, description="Evidence types collected")
 
     notes_en: str | None = Field(None, description="Auditor notes in English")
     notes_ar: str | None = Field(None, description="Auditor notes in Arabic")
@@ -247,18 +239,14 @@ class CorrectiveAction(BaseModel):
     planned_date: date = Field(..., description="Planned completion date")
     actual_date: date | None = Field(None, description="Actual completion date")
 
-    status: CorrectiveActionStatus = Field(
-        default=CorrectiveActionStatus.PLANNED, description="Action status"
-    )
+    status: CorrectiveActionStatus = Field(default=CorrectiveActionStatus.PLANNED, description="Action status")
 
     effectiveness_verified: bool = Field(default=False, description="Effectiveness verified")
     verification_date: datetime | None = Field(None, description="Verification date")
     verification_notes_en: str | None = Field(None, description="Verification notes in English")
     verification_notes_ar: str | None = Field(None, description="Verification notes in Arabic")
 
-    evidence_documents: list[str] = Field(
-        default_factory=list, description="Supporting document URLs"
-    )
+    evidence_documents: list[str] = Field(default_factory=list, description="Supporting document URLs")
     evidence_photos: list[str] = Field(default_factory=list, description="Supporting photo URLs")
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -343,9 +331,7 @@ class FarmRegistration(BaseModel):
     # Location
     country_code: str = Field(..., description="Country code (ISO 2-letter)")
     region: str = Field(..., description="State/region")
-    location_coordinates: dict[str, float] | None = Field(
-        None, description="GPS coordinates {lat, lng}"
-    )
+    location_coordinates: dict[str, float] | None = Field(None, description="GPS coordinates {lat, lng}")
 
     # Certification Scope
     certification_scope: list[str] = Field(
@@ -353,9 +339,7 @@ class FarmRegistration(BaseModel):
         description="Certification scopes (FV, CROPS_BASE, etc.)",
     )
 
-    product_types_en: list[str] = Field(
-        default_factory=list, description="Product types in English"
-    )
+    product_types_en: list[str] = Field(default_factory=list, description="Product types in English")
     product_types_ar: list[str] = Field(default_factory=list, description="Product types in Arabic")
 
     # Certification Body
@@ -366,14 +350,10 @@ class FarmRegistration(BaseModel):
     certificate_number: str | None = Field(None, description="Certificate number")
     certificate_issue_date: date | None = Field(None, description="Issue date")
     certificate_expiry_date: date | None = Field(None, description="Expiry date")
-    certificate_status: str = Field(
-        default="PENDING", description="Status (PENDING, ACTIVE, SUSPENDED, EXPIRED)"
-    )
+    certificate_status: str = Field(default="PENDING", description="Status (PENDING, ACTIVE, SUSPENDED, EXPIRED)")
 
     # Parallel Production/Ownership
-    parallel_production: bool = Field(
-        default=False, description="Parallel production with non-certified"
-    )
+    parallel_production: bool = Field(default=False, description="Parallel production with non-certified")
     parallel_ownership: bool = Field(default=False, description="Parallel ownership situations")
 
     # Registration Dates
@@ -447,17 +427,11 @@ class AuditSession(BaseModel):
 
     # Results
     findings: list[AuditFinding] = Field(default_factory=list, description="Audit findings")
-    non_conformances: list[NonConformance] = Field(
-        default_factory=list, description="Non-conformances"
-    )
+    non_conformances: list[NonConformance] = Field(default_factory=list, description="Non-conformances")
 
-    overall_compliance: ComplianceRequirement | None = Field(
-        None, description="Overall compliance result"
-    )
+    overall_compliance: ComplianceRequirement | None = Field(None, description="Overall compliance result")
 
-    recommendation: str | None = Field(
-        None, description="Audit recommendation (APPROVE, REJECT, CONDITIONAL)"
-    )
+    recommendation: str | None = Field(None, description="Audit recommendation (APPROVE, REJECT, CONDITIONAL)")
 
     # Report
     report_url: str | None = Field(None, description="Audit report URL")

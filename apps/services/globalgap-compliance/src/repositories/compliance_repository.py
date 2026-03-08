@@ -116,21 +116,15 @@ class ComplianceRepository:
                     record["registration"] = registration
 
                     if include_responses:
-                        record[
-                            "responses"
-                        ] = await self.checklist_responses.get_by_compliance_record(record["id"])
+                        record["responses"] = await self.checklist_responses.get_by_compliance_record(record["id"])
                         record["non_compliant_count"] = sum(
                             1 for r in record["responses"] if r["response"] == "NON_COMPLIANT"
                         )
 
                     if include_non_conformances:
-                        record[
-                            "non_conformances"
-                        ] = await self.non_conformances.get_by_compliance_record(record["id"])
+                        record["non_conformances"] = await self.non_conformances.get_by_compliance_record(record["id"])
                         record["open_nc_count"] = sum(
-                            1
-                            for nc in record["non_conformances"]
-                            if nc["status"] in ("OPEN", "IN_PROGRESS")
+                            1 for nc in record["non_conformances"] if nc["status"] in ("OPEN", "IN_PROGRESS")
                         )
 
                     all_compliance_records.append(record)
@@ -138,9 +132,7 @@ class ComplianceRepository:
             result["compliance_records"] = all_compliance_records
 
             # Calculate summary statistics / حساب الإحصائيات الموجزة
-            result["summary"] = await self._calculate_farm_summary(
-                registrations, all_compliance_records
-            )
+            result["summary"] = await self._calculate_farm_summary(registrations, all_compliance_records)
 
             return result
 
@@ -536,9 +528,7 @@ class ComplianceRepository:
             logger.error(f"Error generating compliance summary report: {e}")
             raise
 
-    async def get_farm_compliance_history(
-        self, farm_id: UUID, limit: int | None = 10
-    ) -> list[dict[str, Any]]:
+    async def get_farm_compliance_history(self, farm_id: UUID, limit: int | None = 10) -> list[dict[str, Any]]:
         """
         Get compliance history for a farm with trend analysis
         الحصول على سجل الامتثال للمزرعة مع تحليل الاتجاه
@@ -726,9 +716,7 @@ class ComplianceRepository:
             logger.error(f"Error getting expiring certificates report: {e}")
             raise
 
-    async def get_compliance_trends(
-        self, farm_id: UUID | None = None, months: int = 12
-    ) -> dict[str, Any]:
+    async def get_compliance_trends(self, farm_id: UUID | None = None, months: int = 12) -> dict[str, Any]:
         """
         Get compliance trends over time with monthly aggregation
         الحصول على اتجاهات الامتثال مع مرور الوقت مع التجميع الشهري

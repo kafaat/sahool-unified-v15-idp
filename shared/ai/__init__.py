@@ -1117,57 +1117,91 @@ if QUALITY_ORCHESTRATOR_AVAILABLE:
 # ─── New Bridge & Integration Module Exports ────────────────────────────────
 
 if ARABIC_MODELS_AVAILABLE:
-    __all__.extend([
-        "ArabicModelConfig", "ArabicModelTask", "ARABIC_MODELS",
-        "get_arabic_model", "get_arabic_embedding_model",
-        "list_arabic_model_configs", "get_recommended_models_for_agriculture",
-        "ARABIC_MODELS_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "ArabicModelConfig",
+            "ArabicModelTask",
+            "ARABIC_MODELS",
+            "get_arabic_model",
+            "get_arabic_embedding_model",
+            "list_arabic_model_configs",
+            "get_recommended_models_for_agriculture",
+            "ARABIC_MODELS_AVAILABLE",
+        ]
+    )
 
 if UNIFIED_EMBEDDINGS_AVAILABLE:
-    __all__.extend([
-        "UnifiedEmbeddingsManager", "EmbeddingConsistencyConfig",
-        "get_unified_embeddings", "UNIFIED_EMBEDDINGS_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "UnifiedEmbeddingsManager",
+            "EmbeddingConsistencyConfig",
+            "get_unified_embeddings",
+            "UNIFIED_EMBEDDINGS_AVAILABLE",
+        ]
+    )
 
 if FEEDBACK_TRAINING_AVAILABLE:
-    __all__.extend([
-        "FeedbackTrainingPipeline", "get_feedback_training_pipeline",
-        "FEEDBACK_TRAINING_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "FeedbackTrainingPipeline",
+            "get_feedback_training_pipeline",
+            "FEEDBACK_TRAINING_AVAILABLE",
+        ]
+    )
 
 if KNOWLEDGE_BRIDGE_AVAILABLE:
-    __all__.extend([
-        "KnowledgeServiceBridge", "get_knowledge_bridge",
-        "KNOWLEDGE_BRIDGE_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "KnowledgeServiceBridge",
+            "get_knowledge_bridge",
+            "KNOWLEDGE_BRIDGE_AVAILABLE",
+        ]
+    )
 
 if AGENT_ORCHESTRATION_BRIDGE_AVAILABLE:
-    __all__.extend([
-        "OrchestrationManager", "get_orchestration_manager",
-        "AGENT_ORCHESTRATION_BRIDGE_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "OrchestrationManager",
+            "get_orchestration_manager",
+            "AGENT_ORCHESTRATION_BRIDGE_AVAILABLE",
+        ]
+    )
 
 if VISION_KNOWLEDGE_BRIDGE_AVAILABLE:
-    __all__.extend([
-        "VisionKnowledgeBridge", "VisionKnowledgeResult",
-        "VISION_KNOWLEDGE_BRIDGE_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "VisionKnowledgeBridge",
+            "VisionKnowledgeResult",
+            "VISION_KNOWLEDGE_BRIDGE_AVAILABLE",
+        ]
+    )
 
 if MCP_RAG_BRIDGE_AVAILABLE:
-    __all__.extend([
-        "MCPRAGBridge", "create_mcp_rag_bridge",
-        "MCP_RAG_BRIDGE_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "MCPRAGBridge",
+            "create_mcp_rag_bridge",
+            "MCP_RAG_BRIDGE_AVAILABLE",
+        ]
+    )
 
 if TRAINING_ORCHESTRATOR_AVAILABLE:
-    __all__.extend([
-        "TrainingOrchestrator", "TrainingOrchestratorJob",
-        "get_training_orchestrator", "TRAINING_ORCHESTRATOR_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "TrainingOrchestrator",
+            "TrainingOrchestratorJob",
+            "get_training_orchestrator",
+            "TRAINING_ORCHESTRATOR_AVAILABLE",
+        ]
+    )
 
 if AB_TESTING_AVAILABLE:
-    __all__.extend([
-        "ABTestManager", "ABTest", "ABTestResult", "ABTestStatus",
-        "AB_TESTING_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "ABTestManager",
+            "ABTest",
+            "ABTestResult",
+            "ABTestStatus",
+            "AB_TESTING_AVAILABLE",
+        ]
+    )

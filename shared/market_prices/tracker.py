@@ -53,13 +53,9 @@ class PriceStorage:
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
         default_path = (
-            "/var/lib/sahool/market_prices"
-            if os.getenv("ENVIRONMENT") == "production"
-            else "/tmp/sahool_market_prices"
+            "/var/lib/sahool/market_prices" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_prices"
         )  # nosec B108
-        self.storage_path = Path(
-            storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path)
-        )
+        self.storage_path = Path(storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -158,13 +154,9 @@ class AlertStorage:
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
         default_path = (
-            "/var/lib/sahool/market_alerts"
-            if os.getenv("ENVIRONMENT") == "production"
-            else "/tmp/sahool_market_alerts"
+            "/var/lib/sahool/market_alerts" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_alerts"
         )  # nosec B108
-        self.storage_path = Path(
-            storage_path or os.getenv("MARKET_ALERTS_STORAGE_PATH", default_path)
-        )
+        self.storage_path = Path(storage_path or os.getenv("MARKET_ALERTS_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -227,9 +219,7 @@ class AlertStorage:
                 threshold_unit=PriceUnit(data.get("threshold_unit", "kg")),
                 currency=Currency(data.get("currency", "SAR")),
                 percentage_threshold=data.get("percentage_threshold"),
-                reference_price=Decimal(str(data["reference_price"]))
-                if data.get("reference_price")
-                else None,
+                reference_price=Decimal(str(data["reference_price"])) if data.get("reference_price") else None,
                 time_window_days=data.get("time_window_days", 7),
                 status=AlertStatus(data.get("status", "active")),
                 notify_sms=data.get("notify_sms", True),
@@ -245,12 +235,8 @@ class AlertStorage:
                 if data.get("last_triggered_price")
                 else None,
                 last_triggered_market_id=data.get("last_triggered_market_id"),
-                valid_from=date.fromisoformat(data["valid_from"])
-                if data.get("valid_from")
-                else date.today(),
-                valid_until=date.fromisoformat(data["valid_until"])
-                if data.get("valid_until")
-                else None,
+                valid_from=date.fromisoformat(data["valid_from"]) if data.get("valid_from") else date.today(),
+                valid_until=date.fromisoformat(data["valid_until"]) if data.get("valid_until") else None,
                 max_triggers=data.get("max_triggers"),
                 name=data.get("name", ""),
                 name_ar=data.get("name_ar", ""),
@@ -401,9 +387,7 @@ class MarketPriceTracker:
         # Validate market
         market = self._markets_cache.get(market_id)
         if not market:
-            raise MarketPriceException(
-                MarketPriceErrors.MARKET_NOT_FOUND, f"Market ID: {market_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.MARKET_NOT_FOUND, f"Market ID: {market_id}")
 
         # Create price record
         price_record = CropPrice(
@@ -469,9 +453,7 @@ class MarketPriceTracker:
                 source=data.get("source", "batch"),
                 notes=data.get("notes", ""),
                 notes_ar=data.get("notes_ar", ""),
-                price_date=date.fromisoformat(data["price_date"])
-                if data.get("price_date")
-                else None,
+                price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else None,
             )
             prices.append(price)
 
@@ -907,14 +889,8 @@ class MarketPriceTracker:
             ),
         )
 
-        body = (
-            f"Current price: {price.price} {price.currency.value}/{price.unit.value} "
-            f"at {price.market_name}"
-        )
-        body_ar = (
-            f"السعر الحالي: {price.price} {price.currency.value}/{price.unit.value} "
-            f"في {price.market_name_ar}"
-        )
+        body = f"Current price: {price.price} {price.currency.value}/{price.unit.value} at {price.market_name}"
+        body_ar = f"السعر الحالي: {price.price} {price.currency.value}/{price.unit.value} في {price.market_name_ar}"
 
         try:
             publisher = await get_publisher()

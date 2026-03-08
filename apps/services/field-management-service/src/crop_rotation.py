@@ -465,9 +465,7 @@ class CropRotationPlanner:
             # Determine next crop family based on history
             if all_history:
                 all_history[-1].crop_family
-                suggestions = await self.suggest_next_crop(
-                    field_id=field_id, history=all_history, season="winter"
-                )
+                suggestions = await self.suggest_next_crop(field_id=field_id, history=all_history, season="winter")
                 next_family = suggestions[0].crop_family if suggestions else CropFamily.CEREALS
             else:
                 next_family = rotation_cycle[year_offset % len(rotation_cycle)]
@@ -572,9 +570,7 @@ class CropRotationPlanner:
                 reasons_en.append("Low disease risk")
 
             # Root depth alternation
-            if recent_history and self._check_root_alternation(
-                family, recent_history[-1].crop_family
-            ):
+            if recent_history and self._check_root_alternation(family, recent_history[-1].crop_family):
                 score += 10
                 reasons_ar.append("تبديل جيد لعمق الجذور")
                 reasons_en.append("Good root depth alternation")
@@ -642,9 +638,7 @@ class CropRotationPlanner:
         soil_health_score = 50  # Base score
 
         # Check for nitrogen fixers
-        nitrogen_fixers = sum(
-            1 for s in seasons if self.ROTATION_RULES[s.crop_family].nitrogen_effect == "fix"
-        )
+        nitrogen_fixers = sum(1 for s in seasons if self.ROTATION_RULES[s.crop_family].nitrogen_effect == "fix")
         if nitrogen_fixers > 0:
             soil_health_score += 20
 
@@ -663,9 +657,7 @@ class CropRotationPlanner:
 
         # Calculate disease risk score
         disease_risks = self.get_disease_risk(seasons)
-        avg_disease_risk = (
-            sum(disease_risks.values()) / max(1, len(disease_risks)) if disease_risks else 0
-        )
+        avg_disease_risk = sum(disease_risks.values()) / max(1, len(disease_risks)) if disease_risks else 0
         disease_risk_score = avg_disease_risk * 100
 
         # Calculate nitrogen balance
@@ -865,8 +857,7 @@ class CropRotationPlanner:
             (
                 -1
                 if self.ROTATION_RULES.get(s.crop_family, None)
-                and self.ROTATION_RULES[s.crop_family].nitrogen_effect
-                in ["deplete", "heavy_deplete"]
+                and self.ROTATION_RULES[s.crop_family].nitrogen_effect in ["deplete", "heavy_deplete"]
                 else 0
             )
             for s in recent
@@ -874,9 +865,7 @@ class CropRotationPlanner:
 
         return nitrogen_score <= -2
 
-    def _calculate_family_disease_risk(
-        self, family: CropFamily, history: list[SeasonPlan]
-    ) -> float:
+    def _calculate_family_disease_risk(self, family: CropFamily, history: list[SeasonPlan]) -> float:
         """Calculate disease risk for a specific family based on history"""
         if family not in self.ROTATION_RULES:
             return 0.0
@@ -923,8 +912,7 @@ class CropRotationPlanner:
         heavy_feeders = sum(
             1
             for s in recent
-            if s.crop_family in self.ROTATION_RULES
-            and self.ROTATION_RULES[s.crop_family].nutrient_demand == "heavy"
+            if s.crop_family in self.ROTATION_RULES and self.ROTATION_RULES[s.crop_family].nutrient_demand == "heavy"
         )
 
         return not has_fallow and heavy_feeders >= 3
@@ -1013,8 +1001,7 @@ def to_dict(obj):
                 result[field_name] = value.isoformat()
             elif isinstance(value, list):
                 result[field_name] = [
-                    to_dict(item) if hasattr(item, "__dataclass_fields__") else item
-                    for item in value
+                    to_dict(item) if hasattr(item, "__dataclass_fields__") else item for item in value
                 ]
             elif hasattr(value, "__dataclass_fields__"):
                 result[field_name] = to_dict(value)

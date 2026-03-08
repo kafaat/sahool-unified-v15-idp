@@ -196,9 +196,7 @@ class TestNotificationDelivery:
         from src.main import FARMER_PROFILES, send_sms_notification
 
         # Setup mock farmer
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", phone="+967771234567", language="ar"
-        )
+        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone="+967771234567", language="ar")
 
         mock_sms_client = MagicMock()
         mock_sms_client._initialized = True
@@ -221,9 +219,7 @@ class TestNotificationDelivery:
 
         FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone=None)
 
-        with patch(
-            "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-        ) as mock_log:
+        with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log:
             await send_sms_notification(mock_notification, "farmer-123")
 
             # Verify failure was logged
@@ -239,9 +235,7 @@ class TestNotificationDelivery:
         """Test successful email notification delivery"""
         from src.main import FARMER_PROFILES, send_email_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", email="ahmed@example.com", language="ar"
-        )
+        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", email="ahmed@example.com", language="ar")
 
         mock_email_client = MagicMock()
         mock_email_client._initialized = True
@@ -262,9 +256,7 @@ class TestNotificationDelivery:
         """Test successful push notification delivery"""
         from src.main import FARMER_PROFILES, send_push_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", fcm_token="valid-fcm-token"
-        )
+        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", fcm_token="valid-fcm-token")
 
         mock_firebase_client = MagicMock()
         mock_firebase_client._initialized = True
@@ -287,9 +279,7 @@ class TestNotificationDelivery:
 
         FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", fcm_token=None)
 
-        with patch(
-            "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-        ) as mock_log:
+        with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log:
             await send_push_notification(mock_notification, "farmer-123")
 
             # Verify failure was logged
@@ -308,21 +298,15 @@ class TestNotificationDelivery:
             with patch("src.main.send_email_notification", new=AsyncMock()) as mock_email:
                 with patch("src.main.send_push_notification", new=AsyncMock()) as mock_push:
                     # Test SMS
-                    await send_notification_via_channel(
-                        mock_notification, NotificationChannel.SMS, "farmer-123"
-                    )
+                    await send_notification_via_channel(mock_notification, NotificationChannel.SMS, "farmer-123")
                     mock_sms.assert_called_once()
 
                     # Test Email
-                    await send_notification_via_channel(
-                        mock_notification, NotificationChannel.EMAIL, "farmer-123"
-                    )
+                    await send_notification_via_channel(mock_notification, NotificationChannel.EMAIL, "farmer-123")
                     mock_email.assert_called_once()
 
                     # Test Push
-                    await send_notification_via_channel(
-                        mock_notification, NotificationChannel.PUSH, "farmer-123"
-                    )
+                    await send_notification_via_channel(mock_notification, NotificationChannel.PUSH, "farmer-123")
                     mock_push.assert_called_once()
 
 
@@ -528,9 +512,7 @@ class TestErrorHandling:
         """Test SMS sending with client error"""
         from src.main import FARMER_PROFILES, send_sms_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", phone="+967771234567", language="ar"
-        )
+        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone="+967771234567", language="ar")
 
         mock_sms_client = MagicMock()
         mock_sms_client._initialized = True
@@ -538,9 +520,7 @@ class TestErrorHandling:
 
         with (
             patch("src.main.get_sms_client", return_value=mock_sms_client),
-            patch(
-                "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-            ) as mock_log,
+            patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
             await send_sms_notification(mock_notification, "farmer-123")
 
@@ -556,9 +536,7 @@ class TestErrorHandling:
         """Test email sending with client error"""
         from src.main import FARMER_PROFILES, send_email_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", email="ahmed@example.com", language="ar"
-        )
+        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", email="ahmed@example.com", language="ar")
 
         mock_email_client = MagicMock()
         mock_email_client._initialized = True
@@ -566,9 +544,7 @@ class TestErrorHandling:
 
         with (
             patch("src.main.get_email_client", return_value=mock_email_client),
-            patch(
-                "src.repository.NotificationLogRepository.create_log", new=AsyncMock()
-            ) as mock_log,
+            patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
             await send_email_notification(mock_notification, "farmer-123")
 

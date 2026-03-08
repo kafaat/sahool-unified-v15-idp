@@ -104,9 +104,7 @@ class InventoryAnalytics:
         self.db = db
         self.tenant_id = tenant_id
 
-    async def get_consumption_forecast(
-        self, item_id: str, forecast_days: int = 90
-    ) -> ConsumptionForecast | None:
+    async def get_consumption_forecast(self, item_id: str, forecast_days: int = 90) -> ConsumptionForecast | None:
         """
         Forecast future consumption based on historical data.
         Uses moving average and seasonal adjustment.
@@ -309,9 +307,7 @@ class InventoryAnalytics:
 
         # Add percentages - prevent division by zero
         for item in top_items:
-            item["percentage"] = (
-                round((item["value"] / total_value * 100), 2) if total_value > 0 else 0.0
-            )
+            item["percentage"] = round((item["value"] / total_value * 100), 2) if total_value > 0 else 0.0
 
         return InventoryValuation(
             total_value=round(total_value, 2),
@@ -439,9 +435,7 @@ class InventoryAnalytics:
                         "current_stock": item.current_stock,
                         "unit_cost": float(item.average_cost),
                         "total_value": round(item_value, 2),
-                        "last_movement_date": (
-                            last_movement.date().isoformat() if last_movement else None
-                        ),
+                        "last_movement_date": (last_movement.date().isoformat() if last_movement else None),
                         "days_since_movement": days_since_movement,
                     }
                 )
@@ -521,9 +515,7 @@ class InventoryAnalytics:
                         "total_value": round(item_value, 2),
                         "reason": reason,
                         "expiry_date": (item.expiry_date.isoformat() if item.expiry_date else None),
-                        "last_movement_date": (
-                            last_movement.date().isoformat() if last_movement else None
-                        ),
+                        "last_movement_date": (last_movement.date().isoformat() if last_movement else None),
                     }
                 )
 
@@ -574,9 +566,7 @@ class InventoryAnalytics:
         # Calculate seasonal factors (relative to average) - prevent division by zero
         seasonal_factor = {}
         for month, consumption in monthly_consumption.items():
-            seasonal_factor[month] = (
-                round(consumption / avg_consumption, 2) if avg_consumption > 0 else 1.0
-            )
+            seasonal_factor[month] = round(consumption / avg_consumption, 2) if avg_consumption > 0 else 1.0
 
         # Identify peak and low months
         sorted_months = sorted(seasonal_factor.items(), key=lambda x: x[1], reverse=True)
@@ -633,18 +623,14 @@ class InventoryAnalytics:
                     "available_stock": item.available_stock,
                     "reorder_level": item.reorder_level,
                     "reorder_quantity": item.reorder_quantity,
-                    "recommended_order_qty": (
-                        forecast.recommended_order_qty if forecast else item.reorder_quantity
-                    ),
+                    "recommended_order_qty": (forecast.recommended_order_qty if forecast else item.reorder_quantity),
                     "days_until_stockout": (forecast.days_until_stockout if forecast else 0),
                     "supplier_name": supplier.name if supplier else None,
                     "lead_time_days": supplier.lead_time_days if supplier else 7,
                     "urgency": (
                         "critical"
                         if item.available_stock <= 0
-                        else (
-                            "high" if forecast and forecast.days_until_stockout <= 7 else "medium"
-                        )
+                        else ("high" if forecast and forecast.days_until_stockout <= 7 else "medium")
                     ),
                 }
             )
@@ -724,40 +710,28 @@ class InventoryAnalytics:
             "a_class": {
                 "items": a_items,
                 "count": len(a_items),
-                "percentage_of_items": (
-                    round(len(a_items) / len(item_values) * 100, 1) if item_values else 0
-                ),
+                "percentage_of_items": (round(len(a_items) / len(item_values) * 100, 1) if item_values else 0),
                 "value": round(sum(i["value"] for i in a_items), 2),
                 "percentage_of_value": (
-                    round(sum(i["value"] for i in a_items) / total_value * 100, 1)
-                    if total_value > 0
-                    else 0
+                    round(sum(i["value"] for i in a_items) / total_value * 100, 1) if total_value > 0 else 0
                 ),
             },
             "b_class": {
                 "items": b_items,
                 "count": len(b_items),
-                "percentage_of_items": (
-                    round(len(b_items) / len(item_values) * 100, 1) if item_values else 0
-                ),
+                "percentage_of_items": (round(len(b_items) / len(item_values) * 100, 1) if item_values else 0),
                 "value": round(sum(i["value"] for i in b_items), 2),
                 "percentage_of_value": (
-                    round(sum(i["value"] for i in b_items) / total_value * 100, 1)
-                    if total_value > 0
-                    else 0
+                    round(sum(i["value"] for i in b_items) / total_value * 100, 1) if total_value > 0 else 0
                 ),
             },
             "c_class": {
                 "items": c_items,
                 "count": len(c_items),
-                "percentage_of_items": (
-                    round(len(c_items) / len(item_values) * 100, 1) if item_values else 0
-                ),
+                "percentage_of_items": (round(len(c_items) / len(item_values) * 100, 1) if item_values else 0),
                 "value": round(sum(i["value"] for i in c_items), 2),
                 "percentage_of_value": (
-                    round(sum(i["value"] for i in c_items) / total_value * 100, 1)
-                    if total_value > 0
-                    else 0
+                    round(sum(i["value"] for i in c_items) / total_value * 100, 1) if total_value > 0 else 0
                 ),
             },
         }
@@ -784,10 +758,8 @@ class InventoryAnalytics:
         # Build query for transactions
         conditions = [
             InventoryTransaction.tenant_id == self.tenant_id,
-            InventoryTransaction.transaction_date
-            >= datetime.combine(start_date, datetime.min.time()),
-            InventoryTransaction.transaction_date
-            <= datetime.combine(end_date, datetime.max.time()),
+            InventoryTransaction.transaction_date >= datetime.combine(start_date, datetime.min.time()),
+            InventoryTransaction.transaction_date <= datetime.combine(end_date, datetime.max.time()),
             InventoryTransaction.transaction_type == TransactionType.USE,
         ]
 
@@ -1044,8 +1016,7 @@ class InventoryAnalytics:
 
         top_consumed_result = await self.db.execute(top_consumed_stmt)
         top_consumed = [
-            {"item_name": row.name_en, "quantity": float(row.total_consumed)}
-            for row in top_consumed_result
+            {"item_name": row.name_en, "quantity": float(row.total_consumed)} for row in top_consumed_result
         ]
 
         # Recent movements
@@ -1071,11 +1042,7 @@ class InventoryAnalytics:
 
         # Average turnover
         turnover_metrics = await self.get_turnover_analysis()
-        avg_turnover = (
-            statistics.mean([m.turnover_ratio for m in turnover_metrics])
-            if turnover_metrics
-            else 0.0
-        )
+        avg_turnover = statistics.mean([m.turnover_ratio for m in turnover_metrics]) if turnover_metrics else 0.0
 
         return {
             "total_skus": total_skus,

@@ -128,9 +128,7 @@ async def _load_soil_profile(pool: Any, tenant_id: str, field_id: str) -> SoilPr
     )
 
 
-async def _load_sowing_date(
-    pool: Any, tenant_id: str, field_id: str, season_id: str
-) -> date:
+async def _load_sowing_date(pool: Any, tenant_id: str, field_id: str, season_id: str) -> date:
     """Load sowing date from field_season table."""
     sql = """
     SELECT sowing_date
@@ -144,15 +142,15 @@ async def _load_sowing_date(
     if row is None or row["sowing_date"] is None:
         logger.warning(
             "sowing_date_not_found",
-            tenant_id=tenant_id, field_id=field_id, season_id=season_id,
+            tenant_id=tenant_id,
+            field_id=field_id,
+            season_id=season_id,
         )
         return date(2026, 1, 1)
     return row["sowing_date"]
 
 
-async def _load_crop_type(
-    pool: Any, tenant_id: str, field_id: str, season_id: str
-) -> CropType:
+async def _load_crop_type(pool: Any, tenant_id: str, field_id: str, season_id: str) -> CropType:
     """Load crop type from field_season table."""
     sql = """
     SELECT crop_type
@@ -191,15 +189,19 @@ async def _load_weather_series(
     if not rows:
         logger.warning(
             "weather_series_not_found",
-            tenant_id=tenant_id, field_id=field_id,
-            sowing=str(sowing), end=str(end),
+            tenant_id=tenant_id,
+            field_id=field_id,
+            sowing=str(sowing),
+            end=str(end),
             msg="Falling back to synthetic mild weather",
         )
         from datetime import timedelta
+
         return [
             DailyWeather(
                 date=sowing + timedelta(days=d),
-                tmax_c=28.0, tmin_c=14.0,
+                tmax_c=28.0,
+                tmin_c=14.0,
                 solar_radiation_mj_m2=18.0,
                 relative_humidity_pct=55.0,
                 wind_speed_m_s=2.0,

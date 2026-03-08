@@ -649,9 +649,7 @@ class PlantingRecommendationEngine:
             window = self._find_similar_window(crop_type, region)
 
         if not window:
-            return self._generate_generic_recommendation(
-                crop_type, region, target_date, field_id, tenant_id
-            )
+            return self._generate_generic_recommendation(crop_type, region, target_date, field_id, tenant_id)
 
         return self._generate_recommendation_from_window(window, target_date, field_id, tenant_id)
 
@@ -943,9 +941,7 @@ class PlantingRecommendationEngine:
 
         # Find regions with same climate zone
         similar_regions = [
-            r
-            for r, meta in REGION_METADATA.items()
-            if meta.climate_zone == region_meta.climate_zone and r != region
+            r for r, meta in REGION_METADATA.items() if meta.climate_zone == region_meta.climate_zone and r != region
         ]
 
         # Try to find window in similar region

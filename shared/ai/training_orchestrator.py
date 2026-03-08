@@ -161,9 +161,7 @@ class TrainingJobConfig:
     training_type: TrainingType = TrainingType.FINE_TUNE
     epochs: int = 3
     learning_rate: float = 1e-5
-    evaluation_metrics: list[str] = field(
-        default_factory=lambda: ["accuracy", "f1", "bleu_ar", "domain_accuracy"]
-    )
+    evaluation_metrics: list[str] = field(default_factory=lambda: ["accuracy", "f1", "bleu_ar", "domain_accuracy"])
     auto_deploy: bool = False
 
     def __post_init__(self) -> None:
@@ -204,9 +202,7 @@ class EvaluationReport:
     job_id: str
     model_id: str
     metrics: dict[str, float] = field(default_factory=dict)
-    arabic_metrics: dict[str, float] = field(
-        default_factory=lambda: {"bleu": 0.0, "accuracy_ar": 0.0}
-    )
+    arabic_metrics: dict[str, float] = field(default_factory=lambda: {"bleu": 0.0, "accuracy_ar": 0.0})
     agricultural_metrics: dict[str, float] = field(
         default_factory=lambda: {"domain_accuracy": 0.0, "recommendation_quality": 0.0}
     )
@@ -254,6 +250,7 @@ DEFAULT_THRESHOLDS: dict[str, float] = {
 # vLLM Backend
 # ---------------------------------------------------------------------------
 
+
 class InferenceBackend(StrEnum):
     """Supported inference backends for training evaluation."""
 
@@ -268,15 +265,9 @@ class VLLMConfig:
     إعدادات خلفية استدلال vLLM.
     """
 
-    base_url: str = field(
-        default_factory=lambda: os.getenv("VLLM_BASE_URL", "http://localhost:8270/v1")
-    )
-    model: str = field(
-        default_factory=lambda: os.getenv("VLLM_MODEL", "deepseek-ai/deepseek-coder-6.7b-instruct")
-    )
-    api_key: str = field(
-        default_factory=lambda: os.getenv("VLLM_API_KEY", "dummy")
-    )
+    base_url: str = field(default_factory=lambda: os.getenv("VLLM_BASE_URL", "http://localhost:8270/v1"))
+    model: str = field(default_factory=lambda: os.getenv("VLLM_MODEL", "deepseek-ai/deepseek-coder-6.7b-instruct"))
+    api_key: str = field(default_factory=lambda: os.getenv("VLLM_API_KEY", "dummy"))
     max_tokens: int = 4096
     temperature: float = 0.1
     timeout: float = 300.0
@@ -382,16 +373,14 @@ class VLLMClient:
 
         Uses asyncio.gather for concurrent requests to vLLM.
         """
-        tasks = [
-            self.generate(p, model, temperature, max_tokens)
-            for p in prompts
-        ]
+        tasks = [self.generate(p, model, temperature, max_tokens) for p in prompts]
         return await asyncio.gather(*tasks, return_exceptions=False)
 
 
 # ---------------------------------------------------------------------------
 # Training Job State
 # ---------------------------------------------------------------------------
+
 
 class TrainingPhase(StrEnum):
     """Phases in the training orchestrator workflow."""
@@ -439,9 +428,7 @@ class TrainingOrchestratorJob:
             "supervised_job": self.supervised_job.to_dict() if self.supervised_job else None,
             "grpo_batches_processed": self.grpo_batches_processed,
             "grpo_stats_count": len(self.grpo_stats),
-            "evaluation_results": {
-                k: v.to_dict() for k, v in self.evaluation_results.items()
-            },
+            "evaluation_results": {k: v.to_dict() for k, v in self.evaluation_results.items()},
             "inference_backend": self.inference_backend.value,
             "config": self.config,
             "error_message": self.error_message,
@@ -453,6 +440,7 @@ class TrainingOrchestratorJob:
 # ---------------------------------------------------------------------------
 # Training Orchestrator
 # ---------------------------------------------------------------------------
+
 
 class TrainingOrchestrator:
     """
@@ -625,9 +613,7 @@ class TrainingOrchestrator:
                 job.supervised_job = supervised_job
 
                 if supervised_job.status == TrainingStatus.FAILED:
-                    raise RuntimeError(
-                        f"Supervised training failed: {supervised_job.error_message}"
-                    )
+                    raise RuntimeError(f"Supervised training failed: {supervised_job.error_message}")
 
             # Phase 3: GRPO Training
             if not skip_grpo and grpo_prompts_and_rewards:
@@ -680,11 +666,7 @@ class TrainingOrchestrator:
 
             eval_result = await self._evaluate(
                 dataset=dataset,
-                model_name=(
-                    job.supervised_job.config.output_model
-                    if job.supervised_job
-                    else "default"
-                ),
+                model_name=(job.supervised_job.config.output_model if job.supervised_job else "default"),
                 use_vllm=use_vllm_for_eval,
             )
             if eval_result:
@@ -763,9 +745,7 @@ class TrainingOrchestrator:
                 else:
                     # Use Ollama via httpx directly
                     if HTTPX_AVAILABLE:
-                        ollama_url = self._ollama_url or os.getenv(
-                            "OLLAMA_BASE_URL", "http://localhost:11434"
-                        )
+                        ollama_url = self._ollama_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
                         async with httpx.AsyncClient(timeout=60.0) as client:
                             resp = await client.post(
                                 f"{ollama_url}/api/generate",
@@ -861,8 +841,16 @@ class TrainingOrchestrator:
 
             # Contains actionable advice indicators
             action_words = [
-                "recommend", "apply", "irrigate", "spray", "harvest",
-                "يوصى", "طبق", "اسق", "رش", "احصد",
+                "recommend",
+                "apply",
+                "irrigate",
+                "spray",
+                "harvest",
+                "يوصى",
+                "طبق",
+                "اسق",
+                "رش",
+                "احصد",
             ]
             if any(w in response.lower() for w in action_words):
                 score += 0.15
@@ -966,9 +954,7 @@ class TrainingOrchestrator:
         if self._model_trainer is not None:
             logger.info("Delegating to ModelTrainer | تفويض إلى مدرب النموذج: %s", job_id)
         elif not MODEL_TRAINER_AVAILABLE:
-            logger.warning(
-                "ModelTrainer not available; running in stub mode | مدرب النموذج غير متوفر"
-            )
+            logger.warning("ModelTrainer not available; running in stub mode | مدرب النموذج غير متوفر")
         logger.info("Standard training step | خطوة تدريب قياسية: %s", job_id)
 
     def _run_managed_grpo(self, job_id: str, config: TrainingJobConfig) -> None:
@@ -977,9 +963,7 @@ class TrainingOrchestrator:
         if self._grpo_trainer is not None:
             logger.info("Delegating to GRPOTrainer | تفويض إلى مدرب GRPO: %s", job_id)
         elif not GRPO_TRAINER_AVAILABLE:
-            logger.warning(
-                "GRPOTrainer not available; running in stub mode | مدرب GRPO غير متوفر"
-            )
+            logger.warning("GRPOTrainer not available; running in stub mode | مدرب GRPO غير متوفر")
         logger.info("GRPO training step | خطوة تدريب GRPO: %s", job_id)
 
     def evaluate_model(self, job_id: str) -> EvaluationReport:
@@ -1032,21 +1016,15 @@ class TrainingOrchestrator:
         )
         return report
 
-    def _compute_general_metrics(
-        self, job_id: str, config: TrainingJobConfig
-    ) -> dict[str, float]:
+    def _compute_general_metrics(self, job_id: str, config: TrainingJobConfig) -> dict[str, float]:
         """Compute accuracy, F1, loss, perplexity. | حساب الدقة و F1 والخسارة"""
         return {"accuracy": 0.0, "f1": 0.0, "loss": 0.0, "perplexity": 0.0}
 
-    def _compute_arabic_metrics(
-        self, job_id: str, config: TrainingJobConfig
-    ) -> dict[str, float]:
+    def _compute_arabic_metrics(self, job_id: str, config: TrainingJobConfig) -> dict[str, float]:
         """Compute Arabic BLEU and accuracy. | حساب BLEU والدقة للعربية"""
         return {"bleu": 0.0, "accuracy_ar": 0.0}
 
-    def _compute_agricultural_metrics(
-        self, job_id: str, config: TrainingJobConfig
-    ) -> dict[str, float]:
+    def _compute_agricultural_metrics(self, job_id: str, config: TrainingJobConfig) -> dict[str, float]:
         """Compute domain accuracy and recommendation quality. | حساب دقة المجال وجودة التوصيات"""
         return {"domain_accuracy": 0.0, "recommendation_quality": 0.0}
 
@@ -1105,14 +1083,10 @@ class TrainingOrchestrator:
         for key in report_a.metrics:
             deltas[key] = report_a.metrics.get(key, 0.0) - report_b.metrics.get(key, 0.0)
         for key in report_a.arabic_metrics:
-            deltas[f"ar_{key}"] = (
-                report_a.arabic_metrics.get(key, 0.0)
-                - report_b.arabic_metrics.get(key, 0.0)
-            )
+            deltas[f"ar_{key}"] = report_a.arabic_metrics.get(key, 0.0) - report_b.arabic_metrics.get(key, 0.0)
         for key in report_a.agricultural_metrics:
-            deltas[f"agri_{key}"] = (
-                report_a.agricultural_metrics.get(key, 0.0)
-                - report_b.agricultural_metrics.get(key, 0.0)
+            deltas[f"agri_{key}"] = report_a.agricultural_metrics.get(key, 0.0) - report_b.agricultural_metrics.get(
+                key, 0.0
             )
 
         score_a = report_a.overall_score
@@ -1150,15 +1124,12 @@ class TrainingOrchestrator:
 
         report = self._eval_reports.get(job_id)
         if report is None:
-            logger.warning(
-                "Cannot deploy without evaluation | لا يمكن النشر بدون تقييم: %s", job_id
-            )
+            logger.warning("Cannot deploy without evaluation | لا يمكن النشر بدون تقييم: %s", job_id)
             return False
 
         if not report.passed_threshold:
             logger.warning(
-                "Model did not pass thresholds | النموذج لم يجتز الحدود الدنيا: "
-                "%s (score=%.3f)",
+                "Model did not pass thresholds | النموذج لم يجتز الحدود الدنيا: %s (score=%.3f)",
                 job_id,
                 report.overall_score,
             )
@@ -1240,8 +1211,7 @@ class TrainingOrchestrator:
         return {
             "total_jobs": len(self._jobs),
             "by_phase": {
-                phase.value: len([j for j in self._jobs.values() if j.phase == phase])
-                for phase in TrainingPhase
+                phase.value: len([j for j in self._jobs.values() if j.phase == phase]) for phase in TrainingPhase
             },
             "registered_reward_functions": list(self._reward_functions.keys()),
             "vllm_configured": self._vllm_client is not None or bool(os.getenv("VLLM_BASE_URL")),

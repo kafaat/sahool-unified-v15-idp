@@ -1139,19 +1139,13 @@ def get_crops_by_water_requirement(requirement: WaterRequirement) -> list[CropIn
 
 def get_crops_for_region(region: str) -> list[CropInfo]:
     """Get crops suitable for a Yemen region"""
-    return [
-        crop for crop in ALL_CROPS.values() if crop.yemen_regions and region in crop.yemen_regions
-    ]
+    return [crop for crop in ALL_CROPS.values() if crop.yemen_regions and region in crop.yemen_regions]
 
 
 def search_crops(query: str) -> list[CropInfo]:
     """Search crops by name (English or Arabic)"""
     query_lower = query.lower()
-    return [
-        crop
-        for crop in ALL_CROPS.values()
-        if query_lower in crop.name_en.lower() or query in crop.name_ar
-    ]
+    return [crop for crop in ALL_CROPS.values() if query_lower in crop.name_en.lower() or query in crop.name_ar]
 
 
 def get_crop_codes() -> list[str]:

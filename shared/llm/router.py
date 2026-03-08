@@ -49,9 +49,7 @@ class AllProvidersFailedError(LLMProviderError):
 
     def __init__(self, errors: list[tuple[ProviderType, str]]):
         self.errors = errors
-        message = "All LLM providers failed:\n" + "\n".join(
-            f"  - {p.value}: {e}" for p, e in errors
-        )
+        message = "All LLM providers failed:\n" + "\n".join(f"  - {p.value}: {e}" for p, e in errors)
         super().__init__(message)
 
 
@@ -197,9 +195,7 @@ class LLMRouter:
         if model and model != "auto":
             info = get_model_info(model)
             if info:
-                provider = (
-                    ProviderType.OLLAMA if info["provider"] == "ollama" else ProviderType.OPENAI
-                )
+                provider = ProviderType.OLLAMA if info["provider"] == "ollama" else ProviderType.OPENAI
                 return model, provider
             # Unknown model, try Ollama first
             return model, ProviderType.OLLAMA
@@ -214,9 +210,7 @@ class LLMRouter:
             # Filter by preference
             if prefer_local:
                 local_matches = [
-                    m
-                    for m in matching_models
-                    if get_model_info(m) and get_model_info(m).get("provider") == "ollama"
+                    m for m in matching_models if get_model_info(m) and get_model_info(m).get("provider") == "ollama"
                 ]
                 if local_matches:
                     # Prefer qwen2.5 for multilingual, codellama for code
@@ -362,9 +356,7 @@ class LLMRouter:
 
                 if errors:
                     self._stats.fallback_count += 1
-                    logger.info(
-                        f"Used fallback provider {provider_type.value} after {len(errors)} failures"
-                    )
+                    logger.info(f"Used fallback provider {provider_type.value} after {len(errors)} failures")
 
                 return response
 
@@ -502,9 +494,7 @@ class LLMRouter:
 
         provider = await self._get_provider(decision.provider_type)
         if provider is None:
-            raise ProviderUnavailableError(
-                f"Provider {decision.provider_type.value} is not available"
-            )
+            raise ProviderUnavailableError(f"Provider {decision.provider_type.value} is not available")
 
         try:
             async for chunk in provider.generate_stream(
@@ -566,9 +556,7 @@ class LLMRouter:
                 "total_tokens": self._stats.total_tokens,
                 "total_cost_usd": self._stats.total_cost_usd,
                 "provider_usage": self._stats.provider_usage,
-                "last_request": (
-                    self._stats.last_request.isoformat() if self._stats.last_request else None
-                ),
+                "last_request": (self._stats.last_request.isoformat() if self._stats.last_request else None),
             },
         }
 

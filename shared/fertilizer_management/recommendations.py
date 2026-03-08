@@ -495,9 +495,7 @@ class FertilizerRecommendationEngine:
             0,
             total_requirements["P2O5"] - soil_contribution["P2O5"] - already_applied_p,
         )
-        k_required = max(
-            0, total_requirements["K2O"] - soil_contribution["K2O"] - already_applied_k
-        )
+        k_required = max(0, total_requirements["K2O"] - soil_contribution["K2O"] - already_applied_k)
 
         # Build nutrient recommendations
         nutrient_recs = []
@@ -595,20 +593,14 @@ class FertilizerRecommendationEngine:
             estimated_cost += Decimal(str(product.get("total_cost", 0)))
 
         # Generate summary
-        summary_en = self._generate_summary_en(
-            crop, n_required, p_required, k_required, nutrient_recs
-        )
-        summary_ar = self._generate_summary_ar(
-            crop_ar, n_required, p_required, k_required, nutrient_recs
-        )
+        summary_en = self._generate_summary_en(crop, n_required, p_required, k_required, nutrient_recs)
+        summary_ar = self._generate_summary_ar(crop_ar, n_required, p_required, k_required, nutrient_recs)
 
         # Environmental notes
         env_notes_en = []
         env_notes_ar = []
         if n_required > 150:
-            env_notes_en.append(
-                "High nitrogen rate - consider split applications to reduce leaching"
-            )
+            env_notes_en.append("High nitrogen rate - consider split applications to reduce leaching")
             env_notes_ar.append("معدل نيتروجين مرتفع - يُنصح بتقسيم الجرعات لتقليل الغسيل")
         if soil_test.ec_ds_m > 4.0:
             env_notes_en.append("High soil salinity - avoid chloride-containing fertilizers")
@@ -791,10 +783,7 @@ def get_supported_crops() -> list[dict]:
     Returns:
         List of crop dictionaries
     """
-    return [
-        {"name": crop, "name_ar": data.get("name_ar", crop)}
-        for crop, data in CROP_NUTRIENT_REQUIREMENTS.items()
-    ]
+    return [{"name": crop, "name_ar": data.get("name_ar", crop)} for crop, data in CROP_NUTRIENT_REQUIREMENTS.items()]
 
 
 def calculate_quick_recommendation(

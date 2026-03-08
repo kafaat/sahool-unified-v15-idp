@@ -114,9 +114,7 @@ async def example_3_track_wheat_field():
                 print(f"  Days Since Planting: {chart['current_status']['days_since_planting']}")
 
                 print("\nCurrent Stage:")
-                print(
-                    f"  {chart['current_stage']['name_en']} ({chart['current_stage']['name_ar']})"
-                )
+                print(f"  {chart['current_stage']['name_en']} ({chart['current_stage']['name_ar']})")
                 print(
                     f"  Next Stage: {chart['current_stage']['next_stage_en']} ({chart['current_stage']['next_stage_ar']})"
                 )
@@ -138,12 +136,7 @@ async def example_3_track_wheat_field():
                 for m in chart["milestones"][:5]:  # Show first 5
                     status = "✓ Reached" if m["is_reached"] else "○ Pending"
                     date_str = m["reached_date"] if m["is_reached"] else m["expected_date"] or "TBD"
-                    print(
-                        f"{m['stage_name_en']:<25} "
-                        f"{m['gdd_required']:>10.0f}      "
-                        f"{status:<15} "
-                        f"{date_str}"
-                    )
+                    print(f"{m['stage_name_en']:<25} {m['gdd_required']:>10.0f}      {status:<15} {date_str}")
 
                 if len(chart["milestones"]) > 5:
                     print(f"... and {len(chart['milestones']) - 5} more milestones")
@@ -254,15 +247,11 @@ async def example_5_quick_stage_lookup():
                 result = response.json()
 
                 print("\nResult:")
-                print(
-                    f"  Current Stage: {result['current_stage']['name_en']} ({result['current_stage']['name_ar']})"
-                )
+                print(f"  Current Stage: {result['current_stage']['name_en']} ({result['current_stage']['name_ar']})")
                 print(
                     f"  Stage Range: {result['current_stage']['gdd_start']:.0f} - {result['current_stage']['gdd_end']:.0f} GDD"
                 )
-                print(
-                    f"  Next Stage: {result['next_stage']['name_en']} ({result['next_stage']['name_ar']})"
-                )
+                print(f"  Next Stage: {result['next_stage']['name_en']} ({result['next_stage']['name_ar']})")
                 print(f"  GDD to Next Stage: {result['gdd_to_next_stage']:.1f}")
                 print(f"  Progress: {result['progress_percent']:.1f}% of total season")
 

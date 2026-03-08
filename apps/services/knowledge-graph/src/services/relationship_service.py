@@ -185,9 +185,7 @@ class RelationshipService:
     ) -> dict[str, Any]:
         """Validate if a relationship exists and return its details"""
         try:
-            rel_id = (
-                f"{source_type}:{source_id}--{relationship_type.value}--{target_type}:{target_id}"
-            )
+            rel_id = f"{source_type}:{source_id}--{relationship_type.value}--{target_type}:{target_id}"
             if rel_id in self.graph.relationships:
                 rel = self.graph.relationships[rel_id]
                 return {

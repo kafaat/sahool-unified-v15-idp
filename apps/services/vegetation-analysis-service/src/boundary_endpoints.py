@@ -20,9 +20,7 @@ logger = logging.getLogger(__name__)
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
 
-    coords: list[list[float]] = Field(
-        ..., description="Initial boundary coordinates [[lon, lat], ...]"
-    )
+    coords: list[list[float]] = Field(..., description="Initial boundary coordinates [[lon, lat], ...]")
     buffer_m: float = Field(50, description="Refinement buffer in meters")
 
 
@@ -239,9 +237,7 @@ def register_boundary_endpoints(app, boundary_detector):
                         round(change.area_change_hectares, 2) if change.area_change_hectares else 0
                     ),
                     "boundary_shift_meters": (
-                        round(change.boundary_shift_meters, 2)
-                        if change.boundary_shift_meters
-                        else 0
+                        round(change.boundary_shift_meters, 2) if change.boundary_shift_meters else 0
                     ),
                     "confidence": change.change_confidence,
                 },
@@ -274,7 +270,9 @@ def _interpret_boundary_change(change: BoundaryChange) -> str:
     if change.change_type == "stable":
         return f"Field boundary is stable (±{abs(change.change_percent):.1f}% change)"
     elif change.change_type == "expansion":
-        return f"Field has expanded by {abs(change.change_percent):.1f}% ({abs(change.area_change_hectares):.2f} hectares)"
+        return (
+            f"Field has expanded by {abs(change.change_percent):.1f}% ({abs(change.area_change_hectares):.2f} hectares)"
+        )
     else:  # contraction
         return f"Field has contracted by {abs(change.change_percent):.1f}% ({abs(change.area_change_hectares):.2f} hectares)"
 

@@ -1,4 +1,5 @@
 """Smoke tests for demo-data."""
+
 import pytest
 
 

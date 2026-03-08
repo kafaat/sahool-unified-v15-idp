@@ -8,7 +8,6 @@ import os
 import pytest
 
 
-
 @pytest.fixture(scope="session")
 def evaluation_mode():
     """Check if running in evaluation mode"""

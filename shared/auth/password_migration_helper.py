@@ -132,14 +132,10 @@ class PasswordMigrationHelper:
                 except Exception as e:
                     logger.error(f"Error generating new hash for user {user_id}: {e}")
                     # Still allow login, but don't migrate
-                    return AuthenticationResult(
-                        success=True, user_id=user_id, needs_password_update=False
-                    )
+                    return AuthenticationResult(success=True, user_id=user_id, needs_password_update=False)
             else:
                 # Password is valid and already using current algorithm
-                return AuthenticationResult(
-                    success=True, user_id=user_id, needs_password_update=False
-                )
+                return AuthenticationResult(success=True, user_id=user_id, needs_password_update=False)
 
         except Exception as e:
             logger.error(f"Authentication error for email {email}: {e}")

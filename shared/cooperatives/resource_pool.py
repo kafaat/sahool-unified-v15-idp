@@ -399,9 +399,7 @@ class ResourcePoolService:
             conflicts = await self._check_booking_conflicts(resource_id, start_time, end_time)
             if conflicts:
                 conflict_info = conflicts[0]
-                raise BookingConflictError(
-                    f"Booking conflicts with existing reservation: {conflict_info.booking_id}"
-                )
+                raise BookingConflictError(f"Booking conflicts with existing reservation: {conflict_info.booking_id}")
 
         # Calculate fee
         estimated_fee = resource.calculate_usage_fee(
@@ -596,9 +594,7 @@ class ResourcePoolService:
 
             # Check if booking overlaps with this day
             if booking.start_time < day_end and booking_end > day_start:
-                start_hour = max(
-                    0, booking.start_time.hour if booking.start_time >= day_start else 0
-                )
+                start_hour = max(0, booking.start_time.hour if booking.start_time >= day_start else 0)
                 end_hour = min(24, booking_end.hour if booking_end <= day_end else 24)
                 booked_slots.append((start_hour, end_hour))
 
@@ -801,9 +797,7 @@ class ResourcePoolService:
             total_hours=sum(b.actual_hours or 0 for b in completed),
             total_hectares=sum(b.hectares_covered or 0 for b in completed),
             total_fees_collected=sum(b.actual_fee for b in completed if b.payment_status == "paid"),
-            total_fees_outstanding=sum(
-                b.actual_fee for b in completed if b.payment_status != "paid"
-            ),
+            total_fees_outstanding=sum(b.actual_fee for b in completed if b.payment_status != "paid"),
         )
 
         # Usage by period
@@ -818,9 +812,7 @@ class ResourcePoolService:
         # Calculate utilization (simplified - assumes 10 hours/day operating)
         days_in_service = (now - resource.created_at).days or 1
         max_hours = days_in_service * 10
-        stats.average_utilization_percent = (
-            (stats.total_hours / max_hours) * 100 if max_hours > 0 else 0
-        )
+        stats.average_utilization_percent = (stats.total_hours / max_hours) * 100 if max_hours > 0 else 0
 
         return stats
 
@@ -844,9 +836,7 @@ class ResourcePoolService:
             total_hours=sum(b.actual_hours or 0 for b in completed),
             total_hectares=sum(b.hectares_covered or 0 for b in completed),
             total_fees_collected=sum(b.actual_fee for b in completed if b.payment_status == "paid"),
-            total_fees_outstanding=sum(
-                b.actual_fee for b in completed if b.payment_status != "paid"
-            ),
+            total_fees_outstanding=sum(b.actual_fee for b in completed if b.payment_status != "paid"),
         )
 
         # Usage by period

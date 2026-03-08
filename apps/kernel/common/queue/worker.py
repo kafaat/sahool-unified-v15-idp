@@ -172,16 +172,12 @@ class TaskWorker:
 
                 # معالجة المهمة التالية
                 # Process next task
-                task = self.task_queue.process_next(
-                    worker_id=self.worker_id, task_types=self.task_types
-                )
+                task = self.task_queue.process_next(worker_id=self.worker_id, task_types=self.task_types)
 
                 if task:
                     # تنفيذ المهمة في خيط منفصل
                     # Execute task in separate thread
-                    thread = threading.Thread(
-                        target=self._execute_task, args=(task,), name=f"task-{task.task_id[:8]}"
-                    )
+                    thread = threading.Thread(target=self._execute_task, args=(task,), name=f"task-{task.task_id[:8]}")
                     thread.start()
                     self.current_tasks[task.task_id] = thread
 
@@ -262,9 +258,7 @@ class TaskWorker:
             self._cleanup_completed_tasks()
 
             if time.time() - start_time > timeout:
-                logger.warning(
-                    f"Timeout waiting for tasks, {len(self.current_tasks)} tasks still running"
-                )
+                logger.warning(f"Timeout waiting for tasks, {len(self.current_tasks)} tasks still running")
                 break
 
             time.sleep(1)
@@ -310,9 +304,7 @@ class TaskWorker:
 
             # تمييز المهمة كمكتملة
             # Mark task as completed
-            self.task_queue.complete_task(
-                task_id=task.task_id, result=result, worker_id=self.worker_id
-            )
+            self.task_queue.complete_task(task_id=task.task_id, result=result, worker_id=self.worker_id)
 
             # تحديث الإحصائيات
             # Update statistics
@@ -344,9 +336,7 @@ class TaskWorker:
         تنظيف المهام المكتملة
         Clean up completed tasks
         """
-        completed = [
-            task_id for task_id, thread in self.current_tasks.items() if not thread.is_alive()
-        ]
+        completed = [task_id for task_id, thread in self.current_tasks.items() if not thread.is_alive()]
 
         for task_id in completed:
             del self.current_tasks[task_id]
@@ -368,9 +358,7 @@ class TaskWorker:
         worker_data = {
             "worker_id": self.worker_id,
             "status": self.status,
-            "task_types": ",".join([t.value for t in self.task_types])
-            if self.task_types
-            else "all",
+            "task_types": ",".join([t.value for t in self.task_types]) if self.task_types else "all",
             "max_tasks": self.max_tasks,
             "started_at": self.stats["started_at"].isoformat(),
             "last_heartbeat": datetime.now(UTC).isoformat(),
@@ -483,9 +471,7 @@ class WorkerManager:
 
         # بدء العامل في خيط منفصل
         # Start worker in separate thread
-        thread = threading.Thread(
-            target=worker.start, name=f"worker-{worker.worker_id}", daemon=True
-        )
+        thread = threading.Thread(target=worker.start, name=f"worker-{worker.worker_id}", daemon=True)
         thread.start()
 
         self.workers[worker.worker_id] = worker

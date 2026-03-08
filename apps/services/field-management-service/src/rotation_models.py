@@ -64,9 +64,7 @@ class RotationPlanModel(Base):
     status = Column(String(20), default="draft")  # draft, active, completed
 
     # Relationships
-    seasons = relationship(
-        "SeasonPlanModel", back_populates="rotation_plan", cascade="all, delete-orphan"
-    )
+    seasons = relationship("SeasonPlanModel", back_populates="rotation_plan", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("idx_rotation_tenant_field", "tenant_id", "field_id"),

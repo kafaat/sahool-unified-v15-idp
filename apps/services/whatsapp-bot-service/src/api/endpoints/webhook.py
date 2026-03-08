@@ -125,9 +125,7 @@ async def receive_webhook(
                         if value.contacts:
                             for contact in value.contacts:
                                 if contact.wa_id == message.from_:
-                                    sender_name = (
-                                        contact.profile.get("name") if contact.profile else None
-                                    )
+                                    sender_name = contact.profile.get("name") if contact.profile else None
                                     break
 
                         logger.info(

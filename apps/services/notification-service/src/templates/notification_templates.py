@@ -183,9 +183,7 @@ class NotificationTemplateManager:
         """
         return self.templates.get(template_id)
 
-    def render_template(
-        self, template_id: str, context: dict[str, Any], language: str = "ar"
-    ) -> dict[str, str]:
+    def render_template(self, template_id: str, context: dict[str, Any], language: str = "ar") -> dict[str, str]:
         """
         عرض قالب مع السياق
 
@@ -208,12 +206,8 @@ class NotificationTemplateManager:
 
         # Render title and body with context
         try:
-            rendered_title = self._render_string(
-                template.title.get(language, template.title.get("ar", "")), context
-            )
-            rendered_body = self._render_string(
-                template.body.get(language, template.body.get("ar", "")), context
-            )
+            rendered_title = self._render_string(template.title.get(language, template.title.get("ar", "")), context)
+            rendered_body = self._render_string(template.body.get(language, template.body.get("ar", "")), context)
 
             result = {
                 "title": rendered_title,
@@ -281,18 +275,14 @@ class NotificationTemplateManager:
             List of template IDs
         """
         if category:
-            return [
-                tid for tid, template in self.templates.items() if template.category == category
-            ]
+            return [tid for tid, template in self.templates.items() if template.category == category]
         return list(self.templates.keys())
 
     # =========================================================================
     # Channel-Specific Formatting
     # =========================================================================
 
-    def format_for_push(
-        self, template_id: str, context: dict[str, Any], language: str = "ar"
-    ) -> dict[str, Any]:
+    def format_for_push(self, template_id: str, context: dict[str, Any], language: str = "ar") -> dict[str, Any]:
         """
         تنسيق للإشعارات الدفعية
 
@@ -355,9 +345,7 @@ class NotificationTemplateManager:
 
         return sms_text
 
-    def format_for_email(
-        self, template_id: str, context: dict[str, Any], language: str = "ar"
-    ) -> dict[str, str]:
+    def format_for_email(self, template_id: str, context: dict[str, Any], language: str = "ar") -> dict[str, str]:
         """
         تنسيق للبريد الإلكتروني (HTML)
 
@@ -388,9 +376,7 @@ class NotificationTemplateManager:
 
         return {"subject": rendered["title"], "html_body": html_body, "text_body": text_body}
 
-    def format_for_whatsapp(
-        self, template_id: str, context: dict[str, Any], language: str = "ar"
-    ) -> str:
+    def format_for_whatsapp(self, template_id: str, context: dict[str, Any], language: str = "ar") -> str:
         """
         تنسيق لواتساب
 
@@ -411,11 +397,7 @@ class NotificationTemplateManager:
             whatsapp_text += f"\n\n🔗 {rendered['action_url']}"
 
         # Add SAHOOL branding
-        footer = (
-            "\n\n_سَهُول SAHOOL - الزراعة الذكية_"
-            if language == "ar"
-            else "\n\n_SAHOOL - Smart Agriculture_"
-        )
+        footer = "\n\n_سَهُول SAHOOL - الزراعة الذكية_" if language == "ar" else "\n\n_SAHOOL - Smart Agriculture_"
         whatsapp_text += footer
 
         return whatsapp_text

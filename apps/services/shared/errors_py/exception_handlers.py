@@ -42,10 +42,7 @@ def should_include_stack() -> bool:
     هل يجب تضمين تتبع المكدس في الاستجابة
     """
     env = os.getenv("ENVIRONMENT", os.getenv("NODE_ENV", "production")).lower()
-    return (
-        env in ("development", "dev", "local")
-        or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
-    )
+    return env in ("development", "dev", "local") or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
 
 
 def sanitize_error_message(message: str) -> str:
@@ -237,9 +234,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(
-        request: Request, exc: RequestValidationError
-    ) -> JSONResponse:
+    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         """Handle request validation errors"""
         request_id = get_request_id(request)
 

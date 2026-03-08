@@ -219,9 +219,7 @@ class NotificationAnalytics:
                 }
 
             # Find most common type
-            most_common = max(
-                type_stats.items(), key=lambda x: x[1]["count"], default=(None, {"count": 0})
-            )
+            most_common = max(type_stats.items(), key=lambda x: x[1]["count"], default=(None, {"count": 0}))
 
             return {
                 "time_range": time_range.value,
@@ -283,16 +281,12 @@ class NotificationAnalytics:
 
                 if farmer_count > 0:
                     # Count notifications to these farmers
-                    notif_count = await Notification.filter(
-                        user_id__in=farmers, created_at__gte=start_time
-                    ).count()
+                    notif_count = await Notification.filter(user_id__in=farmers, created_at__gte=start_time).count()
 
                     governorate_stats[gov] = {
                         "farmer_count": farmer_count,
                         "notification_count": notif_count,
-                        "notifications_per_farmer": round(notif_count / farmer_count, 2)
-                        if farmer_count > 0
-                        else 0,
+                        "notifications_per_farmer": round(notif_count / farmer_count, 2) if farmer_count > 0 else 0,
                     }
 
             # Calculate totals
@@ -304,9 +298,7 @@ class NotificationAnalytics:
                 "governorates": governorate_stats,
                 "total_farmers": total_farmers,
                 "total_notifications": total_notifications,
-                "average_per_farmer": round(total_notifications / total_farmers, 2)
-                if total_farmers > 0
-                else 0,
+                "average_per_farmer": round(total_notifications / total_farmers, 2) if total_farmers > 0 else 0,
             }
 
         except Exception as e:
@@ -445,9 +437,7 @@ class NotificationAnalytics:
                 "engagement_rate": round((read_count / total * 100) if total > 0 else 0, 2),
                 "average_read_time_seconds": round(avg_read_time, 2),
                 "average_read_time_minutes": round(avg_read_time / 60, 2),
-                "top_engaged_users": [
-                    {"user_id": uid, "read_count": count} for uid, count in top_users
-                ]
+                "top_engaged_users": [{"user_id": uid, "read_count": count} for uid, count in top_users]
                 if top_users
                 else None,
             }
@@ -523,15 +513,9 @@ class NotificationAnalytics:
         """
         try:
             # Get multiple analytics in parallel
-            delivery_stats = await NotificationAnalytics.get_delivery_stats(
-                TimeRange.DAY, tenant_id
-            )
-            channel_perf = await NotificationAnalytics.get_channel_performance(
-                TimeRange.DAY, tenant_id
-            )
-            type_breakdown = await NotificationAnalytics.get_notification_type_breakdown(
-                TimeRange.WEEK, tenant_id
-            )
+            delivery_stats = await NotificationAnalytics.get_delivery_stats(TimeRange.DAY, tenant_id)
+            channel_perf = await NotificationAnalytics.get_channel_performance(TimeRange.DAY, tenant_id)
+            type_breakdown = await NotificationAnalytics.get_notification_type_breakdown(TimeRange.WEEK, tenant_id)
             user_engagement = await NotificationAnalytics.get_user_engagement(
                 time_range=TimeRange.WEEK, tenant_id=tenant_id
             )

@@ -73,9 +73,7 @@ def get_current_tenant() -> TenantContext:
     """
     ctx = _tenant_context.get()
     if ctx is None:
-        raise RuntimeError(
-            "Tenant context not available. Ensure TenantContextMiddleware is configured."
-        )
+        raise RuntimeError("Tenant context not available. Ensure TenantContextMiddleware is configured.")
     return ctx
 
 

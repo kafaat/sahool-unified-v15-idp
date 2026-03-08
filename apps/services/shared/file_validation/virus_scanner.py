@@ -134,9 +134,7 @@ class ClamAVScanner(VirusScannerInterface):
                 return True
 
             # Send INSTREAM command to ClamAV
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self.host, self.port), timeout=self.timeout
-            )
+            reader, writer = await asyncio.wait_for(asyncio.open_connection(self.host, self.port), timeout=self.timeout)
 
             try:
                 # Send INSTREAM command
@@ -198,9 +196,7 @@ class ClamAVScanner(VirusScannerInterface):
 
         try:
             # Try to connect and send PING command
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self.host, self.port), timeout=5
-            )
+            reader, writer = await asyncio.wait_for(asyncio.open_connection(self.host, self.port), timeout=5)
 
             try:
                 writer.write(b"zPING\0")
@@ -469,9 +465,7 @@ class VirusTotalScanner(VirusScannerInterface):
                 await asyncio.sleep(self.poll_interval)
             else:
                 logger.error(f"Unknown analysis status: {status}")
-                return ScanResult(
-                    verdict=ScanVerdict.ERROR, details={"error": f"Unknown status: {status}"}
-                )
+                return ScanResult(verdict=ScanVerdict.ERROR, details={"error": f"Unknown status: {status}"})
 
     def _parse_analysis_response(self, response_data: dict) -> ScanResult:
         """
@@ -539,9 +533,7 @@ class VirusTotalScanner(VirusScannerInterface):
         """
         if not self.api_key:
             logger.warning("VirusTotal API key not configured")
-            return ScanResult(
-                verdict=ScanVerdict.ERROR, details={"error": "API key not configured"}
-            )
+            return ScanResult(verdict=ScanVerdict.ERROR, details={"error": "API key not configured"})
 
         file_hash = self._compute_sha256(file_content)
         logger.info(f"Scanning file {filename} (SHA256: {file_hash})")

@@ -268,9 +268,7 @@ def example_multi_crop_comparison():
     print(f"\n{'Crop':<20} {'Yield (kg/ha)':>15} {'Confidence':>12} {'Revenue (YER)':>15}")
     print("-" * 70)
     for r in sorted(results, key=lambda x: x["revenue"], reverse=True):
-        print(
-            f"{r['crop']:<20} {r['yield_kg_ha']:>15,.0f} {r['confidence']:>11.1%} {r['revenue']:>15,.0f}"
-        )
+        print(f"{r['crop']:<20} {r['yield_kg_ha']:>15,.0f} {r['confidence']:>11.1%} {r['revenue']:>15,.0f}")
 
 
 def example_regional_comparison():

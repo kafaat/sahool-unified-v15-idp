@@ -135,10 +135,7 @@ class HealthCheckManager:
 
                 if result.status == HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.UNHEALTHY
-                elif (
-                    result.status == HealthStatus.DEGRADED
-                    and overall_status != HealthStatus.UNHEALTHY
-                ):
+                elif result.status == HealthStatus.DEGRADED and overall_status != HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.DEGRADED
 
             except Exception as e:

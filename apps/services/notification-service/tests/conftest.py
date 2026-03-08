@@ -107,9 +107,7 @@ def mock_sms_client():
     client = MagicMock()
     client._initialized = True
     client.send_sms = AsyncMock(return_value="SM123456")
-    client.send_bulk_sms = AsyncMock(
-        return_value={"success_count": 3, "failure_count": 0, "results": []}
-    )
+    client.send_bulk_sms = AsyncMock(return_value={"success_count": 3, "failure_count": 0, "results": []})
     client.send_sms_with_retry = AsyncMock(return_value="SM123456")
     client.validate_phone_number = MagicMock(return_value=True)
     return client
@@ -121,9 +119,7 @@ def mock_email_client():
     client = MagicMock()
     client._initialized = True
     client.send_email = AsyncMock(return_value="msg-123456")
-    client.send_bulk_email = AsyncMock(
-        return_value={"success_count": 3, "failure_count": 0, "results": []}
-    )
+    client.send_bulk_email = AsyncMock(return_value={"success_count": 3, "failure_count": 0, "results": []})
     client.send_email_with_retry = AsyncMock(return_value="msg-123456")
     return client
 
@@ -135,9 +131,7 @@ def mock_firebase_client():
     client._initialized = True
     client.send_notification = MagicMock(return_value="fcm-msg-123")
     client.send_to_topic = MagicMock(return_value="fcm-topic-msg-123")
-    client.send_multicast = MagicMock(
-        return_value={"success_count": 3, "failure_count": 0, "responses": []}
-    )
+    client.send_multicast = MagicMock(return_value={"success_count": 3, "failure_count": 0, "responses": []})
     client.subscribe_to_topic = MagicMock(return_value={"success_count": 1, "failure_count": 0})
     client.send_with_retry = MagicMock(return_value="fcm-msg-retry-123")
     return client
@@ -274,5 +268,3 @@ def sample_notification_request():
         "channels": ["push", "in_app"],
         "expires_in_hours": 24,
     }
-
-

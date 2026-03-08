@@ -84,9 +84,7 @@ class TestVirtualSensors:
 
 class TestEstimation:
     def test_estimate_sensor(self, client):
-        response = client.post(
-            "/api/v1/fields/field_001/estimate", json={"sensor_type": "soil_moisture"}
-        )
+        response = client.post("/api/v1/fields/field_001/estimate", json={"sensor_type": "soil_moisture"})
         assert response.status_code == 200
         assert "estimated_value" in response.json()
 

@@ -364,10 +364,7 @@ class FertilizerInventoryManager:
             raise ValueError(f"Inventory item not found: {item_id}")
 
         if item.available_kg < quantity_kg:
-            raise ValueError(
-                f"Insufficient stock. Available: {item.available_kg} kg, "
-                f"Requested: {quantity_kg} kg"
-            )
+            raise ValueError(f"Insufficient stock. Available: {item.available_kg} kg, Requested: {quantity_kg} kg")
 
         quantity_before = item.quantity_kg
         item.quantity_kg -= quantity_kg
@@ -790,12 +787,8 @@ class FertilizerInventoryManager:
             "total_consumed_kg": total_issued,
             "daily_consumption_kg": round(daily_rate, 2),
             "current_stock_kg": item.available_kg,
-            "days_of_stock_remaining": round(days_of_stock, 1)
-            if days_of_stock != float("inf")
-            else None,
-            "projected_stockout_date": (
-                datetime.now(UTC) + timedelta(days=days_of_stock)
-            ).isoformat()
+            "days_of_stock_remaining": round(days_of_stock, 1) if days_of_stock != float("inf") else None,
+            "projected_stockout_date": (datetime.now(UTC) + timedelta(days=days_of_stock)).isoformat()
             if days_of_stock != float("inf") and days_of_stock > 0
             else None,
         }
@@ -836,7 +829,5 @@ def create_inventory_item(
         warehouse_name=warehouse_name,
         minimum_stock_kg=minimum_stock_kg,
         reorder_point_kg=reorder_point_kg,
-        status=InventoryStatus.IN_STOCK
-        if initial_quantity_kg > 0
-        else InventoryStatus.OUT_OF_STOCK,
+        status=InventoryStatus.IN_STOCK if initial_quantity_kg > 0 else InventoryStatus.OUT_OF_STOCK,
     )

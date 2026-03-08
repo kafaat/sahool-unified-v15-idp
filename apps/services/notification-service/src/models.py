@@ -43,9 +43,7 @@ class Notification(Model):
 
     # Content
     title = fields.CharField(max_length=255, description="Notification title (English)")
-    title_ar = fields.CharField(
-        max_length=255, null=True, description="Notification title (Arabic)"
-    )
+    title_ar = fields.CharField(max_length=255, null=True, description="Notification title (Arabic)")
     body = fields.TextField(description="Notification body/content (English)")
     body_ar = fields.TextField(null=True, description="Notification body/content (Arabic)")
 
@@ -55,12 +53,8 @@ class Notification(Model):
         index=True,
         description="weather_alert, pest_outbreak, irrigation_reminder, etc.",
     )
-    priority = fields.CharField(
-        max_length=20, default="medium", description="low, medium, high, critical"
-    )
-    channel = fields.CharField(
-        max_length=20, default="in_app", description="push, sms, in_app, email"
-    )
+    priority = fields.CharField(max_length=20, default="medium", description="low, medium, high, critical")
+    channel = fields.CharField(max_length=20, default="in_app", description="push, sms, in_app, email")
 
     # Status tracking
     status = fields.CharField(
@@ -77,17 +71,13 @@ class Notification(Model):
     action_url = fields.CharField(max_length=500, null=True, description="Deep link or action URL")
 
     # Targeting
-    target_governorates = fields.JSONField(
-        null=True, description="List of governorates this applies to"
-    )
+    target_governorates = fields.JSONField(null=True, description="List of governorates this applies to")
     target_crops = fields.JSONField(null=True, description="List of crop types this applies to")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True, index=True)
     updated_at = fields.DatetimeField(auto_now=True)
-    expires_at = fields.DatetimeField(
-        null=True, index=True, description="When this notification expires"
-    )
+    expires_at = fields.DatetimeField(null=True, index=True, description="When this notification expires")
 
     class Meta:
         table = "notifications"
@@ -129,12 +119,8 @@ class NotificationTemplate(Model):
     description = fields.CharField(max_length=255, null=True)
 
     # Template content (supports Jinja2-style variables)
-    title_template = fields.CharField(
-        max_length=255, description="Title template with {{variables}}"
-    )
-    title_template_ar = fields.CharField(
-        max_length=255, null=True, description="Arabic title template"
-    )
+    title_template = fields.CharField(max_length=255, description="Title template with {{variables}}")
+    title_template_ar = fields.CharField(max_length=255, null=True, description="Arabic title template")
     body_template = fields.TextField(description="Body template with {{variables}}")
     body_template_ar = fields.TextField(null=True, description="Arabic body template")
 
@@ -144,9 +130,7 @@ class NotificationTemplate(Model):
     channel = fields.CharField(max_length=20, default="in_app")
 
     # Metadata
-    variables = fields.JSONField(
-        null=True, description="List of available variables for this template"
-    )
+    variables = fields.JSONField(null=True, description="List of available variables for this template")
     default_data = fields.JSONField(null=True, description="Default data to include")
 
     # Status
@@ -175,12 +159,8 @@ class NotificationChannel(Model):
     user_id = fields.CharField(max_length=100, index=True, description="Farmer/User ID")
 
     # Channel information
-    channel = fields.CharEnumField(
-        ChannelType, description="Channel type: EMAIL, SMS, PUSH, WHATSAPP, IN_APP"
-    )
-    address = fields.CharField(
-        max_length=255, description="Channel address (email, phone, FCM token, etc.)"
-    )
+    channel = fields.CharEnumField(ChannelType, description="Channel type: EMAIL, SMS, PUSH, WHATSAPP, IN_APP")
+    address = fields.CharField(max_length=255, description="Channel address (email, phone, FCM token, etc.)")
 
     # Verification
     verified = fields.BooleanField(default=False, description="Whether this channel is verified")
@@ -192,14 +172,10 @@ class NotificationChannel(Model):
     )
 
     # Status
-    enabled = fields.BooleanField(
-        default=True, description="Whether this channel is enabled for notifications"
-    )
+    enabled = fields.BooleanField(default=True, description="Whether this channel is enabled for notifications")
 
     # Metadata
-    metadata = fields.JSONField(
-        null=True, description="Additional channel metadata (device info, etc.)"
-    )
+    metadata = fields.JSONField(null=True, description="Additional channel metadata (device info, etc.)")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -228,9 +204,7 @@ class NotificationPreference(Model):
     user_id = fields.CharField(max_length=100, index=True, description="Farmer/User ID")
 
     # Event type for this preference
-    event_type = fields.CharField(
-        max_length=50, description="Event type: weather_alert, pest_outbreak, etc."
-    )
+    event_type = fields.CharField(max_length=50, description="Event type: weather_alert, pest_outbreak, etc.")
 
     # Channels to use for this event type
     channels = fields.JSONField(
@@ -245,9 +219,7 @@ class NotificationPreference(Model):
     )
 
     # Quiet hours (do not disturb) - applies to all event types for this user
-    quiet_hours_start = fields.TimeField(
-        null=True, description="Start of quiet hours (e.g., 22:00)"
-    )
+    quiet_hours_start = fields.TimeField(null=True, description="Start of quiet hours (e.g., 22:00)")
     quiet_hours_end = fields.TimeField(null=True, description="End of quiet hours (e.g., 06:00)")
 
     # Metadata
@@ -289,27 +261,19 @@ class NotificationLog(Model):
     """
 
     id = fields.UUIDField(pk=True)
-    notification = fields.ForeignKeyField(
-        "models.Notification", related_name="logs", on_delete=fields.CASCADE
-    )
+    notification = fields.ForeignKeyField("models.Notification", related_name="logs", on_delete=fields.CASCADE)
 
     # Delivery information
     channel = fields.CharField(max_length=20, description="Channel used for delivery")
-    status = fields.CharField(
-        max_length=20, index=True, description="success, failed, pending, retry"
-    )
+    status = fields.CharField(max_length=20, index=True, description="success, failed, pending, retry")
 
     # Error tracking
     error_message = fields.TextField(null=True, description="Error message if delivery failed")
     error_code = fields.CharField(max_length=50, null=True)
 
     # Provider response
-    provider_response = fields.JSONField(
-        null=True, description="Response from FCM, SMS gateway, etc."
-    )
-    provider_message_id = fields.CharField(
-        max_length=255, null=True, description="Message ID from provider"
-    )
+    provider_response = fields.JSONField(null=True, description="Response from FCM, SMS gateway, etc.")
+    provider_message_id = fields.CharField(max_length=255, null=True, description="Message ID from provider")
 
     # Retry information
     retry_count = fields.IntField(default=0, description="Number of retry attempts")
@@ -376,9 +340,7 @@ class FarmerProfile(Model):
     )
 
     # Status
-    is_active = fields.BooleanField(
-        default=True, index=True, description="Whether profile is active"
-    )
+    is_active = fields.BooleanField(default=True, index=True, description="Whether profile is active")
 
     # Metadata
     metadata = fields.JSONField(null=True, description="Additional farmer metadata")

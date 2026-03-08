@@ -51,13 +51,15 @@ logger = logging.getLogger(__name__)
 
 class PolicySeverity(StrEnum):
     """Policy violation severity levels."""
+
     CRITICAL = "critical"  # Service must not start
-    WARNING = "warning"    # Service can start but may have issues
-    INFO = "info"          # Informational / best practice
+    WARNING = "warning"  # Service can start but may have issues
+    INFO = "info"  # Informational / best practice
 
 
 class PolicyType(StrEnum):
     """Types of config policies."""
+
     REQUIRED = "required"
     MIN_LENGTH = "min_length"
     PATTERN = "pattern"
@@ -70,6 +72,7 @@ class PolicyType(StrEnum):
 @dataclass
 class PolicyRule:
     """A single config policy rule."""
+
     variable: str
     policy_type: PolicyType
     severity: PolicySeverity = PolicySeverity.CRITICAL
@@ -88,6 +91,7 @@ class PolicyRule:
 @dataclass
 class PolicyViolation:
     """A detected policy violation."""
+
     variable: str
     rule: PolicyRule
     severity: PolicySeverity
@@ -99,6 +103,7 @@ class PolicyViolation:
 @dataclass
 class ValidationResult:
     """Result of config policy validation."""
+
     violations: list[PolicyViolation] = field(default_factory=list)
     service_name: str = ""
 

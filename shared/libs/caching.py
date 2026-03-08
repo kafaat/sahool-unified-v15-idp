@@ -109,6 +109,7 @@ class InMemoryCache:
         else:
             # Clear keys matching pattern (simple glob pattern support)
             import fnmatch
+
             keys_to_delete = [key for key in self._cache if fnmatch.fnmatch(key, pattern)]
             for key in keys_to_delete:
                 del self._cache[key]

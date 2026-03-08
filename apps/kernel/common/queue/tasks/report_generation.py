@@ -360,15 +360,11 @@ def _generate_basic_report(
         "sections": [
             {
                 "name": "Executive Summary" if language == "en" else "الملخص التنفيذي",
-                "content": "Report generated successfully."
-                if language == "en"
-                else "تم إنشاء التقرير بنجاح.",
+                "content": "Report generated successfully." if language == "en" else "تم إنشاء التقرير بنجاح.",
             },
             {
                 "name": "Field Overview" if language == "en" else "نظرة عامة على الحقل",
-                "content": f"Field {field_id} data summary."
-                if language == "en"
-                else f"ملخص بيانات الحقل {field_id}.",
+                "content": f"Field {field_id} data summary." if language == "en" else f"ملخص بيانات الحقل {field_id}.",
             },
         ],
     }
@@ -383,9 +379,7 @@ def _generate_basic_report(
         # لـ PDF/Excel بدون مكتبات، يُرجع JSON كاحتياطي
         data = json.dumps(report_content, ensure_ascii=False, indent=2)
         filename = f"report_{field_id}_{datetime.utcnow().strftime('%Y%m%d')}.json"
-        logger.warning(
-            f"Format {report_format} requires additional libraries, falling back to JSON"
-        )
+        logger.warning(f"Format {report_format} requires additional libraries, falling back to JSON")
 
     return {
         "data": data,

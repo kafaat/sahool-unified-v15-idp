@@ -207,9 +207,7 @@ class TestHydrologyAnalyzer:
 
         analyzer = HydrologyAnalyzer()
         analyzer.load_dem(dem)
-        results = analyzer.run_full_analysis(
-            flow_threshold=50, depression_max_depth=2.0, min_basin_cells=50
-        )
+        results = analyzer.run_full_analysis(flow_threshold=50, depression_max_depth=2.0, min_basin_cells=50)
 
         # Check that all expected keys are present
         assert "dem_stats" in results

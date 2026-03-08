@@ -160,14 +160,10 @@ class KnowledgeIngestionPipeline:
         # Security: Path traversal protection (Section 7)
         if self._allowed_base_dirs is not None:
             resolved = path.resolve()
-            is_allowed = any(
-                str(resolved).startswith(str(Path(base).resolve()))
-                for base in self._allowed_base_dirs
-            )
+            is_allowed = any(str(resolved).startswith(str(Path(base).resolve())) for base in self._allowed_base_dirs)
             if not is_allowed:
                 result.errors.append(
-                    f"Path '{path}' is outside allowed directories. "
-                    f"Allowed: {self._allowed_base_dirs}"
+                    f"Path '{path}' is outside allowed directories. Allowed: {self._allowed_base_dirs}"
                 )
                 logger.warning(
                     "path_traversal_blocked",
@@ -455,9 +451,7 @@ class KnowledgeIngestionPipeline:
                 credibility=credibility,
                 agrovoc_concepts=agrovoc_concepts,
             ),
-            verification_status=(
-                VerificationStatus.APPROVED if credibility.value >= 4 else VerificationStatus.PENDING
-            ),
+            verification_status=(VerificationStatus.APPROVED if credibility.value >= 4 else VerificationStatus.PENDING),
         )
         result.document_id = doc.id
 

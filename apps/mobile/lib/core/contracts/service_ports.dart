@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 2.0.0
+/// Contract version: 2.1.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -26,7 +26,6 @@ abstract final class ServicePorts {
   static const int cropGrowthModel = 3023;
   static const int yieldPrediction = 8152;
   static const int yieldEngine = 8098;
-  static const int agroRules = 8151;
   static const int taskService = 8103;
   static const int equipment = 8101;
   static const int notifications = 8110;
@@ -51,7 +50,6 @@ abstract final class ServicePorts {
   static const int llmOrchestrator = 8164;
   static const int knowledgeGraph = 8140;
   static const int codeFixAgent = 8162;
-  static const int codeReviewAgent = 8145;
   static const int codeReviewService = 8102;
   static const int yoloVision = 8150;
   static const int groundVision = 8182;
@@ -59,6 +57,7 @@ abstract final class ServicePorts {
   static const int hydrology = 8165;
   static const int levelingOptimizer = 8170;
   static const int edgeOrchestrator = 8180;
+  static const int vllmDeepseek = 8270;
   static const int soilAnalysis = 8134;
   static const int pestDetection = 8125;
   static const int droneService = 8126;
@@ -77,7 +76,8 @@ abstract final class ServicePorts {
   static const int irrigationCycleEngine = 8250;
   static const int digitalTwin = 8253;
   static const int mcpServer = 8201;
-  static const int demoData = 8261;
+  static const int admin = 3001;
+  static const int web = 3002;
   static const int kongGateway = 8000;
   static const int kongAdmin = 8001;
   static const int nats = 4222;

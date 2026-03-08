@@ -327,9 +327,7 @@ class IntentClassifier:
                 scores[intent] = score
 
         if not scores:
-            return IntentResult(
-                intent=AgriculturalIntent.GENERAL, confidence=0.5, secondary_intents=[]
-            )
+            return IntentResult(intent=AgriculturalIntent.GENERAL, confidence=0.5, secondary_intents=[])
 
         # Sort by score
         sorted_intents = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -338,9 +336,7 @@ class IntentClassifier:
         total_score = sum(scores.values())
         primary_confidence = sorted_intents[0][1] / total_score if total_score else 0.5
 
-        secondary = [
-            (intent, score / total_score) for intent, score in sorted_intents[1:3] if score > 0
-        ]
+        secondary = [(intent, score / total_score) for intent, score in sorted_intents[1:3] if score > 0]
 
         return IntentResult(
             intent=primary_intent,
@@ -475,9 +471,7 @@ class EntityExtractor:
                 )
 
         # Extract quantities (numbers with units)
-        quantity_pattern = re.compile(
-            r"(\d+(?:\.\d+)?)\s*(كيلو|طن|هكتار|لتر|مل|kg|ton|hectare|liter|ml|ha)"
-        )
+        quantity_pattern = re.compile(r"(\d+(?:\.\d+)?)\s*(كيلو|طن|هكتار|لتر|مل|kg|ton|hectare|liter|ml|ha)")
         for match in quantity_pattern.finditer(text_lower):
             entities.append(
                 Entity(
@@ -619,9 +613,7 @@ class ArabicNLPProcessor:
             "intent": {
                 "primary": intent_result.intent.value,
                 "confidence": intent_result.confidence,
-                "secondary": [
-                    {"intent": i.value, "confidence": c} for i, c in intent_result.secondary_intents
-                ],
+                "secondary": [{"intent": i.value, "confidence": c} for i, c in intent_result.secondary_intents],
             },
             "entities": [
                 {

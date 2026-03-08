@@ -62,8 +62,7 @@ def get_allowed_origins() -> list[str]:
         environment = os.getenv("ENVIRONMENT", "development").lower()
         if "*" in origins and environment == "production":
             logger.critical(
-                "SECURITY ALERT: Wildcard (*) CORS origin in production. "
-                "Falling back to PRODUCTION_ORIGINS."
+                "SECURITY ALERT: Wildcard (*) CORS origin in production. Falling back to PRODUCTION_ORIGINS."
             )
             return PRODUCTION_ORIGINS
         return origins
@@ -114,13 +113,24 @@ def setup_cors_middleware(app, **kwargs):
         "allow_credentials": True,
         "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
         "allow_headers": [
-            "Accept", "Accept-Language", "Authorization", "Content-Type",
-            "Content-Language", "X-Request-ID", "X-Correlation-ID",
-            "X-Tenant-ID", "X-API-Key", "X-User-ID",
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
         ],
         "expose_headers": [
-            "X-Request-ID", "X-Correlation-ID", "X-Total-Count",
-            "X-Page-Count", "X-RateLimit-Limit", "X-RateLimit-Remaining",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Total-Count",
+            "X-Page-Count",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
             "X-RateLimit-Reset",
         ],
         "max_age": 3600,
@@ -148,13 +158,24 @@ class _CORSSettings:
                 "allow_credentials": True,
                 "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                 "allow_headers": [
-                    "Accept", "Accept-Language", "Authorization", "Content-Type",
-                    "Content-Language", "X-Request-ID", "X-Correlation-ID",
-                    "X-Tenant-ID", "X-API-Key", "X-User-ID",
+                    "Accept",
+                    "Accept-Language",
+                    "Authorization",
+                    "Content-Type",
+                    "Content-Language",
+                    "X-Request-ID",
+                    "X-Correlation-ID",
+                    "X-Tenant-ID",
+                    "X-API-Key",
+                    "X-User-ID",
                 ],
                 "expose_headers": [
-                    "X-Request-ID", "X-Correlation-ID", "X-Total-Count",
-                    "X-Page-Count", "X-RateLimit-Limit", "X-RateLimit-Remaining",
+                    "X-Request-ID",
+                    "X-Correlation-ID",
+                    "X-Total-Count",
+                    "X-Page-Count",
+                    "X-RateLimit-Limit",
+                    "X-RateLimit-Remaining",
                     "X-RateLimit-Reset",
                 ],
                 "max_age": 3600,

@@ -563,9 +563,7 @@ class TestMomentEndpoints:
         assert "visible_to" in data["detail"].lower() or "visible" in data["error"].lower()
 
     @pytest.mark.asyncio
-    async def test_publish_moment_selected_visibility_with_users(
-        self, client, sample_moment_request
-    ):
+    async def test_publish_moment_selected_visibility_with_users(self, client, sample_moment_request):
         """Test publishing with selected visibility and user list."""
         sample_moment_request["visibility"] = "selected"
         sample_moment_request["visible_to"] = ["user_001", "user_002"]

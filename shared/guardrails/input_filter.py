@@ -107,14 +107,9 @@ class PromptInjectionDetector:
 
         # Compile all patterns
         self.all_patterns = (
-            self.override_patterns
-            + self.exfiltration_patterns
-            + self.role_confusion_patterns
-            + self.escape_patterns
+            self.override_patterns + self.exfiltration_patterns + self.role_confusion_patterns + self.escape_patterns
         )
-        self.compiled_patterns = [
-            re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns
-        ]
+        self.compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns]
 
     def detect(self, text: str) -> tuple[bool, list[str]]:
         """
@@ -128,17 +123,13 @@ class PromptInjectionDetector:
         """
         detected_patterns = []
 
-        for pattern, compiled_pattern in zip(
-            self.all_patterns, self.compiled_patterns, strict=False
-        ):
+        for pattern, compiled_pattern in zip(self.all_patterns, self.compiled_patterns, strict=False):
             if compiled_pattern.search(text):
                 detected_patterns.append(pattern)
                 logger.warning(f"Prompt injection pattern detected: {pattern}")
 
         # Check for excessive special characters (potential encoding attack)
-        special_char_ratio = sum(1 for c in text if not c.isalnum() and not c.isspace()) / max(
-            len(text), 1
-        )
+        special_char_ratio = sum(1 for c in text if not c.isalnum() and not c.isspace()) / max(len(text), 1)
         if special_char_ratio > 0.4:
             detected_patterns.append("excessive_special_characters")
             logger.warning(f"Excessive special characters: {special_char_ratio:.2%}")
@@ -214,8 +205,14 @@ class PIIDetector:
                     # For emails, preserve @ sign structure
                     if pii_type == "email" and "@" in match_str:
                         local, domain = match_str.split("@", 1)
-                        masked_local = local[:2] + mask_char * max(len(local) - 2, 0) if len(local) > 2 else mask_char * len(local)
-                        masked_domain = mask_char * max(len(domain) - 2, 0) + domain[-2:] if len(domain) > 2 else mask_char * len(domain)
+                        masked_local = (
+                            local[:2] + mask_char * max(len(local) - 2, 0) if len(local) > 2 else mask_char * len(local)
+                        )
+                        masked_domain = (
+                            mask_char * max(len(domain) - 2, 0) + domain[-2:]
+                            if len(domain) > 2
+                            else mask_char * len(domain)
+                        )
                         masked = masked_local + "@" + masked_domain
                     elif len(match_str) > 6:
                         # Keep first and last 2 characters visible for debugging
@@ -391,12 +388,8 @@ class InputFilter:
 
         # 1. Check input length
         if len(text) > policy.max_input_length:
-            violations.append(
-                f"Input exceeds maximum length ({len(text)} > {policy.max_input_length})"
-            )
-            violations_ar.append(
-                f"المدخل يتجاوز الحد الأقصى للطول ({len(text)} > {policy.max_input_length})"
-            )
+            violations.append(f"Input exceeds maximum length ({len(text)} > {policy.max_input_length})")
+            violations_ar.append(f"المدخل يتجاوز الحد الأقصى للطول ({len(text)} > {policy.max_input_length})")
             metadata["input_length"] = len(text)
 
         # 2. Check for prompt injection
@@ -428,12 +421,8 @@ class InputFilter:
             metadata["toxic_categories"] = toxic_categories
 
             if toxicity_score >= policy.toxicity_threshold:
-                violations.append(
-                    f"Content toxicity too high: {toxicity_score:.2f} >= {policy.toxicity_threshold}"
-                )
-                violations_ar.append(
-                    f"محتوى سام: {toxicity_score:.2f} >= {policy.toxicity_threshold}"
-                )
+                violations.append(f"Content toxicity too high: {toxicity_score:.2f} >= {policy.toxicity_threshold}")
+                violations_ar.append(f"محتوى سام: {toxicity_score:.2f} >= {policy.toxicity_threshold}")
             elif toxicity_score > 0.3:
                 warnings.append(f"Moderate toxicity detected: {toxicity_score:.2f}")
                 warnings_ar.append(f"تم اكتشاف سمية معتدلة: {toxicity_score:.2f}")

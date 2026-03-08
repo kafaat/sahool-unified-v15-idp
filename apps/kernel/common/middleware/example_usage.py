@@ -122,9 +122,7 @@ async def manual_rate_limit_check(request: Request):
 
     # التحقق من حد المعدل يدويًا
     # Check rate limit manually
-    allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id=client_id, endpoint="/api/v1/manual-check"
-    )
+    allowed, remaining, reset = await limiter.check_rate_limit(client_id=client_id, endpoint="/api/v1/manual-check")
 
     if not allowed:
         return JSONResponse(

@@ -342,10 +342,7 @@ class SessionManager:
         await self._store_session(session)
         await self._add_user_session(user_id, session_id)
 
-        logger.info(
-            f"Created session {session_id[:8]}... for user {user_id} "
-            f"(device: {device_type}, ip: {ip_address})"
-        )
+        logger.info(f"Created session {session_id[:8]}... for user {user_id} (device: {device_type}, ip: {ip_address})")
 
         return session
 
@@ -412,10 +409,7 @@ class SessionManager:
         # Check fingerprint if enabled
         if self._enable_fingerprint_binding and session.fingerprint_hash and fingerprint_hash:
             if fingerprint_hash != session.fingerprint_hash:
-                logger.warning(
-                    f"Session {session_id[:8]}... fingerprint mismatch. "
-                    f"Possible session hijacking attempt."
-                )
+                logger.warning(f"Session {session_id[:8]}... fingerprint mismatch. Possible session hijacking attempt.")
                 # Log but don't fail - fingerprints can change legitimately
                 # Could implement stricter policy here
 

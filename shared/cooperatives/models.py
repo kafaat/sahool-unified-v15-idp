@@ -424,11 +424,7 @@ class CooperativeMember:
 
     def can_vote(self) -> bool:
         """Check if member has voting rights"""
-        return (
-            self.status == MemberStatus.ACTIVE
-            and self.voting_rights
-            and self.role != MemberRole.OBSERVER
-        )
+        return self.status == MemberStatus.ACTIVE and self.voting_rights and self.role != MemberRole.OBSERVER
 
     def has_outstanding_dues(self) -> bool:
         """Check if member has unpaid dues"""
@@ -855,9 +851,7 @@ class GroupPurchaseOrder:
             "savings": str(self.calculate_savings()),
             "status": self.status.value,
             "order_deadline": self.order_deadline.isoformat() if self.order_deadline else None,
-            "expected_delivery": self.expected_delivery.isoformat()
-            if self.expected_delivery
-            else None,
+            "expected_delivery": self.expected_delivery.isoformat() if self.expected_delivery else None,
             "created_at": self.created_at.isoformat(),
         }
 

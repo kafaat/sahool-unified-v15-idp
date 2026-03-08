@@ -215,13 +215,9 @@ class LevelingOptimizer:
 
             # Filter points for this plane
             if direction == "x":
-                plane_points = [
-                    p for p in points if low <= p.x < high or (i == num_planes - 1 and p.x == high)
-                ]
+                plane_points = [p for p in points if low <= p.x < high or (i == num_planes - 1 and p.x == high)]
             else:
-                plane_points = [
-                    p for p in points if low <= p.y < high or (i == num_planes - 1 and p.y == high)
-                ]
+                plane_points = [p for p in points if low <= p.y < high or (i == num_planes - 1 and p.y == high)]
 
             if len(plane_points) >= 3:
                 plane = self.compute_optimal_plane(plane_points)
@@ -331,9 +327,7 @@ class LevelingOptimizer:
         # In production, implement proper TIN calculation
         return self.calculate_cut_fill_volumes(points, plane, grid_size=5.0)
 
-    def calculate_haul_distance(
-        self, cut_points: list[Point3D], fill_points: list[Point3D]
-    ) -> float:
+    def calculate_haul_distance(self, cut_points: list[Point3D], fill_points: list[Point3D]) -> float:
         """
         Calculate average haul distance between cut and fill areas.
 
@@ -360,9 +354,7 @@ class LevelingOptimizer:
 
         return distance * haul_factor
 
-    def calculate_mass_haul(
-        self, cut_points: list[Point3D], fill_points: list[Point3D]
-    ) -> dict[str, float]:
+    def calculate_mass_haul(self, cut_points: list[Point3D], fill_points: list[Point3D]) -> dict[str, float]:
         """
         Calculate mass haul diagram statistics.
 
@@ -477,9 +469,7 @@ class LevelingOptimizer:
             grade_y = max_grade if grade_y >= 0 else -max_grade
 
         # Recompute with constrained grades
-        return self.compute_optimal_plane(
-            points, target_grade_x=grade_x, target_grade_y=grade_y, balance_cut_fill=True
-        )
+        return self.compute_optimal_plane(points, target_grade_x=grade_x, target_grade_y=grade_y, balance_cut_fill=True)
 
     def grade_percent_to_ratio(self, grade_percent: float) -> str:
         """

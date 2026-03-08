@@ -344,19 +344,16 @@ class DistributionPlan:
 
     def calculate_distributable(self) -> Decimal:
         """Calculate amount available for distribution after deductions"""
-        self.management_fee_amount = (
-            self.total_amount * self.management_fee_percent / Decimal("100")
-        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.management_fee_amount = (self.total_amount * self.management_fee_percent / Decimal("100")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
-        self.reserve_fund_amount = (
-            self.total_amount * self.reserve_fund_percent / Decimal("100")
-        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.reserve_fund_amount = (self.total_amount * self.reserve_fund_percent / Decimal("100")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
         self.distributable_amount = (
-            self.total_amount
-            - self.management_fee_amount
-            - self.reserve_fund_amount
-            - self.other_deductions
+            self.total_amount - self.management_fee_amount - self.reserve_fund_amount - self.other_deductions
         )
 
         return self.distributable_amount
@@ -540,9 +537,7 @@ class RevenueShareCalculator:
         elif method == RevenueShareMethod.WEIGHTED:
             return self.calculate_weighted(total_amount, active_members, custom_weights or {})
         elif method == RevenueShareMethod.HYBRID:
-            return self.calculate_hybrid(
-                total_amount, active_members, hybrid_weights or {}, production_data or {}
-            )
+            return self.calculate_hybrid(total_amount, active_members, hybrid_weights or {}, production_data or {})
         else:
             raise ValueError(f"Unknown distribution method: {method}")
 
@@ -558,9 +553,7 @@ class RevenueShareCalculator:
         if not members:
             return []
 
-        share_amount = (total_amount / len(members)).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        share_amount = (total_amount / len(members)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
         shares = []
         for member in members:
@@ -606,9 +599,9 @@ class RevenueShareCalculator:
 
         shares = []
         for member in members:
-            contribution_percent = (
-                member.share_value / total_contribution * Decimal("100")
-            ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            contribution_percent = (member.share_value / total_contribution * Decimal("100")).quantize(
+                Decimal("0.01"), rounding=ROUND_HALF_UP
+            )
             share_amount = (total_amount * member.share_value / total_contribution).quantize(
                 Decimal("0.01"), rounding=ROUND_HALF_UP
             )
@@ -763,9 +756,7 @@ class RevenueShareCalculator:
             contribution_percent = (weight / total_weight * Decimal("100")).quantize(
                 Decimal("0.01"), rounding=ROUND_HALF_UP
             )
-            share_amount = (total_amount * weight / total_weight).quantize(
-                Decimal("0.01"), rounding=ROUND_HALF_UP
-            )
+            share_amount = (total_amount * weight / total_weight).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
             share = MemberShare(
                 member_id=member.member_id,
@@ -835,9 +826,7 @@ class RevenueShareCalculator:
 
         if "production" in normalized_weights and normalized_weights["production"] > 0:
             portion = total_amount * Decimal(str(normalized_weights["production"]))
-            method_shares["production"] = self.calculate_by_production(
-                portion, members, production_data
-            )
+            method_shares["production"] = self.calculate_by_production(portion, members, production_data)
 
         if "land_area" in normalized_weights and normalized_weights["land_area"] > 0:
             portion = total_amount * Decimal(str(normalized_weights["land_area"]))
@@ -1191,9 +1180,7 @@ class RevenueService:
             raise ValueError(f"Plan {plan_id} not found")
 
         if plan.status != "approved":
-            raise ValueError(
-                f"Plan must be approved before execution. Current status: {plan.status}"
-            )
+            raise ValueError(f"Plan must be approved before execution. Current status: {plan.status}")
 
         plan.status = "executing"
 
@@ -1314,9 +1301,7 @@ class RevenueService:
         for txn in transactions:
             if txn.type == TransactionType.EXPENSE:
                 category = txn.category or "other"
-                expenses_by_category[category] = (
-                    expenses_by_category.get(category, Decimal("0")) + txn.amount
-                )
+                expenses_by_category[category] = expenses_by_category.get(category, Decimal("0")) + txn.amount
 
         # Get distribution plan if exists
         plans = [p for p in self._plans.values() if p.period_id == period_id]
@@ -1368,9 +1353,7 @@ class RevenueService:
                 "total_pending": str(total_pending),
                 "payment_count": len([p for p in payments if p.status == PaymentStatus.PAID]),
             },
-            "payments": [
-                p.to_dict() for p in sorted(payments, key=lambda p: p.created_at, reverse=True)
-            ],
+            "payments": [p.to_dict() for p in sorted(payments, key=lambda p: p.created_at, reverse=True)],
         }
 
 

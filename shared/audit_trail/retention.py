@@ -213,9 +213,7 @@ class RetentionManager:
             on_notification: Callback for expiration notifications
         """
         self.storage_path = storage_path
-        self.archive_path = archive_path or (
-            os.path.join(storage_path, "archive") if storage_path else None
-        )
+        self.archive_path = archive_path or (os.path.join(storage_path, "archive") if storage_path else None)
         self._entries = entries or []
         self.on_archive = on_archive
         self.on_delete = on_delete
@@ -644,9 +642,7 @@ class RetentionManager:
 
             # Archive if required
             if policy.archive_before_delete and expired_entries:
-                job.entries_archived = await self.archive_entries(
-                    expired_entries, reason=f"policy_{policy_id}"
-                )
+                job.entries_archived = await self.archive_entries(expired_entries, reason=f"policy_{policy_id}")
 
             # Delete
             job.entries_deleted = await self.delete_entries(expired_entries)
@@ -825,9 +821,7 @@ def get_retention_manager(
     if _global_manager is None:
         # Default to /var/lib/sahool in production, /tmp for development only
         default_path = (
-            "/var/lib/sahool/audit_trail"
-            if os.getenv("ENVIRONMENT") == "production"
-            else "/tmp/sahool_audit_trail"
+            "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"
         )  # nosec B108
         storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")

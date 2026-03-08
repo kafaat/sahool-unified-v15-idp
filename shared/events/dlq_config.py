@@ -65,33 +65,23 @@ class DLQConfig(BaseModel):
         le=10,
         description="Maximum retry attempts before moving to DLQ",
     )
-    initial_retry_delay: float = Field(
-        default=1.0, ge=0.1, description="Initial retry delay in seconds"
-    )
+    initial_retry_delay: float = Field(default=1.0, ge=0.1, description="Initial retry delay in seconds")
     max_retry_delay: float = Field(
         default=60.0,
         ge=1.0,
         description="Maximum retry delay in seconds (caps exponential backoff)",
     )
-    backoff_multiplier: float = Field(
-        default=2.0, ge=1.0, description="Exponential backoff multiplier"
-    )
+    backoff_multiplier: float = Field(default=2.0, ge=1.0, description="Exponential backoff multiplier")
 
     # DLQ Stream configuration
-    dlq_stream_name: str = Field(
-        default="SAHOOL_DLQ", description="Name of the DLQ JetStream stream"
-    )
-    dlq_subject_prefix: str = Field(
-        default="sahool.dlq", description="Subject prefix for DLQ messages"
-    )
+    dlq_stream_name: str = Field(default="SAHOOL_DLQ", description="Name of the DLQ JetStream stream")
+    dlq_subject_prefix: str = Field(default="sahool.dlq", description="Subject prefix for DLQ messages")
 
     # Retention
     dlq_max_age_days: int = Field(
         default=30, ge=1, le=90, description="Maximum age of messages in DLQ (days), capped at 90"
     )
-    dlq_max_messages: int = Field(
-        default=100000, ge=1000, description="Maximum number of messages in DLQ stream"
-    )
+    dlq_max_messages: int = Field(default=100000, ge=1000, description="Maximum number of messages in DLQ stream")
     dlq_max_bytes: int = Field(
         default=10 * 1024 * 1024 * 1024,  # 10 GB
         ge=1024 * 1024,
@@ -188,12 +178,8 @@ class DLQMessageMetadata(BaseModel):
     handler_function: str | None = Field(None, description="Handler function name")
 
     # Retry history
-    retry_timestamps: list[str] = Field(
-        default_factory=list, description="ISO 8601 timestamps of each retry attempt"
-    )
-    retry_errors: list[str] = Field(
-        default_factory=list, description="Error messages from each retry"
-    )
+    retry_timestamps: list[str] = Field(default_factory=list, description="ISO 8601 timestamps of each retry attempt")
+    retry_errors: list[str] = Field(default_factory=list, description="Error messages from each retry")
 
     # Replay info
     replayed: bool = Field(default=False, description="Has this message been replayed")

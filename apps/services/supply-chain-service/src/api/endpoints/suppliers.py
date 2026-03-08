@@ -20,7 +20,9 @@ try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
     _bearer_scheme = HTTPBearer(auto_error=False)
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -28,6 +30,7 @@ except ImportError:
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger()
 
@@ -131,10 +134,7 @@ def _haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> f
     delta_lat = math.radians(lat2 - lat1)
     delta_lon = math.radians(lon2 - lon1)
 
-    a = (
-        math.sin(delta_lat / 2) ** 2
-        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
-    )
+    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return R * c
@@ -144,8 +144,7 @@ def _haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> f
     "",
     response_model=SupplierListResponse,
     summary="List Suppliers | قائمة الموردين",
-    description="Get a paginated list of agricultural suppliers. "
-    "احصل على قائمة مُرقمة بالموردين الزراعيين.",
+    description="Get a paginated list of agricultural suppliers. احصل على قائمة مُرقمة بالموردين الزراعيين.",
 )
 async def list_suppliers(
     is_verified: bool | None = Query(None, description="Filter by verification status"),
@@ -247,8 +246,7 @@ async def find_nearby_suppliers(
     "/{supplier_id}",
     response_model=Supplier,
     summary="Get Supplier | الحصول على مورد",
-    description="Get detailed information about a specific supplier. "
-    "الحصول على معلومات تفصيلية عن مورد محدد.",
+    description="Get detailed information about a specific supplier. الحصول على معلومات تفصيلية عن مورد محدد.",
 )
 async def get_supplier(supplier_id: UUID) -> Supplier:
     """Get supplier by ID."""
@@ -275,8 +273,7 @@ async def get_supplier(supplier_id: UUID) -> Supplier:
     "/{supplier_id}/quote",
     response_model=SupplierQuote,
     summary="Request Quote | طلب عرض سعر",
-    description="Request a quote from a supplier for a specific product. "
-    "طلب عرض سعر من مورد لمنتج محدد.",
+    description="Request a quote from a supplier for a specific product. طلب عرض سعر من مورد لمنتج محدد.",
 )
 async def request_quote(supplier_id: UUID, request: QuoteRequest) -> SupplierQuote:
     """Request a quote from a supplier."""

@@ -269,11 +269,7 @@ def get_correction_plan(
 
             # Find matching fertilizer
             fert_info = next(
-                (
-                    f
-                    for f in fertilizers
-                    if f["id"] == product_id or product_id in f["name_en"].lower()
-                ),
+                (f for f in fertilizers if f["id"] == product_id or product_id in f["name_en"].lower()),
                 None,
             )
 
@@ -286,8 +282,7 @@ def get_correction_plan(
                         "product_name_en": fert_info["name_en"],
                         "dose_kg_per_ha": dose_per_ha,
                         "total_kg": round(dose_per_ha * field_size_ha, 1),
-                        "application_method": preferred_method
-                        or fert_info["application_methods"][0],
+                        "application_method": preferred_method or fert_info["application_methods"][0],
                         "timing": "immediate",
                     }
                 )

@@ -291,9 +291,7 @@ class GPSMapper:
         else:
             return CoordinateAccuracy.LOW
 
-    def _should_accept_point(
-        self, session: MappingSession, point: BoundaryPoint
-    ) -> tuple[bool, str]:
+    def _should_accept_point(self, session: MappingSession, point: BoundaryPoint) -> tuple[bool, str]:
         """
         Determine if a point should be accepted.
         تحديد ما إذا كان يجب قبول النقطة.
@@ -305,14 +303,12 @@ class GPSMapper:
         if not (-90 <= lat <= 90):
             return (
                 False,
-                f"Invalid latitude {lat}: must be between -90 and 90 | "
-                f"خط العرض غير صالح",
+                f"Invalid latitude {lat}: must be between -90 and 90 | خط العرض غير صالح",
             )
         if not (-180 <= lon <= 180):
             return (
                 False,
-                f"Invalid longitude {lon}: must be between -180 and 180 | "
-                f"خط الطول غير صالح",
+                f"Invalid longitude {lon}: must be between -180 and 180 | خط الطول غير صالح",
             )
 
         # Check accuracy threshold
@@ -336,10 +332,7 @@ class GPSMapper:
             time_diff = (point.captured_at - session.last_accepted_time).total_seconds()
             if time_diff < config.min_point_interval_s:
                 min_interval = config.min_point_interval_s
-                msg = (
-                    f"Time interval {time_diff:.1f}s below minimum {min_interval}s | "
-                    f"الفاصل الزمني أقل من الحد الأدنى"
-                )
+                msg = f"Time interval {time_diff:.1f}s below minimum {min_interval}s | الفاصل الزمني أقل من الحد الأدنى"
                 return (False, msg)
 
         # Check distance
@@ -350,8 +343,7 @@ class GPSMapper:
         if distance < config.min_point_distance_m:
             return (
                 False,
-                f"Distance {distance:.1f}m below minimum {config.min_point_distance_m}m | "
-                f"المسافة أقل من الحد الأدنى",
+                f"Distance {distance:.1f}m below minimum {config.min_point_distance_m}m | المسافة أقل من الحد الأدنى",
             )
 
         return (True, "Accepted | مقبولة")
@@ -389,9 +381,7 @@ class GPSMapper:
         """
         session = self.active_sessions.get(session_id)
         if not session:
-            return MappingResult(
-                success=False, errors=["Session not found"], errors_ar=["الجلسة غير موجودة"]
-            )
+            return MappingResult(success=False, errors=["Session not found"], errors_ar=["الجلسة غير موجودة"])
 
         session.is_active = False
         session.ended_at = datetime.now(UTC)
@@ -429,13 +419,9 @@ class GPSMapper:
 
         # Validate track
         if len(track.points) < config.min_track_points:
-            result.errors.append(
-                f"Track has {len(track.points)} points, minimum is {config.min_track_points}"
-            )
+            result.errors.append(f"Track has {len(track.points)} points, minimum is {config.min_track_points}")
             min_pts = config.min_track_points
-            result.errors_ar.append(
-                f"المسار يحتوي على {len(track.points)} نقطة، الحد الأدنى هو {min_pts}"
-            )
+            result.errors_ar.append(f"المسار يحتوي على {len(track.points)} نقطة، الحد الأدنى هو {min_pts}")
             return result
 
         if not track.is_closed:
@@ -534,9 +520,7 @@ class GPSMapper:
         max_accuracy: float,
     ) -> list[tuple[float, float]]:
         """Filter points by accuracy threshold."""
-        return [
-            coord for coord, point in zip(coordinates, points) if point.accuracy_m <= max_accuracy
-        ]
+        return [coord for coord, point in zip(coordinates, points) if point.accuracy_m <= max_accuracy]
 
     def _filter_by_distance(
         self, coordinates: list[tuple[float, float]], min_distance: float
@@ -690,9 +674,7 @@ def create_boundary_from_coordinates(
     )
 
 
-def merge_boundaries(
-    boundaries: list[FieldBoundary], name: str, name_ar: str | None = None
-) -> FieldBoundary:
+def merge_boundaries(boundaries: list[FieldBoundary], name: str, name_ar: str | None = None) -> FieldBoundary:
     """
     Merge multiple boundaries into a single boundary.
     دمج حدود متعددة في حد واحد.

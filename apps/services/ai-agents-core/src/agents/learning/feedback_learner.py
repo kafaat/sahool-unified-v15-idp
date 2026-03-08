@@ -299,9 +299,7 @@ class FeedbackLearnerAgent(BaseAgent):
 
         # Best performing actions
         if self.policies:
-            sorted_policies = sorted(
-                self.policies.values(), key=lambda p: p.avg_reward, reverse=True
-            )
+            sorted_policies = sorted(self.policies.values(), key=lambda p: p.avg_reward, reverse=True)
 
             if sorted_policies and sorted_policies[0].avg_reward > 0.5:
                 insights.append(

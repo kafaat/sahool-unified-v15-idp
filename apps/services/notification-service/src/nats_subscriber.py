@@ -52,10 +52,10 @@ class SubscriberConfig(BaseModel):
     # notification-service decides push/tasks/ws updates.
     analysis_subjects: list[str] = Field(
         default_factory=lambda: [
-            "sahool.analysis.*",                            # Analysis events
-            "sahool.action.*",                              # Action events
-            "sahool.irrigation.recommendation.ready.v1",   # Irrigation recommendations (H1)
-            "sahool.recommendation.>",                      # All Decision-layer recommendations (Spec §7)
+            "sahool.analysis.*",  # Analysis events
+            "sahool.action.*",  # Action events
+            "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1)
+            "sahool.recommendation.>",  # All Decision-layer recommendations (Spec §7)
         ]
     )
 
@@ -327,9 +327,7 @@ class NATSSubscriber:
                 event_id=data.get("event_id", ""),
                 event_type=event_type,
                 source_service=data.get("source_service", ""),
-                timestamp=datetime.fromisoformat(
-                    data.get("timestamp", datetime.now(UTC).isoformat())
-                ),
+                timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now(UTC).isoformat())),
                 tenant_id=data.get("tenant_id"),
                 field_id=data.get("field_id"),
                 farmer_id=data.get("farmer_id"),
@@ -357,9 +355,7 @@ class NATSSubscriber:
 
             if self._notification_callback:
                 self._notification_callback(notification_data)
-                logger.info(
-                    f"Notification created from event: {event.event_type} field={event.field_id}"
-                )
+                logger.info(f"Notification created from event: {event.event_type} field={event.field_id}")
         except Exception as e:
             logger.error(f"Error creating notification from event: {e}")
 
@@ -395,12 +391,8 @@ class NATSSubscriber:
         # Extract titles from action_template if available
         if event.action_template:
             title_ar = event.action_template.get("title_ar", f"توصية جديدة: {event.event_type}")
-            title_en = event.action_template.get(
-                "title_en", f"New Recommendation: {event.event_type}"
-            )
-            body_ar = event.action_template.get("summary_ar") or event.action_template.get(
-                "description_ar", ""
-            )
+            title_en = event.action_template.get("title_en", f"New Recommendation: {event.event_type}")
+            body_ar = event.action_template.get("summary_ar") or event.action_template.get("description_ar", "")
             body_en = event.action_template.get("description_en", "")
             urgency = event.action_template.get("urgency", priority)
         else:

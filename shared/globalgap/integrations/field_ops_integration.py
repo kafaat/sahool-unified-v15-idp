@@ -192,9 +192,7 @@ class HarvestBatch(BaseModel):
 
     # Quantities
     quantity_kg: float = Field(..., ge=0, description="Quantity in kilograms")
-    quantity_units: int | None = Field(
-        None, ge=0, description="Quantity in units (boxes, crates, etc.)"
-    )
+    quantity_units: int | None = Field(None, ge=0, description="Quantity in units (boxes, crates, etc.)")
     packaging_type: PackagingType | None = Field(None, description="Packaging type")
 
     # Quality
@@ -208,33 +206,21 @@ class HarvestBatch(BaseModel):
     days_to_harvest: int | None = Field(None, ge=0, description="Days from planting to harvest")
 
     # Growing period activities (counts)
-    irrigation_records_count: int = Field(
-        default=0, ge=0, description="Number of irrigation records"
-    )
-    fertilizer_records_count: int = Field(
-        default=0, ge=0, description="Number of fertilizer applications"
-    )
-    pest_control_records_count: int = Field(
-        default=0, ge=0, description="Number of pest control activities"
-    )
+    irrigation_records_count: int = Field(default=0, ge=0, description="Number of irrigation records")
+    fertilizer_records_count: int = Field(default=0, ge=0, description="Number of fertilizer applications")
+    pest_control_records_count: int = Field(default=0, ge=0, description="Number of pest control activities")
     other_activities_count: int = Field(default=0, ge=0, description="Number of other activities")
 
     # Withdrawal periods compliance
-    last_pesticide_application_date: date | None = Field(
-        None, description="Last pesticide application date"
-    )
+    last_pesticide_application_date: date | None = Field(None, description="Last pesticide application date")
     withdrawal_period_days: int | None = Field(None, ge=0, description="Required withdrawal period")
     days_since_last_pesticide: int | None = Field(None, description="Days since last pesticide")
-    withdrawal_period_respected: bool = Field(
-        default=True, description="Withdrawal period respected"
-    )
+    withdrawal_period_respected: bool = Field(default=True, description="Withdrawal period respected")
 
     # Storage and handling
     storage_location: str | None = Field(None, description="Storage location")
     storage_temperature_celsius: float | None = Field(None, description="Storage temperature")
-    cold_chain_maintained: bool = Field(
-        default=True, description="Cold chain maintained (if required)"
-    )
+    cold_chain_maintained: bool = Field(default=True, description="Cold chain maintained (if required)")
 
     # Destination
     destination: str | None = Field(None, description="Destination (customer, market, etc.)")
@@ -255,9 +241,7 @@ class TraceabilityRecord(BaseModel):
     سجل تتبع كامل من المزرعة إلى المائدة
     """
 
-    record_id: str = Field(
-        default_factory=lambda: str(uuid4()), description="Traceability record ID"
-    )
+    record_id: str = Field(default_factory=lambda: str(uuid4()), description="Traceability record ID")
     batch_id: str = Field(..., description="Related harvest batch ID")
     batch_number: str = Field(..., description="Batch/lot number")
 
@@ -288,9 +272,7 @@ class TraceabilityRecord(BaseModel):
 
     irrigation_records_linked: int = Field(default=0, ge=0, description="Linked irrigation records")
     fertilizer_records_linked: int = Field(default=0, ge=0, description="Linked fertilizer records")
-    pest_control_records_linked: int = Field(
-        default=0, ge=0, description="Linked pest control records"
-    )
+    pest_control_records_linked: int = Field(default=0, ge=0, description="Linked pest control records")
     harvest_records_linked: int = Field(default=0, ge=0, description="Linked harvest records")
 
     # Input traceability
@@ -306,18 +288,12 @@ class TraceabilityRecord(BaseModel):
     # Compliance indicators
     full_traceability: bool = Field(..., description="Complete farm-to-fork traceability")
     all_inputs_documented: bool = Field(..., description="All inputs documented")
-    withdrawal_periods_respected: bool = Field(
-        default=True, description="All withdrawal periods respected"
-    )
+    withdrawal_periods_respected: bool = Field(default=True, description="All withdrawal periods respected")
     globalgap_compliant: bool = Field(..., description="Meets GlobalGAP traceability requirements")
 
     # Issues
-    traceability_gaps_en: list[str] = Field(
-        default_factory=list, description="Identified traceability gaps (English)"
-    )
-    traceability_gaps_ar: list[str] = Field(
-        default_factory=list, description="Identified traceability gaps (Arabic)"
-    )
+    traceability_gaps_en: list[str] = Field(default_factory=list, description="Identified traceability gaps (English)")
+    traceability_gaps_ar: list[str] = Field(default_factory=list, description="Identified traceability gaps (Arabic)")
 
     # QR code / barcode
     qr_code_url: str | None = Field(None, description="QR code image URL")
@@ -342,17 +318,11 @@ class ActivityComplianceMapping(BaseModel):
     activity_name_ar: str = Field(..., description="Activity name (Arabic)")
 
     # Related GlobalGAP control points
-    related_control_points: list[str] = Field(
-        default_factory=list, description="Related control point IDs"
-    )
+    related_control_points: list[str] = Field(default_factory=list, description="Related control point IDs")
 
     # Required documentation
-    required_records_en: list[str] = Field(
-        default_factory=list, description="Required records (English)"
-    )
-    required_records_ar: list[str] = Field(
-        default_factory=list, description="Required records (Arabic)"
-    )
+    required_records_en: list[str] = Field(default_factory=list, description="Required records (English)")
+    required_records_ar: list[str] = Field(default_factory=list, description="Required records (Arabic)")
 
     # Evidence requirements
     photos_required: bool = Field(default=False, description="Photos required")
@@ -689,11 +659,7 @@ class FieldOpsIntegration:
         growing_days = (harvest_date - planting_date).days
 
         # Assess traceability completeness
-        full_traceability = (
-            irrigation_records_count > 0
-            and fertilizer_records_count > 0
-            and harvest_records_count > 0
-        )
+        full_traceability = irrigation_records_count > 0 and fertilizer_records_count > 0 and harvest_records_count > 0
 
         all_inputs_documented = fertilizers_used is not None and len(fertilizers_used) > 0
 
@@ -781,9 +747,7 @@ class FieldOpsIntegration:
     # Activity Compliance Mapping
     # ─────────────────────────────────────────────────────────────────────────
 
-    def get_activity_compliance_mapping(
-        self, activity_type: ActivityType
-    ) -> ActivityComplianceMapping | None:
+    def get_activity_compliance_mapping(self, activity_type: ActivityType) -> ActivityComplianceMapping | None:
         """
         Get compliance mapping for an activity type
         الحصول على ربط الامتثال لنوع النشاط

@@ -609,9 +609,7 @@ class ConflictResolverFactory:
 
         elif strategy == ConflictResolutionStrategy.CUSTOM:
             if not custom_func:
-                raise ValueError(
-                    "Custom resolver requires a resolver function | المحلل المخصص يتطلب وظيفة حل"
-                )
+                raise ValueError("Custom resolver requires a resolver function | المحلل المخصص يتطلب وظيفة حل")
             return CustomResolver(custom_func)
 
         else:
@@ -888,9 +886,7 @@ class ConflictResolutionManager:
                 "entity_id": conflict.entity_id,
                 "entity_type": conflict.entity_type.value,
                 "conflict_type": conflict.conflict_type.value,
-                "strategy": conflict.resolution_strategy.value
-                if conflict.resolution_strategy
-                else None,
+                "strategy": conflict.resolution_strategy.value if conflict.resolution_strategy else None,
                 "conflicting_fields": conflict.conflicting_fields,
                 "resolved_by": conflict.resolved_by,
                 "resolved_at": conflict.resolved_at.isoformat() if conflict.resolved_at else None,

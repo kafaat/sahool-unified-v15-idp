@@ -272,9 +272,7 @@ class TestTaskEvidence:
 
     def test_add_note_evidence(self, client):
         """Test adding note evidence to a task"""
-        response = client.post(
-            "/api/v1/tasks/task_001/evidence?evidence_type=note&content=Field%20looks%20healthy"
-        )
+        response = client.post("/api/v1/tasks/task_001/evidence?evidence_type=note&content=Field%20looks%20healthy")
         assert response.status_code == 201
         data = response.json()
         assert data["type"] == "note"

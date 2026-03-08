@@ -213,12 +213,8 @@ class ContentResource:
             has_captions=data.get("has_captions", False),
             caption_languages=data.get("caption_languages", []),
             has_transcript=data.get("has_transcript", False),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
         )
 
 
@@ -348,12 +344,8 @@ class Quiz:
             shuffle_questions=data.get("shuffle_questions", True),
             shuffle_options=data.get("shuffle_options", True),
             show_correct_answers=data.get("show_correct_answers", True),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
         )
         return quiz
 
@@ -437,12 +429,8 @@ class Lesson:
             title=BilingualText.from_dict(data.get("title", {})),
             description=BilingualText.from_dict(data.get("description", {})),
             objectives=[BilingualText.from_dict(obj) for obj in data.get("objectives", [])],
-            primary_content=ContentResource.from_dict(data["primary_content"])
-            if data.get("primary_content")
-            else None,
-            supplementary_content=[
-                ContentResource.from_dict(c) for c in data.get("supplementary_content", [])
-            ],
+            primary_content=ContentResource.from_dict(data["primary_content"]) if data.get("primary_content") else None,
+            supplementary_content=[ContentResource.from_dict(c) for c in data.get("supplementary_content", [])],
             quiz=Quiz.from_dict(data["quiz"]) if data.get("quiz") else None,
             order=data.get("order", 0),
             is_preview=data.get("is_preview", False),
@@ -451,15 +439,9 @@ class Lesson:
             prerequisite_lesson_ids=data.get("prerequisite_lesson_ids", []),
             skills=[SkillCategory(s) for s in data.get("skills", [])],
             status=CourseStatus(data.get("status", "draft")),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
-            published_at=datetime.fromisoformat(data["published_at"])
-            if data.get("published_at")
-            else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
         )
 
 
@@ -594,16 +576,10 @@ class Expert:
             total_students=data.get("total_students", 0),
             average_rating=data.get("average_rating", 0.0),
             is_verified=data.get("is_verified", False),
-            verified_at=datetime.fromisoformat(data["verified_at"])
-            if data.get("verified_at")
-            else None,
+            verified_at=datetime.fromisoformat(data["verified_at"]) if data.get("verified_at") else None,
             is_active=data.get("is_active", True),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
         )
 
 
@@ -675,9 +651,7 @@ class Course:
     def __post_init__(self):
         """Calculate total duration"""
         if not self.estimated_duration_minutes:
-            self.estimated_duration_minutes = sum(
-                lesson.estimated_duration_minutes for lesson in self.lessons
-            )
+            self.estimated_duration_minutes = sum(lesson.estimated_duration_minutes for lesson in self.lessons)
 
     @property
     def completion_rate(self) -> float:
@@ -736,9 +710,7 @@ class Course:
             subtitle=BilingualText.from_dict(data.get("subtitle", {})),
             description=BilingualText.from_dict(data.get("description", {})),
             objectives=[BilingualText.from_dict(obj) for obj in data.get("objectives", [])],
-            prerequisites=[
-                BilingualText.from_dict(prereq) for prereq in data.get("prerequisites", [])
-            ],
+            prerequisites=[BilingualText.from_dict(prereq) for prereq in data.get("prerequisites", [])],
             target_audience=BilingualText.from_dict(data.get("target_audience", {})),
             category=SkillCategory(data.get("category", "crop_management")),
             tags=data.get("tags", []),
@@ -760,15 +732,9 @@ class Course:
             rating_count=data.get("rating_count", 0),
             certification_id=data.get("certification_id"),
             offers_certificate=data.get("offers_certificate", True),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
-            published_at=datetime.fromisoformat(data["published_at"])
-            if data.get("published_at")
-            else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
             tenant_id=data.get("tenant_id", ""),
         )
 
@@ -850,12 +816,8 @@ class Certification:
             badge_color=data.get("badge_color", "#4CAF50"),
             is_active=data.get("is_active", True),
             total_issued=data.get("total_issued", 0),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
             tenant_id=data.get("tenant_id", ""),
         )
 
@@ -930,17 +892,11 @@ class FarmerCertification:
             farmer_id=data.get("farmer_id", ""),
             certification_id=data.get("certification_id", ""),
             certificate_number=data.get("certificate_number", ""),
-            issued_at=datetime.fromisoformat(data["issued_at"])
-            if data.get("issued_at")
-            else datetime.now(UTC),
-            expires_at=datetime.fromisoformat(data["expires_at"])
-            if data.get("expires_at")
-            else None,
+            issued_at=datetime.fromisoformat(data["issued_at"]) if data.get("issued_at") else datetime.now(UTC),
+            expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
             score=data.get("score", 0),
             is_valid=data.get("is_valid", True),
-            revoked_at=datetime.fromisoformat(data["revoked_at"])
-            if data.get("revoked_at")
-            else None,
+            revoked_at=datetime.fromisoformat(data["revoked_at"]) if data.get("revoked_at") else None,
             revocation_reason=data.get("revocation_reason"),
             verification_url=data.get("verification_url"),
             certificate_pdf_url=data.get("certificate_pdf_url"),
@@ -1018,9 +974,7 @@ class FarmerSkill:
             "best_quiz_score": self.best_quiz_score,
             "total_learning_minutes": self.total_learning_minutes,
             "level_progress": self.level_progress,
-            "last_activity_at": self.last_activity_at.isoformat()
-            if self.last_activity_at
-            else None,
+            "last_activity_at": self.last_activity_at.isoformat() if self.last_activity_at else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -1039,15 +993,9 @@ class FarmerSkill:
             average_quiz_score=data.get("average_quiz_score", 0.0),
             best_quiz_score=data.get("best_quiz_score", 0.0),
             total_learning_minutes=data.get("total_learning_minutes", 0),
-            last_activity_at=datetime.fromisoformat(data["last_activity_at"])
-            if data.get("last_activity_at")
-            else None,
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            last_activity_at=datetime.fromisoformat(data["last_activity_at"]) if data.get("last_activity_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
         )
 
 
@@ -1142,9 +1090,7 @@ class FarmerProfile:
             "overall_level": self.overall_level.value,
             "current_streak_days": self.current_streak_days,
             "longest_streak_days": self.longest_streak_days,
-            "last_learning_date": self.last_learning_date.isoformat()
-            if self.last_learning_date
-            else None,
+            "last_learning_date": self.last_learning_date.isoformat() if self.last_learning_date else None,
             "weekly_learning_goal_minutes": self.weekly_learning_goal_minutes,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
@@ -1158,17 +1104,13 @@ class FarmerProfile:
             farmer_id=data.get("farmer_id", ""),
             tenant_id=data.get("tenant_id", ""),
             preferred_language=ContentLanguage(data.get("preferred_language", "ar")),
-            preferred_content_types=[
-                ContentType(ct) for ct in data.get("preferred_content_types", [])
-            ],
+            preferred_content_types=[ContentType(ct) for ct in data.get("preferred_content_types", [])],
             crop_types=data.get("crop_types", []),
             farm_size_hectares=data.get("farm_size_hectares"),
             farming_experience_years=data.get("farming_experience_years", 0),
             region=data.get("region"),
             skills=[FarmerSkill.from_dict(s) for s in data.get("skills", [])],
-            certifications=[
-                FarmerCertification.from_dict(c) for c in data.get("certifications", [])
-            ],
+            certifications=[FarmerCertification.from_dict(c) for c in data.get("certifications", [])],
             total_courses_enrolled=data.get("total_courses_enrolled", 0),
             total_courses_completed=data.get("total_courses_completed", 0),
             total_learning_minutes=data.get("total_learning_minutes", 0),
@@ -1179,10 +1121,6 @@ class FarmerProfile:
             if data.get("last_learning_date")
             else None,
             weekly_learning_goal_minutes=data.get("weekly_learning_goal_minutes", 60),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
         )

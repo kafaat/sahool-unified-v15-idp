@@ -39,6 +39,7 @@ except ImportError:
             self.id = kw.get("id", "anonymous")
             self.tenant_id = kw.get("tenant_id", "default")
 
+
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
@@ -48,6 +49,7 @@ except ImportError:
 
 
 logger = structlog.get_logger()
+
 
 router = APIRouter(prefix="/api/v1/vra", tags=["vra"])
 

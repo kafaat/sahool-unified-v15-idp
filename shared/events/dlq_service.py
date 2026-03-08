@@ -109,9 +109,7 @@ class ReplayRequest(BaseModel):
     """Request to replay message(s)."""
 
     message_seqs: list[int] = Field(..., description="Message sequence numbers to replay")
-    delete_after_replay: bool = Field(
-        default=True, description="Delete from DLQ after successful replay"
-    )
+    delete_after_replay: bool = Field(default=True, description="Delete from DLQ after successful replay")
 
 
 class ReplayResponse(BaseModel):

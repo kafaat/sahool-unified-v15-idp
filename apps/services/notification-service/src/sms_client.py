@@ -158,9 +158,7 @@ class SMSClient:
         try:
             # Validate phone number format
             if not to.startswith("+"):
-                logger.warning(
-                    f"Phone number {mask_phone(to)} should be in E.164 format (+country_code...)"
-                )
+                logger.warning(f"Phone number {mask_phone(to)} should be in E.164 format (+country_code...)")
                 to = f"+{to}"  # Try to fix
 
             # Select content based on language
@@ -176,9 +174,7 @@ class SMSClient:
             response = await asyncio.to_thread(self._send_sync, to=to, content=content)
 
             if response:
-                logger.info(
-                    f"📱 SMS sent successfully to {mask_phone(to)}: {sanitize_for_log(response)}"
-                )
+                logger.info(f"📱 SMS sent successfully to {mask_phone(to)}: {sanitize_for_log(response)}")
                 return response
             else:
                 logger.error(f"Failed to send SMS to {mask_phone(to)}")
@@ -227,9 +223,7 @@ class SMSClient:
         failure_count = 0
 
         for recipient in recipients:
-            result = await self.send_sms(
-                to=recipient, body=body, body_ar=body_ar, language=language
-            )
+            result = await self.send_sms(to=recipient, body=body, body_ar=body_ar, language=language)
 
             if result:
                 success_count += 1
@@ -239,8 +233,7 @@ class SMSClient:
                 results.append({"to": recipient, "success": False, "error": "Failed to send"})
 
         logger.info(
-            f"📱 Bulk SMS sent: {success_count} successful, "
-            f"{failure_count} failed out of {len(recipients)} recipients"
+            f"📱 Bulk SMS sent: {success_count} successful, {failure_count} failed out of {len(recipients)} recipients"
         )
 
         return {

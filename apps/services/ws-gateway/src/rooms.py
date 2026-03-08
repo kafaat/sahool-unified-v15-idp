@@ -181,9 +181,7 @@ class RoomManager:
 
         return True
 
-    async def broadcast_to_room(
-        self, room_id: str, message: dict, exclude_connection: str | None = None
-    ) -> int:
+    async def broadcast_to_room(self, room_id: str, message: dict, exclude_connection: str | None = None) -> int:
         """
         Broadcast message to all connections in a room
         بث رسالة لجميع الاتصالات في الغرفة
@@ -251,9 +249,7 @@ class RoomManager:
         except Exception as e:
             logger.error(f"Failed to send to {connection_id}: {e}")
             # Track consecutive failures
-            self.connection_failures[connection_id] = (
-                self.connection_failures.get(connection_id, 0) + 1
-            )
+            self.connection_failures[connection_id] = self.connection_failures.get(connection_id, 0) + 1
 
             # Remove connection after max consecutive failures
             if self.connection_failures[connection_id] >= self.max_consecutive_failures:
@@ -285,9 +281,7 @@ class RoomManager:
     def _is_persistent_room(self, room_id: str) -> bool:
         """Check if room should persist even when empty"""
         # Keep tenant and global rooms
-        return room_id.startswith(f"{RoomType.TENANT}:") or room_id.startswith(
-            f"{RoomType.GLOBAL}:"
-        )
+        return room_id.startswith(f"{RoomType.TENANT}:") or room_id.startswith(f"{RoomType.GLOBAL}:")
 
     def get_connection_metadata(self, connection_id: str) -> dict | None:
         """Get metadata for a connection"""

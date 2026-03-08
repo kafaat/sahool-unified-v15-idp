@@ -230,19 +230,13 @@ class FirebaseClient:
             # Build Android config
             android_config = messaging.AndroidConfig(
                 priority=(
-                    "high"
-                    if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL]
-                    else "normal"
+                    "high" if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL] else "normal"
                 ),
                 ttl=ttl,
                 notification=messaging.AndroidNotification(
                     sound="default",
                     priority=("high" if priority == NotificationPriority.CRITICAL else "default"),
-                    channel_id=(
-                        "sahool_alerts"
-                        if priority == NotificationPriority.CRITICAL
-                        else "sahool_main"
-                    ),
+                    channel_id=("sahool_alerts" if priority == NotificationPriority.CRITICAL else "sahool_main"),
                 ),
             )
 
@@ -250,9 +244,7 @@ class FirebaseClient:
             apns_config = messaging.APNSConfig(
                 headers={
                     "apns-priority": (
-                        "10"
-                        if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL]
-                        else "5"
+                        "10" if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL] else "5"
                     ),
                 },
                 payload=messaging.APNSPayload(
@@ -496,9 +488,7 @@ class FirebaseClient:
             logger.error(f"Failed to unsubscribe from topic: {e}")
             return {"success_count": 0, "failure_count": len(tokens)}
 
-    def send_with_retry(
-        self, token: str, title: str, body: str, max_retries: int = 3, **kwargs
-    ) -> str | None:
+    def send_with_retry(self, token: str, title: str, body: str, max_retries: int = 3, **kwargs) -> str | None:
         """
         إرسال إشعار مع إعادة المحاولة
 

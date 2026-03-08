@@ -148,9 +148,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.VALIDATION_ERROR,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Validation error occurred", ar="حدث خطأ في التحقق من صحة البيانات"
-        ),
+        message=BilingualMessage(en="Validation error occurred", ar="حدث خطأ في التحقق من صحة البيانات"),
         retryable=False,
     ),
     ErrorCode.INVALID_INPUT: ErrorCodeMetadata(
@@ -199,9 +197,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_RANGE,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Value is outside the valid range", ar="القيمة خارج النطاق الصحيح"
-        ),
+        message=BilingualMessage(en="Value is outside the valid range", ar="القيمة خارج النطاق الصحيح"),
         retryable=False,
     ),
     ErrorCode.INVALID_ENUM_VALUE: ErrorCodeMetadata(
@@ -230,9 +226,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.TOKEN_EXPIRED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Authentication token has expired", ar="انتهت صلاحية رمز المصادقة"
-        ),
+        message=BilingualMessage(en="Authentication token has expired", ar="انتهت صلاحية رمز المصادقة"),
         retryable=False,
     ),
     ErrorCode.TOKEN_INVALID: ErrorCodeMetadata(
@@ -423,9 +417,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.DUPLICATE_EMAIL,
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Email address already registered", ar="البريد الإلكتروني مسجل بالفعل"
-        ),
+        message=BilingualMessage(en="Email address already registered", ar="البريد الإلكتروني مسجل بالفعل"),
         retryable=False,
     ),
     ErrorCode.DUPLICATE_PHONE: ErrorCodeMetadata(
@@ -449,9 +441,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.VERSION_MISMATCH,
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Version mismatch detected", ar="تم اكتشاف عدم تطابق في الإصدار"
-        ),
+        message=BilingualMessage(en="Version mismatch detected", ar="تم اكتشاف عدم تطابق في الإصدار"),
         retryable=True,
     ),
     # Business Logic Errors
@@ -490,9 +480,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.AMOUNT_MUST_BE_POSITIVE,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Amount must be greater than zero", ar="المبلغ يجب أن يكون أكبر من صفر"
-        ),
+        message=BilingualMessage(en="Amount must be greater than zero", ar="المبلغ يجب أن يكون أكبر من صفر"),
         retryable=False,
     ),
     ErrorCode.PLANTING_DATE_INVALID: ErrorCodeMetadata(
@@ -516,18 +504,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.FIELD_ALREADY_HAS_CROP,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Field already has an active crop", ar="الحقل يحتوي بالفعل على محصول نشط"
-        ),
+        message=BilingualMessage(en="Field already has an active crop", ar="الحقل يحتوي بالفعل على محصول نشط"),
         retryable=False,
     ),
     ErrorCode.ESCROW_ALREADY_EXISTS: ErrorCodeMetadata(
         code=ErrorCode.ESCROW_ALREADY_EXISTS,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Escrow already exists for this order", ar="يوجد إسكرو لهذا الطلب بالفعل"
-        ),
+        message=BilingualMessage(en="Escrow already exists for this order", ar="يوجد إسكرو لهذا الطلب بالفعل"),
         retryable=False,
     ),
     ErrorCode.LOAN_NOT_ACTIVE: ErrorCodeMetadata(
@@ -541,9 +525,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.PAYMENT_NOT_PENDING,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Payment is not in pending state", ar="الدفعة ليست في حالة الانتظار"
-        ),
+        message=BilingualMessage(en="Payment is not in pending state", ar="الدفعة ليست في حالة الانتظار"),
         retryable=False,
     ),
     # External Service Errors
@@ -614,18 +596,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.DATABASE_CONNECTION_FAILED,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
-        message=BilingualMessage(
-            en="Failed to connect to database", ar="فشل الاتصال بقاعدة البيانات"
-        ),
+        message=BilingualMessage(en="Failed to connect to database", ar="فشل الاتصال بقاعدة البيانات"),
         retryable=True,
     ),
     ErrorCode.QUERY_TIMEOUT: ErrorCodeMetadata(
         code=ErrorCode.QUERY_TIMEOUT,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.REQUEST_TIMEOUT,
-        message=BilingualMessage(
-            en="Database query timeout", ar="انتهت مهلة استعلام قاعدة البيانات"
-        ),
+        message=BilingualMessage(en="Database query timeout", ar="انتهت مهلة استعلام قاعدة البيانات"),
         retryable=True,
     ),
     ErrorCode.TRANSACTION_FAILED: ErrorCodeMetadata(
@@ -639,18 +617,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.CONSTRAINT_VIOLATION,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Database constraint violation", ar="انتهاك قيد قاعدة البيانات"
-        ),
+        message=BilingualMessage(en="Database constraint violation", ar="انتهاك قيد قاعدة البيانات"),
         retryable=False,
     ),
     ErrorCode.FOREIGN_KEY_VIOLATION: ErrorCodeMetadata(
         code=ErrorCode.FOREIGN_KEY_VIOLATION,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Foreign key constraint violation", ar="انتهاك قيد المفتاح الخارجي"
-        ),
+        message=BilingualMessage(en="Foreign key constraint violation", ar="انتهاك قيد المفتاح الخارجي"),
         retryable=False,
     ),
     ErrorCode.UNIQUE_CONSTRAINT_VIOLATION: ErrorCodeMetadata(

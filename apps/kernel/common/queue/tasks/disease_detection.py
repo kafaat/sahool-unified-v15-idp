@@ -626,17 +626,15 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
         # ═══════════════════════════════════════════════════════════════════════
 
         # Filter by confidence threshold
-        filtered_detections = [
-            d for d in all_detections if d.get("confidence", 0) >= confidence_threshold
-        ]
+        filtered_detections = [d for d in all_detections if d.get("confidence", 0) >= confidence_threshold]
 
         # Aggregate detections by disease type (keep highest confidence per disease)
         aggregated: dict[str, dict[str, Any]] = {}
         for detection in filtered_detections:
             disease_id = detection.get("disease_id", "unknown")
-            if disease_id not in aggregated or detection.get("confidence", 0) > aggregated[
-                disease_id
-            ].get("confidence", 0):
+            if disease_id not in aggregated or detection.get("confidence", 0) > aggregated[disease_id].get(
+                "confidence", 0
+            ):
                 aggregated[disease_id] = detection
 
         final_detections = list(aggregated.values())

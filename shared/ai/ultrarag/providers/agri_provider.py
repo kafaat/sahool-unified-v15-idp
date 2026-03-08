@@ -159,13 +159,15 @@ class AgriRAGProvider:
 
         # Add all entities
         for entity in kg.entities:
-            await self._kg_retriever.add_entity({
-                "id": entity.id,
-                "name": entity.name,
-                "name_ar": entity.name_ar,
-                "entity_type": _type_map.get(entity.entity_type, entity.entity_type),
-                "properties": entity.properties,
-            })
+            await self._kg_retriever.add_entity(
+                {
+                    "id": entity.id,
+                    "name": entity.name,
+                    "name_ar": entity.name_ar,
+                    "entity_type": _type_map.get(entity.entity_type, entity.entity_type),
+                    "properties": entity.properties,
+                }
+            )
 
         # Map relation types
         _rel_map = {
@@ -176,11 +178,13 @@ class AgriRAGProvider:
 
         # Add all relations
         for relation in kg.relations:
-            await self._kg_retriever.add_relation({
-                "source_id": relation.source_id,
-                "target_id": relation.target_id,
-                "relation_type": _rel_map.get(relation.relation_type, relation.relation_type),
-            })
+            await self._kg_retriever.add_relation(
+                {
+                    "source_id": relation.source_id,
+                    "target_id": relation.target_id,
+                    "relation_type": _rel_map.get(relation.relation_type, relation.relation_type),
+                }
+            )
 
         logger.info(
             "agricultural_knowledge_loaded",

@@ -99,9 +99,7 @@ class Point(BaseModel):
     """
 
     type: Literal["Point"] = "Point"
-    coordinates: tuple[float, float] = Field(
-        ..., description="[longitude, latitude] | [خط الطول، خط العرض]"
-    )
+    coordinates: tuple[float, float] = Field(..., description="[longitude, latitude] | [خط الطول، خط العرض]")
 
     @field_validator("coordinates")
     @classmethod
@@ -109,15 +107,9 @@ class Point(BaseModel):
         """Validate coordinate ranges | التحقق من نطاق الإحداثيات"""
         lon, lat = v
         if not -180 <= lon <= 180:
-            raise ValueError(
-                f"Longitude must be between -180 and 180, got {lon} | "
-                f"خط الطول يجب أن يكون بين -180 و 180"
-            )
+            raise ValueError(f"Longitude must be between -180 and 180, got {lon} | خط الطول يجب أن يكون بين -180 و 180")
         if not -90 <= lat <= 90:
-            raise ValueError(
-                f"Latitude must be between -90 and 90, got {lat} | "
-                f"خط العرض يجب أن يكون بين -90 و 90"
-            )
+            raise ValueError(f"Latitude must be between -90 and 90, got {lat} | خط العرض يجب أن يكون بين -90 و 90")
         return v
 
     def to_postgis(self) -> str:
@@ -134,31 +126,23 @@ class Polygon(BaseModel):
     """
 
     type: Literal["Polygon"] = "Polygon"
-    coordinates: list[list[tuple[float, float]]] = Field(
-        ..., description="Array of linear rings [exterior, ...holes]"
-    )
+    coordinates: list[list[tuple[float, float]]] = Field(..., description="Array of linear rings [exterior, ...holes]")
 
     @field_validator("coordinates")
     @classmethod
-    def validate_polygon(
-        cls, v: list[list[tuple[float, float]]]
-    ) -> list[list[tuple[float, float]]]:
+    def validate_polygon(cls, v: list[list[tuple[float, float]]]) -> list[list[tuple[float, float]]]:
         """Validate polygon structure | التحقق من بنية المضلع"""
         if not v:
-            raise ValueError(
-                "Polygon must have at least one ring | يجب أن يحتوي المضلع على حلقة واحدة على الأقل"
-            )
+            raise ValueError("Polygon must have at least one ring | يجب أن يحتوي المضلع على حلقة واحدة على الأقل")
 
         for ring_idx, ring in enumerate(v):
             if len(ring) < 4:
                 raise ValueError(
-                    f"Ring {ring_idx} must have at least 4 points | "
-                    f"الحلقة {ring_idx} يجب أن تحتوي على 4 نقاط على الأقل"
+                    f"Ring {ring_idx} must have at least 4 points | الحلقة {ring_idx} يجب أن تحتوي على 4 نقاط على الأقل"
                 )
             if ring[0] != ring[-1]:
                 raise ValueError(
-                    f"Ring {ring_idx} must be closed (first point = last point) | "
-                    f"الحلقة {ring_idx} يجب أن تكون مغلقة"
+                    f"Ring {ring_idx} must be closed (first point = last point) | الحلقة {ring_idx} يجب أن تكون مغلقة"
                 )
 
             # Validate each coordinate
@@ -212,20 +196,12 @@ class BoundaryPoint(BaseModel):
     """
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    coordinates: tuple[float, float] = Field(
-        ..., description="[longitude, latitude] | [خط الطول، خط العرض]"
-    )
-    accuracy_m: float = Field(
-        default=5.0, ge=0, description="GPS accuracy in meters | دقة GPS بالمتر"
-    )
+    coordinates: tuple[float, float] = Field(..., description="[longitude, latitude] | [خط الطول، خط العرض]")
+    accuracy_m: float = Field(default=5.0, ge=0, description="GPS accuracy in meters | دقة GPS بالمتر")
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
-    altitude_m: float | None = Field(
-        default=None, description="Altitude in meters | الارتفاع بالمتر"
-    )
+    altitude_m: float | None = Field(default=None, description="Altitude in meters | الارتفاع بالمتر")
     captured_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
-    device_id: str | None = Field(
-        default=None, description="Device that captured the point | الجهاز الذي التقط النقطة"
-    )
+    device_id: str | None = Field(default=None, description="Device that captured the point | الجهاز الذي التقط النقطة")
     notes: str | None = Field(default=None)
     notes_ar: str | None = Field(default=None)
 
@@ -376,9 +352,7 @@ class BoundaryConflict(BaseModel):
         ge=0,
         description="Overlap area in square meters | مساحة التداخل بالمتر المربع",
     )
-    gap_distance_m: float | None = Field(
-        default=None, ge=0, description="Gap distance in meters | مسافة الفجوة بالمتر"
-    )
+    gap_distance_m: float | None = Field(default=None, ge=0, description="Gap distance in meters | مسافة الفجوة بالمتر")
 
     # Status | الحالة
     is_resolved: bool = Field(default=False)
@@ -391,9 +365,7 @@ class BoundaryConflict(BaseModel):
     detected_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
 
     # Severity | الخطورة
-    severity: str = Field(
-        default="medium", description="Conflict severity: low, medium, high | خطورة التعارض"
-    )
+    severity: str = Field(default="medium", description="Conflict severity: low, medium, high | خطورة التعارض")
 
     def get_description(self, language: str = "en") -> str:
         """
@@ -447,9 +419,7 @@ class BoundaryShareRequest(BaseModel):
     )
 
     # Status | الحالة
-    status: str = Field(
-        default="pending", description="Status: pending, accepted, rejected, expired | الحالة"
-    )
+    status: str = Field(default="pending", description="Status: pending, accepted, rejected, expired | الحالة")
     response_message: str | None = Field(default=None)
     response_message_ar: str | None = Field(default=None)
 
@@ -473,12 +443,8 @@ class GPSTrack(BaseModel):
     device_id: str | None = Field(default=None)
 
     # Track data | بيانات المسار
-    points: list[BoundaryPoint] = Field(
-        default_factory=list, description="GPS points in order | نقاط GPS بالترتيب"
-    )
-    is_closed: bool = Field(
-        default=False, description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة"
-    )
+    points: list[BoundaryPoint] = Field(default_factory=list, description="GPS points in order | نقاط GPS بالترتيب")
+    is_closed: bool = Field(default=False, description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة")
 
     # Metadata | البيانات الوصفية
     start_time: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))

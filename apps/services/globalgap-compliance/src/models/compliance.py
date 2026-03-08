@@ -60,15 +60,9 @@ class ComplianceRecord(BaseModel):
     )
 
     # Control points | نقاط التحكم
-    total_control_points: int = Field(
-        default=0, description="Total control points | إجمالي نقاط التحكم"
-    )
-    compliant_points: int = Field(
-        default=0, description="Compliant control points | نقاط التحكم المتوافقة"
-    )
-    non_compliant_points: int = Field(
-        default=0, description="Non-compliant points | نقاط عدم التوافق"
-    )
+    total_control_points: int = Field(default=0, description="Total control points | إجمالي نقاط التحكم")
+    compliant_points: int = Field(default=0, description="Compliant control points | نقاط التحكم المتوافقة")
+    non_compliant_points: int = Field(default=0, description="Non-compliant points | نقاط عدم التوافق")
 
     # Critical non-conformities | عدم المطابقات الحرجة
     major_must_fails: int = Field(
@@ -132,9 +126,7 @@ class NonConformity(BaseModel):
 
     # Evidence | الأدلة
     evidence_photos: list[str] = Field(default_factory=list, description="Photo URLs | روابط الصور")
-    evidence_documents: list[str] = Field(
-        default_factory=list, description="Document URLs | روابط المستندات"
-    )
+    evidence_documents: list[str] = Field(default_factory=list, description="Document URLs | روابط المستندات")
 
     # Tracking | المتابعة
     identified_date: datetime = Field(default_factory=datetime.utcnow)
@@ -167,23 +159,17 @@ class AuditResult(BaseModel):
     compliance_record_id: str
 
     # Audit information | معلومات التدقيق
-    audit_type: str = Field(
-        ..., description="internal, external, certification | داخلي، خارجي، إصدار شهادة"
-    )
+    audit_type: str = Field(..., description="internal, external, certification | داخلي، خارجي، إصدار شهادة")
     auditor_name: str = Field(..., description="Auditor name | اسم المدقق")
     auditor_organization: str | None = None
 
     # Audit dates | تواريخ التدقيق
     audit_date: datetime
-    audit_duration_days: int = Field(
-        default=1, description="Audit duration in days | مدة التدقيق بالأيام"
-    )
+    audit_duration_days: int = Field(default=1, description="Audit duration in days | مدة التدقيق بالأيام")
 
     # Results | النتائج
     audit_status: str = Field(..., description="passed, failed, conditional | نجح، فشل، مشروط")
-    overall_score: float = Field(
-        ge=0.0, le=100.0, description="Overall audit score | الدرجة الإجمالية للتدقيق"
-    )
+    overall_score: float = Field(ge=0.0, le=100.0, description="Overall audit score | الدرجة الإجمالية للتدقيق")
 
     # Findings | النتائج
     total_findings: int = Field(default=0)

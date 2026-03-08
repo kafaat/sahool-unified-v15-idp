@@ -428,8 +428,7 @@ class IrrigationPredictor:
 
         # Average confidence
         combined_confidence = (
-            self.config.rule_weight * rule_pred.confidence
-            + self.config.model_weight * ml_pred.confidence
+            self.config.rule_weight * rule_pred.confidence + self.config.model_weight * ml_pred.confidence
         )
 
         return IrrigationPrediction(
@@ -456,17 +455,13 @@ class IrrigationPredictor:
             return prediction
 
         # Calculate historical average amount
-        recent_records = [
-            r for r in records if r.irrigation_date > datetime.now(UTC) - timedelta(days=30)
-        ]
+        recent_records = [r for r in records if r.irrigation_date > datetime.now(UTC) - timedelta(days=30)]
 
         if not recent_records:
             return prediction
 
         avg_amount = sum(r.amount_mm for r in recent_records) / len(recent_records)
-        avg_effectiveness = sum(
-            r.effectiveness_rating for r in recent_records if r.effectiveness_rating
-        )
+        avg_effectiveness = sum(r.effectiveness_rating for r in recent_records if r.effectiveness_rating)
         if avg_effectiveness:
             avg_effectiveness /= len([r for r in recent_records if r.effectiveness_rating])
 
@@ -474,9 +469,7 @@ class IrrigationPredictor:
         if avg_effectiveness and avg_effectiveness < 3.5:
             # Historical irrigations were less effective, increase amount
             adjustment = 1.0 + (3.5 - avg_effectiveness) * 0.1
-            prediction.recommended_amount_mm = round(
-                prediction.recommended_amount_mm * adjustment, 1
-            )
+            prediction.recommended_amount_mm = round(prediction.recommended_amount_mm * adjustment, 1)
         elif avg_effectiveness and avg_effectiveness > 4.5:
             # Historical irrigations were very effective, slight decrease
             prediction.recommended_amount_mm = round(prediction.recommended_amount_mm * 0.95, 1)
@@ -519,17 +512,12 @@ class IrrigationPredictor:
                 "consider delaying irrigation"
             )
             reasoning_ar.append(
-                f"أمطار متوقعة (احتمال {features.weather.precipitation_probability:.0f}%)، "
-                "يُنصح بتأخير الري"
+                f"أمطار متوقعة (احتمال {features.weather.precipitation_probability:.0f}%)، يُنصح بتأخير الري"
             )
 
         if features.weather.temperature_max > self.config.high_temp_threshold:
-            reasoning_en.append(
-                f"High temperature ({features.weather.temperature_max:.1f}C) increases water demand"
-            )
-            reasoning_ar.append(
-                f"درجة حرارة مرتفعة ({features.weather.temperature_max:.1f}م) تزيد الطلب على المياه"
-            )
+            reasoning_en.append(f"High temperature ({features.weather.temperature_max:.1f}C) increases water demand")
+            reasoning_ar.append(f"درجة حرارة مرتفعة ({features.weather.temperature_max:.1f}م) تزيد الطلب على المياه")
 
         # Crop stage consideration
         stage = features.crop.growth_stage
@@ -544,9 +532,7 @@ class IrrigationPredictor:
             CropStage.HARVEST: "الحصاد",
         }
         reasoning_en.append(f"Crop is in {stage.value} stage with specific water needs")
-        reasoning_ar.append(
-            f"المحصول في مرحلة {stage_ar.get(stage, stage.value)} مع احتياجات مائية محددة"
-        )
+        reasoning_ar.append(f"المحصول في مرحلة {stage_ar.get(stage, stage.value)} مع احتياجات مائية محددة")
 
         # Amount recommendation
         if prediction.irrigation_needed:
@@ -555,12 +541,10 @@ class IrrigationPredictor:
                 volume_m3 = prediction.recommended_amount_mm * area_ha * 10
                 prediction.recommended_amount_liters = volume_m3 * 1000
                 reasoning_en.append(
-                    f"Recommended: {prediction.recommended_amount_mm}mm "
-                    f"({volume_m3:.1f}m3 for {area_ha:.2f}ha)"
+                    f"Recommended: {prediction.recommended_amount_mm}mm ({volume_m3:.1f}m3 for {area_ha:.2f}ha)"
                 )
                 reasoning_ar.append(
-                    f"التوصية: {prediction.recommended_amount_mm}مم "
-                    f"({volume_m3:.1f}م3 لـ {area_ha:.2f}هـ)"
+                    f"التوصية: {prediction.recommended_amount_mm}مم ({volume_m3:.1f}م3 لـ {area_ha:.2f}هـ)"
                 )
             else:
                 reasoning_en.append(f"Recommended: {prediction.recommended_amount_mm}mm irrigation")

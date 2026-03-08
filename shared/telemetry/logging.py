@@ -282,11 +282,7 @@ def setup_logging(
         )
     else:
         # Simple text format with trace IDs
-        format_str = (
-            "%(asctime)s [%(levelname)s] %(name)s "
-            "[trace_id=%(trace_id)s span_id=%(span_id)s] "
-            "%(message)s"
-        )
+        format_str = "%(asctime)s [%(levelname)s] %(name)s [trace_id=%(trace_id)s span_id=%(span_id)s] %(message)s"
         formatter = logging.Formatter(format_str)
 
     console_handler.setFormatter(formatter)

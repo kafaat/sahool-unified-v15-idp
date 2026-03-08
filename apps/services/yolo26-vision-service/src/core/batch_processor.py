@@ -389,9 +389,7 @@ class BatchProcessor:
             "current_batch_size": self._current_batch_size,
             "total_processed": self._total_processed,
             "average_throughput": (
-                self._total_processed / (self._total_processing_time / 1000)
-                if self._total_processing_time > 0
-                else 0
+                self._total_processed / (self._total_processing_time / 1000) if self._total_processing_time > 0 else 0
             ),
         }
 
@@ -405,19 +403,13 @@ class BatchProcessor:
             }
 
         throughputs = [s["throughput"] for s in self._batch_stats]
-        latencies = [
-            s["processing_time_ms"] / s["batch_size"]
-            for s in self._batch_stats
-            if s["batch_size"] > 0
-        ]
+        latencies = [s["processing_time_ms"] / s["batch_size"] for s in self._batch_stats if s["batch_size"] > 0]
 
         return {
             "total_processed": self._total_processed,
             "total_batches": len(self._batch_stats),
             "current_batch_size": self._current_batch_size,
-            "average_throughput": round(sum(throughputs) / len(throughputs), 2)
-            if throughputs
-            else 0,
+            "average_throughput": round(sum(throughputs) / len(throughputs), 2) if throughputs else 0,
             "max_throughput": round(max(throughputs), 2) if throughputs else 0,
             "min_throughput": round(min(throughputs), 2) if throughputs else 0,
             "average_latency_ms": round(sum(latencies) / len(latencies), 2) if latencies else 0,

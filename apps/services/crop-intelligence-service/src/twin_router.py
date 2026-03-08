@@ -79,6 +79,7 @@ except ImportError:
     async def get_current_user() -> AuthUser:  # type: ignore[misc]
         return AuthUser()
 
+
 router = APIRouter(prefix="/fields", tags=["Digital Twin"], dependencies=[Depends(get_current_user)])
 _flags = DigitalTwinFlags()
 
@@ -107,9 +108,7 @@ class WeatherIn(BaseModel):
 
     tmax_c: float = Field(..., description="Maximum temperature (°C)")
     tmin_c: float = Field(..., description="Minimum temperature (°C)")
-    solar_radiation_mj_m2: float = Field(
-        default=18.0, description="Solar radiation (MJ m⁻²)"
-    )
+    solar_radiation_mj_m2: float = Field(default=18.0, description="Solar radiation (MJ m⁻²)")
     relative_humidity_pct: float = Field(default=60.0, ge=0, le=100)
     wind_speed_m_s: float = Field(default=2.0, ge=0)
     precipitation_mm: float = Field(default=0.0, ge=0)
@@ -185,9 +184,7 @@ async def twin_step(
     Calls: ET₀ → Soil Water Balance → Crop Growth → persist → NATS event.
     """
     if not _flags.process_models_enabled:
-        raise HTTPException(
-            http_status.HTTP_503_SERVICE_UNAVAILABLE, "process_models_enabled=false"
-        )
+        raise HTTPException(http_status.HTTP_503_SERVICE_UNAVAILABLE, "process_models_enabled=false")
 
     step_day = body.day or date.today()
 
@@ -243,9 +240,7 @@ async def twin_step(
                     gdd_maturity=params.get("gdd_maturity", crop.gdd_maturity),
                     lai_max=params.get("lai_max", crop.lai_max),
                     harvest_index=params.get("harvest_index", crop.harvest_index),
-                    n_requirement_kg_per_ton=params.get(
-                        "n_requirement_kg_per_ton", crop.n_requirement_kg_per_ton
-                    ),
+                    n_requirement_kg_per_ton=params.get("n_requirement_kg_per_ton", crop.n_requirement_kg_per_ton),
                 )
                 calibrated_source = str(active_ps.get("id", "unknown"))
                 logger.info(
@@ -350,9 +345,7 @@ async def get_twin_state(
     to_date = to_date or today
 
     if (to_date - from_date).days > 365:
-        raise HTTPException(
-            http_status.HTTP_400_BAD_REQUEST, "Date range exceeds 365 days"
-        )
+        raise HTTPException(http_status.HTTP_400_BAD_REQUEST, "Date range exceeds 365 days")
 
     repo = _get_repo(request)
     states = await repo.get_states(tenant_id, field_id, from_date, to_date)

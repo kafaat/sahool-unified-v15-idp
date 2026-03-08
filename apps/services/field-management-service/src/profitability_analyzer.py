@@ -413,25 +413,17 @@ class ProfitabilityAnalyzer:
             if revenue_items
             else self.REGIONAL_PRICES.get(crop_code, 400)
         )
-        break_even_yield = (
-            (total_costs / avg_price) / area_ha if area_ha > 0 and avg_price > 0 else 0
-        )
+        break_even_yield = (total_costs / avg_price) / area_ha if area_ha > 0 and avg_price > 0 else 0
 
         # Calculate ROI
         roi = (net_profit / total_costs * 100) if total_costs > 0 else 0
 
         # Compare to regional average
-        regional_revenue = self.REGIONAL_YIELDS.get(crop_code, 2000) * self.REGIONAL_PRICES.get(
-            crop_code, 400
-        )
+        regional_revenue = self.REGIONAL_YIELDS.get(crop_code, 2000) * self.REGIONAL_PRICES.get(crop_code, 400)
         regional_costs_total = sum(self.REGIONAL_COSTS.get(crop_code, {}).values())
         regional_profit = regional_revenue - regional_costs_total
 
-        vs_regional_avg = (
-            ((profit_per_ha - regional_profit) / regional_profit * 100)
-            if regional_profit != 0
-            else 0
-        )
+        vs_regional_avg = ((profit_per_ha - regional_profit) / regional_profit * 100) if regional_profit != 0 else 0
 
         return CropProfitability(
             field_id=field_id,
@@ -458,9 +450,7 @@ class ProfitabilityAnalyzer:
             rank_in_portfolio=1,  # Will be set by season analysis
         )
 
-    async def analyze_season(
-        self, farmer_id: str, season_year: str, crops_data: list[dict]
-    ) -> SeasonSummary:
+    async def analyze_season(self, farmer_id: str, season_year: str, crops_data: list[dict]) -> SeasonSummary:
         """Analyze all crops for a farmer in a season"""
         logger.info(f"Analyzing season {season_year} for farmer {farmer_id}")
 
@@ -468,9 +458,7 @@ class ProfitabilityAnalyzer:
         for crop_data in crops_data:
             analysis = await self.analyze_crop(
                 field_id=crop_data["field_id"],
-                crop_season_id=crop_data.get(
-                    "crop_season_id", f"{crop_data['field_id']}-{season_year}"
-                ),
+                crop_season_id=crop_data.get("crop_season_id", f"{crop_data['field_id']}-{season_year}"),
                 crop_code=crop_data["crop_code"],
                 area_ha=crop_data["area_ha"],
                 costs=crop_data.get("costs"),
@@ -512,9 +500,7 @@ class ProfitabilityAnalyzer:
             recommendations_en=recommendations_en,
         )
 
-    async def compare_crops(
-        self, crop_codes: list[str], area_ha: float = 1.0, region: str = "sanaa"
-    ) -> list[dict]:
+    async def compare_crops(self, crop_codes: list[str], area_ha: float = 1.0, region: str = "sanaa") -> list[dict]:
         """
         Compare profitability of different crops.
         Useful for planning next season.
@@ -550,9 +536,7 @@ class ProfitabilityAnalyzer:
                     "profit_per_ha": profit / area_ha if area_ha > 0 else 0,
                     "roi_percent": roi,
                     "break_even_yield_kg_ha": (
-                        (total_cost / regional_price) / area_ha
-                        if area_ha > 0 and regional_price > 0
-                        else 0
+                        (total_cost / regional_price) / area_ha if area_ha > 0 and regional_price > 0 else 0
                     ),
                     "expected_yield_kg_ha": regional_yield,
                     "market_price_yer_kg": regional_price,
@@ -593,17 +577,13 @@ class ProfitabilityAnalyzer:
             "break_even_yield_kg_ha": break_even_yield_kg_ha,
             "regional_average_yield_kg_ha": regional_yield,
             "yield_gap_percent": (
-                ((regional_yield - break_even_yield_kg_ha) / regional_yield * 100)
-                if regional_yield > 0
-                else 0
+                ((regional_yield - break_even_yield_kg_ha) / regional_yield * 100) if regional_yield > 0 else 0
             ),
             "break_even_price_yer_kg": break_even_price,
             "expected_price_yer_kg": expected_price,
             "regional_market_price_yer_kg": regional_price,
             "price_cushion_percent": (
-                ((expected_price - break_even_price) / break_even_price * 100)
-                if break_even_price > 0
-                else 0
+                ((expected_price - break_even_price) / break_even_price * 100) if break_even_price > 0 else 0
             ),
         }
 
@@ -621,17 +601,13 @@ class ProfitabilityAnalyzer:
         # Add percentages
         total = breakdown["total"]
         breakdown_pct = {
-            f"{k}_percent": (v / total * 100) if total > 0 else 0
-            for k, v in breakdown.items()
-            if k != "total"
+            f"{k}_percent": (v / total * 100) if total > 0 else 0 for k, v in breakdown.items() if k != "total"
         }
         breakdown.update(breakdown_pct)
 
         return breakdown
 
-    async def get_historical_profitability(
-        self, field_id: str, crop_code: str, years: int = 5
-    ) -> list[dict]:
+    async def get_historical_profitability(self, field_id: str, crop_code: str, years: int = 5) -> list[dict]:
         """Get historical profitability for a crop on a field"""
         # This would query the database in production
         # For now, return mock data
@@ -746,12 +722,8 @@ class ProfitabilityAnalyzer:
 
         # ROI recommendations
         if analysis.return_on_investment < 30:
-            recommendations_en.append(
-                "Low return on investment. Focus on reducing costs or increasing yields."
-            )
-            recommendations_ar.append(
-                "عائد منخفض على الاستثمار. ركز على خفض التكاليف أو زيادة الإنتاجية."
-            )
+            recommendations_en.append("Low return on investment. Focus on reducing costs or increasing yields.")
+            recommendations_ar.append("عائد منخفض على الاستثمار. ركز على خفض التكاليف أو زيادة الإنتاجية.")
 
         return {"english": recommendations_en, "arabic": recommendations_ar}
 
@@ -791,8 +763,7 @@ class ProfitabilityAnalyzer:
                 f"or improving management practices."
             )
             recommendations_ar.append(
-                f"{worst.crop_name_ar} نتج عنه خسارة. فكر في استبداله بمحصول أكثر ربحية "
-                f"أو تحسين ممارسات الإدارة."
+                f"{worst.crop_name_ar} نتج عنه خسارة. فكر في استبداله بمحصول أكثر ربحية أو تحسين ممارسات الإدارة."
             )
 
         # Overall profitability
@@ -807,12 +778,10 @@ class ProfitabilityAnalyzer:
             )
         else:
             recommendations_en.append(
-                "Season resulted in an overall loss. Review costs across all crops "
-                "and consider technical assistance."
+                "Season resulted in an overall loss. Review costs across all crops and consider technical assistance."
             )
             recommendations_ar.append(
-                "نتج عن الموسم خسارة إجمالية. راجع التكاليف عبر جميع المحاصيل "
-                "وفكر في الحصول على مساعدة فنية."
+                "نتج عن الموسم خسارة إجمالية. راجع التكاليف عبر جميع المحاصيل وفكر في الحصول على مساعدة فنية."
             )
 
         # Diversification
@@ -820,9 +789,7 @@ class ProfitabilityAnalyzer:
             recommendations_en.append(
                 "Consider diversifying with additional crops to reduce risk and improve soil health."
             )
-            recommendations_ar.append(
-                "فكر في التنويع بمحاصيل إضافية لتقليل المخاطر وتحسين صحة التربة."
-            )
+            recommendations_ar.append("فكر في التنويع بمحاصيل إضافية لتقليل المخاطر وتحسين صحة التربة.")
 
         return recommendations_en, recommendations_ar
 

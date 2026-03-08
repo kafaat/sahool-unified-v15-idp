@@ -660,9 +660,7 @@ class SyncQueue:
             item = self._items_by_id.pop(item_id)
             key = f"{item.entity_type.value}:{item.entity_id}"
             if key in self._items_by_entity:
-                self._items_by_entity[key] = [
-                    id for id in self._items_by_entity[key] if id != item_id
-                ]
+                self._items_by_entity[key] = [id for id in self._items_by_entity[key] if id != item_id]
 
     async def _requeue_item(self, item: SyncItem) -> None:
         """Put an item back in the queue."""
@@ -824,15 +822,11 @@ class SyncQueueManager:
             "download": download_stats,
             "combined": {
                 "total_enqueued": upload_stats["total_enqueued"] + download_stats["total_enqueued"],
-                "total_processed": upload_stats["total_processed"]
-                + download_stats["total_processed"],
-                "total_succeeded": upload_stats["total_succeeded"]
-                + download_stats["total_succeeded"],
+                "total_processed": upload_stats["total_processed"] + download_stats["total_processed"],
+                "total_succeeded": upload_stats["total_succeeded"] + download_stats["total_succeeded"],
                 "total_failed": upload_stats["total_failed"] + download_stats["total_failed"],
-                "total_conflicts": upload_stats["total_conflicts"]
-                + download_stats["total_conflicts"],
-                "current_queue_size": upload_stats["current_queue_size"]
-                + download_stats["current_queue_size"],
+                "total_conflicts": upload_stats["total_conflicts"] + download_stats["total_conflicts"],
+                "current_queue_size": upload_stats["current_queue_size"] + download_stats["current_queue_size"],
             },
             "active_sessions": len(self._sessions),
         }

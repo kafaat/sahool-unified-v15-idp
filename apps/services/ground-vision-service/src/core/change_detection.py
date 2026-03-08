@@ -34,21 +34,15 @@ class ChangeDetectionResult(BaseModel):
     threshold_used: float
 
     # Regional analysis
-    change_regions: list[dict] = Field(
-        default_factory=list, description="Regions with significant change"
-    )
-    max_region_change: float = Field(
-        default=0.0, ge=0.0, le=1.0, description="Maximum change score in any region"
-    )
+    change_regions: list[dict] = Field(default_factory=list, description="Regions with significant change")
+    max_region_change: float = Field(default=0.0, ge=0.0, le=1.0, description="Maximum change score in any region")
 
     # Analysis metadata
     method_used: str = Field(default="structural_similarity")
     processing_time_ms: int | None = None
 
     # Trigger recommendation
-    should_trigger_analysis: bool = Field(
-        default=False, description="Whether to trigger expensive MLLM analysis"
-    )
+    should_trigger_analysis: bool = Field(default=False, description="Whether to trigger expensive MLLM analysis")
 
 
 class ChangeDetector:
@@ -156,10 +150,7 @@ class ChangeDetector:
         change_type = self._classify_change(combined_score)
 
         # Determine if should trigger analysis
-        should_trigger = (
-            combined_score >= self.trigger_threshold
-            or max_region_change >= self.trigger_threshold * 1.5
-        )
+        should_trigger = combined_score >= self.trigger_threshold or max_region_change >= self.trigger_threshold * 1.5
 
         processing_time = int((time.time() - start_time) * 1000)
 

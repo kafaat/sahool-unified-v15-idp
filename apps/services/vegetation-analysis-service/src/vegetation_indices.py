@@ -237,11 +237,31 @@ class AllIndices:
     tsavi: float | None = None  # Transformed SAVI
 
     # Valid ranges for normalized difference indices (all follow [-1, 1] range)
-    _NORMALIZED_INDICES = frozenset({
-        "ndvi", "ndwi", "evi", "savi", "ndmi", "ndre", "gndvi", "vari",
-        "gli", "grvi", "msavi", "osavi", "arvi", "nbr", "evi2", "ccci",
-        "rendvi", "wdrvi", "mndwi", "nbr2", "ndbi",
-    })
+    _NORMALIZED_INDICES = frozenset(
+        {
+            "ndvi",
+            "ndwi",
+            "evi",
+            "savi",
+            "ndmi",
+            "ndre",
+            "gndvi",
+            "vari",
+            "gli",
+            "grvi",
+            "msavi",
+            "osavi",
+            "arvi",
+            "nbr",
+            "evi2",
+            "ccci",
+            "rendvi",
+            "wdrvi",
+            "mndwi",
+            "nbr2",
+            "ndbi",
+        }
+    )
 
     def __post_init__(self) -> None:
         """Validate and clamp all index values to their valid ranges."""
@@ -487,8 +507,7 @@ class VegetationIndicesCalculator:
         if b.B04_red == 0:
             return 0.0
         tcari_val = 3 * (
-            (b.B05_red_edge1 - b.B04_red)
-            - 0.2 * (b.B05_red_edge1 - b.B03_green) * (b.B05_red_edge1 / b.B04_red)
+            (b.B05_red_edge1 - b.B04_red) - 0.2 * (b.B05_red_edge1 - b.B03_green) * (b.B05_red_edge1 / b.B04_red)
         )
         return round(max(0, min(tcari_val, 3)), 4)
 
@@ -1417,17 +1436,11 @@ class IndexInterpreter:
             # Generic interpretation
             return self._interpret_generic(index_name, value)
 
-    def _interpret_ndvi(
-        self, value: float, crop_type: CropType, growth_stage: GrowthStage
-    ) -> IndexInterpretation:
+    def _interpret_ndvi(self, value: float, crop_type: CropType, growth_stage: GrowthStage) -> IndexInterpretation:
         """Interpret NDVI value"""
         # Get thresholds for this crop and stage
-        crop_thresholds = self.NDVI_THRESHOLDS.get(
-            crop_type, self.NDVI_THRESHOLDS[CropType.UNKNOWN]
-        )
-        stage_thresholds = crop_thresholds.get(
-            growth_stage, crop_thresholds.get(GrowthStage.VEGETATIVE, {})
-        )
+        crop_thresholds = self.NDVI_THRESHOLDS.get(crop_type, self.NDVI_THRESHOLDS[CropType.UNKNOWN])
+        stage_thresholds = crop_thresholds.get(growth_stage, crop_thresholds.get(GrowthStage.VEGETATIVE, {}))
 
         # Determine status
         if value >= stage_thresholds.get("excellent", 0.7):
@@ -1920,9 +1933,13 @@ class IndexInterpreter:
             desc_en = "Severe chlorophyll deficiency"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="CI_GREEN", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.CI_GREEN_THRESHOLDS,
+            index_name="CI_GREEN",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.CI_GREEN_THRESHOLDS,
         )
 
     def _interpret_ci_rededge(self, value: float) -> IndexInterpretation:
@@ -1953,9 +1970,13 @@ class IndexInterpreter:
             desc_en = "Severe canopy chlorophyll deficiency"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="CI_REDEDGE", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.CI_REDEDGE_THRESHOLDS,
+            index_name="CI_REDEDGE",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.CI_REDEDGE_THRESHOLDS,
         )
 
     def _interpret_ireci(self, value: float) -> IndexInterpretation:
@@ -1986,9 +2007,13 @@ class IndexInterpreter:
             desc_en = "Critical chlorophyll - immediate intervention needed"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="IRECI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.IRECI_THRESHOLDS,
+            index_name="IRECI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.IRECI_THRESHOLDS,
         )
 
     def _interpret_mtci(self, value: float) -> IndexInterpretation:
@@ -2019,9 +2044,13 @@ class IndexInterpreter:
             desc_en = "Severe chlorophyll deficiency - immediate fertilization"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="MTCI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.MTCI_THRESHOLDS,
+            index_name="MTCI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.MTCI_THRESHOLDS,
         )
 
     def _interpret_rendvi(self, value: float) -> IndexInterpretation:
@@ -2052,9 +2081,13 @@ class IndexInterpreter:
             desc_en = "Critical response - severe stress"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="RENDVI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.RENDVI_THRESHOLDS,
+            index_name="RENDVI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.RENDVI_THRESHOLDS,
         )
 
     def _interpret_wdrvi(self, value: float) -> IndexInterpretation:
@@ -2085,9 +2118,13 @@ class IndexInterpreter:
             desc_en = "Critical biomass - near zero vegetation cover"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="WDRVI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.WDRVI_THRESHOLDS,
+            index_name="WDRVI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.WDRVI_THRESHOLDS,
         )
 
     # =========================================================================
@@ -2123,9 +2160,13 @@ class IndexInterpreter:
             desc_en = "Very dry soil or dense vegetation"
             confidence = 0.8
         return IndexInterpretation(
-            index_name="MNDWI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.MNDWI_THRESHOLDS,
+            index_name="MNDWI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.MNDWI_THRESHOLDS,
         )
 
     def _interpret_nbr2(self, value: float) -> IndexInterpretation:
@@ -2156,9 +2197,13 @@ class IndexInterpreter:
             desc_en = "Very dry or burned soil"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="NBR2", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.NBR2_THRESHOLDS,
+            index_name="NBR2",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.NBR2_THRESHOLDS,
         )
 
     def _interpret_ndbi(self, value: float) -> IndexInterpretation:
@@ -2189,9 +2234,13 @@ class IndexInterpreter:
             desc_en = "Open agricultural land - dense vegetation"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="NDBI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.NDBI_THRESHOLDS,
+            index_name="NDBI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.NDBI_THRESHOLDS,
         )
 
     def _interpret_dvi(self, value: float) -> IndexInterpretation:
@@ -2222,9 +2271,13 @@ class IndexInterpreter:
             desc_en = "Critical biomass or bare soil"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="DVI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.DVI_THRESHOLDS,
+            index_name="DVI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.DVI_THRESHOLDS,
         )
 
     def _interpret_gdvi(self, value: float) -> IndexInterpretation:
@@ -2255,9 +2308,13 @@ class IndexInterpreter:
             desc_en = "Critical green biomass"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="GDVI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.GDVI_THRESHOLDS,
+            index_name="GDVI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.GDVI_THRESHOLDS,
         )
 
     def _interpret_tsavi(self, value: float) -> IndexInterpretation:
@@ -2288,9 +2345,13 @@ class IndexInterpreter:
             desc_en = "Nearly bare soil"
             confidence = 0.9
         return IndexInterpretation(
-            index_name="TSAVI", value=value, status=status,
-            description_ar=desc_ar, description_en=desc_en,
-            confidence=confidence, threshold_info=self.TSAVI_THRESHOLDS,
+            index_name="TSAVI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.TSAVI_THRESHOLDS,
         )
 
     def _interpret_generic(self, index_name: str, value: float) -> IndexInterpretation:
@@ -2324,19 +2385,55 @@ class IndexInterpreter:
         """
         recommendations = {
             GrowthStage.EMERGENCE: [
-                "GNDVI", "VARI", "GLI", "NDVI", "BSI", "EVI2", "DVI", "GDVI", "WDRVI",
+                "GNDVI",
+                "VARI",
+                "GLI",
+                "NDVI",
+                "BSI",
+                "EVI2",
+                "DVI",
+                "GDVI",
+                "WDRVI",
             ],
             GrowthStage.VEGETATIVE: [
-                "NDVI", "LAI", "CVI", "GNDVI", "NDRE", "CCCI", "SR", "EVI2",
-                "CI_GREEN", "CI_REDEDGE", "IRECI", "MTCI", "RENDVI", "WDRVI",
+                "NDVI",
+                "LAI",
+                "CVI",
+                "GNDVI",
+                "NDRE",
+                "CCCI",
+                "SR",
+                "EVI2",
+                "CI_GREEN",
+                "CI_REDEDGE",
+                "IRECI",
+                "MTCI",
+                "RENDVI",
+                "WDRVI",
             ],
             GrowthStage.REPRODUCTIVE: [
-                "NDRE", "MCARI", "NDVI", "NDWI", "LAI", "CCCI", "MSI",
-                "CI_REDEDGE", "MTCI", "IRECI", "MNDWI",
+                "NDRE",
+                "MCARI",
+                "NDVI",
+                "NDWI",
+                "LAI",
+                "CCCI",
+                "MSI",
+                "CI_REDEDGE",
+                "MTCI",
+                "IRECI",
+                "MNDWI",
             ],
             GrowthStage.MATURATION: [
-                "NDVI", "NDMI", "NDWI", "EVI", "MSI", "NBR",
-                "NBR2", "MNDWI", "TSAVI",
+                "NDVI",
+                "NDMI",
+                "NDWI",
+                "EVI",
+                "MSI",
+                "NBR",
+                "NBR2",
+                "MNDWI",
+                "TSAVI",
             ],
             GrowthStage.HARVEST: ["NDVI", "NDMI", "NBR", "BSI", "NBR2", "DVI"],
         }

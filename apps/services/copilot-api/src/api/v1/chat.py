@@ -73,12 +73,16 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     is_injection, pattern_name = detect_prompt_injection(user_query)
     if is_injection:
         nc = getattr(req.app.state, "nc", None)
-        await publish_copilot_event(nc, "prompt_injection_detected", {
-            "user_id": user.get("user_id"),
-            "tenant_id": user.get("tenant_id"),
-            "session_id": request.session_id,
-            "pattern": pattern_name,
-        })
+        await publish_copilot_event(
+            nc,
+            "prompt_injection_detected",
+            {
+                "user_id": user.get("user_id"),
+                "tenant_id": user.get("tenant_id"),
+                "session_id": request.session_id,
+                "pattern": pattern_name,
+            },
+        )
         raise HTTPException(
             status_code=400,
             detail={
@@ -90,11 +94,15 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
 
     # Publish chat_started event
     nc = getattr(req.app.state, "nc", None)
-    await publish_copilot_event(nc, "chat_started", {
-        "user_id": user.get("user_id"),
-        "tenant_id": user.get("tenant_id"),
-        "session_id": request.session_id,
-    })
+    await publish_copilot_event(
+        nc,
+        "chat_started",
+        {
+            "user_id": user.get("user_id"),
+            "tenant_id": user.get("tenant_id"),
+            "session_id": request.session_id,
+        },
+    )
 
     # Perform RAG search
     rag_context = []
@@ -151,14 +159,18 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     )
 
     # Publish chat_completed event
-    await publish_copilot_event(nc, "chat_completed", {
-        "user_id": user.get("user_id"),
-        "tenant_id": user.get("tenant_id"),
-        "session_id": request.session_id,
-        "agent": routing_result.agent_type.value,
-        "rag_hits": len(rag_context),
-        "elapsed_ms": elapsed_ms,
-    })
+    await publish_copilot_event(
+        nc,
+        "chat_completed",
+        {
+            "user_id": user.get("user_id"),
+            "tenant_id": user.get("tenant_id"),
+            "session_id": request.session_id,
+            "agent": routing_result.agent_type.value,
+            "rag_hits": len(rag_context),
+            "elapsed_ms": elapsed_ms,
+        },
+    )
 
     # Persist chat messages to database (non-blocking)
     # حفظ رسائل المحادثة في قاعدة البيانات (بدون حجب)

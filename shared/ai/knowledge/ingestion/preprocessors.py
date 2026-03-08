@@ -364,24 +364,42 @@ class MetadataEnricher:
 
         season_signals: dict[SeasonalRelevance, list[str]] = {
             SeasonalRelevance.PLANTING: [
-                "planting", "sowing", "seeding", "transplant",
-                "زراعة", "بذر", "شتل",
+                "planting",
+                "sowing",
+                "seeding",
+                "transplant",
+                "زراعة",
+                "بذر",
+                "شتل",
             ],
             SeasonalRelevance.HARVEST: [
-                "harvest", "picking", "reaping", "yield",
-                "حصاد", "جني", "قطف",
+                "harvest",
+                "picking",
+                "reaping",
+                "yield",
+                "حصاد",
+                "جني",
+                "قطف",
             ],
             SeasonalRelevance.WINTER: [
-                "winter crop", "winter season", "cold season",
-                "محصول شتوي", "موسم شتاء",
+                "winter crop",
+                "winter season",
+                "cold season",
+                "محصول شتوي",
+                "موسم شتاء",
             ],
             SeasonalRelevance.SUMMER: [
-                "summer crop", "summer season", "hot season",
-                "محصول صيفي", "موسم صيف",
+                "summer crop",
+                "summer season",
+                "hot season",
+                "محصول صيفي",
+                "موسم صيف",
             ],
             SeasonalRelevance.SPRING: [
-                "spring planting", "spring season",
-                "زراعة ربيعية", "موسم ربيع",
+                "spring planting",
+                "spring season",
+                "زراعة ربيعية",
+                "موسم ربيع",
             ],
         }
 

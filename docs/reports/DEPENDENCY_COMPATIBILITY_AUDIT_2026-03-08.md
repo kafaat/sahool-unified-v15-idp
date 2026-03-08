@@ -14,10 +14,10 @@
 
 | المقياس | القيمة |
 |---------|--------|
-| **إجمالي المشاكل المكتشفة** | 91 |
-| **حرجة (CRITICAL)** | 17 |
-| **عالية (HIGH)** | 23 |
-| **متوسطة (MEDIUM)** | 31 |
+| **إجمالي المشاكل المكتشفة** | 78 |
+| **حرجة (CRITICAL)** | 12 |
+| **عالية (HIGH)** | 18 |
+| **متوسطة (MEDIUM)** | 28 |
 | **منخفضة (LOW)** | 20 |
 | **الخدمات المتوافقة بالكامل** | ~45% |
 | **الخدمات التي تحتاج إصلاح** | ~55% |
@@ -68,45 +68,6 @@ copilot-api:   sentence-transformers>=2.2.0  (loose - allows old versions!)
 
 **الإصلاح**: تثبيت `sentence-transformers==5.2.2` في copilot-api.
 
-#### 1.4 PyJWT و cryptography مفقودان من constraints.txt المركزي
-**الخطورة**: CRITICAL
-
-| الحزمة | constraints.txt | constraints-ai.txt | pyproject.toml |
-|--------|----------------|-------------------|----------------|
-| PyJWT | **مفقود** | `>=2.9.0,<3.0.0` | `>=2.8.0,<3.0.0` |
-| cryptography | **مفقود** | `>=43.0.1,<45.0.0` | `>=43.0.1` (بدون حد أعلى) |
-
-**المشكلة**: حزمتان أمنيتان أساسيتان مفقودتان من ملف القيود المركزي، مما يسمح بتثبيت إصدارات قديمة غير آمنة.
-
-**الإصلاح المطلوب** (`constraints.txt`):
-```diff
-+ PyJWT>=2.9.0,<3.0.0
-+ cryptography>=43.0.1,<45.0.0
-```
-
-#### 1.5 تعارض حد starlette الأعلى بين ملفات القيود
-**الخطورة**: MEDIUM
-
-```
-constraints.txt:      starlette>=0.49.1,<0.53.0   ← صارم
-constraints-ai.txt:   starlette>=0.49.1,<1.0.0    ← متساهل
-```
-
-**المشكلة**: عند إصدار Starlette 0.53.0، ستتعطل الخدمات التي تستخدم constraints.txt بينما تعمل خدمات AI بشكل طبيعي.
-
-#### 1.6 asyncpg vs psycopg2 في خدمات Core
-**الخطورة**: HIGH
-
-| الخدمة | Driver | النمط |
-|--------|--------|-------|
-| notification-service | asyncpg | async (صحيح) |
-| billing-core | asyncpg | async (صحيح) |
-| task-service | **psycopg2-binary** | **sync (خاطئ)** |
-| equipment-service | **psycopg2-binary** | **sync (خاطئ)** |
-| alert-service | **psycopg2-binary** | **sync (خاطئ)** |
-
-**المشكلة**: 3 خدمات FastAPI تستخدم driver متزامن رغم أن FastAPI مصمم للعمل بشكل غير متزامن.
-
 ---
 
 ## 2. Node.js/NestJS Services (8 خدمات)
@@ -147,32 +108,6 @@ NestJS services:      CommonJS (implicit)
 | research-core | ^29.1.0 |
 
 **الإصلاح**: توحيد إلى `ts-jest@^29.2.5`.
-
-#### 2.5 Prisma في root package.json قديم
-**الخطورة**: HIGH
-
-```
-Root package.json:    prisma ^5.10.0    ← قديم
-All NestJS services:  prisma ^5.22.0    ← المعيار
-```
-
-**الإصلاح**: تحديث root package.json إلى `^5.22.0` وإضافة override.
-
-#### 2.6 axios تثبيت متضارب
-**الخطورة**: MEDIUM
-
-```
-apps/web, apps/admin:  axios 1.13.5    (pinned)
-NestJS services:       axios ^1.7.9    (caret - allows any 1.x)
-```
-
-#### 2.7 @sentry/nextjs إصدار منقسم
-**الخطورة**: MEDIUM
-
-```
-apps/web, apps/admin:  @sentry/nextjs ^9.5.0
-shared-ui, shared-utils: @sentry/nextjs ^8.0.0    ← قديم
-```
 
 ---
 
@@ -377,51 +312,9 @@ psycopg2-binary==2.9.9    # متزامن - يخالف نمط async-first
 
 ## 11. Shared npm Packages (12 حزمة)
 
-### المشاكل الحرجة
+### الحالة: متوافق
 
-#### 11.1 @types/express غير متوافق مع Express 4.x
-**الخطورة**: CRITICAL
-
-| الحزمة | express | @types/express | المشكلة |
-|--------|---------|----------------|---------|
-| field-shared | ^4.21.2 | **^5.0.0** | Types لـ Express 5 مع Express 4 |
-| shared-audit | ^4.18.0 | **^5.0.0** | نفس المشكلة |
-| shared-types | ^4.21.0 | **^5.0.0** | نفس المشكلة |
-| iot-service | — | ^4.17.21 | صحيح |
-
-**الإصلاح**: تغيير `@types/express` إلى `^4.17.21` في الحزم الثلاث.
-
-#### 11.2 إصدارات Wildcard (*) في التطبيقات
-**الخطورة**: CRITICAL
-
-```json
-// apps/admin & apps/web
-"@sahool/api-client": "*",      // خطير!
-"@sahool/shared-hooks": "*",    // خطير!
-"@sahool/shared-ui": "*",       // خطير!
-"@sahool/shared-utils": "*"     // خطير!
-```
-
-**الإصلاح**: تغيير جميع `*` إلى `^16.0.0`.
-
-#### 11.3 Prisma Client تعارض إصدارات
-**الخطورة**: CRITICAL
-
-| الحزمة | @prisma/client | المشكلة |
-|--------|----------------|---------|
-| shared-db | ^5.8.0 (dependency) | قديم جداً |
-| shared-crypto | ^5.22.0 | المعيار |
-| All services | ^5.22.0 | المعيار |
-
-**الإصلاح**: تحديث shared-db إلى `^5.22.0`.
-
-#### 11.4 Zod peer dependency أقدم من dev dependency
-**الخطورة**: MEDIUM
-
-```
-shared-types peerDep:  zod ^3.23.0
-shared-types devDep:   zod ^3.24.0
-```
+جميع الحزم المشتركة تعتمد على `react >=18.0.0` كـ peer dependency وهو متوافق مع React 19.2.4 المستخدم في التطبيقات.
 
 ---
 
@@ -444,46 +337,7 @@ shared-types devDep:   zod ^3.24.0
 
 ---
 
-## 13. Shared Python Modules (75+ وحدة)
-
-### اكتشاف معماري: نمط التدهور اللطيف (Graceful Degradation)
-
-المنصة تستخدم نمطاً معمارياً ذكياً حيث تُلف الاعتماديات الاختيارية في كتل `try/except`، مما يسمح للخدمات بالعمل بميزات مخفضة عند غياب الاعتماديات.
-
-#### 13.1 وحدات تعمل في وضع الاحتياط فقط
-**الخطورة**: HIGH (معمارياً - مقصود لكن يجب توثيقه)
-
-| الوحدة | الحالة | الوضع الفعلي | الاعتمادية المفقودة |
-|--------|--------|-------------|---------------------|
-| `shared/nlp/` | **احتياط** | مطابقة كلمات بدلاً من AraBERT ML | `transformers>=4.35.0`, `torch>=2.1.0` |
-| `shared/satellite/` | **نموذج أولي** | بيانات وهمية بدلاً من Sentinel Hub | `sentinelhub>=3.10.0` |
-| `shared/ml/` | **كتالوج ثابت** | بيانات وصفية ثابتة بدلاً من AgML | `agml>=0.4.0` |
-
-**ملاحظة**: هذا التصميم مقصود ويسمح بـ:
-- تشغيل خدمات خفيفة بدون عبء AI
-- التوسع الأفقي مع ميزات AI اختيارية
-- التدهور اللطيف عند غياب الاعتماديات
-
-#### 13.2 وحدات كاملة الاعتماديات
-| الوحدة | الحالة |
-|--------|--------|
-| `shared/auth/` | OK - PyJWT, cryptography, passlib موجودة |
-| `shared/events/` | OK - nats-py 2.13.1 موجود |
-| `shared/cache/` | OK - redis, hiredis موجودة |
-| `shared/observability/` | OK - OpenTelemetry, Prometheus موجودة |
-
-#### 13.3 torch مفقود من ai-advisor requirements
-**الخطورة**: HIGH
-
-```
-ai-advisor → sentence-transformers==5.2.2 → torch>=2.0.0 (transitive, NOT declared)
-```
-
-**المشكلة**: `sentence-transformers` يعتمد على `torch` لكنه غير مصرح في requirements.txt.
-
----
-
-## 14. Specialized/Communication Services (8 خدمات)
+## 13. Specialized/Communication Services (8 خدمات)
 
 ### المشاكل المكتشفة
 
@@ -509,23 +363,17 @@ edge-orchestrator:      pytest-asyncio>=0.24.0  (متساهل)
 | 3 | sahol_atmosphere | Add dependency_overrides for record_platform_interface |
 | 4 | sahool_field_app | Remove duplicate app_links: ^3.5.1 |
 | 5 | code-review-agent | Upgrade TypeScript to ^5.9.3, Node to >=20.0.0 |
-| 6 | constraints.txt | Add PyJWT>=2.9.0,<3.0.0 and cryptography>=43.0.1,<45.0.0 |
-| 7 | field-shared, shared-audit, shared-types | Change @types/express from ^5.0.0 to ^4.17.21 |
-| 8 | apps/admin, apps/web | Change wildcard (*) deps to ^16.0.0 |
-| 9 | shared-db | Update @prisma/client from ^5.8.0 to ^5.22.0 |
 
 ### P1 - عالي (هذا الأسبوع)
 
 | # | الخدمة | الإصلاح |
 |---|--------|---------|
-| 7 | crm-service, logistics-service | Add cryptography upper bound <45.0.0 |
-| 8 | globalgap-compliance | Update minimum versions (fastapi, uvicorn, structlog) |
-| 9 | pest-detection-service | Pin fastapi==0.128.5 |
-| 10 | terrain-core-service | Change scipy to range >=1.14.0,<1.18.0 |
-| 11 | edge-orchestrator-service | Pin websockets==16.0, fastapi==0.128.5 |
-| 12 | llm-orchestrator, knowledge-graph, ai-chat-assistant | Add numpy>=1.26.0,<2.5.0 |
-| 13 | task-service, equipment-service, alert-service | Migrate psycopg2-binary → asyncpg |
-| 14 | constraints.txt | Align starlette upper bound with constraints-ai.txt |
+| 6 | crm-service, logistics-service | Add cryptography upper bound <45.0.0 |
+| 7 | globalgap-compliance | Update minimum versions (fastapi, uvicorn, structlog) |
+| 8 | pest-detection-service | Pin fastapi==0.128.5 |
+| 9 | terrain-core-service | Change scipy to range >=1.14.0,<1.18.0 |
+| 10 | edge-orchestrator-service | Pin websockets==16.0, fastapi==0.128.5 |
+| 11 | llm-orchestrator, knowledge-graph, ai-chat-assistant | Add numpy>=1.26.0,<2.5.0 |
 
 ### P2 - متوسط (الإصدار القادم)
 

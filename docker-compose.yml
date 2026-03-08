@@ -702,13 +702,14 @@ services:
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
-      # FIX: Simple healthcheck without auth - etcd starts without auth enabled
-      # Authentication is enabled later by etcd-init service
-      test: [ "CMD-SHELL", "ETCDCTL_API=3 etcdctl --endpoints=http://127.0.0.1:2379 endpoint health" ]
-      interval: 30s
-      timeout: 10s
+      # Use HTTP /health endpoint - works regardless of whether auth is enabled
+      # etcdctl requires auth credentials after etcd-init enables auth, but
+      # the HTTP /health endpoint always works without authentication
+      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -797,22 +798,19 @@ services:
     volumes:
       # Data volume
       - minio_data:/minio_data
-
-      # TLS certificates (read-only)
+      # TLS certificates (read-only) - optional for development
       # Generate with: ./scripts/security/setup-minio-security.sh
-      - ./secrets/minio-certs/production/certs:/root/.minio/certs:ro
-
-      # Initialization script
-      - ./scripts/security/minio-init.sh:/scripts/minio-init.sh:ro
+      # NOTE: Directory is auto-created if missing; MinIO starts without TLS when empty
+      - ${MINIO_CERTS_DIR:-./secrets/minio-certs/production/certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
       # Health check: Use MinIO's built-in live health endpoint
       # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة
       test: [ "CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

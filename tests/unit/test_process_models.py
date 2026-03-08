@@ -879,7 +879,7 @@ class TestModelsRouter:
         """Return client or skip if router cannot be imported (missing deps)."""
         try:
             return self._get_client()
-        except Exception:
+        except BaseException:
             pytest.skip("models_router not importable in this environment")
 
     def test_et0_run_valid(self):

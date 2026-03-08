@@ -25,7 +25,9 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from PIL import Image
+
+pytest.importorskip("PIL", reason="Pillow required for vision tests")
+from PIL import Image  # noqa: E402
 
 
 # =============================================================================

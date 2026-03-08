@@ -22,7 +22,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Ensure drone service is importable
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service"))
+_drone_service_path = str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service")
+sys.path.insert(0, _drone_service_path)
+
+pytest.importorskip("geojson", reason="geojson required for drone service tests")
+
+# Clean stale 'src' modules that may have been cached by tests from other services
+# (e.g. task-service) to prevent importing the wrong service's src package.
+for _key in [k for k in sys.modules if k == "src" or k.startswith("src.")]:
+    del sys.modules[_key]
 
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -94,16 +102,27 @@ def app(mock_user):
     tenant_mock = MagicMock()
     tenant_mock.TenantContextMiddleware = _NoOpTenantMiddleware
 
+    # Inject mock modules persistently so they survive across test invocations.
+    # Using patch.dict would remove them on exit, but cached src.* imports still
+    # reference them, causing ModuleNotFoundError in subsequent tests.
+    _mock_modules = {
+        "shared.auth.dependencies": MagicMock(),
+        "shared.auth.models": MagicMock(),
+        "shared.errors_py": errors_mock,
+        "shared.middleware.tenant_context": tenant_mock,
+        "nats": sys.modules.get("nats", MagicMock()),
+        "asyncpg": sys.modules.get("asyncpg", MagicMock()),
+    }
+    for name, mock in _mock_modules.items():
+        sys.modules.setdefault(name, mock)
+
+    # Clear stale 'src' modules from other service tests in the same pytest run
+    for key in [k for k in sys.modules if k == "src" or k.startswith("src.")]:
+        if "drone" not in str(getattr(sys.modules[key], "__file__", "")):
+            del sys.modules[key]
+
     # Ensure no real connections are attempted during tests
-    with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False), \
-         patch.dict("sys.modules", {
-             "shared.auth.dependencies": MagicMock(),
-             "shared.auth.models": MagicMock(),
-             "shared.errors_py": errors_mock,
-             "shared.middleware.tenant_context": tenant_mock,
-             "nats": MagicMock(),
-             "asyncpg": MagicMock(),
-         }):
+    with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False):
         from src.main import app as drone_app
 
         # Override auth dependency

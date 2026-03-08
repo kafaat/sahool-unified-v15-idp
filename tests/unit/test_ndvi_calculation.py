@@ -5,8 +5,9 @@ Unit Tests for NDVI Calculation Module
 Tests for the NDVI calculation handler and utility functions.
 """
 
-import numpy as np
 import pytest
+
+np = pytest.importorskip("numpy", reason="numpy required for NDVI calculation tests")
 
 from apps.kernel.common.queue.tasks.ndvi_calculation import (
     HEALTH_THRESHOLDS,

@@ -4,11 +4,14 @@ Tests task queue management with mocked Redis.
 """
 
 import pytest
+
+pytest.importorskip("numpy", reason="numpy required for kernel task queue tests")
+
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 import json
 
-from apps.kernel.common.queue.task_queue import (
+from apps.kernel.common.queue.task_queue import (  # noqa: E402
     TaskQueue,
     Task,
     TaskType,

@@ -13,10 +13,10 @@ pydantic-settings==2.12.0
 # Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
 # Note: langchain-community 0.3.27 requires langchain>=0.3.26
 #       langchain-core 0.3.81 requires langsmith>=0.3.45
-langchain>=0.3.26
-langchain-anthropic==0.3.1
-langchain-community==0.3.27  # Fix CVE-2025-6984
-langchain-core==0.3.81  # Fix CVE-2025-68664, CVE-2025-65106
+langchain>=0.3.26,<0.4.0
+langchain-anthropic==0.3.22
+langchain-community==0.4.1
+langchain-core==0.3.83  # Fix CVE-2025-68664, CVE-2025-65106
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
@@ -25,7 +25,7 @@ anthropic>=0.41.0,<1.0.0
 
 # OpenAI GPT API (Optional Fallback)
 # واجهة برمجة OpenAI (بديل اختياري)
-openai>=1.0.0
+openai>=1.0.0,<2.0.0
 
 # Google Gemini API (Optional)
 # واجهة برمجة Google Gemini (اختياري)
@@ -33,7 +33,7 @@ google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
-sentence-transformers==5.2.2
+sentence-transformers==5.2.3
 qdrant-client==1.11.1
 
 # NATS Messaging

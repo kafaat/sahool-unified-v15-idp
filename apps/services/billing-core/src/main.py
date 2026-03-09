@@ -16,6 +16,7 @@ import hashlib
 import hmac
 import logging
 import os
+import structlog
 
 # Authentication imports
 import sys
@@ -68,7 +69,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
+logger = structlog.get_logger("sahool-billing")
 
 
 def _sanitize_log(value: Any) -> str:

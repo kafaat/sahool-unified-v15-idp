@@ -1569,6 +1569,7 @@ async def get_config_history(
     provider_type: str | None = None,
     limit: int = 100,
     session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Get configuration change history for a tenant"""
     if not config_service:
@@ -1592,6 +1593,7 @@ async def rollback_config(
     config_id: str,
     version: int,
     session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Rollback configuration to a specific version"""
     if not config_service:

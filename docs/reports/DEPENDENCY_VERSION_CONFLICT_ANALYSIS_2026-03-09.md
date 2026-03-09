@@ -11,13 +11,13 @@
 
 | Severity | Count | Description |
 |----------|-------|-------------|
-| **CRITICAL** | 3 | Major version mismatches that can cause runtime failures |
+| **CRITICAL** | 6 | Major version mismatches, dev/prod divergence, floating tags |
 | **HIGH** | 5 | Version drift from central constraints affecting 50+ services |
-| **MEDIUM** | 14 | Patch-level version mismatches, module system conflicts |
-| **LOW** | 13 | Minor inconsistencies, non-blocking |
+| **MEDIUM** | 15 | Patch-level mismatches, module system conflicts, wildcard deps |
+| **LOW** | 15 | Minor inconsistencies, duplicates, non-blocking |
 | **INFO** | 6 | Observations and recommendations |
 
-**Total conflicts found: 41 across 17 analysis categories**
+**Total conflicts found: 47 across 17 analysis categories**
 
 ---
 
@@ -258,14 +258,53 @@ All workflows use Node 20 (via env var or hardcoded `'20'`).
 
 ---
 
-## 7. Helm Charts
+## 7. Helm Charts & Docker-Compose vs Helm
+
+### CRITICAL: inventory-service Stuck at 15.3.2
+
+| Source | Version |
+|--------|---------|
+| `helm/services/inventory-service/Chart.yaml` | `appVersion: 15.3.2` |
+| `helm/services/inventory-service/values.yaml` | `image.tag: 15.3.2` |
+| `helm/sahool/values.yaml` (umbrella) | `inventoryService.image.tag: 16.0.0` |
+
+Standalone chart deploys v15.3.2 while umbrella chart deploys v16.0.0.
+
+### CRITICAL: Qdrant Version Gap (Dev vs Prod)
+
+| Source | Version |
+|--------|---------|
+| `docker-compose.yml` | `qdrant/qdrant:v1.7.4` |
+| `helm/sahool/values.yaml` | `qdrant/qdrant:v1.10.1` |
+
+3-minor-version gap could cause data format or API incompatibilities.
+
+### CRITICAL: Kong Floating Tag in Helm
+
+| Source | Version |
+|--------|---------|
+| `docker-compose.yml` | `kong:3.4.2` (exact) |
+| `helm/sahool/values.yaml` | `kong:3.4` (floating) |
+
+Floating tag `3.4` can resolve to different images across deployments.
+
+### MEDIUM: Wildcard Helm Dependency Versions
+
+Umbrella chart `helm/sahool/Chart.yaml` uses wildcards:
+- `postgresql: "13.x.x"`, `nats: "1.x.x"`, `redis: "18.x.x"`
+
+Could pull different sub-chart versions across builds.
 
 ### LOW: appVersion Mismatch
 
 | Chart | appVersion |
 |-------|-----------|
 | Most charts | `16.0.0` |
-| 1 chart | `1.0.0` |
+| infra chart | `1.0.0` |
+
+### LOW: Duplicate crop-intelligence-service Chart
+
+Exists in both `helm/charts/` and `helm/services/` — maintenance risk.
 
 ---
 
@@ -321,6 +360,9 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 1. **Update `constraints.txt`**: Set `tortoise-orm==1.1.6` to match active services
 2. **Fix PyJWT bounds**: Raise to `>=2.10.1` in `docker/constraints-ai.txt` and `apps/services/requirements.txt`
 3. **Audit dual-driver services**: Verify yolo26-vision-service, logistics-service, field-intelligence intentionally use both asyncpg and psycopg2
+4. **Fix inventory-service Helm**: Update `appVersion` and `image.tag` from `15.3.2` to `16.0.0`
+5. **Pin Kong version in Helm**: Change from `kong:3.4` to `kong:3.4.2` to match docker-compose
+6. **Align Qdrant versions**: Upgrade docker-compose from `v1.7.4` to `v1.10.1` or downgrade Helm
 
 ### Phase 2: High Priority (This Sprint)
 

@@ -671,12 +671,29 @@ class TestTwinRouterSmoke:
             service_src = os.path.join(
                 repo_root, "apps", "services", "crop-intelligence-service"
             )
+            # Evict any cached src.* modules from other services
+            stale = [k for k in sys.modules if k == "src" or k.startswith("src.")]
+            for k in stale:
+                del sys.modules[k]
             if service_src not in sys.path:
                 sys.path.insert(0, service_src)
+            else:
+                sys.path.remove(service_src)
+                sys.path.insert(0, service_src)
             from src.twin_router import router
+            from shared.auth.dependencies import get_current_user
+            from unittest.mock import MagicMock
 
             app = FastAPI()
             app.include_router(router, prefix="/api/v1")
+
+            # Override auth dependency with a mock user
+            mock_user = MagicMock()
+            mock_user.id = "user-001"
+            mock_user.tenant_id = "tenant-001"
+            mock_user.roles = ["farmer"]
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+
             return TestClient(app)
         except ImportError as exc:
             pytest.skip(f"twin_router not importable: {exc}")

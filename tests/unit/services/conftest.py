@@ -55,15 +55,23 @@ def _ensure_service_alias(underscore_name: str, hyphen_name: str) -> None:
         pkg.__package__ = src_name
         sys.modules[src_name] = pkg
 
+    # Evict any cached bare 'src.*' modules from other services to prevent
+    # cross-service contamination when tests run together
+    stale = [k for k in sys.modules if k == "src" or k.startswith("src.")]
+    for k in stale:
+        del sys.modules[k]
+
     # Add src dir to sys.path so relative imports within the service work
     src_str = str(src_dir)
-    if src_str not in sys.path:
-        sys.path.insert(0, src_str)
+    if src_str in sys.path:
+        sys.path.remove(src_str)
+    sys.path.insert(0, src_str)
 
     # Add service dir to sys.path for packages that import from service root
     svc_str = str(service_dir)
-    if svc_str not in sys.path:
-        sys.path.insert(0, svc_str)
+    if svc_str in sys.path:
+        sys.path.remove(svc_str)
+    sys.path.insert(0, svc_str)
 
 
 # Apply all aliases at import time (conftest.py is loaded before tests)

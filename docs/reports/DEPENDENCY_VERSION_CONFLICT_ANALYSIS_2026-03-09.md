@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-09
 **Platform**: SAHOOL v16.0.0
-**Analysis Method**: 17 parallel agents covering all dependency layers
+**Analysis Method**: 18 parallel agents covering all dependency layers (including AI/ML deep analysis)
 **Scope**: 72 active services, 24 npm packages, 3 Flutter apps, 32 Helm charts, 53 CI workflows
 
 ---
@@ -11,13 +11,13 @@
 
 | Severity | Count | Description |
 |----------|-------|-------------|
-| **CRITICAL** | 9 | Version mismatches, broken OTel exports, dev/prod divergence |
-| **HIGH** | 8 | Version drift, skipped constraints, strict-markers conflicts |
-| **MEDIUM** | 21 | Patch-level mismatches, module conflicts, test config issues |
-| **LOW** | 17 | Minor inconsistencies, duplicates, non-blocking |
-| **INFO** | 7 | Observations and recommendations |
+| **CRITICAL** | 11 | Version mismatches, broken OTel exports, dev/prod divergence, torch/torchvision contradictions |
+| **HIGH** | 10 | Version drift, skipped constraints, strict-markers, langchain/sentence-transformers splits |
+| **MEDIUM** | 23 | Patch-level mismatches, module conflicts, test config, openai bounds, opencv variant clash |
+| **LOW** | 18 | Minor inconsistencies, duplicates, missing upper bounds, non-blocking |
+| **INFO** | 8 | Observations and recommendations |
 
-**Total conflicts found: 62 across 17 analysis categories**
+**Total conflicts found: 70 across 18 analysis categories (including AI/ML libraries)**
 
 ---
 
@@ -402,6 +402,84 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 
 ---
 
+## 12. AI/ML Library Conflicts
+
+### CRITICAL: PyTorch Version Contradiction
+
+| Source | Version | Notes |
+|--------|---------|-------|
+| `docker/constraints-ai.txt` | `==2.10.0` | Locked for CUDA 12.1 |
+| `yolo26-vision-service/Dockerfile` | `==2.2.0` | Hardcoded in Dockerfile |
+| `copilot-api/requirements.txt` | `>=2.2.0,<2.7.0` | Range incompatible with 2.10.0 |
+
+**Risk**: Three mutually contradictory specs. `torch==2.10.0` satisfies neither `==2.2.0` (yolo26) nor `<2.7.0` (copilot-api). Services using `constraints-ai.txt` will get 2.10.0, breaking copilot-api.
+
+### CRITICAL: torchvision Version Contradiction
+
+| Source | Version |
+|--------|---------|
+| `docker/constraints-ai.txt` | `==0.25.0` |
+| `yolo26-vision-service/Dockerfile` | `==0.17.0` |
+
+**Risk**: `torchvision==0.17.0` pairs with `torch==2.2.0`, and `torchvision==0.25.0` pairs with `torch==2.10.0`. The yolo26 Dockerfile is internally consistent but disagrees with constraints-ai.txt.
+
+### HIGH: langchain Ecosystem Version Split
+
+| Library | constraints-ai.txt | ai-advisor/requirements.txt |
+|---------|--------------------|-----------------------------|
+| langchain | `>=0.3.26,<0.4.0` | `>=0.3.26` (no upper bound) |
+| langchain-core | `==0.3.83` | `==0.3.81` |
+| langchain-community | `==0.4.1` | `==0.3.27` |
+| langchain-anthropic | `==0.3.22` | `==0.3.1` |
+
+**Risk**: ai-advisor pins older versions across the entire langchain stack. If constraints-ai.txt is applied, pip resolution will **fail** on conflicting exact pins.
+
+### HIGH: sentence-transformers Pin Mismatch
+
+| Source | Version |
+|--------|---------|
+| `docker/constraints-ai.txt` | `==5.2.3` |
+| `ai-advisor/requirements.txt` | `==5.2.2` |
+| `copilot-api/requirements.txt` | `>=2.2.0,<6.0.0` |
+
+**Risk**: Exact pin conflict between constraints (5.2.3) and ai-advisor (5.2.2).
+
+### MEDIUM: openai Upper Bound Divergence
+
+| Source | Version |
+|--------|---------|
+| `docker/constraints-ai.txt` | `>=1.0.0,<2.0.0` |
+| `llm-orchestrator-service/requirements.txt` | `>=1.0.0,<3.0.0` |
+| `ai-advisor/requirements.txt` | `>=1.0.0` (no upper bound) |
+| `ground-vision-service/requirements.txt` | `>=1.55.0` (no upper bound) |
+
+**Risk**: llm-orchestrator allows `<3.0.0` while constraints restrict to `<2.0.0`. Services without upper bounds could install breaking major versions.
+
+### MEDIUM: opencv-python vs opencv-python-headless
+
+| Source | Package | Version |
+|--------|---------|---------|
+| `docker/constraints-ai.txt` | opencv-python-headless | `>=4.9.0,<5.0.0` |
+| `yolo26-vision-service` | opencv-python-headless | `>=4.8.0,<5.0.0` |
+| `ground-vision-service` | opencv-python-headless | `>=4.10.0` (no upper bound) |
+| `ai-agents-core` | **opencv-python** (GUI) | `>=4.8.0` (no upper bound) |
+
+**Risk**: ai-agents-core uses `opencv-python` (with GUI/X11 deps) while all others use `opencv-python-headless`. These two packages **conflict** when co-installed. ground-vision-service has no upper bound.
+
+### LOW: Missing Upper Bounds (Multiple AI Services)
+
+| Service | Package | Version |
+|---------|---------|---------|
+| ai-advisor | openai, langchain | No upper bound |
+| ground-vision-service | opencv, openai, anthropic | No upper bounds |
+| ground-vision-service | anthropic | `>=0.40.0` (constraints require `>=0.41.0`) |
+
+### INFO: Constraints Gap — No AI/ML Governance in Main constraints.txt
+
+The main `constraints.txt` has **no entries** for: torch, torchvision, ultralytics, opencv-python-headless, transformers, sentence-transformers, langchain, crewai, openai, anthropic, or onnxruntime. AI/ML version governance exists only in `docker/constraints-ai.txt`, leaving non-AI services that transitively pull these packages ungoverned.
+
+---
+
 ## Conflict Summary by Count
 
 | Category | Conflicts | Affected Services |
@@ -430,6 +508,13 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 | file: vs workspace resolution | 2 packages | nestjs-auth, field-shared |
 | OTel exporter broken versions | 5 packages | shared/observability |
 | OTel API/SDK pin conflict | 2 files | services + IDP template |
+| torch version contradiction | 3 specs | constraints-ai, yolo26, copilot-api |
+| torchvision contradiction | 2 specs | constraints-ai, yolo26 |
+| langchain ecosystem split | 4 libs | constraints-ai vs ai-advisor |
+| sentence-transformers pin | 2 specs | constraints-ai vs ai-advisor |
+| openai upper bound divergence | 4 specs | constraints-ai, llm-orch, ai-advisor, ground-vision |
+| opencv-python vs headless | 1 clash | ai-agents-core vs all others |
+| AI/ML libs missing from constraints.txt | 11 packages | Main constraints gap |
 | Playwright version gap | 1 conflict | apps/web vs e2e |
 | --strict-markers undeclared | 7 markers | 3 service pytest configs |
 | asyncio loop scope mismatch | 2 configs | edge-orchestrator, crm |
@@ -453,13 +538,18 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 7. **Fix OTel exporter versions**: Change `>=1.39.1` to `>=0.61b0,<1.0.0` in `shared/observability/requirements.txt`; remove deprecated `opentelemetry-exporter-jaeger`
 8. **Update OTel pins**: Bump `apps/services/requirements.txt` and IDP template from `1.39.1`/`0.60b1` to `1.40.0`/`0.61b0`
 9. **Fix Playwright gap**: Update `apps/web/e2e/package.json` from `^1.48.0` to `^1.57.0`
+10. **Resolve torch/torchvision contradiction**: Either update yolo26-vision-service Dockerfile to use `torch==2.10.0`/`torchvision==0.25.0` (requires YOLO compatibility testing) or create a separate `constraints-vision.txt` for yolo26. Update copilot-api upper bound from `<2.7.0` to `<3.0.0`
+11. **Fix langchain pin conflicts**: Update ai-advisor to match constraints-ai.txt: langchain-core `==0.3.83`, langchain-community `==0.4.1`, langchain-anthropic `==0.3.22`
 
 ### Phase 2: High Priority (This Sprint)
 
-10. **Bulk update nats-py**: `==2.13.1` -> `==2.14.0` across 50 services
-11. **Bulk update python-dotenv**: `==1.2.1` -> `==1.2.2` across 40 services
-12. **Add bcrypt/argon2-cffi** to `constraints.txt`
-13. **Register undeclared pytest markers** in root `pyproject.toml`: `redis`, `agent`, `coordinator`, `specialist`, `edge`, `mock`, `event_flow`
+12. **Bulk update nats-py**: `==2.13.1` -> `==2.14.0` across 50 services
+13. **Bulk update python-dotenv**: `==1.2.1` -> `==1.2.2` across 40 services
+14. **Add bcrypt/argon2-cffi** to `constraints.txt`
+15. **Register undeclared pytest markers** in root `pyproject.toml`: `redis`, `agent`, `coordinator`, `specialist`, `edge`, `mock`, `event_flow`
+16. **Fix sentence-transformers pin**: Update ai-advisor from `==5.2.2` to `==5.2.3` to match constraints-ai.txt
+17. **Standardize openai upper bounds**: Set `>=1.0.0,<2.0.0` in llm-orchestrator-service, ai-advisor, ground-vision-service
+18. **Fix opencv-python variant**: Change ai-agents-core from `opencv-python` to `opencv-python-headless`
 
 ### Phase 3: Medium Priority (Next Sprint)
 
@@ -481,8 +571,10 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 19. Migrate root `.eslintrc.base.json` to flat config or remove it
 20. Align `@sahool/code-review-agent` version to `16.0.0`
 21. Convert `file:` protocol refs to workspace resolution for nestjs-auth, field-shared
+22. Add missing upper bounds to ground-vision-service (opencv, openai, anthropic)
+23. Add AI/ML core packages (torch, openai, anthropic, langchain, sentence-transformers) to main `constraints.txt` for transitive governance
 
 ---
 
-_Generated by 17 parallel dependency analysis agents_
-_Analysis covered: constraints.txt, docker/constraints-ai.txt, 59 requirements.txt, 25+ package.json, 3 pubspec.yaml, 53 CI workflows, 32 Helm charts, service-ports.ts_
+_Generated by 18 parallel dependency analysis agents_
+_Analysis covered: constraints.txt, docker/constraints-ai.txt, 59 requirements.txt, 25+ package.json, 3 pubspec.yaml, 53 CI workflows, 32 Helm charts, service-ports.ts, AI/ML library cross-references across Dockerfiles_

@@ -96,6 +96,7 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 # ═══════════════════════════════════════════════════════════════════════════════
 
 dev: network-create ## بدء بيئة التطوير الكاملة - Start full development environment
+	@test -f .env || (echo "$(YELLOW)📋 Creating .env from .env.development...$(RESET)" && cp .env.development .env)
 	@echo "$(GREEN)🚀 بدء بيئة التطوير - Starting Development Environment...$(RESET)"
 	docker compose -f $(COMPOSE_BASE) up -d
 	@$(MAKE) --no-print-directory status

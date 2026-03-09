@@ -35,7 +35,7 @@ import math
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-class DetectionStrategy(str, Enum):
+class DetectionStrategy(StrEnum):
     """Agricultural land detection strategies | استراتيجيات كشف الأراضي الزراعية"""
 
     SEMANTIC_SEGMENTATION = "semantic_segmentation"
@@ -57,7 +57,7 @@ class DetectionStrategy(str, Enum):
     HYBRID = "hybrid"  # Combined segmentation + boundary
 
 
-class ModelPrecision(str, Enum):
+class ModelPrecision(StrEnum):
     """Model precision levels (inspired by GeoLabel 3.6.0)"""
 
     VERY_HIGH = "very_high"  # دقة عالية جداً - Highest accuracy, slowest
@@ -66,7 +66,7 @@ class ModelPrecision(str, Enum):
     SPEED_FOCUSED = "speed_focused"  # التركيز على السرعة - Fastest, lowest accuracy
 
 
-class ParcelShape(str, Enum):
+class ParcelShape(StrEnum):
     """Target parcel shape regularization"""
 
     IRREGULAR = "irregular"  # No regularization
@@ -75,7 +75,7 @@ class ParcelShape(str, Enum):
     MINIMUM_BOUNDING = "minimum_bounding"  # Minimum bounding rectangle
 
 
-class LandCoverClass(str, Enum):
+class LandCoverClass(StrEnum):
     """Land cover classification classes (GeoLabel 8-class system)
     فئات تصنيف الغطاء الأرضي (نظام GeoLabel ذو 8 فئات)
     """
@@ -270,7 +270,7 @@ class SemanticSegmentationEngine:
     async def classify_pixels(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> np.ndarray:
         """
         Classify each pixel as cropland or non-cropland.
@@ -340,7 +340,7 @@ class SemanticSegmentationEngine:
     async def polygonize_mask(
         self,
         mask: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
         target_class: str = "cropland",
     ) -> list[list[tuple[float, float]]]:
         """
@@ -368,6 +368,8 @@ class SemanticSegmentationEngine:
 
         # Extract contours for each component
         polygons = []
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         lat_range = bounds["north"] - bounds["south"]
         lon_range = bounds["east"] - bounds["west"]
 
@@ -521,7 +523,7 @@ class SemanticSegmentationEngine:
     def _trace_contour(self, component: np.ndarray) -> list[tuple[int, int]]:
         """Trace the outer contour of a binary component using Moore neighborhood"""
         h, w = component.shape
-        contour = []
+        contour: list[tuple[int, int]] = []
 
         # Find starting point (topmost, leftmost)
         start = None
@@ -591,7 +593,7 @@ class BoundaryDetectionEngine:
     async def detect_boundaries(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Detect field boundaries from image data.
@@ -606,6 +608,8 @@ class BoundaryDetectionEngine:
         Returns:
             List of boundary polygons as coordinate lists
         """
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         h, w = image_data.shape[:2]
 
         # Step 1: Compute NDVI if multi-band
@@ -680,7 +684,8 @@ class BoundaryDetectionEngine:
         max_val = magnitude.max()
         if max_val > 0:
             magnitude = magnitude / max_val
-        return magnitude
+        result: np.ndarray = magnitude
+        return result
 
     def _non_maximum_suppression(self, gradient_mag: np.ndarray, image: np.ndarray) -> np.ndarray:
         """Thin edges using non-maximum suppression"""
@@ -793,7 +798,7 @@ class BoundaryDetectionEngine:
 
         # Flood fill from edges to find exterior
         visited = np.zeros((h, w), dtype=bool)
-        queue = collections.deque()
+        queue: collections.deque[tuple[int, int]] = collections.deque()
 
         # Start from border pixels that are not boundaries
         for i in range(h):
@@ -958,7 +963,7 @@ class ParcelPostProcessor:
     def process_parcels(
         self,
         polygons: list[list[tuple[float, float]]],
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Apply full post-processing pipeline to detected parcels.
@@ -1222,7 +1227,7 @@ class ParcelPostProcessor:
         if len(coords) <= 2:
             return coords
 
-        max_dist = 0
+        max_dist: float = 0.0
         max_idx = 0
 
         for i in range(1, len(coords) - 1):
@@ -1604,7 +1609,7 @@ class AgriculturalLandDetector:
     async def _training_free_detection(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Training-free approximate detection using spectral indices only.
@@ -1612,6 +1617,8 @@ class AgriculturalLandDetector:
 
         GeoLabel equivalent: Strategy 4 - Training-free approximate farmland detection
         """
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         h, w = image_data.shape[:2]
 
         # Compute NDVI
@@ -1666,10 +1673,12 @@ class AgriculturalLandDetector:
         self,
         polygon: list[tuple[float, float]],
         index: int,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
         image_data: np.ndarray,
     ) -> AgriculturalParcel:
         """Convert a polygon to an AgriculturalParcel with computed features"""
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         area = self.post_processor._calculate_area(polygon)
         perimeter = self._calculate_perimeter(polygon)
         centroid = self.post_processor._centroid(polygon)
@@ -1826,7 +1835,7 @@ class AgriculturalLandDetector:
 # =============================================================================
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Crop type classification classes | فئات تصنيف المحاصيل"""
 
     WHEAT = "wheat"  # قمح
@@ -1884,7 +1893,7 @@ class CropClassificationEngine:
 
     # Spectral signature profiles for common crops (NDVI temporal patterns)
     # Based on multi-temporal Sentinel-2 observations for Middle East / Yemen region
-    CROP_SPECTRAL_PROFILES = {
+    CROP_SPECTRAL_PROFILES: dict[CropType, dict[str, Any]] = {
         CropType.WHEAT: {
             "ndvi_peak": 0.75, "ndvi_range": (0.3, 0.82), "evi_peak": 0.55,
             "peak_month": 3, "growing_months": (11, 4), "ndwi_range": (-0.1, 0.15),
@@ -1940,7 +1949,7 @@ class CropClassificationEngine:
     }
 
     # Geometric feature ranges for crop types
-    CROP_GEOMETRIC_PROFILES = {
+    CROP_GEOMETRIC_PROFILES: dict[CropType, dict[str, Any]] = {
         CropType.WHEAT: {"area_range": (0.5, 100), "compactness_min": 0.3, "rectangularity_min": 0.5},
         CropType.RICE: {"area_range": (0.1, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
         CropType.CORN: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
@@ -2008,7 +2017,7 @@ class CropClassificationEngine:
             # Update parcel crop_type
             parcel.crop_type = final_result.predicted_crop.value
 
-        crop_counts = {}
+        crop_counts: dict[str, int] = {}
         for r in results:
             crop_counts[r.predicted_crop.value] = crop_counts.get(r.predicted_crop.value, 0) + 1
 
@@ -2017,7 +2026,7 @@ class CropClassificationEngine:
 
     def _ml_classify(
         self, parcel: AgriculturalParcel, current_month: int
-    ) -> tuple[CropType, float, dict[str, float]]:
+    ) -> tuple[CropType, float, dict[CropType, float]]:
         """
         ML path: Random Forest / SVM-like classification using spectral+geometric features.
 
@@ -2192,7 +2201,7 @@ class CropClassificationEngine:
     def _ensemble_predictions(
         self,
         parcel: AgriculturalParcel,
-        ml_result: tuple[CropType, float, dict],
+        ml_result: tuple[CropType, float, dict[CropType, float]],
         dl_result: tuple[CropType, float],
     ) -> CropClassificationResult:
         """Ensemble ML + DL predictions with weighted voting"""
@@ -3055,8 +3064,8 @@ class QualityInspectionTool:
             return {"total": 0}
 
         areas = [p.area_hectares for p in parcels]
-        crop_types = {}
-        land_covers = {}
+        crop_types: dict[str, int] = {}
+        land_covers: dict[str, int] = {}
 
         for p in parcels:
             ct = p.crop_type or "unknown"

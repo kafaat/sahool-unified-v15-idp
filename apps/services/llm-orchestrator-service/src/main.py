@@ -7,7 +7,7 @@ SAHOOL LLM Orchestrator Service - Main API Service
 This service intelligently orchestrates all SAHOOL AI agents,
 routing user requests to appropriate agents and combining results.
 
-Port: 8220
+Port: 8164
 """
 
 # Service version - single source of truth

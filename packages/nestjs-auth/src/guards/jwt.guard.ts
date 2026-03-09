@@ -152,7 +152,7 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
     }
 
-    const hasRole = requiredRoles.some((role) => user.roles.includes(role));
+    const hasRole = requiredRoles.some((role: string) => user.roles.includes(role));
 
     if (!hasRole) {
       throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
@@ -201,7 +201,7 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException(AuthErrors.INSUFFICIENT_PERMISSIONS.en);
     }
 
-    const hasPermission = requiredPermissions.some((permission) =>
+    const hasPermission = requiredPermissions.some((permission: string) =>
       user.permissions.includes(permission),
     );
 

@@ -395,7 +395,7 @@ describe("parallelLimit", () => {
     let concurrent = 0;
     let maxConcurrent = 0;
 
-    const operation = vi.fn().mockImplementation(async (item) => {
+    const operation = vi.fn().mockImplementation(async (item: number) => {
       concurrent++;
       maxConcurrent = Math.max(maxConcurrent, concurrent);
       await new Promise((r) => setTimeout(r, 50));
@@ -411,7 +411,7 @@ describe("parallelLimit", () => {
 
   it("should return results from all operations", async () => {
     const items = [1, 2, 3];
-    const operation = vi.fn().mockImplementation(async (item) => item * 2);
+    const operation = vi.fn().mockImplementation(async (item: number) => item * 2);
 
     const results = await parallelLimit(items, 5, operation);
 

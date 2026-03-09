@@ -512,6 +512,7 @@ jobs:
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         id: owasp
+        continue-on-error: true
         with:
           project: 'sahool-platform'
           path: '.'
@@ -527,6 +528,17 @@ jobs:
             --exclude '**/node_modules/**'
             --suppression .dependency-check-suppression.xml
 
+      - name: Generate OWASP SARIF fallback
+        if: always()
+        run: |
+          mkdir -p owasp-reports
+          if [ ! -f "owasp-reports/dependency-check-report.sarif" ]; then
+            echo "Creating fallback SARIF file (OWASP scan did not produce output)..."
+            cat > owasp-reports/dependency-check-report.sarif <<'SARIF'
+          {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"OWASP Dependency-Check","version":"0.0.0","rules":[]}},"results":[]}]}
+          SARIF
+          fi
+
       - name: Upload OWASP SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: always()
@@ -541,7 +553,15 @@ jobs:
         with:
           name: owasp-reports-${{ github.sha }}
           path: owasp-reports/
+          if-no-files-found: ignore
           retention-days: 30
+
+      - name: Fail if critical vulnerabilities found
+        if: steps.owasp.outcome == 'failure'
+        run: |
+          echo "::error::OWASP Dependency Check found vulnerabilities with CVSS >= 7"
+          echo "Review the OWASP reports artifact for details."
+          exit 1
 
   # ─────────────────────────────────────────────────────────────────────────────
   # License Compliance Check

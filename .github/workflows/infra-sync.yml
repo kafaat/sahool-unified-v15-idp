@@ -19,6 +19,7 @@ jobs:
   check-sync:
     name: Verify Infrastructure is Synced
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
 
@@ -59,6 +60,7 @@ jobs:
   generate-report:
     name: Generate Sync Report
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [check-sync]
     if: always()
     steps:

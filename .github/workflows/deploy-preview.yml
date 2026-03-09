@@ -33,6 +33,7 @@ jobs:
   preview-web:
     name: Web Preview
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -163,6 +164,7 @@ jobs:
   preview-flutter:
     name: Flutter Web Preview
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -229,6 +231,7 @@ jobs:
   cleanup-old-previews:
     name: Cleanup Old Previews
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event.action == 'closed'
 
     steps:

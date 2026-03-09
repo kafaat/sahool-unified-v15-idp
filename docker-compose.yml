@@ -115,8 +115,8 @@ services:
       test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || exit 1" ]
       interval: 15s
       timeout: 10s
-      retries: 5
-      start_period: 45s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -469,10 +469,10 @@ services:
     # فحص صحة Qdrant - يستخدم نقطة نهاية HTTP للتحقق من استجابة الخدمة
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1" ]
-      interval: 30s
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -722,10 +722,10 @@ services:
       # Phase 2 (post-auth): use ETCDCTL_USER env var for authentication
       # NOTE: $$ escapes to $ inside docker-compose CMD-SHELL
       test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || ETCDCTL_USER=$$ETCD_ROOT_USERNAME:$$ETCD_ROOT_PASSWORD etcdctl endpoint health" ]
-      interval: 10s
+      interval: 15s
       timeout: 10s
-      retries: 5
-      start_period: 45s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -819,8 +819,9 @@ services:
       - minio_data:/minio_data
       # TLS certificates (read-only) - optional for development
       # Generate with: ./scripts/security/setup-minio-security.sh
-      # NOTE: Directory is auto-created if missing; MinIO starts without TLS when empty
-      - ${MINIO_CERTS_DIR:-./secrets/minio-certs/production/certs}:/root/.minio/certs:ro
+      # NOTE: Default points to docker/minio-certs/ (empty dir with .gitkeep) for dev
+      # Override MINIO_CERTS_DIR in .env for production TLS
+      - ${MINIO_CERTS_DIR:-./docker/minio-certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
       # Health check: Use MinIO's built-in live health endpoint

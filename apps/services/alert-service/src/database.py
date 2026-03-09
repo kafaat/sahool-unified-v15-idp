@@ -77,6 +77,8 @@ def get_db() -> Generator[Session, None, None]:
         def endpoint(db: Session = Depends(get_db)):
             # Use db here
     """
+    if SessionLocal is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     db = SessionLocal()
     try:
         yield db
@@ -100,6 +102,8 @@ def init_db():
     WARNING: This creates all tables defined in Base.
     In production, use Alembic migrations instead.
     """
+    if engine is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     Base.metadata.create_all(bind=engine)
 
 
@@ -110,6 +114,8 @@ def drop_all_tables():
     WARNING: This will delete all data!
     Only use in development/testing.
     """
+    if engine is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     Base.metadata.drop_all(bind=engine)
 
 

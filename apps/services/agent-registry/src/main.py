@@ -544,6 +544,26 @@ async def get_all_health_statuses():
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
+# ---------------------------------------------------------------------------
+# Backward-compatible route aliases (deprecated, remove in v17.0.0)
+# Clients/tests using the old /v1/... paths will continue to work.
+# New integrations should use /api/v1/... paths.
+# ---------------------------------------------------------------------------
+_v1_prefix = "/api/v1"
+for _route in list(app.routes):
+    _path = getattr(_route, "path", "")
+    if _path.startswith(_v1_prefix):
+        _old_path = "/v1" + _path[len(_v1_prefix):]
+        app.router.add_api_route(
+            _old_path,
+            _route.endpoint,
+            methods=[m for m in _route.methods] if _route.methods else ["GET"],
+            tags=["deprecated"],
+            include_in_schema=False,
+            deprecated=True,
+        )
+
+
 if __name__ == "__main__":
     import uvicorn
 

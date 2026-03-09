@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
 """
 Tests for Agricultural Land Detector (GeoLabel-inspired)
 اختبارات كاشف الأراضي الزراعية المستوحى من GeoLabel

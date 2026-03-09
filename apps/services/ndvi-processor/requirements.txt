@@ -11,7 +11,7 @@ pydantic==2.12.5
 pydantic-settings==2.12.0
 
 # Database
-tortoise-orm==0.25.4
+tortoise-orm==1.1.6
 asyncpg>=0.30.0,<1.0.0
 
 # Caching & Queue

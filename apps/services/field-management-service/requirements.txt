@@ -12,7 +12,7 @@ python-dotenv==1.2.1
 
 # Infrastructure requirements
 asyncpg>=0.30.0,<1.0.0
-tortoise-orm==0.25.4
+tortoise-orm==1.1.6
 nats-py==2.13.1
 redis>=7.1.0,<8.0.0
 python-jose[cryptography]>=3.5.0  # CVE-2024-33663, CVE-2024-33664

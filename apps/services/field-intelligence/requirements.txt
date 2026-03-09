@@ -14,7 +14,7 @@ httpx==0.28.1
 
 # Database & ORM (sync SQLAlchemy - uses psycopg2)
 # Database support for future PostgreSQL migration
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
 alembic==1.18.3
 psycopg2-binary==2.9.9
 

@@ -9,7 +9,7 @@ python-multipart>=0.0.22
 
 # Database
 asyncpg>=0.30.0
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
 geoalchemy2>=0.15.0
 
 # Messaging

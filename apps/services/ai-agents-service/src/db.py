@@ -254,7 +254,7 @@ async def update_execution(
             SET {", ".join(updates)}
             WHERE {" AND ".join(where_parts)}
             RETURNING *
-        """  # nosec B608 # noqa: S608
+        """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
             row = await conn.fetchrow(query, *params)
@@ -300,7 +300,7 @@ async def list_executions(
             WHERE {" AND ".join(conditions)}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
-        """  # nosec B608 # noqa: S608
+        """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
             rows = await conn.fetch(query, *params)

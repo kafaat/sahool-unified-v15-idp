@@ -55,13 +55,6 @@ def compose_data() -> dict:
     return _load_compose(MAIN_COMPOSE)
 
 
-@pytest.fixture(scope="module")
-def test_compose_data() -> dict | None:
-    """Load test docker-compose.yml if it exists."""
-    if TEST_COMPOSE.exists():
-        return _load_compose(TEST_COMPOSE)
-    return None
-
 
 # ---------------------------------------------------------------------------
 # Service Classification
@@ -587,7 +580,7 @@ class TestHealthCheckTiming:
         """Parse Docker duration string to seconds."""
         if isinstance(duration_str, (int, float)):
             return int(duration_str)
-        match = re.match(r"(\d+)(s|m|ms)?", str(duration_str))
+        match = re.match(r"(\d+)(ms|s|m)?", str(duration_str))
         if not match:
             return 0
         value = int(match.group(1))

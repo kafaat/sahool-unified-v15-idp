@@ -7,9 +7,9 @@
 prometheus-client==0.24.1
 
 # OpenTelemetry Stack
-opentelemetry-api==1.39.1
-opentelemetry-sdk==1.39.1
-opentelemetry-instrumentation-fastapi==0.60b1
+opentelemetry-api==1.40.0
+opentelemetry-sdk==1.40.0
+opentelemetry-instrumentation-fastapi==0.61b0
 
 # Structured Logging
 structlog==24.4.0

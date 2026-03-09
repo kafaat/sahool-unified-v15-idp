@@ -13,11 +13,11 @@
 |----------|-------|-------------|
 | **CRITICAL** | 3 | Major version mismatches that can cause runtime failures |
 | **HIGH** | 5 | Version drift from central constraints affecting 50+ services |
-| **MEDIUM** | 12 | Patch-level version mismatches across multiple services |
-| **LOW** | 8 | Minor inconsistencies, non-blocking |
+| **MEDIUM** | 14 | Patch-level version mismatches, module system conflicts |
+| **LOW** | 13 | Minor inconsistencies, non-blocking |
 | **INFO** | 6 | Observations and recommendations |
 
-**Total conflicts found: 34 across 17 analysis categories**
+**Total conflicts found: 41 across 17 analysis categories**
 
 ---
 
@@ -174,6 +174,30 @@ Ranges overlap but inconsistent floors.
 | Most services | `^4.6.0` |
 | user-service | `^4.7.0` |
 
+### MEDIUM: Module System Split (CommonJS vs ESNext)
+
+17 TypeScript configs use `module: "commonjs"` (all NestJS services), 10 use `module: "ESNext"` (frontend/packages), 1 uses `NodeNext`. Shared packages (`field-shared`, `shared-events`, `shared-db`) emit CommonJS but may be consumed by ESNext consumers, risking runtime failures.
+
+### MEDIUM: `esModuleInterop` Missing (5 NestJS services)
+
+chat-service, iot-service, research-core, user-service, yield-prediction-service set `allowSyntheticDefaultImports: true` but omit `esModuleInterop`, risking subtle runtime import failures with CJS default exports.
+
+### LOW: `@sahool/code-review-agent` Version Outlier
+
+Versioned at `1.0.0` while every other package in the monorepo is at `16.0.0`.
+
+### LOW: `file:` vs Workspace Resolution
+
+`nestjs-auth` and `field-shared` use `file:` protocol references while other `@sahool/*` packages use `^16.0.0` semver workspace resolution.
+
+### LOW: Prisma CLI as Dependency
+
+`user-service` lists `prisma` CLI in `dependencies` instead of `devDependencies` (unlike all other services).
+
+### LOW: ESLint Dead Root Config
+
+25 of 29 TypeScript workspaces have no ESLint config. Root `.eslintrc.base.json` (legacy format) is not referenced by any flat config workspace.
+
 ### INFO: TypeScript Consistent
 
 All workspaces use TypeScript `^5.9.3` or `5.9.3`. No conflicts.
@@ -282,6 +306,11 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 | Helm appVersion | 1 mismatch | 1 chart |
 | Dart pubspec drift | 3 items | 2 files |
 | Dev tools | 2 conflicts | 2 services |
+| Module system split | CJS vs ESNext | 29 configs |
+| esModuleInterop missing | 5 configs | 5 NestJS services |
+| ESLint dead root config | 1 issue | 25 workspaces uncovered |
+| Package version outlier | 1.0.0 vs 16.0.0 | code-review-agent |
+| file: vs workspace resolution | 2 packages | nestjs-auth, field-shared |
 
 ---
 
@@ -315,6 +344,10 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 15. Consolidate duplicate Flutter pubspec.yaml
 16. Fix Helm appVersion mismatch
 17. Standardize pytest version spec to `==8.4.2`
+18. Add `esModuleInterop: true` to 5 NestJS services missing it
+19. Migrate root `.eslintrc.base.json` to flat config or remove it
+20. Align `@sahool/code-review-agent` version to `16.0.0`
+21. Convert `file:` protocol refs to workspace resolution for nestjs-auth, field-shared
 
 ---
 

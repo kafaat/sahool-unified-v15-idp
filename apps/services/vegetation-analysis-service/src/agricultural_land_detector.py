@@ -1415,9 +1415,11 @@ class AgriculturalLandDetector:
 
         # GeoLabel 4.0: Advanced engines
         self.crop_classifier = CropClassificationEngine(self.config)
-        self.topology_simplifier = TopologyPreservingSimplifier(self.config)
-        self.editing_tools = ParcelEditingTools(self.config)
-        self.quality_inspector = QualityInspectionTool(self.config)
+        self.topology_simplifier = TopologyPreservingSimplifier(
+            tolerance=self.config.simplify_tolerance,
+        )
+        self.editing_tools = ParcelEditingTools()
+        self.quality_inspector = QualityInspectionTool()
 
         logger.info(
             f"Agricultural Land Detector initialized with GeoLabel 4.0 engines "

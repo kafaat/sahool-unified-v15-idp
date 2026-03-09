@@ -467,11 +467,12 @@ def register_parcel_endpoints(app, land_detector):
             if not parcels:
                 raise HTTPException(status_code=400, detail="No valid parcels provided")
 
-            classified = await land_detector.crop_classifier.classify_crops(parcels)
+            # classify_crops returns CropClassificationResult list and updates parcels in-place
+            await land_detector.crop_classifier.classify_crops(parcels)
 
-            features = [p.to_geojson() for p in classified]
+            features = [p.to_geojson() for p in parcels]
             crop_stats = {}
-            for p in classified:
+            for p in parcels:
                 ct = p.crop_type or "unknown"
                 crop_stats[ct] = crop_stats.get(ct, 0) + 1
 
@@ -520,7 +521,8 @@ def register_parcel_endpoints(app, land_detector):
             if len(parcels) < 2:
                 raise HTTPException(status_code=400, detail="Need at least 2 parcels to merge")
 
-            merged = land_detector.editing_tools.merge_parcels(parcels)
+            parcel_ids = request.parcel_ids or [p.parcel_id for p in parcels]
+            merged = land_detector.editing_tools.merge_parcels(parcels, parcel_ids)
 
             return {
                 "merged_parcel": merged.to_geojson(),
@@ -606,24 +608,26 @@ def register_parcel_endpoints(app, land_detector):
             if len(parcels) < 2:
                 raise HTTPException(status_code=400, detail="Need at least 2 parcels to connect")
 
+            parcel_ids = [p.parcel_id for p in parcels]
             connected = land_detector.editing_tools.connect_parcels(
-                parcels, max_gap_meters=request.max_gap_meters
+                parcels, parcel_ids, max_gap_meters=request.max_gap_meters
             )
-            features = [p.to_geojson() for p in connected]
 
-            return {
-                "type": "FeatureCollection",
-                "features": features,
-                "connect_stats": {
-                    "input_fragments": len(parcels),
-                    "output_parcels": len(connected),
-                    "max_gap_meters": request.max_gap_meters,
-                    "summary": {
-                        "en": f"Connected {len(parcels)} fragments into {len(connected)} parcels",
-                        "ar": f"تم ربط {len(parcels)} جزء في {len(connected)} قطعة",
+            if connected:
+                return {
+                    "connected_parcel": connected.to_geojson(),
+                    "connect_stats": {
+                        "input_fragments": len(parcels),
+                        "max_gap_meters": request.max_gap_meters,
+                        "connected_area_hectares": round(connected.area_hectares, 2),
+                        "summary": {
+                            "en": f"Connected {len(parcels)} fragments into 1 parcel",
+                            "ar": f"تم ربط {len(parcels)} جزء في قطعة واحدة",
+                        },
                     },
-                },
-            }
+                }
+            else:
+                raise HTTPException(status_code=400, detail="Could not connect parcels")
 
         except HTTPException:
             raise
@@ -656,22 +660,8 @@ def register_parcel_endpoints(app, land_detector):
             if not parcels:
                 raise HTTPException(status_code=400, detail="No valid parcels provided")
 
-            results = land_detector.quality_inspector.inspect_all(parcels)
-
-            passed = sum(1 for r in results if r["passed"])
-            return {
-                "inspection_results": results,
-                "summary": {
-                    "total": len(results),
-                    "passed": passed,
-                    "failed": len(results) - passed,
-                    "pass_rate": round(passed / len(results) * 100, 1) if results else 0,
-                    "summary": {
-                        "en": f"{passed}/{len(results)} parcels passed quality inspection",
-                        "ar": f"{passed}/{len(results)} قطعة اجتازت فحص الجودة",
-                    },
-                },
-            }
+            result = land_detector.quality_inspector.inspect_all(parcels)
+            return result
 
         except HTTPException:
             raise
@@ -748,21 +738,27 @@ def register_parcel_endpoints(app, land_detector):
                     detail=f"Invalid attribute. Must be one of: {', '.join(valid_attributes)}",
                 )
 
-            updated = land_detector.quality_inspector.batch_assign_attribute(
-                parcels, request.attribute, request.value
+            # Parse value for is_irrigated
+            value = request.value
+            if request.attribute == "is_irrigated":
+                value = request.value.lower() in ("true", "1", "yes")
+
+            parcel_ids = request.parcel_ids or [p.parcel_id for p in parcels]
+            count = land_detector.quality_inspector.batch_assign_attribute(
+                parcels, parcel_ids, request.attribute, value
             )
-            features = [p.to_geojson() for p in updated]
+            features = [p.to_geojson() for p in parcels]
 
             return {
                 "type": "FeatureCollection",
                 "features": features,
                 "update_summary": {
-                    "parcels_updated": len(updated),
+                    "parcels_updated": count,
                     "attribute": request.attribute,
                     "value": request.value,
                     "summary": {
-                        "en": f"Updated {request.attribute}={request.value} for {len(updated)} parcels",
-                        "ar": f"تم تحديث {request.attribute}={request.value} لـ {len(updated)} قطعة",
+                        "en": f"Updated {request.attribute}={request.value} for {count} parcels",
+                        "ar": f"تم تحديث {request.attribute}={request.value} لـ {count} قطعة",
                     },
                 },
             }

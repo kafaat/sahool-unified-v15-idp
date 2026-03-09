@@ -9,7 +9,7 @@
 # This file ensures version consistency across all services.
 # Update versions here to propagate changes platform-wide.
 #
-# Last Updated: February 2026
+# Last Updated: March 2026
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 fastapi==0.128.5
 uvicorn==0.40.0
-starlette>=0.49.1,<0.53.0  # Required by fastapi==0.128.5 (was >=0.41.0 which is incompatible)
+starlette>=0.49.1,<1.0.0  # Required by fastapi==0.128.5
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Validation
@@ -39,6 +39,8 @@ asyncpg==0.31.0
 sqlalchemy==2.0.46
 tortoise-orm==0.25.4
 aerich==0.9.2
+psycopg2-binary==2.9.9
+alembic==1.18.3
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Messaging
@@ -51,6 +53,8 @@ redis>=7.1.0,<8.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 python-jose>=3.5.0  # CVE-2024-33663, CVE-2024-33664 fixed in 3.5.0
 passlib==1.7.4
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797 fixed in 44.0.1, CVE-2026-26007 fixed in 46.0.5
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Observability
@@ -68,7 +72,10 @@ structlog==24.4.0
 numpy>=1.26.0,<2.5.0
 scipy>=1.11.0,<1.18.0
 optuna>=3.6.0,<5.0.0
-Pillow==11.3.0
+Pillow==12.1.1  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
+shapely==2.0.6
+rasterio==1.4.3
+pyproj==3.7.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Machine Learning
@@ -99,6 +106,11 @@ python-dotenv==1.2.1
 python-multipart==0.0.22
 python-dateutil==2.9.0.post0
 jsonschema==4.26.0
+tenacity==8.5.0
+slowapi>=0.1.9,<1.0.0
+orjson>=3.10.0,<4.0.0
+email-validator==2.3.0
+mypy==1.14.1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Firebase (Notifications)

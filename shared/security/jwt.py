@@ -216,7 +216,7 @@ def decode_token_unsafe(token: str) -> dict:
     """
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
-        return jwt.decode(token, options=_get_unsafe_decode_options())
+        return jwt.decode(token, options=_get_unsafe_decode_options(), algorithms=["HS256", "HS384", "HS512"])
     except PyJWTError:
         return {}
 

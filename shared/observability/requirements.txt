@@ -52,7 +52,7 @@ opentelemetry-propagator-jaeger>=1.39.1,<2.0.0
 # JSON logging is built-in via custom formatters
 
 # Optional: python-json-logger for advanced JSON logging
-python-json-logger>=2.0.7,<3.0.0
+python-json-logger>=3.2.0,<4.0.0
 
 # ============================================================================
 # FastAPI Integration

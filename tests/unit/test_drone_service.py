@@ -22,8 +22,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Ensure drone service is importable
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service"))
+_drone_service_path = str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service")
+sys.path.insert(0, _drone_service_path)
 
+pytest.importorskip("geojson", reason="geojson required for drone service tests")
+
+# Clean stale 'src' modules that may have been cached by tests from other services
+# (e.g. task-service) to prevent importing the wrong service's src package.
+for _key in [k for k in sys.modules if k == "src" or k.startswith("src.")]:
+    del sys.modules[_key]
+
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 
@@ -59,10 +68,29 @@ def app(mock_user):
     errors_mock = MagicMock()
     errors_mock.setup_exception_handlers = lambda app: None
     errors_mock.add_request_id_middleware = lambda app: None
-    # Exception classes must be None so routers fall back to HTTPException
-    errors_mock.NotFoundException = None
-    errors_mock.ValidationException = None
-    errors_mock.ForbiddenException = None
+
+    # Provide real exception classes so service modules get callable classes
+    # (setting to None would bypass the ImportError fallback and leave them as NoneType)
+    class _NotFoundException(HTTPException):
+        def __init__(self, message="", message_ar=None, resource_type=None, **_kw):
+            detail = {"error": message}
+            if message_ar:
+                detail["error_ar"] = message_ar
+            if resource_type:
+                detail["resource_type"] = resource_type
+            super().__init__(status_code=404, detail=detail)
+
+    class _ValidationException(HTTPException):
+        def __init__(self, message="", message_ar=None, **_kw):
+            super().__init__(status_code=422, detail={"error": message})
+
+    class _ForbiddenException(HTTPException):
+        def __init__(self, message="", message_ar=None, **_kw):
+            super().__init__(status_code=403, detail={"error": message})
+
+    errors_mock.NotFoundException = _NotFoundException
+    errors_mock.ValidationException = _ValidationException
+    errors_mock.ForbiddenException = _ForbiddenException
 
     # Create a no-op tenant middleware class
     from starlette.middleware.base import BaseHTTPMiddleware
@@ -74,16 +102,27 @@ def app(mock_user):
     tenant_mock = MagicMock()
     tenant_mock.TenantContextMiddleware = _NoOpTenantMiddleware
 
+    # Inject mock modules persistently so they survive across test invocations.
+    # Using patch.dict would remove them on exit, but cached src.* imports still
+    # reference them, causing ModuleNotFoundError in subsequent tests.
+    _mock_modules = {
+        "shared.auth.dependencies": MagicMock(),
+        "shared.auth.models": MagicMock(),
+        "shared.errors_py": errors_mock,
+        "shared.middleware.tenant_context": tenant_mock,
+        "nats": sys.modules.get("nats", MagicMock()),
+        "asyncpg": sys.modules.get("asyncpg", MagicMock()),
+    }
+    for name, mock in _mock_modules.items():
+        sys.modules.setdefault(name, mock)
+
+    # Clear stale 'src' modules from other service tests in the same pytest run
+    for key in [k for k in sys.modules if k == "src" or k.startswith("src.")]:
+        if "drone" not in str(getattr(sys.modules[key], "__file__", "")):
+            del sys.modules[key]
+
     # Ensure no real connections are attempted during tests
-    with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False), \
-         patch.dict("sys.modules", {
-             "shared.auth.dependencies": MagicMock(),
-             "shared.auth.models": MagicMock(),
-             "shared.errors_py": errors_mock,
-             "shared.middleware.tenant_context": tenant_mock,
-             "nats": MagicMock(),
-             "asyncpg": MagicMock(),
-         }):
+    with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False):
         from src.main import app as drone_app
 
         # Override auth dependency
@@ -468,10 +507,10 @@ class TestMissionLifecycle:
         assert r.json()["status"] == "completed"
 
     def test_invalid_transition_planned_to_paused(self, client):
-        """Test invalid state transition (planned → paused) returns 400."""
+        """Test invalid state transition (planned → paused) returns 422."""
         created = self._create_mission(client)
         r = client.post(f"/api/v1/missions/{created['id']}/pause")
-        assert r.status_code == 400
+        assert r.status_code == 422
 
     def test_invalid_transition_completed_to_active(self, client):
         """Test completed missions cannot be restarted."""
@@ -479,7 +518,7 @@ class TestMissionLifecycle:
         client.post(f"/api/v1/missions/{created['id']}/start")
         client.post(f"/api/v1/missions/{created['id']}/complete")
         r = client.post(f"/api/v1/missions/{created['id']}/start")
-        assert r.status_code == 400
+        assert r.status_code == 422
 
     def test_invalid_transition_aborted_to_active(self, client):
         """Test aborted missions cannot be restarted."""
@@ -487,7 +526,7 @@ class TestMissionLifecycle:
         client.post(f"/api/v1/missions/{created['id']}/start")
         client.post(f"/api/v1/missions/{created['id']}/abort")
         r = client.post(f"/api/v1/missions/{created['id']}/resume")
-        assert r.status_code == 400
+        assert r.status_code == 422
 
     def test_full_mission_lifecycle(self, client):
         """Test complete lifecycle: planned → active → paused → active → completed."""

@@ -5,8 +5,8 @@
 asyncpg>=0.30.0
 
 # Web Framework
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
+fastapi>=0.128.5,<1.0.0
+uvicorn[standard]>=0.40.0,<1.0.0
 
 # Data Validation
 pydantic==2.12.5
@@ -20,15 +20,15 @@ python-multipart>=0.0.22
 python-dateutil>=2.8.2
 
 # Logging
-structlog>=23.2.0
+structlog>=24.4.0,<25.0.0
 
 # HTTP Client
-httpx>=0.25.0
+httpx>=0.28.1,<1.0.0
 
 # NATS Messaging
 nats-py==2.13.1
 
 # Testing (optional)
 pytest>=7.4.0
-pytest-asyncio>=0.21.0
+pytest-asyncio==0.26.0
 pytest-cov>=4.1.0

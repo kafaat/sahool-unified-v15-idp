@@ -795,7 +795,8 @@ services:
 
       # TLS/SSL Configuration
       # Certificates mounted at /root/.minio/certs
-      MINIO_OPTS: "--certs-dir /root/.minio/certs"
+      # NOTE: Only set MINIO_OPTS when TLS certs exist; empty certs dir causes startup failure
+      MINIO_OPTS: "${MINIO_OPTS:-}"
 
       # Security: Disable browser console in production
       MINIO_BROWSER: ${MINIO_BROWSER:-off}

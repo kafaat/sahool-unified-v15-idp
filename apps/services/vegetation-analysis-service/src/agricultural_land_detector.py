@@ -130,12 +130,16 @@ class AgriculturalParcel:
     quality_score: float | None = None
 
     def to_geojson(self) -> dict[str, Any]:
-        """Convert to GeoJSON Feature"""
+        """Convert to GeoJSON Feature (RFC 7946 compliant closed rings)"""
+        ring = [[lon, lat] for lon, lat in self.coordinates]
+        # GeoJSON requires closed LinearRings (first == last point)
+        if ring and ring[0] != ring[-1]:
+            ring.append(ring[0])
         return {
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[lon, lat] for lon, lat in self.coordinates]],
+                "coordinates": [ring],
             },
             "properties": {
                 "parcel_id": self.parcel_id,
@@ -288,31 +292,48 @@ class SemanticSegmentationEngine:
         evi = self._compute_evi(image_data) if num_bands >= 4 else None
         ndwi = self._compute_ndwi(image_data) if num_bands >= 4 else None
 
-        # Vectorized multi-index classification using NumPy boolean masking
-        mask = np.full((h, w), LandCoverClass.BARREN.value, dtype=object)
+        # Integer-coded classification for performance (avoid dtype=object)
+        # Code mapping: 0=barren, 1=water, 2=grassland, 3=cropland
+        _CODE_BARREN = 0
+        _CODE_WATER = 1
+        _CODE_GRASSLAND = 2
+        _CODE_CROPLAND = 3
+        _CODE_TO_CLASS = {
+            _CODE_BARREN: LandCoverClass.BARREN.value,
+            _CODE_WATER: LandCoverClass.WATER.value,
+            _CODE_GRASSLAND: LandCoverClass.GRASSLAND.value,
+            _CODE_CROPLAND: LandCoverClass.CROPLAND.value,
+        }
+
+        int_mask = np.full((h, w), _CODE_BARREN, dtype=np.uint8)
 
         # Water detection (high NDWI) — highest priority
         if ndwi is not None:
             water_mask = ndwi > self.config.ndwi_water_threshold
-            mask[water_mask] = LandCoverClass.WATER.value
+            int_mask[water_mask] = _CODE_WATER
 
         # Sparse vegetation (NDVI above vegetation threshold but below cropland)
         veg_mask = ndvi > self.config.ndvi_vegetation_threshold
-        mask[veg_mask] = LandCoverClass.GRASSLAND.value
+        int_mask[veg_mask] = _CODE_GRASSLAND
 
         # Cropland detection (high NDVI + EVI)
         crop_ndvi_mask = ndvi > self.config.ndvi_cropland_threshold
         if evi is not None:
             cropland_mask = crop_ndvi_mask & (evi > self.config.evi_threshold)
             grassland_mask = crop_ndvi_mask & ~(evi > self.config.evi_threshold)
-            mask[grassland_mask] = LandCoverClass.GRASSLAND.value
-            mask[cropland_mask] = LandCoverClass.CROPLAND.value
+            int_mask[grassland_mask] = _CODE_GRASSLAND
+            int_mask[cropland_mask] = _CODE_CROPLAND
         else:
-            mask[crop_ndvi_mask] = LandCoverClass.CROPLAND.value
+            int_mask[crop_ndvi_mask] = _CODE_CROPLAND
 
         # Water overrides all — reapply on top
         if ndwi is not None:
-            mask[water_mask] = LandCoverClass.WATER.value
+            int_mask[water_mask] = _CODE_WATER
+
+        # Map integer codes to string class values at the boundary
+        mask = np.empty((h, w), dtype=object)
+        for code, class_val in _CODE_TO_CLASS.items():
+            mask[int_mask == code] = class_val
 
         return mask
 
@@ -335,12 +356,8 @@ class SemanticSegmentationEngine:
         """
         h, w = mask.shape[:2]
 
-        # Create binary mask for target class
-        binary_mask = np.zeros((h, w), dtype=np.uint8)
-        for i in range(h):
-            for j in range(w):
-                if mask[i, j] == target_class:
-                    binary_mask[i, j] = 1
+        # Create binary mask for target class (vectorized comparison)
+        binary_mask = (mask == target_class).astype(np.uint8)
 
         # Apply morphological operations to clean up
         binary_mask = self._morphological_close(binary_mask, iterations=self.config.boundary_closing_iterations)
@@ -2048,11 +2065,15 @@ class CropClassificationEngine:
             else:
                 features["area_fit"] = max(0, 0.5 - abs(area - sum(area_range) / 2) / max(area_range[1], 1) * 0.5)
 
+            comp_min = max(geo_profile.get("compactness_min", 0.01), 0.01)
             features["compactness_fit"] = (
-                1.0 if compactness >= geo_profile.get("compactness_min", 0) else compactness / max(geo_profile.get("compactness_min", 0.01), 0.01)
+                1.0 if compactness >= geo_profile.get("compactness_min", 0)
+                else compactness / comp_min
             )
+            rect_min = max(geo_profile.get("rectangularity_min", 0.01), 0.01)
             features["rectangularity_fit"] = (
-                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0) else rectangularity / max(geo_profile.get("rectangularity_min", 0.01), 0.01)
+                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0)
+                else rectangularity / rect_min
             )
 
             # Temporal fit (is current month in growing season?)
@@ -2877,8 +2898,14 @@ class QualityInspectionTool:
             "pass_rate": round(passed / max(len(parcels), 1) * 100, 1),
             "issues": issues,
             "summary": {
-                "en": f"Quality inspection: {passed}/{len(parcels)} parcels passed ({round(passed / max(len(parcels), 1) * 100, 1)}%)",
-                "ar": f"فحص الجودة: {passed}/{len(parcels)} قطعة اجتازت ({round(passed / max(len(parcels), 1) * 100, 1)}%)",
+                "en": (
+                    f"Quality inspection: {passed}/{len(parcels)} parcels"
+                    f" passed ({round(passed / max(len(parcels), 1) * 100, 1)}%)"
+                ),
+                "ar": (
+                    f"فحص الجودة: {passed}/{len(parcels)} قطعة"
+                    f" اجتازت ({round(passed / max(len(parcels), 1) * 100, 1)}%)"
+                ),
             },
         }
 

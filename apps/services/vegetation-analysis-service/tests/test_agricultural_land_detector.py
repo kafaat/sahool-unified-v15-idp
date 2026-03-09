@@ -221,7 +221,10 @@ class TestAgriculturalParcel:
         geojson = parcel.to_geojson()
         assert geojson["type"] == "Feature"
         assert geojson["geometry"]["type"] == "Polygon"
-        assert len(geojson["geometry"]["coordinates"][0]) == 4
+        ring = geojson["geometry"]["coordinates"][0]
+        # GeoJSON RFC 7946 requires closed LinearRings (first == last point)
+        assert len(ring) == 5  # 4 vertices + closing point
+        assert ring[0] == ring[-1]
         assert geojson["properties"]["parcel_id"] == "test_001"
         assert geojson["properties"]["area_hectares"] == 1.0
         assert geojson["properties"]["land_cover"] == "cropland"

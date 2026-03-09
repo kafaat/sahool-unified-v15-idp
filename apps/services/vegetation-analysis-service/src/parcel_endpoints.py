@@ -32,7 +32,10 @@ class ParcelDetectionRequest(BaseModel):
         description="Detection strategy: semantic_segmentation, boundary_detection, training_free, hybrid",
     )
     precision: str = Field("high", description="Model precision: very_high, high, acceptable, speed_focused")
-    target_shape: str = Field("irregular", description="Shape regularization: irregular, rectangle, convex_hull, minimum_bounding")
+    target_shape: str = Field(
+        "irregular",
+        description="Shape regularization: irregular, rectangle, convex_hull, minimum_bounding",
+    )
     min_area_hectares: float = Field(0.05, description="Minimum parcel area in hectares")
     max_area_hectares: float = Field(1000.0, description="Maximum parcel area in hectares")
     ndvi_threshold: float = Field(0.25, description="NDVI threshold for cropland detection")
@@ -176,7 +179,9 @@ def register_parcel_endpoints(app, land_detector):
 
             # Create per-request detector to avoid race conditions on shared state
             from .agricultural_land_detector import AgriculturalLandDetector
-            request_detector = AgriculturalLandDetector(config)
+            request_detector = AgriculturalLandDetector(
+                config, multi_provider=land_detector.multi_provider if land_detector else None
+            )
 
             # Run detection
             report = await request_detector.detect_at_point(lat, lon, radius_m)
@@ -265,7 +270,9 @@ def register_parcel_endpoints(app, land_detector):
                 precision=det_precision,
                 min_area_hectares=request.min_area_hectares,
             )
-            request_detector = AgriculturalLandDetector(config)
+            request_detector = AgriculturalLandDetector(
+                config, multi_provider=land_detector.multi_provider if land_detector else None
+            )
 
             report = await request_detector.detect_in_region(bounds)
 
@@ -861,8 +868,14 @@ def register_parcel_endpoints(app, land_detector):
                     ) if original_vertices > 0 else 0,
                     "topology_preserved": True,
                     "summary": {
-                        "en": f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices",
-                        "ar": f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس",
+                        "en": (
+                            f"Simplified {len(simplified)} parcels:"
+                            f" {original_vertices}→{simplified_vertices} vertices"
+                        ),
+                        "ar": (
+                            f"تم تبسيط {len(simplified)} قطعة:"
+                            f" {original_vertices}→{simplified_vertices} رأس"
+                        ),
                     },
                 },
             }

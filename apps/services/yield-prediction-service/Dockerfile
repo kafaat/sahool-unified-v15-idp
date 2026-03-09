@@ -25,7 +25,8 @@ COPY apps/services/yield-prediction-service /workspace/yield-prediction-service/
 WORKDIR /workspace/yield-prediction-service
 
 # Replace workspace dependency with local file path for Docker build
-RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
+# package.json may use version string OR file: reference depending on context
+RUN sed -i 's|"@sahool/nestjs-auth": "[^"]*"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)

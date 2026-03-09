@@ -467,8 +467,9 @@ services:
       - QDRANT__LOG_LEVEL=INFO
     # Qdrant healthcheck - uses HTTP endpoint to verify service is responding
     # فحص صحة Qdrant - يستخدم نقطة نهاية HTTP للتحقق من استجابة الخدمة
+    # FIX: qdrant image doesn't include curl; use wget (available in Alpine base)
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:6333/healthz || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -708,8 +709,9 @@ services:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (used by init script and healthcheck)
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
+      # Defaults provided for development; override in .env for production
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:-root}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
     volumes:
       - etcd_data:/etcd
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
@@ -754,8 +756,8 @@ services:
     environment:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://etcd:2379
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:-root}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
     depends_on:
       etcd:
         condition: service_healthy
@@ -783,9 +785,10 @@ services:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     container_name: sahool-minio
     environment:
-      # Root credentials (REQUIRED - minimum 16 characters)
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - must be at least 16 characters}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - must be at least 16 characters}
+      # Root credentials (minimum 16 characters)
+      # Defaults provided for development; override in .env for production
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sahool_minio_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sahool_minio_dev_password_2026_secure}
 
       # TLS/SSL Configuration
       # Certificates mounted at /root/.minio/certs
@@ -863,14 +866,13 @@ services:
       ETCD_ROOT_PATH: /milvus
       ETCD_USE_SSL: "false"
       # Etcd authentication credentials
-      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
+      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:-root}
+      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
       # MinIO connection with dedicated service account (least privilege)
-      # SECURITY FIX: Use dedicated Milvus credentials instead of MinIO root account
       # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000
-      MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}}
-      MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}}
+      MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:-sahool_minio_admin}}
+      MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:-sahool_minio_dev_password_2026_secure}}
     ports:
       - "127.0.0.1:19530:19530"
       - "127.0.0.1:9091:9091"

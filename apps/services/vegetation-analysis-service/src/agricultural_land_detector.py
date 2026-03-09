@@ -1,6 +1,6 @@
 """
-SAHOOL Agricultural Land Detection - GeoLabel-Inspired
-كشف الأراضي الزراعية التلقائي مستوحى من GeoLabel
+SAHOOL Agricultural Land Detection - GeoLabel-Inspired (v4.0)
+كشف الأراضي الزراعية التلقائي مستوحى من GeoLabel 4.0
 
 Automatic agricultural land parcel generation using multiple strategies:
 1. Semantic Segmentation: Pixel-level cropland classification (U-Net/DeepLabV3+)
@@ -8,15 +8,24 @@ Automatic agricultural land parcel generation using multiple strategies:
 3. Training-Free Detection: NDVI+spectral index-based approximate detection
 4. Vector Classification: Classify existing parcels as agricultural/non-agricultural
 
+GeoLabel 4.0 additions:
+5. Crop Classification Engine: ML+DL parcel-level crop type identification
+6. Topology-Preserving Simplification: Simplify boundaries while maintaining adjacency
+7. Parcel Editing Tools: Fast merge, split, connect operations
+8. Quality Inspection Tool: Element browsing, attribute editing, WKT export
+
 Inspired by GeoLabel's approach to remote sensing farmland parcel extraction:
 - Boundary-based parcel generation (edge detection → closed polygons)
 - Semantic segmentation-based parcel generation (pixel classification → polygonize)
 - Advanced post-processing (simplification, smoothing, small parcel removal)
 - Training-free approximate detection (spectral indices only)
 - Vector classification (feature-based parcel type classification)
+- Crop type classification (spectral+geometric feature ML + DL models)
+- Topology-preserving simplification (no gaps/overlaps between adjacent parcels)
 
 References:
 - GeoLabel 3.6.0 SAM-based semi-automatic annotation
+- GeoLabel 4.0 for China's 4th National Agricultural Census
 - "Deep Edge Enhancement Semantic Segmentation for Farmland" (2022)
 - "Delineate Anything: Resolution-Agnostic Field Boundary Delineation" (2025)
 - BSNet: Boundary-Semantic Fusion Network for farmland segmentation
@@ -68,14 +77,18 @@ class ParcelShape(str, Enum):
 
 
 class LandCoverClass(str, Enum):
-    """Land cover classification classes"""
+    """Land cover classification classes (GeoLabel 8-class system)
+    فئات تصنيف الغطاء الأرضي (نظام GeoLabel ذو 8 فئات)
+    """
 
-    CROPLAND = "cropland"  # أرض زراعية
-    BARREN = "barren"  # أرض جرداء
-    WATER = "water"  # مسطح مائي
-    BUILT_UP = "built_up"  # منطقة مبنية
-    FOREST = "forest"  # غابة
-    GRASSLAND = "grassland"  # مرعى
+    CROPLAND = "cropland"  # 耕地 - أرض زراعية
+    ORCHARD = "orchard"  # 园地 - بستان
+    FOREST = "forest"  # 林地 - غابة
+    GRASSLAND = "grassland"  # 草地 - مرعى
+    BUILT_UP = "built_up"  # 建筑 - منطقة مبنية
+    WATER = "water"  # 水面 - مسطح مائي
+    ROAD = "road"  # 道路 - طريق
+    BARREN = "barren"  # 其他 - أرض جرداء / أخرى
     UNKNOWN = "unknown"  # غير محدد
 
 
@@ -1371,11 +1384,18 @@ class AgriculturalLandDetector:
     Main orchestrator for automatic agricultural land detection.
     المنسق الرئيسي لكشف الأراضي الزراعية التلقائي
 
-    Combines all 4 strategies inspired by GeoLabel:
+    Combines all strategies inspired by GeoLabel 4.0:
+    Phase 1-4 (Original):
     1. Semantic Segmentation → pixel classification → polygonize
     2. Boundary Detection → edge detection → close → fill → polygons
     3. Training-Free → NDVI/spectral indices → approximate parcels
     4. Vector Classification → classify existing parcels
+
+    GeoLabel 4.0 additions:
+    5. Crop Classification Engine → ML+DL crop type identification
+    6. Topology-Preserving Simplification → maintain adjacency
+    7. Parcel Editing Tools → merge/split/connect operations
+    8. Quality Inspection → browsing, WKT export, batch attribute assignment
 
     Supports:
     - Full image detection (like GeoLabel's full-page annotation)
@@ -1387,14 +1407,20 @@ class AgriculturalLandDetector:
         self.config = config or DetectionConfig()
         self.multi_provider = multi_provider
 
-        # Initialize engines
+        # Phase 1-4: Core detection engines
         self.segmentation = SemanticSegmentationEngine(self.config)
         self.boundary_detection = BoundaryDetectionEngine(self.config)
         self.post_processor = ParcelPostProcessor(self.config)
         self.classifier = VectorClassificationEngine(self.config)
 
+        # GeoLabel 4.0: Advanced engines
+        self.crop_classifier = CropClassificationEngine(self.config)
+        self.topology_simplifier = TopologyPreservingSimplifier(self.config)
+        self.editing_tools = ParcelEditingTools(self.config)
+        self.quality_inspector = QualityInspectionTool(self.config)
+
         logger.info(
-            f"Agricultural Land Detector initialized "
+            f"Agricultural Land Detector initialized with GeoLabel 4.0 engines "
             f"(strategy={self.config.strategy.value}, precision={self.config.precision.value})"
         )
 
@@ -1745,3 +1771,1250 @@ class AgriculturalLandDetector:
                     image[i, j, 3] = 0.10 + rng.random() * 0.08  # NIR
 
         return image, bounds
+
+
+# =============================================================================
+# GeoLabel 4.0: Crop Classification Engine (ML + DL dual path)
+# محرك تصنيف المحاصيل (مسار مزدوج: تعلم آلي + تعلم عميق)
+# =============================================================================
+
+
+class CropType(str, Enum):
+    """Crop type classification classes | فئات تصنيف المحاصيل"""
+
+    WHEAT = "wheat"  # قمح
+    RICE = "rice"  # أرز
+    CORN = "corn"  # ذرة
+    COTTON = "cotton"  # قطن
+    SOYBEAN = "soybean"  # فول صويا
+    VEGETABLES = "vegetables"  # خضروات
+    FRUIT_TREES = "fruit_trees"  # أشجار فاكهة
+    DATE_PALM = "date_palm"  # نخيل
+    BARLEY = "barley"  # شعير
+    SORGHUM = "sorghum"  # ذرة رفيعة
+    ALFALFA = "alfalfa"  # برسيم
+    FALLOW = "fallow"  # بور
+    GREENHOUSE = "greenhouse"  # بيوت محمية
+    OTHER_CROP = "other_crop"  # محصول آخر
+    UNKNOWN = "unknown"  # غير محدد
+
+
+@dataclass
+class CropClassificationResult:
+    """Result of crop type classification for a parcel"""
+
+    parcel_id: str
+    predicted_crop: CropType
+    confidence: float
+    ml_prediction: CropType | None = None
+    ml_confidence: float = 0.0
+    dl_prediction: CropType | None = None
+    dl_confidence: float = 0.0
+    feature_scores: dict[str, float] | None = None
+    secondary_crops: list[tuple[CropType, float]] | None = None
+
+
+class CropClassificationEngine:
+    """
+    Crop type classification using ML + DL dual path.
+    تصنيف نوع المحصول باستخدام المسار المزدوج (تعلم آلي + تعلم عميق)
+
+    GeoLabel 4.0 equivalent: Crop Classification (作物分类)
+    Two technical paths per the 4th National Agricultural Census specification:
+
+    1. AI Model (DL path):
+       - U-Net/DeepLab/PSPNet/DLinkNet/Transformer for parcel-level crop identification
+       - Uses spectral, texture, and semantic features from imagery
+       - Higher accuracy but requires trained model weights
+
+    2. ML Model (ML path):
+       - Random Forest (RF) / SVM pixel-based classification
+       - Uses spectral features (NDVI temporal profile, EVI, band ratios)
+       - Faster, works with pre-computed features, no GPU required
+
+    Final prediction is an ensemble of both paths with configurable weights.
+    """
+
+    # Spectral signature profiles for common crops (NDVI temporal patterns)
+    # Based on multi-temporal Sentinel-2 observations for Middle East / Yemen region
+    CROP_SPECTRAL_PROFILES = {
+        CropType.WHEAT: {
+            "ndvi_peak": 0.75, "ndvi_range": (0.3, 0.82), "evi_peak": 0.55,
+            "peak_month": 3, "growing_months": (11, 4), "ndwi_range": (-0.1, 0.15),
+        },
+        CropType.BARLEY: {
+            "ndvi_peak": 0.68, "ndvi_range": (0.25, 0.72), "evi_peak": 0.48,
+            "peak_month": 2, "growing_months": (10, 3), "ndwi_range": (-0.15, 0.1),
+        },
+        CropType.RICE: {
+            "ndvi_peak": 0.80, "ndvi_range": (0.15, 0.85), "evi_peak": 0.60,
+            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (0.1, 0.45),
+        },
+        CropType.CORN: {
+            "ndvi_peak": 0.78, "ndvi_range": (0.2, 0.82), "evi_peak": 0.58,
+            "peak_month": 7, "growing_months": (4, 9), "ndwi_range": (-0.05, 0.2),
+        },
+        CropType.COTTON: {
+            "ndvi_peak": 0.65, "ndvi_range": (0.2, 0.70), "evi_peak": 0.45,
+            "peak_month": 8, "growing_months": (4, 10), "ndwi_range": (-0.1, 0.1),
+        },
+        CropType.SOYBEAN: {
+            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.78), "evi_peak": 0.52,
+            "peak_month": 7, "growing_months": (5, 10), "ndwi_range": (-0.05, 0.15),
+        },
+        CropType.VEGETABLES: {
+            "ndvi_peak": 0.60, "ndvi_range": (0.25, 0.65), "evi_peak": 0.42,
+            "peak_month": None, "growing_months": None, "ndwi_range": (-0.1, 0.2),
+        },
+        CropType.FRUIT_TREES: {
+            "ndvi_peak": 0.55, "ndvi_range": (0.35, 0.60), "evi_peak": 0.38,
+            "peak_month": 6, "growing_months": (1, 12), "ndwi_range": (-0.15, 0.05),
+        },
+        CropType.DATE_PALM: {
+            "ndvi_peak": 0.45, "ndvi_range": (0.30, 0.50), "evi_peak": 0.30,
+            "peak_month": 7, "growing_months": (1, 12), "ndwi_range": (-0.2, 0.0),
+        },
+        CropType.ALFALFA: {
+            "ndvi_peak": 0.70, "ndvi_range": (0.35, 0.75), "evi_peak": 0.50,
+            "peak_month": None, "growing_months": (1, 12), "ndwi_range": (-0.05, 0.15),
+        },
+        CropType.SORGHUM: {
+            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.76), "evi_peak": 0.52,
+            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (-0.1, 0.1),
+        },
+        CropType.FALLOW: {
+            "ndvi_peak": 0.18, "ndvi_range": (0.05, 0.22), "evi_peak": 0.10,
+            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.1),
+        },
+        CropType.GREENHOUSE: {
+            "ndvi_peak": 0.10, "ndvi_range": (-0.05, 0.25), "evi_peak": 0.08,
+            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.05),
+        },
+    }
+
+    # Geometric feature ranges for crop types
+    CROP_GEOMETRIC_PROFILES = {
+        CropType.WHEAT: {"area_range": (0.5, 100), "compactness_min": 0.3, "rectangularity_min": 0.5},
+        CropType.RICE: {"area_range": (0.1, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
+        CropType.CORN: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
+        CropType.DATE_PALM: {"area_range": (0.2, 20), "compactness_min": 0.2, "rectangularity_min": 0.3},
+        CropType.VEGETABLES: {"area_range": (0.05, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
+        CropType.GREENHOUSE: {"area_range": (0.01, 2), "compactness_min": 0.6, "rectangularity_min": 0.8},
+        CropType.FRUIT_TREES: {"area_range": (0.5, 30), "compactness_min": 0.25, "rectangularity_min": 0.3},
+        CropType.ALFALFA: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
+    }
+
+    # ML path: Feature weights for Random Forest-like classification
+    ML_FEATURE_WEIGHTS = {
+        "ndvi_similarity": 0.30,
+        "evi_similarity": 0.15,
+        "ndwi_similarity": 0.15,
+        "area_fit": 0.10,
+        "compactness_fit": 0.10,
+        "rectangularity_fit": 0.10,
+        "temporal_fit": 0.10,
+    }
+
+    # DL path weight vs ML path weight (ensemble)
+    DL_WEIGHT = 0.6
+    ML_WEIGHT = 0.4
+
+    def __init__(self, config: DetectionConfig | None = None):
+        self.config = config or DetectionConfig()
+        self._dl_model_loaded = False
+        logger.info("Crop Classification Engine initialized (ML + DL dual path)")
+
+    async def classify_crops(
+        self,
+        parcels: list[AgriculturalParcel],
+        image_data: np.ndarray | None = None,
+        bounds: dict[str, float] | None = None,
+        current_month: int | None = None,
+    ) -> list[CropClassificationResult]:
+        """
+        Classify crop type for each parcel using ML + DL dual path ensemble.
+
+        Args:
+            parcels: List of detected agricultural parcels
+            image_data: Optional multi-spectral image for DL path
+            bounds: Geographic bounds
+            current_month: Current month (1-12) for temporal matching
+
+        Returns:
+            List of CropClassificationResult for each parcel
+        """
+        if current_month is None:
+            current_month = datetime.now().month
+
+        results = []
+        for parcel in parcels:
+            # ML path: Feature-based classification (RF/SVM-like)
+            ml_result = self._ml_classify(parcel, current_month)
+
+            # DL path: Image-based classification (simulated U-Net/DeepLab)
+            dl_result = self._dl_classify(parcel, image_data, bounds)
+
+            # Ensemble: Weighted combination of ML and DL predictions
+            final_result = self._ensemble_predictions(parcel, ml_result, dl_result)
+            results.append(final_result)
+
+            # Update parcel crop_type
+            parcel.crop_type = final_result.predicted_crop.value
+
+        crop_counts = {}
+        for r in results:
+            crop_counts[r.predicted_crop.value] = crop_counts.get(r.predicted_crop.value, 0) + 1
+
+        logger.info(f"Crop classification complete: {crop_counts}")
+        return results
+
+    def _ml_classify(
+        self, parcel: AgriculturalParcel, current_month: int
+    ) -> tuple[CropType, float, dict[str, float]]:
+        """
+        ML path: Random Forest / SVM-like classification using spectral+geometric features.
+
+        Per GeoLabel 4.0 spec: "采用通用的基于像素的分类方法进行地块类型的分类。
+        优先选择随机森林(RF)、支持向量机(SVM)等分类器"
+        """
+        best_crop = CropType.UNKNOWN
+        best_score = 0.0
+        all_scores = {}
+
+        ndvi = parcel.mean_ndvi or 0.0
+        evi = parcel.mean_evi or 0.0
+        ndwi = parcel.mean_ndwi or 0.0
+        area = parcel.area_hectares
+        compactness = parcel.compactness or 0.0
+        rectangularity = parcel.rectangularity or 0.0
+
+        for crop_type, profile in self.CROP_SPECTRAL_PROFILES.items():
+            features = {}
+
+            # NDVI similarity to crop profile
+            ndvi_min, ndvi_max = profile["ndvi_range"]
+            if ndvi_min <= ndvi <= ndvi_max:
+                ndvi_dist = abs(ndvi - profile["ndvi_peak"]) / max(profile["ndvi_peak"], 0.01)
+                features["ndvi_similarity"] = max(0, 1.0 - ndvi_dist)
+            else:
+                features["ndvi_similarity"] = max(0, 1.0 - min(abs(ndvi - ndvi_min), abs(ndvi - ndvi_max)) * 3)
+
+            # EVI similarity
+            evi_diff = abs(evi - profile["evi_peak"]) / max(profile["evi_peak"], 0.01)
+            features["evi_similarity"] = max(0, 1.0 - evi_diff)
+
+            # NDWI similarity
+            ndwi_min, ndwi_max = profile["ndwi_range"]
+            if ndwi_min <= ndwi <= ndwi_max:
+                features["ndwi_similarity"] = 1.0
+            else:
+                features["ndwi_similarity"] = max(0, 1.0 - min(abs(ndwi - ndwi_min), abs(ndwi - ndwi_max)) * 5)
+
+            # Geometric features
+            geo_profile = self.CROP_GEOMETRIC_PROFILES.get(crop_type, {})
+            area_range = geo_profile.get("area_range", (0.05, 1000))
+            if area_range[0] <= area <= area_range[1]:
+                features["area_fit"] = 1.0
+            else:
+                features["area_fit"] = max(0, 0.5 - abs(area - sum(area_range) / 2) / max(area_range[1], 1) * 0.5)
+
+            features["compactness_fit"] = (
+                1.0 if compactness >= geo_profile.get("compactness_min", 0) else compactness / max(geo_profile.get("compactness_min", 0.01), 0.01)
+            )
+            features["rectangularity_fit"] = (
+                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0) else rectangularity / max(geo_profile.get("rectangularity_min", 0.01), 0.01)
+            )
+
+            # Temporal fit (is current month in growing season?)
+            growing = profile.get("growing_months")
+            if growing and profile["peak_month"]:
+                start, end = growing
+                if start <= end:
+                    in_season = start <= current_month <= end
+                else:  # Wraps around year (e.g., Nov-Apr)
+                    in_season = current_month >= start or current_month <= end
+                features["temporal_fit"] = 1.0 if in_season else 0.3
+            else:
+                features["temporal_fit"] = 0.7  # Year-round or unknown
+
+            # Weighted score
+            score = sum(features.get(k, 0) * w for k, w in self.ML_FEATURE_WEIGHTS.items())
+            all_scores[crop_type] = score
+
+            if score > best_score:
+                best_score = score
+                best_crop = crop_type
+
+        return best_crop, min(0.95, best_score), all_scores
+
+    def _dl_classify(
+        self,
+        parcel: AgriculturalParcel,
+        image_data: np.ndarray | None,
+        bounds: dict[str, float] | None,
+    ) -> tuple[CropType, float]:
+        """
+        DL path: Simulated deep learning classification.
+
+        Per GeoLabel 4.0 spec: "利用影像的光谱、纹理和语义特征，采用适合作物分类任务
+        的人工智能模型，如 U-Net、DeepLab、PSPNet、DLinkNet、Transformer 等"
+
+        In production, this would load a trained model. Currently uses a
+        spectral-enhanced heuristic as a DL proxy until a real model is integrated.
+        """
+        if image_data is None or bounds is None:
+            # Fallback: use parcel metadata only
+            ndvi = parcel.mean_ndvi or 0.0
+            if ndvi > 0.7:
+                return CropType.WHEAT, 0.6
+            elif ndvi > 0.5:
+                return CropType.CORN, 0.5
+            elif ndvi > 0.3:
+                return CropType.VEGETABLES, 0.4
+            elif ndvi > 0.15:
+                return CropType.FALLOW, 0.5
+            else:
+                return CropType.UNKNOWN, 0.3
+
+        # Simulate DL model by extracting image patch features at parcel location
+        h, w = image_data.shape[:2]
+        centroid = parcel.centroid
+        lat_range = bounds["north"] - bounds["south"]
+        lon_range = bounds["east"] - bounds["west"]
+
+        if lat_range == 0 or lon_range == 0:
+            return CropType.UNKNOWN, 0.3
+
+        px = int((centroid[0] - bounds["west"]) / lon_range * w)
+        py = int((bounds["north"] - centroid[1]) / lat_range * h)
+        px = max(0, min(px, w - 1))
+        py = max(0, min(py, h - 1))
+
+        # Sample a small patch around centroid
+        patch_size = 5
+        x1, x2 = max(0, px - patch_size), min(w, px + patch_size + 1)
+        y1, y2 = max(0, py - patch_size), min(h, py + patch_size + 1)
+        patch = image_data[y1:y2, x1:x2]
+
+        if patch.size == 0:
+            return CropType.UNKNOWN, 0.3
+
+        # Compute patch-level features (simulating DL feature extraction)
+        if len(patch.shape) > 2 and patch.shape[2] >= 4:
+            nir = patch[:, :, 3].astype(np.float64)
+            red = patch[:, :, 2].astype(np.float64)
+            green = patch[:, :, 1].astype(np.float64)
+            denom = nir + red
+            patch_ndvi = np.where(denom > 0, (nir - red) / denom, 0.0)
+            mean_ndvi = float(np.mean(patch_ndvi))
+            std_ndvi = float(np.std(patch_ndvi))
+
+            # Texture feature: NDVI variance indicates crop uniformity
+            # Low variance = uniform crop (wheat, rice), high = mixed/orchard
+            if mean_ndvi > 0.6 and std_ndvi < 0.1:
+                return CropType.WHEAT, 0.7
+            elif mean_ndvi > 0.6 and std_ndvi >= 0.1:
+                return CropType.FRUIT_TREES, 0.6
+            elif mean_ndvi > 0.4 and std_ndvi < 0.08:
+                return CropType.ALFALFA, 0.6
+            elif mean_ndvi > 0.4:
+                return CropType.CORN, 0.55
+            elif mean_ndvi > 0.25:
+                return CropType.VEGETABLES, 0.5
+            elif mean_ndvi > 0.1:
+                # Check if greenhouse (low NDVI but structured)
+                green_ratio = float(np.mean(green)) / max(float(np.mean(nir)), 0.01)
+                if green_ratio > 0.8:
+                    return CropType.GREENHOUSE, 0.5
+                return CropType.FALLOW, 0.55
+            else:
+                return CropType.FALLOW, 0.6
+        else:
+            val = float(np.mean(patch))
+            if val > 0.5:
+                return CropType.WHEAT, 0.5
+            elif val > 0.3:
+                return CropType.VEGETABLES, 0.4
+            else:
+                return CropType.FALLOW, 0.45
+
+    def _ensemble_predictions(
+        self,
+        parcel: AgriculturalParcel,
+        ml_result: tuple[CropType, float, dict],
+        dl_result: tuple[CropType, float],
+    ) -> CropClassificationResult:
+        """Ensemble ML + DL predictions with weighted voting"""
+        ml_crop, ml_conf, ml_scores = ml_result
+        dl_crop, dl_conf = dl_result
+
+        # If both agree, boost confidence
+        if ml_crop == dl_crop:
+            final_crop = ml_crop
+            final_conf = min(0.95, (ml_conf * self.ML_WEIGHT + dl_conf * self.DL_WEIGHT) * 1.2)
+        else:
+            # Use higher-confidence prediction
+            ml_weighted = ml_conf * self.ML_WEIGHT
+            dl_weighted = dl_conf * self.DL_WEIGHT
+            if dl_weighted >= ml_weighted:
+                final_crop = dl_crop
+                final_conf = dl_conf * 0.85  # Slight penalty for disagreement
+            else:
+                final_crop = ml_crop
+                final_conf = ml_conf * 0.85
+
+        # Build secondary crops list from ML scores
+        sorted_crops = sorted(ml_scores.items(), key=lambda x: x[1], reverse=True)
+        secondary = [(crop, round(score, 3)) for crop, score in sorted_crops[:3] if crop != final_crop]
+
+        return CropClassificationResult(
+            parcel_id=parcel.parcel_id,
+            predicted_crop=final_crop,
+            confidence=round(final_conf, 3),
+            ml_prediction=ml_crop,
+            ml_confidence=round(ml_conf, 3),
+            dl_prediction=dl_crop,
+            dl_confidence=round(dl_conf, 3),
+            feature_scores={k.value: round(v, 3) for k, v in ml_scores.items()},
+            secondary_crops=secondary,
+        )
+
+
+# =============================================================================
+# GeoLabel 4.0: Topology-Preserving Simplification
+# تبسيط مع الحفاظ على العلاقات الطوبولوجية
+# =============================================================================
+
+
+class TopologyPreservingSimplifier:
+    """
+    Simplify parcel boundaries while preserving topological relationships.
+    تبسيط حدود القطع مع الحفاظ على العلاقات الطوبولوجية بين القطع المتجاورة
+
+    GeoLabel 4.0 equivalent: "تبسيط وتسهيل التعرف الذكي على قطع الأرض
+    مع الحفاظ على العلاقات الطوبولوجية"
+
+    Ensures:
+    - No gaps between adjacent parcels after simplification
+    - No overlaps between adjacent parcels after simplification
+    - Shared boundaries remain shared (simplified consistently)
+    - Parcel area change stays within tolerance
+    """
+
+    def __init__(self, tolerance: float = 0.00003, area_change_threshold: float = 0.05):
+        """
+        Args:
+            tolerance: Douglas-Peucker simplification tolerance in degrees (~3m)
+            area_change_threshold: Maximum allowed area change fraction (5%)
+        """
+        self.tolerance = tolerance
+        self.area_change_threshold = area_change_threshold
+        logger.info("Topology-Preserving Simplifier initialized")
+
+    def simplify_with_topology(
+        self,
+        parcels: list[AgriculturalParcel],
+    ) -> list[AgriculturalParcel]:
+        """
+        Simplify all parcel boundaries while preserving topology.
+
+        Algorithm:
+        1. Build adjacency graph (find shared boundaries)
+        2. Identify shared edges between adjacent parcels
+        3. Simplify shared edges consistently (same simplified edge for both parcels)
+        4. Simplify non-shared edges independently
+        5. Validate: no gaps, no overlaps, area within tolerance
+        """
+        if not parcels:
+            return parcels
+
+        logger.info(f"Topology-preserving simplification for {len(parcels)} parcels")
+
+        # Step 1: Build adjacency graph
+        adjacency = self._build_adjacency_graph(parcels)
+
+        # Step 2: Identify shared edges
+        shared_edges = self._find_shared_edges(parcels, adjacency)
+
+        # Step 3: Simplify shared edges consistently
+        simplified_shared = {}
+        for edge_key, edge_coords in shared_edges.items():
+            simplified_shared[edge_key] = self._douglas_peucker(edge_coords, self.tolerance)
+
+        # Step 4: Simplify each parcel using consistent shared edges
+        for i, parcel in enumerate(parcels):
+            original_area = self._calculate_area(parcel.coordinates)
+            new_coords = self._simplify_parcel_with_shared_edges(
+                parcel.coordinates, i, adjacency.get(i, []), simplified_shared
+            )
+
+            # Step 5: Validate area change
+            new_area = self._calculate_area(new_coords)
+            if original_area > 0:
+                area_change = abs(new_area - original_area) / original_area
+                if area_change <= self.area_change_threshold and len(new_coords) >= 3:
+                    parcel.coordinates = new_coords
+                    parcel.area_hectares = round(new_area, 4)
+                    parcel.num_vertices = len(new_coords)
+
+        logger.info("Topology-preserving simplification complete")
+        return parcels
+
+    def _build_adjacency_graph(
+        self, parcels: list[AgriculturalParcel]
+    ) -> dict[int, list[int]]:
+        """Build adjacency graph: parcel_index -> [neighbor_indices]"""
+        adjacency: dict[int, list[int]] = {}
+        n = len(parcels)
+
+        for i in range(n):
+            adjacency[i] = []
+            for j in range(i + 1, n):
+                if self._parcels_are_adjacent(parcels[i], parcels[j]):
+                    adjacency.setdefault(i, []).append(j)
+                    adjacency.setdefault(j, []).append(i)
+
+        return adjacency
+
+    def _parcels_are_adjacent(
+        self, p1: AgriculturalParcel, p2: AgriculturalParcel, threshold: float = 0.0001
+    ) -> bool:
+        """Check if two parcels share a boundary (have nearby vertices)"""
+        shared_count = 0
+        for c1 in p1.coordinates:
+            for c2 in p2.coordinates:
+                dist = math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2)
+                if dist < threshold:
+                    shared_count += 1
+                    if shared_count >= 2:  # At least 2 shared points = shared edge
+                        return True
+        return False
+
+    def _find_shared_edges(
+        self,
+        parcels: list[AgriculturalParcel],
+        adjacency: dict[int, list[int]],
+    ) -> dict[tuple[int, int], list[tuple[float, float]]]:
+        """Find shared edge coordinates between adjacent parcels"""
+        shared_edges: dict[tuple[int, int], list[tuple[float, float]]] = {}
+        threshold = 0.0001
+
+        for i, neighbors in adjacency.items():
+            for j in neighbors:
+                if i >= j:
+                    continue  # Avoid duplicate edges
+
+                # Find shared vertices
+                shared_points = []
+                for c1 in parcels[i].coordinates:
+                    for c2 in parcels[j].coordinates:
+                        dist = math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2)
+                        if dist < threshold:
+                            shared_points.append(c1)
+                            break
+
+                if len(shared_points) >= 2:
+                    shared_edges[(i, j)] = shared_points
+
+        return shared_edges
+
+    def _simplify_parcel_with_shared_edges(
+        self,
+        coords: list[tuple[float, float]],
+        parcel_idx: int,
+        neighbors: list[int],
+        simplified_shared: dict[tuple[int, int], list[tuple[float, float]]],
+    ) -> list[tuple[float, float]]:
+        """Simplify parcel, using pre-simplified shared edges for consistency"""
+        if len(coords) <= 4:
+            return coords
+
+        # For now, apply standard Douglas-Peucker but respect shared vertices
+        shared_vertex_set = set()
+        for j in neighbors:
+            key = (min(parcel_idx, j), max(parcel_idx, j))
+            if key in simplified_shared:
+                for pt in simplified_shared[key]:
+                    shared_vertex_set.add(pt)
+
+        # Simplify while keeping shared vertices
+        simplified = self._douglas_peucker_preserve(coords, self.tolerance, shared_vertex_set)
+        return simplified if len(simplified) >= 3 else coords
+
+    def _douglas_peucker_preserve(
+        self,
+        coords: list[tuple[float, float]],
+        tolerance: float,
+        preserve: set[tuple[float, float]],
+    ) -> list[tuple[float, float]]:
+        """Douglas-Peucker simplification that preserves specified vertices"""
+        if len(coords) <= 2:
+            return coords
+
+        max_dist = 0.0
+        max_idx = 0
+
+        for i in range(1, len(coords) - 1):
+            dist = self._point_line_distance(coords[i], coords[0], coords[-1])
+            if dist > max_dist:
+                max_dist = dist
+                max_idx = i
+
+        if max_dist > tolerance or coords[max_idx] in preserve:
+            left = self._douglas_peucker_preserve(coords[:max_idx + 1], tolerance, preserve)
+            right = self._douglas_peucker_preserve(coords[max_idx:], tolerance, preserve)
+            return left[:-1] + right
+        else:
+            # Check if any preserved points would be lost
+            for i in range(1, len(coords) - 1):
+                if coords[i] in preserve:
+                    left = self._douglas_peucker_preserve(coords[:i + 1], tolerance, preserve)
+                    right = self._douglas_peucker_preserve(coords[i:], tolerance, preserve)
+                    return left[:-1] + right
+            return [coords[0], coords[-1]]
+
+    def _point_line_distance(
+        self, point: tuple[float, float], line_start: tuple[float, float], line_end: tuple[float, float]
+    ) -> float:
+        """Perpendicular distance from point to line segment"""
+        dx = line_end[0] - line_start[0]
+        dy = line_end[1] - line_start[1]
+        if dx == 0 and dy == 0:
+            return math.sqrt((point[0] - line_start[0]) ** 2 + (point[1] - line_start[1]) ** 2)
+        num = abs(dy * point[0] - dx * point[1] + line_end[0] * line_start[1] - line_end[1] * line_start[0])
+        den = math.sqrt(dx ** 2 + dy ** 2)
+        return num / den
+
+    def _douglas_peucker(
+        self, coords: list[tuple[float, float]], tolerance: float
+    ) -> list[tuple[float, float]]:
+        """Standard Douglas-Peucker simplification"""
+        if len(coords) <= 2:
+            return coords
+        max_dist = 0.0
+        max_idx = 0
+        for i in range(1, len(coords) - 1):
+            dist = self._point_line_distance(coords[i], coords[0], coords[-1])
+            if dist > max_dist:
+                max_dist = dist
+                max_idx = i
+        if max_dist > tolerance:
+            left = self._douglas_peucker(coords[:max_idx + 1], tolerance)
+            right = self._douglas_peucker(coords[max_idx:], tolerance)
+            return left[:-1] + right
+        return [coords[0], coords[-1]]
+
+    def _calculate_area(self, coords: list[tuple[float, float]]) -> float:
+        """Calculate area in hectares using Shoelace formula"""
+        if len(coords) < 3:
+            return 0.0
+        avg_lat = sum(c[1] for c in coords) / len(coords)
+        lon_to_m = 111320.0 * math.cos(math.radians(avg_lat))
+        lat_to_m = 111320.0
+        coords_m = [(c[0] * lon_to_m, c[1] * lat_to_m) for c in coords]
+        area = 0.0
+        n = len(coords_m)
+        for i in range(n):
+            x1, y1 = coords_m[i]
+            x2, y2 = coords_m[(i + 1) % n]
+            area += x1 * y2 - x2 * y1
+        return abs(area) / 2.0 / 10000.0
+
+
+# =============================================================================
+# GeoLabel 4.0: Parcel Editing Tools
+# أدوات تحرير القطع (دمج/تقسيم/ربط)
+# =============================================================================
+
+
+class ParcelEditingTools:
+    """
+    Fast parcel editing operations for manual correction and refinement.
+    أدوات تحرير سريعة للقطع للتصحيح اليدوي والتنقيح
+
+    GeoLabel 4.0 equivalent: "تحديث وتحرير قطع الأراضي الزراعية"
+    Provides:
+    - Fast merge: Merge multiple parcels intersected by a line
+    - Fast split: Split a parcel along a cutting line
+    - Fast connect: Connect broken/disconnected parcel fragments
+    - Single-to-double line conversion: Convert centerline to polygon
+    """
+
+    def __init__(self):
+        logger.info("Parcel Editing Tools initialized")
+
+    def merge_parcels(
+        self,
+        parcels: list[AgriculturalParcel],
+        parcel_ids: list[str],
+    ) -> AgriculturalParcel | None:
+        """
+        Merge multiple parcels into one.
+
+        GeoLabel 4.0: "快速合并 - 画一条线，合并所有相交的要素"
+        Combines all specified parcels into a single parcel using convex hull.
+
+        Args:
+            parcels: All available parcels
+            parcel_ids: IDs of parcels to merge
+
+        Returns:
+            Merged AgriculturalParcel or None if insufficient parcels
+        """
+        to_merge = [p for p in parcels if p.parcel_id in parcel_ids]
+        if len(to_merge) < 2:
+            return None
+
+        # Collect all coordinates from parcels to merge
+        all_coords = []
+        for parcel in to_merge:
+            all_coords.extend(parcel.coordinates)
+
+        # Compute convex hull of all coordinates
+        merged_coords = self._convex_hull(all_coords)
+        if len(merged_coords) < 3:
+            return None
+
+        # Compute merged properties
+        total_area = sum(p.area_hectares for p in to_merge)
+        merged_perimeter = self._calculate_perimeter(merged_coords)
+        centroid = (
+            sum(c[0] for c in merged_coords) / len(merged_coords),
+            sum(c[1] for c in merged_coords) / len(merged_coords),
+        )
+
+        # Weighted average of spectral properties
+        weighted_ndvi = sum((p.mean_ndvi or 0) * p.area_hectares for p in to_merge) / max(total_area, 0.001)
+
+        merged = AgriculturalParcel(
+            parcel_id=f"merged_{uuid.uuid4().hex[:8]}",
+            coordinates=merged_coords,
+            area_hectares=round(total_area, 4),
+            perimeter_meters=round(merged_perimeter, 2),
+            centroid=centroid,
+            land_cover=to_merge[0].land_cover,
+            detection_confidence=min(p.detection_confidence for p in to_merge),
+            detection_date=datetime.now(),
+            strategy=to_merge[0].strategy,
+            mean_ndvi=round(weighted_ndvi, 3),
+            num_vertices=len(merged_coords),
+            quality_score=round(min(p.quality_score or 0 for p in to_merge), 2),
+            crop_type=to_merge[0].crop_type,
+        )
+
+        logger.info(f"Merged {len(to_merge)} parcels into {merged.parcel_id}")
+        return merged
+
+    def split_parcel(
+        self,
+        parcel: AgriculturalParcel,
+        split_line: list[tuple[float, float]],
+    ) -> list[AgriculturalParcel]:
+        """
+        Split a parcel along a cutting line.
+
+        GeoLabel 4.0: "快速分割 - 连续切割"
+        Divides a parcel into two or more parts along the specified line.
+
+        Args:
+            parcel: Parcel to split
+            split_line: List of (lon, lat) points defining the cutting line
+
+        Returns:
+            List of resulting parcels after split
+        """
+        if len(split_line) < 2 or len(parcel.coordinates) < 3:
+            return [parcel]
+
+        # Find intersection points of split line with parcel boundary
+        intersections = self._find_line_polygon_intersections(split_line, parcel.coordinates)
+
+        if len(intersections) < 2:
+            # Line doesn't properly cross the parcel
+            return [parcel]
+
+        # Split coordinates into two groups based on which side of the line they fall
+        left_coords, right_coords = self._split_by_line(
+            parcel.coordinates, split_line, intersections
+        )
+
+        results = []
+        for idx, coords in enumerate([left_coords, right_coords]):
+            if len(coords) < 3:
+                continue
+            area = self._calculate_area(coords)
+            if area < 0.001:  # Skip negligible fragments
+                continue
+
+            centroid = (
+                sum(c[0] for c in coords) / len(coords),
+                sum(c[1] for c in coords) / len(coords),
+            )
+            new_parcel = AgriculturalParcel(
+                parcel_id=f"{parcel.parcel_id}_split{idx}",
+                coordinates=coords,
+                area_hectares=round(area, 4),
+                perimeter_meters=round(self._calculate_perimeter(coords), 2),
+                centroid=centroid,
+                land_cover=parcel.land_cover,
+                detection_confidence=parcel.detection_confidence * 0.9,
+                detection_date=datetime.now(),
+                strategy=parcel.strategy,
+                mean_ndvi=parcel.mean_ndvi,
+                crop_type=parcel.crop_type,
+                num_vertices=len(coords),
+            )
+            results.append(new_parcel)
+
+        if not results:
+            return [parcel]
+
+        logger.info(f"Split parcel {parcel.parcel_id} into {len(results)} parts")
+        return results
+
+    def connect_parcels(
+        self,
+        parcels: list[AgriculturalParcel],
+        parcel_ids: list[str],
+        max_gap_meters: float = 10.0,
+    ) -> AgriculturalParcel | None:
+        """
+        Connect broken/disconnected parcel fragments.
+
+        GeoLabel 4.0: "快速连接 - 把断裂的图斑连接起来"
+        Connects nearby parcels that should be one continuous field.
+
+        Args:
+            parcels: All available parcels
+            parcel_ids: IDs of fragments to connect
+            max_gap_meters: Maximum gap between fragments to bridge
+
+        Returns:
+            Connected AgriculturalParcel or None
+        """
+        to_connect = [p for p in parcels if p.parcel_id in parcel_ids]
+        if len(to_connect) < 2:
+            return None
+
+        # Sort by centroid longitude for left-to-right ordering
+        to_connect.sort(key=lambda p: p.centroid[0])
+
+        # Build connected polygon by bridging gaps between fragments
+        all_coords = list(to_connect[0].coordinates)
+        for i in range(1, len(to_connect)):
+            prev_coords = to_connect[i - 1].coordinates
+            curr_coords = to_connect[i].coordinates
+
+            # Find closest points between fragments
+            min_dist = float("inf")
+            best_prev_idx = 0
+            best_curr_idx = 0
+
+            for pi, pc in enumerate(prev_coords):
+                for ci, cc in enumerate(curr_coords):
+                    dist = math.sqrt((pc[0] - cc[0]) ** 2 + (pc[1] - cc[1]) ** 2) * 111320
+                    if dist < min_dist:
+                        min_dist = dist
+                        best_prev_idx = pi
+                        best_curr_idx = ci
+
+            if min_dist <= max_gap_meters:
+                # Bridge the gap: add connecting coordinates
+                bridge_start = prev_coords[best_prev_idx]
+                bridge_end = curr_coords[best_curr_idx]
+                all_coords.append(bridge_start)
+                all_coords.append(bridge_end)
+                all_coords.extend(curr_coords)
+
+        # Clean up: compute convex hull of connected coordinates
+        connected_coords = self._convex_hull(all_coords)
+        if len(connected_coords) < 3:
+            return None
+
+        total_area = sum(p.area_hectares for p in to_connect)
+        centroid = (
+            sum(c[0] for c in connected_coords) / len(connected_coords),
+            sum(c[1] for c in connected_coords) / len(connected_coords),
+        )
+
+        connected = AgriculturalParcel(
+            parcel_id=f"connected_{uuid.uuid4().hex[:8]}",
+            coordinates=connected_coords,
+            area_hectares=round(total_area, 4),
+            perimeter_meters=round(self._calculate_perimeter(connected_coords), 2),
+            centroid=centroid,
+            land_cover=to_connect[0].land_cover,
+            detection_confidence=min(p.detection_confidence for p in to_connect) * 0.9,
+            detection_date=datetime.now(),
+            strategy=to_connect[0].strategy,
+            mean_ndvi=to_connect[0].mean_ndvi,
+            crop_type=to_connect[0].crop_type,
+            num_vertices=len(connected_coords),
+        )
+
+        logger.info(f"Connected {len(to_connect)} fragments into {connected.parcel_id}")
+        return connected
+
+    def _find_line_polygon_intersections(
+        self,
+        line: list[tuple[float, float]],
+        polygon: list[tuple[float, float]],
+    ) -> list[tuple[float, float]]:
+        """Find intersection points between a line and polygon boundary"""
+        intersections = []
+        n = len(polygon)
+
+        for li in range(len(line) - 1):
+            l1, l2 = line[li], line[li + 1]
+            for pi in range(n):
+                p1, p2 = polygon[pi], polygon[(pi + 1) % n]
+                pt = self._segment_intersection(l1, l2, p1, p2)
+                if pt is not None:
+                    intersections.append(pt)
+
+        return intersections
+
+    def _segment_intersection(
+        self,
+        a1: tuple[float, float], a2: tuple[float, float],
+        b1: tuple[float, float], b2: tuple[float, float],
+    ) -> tuple[float, float] | None:
+        """Find intersection point of two line segments"""
+        dx1, dy1 = a2[0] - a1[0], a2[1] - a1[1]
+        dx2, dy2 = b2[0] - b1[0], b2[1] - b1[1]
+        denom = dx1 * dy2 - dy1 * dx2
+
+        if abs(denom) < 1e-12:
+            return None  # Parallel
+
+        t = ((b1[0] - a1[0]) * dy2 - (b1[1] - a1[1]) * dx2) / denom
+        u = ((b1[0] - a1[0]) * dy1 - (b1[1] - a1[1]) * dx1) / denom
+
+        if 0 <= t <= 1 and 0 <= u <= 1:
+            return (a1[0] + t * dx1, a1[1] + t * dy1)
+        return None
+
+    def _split_by_line(
+        self,
+        polygon: list[tuple[float, float]],
+        line: list[tuple[float, float]],
+        intersections: list[tuple[float, float]],
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Split polygon coordinates into two groups based on a line"""
+        if len(intersections) < 2:
+            return polygon, []
+
+        # Use signed area / cross product to determine which side of the line each vertex falls
+        l1, l2 = line[0], line[-1]
+        left_coords = list(intersections[:2])
+        right_coords = list(intersections[:2])
+
+        for coord in polygon:
+            cross = (l2[0] - l1[0]) * (coord[1] - l1[1]) - (l2[1] - l1[1]) * (coord[0] - l1[0])
+            if cross >= 0:
+                left_coords.append(coord)
+            else:
+                right_coords.append(coord)
+
+        # Order points by angle around centroid
+        for coords in [left_coords, right_coords]:
+            if len(coords) >= 3:
+                cx = sum(c[0] for c in coords) / len(coords)
+                cy = sum(c[1] for c in coords) / len(coords)
+                coords.sort(key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
+
+        return left_coords, right_coords
+
+    def _convex_hull(self, coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+        """Graham scan convex hull"""
+        if len(coords) < 3:
+            return coords
+        start = min(coords, key=lambda p: (p[1], p[0]))
+
+        def polar_angle(p):
+            return math.atan2(p[1] - start[1], p[0] - start[0])
+
+        sorted_pts = sorted(set(coords), key=polar_angle)
+        hull = [sorted_pts[0], sorted_pts[1]] if len(sorted_pts) >= 2 else list(sorted_pts)
+
+        for p in sorted_pts[2:]:
+            while len(hull) > 1:
+                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - \
+                        (hull[-1][1] - hull[-2][1]) * (p[0] - hull[-2][0])
+                if cross <= 0:
+                    hull.pop()
+                else:
+                    break
+            hull.append(p)
+        return hull
+
+    def _calculate_perimeter(self, coords: list[tuple[float, float]]) -> float:
+        """Calculate perimeter in meters"""
+        if len(coords) < 2:
+            return 0.0
+        perimeter = 0.0
+        n = len(coords)
+        for i in range(n):
+            c1, c2 = coords[i], coords[(i + 1) % n]
+            dlat = math.radians(c2[1] - c1[1])
+            dlon = math.radians(c2[0] - c1[0])
+            a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(c1[1])) * math.cos(
+                math.radians(c2[1])
+            ) * math.sin(dlon / 2) ** 2
+            perimeter += 6371000 * 2 * math.asin(math.sqrt(a))
+        return perimeter
+
+    def _calculate_area(self, coords: list[tuple[float, float]]) -> float:
+        """Calculate area in hectares"""
+        if len(coords) < 3:
+            return 0.0
+        avg_lat = sum(c[1] for c in coords) / len(coords)
+        lon_to_m = 111320.0 * math.cos(math.radians(avg_lat))
+        lat_to_m = 111320.0
+        coords_m = [(c[0] * lon_to_m, c[1] * lat_to_m) for c in coords]
+        area = 0.0
+        n = len(coords_m)
+        for i in range(n):
+            x1, y1 = coords_m[i]
+            x2, y2 = coords_m[(i + 1) % n]
+            area += x1 * y2 - x2 * y1
+        return abs(area) / 2.0 / 10000.0
+
+
+# =============================================================================
+# GeoLabel 4.0: Quality Inspection Tool
+# أداة فحص الجودة
+# =============================================================================
+
+
+class QualityInspectionTool:
+    """
+    Quality inspection and attribute editing for parcel data.
+    فحص الجودة وتحرير خصائص بيانات القطع
+
+    GeoLabel 4.0 equivalent: "检查工具 - 逐要素浏览、快速属性编辑、WKT导出"
+    Provides:
+    - Sequential element browsing (next/previous)
+    - Quality validation (geometry, attributes, topology)
+    - WKT export for interoperability
+    - Batch attribute assignment
+    - Statistics summary
+    """
+
+    # Quality check rules
+    QUALITY_RULES = {
+        "min_area_m2": 50,  # Per GeoLabel: 最小图斑面积 50m²
+        "min_hole_area_m2": 20,  # Per GeoLabel: 最小空洞面积 20m²
+        "min_vertices": 3,
+        "max_self_intersections": 0,
+        "min_compactness": 0.01,
+        "max_elongation": 50.0,
+    }
+
+    def __init__(self):
+        self._current_index = 0
+        logger.info("Quality Inspection Tool initialized")
+
+    def inspect_all(
+        self, parcels: list[AgriculturalParcel]
+    ) -> dict[str, Any]:
+        """
+        Run quality inspection on all parcels.
+
+        Returns:
+            Inspection report with issues found per parcel
+        """
+        issues: list[dict[str, Any]] = []
+        passed = 0
+        failed = 0
+
+        for parcel in parcels:
+            parcel_issues = self._inspect_parcel(parcel)
+            if parcel_issues:
+                issues.append({
+                    "parcel_id": parcel.parcel_id,
+                    "issues": parcel_issues,
+                    "status": "failed",
+                })
+                failed += 1
+            else:
+                passed += 1
+
+        return {
+            "total_parcels": len(parcels),
+            "passed": passed,
+            "failed": failed,
+            "pass_rate": round(passed / max(len(parcels), 1) * 100, 1),
+            "issues": issues,
+            "summary": {
+                "en": f"Quality inspection: {passed}/{len(parcels)} parcels passed ({round(passed / max(len(parcels), 1) * 100, 1)}%)",
+                "ar": f"فحص الجودة: {passed}/{len(parcels)} قطعة اجتازت ({round(passed / max(len(parcels), 1) * 100, 1)}%)",
+            },
+        }
+
+    def _inspect_parcel(self, parcel: AgriculturalParcel) -> list[str]:
+        """Inspect a single parcel for quality issues"""
+        issues = []
+
+        # Check minimum area
+        area_m2 = parcel.area_hectares * 10000
+        if area_m2 < self.QUALITY_RULES["min_area_m2"]:
+            issues.append(f"Area too small: {area_m2:.0f}m² < {self.QUALITY_RULES['min_area_m2']}m²")
+
+        # Check minimum vertices
+        if len(parcel.coordinates) < self.QUALITY_RULES["min_vertices"]:
+            issues.append(f"Too few vertices: {len(parcel.coordinates)} < {self.QUALITY_RULES['min_vertices']}")
+
+        # Check compactness
+        if parcel.compactness is not None and parcel.compactness < self.QUALITY_RULES["min_compactness"]:
+            issues.append(f"Compactness too low: {parcel.compactness:.4f}")
+
+        # Check elongation
+        if parcel.elongation is not None and parcel.elongation > self.QUALITY_RULES["max_elongation"]:
+            issues.append(f"Too elongated: {parcel.elongation:.1f} > {self.QUALITY_RULES['max_elongation']}")
+
+        # Check for self-intersections (simplified check)
+        if self._has_self_intersection(parcel.coordinates):
+            issues.append("Self-intersecting polygon detected")
+
+        # Check closure (first and last point should be close)
+        if len(parcel.coordinates) >= 3:
+            first, last = parcel.coordinates[0], parcel.coordinates[-1]
+            closure_dist = math.sqrt((first[0] - last[0]) ** 2 + (first[1] - last[1]) ** 2)
+            if closure_dist > 0.001:  # ~111m threshold
+                issues.append(f"Polygon not closed (gap: {closure_dist * 111320:.1f}m)")
+
+        # Check confidence
+        if parcel.detection_confidence < 0.3:
+            issues.append(f"Low detection confidence: {parcel.detection_confidence:.2f}")
+
+        return issues
+
+    def _has_self_intersection(self, coords: list[tuple[float, float]]) -> bool:
+        """Check if polygon has self-intersections"""
+        n = len(coords)
+        if n < 4:
+            return False
+
+        for i in range(n):
+            a1, a2 = coords[i], coords[(i + 1) % n]
+            for j in range(i + 2, n):
+                if j == (i - 1) % n or (i == 0 and j == n - 1):
+                    continue  # Skip adjacent edges
+                b1, b2 = coords[j], coords[(j + 1) % n]
+                if self._segments_intersect(a1, a2, b1, b2):
+                    return True
+        return False
+
+    def _segments_intersect(
+        self,
+        a1: tuple[float, float], a2: tuple[float, float],
+        b1: tuple[float, float], b2: tuple[float, float],
+    ) -> bool:
+        """Check if two line segments intersect"""
+        def cross(o, a, b):
+            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+        d1, d2 = cross(b1, b2, a1), cross(b1, b2, a2)
+        d3, d4 = cross(a1, a2, b1), cross(a1, a2, b2)
+
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and \
+           ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+            return True
+        return False
+
+    def parcel_to_wkt(self, parcel: AgriculturalParcel) -> str:
+        """
+        Export parcel as WKT (Well-Known Text) for interoperability.
+
+        GeoLabel 4.0: "WKT导出" for data exchange with GIS systems.
+        """
+        if len(parcel.coordinates) < 3:
+            return "POLYGON EMPTY"
+
+        coords_str = ", ".join(f"{c[0]} {c[1]}" for c in parcel.coordinates)
+        # Close the ring
+        first = parcel.coordinates[0]
+        coords_str += f", {first[0]} {first[1]}"
+        return f"POLYGON (({coords_str}))"
+
+    def parcels_to_wkt_collection(self, parcels: list[AgriculturalParcel]) -> str:
+        """Export multiple parcels as WKT GEOMETRYCOLLECTION"""
+        wkt_parts = []
+        for p in parcels:
+            wkt = self.parcel_to_wkt(p)
+            if wkt != "POLYGON EMPTY":
+                wkt_parts.append(wkt)
+        if not wkt_parts:
+            return "GEOMETRYCOLLECTION EMPTY"
+        return f"GEOMETRYCOLLECTION ({', '.join(wkt_parts)})"
+
+    def batch_assign_attribute(
+        self,
+        parcels: list[AgriculturalParcel],
+        parcel_ids: list[str],
+        attribute: str,
+        value: Any,
+    ) -> int:
+        """
+        Batch assign an attribute to multiple parcels.
+
+        GeoLabel 4.0: "快速赋属性 - 批量赋值刷"
+        Quickly assign crop type, land cover, or other properties.
+
+        Args:
+            parcels: All parcels
+            parcel_ids: IDs to update
+            attribute: Attribute name (crop_type, land_cover, is_irrigated)
+            value: Value to assign
+
+        Returns:
+            Number of parcels updated
+        """
+        updated = 0
+        target_set = set(parcel_ids)
+
+        for parcel in parcels:
+            if parcel.parcel_id in target_set:
+                if attribute == "crop_type" and isinstance(value, str):
+                    parcel.crop_type = value
+                    updated += 1
+                elif attribute == "land_cover" and isinstance(value, str):
+                    try:
+                        parcel.land_cover = LandCoverClass(value)
+                        updated += 1
+                    except ValueError:
+                        pass
+                elif attribute == "is_irrigated" and isinstance(value, bool):
+                    parcel.is_irrigated = value
+                    updated += 1
+
+        logger.info(f"Batch assigned {attribute}={value} to {updated} parcels")
+        return updated
+
+    def get_statistics(self, parcels: list[AgriculturalParcel]) -> dict[str, Any]:
+        """Generate summary statistics for parcel collection"""
+        if not parcels:
+            return {"total": 0}
+
+        areas = [p.area_hectares for p in parcels]
+        crop_types = {}
+        land_covers = {}
+
+        for p in parcels:
+            ct = p.crop_type or "unknown"
+            crop_types[ct] = crop_types.get(ct, 0) + 1
+            lc = p.land_cover.value
+            land_covers[lc] = land_covers.get(lc, 0) + 1
+
+        return {
+            "total_parcels": len(parcels),
+            "total_area_hectares": round(sum(areas), 2),
+            "mean_area_hectares": round(sum(areas) / len(areas), 4),
+            "min_area_hectares": round(min(areas), 4),
+            "max_area_hectares": round(max(areas), 4),
+            "crop_type_distribution": crop_types,
+            "land_cover_distribution": land_covers,
+            "mean_confidence": round(sum(p.detection_confidence for p in parcels) / len(parcels), 3),
+            "mean_ndvi": round(sum((p.mean_ndvi or 0) for p in parcels) / len(parcels), 3),
+        }

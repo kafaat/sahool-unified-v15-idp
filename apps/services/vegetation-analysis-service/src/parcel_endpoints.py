@@ -60,6 +60,36 @@ class ParcelClassifyRequest(BaseModel):
     )
 
 
+class ParcelMergeRequest(BaseModel):
+    """Request model for merging parcels"""
+
+    parcel_ids: list[str] = Field(..., description="IDs of parcels to merge")
+    parcels: list[dict] = Field(..., description="GeoJSON features of parcels to merge")
+
+
+class ParcelSplitRequest(BaseModel):
+    """Request model for splitting a parcel"""
+
+    parcel: dict = Field(..., description="GeoJSON feature of parcel to split")
+    cutting_line: list[list[float]] = Field(..., description="Cutting line coordinates [[lon, lat], ...]")
+
+
+class ParcelConnectRequest(BaseModel):
+    """Request model for connecting parcels"""
+
+    parcels: list[dict] = Field(..., description="GeoJSON features of fragments to connect")
+    max_gap_meters: float = Field(10.0, description="Maximum gap to bridge in meters")
+
+
+class BatchAssignRequest(BaseModel):
+    """Request model for batch attribute assignment"""
+
+    parcel_ids: list[str] = Field(..., description="IDs of parcels to update")
+    parcels: list[dict] = Field(..., description="GeoJSON features to update")
+    attribute: str = Field(..., description="Attribute name: crop_type, land_cover, is_irrigated")
+    value: str = Field(..., description="Value to assign")
+
+
 # =============================================================================
 # Endpoint Registration
 # =============================================================================
@@ -406,4 +436,477 @@ def register_parcel_endpoints(app, land_detector):
             ],
         }
 
-    logger.info("Agricultural parcel detection endpoints registered")
+    # =========================================================================
+    # GeoLabel 4.0: Crop Classification Endpoint
+    # =========================================================================
+
+    @app.post("/v1/parcels/classify-crops", response_model=dict)
+    async def classify_crops(request: ParcelClassifyRequest):
+        """
+        Classify crop types for parcels using ML+DL dual-path engine.
+        تصنيف أنواع المحاصيل للقطع باستخدام محرك مزدوج (تعلم آلي + تعلم عميق)
+
+        GeoLabel 4.0 equivalent: Scene classification + statistical classification
+        Uses spectral profiles (NDVI, EVI, NDWI) + geometric features.
+
+        Returns parcels with crop_type and classification confidence.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            from .agricultural_land_detector import (
+                AgriculturalParcel,
+                LandCoverClass,
+            )
+
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            classified = await land_detector.crop_classifier.classify_crops(parcels)
+
+            features = [p.to_geojson() for p in classified]
+            crop_stats = {}
+            for p in classified:
+                ct = p.crop_type or "unknown"
+                crop_stats[ct] = crop_stats.get(ct, 0) + 1
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+                "classification_summary": {
+                    "total_parcels": len(classified),
+                    "crop_distribution": crop_stats,
+                    "method": "ml_dl_dual_path_ensemble",
+                    "ml_weight": 0.4,
+                    "dl_weight": 0.6,
+                    "summary": {
+                        "en": f"Classified {len(classified)} parcels into {len(crop_stats)} crop types",
+                        "ar": f"تم تصنيف {len(classified)} قطعة إلى {len(crop_stats)} أنواع محاصيل",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Crop classification failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    # =========================================================================
+    # GeoLabel 4.0: Parcel Editing Endpoints (Merge / Split / Connect)
+    # =========================================================================
+
+    @app.post("/v1/parcels/merge", response_model=dict)
+    async def merge_parcels(request: ParcelMergeRequest):
+        """
+        Merge multiple parcels into one (GeoLabel fast merge).
+        دمج عدة قطع في قطعة واحدة (دمج سريع GeoLabel)
+
+        Uses convex hull merge with weighted spectral property preservation.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if len(parcels) < 2:
+                raise HTTPException(status_code=400, detail="Need at least 2 parcels to merge")
+
+            merged = land_detector.editing_tools.merge_parcels(parcels)
+
+            return {
+                "merged_parcel": merged.to_geojson(),
+                "merge_stats": {
+                    "input_parcels": len(parcels),
+                    "merged_area_hectares": round(merged.area_hectares, 2),
+                    "merged_vertices": merged.num_vertices,
+                    "summary": {
+                        "en": f"Merged {len(parcels)} parcels into 1 ({merged.area_hectares:.2f} ha)",
+                        "ar": f"تم دمج {len(parcels)} قطع في قطعة واحدة ({merged.area_hectares:.2f} هكتار)",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Parcel merge failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    @app.post("/v1/parcels/split", response_model=dict)
+    async def split_parcel(request: ParcelSplitRequest):
+        """
+        Split a parcel along a cutting line (GeoLabel fast split).
+        تقسيم قطعة على طول خط القطع (تقسيم سريع GeoLabel)
+
+        The cutting line must intersect the parcel boundary at 2+ points.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels([request.parcel], land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="Invalid parcel")
+
+            cutting_line = [(c[0], c[1]) for c in request.cutting_line]
+            if len(cutting_line) < 2:
+                raise HTTPException(status_code=400, detail="Cutting line needs at least 2 points")
+
+            result_parcels = land_detector.editing_tools.split_parcel(parcels[0], cutting_line)
+            features = [p.to_geojson() for p in result_parcels]
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+                "split_stats": {
+                    "input_area_hectares": round(parcels[0].area_hectares, 2),
+                    "output_parcels": len(result_parcels),
+                    "output_areas": [round(p.area_hectares, 2) for p in result_parcels],
+                    "summary": {
+                        "en": f"Split into {len(result_parcels)} parcels",
+                        "ar": f"تم التقسيم إلى {len(result_parcels)} قطع",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Parcel split failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    @app.post("/v1/parcels/connect", response_model=dict)
+    async def connect_parcels(request: ParcelConnectRequest):
+        """
+        Connect nearby parcel fragments (GeoLabel fast connect).
+        ربط أجزاء القطع القريبة (ربط سريع GeoLabel)
+
+        Bridges gaps between fragments within max_gap_meters distance.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if len(parcels) < 2:
+                raise HTTPException(status_code=400, detail="Need at least 2 parcels to connect")
+
+            connected = land_detector.editing_tools.connect_parcels(
+                parcels, max_gap_meters=request.max_gap_meters
+            )
+            features = [p.to_geojson() for p in connected]
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+                "connect_stats": {
+                    "input_fragments": len(parcels),
+                    "output_parcels": len(connected),
+                    "max_gap_meters": request.max_gap_meters,
+                    "summary": {
+                        "en": f"Connected {len(parcels)} fragments into {len(connected)} parcels",
+                        "ar": f"تم ربط {len(parcels)} جزء في {len(connected)} قطعة",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Parcel connect failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    # =========================================================================
+    # GeoLabel 4.0: Quality Inspection & WKT Export
+    # =========================================================================
+
+    @app.post("/v1/parcels/inspect", response_model=dict)
+    async def inspect_parcels(request: ParcelClassifyRequest):
+        """
+        Run quality inspection on parcels (GeoLabel quality browser).
+        فحص جودة القطع (متصفح جودة GeoLabel)
+
+        Checks: min area (50m²), min vertices (3), compactness,
+        elongation (<50), self-intersection, closure, confidence.
+        Returns quality issues for each parcel.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            results = land_detector.quality_inspector.inspect_all(parcels)
+
+            passed = sum(1 for r in results if r["passed"])
+            return {
+                "inspection_results": results,
+                "summary": {
+                    "total": len(results),
+                    "passed": passed,
+                    "failed": len(results) - passed,
+                    "pass_rate": round(passed / len(results) * 100, 1) if results else 0,
+                    "summary": {
+                        "en": f"{passed}/{len(results)} parcels passed quality inspection",
+                        "ar": f"{passed}/{len(results)} قطعة اجتازت فحص الجودة",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Quality inspection failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    @app.post("/v1/parcels/export-wkt", response_model=dict)
+    async def export_wkt(request: ParcelClassifyRequest):
+        """
+        Export parcels as WKT (Well-Known Text) format.
+        تصدير القطع بتنسيق WKT
+
+        GeoLabel equivalent: Feature quick browser → WKT export.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            wkt_list = []
+            for parcel in parcels:
+                wkt = land_detector.quality_inspector.parcel_to_wkt(parcel)
+                wkt_list.append({
+                    "parcel_id": parcel.parcel_id,
+                    "wkt": wkt,
+                    "area_hectares": parcel.area_hectares,
+                })
+
+            collection_wkt = land_detector.quality_inspector.parcels_to_wkt_collection(parcels)
+
+            return {
+                "parcels_wkt": wkt_list,
+                "collection_wkt": collection_wkt,
+                "total_parcels": len(parcels),
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"WKT export failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    @app.post("/v1/parcels/batch-assign", response_model=dict)
+    async def batch_assign_attribute(request: BatchAssignRequest):
+        """
+        Batch assign attribute to multiple parcels (GeoLabel attribute brush).
+        تعيين سمة مجمّعة لعدة قطع (فرشاة السمات GeoLabel)
+
+        Supports: crop_type, land_cover, is_irrigated.
+        GeoLabel equivalent: 8-class land cover attribute assignment brush.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            valid_attributes = {"crop_type", "land_cover", "is_irrigated"}
+            if request.attribute not in valid_attributes:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid attribute. Must be one of: {', '.join(valid_attributes)}",
+                )
+
+            updated = land_detector.quality_inspector.batch_assign_attribute(
+                parcels, request.attribute, request.value
+            )
+            features = [p.to_geojson() for p in updated]
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+                "update_summary": {
+                    "parcels_updated": len(updated),
+                    "attribute": request.attribute,
+                    "value": request.value,
+                    "summary": {
+                        "en": f"Updated {request.attribute}={request.value} for {len(updated)} parcels",
+                        "ar": f"تم تحديث {request.attribute}={request.value} لـ {len(updated)} قطعة",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Batch assign failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    @app.post("/v1/parcels/statistics", response_model=dict)
+    async def get_parcel_statistics(request: ParcelClassifyRequest):
+        """
+        Get statistical summary of parcels.
+        الحصول على ملخص إحصائي للقطع
+
+        Returns area statistics, crop distribution, and land cover distribution.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            stats = land_detector.quality_inspector.get_statistics(parcels)
+            return stats
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Statistics calculation failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    # =========================================================================
+    # GeoLabel 4.0: Topology-Preserving Simplification
+    # =========================================================================
+
+    @app.post("/v1/parcels/simplify-topology", response_model=dict)
+    async def simplify_with_topology(request: ParcelClassifyRequest):
+        """
+        Simplify parcel boundaries while preserving topology.
+        تبسيط حدود القطع مع الحفاظ على الطوبولوجيا
+
+        GeoLabel equivalent: Topology-preserving boundary simplification.
+        Ensures no gaps or overlaps between adjacent parcels after simplification.
+        """
+        if not land_detector:
+            raise HTTPException(status_code=503, detail={
+                "en": "Agricultural land detector not initialized",
+                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+            })
+
+        try:
+            parcels = _geojson_to_parcels(request.parcels, land_detector)
+            if not parcels:
+                raise HTTPException(status_code=400, detail="No valid parcels provided")
+
+            simplified = land_detector.topology_simplifier.simplify_with_topology(parcels)
+            features = [p.to_geojson() for p in simplified]
+
+            original_vertices = sum(len(p.coordinates) for p in parcels)
+            simplified_vertices = sum(len(p.coordinates) for p in simplified)
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+                "simplification_stats": {
+                    "total_parcels": len(simplified),
+                    "original_vertices": original_vertices,
+                    "simplified_vertices": simplified_vertices,
+                    "reduction_percent": round(
+                        (1 - simplified_vertices / original_vertices) * 100, 1
+                    ) if original_vertices > 0 else 0,
+                    "topology_preserved": True,
+                    "summary": {
+                        "en": f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices",
+                        "ar": f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس",
+                    },
+                },
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Topology simplification failed: {e}")
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    logger.info("Agricultural parcel detection endpoints registered (with GeoLabel 4.0)")
+
+
+def _geojson_to_parcels(features: list[dict], land_detector) -> list:
+    """
+    Convert GeoJSON features to AgriculturalParcel objects.
+    تحويل عناصر GeoJSON إلى كائنات AgriculturalParcel
+
+    Helper function shared by all GeoLabel 4.0 endpoints.
+    """
+    from .agricultural_land_detector import (
+        AgriculturalParcel,
+        LandCoverClass,
+    )
+
+    parcels = []
+    for feature in features:
+        coords = feature.get("geometry", {}).get("coordinates", [[]])
+        if coords and coords[0]:
+            coord_tuples = [(c[0], c[1]) for c in coords[0]]
+            props = feature.get("properties", {})
+
+            # Parse land_cover
+            try:
+                land_cover = LandCoverClass(props.get("land_cover", "unknown"))
+            except ValueError:
+                land_cover = LandCoverClass.UNKNOWN
+
+            parcel = AgriculturalParcel(
+                parcel_id=props.get("parcel_id", f"parcel_{len(parcels)}"),
+                coordinates=coord_tuples,
+                area_hectares=props.get("area_hectares", 0),
+                perimeter_meters=props.get("perimeter_meters", 0),
+                centroid=(
+                    sum(c[0] for c in coord_tuples) / len(coord_tuples),
+                    sum(c[1] for c in coord_tuples) / len(coord_tuples),
+                ),
+                land_cover=land_cover,
+                detection_confidence=props.get("detection_confidence", 0.0),
+                detection_date=datetime.now(),
+                strategy=land_detector.config.strategy,
+                mean_ndvi=props.get("mean_ndvi", 0.0),
+                mean_evi=props.get("mean_evi"),
+                mean_ndwi=props.get("mean_ndwi"),
+                ndvi_std=props.get("ndvi_std"),
+                compactness=props.get("compactness"),
+                elongation=props.get("elongation"),
+                rectangularity=props.get("rectangularity"),
+                num_vertices=len(coord_tuples),
+                crop_type=props.get("crop_type"),
+                is_irrigated=props.get("is_irrigated"),
+                quality_score=props.get("quality_score"),
+            )
+            parcels.append(parcel)
+    return parcels

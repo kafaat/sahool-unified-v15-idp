@@ -277,31 +277,31 @@ async def lifespan(app: FastAPI):
     # Initialize SAR processor
     if SARProcessor:
         _sar_processor = SARProcessor()
-        print("📡 SAR Processor initialized for soil moisture estimation")
+        logger.info("sar_processor_initialized")
 
     # Initialize Yield Predictor
     if YieldPredictor:
         _yield_predictor = YieldPredictor()
-        print("🌾 Yield Predictor initialized for crop yield forecasting")
+        logger.info("yield_predictor_initialized")
 
     # Initialize Change Detector
     _change_detector = ChangeDetector()
-    print("🔄 Change Detector initialized for agricultural change detection")
+    logger.info("change_detector_initialized")
 
     # Initialize Cloud Masker
     _cloud_masker = get_cloud_masker()
-    print("☁️ Cloud Masker initialized for quality assessment")
+    logger.info("cloud_masker_initialized")
 
     # Initialize VRA Generator
     if VRAGenerator:
         _vra_generator = VRAGenerator(multi_provider=_multi_provider)
-        print("🗺️ VRA Generator initialized for prescription map generation")
+        logger.info("vra_generator_initialized")
 
     # Initialize Agricultural Land Detector (GeoLabel-inspired)
     global _land_detector
     if AgriculturalLandDetector:
         _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
-        print("🌾 Agricultural Land Detector initialized (GeoLabel-inspired parcel generation)")
+        logger.info("agricultural_land_detector_initialized")
 
     # Register boundary detection endpoints
     if _boundary_detector:
@@ -315,7 +315,7 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
-    print("✅ Satellite Service ready on port 8090")
+    logger.info("service_ready", service="satellite-service", port=8090)
 
     yield
 

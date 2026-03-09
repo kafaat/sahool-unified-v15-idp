@@ -622,7 +622,7 @@ def _row_to_model(row) -> InternalDataModel:
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    print(f"🚀 Starting {SERVICE_NAME} v{SERVICE_VERSION}")
+    logger.info("service_starting", service=SERVICE_NAME, version=SERVICE_VERSION)
 
     # Initialize Redis connection (if available)
     redis_url = os.getenv("REDIS_URL")
@@ -630,9 +630,9 @@ async def lifespan(app: FastAPI):
         try:
             app.state.redis = redis_client.from_url(redis_url, decode_responses=True)
             app.state.redis_connected = True
-            print(f"✅ Redis connected: {redis_url}")
+            logger.info("redis_connected", url=redis_url)
         except Exception as e:
-            print(f"⚠️ Redis connection failed: {e}")
+            logger.warning("redis_connection_failed", error=str(e))
             app.state.redis = None
             app.state.redis_connected = False
     else:
@@ -647,9 +647,9 @@ async def lifespan(app: FastAPI):
 
             app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
-            print(f"✅ NATS connected: {nats_url}")
+            logger.info("nats_connected", url=nats_url)
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
+            logger.warning("nats_connection_failed", error=str(e))
             app.state.publisher = None
             app.state.nats_connected = False
     else:
@@ -668,7 +668,7 @@ async def lifespan(app: FastAPI):
 
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
-            print("✅ Database connected")
+            logger.info("database_connected")
 
             # Create tables if they don't exist
             async with app.state.db_pool.acquire() as conn:
@@ -706,17 +706,17 @@ async def lifespan(app: FastAPI):
                 await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_lowcode_models_tenant_id ON lowcode_models(tenant_id)
                 """)
-            print("✅ Database tables initialized")
+            logger.info("database_tables_initialized")
         except Exception as e:
-            print(f"⚠️ Database connection failed: {e}")
+            logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None
             app.state.db_connected = False
     else:
         app.state.db_pool = None
         app.state.db_connected = False
 
-    print(f"✅ {SERVICE_NAME} ready on port {SERVICE_PORT}")
-    print(f"📦 Registered {len(lowcode_engine.list_components())} components")
+    logger.info("service_ready", service=SERVICE_NAME, port=SERVICE_PORT)
+    logger.info("components_registered", count=len(lowcode_engine.list_components()))
 
     yield
 
@@ -727,7 +727,7 @@ async def lifespan(app: FastAPI):
         await app.state.publisher.close()
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
-    print(f"👋 {SERVICE_NAME} shutdown complete")
+    logger.info("service_shutdown_complete", service=SERVICE_NAME)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -542,6 +542,7 @@ async def get_compliance_report(
     end_date: datetime = Query(..., description="Report end date"),
     framework: Literal["general", "GDPR", "SOC2", "ISO27001"] = Query("general", description="Compliance framework"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Generate compliance report
@@ -609,6 +610,7 @@ async def get_compliance_report(
 async def get_audit_stats(
     period: str = Query("30d", description="Time period (7d, 30d, 90d)"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get audit statistics
@@ -661,6 +663,7 @@ async def get_security_events(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get recent security events
@@ -691,6 +694,7 @@ async def get_failed_logins(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get failed login attempts
@@ -730,6 +734,7 @@ async def export_audit_logs(
     end_date: datetime = Query(..., description="Export end date"),
     format: Literal["json", "csv"] = Query("json", description="Export format"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Export audit logs

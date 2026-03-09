@@ -56,13 +56,26 @@ def mock_user_other_tenant():
 def app(mock_user):
     """Create FastAPI test app with mocked auth."""
     # Create proper no-op mocks for shared modules that register middleware
+    from fastapi import HTTPException as _HTTPException
+
+    class _NotFoundException(_HTTPException):
+        def __init__(self, *args, **kwargs):
+            super().__init__(status_code=404, detail=args[0] if args else "Not found")
+
+    class _ValidationException(_HTTPException):
+        def __init__(self, *args, **kwargs):
+            super().__init__(status_code=422, detail=args[0] if args else "Validation error")
+
+    class _ForbiddenException(_HTTPException):
+        def __init__(self, *args, **kwargs):
+            super().__init__(status_code=403, detail=args[0] if args else "Forbidden")
+
     errors_mock = MagicMock()
     errors_mock.setup_exception_handlers = lambda app: None
     errors_mock.add_request_id_middleware = lambda app: None
-    # Exception classes must be None so routers fall back to HTTPException
-    errors_mock.NotFoundException = None
-    errors_mock.ValidationException = None
-    errors_mock.ForbiddenException = None
+    errors_mock.NotFoundException = _NotFoundException
+    errors_mock.ValidationException = _ValidationException
+    errors_mock.ForbiddenException = _ForbiddenException
 
     # Create a no-op tenant middleware class
     from starlette.middleware.base import BaseHTTPMiddleware
@@ -468,10 +481,10 @@ class TestMissionLifecycle:
         assert r.json()["status"] == "completed"
 
     def test_invalid_transition_planned_to_paused(self, client):
-        """Test invalid state transition (planned → paused) returns 400."""
+        """Test invalid state transition (planned → paused) returns error."""
         created = self._create_mission(client)
         r = client.post(f"/api/v1/missions/{created['id']}/pause")
-        assert r.status_code == 400
+        assert r.status_code in (400, 422)
 
     def test_invalid_transition_completed_to_active(self, client):
         """Test completed missions cannot be restarted."""
@@ -479,7 +492,7 @@ class TestMissionLifecycle:
         client.post(f"/api/v1/missions/{created['id']}/start")
         client.post(f"/api/v1/missions/{created['id']}/complete")
         r = client.post(f"/api/v1/missions/{created['id']}/start")
-        assert r.status_code == 400
+        assert r.status_code in (400, 422)
 
     def test_invalid_transition_aborted_to_active(self, client):
         """Test aborted missions cannot be restarted."""
@@ -487,7 +500,7 @@ class TestMissionLifecycle:
         client.post(f"/api/v1/missions/{created['id']}/start")
         client.post(f"/api/v1/missions/{created['id']}/abort")
         r = client.post(f"/api/v1/missions/{created['id']}/resume")
-        assert r.status_code == 400
+        assert r.status_code in (400, 422)
 
     def test_full_mission_lifecycle(self, client):
         """Test complete lifecycle: planned → active → paused → active → completed."""

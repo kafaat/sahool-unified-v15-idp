@@ -713,8 +713,8 @@ services:
       - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (used by init script and healthcheck)
       # Override in .env file for production (copy from .env.example): cp .env.example .env
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Copy .env.development to .env}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Copy .env.development to .env}
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     volumes:
       - etcd_data:/etcd
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
@@ -759,8 +759,8 @@ services:
     environment:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://etcd:2379
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Copy .env.development to .env}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Copy .env.development to .env}
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     depends_on:
       etcd:
         condition: service_healthy
@@ -790,8 +790,8 @@ services:
     environment:
       # Root credentials (minimum 16 characters)
       # Set in .env file (copy from .env.example): cp .env.example .env
-      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?MINIO_ROOT_USER required. Copy .env.development to .env}"
-      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required. Copy .env.development to .env}"
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?MINIO_ROOT_USER required. Run 'make dev' or copy .env.example to .env}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}"
 
       # TLS/SSL Configuration
       # Certificates mounted at /root/.minio/certs

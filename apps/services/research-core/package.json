@@ -51,6 +51,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^20.19.37",
     "@types/passport-jwt": "^4.0.0",
+    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^9.0.0",
@@ -66,28 +67,5 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/$1",
-      "^@core/(.*)$": "<rootDir>/core/$1",
-      "^@modules/(.*)$": "<rootDir>/modules/$1",
-      "^@config/(.*)$": "<rootDir>/config/$1"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

@@ -736,22 +736,24 @@ def get_action(action_id: str, lang: str = "ar"):
 
 # ---------------------------------------------------------------------------
 # Backward-compatible route aliases (deprecated, remove in v17.0.0)
-# Clients/tests using the old /v1/... paths will continue to work.
+# Original paths had no /v1/ prefix (e.g. /disease/assess, /nutrient/ndvi).
 # New integrations should use /api/v1/... paths.
 # ---------------------------------------------------------------------------
-_v1_prefix = "/api/v1"
+_api_v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
-    if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
-        app.router.add_api_route(
-            _old_path,
-            _route.endpoint,
-            methods=[m for m in _route.methods] if _route.methods else ["GET"],
-            tags=["deprecated"],
-            include_in_schema=False,
-            deprecated=True,
-        )
+    if _path.startswith(_api_v1_prefix):
+        # Strip /api/v1 to restore original prefix-less path
+        _old_path = _path[len(_api_v1_prefix):]
+        if _old_path:  # skip empty path
+            app.router.add_api_route(
+                _old_path,
+                _route.endpoint,
+                methods=[m for m in _route.methods] if _route.methods else ["GET"],
+                tags=["deprecated"],
+                include_in_schema=False,
+                deprecated=True,
+            )
 
 
 if __name__ == "__main__":

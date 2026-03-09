@@ -15,8 +15,10 @@ set -e
 
 # Install postgresql-client for healthcheck.sh (SHOW POOLS queries)
 # This enables deep health checks instead of simple port checks
+# FIX: Added timeout to prevent blocking in environments without internet access
+# DNS resolution for Alpine repos can hang for minutes without network connectivity
 if ! command -v psql >/dev/null 2>&1; then
-    apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    timeout 15 apk add --no-cache postgresql-client >/dev/null 2>&1 || true
 fi
 
 # Create runtime directory for userlist.txt

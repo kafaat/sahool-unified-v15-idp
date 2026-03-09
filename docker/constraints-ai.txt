@@ -72,7 +72,7 @@ tokenizers>=0.19.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 ultralytics>=8.0.0,<9.0.0
 opencv-python-headless>=4.9.0,<5.0.0
-pillow>=10.0.0,<12.0.0  # Allow Pillow 11.x (constraints.txt pins 11.3.0)
+pillow>=12.1.1,<13.0.0  # CVE-2026-25990 fixed in 12.1.1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NATS Messaging
@@ -91,7 +91,7 @@ sqlalchemy>=2.0.0,<3.0.0
 # Authentication and Security
 # ─────────────────────────────────────────────────────────────────────────────
 PyJWT>=2.9.0,<3.0.0
-cryptography>=43.0.1,<45.0.0  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
 # Note: python-jose extras removed for constraints compatibility - install separately
 python-jose>=3.5.0,<4.0.0  # CVE-2024-33663, CVE-2024-33664 - fixed in 3.5.0
 

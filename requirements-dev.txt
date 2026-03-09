@@ -19,7 +19,7 @@ xenon>=0.9.3                   # Monitor code complexity thresholds
 # Testing Tools
 pytest>=8.3.0                  # Testing framework
 pytest-cov>=6.0.0              # Coverage reporting
-pytest-asyncio>=0.24.0         # Async test support
+pytest-asyncio==0.26.0         # Async test support
 pytest-xdist>=3.5.0            # Parallel test execution
 
 # Documentation

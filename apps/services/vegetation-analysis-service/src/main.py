@@ -49,8 +49,6 @@ _change_detector = None
 try:
     from .multi_provider import (
         MultiSatelliteService,
-    )
-    from .multi_provider import (
         SatelliteType as MultiSatelliteType,
     )
 
@@ -166,7 +164,7 @@ try:
         AllIndices,
         BandData,
         CropType,
-        GrowthStage,
+        GrowthStage as VegGrowthStage,
         HealthStatus,
         IndexInterpreter,
         VegetationIndex,
@@ -2228,9 +2226,9 @@ async def get_specific_index(
         crop_enum = CropType.UNKNOWN
 
     try:
-        stage_enum = GrowthStage(growth_stage.lower())
+        stage_enum = VegGrowthStage(growth_stage.lower())
     except ValueError:
-        stage_enum = GrowthStage.VEGETATIVE
+        stage_enum = VegGrowthStage.VEGETATIVE
 
     # Get all indices first
     all_indices_response = await get_all_indices(field_id, lat, lon, satellite)
@@ -2298,9 +2296,9 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
         crop_enum = CropType.UNKNOWN
 
     try:
-        stage_enum = GrowthStage(request.growth_stage.lower())
+        stage_enum = VegGrowthStage(request.growth_stage.lower())
     except ValueError:
-        stage_enum = GrowthStage.VEGETATIVE
+        stage_enum = VegGrowthStage.VEGETATIVE
 
     # Interpret each index
     interpreter = IndexInterpreter()

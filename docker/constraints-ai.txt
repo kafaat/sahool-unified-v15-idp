@@ -29,7 +29,7 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # CVE-2025-6984 - Fixed in langchain-community 0.3.27
 langchain>=0.3.26,<0.4.0
 langchain-core==0.3.83
-langchain-community==0.4.1
+langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
 langchain-anthropic==0.3.22
 langchain-openai>=0.3.0,<0.4.0
 langsmith>=0.3.45,<1.0.0

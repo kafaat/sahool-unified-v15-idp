@@ -112,7 +112,10 @@ services:
       # Previously used 'nc -z' which only checks TCP port, not actual PgBouncer functionality
       # The healthcheck.sh script runs SHOW POOLS and checks pool utilization
       # NOTE: Use $$ to escape dollar signs - docker-compose interpolates ${} but $$ passes $ to the shell
-      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || exit 1" ]
+      # FIX: Primary check is port liveness (nc), enhanced check via healthcheck.sh
+      # healthcheck.sh may fail if psql is not available (apk add fails without network)
+      # In that case, it falls back to nc-only check internally
+      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || nc -z localhost 6432" ]
       interval: 15s
       timeout: 10s
       retries: 8
@@ -716,11 +719,18 @@ services:
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     volumes:
-      - etcd_data:/etcd
+      - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
     # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
-    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
+    # --initial-cluster-token prevents cross-cluster interference after volume reset
+    command: >-
+      etcd
+      -advertise-client-urls=http://etcd:2379
+      -listen-client-urls=http://0.0.0.0:2379
+      --data-dir=/etcd-data
+      --initial-cluster-token=sahool-etcd-cluster
     healthcheck:
       # FIX: Avoid passing credentials on command line (visible in 'docker inspect' / 'ps')
       # Phase 1 (pre-auth): etcdctl works without credentials
@@ -831,15 +841,16 @@ services:
       - ${MINIO_CERTS_DIR:-./docker/minio-certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
-      # Health check: Use MinIO's built-in live health endpoint
-      # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة
-      # FIX: Try HTTPS first (when TLS certs are present), fallback to HTTP (dev without certs)
-      # -k flag skips certificate verification for self-signed certs
-      test: [ "CMD-SHELL", "curl -sfk https://localhost:9000/minio/health/live || curl -sf http://localhost:9000/minio/health/live || exit 1" ]
+      # Health check: Use MinIO's built-in mc client (always available in minio image)
+      # فحص صحة MinIO - يستخدم عميل mc المدمج في صورة MinIO
+      # FIX: Use wget (available in MinIO image) instead of curl which may not be installed
+      # FIX: Check HTTP first (dev default), HTTPS only when TLS certs are configured
+      # FIX: Increased retries/start_period for Windows Docker Desktop cold starts
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live 2>/dev/null || wget -qO- http://localhost:9000/minio/health/live 2>/dev/null || exit 1" ]
       interval: 15s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

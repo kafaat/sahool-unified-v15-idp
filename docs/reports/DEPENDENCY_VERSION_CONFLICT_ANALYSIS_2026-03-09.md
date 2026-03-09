@@ -11,13 +11,13 @@
 
 | Severity | Count | Description |
 |----------|-------|-------------|
-| **CRITICAL** | 7 | Major version mismatches, dev/prod divergence, floating tags |
-| **HIGH** | 6 | Version drift, skipped constraints affecting 50+ services |
-| **MEDIUM** | 16 | Patch-level mismatches, module system conflicts, mirror order |
-| **LOW** | 16 | Minor inconsistencies, duplicates, non-blocking |
-| **INFO** | 6 | Observations and recommendations |
+| **CRITICAL** | 9 | Version mismatches, broken OTel exports, dev/prod divergence |
+| **HIGH** | 8 | Version drift, skipped constraints, strict-markers conflicts |
+| **MEDIUM** | 21 | Patch-level mismatches, module conflicts, test config issues |
+| **LOW** | 17 | Minor inconsistencies, duplicates, non-blocking |
+| **INFO** | 7 | Observations and recommendations |
 
-**Total conflicts found: 51 across 17 analysis categories**
+**Total conflicts found: 62 across 17 analysis categories**
 
 ---
 
@@ -325,13 +325,76 @@ Exists in both `helm/charts/` and `helm/services/` — maintenance risk.
 
 ## 8. Service Ports
 
-### MEDIUM: Port 3025 Duplicate
+### INFO: No Port Conflicts
 
-Port `3025` appears twice in `packages/shared-types/src/contracts/service-ports.ts`. Both map to user-service/AUTH, so this is likely an alias, not a true conflict.
+All 67 active services have consistent port assignments across `service-ports.ts`, `docker-compose.yml`, `governance/services.yaml`, and service code. Zero duplicates, zero mismatches.
+
+3 services (agro-rules, code-review-agent, demo-data) are absent from `service-ports.ts` but use unique ports that don't collide.
 
 ---
 
-## 9. pyproject.toml vs constraints.txt
+## 9. Monitoring & Observability Libraries
+
+### CRITICAL: OpenTelemetry Exporter Version Ranges Broken
+
+`shared/observability/requirements.txt` specifies `opentelemetry-exporter-otlp-proto-grpc>=1.39.1` — but OTLP exporter packages follow 0.x versioning. Version `1.39.1` does not exist. These lines will cause pip resolution failures.
+
+Also: `opentelemetry-exporter-jaeger>=1.39.1` — Jaeger exporter was deprecated, last published at 1.21.0.
+
+### HIGH: OpenTelemetry API/SDK Pin Conflict
+
+| Location | Version |
+|----------|---------|
+| `constraints.txt` | `==1.40.0` / `==0.61b0` |
+| `apps/services/requirements.txt` | `==1.39.1` / `==0.60b1` |
+| `idp/templates/.../requirements.txt` | `==1.39.1` / `==0.60b1` |
+
+Hard-pinned `==1.39.1` vs constraint `==1.40.0` — pip will **fail** when used together. IDP template means every new scaffolded service inherits this conflict.
+
+### MEDIUM: structlog 7 Different Specs (57 services)
+
+33 services lack an upper bound on structlog. Without constraints, they could install 25.x (breaking major version).
+
+### MEDIUM: prometheus-client 5 Different Specs (20 services)
+
+2 services allow `>=0.19.0`, while constraint pins `==0.24.1`.
+
+---
+
+## 10. Testing Framework Conflicts
+
+### CRITICAL: Playwright Version Gap
+
+| Location | Version |
+|----------|---------|
+| `apps/web/package.json` | `^1.57.0` |
+| `apps/web/e2e/package.json` | `^1.48.0` |
+
+The e2e subdirectory could install Playwright 1.48-1.56, missing APIs assumed by the config.
+
+### HIGH: --strict-markers + Undeclared Markers
+
+Root `pyproject.toml` uses `--strict-markers` but 7 service-specific markers (`redis`, `agent`, `coordinator`, `specialist`, `edge`, `mock`, `event_flow`) are not registered. Root-level test collection will **reject** tests bearing these markers.
+
+### MEDIUM: pytest 7.x vs 8.x Split
+
+`copilot-api`, `globalgap-compliance`, `kernel/field_ops`, and `sahool-eo` allow pytest 7.x while the canonical pin is 8.4.2.
+
+### MEDIUM: asyncio_default_fixture_loop_scope Mismatch
+
+`edge-orchestrator` and `crm-service` set `function` scope locally, but root lacks this setting. Running their async tests from root uses `session` scope — causing potential event loop contamination.
+
+### MEDIUM: 29 Python Services Lack pytest
+
+29 services have no pytest in `requirements.txt` — cannot run tests in isolated Docker builds.
+
+### LOW: fail_under Silently Ignored
+
+`edge-orchestrator-service` expects 60% coverage but root config sets `fail_under = 0`. CI from root never enforces it.
+
+---
+
+## 11. pyproject.toml vs constraints.txt
 
 ### INFO: Fully Compatible
 
@@ -365,6 +428,15 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 | ESLint dead root config | 1 issue | 25 workspaces uncovered |
 | Package version outlier | 1.0.0 vs 16.0.0 | code-review-agent |
 | file: vs workspace resolution | 2 packages | nestjs-auth, field-shared |
+| OTel exporter broken versions | 5 packages | shared/observability |
+| OTel API/SDK pin conflict | 2 files | services + IDP template |
+| Playwright version gap | 1 conflict | apps/web vs e2e |
+| --strict-markers undeclared | 7 markers | 3 service pytest configs |
+| asyncio loop scope mismatch | 2 configs | edge-orchestrator, crm |
+| pytest 7.x vs 8.x | 4 services | copilot-api, globalgap, kernel, eo |
+| Services lacking pytest | 29 services | Cannot test in Docker |
+| Docker Python 3.12 outlier | 1 service | field-management-service |
+| 6 services skip constraints | 6 services | ai-advisor, ai-agents, etc. |
 
 ---
 
@@ -378,12 +450,16 @@ All versions in `pyproject.toml` are compatible with `constraints.txt`. No confl
 4. **Fix inventory-service Helm**: Update `appVersion` and `image.tag` from `15.3.2` to `16.0.0`
 5. **Pin Kong version in Helm**: Change from `kong:3.4` to `kong:3.4.2` to match docker-compose
 6. **Align Qdrant versions**: Upgrade docker-compose from `v1.7.4` to `v1.10.1` or downgrade Helm
+7. **Fix OTel exporter versions**: Change `>=1.39.1` to `>=0.61b0,<1.0.0` in `shared/observability/requirements.txt`; remove deprecated `opentelemetry-exporter-jaeger`
+8. **Update OTel pins**: Bump `apps/services/requirements.txt` and IDP template from `1.39.1`/`0.60b1` to `1.40.0`/`0.61b0`
+9. **Fix Playwright gap**: Update `apps/web/e2e/package.json` from `^1.48.0` to `^1.57.0`
 
 ### Phase 2: High Priority (This Sprint)
 
-4. **Bulk update nats-py**: `==2.13.1` -> `==2.14.0` across 50 services
-5. **Bulk update python-dotenv**: `==1.2.1` -> `==1.2.2` across 40 services
-6. **Add bcrypt/argon2-cffi** to `constraints.txt`
+10. **Bulk update nats-py**: `==2.13.1` -> `==2.14.0` across 50 services
+11. **Bulk update python-dotenv**: `==1.2.1` -> `==1.2.2` across 40 services
+12. **Add bcrypt/argon2-cffi** to `constraints.txt`
+13. **Register undeclared pytest markers** in root `pyproject.toml`: `redis`, `agent`, `coordinator`, `specialist`, `edge`, `mock`, `event_flow`
 
 ### Phase 3: Medium Priority (Next Sprint)
 

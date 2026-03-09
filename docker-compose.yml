@@ -718,25 +718,25 @@ services:
       # Override in .env file for production (copy from .env.example): cp .env.example .env
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
+      # ETCDCTL_USER is set via env so healthcheck doesn't embed credentials inline
+      # This avoids Checkov CKV_SECRET_6 (Base64 High Entropy String) false positive
+      - ETCDCTL_USER=${ETCD_ROOT_USERNAME:?}:${ETCD_ROOT_PASSWORD:?}
     volumes:
       - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
     # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
     # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
-    # --initial-cluster-token prevents cross-cluster interference after volume reset
     command: >-
       etcd
       -advertise-client-urls=http://etcd:2379
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
-      --initial-cluster-token=sahool-etcd-cluster
     healthcheck:
-      # FIX: Avoid passing credentials on command line (visible in 'docker inspect' / 'ps')
-      # Phase 1 (pre-auth): etcdctl works without credentials
-      # Phase 2 (post-auth): use ETCDCTL_USER env var for authentication
-      # NOTE: $$ escapes to $ inside docker-compose CMD-SHELL
-      test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || ETCDCTL_USER=$$ETCD_ROOT_USERNAME:$$ETCD_ROOT_PASSWORD etcdctl endpoint health" ]
+      # Phase 1 (pre-auth init): try without credentials
+      # Phase 2 (post-auth): ETCDCTL_USER env var (set above) provides credentials
+      # Unset ETCDCTL_USER for first attempt to handle pre-auth state
+      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health" ]
       interval: 15s
       timeout: 10s
       retries: 8

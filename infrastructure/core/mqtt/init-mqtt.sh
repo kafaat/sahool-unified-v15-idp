@@ -16,6 +16,25 @@ mosquitto_passwd -b -c /mosquitto/config/passwd "${MQTT_USER}" "${MQTT_PASSWORD}
 chown mosquitto:mosquitto /mosquitto/config/passwd
 chmod 600 /mosquitto/config/passwd
 
+# Create per-service MQTT users (append to existing passwd file)
+# Uses -b flag (batch mode) without -c flag (to append, not overwrite)
+if [ -n "${MQTT_IOT_GATEWAY_PASSWORD:-}" ]; then
+    mosquitto_passwd -b /mosquitto/config/passwd iot_gateway "${MQTT_IOT_GATEWAY_PASSWORD}"
+fi
+if [ -n "${MQTT_SENSOR_HUB_PASSWORD:-}" ]; then
+    mosquitto_passwd -b /mosquitto/config/passwd iot_sensor_hub "${MQTT_SENSOR_HUB_PASSWORD}"
+fi
+if [ -n "${MQTT_EDGE_PASSWORD:-}" ]; then
+    mosquitto_passwd -b /mosquitto/config/passwd edge_orchestrator "${MQTT_EDGE_PASSWORD}"
+fi
+if [ -n "${MQTT_IRRIGATION_PASSWORD:-}" ]; then
+    mosquitto_passwd -b /mosquitto/config/passwd irrigation_smart "${MQTT_IRRIGATION_PASSWORD}"
+fi
+
+# Re-apply permissions after adding users
+chown mosquitto:mosquitto /mosquitto/config/passwd
+chmod 600 /mosquitto/config/passwd
+
 # Copy ACL file from read-only mount to writable location with correct ownership
 rm -f /mosquitto/config/acl
 cp /mosquitto/config/acl.source /mosquitto/config/acl

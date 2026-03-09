@@ -8,6 +8,7 @@ Version: 16.0.0
 import logging
 import os
 import re
+import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -74,7 +75,7 @@ from .repository import (
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def sanitize_log_input(value: str) -> str:

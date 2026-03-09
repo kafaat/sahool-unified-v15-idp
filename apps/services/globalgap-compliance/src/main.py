@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
+from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -244,7 +245,7 @@ def readiness():
 
 
 @app.get("/farms/{farm_id}/compliance")
-async def get_farm_compliance(farm_id: str, tenant_id: str = Depends(get_tenant_id)):
+async def get_farm_compliance(farm_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Get current compliance status for a farm
     الحصول على حالة الامتثال الحالية للمزرعة
@@ -274,6 +275,7 @@ async def create_or_update_compliance(
     farm_id: str,
     compliance_data: ComplianceRecord,
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Create or update compliance record for a farm
@@ -321,6 +323,7 @@ async def get_compliance_trends(
     farm_id: str,
     months: int = Query(12, ge=1, le=24),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get compliance trends over time
@@ -345,6 +348,7 @@ async def get_checklists(
     ifa_version: str = Query("6.0", description="IFA version | إصدار معايير IFA"),
     checklist_type: str | None = Query(None, description="full, partial, follow_up"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get available checklists
@@ -365,6 +369,7 @@ async def get_checklist_items(
     category: ChecklistCategory | None = Query(None),
     compliance_level: ComplianceLevel | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get checklist items (control points)
@@ -387,6 +392,7 @@ async def create_assessment(
     farm_id: str,
     assessment: ChecklistAssessment,
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Create or update a checklist assessment for a farm
@@ -417,6 +423,7 @@ async def get_farm_assessments(
     farm_id: str,
     status: ControlPointStatus | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get all assessments for a farm
@@ -440,6 +447,7 @@ async def create_audit(
     audit_type: str = Query("internal", description="internal, external, certification"),
     auditor_name: str = Query(..., description="Name of auditor"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Prepare and create an audit report
@@ -502,7 +510,7 @@ async def create_audit(
 
 
 @app.get("/audits/{audit_id}")
-async def get_audit(audit_id: str, tenant_id: str = Depends(get_tenant_id)):
+async def get_audit(audit_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Get audit result by ID
     الحصول على نتيجة التدقيق حسب المعرف
@@ -525,6 +533,7 @@ async def get_farm_audits(
     farm_id: str,
     limit: int = Query(10, ge=1, le=100),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get audit history for a farm
@@ -545,6 +554,7 @@ async def get_farm_non_conformities(
     severity: SeverityLevel | None = Query(None),
     resolved: bool | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get non-conformities for a farm
@@ -567,7 +577,7 @@ async def get_farm_non_conformities(
 
 
 @app.post("/non-conformities", status_code=201)
-async def create_non_conformity(non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id)):
+async def create_non_conformity(non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Create a new non-conformity record
     إنشاء سجل عدم مطابقة جديد
@@ -608,6 +618,7 @@ async def get_farm_certificates(
     farm_id: str,
     status: CertificateStatus | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get GGN certificates for a farm
@@ -625,7 +636,7 @@ async def get_farm_certificates(
 
 
 @app.post("/certificates", status_code=201)
-async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)):
+async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Create a new GGN certificate
     إنشاء شهادة GGN جديدة
@@ -668,7 +679,7 @@ async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depen
 
 
 @app.get("/certificates/{certificate_id}")
-async def get_certificate(certificate_id: str, tenant_id: str = Depends(get_tenant_id)):
+async def get_certificate(certificate_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Get certificate by ID
     الحصول على الشهادة حسب المعرف

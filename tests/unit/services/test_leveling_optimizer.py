@@ -20,8 +20,9 @@ from datetime import datetime
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import numpy as np
 import pytest
+
+np = pytest.importorskip("numpy", reason="numpy required for leveling optimizer tests")
 
 
 # =============================================================================

@@ -8,10 +8,12 @@ from datetime import date
 
 import pytest
 
+pytest.importorskip("sqlalchemy", reason="sqlalchemy required for NDVI analytics tests")
+
 sys.path.insert(0, "archive/kernel-legacy")
 
 # Use absolute imports to avoid import errors
-from kernel.services.ndvi_engine.src.analytics import (
+from kernel.services.ndvi_engine.src.analytics import (  # noqa: E402
     NdviSummary,
     compare_to_historical_mean,
     compute_linear_trend,

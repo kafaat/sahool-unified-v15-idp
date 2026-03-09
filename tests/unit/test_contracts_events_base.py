@@ -10,7 +10,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from shared.contracts.events.base import BaseEvent, EventMetadata, _schema_cache
+pytest.importorskip("jsonschema", reason="jsonschema required for event contract tests")
+
+from shared.contracts.events.base import BaseEvent, EventMetadata, _schema_cache  # noqa: E402
 
 
 @dataclass

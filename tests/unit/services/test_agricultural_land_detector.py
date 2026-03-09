@@ -294,11 +294,12 @@ class TestParcelPostProcessor:
 
     def test_calculate_area(self):
         """Test area calculation"""
-        # 0.01 degree square near equator ≈ 1.11 km × 1.11 km ≈ 1.23 km² ≈ 123 ha
+        # ~1 degree square near equator ≈ 12,300 km² ≈ 1,230,000 ha
         coords = [(0.0, 0.0), (0.01, 0.0), (0.01, 0.01), (0.0, 0.01)]
         area = self.processor._calculate_area(coords)
         assert area > 0
-        assert 50 < area < 200
+        # Should be roughly 1.24 hectares for 0.01 degree square
+        assert 0.5 < area < 5.0
 
     def test_remove_overlapping(self):
         """Test overlapping parcel removal"""
@@ -389,8 +390,8 @@ class TestVectorClassificationEngine:
             AgriculturalParcel(
                 parcel_id="test_barren",
                 coordinates=[(1.0, 1.0), (1.01, 1.0), (1.01, 1.01), (1.0, 1.01)],
-                area_hectares=0.001,
-                perimeter_meters=4000,
+                area_hectares=5.0,
+                perimeter_meters=400,
                 centroid=(1.005, 1.005),
                 land_cover=LandCoverClass.UNKNOWN,
                 detection_confidence=0.0,

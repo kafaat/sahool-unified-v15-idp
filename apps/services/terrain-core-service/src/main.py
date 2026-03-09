@@ -7,7 +7,7 @@ Main FastAPI application for terrain analysis providing:
 - 7 terrain indicators (slope, aspect, flow, TWI, curvature, contours)
 - Irrigation suitability recommendations based on terrain
 
-Port: 8160
+Port: 8185
 """
 
 import json

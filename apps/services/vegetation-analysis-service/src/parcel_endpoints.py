@@ -58,7 +58,9 @@ class RegionDetectionRequest(BaseModel):
 class ParcelClassifyRequest(BaseModel):
     """Request model for vector classification"""
 
-    parcels: list[dict] = Field(..., description="List of GeoJSON features to classify")
+    parcels: list[dict] = Field(
+        ..., description="List of GeoJSON features to classify"
+    )
 
 
 class ParcelMergeRequest(BaseModel):
@@ -903,15 +905,19 @@ def register_parcel_endpoints(app, land_detector):
                     "total_parcels": len(simplified),
                     "original_vertices": original_vertices,
                     "simplified_vertices": simplified_vertices,
-                    "reduction_percent": round((1 - simplified_vertices / original_vertices) * 100, 1)
-                    if original_vertices > 0
-                    else 0,
+                    "reduction_percent": round(
+                        (1 - simplified_vertices / original_vertices) * 100, 1
+                    ) if original_vertices > 0 else 0,
                     "topology_preserved": True,
                     "summary": {
                         "en": (
-                            f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices"
+                            f"Simplified {len(simplified)} parcels:"
+                            f" {original_vertices}→{simplified_vertices} vertices"
                         ),
-                        "ar": (f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس"),
+                        "ar": (
+                            f"تم تبسيط {len(simplified)} قطعة:"
+                            f" {original_vertices}→{simplified_vertices} رأس"
+                        ),
                     },
                 },
             }

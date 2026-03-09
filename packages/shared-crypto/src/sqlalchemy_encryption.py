@@ -23,7 +23,6 @@ import hashlib
 import os
 
 import bcrypt
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from sqlalchemy import String, TypeDecorator, event
@@ -171,7 +170,7 @@ def encrypt_searchable(plaintext: str) -> str:
         key = get_deterministic_key()
 
         # Derive deterministic nonce using HMAC
-        h = hmac.HMAC(key, hashes.SHA256(), backend=default_backend())
+        h = hmac.HMAC(key, hashes.SHA256())
         h.update(plaintext.encode("utf-8"))
         deterministic_nonce = h.finalize()[:NONCE_LENGTH]
 
@@ -362,7 +361,7 @@ def create_hmac(data: str, secret: str | None = None) -> str:
     if not hmac_secret:
         raise ValueError("HMAC_SECRET not provided and environment variable not set")
 
-    h = hmac.HMAC(hmac_secret.encode("utf-8"), hashes.SHA256(), backend=default_backend())
+    h = hmac.HMAC(hmac_secret.encode("utf-8"), hashes.SHA256())
     h.update(data.encode("utf-8"))
     return h.finalize().hex()
 

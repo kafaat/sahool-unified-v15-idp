@@ -2,21 +2,21 @@
 # Based on: Qin et al. (2026) - High-Frequency Parcel-Level Monitoring
 
 # Core
-fastapi>=0.126.0
-uvicorn>=0.34.0
-pydantic>=2.10.0
+fastapi>=0.128.5,<1.0.0
+uvicorn>=0.34.0,<1.0.0
+pydantic>=2.10.0,<3.0.0
 python-multipart>=0.0.22
 
 # Database
 asyncpg>=0.30.0
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
 geoalchemy2>=0.15.0
 
 # Messaging
 nats-py==2.13.1
 
 # Computer Vision
-opencv-python-headless>=4.10.0
+opencv-python-headless>=4.10.0,<5.0.0
 numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
 scipy>=1.14.0,<1.18.0  # Upper bound for TensorFlow 2.20.0 compatibility
 pillow>=11.0.0
@@ -32,16 +32,16 @@ shapely>=2.0.0
 pyproj>=3.7.0
 
 # LLM Integration
-anthropic>=0.40.0
-openai>=1.55.0
+anthropic>=0.41.0,<1.0.0
+openai>=1.55.0,<2.0.0
 
 # Logging & Monitoring
-structlog>=24.4.0
-prometheus-client>=0.21.0
+structlog>=24.4.0,<25.0.0
+prometheus-client>=0.21.0,<1.0.0
 
 # HTTP Client
-httpx>=0.28.0
+httpx>=0.28.1,<1.0.0
 
 # Testing
 pytest>=8.3.0
-pytest-asyncio>=0.24.0
+pytest-asyncio==0.26.0

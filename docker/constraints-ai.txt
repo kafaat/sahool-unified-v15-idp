@@ -13,12 +13,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Core Web Framework
 # ─────────────────────────────────────────────────────────────────────────────
-fastapi==0.128.5
+fastapi==0.135.1
 starlette>=0.49.1,<1.0.0
 # Note: uvicorn extras removed for constraints compatibility - install separately
 uvicorn>=0.30.0,<1.0.0
 pydantic==2.12.5
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
 httpx==0.28.1
 python-multipart==0.0.22  # CVE-2024-53981 fix
 
@@ -28,9 +28,9 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
 # CVE-2025-6984 - Fixed in langchain-community 0.3.27
 langchain>=0.3.26,<0.4.0
-langchain-core==0.3.81
-langchain-community==0.3.27
-langchain-anthropic==0.3.1
+langchain-core==0.3.83
+langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
+langchain-anthropic==0.3.22
 langchain-openai>=0.3.0,<0.4.0
 langsmith>=0.3.45,<1.0.0
 
@@ -46,16 +46,22 @@ vllm>=0.6.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Embeddings and Vector Stores
 # ─────────────────────────────────────────────────────────────────────────────
-sentence-transformers==5.2.2
-qdrant-client==1.11.1
+sentence-transformers==5.2.3
+qdrant-client==1.17.0
 faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
 chromadb>=0.4.0,<1.0.0  # Alternative vector DB
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Machine Learning Core
 # ─────────────────────────────────────────────────────────────────────────────
-torch==2.2.0  # Locked for CUDA 12.1 compatibility
-torchvision==0.17.0
+# NOTE: torch/torchvision versions vary per service due to framework compatibility.
+# Each service pins its own version in Dockerfile or requirements.txt:
+#   - yolo26-vision-service: torch==2.2.0, torchvision==0.17.0 (ultralytics 8.x compat)
+#   - copilot-api: torch>=2.2.0,<2.7.0 (sentence-transformers compat)
+#   - Default (new AI services): torch>=2.2.0,<3.0.0
+# Do NOT use exact pins here — they conflict with per-service needs.
+torch>=2.2.0,<3.0.0
+torchvision>=0.17.0,<1.0.0
 numpy>=1.26.0,<2.5.0  # Aligned with constraints.txt for TensorFlow 2.20.0 compatibility
 pandas>=2.2.0,<4.0.0
 scikit-learn>=1.5.0,<2.0.0
@@ -63,7 +69,7 @@ scikit-learn>=1.5.0,<2.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Deep Learning Frameworks (Optional)
 # ─────────────────────────────────────────────────────────────────────────────
-tensorflow-cpu==2.20.0  # Aligned with constraints.txt
+tensorflow-cpu==2.21.0  # Aligned with constraints.txt
 transformers>=4.40.0,<5.0.0
 tokenizers>=0.19.0,<1.0.0
 
@@ -72,7 +78,7 @@ tokenizers>=0.19.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 ultralytics>=8.0.0,<9.0.0
 opencv-python-headless>=4.9.0,<5.0.0
-pillow>=10.0.0,<12.0.0  # Allow Pillow 11.x (constraints.txt pins 11.3.0)
+pillow>=12.1.1,<13.0.0  # CVE-2026-25990 fixed in 12.1.1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NATS Messaging
@@ -91,7 +97,7 @@ sqlalchemy>=2.0.0,<3.0.0
 # Authentication and Security
 # ─────────────────────────────────────────────────────────────────────────────
 PyJWT>=2.9.0,<3.0.0
-cryptography>=43.0.1,<45.0.0  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
 # Note: python-jose extras removed for constraints compatibility - install separately
 python-jose>=3.5.0,<4.0.0  # CVE-2024-33663, CVE-2024-33664 - fixed in 3.5.0
 

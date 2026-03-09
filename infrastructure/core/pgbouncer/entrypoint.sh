@@ -15,20 +15,20 @@ set -e
 
 # Install postgresql-client for healthcheck.sh (SHOW POOLS queries)
 # This enables deep health checks instead of simple port checks
+# FIX: Added timeout to prevent blocking in environments without internet access
+# DNS resolution for Alpine repos can hang for minutes without network connectivity
 if ! command -v psql >/dev/null 2>&1; then
-    apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    if command -v timeout >/dev/null 2>&1; then
+        timeout 15 apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    else
+        apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    fi
 fi
 
-# Create runtime directory with proper permissions
-# Note: edoburu/pgbouncer (Alpine-based) may run as 'postgres' user or other
-mkdir -p /etc/pgbouncer/runtime
-
-# Only change ownership if pgbouncer user exists in the container
-if id pgbouncer >/dev/null 2>&1; then
-    chown -R pgbouncer:pgbouncer /etc/pgbouncer/runtime 2>/dev/null || true
-fi
-
-# chmod may fail due to security settings (no-new-privileges) - make it non-fatal
+# Create runtime directory for userlist.txt
+# The docker-compose mounts a tmpfs at /etc/pgbouncer/runtime (writable by any user)
+# Previously used a named volume which caused "Permission denied" for non-root containers
+mkdir -p /etc/pgbouncer/runtime 2>/dev/null || true
 chmod 700 /etc/pgbouncer/runtime 2>/dev/null || true
 
 # Configuration from environment

@@ -247,12 +247,14 @@ async def update_execution(
             params.append(tenant_id)
             param_idx += 1
 
+        # Dynamic query is safe: column names are hardcoded strings,
+        # all values use asyncpg $N parameterized placeholders
         query = f"""
             UPDATE agent_executions
             SET {", ".join(updates)}
             WHERE {" AND ".join(where_parts)}
             RETURNING *
-        """
+        """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
             row = await conn.fetchrow(query, *params)
@@ -291,12 +293,14 @@ async def list_executions(
 
         params.extend([limit, offset])
 
+        # Dynamic query is safe: column names are hardcoded strings,
+        # all values use asyncpg $N parameterized placeholders
         query = f"""
             SELECT * FROM agent_executions
             WHERE {" AND ".join(conditions)}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
-        """
+        """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
             rows = await conn.fetch(query, *params)

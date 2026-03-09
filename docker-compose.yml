@@ -94,8 +94,12 @@ services:
       # TLS Certificates
       - ./config/certs:/etc/pgbouncer/certs:ro
 
-      # Persistent volume for userlist.txt (SECURITY: survives container restarts)
-      - pgbouncer-userlist:/etc/pgbouncer/runtime
+      # Writable tmpfs for userlist.txt (regenerated on every start by entrypoint.sh)
+      # Named volume removed: caused permission denied for non-root container user
+      - type: tmpfs
+        target: /etc/pgbouncer/runtime
+        tmpfs:
+          size: 1048576
       # Healthcheck script (comprehensive pool verification)
       - ./infrastructure/core/pgbouncer/healthcheck.sh:/healthcheck.sh:ro
     ports:
@@ -108,11 +112,14 @@ services:
       # Previously used 'nc -z' which only checks TCP port, not actual PgBouncer functionality
       # The healthcheck.sh script runs SHOW POOLS and checks pool utilization
       # NOTE: Use $$ to escape dollar signs - docker-compose interpolates ${} but $$ passes $ to the shell
-      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || exit 1" ]
+      # FIX: Primary check is port liveness (nc), enhanced check via healthcheck.sh
+      # healthcheck.sh may fail if psql is not available (apk add fails without network)
+      # In that case, it falls back to nc-only check internally
+      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || nc -z localhost 6432" ]
       interval: 15s
       timeout: 10s
-      retries: 5
-      start_period: 45s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -461,14 +468,18 @@ services:
       # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
       - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required}
       - QDRANT__LOG_LEVEL=INFO
-    # Qdrant healthcheck - uses HTTP endpoint to verify service is responding
-    # فحص صحة Qdrant - يستخدم نقطة نهاية HTTP للتحقق من استجابة الخدمة
+    # Qdrant healthcheck - verify qdrant is listening on REST port (6333)
+    # فحص صحة Qdrant - التحقق من أن qdrant يستمع على منفذ REST
+    # NOTE: qdrant/qdrant image is minimal Debian (no curl/wget/nc/bash)
+    # Use /proc/net/tcp to verify port 6333 (0x18BD) has a LISTEN socket
+    # For full HTTP health, use K8s livenessProbe against /healthz
+    # See: https://github.com/qdrant/qdrant/issues/4250
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q --spider http://localhost:6333/healthz || exit 1" ]
-      interval: 30s
+      test: [ "CMD-SHELL", "grep -q ':18BD' /proc/net/tcp || exit 1" ]
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -704,24 +715,32 @@ services:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (used by init script and healthcheck)
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
+      # Override in .env file for production (copy from .env.example): cp .env.example .env
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
+      # ETCDCTL_USER is set via env so healthcheck doesn't embed credentials inline
+      # This avoids Checkov CKV_SECRET_6 (Base64 High Entropy String) false positive
+      - ETCDCTL_USER=${ETCD_ROOT_USERNAME:?}:${ETCD_ROOT_PASSWORD:?}
     volumes:
-      - etcd_data:/etcd
+      - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
     # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
-    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
+    command: >-
+      etcd
+      -advertise-client-urls=http://etcd:2379
+      -listen-client-urls=http://0.0.0.0:2379
+      --data-dir=/etcd-data
     healthcheck:
-      # FIX: Avoid passing credentials on command line (visible in 'docker inspect' / 'ps')
-      # Phase 1 (pre-auth): etcdctl works without credentials
-      # Phase 2 (post-auth): use ETCDCTL_USER env var for authentication
-      # NOTE: $$ escapes to $ inside docker-compose CMD-SHELL
-      test: [ "CMD-SHELL", "etcdctl endpoint health 2>/dev/null || ETCDCTL_USER=$$ETCD_ROOT_USERNAME:$$ETCD_ROOT_PASSWORD etcdctl endpoint health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      # Phase 1 (pre-auth init): try without credentials
+      # Phase 2 (post-auth): ETCDCTL_USER env var (set above) provides credentials
+      # Unset ETCDCTL_USER for first attempt to handle pre-auth state
+      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health" ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -750,8 +769,8 @@ services:
     environment:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://etcd:2379
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     depends_on:
       etcd:
         condition: service_healthy
@@ -779,13 +798,15 @@ services:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     container_name: sahool-minio
     environment:
-      # Root credentials (REQUIRED - minimum 16 characters)
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - must be at least 16 characters}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - must be at least 16 characters}
+      # Root credentials (minimum 16 characters)
+      # Set in .env file (copy from .env.example): cp .env.example .env
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?MINIO_ROOT_USER required. Run 'make dev' or copy .env.example to .env}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}"
 
       # TLS/SSL Configuration
       # Certificates mounted at /root/.minio/certs
-      MINIO_OPTS: "--certs-dir /root/.minio/certs"
+      # NOTE: Only set MINIO_OPTS when TLS certs exist; empty certs dir causes startup failure
+      MINIO_OPTS: "${MINIO_OPTS:-}"
 
       # Security: Disable browser console in production
       MINIO_BROWSER: ${MINIO_BROWSER:-off}
@@ -815,19 +836,21 @@ services:
       - minio_data:/minio_data
       # TLS certificates (read-only) - optional for development
       # Generate with: ./scripts/security/setup-minio-security.sh
-      # NOTE: Directory is auto-created if missing; MinIO starts without TLS when empty
-      - ${MINIO_CERTS_DIR:-./secrets/minio-certs/production/certs}:/root/.minio/certs:ro
+      # NOTE: Default points to docker/minio-certs/ (empty dir with .gitkeep) for dev
+      # Override MINIO_CERTS_DIR in .env for production TLS
+      - ${MINIO_CERTS_DIR:-./docker/minio-certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
-      # Health check: Use MinIO's built-in live health endpoint
-      # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة
-      # FIX: Try HTTPS first (when TLS certs are present), fallback to HTTP (dev without certs)
-      # -k flag skips certificate verification for self-signed certs
-      test: [ "CMD-SHELL", "curl -sfk https://localhost:9000/minio/health/live || curl -sf http://localhost:9000/minio/health/live || exit 1" ]
+      # Health check: Use MinIO's built-in mc client (always available in minio image)
+      # فحص صحة MinIO - يستخدم عميل mc المدمج في صورة MinIO
+      # FIX: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
+      # Use 'mc ready local' which is the official MinIO healthcheck recommendation
+      # Fallback: TCP port check via shell if mc is not configured
+      test: [ "CMD-SHELL", "mc ready local 2>/dev/null || curl -sf http://localhost:9000/minio/health/live 2>/dev/null || bash -c '</dev/tcp/localhost/9000'" ]
       interval: 15s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 8
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -861,7 +884,6 @@ services:
       ETCD_USERNAME: ${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
       ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
       # MinIO connection with dedicated service account (least privilege)
-      # SECURITY FIX: Use dedicated Milvus credentials instead of MinIO root account
       # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000
       MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}}
@@ -4229,8 +4251,6 @@ networks:
 volumes:
   postgres_data:
     name: sahool-postgres-data
-  pgbouncer-userlist:
-    name: sahool-pgbouncer-userlist
   nats_data:
     name: sahool-nats-data
   vault_data:

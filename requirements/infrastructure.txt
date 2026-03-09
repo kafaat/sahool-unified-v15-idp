@@ -11,7 +11,7 @@ asyncpg==0.31.0
 tortoise-orm==0.25.4
 
 # NATS Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Redis Caching
 redis==5.3.1

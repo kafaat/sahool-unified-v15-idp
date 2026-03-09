@@ -1,7 +1,7 @@
 # FastAPI and Web Framework Dependencies
 # تبعيات FastAPI وإطار العمل
 # Updated: December 2025 - Unified versions across all services
-fastapi==0.128.5
+fastapi==0.135.1
 starlette>=0.49.1
 uvicorn[standard]>=0.30.0,<1.0.0
 httpx==0.28.1
@@ -11,12 +11,13 @@ pydantic-settings==2.12.0
 # LangChain and AI Framework
 # إطار عمل LangChain والذكاء الاصطناعي
 # Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
-# Note: langchain-community 0.3.27 requires langchain>=0.3.26
-#       langchain-core 0.3.81 requires langsmith>=0.3.45
-langchain>=0.3.26
-langchain-anthropic==0.3.1
-langchain-community==0.3.27  # Fix CVE-2025-6984
-langchain-core==0.3.81  # Fix CVE-2025-68664, CVE-2025-65106
+# Note: langchain-community 0.3.x requires langchain>=0.3.26 and langchain-core<1.0.0
+#       langchain-community 0.4.x requires langchain-core>=1.0.1 (INCOMPATIBLE with 0.3.x)
+#       langchain-core 0.3.81+ requires langsmith>=0.3.45
+langchain>=0.3.26,<0.4.0
+langchain-anthropic==0.3.22
+langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
+langchain-core==0.3.83  # Fix CVE-2025-68664, CVE-2025-65106
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
@@ -25,7 +26,7 @@ anthropic>=0.41.0,<1.0.0
 
 # OpenAI GPT API (Optional Fallback)
 # واجهة برمجة OpenAI (بديل اختياري)
-openai>=1.0.0
+openai>=1.0.0,<2.0.0
 
 # Google Gemini API (Optional)
 # واجهة برمجة Google Gemini (اختياري)
@@ -33,7 +34,7 @@ google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
-sentence-transformers==5.2.2
+sentence-transformers==5.2.3
 qdrant-client==1.11.1
 
 # NATS Messaging
@@ -64,8 +65,8 @@ pytest-asyncio==0.26.0
 
 # Authentication
 # المصادقة
-PyJWT>=2.8.0,<3.0.0
-cryptography>=43.0.1  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Redis for token revocation
 # Redis لإلغاء الرموز

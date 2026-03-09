@@ -303,6 +303,12 @@ async def lifespan(app: FastAPI):
         _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
         logger.info("agricultural_land_detector_initialized")
 
+    # Initialize Agricultural Land Detector (GeoLabel-inspired)
+    global _land_detector
+    if AgriculturalLandDetector:
+        _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
+        print("🌾 Agricultural Land Detector initialized (GeoLabel-inspired parcel generation)")
+
     # Register boundary detection endpoints
     if _boundary_detector:
         register_boundary_endpoints(app, _boundary_detector)

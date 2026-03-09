@@ -118,7 +118,7 @@ class IntelligenceCache:
     def _generate_key(self, prefix: str, **kwargs) -> str:
         """Generate cache key from parameters."""
         params_str = json.dumps(kwargs, sort_keys=True, default=str)
-        hash_value = hashlib.md5(params_str.encode()).hexdigest()[:12]
+        hash_value = hashlib.sha256(params_str.encode()).hexdigest()[:12]
         return f"crop_intel:{prefix}:{hash_value}"
 
     async def get(self, key: str) -> Any | None:

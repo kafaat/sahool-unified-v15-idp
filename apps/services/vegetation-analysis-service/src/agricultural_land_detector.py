@@ -35,7 +35,7 @@ import math
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-class DetectionStrategy(str, Enum):
+class DetectionStrategy(StrEnum):
     """Agricultural land detection strategies | استراتيجيات كشف الأراضي الزراعية"""
 
     SEMANTIC_SEGMENTATION = "semantic_segmentation"
@@ -57,7 +57,7 @@ class DetectionStrategy(str, Enum):
     HYBRID = "hybrid"  # Combined segmentation + boundary
 
 
-class ModelPrecision(str, Enum):
+class ModelPrecision(StrEnum):
     """Model precision levels (inspired by GeoLabel 3.6.0)"""
 
     VERY_HIGH = "very_high"  # دقة عالية جداً - Highest accuracy, slowest
@@ -66,7 +66,7 @@ class ModelPrecision(str, Enum):
     SPEED_FOCUSED = "speed_focused"  # التركيز على السرعة - Fastest, lowest accuracy
 
 
-class ParcelShape(str, Enum):
+class ParcelShape(StrEnum):
     """Target parcel shape regularization"""
 
     IRREGULAR = "irregular"  # No regularization
@@ -75,7 +75,7 @@ class ParcelShape(str, Enum):
     MINIMUM_BOUNDING = "minimum_bounding"  # Minimum bounding rectangle
 
 
-class LandCoverClass(str, Enum):
+class LandCoverClass(StrEnum):
     """Land cover classification classes (GeoLabel 8-class system)
     فئات تصنيف الغطاء الأرضي (نظام GeoLabel ذو 8 فئات)
     """
@@ -1826,7 +1826,7 @@ class AgriculturalLandDetector:
 # =============================================================================
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Crop type classification classes | فئات تصنيف المحاصيل"""
 
     WHEAT = "wheat"  # قمح

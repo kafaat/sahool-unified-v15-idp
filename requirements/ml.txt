@@ -13,4 +13,4 @@ Pillow==11.3.0
 numpy>=1.26.0,<2.5.0  # Aligned with constraints.txt for TensorFlow 2.20.0 compatibility
 
 # Machine Learning
-tensorflow-cpu==2.20.0
+tensorflow-cpu==2.21.0

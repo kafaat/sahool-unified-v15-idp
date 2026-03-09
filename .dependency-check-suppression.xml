@@ -4,10 +4,30 @@
     SAHOOL Platform - OWASP Dependency-Check Suppressions
     Add false-positive CVE suppressions here.
 
-    Example:
+    Format:
     <suppress>
-        <notes>False positive - not affected in our usage</notes>
-        <cve>CVE-2024-XXXXX</cve>
+        <notes>Reason for suppression</notes>
+        <packageUrl regex="true">^pkg:pypi/package-name@.*$</packageUrl>
+        <cve>CVE-YYYY-XXXXX</cve>
     </suppress>
     -->
+
+    <!--
+    ecdsa CVE-2024-23342 (Minerva attack via timing side-channel in ECDSA signing)
+    The 'ecdsa' package (all versions including latest 0.19.1) is affected.
+    No upstream fix is available; the project is effectively unmaintained.
+    Impact: Transitive dependency pulled in by python-jose[cryptography].
+    Mitigation: python-jose is used only for JWT token verification (not ECDSA signing);
+    ECDSA signing is not performed in this service. The attack requires repeated
+    signing operations with the same key, which is not part of our usage pattern.
+    Review date: 2026-03-09
+    -->
+    <suppress>
+        <notes>CVE-2024-23342: Minerva timing attack in ecdsa signing. No fix available
+        in ecdsa (abandoned). Our usage is JWT verification only (not signing), so this
+        vulnerability path is not reachable.</notes>
+        <packageUrl regex="true">^pkg:pypi/ecdsa@.*$</packageUrl>
+        <cve>CVE-2024-23342</cve>
+    </suppress>
+
 </suppressions>

@@ -34,4 +34,5 @@ scalene>=1.5.0                 # CPU/Memory/GPU profiler
 sqlfluff>=3.2.0                # SQL linter and formatter
 
 # Docker/Container Tools
-docker-compose-linter>=1.0.0   # Lint docker-compose files
+# Note: docker-compose linting is handled by hadolint (standalone binary) and
+# the CI workflow uses hadolint/hadolint-action@v3.3.0 directly.

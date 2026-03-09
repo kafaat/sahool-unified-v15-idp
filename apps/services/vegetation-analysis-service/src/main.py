@@ -110,7 +110,7 @@ from .boundary_endpoints import register_boundary_endpoints
 # Import agricultural land detector (GeoLabel-inspired)
 _land_detector = None
 try:
-    from .agricultural_land_detector import AgriculturalLandDetector, DetectionConfig
+    from .agricultural_land_detector import AgriculturalLandDetector
     from .parcel_endpoints import register_parcel_endpoints
 
     logger.info("Agricultural Land Detector module loaded (GeoLabel-inspired)")

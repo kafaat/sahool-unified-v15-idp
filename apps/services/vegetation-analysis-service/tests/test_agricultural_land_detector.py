@@ -694,10 +694,10 @@ class TestParcelEditingTools:
             (44.211, 15.511), (44.210, 15.511),
         ])
         # With a small max gap, distant parcels won't bridge but still get convex hull
-        connected = self.tools.connect_parcels([p1, p2], ["far1", "far2"], max_gap_meters=5)
+        result = self.tools.connect_parcels([p1, p2], ["far1", "far2"], max_gap_meters=5)
         # connect_parcels returns single parcel or None
         # The method does convex hull even if gap is large, so it may return a result
-        # but with only first parcel's coords if gap check fails
+        assert result is None or isinstance(result, AgriculturalParcel)
 
 
 # =============================================================================

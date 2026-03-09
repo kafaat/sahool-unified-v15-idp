@@ -2,26 +2,24 @@
 SAHOOL Agricultural Land Detection - GeoLabel-Inspired (v4.0)
 كشف الأراضي الزراعية التلقائي مستوحى من GeoLabel 4.0
 
-Automatic agricultural land parcel generation using multiple strategies:
-1. Semantic Segmentation: Pixel-level cropland classification (U-Net/DeepLabV3+)
-2. Boundary Detection: Deep learning-based field edge detection (HED-like)
-3. Training-Free Detection: NDVI+spectral index-based approximate detection
-4. Vector Classification: Classify existing parcels as agricultural/non-agricultural
+Automatic agricultural land parcel generation using heuristic strategies.
 
-GeoLabel 4.0 additions:
-5. Crop Classification Engine: ML+DL parcel-level crop type identification
-6. Topology-Preserving Simplification: Simplify boundaries while maintaining adjacency
-7. Parcel Editing Tools: Fast merge, split, connect operations
-8. Quality Inspection Tool: Element browsing, attribute editing, WKT export
+NOTE: The current implementation uses spectral-index heuristics (NDVI/EVI/NDWI
+thresholds, gradient-based edge detection) rather than trained deep learning models.
+The architecture is designed so that trained models (U-Net, DeepLabV3+, HED, etc.)
+can replace the heuristic engines when training data becomes available.
 
-Inspired by GeoLabel's approach to remote sensing farmland parcel extraction:
-- Boundary-based parcel generation (edge detection → closed polygons)
-- Semantic segmentation-based parcel generation (pixel classification → polygonize)
-- Advanced post-processing (simplification, smoothing, small parcel removal)
-- Training-free approximate detection (spectral indices only)
-- Vector classification (feature-based parcel type classification)
-- Crop type classification (spectral+geometric feature ML + DL models)
-- Topology-preserving simplification (no gaps/overlaps between adjacent parcels)
+Strategies implemented:
+1. Semantic Segmentation Engine: Spectral-index threshold classification
+   (placeholder for U-Net/DeepLabV3+ — currently uses NDVI/EVI/NDWI thresholds)
+2. Boundary Detection Engine: Gradient-based edge detection
+   (placeholder for HED-like models — currently uses Sobel-like gradients)
+3. Training-Free Detection: NDVI+spectral index approximate detection
+4. Vector Classification: Feature-based parcel type scoring (rule-based)
+5. Crop Classification Engine: ML spectral scoring + DL placeholder ensemble
+6. Topology-Preserving Simplification: Douglas-Peucker with shared vertex preservation
+7. Parcel Editing Tools: Merge, split, connect operations
+8. Quality Inspection Tool: Validation, attribute editing, WKT export
 
 References:
 - GeoLabel 3.6.0 SAM-based semi-automatic annotation
@@ -31,6 +29,7 @@ References:
 - BSNet: Boundary-Semantic Fusion Network for farmland segmentation
 """
 
+import collections
 import logging
 import math
 import uuid
@@ -289,30 +288,31 @@ class SemanticSegmentationEngine:
         evi = self._compute_evi(image_data) if num_bands >= 4 else None
         ndwi = self._compute_ndwi(image_data) if num_bands >= 4 else None
 
-        # Multi-index classification
-        mask = np.full((h, w), LandCoverClass.UNKNOWN.value, dtype=object)
+        # Vectorized multi-index classification using NumPy boolean masking
+        mask = np.full((h, w), LandCoverClass.BARREN.value, dtype=object)
 
-        for i in range(h):
-            for j in range(w):
-                pixel_ndvi = ndvi[i, j]
-                pixel_evi = evi[i, j] if evi is not None else 0.0
-                pixel_ndwi = ndwi[i, j] if ndwi is not None else 0.0
+        # Water detection (high NDWI) — highest priority
+        if ndwi is not None:
+            water_mask = ndwi > self.config.ndwi_water_threshold
+            mask[water_mask] = LandCoverClass.WATER.value
 
-                # Water detection (high NDWI)
-                if pixel_ndwi > self.config.ndwi_water_threshold:
-                    mask[i, j] = LandCoverClass.WATER.value
-                # Cropland detection (high NDVI + EVI)
-                elif pixel_ndvi > self.config.ndvi_cropland_threshold:
-                    if pixel_evi > self.config.evi_threshold or evi is None:
-                        mask[i, j] = LandCoverClass.CROPLAND.value
-                    else:
-                        mask[i, j] = LandCoverClass.GRASSLAND.value
-                # Sparse vegetation
-                elif pixel_ndvi > self.config.ndvi_vegetation_threshold:
-                    mask[i, j] = LandCoverClass.GRASSLAND.value
-                # Barren land
-                else:
-                    mask[i, j] = LandCoverClass.BARREN.value
+        # Sparse vegetation (NDVI above vegetation threshold but below cropland)
+        veg_mask = ndvi > self.config.ndvi_vegetation_threshold
+        mask[veg_mask] = LandCoverClass.GRASSLAND.value
+
+        # Cropland detection (high NDVI + EVI)
+        crop_ndvi_mask = ndvi > self.config.ndvi_cropland_threshold
+        if evi is not None:
+            cropland_mask = crop_ndvi_mask & (evi > self.config.evi_threshold)
+            grassland_mask = crop_ndvi_mask & ~(evi > self.config.evi_threshold)
+            mask[grassland_mask] = LandCoverClass.GRASSLAND.value
+            mask[cropland_mask] = LandCoverClass.CROPLAND.value
+        else:
+            mask[crop_ndvi_mask] = LandCoverClass.CROPLAND.value
+
+        # Water overrides all — reapply on top
+        if ndwi is not None:
+            mask[water_mask] = LandCoverClass.WATER.value
 
         return mask
 
@@ -488,10 +488,10 @@ class SemanticSegmentationEngine:
                 if binary_mask[i, j] == 1 and labels[i, j] == 0:
                     current_label += 1
                     # BFS flood fill
-                    queue = [(i, j)]
+                    queue = collections.deque([(i, j)])
                     labels[i, j] = current_label
                     while queue:
-                        ci, cj = queue.pop(0)
+                        ci, cj = queue.popleft()
                         for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                             ni, nj = ci + di, cj + dj
                             if 0 <= ni < h and 0 <= nj < w:
@@ -723,21 +723,49 @@ class BoundaryDetectionEngine:
         return result
 
     def _close_boundaries(self, edge_mask: np.ndarray, iterations: int = 3) -> np.ndarray:
-        """Close gaps in boundary edges using morphological closing"""
+        """Close gaps in boundary edges using morphological closing (dilate then erode)."""
         result = edge_mask.copy()
         h, w = result.shape
 
-        for _ in range(iterations):
-            dilated = np.zeros_like(result)
+        def _dilate(src: np.ndarray) -> np.ndarray:
+            out = np.zeros_like(src)
             for i in range(h):
                 for j in range(w):
-                    if result[i, j] == 1:
+                    if src[i, j] == 1:
                         for di in range(-1, 2):
                             for dj in range(-1, 2):
                                 ni, nj = i + di, j + dj
                                 if 0 <= ni < h and 0 <= nj < w:
-                                    dilated[ni, nj] = 1
-            result = dilated
+                                    out[ni, nj] = 1
+            return out
+
+        def _erode(src: np.ndarray) -> np.ndarray:
+            out = np.zeros_like(src)
+            for i in range(h):
+                for j in range(w):
+                    if src[i, j] == 1:
+                        all_set = True
+                        for di in range(-1, 2):
+                            for dj in range(-1, 2):
+                                ni, nj = i + di, j + dj
+                                if 0 <= ni < h and 0 <= nj < w:
+                                    if src[ni, nj] == 0:
+                                        all_set = False
+                                        break
+                                else:
+                                    all_set = False
+                                    break
+                            if not all_set:
+                                break
+                        if all_set:
+                            out[i, j] = 1
+            return out
+
+        # Morphological closing = dilate then erode
+        for _ in range(iterations):
+            result = _dilate(result)
+        for _ in range(iterations):
+            result = _erode(result)
 
         return result
 
@@ -748,7 +776,7 @@ class BoundaryDetectionEngine:
 
         # Flood fill from edges to find exterior
         visited = np.zeros((h, w), dtype=bool)
-        queue = []
+        queue = collections.deque()
 
         # Start from border pixels that are not boundaries
         for i in range(h):
@@ -764,7 +792,7 @@ class BoundaryDetectionEngine:
 
         # BFS flood fill exterior
         while queue:
-            ci, cj = queue.pop(0)
+            ci, cj = queue.popleft()
             filled[ci, cj] = 0
             for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 ni, nj = ci + di, cj + dj
@@ -788,10 +816,10 @@ class BoundaryDetectionEngine:
             for j in range(w):
                 if filled_mask[i, j] == 1 and labels[i, j] == 0:
                     current_label += 1
-                    queue = [(i, j)]
+                    queue = collections.deque([(i, j)])
                     labels[i, j] = current_label
                     while queue:
-                        ci, cj = queue.pop(0)
+                        ci, cj = queue.popleft()
                         for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                             ni, nj = ci + di, cj + dj
                             if 0 <= ni < h and 0 <= nj < w:
@@ -1040,8 +1068,8 @@ class ParcelPostProcessor:
         v2 = (p3[0] - p2[0], p3[1] - p2[1])
 
         dot = v1[0] * v2[0] + v1[1] * v2[1]
-        mag1 = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
-        mag2 = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
+        mag1 = math.hypot(v1[0], v1[1])
+        mag2 = math.hypot(v2[0], v2[1])
 
         if mag1 * mag2 == 0:
             return math.pi
@@ -1105,7 +1133,7 @@ class ParcelPostProcessor:
                 hull[(i + 1) % n][0] - hull[i][0],
                 hull[(i + 1) % n][1] - hull[i][1],
             )
-            edge_len = math.sqrt(edge[0] ** 2 + edge[1] ** 2)
+            edge_len = math.hypot(edge[0], edge[1])
             if edge_len == 0:
                 continue
 
@@ -1161,7 +1189,7 @@ class ParcelPostProcessor:
                 # Simple centroid distance check for overlap
                 c_i = self._centroid(polygons[i])
                 c_j = self._centroid(polygons[j])
-                dist = math.sqrt((c_i[0] - c_j[0]) ** 2 + (c_i[1] - c_j[1]) ** 2)
+                dist = math.hypot(c_i[0] - c_j[0], c_i[1] - c_j[1])
 
                 # If centroids are very close and one is much smaller, remove smaller
                 avg_radius = math.sqrt(area_i * 10000 / math.pi) / 111320
@@ -1200,9 +1228,9 @@ class ParcelPostProcessor:
         dx = line_end[0] - line_start[0]
         dy = line_end[1] - line_start[1]
         if dx == 0 and dy == 0:
-            return math.sqrt((point[0] - line_start[0]) ** 2 + (point[1] - line_start[1]) ** 2)
+            return math.hypot(point[0] - line_start[0], point[1] - line_start[1])
         num = abs(dy * point[0] - dx * point[1] + line_end[0] * line_start[1] - line_end[1] * line_start[0])
-        den = math.sqrt(dx ** 2 + dy ** 2)
+        den = math.hypot(dx, dy)
         return num / den
 
     def _calculate_area(self, coords: list[tuple[float, float]]) -> float:
@@ -2285,7 +2313,7 @@ class TopologyPreservingSimplifier:
         shared_count = 0
         for c1 in p1.coordinates:
             for c2 in p2.coordinates:
-                dist = math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2)
+                dist = math.hypot(c1[0] - c2[0], c1[1] - c2[1])
                 if dist < threshold:
                     shared_count += 1
                     if shared_count >= 2:  # At least 2 shared points = shared edge
@@ -2310,7 +2338,7 @@ class TopologyPreservingSimplifier:
                 shared_points = []
                 for c1 in parcels[i].coordinates:
                     for c2 in parcels[j].coordinates:
-                        dist = math.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2)
+                        dist = math.hypot(c1[0] - c2[0], c1[1] - c2[1])
                         if dist < threshold:
                             shared_points.append(c1)
                             break
@@ -2354,7 +2382,7 @@ class TopologyPreservingSimplifier:
             return coords
 
         max_dist = 0.0
-        max_idx = 0
+        max_idx = 1  # Default to 1 to avoid zero-length splits
 
         for i in range(1, len(coords) - 1):
             dist = self._point_line_distance(coords[i], coords[0], coords[-1])
@@ -2382,9 +2410,9 @@ class TopologyPreservingSimplifier:
         dx = line_end[0] - line_start[0]
         dy = line_end[1] - line_start[1]
         if dx == 0 and dy == 0:
-            return math.sqrt((point[0] - line_start[0]) ** 2 + (point[1] - line_start[1]) ** 2)
+            return math.hypot(point[0] - line_start[0], point[1] - line_start[1])
         num = abs(dy * point[0] - dx * point[1] + line_end[0] * line_start[1] - line_end[1] * line_start[0])
-        den = math.sqrt(dx ** 2 + dy ** 2)
+        den = math.hypot(dx, dy)
         return num / den
 
     def _douglas_peucker(
@@ -2614,7 +2642,7 @@ class ParcelEditingTools:
 
             for pi, pc in enumerate(prev_coords):
                 for ci, cc in enumerate(curr_coords):
-                    dist = math.sqrt((pc[0] - cc[0]) ** 2 + (pc[1] - cc[1]) ** 2) * 111320
+                    dist = math.hypot(pc[0] - cc[0], pc[1] - cc[1]) * 111320
                     if dist < min_dist:
                         min_dist = dist
                         best_prev_idx = pi
@@ -2882,7 +2910,7 @@ class QualityInspectionTool:
         # Check closure (first and last point should be close)
         if len(parcel.coordinates) >= 3:
             first, last = parcel.coordinates[0], parcel.coordinates[-1]
-            closure_dist = math.sqrt((first[0] - last[0]) ** 2 + (first[1] - last[1]) ** 2)
+            closure_dist = math.hypot(first[0] - last[0], first[1] - last[1])
             if closure_dist > 0.001:  # ~111m threshold
                 issues.append(f"Polygon not closed (gap: {closure_dist * 111320:.1f}m)")
 

@@ -174,14 +174,12 @@ def register_parcel_endpoints(app, land_detector):
                 smoothing_iterations=smoothing,
             )
 
-            # Update detector config
-            land_detector.config = config
-            land_detector.segmentation.config = config
-            land_detector.boundary_detection.config = config
-            land_detector.post_processor.config = config
+            # Create per-request detector to avoid race conditions on shared state
+            from .agricultural_land_detector import AgriculturalLandDetector
+            request_detector = AgriculturalLandDetector(config)
 
             # Run detection
-            report = await land_detector.detect_at_point(lat, lon, radius_m)
+            report = await request_detector.detect_at_point(lat, lon, radius_m)
 
             # Convert to GeoJSON FeatureCollection
             features = [parcel.to_geojson() for parcel in report.parcels]
@@ -232,6 +230,13 @@ def register_parcel_endpoints(app, land_detector):
             })
 
         try:
+            from .agricultural_land_detector import (
+                AgriculturalLandDetector,
+                DetectionConfig,
+                DetectionStrategy,
+                ModelPrecision,
+            )
+
             bounds = {
                 "north": request.north,
                 "south": request.south,
@@ -245,7 +250,24 @@ def register_parcel_endpoints(app, land_detector):
             if request.east <= request.west:
                 raise HTTPException(status_code=400, detail="East must be greater than west")
 
-            report = await land_detector.detect_in_region(bounds)
+            # Apply request config parameters
+            try:
+                det_strategy = DetectionStrategy(request.strategy)
+            except ValueError:
+                det_strategy = DetectionStrategy.HYBRID
+            try:
+                det_precision = ModelPrecision(request.precision)
+            except ValueError:
+                det_precision = ModelPrecision.HIGH
+
+            config = DetectionConfig(
+                strategy=det_strategy,
+                precision=det_precision,
+                min_area_hectares=request.min_area_hectares,
+            )
+            request_detector = AgriculturalLandDetector(config)
+
+            report = await request_detector.detect_in_region(bounds)
 
             features = [parcel.to_geojson() for parcel in report.parcels]
 
@@ -480,14 +502,14 @@ def register_parcel_endpoints(app, land_detector):
                 "type": "FeatureCollection",
                 "features": features,
                 "classification_summary": {
-                    "total_parcels": len(classified),
+                    "total_parcels": len(parcels),
                     "crop_distribution": crop_stats,
                     "method": "ml_dl_dual_path_ensemble",
                     "ml_weight": 0.4,
                     "dl_weight": 0.6,
                     "summary": {
-                        "en": f"Classified {len(classified)} parcels into {len(crop_stats)} crop types",
-                        "ar": f"تم تصنيف {len(classified)} قطعة إلى {len(crop_stats)} أنواع محاصيل",
+                        "en": f"Classified {len(parcels)} parcels into {len(crop_stats)} crop types",
+                        "ar": f"تم تصنيف {len(parcels)} قطعة إلى {len(crop_stats)} أنواع محاصيل",
                     },
                 },
             }

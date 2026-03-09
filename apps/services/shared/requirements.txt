@@ -18,7 +18,7 @@ psycopg2-binary>=2.9.0
 asyncpg>=0.30.0
 
 # Authentication & Security
-PyJWT==2.10.1
+PyJWT==2.11.0
 bcrypt==5.0.0
 passlib[bcrypt]==1.7.4
 

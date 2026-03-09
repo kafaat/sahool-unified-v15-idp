@@ -204,15 +204,15 @@ else
 fi
 
 if [ "$TOTAL_CL_WAITING" -gt 0 ]; then
-  STATUS="warning"
-  # FIX: Docker healthcheck treats any non-zero exit as unhealthy
-  # Warning state = degraded but operational, keep exit code 0
+  # Preserve critical severity if already set; only escalate to warning from healthy
+  if [ "$STATUS" != "critical" ]; then STATUS="warning"; fi
+  # Docker healthcheck treats any non-zero exit as unhealthy; warning = exit 0
   if [ "$EXIT_CODE" -ne 1 ]; then EXIT_CODE=0; fi
   log "${YELLOW}⚠ WARNING: ${TOTAL_CL_WAITING} clients waiting for connections${NC}"
 fi
 
 if [ "$MAX_WAIT" -gt 10 ]; then
-  STATUS="warning"
+  if [ "$STATUS" != "critical" ]; then STATUS="warning"; fi
   if [ "$EXIT_CODE" -ne 1 ]; then EXIT_CODE=0; fi
   log "${YELLOW}⚠ WARNING: Maximum wait time is ${MAX_WAIT}s (>10s)${NC}"
 fi

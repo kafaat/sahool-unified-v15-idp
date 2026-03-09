@@ -465,11 +465,14 @@ services:
       # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
       - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
       - QDRANT__LOG_LEVEL=INFO
-    # Qdrant healthcheck - uses HTTP endpoint to verify service is responding
-    # فحص صحة Qdrant - يستخدم نقطة نهاية HTTP للتحقق من استجابة الخدمة
-    # FIX: qdrant image doesn't include curl; use wget (available in Alpine base)
+    # Qdrant healthcheck - verify qdrant is listening on REST port (6333)
+    # فحص صحة Qdrant - التحقق من أن qdrant يستمع على منفذ REST
+    # NOTE: qdrant/qdrant image is minimal Debian (no curl/wget/nc/bash)
+    # Use /proc/net/tcp to verify port 6333 (0x18BD) has a LISTEN socket
+    # For full HTTP health, use K8s livenessProbe against /healthz
+    # See: https://github.com/qdrant/qdrant/issues/4250
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:6333/healthz || exit 1" ]
+      test: [ "CMD-SHELL", "grep -q ':18BD' /proc/net/tcp || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -709,9 +712,9 @@ services:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (used by init script and healthcheck)
-      # Defaults provided for development; override in .env for production
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:-root}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
+      # Set in .env file (copy from .env.example): cp .env.example .env
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required - copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required - copy .env.example to .env}
     volumes:
       - etcd_data:/etcd
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
@@ -756,8 +759,8 @@ services:
     environment:
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://etcd:2379
-      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:-root}
-      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
+      - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required - copy .env.example to .env}
+      - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required - copy .env.example to .env}
     depends_on:
       etcd:
         condition: service_healthy
@@ -786,9 +789,9 @@ services:
     container_name: sahool-minio
     environment:
       # Root credentials (minimum 16 characters)
-      # Defaults provided for development; override in .env for production
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sahool_minio_admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sahool_minio_dev_password_2026_secure}
+      # Set in .env file (copy from .env.example): cp .env.example .env
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - copy .env.example to .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - copy .env.example to .env}
 
       # TLS/SSL Configuration
       # Certificates mounted at /root/.minio/certs
@@ -866,13 +869,13 @@ services:
       ETCD_ROOT_PATH: /milvus
       ETCD_USE_SSL: "false"
       # Etcd authentication credentials
-      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:-root}
-      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:-sahool_etcd_dev_password_2026}
+      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required - copy .env.example to .env}
+      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required - copy .env.example to .env}
       # MinIO connection with dedicated service account (least privilege)
       # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000
-      MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:-sahool_minio_admin}}
-      MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:-sahool_minio_dev_password_2026_secure}}
+      MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}}
+      MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}}
     ports:
       - "127.0.0.1:19530:19530"
       - "127.0.0.1:9091:9091"

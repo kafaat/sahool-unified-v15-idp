@@ -16,7 +16,7 @@ geoalchemy2>=0.15.0
 nats-py==2.13.1
 
 # Computer Vision
-opencv-python-headless>=4.10.0
+opencv-python-headless>=4.10.0,<5.0.0
 numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
 scipy>=1.14.0,<1.18.0  # Upper bound for TensorFlow 2.20.0 compatibility
 pillow>=11.0.0
@@ -32,12 +32,12 @@ shapely>=2.0.0
 pyproj>=3.7.0
 
 # LLM Integration
-anthropic>=0.40.0
-openai>=1.55.0
+anthropic>=0.41.0,<1.0.0
+openai>=1.55.0,<2.0.0
 
 # Logging & Monitoring
-structlog>=24.4.0
-prometheus-client>=0.21.0
+structlog>=24.4.0,<25.0.0
+prometheus-client>=0.21.0,<1.0.0
 
 # HTTP Client
 httpx>=0.28.1,<1.0.0

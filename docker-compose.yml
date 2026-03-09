@@ -843,10 +843,10 @@ services:
     healthcheck:
       # Health check: Use MinIO's built-in mc client (always available in minio image)
       # فحص صحة MinIO - يستخدم عميل mc المدمج في صورة MinIO
-      # FIX: Use wget (available in MinIO image) instead of curl which may not be installed
-      # FIX: Check HTTP first (dev default), HTTPS only when TLS certs are configured
-      # FIX: Increased retries/start_period for Windows Docker Desktop cold starts
-      test: [ "CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live 2>/dev/null || wget -qO- http://localhost:9000/minio/health/live 2>/dev/null || exit 1" ]
+      # FIX: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
+      # Use 'mc ready local' which is the official MinIO healthcheck recommendation
+      # Fallback: TCP port check via shell if mc is not configured
+      test: [ "CMD-SHELL", "mc ready local 2>/dev/null || curl -sf http://localhost:9000/minio/health/live 2>/dev/null || bash -c '</dev/tcp/localhost/9000'" ]
       interval: 15s
       timeout: 10s
       retries: 8

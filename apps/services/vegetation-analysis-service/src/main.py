@@ -320,7 +320,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    print("👋 Satellite Service shutting down...")
+    logger.info("service_shutting_down", service="satellite-service")
     if _multi_provider:
         try:
             await _multi_provider.close()
@@ -331,7 +331,7 @@ async def lifespan(app: FastAPI):
             await _sar_processor.close()
         except Exception as e:
             logger.warning(f"Error closing SAR processor: {e}")
-    print("✅ Satellite Service shutdown complete")
+    logger.info("service_shutdown_complete", service="satellite-service")
 
 
 app = FastAPI(

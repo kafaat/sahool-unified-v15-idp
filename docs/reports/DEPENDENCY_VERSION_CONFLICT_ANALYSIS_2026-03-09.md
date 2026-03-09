@@ -11,13 +11,13 @@
 
 | Severity | Count | Description |
 |----------|-------|-------------|
-| **CRITICAL** | 6 | Major version mismatches, dev/prod divergence, floating tags |
-| **HIGH** | 5 | Version drift from central constraints affecting 50+ services |
-| **MEDIUM** | 15 | Patch-level mismatches, module system conflicts, wildcard deps |
-| **LOW** | 15 | Minor inconsistencies, duplicates, non-blocking |
+| **CRITICAL** | 7 | Major version mismatches, dev/prod divergence, floating tags |
+| **HIGH** | 6 | Version drift, skipped constraints affecting 50+ services |
+| **MEDIUM** | 16 | Patch-level mismatches, module system conflicts, mirror order |
+| **LOW** | 16 | Minor inconsistencies, duplicates, non-blocking |
 | **INFO** | 6 | Observations and recommendations |
 
-**Total conflicts found: 47 across 17 analysis categories**
+**Total conflicts found: 51 across 17 analysis categories**
 
 ---
 
@@ -230,13 +230,28 @@ All 3 Flutter pubspec.yaml files use identical version constraints for all share
 
 ## 5. Docker Base Images
 
-### INFO: Consistent Base Images
+### CRITICAL: field-management-service Uses Python 3.12
 
-All Python services use `python:${PYTHON_VERSION}-slim-bookworm` (default 3.11). Exception:
-- yolo26-vision-service: `nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04` (expected)
-- 2 services use `-slim` instead of `-slim-bookworm` (minor)
+`field-management-service/Dockerfile.python` uses `python:3.12-slim` instead of the standard `python:3.11-slim-bookworm`. Also uses **UID 1001** instead of the standard **UID 1000**. This is a triple deviation (Python version, Debian variant, UID).
 
-All Node.js services use `node:${NODE_VERSION}-bookworm-slim` (20.x).
+### HIGH: 6 Services Skip constraints.txt in Docker Builds
+
+These services install pip packages without `-c constraints.txt`, enabling version drift:
+- ai-advisor, ai-agents-service, crop-intelligence-service, field-intelligence, llm-orchestrator-service, vllm-deepseek
+
+(yolo26-vision-service properly uses `constraints-ai.txt` instead)
+
+### MEDIUM: Pip Mirror Order Contradicts Documentation
+
+~37 services use Aliyun-first fallback while ~12 use PyPI-first. Documentation recommends PyPI-first (Pattern A).
+
+### LOW: Alpine vs Bookworm for Node.js Frontends
+
+`apps/admin` and `apps/web` use `node:20-alpine` (musl libc) while all backend NestJS services use `node:20-bookworm-slim` (glibc). Native module compatibility risk.
+
+### INFO: Other Base Images Consistent
+
+All other Python services use `python:${PYTHON_VERSION}-slim-bookworm` (default 3.11). CUDA services consistent at `12.1.1-cudnn8-runtime-ubuntu22.04`.
 
 ---
 

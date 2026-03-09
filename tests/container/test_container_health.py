@@ -25,7 +25,6 @@ Run: pytest tests/container/test_container_health.py -v --tb=short -x
 Run parallel: pytest tests/container/test_container_health.py -v -n auto
 """
 
-import json
 import re
 from pathlib import Path
 

@@ -18,7 +18,11 @@ set -e
 # FIX: Added timeout to prevent blocking in environments without internet access
 # DNS resolution for Alpine repos can hang for minutes without network connectivity
 if ! command -v psql >/dev/null 2>&1; then
-    timeout 15 apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    if command -v timeout >/dev/null 2>&1; then
+        timeout 15 apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    else
+        apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+    fi
 fi
 
 # Create runtime directory for userlist.txt

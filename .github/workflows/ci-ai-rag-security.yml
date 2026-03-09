@@ -57,6 +57,7 @@ jobs:
   dependency-scan:
     name: Scan AI Dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -136,6 +137,7 @@ jobs:
   container-scan:
     name: Scan AI Containers
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -301,6 +303,7 @@ jobs:
   dockerfile-lint:
     name: Lint Dockerfiles
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -389,6 +392,7 @@ jobs:
   shared-ai-scan:
     name: Scan Shared AI Modules
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -447,6 +451,7 @@ jobs:
   security-summary:
     name: AI/RAG Security Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs:
       - dependency-scan
       - container-scan

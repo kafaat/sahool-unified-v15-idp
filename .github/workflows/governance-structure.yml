@@ -13,6 +13,7 @@ jobs:
   structure-guard:
     name: Validate Repository Structure
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -154,6 +155,7 @@ jobs:
   summary:
     name: Structure Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [structure-guard]
     if: always()
     steps:

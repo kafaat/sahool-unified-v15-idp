@@ -401,7 +401,7 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    print(f"🚀 Starting {SERVICE_NAME} v{SERVICE_VERSION}")
+    logger.info("service_starting", service=SERVICE_NAME, version=SERVICE_VERSION)
 
     # Initialize Redis connection (if available)
     redis_url = os.getenv("REDIS_URL")
@@ -409,9 +409,9 @@ async def lifespan(app: FastAPI):
         try:
             app.state.redis = redis_client.from_url(redis_url, decode_responses=True)
             app.state.redis_connected = True
-            print(f"✅ Redis connected: {redis_url}")
+            logger.info("redis_connected", url=redis_url)
         except Exception as e:
-            print(f"⚠️ Redis connection failed: {e}")
+            logger.warning("redis_connection_failed", error=str(e))
             app.state.redis = None
             app.state.redis_connected = False
     else:
@@ -426,9 +426,9 @@ async def lifespan(app: FastAPI):
 
             app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
-            print(f"✅ NATS connected: {nats_url}")
+            logger.info("nats_connected", url=nats_url)
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
+            logger.warning("nats_connection_failed", error=str(e))
             app.state.publisher = None
             app.state.nats_connected = False
     else:
@@ -464,12 +464,11 @@ async def lifespan(app: FastAPI):
             migrations_dir = Path(__file__).parent.parent / "migrations"
             if migrations_dir.exists():
                 await app.state.crm_repo.run_migrations(str(migrations_dir))
-                logger.info("Database migrations completed")
+                logger.info("database_migrations_completed")
 
-            print("✅ Database connected and initialized")
+            logger.info("database_connected_and_initialized")
         except Exception as e:
-            print(f"⚠️ Database connection failed: {e}")
-            logger.error("Database connection failed", error=str(e))
+            logger.error("database_connection_failed", error=str(e))
             app.state.db_pool = None
             app.state.db_connected = False
             app.state.crm_repo = None
@@ -479,7 +478,7 @@ async def lifespan(app: FastAPI):
         app.state.crm_repo = None
         logger.warning("No DATABASE_URL configured, using in-memory storage")
 
-    print(f"✅ {SERVICE_NAME} ready on port {SERVICE_PORT}")
+    logger.info("service_ready", service=SERVICE_NAME, port=SERVICE_PORT)
 
     yield
 
@@ -490,7 +489,7 @@ async def lifespan(app: FastAPI):
         await app.state.publisher.close()
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
-    print(f"👋 {SERVICE_NAME} shutdown complete")
+    logger.info("service_shutdown_complete", service=SERVICE_NAME)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -23,6 +23,7 @@ jobs:
   validate-yaml:
     name: Validate YAML
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -40,6 +41,7 @@ jobs:
   validate-schemas:
     name: Validate JSON Schemas
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -61,6 +63,7 @@ jobs:
   validate-kyverno:
     name: Validate Kyverno Policies
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -122,6 +125,7 @@ jobs:
   security-checks:
     name: Security Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -157,6 +161,7 @@ jobs:
   structure-guard:
     name: Structure Guard
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -256,6 +261,7 @@ jobs:
   governance-report:
     name: Generate Report
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [validate-yaml, validate-schemas, validate-kyverno, security-checks, structure-guard]
     if: always()
     steps:

@@ -213,7 +213,7 @@ def readiness():
     }
 
 
-@app.get("/v1/registry/stats", tags=["Registry"])
+@app.get("/api/v1/registry/stats", tags=["Registry"])
 async def get_registry_stats():
     """
     Get registry statistics
@@ -239,7 +239,7 @@ async def get_registry_stats():
 # ============================================================================
 
 
-@app.post("/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
+@app.post("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
 async def register_agent(request: RegisterAgentRequest):
     """
     Register a new agent
@@ -281,7 +281,7 @@ async def register_agent(request: RegisterAgentRequest):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/v1/registry/agents/{agent_id}", tags=["Agents"])
+@app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"])
 async def get_agent(agent_id: str):
     """
     Get agent card by ID
@@ -312,7 +312,7 @@ async def get_agent(agent_id: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/v1/registry/agents", tags=["Agents"])
+@app.get("/api/v1/registry/agents", tags=["Agents"])
 async def list_agents(
     status: str | None = None,
     category: str | None = None,
@@ -351,7 +351,7 @@ async def list_agents(
 
 
 @app.delete(
-    "/v1/registry/agents/{agent_id}",
+    "/api/v1/registry/agents/{agent_id}",
     tags=["Agents"],
     dependencies=[Depends(verify_api_key)],
 )
@@ -405,7 +405,7 @@ async def deregister_agent(agent_id: str):
 # ============================================================================
 
 
-@app.get("/v1/registry/discover/capability", tags=["Discovery"])
+@app.get("/api/v1/registry/discover/capability", tags=["Discovery"])
 async def discover_by_capability(capability: str):
     """
     Discover agents by capability
@@ -433,7 +433,7 @@ async def discover_by_capability(capability: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/v1/registry/discover/skill", tags=["Discovery"])
+@app.get("/api/v1/registry/discover/skill", tags=["Discovery"])
 async def discover_by_skill(skill: str):
     """
     Discover agents by skill
@@ -461,7 +461,7 @@ async def discover_by_skill(skill: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.post("/v1/registry/discover/tags", tags=["Discovery"])
+@app.post("/api/v1/registry/discover/tags", tags=["Discovery"])
 async def discover_by_tags(request: DiscoverByTagsRequest):
     """
     Discover agents by tags
@@ -494,7 +494,7 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
 # ============================================================================
 
 
-@app.get("/v1/registry/agents/{agent_id}/health", tags=["Health"])
+@app.get("/api/v1/registry/agents/{agent_id}/health", tags=["Health"])
 async def check_agent_health(agent_id: str):
     """
     Check health of a specific agent
@@ -517,7 +517,7 @@ async def check_agent_health(agent_id: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
 
-@app.get("/v1/registry/health/all", tags=["Health"])
+@app.get("/api/v1/registry/health/all", tags=["Health"])
 async def get_all_health_statuses():
     """
     Get health statuses of all agents

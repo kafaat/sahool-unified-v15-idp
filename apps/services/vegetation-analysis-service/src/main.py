@@ -23,6 +23,7 @@ from datetime import UTC, date, datetime, timedelta
 from enum import Enum, StrEnum
 from typing import Any
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -33,7 +34,7 @@ from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Add shared modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
@@ -252,26 +253,26 @@ async def lifespan(app: FastAPI):
         _change_detector, \
         _vra_generator
 
-    print("🛰️ Starting Satellite Service...")
+    logger.info("service_starting", service="satellite-service")
 
     # Initialize multi-provider service
     if USE_MULTI_PROVIDER and MultiSatelliteService:
         _multi_provider = MultiSatelliteService()
         providers = _multi_provider.get_available_providers()
         configured = [p["name"] for p in providers if p["configured"]]
-        print(f"🌍 Multi-provider satellite service: {', '.join(configured)}")
+        logger.info("multi_provider_initialized", providers=configured)
     else:
         _multi_provider = None
-        print("🌍 Using legacy eo-learn integration")
+        logger.info("using_legacy_eolearn_integration")
 
     # Initialize phenology detector
     _phenology_detector = PhenologyDetector()
-    print(f"🌱 Phenology detector loaded: {len(_phenology_detector.YEMEN_CROP_SEASONS)} crops supported")
+    logger.info("phenology_detector_loaded", crops_supported=len(_phenology_detector.YEMEN_CROP_SEASONS))
 
     # Initialize field boundary detector
     global _boundary_detector
     _boundary_detector = FieldBoundaryDetector(multi_provider=_multi_provider)
-    print("🗺️  Field Boundary Detector initialized for automatic field delineation")
+    logger.info("field_boundary_detector_initialized")
 
     # Initialize SAR processor
     if SARProcessor:

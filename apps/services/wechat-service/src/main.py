@@ -34,6 +34,7 @@ from slowapi.util import get_remote_address
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware as shared_add_request_id_middleware
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
@@ -606,6 +607,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+shared_add_request_id_middleware(app)
 
 
 # ===============================================================================

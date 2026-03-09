@@ -303,11 +303,11 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("offline_checker_start_failed", error=str(e))
 
-        print("✅ IoT Gateway ready on port 8106")
+        logger.info("service_ready", service="iot-gateway", port=8106)
     except Exception as e:
         # Even if startup fails completely, allow the service to start
         # so it can at least respond to health checks
-        print(f"⚠️ Startup warnings (service will continue): {e}")
+        logger.warning("startup_warnings", error=str(e))
         logger.error(f"Startup error: {e}", exc_info=True)
 
     yield
@@ -323,10 +323,10 @@ async def lifespan(app: FastAPI):
         # Close Redis connection
         if hasattr(app.state, "redis") and app.state.redis:
             await app.state.redis.close()
-            print("✅ Redis connection closed")
-        print("👋 IoT Gateway shutting down")
+            logger.info("redis_connection_closed")
+        logger.info("service_shutting_down", service="iot-gateway")
     except Exception as e:
-        print(f"⚠️ Shutdown error: {e}")
+        logger.error("shutdown_error", error=str(e))
 
 
 app = FastAPI(

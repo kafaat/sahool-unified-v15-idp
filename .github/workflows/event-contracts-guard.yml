@@ -27,6 +27,7 @@ jobs:
   validate-schemas:
     name: Validate Event Schemas
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -140,6 +141,7 @@ jobs:
   backward-compatibility:
     name: Check Backward Compatibility
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
         with:
@@ -272,6 +274,7 @@ jobs:
   documentation:
     name: Check Event Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -334,6 +337,7 @@ jobs:
   type-generation:
     name: Check Type Generation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 

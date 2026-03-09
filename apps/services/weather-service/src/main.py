@@ -81,31 +81,31 @@ USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🌤️ Starting Weather Core Service...")
+    logger.info("service_starting", service="weather-service")
 
     # Initialize weather provider
     if USE_MOCK_WEATHER:
         app.state.weather_provider = MockWeatherProvider()
         app.state.multi_provider = None
-        print("📋 Using mock weather provider")
+        logger.info("weather_provider_initialized", provider="mock")
     elif USE_MULTI_PROVIDER:
         app.state.multi_provider = MultiWeatherService()
         app.state.weather_provider = OpenMeteoProvider()  # Fallback
         providers = app.state.multi_provider.get_available_providers()
         provider_names = [p["name"] for p in providers if p["configured"]]
-        print(f"🌐 Using multi-provider weather service: {', '.join(provider_names)}")
+        logger.info("weather_provider_initialized", provider="multi", providers=provider_names)
     else:
         app.state.weather_provider = OpenMeteoProvider()
         app.state.multi_provider = None
-        print("🌐 Using Open-Meteo weather provider")
+        logger.info("weather_provider_initialized", provider="open-meteo")
 
     # Initialize publisher
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Weather Core ready on port 8092")
+        logger.info("service_ready", service="weather-service", port=8092)
     except Exception as e:
-        print(f"⚠️ NATS connection failed: {e}")
+        logger.warning("nats_connection_failed", error=str(e))
         app.state.publisher = None
 
     yield
@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):
         await app.state.weather_provider.close()
     if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
-    print("👋 Weather Core shutting down")
+    logger.info("service_shutting_down", service="weather-service")
 
 
 app = FastAPI(
@@ -248,17 +248,20 @@ async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_use
     event_ids = []
     if getattr(app.state, "publisher", None) and alerts:
         for alert in alerts:
-            event_id = await app.state.publisher.publish_weather_alert(
-                tenant_id=req.tenant_id,
-                field_id=req.field_id,
-                alert_type=alert.alert_type,
-                severity=alert.severity,
-                window_hours=alert.window_hours,
-                title_ar=alert.title_ar,
-                title_en=alert.title_en,
-                correlation_id=req.correlation_id,
-            )
-            event_ids.append(event_id)
+            try:
+                event_id = await app.state.publisher.publish_weather_alert(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    alert_type=alert.alert_type,
+                    severity=alert.severity,
+                    window_hours=alert.window_hours,
+                    title_ar=alert.title_ar,
+                    title_en=alert.title_en,
+                    correlation_id=req.correlation_id,
+                )
+                event_ids.append(event_id)
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
     return {
         "field_id": req.field_id,
@@ -313,17 +316,20 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
         publisher = getattr(app.state, "publisher", None)
         if publisher and alerts:
             for alert in alerts:
-                event_id = await publisher.publish_weather_alert(
-                    tenant_id=req.tenant_id,
-                    field_id=req.field_id,
-                    alert_type=alert.alert_type,
-                    severity=alert.severity,
-                    window_hours=alert.window_hours,
-                    title_ar=alert.title_ar,
-                    title_en=alert.title_en,
-                    correlation_id=req.correlation_id,
-                )
-                event_ids.append(event_id)
+                try:
+                    event_id = await publisher.publish_weather_alert(
+                        tenant_id=req.tenant_id,
+                        field_id=req.field_id,
+                        alert_type=alert.alert_type,
+                        severity=alert.severity,
+                        window_hours=alert.window_hours,
+                        title_ar=alert.title_ar,
+                        title_en=alert.title_en,
+                        correlation_id=req.correlation_id,
+                    )
+                    event_ids.append(event_id)
+                except Exception as e:
+                    logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
         return {
             "field_id": req.field_id,
@@ -448,14 +454,17 @@ async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get
     event_id = None
     publisher = getattr(app.state, "publisher", None)
     if publisher:
-        event_id = await publisher.publish_irrigation_adjustment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            adjustment_factor=adjustment["adjustment_factor"],
-            recommendation_ar=adjustment["recommendation_ar"],
-            recommendation_en=adjustment["recommendation_en"],
-            correlation_id=req.correlation_id,
-        )
+        try:
+            event_id = await publisher.publish_irrigation_adjustment(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                adjustment_factor=adjustment["adjustment_factor"],
+                recommendation_ar=adjustment["recommendation_ar"],
+                recommendation_en=adjustment["recommendation_en"],
+                correlation_id=req.correlation_id,
+            )
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="irrigation_adjustment", error=str(e))
 
     return {
         "field_id": req.field_id,

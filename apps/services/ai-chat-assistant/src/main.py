@@ -77,6 +77,9 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error during shutdown: {e}")
 
 
+# Import unified error handling
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+
 # Create FastAPI app
 app = FastAPI(
     title="AI Chat Assistant",
@@ -84,6 +87,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)

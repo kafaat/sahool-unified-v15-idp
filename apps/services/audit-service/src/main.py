@@ -35,6 +35,7 @@ except ImportError:
         pass
 
 
+from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -317,6 +318,7 @@ async def get_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=500),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Query audit logs with filters
@@ -360,6 +362,7 @@ async def get_audit_logs(
 async def get_audit_log(
     log_id: str = Path(..., description="Audit log ID"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get a specific audit log entry
@@ -380,6 +383,7 @@ async def get_user_audit_trail(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get audit trail for a specific user
@@ -418,6 +422,7 @@ async def get_resource_audit_trail(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Get audit trail for a specific resource
@@ -456,6 +461,7 @@ async def validate_hash_chain(
     start_date: datetime | None = Query(None, description="Start date for validation"),
     end_date: datetime | None = Query(None, description="End date for validation"),
     tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
 ):
     """
     Validate hash chain integrity for audit logs
@@ -502,7 +508,7 @@ async def validate_hash_chain(
 
 
 @app.get("/api/v1/audit/chain/summary", tags=["Hash Chain"])
-async def get_chain_summary(tenant_id: str = Depends(get_tenant_id)):
+async def get_chain_summary(tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
     """
     Get hash chain summary for tenant
 

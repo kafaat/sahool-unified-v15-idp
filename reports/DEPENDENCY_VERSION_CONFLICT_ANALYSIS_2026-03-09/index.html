@@ -1,0 +1,2238 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Dependency Version Conflict Analysis Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dependency-version-conflict-analysis-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dependency Version Conflict Analysis Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dependency-version-conflict-analysis-report">Dependency Version Conflict Analysis Report<a class="headerlink" href="#dependency-version-conflict-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-09
+<strong>Platform</strong>: SAHOOL v16.0.0
+<strong>Analysis Method</strong>: 18 parallel agents covering all dependency layers (including AI/ML deep analysis)
+<strong>Scope</strong>: 72 active services, 24 npm packages, 3 Flutter apps, 32 Helm charts, 53 CI workflows</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CRITICAL</strong></td>
+<td>11</td>
+<td>Version mismatches, broken OTel exports, dev/prod divergence, torch/torchvision contradictions</td>
+</tr>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>10</td>
+<td>Version drift, skipped constraints, strict-markers, langchain/sentence-transformers splits</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>23</td>
+<td>Patch-level mismatches, module conflicts, test config, openai bounds, opencv variant clash</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>18</td>
+<td>Minor inconsistencies, duplicates, missing upper bounds, non-blocking</td>
+</tr>
+<tr>
+<td><strong>INFO</strong></td>
+<td>8</td>
+<td>Observations and recommendations</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total conflicts found: 70 across 18 analysis categories (including AI/ML libraries)</strong></p>
+<hr />
+<h2 id="1-python-constraints-vs-service-requirements">1. Python Constraints vs Service Requirements<a class="headerlink" href="#1-python-constraints-vs-service-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="critical-tortoise-orm-major-version-mismatch">CRITICAL: tortoise-orm Major Version Mismatch<a class="headerlink" href="#critical-tortoise-orm-major-version-mismatch" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==0.25.4</code></td>
+<td><strong>Stale</strong></td>
+</tr>
+<tr>
+<td>6 active services</td>
+<td><code>==1.1.6</code></td>
+<td><strong>Production</strong></td>
+</tr>
+<tr>
+<td>Archived services</td>
+<td><code>==0.21.7</code> / <code>==0.25.4</code></td>
+<td>Deprecated</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected services</strong>: field-management-service, knowledge-graph, ndvi-processor, notification-service, ws-gateway, apps/services/requirements.txt</p>
+<p><strong>Risk</strong>: Services using <code>-c constraints.txt</code> will install 0.25.4 instead of 1.1.6, causing import failures (API breaking changes between 0.x and 1.x).</p>
+<p><strong>Fix</strong>: Update <code>constraints.txt</code> to <code>tortoise-orm==1.1.6</code></p>
+<hr />
+<h3 id="high-nats-py-version-drift-50-services">HIGH: nats-py Version Drift (50 services)<a class="headerlink" href="#high-nats-py-version-drift-50-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==2.14.0</code></td>
+</tr>
+<tr>
+<td>All 50 active services</td>
+<td><code>==2.13.1</code></td>
+</tr>
+<tr>
+<td>IDP template</td>
+<td><code>==2.13.1</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: Services not using <code>-c constraints.txt</code> install 2.13.1. Version 2.14.0 includes JetStream consumer bugfixes.</p>
+<p><strong>Fix</strong>: Update all 50 service requirements.txt from <code>==2.13.1</code> to <code>==2.14.0</code></p>
+<hr />
+<h3 id="high-python-dotenv-version-drift-40-services">HIGH: python-dotenv Version Drift (40 services)<a class="headerlink" href="#high-python-dotenv-version-drift-40-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==1.2.2</code></td>
+</tr>
+<tr>
+<td>40 active services</td>
+<td><code>==1.2.1</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fix</strong>: Update all 40 services from <code>==1.2.1</code> to <code>==1.2.2</code></p>
+<hr />
+<h3 id="medium-pydantic-settings-9-services">MEDIUM: pydantic-settings (9 services)<a class="headerlink" href="#medium-pydantic-settings-9-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==2.13.1</code></td>
+</tr>
+<tr>
+<td>9 services</td>
+<td><code>==2.12.0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected</strong>: agent-registry, ai-advisor, ai-chat-assistant, code-review-service, globalgap-compliance, leveling-optimizer-service, ndvi-processor, terrain-core-service, virtual-sensors</p>
+<hr />
+<h3 id="medium-uvicorn-8-services">MEDIUM: uvicorn (8 services)<a class="headerlink" href="#medium-uvicorn-8-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==0.41.0</code></td>
+</tr>
+<tr>
+<td>8 services</td>
+<td><code>==0.40.0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected</strong>: code-review-service, cooperative-service, drone-service, inventory-service, mcp-server, soil-analysis-service, traceability-service, yolo26-vision-service</p>
+<hr />
+<h3 id="medium-alembic-6-services">MEDIUM: alembic (6 services)<a class="headerlink" href="#medium-alembic-6-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==1.18.4</code></td>
+</tr>
+<tr>
+<td>6 services</td>
+<td><code>==1.18.3</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected</strong>: alert-service, audit-service, billing-core, equipment-service, field-intelligence, provider-config</p>
+<hr />
+<h3 id="medium-psycopg2-binary-6-services">MEDIUM: psycopg2-binary (6 services)<a class="headerlink" href="#medium-psycopg2-binary-6-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==2.9.11</code></td>
+</tr>
+<tr>
+<td>6 services</td>
+<td><code>==2.9.9</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected</strong>: alert-service, audit-service, equipment-service, field-intelligence, logistics-service, provider-config</p>
+<hr />
+<h3 id="medium-geospatial-libraries-2-services">MEDIUM: Geospatial Libraries (2 services)<a class="headerlink" href="#medium-geospatial-libraries-2-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Constraint</th>
+<th>Service Version</th>
+<th>Affected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rasterio</td>
+<td><code>==1.4.4</code></td>
+<td><code>==1.4.3</code></td>
+<td>ndvi-processor, terrain-core-service</td>
+</tr>
+<tr>
+<td>shapely</td>
+<td><code>==2.1.2</code></td>
+<td><code>==2.0.6</code></td>
+<td>ndvi-processor, terrain-core-service</td>
+</tr>
+<tr>
+<td>pyproj</td>
+<td><code>==3.7.2</code></td>
+<td><code>==3.7.0</code></td>
+<td>ndvi-processor, terrain-core-service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="low-dev-tool-versions">LOW: Dev Tool Versions<a class="headerlink" href="#low-dev-tool-versions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Constraint</th>
+<th>Service Version</th>
+<th>Affected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ruff</td>
+<td><code>==0.15.5</code></td>
+<td><code>==0.15.0</code></td>
+<td>ai-chat-assistant, leveling-optimizer-service</td>
+</tr>
+<tr>
+<td>mypy</td>
+<td><code>==1.19.1</code></td>
+<td><code>==1.14.1</code></td>
+<td>ai-chat-assistant</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-security-library-conflicts">2. Security Library Conflicts<a class="headerlink" href="#2-security-library-conflicts" title="Permanent link">&para;</a></h2>
+<h3 id="high-pyjwt-lower-bound-allows-vulnerable-versions">HIGH: PyJWT Lower Bound Allows Vulnerable Versions<a class="headerlink" href="#high-pyjwt-lower-bound-allows-vulnerable-versions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>&gt;=2.10.1,&lt;3.0.0</code></td>
+<td>Correct (CVE-2024-53861 fixed)</td>
+</tr>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>&gt;=2.9.0,&lt;3.0.0</code></td>
+<td><strong>Allows vulnerable 2.9.x</strong></td>
+</tr>
+<tr>
+<td><code>apps/services/requirements.txt</code></td>
+<td><code>&gt;=2.8.0,&lt;3.0.0</code></td>
+<td><strong>Allows vulnerable 2.8.x</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fix</strong>: Raise lower bounds to <code>&gt;=2.10.1</code> in both files.</p>
+<h3 id="medium-dual-database-drivers">MEDIUM: Dual Database Drivers<a class="headerlink" href="#medium-dual-database-drivers" title="Permanent link">&para;</a></h3>
+<p>3 services use both <code>asyncpg</code> AND <code>psycopg2-binary</code>:
+- yolo26-vision-service
+- logistics-service
+- field-intelligence</p>
+<p><strong>Risk</strong>: Connection pool confusion, memory overhead.</p>
+<h3 id="low-bcrypt-not-in-central-constraints">LOW: bcrypt Not in Central Constraints<a class="headerlink" href="#low-bcrypt-not-in-central-constraints" title="Permanent link">&para;</a></h3>
+<p><code>bcrypt==5.0.0</code> is used in <code>shared/auth/</code> and <code>shared/requirements.txt</code> but has no constraint in <code>constraints.txt</code>.</p>
+<hr />
+<h2 id="3-nodejs-workspace-dependencies">3. Node.js Workspace Dependencies<a class="headerlink" href="#3-nodejs-workspace-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="low-ioredis-version-spread">LOW: ioredis Version Spread<a class="headerlink" href="#low-ioredis-version-spread" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nestjs-auth, crop-growth-model, lai-estimation, marketplace-service, yield-prediction-service</td>
+<td><code>^5.0.0</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td>shared/cache</td>
+<td><code>^5.3.0</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>apps/web</td>
+<td><code>^5.4.1</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td><code>^5.4.2</code></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Ranges overlap but inconsistent floors.</p>
+<h3 id="low-node-redis-version-spread">LOW: node-redis Version Spread<a class="headerlink" href="#low-node-redis-version-spread" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Most services</td>
+<td><code>^4.6.0</code></td>
+</tr>
+<tr>
+<td>user-service</td>
+<td><code>^4.7.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-module-system-split-commonjs-vs-esnext">MEDIUM: Module System Split (CommonJS vs ESNext)<a class="headerlink" href="#medium-module-system-split-commonjs-vs-esnext" title="Permanent link">&para;</a></h3>
+<p>17 TypeScript configs use <code>module: "commonjs"</code> (all NestJS services), 10 use <code>module: "ESNext"</code> (frontend/packages), 1 uses <code>NodeNext</code>. Shared packages (<code>field-shared</code>, <code>shared-events</code>, <code>shared-db</code>) emit CommonJS but may be consumed by ESNext consumers, risking runtime failures.</p>
+<h3 id="medium-esmoduleinterop-missing-5-nestjs-services">MEDIUM: <code>esModuleInterop</code> Missing (5 NestJS services)<a class="headerlink" href="#medium-esmoduleinterop-missing-5-nestjs-services" title="Permanent link">&para;</a></h3>
+<p>chat-service, iot-service, research-core, user-service, yield-prediction-service set <code>allowSyntheticDefaultImports: true</code> but omit <code>esModuleInterop</code>, risking subtle runtime import failures with CJS default exports.</p>
+<h3 id="low-sahoolcode-review-agent-version-outlier">LOW: <code>@sahool/code-review-agent</code> Version Outlier<a class="headerlink" href="#low-sahoolcode-review-agent-version-outlier" title="Permanent link">&para;</a></h3>
+<p>Versioned at <code>1.0.0</code> while every other package in the monorepo is at <code>16.0.0</code>.</p>
+<h3 id="low-file-vs-workspace-resolution">LOW: <code>file:</code> vs Workspace Resolution<a class="headerlink" href="#low-file-vs-workspace-resolution" title="Permanent link">&para;</a></h3>
+<p><code>nestjs-auth</code> and <code>field-shared</code> use <code>file:</code> protocol references while other <code>@sahool/*</code> packages use <code>^16.0.0</code> semver workspace resolution.</p>
+<h3 id="low-prisma-cli-as-dependency">LOW: Prisma CLI as Dependency<a class="headerlink" href="#low-prisma-cli-as-dependency" title="Permanent link">&para;</a></h3>
+<p><code>user-service</code> lists <code>prisma</code> CLI in <code>dependencies</code> instead of <code>devDependencies</code> (unlike all other services).</p>
+<h3 id="low-eslint-dead-root-config">LOW: ESLint Dead Root Config<a class="headerlink" href="#low-eslint-dead-root-config" title="Permanent link">&para;</a></h3>
+<p>25 of 29 TypeScript workspaces have no ESLint config. Root <code>.eslintrc.base.json</code> (legacy format) is not referenced by any flat config workspace.</p>
+<h3 id="info-typescript-consistent">INFO: TypeScript Consistent<a class="headerlink" href="#info-typescript-consistent" title="Permanent link">&para;</a></h3>
+<p>All workspaces use TypeScript <code>^5.9.3</code> or <code>5.9.3</code>. No conflicts.</p>
+<h3 id="info-react-versions">INFO: React Versions<a class="headerlink" href="#info-react-versions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>apps/web, apps/admin</td>
+<td><code>^19.2.4</code> or <code>^19.0.0</code></td>
+</tr>
+<tr>
+<td>packages (peerDeps)</td>
+<td><code>&gt;=18.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Compatible - peer deps allow React 19.</p>
+<hr />
+<h2 id="4-flutterdart-dependencies">4. Flutter/Dart Dependencies<a class="headerlink" href="#4-flutterdart-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="info-no-version-conflicts">INFO: No Version Conflicts<a class="headerlink" href="#info-no-version-conflicts" title="Permanent link">&para;</a></h3>
+<p>All 3 Flutter pubspec.yaml files use identical version constraints for all shared packages. The <code>dependency_overrides</code> (record_platform_interface: 1.2.0) is identical and documented.</p>
+<h3 id="low-duplicate-pubspecyaml">LOW: Duplicate pubspec.yaml<a class="headerlink" href="#low-duplicate-pubspecyaml" title="Permanent link">&para;</a></h3>
+<p><code>apps/mobile/pubspec.yaml</code> and <code>apps/mobile/sahool_field_app/pubspec.yaml</code> both declare <code>name: sahool_field_app</code>. Minor drift:
+- <code>crypto</code>: root <code>^3.0.3</code> vs sahool_field_app <code>^3.0.6</code>
+- <code>sentry_flutter</code>: present in root, absent from sahool_field_app
+- <code>timezone</code>: absent from root, present in sahool_field_app</p>
+<hr />
+<h2 id="5-docker-base-images">5. Docker Base Images<a class="headerlink" href="#5-docker-base-images" title="Permanent link">&para;</a></h2>
+<h3 id="critical-field-management-service-uses-python-312">CRITICAL: field-management-service Uses Python 3.12<a class="headerlink" href="#critical-field-management-service-uses-python-312" title="Permanent link">&para;</a></h3>
+<p><code>field-management-service/Dockerfile.python</code> uses <code>python:3.12-slim</code> instead of the standard <code>python:3.11-slim-bookworm</code>. Also uses <strong>UID 1001</strong> instead of the standard <strong>UID 1000</strong>. This is a triple deviation (Python version, Debian variant, UID).</p>
+<h3 id="high-6-services-skip-constraintstxt-in-docker-builds">HIGH: 6 Services Skip constraints.txt in Docker Builds<a class="headerlink" href="#high-6-services-skip-constraintstxt-in-docker-builds" title="Permanent link">&para;</a></h3>
+<p>These services install pip packages without <code>-c constraints.txt</code>, enabling version drift:
+- ai-advisor, ai-agents-service, crop-intelligence-service, field-intelligence, llm-orchestrator-service, vllm-deepseek</p>
+<p>(yolo26-vision-service properly uses <code>constraints-ai.txt</code> instead)</p>
+<h3 id="medium-pip-mirror-order-contradicts-documentation">MEDIUM: Pip Mirror Order Contradicts Documentation<a class="headerlink" href="#medium-pip-mirror-order-contradicts-documentation" title="Permanent link">&para;</a></h3>
+<p>~37 services use Aliyun-first fallback while ~12 use PyPI-first. Documentation recommends PyPI-first (Pattern A).</p>
+<h3 id="low-alpine-vs-bookworm-for-nodejs-frontends">LOW: Alpine vs Bookworm for Node.js Frontends<a class="headerlink" href="#low-alpine-vs-bookworm-for-nodejs-frontends" title="Permanent link">&para;</a></h3>
+<p><code>apps/admin</code> and <code>apps/web</code> use <code>node:20-alpine</code> (musl libc) while all backend NestJS services use <code>node:20-bookworm-slim</code> (glibc). Native module compatibility risk.</p>
+<h3 id="info-other-base-images-consistent">INFO: Other Base Images Consistent<a class="headerlink" href="#info-other-base-images-consistent" title="Permanent link">&para;</a></h3>
+<p>All other Python services use <code>python:${PYTHON_VERSION}-slim-bookworm</code> (default 3.11). CUDA services consistent at <code>12.1.1-cudnn8-runtime-ubuntu22.04</code>.</p>
+<hr />
+<h2 id="6-github-actions-ci-workflows">6. GitHub Actions CI Workflows<a class="headerlink" href="#6-github-actions-ci-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="medium-python-version-inconsistency">MEDIUM: Python Version Inconsistency<a class="headerlink" href="#medium-python-version-inconsistency" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Count</th>
+<th>Workflows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>${{ env.PYTHON_VERSION }}</code></td>
+<td>47</td>
+<td>Most workflows (good)</td>
+</tr>
+<tr>
+<td><code>'3.11'</code> (hardcoded)</td>
+<td>37</td>
+<td>Various</td>
+</tr>
+<tr>
+<td><code>'3.12'</code> (hardcoded)</td>
+<td>5</td>
+<td>Some workflows</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: 5 workflows use Python 3.12 while platform target is 3.11.</p>
+<h3 id="info-nodejs-version-consistent">INFO: Node.js Version Consistent<a class="headerlink" href="#info-nodejs-version-consistent" title="Permanent link">&para;</a></h3>
+<p>All workflows use Node 20 (via env var or hardcoded <code>'20'</code>).</p>
+<hr />
+<h2 id="7-helm-charts-docker-compose-vs-helm">7. Helm Charts &amp; Docker-Compose vs Helm<a class="headerlink" href="#7-helm-charts-docker-compose-vs-helm" title="Permanent link">&para;</a></h2>
+<h3 id="critical-inventory-service-stuck-at-1532">CRITICAL: inventory-service Stuck at 15.3.2<a class="headerlink" href="#critical-inventory-service-stuck-at-1532" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>helm/services/inventory-service/Chart.yaml</code></td>
+<td><code>appVersion: 15.3.2</code></td>
+</tr>
+<tr>
+<td><code>helm/services/inventory-service/values.yaml</code></td>
+<td><code>image.tag: 15.3.2</code></td>
+</tr>
+<tr>
+<td><code>helm/sahool/values.yaml</code> (umbrella)</td>
+<td><code>inventoryService.image.tag: 16.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Standalone chart deploys v15.3.2 while umbrella chart deploys v16.0.0.</p>
+<h3 id="critical-qdrant-version-gap-dev-vs-prod">CRITICAL: Qdrant Version Gap (Dev vs Prod)<a class="headerlink" href="#critical-qdrant-version-gap-dev-vs-prod" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker-compose.yml</code></td>
+<td><code>qdrant/qdrant:v1.7.4</code></td>
+</tr>
+<tr>
+<td><code>helm/sahool/values.yaml</code></td>
+<td><code>qdrant/qdrant:v1.10.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>3-minor-version gap could cause data format or API incompatibilities.</p>
+<h3 id="critical-kong-floating-tag-in-helm">CRITICAL: Kong Floating Tag in Helm<a class="headerlink" href="#critical-kong-floating-tag-in-helm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker-compose.yml</code></td>
+<td><code>kong:3.4.2</code> (exact)</td>
+</tr>
+<tr>
+<td><code>helm/sahool/values.yaml</code></td>
+<td><code>kong:3.4</code> (floating)</td>
+</tr>
+</tbody>
+</table>
+<p>Floating tag <code>3.4</code> can resolve to different images across deployments.</p>
+<h3 id="medium-wildcard-helm-dependency-versions">MEDIUM: Wildcard Helm Dependency Versions<a class="headerlink" href="#medium-wildcard-helm-dependency-versions" title="Permanent link">&para;</a></h3>
+<p>Umbrella chart <code>helm/sahool/Chart.yaml</code> uses wildcards:
+- <code>postgresql: "13.x.x"</code>, <code>nats: "1.x.x"</code>, <code>redis: "18.x.x"</code></p>
+<p>Could pull different sub-chart versions across builds.</p>
+<h3 id="low-appversion-mismatch">LOW: appVersion Mismatch<a class="headerlink" href="#low-appversion-mismatch" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Chart</th>
+<th>appVersion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Most charts</td>
+<td><code>16.0.0</code></td>
+</tr>
+<tr>
+<td>infra chart</td>
+<td><code>1.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-duplicate-crop-intelligence-service-chart">LOW: Duplicate crop-intelligence-service Chart<a class="headerlink" href="#low-duplicate-crop-intelligence-service-chart" title="Permanent link">&para;</a></h3>
+<p>Exists in both <code>helm/charts/</code> and <code>helm/services/</code> — maintenance risk.</p>
+<hr />
+<h2 id="8-service-ports">8. Service Ports<a class="headerlink" href="#8-service-ports" title="Permanent link">&para;</a></h2>
+<h3 id="info-no-port-conflicts">INFO: No Port Conflicts<a class="headerlink" href="#info-no-port-conflicts" title="Permanent link">&para;</a></h3>
+<p>All 67 active services have consistent port assignments across <code>service-ports.ts</code>, <code>docker-compose.yml</code>, <code>governance/services.yaml</code>, and service code. Zero duplicates, zero mismatches.</p>
+<p>3 services (agro-rules, code-review-agent, demo-data) are absent from <code>service-ports.ts</code> but use unique ports that don't collide.</p>
+<hr />
+<h2 id="9-monitoring-observability-libraries">9. Monitoring &amp; Observability Libraries<a class="headerlink" href="#9-monitoring-observability-libraries" title="Permanent link">&para;</a></h2>
+<h3 id="critical-opentelemetry-exporter-version-ranges-broken">CRITICAL: OpenTelemetry Exporter Version Ranges Broken<a class="headerlink" href="#critical-opentelemetry-exporter-version-ranges-broken" title="Permanent link">&para;</a></h3>
+<p><code>shared/observability/requirements.txt</code> specifies <code>opentelemetry-exporter-otlp-proto-grpc&gt;=1.39.1</code> — but OTLP exporter packages follow 0.x versioning. Version <code>1.39.1</code> does not exist. These lines will cause pip resolution failures.</p>
+<p>Also: <code>opentelemetry-exporter-jaeger&gt;=1.39.1</code> — Jaeger exporter was deprecated, last published at 1.21.0.</p>
+<h3 id="high-opentelemetry-apisdk-pin-conflict">HIGH: OpenTelemetry API/SDK Pin Conflict<a class="headerlink" href="#high-opentelemetry-apisdk-pin-conflict" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>constraints.txt</code></td>
+<td><code>==1.40.0</code> / <code>==0.61b0</code></td>
+</tr>
+<tr>
+<td><code>apps/services/requirements.txt</code></td>
+<td><code>==1.39.1</code> / <code>==0.60b1</code></td>
+</tr>
+<tr>
+<td><code>idp/templates/.../requirements.txt</code></td>
+<td><code>==1.39.1</code> / <code>==0.60b1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Hard-pinned <code>==1.39.1</code> vs constraint <code>==1.40.0</code> — pip will <strong>fail</strong> when used together. IDP template means every new scaffolded service inherits this conflict.</p>
+<h3 id="medium-structlog-7-different-specs-57-services">MEDIUM: structlog 7 Different Specs (57 services)<a class="headerlink" href="#medium-structlog-7-different-specs-57-services" title="Permanent link">&para;</a></h3>
+<p>33 services lack an upper bound on structlog. Without constraints, they could install 25.x (breaking major version).</p>
+<h3 id="medium-prometheus-client-5-different-specs-20-services">MEDIUM: prometheus-client 5 Different Specs (20 services)<a class="headerlink" href="#medium-prometheus-client-5-different-specs-20-services" title="Permanent link">&para;</a></h3>
+<p>2 services allow <code>&gt;=0.19.0</code>, while constraint pins <code>==0.24.1</code>.</p>
+<hr />
+<h2 id="10-testing-framework-conflicts">10. Testing Framework Conflicts<a class="headerlink" href="#10-testing-framework-conflicts" title="Permanent link">&para;</a></h2>
+<h3 id="critical-playwright-version-gap">CRITICAL: Playwright Version Gap<a class="headerlink" href="#critical-playwright-version-gap" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/web/package.json</code></td>
+<td><code>^1.57.0</code></td>
+</tr>
+<tr>
+<td><code>apps/web/e2e/package.json</code></td>
+<td><code>^1.48.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>The e2e subdirectory could install Playwright 1.48-1.56, missing APIs assumed by the config.</p>
+<h3 id="high-strict-markers-undeclared-markers">HIGH: --strict-markers + Undeclared Markers<a class="headerlink" href="#high-strict-markers-undeclared-markers" title="Permanent link">&para;</a></h3>
+<p>Root <code>pyproject.toml</code> uses <code>--strict-markers</code> but 7 service-specific markers (<code>redis</code>, <code>agent</code>, <code>coordinator</code>, <code>specialist</code>, <code>edge</code>, <code>mock</code>, <code>event_flow</code>) are not registered. Root-level test collection will <strong>reject</strong> tests bearing these markers.</p>
+<h3 id="medium-pytest-7x-vs-8x-split">MEDIUM: pytest 7.x vs 8.x Split<a class="headerlink" href="#medium-pytest-7x-vs-8x-split" title="Permanent link">&para;</a></h3>
+<p><code>copilot-api</code>, <code>globalgap-compliance</code>, <code>kernel/field_ops</code>, and <code>sahool-eo</code> allow pytest 7.x while the canonical pin is 8.4.2.</p>
+<h3 id="medium-asyncio_default_fixture_loop_scope-mismatch">MEDIUM: asyncio_default_fixture_loop_scope Mismatch<a class="headerlink" href="#medium-asyncio_default_fixture_loop_scope-mismatch" title="Permanent link">&para;</a></h3>
+<p><code>edge-orchestrator</code> and <code>crm-service</code> set <code>function</code> scope locally, but root lacks this setting. Running their async tests from root uses <code>session</code> scope — causing potential event loop contamination.</p>
+<h3 id="medium-29-python-services-lack-pytest">MEDIUM: 29 Python Services Lack pytest<a class="headerlink" href="#medium-29-python-services-lack-pytest" title="Permanent link">&para;</a></h3>
+<p>29 services have no pytest in <code>requirements.txt</code> — cannot run tests in isolated Docker builds.</p>
+<h3 id="low-fail_under-silently-ignored">LOW: fail_under Silently Ignored<a class="headerlink" href="#low-fail_under-silently-ignored" title="Permanent link">&para;</a></h3>
+<p><code>edge-orchestrator-service</code> expects 60% coverage but root config sets <code>fail_under = 0</code>. CI from root never enforces it.</p>
+<hr />
+<h2 id="11-pyprojecttoml-vs-constraintstxt">11. pyproject.toml vs constraints.txt<a class="headerlink" href="#11-pyprojecttoml-vs-constraintstxt" title="Permanent link">&para;</a></h2>
+<h3 id="info-fully-compatible">INFO: Fully Compatible<a class="headerlink" href="#info-fully-compatible" title="Permanent link">&para;</a></h3>
+<p>All versions in <code>pyproject.toml</code> are compatible with <code>constraints.txt</code>. No conflicts found.</p>
+<hr />
+<h2 id="12-aiml-library-conflicts">12. AI/ML Library Conflicts<a class="headerlink" href="#12-aiml-library-conflicts" title="Permanent link">&para;</a></h2>
+<h3 id="critical-pytorch-version-contradiction">CRITICAL: PyTorch Version Contradiction<a class="headerlink" href="#critical-pytorch-version-contradiction" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>==2.10.0</code></td>
+<td>Locked for CUDA 12.1</td>
+</tr>
+<tr>
+<td><code>yolo26-vision-service/Dockerfile</code></td>
+<td><code>==2.2.0</code></td>
+<td>Hardcoded in Dockerfile</td>
+</tr>
+<tr>
+<td><code>copilot-api/requirements.txt</code></td>
+<td><code>&gt;=2.2.0,&lt;2.7.0</code></td>
+<td>Range incompatible with 2.10.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: Three mutually contradictory specs. <code>torch==2.10.0</code> satisfies neither <code>==2.2.0</code> (yolo26) nor <code>&lt;2.7.0</code> (copilot-api). Services using <code>constraints-ai.txt</code> will get 2.10.0, breaking copilot-api.</p>
+<h3 id="critical-torchvision-version-contradiction">CRITICAL: torchvision Version Contradiction<a class="headerlink" href="#critical-torchvision-version-contradiction" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>==0.25.0</code></td>
+</tr>
+<tr>
+<td><code>yolo26-vision-service/Dockerfile</code></td>
+<td><code>==0.17.0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: <code>torchvision==0.17.0</code> pairs with <code>torch==2.2.0</code>, and <code>torchvision==0.25.0</code> pairs with <code>torch==2.10.0</code>. The yolo26 Dockerfile is internally consistent but disagrees with constraints-ai.txt.</p>
+<h3 id="high-langchain-ecosystem-version-split">HIGH: langchain Ecosystem Version Split<a class="headerlink" href="#high-langchain-ecosystem-version-split" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>constraints-ai.txt</th>
+<th>ai-advisor/requirements.txt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>langchain</td>
+<td><code>&gt;=0.3.26,&lt;0.4.0</code></td>
+<td><code>&gt;=0.3.26</code> (no upper bound)</td>
+</tr>
+<tr>
+<td>langchain-core</td>
+<td><code>==0.3.83</code></td>
+<td><code>==0.3.81</code></td>
+</tr>
+<tr>
+<td>langchain-community</td>
+<td><code>==0.4.1</code></td>
+<td><code>==0.3.27</code></td>
+</tr>
+<tr>
+<td>langchain-anthropic</td>
+<td><code>==0.3.22</code></td>
+<td><code>==0.3.1</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: ai-advisor pins older versions across the entire langchain stack. If constraints-ai.txt is applied, pip resolution will <strong>fail</strong> on conflicting exact pins.</p>
+<h3 id="high-sentence-transformers-pin-mismatch">HIGH: sentence-transformers Pin Mismatch<a class="headerlink" href="#high-sentence-transformers-pin-mismatch" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>==5.2.3</code></td>
+</tr>
+<tr>
+<td><code>ai-advisor/requirements.txt</code></td>
+<td><code>==5.2.2</code></td>
+</tr>
+<tr>
+<td><code>copilot-api/requirements.txt</code></td>
+<td><code>&gt;=2.2.0,&lt;6.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: Exact pin conflict between constraints (5.2.3) and ai-advisor (5.2.2).</p>
+<h3 id="medium-openai-upper-bound-divergence">MEDIUM: openai Upper Bound Divergence<a class="headerlink" href="#medium-openai-upper-bound-divergence" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td><code>&gt;=1.0.0,&lt;2.0.0</code></td>
+</tr>
+<tr>
+<td><code>llm-orchestrator-service/requirements.txt</code></td>
+<td><code>&gt;=1.0.0,&lt;3.0.0</code></td>
+</tr>
+<tr>
+<td><code>ai-advisor/requirements.txt</code></td>
+<td><code>&gt;=1.0.0</code> (no upper bound)</td>
+</tr>
+<tr>
+<td><code>ground-vision-service/requirements.txt</code></td>
+<td><code>&gt;=1.55.0</code> (no upper bound)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: llm-orchestrator allows <code>&lt;3.0.0</code> while constraints restrict to <code>&lt;2.0.0</code>. Services without upper bounds could install breaking major versions.</p>
+<h3 id="medium-opencv-python-vs-opencv-python-headless">MEDIUM: opencv-python vs opencv-python-headless<a class="headerlink" href="#medium-opencv-python-vs-opencv-python-headless" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Package</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker/constraints-ai.txt</code></td>
+<td>opencv-python-headless</td>
+<td><code>&gt;=4.9.0,&lt;5.0.0</code></td>
+</tr>
+<tr>
+<td><code>yolo26-vision-service</code></td>
+<td>opencv-python-headless</td>
+<td><code>&gt;=4.8.0,&lt;5.0.0</code></td>
+</tr>
+<tr>
+<td><code>ground-vision-service</code></td>
+<td>opencv-python-headless</td>
+<td><code>&gt;=4.10.0</code> (no upper bound)</td>
+</tr>
+<tr>
+<td><code>ai-agents-core</code></td>
+<td><strong>opencv-python</strong> (GUI)</td>
+<td><code>&gt;=4.8.0</code> (no upper bound)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Risk</strong>: ai-agents-core uses <code>opencv-python</code> (with GUI/X11 deps) while all others use <code>opencv-python-headless</code>. These two packages <strong>conflict</strong> when co-installed. ground-vision-service has no upper bound.</p>
+<h3 id="low-missing-upper-bounds-multiple-ai-services">LOW: Missing Upper Bounds (Multiple AI Services)<a class="headerlink" href="#low-missing-upper-bounds-multiple-ai-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Package</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai-advisor</td>
+<td>openai, langchain</td>
+<td>No upper bound</td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>opencv, openai, anthropic</td>
+<td>No upper bounds</td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>anthropic</td>
+<td><code>&gt;=0.40.0</code> (constraints require <code>&gt;=0.41.0</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="info-constraints-gap-no-aiml-governance-in-main-constraintstxt">INFO: Constraints Gap — No AI/ML Governance in Main constraints.txt<a class="headerlink" href="#info-constraints-gap-no-aiml-governance-in-main-constraintstxt" title="Permanent link">&para;</a></h3>
+<p>The main <code>constraints.txt</code> has <strong>no entries</strong> for: torch, torchvision, ultralytics, opencv-python-headless, transformers, sentence-transformers, langchain, crewai, openai, anthropic, or onnxruntime. AI/ML version governance exists only in <code>docker/constraints-ai.txt</code>, leaving non-AI services that transitively pull these packages ungoverned.</p>
+<hr />
+<h2 id="conflict-summary-by-count">Conflict Summary by Count<a class="headerlink" href="#conflict-summary-by-count" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Conflicts</th>
+<th>Affected Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nats-py drift</td>
+<td>1 conflict</td>
+<td>50 services</td>
+</tr>
+<tr>
+<td>python-dotenv drift</td>
+<td>1 conflict</td>
+<td>40 services</td>
+</tr>
+<tr>
+<td>pydantic-settings</td>
+<td>1 conflict</td>
+<td>9 services</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td>1 conflict</td>
+<td>8 services</td>
+</tr>
+<tr>
+<td>tortoise-orm</td>
+<td>1 conflict</td>
+<td>6 services</td>
+</tr>
+<tr>
+<td>alembic</td>
+<td>1 conflict</td>
+<td>6 services</td>
+</tr>
+<tr>
+<td>psycopg2-binary</td>
+<td>1 conflict</td>
+<td>6 services</td>
+</tr>
+<tr>
+<td>PyJWT lower bound</td>
+<td>2 conflicts</td>
+<td>2 files</td>
+</tr>
+<tr>
+<td>Geospatial (3 pkgs)</td>
+<td>3 conflicts</td>
+<td>2 services</td>
+</tr>
+<tr>
+<td>structlog variants</td>
+<td>6 specs</td>
+<td>~55 services</td>
+</tr>
+<tr>
+<td>pytest variants</td>
+<td>6 specs</td>
+<td>~29 services</td>
+</tr>
+<tr>
+<td>ioredis (Node)</td>
+<td>4 specs</td>
+<td>8 packages</td>
+</tr>
+<tr>
+<td>CI Python version</td>
+<td>3 variants</td>
+<td>5 workflows</td>
+</tr>
+<tr>
+<td>Dual DB drivers</td>
+<td>-</td>
+<td>3 services</td>
+</tr>
+<tr>
+<td>Helm appVersion</td>
+<td>1 mismatch</td>
+<td>1 chart</td>
+</tr>
+<tr>
+<td>Dart pubspec drift</td>
+<td>3 items</td>
+<td>2 files</td>
+</tr>
+<tr>
+<td>Dev tools</td>
+<td>2 conflicts</td>
+<td>2 services</td>
+</tr>
+<tr>
+<td>Module system split</td>
+<td>CJS vs ESNext</td>
+<td>29 configs</td>
+</tr>
+<tr>
+<td>esModuleInterop missing</td>
+<td>5 configs</td>
+<td>5 NestJS services</td>
+</tr>
+<tr>
+<td>ESLint dead root config</td>
+<td>1 issue</td>
+<td>25 workspaces uncovered</td>
+</tr>
+<tr>
+<td>Package version outlier</td>
+<td>1.0.0 vs 16.0.0</td>
+<td>code-review-agent</td>
+</tr>
+<tr>
+<td>file: vs workspace resolution</td>
+<td>2 packages</td>
+<td>nestjs-auth, field-shared</td>
+</tr>
+<tr>
+<td>OTel exporter broken versions</td>
+<td>5 packages</td>
+<td>shared/observability</td>
+</tr>
+<tr>
+<td>OTel API/SDK pin conflict</td>
+<td>2 files</td>
+<td>services + IDP template</td>
+</tr>
+<tr>
+<td>torch version contradiction</td>
+<td>3 specs</td>
+<td>constraints-ai, yolo26, copilot-api</td>
+</tr>
+<tr>
+<td>torchvision contradiction</td>
+<td>2 specs</td>
+<td>constraints-ai, yolo26</td>
+</tr>
+<tr>
+<td>langchain ecosystem split</td>
+<td>4 libs</td>
+<td>constraints-ai vs ai-advisor</td>
+</tr>
+<tr>
+<td>sentence-transformers pin</td>
+<td>2 specs</td>
+<td>constraints-ai vs ai-advisor</td>
+</tr>
+<tr>
+<td>openai upper bound divergence</td>
+<td>4 specs</td>
+<td>constraints-ai, llm-orch, ai-advisor, ground-vision</td>
+</tr>
+<tr>
+<td>opencv-python vs headless</td>
+<td>1 clash</td>
+<td>ai-agents-core vs all others</td>
+</tr>
+<tr>
+<td>AI/ML libs missing from constraints.txt</td>
+<td>11 packages</td>
+<td>Main constraints gap</td>
+</tr>
+<tr>
+<td>Playwright version gap</td>
+<td>1 conflict</td>
+<td>apps/web vs e2e</td>
+</tr>
+<tr>
+<td>--strict-markers undeclared</td>
+<td>7 markers</td>
+<td>3 service pytest configs</td>
+</tr>
+<tr>
+<td>asyncio loop scope mismatch</td>
+<td>2 configs</td>
+<td>edge-orchestrator, crm</td>
+</tr>
+<tr>
+<td>pytest 7.x vs 8.x</td>
+<td>4 services</td>
+<td>copilot-api, globalgap, kernel, eo</td>
+</tr>
+<tr>
+<td>Services lacking pytest</td>
+<td>29 services</td>
+<td>Cannot test in Docker</td>
+</tr>
+<tr>
+<td>Docker Python 3.12 outlier</td>
+<td>1 service</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td>6 services skip constraints</td>
+<td>6 services</td>
+<td>ai-advisor, ai-agents, etc.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="recommended-action-plan">Recommended Action Plan<a class="headerlink" href="#recommended-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-critical-immediate">Phase 1: Critical (Immediate)<a class="headerlink" href="#phase-1-critical-immediate" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Update <code>constraints.txt</code></strong>: Set <code>tortoise-orm==1.1.6</code> to match active services</li>
+<li><strong>Fix PyJWT bounds</strong>: Raise to <code>&gt;=2.10.1</code> in <code>docker/constraints-ai.txt</code> and <code>apps/services/requirements.txt</code></li>
+<li><strong>Audit dual-driver services</strong>: Verify yolo26-vision-service, logistics-service, field-intelligence intentionally use both asyncpg and psycopg2</li>
+<li><strong>Fix inventory-service Helm</strong>: Update <code>appVersion</code> and <code>image.tag</code> from <code>15.3.2</code> to <code>16.0.0</code></li>
+<li><strong>Pin Kong version in Helm</strong>: Change from <code>kong:3.4</code> to <code>kong:3.4.2</code> to match docker-compose</li>
+<li><strong>Align Qdrant versions</strong>: Upgrade docker-compose from <code>v1.7.4</code> to <code>v1.10.1</code> or downgrade Helm</li>
+<li><strong>Fix OTel exporter versions</strong>: Change <code>&gt;=1.39.1</code> to <code>&gt;=0.61b0,&lt;1.0.0</code> in <code>shared/observability/requirements.txt</code>; remove deprecated <code>opentelemetry-exporter-jaeger</code></li>
+<li><strong>Update OTel pins</strong>: Bump <code>apps/services/requirements.txt</code> and IDP template from <code>1.39.1</code>/<code>0.60b1</code> to <code>1.40.0</code>/<code>0.61b0</code></li>
+<li><strong>Fix Playwright gap</strong>: Update <code>apps/web/e2e/package.json</code> from <code>^1.48.0</code> to <code>^1.57.0</code></li>
+<li><strong>Resolve torch/torchvision contradiction</strong>: Either update yolo26-vision-service Dockerfile to use <code>torch==2.10.0</code>/<code>torchvision==0.25.0</code> (requires YOLO compatibility testing) or create a separate <code>constraints-vision.txt</code> for yolo26. Update copilot-api upper bound from <code>&lt;2.7.0</code> to <code>&lt;3.0.0</code></li>
+<li><strong>Fix langchain pin conflicts</strong>: Update ai-advisor to match constraints-ai.txt: langchain-core <code>==0.3.83</code>, langchain-community <code>==0.4.1</code>, langchain-anthropic <code>==0.3.22</code></li>
+</ol>
+<h3 id="phase-2-high-priority-this-sprint">Phase 2: High Priority (This Sprint)<a class="headerlink" href="#phase-2-high-priority-this-sprint" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Bulk update nats-py</strong>: <code>==2.13.1</code> -&gt; <code>==2.14.0</code> across 50 services</li>
+<li><strong>Bulk update python-dotenv</strong>: <code>==1.2.1</code> -&gt; <code>==1.2.2</code> across 40 services</li>
+<li><strong>Add bcrypt/argon2-cffi</strong> to <code>constraints.txt</code></li>
+<li><strong>Register undeclared pytest markers</strong> in root <code>pyproject.toml</code>: <code>redis</code>, <code>agent</code>, <code>coordinator</code>, <code>specialist</code>, <code>edge</code>, <code>mock</code>, <code>event_flow</code></li>
+<li><strong>Fix sentence-transformers pin</strong>: Update ai-advisor from <code>==5.2.2</code> to <code>==5.2.3</code> to match constraints-ai.txt</li>
+<li><strong>Standardize openai upper bounds</strong>: Set <code>&gt;=1.0.0,&lt;2.0.0</code> in llm-orchestrator-service, ai-advisor, ground-vision-service</li>
+<li><strong>Fix opencv-python variant</strong>: Change ai-agents-core from <code>opencv-python</code> to <code>opencv-python-headless</code></li>
+</ol>
+<h3 id="phase-3-medium-priority-next-sprint">Phase 3: Medium Priority (Next Sprint)<a class="headerlink" href="#phase-3-medium-priority-next-sprint" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Update 9 services</strong>: pydantic-settings <code>==2.12.0</code> -&gt; <code>==2.13.1</code></li>
+<li><strong>Update 8 services</strong>: uvicorn <code>==0.40.0</code> -&gt; <code>==0.41.0</code></li>
+<li><strong>Update 6 services</strong>: alembic <code>==1.18.3</code> -&gt; <code>==1.18.4</code></li>
+<li><strong>Update 6 services</strong>: psycopg2-binary <code>==2.9.9</code> -&gt; <code>==2.9.11</code></li>
+<li><strong>Update 2 services</strong>: geospatial libs to match constraints</li>
+<li><strong>Fix CI workflows</strong>: Standardize Python 3.12 -&gt; 3.11 in 5 workflows</li>
+<li><strong>Standardize structlog</strong>: Choose <code>==24.4.0</code> or <code>&gt;=24.4.0,&lt;25.0.0</code></li>
+</ol>
+<h3 id="phase-4-low-priority-backlog">Phase 4: Low Priority (Backlog)<a class="headerlink" href="#phase-4-low-priority-backlog" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Standardize ioredis floor version to <code>^5.4.2</code></li>
+<li>Consolidate duplicate Flutter pubspec.yaml</li>
+<li>Fix Helm appVersion mismatch</li>
+<li>Standardize pytest version spec to <code>==8.4.2</code></li>
+<li>Add <code>esModuleInterop: true</code> to 5 NestJS services missing it</li>
+<li>Migrate root <code>.eslintrc.base.json</code> to flat config or remove it</li>
+<li>Align <code>@sahool/code-review-agent</code> version to <code>16.0.0</code></li>
+<li>Convert <code>file:</code> protocol refs to workspace resolution for nestjs-auth, field-shared</li>
+<li>Add missing upper bounds to ground-vision-service (opencv, openai, anthropic)</li>
+<li>Add AI/ML core packages (torch, openai, anthropic, langchain, sentence-transformers) to main <code>constraints.txt</code> for transitive governance</li>
+</ol>
+<hr />
+<p><em>Generated by 18 parallel dependency analysis agents</em>
+<em>Analysis covered: constraints.txt, docker/constraints-ai.txt, 59 requirements.txt, 25+ package.json, 3 pubspec.yaml, 53 CI workflows, 32 Helm charts, service-ports.ts, AI/ML library cross-references across Dockerfiles</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

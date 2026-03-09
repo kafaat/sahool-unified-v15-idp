@@ -107,6 +107,18 @@ except ImportError:
 # Import boundary endpoints
 from .boundary_endpoints import register_boundary_endpoints
 
+# Import agricultural land detector (GeoLabel-inspired)
+_land_detector = None
+try:
+    from .agricultural_land_detector import AgriculturalLandDetector
+    from .parcel_endpoints import register_parcel_endpoints
+
+    logger.info("Agricultural Land Detector module loaded (GeoLabel-inspired)")
+except ImportError as e:
+    logger.warning(f"Agricultural Land Detector module not available: {e}")
+    AgriculturalLandDetector = None
+    register_parcel_endpoints = None
+
 # Import change detector
 from .change_detector import (
     ChangeDetector,
@@ -286,9 +298,19 @@ async def lifespan(app: FastAPI):
         _vra_generator = VRAGenerator(multi_provider=_multi_provider)
         print("🗺️ VRA Generator initialized for prescription map generation")
 
+    # Initialize Agricultural Land Detector (GeoLabel-inspired)
+    global _land_detector
+    if AgriculturalLandDetector:
+        _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
+        print("🌾 Agricultural Land Detector initialized (GeoLabel-inspired parcel generation)")
+
     # Register boundary detection endpoints
     if _boundary_detector:
         register_boundary_endpoints(app, _boundary_detector)
+
+    # Register agricultural parcel detection endpoints
+    if _land_detector and register_parcel_endpoints:
+        register_parcel_endpoints(app, _land_detector)
 
     # Register VRA endpoints
     if _vra_generator:

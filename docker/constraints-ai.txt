@@ -13,12 +13,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Core Web Framework
 # ─────────────────────────────────────────────────────────────────────────────
-fastapi==0.128.5
+fastapi==0.135.1
 starlette>=0.49.1,<1.0.0
 # Note: uvicorn extras removed for constraints compatibility - install separately
 uvicorn>=0.30.0,<1.0.0
 pydantic==2.12.5
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
 httpx==0.28.1
 python-multipart==0.0.22  # CVE-2024-53981 fix
 
@@ -28,9 +28,9 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
 # CVE-2025-6984 - Fixed in langchain-community 0.3.27
 langchain>=0.3.26,<0.4.0
-langchain-core==0.3.81
-langchain-community==0.3.27
-langchain-anthropic==0.3.1
+langchain-core==0.3.83
+langchain-community==0.4.1
+langchain-anthropic==0.3.22
 langchain-openai>=0.3.0,<0.4.0
 langsmith>=0.3.45,<1.0.0
 
@@ -46,16 +46,16 @@ vllm>=0.6.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Embeddings and Vector Stores
 # ─────────────────────────────────────────────────────────────────────────────
-sentence-transformers==5.2.2
-qdrant-client==1.11.1
+sentence-transformers==5.2.3
+qdrant-client==1.17.0
 faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
 chromadb>=0.4.0,<1.0.0  # Alternative vector DB
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Machine Learning Core
 # ─────────────────────────────────────────────────────────────────────────────
-torch==2.2.0  # Locked for CUDA 12.1 compatibility
-torchvision==0.17.0
+torch==2.10.0  # Locked for CUDA 12.1 compatibility
+torchvision==0.25.0
 numpy>=1.26.0,<2.5.0  # Aligned with constraints.txt for TensorFlow 2.20.0 compatibility
 pandas>=2.2.0,<4.0.0
 scikit-learn>=1.5.0,<2.0.0
@@ -63,7 +63,7 @@ scikit-learn>=1.5.0,<2.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Deep Learning Frameworks (Optional)
 # ─────────────────────────────────────────────────────────────────────────────
-tensorflow-cpu==2.20.0  # Aligned with constraints.txt
+tensorflow-cpu==2.21.0  # Aligned with constraints.txt
 transformers>=4.40.0,<5.0.0
 tokenizers>=0.19.0,<1.0.0
 

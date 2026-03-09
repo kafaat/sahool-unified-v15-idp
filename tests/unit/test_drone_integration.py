@@ -1530,17 +1530,17 @@ class TestEdgeCases:
 
     @pytest.mark.unit
     def test_empty_ndvi_grid(self, sample_bounds):
-        """Test handling of empty NDVI grid"""
+        """Test handling of empty NDVI grid returns empty prescription"""
         generator = VRAGenerator()
 
-        # Empty grid
-        with pytest.raises((IndexError, ZeroDivisionError, ValueError)):
-            generator.generate_from_ndvi_grid(
-                field_id="field_001",
-                tenant_id="tenant_001",
-                ndvi_data=[],
-                bounds=sample_bounds,
-            )
+        # Empty grid should return prescription with no zones
+        result = generator.generate_from_ndvi_grid(
+            field_id="field_001",
+            tenant_id="tenant_001",
+            ndvi_data=[],
+            bounds=sample_bounds,
+        )
+        assert len(result.zones) == 0
 
     @pytest.mark.unit
     def test_single_value_ndvi_grid(self, sample_bounds):

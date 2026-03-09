@@ -15,16 +15,45 @@ Tests cover:
 Version: 16.0.0
 """
 
+import importlib
 import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-# Ensure drone service is importable
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service"))
-
 from fastapi.testclient import TestClient
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Module isolation helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+_DRONE_SERVICE_ROOT = str(Path(__file__).parent.parent.parent / "apps" / "services" / "drone-service")
+_DRONE_SERVICE_SRC = str(Path(_DRONE_SERVICE_ROOT) / "src")
+
+
+def _ensure_drone_src():
+    """Ensure 'src' resolves to drone-service/src, not another service.
+
+    Other test conftest files (e.g. task_service/conftest.py) add their own
+    service paths to sys.path, which causes 'from src.xxx import ...' to
+    resolve to the wrong service.  This helper evicts any cached 'src.*'
+    modules and re-inserts the drone-service path at position 0.
+    """
+    # Remove any cached src modules from another service
+    stale = [k for k in sys.modules if k == "src" or k.startswith("src.")]
+    for k in stale:
+        del sys.modules[k]
+
+    # Ensure drone-service root is first on sys.path
+    if _DRONE_SERVICE_ROOT in sys.path:
+        sys.path.remove(_DRONE_SERVICE_ROOT)
+    sys.path.insert(0, _DRONE_SERVICE_ROOT)
+
+
+def _import_drone_module(dotted_name: str):
+    """Import a module from drone-service/src with proper isolation."""
+    _ensure_drone_src()
+    return importlib.import_module(dotted_name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -88,6 +117,7 @@ def app(mock_user):
     tenant_mock.TenantContextMiddleware = _NoOpTenantMiddleware
 
     # Ensure no real connections are attempted during tests
+    _ensure_drone_src()
     with patch.dict("os.environ", {"DATABASE_URL": "", "NATS_URL": ""}, clear=False), \
          patch.dict("sys.modules", {
              "shared.auth.dependencies": MagicMock(),
@@ -97,7 +127,8 @@ def app(mock_user):
              "nats": MagicMock(),
              "asyncpg": MagicMock(),
          }):
-        from src.main import app as drone_app
+        src_main = _import_drone_module("src.main")
+        drone_app = src_main.app
 
         # Override auth dependency
         from src.api.v1 import drones, flights, missions, vra
@@ -853,44 +884,39 @@ class TestEventsModule:
 
     @pytest.mark.asyncio
     async def test_publish_event_with_nc(self):
-        from src.events import publish_event
+        events = _import_drone_module("src.events")
         nc = AsyncMock()
-        await publish_event(nc, "sahool.drone.test", {"key": "value"})
+        await events.publish_event(nc, "sahool.drone.test", {"key": "value"})
         nc.publish.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_publish_event_without_nc(self):
-        from src.events import publish_event
+        events = _import_drone_module("src.events")
         # Should not raise
-        await publish_event(None, "sahool.drone.test", {"key": "value"})
+        await events.publish_event(None, "sahool.drone.test", {"key": "value"})
 
     @pytest.mark.asyncio
     async def test_publish_drone_event_includes_tenant(self):
-        from src.events import publish_drone_event
+        events = _import_drone_module("src.events")
         nc = AsyncMock()
-        await publish_drone_event(nc, "sahool.drone.registered", "tenant-001", drone_id="DRN-001")
+        await events.publish_drone_event(nc, "sahool.drone.registered", "tenant-001", drone_id="DRN-001")
         # Called twice: once for base subject, once for tenant-scoped
         assert nc.publish.call_count == 2
 
     def test_event_subjects_defined(self):
-        from src.events import (
-            DRONE_REGISTERED, DRONE_UPDATED, DRONE_DEREGISTERED,
-            FLIGHT_PLANNED, MISSION_CREATED, MISSION_STARTED,
-            MISSION_COMPLETED, MISSION_ABORTED,
-            VRA_PRESCRIPTION_CREATED, VRA_SPOT_SPRAY_CREATED,
-        )
-        assert DRONE_REGISTERED == "sahool.drone.registered"
-        assert FLIGHT_PLANNED == "sahool.drone.flight_planned"
-        assert MISSION_CREATED == "sahool.drone.mission_created"
-        assert VRA_PRESCRIPTION_CREATED == "sahool.drone.vra_prescription_created"
+        events = _import_drone_module("src.events")
+        assert events.DRONE_REGISTERED == "sahool.drone.registered"
+        assert events.FLIGHT_PLANNED == "sahool.drone.flight_planned"
+        assert events.MISSION_CREATED == "sahool.drone.mission_created"
+        assert events.VRA_PRESCRIPTION_CREATED == "sahool.drone.vra_prescription_created"
 
 
 class TestEventEnvelope:
     """Tests for EventEnvelope wrapper class."""
 
     def test_create_envelope(self):
-        from src.events import EventEnvelope
-        envelope = EventEnvelope.create(
+        events = _import_drone_module("src.events")
+        envelope = events.EventEnvelope.create(
             event_type="drone_registered",
             version=1,
             aggregate_id="DRN-001",
@@ -907,8 +933,8 @@ class TestEventEnvelope:
         assert envelope.timestamp  # Timestamp generated
 
     def test_envelope_to_dict(self):
-        from src.events import EventEnvelope
-        envelope = EventEnvelope.create(
+        events = _import_drone_module("src.events")
+        envelope = events.EventEnvelope.create(
             event_type="mission_created",
             version=1,
             aggregate_id="MSN-001",
@@ -925,9 +951,9 @@ class TestEventEnvelope:
         assert d["payload"] == {"mission_id": "MSN-001"}
 
     def test_envelope_unique_ids(self):
-        from src.events import EventEnvelope
-        e1 = EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
-        e2 = EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
+        events = _import_drone_module("src.events")
+        e1 = events.EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
+        e2 = events.EventEnvelope.create("test", 1, "agg", "t1", "c1", {})
         assert e1.event_id != e2.event_id
 
 
@@ -936,8 +962,8 @@ class TestDronePublisher:
 
     @pytest.mark.asyncio
     async def test_publish_without_connection(self):
-        from src.events import DronePublisher
-        publisher = DronePublisher()
+        events = _import_drone_module("src.events")
+        publisher = events.DronePublisher()
         # Should return empty string, not raise
         event_id = await publisher.publish(
             "drone_registered", "tenant-001", "DRN-001",
@@ -947,8 +973,8 @@ class TestDronePublisher:
 
     @pytest.mark.asyncio
     async def test_publish_with_mock_nc(self):
-        from src.events import DronePublisher
-        publisher = DronePublisher()
+        events = _import_drone_module("src.events")
+        publisher = events.DronePublisher()
         publisher.nc = AsyncMock()
         event_id = await publisher.publish(
             "drone_registered", "tenant-001", "DRN-001",
@@ -959,8 +985,8 @@ class TestDronePublisher:
 
     @pytest.mark.asyncio
     async def test_publish_drone_registered(self):
-        from src.events import DronePublisher
-        publisher = DronePublisher()
+        events = _import_drone_module("src.events")
+        publisher = events.DronePublisher()
         publisher.nc = AsyncMock()
         event_id = await publisher.publish_drone_registered(
             tenant_id="tenant-001", drone_id="DRN-001", model="DJI Agras T40",
@@ -970,8 +996,8 @@ class TestDronePublisher:
 
     @pytest.mark.asyncio
     async def test_publish_mission_event(self):
-        from src.events import DronePublisher
-        publisher = DronePublisher()
+        events = _import_drone_module("src.events")
+        publisher = events.DronePublisher()
         publisher.nc = AsyncMock()
         event_id = await publisher.publish_mission_event(
             "mission_started", "tenant-001", "MSN-001", drone_id="DRN-001",
@@ -988,8 +1014,8 @@ class TestDronePublisher:
 
     @pytest.mark.asyncio
     async def test_close_without_connection(self):
-        from src.events import DronePublisher
-        publisher = DronePublisher()
+        events = _import_drone_module("src.events")
+        publisher = events.DronePublisher()
         # Should not raise
         await publisher.close()
 
@@ -998,28 +1024,28 @@ class TestEventTypes:
     """Tests for event types, subjects, and versioning."""
 
     def test_subjects_dict(self):
-        from src.events.types import SUBJECTS, DRONE_REGISTERED, MISSION_CREATED
-        assert SUBJECTS[DRONE_REGISTERED] == "sahool.drone.registered"
-        assert SUBJECTS[MISSION_CREATED] == "sahool.drone.mission_created"
+        types = _import_drone_module("src.events.types")
+        assert types.SUBJECTS[types.DRONE_REGISTERED] == "sahool.drone.registered"
+        assert types.SUBJECTS[types.MISSION_CREATED] == "sahool.drone.mission_created"
 
     def test_versions_dict(self):
-        from src.events.types import VERSIONS, DRONE_REGISTERED, FLIGHT_PLANNED
-        assert VERSIONS[DRONE_REGISTERED] == 1
-        assert VERSIONS[FLIGHT_PLANNED] == 1
+        types = _import_drone_module("src.events.types")
+        assert types.VERSIONS[types.DRONE_REGISTERED] == 1
+        assert types.VERSIONS[types.FLIGHT_PLANNED] == 1
 
     def test_get_subject(self):
-        from src.events.types import get_subject
-        assert get_subject("drone_registered") == "sahool.drone.registered"
+        types = _import_drone_module("src.events.types")
+        assert types.get_subject("drone_registered") == "sahool.drone.registered"
         # Unknown type falls back to prefix
-        assert get_subject("unknown_event") == "sahool.drone.unknown_event"
+        assert types.get_subject("unknown_event") == "sahool.drone.unknown_event"
 
     def test_get_version(self):
-        from src.events.types import get_version
-        assert get_version("drone_registered") == 1
+        types = _import_drone_module("src.events.types")
+        assert types.get_version("drone_registered") == 1
         # Unknown defaults to 1
-        assert get_version("unknown_event") == 1
+        assert types.get_version("unknown_event") == 1
 
     def test_cross_service_subjects(self):
-        from src.events.types import VISION_PEST_DETECTED, WEATHER_ALERT
-        assert VISION_PEST_DETECTED == "sahool.vision.pest_detected"
-        assert WEATHER_ALERT == "sahool.weather.alert"
+        types = _import_drone_module("src.events.types")
+        assert types.VISION_PEST_DETECTED == "sahool.vision.pest_detected"
+        assert types.WEATHER_ALERT == "sahool.weather.alert"

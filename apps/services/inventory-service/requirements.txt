@@ -10,7 +10,7 @@ pydantic==2.12.5
 python-dotenv==1.2.1
 
 # Database (async SQLAlchemy - uses asyncpg)
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
 asyncpg>=0.30.0
 greenlet>=3.0.0
 

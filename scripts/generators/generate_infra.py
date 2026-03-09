@@ -378,11 +378,7 @@ def clean_yaml_output(data: dict[str, Any]) -> str:
     # Remove the comment markers we used as dict keys
     lines = []
     for line in yaml_str.split("\n"):
-        if (
-            line.startswith("'# AUTO-GENERATED")
-            or line.startswith("'# Generated")
-            or line.startswith("'# Run:")
-        ):
+        if line.startswith("'# AUTO-GENERATED") or line.startswith("'# Generated") or line.startswith("'# Run:"):
             continue
         if ": null" in line and "#" in line:
             continue

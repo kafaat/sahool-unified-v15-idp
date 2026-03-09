@@ -302,9 +302,7 @@ class IoTSimulator:
 
         async with aiohttp.ClientSession() as session:
             # Start all device loops
-            tasks = [
-                asyncio.create_task(self.device_loop(session, device)) for device in self.devices
-            ]
+            tasks = [asyncio.create_task(self.device_loop(session, device)) for device in self.devices]
 
             # Run for specified duration
             await asyncio.sleep(self.duration_seconds)
@@ -360,27 +358,19 @@ class IoTSimulator:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL IoT Device Simulator - محاكي أجهزة إنترنت الأشياء"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL IoT Device Simulator - محاكي أجهزة إنترنت الأشياء")
     parser.add_argument(
         "--gateway",
         "-g",
         default="http://localhost:8106",
         help="IoT Gateway URL (default: http://localhost:8106)",
     )
-    parser.add_argument(
-        "--devices", "-d", type=int, default=10, help="Number of devices to simulate (default: 10)"
-    )
-    parser.add_argument(
-        "--duration", "-t", type=int, default=60, help="Duration in seconds (default: 60)"
-    )
+    parser.add_argument("--devices", "-d", type=int, default=10, help="Number of devices to simulate (default: 10)")
+    parser.add_argument("--duration", "-t", type=int, default=60, help="Duration in seconds (default: 60)")
 
     args = parser.parse_args()
 
-    simulator = IoTSimulator(
-        gateway_url=args.gateway, num_devices=args.devices, duration_seconds=args.duration
-    )
+    simulator = IoTSimulator(gateway_url=args.gateway, num_devices=args.devices, duration_seconds=args.duration)
 
     try:
         asyncio.run(simulator.run())

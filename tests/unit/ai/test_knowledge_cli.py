@@ -63,6 +63,7 @@ class TestKnowledgeCLI:
     def test_ingest_real_directory(self, cli: KnowledgeCLI):
         """Ingest from real knowledge base directory."""
         from pathlib import Path
+
         crops_dir = Path("docs/knowledge-base/crops")
         if not crops_dir.exists():
             pytest.skip("Knowledge base docs not available")

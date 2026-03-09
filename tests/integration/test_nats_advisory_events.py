@@ -150,8 +150,7 @@ def _make_irrigation_advisory_payload(
         "title_ar": "يُنصح بالري - رطوبة التربة أقل من الحد الأدنى",
         "summary": "Current soil moisture at 28% is below the 35% threshold for wheat at tillering stage. "
         "Apply 25mm irrigation within 24 hours.",
-        "summary_ar": "رطوبة التربة الحالية عند 28% أقل من حد 35% للقمح في مرحلة التفريع. "
-        "تطبيق 25 مم ري خلال 24 ساعة.",
+        "summary_ar": "رطوبة التربة الحالية عند 28% أقل من حد 35% للقمح في مرحلة التفريع. تطبيق 25 مم ري خلال 24 ساعة.",
         "recommendation": "Apply 25mm irrigation using drip system. Best time: early morning before 8 AM.",
         "recommendation_ar": "تطبيق 25 مم ري باستخدام نظام التنقيط. أفضل وقت: الصباح الباكر قبل 8 صباحا.",
         "irrigation_details": {

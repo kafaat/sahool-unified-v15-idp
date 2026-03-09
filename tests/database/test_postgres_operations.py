@@ -338,9 +338,7 @@ class TestPreparedStatements:
         """Test parameterized query execution."""
         mock_conn._results = [{"id": 1, "name": "Test Field"}]
 
-        row = await mock_conn.fetchrow(
-            "SELECT * FROM fields WHERE tenant_id = $1 AND id = $2", "tenant123", 1
-        )
+        row = await mock_conn.fetchrow("SELECT * FROM fields WHERE tenant_id = $1 AND id = $2", "tenant123", 1)
 
         assert row is not None
 
@@ -358,9 +356,7 @@ class TestBatchOperations:
         ]
 
         for name, area in records:
-            await mock_conn.execute(
-                "INSERT INTO fields (name, area_ha) VALUES ($1, $2)", name, area
-            )
+            await mock_conn.execute("INSERT INTO fields (name, area_ha) VALUES ($1, $2)", name, area)
 
 
 class TestConnectionConfiguration:

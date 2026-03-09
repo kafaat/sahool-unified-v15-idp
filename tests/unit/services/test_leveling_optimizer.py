@@ -726,12 +726,8 @@ class TestLevelingOptimization:
         violation_report = {
             "cut_violations": int(np.sum(cut_violations)),
             "fill_violations": int(np.sum(fill_violations)),
-            "max_cut_exceeded_by": float(np.max(diff) - max_cut_depth)
-            if np.any(cut_violations)
-            else 0,
-            "max_fill_exceeded_by": float(-np.min(diff) - max_fill_depth)
-            if np.any(fill_violations)
-            else 0,
+            "max_cut_exceeded_by": float(np.max(diff) - max_cut_depth) if np.any(cut_violations) else 0,
+            "max_fill_exceeded_by": float(-np.min(diff) - max_fill_depth) if np.any(fill_violations) else 0,
         }
 
         assert "cut_violations" in violation_report

@@ -198,9 +198,7 @@ def check_error_handling(repo_root: Path) -> list:
 
         # Check for exception handler
         has_exception_handler = (
-            "exception_handler" in content
-            or "@app.exception" in content
-            or "HTTPException" in content
+            "exception_handler" in content or "@app.exception" in content or "HTTPException" in content
         )
 
         if not has_exception_handler:

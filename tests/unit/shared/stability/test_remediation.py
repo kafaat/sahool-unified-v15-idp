@@ -67,8 +67,10 @@ class TestRemediationEngine:
         drift_report = MagicMock()
         drift_report.items = [
             self._make_drift_item(
-                "security", "high", "test-service",
-                "Service 'test-service' Dockerfile has no USER directive (runs as root)"
+                "security",
+                "high",
+                "test-service",
+                "Service 'test-service' Dockerfile has no USER directive (runs as root)",
             ),
         ]
 

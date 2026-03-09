@@ -7,7 +7,13 @@ from datetime import timezone, datetime, timedelta, UTC
 
 import pytest
 
-from shared.auth.twofa_config import TwoFAConfig, TwoFAEnforcementLevel, get_production_config, get_development_config, get_strict_config
+from shared.auth.twofa_config import (
+    TwoFAConfig,
+    TwoFAEnforcementLevel,
+    get_production_config,
+    get_development_config,
+    get_strict_config,
+)
 
 
 class TestTwoFAEnforcementLevel:
@@ -71,17 +77,13 @@ class TestTwoFAConfig:
 
     def test_is_2fa_required_for_admin_with_admin_role(self):
         """Test is_2fa_required_for_user with REQUIRED_FOR_ADMIN for admin"""
-        config = TwoFAConfig(
-            enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
-        )
+        config = TwoFAConfig(enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN)
         assert config.is_2fa_required_for_user(["admin"]) is True
         assert config.is_2fa_required_for_user(["supervisor"]) is True
 
     def test_is_2fa_required_for_admin_with_regular_user(self):
         """Test is_2fa_required_for_user with REQUIRED_FOR_ADMIN for regular user"""
-        config = TwoFAConfig(
-            enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
-        )
+        config = TwoFAConfig(enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN)
         assert config.is_2fa_required_for_user(["user"]) is False
         assert config.is_2fa_required_for_user(["farmer"]) is False
 

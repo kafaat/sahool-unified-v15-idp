@@ -443,14 +443,10 @@ class ComplianceReporter:
             # Add findings and recommendations
             if status == ControlStatus.NON_COMPLIANT:
                 control.findings.append(f"No evidence found for {mapping['title']}")
-                control.recommendations.append(
-                    f"Implement {mapping['title']} controls and ensure audit logging"
-                )
+                control.recommendations.append(f"Implement {mapping['title']} controls and ensure audit logging")
             elif status == ControlStatus.PARTIAL:
                 control.findings.append(f"Limited evidence for {mapping['title']}")
-                control.recommendations.append(
-                    f"Enhance {mapping['title']} implementation and audit coverage"
-                )
+                control.recommendations.append(f"Enhance {mapping['title']} implementation and audit coverage")
 
             category.controls.append(control)
 
@@ -488,9 +484,7 @@ class ComplianceReporter:
             )
 
             if status != ControlStatus.COMPLIANT:
-                control.recommendations.append(
-                    f"Review {criteria_id} - {mapping['title']} implementation"
-                )
+                control.recommendations.append(f"Review {criteria_id} - {mapping['title']} implementation")
 
             category.controls.append(control)
 
@@ -528,9 +522,7 @@ class ComplianceReporter:
             )
 
             if status != ControlStatus.COMPLIANT:
-                control.recommendations.append(
-                    f"Implement {annex_id} - {mapping['title']} controls"
-                )
+                control.recommendations.append(f"Implement {annex_id} - {mapping['title']} controls")
 
             category.controls.append(control)
 
@@ -549,20 +541,14 @@ class ComplianceReporter:
                 category.compliance_score = round((compliant + partial * 0.5) / total * 100, 1)
 
         report.total_controls = len(all_controls)
-        report.compliant_controls = sum(
-            1 for c in all_controls if c.status == ControlStatus.COMPLIANT
-        )
+        report.compliant_controls = sum(1 for c in all_controls if c.status == ControlStatus.COMPLIANT)
         report.partial_controls = sum(1 for c in all_controls if c.status == ControlStatus.PARTIAL)
-        report.non_compliant_controls = sum(
-            1 for c in all_controls if c.status == ControlStatus.NON_COMPLIANT
-        )
+        report.non_compliant_controls = sum(1 for c in all_controls if c.status == ControlStatus.NON_COMPLIANT)
 
         # Calculate overall score
         applicable = [c for c in all_controls if c.status != ControlStatus.NOT_APPLICABLE]
         if applicable:
-            score = (
-                (report.compliant_controls + report.partial_controls * 0.5) / len(applicable) * 100
-            )
+            score = (report.compliant_controls + report.partial_controls * 0.5) / len(applicable) * 100
             report.overall_score = round(score, 1)
 
         # Determine risk level
@@ -675,8 +661,7 @@ def generate_markdown_report(report: ComplianceReport) -> str:
             status = status_icons.get(control.status, "?")
             findings = "; ".join(control.findings[:2]) if control.findings else "-"
             lines.append(
-                f"| {control.control_id}: {control.title} | {status} | "
-                f"{control.audit_logs_analyzed} | {findings} |"
+                f"| {control.control_id}: {control.title} | {status} | {control.audit_logs_analyzed} | {findings} |"
             )
 
         lines.append("")

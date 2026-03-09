@@ -454,9 +454,7 @@ class TestDeltaCalculations:
         """Test applying simple delta changes."""
         base_data = {"name": "Field A", "area": 5.5}
         changes = [
-            DeltaChange(
-                field_path="name", old_value="Field A", new_value="Field B", operation="set"
-            ),
+            DeltaChange(field_path="name", old_value="Field A", new_value="Field B", operation="set"),
         ]
 
         result = apply_delta(base_data, changes)

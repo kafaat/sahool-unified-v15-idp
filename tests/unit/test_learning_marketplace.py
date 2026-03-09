@@ -78,9 +78,7 @@ def sample_quiz_question():
     return QuizQuestion(
         id="q1",
         question_type=QuizQuestionType.MULTIPLE_CHOICE,
-        question=BilingualText(
-            en="How often should wheat be irrigated?", ar="كم مرة يجب ري القمح؟"
-        ),
+        question=BilingualText(en="How often should wheat be irrigated?", ar="كم مرة يجب ري القمح؟"),
         options=[
             BilingualText(en="Every day", ar="كل يوم"),
             BilingualText(en="Every 7-10 days", ar="كل 7-10 أيام"),
@@ -816,9 +814,7 @@ class TestCertificationEligibility:
     @pytest.mark.asyncio
     async def test_check_eligibility_missing_course(self, tracker, sample_certification):
         """Test eligibility check with missing required course"""
-        is_eligible, missing = await tracker.check_certification_eligibility(
-            "farmer1", sample_certification
-        )
+        is_eligible, missing = await tracker.check_certification_eligibility("farmer1", sample_certification)
         assert is_eligible is False
         assert any("Complete course" in m for m in missing)
 
@@ -1022,9 +1018,7 @@ class TestContentRecommender:
         assert all(isinstance(r, CourseRecommendation) for r in recommendations)
 
     @pytest.mark.asyncio
-    async def test_recommendations_sorted_by_score(
-        self, recommender, sample_farmer_profile, course_catalog
-    ):
+    async def test_recommendations_sorted_by_score(self, recommender, sample_farmer_profile, course_catalog):
         """Test recommendations are sorted by score"""
         recommendations = await recommender.get_recommendations(
             sample_farmer_profile,

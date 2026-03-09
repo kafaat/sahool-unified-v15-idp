@@ -27,9 +27,7 @@ def check_database_indexes(repo_root: Path) -> list:
     index_columns = ["tenant_id", "field_id", "user_id", "created_at", "updated_at"]
 
     # Check migrations for indexes
-    migration_files = list(repo_root.rglob("**/migrations/**/*.py")) + list(
-        repo_root.rglob("**/migrations/**/*.sql")
-    )
+    migration_files = list(repo_root.rglob("**/migrations/**/*.py")) + list(repo_root.rglob("**/migrations/**/*.sql"))
 
     found_indexes = set()
 

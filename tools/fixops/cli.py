@@ -168,9 +168,7 @@ def print_summary(summary, verbose: bool = False, as_json: bool = False):
             "total_issues": summary.analysis.total_issues if summary.analysis else 0,
             "by_severity": summary.analysis.by_severity if summary.analysis else {},
             "by_category": summary.analysis.by_category if summary.analysis else {},
-            "fixes_applied": len(summary.actions.get("fixes_applied", []))
-            if summary.actions
-            else 0,
+            "fixes_applied": len(summary.actions.get("fixes_applied", [])) if summary.actions else 0,
             "files_modified": summary.actions.get("files_modified", []) if summary.actions else [],
         }
         print(json.dumps(output, indent=2, ensure_ascii=False))
@@ -188,16 +186,12 @@ def print_summary(summary, verbose: bool = False, as_json: bool = False):
 
         print("\n🔴 By Severity | حسب الخطورة:")
         for severity, count in summary.analysis.by_severity.items():
-            emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(
-                severity, "⚪"
-            )
+            emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(severity, "⚪")
             print(f"   {emoji} {severity}: {count}")
 
         print("\n📂 By Category | حسب الفئة:")
         for category, count in summary.analysis.by_category.items():
-            emoji = {"security": "🔒", "bug": "🐛", "style": "🎨", "performance": "⚡"}.get(
-                category, "📁"
-            )
+            emoji = {"security": "🔒", "bug": "🐛", "style": "🎨", "performance": "⚡"}.get(category, "📁")
             print(f"   {emoji} {category}: {count}")
 
     if summary.actions:
@@ -267,9 +261,7 @@ async def main():
             print(f"\n💾 Report saved to: {output_file}")
 
             if dry_run:
-                print(
-                    "\n💡 Tip: Use --no-dry-run to apply fixes | نصيحة: استخدم --no-dry-run لتطبيق الإصلاحات"
-                )
+                print("\n💡 Tip: Use --no-dry-run to apply fixes | نصيحة: استخدم --no-dry-run لتطبيق الإصلاحات")
 
         return 0
 

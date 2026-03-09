@@ -58,9 +58,7 @@ class RegionDetectionRequest(BaseModel):
 class ParcelClassifyRequest(BaseModel):
     """Request model for vector classification"""
 
-    parcels: list[dict] = Field(
-        ..., description="List of GeoJSON features to classify"
-    )
+    parcels: list[dict] = Field(..., description="List of GeoJSON features to classify")
 
 
 class ParcelMergeRequest(BaseModel):
@@ -140,10 +138,13 @@ def register_parcel_endpoints(app, land_detector):
             POST /v1/parcels/auto-generate?lat=15.5&lon=44.2&radius_m=1000&strategy=hybrid
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             from .agricultural_land_detector import (
@@ -179,6 +180,7 @@ def register_parcel_endpoints(app, land_detector):
 
             # Create per-request detector to avoid race conditions on shared state
             from .agricultural_land_detector import AgriculturalLandDetector
+
             request_detector = AgriculturalLandDetector(
                 config, multi_provider=land_detector.multi_provider if land_detector else None
             )
@@ -206,10 +208,13 @@ def register_parcel_endpoints(app, land_detector):
             raise
         except Exception as e:
             logger.error(f"Parcel auto-generation failed: {e}")
-            raise HTTPException(status_code=500, detail={
-                "en": f"Parcel detection failed: {str(e)}",
-                "ar": f"فشل كشف القطع: {str(e)}",
-            }) from e
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "en": f"Parcel detection failed: {str(e)}",
+                    "ar": f"فشل كشف القطع: {str(e)}",
+                },
+            ) from e
 
     @app.post("/v1/parcels/detect-region", response_model=dict)
     async def detect_parcels_in_region(request: RegionDetectionRequest):
@@ -229,10 +234,13 @@ def register_parcel_endpoints(app, land_detector):
             }
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             from .agricultural_land_detector import (
@@ -314,10 +322,13 @@ def register_parcel_endpoints(app, land_detector):
             }
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             from .agricultural_land_detector import (
@@ -481,10 +492,13 @@ def register_parcel_endpoints(app, land_detector):
         Returns parcels with crop_type and classification confidence.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             from .agricultural_land_detector import (
@@ -540,10 +554,13 @@ def register_parcel_endpoints(app, land_detector):
         Uses convex hull merge with weighted spectral property preservation.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -581,10 +598,13 @@ def register_parcel_endpoints(app, land_detector):
         The cutting line must intersect the parcel boundary at 2+ points.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels([request.parcel], land_detector)
@@ -627,10 +647,13 @@ def register_parcel_endpoints(app, land_detector):
         Bridges gaps between fragments within max_gap_meters distance.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -679,10 +702,13 @@ def register_parcel_endpoints(app, land_detector):
         Returns quality issues for each parcel.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -707,10 +733,13 @@ def register_parcel_endpoints(app, land_detector):
         GeoLabel equivalent: Feature quick browser → WKT export.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -720,11 +749,13 @@ def register_parcel_endpoints(app, land_detector):
             wkt_list = []
             for parcel in parcels:
                 wkt = land_detector.quality_inspector.parcel_to_wkt(parcel)
-                wkt_list.append({
-                    "parcel_id": parcel.parcel_id,
-                    "wkt": wkt,
-                    "area_hectares": parcel.area_hectares,
-                })
+                wkt_list.append(
+                    {
+                        "parcel_id": parcel.parcel_id,
+                        "wkt": wkt,
+                        "area_hectares": parcel.area_hectares,
+                    }
+                )
 
             collection_wkt = land_detector.quality_inspector.parcels_to_wkt_collection(parcels)
 
@@ -750,10 +781,13 @@ def register_parcel_endpoints(app, land_detector):
         GeoLabel equivalent: 8-class land cover attribute assignment brush.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -807,10 +841,13 @@ def register_parcel_endpoints(app, land_detector):
         Returns area statistics, crop distribution, and land cover distribution.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -840,10 +877,13 @@ def register_parcel_endpoints(app, land_detector):
         Ensures no gaps or overlaps between adjacent parcels after simplification.
         """
         if not land_detector:
-            raise HTTPException(status_code=503, detail={
-                "en": "Agricultural land detector not initialized",
-                "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
-            })
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "en": "Agricultural land detector not initialized",
+                    "ar": "لم يتم تهيئة كاشف الأراضي الزراعية",
+                },
+            )
 
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
@@ -863,19 +903,15 @@ def register_parcel_endpoints(app, land_detector):
                     "total_parcels": len(simplified),
                     "original_vertices": original_vertices,
                     "simplified_vertices": simplified_vertices,
-                    "reduction_percent": round(
-                        (1 - simplified_vertices / original_vertices) * 100, 1
-                    ) if original_vertices > 0 else 0,
+                    "reduction_percent": round((1 - simplified_vertices / original_vertices) * 100, 1)
+                    if original_vertices > 0
+                    else 0,
                     "topology_preserved": True,
                     "summary": {
                         "en": (
-                            f"Simplified {len(simplified)} parcels:"
-                            f" {original_vertices}→{simplified_vertices} vertices"
+                            f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices"
                         ),
-                        "ar": (
-                            f"تم تبسيط {len(simplified)} قطعة:"
-                            f" {original_vertices}→{simplified_vertices} رأس"
-                        ),
+                        "ar": (f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس"),
                     },
                 },
             }

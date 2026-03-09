@@ -325,27 +325,21 @@ class TestCompressFieldData:
 
     def test_selective_compression(self, compressor, sample_field_data):
         """Selective strategy should keep only priority fields"""
-        result = compressor.compress_field_data(
-            sample_field_data, strategy=CompressionStrategy.SELECTIVE
-        )
+        result = compressor.compress_field_data(sample_field_data, strategy=CompressionStrategy.SELECTIVE)
 
         assert result.strategy == CompressionStrategy.SELECTIVE
         assert result.compression_ratio < 1.0
 
     def test_extractive_compression(self, compressor, sample_field_data):
         """Extractive strategy should maintain structure"""
-        result = compressor.compress_field_data(
-            sample_field_data, strategy=CompressionStrategy.EXTRACTIVE
-        )
+        result = compressor.compress_field_data(sample_field_data, strategy=CompressionStrategy.EXTRACTIVE)
 
         assert result.strategy == CompressionStrategy.EXTRACTIVE
         assert result.compression_ratio <= 1.0
 
     def test_abstractive_compression(self, compressor, sample_field_data):
         """Abstractive strategy should create summary"""
-        result = compressor.compress_field_data(
-            sample_field_data, strategy=CompressionStrategy.ABSTRACTIVE
-        )
+        result = compressor.compress_field_data(sample_field_data, strategy=CompressionStrategy.ABSTRACTIVE)
 
         assert result.strategy == CompressionStrategy.ABSTRACTIVE
         assert "summary" in result.compressed_text.lower()
@@ -407,9 +401,7 @@ class TestCompressWeatherData:
 
     def test_forecast_days_parameter(self, compressor, sample_weather_data):
         """Should respect forecast days limit"""
-        result_3days = compressor.compress_weather_data(
-            sample_weather_data, include_forecast_days=3
-        )
+        result_3days = compressor.compress_weather_data(sample_weather_data, include_forecast_days=3)
         result_1day = compressor.compress_weather_data(sample_weather_data, include_forecast_days=1)
 
         # More forecast days should result in larger output
@@ -425,9 +417,7 @@ class TestCompressWeatherData:
         """Should include current weather conditions"""
         result = compressor.compress_weather_data(sample_weather_data)
 
-        assert (
-            "current" in result.compressed_text or "temperature" in result.compressed_text.lower()
-        )
+        assert "current" in result.compressed_text or "temperature" in result.compressed_text.lower()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -730,16 +720,12 @@ class TestCompressionRatios:
 
     def test_selective_achieves_compression(self, compressor, sample_field_data):
         """Selective compression should reduce tokens"""
-        result = compressor.compress_field_data(
-            sample_field_data, strategy=CompressionStrategy.SELECTIVE
-        )
+        result = compressor.compress_field_data(sample_field_data, strategy=CompressionStrategy.SELECTIVE)
         assert result.compression_ratio < 1.0
 
     def test_hybrid_achieves_compression(self, compressor, sample_field_data):
         """Hybrid compression should reduce tokens"""
-        result = compressor.compress_field_data(
-            sample_field_data, strategy=CompressionStrategy.HYBRID
-        )
+        result = compressor.compress_field_data(sample_field_data, strategy=CompressionStrategy.HYBRID)
         assert result.compression_ratio <= 1.0
 
     def test_compression_never_increases_beyond_original(self, compressor, sample_field_data):

@@ -94,9 +94,7 @@ class JWTConfig:
 
         # Warn if JWT_SECRET is used instead of JWT_SECRET_KEY
         if not os.getenv("JWT_SECRET_KEY") and os.getenv("JWT_SECRET"):
-            warnings.append(
-                "DEPRECATION: JWT_SECRET is deprecated. Use JWT_SECRET_KEY instead."
-            )
+            warnings.append("DEPRECATION: JWT_SECRET is deprecated. Use JWT_SECRET_KEY instead.")
 
         # Validate JWT Secret
         if not cls.JWT_SECRET:

@@ -158,7 +158,8 @@ class TestChannelOperations:
     @pytest.mark.asyncio
     async def test_set_default_channels(self, manager):
         prefs = await manager.set_default_channels(
-            "user1", [NotificationChannel.PUSH, NotificationChannel.EMAIL],
+            "user1",
+            [NotificationChannel.PUSH, NotificationChannel.EMAIL],
         )
         assert NotificationChannel.PUSH in prefs.default_channels
 
@@ -170,8 +171,10 @@ class TestChannelOperations:
     @pytest.mark.asyncio
     async def test_add_channel(self, manager):
         prefs = await manager.add_channel(
-            "user1", NotificationChannel.WHATSAPP,
-            address="+966501234567", verified=True,
+            "user1",
+            NotificationChannel.WHATSAPP,
+            address="+966501234567",
+            verified=True,
         )
         config = prefs.get_channel_config(NotificationChannel.WHATSAPP)
         assert config is not None
@@ -216,7 +219,8 @@ class TestAlertTypeOperations:
     @pytest.mark.asyncio
     async def test_set_alert_preference(self, manager):
         prefs = await manager.set_alert_preference(
-            "user1", AlertType.IRRIGATION_REMINDER,
+            "user1",
+            AlertType.IRRIGATION_REMINDER,
             channels=[NotificationChannel.PUSH],
             min_urgency=AlertUrgency.MEDIUM,
         )
@@ -270,8 +274,10 @@ class TestTimeRuleOperations:
     @pytest.mark.asyncio
     async def test_add_time_rule(self, manager):
         rule = TimeBasedRule(
-            name="No SMS at night", name_ar="لا رسائل نصية ليلاً",
-            start_time=time(22, 0), end_time=time(6, 0),
+            name="No SMS at night",
+            name_ar="لا رسائل نصية ليلاً",
+            start_time=time(22, 0),
+            end_time=time(6, 0),
             channels=[NotificationChannel.SMS],
             action="channel_fallback",
             fallback_channel=NotificationChannel.PUSH,
@@ -284,7 +290,8 @@ class TestTimeRuleOperations:
     async def test_remove_time_rule(self, manager):
         rule = TimeBasedRule(
             id="rule1",
-            name="Test", name_ar="اختبار",
+            name="Test",
+            name_ar="اختبار",
             channels=[NotificationChannel.SMS],
             action="block",
         )
@@ -324,11 +331,14 @@ class TestUrgencyOverrideOperations:
 class TestBulkOperations:
     @pytest.mark.asyncio
     async def test_update_preferences(self, manager):
-        prefs = await manager.update_preferences("user1", {
-            "notifications_enabled": False,
-            "sound_enabled": False,
-            "language": "en",
-        })
+        prefs = await manager.update_preferences(
+            "user1",
+            {
+                "notifications_enabled": False,
+                "sound_enabled": False,
+                "language": "en",
+            },
+        )
         assert prefs.notifications_enabled is False
         assert prefs.sound_enabled is False
         assert prefs.language == Language.ENGLISH
@@ -377,7 +387,9 @@ class TestValidation:
     async def test_validate_quiet_hours_same_time(self, manager):
         prefs = create_default_preferences("user1")
         prefs.quiet_hours = QuietHours(
-            enabled=True, start_time=time(22, 0), end_time=time(22, 0),
+            enabled=True,
+            start_time=time(22, 0),
+            end_time=time(22, 0),
         )
         with pytest.raises(ValueError, match="same"):
             await manager.save_preferences(prefs)
@@ -395,12 +407,15 @@ class TestValidation:
     @pytest.mark.asyncio
     async def test_validate_fallback_rule(self, manager):
         prefs = create_default_preferences("user1")
-        prefs.time_rules.append(TimeBasedRule(
-            name="Bad", name_ar="سيء",
-            channels=[NotificationChannel.SMS],
-            action="channel_fallback",
-            fallback_channel=None,
-        ))
+        prefs.time_rules.append(
+            TimeBasedRule(
+                name="Bad",
+                name_ar="سيء",
+                channels=[NotificationChannel.SMS],
+                action="channel_fallback",
+                fallback_channel=None,
+            )
+        )
         with pytest.raises(ValueError, match="Fallback"):
             await manager.save_preferences(prefs)
 
@@ -435,7 +450,9 @@ class TestQueryOperations:
         await manager.add_channel("u1", NotificationChannel.SMS, address="phone", tenant_id="t1", verified=False)
 
         users = await manager.get_users_by_channel(
-            NotificationChannel.SMS, tenant_id="t1", verified_only=True,
+            NotificationChannel.SMS,
+            tenant_id="t1",
+            verified_only=True,
         )
         assert "u1" not in users
 

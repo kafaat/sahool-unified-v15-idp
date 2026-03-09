@@ -86,9 +86,7 @@ class TracingSpan:
 
     def __init__(self, name: str, context: SpanContext = None):
         self.name = name
-        self.context = context or SpanContext(
-            trace_id=f"trace-{time.time_ns()}", span_id=f"span-{time.time_ns()}"
-        )
+        self.context = context or SpanContext(trace_id=f"trace-{time.time_ns()}", span_id=f"span-{time.time_ns()}")
         self.attributes: dict[str, Any] = {}
         self.events: list[dict[str, Any]] = []
         self.status: str = "OK"
@@ -257,21 +255,15 @@ class TestAgriculturalMetrics:
         )
 
         assert (
-            metrics_collector.get_counter(
-                "field_operations_total", {"operation": "create", "tenant_id": "tenant-123"}
-            )
+            metrics_collector.get_counter("field_operations_total", {"operation": "create", "tenant_id": "tenant-123"})
             == 1
         )
 
     def test_ndvi_processing_metrics(self, metrics_collector):
         """Test NDVI processing metrics."""
-        metrics_collector.record_histogram(
-            "ndvi_processing_duration_seconds", 2.5, labels={"field_id": "field-456"}
-        )
+        metrics_collector.record_histogram("ndvi_processing_duration_seconds", 2.5, labels={"field_id": "field-456"})
 
-        values = metrics_collector.get_histogram_values(
-            "ndvi_processing_duration_seconds", {"field_id": "field-456"}
-        )
+        values = metrics_collector.get_histogram_values("ndvi_processing_duration_seconds", {"field_id": "field-456"})
         assert 2.5 in values
 
     def test_iot_sensor_metrics(self, metrics_collector):
@@ -283,9 +275,7 @@ class TestAgriculturalMetrics:
         )
 
         assert (
-            metrics_collector.get_gauge(
-                "soil_moisture_percent", {"sensor_id": "sensor-789", "field_id": "field-123"}
-            )
+            metrics_collector.get_gauge("soil_moisture_percent", {"sensor_id": "sensor-789", "field_id": "field-123"})
             == 45.5
         )
 
@@ -301,23 +291,16 @@ class TestServiceHealthMetrics:
             )
 
         assert (
-            metrics_collector.get_counter(
-                "health_checks_total", {"service": "field-service", "status": "healthy"}
-            )
+            metrics_collector.get_counter("health_checks_total", {"service": "field-service", "status": "healthy"})
             == 10
         )
 
     def test_uptime_gauge(self, metrics_collector):
         """Test service uptime gauge."""
         uptime_seconds = 86400
-        metrics_collector.set_gauge(
-            "service_uptime_seconds", uptime_seconds, labels={"service": "advisory-service"}
-        )
+        metrics_collector.set_gauge("service_uptime_seconds", uptime_seconds, labels={"service": "advisory-service"})
 
-        assert (
-            metrics_collector.get_gauge("service_uptime_seconds", {"service": "advisory-service"})
-            == 86400
-        )
+        assert metrics_collector.get_gauge("service_uptime_seconds", {"service": "advisory-service"}) == 86400
 
 
 class TestDistributedTracing:
@@ -356,13 +339,9 @@ class TestMetricLabels:
         max_cardinality = 100
 
         for i in range(max_cardinality + 50):
-            metrics_collector.increment_counter(
-                "high_cardinality_metric", labels={"user_id": f"user-{i}"}
-            )
+            metrics_collector.increment_counter("high_cardinality_metric", labels={"user_id": f"user-{i}"})
 
-        unique_keys = len(
-            [k for k in metrics_collector.counters if k.startswith("high_cardinality_metric")]
-        )
+        unique_keys = len([k for k in metrics_collector.counters if k.startswith("high_cardinality_metric")])
 
         assert unique_keys <= max_cardinality + 50
 

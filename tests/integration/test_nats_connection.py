@@ -259,11 +259,13 @@ async def test_jetstream_publish_with_dedup(mock_jetstream):
     """Test JetStream publish with message deduplication ID."""
     subject = "sahool.field.created"
     msg_id = str(uuid.uuid4())
-    payload = json.dumps({
-        "event_id": msg_id,
-        "field_id": str(uuid.uuid4()),
-        "timestamp": datetime.now(UTC).isoformat(),
-    }).encode("utf-8")
+    payload = json.dumps(
+        {
+            "event_id": msg_id,
+            "field_id": str(uuid.uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    ).encode("utf-8")
 
     # JetStream publish with Nats-Msg-Id for deduplication
     ack = MagicMock()
@@ -332,10 +334,10 @@ async def test_dlq_retry_delay_exponential_backoff():
         max_retry_delay=60.0,
     )
 
-    assert config.get_retry_delay(1) == 1.0   # 1.0 * 2^0 = 1.0
-    assert config.get_retry_delay(2) == 2.0   # 1.0 * 2^1 = 2.0
-    assert config.get_retry_delay(3) == 4.0   # 1.0 * 2^2 = 4.0
-    assert config.get_retry_delay(4) == 8.0   # 1.0 * 2^3 = 8.0
+    assert config.get_retry_delay(1) == 1.0  # 1.0 * 2^0 = 1.0
+    assert config.get_retry_delay(2) == 2.0  # 1.0 * 2^1 = 2.0
+    assert config.get_retry_delay(3) == 4.0  # 1.0 * 2^2 = 4.0
+    assert config.get_retry_delay(4) == 8.0  # 1.0 * 2^3 = 8.0
     assert config.get_retry_delay(7) == 60.0  # 1.0 * 2^6 = 64.0, capped at 60
 
 
@@ -346,8 +348,8 @@ async def test_dlq_should_retry_logic():
     """Test should_retry returns correct result based on attempt count."""
     config = DLQConfig(max_retry_attempts=3)
 
-    assert should_retry(1, config) is True   # Attempt 1 < 3
-    assert should_retry(2, config) is True   # Attempt 2 < 3
+    assert should_retry(1, config) is True  # Attempt 1 < 3
+    assert should_retry(2, config) is True  # Attempt 2 < 3
     assert should_retry(3, config) is False  # Attempt 3 = 3, should go to DLQ
     assert should_retry(4, config) is False  # Beyond max
 

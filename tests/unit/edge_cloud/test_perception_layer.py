@@ -447,9 +447,7 @@ class TestMultiProtocolSupport:
             await device_manager.register_device(invalid_device)
 
     @pytest.mark.asyncio
-    async def test_lora_device_specific_params(
-        self, device_manager: DeviceManager, sample_lora_device: dict[str, Any]
-    ):
+    async def test_lora_device_specific_params(self, device_manager: DeviceManager, sample_lora_device: dict[str, Any]):
         """Test LoRa device has protocol-specific parameters"""
         await device_manager.register_device(sample_lora_device)
         device = device_manager.get_device(sample_lora_device["device_id"])

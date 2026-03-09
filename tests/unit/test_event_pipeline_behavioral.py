@@ -73,12 +73,8 @@ except ImportError:
     _HAS_PYDANTIC = False
 
 _SKIP = pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not available")
-_SKIP_CROP_INTEL = pytest.mark.skipif(
-    not _CROP_INTEL_AVAILABLE, reason="crop-intelligence-service not loadable"
-)
-_SKIP_NOTIF = pytest.mark.skipif(
-    not _NOTIF_AVAILABLE, reason="notification-service not loadable"
-)
+_SKIP_CROP_INTEL = pytest.mark.skipif(not _CROP_INTEL_AVAILABLE, reason="crop-intelligence-service not loadable")
+_SKIP_NOTIF = pytest.mark.skipif(not _NOTIF_AVAILABLE, reason="notification-service not loadable")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

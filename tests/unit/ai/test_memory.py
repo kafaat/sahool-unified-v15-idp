@@ -206,9 +206,7 @@ class TestMemoryConfig:
 
     def test_custom_config(self):
         """Should accept custom configuration"""
-        config = MemoryConfig(
-            window_size=10, max_entries=200, ttl_hours=48, enable_compression=False
-        )
+        config = MemoryConfig(window_size=10, max_entries=200, ttl_hours=48, enable_compression=False)
 
         assert config.window_size == 10
         assert config.max_entries == 200

@@ -451,5 +451,3 @@ def sample_soil_data() -> dict:
 def anyio_backend():
     """Backend for anyio tests."""
     return "asyncio"
-
-

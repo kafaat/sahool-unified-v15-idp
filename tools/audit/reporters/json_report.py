@@ -23,8 +23,7 @@ def generate(results: dict) -> str:
             "readiness": {
                 "production": results.get("health_score", 0)
                 >= results.get("thresholds", {}).get("production_ready", 8.0),
-                "staging": results.get("health_score", 0)
-                >= results.get("thresholds", {}).get("staging_ready", 6.0),
+                "staging": results.get("health_score", 0) >= results.get("thresholds", {}).get("staging_ready", 6.0),
                 "development": results.get("health_score", 0)
                 >= results.get("thresholds", {}).get("development_ready", 4.0),
             },

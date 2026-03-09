@@ -108,9 +108,17 @@ class TestKnowledgeBaseIntegration:
         from shared.ai.knowledge.models import KnowledgeDomain
 
         expected_domains = {
-            "crops", "soil", "irrigation", "fertilizer", "pest_disease",
-            "weather", "remote_sensing", "smart_agriculture",
-            "precision_farming", "digital_twin", "general",
+            "crops",
+            "soil",
+            "irrigation",
+            "fertilizer",
+            "pest_disease",
+            "weather",
+            "remote_sensing",
+            "smart_agriculture",
+            "precision_farming",
+            "digital_twin",
+            "general",
         }
         actual_domains = {d.value for d in KnowledgeDomain}
         assert expected_domains.issubset(actual_domains)
@@ -526,11 +534,13 @@ class TestIngestionPipelineIntegration:
             TextChunker,
         )
 
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.FIXED_SIZE,
-            chunk_size=200,
-            chunk_overlap=50,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.FIXED_SIZE,
+                chunk_size=200,
+                chunk_overlap=50,
+            )
+        )
         chunks = chunker.chunk("This is a test text. " * 50)
         assert len(chunks) > 1
 

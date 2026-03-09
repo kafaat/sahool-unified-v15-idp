@@ -141,9 +141,7 @@ class TestCRMIntegration:
         return InteractionFactory()
 
     @pytest.fixture
-    async def crm_client(
-        self, http_client: AsyncClient, auth_headers: dict[str, str]
-    ) -> AsyncClient:
+    async def crm_client(self, http_client: AsyncClient, auth_headers: dict[str, str]) -> AsyncClient:
         """HTTP client configured for CRM service."""
         http_client.base_url = self.SERVICE_URL
         http_client.headers.update(auth_headers)
@@ -575,9 +573,7 @@ class TestCRMIntegration:
         )
 
         # Filter by call type
-        call_response = await crm_client.get(
-            f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call"
-        )
+        call_response = await crm_client.get(f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call")
         assert call_response.status_code == 200
         calls = call_response.json()
         for interaction in calls:
@@ -777,9 +773,7 @@ class TestCRMIntegration:
 
             # Verify event
             if received_events:
-                stage_events = [
-                    e for e in received_events if e.get("event_type") == "deal.stage_advanced"
-                ]
+                stage_events = [e for e in received_events if e.get("event_type") == "deal.stage_advanced"]
                 if stage_events:
                     event = stage_events[0]
                     assert event["new_stage"] == "qualification"
@@ -808,9 +802,7 @@ class TestCRMIntegration:
         await crm_client.post("/api/v1/farmers", json=farmer_request)
 
         # Search by name
-        search_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_id}&search={unique_name}"
-        )
+        search_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_id}&search={unique_name}")
 
         assert search_response.status_code == 200
         results = search_response.json()
@@ -831,17 +823,13 @@ class TestCRMIntegration:
             await crm_client.post("/api/v1/farmers", json=farmer_request)
 
         # Get first page
-        page1_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_id}&limit=10&offset=0"
-        )
+        page1_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_id}&limit=10&offset=0")
         assert page1_response.status_code == 200
         page1 = page1_response.json()
         assert len(page1) == 10
 
         # Get second page
-        page2_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_id}&limit=10&offset=10"
-        )
+        page2_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_id}&limit=10&offset=10")
         assert page2_response.status_code == 200
         page2 = page2_response.json()
         assert len(page2) >= 5

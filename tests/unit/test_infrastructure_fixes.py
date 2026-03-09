@@ -167,9 +167,7 @@ class TestNoGhostServices:
     @pytest.mark.parametrize("service_name", DEPRECATED_SERVICES)
     def test_deprecated_service_not_in_kong(self, kong_services, service_name):
         """Deprecated service must NOT be registered in Kong (would return 502)."""
-        assert service_name not in kong_services, (
-            f"Deprecated service '{service_name}' still in Kong - will return 502"
-        )
+        assert service_name not in kong_services, f"Deprecated service '{service_name}' still in Kong - will return 502"
 
     def test_no_port_9000_range_services(self, kong_services):
         """No services should use deprecated 9000-9999 port range."""
@@ -177,15 +175,14 @@ class TestNoGhostServices:
             port = service.get("port")
             if port is None:
                 continue  # Some entries (e.g., root-endpoint) have no port
-            assert port < 9000, (
-                f"Service '{name}' uses deprecated port {port} (9000+ range)"
-            )
+            assert port < 9000, f"Service '{name}' uses deprecated port {port} (9000+ range)"
 
     def test_all_kong_services_have_docker_container(self, kong_services, docker_services):
         """Every Kong service must have a corresponding Docker container."""
         # Exclude Kong meta-entries (no port), route variants, and infrastructure
         excluded = {
-            "user-service-health", "user-service-public",  # route variants of user-service
+            "user-service-health",
+            "user-service-public",  # route variants of user-service
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
         }
@@ -215,13 +212,9 @@ class TestDependencyConstraints:
         upper = match.group(1)
         major, minor = [int(x) for x in upper.split(".")[:2]]
         # <2.5.0 means upper bound is 2.5.0 exclusive, which is safe
-        assert (major, minor) <= (2, 5), (
-            f"NumPy upper bound is {upper}, must be <=2.5.0 for TensorFlow compatibility"
-        )
+        assert (major, minor) <= (2, 5), f"NumPy upper bound is {upper}, must be <=2.5.0 for TensorFlow compatibility"
         # Must NOT allow 3.0+ which definitely breaks TF
-        assert major < 3, (
-            f"NumPy upper bound {upper} allows 3.x which breaks TensorFlow"
-        )
+        assert major < 3, f"NumPy upper bound {upper} allows 3.x which breaks TensorFlow"
 
     def test_numpy_lower_bound_at_least_1_26(self, pyproject_content):
         """NumPy must have lower bound >= 1.26.0."""
@@ -229,27 +222,19 @@ class TestDependencyConstraints:
         assert match, "NumPy lower bound not found"
         lower = match.group(1)
         parts = [int(x) for x in lower.split(".")]
-        assert parts[0] >= 1 and parts[1] >= 26, (
-            f"NumPy lower bound {lower} should be >= 1.26.0"
-        )
+        assert parts[0] >= 1 and parts[1] >= 26, f"NumPy lower bound {lower} should be >= 1.26.0"
 
     def test_tensorflow_version_pinned(self, pyproject_content):
         """TensorFlow must be explicitly pinned."""
-        assert "tensorflow-cpu==" in pyproject_content, (
-            "TensorFlow must be pinned with == (not range)"
-        )
+        assert "tensorflow-cpu==" in pyproject_content, "TensorFlow must be pinned with == (not range)"
 
     def test_cryptography_has_minimum_version(self, pyproject_content):
         """cryptography must have a minimum version for CVE fixes."""
-        assert 'cryptography>=' in pyproject_content, (
-            "cryptography must specify minimum version for security"
-        )
+        assert "cryptography>=" in pyproject_content, "cryptography must specify minimum version for security"
 
     def test_aiohttp_has_minimum_version(self, pyproject_content):
         """aiohttp must have minimum version for CVE fixes."""
-        assert 'aiohttp>=' in pyproject_content, (
-            "aiohttp must specify minimum version for security"
-        )
+        assert "aiohttp>=" in pyproject_content, "aiohttp must specify minimum version for security"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -271,25 +256,32 @@ class TestDockerComposePortUniqueness:
                 port_str = str(port_spec)
                 # Extract host port from "IP:HOST:CONTAINER" or "HOST:CONTAINER"
                 # e.g., "127.0.0.1:6432:6432" -> 6432, "8000:8000" -> 8000
-                match = re.match(
-                    r"(?:\d+\.\d+\.\d+\.\d+:)?(\d+):\d+", port_str
-                )
+                match = re.match(r"(?:\d+\.\d+\.\d+\.\d+:)?(\d+):\d+", port_str)
                 if match:
                     host_port = int(match.group(1))
                     if host_port in port_map:
-                        pytest.fail(
-                            f"Port {host_port} conflict: "
-                            f"'{svc_name}' and '{port_map[host_port]}'"
-                        )
+                        pytest.fail(f"Port {host_port} conflict: '{svc_name}' and '{port_map[host_port]}'")
                     port_map[host_port] = svc_name
 
     def test_all_services_have_ports(self, docker_compose_config):
         """Application services (not infrastructure) should have port mappings."""
         infra_services = {
-            "postgres", "pgbouncer", "redis", "nats", "kong",
-            "nats-prometheus-exporter", "mqtt", "qdrant", "vault",
-            "ollama", "ollama-model-loader", "milvus", "etcd",
-            "etcd-init", "minio", "mlflow",
+            "postgres",
+            "pgbouncer",
+            "redis",
+            "nats",
+            "kong",
+            "nats-prometheus-exporter",
+            "mqtt",
+            "qdrant",
+            "vault",
+            "ollama",
+            "ollama-model-loader",
+            "milvus",
+            "etcd",
+            "etcd-init",
+            "minio",
+            "mlflow",
         }
         services = docker_compose_config.get("services", {})
         missing = []
@@ -301,9 +293,7 @@ class TestDockerComposePortUniqueness:
 
         # Allow some services without ports (workers, sidecars)
         # but flag if too many are missing
-        assert len(missing) <= 5, (
-            f"Too many application services without port mappings: {missing}"
-        )
+        assert len(missing) <= 5, f"Too many application services without port mappings: {missing}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -318,25 +308,19 @@ class TestGovernanceRegistry:
         """Governance version must be >= 3.3.0."""
         version = governance_config.get("version", "0.0.0")
         parts = [int(x) for x in version.split(".")]
-        assert parts[0] >= 3 and parts[1] >= 3, (
-            f"Governance version {version} should be >= 3.3.0"
-        )
+        assert parts[0] >= 3 and parts[1] >= 3, f"Governance version {version} should be >= 3.3.0"
 
     def test_last_updated_is_2026(self, governance_config):
         """Last updated date must be in 2026."""
         updated = governance_config.get("last_updated", "")
-        assert "2026" in updated, (
-            f"Governance last_updated '{updated}' should be in 2026"
-        )
+        assert "2026" in updated, f"Governance last_updated '{updated}' should be in 2026"
 
     def test_has_event_architecture(self, governance_config):
         """Governance must define event architecture layers."""
         assert "event_architecture" in governance_config
         layers = governance_config["event_architecture"].get("layers", {})
         required = {"acquisition", "intelligence", "decision", "business"}
-        assert required.issubset(set(layers.keys())), (
-            f"Missing event layers: {required - set(layers.keys())}"
-        )
+        assert required.issubset(set(layers.keys())), f"Missing event layers: {required - set(layers.keys())}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -351,19 +335,14 @@ class TestKongConfigIntegrity:
         """Every Kong service must have at least one route."""
         for service in kong_config.get("services", []):
             routes = service.get("routes", [])
-            assert len(routes) > 0, (
-                f"Kong service '{service['name']}' has no routes"
-            )
+            assert len(routes) > 0, f"Kong service '{service['name']}' has no routes"
 
     def test_all_routes_have_paths(self, kong_config):
         """Every Kong route must define at least one path."""
         for service in kong_config.get("services", []):
             for route in service.get("routes", []):
                 paths = route.get("paths", [])
-                assert len(paths) > 0, (
-                    f"Route '{route.get('name', '?')}' in service "
-                    f"'{service['name']}' has no paths"
-                )
+                assert len(paths) > 0, f"Route '{route.get('name', '?')}' in service '{service['name']}' has no paths"
 
     def test_no_duplicate_service_names(self, kong_config):
         """Kong must not have duplicate service names."""
@@ -393,9 +372,7 @@ class TestKongConfigIntegrity:
     def test_kong_service_count_reasonable(self, kong_config):
         """Kong should have between 50-80 services (not too few, not too many)."""
         count = len(kong_config.get("services", []))
-        assert 50 <= count <= 80, (
-            f"Kong has {count} services, expected 50-80"
-        )
+        assert 50 <= count <= 80, f"Kong has {count} services, expected 50-80"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -422,17 +399,12 @@ class TestCrossValidation:
     @pytest.mark.parametrize("service_name,expected_port", CRITICAL_SERVICES)
     def test_critical_service_in_kong(self, kong_services, service_name, expected_port):
         """Critical services must be in Kong with correct port."""
-        assert service_name in kong_services, (
-            f"Critical service '{service_name}' missing from Kong"
-        )
+        assert service_name in kong_services, f"Critical service '{service_name}' missing from Kong"
         assert kong_services[service_name]["port"] == expected_port, (
-            f"{service_name} port mismatch: "
-            f"Kong={kong_services[service_name]['port']}, expected={expected_port}"
+            f"{service_name} port mismatch: Kong={kong_services[service_name]['port']}, expected={expected_port}"
         )
 
     @pytest.mark.parametrize("service_name,expected_port", CRITICAL_SERVICES)
     def test_critical_service_in_docker(self, docker_services, service_name, expected_port):
         """Critical services must have Docker containers."""
-        assert service_name in docker_services, (
-            f"Critical service '{service_name}' missing from docker-compose.yml"
-        )
+        assert service_name in docker_services, f"Critical service '{service_name}' missing from docker-compose.yml"

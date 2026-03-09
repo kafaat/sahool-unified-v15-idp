@@ -95,9 +95,9 @@ def check_requirements(repo_root: Path) -> list:
             continue
 
         # Check if it's a Python service
-        has_python = (
-            (service_dir / "src").exists() and list((service_dir / "src").glob("*.py"))
-        ) or list(service_dir.glob("*.py"))
+        has_python = ((service_dir / "src").exists() and list((service_dir / "src").glob("*.py"))) or list(
+            service_dir.glob("*.py")
+        )
 
         if has_python:
             req_file = service_dir / "requirements.txt"

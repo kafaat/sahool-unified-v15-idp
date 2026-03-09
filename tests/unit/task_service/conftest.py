@@ -11,9 +11,7 @@ import sys
 from pathlib import Path
 
 # Get the absolute path to the task service source directory
-TASK_SERVICE_SRC = (
-    Path(__file__).parent.parent.parent.parent / "apps" / "services" / "task-service" / "src"
-)
+TASK_SERVICE_SRC = Path(__file__).parent.parent.parent.parent / "apps" / "services" / "task-service" / "src"
 
 # Add the parent directory of src to path so that we can import as a package
 # This allows `from src.exceptions import ...` style imports

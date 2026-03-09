@@ -34,6 +34,7 @@ from shared.drift_detection.remediation import (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_drift(
     category: DriftCategory = DriftCategory.CONFIG,
     severity: DriftSeverity = DriftSeverity.HIGH,
@@ -82,9 +83,7 @@ class TestPolicyMatching:
     def test_critical_config_matches_block_pr(self):
         """CRITICAL config drift should match the HIGH BLOCK_PR policy (more severe qualifies)."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.CRITICAL)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.CRITICAL))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.BLOCK_PR
@@ -92,9 +91,7 @@ class TestPolicyMatching:
     def test_high_api_matches_auto_fix(self):
         """HIGH API drift matches the AUTO_FIX policy."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.API, severity=DriftSeverity.HIGH)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.API, severity=DriftSeverity.HIGH))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.AUTO_FIX
@@ -102,9 +99,7 @@ class TestPolicyMatching:
     def test_critical_api_matches_block_pr_over_auto_fix(self):
         """CRITICAL API drift should match BLOCK_PR (most specific high-severity policy)."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.API, severity=DriftSeverity.CRITICAL)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.API, severity=DriftSeverity.CRITICAL))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.BLOCK_PR
@@ -112,9 +107,7 @@ class TestPolicyMatching:
     def test_high_security_matches_create_issue(self):
         """HIGH security drift matches CREATE_ISSUE policy."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.HIGH)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.HIGH))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.CREATE_ISSUE
@@ -122,17 +115,13 @@ class TestPolicyMatching:
     def test_medium_schema_no_match(self):
         """MEDIUM schema drift is below min_severity for all schema policies."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.SCHEMA, severity=DriftSeverity.MEDIUM)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.SCHEMA, severity=DriftSeverity.MEDIUM))
         assert engine.plan_remediation(report) == []
 
     def test_high_data_matches_alert_only(self):
         """HIGH data drift matches the ALERT_ONLY policy."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.DATA, severity=DriftSeverity.HIGH)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.DATA, severity=DriftSeverity.HIGH))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.ALERT_ONLY
@@ -164,9 +153,7 @@ class TestPolicyMatching:
             )
         ]
         engine = AutoRemediationEngine(policies=custom, dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.INFO)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.INFO))
         actions = engine.plan_remediation(report)
         assert len(actions) == 1
         assert actions[0].strategy == RemediationStrategy.AUTO_RESTART
@@ -219,9 +206,7 @@ class TestActionMetadata:
     def test_auto_approve_sets_requires_approval_false(self):
         """auto_approve=True on policy → requires_approval=False on action."""
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL))
         actions = engine.plan_remediation(report)
         # Security CRITICAL policy has auto_approve=True
         assert actions[0].requires_approval is False
@@ -230,9 +215,7 @@ class TestActionMetadata:
         """auto_approve=False on policy → requires_approval=True on action."""
         engine = AutoRemediationEngine(dry_run=True)
         # Event HIGH policy has auto_approve=False (default)
-        report = _make_report(
-            _make_drift(category=DriftCategory.EVENT, severity=DriftSeverity.HIGH)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.EVENT, severity=DriftSeverity.HIGH))
         actions = engine.plan_remediation(report)
         assert actions[0].requires_approval is True
 
@@ -273,9 +256,7 @@ class TestExecuteBlockPR:
     async def test_block_pr_via_execute(self):
         """BLOCK_PR action flows through execute() correctly."""
         engine = AutoRemediationEngine(dry_run=False)
-        report = _make_report(
-            _make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL))
         actions = engine.plan_remediation(report)
         # Override dry_run on the action since engine is not dry_run
         for a in actions:
@@ -319,9 +300,7 @@ class TestExecuteCreateIssue:
             )
         ]
         engine = AutoRemediationEngine(policies=custom, dry_run=False)
-        report = _make_report(
-            _make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.MEDIUM)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.CONFIG, severity=DriftSeverity.MEDIUM))
         actions = engine.plan_remediation(report)
         for a in actions:
             a.dry_run = False
@@ -581,9 +560,7 @@ class TestAuditLogging:
     @pytest.mark.asyncio
     async def test_audit_log_populated_after_execute(self):
         engine = AutoRemediationEngine(dry_run=True)
-        report = _make_report(
-            _make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL)
-        )
+        report = _make_report(_make_drift(category=DriftCategory.SECURITY, severity=DriftSeverity.CRITICAL))
         actions = engine.plan_remediation(report)
         await engine.execute(actions)
 
@@ -783,7 +760,8 @@ class TestDefaultPolicies:
 
     def test_security_critical_is_block_pr(self):
         matches = [
-            p for p in DEFAULT_POLICIES
+            p
+            for p in DEFAULT_POLICIES
             if p.category == DriftCategory.SECURITY and p.min_severity == DriftSeverity.CRITICAL
         ]
         assert len(matches) == 1

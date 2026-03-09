@@ -34,8 +34,7 @@ class TestKnowledgeModelsConsistency:
         required_attrs = ["domain", "title", "content"]
         for attr in required_attrs:
             # BaseKnowledgeDocument is a Pydantic model, check model_fields
-            assert attr in BaseKnowledgeDocument.model_fields, \
-                f"BaseKnowledgeDocument missing required field: {attr}"
+            assert attr in BaseKnowledgeDocument.model_fields, f"BaseKnowledgeDocument missing required field: {attr}"
 
     def test_crop_document_extends_base(self):
         """CropKnowledgeDocument should extend BaseKnowledgeDocument."""
@@ -44,8 +43,9 @@ class TestKnowledgeModelsConsistency:
         except ImportError:
             pytest.skip("knowledge.models not available")
 
-        assert issubclass(CropKnowledgeDocument, BaseKnowledgeDocument), \
+        assert issubclass(CropKnowledgeDocument, BaseKnowledgeDocument), (
             "CropKnowledgeDocument must extend BaseKnowledgeDocument"
+        )
 
 
 @pytest.mark.unit
@@ -70,7 +70,9 @@ class TestCollectionsConsistency:
             pytest.skip("knowledge.collections not available")
 
         names = [c.name if hasattr(c, "name") else str(c) for c in ALL_COLLECTIONS]
-        assert len(names) == len(set(names)), f"Duplicate collection names found: {[n for n in names if names.count(n) > 1]}"
+        assert len(names) == len(set(names)), (
+            f"Duplicate collection names found: {[n for n in names if names.count(n) > 1]}"
+        )
 
     def test_crop_knowledge_collection_exists(self):
         """CROP_KNOWLEDGE collection should be defined."""
@@ -95,8 +97,9 @@ class TestAgrovocConsistency:
 
         lookup = AgrovocLookup()
         # Should be able to extract concepts from agricultural text
-        assert callable(getattr(lookup, "extract_concepts_from_text", None)), \
+        assert callable(getattr(lookup, "extract_concepts_from_text", None)), (
             "AgrovocLookup should have extract_concepts_from_text method"
+        )
 
     def test_agrovoc_domain_has_crops(self):
         """AgrovocDomain should include a crops-related value."""
@@ -106,8 +109,9 @@ class TestAgrovocConsistency:
             pytest.skip("agrovoc not available")
 
         domain_values = [d.value for d in AgrovocDomain]
-        assert any("crop" in v.lower() or "plant" in v.lower() for v in domain_values), \
+        assert any("crop" in v.lower() or "plant" in v.lower() for v in domain_values), (
             f"AgrovocDomain should include a crops domain, got: {domain_values}"
+        )
 
 
 @pytest.mark.unit
@@ -133,8 +137,7 @@ class TestValidatorsConsistency:
 
         required_fields = ["is_valid", "issues"]
         for field in required_fields:
-            assert field in ValidationResult.__dataclass_fields__, \
-                f"ValidationResult missing field: {field}"
+            assert field in ValidationResult.__dataclass_fields__, f"ValidationResult missing field: {field}"
 
 
 @pytest.mark.unit
@@ -162,9 +165,11 @@ class TestPersistenceConsistency:
 
         repo = InMemoryKnowledgeRepository()
         # Should have store/get/delete methods
-        assert callable(getattr(repo, "store", None)) or callable(getattr(repo, "add", None)) or \
-               callable(getattr(repo, "save", None)), \
-            "Repository should have a store/add/save method"
+        assert (
+            callable(getattr(repo, "store", None))
+            or callable(getattr(repo, "add", None))
+            or callable(getattr(repo, "save", None))
+        ), "Repository should have a store/add/save method"
 
 
 @pytest.mark.unit
@@ -231,8 +236,9 @@ class TestEventsSubjects:
         except ImportError:
             pytest.skip("events.subjects not available")
 
-        assert SAHOOL_FIELD_CREATED.startswith("sahool."), \
+        assert SAHOOL_FIELD_CREATED.startswith("sahool."), (
             f"Event subject should start with 'sahool.', got: {SAHOOL_FIELD_CREATED}"
+        )
         assert "field" in SAHOOL_FIELD_CREATED.lower()
 
     def test_no_duplicate_subjects(self):
@@ -242,10 +248,7 @@ class TestEventsSubjects:
         except ImportError:
             pytest.skip("events.subjects not available")
 
-        subjects = [
-            v for k, v in vars(subjects_mod).items()
-            if k.startswith("SAHOOL_") and isinstance(v, str)
-        ]
+        subjects = [v for k, v in vars(subjects_mod).items() if k.startswith("SAHOOL_") and isinstance(v, str)]
         assert len(subjects) == len(set(subjects)), "Duplicate event subjects found"
 
     def test_get_tenant_subject_function(self):
@@ -318,7 +321,7 @@ class TestFieldBoundariesGeometry:
 
         # Riyadh to Jeddah ~ 950 km
         dist = haversine_distance(24.7136, 46.6753, 21.5433, 39.1728)
-        assert 800_000 < dist < 1_100_000, f"Expected ~950km, got {dist/1000:.0f}km"
+        assert 800_000 < dist < 1_100_000, f"Expected ~950km, got {dist / 1000:.0f}km"
 
     def test_shoelace_area(self):
         """shoelace_area should compute polygon area."""
@@ -341,5 +344,4 @@ class TestFieldBoundariesGeometry:
 
         coords = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
         cx, cy = polygon_centroid(coords)
-        assert abs(cx - 0.5) < 0.01 and abs(cy - 0.5) < 0.01, \
-            f"Centroid should be near (0.5, 0.5), got ({cx}, {cy})"
+        assert abs(cx - 0.5) < 0.01 and abs(cy - 0.5) < 0.01, f"Centroid should be near (0.5, 0.5), got ({cx}, {cy})"

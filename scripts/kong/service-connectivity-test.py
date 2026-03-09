@@ -359,13 +359,9 @@ class KongConnectivityTester:
         }
 
         if ASYNC_MODE:
-            status_code, headers, body, duration = await self._async_request(
-                "OPTIONS", url, headers=preflight_headers
-            )
+            status_code, headers, body, duration = await self._async_request("OPTIONS", url, headers=preflight_headers)
         else:
-            status_code, headers, body, duration = self._sync_request(
-                "OPTIONS", url, headers=preflight_headers
-            )
+            status_code, headers, body, duration = self._sync_request("OPTIONS", url, headers=preflight_headers)
 
         cors_headers = {
             "Access-Control-Allow-Origin": headers.get("Access-Control-Allow-Origin"),
@@ -438,9 +434,7 @@ class KongConnectivityTester:
                 "GET", url, headers=headers_with_jwt
             )
         else:
-            status_code_invalid_jwt, _, body, duration2 = self._sync_request(
-                "GET", url, headers=headers_with_jwt
-            )
+            status_code_invalid_jwt, _, body, duration2 = self._sync_request("GET", url, headers=headers_with_jwt)
 
         total_duration = duration1 + duration2
 
@@ -581,9 +575,7 @@ class KongConnectivityTester:
         if output_json:
             report_dict = asdict(self.report)
             # Fix enum serialization
-            report_json = json.dumps(
-                report_dict, default=serialize_report, indent=2, ensure_ascii=False
-            )
+            report_json = json.dumps(report_dict, default=serialize_report, indent=2, ensure_ascii=False)
 
             if output_file:
                 with open(output_file, "w", encoding="utf-8") as f:

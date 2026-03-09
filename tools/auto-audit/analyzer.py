@@ -168,9 +168,7 @@ class AuditLogAnalyzer:
         # Parse timestamps
         for entry in entries:
             if isinstance(entry.get("created_at"), str):
-                entry["_timestamp"] = datetime.fromisoformat(
-                    entry["created_at"].replace("Z", "+00:00")
-                )
+                entry["_timestamp"] = datetime.fromisoformat(entry["created_at"].replace("Z", "+00:00"))
             else:
                 entry["_timestamp"] = entry.get("created_at", datetime.now(UTC))
 
@@ -284,9 +282,7 @@ class AuditLogAnalyzer:
         # Check for off-hours activity
         off_hours_entries = [e for e in entries if e["_timestamp"].hour in self.SUSPICIOUS_HOURS]
         if off_hours_entries:
-            off_hours_actors = Counter(
-                e.get("actor_id") for e in off_hours_entries if e.get("actor_id")
-            )
+            off_hours_actors = Counter(e.get("actor_id") for e in off_hours_entries if e.get("actor_id"))
             for actor, count in off_hours_actors.most_common(10):
                 if count > 5:
                     risks.append(
@@ -317,9 +313,7 @@ class AuditLogAnalyzer:
         # Check for failed actions
         failed_entries = [e for e in entries if e.get("success") is False]
         if len(failed_entries) > 10:
-            failed_by_actor = Counter(
-                e.get("actor_id") for e in failed_entries if e.get("actor_id")
-            )
+            failed_by_actor = Counter(e.get("actor_id") for e in failed_entries if e.get("actor_id"))
             for actor, count in failed_by_actor.most_common(5):
                 if count > 5:
                     risks.append(
@@ -365,12 +359,10 @@ class AuditLogAnalyzer:
             # Check for new resource access
             if len(actor_logs) >= 10:
                 early_resources = {
-                    f"{e.get('resource_type')}/{e.get('resource_id')}"
-                    for e in actor_logs[: len(actor_logs) // 2]
+                    f"{e.get('resource_type')}/{e.get('resource_id')}" for e in actor_logs[: len(actor_logs) // 2]
                 }
                 late_resources = {
-                    f"{e.get('resource_type')}/{e.get('resource_id')}"
-                    for e in actor_logs[len(actor_logs) // 2 :]
+                    f"{e.get('resource_type')}/{e.get('resource_id')}" for e in actor_logs[len(actor_logs) // 2 :]
                 }
                 new_resources = late_resources - early_resources
                 if len(new_resources) > 5:
@@ -410,11 +402,7 @@ class AuditLogAnalyzer:
                 activity_level = "low"
 
             # Calculate diversity score (how diverse are the actions)
-            diversity_score = (
-                len(metrics.unique_actions) / metrics.total_events
-                if metrics.total_events > 0
-                else 0
-            )
+            diversity_score = len(metrics.unique_actions) / metrics.total_events if metrics.total_events > 0 else 0
 
             profiles[actor_id] = {
                 "total_events": metrics.total_events,
@@ -423,12 +411,8 @@ class AuditLogAnalyzer:
                 "activity_level": activity_level,
                 "diversity_score": round(diversity_score, 3),
                 "peak_hour": peak_hour,
-                "first_activity": (
-                    metrics.first_activity.isoformat() if metrics.first_activity else None
-                ),
-                "last_activity": (
-                    metrics.last_activity.isoformat() if metrics.last_activity else None
-                ),
+                "first_activity": (metrics.first_activity.isoformat() if metrics.first_activity else None),
+                "last_activity": (metrics.last_activity.isoformat() if metrics.last_activity else None),
                 "top_actions": metrics.action_counts.most_common(5),
             }
 

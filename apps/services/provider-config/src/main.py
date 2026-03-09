@@ -1302,7 +1302,9 @@ async def check_all_free_providers():
 
 
 @app.get("/config/{tenant_id}")
-async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)):
+async def get_tenant_config(
+    tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)
+):
     """Get provider configuration for a tenant"""
     if not config_service:
         raise HTTPException(status_code=503, detail="Service not initialized")
@@ -1356,7 +1358,10 @@ async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_se
 
 @app.post("/config/{tenant_id}")
 async def update_tenant_config(
-    tenant_id: str, config: TenantProviderConfig, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)
+    tenant_id: str,
+    config: TenantProviderConfig,
+    session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Update provider configuration for a tenant"""
     if not config_service:
@@ -1523,7 +1528,9 @@ async def update_tenant_config(
 
 
 @app.delete("/config/{tenant_id}")
-async def reset_tenant_config(tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)):
+async def reset_tenant_config(
+    tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)
+):
     """Reset tenant configuration to defaults"""
     if not config_service:
         raise HTTPException(status_code=503, detail="Service not initialized")

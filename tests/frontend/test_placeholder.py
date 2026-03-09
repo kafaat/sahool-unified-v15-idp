@@ -9,6 +9,7 @@ This directory is intended for frontend-specific Python tests such as:
 For React component tests, use the JavaScript test runner (Vitest)
 configured in the web and admin applications.
 """
+
 import pytest
 
 

@@ -231,9 +231,7 @@ def pytest_configure(config):
                 config.postgis_available = True
                 config.postgis_skip_reason = None
             else:
-                config.postgis_skip_reason = (
-                    "PostGIS extension not installed. Run: CREATE EXTENSION postgis;"
-                )
+                config.postgis_skip_reason = "PostGIS extension not installed. Run: CREATE EXTENSION postgis;"
         except Exception as e:
             config.postgis_skip_reason = f"Could not verify PostGIS availability: {str(e)}"
 
@@ -292,9 +290,7 @@ def cleanup_test_data(db_cursor):
 
         for table in tables:
             try:
-                db_cursor.execute(
-                    f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'"
-                )
+                db_cursor.execute(f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'")
             except psycopg2.errors.UndefinedTable:
                 # Table might not exist, skip
                 pass
@@ -440,9 +436,7 @@ class NotificationFactory:
     """Factory for creating notification data - مصنع لإنشاء بيانات الإشعارات"""
 
     @staticmethod
-    def create(
-        user_id: str = "test-user-123", notification_type: str = "weather_alert"
-    ) -> dict[str, Any]:
+    def create(user_id: str = "test-user-123", notification_type: str = "weather_alert") -> dict[str, Any]:
         """Create a notification - إنشاء إشعار"""
         return {
             "user_id": user_id,
@@ -1125,9 +1119,7 @@ class HarvestDealFactory:
             "farmer_id": farmer_id,
             "crop_type": crop_type,
             "crop_type_ar": "قمح" if crop_type == "wheat" else crop_type,
-            "expected_quantity_tons": faker_en.pyfloat(
-                min_value=10.0, max_value=100.0, right_digits=1
-            ),
+            "expected_quantity_tons": faker_en.pyfloat(min_value=10.0, max_value=100.0, right_digits=1),
             "expected_harvest_date": (datetime.utcnow() + timedelta(days=90)).strftime("%Y-%m-%d"),
             "price_per_ton": faker_en.pyfloat(min_value=400.0, max_value=600.0, right_digits=2),
             "notes": "Test harvest deal",
@@ -1349,9 +1341,7 @@ def auth_headers_for_tenant(generate_jwt_token):
     مصنع لتوليد رؤوس المصادقة لمستأجر محدد
     """
 
-    def _headers(
-        tenant_id: str, user_id: str | None = None, role: str = "farmer"
-    ) -> dict[str, str]:
+    def _headers(tenant_id: str, user_id: str | None = None, role: str = "farmer") -> dict[str, str]:
         token = generate_jwt_token(
             user_id=user_id or f"user-{tenant_id}",
             tenant_id=tenant_id,

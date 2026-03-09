@@ -350,9 +350,7 @@ class TestFlightPath:
     def test_flight_path_creation(self):
         """Test creating a flight path"""
         waypoints = [
-            Waypoint(
-                index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
-            )
+            Waypoint(index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3))
             for i in range(5)
         ]
 
@@ -376,9 +374,7 @@ class TestFlightPath:
     def test_flight_path_to_kml(self):
         """Test exporting flight path to KML format"""
         waypoints = [
-            Waypoint(
-                index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
-            )
+            Waypoint(index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3))
             for i in range(3)
         ]
 
@@ -841,9 +837,7 @@ class TestMappingPath:
         assert result.success is True
         # All waypoints should have photo action
         photo_points = [
-            wp
-            for wp in result.flight_path.waypoints
-            if wp.is_photo_point or WaypointAction.TAKE_PHOTO in wp.actions
+            wp for wp in result.flight_path.waypoints if wp.is_photo_point or WaypointAction.TAKE_PHOTO in wp.actions
         ]
         assert len(photo_points) > 0
 
@@ -1341,9 +1335,7 @@ class TestFertilizerMap:
         # Low vigor zones should have higher rates (inverse relationship)
         low_vigor_zones = [z for z in prescription.zones if z.zone_type == VRAZoneType.LOW_VIGOR]
         if low_vigor_zones:
-            high_vigor_zones = [
-                z for z in prescription.zones if z.zone_type == VRAZoneType.HIGH_VIGOR
-            ]
+            high_vigor_zones = [z for z in prescription.zones if z.zone_type == VRAZoneType.HIGH_VIGOR]
             if high_vigor_zones:
                 assert low_vigor_zones[0].rate_l_ha >= high_vigor_zones[0].rate_l_ha
 

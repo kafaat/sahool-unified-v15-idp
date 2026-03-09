@@ -71,16 +71,12 @@ class RateLimiter:
             state.hour_reset = now + 3600
 
         elapsed = now - state.last_request
-        state.burst_tokens = min(
-            self.config.burst_limit, state.burst_tokens + elapsed * (self.config.burst_limit / 60)
-        )
+        state.burst_tokens = min(self.config.burst_limit, state.burst_tokens + elapsed * (self.config.burst_limit / 60))
         state.last_request = now
 
         headers = {
             "X-RateLimit-Limit": str(self.config.requests_per_minute),
-            "X-RateLimit-Remaining": str(
-                max(0, self.config.requests_per_minute - state.minute_count)
-            ),
+            "X-RateLimit-Remaining": str(max(0, self.config.requests_per_minute - state.minute_count)),
             "X-RateLimit-Reset": str(int(state.minute_reset)),
         }
 
@@ -119,9 +115,7 @@ class RateLimiter:
 def rate_limiter():
     """Create rate limiter instance."""
     return RateLimiter(
-        RateLimitConfig(
-            requests_per_minute=60, requests_per_hour=1000, burst_limit=10, cooldown_seconds=60
-        )
+        RateLimitConfig(requests_per_minute=60, requests_per_hour=1000, burst_limit=10, cooldown_seconds=60)
     )
 
 
@@ -129,9 +123,7 @@ def rate_limiter():
 def strict_rate_limiter():
     """Create strict rate limiter for testing limits."""
     return RateLimiter(
-        RateLimitConfig(
-            requests_per_minute=5, requests_per_hour=50, burst_limit=10, cooldown_seconds=60
-        )
+        RateLimitConfig(requests_per_minute=5, requests_per_hour=50, burst_limit=10, cooldown_seconds=60)
     )
 
 
@@ -200,9 +192,7 @@ class TestHourLimit:
 
     def test_hour_limit_enforced(self):
         """Test per-hour limit is enforced."""
-        limiter = RateLimiter(
-            RateLimitConfig(requests_per_minute=1000, requests_per_hour=5, burst_limit=100)
-        )
+        limiter = RateLimiter(RateLimitConfig(requests_per_minute=1000, requests_per_hour=5, burst_limit=100))
 
         client_key = "ip:192.168.1.1"
 

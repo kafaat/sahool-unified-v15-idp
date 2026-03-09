@@ -18,10 +18,7 @@ def find_dockerfiles(root: str) -> list[str]:
     """Find all Dockerfiles in the project."""
     dockerfiles = []
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in (".git", "node_modules", "archive", "__pycache__", ".venv")
-        ]
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "archive", "__pycache__", ".venv")]
         for f in filenames:
             if f == "Dockerfile" or f.startswith("Dockerfile."):
                 full = os.path.join(dirpath, f)
@@ -53,7 +50,7 @@ def check_continuation_lines(content: str) -> list[str]:
             if i + 1 < len(lines):
                 next_line = lines[i + 1].strip()
                 if next_line == "" and i + 2 < len(lines):
-                    issues.append(f"  Line {i+1}: Backslash continuation followed by empty line")
+                    issues.append(f"  Line {i + 1}: Backslash continuation followed by empty line")
     return issues
 
 

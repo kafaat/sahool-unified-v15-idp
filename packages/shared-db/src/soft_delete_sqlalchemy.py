@@ -354,9 +354,7 @@ def soft_delete_record(
     return None
 
 
-def soft_delete_many(
-    session: Session, model: type[T], deleted_by: str | None = None, **filters
-) -> int:
+def soft_delete_many(session: Session, model: type[T], deleted_by: str | None = None, **filters) -> int:
     """
     Soft delete multiple records matching filters.
 
@@ -402,9 +400,7 @@ def soft_delete_many(
     return count
 
 
-def restore_record(
-    session: Session, model: type[T], record_id: Any, id_field: str = "id"
-) -> T | None:
+def restore_record(session: Session, model: type[T], record_id: Any, id_field: str = "id") -> T | None:
     """
     Restore a soft-deleted record by ID.
 
@@ -470,9 +466,7 @@ def restore_many(session: Session, model: type[T], **filters) -> int:
     return count
 
 
-def hard_delete_record(
-    session: Session, model: type[T], record_id: Any, id_field: str = "id"
-) -> bool:
+def hard_delete_record(session: Session, model: type[T], record_id: Any, id_field: str = "id") -> bool:
     """
     Permanently delete a record (hard delete).
 

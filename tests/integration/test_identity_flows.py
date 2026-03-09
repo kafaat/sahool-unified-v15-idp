@@ -61,9 +61,7 @@ def jwt_helper():
 
     class JWTHelper:
         @staticmethod
-        def create_access_token(
-            user_id: str, tenant_id: str, extra_claims: dict | None = None
-        ) -> str:
+        def create_access_token(user_id: str, tenant_id: str, extra_claims: dict | None = None) -> str:
             """Create a valid access token"""
             payload = {
                 "sub": user_id,
@@ -277,9 +275,7 @@ class TestOAuthFlow:
             "response_type": "code",
         }
 
-        auth_url = f"{oauth_config['authorization_endpoint']}?" + "&".join(
-            f"{k}={v}" for k, v in params.items()
-        )
+        auth_url = f"{oauth_config['authorization_endpoint']}?" + "&".join(f"{k}={v}" for k, v in params.items())
 
         assert "client_id=test_client_id" in auth_url
         assert "redirect_uri=http://localhost:8000/auth/callback" in auth_url

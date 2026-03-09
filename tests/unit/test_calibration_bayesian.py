@@ -76,6 +76,7 @@ class TestWeatherQuality:
     def _import_quality(self):
         try:
             from shared.digital_twin.quality import QualityLevel, score_weather
+
             self.score_weather = score_weather
             self.QualityLevel = QualityLevel
         except ImportError:
@@ -83,7 +84,8 @@ class TestWeatherQuality:
 
     def test_perfect_record(self):
         q = self.score_weather(
-            tmax_c=30.0, tmin_c=18.0,
+            tmax_c=30.0,
+            tmin_c=18.0,
             solar_radiation_mj_m2=20.0,
             relative_humidity_pct=55.0,
         )
@@ -93,7 +95,8 @@ class TestWeatherQuality:
 
     def test_missing_temperature(self):
         q = self.score_weather(
-            tmax_c=None, tmin_c=None,
+            tmax_c=None,
+            tmin_c=None,
             solar_radiation_mj_m2=20.0,
             relative_humidity_pct=55.0,
         )
@@ -102,7 +105,8 @@ class TestWeatherQuality:
 
     def test_tmax_lt_tmin(self):
         q = self.score_weather(
-            tmax_c=10.0, tmin_c=20.0,
+            tmax_c=10.0,
+            tmin_c=20.0,
             solar_radiation_mj_m2=18.0,
             relative_humidity_pct=55.0,
         )
@@ -114,6 +118,7 @@ class TestObservationQuality:
     def _import_quality(self):
         try:
             from shared.digital_twin.quality import score_observation
+
             self.score_observation = score_observation
         except ImportError:
             pytest.skip("pydantic not available")
@@ -280,12 +285,14 @@ class TestNLLObjective:
                 variable="LAI",
                 observations=[
                     TimestampedObservation(
-                        t="2026-02-15", variable="LAI",
+                        t="2026-02-15",
+                        variable="LAI",
                         obs=ValueWithUncertainty(value=1.2, std=0.15),
                         quality_score=0.9,
                     ),
                     TimestampedObservation(
-                        t="2026-03-10", variable="LAI",
+                        t="2026-03-10",
+                        variable="LAI",
                         obs=ValueWithUncertainty(value=3.5, std=0.20),
                         quality_score=0.85,
                     ),
@@ -314,12 +321,14 @@ class TestNLLObjective:
                 variable="LAI",
                 observations=[
                     TimestampedObservation(
-                        t="2026-02-15", variable="LAI",
+                        t="2026-02-15",
+                        variable="LAI",
                         obs=ValueWithUncertainty(value=1.0, std=0.1),
                         quality_score=0.3,  # Below threshold
                     ),
                     TimestampedObservation(
-                        t="2026-03-10", variable="LAI",
+                        t="2026-03-10",
+                        variable="LAI",
                         obs=ValueWithUncertainty(value=2.0, std=0.1),
                         quality_score=0.8,  # Above threshold
                     ),
@@ -429,7 +438,8 @@ class TestValidation:
                 variable="LAI",
                 observations=[
                     TimestampedObservation(
-                        t="2026-02-15", variable="LAI",
+                        t="2026-02-15",
+                        variable="LAI",
                         obs=ValueWithUncertainty(value=1.0, std=0.1),
                     ),
                 ],

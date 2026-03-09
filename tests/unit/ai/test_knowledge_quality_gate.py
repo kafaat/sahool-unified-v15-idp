@@ -59,10 +59,10 @@ class TestKnowledgeQualityGate:
     @pytest.mark.unit
     def test_high_quality_passes(self, gate: KnowledgeQualityGate):
         docs = [
-            _make_doc(f"Doc {i}", domain=d, content_ar="محتوى عربي",
-                      expiration=date.today() + timedelta(days=90))
-            for i, d in enumerate([KnowledgeDomain.CROPS, KnowledgeDomain.SOIL,
-                                   KnowledgeDomain.IRRIGATION, KnowledgeDomain.FERTILIZER])
+            _make_doc(f"Doc {i}", domain=d, content_ar="محتوى عربي", expiration=date.today() + timedelta(days=90))
+            for i, d in enumerate(
+                [KnowledgeDomain.CROPS, KnowledgeDomain.SOIL, KnowledgeDomain.IRRIGATION, KnowledgeDomain.FERTILIZER]
+            )
         ]
         result = gate.check(docs)
         assert isinstance(result, QualityCheckResult)
@@ -79,8 +79,7 @@ class TestKnowledgeQualityGate:
         docs = [_make_doc(f"Doc {i}") for i in range(5)]  # No Arabic
         result = gate.check(docs)
         # Should flag bilingual coverage issue
-        assert any("bilingual" in c.get("name", "").lower() or "لغ" in c.get("name", "")
-                    for c in result.checks)
+        assert any("bilingual" in c.get("name", "").lower() or "لغ" in c.get("name", "") for c in result.checks)
 
     @pytest.mark.unit
     def test_domain_coverage_check(self):

@@ -542,9 +542,7 @@ class TestOptimizationConstraints:
         )
 
         # Should detect scheduling error for too-frequent irrigation
-        scheduling_anomalies = [
-            a for a in anomalies if a.anomaly_type == AnomalyType.SCHEDULING_ERROR
-        ]
+        scheduling_anomalies = [a for a in anomalies if a.anomaly_type == AnomalyType.SCHEDULING_ERROR]
         assert len(scheduling_anomalies) > 0
 
 
@@ -571,9 +569,7 @@ class TestScheduleGeneration:
         assert len(result.optimized_schedule) > 0
 
     @pytest.mark.unit
-    def test_schedule_respects_optimal_timing(
-        self, sample_irrigation_records, sample_irrigation_features
-    ):
+    def test_schedule_respects_optimal_timing(self, sample_irrigation_records, sample_irrigation_features):
         """Test schedule uses optimal timing for irrigation type"""
         optimizer = WaterOptimizer()
         result = optimizer.optimize(
@@ -588,9 +584,7 @@ class TestScheduleGeneration:
             assert 4 <= hour <= 10  # Reasonable morning window
 
     @pytest.mark.unit
-    def test_schedule_includes_duration(
-        self, sample_irrigation_records, sample_irrigation_features
-    ):
+    def test_schedule_includes_duration(self, sample_irrigation_records, sample_irrigation_features):
         """Test schedule includes estimated duration"""
         optimizer = WaterOptimizer()
         result = optimizer.optimize(
@@ -1065,9 +1059,7 @@ class TestSoilMoistureTargets:
             IrrigationUrgency.HIGH,
             IrrigationUrgency.CRITICAL,
         ]
-        assert urgency_levels.index(pred_flowering.urgency) >= urgency_levels.index(
-            pred_tillering.urgency
-        )
+        assert urgency_levels.index(pred_flowering.urgency) >= urgency_levels.index(pred_tillering.urgency)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1247,9 +1239,7 @@ class TestEdgeCasesSensorFailures:
 
         anomalies = optimizer.detect_anomalies(stuck_records)
 
-        sensor_anomalies = [
-            a for a in anomalies if a.anomaly_type == AnomalyType.SENSOR_MALFUNCTION
-        ]
+        sensor_anomalies = [a for a in anomalies if a.anomaly_type == AnomalyType.SENSOR_MALFUNCTION]
         assert len(sensor_anomalies) > 0
 
     @pytest.mark.unit
@@ -1276,9 +1266,7 @@ class TestEdgeCasesSensorFailures:
             field_id="field_001",
         )
 
-        overconsumption_anomalies = [
-            a for a in anomalies if a.anomaly_type == AnomalyType.OVERCONSUMPTION
-        ]
+        overconsumption_anomalies = [a for a in anomalies if a.anomaly_type == AnomalyType.OVERCONSUMPTION]
         assert len(overconsumption_anomalies) > 0
 
     @pytest.mark.unit
@@ -1305,9 +1293,7 @@ class TestEdgeCasesSensorFailures:
             field_id="field_001",
         )
 
-        underconsumption_anomalies = [
-            a for a in anomalies if a.anomaly_type == AnomalyType.UNDERCONSUMPTION
-        ]
+        underconsumption_anomalies = [a for a in anomalies if a.anomaly_type == AnomalyType.UNDERCONSUMPTION]
         assert len(underconsumption_anomalies) > 0
 
     @pytest.mark.unit
@@ -1577,9 +1563,7 @@ class TestHistoricalAdjustments:
     """Tests for prediction adjustments based on historical data"""
 
     @pytest.mark.unit
-    def test_adjustment_with_historical_records(
-        self, sample_irrigation_features, sample_irrigation_records
-    ):
+    def test_adjustment_with_historical_records(self, sample_irrigation_features, sample_irrigation_records):
         """Test prediction is adjusted based on historical effectiveness"""
         predictor = IrrigationPredictor()
 

@@ -136,9 +136,7 @@ class IncidentReport:
 
     def to_markdown(self) -> str:
         """Generate a Markdown incident report."""
-        resolved_status = (
-            "✅ Resolved" if self.status == "resolved" else f"🔄 {self.status.title()}"
-        )
+        resolved_status = "✅ Resolved" if self.status == "resolved" else f"🔄 {self.status.title()}"
 
         services_table = (
             "\n".join(
@@ -161,19 +159,12 @@ class IncidentReport:
         )
 
         actions_list = (
-            "\n".join(
-                [
-                    f"- {a.get('description', '')} → _{a.get('outcome', '')}_"
-                    for a in self.actions_taken
-                ]
-            )
+            "\n".join([f"- {a.get('description', '')} → _{a.get('outcome', '')}_" for a in self.actions_taken])
             or "- No actions recorded"
         )
 
         lessons_list = "\n".join([f"- {l}" for l in self.lessons_learned]) or "- None identified"
-        prevention_list = (
-            "\n".join([f"- {p}" for p in self.preventive_measures]) or "- None planned"
-        )
+        prevention_list = "\n".join([f"- {p}" for p in self.preventive_measures]) or "- None planned"
 
         return f"""# Incident Report: {self.title}
 # تقرير الحادث: {self.title_ar}
@@ -440,9 +431,7 @@ class IncidentReportTemplates:
             title_ar=f"فشل تهجير قاعدة البيانات: {migration_name}",
             incident_type=IncidentType.MIGRATION.value,
             severity=IncidentSeverity.HIGH.value,
-            status=IncidentStatus.RESOLVED.value
-            if rollback_successful
-            else IncidentStatus.INVESTIGATING.value,
+            status=IncidentStatus.RESOLVED.value if rollback_successful else IncidentStatus.INVESTIGATING.value,
             detected_at=detected.isoformat(),
             resolved_at=now.isoformat() if rollback_successful else None,
             duration_minutes=duration_minutes,
@@ -454,9 +443,7 @@ class IncidentReportTemplates:
                 {
                     "name": "database",
                     "impact": "Schema change failed",
-                    "recovery_time": f"{duration_minutes} min"
-                    if rollback_successful
-                    else "Unknown",
+                    "recovery_time": f"{duration_minutes} min" if rollback_successful else "Unknown",
                 },
             ],
             data_loss=not rollback_successful,
@@ -475,12 +462,8 @@ class IncidentReportTemplates:
                 },
                 {
                     "timestamp": now.isoformat(),
-                    "description": "Rollback executed"
-                    if rollback_successful
-                    else "Manual intervention required",
-                    "description_ar": "تم تنفيذ التراجع"
-                    if rollback_successful
-                    else "مطلوب تدخل يدوي",
+                    "description": "Rollback executed" if rollback_successful else "Manual intervention required",
+                    "description_ar": "تم تنفيذ التراجع" if rollback_successful else "مطلوب تدخل يدوي",
                     "actor": "MigrationController",
                 },
             ],
@@ -509,9 +492,7 @@ class IncidentReportTemplates:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Incident Report Generator - مولد تقارير الحوادث"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Incident Report Generator - مولد تقارير الحوادث")
 
     parser.add_argument(
         "--type",

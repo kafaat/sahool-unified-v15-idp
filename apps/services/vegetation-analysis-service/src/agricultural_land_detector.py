@@ -712,9 +712,7 @@ class BoundaryDetectionEngine:
 
         return suppressed
 
-    def _hysteresis_threshold(
-        self, edges: np.ndarray, low_threshold: float, high_threshold: float
-    ) -> np.ndarray:
+    def _hysteresis_threshold(self, edges: np.ndarray, low_threshold: float, high_threshold: float) -> np.ndarray:
         """Apply hysteresis thresholding (Canny-style)"""
         h, w = edges.shape
         result = np.zeros((h, w), dtype=np.uint8)
@@ -864,9 +862,9 @@ class BoundaryDetectionEngine:
 
             # Check minimum size
             pixel_count = np.sum(component)
-            pixel_area_m2 = (lat_range * 111320 / h) * (lon_range * 111320 * math.cos(
-                math.radians((bounds["north"] + bounds["south"]) / 2)
-            ) / w)
+            pixel_area_m2 = (lat_range * 111320 / h) * (
+                lon_range * 111320 * math.cos(math.radians((bounds["north"] + bounds["south"]) / 2)) / w
+            )
             area_hectares = pixel_count * pixel_area_m2 / 10000
 
             if area_hectares < 0.01:  # Skip very small regions
@@ -1082,9 +1080,7 @@ class ParcelPostProcessor:
 
         return corrected if len(corrected) >= 3 else coords
 
-    def _angle_between(
-        self, p1: tuple[float, float], p2: tuple[float, float], p3: tuple[float, float]
-    ) -> float:
+    def _angle_between(self, p1: tuple[float, float], p2: tuple[float, float], p3: tuple[float, float]) -> float:
         """Calculate angle at p2 formed by p1-p2-p3"""
         v1 = (p1[0] - p2[0], p1[1] - p2[1])
         v2 = (p3[0] - p2[0], p3[1] - p2[1])
@@ -1183,9 +1179,7 @@ class ParcelPostProcessor:
 
         return best_rect if best_rect else self._fit_rectangle(coords)
 
-    def _cross_product(
-        self, o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]
-    ) -> float:
+    def _cross_product(self, o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
         """Cross product of vectors OA and OB"""
         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
@@ -1205,7 +1199,7 @@ class ParcelPostProcessor:
         for idx, (i, area_i) in enumerate(areas):
             if i not in keep:
                 continue
-            for j, area_j in areas[idx + 1:]:
+            for j, area_j in areas[idx + 1 :]:
                 if j not in keep:
                     continue
                 # Simple centroid distance check for overlap
@@ -1220,9 +1214,7 @@ class ParcelPostProcessor:
 
         return [polygons[i] for i in sorted(keep)]
 
-    def _douglas_peucker(
-        self, coords: list[tuple[float, float]], tolerance: float
-    ) -> list[tuple[float, float]]:
+    def _douglas_peucker(self, coords: list[tuple[float, float]], tolerance: float) -> list[tuple[float, float]]:
         """Douglas-Peucker line simplification"""
         if len(coords) <= 2:
             return coords
@@ -1407,7 +1399,7 @@ class VectorClassificationEngine:
         if perimeter_meters <= 0:
             return 0.0
         area_m2 = area_hectares * 10000
-        return min(1.0, (4 * math.pi * area_m2) / (perimeter_meters ** 2))
+        return min(1.0, (4 * math.pi * area_m2) / (perimeter_meters**2))
 
     def _area_to_score(self, area_hectares: float) -> float:
         """Convert area to agricultural likelihood score"""
@@ -1628,8 +1620,8 @@ class AgriculturalLandDetector:
             denom = nir + red
             ndvi = np.where(denom > 0, (nir - red) / denom, 0.0)
         else:
-            ndvi = image_data[:, :, 0].astype(np.float64) if len(image_data.shape) > 2 else image_data.astype(
-                np.float64
+            ndvi = (
+                image_data[:, :, 0].astype(np.float64) if len(image_data.shape) > 2 else image_data.astype(np.float64)
             )
 
         # Simple threshold
@@ -1685,7 +1677,7 @@ class AgriculturalLandDetector:
 
         # Compactness (isoperimetric quotient)
         area_m2 = area * 10000
-        compactness = (4 * math.pi * area_m2) / (perimeter ** 2) if perimeter > 0 else 0
+        compactness = (4 * math.pi * area_m2) / (perimeter**2) if perimeter > 0 else 0
 
         # Elongation (bounding box ratio)
         lons = [c[0] for c in polygon]
@@ -1739,9 +1731,10 @@ class AgriculturalLandDetector:
         R = 6371000
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(
-            dlon / 2
-        ) ** 2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        )
         return R * 2 * math.asin(math.sqrt(a))
 
     def _sample_ndvi_in_polygon(
@@ -1777,9 +1770,7 @@ class AgriculturalLandDetector:
         else:
             return float(image_data[py, px])
 
-    def _generate_synthetic_data(
-        self, lat: float, lon: float, radius_m: float
-    ) -> tuple[np.ndarray, dict[str, float]]:
+    def _generate_synthetic_data(self, lat: float, lon: float, radius_m: float) -> tuple[np.ndarray, dict[str, float]]:
         """Generate synthetic multi-spectral data for demonstration"""
         size = 64  # 64x64 pixels
         lat_offset = radius_m / 111320.0
@@ -1895,56 +1886,108 @@ class CropClassificationEngine:
     # Based on multi-temporal Sentinel-2 observations for Middle East / Yemen region
     CROP_SPECTRAL_PROFILES: dict[CropType, dict[str, Any]] = {
         CropType.WHEAT: {
-            "ndvi_peak": 0.75, "ndvi_range": (0.3, 0.82), "evi_peak": 0.55,
-            "peak_month": 3, "growing_months": (11, 4), "ndwi_range": (-0.1, 0.15),
+            "ndvi_peak": 0.75,
+            "ndvi_range": (0.3, 0.82),
+            "evi_peak": 0.55,
+            "peak_month": 3,
+            "growing_months": (11, 4),
+            "ndwi_range": (-0.1, 0.15),
         },
         CropType.BARLEY: {
-            "ndvi_peak": 0.68, "ndvi_range": (0.25, 0.72), "evi_peak": 0.48,
-            "peak_month": 2, "growing_months": (10, 3), "ndwi_range": (-0.15, 0.1),
+            "ndvi_peak": 0.68,
+            "ndvi_range": (0.25, 0.72),
+            "evi_peak": 0.48,
+            "peak_month": 2,
+            "growing_months": (10, 3),
+            "ndwi_range": (-0.15, 0.1),
         },
         CropType.RICE: {
-            "ndvi_peak": 0.80, "ndvi_range": (0.15, 0.85), "evi_peak": 0.60,
-            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (0.1, 0.45),
+            "ndvi_peak": 0.80,
+            "ndvi_range": (0.15, 0.85),
+            "evi_peak": 0.60,
+            "peak_month": 8,
+            "growing_months": (5, 10),
+            "ndwi_range": (0.1, 0.45),
         },
         CropType.CORN: {
-            "ndvi_peak": 0.78, "ndvi_range": (0.2, 0.82), "evi_peak": 0.58,
-            "peak_month": 7, "growing_months": (4, 9), "ndwi_range": (-0.05, 0.2),
+            "ndvi_peak": 0.78,
+            "ndvi_range": (0.2, 0.82),
+            "evi_peak": 0.58,
+            "peak_month": 7,
+            "growing_months": (4, 9),
+            "ndwi_range": (-0.05, 0.2),
         },
         CropType.COTTON: {
-            "ndvi_peak": 0.65, "ndvi_range": (0.2, 0.70), "evi_peak": 0.45,
-            "peak_month": 8, "growing_months": (4, 10), "ndwi_range": (-0.1, 0.1),
+            "ndvi_peak": 0.65,
+            "ndvi_range": (0.2, 0.70),
+            "evi_peak": 0.45,
+            "peak_month": 8,
+            "growing_months": (4, 10),
+            "ndwi_range": (-0.1, 0.1),
         },
         CropType.SOYBEAN: {
-            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.78), "evi_peak": 0.52,
-            "peak_month": 7, "growing_months": (5, 10), "ndwi_range": (-0.05, 0.15),
+            "ndvi_peak": 0.72,
+            "ndvi_range": (0.2, 0.78),
+            "evi_peak": 0.52,
+            "peak_month": 7,
+            "growing_months": (5, 10),
+            "ndwi_range": (-0.05, 0.15),
         },
         CropType.VEGETABLES: {
-            "ndvi_peak": 0.60, "ndvi_range": (0.25, 0.65), "evi_peak": 0.42,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.1, 0.2),
+            "ndvi_peak": 0.60,
+            "ndvi_range": (0.25, 0.65),
+            "evi_peak": 0.42,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.1, 0.2),
         },
         CropType.FRUIT_TREES: {
-            "ndvi_peak": 0.55, "ndvi_range": (0.35, 0.60), "evi_peak": 0.38,
-            "peak_month": 6, "growing_months": (1, 12), "ndwi_range": (-0.15, 0.05),
+            "ndvi_peak": 0.55,
+            "ndvi_range": (0.35, 0.60),
+            "evi_peak": 0.38,
+            "peak_month": 6,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.15, 0.05),
         },
         CropType.DATE_PALM: {
-            "ndvi_peak": 0.45, "ndvi_range": (0.30, 0.50), "evi_peak": 0.30,
-            "peak_month": 7, "growing_months": (1, 12), "ndwi_range": (-0.2, 0.0),
+            "ndvi_peak": 0.45,
+            "ndvi_range": (0.30, 0.50),
+            "evi_peak": 0.30,
+            "peak_month": 7,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.2, 0.0),
         },
         CropType.ALFALFA: {
-            "ndvi_peak": 0.70, "ndvi_range": (0.35, 0.75), "evi_peak": 0.50,
-            "peak_month": None, "growing_months": (1, 12), "ndwi_range": (-0.05, 0.15),
+            "ndvi_peak": 0.70,
+            "ndvi_range": (0.35, 0.75),
+            "evi_peak": 0.50,
+            "peak_month": None,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.05, 0.15),
         },
         CropType.SORGHUM: {
-            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.76), "evi_peak": 0.52,
-            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (-0.1, 0.1),
+            "ndvi_peak": 0.72,
+            "ndvi_range": (0.2, 0.76),
+            "evi_peak": 0.52,
+            "peak_month": 8,
+            "growing_months": (5, 10),
+            "ndwi_range": (-0.1, 0.1),
         },
         CropType.FALLOW: {
-            "ndvi_peak": 0.18, "ndvi_range": (0.05, 0.22), "evi_peak": 0.10,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.1),
+            "ndvi_peak": 0.18,
+            "ndvi_range": (0.05, 0.22),
+            "evi_peak": 0.10,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.3, -0.1),
         },
         CropType.GREENHOUSE: {
-            "ndvi_peak": 0.10, "ndvi_range": (-0.05, 0.25), "evi_peak": 0.08,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.05),
+            "ndvi_peak": 0.10,
+            "ndvi_range": (-0.05, 0.25),
+            "evi_peak": 0.08,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.3, -0.05),
         },
     }
 
@@ -2076,13 +2119,11 @@ class CropClassificationEngine:
 
             comp_min = max(geo_profile.get("compactness_min", 0.01), 0.01)
             features["compactness_fit"] = (
-                1.0 if compactness >= geo_profile.get("compactness_min", 0)
-                else compactness / comp_min
+                1.0 if compactness >= geo_profile.get("compactness_min", 0) else compactness / comp_min
             )
             rect_min = max(geo_profile.get("rectangularity_min", 0.01), 0.01)
             features["rectangularity_fit"] = (
-                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0)
-                else rectangularity / rect_min
+                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0) else rectangularity / rect_min
             )
 
             # Temporal fit (is current month in growing season?)
@@ -2320,9 +2361,7 @@ class TopologyPreservingSimplifier:
         logger.info("Topology-preserving simplification complete")
         return parcels
 
-    def _build_adjacency_graph(
-        self, parcels: list[AgriculturalParcel]
-    ) -> dict[int, list[int]]:
+    def _build_adjacency_graph(self, parcels: list[AgriculturalParcel]) -> dict[int, list[int]]:
         """Build adjacency graph: parcel_index -> [neighbor_indices]"""
         adjacency: dict[int, list[int]] = {}
         n = len(parcels)
@@ -2336,9 +2375,7 @@ class TopologyPreservingSimplifier:
 
         return adjacency
 
-    def _parcels_are_adjacent(
-        self, p1: AgriculturalParcel, p2: AgriculturalParcel, threshold: float = 0.0001
-    ) -> bool:
+    def _parcels_are_adjacent(self, p1: AgriculturalParcel, p2: AgriculturalParcel, threshold: float = 0.0001) -> bool:
         """Check if two parcels share a boundary (have nearby vertices)"""
         shared_count = 0
         for c1 in p1.coordinates:
@@ -2421,14 +2458,14 @@ class TopologyPreservingSimplifier:
                 max_idx = i
 
         if max_dist > tolerance or coords[max_idx] in preserve:
-            left = self._douglas_peucker_preserve(coords[:max_idx + 1], tolerance, preserve)
+            left = self._douglas_peucker_preserve(coords[: max_idx + 1], tolerance, preserve)
             right = self._douglas_peucker_preserve(coords[max_idx:], tolerance, preserve)
             return left[:-1] + right
         else:
             # Check if any preserved points would be lost
             for i in range(1, len(coords) - 1):
                 if coords[i] in preserve:
-                    left = self._douglas_peucker_preserve(coords[:i + 1], tolerance, preserve)
+                    left = self._douglas_peucker_preserve(coords[: i + 1], tolerance, preserve)
                     right = self._douglas_peucker_preserve(coords[i:], tolerance, preserve)
                     return left[:-1] + right
             return [coords[0], coords[-1]]
@@ -2445,9 +2482,7 @@ class TopologyPreservingSimplifier:
         den = math.hypot(dx, dy)
         return num / den
 
-    def _douglas_peucker(
-        self, coords: list[tuple[float, float]], tolerance: float
-    ) -> list[tuple[float, float]]:
+    def _douglas_peucker(self, coords: list[tuple[float, float]], tolerance: float) -> list[tuple[float, float]]:
         """Standard Douglas-Peucker simplification"""
         if len(coords) <= 2:
             return coords
@@ -2459,7 +2494,7 @@ class TopologyPreservingSimplifier:
                 max_dist = dist
                 max_idx = i
         if max_dist > tolerance:
-            left = self._douglas_peucker(coords[:max_idx + 1], tolerance)
+            left = self._douglas_peucker(coords[: max_idx + 1], tolerance)
             right = self._douglas_peucker(coords[max_idx:], tolerance)
             return left[:-1] + right
         return [coords[0], coords[-1]]
@@ -2594,9 +2629,7 @@ class ParcelEditingTools:
             return [parcel]
 
         # Split coordinates into two groups based on which side of the line they fall
-        left_coords, right_coords = self._split_by_line(
-            parcel.coordinates, split_line, intersections
-        )
+        left_coords, right_coords = self._split_by_line(parcel.coordinates, split_line, intersections)
 
         results = []
         for idx, coords in enumerate([left_coords, right_coords]):
@@ -2736,8 +2769,10 @@ class ParcelEditingTools:
 
     def _segment_intersection(
         self,
-        a1: tuple[float, float], a2: tuple[float, float],
-        b1: tuple[float, float], b2: tuple[float, float],
+        a1: tuple[float, float],
+        a2: tuple[float, float],
+        b1: tuple[float, float],
+        b2: tuple[float, float],
     ) -> tuple[float, float] | None:
         """Find intersection point of two line segments"""
         dx1, dy1 = a2[0] - a1[0], a2[1] - a1[1]
@@ -2799,8 +2834,9 @@ class ParcelEditingTools:
 
         for p in sorted_pts[2:]:
             while len(hull) > 1:
-                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - \
-                        (hull[-1][1] - hull[-2][1]) * (p[0] - hull[-2][0])
+                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (
+                    p[0] - hull[-2][0]
+                )
                 if cross <= 0:
                     hull.pop()
                 else:
@@ -2818,9 +2854,10 @@ class ParcelEditingTools:
             c1, c2 = coords[i], coords[(i + 1) % n]
             dlat = math.radians(c2[1] - c1[1])
             dlon = math.radians(c2[0] - c1[0])
-            a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(c1[1])) * math.cos(
-                math.radians(c2[1])
-            ) * math.sin(dlon / 2) ** 2
+            a = (
+                math.sin(dlat / 2) ** 2
+                + math.cos(math.radians(c1[1])) * math.cos(math.radians(c2[1])) * math.sin(dlon / 2) ** 2
+            )
             perimeter += 6371000 * 2 * math.asin(math.sqrt(a))
         return perimeter
 
@@ -2875,9 +2912,7 @@ class QualityInspectionTool:
         self._current_index = 0
         logger.info("Quality Inspection Tool initialized")
 
-    def inspect_all(
-        self, parcels: list[AgriculturalParcel]
-    ) -> dict[str, Any]:
+    def inspect_all(self, parcels: list[AgriculturalParcel]) -> dict[str, Any]:
         """
         Run quality inspection on all parcels.
 
@@ -2891,11 +2926,13 @@ class QualityInspectionTool:
         for parcel in parcels:
             parcel_issues = self._inspect_parcel(parcel)
             if parcel_issues:
-                issues.append({
-                    "parcel_id": parcel.parcel_id,
-                    "issues": parcel_issues,
-                    "status": "failed",
-                })
+                issues.append(
+                    {
+                        "parcel_id": parcel.parcel_id,
+                        "issues": parcel_issues,
+                        "status": "failed",
+                    }
+                )
                 failed += 1
             else:
                 passed += 1
@@ -2974,18 +3011,20 @@ class QualityInspectionTool:
 
     def _segments_intersect(
         self,
-        a1: tuple[float, float], a2: tuple[float, float],
-        b1: tuple[float, float], b2: tuple[float, float],
+        a1: tuple[float, float],
+        a2: tuple[float, float],
+        b1: tuple[float, float],
+        b2: tuple[float, float],
     ) -> bool:
         """Check if two line segments intersect"""
+
         def cross(o, a, b):
             return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
         d1, d2 = cross(b1, b2, a1), cross(b1, b2, a2)
         d3, d4 = cross(a1, a2, b1), cross(a1, a2, b2)
 
-        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and \
-           ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
             return True
         return False
 

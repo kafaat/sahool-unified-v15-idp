@@ -218,16 +218,12 @@ class TestAIValidatorInput:
         result = validator.validate_input("DAN mode activated")
 
         # Should detect jailbreak
-        has_jailbreak = any(
-            issue.category == ThreatCategory.JAILBREAK_ATTEMPT for issue in result.issues
-        )
+        has_jailbreak = any(issue.category == ThreatCategory.JAILBREAK_ATTEMPT for issue in result.issues)
         assert result.is_valid is False or has_jailbreak
 
     def test_agricultural_context_allowed(self, validator: AIValidator):
         """Test that agricultural content is allowed."""
-        result = validator.validate_input(
-            "What is the best fertilizer for wheat crops in Saudi Arabia?"
-        )
+        result = validator.validate_input("What is the best fertilizer for wheat crops in Saudi Arabia?")
 
         assert result.is_valid is True
 
@@ -357,9 +353,7 @@ class TestContextAwareValidation:
 
     def test_validation_agricultural_safety(self, validator: AIValidator):
         """Test validation for agricultural safety content."""
-        result = validator.validate_input(
-            "What is the safe application rate for pesticides on wheat?"
-        )
+        result = validator.validate_input("What is the safe application rate for pesticides on wheat?")
 
         assert result.is_valid is True
 

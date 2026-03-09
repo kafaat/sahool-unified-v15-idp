@@ -605,9 +605,7 @@ class TestPositionChecking:
 
     def test_calculate_distance_to_boundary(self, circular_geofence):
         """Test distance to boundary calculation"""
-        distance = calculate_distance_to_boundary(
-            SAMPLE_FIELD_CENTER[0], SAMPLE_FIELD_CENTER[1], circular_geofence
-        )
+        distance = calculate_distance_to_boundary(SAMPLE_FIELD_CENTER[0], SAMPLE_FIELD_CENTER[1], circular_geofence)
 
         assert distance == SAMPLE_FIELD_RADIUS_M
 
@@ -1608,11 +1606,7 @@ class TestEdgeCases:
         )
 
         # Get applicable geofences (internal to update_position)
-        geofences = [
-            gf
-            for gf in engine.geofences.values()
-            if gf.tenant_id == update.tenant_id and gf.is_active
-        ]
+        geofences = [gf for gf in engine.geofences.values() if gf.tenant_id == update.tenant_id and gf.is_active]
         assert len(geofences) == 1
         assert geofences[0].tenant_id == "tenant_001"
 

@@ -245,7 +245,9 @@ def readiness():
 
 
 @app.get("/farms/{farm_id}/compliance")
-async def get_farm_compliance(farm_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
+async def get_farm_compliance(
+    farm_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)
+):
     """
     Get current compliance status for a farm
     الحصول على حالة الامتثال الحالية للمزرعة
@@ -577,7 +579,9 @@ async def get_farm_non_conformities(
 
 
 @app.post("/non-conformities", status_code=201)
-async def create_non_conformity(non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
+async def create_non_conformity(
+    non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)
+):
     """
     Create a new non-conformity record
     إنشاء سجل عدم مطابقة جديد
@@ -636,7 +640,9 @@ async def get_farm_certificates(
 
 
 @app.post("/certificates", status_code=201)
-async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
+async def create_certificate(
+    certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)
+):
     """
     Create a new GGN certificate
     إنشاء شهادة GGN جديدة
@@ -679,7 +685,9 @@ async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depen
 
 
 @app.get("/certificates/{certificate_id}")
-async def get_certificate(certificate_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)):
+async def get_certificate(
+    certificate_id: str, tenant_id: str = Depends(get_tenant_id), _current_user=Depends(get_current_user)
+):
     """
     Get certificate by ID
     الحصول على الشهادة حسب المعرف

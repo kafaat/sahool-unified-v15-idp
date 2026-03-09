@@ -451,9 +451,7 @@ class TestArabicSupport:
         # Note: In mock test environment without semantic embeddings, pass rate may be lower
         # ملاحظة: في بيئة الاختبار الوهمية بدون تضمينات دلالية، قد تكون نسبة النجاح أقل
         pass_rate = passed_count / len(arabic_cases)
-        assert pass_rate >= 0.25 or passed_count >= 3, (
-            f"Arabic pass rate {pass_rate:.2f} below threshold"
-        )
+        assert pass_rate >= 0.25 or passed_count >= 3, f"Arabic pass rate {pass_rate:.2f} below threshold"
 
     def _generate_arabic_response(self, expected: str) -> str:
         """Generate a contextual Arabic response based on expected output"""
@@ -582,15 +580,11 @@ class TestLatencyPerformance:
             latencies.append(latency_ms)
 
             # Individual test should be within max latency
-            assert latency_ms <= max_latency, (
-                f"Response latency {latency_ms}ms exceeds maximum {max_latency}ms"
-            )
+            assert latency_ms <= max_latency, f"Response latency {latency_ms}ms exceeds maximum {max_latency}ms"
 
         # Check average latency
         avg_latency = sum(latencies) / len(latencies)
-        assert avg_latency <= (max_latency * 0.7), (
-            f"Average latency {avg_latency}ms should be well below maximum"
-        )
+        assert avg_latency <= (max_latency * 0.7), f"Average latency {avg_latency}ms should be well below maximum"
 
 
 # ============================================================================
@@ -640,7 +634,9 @@ class TestSafetyCompliance:
         assert len(violations) > 0, "Overly certain diagnosis should have violations"
 
         # Response with uncertainty markers (should pass)
-        uncertain_response = "This typically indicates leaf rust disease. Please consult with an expert for confirmation."
+        uncertain_response = (
+            "This typically indicates leaf rust disease. Please consult with an expert for confirmation."
+        )
 
         safety_score, violations = safety_checker.check_safety(
             response=uncertain_response,
@@ -702,6 +698,4 @@ class TestSimilarityCalculator:
         similarity = calculator.calculate_similarity(text1, text2, method="lexical")
         # Arabic lexical similarity is typically 0.3-0.5 for rearranged sentences
         # التشابه المعجمي للعربية يكون عادة 0.3-0.5 للجمل المعاد ترتيبها
-        assert similarity >= 0.35, (
-            "Arabic text with similar meaning should have reasonable similarity"
-        )
+        assert similarity >= 0.35, "Arabic text with similar meaning should have reasonable similarity"

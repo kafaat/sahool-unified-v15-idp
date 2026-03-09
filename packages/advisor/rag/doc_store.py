@@ -71,9 +71,7 @@ class InMemoryVectorStore:
             chunk_key = f"{chunk.doc_id}:{chunk.chunk_id}"
             if chunk_key in existing_ids:
                 self._collections[collection] = [
-                    c
-                    for c in self._collections[collection]
-                    if f"{c.doc_id}:{c.chunk_id}" != chunk_key
+                    c for c in self._collections[collection] if f"{c.doc_id}:{c.chunk_id}" != chunk_key
                 ]
         self._collections[collection].extend(chunks)
 

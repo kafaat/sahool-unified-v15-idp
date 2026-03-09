@@ -30,15 +30,17 @@ class TestKnowledgeEventPublisherPayloads:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.document_ingested(
-            document_id="doc-100",
-            collection="crop_knowledge",
-            domain="crops",
-            source_credibility=4,
-            chunks_count=5,
-            vector_ids=["v1", "v2"],
-            tenant_id="tenant-abc",
-        ))
+        _run(
+            pub.document_ingested(
+                document_id="doc-100",
+                collection="crop_knowledge",
+                domain="crops",
+                source_credibility=4,
+                chunks_count=5,
+                vector_ids=["v1", "v2"],
+                tenant_id="tenant-abc",
+            )
+        )
 
         call_args = mock_nc.publish.call_args
         subject = call_args[0][0]
@@ -61,13 +63,15 @@ class TestKnowledgeEventPublisherPayloads:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.document_verified(
-            document_id="doc-200",
-            status="approved",
-            confidence_score=0.95,
-            layers_passed=["structural", "semantic", "cross_ref", "safety"],
-            tenant_id="tenant-xyz",
-        ))
+        _run(
+            pub.document_verified(
+                document_id="doc-200",
+                status="approved",
+                confidence_score=0.95,
+                layers_passed=["structural", "semantic", "cross_ref", "safety"],
+                tenant_id="tenant-xyz",
+            )
+        )
 
         payload = json.loads(mock_nc.publish.call_args[0][1])
         assert payload["event"] == SUBJECT_DOCUMENT_VERIFIED
@@ -82,13 +86,15 @@ class TestKnowledgeEventPublisherPayloads:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.document_expired(
-            document_id="doc-300",
-            title="Old Pesticide Guide 2020",
-            domain="pest_disease",
-            days_past_expiry=45,
-            tenant_id="tenant-farm1",
-        ))
+        _run(
+            pub.document_expired(
+                document_id="doc-300",
+                title="Old Pesticide Guide 2020",
+                domain="pest_disease",
+                days_past_expiry=45,
+                tenant_id="tenant-farm1",
+            )
+        )
 
         payload = json.loads(mock_nc.publish.call_args[0][1])
         assert payload["event"] == SUBJECT_DOCUMENT_EXPIRED
@@ -101,13 +107,15 @@ class TestKnowledgeEventPublisherPayloads:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.collection_populated(
-            collection="soil_knowledge",
-            total_files=25,
-            succeeded=23,
-            failed=2,
-            tenant_id="tenant-001",
-        ))
+        _run(
+            pub.collection_populated(
+                collection="soil_knowledge",
+                total_files=25,
+                succeeded=23,
+                failed=2,
+                tenant_id="tenant-001",
+            )
+        )
 
         payload = json.loads(mock_nc.publish.call_args[0][1])
         assert payload["event"] == SUBJECT_COLLECTION_POPULATED
@@ -122,12 +130,14 @@ class TestKnowledgeEventPublisherPayloads:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.ingestion_failed(
-            document_id="doc-400",
-            source_path="/docs/bad-file.md",
-            errors=["Parse error", "Invalid format"],
-            tenant_id="tenant-002",
-        ))
+        _run(
+            pub.ingestion_failed(
+                document_id="doc-400",
+                source_path="/docs/bad-file.md",
+                errors=["Parse error", "Invalid format"],
+                tenant_id="tenant-002",
+            )
+        )
 
         payload = json.loads(mock_nc.publish.call_args[0][1])
         assert payload["event"] == SUBJECT_INGESTION_FAILED
@@ -223,11 +233,13 @@ class TestKnowledgeEventPublisherErrorHandling:
         mock_nc = AsyncMock()
         pub = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(pub.document_expired(
-            document_id="d-ar",
-            title="دليل المبيدات القديم",
-            domain="pest_disease",
-        ))
+        _run(
+            pub.document_expired(
+                document_id="d-ar",
+                title="دليل المبيدات القديم",
+                domain="pest_disease",
+            )
+        )
 
         raw_bytes = mock_nc.publish.call_args[0][1]
         assert isinstance(raw_bytes, bytes)

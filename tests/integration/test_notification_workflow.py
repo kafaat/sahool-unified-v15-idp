@@ -44,9 +44,7 @@ async def test_create_notification_workflow(
     # Arrange - إعداد بيانات الاختبار
     notification_url = service_urls.get("notification_service", "http://localhost:8110")
 
-    notification_data = notification_factory.create(
-        user_id="test-farmer-123", notification_type="weather_alert"
-    )
+    notification_data = notification_factory.create(user_id="test-farmer-123", notification_type="weather_alert")
 
     # Convert to API format
     api_data = {
@@ -63,9 +61,7 @@ async def test_create_notification_workflow(
     }
 
     # Act - إنشاء الإشعار
-    response = await http_client.post(
-        f"{notification_url}/v1/notifications", json=api_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{notification_url}/v1/notifications", json=api_data, headers=auth_headers)
 
     # Assert - التحقق من النتائج
     assert response.status_code == 200, f"Failed to create notification: {response.text}"
@@ -178,9 +174,7 @@ async def test_pest_outbreak_alert_workflow(
     }
 
     # Act - إرسال تنبيه الآفات
-    response = await http_client.post(
-        f"{notification_url}/v1/alerts/pest", json=pest_alert, headers=auth_headers
-    )
+    response = await http_client.post(f"{notification_url}/v1/alerts/pest", json=pest_alert, headers=auth_headers)
 
     # Assert
     assert response.status_code == 200, f"Failed to create pest alert: {response.text}"
@@ -333,9 +327,7 @@ async def test_farmer_notification_retrieval_workflow(
         "channels": ["in_app"],
     }
 
-    crop_response = await http_client.post(
-        f"{notification_url}/v1/notifications", json=crop_data, headers=auth_headers
-    )
+    crop_response = await http_client.post(f"{notification_url}/v1/notifications", json=crop_data, headers=auth_headers)
     if crop_response.status_code == 200:
         notifications_created.append(crop_response.json())
 
@@ -563,9 +555,7 @@ async def test_broadcast_notifications_workflow(
     await asyncio.sleep(0.5)
 
     # Retrieve broadcast notifications - استرجاع الإشعارات العامة
-    broadcast_response = await http_client.get(
-        f"{notification_url}/v1/notifications/broadcast", headers=auth_headers
-    )
+    broadcast_response = await http_client.get(f"{notification_url}/v1/notifications/broadcast", headers=auth_headers)
 
     assert broadcast_response.status_code == 200
     broadcasts = broadcast_response.json()

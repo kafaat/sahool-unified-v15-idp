@@ -514,9 +514,7 @@ class FixOpsOrchestrator:
         logger.info("Applying fixes", strategy=self.config.fix_strategy)
 
         auto_fixable = [
-            r
-            for r in self._summary.recommendations
-            if r.auto_fixable and r.priority in ("critical", "high")
+            r for r in self._summary.recommendations if r.auto_fixable and r.priority in ("critical", "high")
         ]
 
         if not auto_fixable:
@@ -558,9 +556,7 @@ class FixOpsOrchestrator:
 
             self._summary.fixes_applied = len(successful_fixes)
             self._summary.fixes_failed = len(failed_fixes)
-            self._summary.files_modified = list(
-                {r.file_path for r in successful_fixes if r.file_path}
-            )
+            self._summary.files_modified = list({r.file_path for r in successful_fixes if r.file_path})
 
             # Log to audit
             if self._audit_logger:

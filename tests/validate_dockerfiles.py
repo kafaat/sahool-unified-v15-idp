@@ -24,10 +24,7 @@ def find_dockerfiles(root: str) -> list[str]:
     dockerfiles = []
     for dirpath, dirnames, filenames in os.walk(root):
         # Skip archive, node_modules, .git
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in (".git", "node_modules", "archive", "__pycache__", ".venv")
-        ]
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "archive", "__pycache__", ".venv")]
         for f in filenames:
             if f == "Dockerfile" or f.startswith("Dockerfile."):
                 full = os.path.join(dirpath, f)
@@ -77,11 +74,11 @@ def extract_pip_install_commands(run_cmd: str) -> list[str]:
     pip_cmds = []
 
     # Split by || first (fallback chains)
-    parts = re.split(r'\|\|', cmd_body)
+    parts = re.split(r"\|\|", cmd_body)
 
     for part in parts:
         # Split by && for chained commands
-        subparts = re.split(r'&&', part)
+        subparts = re.split(r"&&", part)
         for sub in subparts:
             sub = sub.strip()
             if "pip install" in sub or "pip3 install" in sub:
@@ -142,7 +139,7 @@ def is_pytorch_exception(pip_cmd: str, run_cmd: str) -> bool:
 
 def is_fallback_command(pip_cmd: str, full_run: str) -> bool:
     """Check if this pip install is a fallback (2nd or 3rd in || chain)."""
-    parts = re.split(r'\|\|', full_run)
+    parts = re.split(r"\|\|", full_run)
     if len(parts) <= 1:
         return False
     # The first part is the primary, others are fallbacks

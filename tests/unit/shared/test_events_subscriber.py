@@ -597,9 +597,7 @@ class TestEventSubscriberRetry:
         async def handler(event):
             pass
 
-        subscription = Subscription(
-            subject="test.subject", handler=handler, event_class=SampleEvent
-        )
+        subscription = Subscription(subject="test.subject", handler=handler, event_class=SampleEvent)
 
         # Attempt beyond max
         await subscriber._retry_message(mock_msg, subscription, attempt=3)

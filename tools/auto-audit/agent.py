@@ -754,8 +754,7 @@ class AuditAgent(A2AAgent):
             "integrity_report": {
                 "is_valid": validation.get("is_valid"),
                 "chain_integrity": validation.get("chain_integrity"),
-                "issues_found": validation.get("chain_breaks", 0)
-                + validation.get("tamper_indicators", 0),
+                "issues_found": validation.get("chain_breaks", 0) + validation.get("tamper_indicators", 0),
             },
             "compliance_report": {
                 "framework": compliance.get("framework"),

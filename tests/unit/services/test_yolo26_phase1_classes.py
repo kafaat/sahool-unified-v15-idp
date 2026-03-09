@@ -157,9 +157,7 @@ class TestPhase1DiseaseClasses:
     def test_disease_scientific_name_is_ascii(self, class_id: int, expected: tuple):
         """Scientific names should be ASCII (Latin) text."""
         label = DISEASE_CLASSES[class_id]
-        assert label.scientific_name.isascii(), (
-            f"Disease {class_id} ({label.en}): Scientific name contains non-ASCII"
-        )
+        assert label.scientific_name.isascii(), f"Disease {class_id} ({label.en}): Scientific name contains non-ASCII"
 
     def test_corn_disease_count(self):
         """Corn should have 4 new diseases."""
@@ -397,7 +395,7 @@ class TestHighSpreadRiskDiseases:
 
     def test_original_high_risk_preserved(self):
         """Original high-risk diseases (4, 12, 13) should still be listed."""
-        assert 4 in self.HIGH_SPREAD_RISK_IDS   # Late Blight
+        assert 4 in self.HIGH_SPREAD_RISK_IDS  # Late Blight
         assert 12 in self.HIGH_SPREAD_RISK_IDS  # Mosaic Virus
         assert 13 in self.HIGH_SPREAD_RISK_IDS  # YLCV
 

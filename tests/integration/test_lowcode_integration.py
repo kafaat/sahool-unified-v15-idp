@@ -162,8 +162,7 @@ class AISuggestionFactory:
     ) -> dict[str, Any]:
         """Create an AI suggestion request."""
         return {
-            "description": description
-            or "I need a page to monitor field irrigation and view sensor data",
+            "description": description or "I need a page to monitor field irrigation and view sensor data",
             "description_ar": "أحتاج صفحة لمراقبة ري الحقل وعرض بيانات المستشعرات",
             "context": {
                 "crop_type": "wheat",
@@ -202,9 +201,7 @@ class TestLowCodeIntegration:
         return AISuggestionFactory()
 
     @pytest.fixture
-    async def lowcode_client(
-        self, http_client: AsyncClient, auth_headers: dict[str, str]
-    ) -> AsyncClient:
+    async def lowcode_client(self, http_client: AsyncClient, auth_headers: dict[str, str]) -> AsyncClient:
         """HTTP client configured for Low-Code Engine service."""
         http_client.base_url = self.SERVICE_URL
         http_client.headers.update(auth_headers)
@@ -451,9 +448,7 @@ class TestLowCodeIntegration:
         assert published_page["version"] == 2  # Version incremented
 
         # Step 4: Verify in list (published filter)
-        list_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}&is_published=true"
-        )
+        list_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}&is_published=true")
         assert list_response.status_code == 200
         pages = list_response.json()
         page_ids = [p["id"] for p in pages]
@@ -616,9 +611,7 @@ class TestLowCodeIntegration:
         # Should suggest irrigation-related components
         suggested_ids = [s["component_id"] for s in suggestions.get("suggestions", [])]
         # At least one irrigation-related suggestion expected
-        irrigation_related = any(
-            "irrigation" in cid.lower() or "water" in cid.lower() for cid in suggested_ids
-        )
+        irrigation_related = any("irrigation" in cid.lower() or "water" in cid.lower() for cid in suggested_ids)
         # Note: Depends on available components in the engine
 
     async def test_ai_list_templates(self, lowcode_client: AsyncClient):
@@ -722,18 +715,14 @@ class TestLowCodeIntegration:
                 await lowcode_client.post(f"/api/v1/pages/{page_id}/publish")
 
         # List only published
-        published_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}&is_published=true"
-        )
+        published_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}&is_published=true")
         assert published_response.status_code == 200
         published_pages = published_response.json()
         for page in published_pages:
             assert page["is_published"] is True
 
         # List only unpublished
-        unpublished_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}&is_published=false"
-        )
+        unpublished_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}&is_published=false")
         assert unpublished_response.status_code == 200
         unpublished_pages = unpublished_response.json()
         for page in unpublished_pages:

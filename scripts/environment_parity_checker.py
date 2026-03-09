@@ -153,9 +153,7 @@ class ParityReport:
             print("  Configuration Differences:")
             print("  " + "-" * 66)
             for diff in self.config_diffs[:10]:  # Show first 10
-                severity_icon = {"critical": "🔴", "warning": "🟡", "info": "🔵"}.get(
-                    diff["severity"], "⚪"
-                )
+                severity_icon = {"critical": "🔴", "warning": "🟡", "info": "🔵"}.get(diff["severity"], "⚪")
                 print(f"  {severity_icon} {diff['key']}")
                 if diff.get("recommendation"):
                     print(f"      → {diff['recommendation']}")
@@ -371,17 +369,13 @@ class EnvironmentParityChecker:
         critical_count = sum(1 for d in self.diffs if d.severity == "critical")
 
         if critical_count > 0:
-            recommendations.append(
-                f"Fix {critical_count} critical configuration mismatches before deployment"
-            )
+            recommendations.append(f"Fix {critical_count} critical configuration mismatches before deployment")
 
         # Check for common issues
         config_keys = {d.key for d in self.diffs}
 
         if "DATABASE_POOL_SIZE" in config_keys:
-            recommendations.append(
-                "Align DATABASE_POOL_SIZE across environments to prevent connection issues"
-            )
+            recommendations.append("Align DATABASE_POOL_SIZE across environments to prevent connection issues")
 
         if "REDIS_MAX_CONNECTIONS" in config_keys:
             recommendations.append("Ensure Redis connection limits match to prevent session loss")
@@ -569,9 +563,7 @@ def generate_terraform_template(output_path: str):
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Environment Parity Checker - فاحص تطابق البيئات"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Environment Parity Checker - فاحص تطابق البيئات")
 
     parser.add_argument(
         "--source",
@@ -587,13 +579,9 @@ async def main():
         choices=["simulation", "development", "staging", "production"],
         help="Target environment",
     )
-    parser.add_argument(
-        "--full", "-f", action="store_true", help="Run full parity check with service health"
-    )
+    parser.add_argument("--full", "-f", action="store_true", help="Run full parity check with service health")
     parser.add_argument("--output", "-o", type=str, help="Output file for JSON report")
-    parser.add_argument(
-        "--generate-terraform", action="store_true", help="Generate Terraform template for IaC"
-    )
+    parser.add_argument("--generate-terraform", action="store_true", help="Generate Terraform template for IaC")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()

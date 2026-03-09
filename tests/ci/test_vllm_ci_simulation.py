@@ -74,7 +74,9 @@ class TestCIJobLint:
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "ruff", "--version"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
             return result.returncode == 0
         except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -86,9 +88,11 @@ class TestCIJobLint:
             pytest.skip("ruff not installed")
 
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "shared/ai/llm_provider.py",
-             "--select", "E,F,I,UP,B,SIM,N,W"],
-            capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+            [sys.executable, "-m", "ruff", "check", "shared/ai/llm_provider.py", "--select", "E,F,I,UP,B,SIM,N,W"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            timeout=30,
         )
         assert result.returncode == 0, f"Ruff lint failed:\n{result.stdout}\n{result.stderr}"
 
@@ -98,9 +102,11 @@ class TestCIJobLint:
             pytest.skip("ruff not installed")
 
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "shared/llm/openai_compat.py",
-             "--select", "E,F,I,UP,B,SIM,N,W"],
-            capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+            [sys.executable, "-m", "ruff", "check", "shared/llm/openai_compat.py", "--select", "E,F,I,UP,B,SIM,N,W"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            timeout=30,
         )
         assert result.returncode == 0, f"Ruff lint failed:\n{result.stdout}\n{result.stderr}"
 
@@ -110,9 +116,11 @@ class TestCIJobLint:
             pytest.skip("ruff not installed")
 
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "shared/events/subjects.py",
-             "--select", "E,F,I,UP,B,SIM,N,W"],
-            capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+            [sys.executable, "-m", "ruff", "check", "shared/events/subjects.py", "--select", "E,F,I,UP,B,SIM,N,W"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            timeout=30,
         )
         assert result.returncode == 0, f"Ruff lint failed:\n{result.stdout}\n{result.stderr}"
 
@@ -128,9 +136,11 @@ class TestCIJobLint:
         ]
         for tf in test_files:
             result = subprocess.run(
-                [sys.executable, "-m", "ruff", "check", tf,
-                 "--select", "E,F,I,UP,B,SIM,N,W"],
-                capture_output=True, text=True, cwd=REPO_ROOT, timeout=30,
+                [sys.executable, "-m", "ruff", "check", tf, "--select", "E,F,I,UP,B,SIM,N,W"],
+                capture_output=True,
+                text=True,
+                cwd=REPO_ROOT,
+                timeout=30,
             )
             assert result.returncode == 0, f"Ruff lint failed on {tf}:\n{result.stdout}\n{result.stderr}"
 
@@ -147,9 +157,12 @@ class TestCIJobTestUnified:
         """Smoke tests pass with CI environment variables."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "tests/smoke/test_vllm_smoke.py",
-             "-v", "--tb=short", "--timeout=60"],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=120,
+            [sys.executable, "-m", "pytest", "tests/smoke/test_vllm_smoke.py", "-v", "--tb=short", "--timeout=60"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=120,
         )
         assert result.returncode == 0, f"Smoke tests failed:\n{result.stdout}\n{result.stderr}"
 
@@ -157,9 +170,12 @@ class TestCIJobTestUnified:
         """Unit tests pass with CI environment variables."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "tests/unit/test_vllm_integration.py",
-             "-v", "--tb=short", "--timeout=60"],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=120,
+            [sys.executable, "-m", "pytest", "tests/unit/test_vllm_integration.py", "-v", "--tb=short", "--timeout=60"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=120,
         )
         assert result.returncode == 0, f"Unit tests failed:\n{result.stdout}\n{result.stderr}"
 
@@ -167,9 +183,20 @@ class TestCIJobTestUnified:
         """Container validation tests pass with CI environment variables."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "tests/container/test_vllm_container.py",
-             "-v", "--tb=short", "--timeout=60"],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=120,
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/container/test_vllm_container.py",
+                "-v",
+                "--tb=short",
+                "--timeout=60",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=120,
         )
         assert result.returncode == 0, f"Container tests failed:\n{result.stdout}\n{result.stderr}"
 
@@ -177,12 +204,22 @@ class TestCIJobTestUnified:
         """All 139 vLLM tests pass in a single combined run (CI unified)."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest",
-             "tests/smoke/test_vllm_smoke.py",
-             "tests/unit/test_vllm_integration.py",
-             "tests/container/test_vllm_container.py",
-             "-v", "--tb=short", "--timeout=60"],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=180,
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/smoke/test_vllm_smoke.py",
+                "tests/unit/test_vllm_integration.py",
+                "tests/container/test_vllm_container.py",
+                "-v",
+                "--tb=short",
+                "--timeout=60",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=180,
         )
         assert result.returncode == 0, f"Combined tests failed:\n{result.stdout}\n{result.stderr}"
 
@@ -212,7 +249,11 @@ class TestCIJobArchCheck:
         )
         result = subprocess.run(
             [sys.executable, "-c", cmd],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"
         assert "imported OK" in result.stdout
@@ -227,7 +268,11 @@ class TestCIJobArchCheck:
         )
         result = subprocess.run(
             [sys.executable, "-c", cmd],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"
 
@@ -241,7 +286,11 @@ class TestCIJobArchCheck:
         )
         result = subprocess.run(
             [sys.executable, "-c", cmd],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=30,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=30,
         )
         assert result.returncode == 0, f"Import failed:\n{result.stderr}"
 
@@ -274,9 +323,7 @@ class TestCIJobEventCheck:
             SAHOOL_LLM_MODEL_UNLOADED,
             SAHOOL_LLM_GPU_OOM,
         ]:
-            assert pattern.match(subject), (
-                f"Subject '{subject}' doesn't match sahool.{{domain}}.{{action}} pattern"
-            )
+            assert pattern.match(subject), f"Subject '{subject}' doesn't match sahool.{{domain}}.{{action}} pattern"
 
     def test_llm_subjects_registered_in_subject_registry(self):
         """All LLM subjects are in SUBJECT_REGISTRY."""
@@ -303,9 +350,7 @@ class TestCIJobEventCheck:
 
         values = list(SUBJECT_REGISTRY.values())
         llm_values = [v for v in values if v.startswith("sahool.llm.")]
-        assert len(llm_values) == len(set(llm_values)), (
-            f"Duplicate LLM subjects found: {llm_values}"
-        )
+        assert len(llm_values) == len(set(llm_values)), f"Duplicate LLM subjects found: {llm_values}"
 
     def test_governance_events_match_subjects(self):
         """Governance services.yaml vllm events match subjects.py constants."""
@@ -375,10 +420,10 @@ class TestCIJobEnvValidation:
     def test_no_hardcoded_secrets_in_configs(self):
         """No hardcoded secrets in any vLLM config file."""
         sensitive_patterns = [
-            re.compile(r"hf_[a-zA-Z0-9]{20,}"),     # HuggingFace token
-            re.compile(r"sk-[a-zA-Z0-9]{20,}"),      # API key pattern
-            re.compile(r"ghp_[a-zA-Z0-9]{20,}"),     # GitHub token
-            re.compile(r"password\s*=\s*['\"].{8,}"), # Password
+            re.compile(r"hf_[a-zA-Z0-9]{20,}"),  # HuggingFace token
+            re.compile(r"sk-[a-zA-Z0-9]{20,}"),  # API key pattern
+            re.compile(r"ghp_[a-zA-Z0-9]{20,}"),  # GitHub token
+            re.compile(r"password\s*=\s*['\"].{8,}"),  # Password
         ]
 
         config_files = [
@@ -392,9 +437,7 @@ class TestCIJobEnvValidation:
             content = _read_text(config_file)
             for pattern in sensitive_patterns:
                 matches = pattern.findall(content)
-                assert not matches, (
-                    f"Potential secret found in {config_file.name}: {matches}"
-                )
+                assert not matches, f"Potential secret found in {config_file.name}: {matches}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -413,8 +456,16 @@ class TestCIJobGovernance:
         """vllm-deepseek entry has all required governance fields."""
         svc = self.services["services"]["vllm-deepseek"]
         required_fields = [
-            "name", "name_ar", "description", "type", "category",
-            "layer", "path", "port", "protocol", "health_endpoint",
+            "name",
+            "name_ar",
+            "description",
+            "type",
+            "category",
+            "layer",
+            "path",
+            "port",
+            "protocol",
+            "health_endpoint",
         ]
         for field in required_fields:
             assert field in svc, f"Missing required field '{field}' in vllm-deepseek"
@@ -486,9 +537,7 @@ class TestCIJobContainerLint:
 
     def test_dl3015_avoid_additional_packages(self):
         """DL3015: Avoid installing unnecessary packages."""
-        assert "--no-install-recommends" in self.content, (
-            "DL3015: apt-get install should use --no-install-recommends"
-        )
+        assert "--no-install-recommends" in self.content, "DL3015: apt-get install should use --no-install-recommends"
 
     def test_dl3025_cmd_uses_json_form(self):
         """DL3025: Use arguments JSON notation for CMD."""
@@ -524,9 +573,7 @@ class TestCIJobContainerLint:
 
     def test_healthcheck_present(self):
         """Dockerfile has HEALTHCHECK instruction."""
-        assert any("HEALTHCHECK" in line for line in self.lines), (
-            "Missing HEALTHCHECK instruction"
-        )
+        assert any("HEALTHCHECK" in line for line in self.lines), "Missing HEALTHCHECK instruction"
 
     def test_user_instruction_present(self):
         """Dockerfile uses USER instruction (non-root)."""
@@ -560,9 +607,7 @@ class TestCIJobSecretsScan:
                 content = _read_text(fpath)
                 for pattern in api_key_patterns:
                     matches = pattern.findall(content)
-                    assert not matches, (
-                        f"Secret detected in {fpath.name}: {matches}"
-                    )
+                    assert not matches, f"Secret detected in {fpath.name}: {matches}"
 
     def test_no_private_keys_in_vllm_files(self):
         """No private keys in vLLM files."""
@@ -625,9 +670,7 @@ class TestCIJobComposeTest:
         service_networks = compose["services"]["vllm"].get("networks", [])
 
         for net in service_networks:
-            assert net in defined_networks, (
-                f"Network '{net}' not defined in top-level networks: {defined_networks}"
-            )
+            assert net in defined_networks, f"Network '{net}' not defined in top-level networks: {defined_networks}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -650,9 +693,7 @@ class TestCIJobKongValidation:
 
         plugins = vllm_svc.get("plugins", [])
         plugin_names = [p.get("name") for p in plugins]
-        assert "rate-limiting" in plugin_names, (
-            f"Missing rate-limiting plugin. Plugins: {plugin_names}"
-        )
+        assert "rate-limiting" in plugin_names, f"Missing rate-limiting plugin. Plugins: {plugin_names}"
 
     def test_vllm_route_timeout_sufficient_for_inference(self):
         """Kong timeouts are sufficient for LLM inference (>= 60s)."""
@@ -660,9 +701,7 @@ class TestCIJobKongValidation:
         vllm_svc = next((s for s in services if "vllm" in s.get("name", "")), None)
 
         read_timeout = vllm_svc.get("read_timeout", 0)
-        assert read_timeout >= 60000, (
-            f"Read timeout {read_timeout}ms too short for LLM inference"
-        )
+        assert read_timeout >= 60000, f"Read timeout {read_timeout}ms too short for LLM inference"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -675,15 +714,14 @@ class TestCIJobPrometheusValidation:
 
     @pytest.fixture(autouse=True)
     def _load_prometheus(self):
-        self.prom = _load_yaml(
-            REPO_ROOT / "infrastructure" / "monitoring" / "prometheus" / "prometheus.yml"
-        )
+        self.prom = _load_yaml(REPO_ROOT / "infrastructure" / "monitoring" / "prometheus" / "prometheus.yml")
 
     def test_vllm_scrape_interval_reasonable(self):
         """vLLM scrape interval is between 5s and 60s."""
         scrape_configs = self.prom.get("scrape_configs", [])
         vllm_job = next(
-            (j for j in scrape_configs if "vllm" in j.get("job_name", "")), None,
+            (j for j in scrape_configs if "vllm" in j.get("job_name", "")),
+            None,
         )
         assert vllm_job is not None
 
@@ -708,12 +746,22 @@ class TestCISummary:
         """Generate CI-style summary of all vLLM test results."""
         env = {**os.environ, **CI_ENV}
         result = subprocess.run(
-            [sys.executable, "-m", "pytest",
-             "tests/smoke/test_vllm_smoke.py",
-             "tests/unit/test_vllm_integration.py",
-             "tests/container/test_vllm_container.py",
-             "--tb=line", "--timeout=60", "-q"],
-            capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=180,
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/smoke/test_vllm_smoke.py",
+                "tests/unit/test_vllm_integration.py",
+                "tests/container/test_vllm_container.py",
+                "--tb=line",
+                "--timeout=60",
+                "-q",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            env=env,
+            timeout=180,
         )
 
         # Parse results
@@ -724,9 +772,5 @@ class TestCISummary:
         failed_count = int(failed.group(1)) if failed else 0
 
         # Verify CI would pass
-        assert failed_count == 0, (
-            f"CI would FAIL: {failed_count} test(s) failed\n{result.stdout}"
-        )
-        assert passed_count >= 139, (
-            f"Expected >= 139 tests, got {passed_count}"
-        )
+        assert failed_count == 0, f"CI would FAIL: {failed_count} test(s) failed\n{result.stdout}"
+        assert passed_count >= 139, f"Expected >= 139 tests, got {passed_count}"

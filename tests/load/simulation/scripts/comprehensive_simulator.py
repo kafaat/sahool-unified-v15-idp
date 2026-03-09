@@ -43,9 +43,7 @@ from typing import Any
 
 import aiohttp
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("sahool-simulator")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -291,9 +289,7 @@ class WeatherSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/weather/forecast?lat={lat}&lng={lng}&days={days}")
 
     async def get_historical(self, lat: float, lng: float, start: str, end: str):
-        return await self.request(
-            "GET", f"/api/weather/historical?lat={lat}&lng={lng}&start={start}&end={end}"
-        )
+        return await self.request("GET", f"/api/weather/historical?lat={lat}&lng={lng}&start={start}&end={end}")
 
     async def simulate(self):
         location = random.choice(SAUDI_LOCATIONS)
@@ -380,18 +376,14 @@ class InventorySimulator(ServiceSimulator):
                 "quantity": random.randint(10, 500),
                 "unit": random.choice(["kg", "liters", "units", "bags"]),
                 "batch_number": f"BATCH-{uuid.uuid4().hex[:8]}",
-                "expiry_date": (datetime.now() + timedelta(days=random.randint(30, 365))).strftime(
-                    "%Y-%m-%d"
-                ),
+                "expiry_date": (datetime.now() + timedelta(days=random.randint(30, 365))).strftime("%Y-%m-%d"),
                 "supplier": f"Supplier-{random.randint(1, 10)}",
                 "unit_cost": random.uniform(10, 500),
             },
         )
 
     async def get_forecast(self, item_id: str):
-        return await self.request(
-            "GET", f"/api/inventory/analytics/forecast/{item_id}?forecast_days=90"
-        )
+        return await self.request("GET", f"/api/inventory/analytics/forecast/{item_id}?forecast_days=90")
 
     async def simulate(self):
         categories = ["seeds", "fertilizers", "pesticides", "tools", "equipment_parts"]
@@ -474,9 +466,7 @@ class ChatSimulator(ServiceSimulator):
         return await self.request("GET", "/api/chat/conversations")
 
     async def get_messages(self, conversation_id: str):
-        return await self.request(
-            "GET", f"/api/chat/conversations/{conversation_id}/messages?limit=50"
-        )
+        return await self.request("GET", f"/api/chat/conversations/{conversation_id}/messages?limit=50")
 
     async def send_message(self, conversation_id: str):
         messages = [
@@ -501,9 +491,7 @@ class ChatSimulator(ServiceSimulator):
             "POST",
             "/api/chat/ai/start",
             json={
-                "topic": random.choice(
-                    ["irrigation", "pest_control", "fertilization", "harvesting"]
-                ),
+                "topic": random.choice(["irrigation", "pest_control", "fertilization", "harvesting"]),
                 "language": random.choice(["ar", "en"]),
             },
         )
@@ -560,9 +548,7 @@ class NDVISimulator(ServiceSimulator):
         )
 
     async def get_change_analysis(self, field_id: str):
-        return await self.request(
-            "GET", f"/api/ndvi/fields/{field_id}/change?date1=2024-01-01&date2=2024-06-01"
-        )
+        return await self.request("GET", f"/api/ndvi/fields/{field_id}/change?date1=2024-01-01&date2=2024-06-01")
 
     async def simulate(self):
         field_id = f"field-{random.randint(1, 50)}"
@@ -627,9 +613,7 @@ class YieldSimulator(ServiceSimulator):
             json={
                 "field_id": field_id,
                 "crop_type": random.choice(CROP_TYPES),
-                "planting_date": (
-                    datetime.now() - timedelta(days=random.randint(30, 120))
-                ).strftime("%Y-%m-%d"),
+                "planting_date": (datetime.now() - timedelta(days=random.randint(30, 120))).strftime("%Y-%m-%d"),
                 "area_hectares": random.uniform(1, 100),
             },
         )
@@ -688,9 +672,7 @@ class CropIntelligenceSimulator(ServiceSimulator):
                     random.randint(1, 4),
                 ),
                 "location": random.choice(SAUDI_LOCATIONS)["region"],
-                "growth_stage": random.choice(
-                    ["seedling", "vegetative", "flowering", "fruiting", "mature"]
-                ),
+                "growth_stage": random.choice(["seedling", "vegetative", "flowering", "fruiting", "mature"]),
             },
         )
 
@@ -748,9 +730,7 @@ class EquipmentSimulator(ServiceSimulator):
             f"/api/equipment/{equipment_id}/maintenance",
             json={
                 "type": random.choice(["routine", "repair", "inspection"]),
-                "scheduled_date": (datetime.now() + timedelta(days=random.randint(1, 30))).strftime(
-                    "%Y-%m-%d"
-                ),
+                "scheduled_date": (datetime.now() + timedelta(days=random.randint(1, 30))).strftime("%Y-%m-%d"),
                 "description": "Scheduled maintenance",
                 "priority": random.choice(["low", "medium", "high"]),
             },
@@ -794,9 +774,7 @@ class TaskSimulator(ServiceSimulator):
                 "field_id": f"field-{random.randint(1, 50)}",
                 "assignee_id": f"worker-{random.randint(1, 20)}",
                 "priority": random.choice(["low", "medium", "high", "urgent"]),
-                "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).strftime(
-                    "%Y-%m-%d"
-                ),
+                "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).strftime("%Y-%m-%d"),
                 "description": "Auto-generated task for simulation",
                 "estimated_hours": random.uniform(1, 8),
             },
@@ -942,17 +920,13 @@ class ResearchSimulator(ServiceSimulator):
             json={
                 "type": random.choice(["yield", "costs", "efficiency", "sustainability"]),
                 "period": random.choice(["weekly", "monthly", "quarterly", "yearly"]),
-                "fields": [
-                    f"field-{i}" for i in random.sample(range(1, 51), random.randint(1, 10))
-                ],
+                "fields": [f"field-{i}" for i in random.sample(range(1, 51), random.randint(1, 10))],
                 "format": random.choice(["pdf", "excel", "csv"]),
             },
         )
 
     async def get_benchmarks(self):
-        return await self.request(
-            "GET", f"/api/analytics/benchmarks?crop={random.choice(CROP_TYPES)}"
-        )
+        return await self.request("GET", f"/api/analytics/benchmarks?crop={random.choice(CROP_TYPES)}")
 
     async def simulate(self):
         action = random.choice(["overview", "field", "report", "benchmarks"])
@@ -1201,9 +1175,7 @@ class ComprehensiveSimulator:
 
         async with aiohttp.ClientSession() as session:
             # Create user tasks
-            tasks = [
-                asyncio.create_task(self.user_session(session, i)) for i in range(self.num_users)
-            ]
+            tasks = [asyncio.create_task(self.user_session(session, i)) for i in range(self.num_users)]
 
             # Run for specified duration
             await asyncio.sleep(self.duration_seconds)
@@ -1306,18 +1278,12 @@ def main():
         default="http://localhost:8081",
         help="Kong Gateway URL (default: http://localhost:8081)",
     )
-    parser.add_argument(
-        "--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)"
-    )
-    parser.add_argument(
-        "--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)"
-    )
+    parser.add_argument("--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)")
+    parser.add_argument("--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)")
 
     args = parser.parse_args()
 
-    simulator = ComprehensiveSimulator(
-        gateway_url=args.gateway, num_users=args.users, duration_seconds=args.duration
-    )
+    simulator = ComprehensiveSimulator(gateway_url=args.gateway, num_users=args.users, duration_seconds=args.duration)
 
     try:
         asyncio.run(simulator.run())

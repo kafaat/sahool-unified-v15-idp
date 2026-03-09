@@ -245,8 +245,13 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_mark_as_read(self, alert_service):
         alert = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="TEST",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="TEST",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         result = await alert_service.mark_as_read(alert.id, "user1")
         assert result is not None
@@ -260,8 +265,13 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_acknowledge_alert(self, alert_service):
         alert = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="TEST",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="TEST",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         result = await alert_service.acknowledge_alert(alert.id, "user1")
         assert result.is_acknowledged is True
@@ -270,8 +280,13 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_resolve_alert(self, alert_service):
         alert = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="TEST",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="TEST",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         result = await alert_service.resolve_alert(alert.id, "user1", "Fixed")
         assert result.is_resolved is True
@@ -280,12 +295,22 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_bulk_resolve(self, alert_service):
         a1 = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="T",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="T",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         a2 = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="T",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="T",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         count = await alert_service.bulk_resolve([a1.id, a2.id, "fake"], "user1")
         assert count == 2
@@ -293,16 +318,31 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_list_alerts_filtering(self, alert_service):
         await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="EXPIRY",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="EXPIRY",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         await alert_service.create_alert(
-            tenant_id="t1", farm_id="f2", alert_type="COMPLIANCE",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f2",
+            alert_type="COMPLIANCE",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         await alert_service.create_alert(
-            tenant_id="t2", farm_id="f3", alert_type="EXPIRY",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t2",
+            farm_id="f3",
+            alert_type="EXPIRY",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
 
         results = await alert_service.list_alerts(tenant_id="t1")
@@ -317,13 +357,23 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_get_alert_counts(self, alert_service):
         await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="EXPIRY",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="EXPIRY",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
             priority=AlertPriority.CRITICAL,
         )
         await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="COMPLIANCE",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="COMPLIANCE",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
             priority=AlertPriority.LOW,
         )
         counts = await alert_service.get_alert_counts("t1")
@@ -335,8 +385,13 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_cleanup_old_alerts(self, alert_service):
         alert = await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="T",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="T",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
         )
         await alert_service.resolve_alert(alert.id, "user1")
         # Manually set resolved_at to long ago
@@ -349,8 +404,13 @@ class TestAlertServiceManagement:
     @pytest.mark.asyncio
     async def test_get_alert_summary(self, alert_service):
         await alert_service.create_alert(
-            tenant_id="t1", farm_id="f1", alert_type="EXPIRY",
-            title_en="T", title_ar="ت", message_en="m", message_ar="ر",
+            tenant_id="t1",
+            farm_id="f1",
+            alert_type="EXPIRY",
+            title_en="T",
+            title_ar="ت",
+            message_en="m",
+            message_ar="ر",
             priority=AlertPriority.CRITICAL,
             action_due_date=date.today() + timedelta(days=5),
         )

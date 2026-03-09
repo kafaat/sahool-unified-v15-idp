@@ -32,6 +32,10 @@ env:
   KUBERNETES_NAMESPACE: sahool-staging
   HELM_TIMEOUT: 10m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-staging
   cancel-in-progress: false

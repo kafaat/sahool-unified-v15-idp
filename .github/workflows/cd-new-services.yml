@@ -39,6 +39,10 @@ env:
   ARGOCD_SERVER: argocd.sahool.io
   HELM_TIMEOUT: 15m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-new-services-${{ github.event.inputs.environment || 'production' }}
   cancel-in-progress: false

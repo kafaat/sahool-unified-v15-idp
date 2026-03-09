@@ -19,6 +19,9 @@ on:
       - 'apps/mobile/**'
       - '.github/workflows/flutter-apk.yml'
 
+permissions:
+  contents: read
+
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'

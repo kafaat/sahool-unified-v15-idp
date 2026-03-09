@@ -8,9 +8,12 @@ import os
 import uuid
 from datetime import UTC, datetime
 
+import structlog
 from nats.aio.client import Client as NATS
 
 from .types import get_subject, get_version
+
+logger = structlog.get_logger(__name__)
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 
@@ -89,9 +92,9 @@ class AdvisorPublisher:
         try:
             await self.nc.connect(self.nats_url)
             self._connected = True
-            print(f"📡 Connected to NATS: {self.nats_url}")
+            logger.info("nats_connected", url=self.nats_url)
         except Exception as e:
-            print(f"❌ Failed to connect to NATS: {e}")
+            logger.error("nats_connection_failed", url=self.nats_url, error=str(e))
             raise
 
     async def close(self):
@@ -99,7 +102,7 @@ class AdvisorPublisher:
         if self.nc and self._connected:
             await self.nc.close()
             self._connected = False
-            print("📴 Disconnected from NATS")
+            logger.info("nats_disconnected")
 
     async def publish(
         self,
@@ -140,9 +143,24 @@ class AdvisorPublisher:
         )
 
         message = json.dumps(envelope.to_dict(), default=str).encode()
-        await self.nc.publish(target_subject, message)
+        try:
+            await self.nc.publish(target_subject, message)
+        except Exception as e:
+            logger.error(
+                "nats_publish_failed",
+                subject=target_subject,
+                event_type=event_type,
+                event_id=envelope.event_id,
+                error=str(e),
+            )
+            raise
 
-        print(f"📤 Published {event_type} to {target_subject}: {envelope.event_id}")
+        logger.info(
+            "nats_event_published",
+            subject=target_subject,
+            event_type=event_type,
+            event_id=envelope.event_id,
+        )
         return envelope.event_id
 
     async def publish_recommendation(

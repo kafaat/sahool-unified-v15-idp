@@ -20,6 +20,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+import structlog
+
+logger = structlog.get_logger()
+
 from . import repository
 from .database import check_db_connection, get_db, init_db
 from .db_models import (
@@ -265,7 +269,7 @@ class Equipment(BaseModel):
 try:
     init_db()
 except Exception as e:
-    print(f"Warning: Could not initialize database: {e}")
+    logger.warning("database_init_failed", error=str(e))
 
 
 def seed_demo_data(db: Session):

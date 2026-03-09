@@ -16,6 +16,9 @@ on:
       - "helm/**"
       - "apps/**"
 
+permissions:
+  contents: read
+
 jobs:
   validate-yaml:
     name: Validate YAML

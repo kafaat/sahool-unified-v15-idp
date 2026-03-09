@@ -37,6 +37,7 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0  # Required by flutter_local_notifications for scheduled notifications
 
   # Firebase Cloud Messaging (FCM)
   # Note: Requires google-services.json for Android and GoogleService-Info.plist for iOS
@@ -90,7 +91,7 @@ dependencies:
   go_router: ^14.6.2
 
   # Deep Linking
-  app_links: ^3.5.1
+  app_links: ^6.3.3
   # firebase_dynamic_links: ^5.4.7  # DISABLED: Requires Firebase platform setup (google-services.json)
 
   # Camera & Photos
@@ -122,7 +123,7 @@ dependencies:
   flutter_tts: ^4.2.0  # Text-to-speech (تحويل النص إلى كلام)
 
   # Sharing & URLs
-  share_plus: ^7.2.1
+  share_plus: ^10.1.4
   url_launcher: ^6.2.2
 
   # Date/Time

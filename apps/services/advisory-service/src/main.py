@@ -44,6 +44,10 @@ from yemen_varieties import (
     get_varieties_by_crop,
 )
 
+import structlog
+
+logger = structlog.get_logger()
+
 from shared.errors_py import (
     add_request_id_middleware,
     create_success_response,
@@ -91,13 +95,13 @@ async def lifespan(app: FastAPI):
     # Startup - initialize state first to avoid AttributeError
     app.state.publisher = None
     app.state.revocation_store = None
-    print("🌱 Starting Agro Advisor Service...")
+    logger.info("service_starting", service="advisory-service")
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Advisory Service ready on port 8093")
+        logger.info("service_ready", service="advisory-service", port=8093)
     except Exception as e:
-        print(f"⚠️ NATS connection failed (running without events): {e}")
+        logger.warning("nats_connection_failed", error=str(e))
 
     # Initialize token revocation store
     if REVOCATION_AVAILABLE:
@@ -105,9 +109,9 @@ async def lifespan(app: FastAPI):
             revocation_store = get_revocation_store()
             await revocation_store.initialize()
             app.state.revocation_store = revocation_store
-            print("✅ Token revocation store initialized")
+            logger.info("token_revocation_store_initialized")
         except Exception as e:
-            print(f"⚠️ Token revocation store failed (running without revocation): {e}")
+            logger.warning("token_revocation_store_failed", error=str(e))
 
     yield
 
@@ -116,7 +120,7 @@ async def lifespan(app: FastAPI):
         await app.state.publisher.close()
     if getattr(app.state, "revocation_store", None):
         await app.state.revocation_store.close()
-    print("👋 Agro Advisor shutting down")
+    logger.info("service_shutting_down", service="advisory-service")
 
 
 app = FastAPI(
@@ -261,7 +265,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 # ============== Disease Endpoints ==============
 
 
-@app.post("/disease/assess")
+@app.post("/api/v1/disease/assess")
 async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
     """Assess disease from image classification result"""
     _enforce_tenant(user, req.tenant_id)

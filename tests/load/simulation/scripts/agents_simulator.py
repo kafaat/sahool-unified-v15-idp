@@ -193,7 +193,7 @@ class AIAgentSimulator:
                         if isinstance(data, dict)
                         else 0
                     )
-                except:
+                except (json.JSONDecodeError, ValueError):
                     data = await response.text()
                     tokens = 0
 

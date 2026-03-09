@@ -22,14 +22,10 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@sentry/nextjs": "^8.0.0",
     "@types/node": "^20.19.33",
     "tsup": "^8.0.1",
     "typescript": "^5.9.3",
     "vitest": "^3.2.0"
-  },
-  "optionalDependencies": {
-    "@sentry/nextjs": "^8.0.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

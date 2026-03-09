@@ -38,6 +38,10 @@ env:
   HELM_TIMEOUT: 15m
   ROLLBACK_TIMEOUT: 5m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false

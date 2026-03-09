@@ -44,6 +44,10 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   HELM_TIMEOUT: 10m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: canary-deploy-${{ github.event.inputs.environment }}
   cancel-in-progress: false

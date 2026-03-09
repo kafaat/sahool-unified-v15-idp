@@ -162,7 +162,7 @@ class ServiceSimulator(ABC):
 
                 try:
                     data = await response.json()
-                except:
+                except (json.JSONDecodeError, ValueError):
                     data = await response.text()
 
                 if not success:

@@ -66,9 +66,10 @@ from .registry import (
     set_registry,
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger("iot-gateway")
+# Configure structured logging
+import structlog
+
+logger = structlog.get_logger("iot-gateway")
 
 # Redis imports
 try:
@@ -221,7 +222,7 @@ async def check_offline_devices():
                     severity="warning",
                 )
         except Exception as e:
-            print(f"❌ Error checking offline devices: {e}")
+            logger.error("offline_device_check_failed", error=str(e))
 
 
 async def start_mqtt_listener():
@@ -235,10 +236,10 @@ async def start_mqtt_listener():
         password=MQTT_PASSWORD if MQTT_PASSWORD else None,
     )
 
-    print(f"🔌 Starting MQTT listener on {MQTT_BROKER}:{MQTT_PORT}")
+    logger.info("mqtt_listener_starting", broker=MQTT_BROKER, port=MQTT_PORT)
     if MQTT_USER:
-        print(f"🔐 MQTT authentication enabled for user: {MQTT_USER}")
-    print(f"📥 Subscribing to: {MQTT_TOPIC}")
+        logger.info("mqtt_auth_enabled", user=MQTT_USER)
+    logger.info("mqtt_subscribing", topic=MQTT_TOPIC)
 
     await mqtt_client.subscribe(MQTT_TOPIC, handle_mqtt_message)
 
@@ -250,7 +251,7 @@ async def lifespan(app: FastAPI):
 
     # Startup - wrap everything in try-except to ensure service always starts
     try:
-        print("🌐 Starting IoT Gateway Service...")
+        logger.info("service_starting", service="iot-gateway")
 
         # Initialize Redis connection for device registry persistence
         redis_url = os.getenv("REDIS_URL")
@@ -259,48 +260,48 @@ async def lifespan(app: FastAPI):
                 app.state.redis = redis.from_url(redis_url, decode_responses=False)
                 await app.state.redis.ping()
                 logger.info("Connected to Redis for device registry persistence")
-                print("✅ Connected to Redis")
+                logger.info("redis_connected")
 
                 # Initialize Redis-backed registry
                 registry = await get_redis_registry(app.state.redis)
                 set_registry(registry)
-                print("✅ Redis-backed device registry initialized")
+                logger.info("device_registry_initialized", backend="redis")
             except Exception as e:
                 logger.warning(f"Failed to connect to Redis: {e}")
-                print(f"⚠️ Redis connection failed: {e} - using in-memory registry")
+                logger.warning("redis_connection_failed", error=str(e))
                 app.state.redis = None
                 registry = get_registry()
-                print("✅ In-memory device registry initialized")
+                logger.info("device_registry_initialized", backend="in_memory")
         else:
             app.state.redis = None
             # Initialize in-memory registry (don't fail if it can't initialize)
             try:
                 registry = get_registry()
-                print("✅ In-memory device registry initialized")
+                logger.info("device_registry_initialized", backend="in_memory")
             except Exception as e:
-                print(f"⚠️ Registry initialization failed: {e}")
+                logger.warning("registry_init_failed", error=str(e))
                 registry = None
 
         # Initialize publisher (don't fail if it can't connect)
         try:
             publisher = await get_publisher()
-            print("✅ Connected to NATS")
+            logger.info("nats_connected")
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
+            logger.warning("nats_connection_failed", error=str(e))
             publisher = None
 
         # Start MQTT listener in background (don't fail if it can't connect)
         try:
             mqtt_task = asyncio.create_task(start_mqtt_listener())
         except Exception as e:
-            print(f"⚠️ Failed to start MQTT listener: {e}")
+            logger.warning("mqtt_listener_start_failed", error=str(e))
             mqtt_task = None
 
         # Start offline device checker (don't fail if it can't start)
         try:
             asyncio.create_task(check_offline_devices())
         except Exception as e:
-            print(f"⚠️ Failed to start offline device checker: {e}")
+            logger.warning("offline_checker_start_failed", error=str(e))
 
         print("✅ IoT Gateway ready on port 8106")
     except Exception as e:

@@ -81,7 +81,8 @@ class MaintenanceState:
         if MAINTENANCE_FILE.exists():
             try:
                 return cls.from_json(MAINTENANCE_FILE.read_text())
-            except:
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"Failed to load maintenance state: {e}")
                 return None
         return None
 

@@ -92,13 +92,15 @@ jobs:
           publish-dir: './apps/web/out'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"
+          # Use environment variable to prevent script injection via PR title
+          deploy-message: "PR #${{ github.event.pull_request.number }} - ${{ env.PR_TITLE }}"
           enable-pull-request-comment: true
           enable-commit-comment: false
           alias: pr-${{ github.event.pull_request.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         timeout-minutes: 5
         continue-on-error: true
 

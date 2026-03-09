@@ -13,6 +13,9 @@ on:
       - 'shared/events/**'
       - 'apps/services/**/events/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: events-${{ github.ref }}
   cancel-in-progress: true

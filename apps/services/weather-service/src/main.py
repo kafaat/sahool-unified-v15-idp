@@ -30,6 +30,10 @@ if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
 # Import unified error handling
+import structlog
+
+logger = structlog.get_logger()
+
 from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,

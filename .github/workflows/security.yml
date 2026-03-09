@@ -507,7 +507,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Checkov
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@15727826759e92c1b42a4c93f0f11e4e02de5e98 # v13.0.0
         with:
           directory: .
           framework: kubernetes,dockerfile,secrets

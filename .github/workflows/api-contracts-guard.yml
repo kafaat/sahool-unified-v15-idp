@@ -16,6 +16,9 @@ on:
       - 'apps/mobile/lib/core/contracts/**'
       - 'packages/api-client/src/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: contracts-${{ github.ref }}
   cancel-in-progress: true

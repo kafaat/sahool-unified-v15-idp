@@ -12,6 +12,9 @@ on:
     paths:
       - "governance/services.yaml"
 
+permissions:
+  contents: read
+
 jobs:
   check-sync:
     name: Verify Infrastructure is Synced

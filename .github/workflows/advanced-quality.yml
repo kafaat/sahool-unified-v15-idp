@@ -24,6 +24,9 @@ on:
       - 'apps/services/**/*.py'
       - 'shared/**/*.py'
 
+permissions:
+  contents: read
+
 concurrency:
   group: advanced-quality-${{ github.ref }}
   cancel-in-progress: true
@@ -38,6 +41,7 @@ jobs:
   dead-code:
     name: Dead Code Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
@@ -78,6 +82,7 @@ jobs:
   complexity:
     name: Code Complexity
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
@@ -127,6 +132,7 @@ jobs:
   security-deep:
     name: Security Deep Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
@@ -202,6 +208,7 @@ jobs:
   docs-coverage:
     name: Documentation Coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
@@ -243,6 +250,7 @@ jobs:
   license-check:
     name: License Compliance
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v6
@@ -281,6 +289,7 @@ jobs:
   summary:
     name: Quality Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [dead-code, complexity, security-deep, docs-coverage, license-check]
     if: always()
     steps:

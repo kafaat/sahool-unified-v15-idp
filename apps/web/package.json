@@ -26,9 +26,7 @@
   "dependencies": {
     "@sahool/api-client": "^16.0.0",
     "@sahool/i18n": "^16.0.0",
-    "@sahool/shared-hooks": "^16.0.0",
-    "@sahool/shared-ui": "^16.0.0",
-    "@sahool/shared-utils": "^16.0.0",
+    "@sahool/shared-types": "^16.0.0",
     "@sentry/nextjs": "^9.5.0",
     "@tanstack/react-query": "5.90.21",
     "axios": "1.13.5",

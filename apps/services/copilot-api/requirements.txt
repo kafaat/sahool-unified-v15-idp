@@ -22,7 +22,7 @@ torch>=2.2.0,<2.7.0
 numpy>=1.26.0,<2.5.0
 # Caching & Message Queue
 redis>=7.1.0,<8.0.0
-nats-py==2.13.1
+nats-py==2.14.0
 # Logging & Monitoring
 structlog>=24.1.0
 prometheus-client>=0.19.0

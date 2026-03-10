@@ -13,7 +13,7 @@ httpx>=0.27.0,<1.0.0
 aiofiles>=24.0.0,<25.0.0
 
 # NATS Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Database
 asyncpg>=0.30.0,<1.0.0

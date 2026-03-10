@@ -16,7 +16,7 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 httpx==0.28.1
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Redis cache
 redis[hiredis]==7.1.0

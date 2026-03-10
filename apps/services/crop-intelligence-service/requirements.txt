@@ -8,7 +8,7 @@ starlette>=0.49.1
 uvicorn[standard]>=0.30.0,<1.0.0
 pydantic==2.12.5
 httpx==0.28.1
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Service-specific dependencies
 python-dateutil==2.9.0.post0
@@ -16,7 +16,7 @@ python-dateutil==2.9.0.post0
 structlog>=24.1.0
 
 # NATS messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Database
 asyncpg>=0.30.0,<1.0.0

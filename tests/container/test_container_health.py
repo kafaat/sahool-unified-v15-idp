@@ -54,6 +54,21 @@ def compose_data() -> dict:
     return _load_compose(MAIN_COMPOSE)
 
 
+@pytest.fixture(scope="module")
+def node_src_cache() -> dict[str, str]:
+    """Cache concatenated .ts source content per Node.js service (module-scoped)."""
+    cache: dict[str, str] = {}
+    for svc_name in NODE_SERVICES:
+        svc_dir = SERVICES_DIR / svc_name / "src"
+        if not svc_dir.exists():
+            cache[svc_name] = ""
+            continue
+        parts = []
+        for f in svc_dir.rglob("*.ts"):
+            parts.append(f.read_text(errors="replace"))
+        cache[svc_name] = "\n".join(parts)
+    return cache
+
 
 # ---------------------------------------------------------------------------
 # Service Classification
@@ -465,33 +480,10 @@ class TestPythonHealthEndpoints:
 class TestNodeHealthEndpoints:
     """Validate Node.js services implement health endpoints in code."""
 
-    def _get_main_content(self, svc_name: str) -> str | None:
-        svc_dir = SERVICES_DIR / svc_name
-        if not svc_dir.exists():
-            return None
-        for candidate in [
-            svc_dir / "src" / "index.ts",
-            svc_dir / "src" / "main.ts",
-            svc_dir / "src" / "app.module.ts",
-        ]:
-            if candidate.exists():
-                return candidate.read_text(errors="replace")
-        return None
-
-    def _get_all_src_content(self, svc_name: str) -> str:
-        """Get concatenated content of all source files."""
-        svc_dir = SERVICES_DIR / svc_name / "src"
-        if not svc_dir.exists():
-            return ""
-        content_parts = []
-        for f in svc_dir.rglob("*.ts"):
-            content_parts.append(f.read_text(errors="replace"))
-        return "\n".join(content_parts)
-
     @pytest.mark.parametrize("svc_name", list(NODE_SERVICES.keys()))
-    def test_node_has_health_endpoint(self, svc_name):
+    def test_node_has_health_endpoint(self, svc_name, node_src_cache):
         """Node.js service must define a health endpoint."""
-        content = self._get_all_src_content(svc_name)
+        content = node_src_cache.get(svc_name, "")
         if not content:
             pytest.skip(f"No source files found for {svc_name}")
         has_health = bool(re.search(r'health|healthz|readyz', content, re.IGNORECASE))
@@ -500,9 +492,9 @@ class TestNodeHealthEndpoints:
         )
 
     @pytest.mark.parametrize("svc_name", list(NODE_SERVICES.keys()))
-    def test_node_uses_terminus_or_custom_health(self, svc_name):
+    def test_node_uses_terminus_or_custom_health(self, svc_name, node_src_cache):
         """Node.js service should use @nestjs/terminus or custom health module."""
-        content = self._get_all_src_content(svc_name)
+        content = node_src_cache.get(svc_name, "")
         if not content:
             pytest.skip(f"No source files found for {svc_name}")
         has_terminus = "terminus" in content.lower() or "TerminusModule" in content
@@ -1037,6 +1029,8 @@ class TestHealthSummaryStatistics:
         for svc_name, svc in compose_data["services"].items():
             for port_mapping in svc.get("ports", []):
                 port_str = str(port_mapping)
+                # Strip protocol suffix (e.g. /tcp, /udp) before parsing
+                port_str = re.sub(r"/\w+$", "", port_str)
                 parts = port_str.split(":")
                 if len(parts) >= 2:
                     host_port = parts[-2] if len(parts) == 3 else parts[0]

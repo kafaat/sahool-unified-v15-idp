@@ -25,21 +25,12 @@ from pydantic import BaseModel
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-# Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
-
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        return None
 
 
 logger = structlog.get_logger()

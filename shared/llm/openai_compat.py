@@ -13,8 +13,9 @@ Updated: January 2026
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, AsyncIterator
+from typing import Any
 
 from .config import OpenAICompatConfig, get_config
 from .provider import (

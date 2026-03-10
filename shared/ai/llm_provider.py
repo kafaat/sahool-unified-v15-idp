@@ -28,10 +28,11 @@ import logging
 import os
 import time
 from collections import OrderedDict
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, AsyncIterator
+from typing import Any
 
 from .audit import calculate_cost, get_audit_logger
 from .circuit_breaker import (
@@ -468,7 +469,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Ollama", LLMProvider.OLLAMA)
+            raise LLMProviderError("httpx required for Ollama", LLMProvider.OLLAMA) from None
 
         config = self.configs[LLMProvider.OLLAMA]
 
@@ -510,7 +511,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Anthropic", LLMProvider.ANTHROPIC)
+            raise LLMProviderError("httpx required for Anthropic", LLMProvider.ANTHROPIC) from None
 
         config = self.configs[LLMProvider.ANTHROPIC]
         if not config.api_key:
@@ -563,7 +564,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for OpenAI", LLMProvider.OPENAI)
+            raise LLMProviderError("httpx required for OpenAI", LLMProvider.OPENAI) from None
 
         config = self.configs[LLMProvider.OPENAI]
         if not config.api_key:
@@ -614,7 +615,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Google", LLMProvider.GOOGLE)
+            raise LLMProviderError("httpx required for Google", LLMProvider.GOOGLE) from None
 
         config = self.configs[LLMProvider.GOOGLE]
         if not config.api_key:
@@ -668,7 +669,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for DeepSeek", LLMProvider.DEEPSEEK)
+            raise LLMProviderError("httpx required for DeepSeek", LLMProvider.DEEPSEEK) from None
 
         config = self.configs[LLMProvider.DEEPSEEK]
         if not config.api_key:
@@ -1253,37 +1254,36 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Ollama streaming", LLMProvider.OLLAMA)
+            raise LLMProviderError("httpx required for Ollama streaming", LLMProvider.OLLAMA) from None
 
         config = self.configs[LLMProvider.OLLAMA]
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            async with client.stream(
-                "POST",
-                f"{config.base_url}/api/generate",
-                json={
-                    "model": config.model,
-                    "prompt": prompt,
-                    "system": system_prompt or "",
-                    "stream": True,
-                    "options": {
-                        "temperature": temperature,
-                        "num_predict": max_tokens,
-                    },
+        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
+            "POST",
+            f"{config.base_url}/api/generate",
+            json={
+                "model": config.model,
+                "prompt": prompt,
+                "system": system_prompt or "",
+                "stream": True,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_tokens,
                 },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if line.strip():
-                        try:
-                            data = json.loads(line)
-                            text = data.get("response", "")
-                            if text:
-                                yield text
-                            if data.get("done", False):
-                                return
-                        except json.JSONDecodeError:
-                            continue
+            },
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if line.strip():
+                    try:
+                        data = json.loads(line)
+                        text = data.get("response", "")
+                        if text:
+                            yield text
+                        if data.get("done", False):
+                            return
+                    except json.JSONDecodeError:
+                        continue
 
     async def _stream_anthropic(
         self, prompt: str, system_prompt: str | None, temperature: float, max_tokens: int
@@ -1292,46 +1292,45 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Anthropic streaming", LLMProvider.ANTHROPIC)
+            raise LLMProviderError("httpx required for Anthropic streaming", LLMProvider.ANTHROPIC) from None
 
         config = self.configs[LLMProvider.ANTHROPIC]
         if not config.api_key:
             raise LLMProviderError("Anthropic API key not set", LLMProvider.ANTHROPIC)
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            async with client.stream(
-                "POST",
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": config.api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": config.model,
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
-                    "system": system_prompt or "You are a helpful assistant.",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "stream": True,
-                },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str.strip() == "[DONE]":
-                        return
-                    try:
-                        data = json.loads(data_str)
-                        if data.get("type") == "content_block_delta":
-                            delta = data.get("delta", {})
-                            text = delta.get("text", "")
-                            if text:
-                                yield text
-                    except json.JSONDecodeError:
-                        continue
+        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
+            "POST",
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": config.api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": config.model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "system": system_prompt or "You are a helpful assistant.",
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": True,
+            },
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                if data_str.strip() == "[DONE]":
+                    return
+                try:
+                    data = json.loads(data_str)
+                    if data.get("type") == "content_block_delta":
+                        delta = data.get("delta", {})
+                        text = delta.get("text", "")
+                        if text:
+                            yield text
+                except json.JSONDecodeError:
+                    continue
 
     async def _stream_openai(
         self, prompt: str, system_prompt: str | None, temperature: float, max_tokens: int
@@ -1340,7 +1339,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for OpenAI streaming", LLMProvider.OPENAI)
+            raise LLMProviderError("httpx required for OpenAI streaming", LLMProvider.OPENAI) from None
 
         config = self.configs[LLMProvider.OPENAI]
         if not config.api_key:
@@ -1351,39 +1350,38 @@ class LLMProviderManager:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            async with client.stream(
-                "POST",
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {config.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": config.model,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                    "stream": True,
-                },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str.strip() == "[DONE]":
-                        return
-                    try:
-                        data = json.loads(data_str)
-                        choices = data.get("choices", [])
-                        if choices:
-                            delta = choices[0].get("delta", {})
-                            text = delta.get("content", "")
-                            if text:
-                                yield text
-                    except json.JSONDecodeError:
-                        continue
+        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
+            "POST",
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {config.api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": config.model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": True,
+            },
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                if data_str.strip() == "[DONE]":
+                    return
+                try:
+                    data = json.loads(data_str)
+                    choices = data.get("choices", [])
+                    if choices:
+                        delta = choices[0].get("delta", {})
+                        text = delta.get("content", "")
+                        if text:
+                            yield text
+                except json.JSONDecodeError:
+                    continue
 
     async def _stream_google(
         self, prompt: str, system_prompt: str | None, temperature: float, max_tokens: int
@@ -1392,7 +1390,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for Google streaming", LLMProvider.GOOGLE)
+            raise LLMProviderError("httpx required for Google streaming", LLMProvider.GOOGLE) from None
 
         config = self.configs[LLMProvider.GOOGLE]
         if not config.api_key:
@@ -1402,34 +1400,33 @@ class LLMProviderManager:
         if system_prompt:
             full_prompt = f"{system_prompt}\n\n{prompt}"
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            async with client.stream(
-                "POST",
-                f"https://generativelanguage.googleapis.com/v1/models/{config.model}:streamGenerateContent",
-                headers={"Content-Type": "application/json"},
-                params={"key": config.api_key, "alt": "sse"},
-                json={
-                    "contents": [{"parts": [{"text": full_prompt}]}],
-                    "generationConfig": {
-                        "temperature": temperature,
-                        "maxOutputTokens": max_tokens,
-                    },
+        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
+            "POST",
+            f"https://generativelanguage.googleapis.com/v1/models/{config.model}:streamGenerateContent",
+            headers={"Content-Type": "application/json"},
+            params={"key": config.api_key, "alt": "sse"},
+            json={
+                "contents": [{"parts": [{"text": full_prompt}]}],
+                "generationConfig": {
+                    "temperature": temperature,
+                    "maxOutputTokens": max_tokens,
                 },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    try:
-                        data = json.loads(data_str)
-                        for candidate in data.get("candidates", []):
-                            for part in candidate.get("content", {}).get("parts", []):
-                                text = part.get("text", "")
-                                if text:
-                                    yield text
-                    except json.JSONDecodeError:
-                        continue
+            },
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                try:
+                    data = json.loads(data_str)
+                    for candidate in data.get("candidates", []):
+                        for part in candidate.get("content", {}).get("parts", []):
+                            text = part.get("text", "")
+                            if text:
+                                yield text
+                except json.JSONDecodeError:
+                    continue
 
     async def _stream_deepseek(
         self, prompt: str, system_prompt: str | None, temperature: float, max_tokens: int
@@ -1438,7 +1435,7 @@ class LLMProviderManager:
         try:
             import httpx
         except ImportError:
-            raise LLMProviderError("httpx required for DeepSeek streaming", LLMProvider.DEEPSEEK)
+            raise LLMProviderError("httpx required for DeepSeek streaming", LLMProvider.DEEPSEEK) from None
 
         config = self.configs[LLMProvider.DEEPSEEK]
         if not config.api_key:
@@ -1451,39 +1448,38 @@ class LLMProviderManager:
 
         base_url = config.base_url or "https://api.deepseek.com"
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            async with client.stream(
-                "POST",
-                f"{base_url}/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {config.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": config.model,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                    "stream": True,
-                },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str.strip() == "[DONE]":
-                        return
-                    try:
-                        data = json.loads(data_str)
-                        choices = data.get("choices", [])
-                        if choices:
-                            delta = choices[0].get("delta", {})
-                            text = delta.get("content", "")
-                            if text:
-                                yield text
-                    except json.JSONDecodeError:
-                        continue
+        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
+            "POST",
+            f"{base_url}/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {config.api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": config.model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": True,
+            },
+        ) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                if data_str.strip() == "[DONE]":
+                    return
+                try:
+                    data = json.loads(data_str)
+                    choices = data.get("choices", [])
+                    if choices:
+                        delta = choices[0].get("delta", {})
+                        text = delta.get("content", "")
+                        if text:
+                            yield text
+                except json.JSONDecodeError:
+                    continue
 
     # ─────────────────────────────────────────────────────────────────────────
     # G-23: Cost Prediction and Tenant Budget Tracking

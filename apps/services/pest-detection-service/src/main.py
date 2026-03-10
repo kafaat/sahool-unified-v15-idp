@@ -154,6 +154,15 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # CORS middleware
 ALLOWED_ORIGINS = os.getenv(
     "CORS_ORIGINS",

@@ -18,7 +18,7 @@
 | Documentation Structure | LOW | Layer mismatches in SERVICES_MAP/CLAUDE.md |
 | NATS Event Architecture | WARNING | 272 defined, only 7 published (2.6%); 3 fragmented sources |
 | Knowledge Base | GOOD | 91 docs, 100% bilingual; 9 module topics undocumented |
-| Port Conflicts | OK | No conflicts detected |
+| Port Conflicts | OK | No conflicts; 3 code-contract mismatches |
 | Dockerfiles | OK | Only `migrations` missing (expected) |
 
 ---
@@ -251,9 +251,17 @@ Overlap between governance files: **only 3 events** (14% alignment):
 
 ## 9. Infrastructure (OK)
 
-- **Port Conflicts:** None detected
+- **Port Conflicts:** None detected across 65 services
 - **Dockerfiles:** All services have Dockerfiles except `migrations` (expected - utility only)
 - **CI Short SHA:** Fixed in this session (checkov-action)
+
+### 9.1 Port Contract Mismatches (3)
+
+| Service | Port | Issue |
+|---------|------|-------|
+| `task-service` | 8103 | Defined in code but **missing from** `service-ports.ts` |
+| `astronomical-calendar` | 8111 | Defined in code but **missing from** `service-ports.ts` |
+| `ussd-gateway` | 8183 | In contracts and Dockerfile, but `main.py` doesn't use `PORT` env var |
 
 ---
 
@@ -281,6 +289,8 @@ Overlap between governance files: **only 3 events** (14% alignment):
 11. Fix event architecture layer mismatches in SERVICES_MAP.md and CLAUDE.md
 12. Correct phantom port for `agro-rules` (NATS worker, no HTTP port)
 13. Audit 266 unused NATS event definitions - archive or implement
+14. Add `task-service` (8103) and `astronomical-calendar` (8111) to `service-ports.ts`
+15. Fix `ussd-gateway` main.py to use `PORT` env var
 
 ---
 

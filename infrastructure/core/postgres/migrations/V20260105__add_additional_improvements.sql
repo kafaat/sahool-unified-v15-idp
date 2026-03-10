@@ -38,13 +38,14 @@ BEGIN
                 AND table_name = 'inventory_items' 
                 AND column_name = 'supplier_id'
             ) THEN
-                ALTER TABLE inventory_items 
-                ADD CONSTRAINT fk_inventory_items_supplier 
-                FOREIGN KEY (supplier_id) 
-                REFERENCES suppliers(id) 
-                ON DELETE SET NULL;
-                
-                RAISE NOTICE '✅ Added FK: inventory_items -> suppliers';
+                ALTER TABLE inventory_items
+                ADD CONSTRAINT fk_inventory_items_supplier
+                FOREIGN KEY (supplier_id)
+                REFERENCES suppliers(id)
+                ON DELETE SET NULL NOT VALID;
+                ALTER TABLE inventory_items VALIDATE CONSTRAINT fk_inventory_items_supplier;
+
+                RAISE NOTICE '✅ Added FK: inventory_items -> suppliers (NOT VALID + VALIDATE)';
             END IF;
         END IF;
         
@@ -64,13 +65,14 @@ BEGIN
                 AND table_name = 'inventory_items' 
                 AND column_name = 'warehouse_id'
             ) THEN
-                ALTER TABLE inventory_items 
-                ADD CONSTRAINT fk_inventory_items_warehouse 
-                FOREIGN KEY (warehouse_id) 
-                REFERENCES inventory_warehouses(id) 
-                ON DELETE RESTRICT;
-                
-                RAISE NOTICE '✅ Added FK: inventory_items -> inventory_warehouses';
+                ALTER TABLE inventory_items
+                ADD CONSTRAINT fk_inventory_items_warehouse
+                FOREIGN KEY (warehouse_id)
+                REFERENCES inventory_warehouses(id)
+                ON DELETE RESTRICT NOT VALID;
+                ALTER TABLE inventory_items VALIDATE CONSTRAINT fk_inventory_items_warehouse;
+
+                RAISE NOTICE '✅ Added FK: inventory_items -> inventory_warehouses (NOT VALID + VALIDATE)';
             END IF;
         END IF;
         
@@ -90,13 +92,14 @@ BEGIN
                 AND table_name = 'inventory_items' 
                 AND column_name = 'category_id'
             ) THEN
-                ALTER TABLE inventory_items 
-                ADD CONSTRAINT fk_inventory_items_category 
-                FOREIGN KEY (category_id) 
-                REFERENCES inventory_categories(id) 
-                ON DELETE SET NULL;
-                
-                RAISE NOTICE '✅ Added FK: inventory_items -> inventory_categories';
+                ALTER TABLE inventory_items
+                ADD CONSTRAINT fk_inventory_items_category
+                FOREIGN KEY (category_id)
+                REFERENCES inventory_categories(id)
+                ON DELETE SET NULL NOT VALID;
+                ALTER TABLE inventory_items VALIDATE CONSTRAINT fk_inventory_items_category;
+
+                RAISE NOTICE '✅ Added FK: inventory_items -> inventory_categories (NOT VALID + VALIDATE)';
             END IF;
         END IF;
     END IF;

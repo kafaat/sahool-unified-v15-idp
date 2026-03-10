@@ -372,13 +372,14 @@ CREATE INDEX idx_edge_jobs_pending ON edge_jobs(device_id, created_at) WHERE sta
 -- Note: The 'fields' table is assumed to exist in the database
 -- ملاحظة: يُفترض وجود جدول 'fields' في قاعدة البيانات
 
--- yolo26_detections -> fields
+-- yolo26_detections -> fields (NOT VALID to avoid full table scan during migration)
 ALTER TABLE yolo26_detections
     ADD CONSTRAINT fk_yolo26_detections_field
     FOREIGN KEY (field_id)
     REFERENCES fields(id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE;
+    ON UPDATE CASCADE NOT VALID;
+ALTER TABLE yolo26_detections VALIDATE CONSTRAINT fk_yolo26_detections_field;
 
 -- terrain_analyses -> fields
 ALTER TABLE terrain_analyses
@@ -386,7 +387,8 @@ ALTER TABLE terrain_analyses
     FOREIGN KEY (field_id)
     REFERENCES fields(id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE;
+    ON UPDATE CASCADE NOT VALID;
+ALTER TABLE terrain_analyses VALIDATE CONSTRAINT fk_terrain_analyses_field;
 
 -- hydrology_analyses -> terrain_analyses
 ALTER TABLE hydrology_analyses
@@ -394,7 +396,8 @@ ALTER TABLE hydrology_analyses
     FOREIGN KEY (terrain_analysis_id)
     REFERENCES terrain_analyses(analysis_id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE;
+    ON UPDATE CASCADE NOT VALID;
+ALTER TABLE hydrology_analyses VALIDATE CONSTRAINT fk_hydrology_analyses_terrain;
 
 -- edge_jobs -> edge_devices
 ALTER TABLE edge_jobs
@@ -402,29 +405,33 @@ ALTER TABLE edge_jobs
     FOREIGN KEY (device_id)
     REFERENCES edge_devices(device_id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE;
+    ON UPDATE CASCADE NOT VALID;
+ALTER TABLE edge_jobs VALIDATE CONSTRAINT fk_edge_jobs_device;
 
 -- ============================================================================
 -- ADDITIONAL CONSTRAINTS | قيود إضافية
 -- ============================================================================
 
--- Ensure bounding box coordinates are valid
+-- Ensure bounding box coordinates are valid (NOT VALID to avoid full scan)
 -- التأكد من صحة إحداثيات مربع الإحاطة
 ALTER TABLE yolo26_detections
     ADD CONSTRAINT chk_yolo26_bbox_valid
-    CHECK (bbox_x_min <= bbox_x_max AND bbox_y_min <= bbox_y_max);
+    CHECK (bbox_x_min <= bbox_x_max AND bbox_y_min <= bbox_y_max) NOT VALID;
+ALTER TABLE yolo26_detections VALIDATE CONSTRAINT chk_yolo26_bbox_valid;
 
 -- Ensure elevation range is consistent
 -- التأكد من اتساق نطاق الارتفاع
 ALTER TABLE terrain_analyses
     ADD CONSTRAINT chk_terrain_elevation_valid
-    CHECK (elevation_min <= elevation_mean AND elevation_mean <= elevation_max);
+    CHECK (elevation_min <= elevation_mean AND elevation_mean <= elevation_max) NOT VALID;
+ALTER TABLE terrain_analyses VALIDATE CONSTRAINT chk_terrain_elevation_valid;
 
 -- Ensure DEM resolution is positive
 -- التأكد من أن دقة DEM موجبة
 ALTER TABLE terrain_analyses
     ADD CONSTRAINT chk_terrain_dem_resolution_positive
-    CHECK (dem_resolution_m > 0);
+    CHECK (dem_resolution_m > 0) NOT VALID;
+ALTER TABLE terrain_analyses VALIDATE CONSTRAINT chk_terrain_dem_resolution_positive;
 
 -- Ensure job timestamps are logical
 -- التأكد من منطقية الطوابع الزمنية للمهام
@@ -433,7 +440,8 @@ ALTER TABLE edge_jobs
     CHECK (
         (started_at IS NULL OR started_at >= created_at) AND
         (completed_at IS NULL OR (started_at IS NOT NULL AND completed_at >= started_at))
-    );
+    ) NOT VALID;
+ALTER TABLE edge_jobs VALIDATE CONSTRAINT chk_edge_jobs_timestamps_valid;
 
 -- ============================================================================
 -- GRANTS (adjust roles as needed) | الصلاحيات (تعديل الأدوار حسب الحاجة)

@@ -296,12 +296,12 @@ class TestParcelPostProcessor:
 
     def test_calculate_area(self):
         """Test area calculation"""
-        # ~1 degree square near equator ≈ 12,300 km² ≈ 1,230,000 ha
+        # 0.01 degree ≈ 1113m at equator, so 0.01° × 0.01° ≈ 1113² m² ≈ 123.9 ha
         coords = [(0.0, 0.0), (0.01, 0.0), (0.01, 0.01), (0.0, 0.01)]
         area = self.processor._calculate_area(coords)
         assert area > 0
-        # Should be roughly 1.24 hectares for 0.01 degree square
-        assert 0.5 < area < 5.0
+        # Should be roughly 123.9 hectares for 0.01 degree square at equator
+        assert 100 < area < 150
 
     def test_remove_overlapping(self):
         """Test overlapping parcel removal"""

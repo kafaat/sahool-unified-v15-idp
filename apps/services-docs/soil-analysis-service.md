@@ -138,6 +138,14 @@ The service uses asyncpg for database connections and a standard NATS client. Bo
 
 ---
 
+## Security
+
+- **Authentication**: DELETE endpoints (`DELETE /tests/{test_id}`) require JWT authentication via `get_current_user` dependency
+- Auth fallback uses `HTTPBearer` scheme when `shared.auth` is unavailable
+- Multi-tenant isolation via `tenant_id` scoping
+- TLS enforced for database connections in non-development environments
+- Unified error handling via `shared.errors_py`
+
 ## Related Services
 
 - **advisory-service** (8093) — Consumes amendment plans as recommendations

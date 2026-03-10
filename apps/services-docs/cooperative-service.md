@@ -135,10 +135,12 @@ FastAPI Application
 
 ## Security
 
+- **Authentication**: DELETE endpoints (`DELETE /{coop_id}`, `DELETE /{coop_id}/members/{member_id}`) require JWT authentication via `get_current_user` dependency
 - Multi-tenant isolation enforced via `tenant_id` scoping on all queries
 - `X-Tenant-Id` header required on all protected endpoints
 - TLS enforced for database connections in non-development environments (`sslmode=require`)
 - Non-root container user (UID 1000)
+- Unified error handling via `shared.errors_py` (`setup_exception_handlers`, `add_request_id_middleware`)
 
 ---
 

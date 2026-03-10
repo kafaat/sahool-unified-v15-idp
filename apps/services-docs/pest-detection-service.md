@@ -161,6 +161,13 @@ GET /metrics  → Prometheus: pests_identified_total, alerts_generated_total, th
 
 Resource requests: 300m CPU / 512 Mi memory. Limits: 800m CPU / 1 Gi memory. Replicas: 2 for high availability.
 
+## Security
+
+- **Authentication**: DELETE endpoints (`DELETE /scouts/reports/{report_id}`) require JWT authentication via `get_current_user` dependency
+- Auth fallback uses `HTTPBearer` scheme when `shared.auth` is unavailable
+- Multi-tenant isolation via `tenant_id` scoping
+- Unified error handling via `shared.errors_py`
+
 ## Admin Integration Notes
 
 - The admin portal's pest monitoring dashboard should call `GET /api/v1/alerts` filtered by severity to display active pest alerts across all farms.

@@ -553,11 +553,11 @@ _v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
+        _old_path = "/v1" + _path[len(_v1_prefix) :]
         app.router.add_api_route(
             _old_path,
             _route.endpoint,
-            methods=[m for m in _route.methods] if _route.methods else ["GET"],
+            methods=list(_route.methods) if _route.methods else ["GET"],
             tags=["deprecated"],
             include_in_schema=False,
             deprecated=True,

@@ -215,12 +215,16 @@ Tests run automatically on:
 
 ### CI Gates
 
-| Gate        | Requirement                |
-| ----------- | -------------------------- |
-| Lint        | Ruff format and check pass |
-| Unit Tests  | All tests pass             |
-| Coverage    | ≥ 60%                      |
-| Integration | API contracts valid        |
+| Gate        | Requirement                                    |
+| ----------- | ---------------------------------------------- |
+| Lint        | Ruff check must pass (failures block merge)    |
+| Unit Tests  | All tests must pass (no `\|\| true` masking)   |
+| Coverage    | ≥ 5% (incrementally raising from baseline)     |
+| Integration | API contracts valid                            |
+
+> **Note (March 2026):** Coverage threshold was raised from 1% to 5%. The target is 60% but
+> enforcement is incremental as test coverage expands across all 72 services. Test failures
+> now properly fail the CI pipeline (previously masked with `|| true`).
 
 ## Test Categories
 

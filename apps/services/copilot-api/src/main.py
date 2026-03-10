@@ -172,6 +172,15 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Setup unified error handling
+    try:
+        from shared.errors_py import add_request_id_middleware as _add_req_id, setup_exception_handlers as _setup_exc
+
+        _setup_exc(app)
+        _add_req_id(app)
+    except ImportError:
+        pass
+
     # CORS middleware
     app.add_middleware(
         CORSMiddleware,

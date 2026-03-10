@@ -40,7 +40,6 @@ from src.agricultural_land_detector import (
     VectorClassificationEngine,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -404,7 +403,12 @@ class TestParcelPostProcessor:
 
     def test_calculate_area(self):
         # ~100m x 100m square
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         area = self.processor._calculate_area(coords)
         assert area > 0
         assert 0.5 < area < 2.0  # ~1 hectare
@@ -444,8 +448,13 @@ class TestVectorClassificationEngine:
     async def test_classify_parcels(self):
         parcels = [
             make_parcel("p1", mean_ndvi=0.65, mean_evi=0.4, compactness=0.8),
-            make_parcel("p2", mean_ndvi=0.1, mean_evi=0.05, compactness=0.3,
-                        land_cover=LandCoverClass.UNKNOWN),
+            make_parcel(
+                "p2",
+                mean_ndvi=0.1,
+                mean_evi=0.05,
+                compactness=0.3,
+                land_cover=LandCoverClass.UNKNOWN,
+            ),
         ]
         classified = await self.engine.classify_parcels(parcels)
         assert len(classified) == 2
@@ -574,8 +583,13 @@ class TestTopologyPreservingSimplifier:
         assert len(result[0].coordinates) <= len(coords)
 
     def test_simplify_preserves_area(self):
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.2015, 15.5005),
-                   (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.2015, 15.5005),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         parcel = make_parcel("area_test", coords=coords, area=1.0)
         result = self.simplifier.simplify_with_topology([parcel])
         # Area shouldn't change more than 5%
@@ -678,9 +692,7 @@ class TestParcelEditingTools:
         assert merged.mean_ndvi is not None
 
     def test_merge_three_parcels(self):
-        parcels = [
-            make_parcel(f"p{i}", area=1.0 + i * 0.5) for i in range(3)
-        ]
+        parcels = [make_parcel(f"p{i}", area=1.0 + i * 0.5) for i in range(3)]
         ids = [f"p{i}" for i in range(3)]
         merged = self.tools.merge_parcels(parcels, ids)
         assert merged is not None
@@ -786,9 +798,7 @@ class TestQualityInspectionTool:
         self.tool = QualityInspectionTool()
 
     def test_inspect_valid_parcel(self):
-        parcel = make_parcel(
-            area=1.0, compactness=0.7, elongation=2.0, confidence=0.8
-        )
+        parcel = make_parcel(area=1.0, compactness=0.7, elongation=2.0, confidence=0.8)
         result = self.tool.inspect_all([parcel])
         assert result["total_parcels"] == 1
         assert result["passed"] == 1
@@ -863,12 +873,9 @@ class TestQualityInspectionTool:
 
     def test_get_statistics(self):
         parcels = [
-            make_parcel("p1", area=2.0, crop_type="wheat",
-                        land_cover=LandCoverClass.CROPLAND),
-            make_parcel("p2", area=3.0, crop_type="barley",
-                        land_cover=LandCoverClass.CROPLAND),
-            make_parcel("p3", area=1.0, crop_type="wheat",
-                        land_cover=LandCoverClass.GRASSLAND),
+            make_parcel("p1", area=2.0, crop_type="wheat", land_cover=LandCoverClass.CROPLAND),
+            make_parcel("p2", area=3.0, crop_type="barley", land_cover=LandCoverClass.CROPLAND),
+            make_parcel("p3", area=1.0, crop_type="wheat", land_cover=LandCoverClass.GRASSLAND),
         ]
         stats = self.tool.get_statistics(parcels)
         assert stats["total_parcels"] == 3
@@ -979,7 +986,12 @@ class TestAgriculturalLandDetector:
         assert bounds["east"] > bounds["west"]
 
     def test_polygon_to_parcel(self):
-        polygon = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        polygon = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         image, bounds = make_synthetic_image()
         parcel = self.detector._polygon_to_parcel(polygon, 0, bounds, image)
         assert isinstance(parcel, AgriculturalParcel)
@@ -994,7 +1006,12 @@ class TestAgriculturalLandDetector:
         assert 110000 < dist < 112000
 
     def test_calculate_perimeter(self):
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         perimeter = self.detector._calculate_perimeter(coords)
         assert perimeter > 0
         assert 300 < perimeter < 600  # ~400m for ~100m square
@@ -1063,8 +1080,6 @@ class TestIntegration:
 
         if report.total_parcels > 0:
             ids = [p.parcel_id for p in report.parcels]
-            count = detector.quality_inspector.batch_assign_attribute(
-                report.parcels, ids, "crop_type", "wheat"
-            )
+            count = detector.quality_inspector.batch_assign_attribute(report.parcels, ids, "crop_type", "wheat")
             assert count == len(report.parcels)
             assert all(p.crop_type == "wheat" for p in report.parcels)

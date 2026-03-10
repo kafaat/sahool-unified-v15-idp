@@ -70,31 +70,60 @@ log() {
   fi
 }
 
-# Function to execute query against PgBouncer admin console
-# Uses psql if available (preferred), falls back to netcat TCP check
-# NOTE: PgBouncer's virtual "pgbouncer" database only accepts admin_users/stats_users.
-# We try the stats user first, then the main DB user, then fall back to TCP check.
-execute_query() {
+# Resolve the PgBouncer admin/stats user for admin console queries.
+# Prefer an explicit PGBOUNCER_STATS_USER, then first STATS_USERS entry,
+# then first ADMIN_USERS entry, and finally a hard-coded default.
+resolve_admin_user() {
+  if [ -n "${PGBOUNCER_STATS_USER:-}" ]; then
+    printf '%s' "$PGBOUNCER_STATS_USER"
+  elif [ -n "${STATS_USERS:-}" ]; then
+    printf '%s' "$STATS_USERS" | cut -d',' -f1
+  elif [ -n "${ADMIN_USERS:-}" ]; then
+    printf '%s' "$ADMIN_USERS" | cut -d',' -f1
+  else
+    printf '%s' "pgbouncer_admin"
+  fi
+}
+
+# Execute a query against the PgBouncer admin console (SHOW POOLS, SHOW CONFIG, etc.)
+# Only succeeds when the admin/stats user can connect to the virtual "pgbouncer" database.
+# Falls back to TCP check when psql is not available.
+execute_admin_query() {
   _query=$1
   if command -v psql >/dev/null 2>&1; then
-    # Try stats user first (can run SHOW POOLS, SHOW STATS, etc.)
-    _stats_user="${ADMIN_USERS:-pgbouncer_admin}"
+    _stats_user=$(resolve_admin_user)
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
+    # Use explicit || return 1 to prevent set -e from exiting the script
+    # when psql fails, allowing callers to handle the failure gracefully
     PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null && return 0
-
-    # Try main DB user connecting to actual database (not pgbouncer admin db)
-    # This verifies end-to-end connectivity through PgBouncer to PostgreSQL
-    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$POSTGRES_USER" -d "${DB_NAME:-sahool}" -t -A -c "SELECT 1" 2>/dev/null && return 0
-
-    # psql available but queries failed - return failure
-    return 1
+      -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
+    return 0
   else
     # Fallback: basic TCP connectivity check
     # edoburu/pgbouncer Alpine image may not have psql
-    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null
-    return $?
+    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null || return 1
+    return 0
+  fi
+}
+
+# Check basic connectivity: try admin console first, then end-to-end through PgBouncer.
+# This is used only for the initial connectivity probe (Check 1).
+check_connectivity() {
+  if command -v psql >/dev/null 2>&1; then
+    # Try admin console SELECT 1
+    _stats_user=$(resolve_admin_user)
+    _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
+    PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+      -U "$_stats_user" -d pgbouncer -t -A -c "SELECT 1" 2>/dev/null && return 0
+
+    # Try end-to-end: main DB user connecting through PgBouncer to PostgreSQL
+    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+      -U "$POSTGRES_USER" -d "${DB_NAME:-sahool}" -t -A -c "SELECT 1" 2>/dev/null && return 0
+
+    return 1
+  else
+    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null || return 1
+    return 0
   fi
 }
 
@@ -108,7 +137,7 @@ fi
 log "${YELLOW}Checking PgBouncer connectivity...${NC}"
 if [ "$HAS_PSQL" = "true" ]; then
   # Deep check: try admin console or end-to-end query through PgBouncer
-  if ! execute_query "SELECT 1" >/dev/null; then
+  if ! check_connectivity >/dev/null; then
     if [ "$JSON_OUTPUT" = "true" ]; then
       echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
     else
@@ -138,7 +167,7 @@ log "${GREEN}✓ PgBouncer is reachable${NC}"
 
 # Check 2: Pool status
 log "${YELLOW}Checking pool status...${NC}"
-POOL_DATA=$(execute_query "SHOW POOLS;" 2>/dev/null || echo "")
+POOL_DATA=$(execute_admin_query "SHOW POOLS;" 2>/dev/null || echo "")
 if [ -z "$POOL_DATA" ]; then
   if [ "$JSON_OUTPUT" = "true" ]; then
     echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false}}'
@@ -232,7 +261,7 @@ fi
 
 # Check 3: Configuration verification
 log "${YELLOW}Checking configuration...${NC}"
-CONFIG_DATA=$(execute_query "SHOW CONFIG;" 2>/dev/null || echo "")
+CONFIG_DATA=$(execute_admin_query "SHOW CONFIG;" 2>/dev/null || echo "")
 if [ -n "$CONFIG_DATA" ]; then
   log "${GREEN}✓ Configuration accessible${NC}"
 

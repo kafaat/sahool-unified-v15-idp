@@ -23,7 +23,7 @@
 
 ## Overview
 
-The SAHOOL platform utilizes **Kong API Gateway** as the central entry point for all microservices. Kong provides a unified interface for managing authentication, rate limiting, load balancing, health monitoring, and traffic routing across 31 microservices.
+The SAHOOL platform utilizes **Kong API Gateway** as the central entry point for all microservices. Kong provides a unified interface for managing authentication, rate limiting, load balancing, health monitoring, and traffic routing across 73 microservices.
 
 ### Key Features
 
@@ -32,7 +32,7 @@ The SAHOOL platform utilizes **Kong API Gateway** as the central entry point for
 - **Rate Limiting**: Tiered rate limits based on service criticality
 - **JWT Authentication**: RS256 algorithm with consumer-based access control
 - **Load Balancing**: Weighted round-robin with automatic failover
-- **Service Discovery**: 31 upstream services with health-based routing
+- **Service Discovery**: 73 upstream services with health-based routing
 
 ### Architecture Benefits
 
@@ -100,14 +100,14 @@ Kong operates in **declarative (DB-less) mode** using a configuration file (`kon
 
 ## Service Catalog
 
-### Complete Service Registry (31 Services)
+### Complete Service Registry (73 Services)
 
 #### Core Services (Field Operations)
 
 | Service             | Port | Routes                                                   | Description                      |
 | ------------------- | ---- | -------------------------------------------------------- | -------------------------------- |
-| `field-ops`         | 8080 | `/api/v1/fields`, `/api/v1/tasks`, `/api/v1/assignments` | Field & Task Management          |
-| `field-core`        | 3000 | `/api/v1/field-core/*`                                   | Core Field Operations            |
+| `field-ops`         | 8080 | `/api/v1/fields`, `/api/v1/tasks`, `/api/v1/assignments` | **DEPRECATED** — use `field-management-service` (3000) |
+| `field-core`        | 3000 | `/api/v1/field-core/*`                                   | **DEPRECATED** — use `field-management-service` (3000) |
 | `task-service`      | 8103 | `/api/v1/task/*`                                         | Task Management Service          |
 | `equipment-service` | 8101 | `/api/v1/equipment/*`                                    | Equipment & Machinery Management |
 
@@ -115,10 +115,10 @@ Kong operates in **declarative (DB-less) mode** using a configuration file (`kon
 
 | Service             | Port | Routes                                       | Description                       |
 | ------------------- | ---- | -------------------------------------------- | --------------------------------- |
-| `ndvi-engine`       | 8107 | `/api/v1/ndvi`, `/api/v1/satellite`          | Satellite Imagery & NDVI Analysis |
-| `crop-health-ai`    | 8095 | `/api/v1/crop-health/*`                      | AI-Powered Crop Health Detection  |
-| `agro-advisor`      | 8105 | `/api/v1/advisor`, `/api/v1/recommendations` | AI Agricultural Recommendations   |
-| `yield-engine`      | 8098 | `/api/v1/yield/*`                            | Yield Prediction Engine           |
+| `ndvi-engine`       | 8107 | `/api/v1/ndvi`, `/api/v1/satellite`          | **DEPRECATED** — use `vegetation-analysis-service` (8090) |
+| `crop-health-ai`    | 8095 | `/api/v1/crop-health/*`                      | **DEPRECATED** — use `crop-intelligence-service` (8095) |
+| `agro-advisor`      | 8105 | `/api/v1/advisor`, `/api/v1/recommendations` | **DEPRECATED** — use `advisory-service` (8093) |
+| `yield-engine`      | 8098 | `/api/v1/yield/*`                            | **DEPRECATED** — use `yield-prediction-service` (8152) |
 | `lai-estimation`    | 3022 | `/api/v1/lai/*`                              | Leaf Area Index Estimation        |
 | `yield-prediction`  | 3021 | `/api/v1/yield-prediction/*`                 | Advanced Yield Forecasting        |
 | `crop-growth-model` | 3023 | `/api/v1/crop-growth/*`                      | Crop Growth Modeling              |
@@ -135,8 +135,8 @@ Kong operates in **declarative (DB-less) mode** using a configuration file (`kon
 
 | Service                | Port | Routes                             | Description                   |
 | ---------------------- | ---- | ---------------------------------- | ----------------------------- |
-| `field-chat`           | 8099 | `/api/v1/chat`, `/api/v1/messages` | Real-time Team Collaboration  |
-| `community-chat`       | 8097 | `/api/v1/community-chat/*`         | Community Discussion Platform |
+| `field-chat`           | 8099 | `/api/v1/chat`, `/api/v1/messages` | **DEPRECATED** — use `chat-service` (8115) |
+| `community-chat`       | 8097 | `/api/v1/community-chat/*`         | **DEPRECATED** — use `chat-service` (8115) |
 | `ws-gateway`           | 8081 | `/ws/*`                            | WebSocket Real-time Events    |
 | `notification-service` | 8110 | `/api/v1/notifications/*`          | Push Notification Service     |
 
@@ -378,7 +378,7 @@ weather-core:
 
 ### Standardized Health Checks
 
-All 31 services expose standardized health endpoints:
+All 73 services expose standardized health endpoints:
 
 ```
 /healthz - Unified health check endpoint
@@ -445,7 +445,7 @@ healthchecks:
 
 ### Rate Limiting Policies
 
-Kong uses **local** rate limiting policy with per-consumer tracking:
+Kong uses **Redis-based distributed** rate limiting (policy: `redis`) with per-consumer tracking:
 
 ```yaml
 plugins:
@@ -453,7 +453,7 @@ plugins:
     config:
       minute: <requests_per_minute>
       hour: <requests_per_hour>
-      policy: local
+      policy: redis
 ```
 
 ### Service-Specific Limits
@@ -472,7 +472,7 @@ For internal services requiring higher limits:
 
 1. Use the `sahool-internal-service` consumer
 2. Configure custom rate limits per service
-3. Implement Redis-based distributed rate limiting (future)
+3. Redis-based distributed rate limiting is already configured (policy: `redis`)
 
 ---
 
@@ -585,12 +585,12 @@ Kong automatically returns standard HTTP errors:
    - `ws-gateway`: 8089 → 8081
    - `crop-growth-model`: 3000 → 3023
 2. **New Services Added**: 7 services added to Kong configuration
-3. **Total Upstreams**: 31 services now managed by Kong
+3. **Total Upstreams**: 73 services now managed by Kong
 
 ### Documentation
 
 - Added centralized CORS configuration documentation
-- Updated service catalog with all 31 services
+- Updated service catalog with all 73 services
 - Enhanced security section with IoT validation details
 
 ---
@@ -641,5 +641,5 @@ curl http://localhost:8001/upstreams/{upstream-name}/health
 <p align="center">
   <strong>SAHOOL API Gateway v16.0.1</strong><br>
   Last Updated: December 24, 2024<br>
-  <sub>31 Microservices | Enterprise Security | Production Ready</sub>
+  <sub>73 Microservices | Enterprise Security | Production Ready</sub>
 </p>

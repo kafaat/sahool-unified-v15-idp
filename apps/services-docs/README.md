@@ -106,9 +106,9 @@ export function useUpdateField() {
 | marketplace-service | 3010 | /api/v1/marketplace | [marketplace-service.md](./marketplace-service.md) | Marketplace |
 | research-core | 3015 | /api/v1/research | [research-core.md](./research-core.md) | Research Trials |
 | disaster-assessment | 3020 | /api/v1/disaster | [disaster-assessment.md](./disaster-assessment.md) | Disaster Reports |
-| chat-service | 8114 | /api/v1/chat | [chat-service.md](./chat-service.md) | Chat Management |
+| chat-service | 8115 | /api/v1/chat | [chat-service.md](./chat-service.md) | Chat Management |
 | iot-service | 8117 | /api/v1/iot | [iot-service.md](./iot-service.md) | IoT Dashboard |
-| community-chat | 8097 | /api/v1/community | [community-chat.md](./community-chat.md) | DEPRECATED |
+| community-chat *(deprecated)* | 8097 | /api/v1/community | [community-chat.md](./community-chat.md) | DEPRECATED |
 
 ### Python Services (FastAPI)
 
@@ -124,13 +124,13 @@ export function useUpdateField() {
 | crop-intelligence-service | 8095 | /api/v1/crop-health | [crop-intelligence-service.md](./crop-intelligence-service.md) | Crop Health |
 | virtual-sensors | 8119 | /api/v1/virtual-sensors | [virtual-sensors.md](./virtual-sensors.md) | Virtual Sensors |
 | yield-prediction-service | 8152 | /api/v1/yield | [yield-prediction-service.md](./yield-prediction-service.md) | Yield Forecasts |
-| field-chat | 8099 | /api/v1/field-chat | [field-chat.md](./field-chat.md) | Field Chat |
+| field-chat *(deprecated)* | 8099 | /api/v1/field-chat | [field-chat.md](./field-chat.md) | DEPRECATED |
 | equipment-service | 8101 | /api/v1/equipment | [equipment-service.md](./equipment-service.md) | Equipment Mgmt |
 | task-service | 8103 | /api/v1/tasks | [task-service.md](./task-service.md) | Task Management |
 | provider-config | 8104 | /api/v1/provider-config | [provider-config.md](./provider-config.md) | Provider Config |
-| agro-advisor | 8105 | /api/v1/agro-advisor | [agro-advisor.md](./agro-advisor.md) | DEPRECATED |
+| agro-advisor *(deprecated)* | 8105 | /api/v1/agro-advisor | [agro-advisor.md](./agro-advisor.md) | DEPRECATED |
 | iot-gateway | 8106 | /api/v1/iot-gateway | [iot-gateway.md](./iot-gateway.md) | IoT Gateway |
-| weather-core | 8108 | /api/v1/weather-core | [weather-core.md](./weather-core.md) | DEPRECATED |
+| weather-core *(deprecated)* | 8108 | /api/v1/weather-core | [weather-core.md](./weather-core.md) | DEPRECATED |
 | notification-service | 8110 | /api/v1/notifications | [notification-service.md](./notification-service.md) | Notifications |
 | astronomical-calendar | 8111 | /api/v1/astronomy | [astronomical-calendar.md](./astronomical-calendar.md) | Calendar |
 | ai-advisor | 8112 | /api/v1/ai-advisor | [ai-advisor.md](./ai-advisor.md) | AI Advisor |
@@ -142,6 +142,10 @@ export function useUpdateField() {
 | crm-service | 8131 | /api/v1/crm | [crm-service.md](./crm-service.md) | CRM Dashboard |
 | lowcode-engine | 8132 | /api/v1/lowcode | [lowcode-engine.md](./lowcode-engine.md) | Low-Code Builder |
 | ai-agents-service | 8130 | /api/v1/ai-agents-service | [ai-agents-service.md](./ai-agents-service.md) | AI Agents |
+| copilot-api | 8088 | /api/v1/copilot | - | AI Copilot (multi-LLM, RAG) |
+| ai-chat-assistant | 8260 | /api/v1/ai-chat | - | AI Chat Assistant |
+| code-fix-agent | 8162 | /api/v1/code-fix | - | Code Fix AI Agent |
+| ground-vision-service | 8182 | /api/v1/ground-vision | - | Ground-level Vision Analysis |
 | mcp-server | 8200 | /api/v1/mcp | [mcp-server.md](./mcp-server.md) | MCP Protocol |
 | agro-rules | N/A | NATS-only | [agro-rules.md](./agro-rules.md) | N/A (Worker) |
 
@@ -153,8 +157,8 @@ export function useUpdateField() {
 
 | Service | Kong Config | Docker Config | Code Default | Fix Required |
 |---------|-------------|---------------|--------------|--------------|
-| yield-prediction-service | 8098 | 8152 | 8098 | Update Kong to 8152 |
-| chat-service | 8000 | 8114 | 8114 | Update Kong to 8114 |
+| yield-prediction-service | 8152 | 8152 | 8152 | Fixed - all aligned to 8152 |
+| chat-service | 8000 | 8115 | 8115 | Update Kong to 8115 |
 | skills-service | 8121 | 8121 | 8170 | Update code to 8121 |
 | code-review-service | 8102 | 8102 | 8096 | Update code to 8102 |
 

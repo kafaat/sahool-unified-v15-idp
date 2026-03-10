@@ -12,7 +12,7 @@
 
 | Category         | Current Paths | Target                       | Action Required |
 | ---------------- | ------------- | ---------------------------- | --------------- |
-| Backend Services | 4 locations   | 1 (`kernel-services-v15.3/`) | Archive 3       |
+| Backend Services | 4 locations   | 1 (`apps/services/`) | Archive 3       |
 | Frontend         | 3 locations   | 2 (`web/`, `web_admin/`)     | Archive 1       |
 | Domain Logic     | 3 locations   | Merge into services          | Archive/Merge   |
 
@@ -24,22 +24,22 @@
 
 | Service              | Path                                          | Port | Status  |
 | -------------------- | --------------------------------------------- | ---- | ------- |
-| crop-growth-model    | `kernel-services-v15.3/crop-growth-model/`    | 3023 | ✅ KEEP |
-| disaster-assessment  | `kernel-services-v15.3/disaster-assessment/`  | 3020 | ✅ KEEP |
-| lai-estimation       | `kernel-services-v15.3/lai-estimation/`       | 3022 | ✅ KEEP |
-| yield-prediction     | `kernel-services-v15.3/yield-prediction/`     | 3021 | ✅ KEEP |
-| marketplace-service  | `kernel-services-v15.3/marketplace-service/`  | 3010 | ✅ KEEP |
-| crop-health-ai       | `kernel-services-v15.3/crop-health-ai/`       | 8095 | ✅ KEEP |
-| virtual-sensors      | `kernel-services-v15.3/virtual-sensors/`      | 8096 | ✅ KEEP |
-| community-chat       | `kernel-services-v15.3/community-chat/`       | 8097 | ✅ KEEP |
-| yield-engine         | `kernel-services-v15.3/yield-engine/`         | 8098 | ✅ KEEP |
-| irrigation-smart     | `kernel-services-v15.3/irrigation-smart/`     | 8094 | ✅ KEEP |
-| fertilizer-advisor   | `kernel-services-v15.3/fertilizer-advisor/`   | 8093 | ✅ KEEP |
-| indicators-service   | `kernel-services-v15.3/indicators-service/`   | 8091 | ✅ KEEP |
-| satellite-service    | `kernel-services-v15.3/satellite-service/`    | 8090 | ✅ KEEP |
-| weather-advanced     | `kernel-services-v15.3/weather-advanced/`     | 8092 | ✅ KEEP |
-| notification-service | `kernel-services-v15.3/notification-service/` | 8110 | ✅ KEEP |
-| iot-service          | `kernel-services-v15.3/iot-service/`          | 8106 | ✅ KEEP |
+| crop-growth-model    | `apps/services/crop-growth-model/`    | 3023 | ✅ KEEP |
+| disaster-assessment  | `apps/services/disaster-assessment/`  | 3020 | ✅ KEEP |
+| lai-estimation       | `apps/services/lai-estimation/`       | 3022 | ✅ KEEP |
+| yield-prediction     | `apps/services/yield-prediction/`     | 3021 | ✅ KEEP |
+| marketplace-service  | `apps/services/marketplace-service/`  | 3010 | ✅ KEEP |
+| crop-health-ai       | `apps/services/crop-health-ai/`       | 8095 | ✅ KEEP |
+| virtual-sensors      | `apps/services/virtual-sensors/`      | 8096 | ✅ KEEP |
+| community-chat       | `apps/services/community-chat/`       | 8097 | ✅ KEEP |
+| yield-engine         | `apps/services/yield-engine/`         | 8098 | ✅ KEEP |
+| irrigation-smart     | `apps/services/irrigation-smart/`     | 8094 | ✅ KEEP |
+| fertilizer-advisor   | `apps/services/fertilizer-advisor/`   | 8093 | ✅ KEEP |
+| indicators-service   | `apps/services/indicators-service/`   | 8091 | ✅ KEEP |
+| satellite-service    | `apps/services/satellite-service/`    | 8090 | ✅ KEEP |
+| weather-advanced     | `apps/services/weather-advanced/`     | 8092 | ✅ KEEP |
+| notification-service | `apps/services/notification-service/` | 8110 | ✅ KEEP |
+| iot-service          | `apps/services/iot-service/`          | 8106 | ✅ KEEP |
 
 ---
 
@@ -75,15 +75,15 @@ git mv kernel/services archive/kernel-legacy/
 
 | Service       | Current Path              | Decision       | Action                                         |
 | ------------- | ------------------------- | -------------- | ---------------------------------------------- |
-| research_core | `services/research_core/` | ✅ KEEP & MOVE | Move to `kernel-services-v15.3/research-core/` |
-| billing-core  | `apps/billing-core/`      | ✅ KEEP & MOVE | Move to `kernel-services-v15.3/billing-core/`  |
+| research_core | `services/research_core/` | ✅ KEEP & MOVE | Move to `apps/services/research-core/` |
+| billing-core  | `apps/billing-core/`      | ✅ KEEP & MOVE | Move to `apps/services/billing-core/`  |
 
 **Move Commands:**
 
 ```bash
-git mv services/research_core kernel-services-v15.3/research-core
-git mv apps/billing-core kernel-services-v15.3/billing-core
-rmdir services apps 2>/dev/null || true
+git mv services/research_core apps/services/research-core
+git mv apps/billing-core apps/services/billing-core
+rmdir services 2>/dev/null || true
 ```
 
 ---
@@ -94,8 +94,8 @@ rmdir services apps 2>/dev/null || true
 
 | Module        | Current Path     | Contains                             | Decision | Target                                                     |
 | ------------- | ---------------- | ------------------------------------ | -------- | ---------------------------------------------------------- |
-| advisor       | `advisor/`       | AI, RAG, Context, Explainability     | 🔀 MERGE | `kernel-services-v15.3/crop-growth-model/src/advisor/`     |
-| field_suite   | `field_suite/`   | Crops, Farms, Fields, Spatial, Zones | 🔀 MERGE | `kernel-services-v15.3/crop-growth-model/src/field-suite/` |
+| advisor       | `advisor/`       | AI, RAG, Context, Explainability     | 🔀 MERGE | `apps/services/crop-growth-model/src/advisor/`     |
+| field_suite   | `field_suite/`   | Crops, Farms, Fields, Spatial, Zones | 🔀 MERGE | `apps/services/crop-growth-model/src/field-suite/` |
 | kernel_domain | `kernel_domain/` | Auth, Tenancy, Users                 | 🔀 MERGE | `shared/domain/` or dedicated auth-service                 |
 
 **Reasoning:**
@@ -108,8 +108,8 @@ rmdir services apps 2>/dev/null || true
 
 ```bash
 # After review, merge into appropriate services
-cp -r advisor/* kernel-services-v15.3/crop-growth-model/src/advisor/
-cp -r field_suite/* kernel-services-v15.3/crop-growth-model/src/field-suite/
+cp -r advisor/* apps/services/crop-growth-model/src/advisor/
+cp -r field_suite/* apps/services/crop-growth-model/src/field-suite/
 git mv advisor archive/
 git mv field_suite archive/
 git mv kernel_domain shared/domain/
@@ -148,7 +148,7 @@ git mv frontend archive/frontend-legacy
 
 ## 5. Execution Plan
 
-### Phase 1: Archive Legacy (Safe)
+### Phase 1: Archive Legacy (Safe) — ✅ COMPLETE
 
 ```bash
 # Create archive structure
@@ -164,18 +164,18 @@ git mv frontend archive/frontend-legacy/
 git add -A && git commit -m "chore: archive legacy duplicates (kernel/services, frontend)"
 ```
 
-### Phase 2: Consolidate Orphans
+### Phase 2: Consolidate Orphans — ✅ COMPLETE
 
 ```bash
 # Move orphan services to official location
-git mv services/research_core kernel-services-v15.3/research-core
-git mv apps/billing-core kernel-services-v15.3/billing-core
+git mv services/research_core apps/services/research-core
+git mv apps/billing-core apps/services/billing-core
 
 # Commit
-git add -A && git commit -m "chore: consolidate orphan services into kernel-services-v15.3"
+git add -A && git commit -m "chore: consolidate orphan services into apps/services"
 ```
 
-### Phase 3: Merge Domain Logic (Careful Review Required)
+### Phase 3: Merge Domain Logic (Careful Review Required) — ⏳ IN PROGRESS
 
 ```bash
 # This requires code review to avoid breaking imports
@@ -184,9 +184,9 @@ git add -A && git commit -m "chore: consolidate orphan services into kernel-serv
 # Move kernel_domain to shared/domain/
 ```
 
-### Phase 4: Update docker-compose.yml
+### Phase 4: Update docker-compose.yml — ✅ COMPLETE
 
-- Update all build contexts to point to `kernel-services-v15.3/*`
+- Update all build contexts to point to `apps/services/*`
 - Remove references to archived paths
 
 ---
@@ -217,12 +217,14 @@ After each phase:
 
 ## Appendix: Full Path Map
 
+> **Note (March 2026):** Migration from kernel-services-v15.3/ to apps/services/ is COMPLETE. All services now reside in apps/services/.
+
 ```
-BEFORE (Current State):
+BEFORE (Original State — pre-v16):
 ├── kernel-services-v15.3/     ← Official Backend (16 services)
 ├── kernel/services/           ← Legacy (14 services) → ARCHIVE
-├── services/research_core/    ← Orphan → MOVE to v15.3
-├── apps/billing-core/         ← Orphan → MOVE to v15.3
+├── services/research_core/    ← Orphan → MOVE
+├── apps/billing-core/         ← Orphan → MOVE
 ├── advisor/                   ← Domain Logic → MERGE
 ├── field_suite/               ← Domain Logic → MERGE
 ├── kernel_domain/             ← Auth Domain → shared/domain/
@@ -230,16 +232,16 @@ BEFORE (Current State):
 ├── web/                       ← Official Web
 └── web_admin/                 ← Official Admin
 
-AFTER (Target State):
-├── kernel-services-v15.3/     ← All Backend (18 services)
+AFTER (Current State — v16.0.0):
+├── apps/services/             ← All Backend (72 active services)
 │   ├── crop-growth-model/     ← + advisor, field_suite merged
 │   ├── research-core/         ← moved from services/
 │   ├── billing-core/          ← moved from apps/
 │   └── ... (all other services)
 ├── shared/domain/             ← kernel_domain moved
-├── web/                       ← Official Web
-├── web_admin/                 ← Official Admin
-├── mobile/                    ← Official Mobile
+├── apps/web/                  ← Official Web
+├── apps/admin/                ← Official Admin
+├── apps/mobile/               ← Official Mobile
 └── archive/                   ← All legacy code preserved
     ├── kernel-legacy/
     └── frontend-legacy/
@@ -269,5 +271,5 @@ The following pairs of similarly-named services have been reviewed and their dis
 ---
 
 **Document Owner**: Platform Team
-**Last Updated**: 2026-02-19
+**Last Updated**: 2026-03-10
 **Next Review**: v17 planning

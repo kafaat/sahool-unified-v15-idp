@@ -1,27 +1,29 @@
 # GitHub Actions Workflows Reference
 
-This document provides a comprehensive reference for all 37 GitHub Actions workflows in the SAHOOL platform repository.
+This document provides a comprehensive reference for all 54 GitHub Actions workflows in the SAHOOL platform repository.
 
 ---
 
 ## Table of Contents
 
-1. [CI/CD Core](#1-cicd-core-5-workflows)
-2. [Security](#2-security-5-workflows)
+1. [CI/CD Core](#1-cicd-core-7-workflows)
+2. [Security](#2-security-6-workflows)
 3. [Testing](#3-testing-9-workflows)
-4. [Deployment](#4-deployment-5-workflows)
-5. [Build/Docker](#5-builddocker-2-workflows)
-6. [Governance](#6-governance-5-workflows)
+4. [Deployment](#4-deployment-6-workflows)
+5. [Build/Docker](#5-builddocker-4-workflows)
+6. [Governance](#6-governance-11-workflows)
 7. [Documentation](#7-documentation-1-workflow)
 8. [Mobile](#8-mobile-3-workflows)
 9. [Frontend](#9-frontend-1-workflow)
 10. [AI/Agents](#10-aiagents-1-workflow)
-11. [Workflow Dependencies](#workflow-dependencies)
-12. [Secrets Reference](#secrets-reference)
+11. [Specialized CI](#11-specialized-ci-4-workflows)
+12. [Automation](#12-automation-2-workflows)
+13. [Workflow Dependencies](#workflow-dependencies)
+14. [Secrets Reference](#secrets-reference)
 
 ---
 
-## 1. CI/CD Core (5 Workflows)
+## 1. CI/CD Core (7 Workflows)
 
 ### ci.yml - Main CI Pipeline
 
@@ -125,7 +127,50 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 2. Security (5 Workflows)
+### reusable-setup.yml - Reusable Setup
+
+**Purpose**: Reusable workflow providing common setup steps for Python, Node.js, Flutter, and Docker BuildX environments with caching.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/reusable-setup.yml` |
+| **Triggers** | `workflow_call` |
+
+**Inputs**:
+- `setup-python` - Set up Python environment (default: false)
+- `python-version` - Python version (default: "3.11")
+- `setup-node` - Set up Node.js environment (default: false)
+- `node-version` - Node.js version (default: "20")
+
+**Jobs**:
+- Provides reusable setup steps called by other workflows
+
+**Required Secrets**: None
+
+---
+
+### cd-new-services.yml - Deploy New Services
+
+**Purpose**: Continuous deployment for new services (yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator) using ArgoCD GitOps with staged rollout.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/cd-new-services.yml` |
+| **Triggers** | `push` (tags: v*), `workflow_dispatch` |
+
+**Inputs** (workflow_dispatch):
+- `environment` - Deployment environment (staging or production)
+- `services` - Services to deploy (comma-separated or "all")
+
+**Jobs**:
+- Deploy selected services to target environment
+
+**Required Secrets**:
+- `KUBECONFIG`
+
+---
+
+## 2. Security (6 Workflows)
 
 ### codeql-analysis.yml - CodeQL Semantic Analysis
 
@@ -216,6 +261,26 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 **Required Secrets**:
 - `SCORECARD_TOKEN` (optional, for higher rate limits)
+
+---
+
+### ci-ai-rag-security.yml - AI/RAG Container Security
+
+**Purpose**: Comprehensive security scanning for all AI and RAG services including dependency vulnerability scanning, container security, SBOM generation, and license compliance.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-ai-rag-security.yml` |
+| **Triggers** | `push` (main, develop, copilot/\*\*, claude/\*\*), `pull_request` (main, develop), `schedule` (daily at 3 AM UTC), `workflow_dispatch` |
+| **Paths** | apps/services/ai-advisor/\*\*, apps/services/ai-agents-service/\*\*, apps/services/llm-orchestrator-service/\*\*, apps/services/yolo26-vision-service/\*\*, shared/ai/\*\*, docker/constraints-ai.txt |
+
+**Jobs**:
+- Dependency vulnerability scanning (Safety, pip-audit)
+- Container security scanning (Trivy, Grype)
+- SBOM generation
+- License compliance checks
+
+**Required Secrets**: None
 
 ---
 
@@ -397,7 +462,7 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 4. Deployment (5 Workflows)
+## 4. Deployment (6 Workflows)
 
 ### deploy-preview.yml - Preview Deployments
 
@@ -504,7 +569,34 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 5. Build/Docker (2 Workflows)
+### notifications.yml - Notifications
+
+**Purpose**: Centralized reusable notification system supporting Slack, Discord, email (via SendGrid), and GitHub Issues for critical alerts.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/notifications.yml` |
+| **Triggers** | `workflow_call` |
+
+**Inputs**:
+- `type` - Notification type (success, failure, warning, info)
+- `title` - Notification title
+- `message` - Notification message
+- `environment` - Environment (staging, production)
+- `create-issue` - Create GitHub issue for failures (default: false)
+
+**Jobs**:
+- Send notifications to configured channels (Slack, Discord, email)
+- Optionally create GitHub issues for failures
+
+**Required Secrets**:
+- `SLACK_WEBHOOK_URL` (optional)
+- `DISCORD_WEBHOOK_URL` (optional)
+- `SENDGRID_API_KEY` (optional)
+
+---
+
+## 5. Build/Docker (4 Workflows)
 
 ### docker-image.yml - Docker Image CI
 
@@ -566,7 +658,24 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 6. Governance (5 Workflows)
+### dockerfile-lint.yml - Dockerfile Linting
+
+**Purpose**: Lints all Dockerfiles using hadolint to enforce best practices and security standards.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/dockerfile-lint.yml` |
+| **Triggers** | `pull_request` (\*\*/Dockerfile\*, .hadolint.yaml), `push` (main, develop; \*\*/Dockerfile\*, .hadolint.yaml) |
+| **Runs On** | ubuntu-latest |
+
+**Jobs**:
+- `hadolint` - Lint all Dockerfiles with hadolint
+
+**Required Secrets**: None
+
+---
+
+## 6. Governance (11 Workflows)
 
 ### governance-ci.yml - Governance Validation
 

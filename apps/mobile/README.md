@@ -127,12 +127,12 @@ WebSocket Gateway:
 الخدمات الداخلية (عبر Gateway):
 ├── /api/v1/fields      → field-core (3000)
 ├── /api/v1/tasks       → task-service (8103)
-├── /api/v1/weather     → weather-advanced (8092)
+├── /api/v1/weather     → weather-service (8092)
 ├── /api/v1/ndvi        → satellite-service (8090)
 ├── /api/v1/alerts      → notification-service (8110)
 ├── /api/v1/equipment   → equipment-service (8101)
 ├── /api/v1/irrigation  → irrigation-smart (8094)
-├── /api/v1/fertilizer  → fertilizer-advisor (8093)
+├── /api/v1/fertilizer  → advisory-service (8093)
 └── /api/v1/crop-health → crop-health-ai (8095)
 ```
 

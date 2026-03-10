@@ -2,6 +2,14 @@
 
 This document summarizes the deprecation notices added to services in the SAHOOL platform.
 
+## Sunset Status Summary (March 2026)
+
+| Status | Count | Services |
+|--------|-------|----------|
+| :warning: OVERDUE | 3 | weather-advanced, crop-health-ai, satellite-service |
+| :alarm_clock: Approaching | 2 | crop-health, ndvi-engine |
+| :white_check_mark: Archived | 10 | agro-advisor, weather-core, yield-prediction, field-ops, field-core, field-service, community-chat, field-chat, ndvi-processor, yield-engine |
+
 ## Deprecated Services
 
 ### 1. weather-advanced → weather-service
@@ -11,6 +19,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Replacement**: `weather-service` (port 8108)
 - **Deprecation Date**: 2025-01-01
 - **Sunset Date**: 2025-06-01
+- :warning: **OVERDUE** - 9 months past sunset date. Recommend immediate removal.
 
 ### 2. crop-health-ai → crop-intelligence-service
 
@@ -19,6 +28,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Replacement**: `crop-intelligence-service` (port 8095)
 - **Deprecation Date**: 2025-01-01
 - **Sunset Date**: 2025-06-01
+- :warning: **OVERDUE** - 9 months past sunset date. Recommend immediate removal.
 
 ### 3. satellite-service → vegetation-analysis-service
 
@@ -27,6 +37,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Replacement**: `vegetation-analysis-service` (port 8090)
 - **Deprecation Date**: 2025-01-01
 - **Sunset Date**: 2025-06-01
+- :warning: **OVERDUE** - 9 months past sunset date. Recommend immediate removal.
 
 ### 4. crop-health → crop-intelligence-service
 
@@ -35,6 +46,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Replacement**: `crop-intelligence-service` (port 8095)
 - **Deprecation Date**: 2026-01-06
 - **Sunset Date**: 2026-06-01
+- :alarm_clock: Approaching sunset - 82 days remaining (as of March 2026)
 - **Features Migrated**: Zone-based health monitoring, vegetation indices (NDVI, EVI, NDRE, LCI, NDWI, SAVI), VRT export
 
 ### 5. ndvi-engine → vegetation-analysis-service
@@ -44,6 +56,7 @@ This document summarizes the deprecation notices added to services in the SAHOOL
 - **Replacement**: `vegetation-analysis-service` (port 8090)
 - **Deprecation Date**: 2026-01-06
 - **Sunset Date**: 2026-06-01
+- :alarm_clock: Approaching sunset - 82 days remaining (as of March 2026)
 - **Features Migrated**: NDVI computation, vegetation indices, zone analysis, anomaly detection
 
 ## Changes Implemented
@@ -271,6 +284,6 @@ The following services have completed their deprecation lifecycle and have been 
 ---
 
 **Implementation Date**: 2025-12-31
-**Last Updated**: 2026-02-19
+**Last Updated**: 2026-03-10
 **Author**: Claude Code
 **Status**: Complete

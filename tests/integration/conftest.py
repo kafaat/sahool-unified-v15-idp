@@ -23,19 +23,74 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import httpx
-import psycopg2
 import pytest
-from faker import Faker
 from httpx import AsyncClient, Timeout
-from psycopg2.extras import RealDictCursor
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
+try:
+    from faker import Faker
+
+    faker_ar = Faker("ar_SA")
+    faker_en = Faker("en_US")
+    HAS_FAKER = True
+except ImportError:
+    import uuid as _uuid
+
+    HAS_FAKER = False
+
+    class _FallbackFaker:
+        """Minimal fallback when faker is not installed."""
+
+        def uuid4(self) -> str:
+            return str(_uuid.uuid4())
+
+        def sentence(self) -> str:
+            return "Test sentence."
+
+        def text(self) -> str:
+            return "Test text content."
+
+        def city(self) -> str:
+            return "Test City"
+
+        def email(self) -> str:
+            return f"test-{self.uuid4()[:8]}@example.com"
+
+        def phone_number(self) -> str:
+            return "+1-555-0100"
+
+        def iso8601(self) -> str:
+            from datetime import datetime, timezone
+
+            return datetime.now(tz=timezone.utc).isoformat()
+
+        def date_this_year(self) -> Any:
+            from datetime import date
+
+            return date.today()
+
+        def pyfloat(self, min_value: float = 0, max_value: float = 100, right_digits: int = 2) -> float:
+            return round((min_value + max_value) / 2, right_digits)
+
+        def random_int(self, min: int = 0, max: int = 100) -> int:  # noqa: A002
+            return (min + max) // 2
+
+        def random_element(self, elements: list) -> Any:
+            return elements[0] if elements else None
+
+    faker_ar = _FallbackFaker()  # type: ignore[assignment]
+    faker_en = _FallbackFaker()  # type: ignore[assignment]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Configuration - تكوين الاختبارات
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# Initialize Faker with Arabic locale
-faker_ar = Faker("ar_SA")
-faker_en = Faker("en_US")
 
 
 @dataclass
@@ -144,16 +199,19 @@ def wait_for_service(url: str, max_retries: int = 30, delay: float = 2.0) -> boo
 @pytest.fixture(scope="session")
 def db_connection(
     test_config: TestConfig,
-) -> Generator[psycopg2.extensions.connection, None, None]:
+) -> Generator[Any, None, None]:
     """
     PostgreSQL database connection
     اتصال قاعدة بيانات PostgreSQL
     """
+    if not HAS_PSYCOPG2:
+        pytest.skip("psycopg2 not installed - skipping database-dependent tests")
+
     # Wait for PostgreSQL to be ready
     max_retries = 30
     for attempt in range(max_retries):
         try:
-            conn = psycopg2.connect(
+            conn = psycopg2.connect(  # type: ignore[union-attr]
                 host=test_config.postgres_host,
                 port=test_config.postgres_port,
                 user=test_config.postgres_user,
@@ -165,7 +223,7 @@ def db_connection(
             yield conn
             conn.close()
             return
-        except psycopg2.OperationalError:
+        except psycopg2.OperationalError:  # type: ignore[union-attr]
             if attempt < max_retries - 1:
                 time.sleep(2)
             else:
@@ -206,13 +264,13 @@ def pytest_configure(config):
     config.postgis_available = False
     config.postgis_skip_reason = "PostGIS not available (--postgis flag not set)"
 
-    if config.getoption("--postgis"):
+    if config.getoption("--postgis") and HAS_PSYCOPG2:
         try:
             # Try to connect and check for PostGIS
             from tests.integration.conftest import TestConfig as TC
 
             test_config = TC()
-            conn = psycopg2.connect(
+            conn = psycopg2.connect(  # type: ignore[union-attr]
                 host=test_config.postgres_host,
                 port=test_config.postgres_port,
                 user=test_config.postgres_user,
@@ -234,6 +292,8 @@ def pytest_configure(config):
                 config.postgis_skip_reason = "PostGIS extension not installed. Run: CREATE EXTENSION postgis;"
         except Exception as e:
             config.postgis_skip_reason = f"Could not verify PostGIS availability: {str(e)}"
+    elif config.getoption("--postgis") and not HAS_PSYCOPG2:
+        config.postgis_skip_reason = "psycopg2 not installed - cannot verify PostGIS availability"
 
 
 def pytest_collection_modifyitems(config, items):
@@ -288,10 +348,11 @@ def cleanup_test_data(db_cursor):
             "fields",
         ]
 
+        _undefined_table = psycopg2.errors.UndefinedTable if HAS_PSYCOPG2 else Exception  # type: ignore[union-attr]
         for table in tables:
             try:
                 db_cursor.execute(f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'")
-            except psycopg2.errors.UndefinedTable:
+            except _undefined_table:
                 # Table might not exist, skip
                 pass
     except Exception:

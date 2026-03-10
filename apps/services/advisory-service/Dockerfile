@@ -29,16 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf 
 
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
-    cat > /root/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://pypi.org/simple/
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Upgrade pip with fallback to Aliyun mirror
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || \

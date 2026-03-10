@@ -38,12 +38,23 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           echo "count=$(echo "$FILES" | wc -l)" >> $GITHUB_OUTPUT
 
+      - name: Download hadolint
+        run: |
+          curl -sL "https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64" -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
+
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          recursive: true
-          config: .hadolint.yaml
-          ignore: DL3008,DL3013,DL3018
+        run: |
+          ERRORS=0
+          while IFS= read -r f; do
+            if ! hadolint --config .hadolint.yaml "$f"; then
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -name "Dockerfile*" -not -path "./.git/*" -not -path "./archive/*" -not -path "./node_modules/*" -not -path "./idp/templates/*" | sort)
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "::error::hadolint found issues in $ERRORS Dockerfile(s)"
+            exit 1
+          fi
 
       - name: Summary
         if: always()

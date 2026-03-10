@@ -16,7 +16,7 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
 LABEL service="terrain-core-service"
 LABEL description="Terrain analysis service with DEM processing and terrain indicators"
-LABEL description_ar="خدمة تحليل التضاريس مع معالجة نماذج الارتفاعات ومؤشرات التضاريس"
+LABEL com.sahool.description-ar="خدمة تحليل التضاريس مع معالجة نماذج الارتفاعات ومؤشرات التضاريس"
 LABEL version="16.0.0"
 
 # Environment
@@ -89,10 +89,10 @@ COPY apps/services/terrain-core-service/requirements.txt .
 # Install GDAL Python bindings matching system version
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    GDAL==$(gdal-config --version) || \
+    "GDAL==$(gdal-config --version)" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    GDAL==$(gdal-config --version)
+    "GDAL==$(gdal-config --version)"
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \

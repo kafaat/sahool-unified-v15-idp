@@ -75,27 +75,16 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
 # All mirrors use HTTPS with valid certificates - no trusted-host needed
 RUN mkdir -p ~/.pip && \
-    cat > ~/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://mirrors.cloud.tencent.com/pypi/simple
-                  https://pypi.org/simple/
-                  https://download.pytorch.org/whl/cu121
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n                  https://download.pytorch.org/whl/cu121\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
 
 # Copy constraints and requirements files
 COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
@@ -260,26 +249,16 @@ COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 # Upgrade pip with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
 # All mirrors use HTTPS with valid certificates - no trusted-host needed
 RUN mkdir -p /root/.pip && \
-    cat > /root/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://mirrors.cloud.tencent.com/pypi/simple
-                  https://pypi.org/simple/
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Install PyTorch CPU - disable pip.conf to prevent mirror hash conflicts
 # (Tsinghua mirror sympy hash differs from PyTorch index expected hash)

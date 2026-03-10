@@ -14,22 +14,7 @@ RUN chmod +x /usr/local/bin/apt-update.sh && \
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
-    cat > /root/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://mirrors.cloud.tencent.com/pypi/simple
-                  https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               mirrors.cloud.tencent.com
-               pypi.org
-               files.pythonhosted.org
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\ntrusted-host = mirrors.aliyun.com\n               pypi.tuna.tsinghua.edu.cn\n               mirrors.cloud.tencent.com\n               pypi.org\n               files.pythonhosted.org\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Copy and install dependencies with multi-mirror fallback
 COPY requirements.txt .

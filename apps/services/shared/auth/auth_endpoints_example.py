@@ -676,3 +676,62 @@ async def logout(request: Request, data: RefreshTokenRequest | None = None):
     logger.info("User logout successful - User: %s, IP: %s", user_id, request.client.host)
 
     return MessageResponse(message="Logout successful")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Mock Helpers (Example Only)
+# ═══════════════════════════════════════════════════════════════════════════════
+# In a production service, these would be replaced by actual database queries
+# (e.g., using asyncpg, Tortoise ORM, or Prisma).
+
+# In-memory mock store for demonstration purposes
+_MOCK_USERS: dict[str, dict] = {
+    "farmer@example.com": {
+        "id": "usr_01HZEXAMPLE000000000000001",
+        "email": "farmer@example.com",
+        "full_name": "Ahmed Al-Rashid",
+        "password_hash": hash_password("SecurePass123!"),
+        "is_active": True,
+        "is_verified": True,
+        "roles": ["farmer"],
+        "tenant_id": "tenant_001",
+        "created_at": "2025-01-01T00:00:00Z",
+    },
+}
+
+_MOCK_RESET_TOKENS: dict[str, dict] = {}
+
+
+def _mock_user_lookup(email: str) -> dict | None:
+    """
+    Simulate a database user lookup by email.
+
+    In production, replace with:
+        user = await db.users.find_one({"email": email, "is_active": True})
+
+    Returns:
+        User dict if found, None otherwise.
+    """
+    return _MOCK_USERS.get(email)
+
+
+def _mock_reset_token_lookup(token: str) -> dict | None:
+    """
+    Simulate a database lookup for a password reset token.
+
+    In production, replace with:
+        records = await db.password_resets.find({"used": False, "expires_at": {"$gt": now}})
+        for record in records:
+            if verify_password(token, record["token_hash"]):
+                return record
+
+    Note: In production, tokens are stored as hashes (not plaintext) and
+    verified using constant-time comparison via verify_password().
+
+    Returns:
+        Reset token record dict if found and valid, None otherwise.
+    """
+    record = _MOCK_RESET_TOKENS.get(token)
+    if record is not None and not record.get("used", False):
+        return record
+    return None

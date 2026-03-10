@@ -115,20 +115,76 @@ class CropsState {
 /// مُعلم حالة المحاصيل - يدير دورة حياة المحاصيل
 class CropsNotifier extends StateNotifier<CropsState> {
   final ApiClient? _apiClient;
+  final CropsRepository? _cropsRepository;
 
-  CropsNotifier({ApiClient? apiClient})
+  CropsNotifier({ApiClient? apiClient, CropsRepository? cropsRepository})
       : _apiClient = apiClient,
+        _cropsRepository = cropsRepository,
         super(const CropsState()) {
     loadCrops();
   }
 
-  /// Load active crops from API with fallback to mock data
-  /// تحميل المحاصيل النشطة من الخادم مع بيانات احتياطية
+  /// Load active crops from CropsRepository / API with fallback to mock data
+  /// تحميل المحاصيل النشطة من مستودع المحاصيل / الخادم مع بيانات احتياطية
   Future<void> loadCrops() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Try fetching active crops from the API
+      // Strategy 1: Use CropsRepository (offline-first with caching)
+      if (_cropsRepository != null) {
+        try {
+          final catalogCrops = await _cropsRepository.getAllCrops();
+          if (catalogCrops.isNotEmpty) {
+            // Try to fetch active crop instances from the API to enrich
+            // catalog data with field-specific information
+            if (_apiClient != null) {
+              try {
+                final response =
+                    await _apiClient.get('/api/v1/crops/active');
+                final List<dynamic> data = response is List
+                    ? response
+                    : (response['data'] as List? ?? []);
+
+                if (data.isNotEmpty) {
+                  final crops = data
+                      .map((json) =>
+                          _activeCropFromJson(json as Map<String, dynamic>))
+                      .toList();
+                  AppLogger.i('Loaded active crops from API',
+                      tag: 'CropsNotifier', data: {'count': crops.length});
+                  state =
+                      state.copyWith(activeCrops: crops, isLoading: false);
+                  return;
+                }
+              } catch (e) {
+                AppLogger.w(
+                  'Active crops API unavailable, building from catalog',
+                  tag: 'CropsNotifier',
+                  error: e,
+                );
+              }
+            }
+
+            // Build active crop instances from catalog data when active
+            // endpoint is unavailable (offline scenario)
+            final activeCrops = _buildActiveCropsFromCatalog(catalogCrops);
+            AppLogger.i('Built active crops from repository catalog',
+                tag: 'CropsNotifier',
+                data: {'count': activeCrops.length});
+            state =
+                state.copyWith(activeCrops: activeCrops, isLoading: false);
+            return;
+          }
+        } catch (e) {
+          AppLogger.w(
+            'CropsRepository failed, trying direct API',
+            tag: 'CropsNotifier',
+            error: e,
+          );
+        }
+      }
+
+      // Strategy 2: Direct API call without repository
       if (_apiClient != null) {
         try {
           final response = await _apiClient.get('/api/v1/crops/active');
@@ -137,29 +193,57 @@ class CropsNotifier extends StateNotifier<CropsState> {
 
           if (data.isNotEmpty) {
             final crops = data
-                .map((json) => _activeCropFromJson(json as Map<String, dynamic>))
+                .map((json) =>
+                    _activeCropFromJson(json as Map<String, dynamic>))
                 .toList();
-            AppLogger.i('Loaded active crops from API',
+            AppLogger.i('Loaded active crops from direct API call',
                 tag: 'CropsNotifier', data: {'count': crops.length});
             state = state.copyWith(activeCrops: crops, isLoading: false);
             return;
           }
         } catch (e) {
           AppLogger.w(
-            'Failed to fetch active crops from API, falling back to mock data',
+            'Direct API call failed, falling back to mock data',
             tag: 'CropsNotifier',
             error: e,
           );
         }
       }
 
-      // Fallback to mock data when API is unavailable or returns empty
+      // Strategy 3: Fallback to mock data when all sources are unavailable
+      AppLogger.i('Using mock active crops (offline fallback)',
+          tag: 'CropsNotifier');
       await Future.delayed(const Duration(milliseconds: 400));
       final crops = _getMockActiveCrops();
       state = state.copyWith(activeCrops: crops, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
+  }
+
+  /// Build ActiveCrop instances from catalog Crop data
+  /// بناء نسخ المحاصيل النشطة من بيانات كتالوج المحاصيل
+  List<ActiveCrop> _buildActiveCropsFromCatalog(List<Crop> catalogCrops) {
+    // When only catalog data is available (no active-crops endpoint),
+    // create placeholder active crop entries for the first few crops.
+    // These will be replaced with real field-specific data once online.
+    final limitedCrops = catalogCrops.take(5).toList();
+    return limitedCrops.asMap().entries.map((entry) {
+      final index = entry.key;
+      final crop = entry.value;
+      return ActiveCrop(
+        id: 'catalog_${crop.code}_$index',
+        fieldId: 'field_${index + 1}',
+        fieldName: 'Field ${index + 1} | الحقل ${index + 1}',
+        crop: crop,
+        growthStage: 'Unknown',
+        growthStageAr: 'غير محدد',
+        plantingDate: DateTime.now(),
+        areaHectares: 0.0,
+        healthStatus: 'unknown',
+        healthStatusAr: 'غير محدد',
+      );
+    }).toList();
   }
 
   /// Parse an ActiveCrop from API JSON response
@@ -398,10 +482,42 @@ final cropsApiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient();
 });
 
+/// CropsApi provider
+/// موفر واجهة المحاصيل البرمجية
+final cropsApiProvider = Provider<CropsApi>((ref) {
+  final apiClient = ref.watch(cropsApiClientProvider);
+  return CropsApi(apiClient);
+});
+
+/// SharedPreferences provider for crops feature
+/// موفر التخزين المحلي لميزة المحاصيل
+///
+/// Must be overridden in ProviderScope at app startup with the
+/// actual SharedPreferences instance from `SharedPreferences.getInstance()`.
+final cropsSharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError(
+    'cropsSharedPreferencesProvider must be overridden in ProviderScope',
+  );
+});
+
+/// CropsRepository provider (offline-first with caching)
+/// موفر مستودع المحاصيل (أولوية للعمل بدون اتصال مع التخزين المؤقت)
+final cropsRepositoryProvider = Provider<CropsRepository?>((ref) {
+  try {
+    final api = ref.watch(cropsApiProvider);
+    final prefs = ref.watch(cropsSharedPreferencesProvider);
+    return CropsRepository(api: api, prefs: prefs);
+  } catch (_) {
+    // SharedPreferences not yet initialized; repository unavailable
+    return null;
+  }
+});
+
 /// Main crops state provider
 /// الموفر الرئيسي لحالة المحاصيل
 final cropsProvider =
     StateNotifierProvider<CropsNotifier, CropsState>((ref) {
   final apiClient = ref.watch(cropsApiClientProvider);
-  return CropsNotifier(apiClient: apiClient);
+  final repository = ref.watch(cropsRepositoryProvider);
+  return CropsNotifier(apiClient: apiClient, cropsRepository: repository);
 });

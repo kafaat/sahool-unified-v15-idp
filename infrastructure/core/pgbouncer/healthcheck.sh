@@ -93,14 +93,16 @@ execute_admin_query() {
   if command -v psql >/dev/null 2>&1; then
     _stats_user=$(resolve_admin_user)
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
+    # Use explicit || return 1 to prevent set -e from exiting the script
+    # when psql fails, allowing callers to handle the failure gracefully
     PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null
-    return $?
+      -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
+    return 0
   else
     # Fallback: basic TCP connectivity check
     # edoburu/pgbouncer Alpine image may not have psql
-    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null
-    return $?
+    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null || return 1
+    return 0
   fi
 }
 
@@ -120,8 +122,8 @@ check_connectivity() {
 
     return 1
   else
-    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null
-    return $?
+    nc -z "$PGBOUNCER_HOST" "$PGBOUNCER_PORT" 2>/dev/null || return 1
+    return 0
   fi
 }
 

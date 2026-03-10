@@ -181,11 +181,18 @@ Initial automated grep suggested mismatches, but deep analysis confirmed the gov
 
 ### 6.2 Port Documentation Issues
 - `agro-rules` listed with port 8151 but has no HTTP server (NATS worker only)
-- `vllm-deepseek` (port 8270) not mentioned in CLAUDE.md
+- `code-review-agent` listed with port 8145 in CLAUDE.md but `port: None` in governance
+- `demo-data` listed with port 8261 in CLAUDE.md but `port: None` in governance
+- `vllm-deepseek` (port 8270) not mentioned in CLAUDE.md or SERVICES_MAP.md
 
 ### 6.3 `yield-prediction` Status
 - Deprecated service still has an active directory at `apps/services/yield-prediction/`
 - Listed as regular Decision layer service in SERVICES_MAP.md
+- Should be archived to `archive/deprecated-services/`
+
+### 6.4 Helm Chart Stale References
+- `helm/sahool/templates/deployment-field-ops.yaml` - full deployment template for archived `field-ops` service
+- Multiple Helm values files (`values-production.yaml`, `values-staging.yaml`, `values.generated.yaml`) reference deprecated services
 
 ---
 

@@ -180,7 +180,7 @@ if missing:
 else:
     print('OK')
 PYEOF
-2>/dev/null)
+) || { log_warn "Failed to parse compose file for dependency check"; dep_check_result=""; }
 
     if echo "$dep_check_result" | grep -q "^MISSING:"; then
         while read -r line; do
@@ -445,7 +445,7 @@ if quota_mb > 0:
     else:
         print(f'WARN:etcd memory limit ({mem_mb}MB) should be >= 2x quota ({quota_mb}MB)')
 PYEOF
-2>/dev/null)
+) || { log_warn "Failed to parse compose file for etcd check"; etcd_check=""; }
 
     while read -r line; do
         log_info "etcd backend quota: ${line#quota_mb=}MB"

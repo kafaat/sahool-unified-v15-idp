@@ -10,14 +10,6 @@ import logging
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
-try:
-    from shared.auth.dependencies import get_current_user
-except ImportError:
-
-    async def get_current_user():
-        return None
-
-
 from .vra_generator import (
     VRAGenerator,
     VRAType,

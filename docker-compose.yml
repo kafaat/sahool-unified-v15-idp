@@ -828,7 +828,8 @@ services:
       # Region configuration - matches deployment region (AWS me-south-1 Bahrain)
       MINIO_REGION: ${MINIO_REGION:-me-south-1}
 
-      # mc client alias configured via env var (avoids exposing credentials in healthcheck command)
+      # mc client alias via env var (keeps credentials out of healthcheck CLI args;
+      # note: still visible via docker inspect — use Docker secrets for full protection)
       MC_HOST_local: "http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@localhost:9000"
     ports:
       # Bind to localhost only - use reverse proxy for external access

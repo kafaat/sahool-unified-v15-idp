@@ -97,9 +97,7 @@ class TestRunbookStructure:
         """Runbook must have at least 5 golden rules."""
         # Count numbered golden rules in the table
         golden_rules_matches = re.findall(r"\| \d+ \|", runbook_content)
-        assert len(golden_rules_matches) >= 5, (
-            f"Expected at least 5 golden rules, found {len(golden_rules_matches)}"
-        )
+        assert len(golden_rules_matches) >= 5, f"Expected at least 5 golden rules, found {len(golden_rules_matches)}"
 
     def test_runbook_has_appendixes(self, runbook_content: str):
         """Runbook must include appendixes for reference."""
@@ -140,8 +138,7 @@ class TestRunbookFileReferences:
         """Each file referenced in the runbook must exist in the codebase."""
         full_path = ROOT_DIR / rel_path
         assert full_path.exists(), (
-            f"Runbook references '{rel_path}' but file does not exist. "
-            "Update the runbook or restore the missing file."
+            f"Runbook references '{rel_path}' but file does not exist. Update the runbook or restore the missing file."
         )
 
     def test_dlq_service_file_exists(self):
@@ -211,9 +208,7 @@ class TestRunbookStreamAccuracy:
 
         for stream in STREAMS:
             days = stream.max_age_seconds / 86400
-            assert 1 <= days <= 365, (
-                f"Stream '{stream.name}' has unreasonable retention: {days} days"
-            )
+            assert 1 <= days <= 365, f"Stream '{stream.name}' has unreasonable retention: {days} days"
 
     def test_dedup_window_documented(self, runbook_content: str):
         """Dedup window value must be documented in runbook."""
@@ -221,9 +216,7 @@ class TestRunbookStreamAccuracy:
 
         # Get dedup window from first stream definition
         dedup_window = STREAMS[0].duplicate_window_seconds
-        assert str(dedup_window) in runbook_content, (
-            f"Dedup window ({dedup_window}s) not found in runbook"
-        )
+        assert str(dedup_window) in runbook_content, f"Dedup window ({dedup_window}s) not found in runbook"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -283,16 +276,12 @@ class TestRunbookDLQAccuracy:
         """Non-retriable error types must be listed in the runbook."""
         # These are the non-retriable types from is_retriable_error()
         for error_type in ["ValidationError", "ValueError", "KeyError", "TypeError"]:
-            assert error_type in runbook_content, (
-                f"Non-retriable error type '{error_type}' not documented in runbook"
-            )
+            assert error_type in runbook_content, f"Non-retriable error type '{error_type}' not documented in runbook"
 
     def test_retriable_errors_documented(self, runbook_content: str):
         """Retriable error types must be listed in the runbook."""
         for error_type in ["TimeoutError", "ConnectionError"]:
-            assert error_type in runbook_content, (
-                f"Retriable error type '{error_type}' not documented in runbook"
-            )
+            assert error_type in runbook_content, f"Retriable error type '{error_type}' not documented in runbook"
 
     def test_dlq_subject_pattern_documented(self, runbook_content: str):
         """DLQ subject pattern must be documented."""
@@ -314,9 +303,7 @@ class TestRunbookDLQAccuracy:
             "retry_errors",
         ]
         for field_name in key_fields:
-            assert field_name in runbook_content, (
-                f"DLQ metadata field '{field_name}' not documented in runbook"
-            )
+            assert field_name in runbook_content, f"DLQ metadata field '{field_name}' not documented in runbook"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -357,9 +344,7 @@ class TestRunbookOutboxAccuracy:
         assert str(relay._poll_interval) in runbook_content or "1.0" in runbook_content, (
             "OutboxRelay poll_interval not documented"
         )
-        assert str(relay._batch_size) in runbook_content, (
-            f"OutboxRelay batch_size={relay._batch_size} not documented"
-        )
+        assert str(relay._batch_size) in runbook_content, f"OutboxRelay batch_size={relay._batch_size} not documented"
 
     def test_outbox_sql_queries_consistent(self):
         """Outbox SQL must include key columns referenced in runbook."""
@@ -378,9 +363,7 @@ class TestRunbookOutboxAccuracy:
             "correlation_id",
         ]
         for col in required_columns:
-            assert col in SQL_CREATE_OUTBOX_TABLE, (
-                f"Column '{col}' missing from outbox CREATE TABLE"
-            )
+            assert col in SQL_CREATE_OUTBOX_TABLE, f"Column '{col}' missing from outbox CREATE TABLE"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -414,9 +397,7 @@ class TestRunbookEventContractAccuracy:
             "span_id",
         ]
         for field_name in documented_fields:
-            assert field_name in runbook_content, (
-                f"BaseEvent field '{field_name}' not documented in runbook"
-            )
+            assert field_name in runbook_content, f"BaseEvent field '{field_name}' not documented in runbook"
 
     def test_nats_headers_documented(self, runbook_content: str):
         """NATS header names must match between publisher code and runbook."""
@@ -429,9 +410,7 @@ class TestRunbookEventContractAccuracy:
             "traceparent",
         ]
         for header in expected_headers:
-            assert header in runbook_content, (
-                f"NATS header '{header}' not documented in runbook"
-            )
+            assert header in runbook_content, f"NATS header '{header}' not documented in runbook"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -535,9 +514,7 @@ class TestRunbookHealthCheckAccuracy:
         """Standard health endpoints must be documented."""
         endpoints = ["/healthz", "/readyz", "/health", "/metrics"]
         for endpoint in endpoints:
-            assert endpoint in runbook_content, (
-                f"Health endpoint '{endpoint}' not documented"
-            )
+            assert endpoint in runbook_content, f"Health endpoint '{endpoint}' not documented"
 
     def test_health_endpoint_probe_mapping(self, runbook_content: str):
         """K8s probe types must be documented."""
@@ -599,9 +576,7 @@ class TestRunbookEnvVarAccuracy:
             "DLQ_ALERT_CHECK_INTERVAL",
         ]
         for var in env_vars:
-            assert var in runbook_content, (
-                f"Environment variable '{var}' not documented in runbook"
-            )
+            assert var in runbook_content, f"Environment variable '{var}' not documented in runbook"
 
     def test_dlq_env_defaults_match_code(self):
         """DLQ env var defaults must match DLQConfig.from_env() defaults."""
@@ -687,10 +662,10 @@ class TestDLQLogic:
             backoff_multiplier=2.0,
             max_retry_delay=60.0,
         )
-        assert config.get_retry_delay(1) == 1.0   # 1.0 * 2^0
-        assert config.get_retry_delay(2) == 2.0   # 1.0 * 2^1
-        assert config.get_retry_delay(3) == 4.0   # 1.0 * 2^2
-        assert config.get_retry_delay(4) == 8.0   # 1.0 * 2^3
+        assert config.get_retry_delay(1) == 1.0  # 1.0 * 2^0
+        assert config.get_retry_delay(2) == 2.0  # 1.0 * 2^1
+        assert config.get_retry_delay(3) == 4.0  # 1.0 * 2^2
+        assert config.get_retry_delay(4) == 8.0  # 1.0 * 2^3
         assert config.get_retry_delay(10) == 60.0  # Capped at max
 
     def test_dlq_subject_generation(self):
@@ -765,9 +740,7 @@ class TestOutboxLogic:
         """Max relay retries must be a reasonable value."""
         from shared.events.outbox import _MAX_RELAY_RETRIES
 
-        assert 1 <= _MAX_RELAY_RETRIES <= 20, (
-            f"_MAX_RELAY_RETRIES={_MAX_RELAY_RETRIES} is outside reasonable range"
-        )
+        assert 1 <= _MAX_RELAY_RETRIES <= 20, f"_MAX_RELAY_RETRIES={_MAX_RELAY_RETRIES} is outside reasonable range"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -864,10 +837,7 @@ class TestStreamDefinitions:
             for subject in stream.subjects:
                 base = subject.replace(".>", "")
                 if base in subject_to_stream:
-                    pytest.fail(
-                        f"Subject '{base}' is in both '{subject_to_stream[base]}' "
-                        f"and '{stream.name}'"
-                    )
+                    pytest.fail(f"Subject '{base}' is in both '{subject_to_stream[base]}' and '{stream.name}'")
                 subject_to_stream[base] = stream.name
 
     def test_dlq_stream_config_valid(self):

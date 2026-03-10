@@ -1,4 +1,5 @@
 """Phase 1 smoke tests - verify all active services are importable and healthy."""
+
 import pytest
 import os
 

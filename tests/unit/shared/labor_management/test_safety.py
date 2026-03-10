@@ -34,18 +34,25 @@ from shared.labor_management.safety import (
 @pytest.fixture
 def worker_ali():
     return Worker(
-        worker_id="W1", tenant_id="t1", farm_id="f1",
-        first_name="Ali", last_name="Ahmed",
-        first_name_ar="علي", last_name_ar="أحمد",
-        phone="050", status=WorkerStatus.ACTIVE,
+        worker_id="W1",
+        tenant_id="t1",
+        farm_id="f1",
+        first_name="Ali",
+        last_name="Ahmed",
+        first_name_ar="علي",
+        last_name_ar="أحمد",
+        phone="050",
+        status=WorkerStatus.ACTIVE,
         certifications=[
             WorkerCertification(
                 certification_id="c1",
                 certification_type=SafetyCertification.PESTICIDE_APPLICATOR,
-                name="PA", name_ar="مبيد",
+                name="PA",
+                name_ar="مبيد",
                 issue_date=date.today() - timedelta(days=180),
                 expiry_date=date.today() + timedelta(days=180),
-                issuing_authority="MOA", issuing_authority_ar="وزارة",
+                issuing_authority="MOA",
+                issuing_authority_ar="وزارة",
                 certificate_number="PA-001",
             ),
         ],
@@ -55,10 +62,15 @@ def worker_ali():
 @pytest.fixture
 def worker_no_cert():
     return Worker(
-        worker_id="W2", tenant_id="t1", farm_id="f1",
-        first_name="Omar", last_name="Hassan",
-        first_name_ar="عمر", last_name_ar="حسن",
-        phone="051", status=WorkerStatus.ACTIVE,
+        worker_id="W2",
+        tenant_id="t1",
+        farm_id="f1",
+        first_name="Omar",
+        last_name="Hassan",
+        first_name_ar="عمر",
+        last_name_ar="حسن",
+        phone="051",
+        status=WorkerStatus.ACTIVE,
     )
 
 
@@ -87,10 +99,15 @@ class TestREIZoneManagement:
     def test_create_rei_zone(self, safety_manager):
         now = datetime.now(UTC)
         zone = safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herbicide", pesticide_name_ar="مبيد أعشاب",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herbicide",
+            pesticide_name_ar="مبيد أعشاب",
+            application_time=now,
+            rei_hours=24,
         )
         assert zone.zone_id.startswith("REI_")
         assert zone.rei_expiry_time == now + timedelta(hours=24)
@@ -99,10 +116,15 @@ class TestREIZoneManagement:
     def test_get_active_rei_zones(self, safety_manager):
         now = datetime.now(UTC)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=now,
+            rei_hours=24,
         )
         active = safety_manager.get_active_rei_zones(field_id="field1")
         assert len(active) == 1
@@ -119,10 +141,15 @@ class TestREIZoneManagement:
     def test_check_rei_compliance_restricted(self, safety_manager):
         now = datetime.now(UTC)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=now,
+            rei_hours=24,
         )
         result = safety_manager.check_rei_compliance("field1")
         assert result.is_compliant is False
@@ -132,16 +159,22 @@ class TestREIZoneManagement:
     def test_check_rei_compliance_early_entry(self, safety_manager):
         now = datetime.now(UTC)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=now,
+            rei_hours=24,
             early_entry_allowed=True,
             early_entry_tasks=["irrigation"],
             early_entry_ppe=[PPEType.GLOVES, PPEType.BOOTS],
         )
         result = safety_manager.check_rei_compliance(
-            "field1", task_category=TaskCategory.IRRIGATION,
+            "field1",
+            task_category=TaskCategory.IRRIGATION,
         )
         assert result.can_enter is True
         assert result.requires_ppe is True
@@ -150,10 +183,15 @@ class TestREIZoneManagement:
     def test_expire_rei_zones(self, safety_manager):
         past = datetime.now(UTC) - timedelta(hours=48)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=past, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=past,
+            rei_hours=24,
         )
         expired = safety_manager.expire_rei_zones()
         assert len(expired) == 1
@@ -173,16 +211,22 @@ class TestPPERequirements:
     def test_get_ppe_with_rei_zone(self, safety_manager):
         now = datetime.now(UTC)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=now,
+            rei_hours=24,
             early_entry_allowed=True,
             early_entry_tasks=["irrigation"],
             early_entry_ppe=[PPEType.COVERALL],
         )
         ppe_set = safety_manager.get_ppe_requirements(
-            TaskCategory.IRRIGATION, field_id="field1",
+            TaskCategory.IRRIGATION,
+            field_id="field1",
         )
         assert PPEType.COVERALL in ppe_set.required_ppe
 
@@ -207,20 +251,23 @@ class TestPPERequirements:
 class TestCertificationVerification:
     def test_valid_certifications(self, safety_manager):
         result = safety_manager.verify_worker_certifications(
-            "W1", [SafetyCertification.PESTICIDE_APPLICATOR],
+            "W1",
+            [SafetyCertification.PESTICIDE_APPLICATOR],
         )
         assert result.status == SafetyCheckStatus.PASSED
 
     def test_missing_certification(self, safety_manager):
         result = safety_manager.verify_worker_certifications(
-            "W2", [SafetyCertification.PESTICIDE_APPLICATOR],
+            "W2",
+            [SafetyCertification.PESTICIDE_APPLICATOR],
         )
         assert result.status == SafetyCheckStatus.FAILED
         assert len(result.issues) > 0
 
     def test_worker_not_found(self, safety_manager):
         result = safety_manager.verify_worker_certifications(
-            "NOPE", [SafetyCertification.PESTICIDE_APPLICATOR],
+            "NOPE",
+            [SafetyCertification.PESTICIDE_APPLICATOR],
         )
         assert result.status == SafetyCheckStatus.FAILED
 
@@ -230,16 +277,19 @@ class TestCertificationVerification:
             WorkerCertification(
                 certification_id="c1",
                 certification_type=SafetyCertification.PESTICIDE_APPLICATOR,
-                name="PA", name_ar="مبيد",
+                name="PA",
+                name_ar="مبيد",
                 issue_date=date.today() - timedelta(days=345),
                 expiry_date=date.today() + timedelta(days=20),
-                issuing_authority="MOA", issuing_authority_ar="وزارة",
+                issuing_authority="MOA",
+                issuing_authority_ar="وزارة",
                 certificate_number="PA-001",
             ),
         ]
         safety_manager._rebuild_indexes()
         result = safety_manager.verify_worker_certifications(
-            "W1", [SafetyCertification.PESTICIDE_APPLICATOR],
+            "W1",
+            [SafetyCertification.PESTICIDE_APPLICATOR],
         )
         assert result.status == SafetyCheckStatus.WARNING
 
@@ -278,8 +328,11 @@ class TestHeatStressAssessment:
 class TestPreTaskSafetyCheck:
     def test_create_general_task_check(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="Harvest", title_ar="حصاد",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Harvest",
+            title_ar="حصاد",
             category=TaskCategory.HARVESTING,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -287,8 +340,11 @@ class TestPreTaskSafetyCheck:
 
     def test_create_pesticide_task_check(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="Spray", title_ar="رش",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Spray",
+            title_ar="رش",
             category=TaskCategory.PESTICIDE_APPLICATION,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -299,15 +355,23 @@ class TestPreTaskSafetyCheck:
     def test_create_check_with_rei_zone(self, safety_manager):
         now = datetime.now(UTC)
         safety_manager.create_rei_zone_from_pesticide_application(
-            tenant_id="t1", farm_id="f1", field_id="field1",
-            pesticide_application_id="PA1", pesticide_id="P1",
-            pesticide_name="Herb", pesticide_name_ar="مبيد",
-            application_time=now, rei_hours=24,
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
+            pesticide_application_id="PA1",
+            pesticide_id="P1",
+            pesticide_name="Herb",
+            pesticide_name_ar="مبيد",
+            application_time=now,
+            rei_hours=24,
         )
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
             field_id="field1",
-            title="Irrigate", title_ar="ري",
+            title="Irrigate",
+            title_ar="ري",
             category=TaskCategory.IRRIGATION,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -316,8 +380,11 @@ class TestPreTaskSafetyCheck:
 
     def test_complete_safety_check_item(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="Harvest", title_ar="حصاد",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Harvest",
+            title_ar="حصاد",
             category=TaskCategory.HARVESTING,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -328,8 +395,11 @@ class TestPreTaskSafetyCheck:
 
     def test_complete_invalid_item(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="Harvest", title_ar="حصاد",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Harvest",
+            title_ar="حصاد",
             category=TaskCategory.HARVESTING,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -338,8 +408,11 @@ class TestPreTaskSafetyCheck:
 
     def test_verify_ppe_item(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="Harvest", title_ar="حصاد",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Harvest",
+            title_ar="حصاد",
             category=TaskCategory.HARVESTING,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -351,8 +424,11 @@ class TestPreTaskSafetyCheck:
 
     def test_finalize_safety_check_pass(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="General", title_ar="عام",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="General",
+            title_ar="عام",
             category=TaskCategory.GENERAL_LABOR,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -373,8 +449,11 @@ class TestPreTaskSafetyCheck:
 
     def test_finalize_safety_check_fail_incomplete(self, safety_manager):
         task = Task(
-            task_id="T1", tenant_id="t1", farm_id="f1",
-            title="General", title_ar="عام",
+            task_id="T1",
+            tenant_id="t1",
+            farm_id="f1",
+            title="General",
+            title_ar="عام",
             category=TaskCategory.GENERAL_LABOR,
         )
         check = safety_manager.create_pre_task_safety_check("t1", "f1", task, "W1")
@@ -387,7 +466,8 @@ class TestPreTaskSafetyCheck:
 class TestSafetyViolations:
     def test_record_violation(self, safety_manager):
         violation = safety_manager.record_violation(
-            tenant_id="t1", farm_id="f1",
+            tenant_id="t1",
+            farm_id="f1",
             violation_type=SafetyViolationType.PPE_MISSING,
             severity="minor",
             worker_id="W1",
@@ -400,23 +480,35 @@ class TestSafetyViolations:
 
     def test_get_violations_by_worker(self, safety_manager):
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.PPE_MISSING, worker_id="W1",
+            "t1",
+            "f1",
+            SafetyViolationType.PPE_MISSING,
+            worker_id="W1",
         )
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.REI_VIOLATION, worker_id="W2",
+            "t1",
+            "f1",
+            SafetyViolationType.REI_VIOLATION,
+            worker_id="W2",
         )
         violations = safety_manager.get_violations(worker_id="W1")
         assert len(violations) == 1
 
     def test_get_violations_by_type(self, safety_manager):
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.PPE_MISSING,
+            "t1",
+            "f1",
+            SafetyViolationType.PPE_MISSING,
         )
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.PPE_MISSING,
+            "t1",
+            "f1",
+            SafetyViolationType.PPE_MISSING,
         )
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.REI_VIOLATION,
+            "t1",
+            "f1",
+            SafetyViolationType.REI_VIOLATION,
         )
         violations = safety_manager.get_violations(
             violation_type=SafetyViolationType.PPE_MISSING,
@@ -444,10 +536,16 @@ class TestSafetyViolations:
 
     def test_get_safety_summary(self, safety_manager):
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.PPE_MISSING, severity="minor",
+            "t1",
+            "f1",
+            SafetyViolationType.PPE_MISSING,
+            severity="minor",
         )
         safety_manager.record_violation(
-            "t1", "f1", SafetyViolationType.REI_VIOLATION, severity="major",
+            "t1",
+            "f1",
+            SafetyViolationType.REI_VIOLATION,
+            severity="major",
         )
         summary = safety_manager.get_safety_summary("f1")
         assert summary["total_violations"] == 2

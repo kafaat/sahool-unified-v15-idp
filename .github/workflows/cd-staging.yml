@@ -32,6 +32,10 @@ env:
   KUBERNETES_NAMESPACE: sahool-staging
   HELM_TIMEOUT: 10m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-staging
   cancel-in-progress: false
@@ -43,6 +47,7 @@ jobs:
   pre-deploy-checks:
     name: Pre-deployment Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       deploy_starter: ${{ steps.check.outputs.deploy_starter }}
       deploy_professional: ${{ steps.check.outputs.deploy_professional }}
@@ -100,6 +105,7 @@ jobs:
   agent-evaluation-gate:
     name: Agent Evaluation Gate
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -151,6 +157,7 @@ jobs:
   deploy-starter:
     name: Deploy Starter Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [pre-deploy-checks, agent-evaluation-gate]
     if: needs.pre-deploy-checks.outputs.deploy_starter == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
@@ -237,6 +244,7 @@ jobs:
   test-starter:
     name: Test Starter Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [deploy-starter, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -278,6 +286,7 @@ jobs:
   deploy-professional:
     name: Deploy Professional Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [test-starter, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.deploy_professional == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
@@ -336,6 +345,7 @@ jobs:
   test-professional:
     name: Test Professional Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [deploy-professional, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -373,6 +383,7 @@ jobs:
   deploy-enterprise:
     name: Deploy Enterprise Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [test-professional, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.deploy_enterprise == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
@@ -456,6 +467,7 @@ jobs:
   test-enterprise:
     name: Test Enterprise Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [deploy-enterprise, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -495,6 +507,7 @@ jobs:
   smoke-tests:
     name: End-to-End Smoke Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [test-enterprise, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -539,6 +552,7 @@ jobs:
   post-deploy-validation:
     name: Post-deployment Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [smoke-tests, pre-deploy-checks]
     if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
@@ -623,6 +637,7 @@ jobs:
   deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [pre-deploy-checks]
     if: always()
     steps:

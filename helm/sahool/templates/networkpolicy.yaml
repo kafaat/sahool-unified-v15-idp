@@ -8,7 +8,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "sahool.name" . }}
+      {{- include "sahool.selectorLabels" . | nindent 6 }}
   policyTypes:
     {{- toYaml .Values.networkPolicy.policyTypes | nindent 4 }}
   {{- with .Values.networkPolicy.ingress }}
@@ -19,4 +19,59 @@ spec:
   egress:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+---
+# Deny all traffic by default for non-sahool pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "sahool.fullname" . }}-default-deny
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    # Allow DNS resolution for all pods
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Infrastructure services network policy (PostgreSQL, Redis, NATS)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "sahool.fullname" . }}-infrastructure
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    tier: infrastructure
+spec:
+  podSelector:
+    matchLabels:
+      tier: infrastructure
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only allow traffic from sahool application pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sahool
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 4222
+        - protocol: TCP
+          port: 6333
+        - protocol: TCP
+          port: 1883
+        - protocol: TCP
+          port: 8883
 {{- end }}

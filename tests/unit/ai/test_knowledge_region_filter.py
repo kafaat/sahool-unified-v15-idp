@@ -303,7 +303,9 @@ class TestDocumentFiltering:
     """Tests for batch document filtering."""
 
     @pytest.mark.unit
-    def test_filter_documents(self, region_filter: RegionRelevanceFilter, yemen_highland_doc, general_doc, tropical_doc):
+    def test_filter_documents(
+        self, region_filter: RegionRelevanceFilter, yemen_highland_doc, general_doc, tropical_doc
+    ):
         """Test filtering a batch of documents."""
         documents = [yemen_highland_doc, general_doc, tropical_doc]
         results = region_filter.filter_documents(documents)

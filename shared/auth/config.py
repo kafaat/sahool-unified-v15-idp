@@ -39,8 +39,9 @@ class JWTConfigError(Exception):
 class JWTConfig:
     """JWT Configuration Settings - HS256 Only"""
 
-    # JWT Secret Key (required)
-    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
+    # JWT Secret Key (required) - JWT_SECRET_KEY is the canonical name.
+    # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
+    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "")
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
     JWT_ALGORITHM: str = "HS256"
@@ -90,6 +91,10 @@ class JWTConfig:
         env = os.getenv("ENVIRONMENT", "development")
         errors: list[str] = []
         warnings: list[str] = []
+
+        # Warn if JWT_SECRET is used instead of JWT_SECRET_KEY
+        if not os.getenv("JWT_SECRET_KEY") and os.getenv("JWT_SECRET"):
+            warnings.append("DEPRECATION: JWT_SECRET is deprecated. Use JWT_SECRET_KEY instead.")
 
         # Validate JWT Secret
         if not cls.JWT_SECRET:

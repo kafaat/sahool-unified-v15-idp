@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Code Review Agent Dockerfile
 # Multi-stage build for optimized production image
 
@@ -25,6 +26,7 @@ COPY apps/services/code-review-agent/tsconfig.json ./
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
+    install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..."; \
         if npm ci --ignore-scripts \
@@ -34,11 +36,16 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund; then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
-    done || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm ci --ignore-scripts --fetch-retries=5 --no-audit --no-fund)
+            --no-fund; then install_ok=true; break; fi; \
+        if [ "$i" != "3" ]; then \
+            echo "Attempt $i failed, waiting before retry..."; \
+            sleep $((i * 10)); \
+        fi; \
+    done; \
+    if [ "$install_ok" = "false" ]; then \
+        npm config set registry https://registry.npmjs.org && \
+        npm ci --ignore-scripts --fetch-retries=5 --no-audit --no-fund; \
+    fi
 
 # Copy source code
 COPY apps/services/code-review-agent/src/ ./src/

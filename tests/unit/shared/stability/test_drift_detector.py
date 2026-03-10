@@ -31,10 +31,12 @@ class TestConfigDrift:
         (tmp_path / "governance").mkdir()
 
         detector = DriftDetector(project_root=str(tmp_path))
-        report = detector.detect_config_drift(env_override={
-            "DATABASE_URL": "postgresql://localhost:5432/sahool",
-            # JWT_SECRET_KEY and NATS_URL missing
-        })
+        report = detector.detect_config_drift(
+            env_override={
+                "DATABASE_URL": "postgresql://localhost:5432/sahool",
+                # JWT_SECRET_KEY and NATS_URL missing
+            }
+        )
 
         assert len(report.items) >= 2
         missing_vars = {d.resource for d in report.items}
@@ -44,27 +46,23 @@ class TestConfigDrift:
     def test_detect_all_vars_set(self, tmp_path):
         """Test no drift when all vars are set."""
         env_example = tmp_path / ".env.example"
-        env_example.write_text(
-            "DATABASE_URL=postgresql://localhost:5432/sahool\n"
-            "LOG_LEVEL=INFO\n"
-        )
+        env_example.write_text("DATABASE_URL=postgresql://localhost:5432/sahool\nLOG_LEVEL=INFO\n")
         (tmp_path / "governance").mkdir()
 
         detector = DriftDetector(project_root=str(tmp_path))
-        report = detector.detect_config_drift(env_override={
-            "DATABASE_URL": "postgresql://localhost:5432/sahool",
-            "LOG_LEVEL": "DEBUG",
-        })
+        report = detector.detect_config_drift(
+            env_override={
+                "DATABASE_URL": "postgresql://localhost:5432/sahool",
+                "LOG_LEVEL": "DEBUG",
+            }
+        )
 
         assert len(report.items) == 0
 
     def test_secrets_get_higher_severity(self, tmp_path):
         """Test that secret-like vars get higher severity."""
         env_example = tmp_path / ".env.example"
-        env_example.write_text(
-            "JWT_SECRET_KEY=test\n"
-            "LOG_LEVEL=INFO\n"
-        )
+        env_example.write_text("JWT_SECRET_KEY=test\nLOG_LEVEL=INFO\n")
         (tmp_path / "governance").mkdir()
 
         detector = DriftDetector(project_root=str(tmp_path))
@@ -154,12 +152,7 @@ class TestDockerDrift:
         svc.mkdir(parents=True)
 
         dockerfile = svc / "Dockerfile"
-        dockerfile.write_text(
-            "FROM python:3.11-slim\n"
-            "WORKDIR /app\n"
-            "COPY . .\n"
-            "CMD [\"python\", \"main.py\"]\n"
-        )
+        dockerfile.write_text('FROM python:3.11-slim\nWORKDIR /app\nCOPY . .\nCMD ["python", "main.py"]\n')
 
         detector = DriftDetector(project_root=str(tmp_path))
         report = detector.detect_docker_drift()
@@ -176,12 +169,7 @@ class TestDockerDrift:
         svc.mkdir(parents=True)
 
         dockerfile = svc / "Dockerfile"
-        dockerfile.write_text(
-            "FROM python:3.11-slim\n"
-            "USER sahool\n"
-            "WORKDIR /app\n"
-            "CMD [\"python\", \"main.py\"]\n"
-        )
+        dockerfile.write_text('FROM python:3.11-slim\nUSER sahool\nWORKDIR /app\nCMD ["python", "main.py"]\n')
 
         detector = DriftDetector(project_root=str(tmp_path))
         report = detector.detect_docker_drift()
@@ -204,7 +192,7 @@ class TestDockerDrift:
             "WORKDIR /app\n"
             "COPY . .\n"
             "HEALTHCHECK CMD curl -f http://localhost:8080/healthz || exit 1\n"
-            "CMD [\"python\", \"main.py\"]\n"
+            'CMD ["python", "main.py"]\n'
         )
 
         detector = DriftDetector(project_root=str(tmp_path))

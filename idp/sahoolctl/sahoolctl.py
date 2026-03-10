@@ -58,16 +58,12 @@ def validate_governance(inputs: dict) -> None:
     # Validate lifecycle
     lifecycle = inputs.get("lifecycle", "").lower()
     if lifecycle not in VALID_LIFECYCLES:
-        raise GovernanceError(
-            f"❌ Invalid lifecycle: '{lifecycle}'\n   Valid options: {', '.join(VALID_LIFECYCLES)}"
-        )
+        raise GovernanceError(f"❌ Invalid lifecycle: '{lifecycle}'\n   Valid options: {', '.join(VALID_LIFECYCLES)}")
 
     # Validate tier
     tier = inputs.get("tier", "").lower()
     if tier not in VALID_TIERS:
-        raise GovernanceError(
-            f"❌ Invalid tier: '{tier}'\n   Valid options: {', '.join(VALID_TIERS)}"
-        )
+        raise GovernanceError(f"❌ Invalid tier: '{tier}'\n   Valid options: {', '.join(VALID_TIERS)}")
 
     # Validate team (warning only)
     team = inputs.get("team", "").lower()
@@ -358,14 +354,10 @@ Examples:
         choices=VALID_LIFECYCLES,
         help="Lifecycle stage (REQUIRED)",
     )
-    create_parser.add_argument(
-        "--tier", required=True, choices=VALID_TIERS, help="Service tier (REQUIRED)"
-    )
+    create_parser.add_argument("--tier", required=True, choices=VALID_TIERS, help="Service tier (REQUIRED)")
 
     # Validate command
-    validate_parser = subparsers.add_parser(
-        "validate", help="Validate governance of existing service"
-    )
+    validate_parser = subparsers.add_parser("validate", help="Validate governance of existing service")
     validate_parser.add_argument("path", help="Path to service directory")
 
     # Templates command

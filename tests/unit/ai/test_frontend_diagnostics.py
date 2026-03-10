@@ -149,9 +149,7 @@ class TestFrontendDiagnosticRunner:
 
         with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
-            mock_process.communicate = AsyncMock(
-                return_value=(b'[{"filePath":"/test.js","messages":[]}]', b"")
-            )
+            mock_process.communicate = AsyncMock(return_value=(b'[{"filePath":"/test.js","messages":[]}]', b""))
             mock_process.returncode = 0
             mock_proc.return_value = mock_process
 
@@ -234,9 +232,7 @@ class TestUnifiedDiagnosticRunner:
         """Test running frontend diagnostics only."""
         runner = UnifiedDiagnosticRunner()
 
-        with patch.object(
-            runner.frontend_runner, "diagnose", new_callable=AsyncMock
-        ) as mock_diagnose:
+        with patch.object(runner.frontend_runner, "diagnose", new_callable=AsyncMock) as mock_diagnose:
             mock_diagnose.return_value = DiagnosticReport(
                 id="frontend",
                 target="apps/web",
@@ -253,9 +249,7 @@ class TestUnifiedDiagnosticRunner:
         """Test running mobile diagnostics only."""
         runner = UnifiedDiagnosticRunner()
 
-        with patch.object(
-            runner.mobile_runner, "diagnose", new_callable=AsyncMock
-        ) as mock_diagnose:
+        with patch.object(runner.mobile_runner, "diagnose", new_callable=AsyncMock) as mock_diagnose:
             mock_diagnose.return_value = DiagnosticReport(
                 id="mobile",
                 target="apps/mobile",
@@ -272,12 +266,8 @@ class TestUnifiedDiagnosticRunner:
         """Test running all diagnostics."""
         runner = UnifiedDiagnosticRunner()
 
-        with patch.object(
-            runner.frontend_runner, "diagnose", new_callable=AsyncMock
-        ) as mock_frontend:
-            with patch.object(
-                runner.mobile_runner, "diagnose", new_callable=AsyncMock
-            ) as mock_mobile:
+        with patch.object(runner.frontend_runner, "diagnose", new_callable=AsyncMock) as mock_frontend:
+            with patch.object(runner.mobile_runner, "diagnose", new_callable=AsyncMock) as mock_mobile:
                 mock_frontend.return_value = DiagnosticReport(
                     id="frontend",
                     target="apps/web",

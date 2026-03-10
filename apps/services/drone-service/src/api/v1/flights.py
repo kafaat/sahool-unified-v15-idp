@@ -27,6 +27,7 @@ except ImportError:
                 detail["resource_type"] = resource_type
             super().__init__(status_code=404, detail=detail)
 
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -102,6 +103,7 @@ def _get_repo(req: Request):
     pool = getattr(req.app.state, "db_pool", None)
     if pool:
         from src.db import DroneRepository
+
         return DroneRepository(pool)
     return None
 
@@ -117,7 +119,9 @@ def _raise_plan_not_found():
 
 @router.post("/plan/spray", status_code=201)
 async def create_spray_flight_plan(
-    request: SprayFlightRequest, req: Request, user=Depends(get_current_user),
+    request: SprayFlightRequest,
+    req: Request,
+    user=Depends(get_current_user),
 ):
     """Create spray flight plan - إنشاء خطة رحلة رش"""
     try:
@@ -176,10 +180,15 @@ async def create_spray_flight_plan(
     # Publish NATS event
     try:
         from src.events import FLIGHT_PLANNED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, FLIGHT_PLANNED, tenant_id,
-            plan_id=plan_id, plan_type="spray", field_id=request.field_id,
+            nc,
+            FLIGHT_PLANNED,
+            tenant_id,
+            plan_id=plan_id,
+            plan_type="spray",
+            field_id=request.field_id,
             distance_m=result.total_distance_m,
         )
     except Exception:
@@ -188,8 +197,11 @@ async def create_spray_flight_plan(
     logger.info("spray_flight_planned", plan_id=plan_id, distance=result.total_distance_m, tenant_id=tenant_id)
 
     return {
-        "id": plan_id, "field_id": request.field_id, "type": "spray",
-        "name": request.name, "success": result.success,
+        "id": plan_id,
+        "field_id": request.field_id,
+        "type": "spray",
+        "name": request.name,
+        "success": result.success,
         "total_distance_m": result.total_distance_m,
         "estimated_duration_min": result.estimated_duration_min,
         "waypoints_count": len(waypoints_data),
@@ -201,7 +213,9 @@ async def create_spray_flight_plan(
 
 @router.post("/plan/mapping", status_code=201)
 async def create_mapping_flight_plan(
-    request: MappingFlightRequest, req: Request, user=Depends(get_current_user),
+    request: MappingFlightRequest,
+    req: Request,
+    user=Depends(get_current_user),
 ):
     """Create mapping flight plan - إنشاء خطة رحلة تصوير"""
     try:
@@ -257,10 +271,15 @@ async def create_mapping_flight_plan(
 
     try:
         from src.events import FLIGHT_PLANNED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, FLIGHT_PLANNED, tenant_id,
-            plan_id=plan_id, plan_type="mapping", field_id=request.field_id,
+            nc,
+            FLIGHT_PLANNED,
+            tenant_id,
+            plan_id=plan_id,
+            plan_type="mapping",
+            field_id=request.field_id,
         )
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
@@ -268,8 +287,11 @@ async def create_mapping_flight_plan(
     logger.info("mapping_flight_planned", plan_id=plan_id, tenant_id=tenant_id)
 
     return {
-        "id": plan_id, "field_id": request.field_id, "type": "mapping",
-        "name": request.name, "success": result.success,
+        "id": plan_id,
+        "field_id": request.field_id,
+        "type": "mapping",
+        "name": request.name,
+        "success": result.success,
         "total_distance_m": result.total_distance_m,
         "estimated_duration_min": result.estimated_duration_min,
         "waypoints_count": len(waypoints_data),
@@ -302,11 +324,7 @@ async def check_flight_weather(request: WeatherCheckRequest, user=Depends(get_cu
             "warnings_ar": assessment.warnings_ar,
         }
     except ImportError:
-        safe = (
-            request.wind_speed_ms < 8
-            and request.precipitation_mm == 0
-            and 5 < request.temperature_c < 45
-        )
+        safe = request.wind_speed_ms < 8 and request.precipitation_mm == 0 and 5 < request.temperature_c < 45
         warnings_en = []
         warnings_ar = []
         if request.wind_speed_ms >= 8:

@@ -191,32 +191,44 @@ class TestWorker:
 
     def test_has_skill_true(self):
         skill = WorkerSkill(
-            skill_id="s1", skill_name="Tractor", skill_name_ar="جرار",
-            category=SkillCategory.EQUIPMENT_OPERATION, level=SkillLevel.ADVANCED,
+            skill_id="s1",
+            skill_name="Tractor",
+            skill_name_ar="جرار",
+            category=SkillCategory.EQUIPMENT_OPERATION,
+            level=SkillLevel.ADVANCED,
         )
         worker = self._make_worker(skills=[skill])
         assert worker.has_skill(SkillCategory.EQUIPMENT_OPERATION, SkillLevel.BEGINNER) is True
 
     def test_has_skill_exact_level(self):
         skill = WorkerSkill(
-            skill_id="s1", skill_name="Tractor", skill_name_ar="جرار",
-            category=SkillCategory.EQUIPMENT_OPERATION, level=SkillLevel.INTERMEDIATE,
+            skill_id="s1",
+            skill_name="Tractor",
+            skill_name_ar="جرار",
+            category=SkillCategory.EQUIPMENT_OPERATION,
+            level=SkillLevel.INTERMEDIATE,
         )
         worker = self._make_worker(skills=[skill])
         assert worker.has_skill(SkillCategory.EQUIPMENT_OPERATION, SkillLevel.INTERMEDIATE) is True
 
     def test_has_skill_insufficient_level(self):
         skill = WorkerSkill(
-            skill_id="s1", skill_name="Tractor", skill_name_ar="جرار",
-            category=SkillCategory.EQUIPMENT_OPERATION, level=SkillLevel.BEGINNER,
+            skill_id="s1",
+            skill_name="Tractor",
+            skill_name_ar="جرار",
+            category=SkillCategory.EQUIPMENT_OPERATION,
+            level=SkillLevel.BEGINNER,
         )
         worker = self._make_worker(skills=[skill])
         assert worker.has_skill(SkillCategory.EQUIPMENT_OPERATION, SkillLevel.ADVANCED) is False
 
     def test_has_skill_wrong_category(self):
         skill = WorkerSkill(
-            skill_id="s1", skill_name="Irrigation", skill_name_ar="ري",
-            category=SkillCategory.IRRIGATION_SYSTEMS, level=SkillLevel.EXPERT,
+            skill_id="s1",
+            skill_name="Irrigation",
+            skill_name_ar="ري",
+            category=SkillCategory.IRRIGATION_SYSTEMS,
+            level=SkillLevel.EXPERT,
         )
         worker = self._make_worker(skills=[skill])
         assert worker.has_skill(SkillCategory.EQUIPMENT_OPERATION) is False
@@ -225,9 +237,12 @@ class TestWorker:
         cert = WorkerCertification(
             certification_id="c1",
             certification_type=SafetyCertification.PESTICIDE_APPLICATOR,
-            name="PA", name_ar="مبيد",
-            issue_date=date.today(), expiry_date=date.today() + timedelta(days=30),
-            issuing_authority="MOA", issuing_authority_ar="وزارة",
+            name="PA",
+            name_ar="مبيد",
+            issue_date=date.today(),
+            expiry_date=date.today() + timedelta(days=30),
+            issuing_authority="MOA",
+            issuing_authority_ar="وزارة",
             certificate_number="PA-001",
         )
         worker = self._make_worker(certifications=[cert])
@@ -237,10 +252,12 @@ class TestWorker:
         cert = WorkerCertification(
             certification_id="c1",
             certification_type=SafetyCertification.PESTICIDE_APPLICATOR,
-            name="PA", name_ar="مبيد",
+            name="PA",
+            name_ar="مبيد",
             issue_date=date.today() - timedelta(days=365),
             expiry_date=date.today() - timedelta(days=1),
-            issuing_authority="MOA", issuing_authority_ar="وزارة",
+            issuing_authority="MOA",
+            issuing_authority_ar="وزارة",
             certificate_number="PA-001",
         )
         worker = self._make_worker(certifications=[cert])
@@ -250,9 +267,12 @@ class TestWorker:
         cert = WorkerCertification(
             certification_id="c1",
             certification_type=SafetyCertification.FIRST_AID,
-            name="FA", name_ar="إسعاف",
-            issue_date=date.today(), expiry_date=date.today() + timedelta(days=30),
-            issuing_authority="MOA", issuing_authority_ar="وزارة",
+            name="FA",
+            name_ar="إسعاف",
+            issue_date=date.today(),
+            expiry_date=date.today() + timedelta(days=30),
+            issuing_authority="MOA",
+            issuing_authority_ar="وزارة",
             certificate_number="FA-001",
         )
         worker = self._make_worker(certifications=[cert])
@@ -262,17 +282,23 @@ class TestWorker:
         cert_expiring = WorkerCertification(
             certification_id="c1",
             certification_type=SafetyCertification.PESTICIDE_APPLICATOR,
-            name="PA", name_ar="مبيد",
-            issue_date=date.today(), expiry_date=date.today() + timedelta(days=15),
-            issuing_authority="MOA", issuing_authority_ar="وزارة",
+            name="PA",
+            name_ar="مبيد",
+            issue_date=date.today(),
+            expiry_date=date.today() + timedelta(days=15),
+            issuing_authority="MOA",
+            issuing_authority_ar="وزارة",
             certificate_number="PA-001",
         )
         cert_not_expiring = WorkerCertification(
             certification_id="c2",
             certification_type=SafetyCertification.FIRST_AID,
-            name="FA", name_ar="إسعاف",
-            issue_date=date.today(), expiry_date=date.today() + timedelta(days=365),
-            issuing_authority="MOA", issuing_authority_ar="وزارة",
+            name="FA",
+            name_ar="إسعاف",
+            issue_date=date.today(),
+            expiry_date=date.today() + timedelta(days=365),
+            issuing_authority="MOA",
+            issuing_authority_ar="وزارة",
             certificate_number="FA-001",
         )
         worker = self._make_worker(certifications=[cert_expiring, cert_not_expiring])
@@ -325,24 +351,33 @@ class TestTask:
 class TestWorkShift:
     def test_get_duration_hours_normal(self):
         shift = WorkShift(
-            shift_id="S1", name="Morning", name_ar="صباحي",
-            start_time=time(6, 0), end_time=time(14, 0),
+            shift_id="S1",
+            name="Morning",
+            name_ar="صباحي",
+            start_time=time(6, 0),
+            end_time=time(14, 0),
             break_duration_minutes=60,
         )
         assert shift.get_duration_hours() == 7.0
 
     def test_get_duration_hours_overnight(self):
         shift = WorkShift(
-            shift_id="S2", name="Night", name_ar="ليلي",
-            start_time=time(22, 0), end_time=time(6, 0),
+            shift_id="S2",
+            name="Night",
+            name_ar="ليلي",
+            start_time=time(22, 0),
+            end_time=time(6, 0),
             break_duration_minutes=30,
         )
         assert shift.get_duration_hours() == 7.5
 
     def test_get_duration_hours_no_break(self):
         shift = WorkShift(
-            shift_id="S3", name="Short", name_ar="قصيرة",
-            start_time=time(8, 0), end_time=time(12, 0),
+            shift_id="S3",
+            name="Short",
+            name_ar="قصيرة",
+            start_time=time(8, 0),
+            end_time=time(12, 0),
             break_duration_minutes=0,
         )
         assert shift.get_duration_hours() == 4.0
@@ -396,8 +431,11 @@ class TestPreTaskSafetyCheck:
             SafetyChecklistItem(item_id="C", description="C", description_ar="ج", category="gen", is_mandatory=False),
         ]
         check = PreTaskSafetyCheck(
-            check_id="CHK1", tenant_id="t1", farm_id="f1",
-            task_id="TSK1", worker_id="WRK1",
+            check_id="CHK1",
+            tenant_id="t1",
+            farm_id="f1",
+            task_id="TSK1",
+            worker_id="WRK1",
             checklist_items=items,
             completed_items=["A", "B"],
         )
@@ -409,8 +447,11 @@ class TestPreTaskSafetyCheck:
             SafetyChecklistItem(item_id="B", description="B", description_ar="ب", category="gen", is_mandatory=True),
         ]
         check = PreTaskSafetyCheck(
-            check_id="CHK1", tenant_id="t1", farm_id="f1",
-            task_id="TSK1", worker_id="WRK1",
+            check_id="CHK1",
+            tenant_id="t1",
+            farm_id="f1",
+            task_id="TSK1",
+            worker_id="WRK1",
             checklist_items=items,
             completed_items=["A"],
         )
@@ -420,7 +461,10 @@ class TestPreTaskSafetyCheck:
 class TestAttendanceRecord:
     def test_calculate_worked_hours(self):
         record = AttendanceRecord(
-            attendance_id="ATT1", tenant_id="t1", farm_id="f1", worker_id="WRK1",
+            attendance_id="ATT1",
+            tenant_id="t1",
+            farm_id="f1",
+            worker_id="WRK1",
             date=date.today(),
             clock_in=datetime(2025, 1, 1, 6, 0, tzinfo=UTC),
             clock_out=datetime(2025, 1, 1, 14, 0, tzinfo=UTC),
@@ -430,7 +474,10 @@ class TestAttendanceRecord:
 
     def test_calculate_worked_hours_no_clock(self):
         record = AttendanceRecord(
-            attendance_id="ATT1", tenant_id="t1", farm_id="f1", worker_id="WRK1",
+            attendance_id="ATT1",
+            tenant_id="t1",
+            farm_id="f1",
+            worker_id="WRK1",
             date=date.today(),
         )
         assert record.calculate_worked_hours() is None
@@ -439,7 +486,10 @@ class TestAttendanceRecord:
 class TestLeaveRequest:
     def test_get_duration_days(self):
         req = LeaveRequest(
-            leave_id="LV1", tenant_id="t1", farm_id="f1", worker_id="WRK1",
+            leave_id="LV1",
+            tenant_id="t1",
+            farm_id="f1",
+            worker_id="WRK1",
             leave_type=LeaveType.ANNUAL,
             start_date=date(2025, 1, 1),
             end_date=date(2025, 1, 5),
@@ -460,9 +510,12 @@ class TestFactoryFunctions:
 
     def test_create_worker(self):
         worker = create_worker(
-            tenant_id="t1", farm_id="f1",
-            first_name="Ali", last_name="Ahmed",
-            first_name_ar="علي", last_name_ar="أحمد",
+            tenant_id="t1",
+            farm_id="f1",
+            first_name="Ali",
+            last_name="Ahmed",
+            first_name_ar="علي",
+            last_name_ar="أحمد",
             phone="0501234567",
         )
         assert worker.worker_id.startswith("WRK_")
@@ -470,8 +523,10 @@ class TestFactoryFunctions:
 
     def test_create_task(self):
         task = create_task(
-            tenant_id="t1", farm_id="f1",
-            title="Plant wheat", title_ar="زراعة القمح",
+            tenant_id="t1",
+            farm_id="f1",
+            title="Plant wheat",
+            title_ar="زراعة القمح",
             category=TaskCategory.PLANTING,
         )
         assert task.task_id.startswith("TSK_")
@@ -480,7 +535,9 @@ class TestFactoryFunctions:
     def test_create_rei_zone(self):
         now = datetime.now(UTC)
         zone = create_rei_zone(
-            tenant_id="t1", farm_id="f1", field_id="field1",
+            tenant_id="t1",
+            farm_id="f1",
+            field_id="field1",
             pesticide_application_id="PA001",
             pesticide_id="P001",
             pesticide_name="TestPesticide",

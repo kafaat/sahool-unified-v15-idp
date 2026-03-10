@@ -3,10 +3,10 @@
 # Version: 16.0.0
 
 # Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # HTTP Client
 httpx==0.28.1
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2

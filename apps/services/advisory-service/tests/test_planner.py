@@ -163,7 +163,7 @@ class TestPlannerAPI:
     def test_create_plan_endpoint(self, client):
         """Test fertilizer plan API"""
         response = client.post(
-            "/fertilizer/plan",
+            "/api/v1/fertilizer/plan",
             json={
                 "tenant_id": "test_tenant",
                 "field_id": "field_123",
@@ -189,7 +189,7 @@ class TestPlannerAPI:
             first_stage = stages[0]["stage"]
 
             response = client.post(
-                "/fertilizer/plan",
+                "/api/v1/fertilizer/plan",
                 json={
                     "tenant_id": "test_tenant",
                     "field_id": "test_field",
@@ -203,7 +203,7 @@ class TestPlannerAPI:
     def test_create_plan_invalid_stage(self, client):
         """Test plan with invalid stage still works"""
         response = client.post(
-            "/fertilizer/plan",
+            "/api/v1/fertilizer/plan",
             json={
                 "tenant_id": "test_tenant",
                 "field_id": "field_123",

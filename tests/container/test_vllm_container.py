@@ -437,9 +437,7 @@ class TestVLLMEnvExample:
             for line in lines:
                 if "HF_TOKEN" in line and "=" in line:
                     value = line.split("=", 1)[1].strip()
-                    assert value == "" or value.startswith("${"), (
-                        f"HF_TOKEN should be empty in {env_file.name}"
-                    )
+                    assert value == "" or value.startswith("${"), f"HF_TOKEN should be empty in {env_file.name}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -565,9 +563,7 @@ class TestVLLMPrometheusMonitoring:
         """Prometheus has a scrape job for vLLM."""
         scrape_configs = self.prom.get("scrape_configs", [])
         job_names = [j.get("job_name") for j in scrape_configs]
-        assert any("vllm" in name for name in job_names if name), (
-            f"No vLLM scrape job found. Jobs: {job_names}"
-        )
+        assert any("vllm" in name for name in job_names if name), f"No vLLM scrape job found. Jobs: {job_names}"
 
     def test_vllm_scrape_target(self):
         """Prometheus scrapes vllm:8270."""
@@ -582,9 +578,7 @@ class TestVLLMPrometheusMonitoring:
         all_targets = []
         for sc in static_configs:
             all_targets.extend(sc.get("targets", []))
-        assert any("vllm:8270" in t for t in all_targets), (
-            f"vllm:8270 not in targets: {all_targets}"
-        )
+        assert any("vllm:8270" in t for t in all_targets), f"vllm:8270 not in targets: {all_targets}"
 
     def test_vllm_scrape_labels(self):
         """Prometheus vLLM job has ai-ml tier label."""

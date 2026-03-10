@@ -55,9 +55,7 @@ def assert_api_response(
     # Check expected keys
     if expected_keys:
         for key in expected_keys:
-            assert key in data, (
-                f"Expected key '{key}' not in response. Available keys: {list(data.keys())}"
-            )
+            assert key in data, f"Expected key '{key}' not in response. Available keys: {list(data.keys())}"
 
     return data
 
@@ -108,9 +106,7 @@ def assert_response_error(
     Returns:
         Response JSON body
     """
-    assert response.status_code == expected_status, (
-        f"Expected status {expected_status}, got {response.status_code}"
-    )
+    assert response.status_code == expected_status, f"Expected status {expected_status}, got {response.status_code}"
 
     try:
         data = response.json()
@@ -154,16 +150,12 @@ def assert_json_schema(data: dict, schema: dict) -> None:
 
         # Handle nested dict
         if isinstance(expected_type, dict):
-            assert isinstance(value, dict), (
-                f"Field '{actual_key}' should be dict, got {type(value).__name__}"
-            )
+            assert isinstance(value, dict), f"Field '{actual_key}' should be dict, got {type(value).__name__}"
             assert_json_schema(value, expected_type)
 
         # Handle list type
         elif isinstance(expected_type, list) and len(expected_type) == 1:
-            assert isinstance(value, list), (
-                f"Field '{actual_key}' should be list, got {type(value).__name__}"
-            )
+            assert isinstance(value, list), f"Field '{actual_key}' should be list, got {type(value).__name__}"
             for item in value:
                 assert isinstance(item, expected_type[0]), (
                     f"List item in '{actual_key}' should be {expected_type[0].__name__}"
@@ -172,8 +164,7 @@ def assert_json_schema(data: dict, schema: dict) -> None:
         # Handle simple type
         elif expected_type is not None:
             assert isinstance(value, expected_type), (
-                f"Field '{actual_key}' should be {expected_type.__name__}, "
-                f"got {type(value).__name__}"
+                f"Field '{actual_key}' should be {expected_type.__name__}, got {type(value).__name__}"
             )
 
 
@@ -208,8 +199,7 @@ def assert_event_published(
                 matching.append(call_event)
 
     assert len(matching) >= count, (
-        f"Expected at least {count} publish(es) to '{subject}', "
-        f"found {len(matching)}. Total calls: {len(calls)}"
+        f"Expected at least {count} publish(es) to '{subject}', found {len(matching)}. Total calls: {len(calls)}"
     )
 
     return matching
@@ -237,9 +227,7 @@ def assert_field_valid(field_data: dict) -> None:
     geometry = field_data.get("geometry")
     if geometry:
         assert "type" in geometry, "geometry must have 'type'"
-        assert geometry["type"] in ["Polygon", "MultiPolygon"], (
-            f"Invalid geometry type: {geometry['type']}"
-        )
+        assert geometry["type"] in ["Polygon", "MultiPolygon"], f"Invalid geometry type: {geometry['type']}"
         assert "coordinates" in geometry, "geometry must have 'coordinates'"
 
 

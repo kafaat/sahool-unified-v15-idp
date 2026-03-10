@@ -12,7 +12,7 @@ aiohttp>=3.13.3
 
 # ML Frameworks (at least one required) - أطر عمل التعلم الآلي (مطلوب واحد على الأقل)
 # Uncomment based on your preference - قم بإلغاء التعليق بناءً على تفضيلاتك
-tensorflow-cpu>=2.20.0  # Aligned with platform constraint (tensorflow-cpu==2.20.0 in constraints.txt)
+tensorflow-cpu>=2.20.0  # Aligned with platform constraint (tensorflow-cpu==2.21.0 in constraints.txt)
 # torch>=2.0.0  # For PyTorch support
 # torchvision>=0.15.0  # For PyTorch vision utilities
 

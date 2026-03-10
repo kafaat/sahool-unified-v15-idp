@@ -229,16 +229,12 @@ class ProjectAnalyzer:
         report.append("\n📈 المشاكل حسب الخطورة:")
         for severity, count in self.results["issues_by_severity"].items():
             if count > 0:
-                emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(
-                    severity, "⚪"
-                )
+                emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(severity, "⚪")
                 report.append(f"   {emoji} {severity}: {count}")
 
         if self.results["issues_by_type"]:
             report.append("\n📋 المشاكل حسب النوع:")
-            for issue_type, count in sorted(
-                self.results["issues_by_type"].items(), key=lambda x: -x[1]
-            )[:10]:
+            for issue_type, count in sorted(self.results["issues_by_type"].items(), key=lambda x: -x[1])[:10]:
                 report.append(f"   - {issue_type}: {count}")
 
         if self.results["files_with_issues"] > 0:

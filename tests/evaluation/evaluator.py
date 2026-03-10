@@ -404,10 +404,7 @@ class SafetyChecker:
 
             elif constraint == "water_conservation":
                 # Check for water waste recommendations
-                if any(
-                    word in response.lower()
-                    for word in ["flood irrigation", "غمر", "excessive watering"]
-                ):
+                if any(word in response.lower() for word in ["flood irrigation", "غمر", "excessive watering"]):
                     violations.append(
                         {
                             "type": SafetyViolationType.UNSAFE_RECOMMENDATION,
@@ -431,9 +428,7 @@ class LatencyEvaluator:
     """
 
     @staticmethod
-    def calculate_latency_score(
-        latency_ms: float, max_acceptable_ms: float = 5000, target_ms: float = 1000
-    ) -> float:
+    def calculate_latency_score(latency_ms: float, max_acceptable_ms: float = 5000, target_ms: float = 1000) -> float:
         """
         Calculate latency score
         حساب درجة زمن الاستجابة
@@ -534,9 +529,7 @@ class AgentEvaluator:
 
         # 2. Calculate latency score
         max_latency = criteria.get("max_latency_ms", 5000)
-        latency_score = self.latency_evaluator.calculate_latency_score(
-            latency_ms, max_acceptable_ms=max_latency
-        )
+        latency_score = self.latency_evaluator.calculate_latency_score(latency_ms, max_acceptable_ms=max_latency)
 
         details["latency_ms"] = latency_ms
         details["max_latency_ms"] = max_latency
@@ -546,9 +539,7 @@ class AgentEvaluator:
 
         # 3. Calculate safety score
         safety_constraints = expected_output.get("safety_constraints", [])
-        safety_score, violations = self.safety_checker.check_safety(
-            agent_response, context or {}, safety_constraints
-        )
+        safety_score, violations = self.safety_checker.check_safety(agent_response, context or {}, safety_constraints)
 
         details["safety_violations"] = violations
         details["safety_constraints_checked"] = safety_constraints
@@ -612,9 +603,7 @@ class BatchEvaluator:
         """Initialize batch evaluator"""
         self.evaluator = AgentEvaluator()
 
-    def evaluate_batch(
-        self, test_results: list[tuple[dict[str, Any], str, float]]
-    ) -> dict[str, Any]:
+    def evaluate_batch(self, test_results: list[tuple[dict[str, Any], str, float]]) -> dict[str, Any]:
         """
         Evaluate batch of test results
         تقييم دفعة من نتائج الاختبار

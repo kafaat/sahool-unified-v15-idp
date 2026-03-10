@@ -37,25 +37,15 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Upgrade pip and build tools with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
 RUN mkdir -p ~/.pip && \
-    cat > ~/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://mirrors.cloud.tencent.com/pypi/simple
-                  https://pypi.org/simple/
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/weather-service/requirements.txt /tmp/requirements.txt

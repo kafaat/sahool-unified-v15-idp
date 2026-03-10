@@ -16,6 +16,9 @@ on:
       - 'apps/mobile/lib/core/contracts/**'
       - 'packages/api-client/src/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: contracts-${{ github.ref }}
   cancel-in-progress: true
@@ -27,6 +30,7 @@ jobs:
   validate-contracts:
     name: Validate Contract Integrity
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -69,6 +73,7 @@ jobs:
   dart-sync:
     name: Check Dart Contract Sync
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 
@@ -90,6 +95,7 @@ jobs:
   breaking-changes:
     name: Detect Breaking Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
         with:
@@ -167,6 +173,7 @@ jobs:
   governance-sync:
     name: Governance Sync Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 

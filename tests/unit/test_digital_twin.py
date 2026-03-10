@@ -160,9 +160,7 @@ class TestDomainModels:
     def test_irrigation_recommendation_defaults(self):
         from shared.digital_twin.models import IrrigationRecommendation
 
-        rec = IrrigationRecommendation(
-            tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=25.0
-        )
+        rec = IrrigationRecommendation(tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=25.0)
         assert rec.confidence == pytest.approx(0.7)
         assert rec.reason_codes == []
 
@@ -224,9 +222,7 @@ class TestTwinRepositoryMemory:
             s = _make_state(day=TODAY - timedelta(days=i), lai=float(i))
             await self.repo.save_state(s)
 
-        states = await self.repo.get_states(
-            TENANT, FIELD, TODAY - timedelta(days=4), TODAY
-        )
+        states = await self.repo.get_states(TENANT, FIELD, TODAY - timedelta(days=4), TODAY)
         assert len(states) == 5
         # Should be sorted ascending by day
         days = [s.day for s in states]
@@ -238,9 +234,7 @@ class TestTwinRepositoryMemory:
 
         obs = _make_observation()
         await self.repo.save_observation(obs)
-        results = await self.repo.get_recent_observations(
-            TENANT, FIELD, ObservationType.NDVI, days_back=7
-        )
+        results = await self.repo.get_recent_observations(TENANT, FIELD, ObservationType.NDVI, days_back=7)
         assert len(results) >= 1
         assert results[0].value == pytest.approx(0.72)
 
@@ -264,12 +258,8 @@ class TestTwinRepositoryMemory:
     async def test_recommendation_upsert(self):
         from shared.digital_twin.models import IrrigationRecommendation
 
-        rec1 = IrrigationRecommendation(
-            tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=20.0
-        )
-        rec2 = IrrigationRecommendation(
-            tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=35.0
-        )
+        rec1 = IrrigationRecommendation(tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=20.0)
+        rec2 = IrrigationRecommendation(tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=35.0)
         await self.repo.save_recommendation(rec1)
         await self.repo.save_recommendation(rec2)
         loaded = await self.repo.get_recommendation(TENANT, FIELD, TODAY)
@@ -357,9 +347,7 @@ class TestTwinPipeline:
             wind_speed_m_s=2.0,
             precipitation_mm=0.0,
         )
-        await pipeline.step(
-            TENANT, FIELD, TODAY, weather, SoilProfile(), CropParameters()
-        )
+        await pipeline.step(TENANT, FIELD, TODAY, weather, SoilProfile(), CropParameters())
         saved = await repo.get_state(TENANT, FIELD, TODAY)
         assert saved is not None
 
@@ -390,9 +378,7 @@ class TestTwinPipeline:
                 wind_speed_m_s=2.0,
                 precipitation_mm=0.0,
             )
-            await pipeline.step(
-                TENANT, FIELD, day, weather, SoilProfile(), CropParameters()
-            )
+            await pipeline.step(TENANT, FIELD, day, weather, SoilProfile(), CropParameters())
 
         s1 = await repo.get_state(TENANT, FIELD, day1)
         s2 = await repo.get_state(TENANT, FIELD, day2)
@@ -527,9 +513,7 @@ class TestDecisionEngine:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         # p=0.45 for heading stage → RAW = 0.45*180 = 81mm; depletion=120mm
-        state = _make_state(
-            depletion_mm=120.0, water_stress=0.30, phenology_stage="heading"
-        )
+        state = _make_state(depletion_mm=120.0, water_stress=0.30, phenology_stage="heading")
         rec = await engine.recommend_irrigation(state, taw_mm=180.0)
         assert rec.recommended_mm > 0.0
         assert "DEPLETION_EXCEEDS_RAW" in rec.reason_codes
@@ -567,9 +551,7 @@ class TestDecisionEngine:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         state = _make_state()
-        result = await engine.recommend_fertilizer(
-            state, crop_type="wheat", target_yield_t_ha=4.0
-        )
+        result = await engine.recommend_fertilizer(state, crop_type="wheat", target_yield_t_ha=4.0)
         assert "n_fertiliser_kg_ha" in result
         assert result["n_fertiliser_kg_ha"] >= 0.0
 
@@ -596,9 +578,7 @@ class TestNATSSubjects:
     def test_observation_ingested_subject(self):
         from shared.events.subjects import SAHOOL_FIELD_OBSERVATION_INGESTED
 
-        assert (
-            SAHOOL_FIELD_OBSERVATION_INGESTED == "sahool.field.observation.ingested.v1"
-        )
+        assert SAHOOL_FIELD_OBSERVATION_INGESTED == "sahool.field.observation.ingested.v1"
 
     def test_state_updated_subject(self):
         from shared.events.subjects import SAHOOL_FIELD_STATE_UPDATED
@@ -608,10 +588,7 @@ class TestNATSSubjects:
     def test_irrigation_recommendation_ready_subject(self):
         from shared.events.subjects import SAHOOL_IRRIGATION_RECOMMENDATION_READY
 
-        assert (
-            SAHOOL_IRRIGATION_RECOMMENDATION_READY
-            == "sahool.irrigation.recommendation.ready.v1"
-        )
+        assert SAHOOL_IRRIGATION_RECOMMENDATION_READY == "sahool.irrigation.recommendation.ready.v1"
 
     def test_subjects_in_registry(self):
         from shared.events.subjects import SUBJECT_REGISTRY
@@ -665,18 +642,31 @@ class TestTwinRouterSmoke:
             _mem_recommendations.clear()
 
             # Add service source to path and import router
-            repo_root = os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            )
-            service_src = os.path.join(
-                repo_root, "apps", "services", "crop-intelligence-service"
-            )
+            repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            service_src = os.path.join(repo_root, "apps", "services", "crop-intelligence-service")
+            # Evict any cached src.* modules from other services
+            stale = [k for k in sys.modules if k == "src" or k.startswith("src.")]
+            for k in stale:
+                del sys.modules[k]
             if service_src not in sys.path:
                 sys.path.insert(0, service_src)
+            else:
+                sys.path.remove(service_src)
+                sys.path.insert(0, service_src)
             from src.twin_router import router
+            from shared.auth.dependencies import get_current_user
+            from unittest.mock import MagicMock
 
             app = FastAPI()
             app.include_router(router, prefix="/api/v1")
+
+            # Override auth dependency with a mock user
+            mock_user = MagicMock()
+            mock_user.id = "user-001"
+            mock_user.tenant_id = "tenant-001"
+            mock_user.roles = ["farmer"]
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+
             return TestClient(app)
         except ImportError as exc:
             pytest.skip(f"twin_router not importable: {exc}")

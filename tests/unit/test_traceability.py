@@ -1298,9 +1298,7 @@ class TestBatchTraceReport:
         assert report.temperature_excursions == 1
         assert "Temperature excursion" in report.compliance_issues[0]
 
-    def test_trace_report_expired_certification(
-        self, supply_chain_tracker, sample_expired_certification
-    ):
+    def test_trace_report_expired_certification(self, supply_chain_tracker, sample_expired_certification):
         """Test trace report detects expired certifications."""
         supply_chain_tracker.add_certification(sample_expired_certification)
 

@@ -262,7 +262,7 @@ def _use_database() -> bool:
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    print(f"🚀 Starting {SERVICE_NAME} v{SERVICE_VERSION}")
+    logger.info("service_starting", service=SERVICE_NAME, version=SERVICE_VERSION)
 
     # Initialize database connection pool
     pool = await db.init_pool()
@@ -272,7 +272,7 @@ async def lifespan(app: FastAPI):
         await db.ensure_schema()
     else:
         app.state.db_connected = False
-        print("⚠️ Running without database persistence (using in-memory store)")
+        logger.warning("database_unavailable", detail="running without database persistence, using in-memory store")
 
     # Initialize Redis connection (if available)
     redis_url = os.getenv("REDIS_URL")
@@ -280,9 +280,9 @@ async def lifespan(app: FastAPI):
         try:
             app.state.redis = redis_client.from_url(redis_url, decode_responses=True)
             app.state.redis_connected = True
-            print(f"✅ Redis connected: {redis_url}")
+            logger.info("redis_connected", url=redis_url)
         except Exception as e:
-            print(f"⚠️ Redis connection failed: {e}")
+            logger.warning("redis_connection_failed", error=str(e))
             app.state.redis = None
             app.state.redis_connected = False
     else:
@@ -297,16 +297,16 @@ async def lifespan(app: FastAPI):
 
             app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
-            print(f"✅ NATS connected: {nats_url}")
+            logger.info("nats_connected", url=nats_url)
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
+            logger.warning("nats_connection_failed", error=str(e))
             app.state.publisher = None
             app.state.nats_connected = False
     else:
         app.state.publisher = None
         app.state.nats_connected = False
 
-    print(f"✅ {SERVICE_NAME} ready on port {SERVICE_PORT}")
+    logger.info("service_ready", service=SERVICE_NAME, port=SERVICE_PORT)
 
     yield
 
@@ -316,7 +316,7 @@ async def lifespan(app: FastAPI):
         await app.state.redis.close()
     if hasattr(app.state, "publisher") and app.state.publisher:
         await app.state.publisher.close()
-    print(f"👋 {SERVICE_NAME} shutdown complete")
+    logger.info("service_shutdown_complete", service=SERVICE_NAME)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

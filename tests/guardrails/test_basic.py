@@ -93,9 +93,7 @@ class TestPromptInjectionDetection:
     )
     def test_prompt_injection_detection(self, prompt_injection_patterns, text, should_detect):
         """Verify prompt injection patterns are detected correctly."""
-        detected = any(
-            re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns
-        )
+        detected = any(re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns)
         assert detected == should_detect, f"Failed for: {text}"
 
 
@@ -144,9 +142,7 @@ class TestTopicFiltering:
             ("ما هو أفضل وقت لزراعة القمح؟", True, False),
         ],
     )
-    def test_topic_filtering(
-        self, allowed_topics, blocked_topics, text, should_allow, should_block
-    ):
+    def test_topic_filtering(self, allowed_topics, blocked_topics, text, should_allow, should_block):
         """Verify topic filtering works correctly."""
         text_lower = text.lower()
         is_allowed = any(topic.lower() in text_lower for topic in allowed_topics)
@@ -303,16 +299,12 @@ class TestGuardrailsIntegration:
     """Integration tests for guardrails system."""
 
     @pytest.mark.unit
-    def test_safe_agricultural_query(
-        self, prompt_injection_patterns, email_pattern, phone_pattern, toxic_keywords
-    ):
+    def test_safe_agricultural_query(self, prompt_injection_patterns, email_pattern, phone_pattern, toxic_keywords):
         """Verify a safe agricultural query passes all checks."""
         text = "What is the optimal irrigation schedule for wheat in winter?"
 
         # Check for prompt injection
-        has_injection = any(
-            re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns
-        )
+        has_injection = any(re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns)
         assert not has_injection
 
         # Check for PII
@@ -335,9 +327,7 @@ class TestGuardrailsIntegration:
         ]
 
         for query in malicious_queries:
-            has_injection = any(
-                re.search(pattern, query, re.IGNORECASE) for pattern in prompt_injection_patterns
-            )
+            has_injection = any(re.search(pattern, query, re.IGNORECASE) for pattern in prompt_injection_patterns)
             has_blocked_topic = any(topic.lower() in query.lower() for topic in blocked_topics)
             # At least one check should fail
             assert has_injection or has_blocked_topic, f"Query should be blocked: {query}"

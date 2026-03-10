@@ -138,22 +138,26 @@ class TestDocumentQueryFilters:
         )
 
         repo = InMemoryKnowledgeRepository()
-        repo.save(_make_doc(
-            title="Wheat Guide",
-            domain=KnowledgeDomain.CROPS,
-            tags=["wheat", "cereals"],
-            geospatial=GeospatialMetadata(applicable_regions=["yemen_highland"]),
-            source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.INTERNATIONAL_ORGANIZATION),
-            verification_status=VerificationStatus.APPROVED,
-        ))
-        repo.save(_make_doc(
-            title="Soil pH Guide",
-            domain=KnowledgeDomain.SOIL,
-            tags=["soil", "ph"],
-            geospatial=GeospatialMetadata(applicable_regions=["saudi_central"]),
-            source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.COMMUNITY),
-            verification_status=VerificationStatus.PENDING,
-        ))
+        repo.save(
+            _make_doc(
+                title="Wheat Guide",
+                domain=KnowledgeDomain.CROPS,
+                tags=["wheat", "cereals"],
+                geospatial=GeospatialMetadata(applicable_regions=["yemen_highland"]),
+                source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.INTERNATIONAL_ORGANIZATION),
+                verification_status=VerificationStatus.APPROVED,
+            )
+        )
+        repo.save(
+            _make_doc(
+                title="Soil pH Guide",
+                domain=KnowledgeDomain.SOIL,
+                tags=["soil", "ph"],
+                geospatial=GeospatialMetadata(applicable_regions=["saudi_central"]),
+                source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.COMMUNITY),
+                verification_status=VerificationStatus.PENDING,
+            )
+        )
         return repo
 
     def test_filter_by_domain(self):
@@ -222,11 +226,13 @@ class TestDocumentQueryFilters:
         from shared.ai.knowledge.models import KnowledgeDomain
 
         repo = self._setup_repo()
-        page = repo.find(DocumentQuery(
-            domain=KnowledgeDomain.CROPS,
-            tags=["wheat"],
-            regions=["yemen_highland"],
-        ))
+        page = repo.find(
+            DocumentQuery(
+                domain=KnowledgeDomain.CROPS,
+                tags=["wheat"],
+                regions=["yemen_highland"],
+            )
+        )
         assert page.total == 1
 
 
@@ -268,10 +274,7 @@ class TestKnowledgeVectorStoreComprehensive:
         provider = self._mock_embedding_provider()
         store = KnowledgeVectorStore(embedding_provider=provider)
         doc = _make_doc()
-        chunks = [
-            TextChunk(content=f"Chunk {i}", chunk_index=i, total_chunks=3)
-            for i in range(3)
-        ]
+        chunks = [TextChunk(content=f"Chunk {i}", chunk_index=i, total_chunks=3) for i in range(3)]
         ids = store.store_document(doc, chunks=chunks)
         assert len(ids) == 3
 

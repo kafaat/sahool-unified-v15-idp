@@ -632,11 +632,7 @@ class AuditDataExporter:
 
         # Filter entries after checkpoint
         if checkpoint:
-            entries = [
-                e
-                for e in self.entries
-                if e.get("created_at", "") > checkpoint.last_export_time.isoformat()
-            ]
+            entries = [e for e in self.entries if e.get("created_at", "") > checkpoint.last_export_time.isoformat()]
             if tenant_id:
                 entries = [e for e in entries if e.get("tenant_id") == tenant_id]
             self.entries = entries

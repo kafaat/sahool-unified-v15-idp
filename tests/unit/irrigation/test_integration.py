@@ -38,9 +38,7 @@ class TestFarmAdvisorIntegration:
     ):
         """Test basic integration with farm advisor service"""
         # Get field data from farm advisor
-        field_data = await mock_farm_advisor.get_field_data(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        field_data = await mock_farm_advisor.get_field_data(field_id=sample_irrigation_goal["field_id"])
 
         assert field_data is not None
         assert "field_id" in field_data
@@ -70,9 +68,7 @@ class TestFarmAdvisorIntegration:
         sample_irrigation_goal,
     ):
         """Test getting soil moisture reading from farm advisor"""
-        moisture = await mock_farm_advisor.get_soil_moisture(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        moisture = await mock_farm_advisor.get_soil_moisture(field_id=sample_irrigation_goal["field_id"])
 
         assert "moisture_percent" in moisture
         assert 0 <= moisture["moisture_percent"] <= 100
@@ -391,9 +387,7 @@ class TestWeatherServiceIntegration:
                 for day in forecast[:7]
             ],
             "total_water_m3": 1000,  # Reduced due to rain
-            "weather_adjustments": [
-                f"Skipped irrigation on {day['date']} due to rain forecast" for day in rainy_days
-            ],
+            "weather_adjustments": [f"Skipped irrigation on {day['date']} due to rain forecast" for day in rainy_days],
             "confidence": 0.82,
         }
 
@@ -507,9 +501,7 @@ class TestFertilizationSyncIntegration:
         sample_irrigation_goal,
     ):
         """Test synchronization with fertilization schedule"""
-        schedule = await mock_fertilization_service.get_schedule(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        schedule = await mock_fertilization_service.get_schedule(field_id=sample_irrigation_goal["field_id"])
 
         assert isinstance(schedule, list)
         assert len(schedule) > 0
@@ -524,14 +516,10 @@ class TestFertilizationSyncIntegration:
         sample_irrigation_goal,
     ):
         """Test irrigation schedule adjusts for fertigation days"""
-        fert_schedule = await mock_fertilization_service.get_schedule(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        fert_schedule = await mock_fertilization_service.get_schedule(field_id=sample_irrigation_goal["field_id"])
 
         # Find fertigation days
-        fertigation_dates = [
-            item["date"] for item in fert_schedule if item["application_method"] == "fertigation"
-        ]
+        fertigation_dates = [item["date"] for item in fert_schedule if item["application_method"] == "fertigation"]
 
         # Optimize irrigation with fertigation awareness
         mock_irrigation_agent.optimize_schedule.return_value = {
@@ -541,15 +529,12 @@ class TestFertilizationSyncIntegration:
                     "water_amount_mm": 25
                     if (date.today() + timedelta(days=i)).isoformat() in fertigation_dates
                     else 18,
-                    "fertigation_day": (date.today() + timedelta(days=i)).isoformat()
-                    in fertigation_dates,
+                    "fertigation_day": (date.today() + timedelta(days=i)).isoformat() in fertigation_dates,
                 }
                 for i in range(7)
             ],
             "total_water_m3": 1300,
-            "fertigation_adjustments": [
-                f"Increased water on {fdate} for fertigation" for fdate in fertigation_dates
-            ],
+            "fertigation_adjustments": [f"Increased water on {fdate} for fertigation" for fdate in fertigation_dates],
             "confidence": 0.88,
         }
 
@@ -600,9 +585,7 @@ class TestFertilizationSyncIntegration:
         sample_irrigation_program,
     ):
         """Test HMC value upgrade dimension integrates fertilization"""
-        fert_schedule = await mock_fertilization_service.get_schedule(
-            field_id=sample_irrigation_program["field_id"]
-        )
+        fert_schedule = await mock_fertilization_service.get_schedule(field_id=sample_irrigation_program["field_id"])
 
         result = await value_upgrade_dimension.integrate_fertilization(
             irrigation_program=sample_irrigation_program,
@@ -639,9 +622,7 @@ class TestEndToEndIntegration:
     ):
         """Test complete HMC workflow with all service integrations"""
         # 1. Get field data from farm advisor
-        field_data = await mock_farm_advisor.get_field_data(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        field_data = await mock_farm_advisor.get_field_data(field_id=sample_irrigation_goal["field_id"])
         assert field_data is not None
 
         # 2. Get weather forecast
@@ -731,9 +712,7 @@ class TestEndToEndIntegration:
     ):
         """Test integration handles service failures gracefully"""
         # Simulate weather service failure
-        mock_weather_service.get_forecast.side_effect = ConnectionError(
-            "Weather service unavailable"
-        )
+        mock_weather_service.get_forecast.side_effect = ConnectionError("Weather service unavailable")
 
         # Start session
         session_id = await hmc_engine.start_session(
@@ -776,12 +755,8 @@ class TestEndToEndIntegration:
     ):
         """Test data consistency across integrated services"""
         # Get data from multiple sources
-        field_data = await mock_farm_advisor.get_field_data(
-            field_id=sample_irrigation_goal["field_id"]
-        )
-        soil_moisture = await mock_farm_advisor.get_soil_moisture(
-            field_id=sample_irrigation_goal["field_id"]
-        )
+        field_data = await mock_farm_advisor.get_field_data(field_id=sample_irrigation_goal["field_id"])
+        soil_moisture = await mock_farm_advisor.get_soil_moisture(field_id=sample_irrigation_goal["field_id"])
         weather = await mock_weather_service.get_current()
 
         # Generate program using all data

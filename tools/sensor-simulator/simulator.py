@@ -171,9 +171,7 @@ class SensorSimulator:
 
     def _get_topic(self, sensor_type: str) -> str:
         """Build MQTT topic for sensor"""
-        return (
-            f"sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/{sensor_type}"
-        )
+        return f"sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/{sensor_type}"
 
     def _calculate_value(self, sensor_type: str, config: dict) -> float:
         """Calculate realistic sensor value based on time and trend"""
@@ -277,9 +275,7 @@ class SensorSimulator:
 
         self.running = True
         print(f"\n🚜 Starting sensor simulation for field: {self.field_id}")
-        print(
-            f"📡 Publishing to: sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/*"
-        )
+        print(f"📡 Publishing to: sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/*")
         print(f"⏱️  Interval: {interval} seconds")
         print("-" * 60)
 
@@ -321,9 +317,7 @@ class SensorSimulator:
 class MultiFarmSimulator:
     """Simulate multiple fields at once"""
 
-    def __init__(
-        self, broker: str, port: int, fields: list, username: str = None, password: str = None
-    ):
+    def __init__(self, broker: str, port: int, fields: list, username: str = None, password: str = None):
         self.simulators = []
         for field_id in fields:
             sim = SensorSimulator(
@@ -362,9 +356,7 @@ class MultiFarmSimulator:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL IoT Sensor Simulator - محاكي حساسات إنترنت الأشياء"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL IoT Sensor Simulator - محاكي حساسات إنترنت الأشياء")
     parser.add_argument(
         "--broker",
         "-b",

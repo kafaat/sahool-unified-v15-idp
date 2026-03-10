@@ -80,7 +80,7 @@ export class PestTreatment {
   // Relations
   // ─────────────────────────────────────────────────────────────────────────
 
-  @ManyToOne(() => PestIncident, (incident) => incident.treatments, {
+  @ManyToOne(() => PestIncident, (incident: PestIncident) => incident.treatments, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "incident_id" })

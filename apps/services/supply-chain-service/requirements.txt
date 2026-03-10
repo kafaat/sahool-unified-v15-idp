@@ -8,7 +8,7 @@ pydantic-settings>=2.7.0,<3.0.0
 # Database
 asyncpg>=0.30.0,<1.0.0
 # Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 # Caching
 redis>=7.1.0,<8.0.0
 # HTTP client

@@ -1,4 +1,5 @@
 """Tests for drone flight planner."""
+
 import pytest
 from shared.drone_integration.advanced_flight_planner import (
     DroneFlightPlanner,
@@ -7,6 +8,7 @@ from shared.drone_integration.advanced_flight_planner import (
     FlightStatus,
     DRONE_SPECS,
 )
+
 
 class TestDroneFlightPlanner:
     def setup_method(self):
@@ -19,8 +21,10 @@ class TestDroneFlightPlanner:
 
     def test_plan_mapping_flight(self):
         plan = self.planner.plan_mapping_flight(
-            field_id="F-001", tenant_id="T-001",
-            center_lat=15.3, center_lon=44.2,
+            field_id="F-001",
+            tenant_id="T-001",
+            center_lat=15.3,
+            center_lon=44.2,
             area_hectares=10,
         )
         assert plan.status == FlightStatus.PLANNED
@@ -30,7 +34,8 @@ class TestDroneFlightPlanner:
 
     def test_plan_spray_mission(self):
         plan = self.planner.plan_spray_mission(
-            field_id="F-001", area_hectares=5,
+            field_id="F-001",
+            area_hectares=5,
             spray_rate_l_ha=10,
             product="Pesticide A",
             product_ar="مبيد أ",

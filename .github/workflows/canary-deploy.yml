@@ -44,6 +44,10 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   HELM_TIMEOUT: 10m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: canary-deploy-${{ github.event.inputs.environment }}
   cancel-in-progress: false
@@ -55,6 +59,7 @@ jobs:
   validate:
     name: Validate Deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       namespace: ${{ steps.config.outputs.namespace }}
       kubeconfig_secret: ${{ steps.config.outputs.kubeconfig_secret }}
@@ -130,6 +135,7 @@ jobs:
   agent-evaluation:
     name: Agent Evaluation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate]
     if: github.event.inputs.skip-evaluation != 'true'
     steps:
@@ -164,6 +170,7 @@ jobs:
   canary-stage-1:
     name: "Canary Stage 1 (1%)"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, agent-evaluation]
     if: always() && (needs.agent-evaluation.result == 'success' || needs.agent-evaluation.result == 'skipped')
     environment:
@@ -269,6 +276,7 @@ jobs:
   health-check-stage-1:
     name: "Health Check Stage 1"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, canary-stage-1]
     steps:
       - name: Check canary health
@@ -303,6 +311,7 @@ jobs:
   canary-stage-2:
     name: "Canary Stage 2 (10%)"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, health-check-stage-1]
     steps:
       - uses: actions/checkout@v6
@@ -355,6 +364,7 @@ jobs:
   health-check-stage-2:
     name: "Health Check Stage 2"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, canary-stage-2]
     steps:
       - name: Check metrics and health
@@ -372,6 +382,7 @@ jobs:
   canary-stage-3:
     name: "Canary Stage 3 (50%)"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, health-check-stage-2]
     steps:
       - uses: actions/checkout@v6
@@ -425,6 +436,7 @@ jobs:
   health-check-stage-3:
     name: "Health Check Stage 3"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, canary-stage-3]
     steps:
       - name: Final health check
@@ -438,6 +450,7 @@ jobs:
   promote-canary:
     name: "Promote Canary (100%)"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, health-check-stage-3]
     steps:
       - uses: actions/checkout@v6
@@ -489,6 +502,7 @@ jobs:
   rollback:
     name: Automatic Rollback
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, canary-stage-1, canary-stage-2, canary-stage-3, health-check-stage-1, health-check-stage-2, health-check-stage-3]
     if: failure()
     steps:
@@ -529,6 +543,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, promote-canary]
     if: always()
     steps:

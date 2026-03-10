@@ -11,6 +11,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
   Logger,
+  SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
@@ -43,7 +44,7 @@ export const SKIP_REVOCATION_CHECK_KEY = "skipRevocationCheck";
  * ```
  */
 export const SkipRevocationCheck = () =>
-  Reflect.metadata(SKIP_REVOCATION_CHECK_KEY, true);
+  SetMetadata(SKIP_REVOCATION_CHECK_KEY, true);
 
 /**
  * Guard to check if tokens are revoked

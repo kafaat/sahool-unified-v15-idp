@@ -88,8 +88,7 @@ class SAHOOLBaseUser(HttpUser):
         baseline_ms = BASELINES.get(endpoint, 500)
         if response.elapsed.total_seconds() * 1000 > baseline_ms:
             response.failure(
-                f"Response time {response.elapsed.total_seconds() * 1000:.0f}ms "
-                f"exceeds baseline {baseline_ms}ms"
+                f"Response time {response.elapsed.total_seconds() * 1000:.0f}ms exceeds baseline {baseline_ms}ms"
             )
 
 

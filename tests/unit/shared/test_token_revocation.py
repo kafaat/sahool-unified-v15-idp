@@ -326,9 +326,7 @@ class TestUserLevelRevocation:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_is_user_token_revoked_false_token_issued_after(
-        self, revocation_store, test_user_id
-    ):
+    async def test_is_user_token_revoked_false_token_issued_after(self, revocation_store, test_user_id):
         """Test checking if user tokens are revoked (token issued after revocation)"""
         revoked_at = time.time()
         token_issued_at = revoked_at + 100  # Token issued after revocation
@@ -430,9 +428,7 @@ class TestTenantLevelRevocation:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_is_tenant_token_revoked_false_no_revocation(
-        self, revocation_store, test_tenant_id
-    ):
+    async def test_is_tenant_token_revoked_false_no_revocation(self, revocation_store, test_tenant_id):
         """Test checking if tenant tokens are revoked (no revocation entry)"""
         revocation_store._redis.get = AsyncMock(return_value=None)
 
@@ -444,9 +440,7 @@ class TestTenantLevelRevocation:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_is_tenant_token_revoked_false_token_issued_after(
-        self, revocation_store, test_tenant_id
-    ):
+    async def test_is_tenant_token_revoked_false_token_issued_after(self, revocation_store, test_tenant_id):
         """Test checking if tenant tokens are revoked (token issued after revocation)"""
         revoked_at = time.time()
         token_issued_at = revoked_at + 100  # Token issued after revocation
@@ -534,9 +528,7 @@ class TestCombinedRevocationCheck:
         assert reason is None
 
     @pytest.mark.asyncio
-    async def test_is_revoked_priority_jti_over_user(
-        self, revocation_store, test_jti, test_user_id
-    ):
+    async def test_is_revoked_priority_jti_over_user(self, revocation_store, test_jti, test_user_id):
         """Test that JTI revocation is checked before user revocation"""
         revocation_store._redis.exists = AsyncMock(return_value=1)  # JTI is revoked
 
@@ -629,7 +621,9 @@ class TestInitializationAndLifecycle:
     async def test_store_initialization_idempotent(self, fresh_store):
         """Test that initialization is idempotent"""
         mock_redis = _make_mock_redis()
-        with patch("shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)) as mock_factory:
+        with patch(
+            "shared.auth.token_revocation.aioredis.from_url", new=AsyncMock(return_value=mock_redis)
+        ) as mock_factory:
             await fresh_store.initialize()
             await fresh_store.initialize()
 

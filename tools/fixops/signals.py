@@ -133,9 +133,7 @@ class SignalCollector:
             # Collect artifacts
             if artifacts_dir and artifacts_dir.exists():
                 artifacts = list(artifacts_dir.rglob("*"))
-                signal.artifacts = [
-                    str(a.relative_to(artifacts_dir)) for a in artifacts if a.is_file()
-                ][:100]
+                signal.artifacts = [str(a.relative_to(artifacts_dir)) for a in artifacts if a.is_file()][:100]
 
             return signal
         except Exception as e:
@@ -314,9 +312,7 @@ class SignalCollector:
                     issues.append(
                         {
                             "file": str(spec_file),
-                            "message": result.stderr[:500]
-                            if result.stderr
-                            else "Validation failed",
+                            "message": result.stderr[:500] if result.stderr else "Validation failed",
                         }
                     )
             except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -493,9 +489,7 @@ class SignalCollector:
                     issues.append(
                         {
                             "file": str(compose_file),
-                            "message": result.stderr[:500]
-                            if result.stderr
-                            else "Validation failed",
+                            "message": result.stderr[:500] if result.stderr else "Validation failed",
                         }
                     )
             except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -591,9 +585,7 @@ class SignalCollector:
                     issues.append(
                         {
                             "file": str(schema),
-                            "message": result.stderr[:500]
-                            if result.stderr
-                            else "Validation failed",
+                            "message": result.stderr[:500] if result.stderr else "Validation failed",
                         }
                     )
             except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -1210,9 +1202,7 @@ class SignalCollector:
                 metrics={
                     "total_issues": len(issues),
                     "high_severity": len([i for i in issues if i.get("issue_severity") == "HIGH"]),
-                    "medium_severity": len(
-                        [i for i in issues if i.get("issue_severity") == "MEDIUM"]
-                    ),
+                    "medium_severity": len([i for i in issues if i.get("issue_severity") == "MEDIUM"]),
                 },
                 execution_time_ms=(time.time() - start) * 1000,
                 exit_code=result.returncode,

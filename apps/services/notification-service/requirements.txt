@@ -28,13 +28,13 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 redis>=7.1.0,<8.0.0
 
 # NATS messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # APScheduler for scheduled notifications
 apscheduler==3.11.2
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Database (PostgreSQL with Tortoise ORM)
 asyncpg>=0.30.0,<1.0.0

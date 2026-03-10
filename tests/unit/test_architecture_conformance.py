@@ -23,6 +23,7 @@ import pytest
 
 try:
     import pydantic  # noqa: F401
+
     _HAS_PYDANTIC = True
 except ImportError:
     _HAS_PYDANTIC = False
@@ -288,19 +289,19 @@ class TestIrrigationConsumer:
             return f.read()
 
     def test_subscribes_to_irrigation_recommendation(self, notif_subscriber_content):
-        assert (
-            "sahool.irrigation.recommendation.ready.v1" in notif_subscriber_content
-        ), "notification-service must subscribe to irrigation recommendation subject"
+        assert "sahool.irrigation.recommendation.ready.v1" in notif_subscriber_content, (
+            "notification-service must subscribe to irrigation recommendation subject"
+        )
 
     def test_has_irrigation_handler(self, notif_subscriber_content):
-        assert (
-            "_handle_irrigation_recommendation" in notif_subscriber_content
-        ), "Must have dedicated handler for irrigation recommendations"
+        assert "_handle_irrigation_recommendation" in notif_subscriber_content, (
+            "Must have dedicated handler for irrigation recommendations"
+        )
 
     def test_handler_creates_notification(self, notif_subscriber_content):
-        assert (
-            "irrigation_reminder" in notif_subscriber_content
-        ), "Handler must create irrigation_reminder notification type"
+        assert "irrigation_reminder" in notif_subscriber_content, (
+            "Handler must create irrigation_reminder notification type"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -321,20 +322,18 @@ class TestAssimilationChain:
             return f.read()
 
     def test_ndvi_handler_triggers_assimilation(self, event_subscribers_content):
-        assert (
-            "_trigger_assimilation" in event_subscribers_content
-        ), "NDVI handler must trigger assimilation after observation save"
+        assert "_trigger_assimilation" in event_subscribers_content, (
+            "NDVI handler must trigger assimilation after observation save"
+        )
 
     def test_assimilation_uses_pipeline(self, event_subscribers_content):
-        assert (
-            "TwinPipeline" in event_subscribers_content
-        ), "Assimilation trigger must use TwinPipeline"
+        assert "TwinPipeline" in event_subscribers_content, "Assimilation trigger must use TwinPipeline"
 
     def test_assimilation_is_best_effort(self, event_subscribers_content):
         # Must not fail the handler on assimilation error
-        assert (
-            "assimilation_trigger_failed" in event_subscribers_content
-        ), "Assimilation must log failure without failing the handler"
+        assert "assimilation_trigger_failed" in event_subscribers_content, (
+            "Assimilation must log failure without failing the handler"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -352,14 +351,14 @@ class TestCorrelationPropagation:
             return f.read()
 
     def test_publisher_propagates_correlation_id(self, publisher_content):
-        assert (
-            "_get_current_correlation_id" in publisher_content
-        ), "Publisher must auto-extract correlation_id from HTTP context"
+        assert "_get_current_correlation_id" in publisher_content, (
+            "Publisher must auto-extract correlation_id from HTTP context"
+        )
 
     def test_publisher_sets_correlation_id_on_event(self, publisher_content):
-        assert (
-            "event.correlation_id" in publisher_content
-        ), "Publisher must set correlation_id on event before publishing"
+        assert "event.correlation_id" in publisher_content, (
+            "Publisher must set correlation_id on event before publishing"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -377,24 +376,20 @@ class TestOTelTraceInjection:
             return f.read()
 
     def test_publisher_extracts_otel_context(self, publisher_content):
-        assert (
-            "_get_otel_trace_context" in publisher_content
-        ), "Publisher must extract OTel trace context from current span"
+        assert "_get_otel_trace_context" in publisher_content, (
+            "Publisher must extract OTel trace context from current span"
+        )
 
     def test_publisher_builds_nats_headers(self, publisher_content):
-        assert (
-            "_build_nats_headers" in publisher_content
-        ), "Publisher must build NATS headers with trace context"
+        assert "_build_nats_headers" in publisher_content, "Publisher must build NATS headers with trace context"
 
     def test_publisher_injects_traceparent(self, publisher_content):
-        assert (
-            "traceparent" in publisher_content
-        ), "Publisher must inject W3C traceparent header"
+        assert "traceparent" in publisher_content, "Publisher must inject W3C traceparent header"
 
     def test_publisher_passes_headers_to_publish(self, publisher_content):
-        assert (
-            "headers=headers" in publisher_content
-        ), "Publisher must pass headers to _publish_core and _publish_jetstream"
+        assert "headers=headers" in publisher_content, (
+            "Publisher must pass headers to _publish_core and _publish_jetstream"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -414,6 +409,6 @@ class TestEnsureStreamsCalled:
             content = f.read()
 
         assert "ensure_streams" in content, "main.py must call ensure_streams() during startup"
-        assert (
-            "from shared.events.streams import ensure_streams" in content
-        ), "Must import ensure_streams from shared.events.streams"
+        assert "from shared.events.streams import ensure_streams" in content, (
+            "Must import ensure_streams from shared.events.streams"
+        )

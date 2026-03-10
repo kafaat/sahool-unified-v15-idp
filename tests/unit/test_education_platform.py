@@ -1,10 +1,12 @@
 """Tests for farmer education platform."""
+
 import pytest
 from shared.learning_marketplace.education_platform import (
     EducationPlatform,
     LEARNING_PATHS,
     FARMER_LEVELS,
 )
+
 
 class TestEducationPlatform:
     def setup_method(self):

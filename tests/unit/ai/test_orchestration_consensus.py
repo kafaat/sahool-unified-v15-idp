@@ -185,11 +185,7 @@ class MajorityVoting(ConsensusProtocol):
         winning_percentage = winning_count / len(valid_votes)
 
         # Check quorum
-        state = (
-            ConsensusState.ACHIEVED
-            if winning_percentage >= proposal.quorum_percentage
-            else ConsensusState.FAILED
-        )
+        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -272,11 +268,7 @@ class WeightedVoting(ConsensusProtocol):
         winning_percentage = winning_score / total_weight
 
         # Check quorum
-        state = (
-            ConsensusState.ACHIEVED
-            if winning_percentage >= proposal.quorum_percentage
-            else ConsensusState.FAILED
-        )
+        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -526,11 +518,7 @@ class RaftConsensus(ConsensusProtocol):
         total_valid = sum(vote_counts.values())
         winning_percentage = winning_count / total_valid if total_valid > 0 else 0.0
 
-        state = (
-            ConsensusState.ACHIEVED
-            if winning_percentage >= proposal.quorum_percentage
-            else ConsensusState.FAILED
-        )
+        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -785,9 +773,7 @@ class TestWeightedVoting:
     """Tests for weighted voting consensus."""
 
     @pytest.mark.asyncio
-    async def test_weighted_voting(
-        self, weighted_voting: WeightedVoting, simple_proposal: ConsensusProposal
-    ):
+    async def test_weighted_voting(self, weighted_voting: WeightedVoting, simple_proposal: ConsensusProposal):
         """Test that weighted voting respects vote weights."""
         # High weight vote for drip should win
         votes = [
@@ -809,9 +795,7 @@ class TestWeightedVoting:
         """Test that confidence affects effective weight."""
         votes = [
             Vote(voter_id="expert_1", value="drip", weight=2.0, confidence=1.0),  # 2.0 effective
-            Vote(
-                voter_id="expert_2", value="sprinkler", weight=4.0, confidence=0.4
-            ),  # 1.6 effective
+            Vote(voter_id="expert_2", value="sprinkler", weight=4.0, confidence=0.4),  # 1.6 effective
             Vote(voter_id="junior", value="drip", weight=1.0, confidence=0.5),  # 0.5 effective
         ]
 
@@ -1082,9 +1066,7 @@ class TestResultHistory:
         assert len(majority_voting.results_history) == 1
 
     @pytest.mark.asyncio
-    async def test_multiple_results_tracked(
-        self, majority_voting: MajorityVoting, split_votes: list[Vote]
-    ):
+    async def test_multiple_results_tracked(self, majority_voting: MajorityVoting, split_votes: list[Vote]):
         """Test tracking multiple consensus results."""
         for i in range(3):
             proposal = ConsensusProposal(
@@ -1182,9 +1164,7 @@ class TestConsensusEdgeCases:
         assert len(raft_consensus.nodes) == initial_count
 
     @pytest.mark.asyncio
-    async def test_vote_metadata_preserved(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal
-    ):
+    async def test_vote_metadata_preserved(self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal):
         """Test that vote metadata is preserved."""
         votes = [
             Vote(

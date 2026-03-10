@@ -316,14 +316,11 @@ def assert_logs_contain(
         message_substring: Substring that should appear in log message
     """
     matching_logs = [
-        record
-        for record in caplog.records
-        if record.levelname == level and message_substring in record.message
+        record for record in caplog.records if record.levelname == level and message_substring in record.message
     ]
 
     assert len(matching_logs) > 0, (
-        f"No {level} log containing '{message_substring}' found. "
-        f"Logs: {[r.message for r in caplog.records]}"
+        f"No {level} log containing '{message_substring}' found. Logs: {[r.message for r in caplog.records]}"
     )
 
 
@@ -388,8 +385,6 @@ def compare_dicts(
         elif key not in actual:
             differences.append(f"Missing key: {key}")
         elif expected[key] != actual[key]:
-            differences.append(
-                f"Value mismatch for '{key}': expected {expected[key]!r}, got {actual[key]!r}"
-            )
+            differences.append(f"Value mismatch for '{key}': expected {expected[key]!r}, got {actual[key]!r}")
 
     return differences

@@ -6,8 +6,16 @@
 # Note: S3 bucket and DynamoDB table must be created manually before using this configuration
 # ======================================================================
 
-# لتفعيل التخزين الخلفي، قم بإلغاء التعليق على الكود التالي
-# To enable backend storage, uncomment the following code:
+# NOTE: The S3 backend is ALREADY configured in main.tf with:
+# ملاحظة: التخزين الخلفي S3 مُعرّف بالفعل في main.tf مع:
+#   - bucket         = "sahool-terraform-state"
+#   - key            = "multi-region/terraform.tfstate"
+#   - region         = "me-south-1"
+#   - encrypt        = true
+#   - dynamodb_table = "sahool-terraform-locks"
+#
+# Do NOT uncomment the block below — it would conflict with main.tf.
+# لا تقم بإلغاء التعليق على الكتلة أدناه — ستتعارض مع main.tf.
 
 /*
 terraform {

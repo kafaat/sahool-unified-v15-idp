@@ -569,9 +569,7 @@ class FlightPlanner:
         # Waypoints are added in pairs (start, end) per segment, so turns occur at odd indices
         for i in range(1, len(waypoints)):
             if i % 2 == 0:  # Turn from end of previous segment to start of next segment
-                total_distance += haversine_distance(
-                    waypoints[i - 1].coordinate, waypoints[i].coordinate
-                )
+                total_distance += haversine_distance(waypoints[i - 1].coordinate, waypoints[i].coordinate)
 
         # Calculate timing
         flight_time_s = total_distance / self.config.cruise_speed_ms
@@ -1146,7 +1144,13 @@ def assess_flight_weather(
 
     # Delta T for spraying (dry-bulb minus wet-bulb approximation)
     # August-Roche-Magnus approximation for wet-bulb depression
-    wet_bulb_c = temperature_c * math.atan(0.151977 * (humidity_percent + 8.313659) ** 0.5) + math.atan(temperature_c + humidity_percent) - math.atan(humidity_percent - 1.676331) + 0.00391838 * humidity_percent ** 1.5 * math.atan(0.023101 * humidity_percent) - 4.686035
+    wet_bulb_c = (
+        temperature_c * math.atan(0.151977 * (humidity_percent + 8.313659) ** 0.5)
+        + math.atan(temperature_c + humidity_percent)
+        - math.atan(humidity_percent - 1.676331)
+        + 0.00391838 * humidity_percent**1.5 * math.atan(0.023101 * humidity_percent)
+        - 4.686035
+    )
     delta_t = temperature_c - wet_bulb_c
 
     if delta_t < 2:

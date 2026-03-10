@@ -98,9 +98,7 @@ async def test_nats_connection_info(nats_client, test_config):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_publish_subscribe_basic(
-    nats_client, test_subject_prefix: str, sample_event_payload: dict[str, Any]
-):
+async def test_publish_subscribe_basic(nats_client, test_subject_prefix: str, sample_event_payload: dict[str, Any]):
     """
     Test basic publish/subscribe messaging
     اختبار النشر والاشتراك الأساسي للرسائل
@@ -604,9 +602,7 @@ async def test_high_throughput_publishing(nats_client, test_subject_prefix: str)
     success_rate = received / message_count
 
     # Expect at least 95% delivery rate
-    assert success_rate >= 0.95, (
-        f"Only received {received}/{message_count} messages ({success_rate:.1%})"
-    )
+    assert success_rate >= 0.95, f"Only received {received}/{message_count} messages ({success_rate:.1%})"
 
     await subscription.unsubscribe()
 

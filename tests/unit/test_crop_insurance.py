@@ -863,9 +863,7 @@ class TestRiskAssessmentEngine:
     """Tests for the risk assessment engine."""
 
     @pytest.mark.asyncio
-    async def test_assess_field_basic(
-        self, weather_history, soil_data, yield_history, crop_profile
-    ):
+    async def test_assess_field_basic(self, weather_history, soil_data, yield_history, crop_profile):
         """Test basic field assessment."""
         engine = RiskAssessmentEngine(region="saudi_arabia")
 
@@ -1604,16 +1602,12 @@ class TestCoverageDetermination:
 
         # Drought - full coverage
         sample_claim.claim_type = ClaimType.DROUGHT_DAMAGE
-        multiplier = calculator._get_coverage_multiplier(
-            sample_claim.claim_type, sample_policy.coverage
-        )
+        multiplier = calculator._get_coverage_multiplier(sample_claim.claim_type, sample_policy.coverage)
         assert multiplier == 1.0
 
         # Pest - 80% coverage
         sample_claim.claim_type = ClaimType.PEST_DAMAGE
-        multiplier = calculator._get_coverage_multiplier(
-            sample_claim.claim_type, sample_policy.coverage
-        )
+        multiplier = calculator._get_coverage_multiplier(sample_claim.claim_type, sample_policy.coverage)
         assert multiplier == 0.8
 
 

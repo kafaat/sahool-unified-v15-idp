@@ -583,8 +583,8 @@ interface EmailParams {
 function getEmailConfig(): EmailConfig | null {
   const apiKey = process.env.EMAIL_SERVICE_API_KEY;
   const fromAddress = process.env.EMAIL_FROM_ADDRESS;
-  const toAddresses = process.env.EMAIL_ALERT_RECIPIENTS?.split(",").map((e) =>
-    e.trim(),
+  const toAddresses = process.env.EMAIL_ALERT_RECIPIENTS?.split(",").map(
+    (e: string) => e.trim(),
   );
 
   if (!apiKey || !fromAddress) {

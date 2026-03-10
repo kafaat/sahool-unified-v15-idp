@@ -194,9 +194,7 @@ class TestTokenRevocation:
 
     def test_revoked_token_rejected(self, authenticator):
         """Test revoked tokens are rejected."""
-        token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant456", roles=["farmer"]
-        )
+        token = authenticator.create_token(user_id="user123", tenant_id="tenant456", roles=["farmer"])
 
         payload = jwt.decode(token, TEST_SECRET_KEY, algorithms=["HS256"])
         jti = payload["jti"]
@@ -209,9 +207,7 @@ class TestTokenRevocation:
 
     def test_revocation_persists(self, authenticator):
         """Test token revocation persists across verifications."""
-        token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant456", roles=["farmer"]
-        )
+        token = authenticator.create_token(user_id="user123", tenant_id="tenant456", roles=["farmer"])
 
         payload = jwt.decode(token, TEST_SECRET_KEY, algorithms=["HS256"])
         authenticator.revoke_token(payload["jti"])
@@ -230,9 +226,7 @@ class TestTokenTampering:
         payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
         payload["roles"] = ["admin"]
 
-        modified_payload = (
-            base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
-        )
+        modified_payload = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
 
         tampered_token = f"{parts[0]}.{modified_payload}.{parts[2]}"
 
@@ -244,9 +238,7 @@ class TestTokenTampering:
         parts = valid_token.split(".")
 
         header = {"alg": "HS256", "typ": "JWT", "kid": "malicious-key"}
-        modified_header = (
-            base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b"=").decode()
-        )
+        modified_header = base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b"=").decode()
 
         tampered_token = f"{modified_header}.{parts[1]}.{parts[2]}"
 
@@ -293,9 +285,7 @@ class TestClaimValidation:
 
     def test_invalid_tenant_format(self, authenticator):
         """Test tokens with invalid tenant format are flagged."""
-        token = authenticator.create_token(
-            user_id="user123", tenant_id="'; DROP TABLE tenants;--", roles=["farmer"]
-        )
+        token = authenticator.create_token(user_id="user123", tenant_id="'; DROP TABLE tenants;--", roles=["farmer"])
 
         result = authenticator.verify_token(token)
         if result:
@@ -341,13 +331,9 @@ class TestSessionFixation:
 
     def test_token_regeneration_on_privilege_change(self, authenticator):
         """Test token is regenerated on privilege escalation."""
-        old_token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant456", roles=["farmer"]
-        )
+        old_token = authenticator.create_token(user_id="user123", tenant_id="tenant456", roles=["farmer"])
 
-        new_token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant456", roles=["farmer", "admin"]
-        )
+        new_token = authenticator.create_token(user_id="user123", tenant_id="tenant456", roles=["farmer", "admin"])
 
         assert old_token != new_token
 
@@ -363,13 +349,9 @@ class TestCrossTenantAccess:
 
     def test_tenant_isolation_in_token(self, authenticator):
         """Test tenant isolation is enforced in tokens."""
-        tenant1_token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant1", roles=["farmer"]
-        )
+        tenant1_token = authenticator.create_token(user_id="user123", tenant_id="tenant1", roles=["farmer"])
 
-        tenant2_token = authenticator.create_token(
-            user_id="user123", tenant_id="tenant2", roles=["farmer"]
-        )
+        tenant2_token = authenticator.create_token(user_id="user123", tenant_id="tenant2", roles=["farmer"])
 
         payload1 = authenticator.verify_token(tenant1_token)
         payload2 = authenticator.verify_token(tenant2_token)
@@ -386,9 +368,7 @@ class TestCrossTenantAccess:
         payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
         payload["tenant_id"] = "tenant2"
 
-        modified_payload = (
-            base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
-        )
+        modified_payload = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
 
         tampered_token = f"{parts[0]}.{modified_payload}.{parts[2]}"
 

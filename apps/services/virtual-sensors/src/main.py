@@ -25,6 +25,7 @@ from datetime import UTC, date, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -37,7 +38,7 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # NATS publisher (optional)
 _nats_available = False
@@ -985,23 +986,23 @@ def calculate_irrigation_recommendation(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
-    print(f"🌱 {SERVICE_NAME} v{SERVICE_VERSION} starting on port {SERVICE_PORT}")
-    print(f"📊 Loaded {len(CROP_COEFFICIENTS)} crop types with Kc values")
-    print(f"🌍 Loaded {len(SOIL_PROPERTIES)} soil types")
+    logger.info("service_starting", service=SERVICE_NAME, version=SERVICE_VERSION, port=SERVICE_PORT)
+    logger.info("crop_coefficients_loaded", count=len(CROP_COEFFICIENTS))
+    logger.info("soil_types_loaded", count=len(SOIL_PROPERTIES))
 
     # Initialize NATS connection state for health checks
     # Note: This service uses sync NATS publisher, not async client
     app.state.nats_client = True if _nats_available else None
     if _nats_available:
-        print("📡 NATS publisher available")
+        logger.info("nats_publisher_available")
     else:
-        print("⚠️ NATS publisher not available - running in degraded mode")
+        logger.warning("nats_publisher_unavailable", mode="degraded")
 
     yield
 
     # Cleanup
     app.state.nats_client = None
-    print(f"👋 {SERVICE_NAME} shutting down")
+    logger.info("service_shutting_down", service=SERVICE_NAME)
 
 
 app = FastAPI(

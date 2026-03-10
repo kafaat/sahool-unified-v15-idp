@@ -240,7 +240,8 @@ class TestCRAGScoring:
         }
         score = engine._score_chunk_relevance(
             "wheat variety cultivar growth pest PHI pre-harvest interval",
-            chunk, "crops",
+            chunk,
+            "crops",
         )
         assert score <= 1.0
 
@@ -398,6 +399,7 @@ class TestCRAGRefinement:
 
     def _engine(self):
         from shared.ai.knowledge.corrective_retrieval import CorrectiveRetrievalEngine
+
         return CorrectiveRetrievalEngine()
 
     def test_light_refine_keeps_relevant_chunks(self):
@@ -414,7 +416,10 @@ class TestCRAGRefinement:
         engine = self._engine()
         chunks = [
             {"content": "General agriculture topic.", "metadata": {"domain": "general"}},
-            {"content": "Wheat irrigation drip schedule water moisture ET.", "metadata": {"domain": "irrigation", "source_credibility": 5}},
+            {
+                "content": "Wheat irrigation drip schedule water moisture ET.",
+                "metadata": {"domain": "irrigation", "source_credibility": 5},
+            },
         ]
         refined = engine._light_refine("wheat irrigation", chunks, "irrigation")
         if len(refined) >= 2:
@@ -446,7 +451,10 @@ class TestCRAGRefinement:
 
         engine = CorrectiveRetrievalEngine(max_refined_chunks=2)
         chunks = [
-            {"content": f"Wheat irrigation data point {i}. Water moisture ET drip schedule.", "metadata": {"domain": "irrigation"}}
+            {
+                "content": f"Wheat irrigation data point {i}. Water moisture ET drip schedule.",
+                "metadata": {"domain": "irrigation"},
+            }
             for i in range(10)
         ]
         refined = engine._light_refine("wheat irrigation", chunks, "irrigation")

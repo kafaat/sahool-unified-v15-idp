@@ -576,10 +576,7 @@ class TestGraphMemory:
 
         assert len(results) > 0
         # Wheat irrigation should score higher
-        assert (
-            "wheat" in results[0].entity.content.lower()
-            or "irrigation" in results[0].entity.content.lower()
-        )
+        assert "wheat" in results[0].entity.content.lower() or "irrigation" in results[0].entity.content.lower()
 
     @pytest.mark.asyncio
     async def test_search_with_type_filter(self, memory):
@@ -722,9 +719,7 @@ class TestRelationshipExtraction:
         await memory.cognify()
 
         # Add field with farm_id property
-        field = await memory.add(
-            "North Field", EntityType.FIELD, name="Field", properties={"farm_id": farm.id}
-        )
+        field = await memory.add("North Field", EntityType.FIELD, name="Field", properties={"farm_id": farm.id})
         await memory.cognify()
 
         # Check relationship was created
@@ -745,9 +740,7 @@ class TestRelationshipExtraction:
         await memory.cognify()
 
         # Add crop with field_id property
-        crop = await memory.add(
-            "Winter Wheat", EntityType.CROP, name="Wheat", properties={"field_id": field.id}
-        )
+        crop = await memory.add("Winter Wheat", EntityType.CROP, name="Wheat", properties={"field_id": field.id})
         await memory.cognify()
 
         # Check relationship was created

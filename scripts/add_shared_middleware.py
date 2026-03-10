@@ -147,9 +147,7 @@ def update_typescript_service(file_path: Path, dry_run: bool = True) -> bool:
     # Add import
     if "RequestLoggingInterceptor" not in content:
         import_pattern = r"(import.*?from.*?errors.*?;)"
-        import_addition = (
-            "\nimport { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';"
-        )
+        import_addition = "\nimport { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';"
         content = re.sub(import_pattern, r"\1" + import_addition, content, count=1)
 
     # Add interceptor

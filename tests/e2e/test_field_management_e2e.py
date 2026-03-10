@@ -30,6 +30,7 @@ try:
     import httpx
 except ImportError:
     import pytest
+
     pytest.skip("httpx not available", allow_module_level=True)
 
 import pytest
@@ -219,9 +220,7 @@ class TestFieldCRUDLifecycle:
             headers=auth_headers,
             json=create_field_payload,
         )
-        assert resp.status_code in (200, 201, 401), (
-            f"Unexpected status: {resp.status_code} - {resp.text[:300]}"
-        )
+        assert resp.status_code in (200, 201, 401), f"Unexpected status: {resp.status_code} - {resp.text[:300]}"
 
         if resp.status_code in (200, 201):
             body = resp.json()
@@ -290,9 +289,7 @@ class TestFieldCRUDLifecycle:
         }
         resp = await http_client.post(FIELDS_API, headers=auth_headers, json=payload)
         # 400 or 422 for validation, 401 for auth
-        assert resp.status_code in (400, 401, 422), (
-            f"Empty name should be rejected, got {resp.status_code}"
-        )
+        assert resp.status_code in (400, 401, 422), f"Empty name should be rejected, got {resp.status_code}"
 
     async def test_create_field_validation_rejects_missing_tenant(
         self,
@@ -343,9 +340,7 @@ class TestFieldCRUDLifecycle:
         """
         fake_id = str(uuid.uuid4())
         resp = await http_client.get(f"{FIELDS_API}/{fake_id}", headers=auth_headers)
-        assert resp.status_code in (401, 404), (
-            f"Nonexistent field should return 404, got {resp.status_code}"
-        )
+        assert resp.status_code in (401, 404), f"Nonexistent field should return 404, got {resp.status_code}"
 
     async def test_get_field_invalid_uuid_format(
         self,
@@ -410,9 +405,7 @@ class TestFieldCRUDLifecycle:
         حذف ناعم للحقل والتأكد من عدم إمكانية الوصول إليه
         """
         # Create a field specifically for deletion
-        create_resp = await http_client.post(
-            FIELDS_API, headers=auth_headers, json=create_field_payload
-        )
+        create_resp = await http_client.post(FIELDS_API, headers=auth_headers, json=create_field_payload)
         if create_resp.status_code not in (200, 201):
             pytest.skip("Cannot create field for deletion test")
 
@@ -421,9 +414,7 @@ class TestFieldCRUDLifecycle:
         field_id = field["id"]
 
         # Delete the field
-        delete_resp = await http_client.delete(
-            f"{FIELDS_API}/{field_id}", headers=auth_headers
-        )
+        delete_resp = await http_client.delete(f"{FIELDS_API}/{field_id}", headers=auth_headers)
         assert delete_resp.status_code in (200, 204, 401)
 
         if delete_resp.status_code in (200, 204):
@@ -431,9 +422,7 @@ class TestFieldCRUDLifecycle:
             assert delete_body.get("success", True) is True
 
             # Verify the field is gone or marked inactive
-            get_resp = await http_client.get(
-                f"{FIELDS_API}/{field_id}", headers=auth_headers
-            )
+            get_resp = await http_client.get(f"{FIELDS_API}/{field_id}", headers=auth_headers)
             # Should be 404 (not found) or field status should be inactive
             assert get_resp.status_code in (200, 404)
 

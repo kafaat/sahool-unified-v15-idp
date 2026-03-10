@@ -662,6 +662,4 @@ class TestValidationIntegration:
 
         # Invalid field
         with pytest.raises(ValidationError):
-            FieldCreate(
-                name="", area_hectares=50.0, crop_type="wheat", latitude=15.5, longitude=48.5
-            )
+            FieldCreate(name="", area_hectares=50.0, crop_type="wheat", latitude=15.5, longitude=48.5)

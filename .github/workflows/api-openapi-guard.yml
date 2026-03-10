@@ -20,6 +20,9 @@ on:
       - 'packages/shared-types/src/contracts/service-ports.ts'
       - 'scripts/validate-kong-vs-openapi.ts'
 
+permissions:
+  contents: read
+
 concurrency:
   group: openapi-guard-${{ github.ref }}
   cancel-in-progress: true

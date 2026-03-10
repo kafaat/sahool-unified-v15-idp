@@ -173,13 +173,13 @@ def _count_route_decorators(content: str, lang: str = "python") -> int:
     """Count API route/endpoint decorators in source code."""
     if lang == "python":
         patterns = [
-            r'@(?:app|router)\.(get|post|put|delete|patch)\(',
-            r'app\.include_router\(',
+            r"@(?:app|router)\.(get|post|put|delete|patch)\(",
+            r"app\.include_router\(",
         ]
     else:
         patterns = [
-            r'@(?:Get|Post|Put|Delete|Patch)\(',
-            r'@Controller\(',
+            r"@(?:Get|Post|Put|Delete|Patch)\(",
+            r"@Controller\(",
         ]
     total = 0
     for p in patterns:
@@ -191,7 +191,7 @@ def _has_health_endpoint(content: str, lang: str = "python") -> bool:
     """Check if the service defines a health endpoint."""
     if lang == "python":
         return bool(re.search(r'["\']/(healthz?|readyz?|health)["\']', content))
-    return bool(re.search(r'health|healthz|readyz', content, re.IGNORECASE))
+    return bool(re.search(r"health|healthz|readyz", content, re.IGNORECASE))
 
 
 def _has_real_logic_beyond_health(content: str, lang: str = "python") -> bool:
@@ -199,21 +199,21 @@ def _has_real_logic_beyond_health(content: str, lang: str = "python") -> bool:
     if lang == "python":
         # Look for real business patterns
         patterns = [
-            r'await\s+\w+\.(execute|fetch|publish|put|get|set)',
-            r'app\.state\.\w+',
-            r'Depends\(',
-            r'include_router\(',
-            r'async\s+def\s+(?!health|readyz|readiness|liveness)',
-            r'BaseModel\)',
-            r'pydantic',
+            r"await\s+\w+\.(execute|fetch|publish|put|get|set)",
+            r"app\.state\.\w+",
+            r"Depends\(",
+            r"include_router\(",
+            r"async\s+def\s+(?!health|readyz|readiness|liveness)",
+            r"BaseModel\)",
+            r"pydantic",
         ]
     else:
         patterns = [
-            r'@Injectable',
-            r'@Controller',
-            r'PrismaService',
-            r'async\s+\w+\(',
-            r'this\.\w+Service',
+            r"@Injectable",
+            r"@Controller",
+            r"PrismaService",
+            r"async\s+\w+\(",
+            r"this\.\w+Service",
         ]
     matches = 0
     for p in patterns:
@@ -276,10 +276,7 @@ class TestDockerComposeStructure:
                 else:
                     continue
                 if host_port in host_ports:
-                    conflicts.append(
-                        f"Port {host_port} used by both "
-                        f"'{host_ports[host_port]}' and '{svc_name}'"
-                    )
+                    conflicts.append(f"Port {host_port} used by both '{host_ports[host_port]}' and '{svc_name}'")
                 host_ports[host_port] = svc_name
         assert not conflicts, f"Port conflicts detected: {conflicts}"
 
@@ -305,8 +302,7 @@ class TestBackboneContainers:
         assert "image" in svc, f"'{container_name}' should use an image, not build"
         expected_pattern = BACKBONE_CONTAINERS[container_name]["image_pattern"]
         assert expected_pattern in svc["image"], (
-            f"'{container_name}' image should contain '{expected_pattern}', "
-            f"got '{svc['image']}'"
+            f"'{container_name}' image should contain '{expected_pattern}', got '{svc['image']}'"
         )
 
     @pytest.mark.parametrize("container_name", list(BACKBONE_CONTAINERS.keys()))
@@ -315,9 +311,7 @@ class TestBackboneContainers:
         svc = compose_data["services"][container_name]
         expected_port = BACKBONE_CONTAINERS[container_name]["required_port"]
         ports_str = str(svc.get("ports", []))
-        assert str(expected_port) in ports_str, (
-            f"'{container_name}' should expose port {expected_port}"
-        )
+        assert str(expected_port) in ports_str, f"'{container_name}' should expose port {expected_port}"
 
     @pytest.mark.parametrize("container_name", list(BACKBONE_CONTAINERS.keys()))
     def test_backbone_has_volumes(self, compose_data, container_name):
@@ -326,9 +320,7 @@ class TestBackboneContainers:
         if container_name == "vault":
             pytest.skip("Vault volume is optional in development")
         svc = compose_data["services"][container_name]
-        assert svc.get("volumes"), (
-            f"'{container_name}' should have volumes for data persistence"
-        )
+        assert svc.get("volumes"), f"'{container_name}' should have volumes for data persistence"
 
 
 class TestSupportingContainers:
@@ -341,9 +333,7 @@ class TestSupportingContainers:
     @pytest.mark.parametrize("container_name", list(SUPPORTING_CONTAINERS.keys()))
     def test_supporting_container_defined(self, compose_data, container_name):
         """Each supporting container must be defined in docker-compose.yml."""
-        assert container_name in compose_data["services"], (
-            f"Supporting container '{container_name}' missing"
-        )
+        assert container_name in compose_data["services"], f"Supporting container '{container_name}' missing"
 
     @pytest.mark.parametrize("container_name", list(SUPPORTING_CONTAINERS.keys()))
     def test_supporting_has_image(self, compose_data, container_name):
@@ -375,9 +365,7 @@ class TestPythonServiceDirectories:
         if not svc_dir.exists():
             pytest.skip(f"Service directory not found: {service_name}")
         main_file = _find_main_file(svc_dir)
-        assert main_file is not None, (
-            f"No main.py or src/main.py found in {svc_dir}"
-        )
+        assert main_file is not None, f"No main.py or src/main.py found in {svc_dir}"
 
     @pytest.mark.parametrize("service_name", PYTHON_SERVICES)
     def test_service_has_requirements(self, service_name):
@@ -415,10 +403,7 @@ class TestNodeServiceDirectories:
         svc_dir = SERVICES_DIR / service_name
         if not svc_dir.exists():
             pytest.skip(f"Service directory not found: {service_name}")
-        has_entry = (
-            (svc_dir / "src" / "index.ts").exists()
-            or (svc_dir / "src" / "main.ts").exists()
-        )
+        has_entry = (svc_dir / "src" / "index.ts").exists() or (svc_dir / "src" / "main.ts").exists()
         assert has_entry, f"No src/index.ts or src/main.ts in {svc_dir}"
 
 
@@ -438,9 +423,7 @@ class TestServiceNotPassThrough:
         if main_file is None:
             pytest.skip(f"No main file found for {service_name}")
         content = main_file.read_text(errors="replace")
-        assert _has_health_endpoint(content), (
-            f"'{service_name}' is missing /healthz or /readyz endpoints"
-        )
+        assert _has_health_endpoint(content), f"'{service_name}' is missing /healthz or /readyz endpoints"
 
     @pytest.mark.parametrize("service_name", PYTHON_SERVICES)
     def test_python_service_not_trivially_small(self, service_name):
@@ -453,8 +436,7 @@ class TestServiceNotPassThrough:
             pytest.skip(f"No main file found for {service_name}")
         lines = len(main_file.read_text(errors="replace").splitlines())
         assert lines >= MIN_MAIN_LINES_THRESHOLD, (
-            f"'{service_name}' main file has only {lines} lines "
-            f"(threshold: {MIN_MAIN_LINES_THRESHOLD}). Likely a stub."
+            f"'{service_name}' main file has only {lines} lines (threshold: {MIN_MAIN_LINES_THRESHOLD}). Likely a stub."
         )
 
     @pytest.mark.parametrize("service_name", PYTHON_SERVICES)
@@ -491,12 +473,9 @@ class TestServiceNotPassThrough:
         api_dir = svc_dir / "src" / "api"
         if api_dir.exists():
             for py_file in api_dir.rglob("*.py"):
-                route_count += _count_route_decorators(
-                    py_file.read_text(errors="replace"), "python"
-                )
+                route_count += _count_route_decorators(py_file.read_text(errors="replace"), "python")
         assert route_count >= 1, (
-            f"'{service_name}' has no API routes defined. "
-            f"Expected at least 1 route decorator or include_router call."
+            f"'{service_name}' has no API routes defined. Expected at least 1 route decorator or include_router call."
         )
 
 
@@ -515,9 +494,7 @@ class TestDockerfileBestPractices:
         if not svc_dir.exists():
             pytest.skip(f"Service directory not found: {service_name}")
         dockerfile = _find_dockerfile(svc_dir)
-        assert dockerfile is not None, (
-            f"Dockerfile missing for service '{service_name}'"
-        )
+        assert dockerfile is not None, f"Dockerfile missing for service '{service_name}'"
 
     @pytest.mark.parametrize("service_name", ALL_BUILDABLE_SERVICES)
     def test_dockerfile_has_healthcheck(self, service_name):
@@ -529,9 +506,7 @@ class TestDockerfileBestPractices:
         if dockerfile is None:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
-        assert "HEALTHCHECK" in content, (
-            f"Dockerfile for '{service_name}' is missing HEALTHCHECK instruction"
-        )
+        assert "HEALTHCHECK" in content, f"Dockerfile for '{service_name}' is missing HEALTHCHECK instruction"
 
     @pytest.mark.parametrize("service_name", ALL_BUILDABLE_SERVICES)
     def test_dockerfile_uses_non_root_user(self, service_name):
@@ -543,10 +518,8 @@ class TestDockerfileBestPractices:
         if dockerfile is None:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
-        has_user = bool(re.search(r'USER\s+(sahool|appuser|app|agent|node|\d+)', content))
-        assert has_user, (
-            f"Dockerfile for '{service_name}' does not switch to a non-root user"
-        )
+        has_user = bool(re.search(r"USER\s+(sahool|appuser|app|agent|node|\d+)", content))
+        assert has_user, f"Dockerfile for '{service_name}' does not switch to a non-root user"
 
     @pytest.mark.parametrize("service_name", PYTHON_SERVICES)
     def test_python_dockerfile_has_pip_no_cache(self, service_name):
@@ -559,13 +532,9 @@ class TestDockerfileBestPractices:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
         if "pip install" in content:
-            has_no_cache = (
-                "--no-cache-dir" in content
-                or "PIP_NO_CACHE_DIR" in content
-            )
+            has_no_cache = "--no-cache-dir" in content or "PIP_NO_CACHE_DIR" in content
             assert has_no_cache, (
-                f"Dockerfile for '{service_name}' uses pip install without "
-                "--no-cache-dir (increases image size)"
+                f"Dockerfile for '{service_name}' uses pip install without --no-cache-dir (increases image size)"
             )
 
     @pytest.mark.parametrize("service_name", ALL_BUILDABLE_SERVICES)
@@ -578,9 +547,7 @@ class TestDockerfileBestPractices:
         if dockerfile is None:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
-        assert "WORKDIR" in content, (
-            f"Dockerfile for '{service_name}' is missing WORKDIR instruction"
-        )
+        assert "WORKDIR" in content, f"Dockerfile for '{service_name}' is missing WORKDIR instruction"
 
     @pytest.mark.parametrize("service_name", ALL_BUILDABLE_SERVICES)
     def test_dockerfile_exposes_port(self, service_name):
@@ -595,9 +562,7 @@ class TestDockerfileBestPractices:
         if dockerfile is None:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
-        assert "EXPOSE" in content, (
-            f"Dockerfile for '{service_name}' is missing EXPOSE instruction"
-        )
+        assert "EXPOSE" in content, f"Dockerfile for '{service_name}' is missing EXPOSE instruction"
 
 
 # ===========================================================================
@@ -656,9 +621,7 @@ class TestComposeFileConsistency:
         data = _load_compose(infra)
         services = data.get("services", {})
         for core in ["postgres", "redis", "nats"]:
-            assert core in services, (
-                f"Infrastructure compose missing '{core}'"
-            )
+            assert core in services, f"Infrastructure compose missing '{core}'"
 
 
 class TestComposeServiceDependencies:
@@ -692,10 +655,7 @@ class TestComposeServiceDependencies:
             else:
                 dep_names = []
             has_db_dep = "pgbouncer" in dep_names or "postgres" in dep_names
-            assert has_db_dep, (
-                f"'{svc_name}' uses database but doesn't depend on "
-                "pgbouncer or postgres"
-            )
+            assert has_db_dep, f"'{svc_name}' uses database but doesn't depend on pgbouncer or postgres"
 
     def test_services_with_events_depend_on_nats(self, compose_data):
         """Services publishing events should depend on nats."""
@@ -716,9 +676,7 @@ class TestComposeServiceDependencies:
                 dep_names = list(depends.keys())
             else:
                 dep_names = []
-            assert "nats" in dep_names, (
-                f"'{svc_name}' publishes events but doesn't depend on nats"
-            )
+            assert "nats" in dep_names, f"'{svc_name}' publishes events but doesn't depend on nats"
 
 
 # ===========================================================================
@@ -760,13 +718,8 @@ class TestContainerCategorization:
         allowed_uncategorized = {"ussd-gateway", "whatsapp-bot-service"}
         truly_uncategorized = uncategorized - allowed_uncategorized
         # Filter out containers already in our lists
-        truly_uncategorized = {
-            s for s in truly_uncategorized
-            if s not in categorized
-        }
-        assert len(truly_uncategorized) == 0, (
-            f"Uncategorized services: {truly_uncategorized}"
-        )
+        truly_uncategorized = {s for s in truly_uncategorized if s not in categorized}
+        assert len(truly_uncategorized) == 0, f"Uncategorized services: {truly_uncategorized}"
 
     def test_no_service_in_multiple_categories(self):
         """A service should not appear in more than one category."""
@@ -833,8 +786,7 @@ class TestPortConsistency:
             pytest.skip(f"Service '{service_name}' not in compose")
         ports_str = str(svc.get("ports", []))
         assert str(expected_port) in ports_str, (
-            f"'{service_name}' should use port {expected_port}, "
-            f"but ports are: {svc.get('ports')}"
+            f"'{service_name}' should use port {expected_port}, but ports are: {svc.get('ports')}"
         )
 
 
@@ -917,9 +869,7 @@ class TestDockerDocumentation:
             "Isolated Containers",
         ]
         for section in required_sections:
-            assert section in content, (
-                f"Documentation missing section: '{section}'"
-            )
+            assert section in content, f"Documentation missing section: '{section}'"
 
     def test_documentation_has_functionality_analysis(self):
         """Documentation must include functionality completeness analysis."""
@@ -936,6 +886,4 @@ class TestDockerDocumentation:
         """Documentation must have substantial content."""
         content = self.DOC_FILE.read_text()
         line_count = len(content.splitlines())
-        assert line_count >= 100, (
-            f"Documentation has only {line_count} lines - too short"
-        )
+        assert line_count >= 100, f"Documentation has only {line_count} lines - too short"

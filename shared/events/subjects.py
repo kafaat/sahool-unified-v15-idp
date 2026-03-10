@@ -357,6 +357,7 @@ SAHOOL_TERRAIN_DRAINAGE_ISSUE = "sahool.terrain.drainage_issue"
 SAHOOL_TERRAIN_LEVELING_RECOMMENDED = "sahool.terrain.leveling_recommended"
 SAHOOL_TERRAIN_DRAINAGE_RECOMMENDED = "sahool.terrain.drainage_recommended"
 SAHOOL_TERRAIN_DEM_UPDATED = "sahool.terrain.dem_updated"
+SAHOOL_TERRAIN_SIMULATION_COMPLETED = "sahool.terrain.simulation_completed"
 
 # Wildcards
 SAHOOL_TERRAIN_ALL = "sahool.terrain.*"

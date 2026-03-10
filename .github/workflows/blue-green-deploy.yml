@@ -45,6 +45,10 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   HELM_TIMEOUT: 10m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: blue-green-deploy-${{ github.event.inputs.environment }}
   cancel-in-progress: false
@@ -56,6 +60,7 @@ jobs:
   validate:
     name: Validate Deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       namespace: ${{ steps.config.outputs.namespace }}
       kubeconfig_secret: ${{ steps.config.outputs.kubeconfig_secret }}
@@ -131,6 +136,7 @@ jobs:
   agent-evaluation:
     name: Agent Evaluation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate]
     if: github.event.inputs.skip-evaluation != 'true'
     steps:
@@ -165,6 +171,7 @@ jobs:
   backup-current:
     name: Backup Current State
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, agent-evaluation]
     if: always() && (needs.agent-evaluation.result == 'success' || needs.agent-evaluation.result == 'skipped')
     steps:
@@ -207,6 +214,7 @@ jobs:
   deploy-green:
     name: Deploy to Green Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, backup-current]
     environment:
       name: ${{ github.event.inputs.environment }}-green
@@ -285,6 +293,7 @@ jobs:
   test-green:
     name: Test Green Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-green]
     steps:
       - uses: actions/checkout@v6
@@ -354,6 +363,7 @@ jobs:
   approval:
     name: Approve Traffic Switch
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, test-green]
     if: github.event.inputs.require-approval == 'true'
     environment:
@@ -372,6 +382,7 @@ jobs:
   switch-traffic:
     name: Switch Traffic to Green
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, test-green, approval]
     if: always() && needs.test-green.result == 'success' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
     steps:
@@ -438,6 +449,7 @@ jobs:
   monitor-green:
     name: Monitor Green Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, switch-traffic]
     steps:
       - name: Monitor Green metrics
@@ -486,6 +498,7 @@ jobs:
   cleanup-blue:
     name: Cleanup Blue Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, monitor-green]
     steps:
       - name: Configure kubectl
@@ -528,6 +541,7 @@ jobs:
   rollback:
     name: Instant Rollback
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-green, test-green, switch-traffic, monitor-green]
     if: failure()
     steps:
@@ -591,6 +605,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, cleanup-blue, rollback]
     if: always()
     steps:

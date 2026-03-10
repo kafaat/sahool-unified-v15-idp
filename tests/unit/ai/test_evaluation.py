@@ -359,9 +359,7 @@ class TestEvaluatorInitialization:
 class TestHeuristicEvaluation:
     """Tests for heuristic-based evaluation"""
 
-    def test_evaluate_with_heuristics(
-        self, evaluator, sample_irrigation_recommendation, sample_context
-    ):
+    def test_evaluate_with_heuristics(self, evaluator, sample_irrigation_recommendation, sample_context):
         """Should evaluate using heuristics"""
         result = evaluator.evaluate(
             recommendation=sample_irrigation_recommendation,
@@ -538,9 +536,7 @@ class TestRecommendationTypeDetection:
 class TestBatchEvaluation:
     """Tests for batch evaluation"""
 
-    def test_evaluate_batch(
-        self, evaluator, sample_irrigation_recommendation, sample_fertilization_recommendation
-    ):
+    def test_evaluate_batch(self, evaluator, sample_irrigation_recommendation, sample_fertilization_recommendation):
         """Should evaluate multiple recommendations"""
         batch = [
             {
@@ -759,9 +755,7 @@ class TestEvaluationEdgeCases:
             )
             assert result.recommendation_type == rec_type
 
-    def test_multiple_evaluations_accumulate_stats(
-        self, evaluator, sample_irrigation_recommendation
-    ):
+    def test_multiple_evaluations_accumulate_stats(self, evaluator, sample_irrigation_recommendation):
         """Multiple evaluations should accumulate stats"""
         for _ in range(5):
             evaluator.evaluate(

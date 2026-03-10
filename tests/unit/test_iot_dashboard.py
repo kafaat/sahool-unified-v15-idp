@@ -4,6 +4,7 @@ Tests for IoT Dashboard | اختبارات لوحة تحكم إنترنت الأ
 Tests cover sensor registration, readings, anomaly detection,
 threshold alerts, and dashboard summary generation.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -32,8 +33,12 @@ class TestDeviceRegistration:
     def test_register_device(self) -> None:
         """Register a device and verify its fields."""
         dev = self.dash.register_device(
-            "D-001", "Soil Sensor 1", "مستشعر تربة 1", "soil_sensor",
-            "F-001", [SensorType.SOIL_MOISTURE, SensorType.SOIL_TEMPERATURE],
+            "D-001",
+            "Soil Sensor 1",
+            "مستشعر تربة 1",
+            "soil_sensor",
+            "F-001",
+            [SensorType.SOIL_MOISTURE, SensorType.SOIL_TEMPERATURE],
         )
         assert isinstance(dev, IoTDevice)
         assert dev.device_id == "D-001"
@@ -44,15 +49,24 @@ class TestDeviceRegistration:
     def test_device_status_arabic(self) -> None:
         """Registered device has Arabic status label | حالة الجهاز بالعربية"""
         dev = self.dash.register_device(
-            "D-002", "Weather Station", "محطة طقس", "weather",
-            "F-001", [SensorType.AIR_TEMPERATURE],
+            "D-002",
+            "Weather Station",
+            "محطة طقس",
+            "weather",
+            "F-001",
+            [SensorType.AIR_TEMPERATURE],
         )
         assert dev.status_ar == "متصل"
 
     def test_device_stored_internally(self) -> None:
         """Registered device is stored in internal dict."""
         self.dash.register_device(
-            "D-003", "S3", "م3", "soil", "F-001", [SensorType.SOIL_PH],
+            "D-003",
+            "S3",
+            "م3",
+            "soil",
+            "F-001",
+            [SensorType.SOIL_PH],
         )
         assert "D-003" in self.dash._devices
 
@@ -75,7 +89,11 @@ class TestSensorReadings:
     def setup_method(self) -> None:
         self.dash = IoTDashboard()
         self.dash.register_device(
-            "D-100", "Sensor", "مستشعر", "soil", "F-001",
+            "D-100",
+            "Sensor",
+            "مستشعر",
+            "soil",
+            "F-001",
             [SensorType.SOIL_MOISTURE, SensorType.SOIL_TEMPERATURE],
         )
 
@@ -268,9 +286,12 @@ class TestSensorTranslations:
     def test_sensors_without_thresholds(self) -> None:
         """Some sensors (direction, radiation, etc.) may not have thresholds."""
         no_threshold = {
-            SensorType.WIND_DIRECTION, SensorType.SOLAR_RADIATION,
-            SensorType.LEAF_WETNESS, SensorType.CO2,
-            SensorType.WATER_FLOW, SensorType.WATER_LEVEL,
+            SensorType.WIND_DIRECTION,
+            SensorType.SOLAR_RADIATION,
+            SensorType.LEAF_WETNESS,
+            SensorType.CO2,
+            SensorType.WATER_FLOW,
+            SensorType.WATER_LEVEL,
             SensorType.NDVI_SENSOR,
         }
         for sensor in SensorType:

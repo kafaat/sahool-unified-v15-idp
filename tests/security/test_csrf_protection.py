@@ -34,9 +34,7 @@ class CSRFTokenManager:
             if len(parts) != 2:
                 return False
             message, signature = parts
-            expected_signature = hmac.new(
-                self.secret_key.encode(), message.encode(), hashlib.sha256
-            ).hexdigest()
+            expected_signature = hmac.new(self.secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
             if not hmac.compare_digest(signature, expected_signature):
                 return False
             msg_parts = message.split(":")

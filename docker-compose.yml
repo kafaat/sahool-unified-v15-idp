@@ -466,7 +466,7 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
       # SECURITY: API Key authentication (set QDRANT_API_KEY in .env for production)
       # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required}
       - QDRANT__LOG_LEVEL=INFO
     # Qdrant healthcheck - verify qdrant is listening on REST port (6333)
     # فحص صحة Qdrant - التحقق من أن qdrant يستمع على منفذ REST
@@ -738,9 +738,9 @@ services:
       # Unset ETCDCTL_USER for first attempt to handle pre-auth state
       test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health" ]
       interval: 15s
-      timeout: 10s
+      timeout: 15s
       retries: 8
-      start_period: 60s
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -845,8 +845,8 @@ services:
       # فحص صحة MinIO - يستخدم عميل mc المدمج في صورة MinIO
       # FIX: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
       # Use 'mc ready local' which is the official MinIO healthcheck recommendation
-      # Fallback: TCP port check via shell if mc is not configured
-      test: [ "CMD-SHELL", "mc ready local 2>/dev/null || curl -sf http://localhost:9000/minio/health/live 2>/dev/null || bash -c '</dev/tcp/localhost/9000'" ]
+      # mc alias is configured inline; no bash in MinIO image (busybox /bin/sh only)
+      test: [ "CMD-SHELL", "mc alias set local http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} >/dev/null 2>&1 && mc ready local" ]
       interval: 15s
       timeout: 10s
       retries: 8

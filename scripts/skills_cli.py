@@ -138,9 +138,7 @@ def estimate_tokens(text: str, language: str = "auto") -> int:
     return max(1, int(len(text) / chars_per_token))
 
 
-def compress_text(
-    text: str, level: CompressionLevel = CompressionLevel.MEDIUM
-) -> CompressionResult:
+def compress_text(text: str, level: CompressionLevel = CompressionLevel.MEDIUM) -> CompressionResult:
     """Compress text using specified strategy"""
     original_tokens = estimate_tokens(text)
     original_text = text
@@ -265,37 +263,15 @@ def evaluate_advisory(
     for dimension in weights:
         # Check for key terms
         if dimension == "accuracy":
-            score = (
-                4.0
-                if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"])
-                else 3.0
-            )
+            score = 4.0 if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"]) else 3.0
         elif dimension == "relevance":
-            score = (
-                4.0
-                if any(w in advisory_text.lower() for w in ["field", "specific", "your"])
-                else 3.0
-            )
+            score = 4.0 if any(w in advisory_text.lower() for w in ["field", "specific", "your"]) else 3.0
         elif dimension == "actionability":
-            score = (
-                4.0
-                if any(
-                    w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]
-                )
-                else 2.0
-            )
+            score = 4.0 if any(w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]) else 2.0
         elif dimension == "timeliness":
-            score = (
-                4.0
-                if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"])
-                else 3.0
-            )
+            score = 4.0 if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"]) else 3.0
         else:  # safety
-            score = (
-                3.0
-                if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"])
-                else 2.0
-            )
+            score = 3.0 if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"]) else 2.0
 
         scores[dimension] = min(5.0, max(1.0, score))
 
@@ -413,9 +389,7 @@ Example:
     type=str,
     help="Output file (JSON format)",
 )
-def compress(
-    text: str | None, json_data: str | None, level: str, language: str, output: str | None
-):
+def compress(text: str | None, json_data: str | None, level: str, language: str, output: str | None):
     """Compress agricultural data"""
 
     result = None

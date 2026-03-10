@@ -142,7 +142,7 @@ export class RedisTokenRevocationStore
       });
 
       // Error handling
-      this.redis.on("error", (err) => {
+      this.redis.on("error", (err: Error) => {
         this.logger.error(`Redis error: ${err.message}`);
       });
 

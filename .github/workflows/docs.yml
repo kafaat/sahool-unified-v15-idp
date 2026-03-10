@@ -36,6 +36,7 @@ jobs:
   generate-openapi:
     name: Generate OpenAPI Specs
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -124,6 +125,7 @@ jobs:
   generate-api-docs:
     name: Generate API Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [generate-openapi]
     steps:
       - name: Checkout code
@@ -337,6 +339,7 @@ jobs:
   generate-dev-docs:
     name: Generate Developer Docs
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -428,6 +431,7 @@ jobs:
   deploy-docs:
     name: Deploy Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [generate-api-docs, generate-dev-docs]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
@@ -532,6 +536,7 @@ jobs:
   docs-summary:
     name: Documentation Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [generate-openapi, generate-api-docs, generate-dev-docs]
     if: always()
     steps:

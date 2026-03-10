@@ -51,14 +51,7 @@ class TestServicePortConflicts:
     @pytest.fixture
     def service_ports(self) -> dict[str, int]:
         """Parse SERVICE_PORTS from the TypeScript contracts file."""
-        ports_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "service-ports.ts"
-        )
+        ports_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "service-ports.ts"
         if not ports_file.exists():
             pytest.skip("service-ports.ts not found")
 
@@ -91,24 +84,18 @@ class TestServicePortConflicts:
         Infrastructure ports (PostgreSQL, Redis, NATS, Kong) are excluded.
         """
         app_ports: dict[str, int] = {
-            name: port
-            for name, port in service_ports.items()
-            if name not in INFRASTRUCTURE_PORT_NAMES
+            name: port for name, port in service_ports.items() if name not in INFRASTRUCTURE_PORT_NAMES
         }
 
         seen: dict[int, str] = {}
         duplicates: list[str] = []
         for name, port in app_ports.items():
             if port in seen:
-                duplicates.append(
-                    f"Port {port} used by both '{seen[port]}' and '{name}'"
-                )
+                duplicates.append(f"Port {port} used by both '{seen[port]}' and '{name}'")
             else:
                 seen[port] = name
 
-        assert not duplicates, (
-            "Duplicate service ports detected:\n" + "\n".join(duplicates)
-        )
+        assert not duplicates, "Duplicate service ports detected:\n" + "\n".join(duplicates)
 
     def test_ports_in_valid_range(self, service_ports: dict[str, int]):
         """All service ports must be in a valid range (1024-65535)."""
@@ -117,31 +104,19 @@ class TestServicePortConflicts:
             if not (1024 <= port <= 65535):
                 invalid.append(f"{name}: {port}")
 
-        assert not invalid, (
-            "Ports outside valid range (1024-65535):\n" + "\n".join(invalid)
-        )
+        assert not invalid, "Ports outside valid range (1024-65535):\n" + "\n".join(invalid)
 
     def test_no_well_known_port_conflicts(self, service_ports: dict[str, int]):
         """Services should not use well-known system ports (< 1024)."""
-        well_known = [
-            (name, port)
-            for name, port in service_ports.items()
-            if port < 1024
-        ]
-        assert not well_known, (
-            "Services using well-known ports (<1024): "
-            + ", ".join(f"{n}:{p}" for n, p in well_known)
+        well_known = [(name, port) for name, port in service_ports.items() if port < 1024]
+        assert not well_known, "Services using well-known ports (<1024): " + ", ".join(
+            f"{n}:{p}" for n, p in well_known
         )
 
     def test_minimum_service_count(self, service_ports: dict[str, int]):
         """Platform should have a reasonable number of registered services."""
-        app_ports = {
-            n: p for n, p in service_ports.items()
-            if n not in INFRASTRUCTURE_PORT_NAMES
-        }
-        assert len(app_ports) >= 30, (
-            f"Expected at least 30 application services, found {len(app_ports)}"
-        )
+        app_ports = {n: p for n, p in service_ports.items() if n not in INFRASTRUCTURE_PORT_NAMES}
+        assert len(app_ports) >= 30, f"Expected at least 30 application services, found {len(app_ports)}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -191,16 +166,11 @@ class TestEventSubjectConflicts:
         duplicates: list[str] = []
         for name, subject in event_subjects.items():
             if subject in seen:
-                duplicates.append(
-                    f"Subject '{subject}' defined by both "
-                    f"'{seen[subject]}' and '{name}'"
-                )
+                duplicates.append(f"Subject '{subject}' defined by both '{seen[subject]}' and '{name}'")
             else:
                 seen[subject] = name
 
-        assert not duplicates, (
-            "Duplicate NATS subject values:\n" + "\n".join(duplicates)
-        )
+        assert not duplicates, "Duplicate NATS subject values:\n" + "\n".join(duplicates)
 
     def test_subjects_follow_naming_convention(self, event_subjects: dict[str, str]):
         """All subjects must follow the pattern: sahool.{domain}.{action}[.{sub}]."""
@@ -210,13 +180,9 @@ class TestEventSubjectConflicts:
                 invalid.append(f"{name} = '{subject}' (missing sahool. prefix)")
             parts = subject.split(".")
             if len(parts) < 3:
-                invalid.append(
-                    f"{name} = '{subject}' (must have at least 3 segments)"
-                )
+                invalid.append(f"{name} = '{subject}' (must have at least 3 segments)")
 
-        assert not invalid, (
-            "Subjects violating naming convention:\n" + "\n".join(invalid)
-        )
+        assert not invalid, "Subjects violating naming convention:\n" + "\n".join(invalid)
 
     def test_subject_registry_values_match_constants(
         self,
@@ -231,13 +197,9 @@ class TestEventSubjectConflicts:
         mismatches: list[str] = []
         for key, value in subject_registry.items():
             if value not in known_values:
-                mismatches.append(
-                    f"Registry key '{key}' → '{value}' has no matching constant"
-                )
+                mismatches.append(f"Registry key '{key}' → '{value}' has no matching constant")
 
-        assert not mismatches, (
-            "Stale SUBJECT_REGISTRY entries:\n" + "\n".join(mismatches)
-        )
+        assert not mismatches, "Stale SUBJECT_REGISTRY entries:\n" + "\n".join(mismatches)
 
     def test_no_duplicate_registry_keys(self, subject_registry: dict[str, str]):
         """SUBJECT_REGISTRY keys must be unique (enforced by dict, but values should be too)."""
@@ -245,28 +207,18 @@ class TestEventSubjectConflicts:
         duplicates: list[str] = []
         for key, value in subject_registry.items():
             if value in seen_values:
-                duplicates.append(
-                    f"Subject '{value}' registered by both "
-                    f"'{seen_values[value]}' and '{key}'"
-                )
+                duplicates.append(f"Subject '{value}' registered by both '{seen_values[value]}' and '{key}'")
             else:
                 seen_values[value] = key
 
-        assert not duplicates, (
-            "Duplicate subject values in SUBJECT_REGISTRY:\n"
-            + "\n".join(duplicates)
-        )
+        assert not duplicates, "Duplicate subject values in SUBJECT_REGISTRY:\n" + "\n".join(duplicates)
 
     def test_subject_no_whitespace(self, event_subjects: dict[str, str]):
         """NATS subjects must not contain whitespace characters."""
         invalid = [
-            f"{name} = '{subj}'"
-            for name, subj in event_subjects.items()
-            if " " in subj or "\t" in subj or "\n" in subj
+            f"{name} = '{subj}'" for name, subj in event_subjects.items() if " " in subj or "\t" in subj or "\n" in subj
         ]
-        assert not invalid, (
-            "Subjects with whitespace:\n" + "\n".join(invalid)
-        )
+        assert not invalid, "Subjects with whitespace:\n" + "\n".join(invalid)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -284,14 +236,7 @@ class TestAPIEndpointConflicts:
         Parse all *_ENDPOINTS objects from api-endpoints.ts.
         Returns a dict of {group_name: {key: path}}.
         """
-        endpoints_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "api-endpoints.ts"
-        )
+        endpoints_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "api-endpoints.ts"
         if not endpoints_file.exists():
             pytest.skip("api-endpoints.ts not found")
 
@@ -310,9 +255,7 @@ class TestAPIEndpointConflicts:
             entries: dict[str, str] = {}
 
             # Match KEY: `...`, or KEY: "...",
-            entry_pattern = re.compile(
-                r'(\w+):\s*`([^`]+)`'
-            )
+            entry_pattern = re.compile(r"(\w+):\s*`([^`]+)`")
             for entry in entry_pattern.finditer(block_body):
                 key = entry.group(1)
                 path = entry.group(2)
@@ -329,9 +272,7 @@ class TestAPIEndpointConflicts:
         """Must have endpoint groups defined."""
         assert len(all_endpoints) > 0, "No endpoint groups found"
 
-    def test_no_excessive_path_sharing(
-        self, all_endpoints: dict[str, dict[str, str]]
-    ):
+    def test_no_excessive_path_sharing(self, all_endpoints: dict[str, dict[str, str]]):
         """
         In REST APIs, sharing paths for different HTTP methods is normal
         (GET, POST, PUT, DELETE on the same resource). However, if 4+
@@ -348,18 +289,13 @@ class TestAPIEndpointConflicts:
             excessive: list[str] = []
             for path, keys in seen.items():
                 if len(keys) > max_allowed_sharing:
-                    excessive.append(
-                        f"  {group_name}: {len(keys)} keys share '{path}': {keys}"
-                    )
+                    excessive.append(f"  {group_name}: {len(keys)} keys share '{path}': {keys}")
 
-            assert not excessive, (
-                f"Excessive path sharing (>{max_allowed_sharing}) in {group_name}:\n"
-                + "\n".join(excessive)
+            assert not excessive, f"Excessive path sharing (>{max_allowed_sharing}) in {group_name}:\n" + "\n".join(
+                excessive
             )
 
-    def test_all_paths_start_with_api_prefix(
-        self, all_endpoints: dict[str, dict[str, str]]
-    ):
+    def test_all_paths_start_with_api_prefix(self, all_endpoints: dict[str, dict[str, str]]):
         """All API paths should start with /api/v1/ (except health endpoints)."""
         invalid: list[str] = []
         for group_name, endpoints in all_endpoints.items():
@@ -369,13 +305,9 @@ class TestAPIEndpointConflicts:
                 if not path.startswith("/api/v1/"):
                     invalid.append(f"{group_name}.{key}: '{path}'")
 
-        assert not invalid, (
-            "Paths not starting with /api/v1/:\n" + "\n".join(invalid)
-        )
+        assert not invalid, "Paths not starting with /api/v1/:\n" + "\n".join(invalid)
 
-    def test_no_trailing_slashes(
-        self, all_endpoints: dict[str, dict[str, str]]
-    ):
+    def test_no_trailing_slashes(self, all_endpoints: dict[str, dict[str, str]]):
         """API paths must not have trailing slashes."""
         trailing: list[str] = []
         for group_name, endpoints in all_endpoints.items():
@@ -383,13 +315,9 @@ class TestAPIEndpointConflicts:
                 if path.endswith("/") and path != "/":
                     trailing.append(f"{group_name}.{key}: '{path}'")
 
-        assert not trailing, (
-            "Paths with trailing slashes:\n" + "\n".join(trailing)
-        )
+        assert not trailing, "Paths with trailing slashes:\n" + "\n".join(trailing)
 
-    def test_paths_are_lowercase(
-        self, all_endpoints: dict[str, dict[str, str]]
-    ):
+    def test_paths_are_lowercase(self, all_endpoints: dict[str, dict[str, str]]):
         """API paths (excluding parameters) should be lowercase."""
         uppercase: list[str] = []
         for group_name, endpoints in all_endpoints.items():
@@ -399,9 +327,7 @@ class TestAPIEndpointConflicts:
                 if path_no_params != path_no_params.lower():
                     uppercase.append(f"{group_name}.{key}: '{path}'")
 
-        assert not uppercase, (
-            "Paths with uppercase characters:\n" + "\n".join(uppercase)
-        )
+        assert not uppercase, "Paths with uppercase characters:\n" + "\n".join(uppercase)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -416,14 +342,7 @@ class TestErrorCodeConflicts:
     @pytest.fixture
     def error_codes(self) -> dict[str, str]:
         """Parse ERROR_CODES from error-codes.ts."""
-        codes_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "error-codes.ts"
-        )
+        codes_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "error-codes.ts"
         if not codes_file.exists():
             pytest.skip("error-codes.ts not found")
 
@@ -449,14 +368,7 @@ class TestErrorCodeConflicts:
     @pytest.fixture
     def error_messages(self) -> dict[str, dict]:
         """Parse ERROR_MESSAGES from error-codes.ts."""
-        codes_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "error-codes.ts"
-        )
+        codes_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "error-codes.ts"
         if not codes_file.exists():
             pytest.skip("error-codes.ts not found")
 
@@ -465,7 +377,7 @@ class TestErrorCodeConflicts:
 
         # Find error message blocks with en: and ar: fields
         block_pattern = re.compile(
-            r'\[ERROR_CODES\.(\w+)\]:\s*\{[^}]*'
+            r"\[ERROR_CODES\.(\w+)\]:\s*\{[^}]*"
             r'en:\s*"([^"]*)"[^}]*'
             r'ar:\s*"([^"]*)"',
             re.DOTALL,
@@ -489,15 +401,11 @@ class TestErrorCodeConflicts:
         duplicates: list[str] = []
         for key, value in error_codes.items():
             if value in seen:
-                duplicates.append(
-                    f"Value '{value}' used by both '{seen[value]}' and '{key}'"
-                )
+                duplicates.append(f"Value '{value}' used by both '{seen[value]}' and '{key}'")
             else:
                 seen[value] = key
 
-        assert not duplicates, (
-            "Duplicate error code values:\n" + "\n".join(duplicates)
-        )
+        assert not duplicates, "Duplicate error code values:\n" + "\n".join(duplicates)
 
     def test_all_generic_error_codes_have_messages(
         self,
@@ -519,23 +427,16 @@ class TestErrorCodeConflicts:
             if key not in error_messages:
                 missing.append(key)
 
-        assert not missing, (
-            "Generic error codes without messages (EN/AR):\n" + "\n".join(missing)
-        )
+        assert not missing, "Generic error codes without messages (EN/AR):\n" + "\n".join(missing)
 
-    def test_all_messages_have_arabic_translation(
-        self, error_messages: dict[str, dict]
-    ):
+    def test_all_messages_have_arabic_translation(self, error_messages: dict[str, dict]):
         """All error messages must include Arabic translations."""
         missing_ar: list[str] = []
         for key, msg in error_messages.items():
             if not msg.get("ar"):
                 missing_ar.append(key)
 
-        assert not missing_ar, (
-            "Error messages missing Arabic translation:\n"
-            + "\n".join(missing_ar)
-        )
+        assert not missing_ar, "Error messages missing Arabic translation:\n" + "\n".join(missing_ar)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -580,17 +481,12 @@ class TestModuleImportConflicts:
         except ImportError:
             pytest.skip(f"{module_name} has missing dependencies (OK)")
         except Exception as e:
-            pytest.fail(
-                f"{module_name} raised unexpected error on import: "
-                f"{type(e).__name__}: {e}"
-            )
+            pytest.fail(f"{module_name} raised unexpected error on import: {type(e).__name__}: {e}")
 
     def test_no_circular_imports_in_events(self):
         """shared.events.subjects should not cause circular import issues."""
         # Clear cached modules
-        modules_to_clear = [
-            key for key in sys.modules if key.startswith("shared.events")
-        ]
+        modules_to_clear = [key for key in sys.modules if key.startswith("shared.events")]
         saved = {}
         for mod in modules_to_clear:
             saved[mod] = sys.modules.pop(mod)
@@ -769,10 +665,7 @@ class TestTenantSubjectBuilder:
 
     def test_builder_billing_action(self):
         builder = self._get_builder("org_abc")
-        assert (
-            builder.billing.action("payment.completed")
-            == "sahool.tenant.org_abc.billing.payment.completed"
-        )
+        assert builder.billing.action("payment.completed") == "sahool.tenant.org_abc.billing.payment.completed"
 
     def test_builder_generic_subject(self):
         builder = self._get_builder("t1")
@@ -845,7 +738,7 @@ class TestDockerComposePortConflicts:
                 # Match host:container or ip:host:container port patterns
                 # Pattern: optional_ip:HOST_PORT:CONTAINER_PORT
                 port_match = re.search(
-                    r'(?:\d+\.\d+\.\d+\.\d+:)?(\d{2,5}):(\d{2,5})',
+                    r"(?:\d+\.\d+\.\d+\.\d+:)?(\d{2,5}):(\d{2,5})",
                     stripped,
                 )
                 if port_match:
@@ -859,13 +752,9 @@ class TestDockerComposePortConflicts:
         conflicts: list[str] = []
         for port, services in compose_host_ports.items():
             if len(services) > 1:
-                conflicts.append(
-                    f"Host port {port} claimed by: {', '.join(services)}"
-                )
+                conflicts.append(f"Host port {port} claimed by: {', '.join(services)}")
 
-        assert not conflicts, (
-            "Docker Compose host port conflicts:\n" + "\n".join(conflicts)
-        )
+        assert not conflicts, "Docker Compose host port conflicts:\n" + "\n".join(conflicts)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -891,9 +780,7 @@ class TestGovernanceServicesRegistry:
 
     def test_services_yaml_has_version(self, services_yaml_content: str):
         """services.yaml must declare a version."""
-        assert "version:" in services_yaml_content, (
-            "governance/services.yaml must contain a 'version:' field"
-        )
+        assert "version:" in services_yaml_content, "governance/services.yaml must contain a 'version:' field"
 
     def test_no_duplicate_service_names_in_yaml(self, services_yaml_content: str):
         """
@@ -911,9 +798,7 @@ class TestGovernanceServicesRegistry:
             if count > 1:
                 duplicates.append(f"'{name}' appears {count} times")
 
-        assert not duplicates, (
-            "Duplicate service names in services.yaml:\n" + "\n".join(duplicates)
-        )
+        assert not duplicates, "Duplicate service names in services.yaml:\n" + "\n".join(duplicates)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -930,14 +815,7 @@ class TestCrossContractConsistency:
 
     def test_contract_version_format(self):
         """CONTRACT_VERSION in index.ts should follow semver."""
-        index_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "index.ts"
-        )
+        index_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "index.ts"
         if not index_file.exists():
             pytest.skip("contracts/index.ts not found")
 
@@ -948,23 +826,14 @@ class TestCrossContractConsistency:
         version = match.group(1)
         parts = version.split(".")
         assert len(parts) == 3, f"CONTRACT_VERSION '{version}' is not valid semver"
-        assert all(p.isdigit() for p in parts), (
-            f"CONTRACT_VERSION '{version}' contains non-numeric parts"
-        )
+        assert all(p.isdigit() for p in parts), f"CONTRACT_VERSION '{version}' contains non-numeric parts"
 
     def test_service_registry_ports_match_service_ports(self):
         """
         SERVICE_REGISTRY entries must reference ports that match SERVICE_PORTS.
         Catches copy-paste errors where registry port differs from constant.
         """
-        ports_file = (
-            PROJECT_ROOT
-            / "packages"
-            / "shared-types"
-            / "src"
-            / "contracts"
-            / "service-ports.ts"
-        )
+        ports_file = PROJECT_ROOT / "packages" / "shared-types" / "src" / "contracts" / "service-ports.ts"
         if not ports_file.exists():
             pytest.skip("service-ports.ts not found")
 
@@ -986,6 +855,5 @@ class TestCrossContractConsistency:
         # Find any literal port numbers in registry (should use SERVICE_PORTS.X)
         literal_ports = re.findall(r"port:\s+(\d+)", registry_section)
         assert not literal_ports, (
-            f"SERVICE_REGISTRY uses literal port numbers instead of "
-            f"SERVICE_PORTS references: {literal_ports}"
+            f"SERVICE_REGISTRY uses literal port numbers instead of SERVICE_PORTS references: {literal_ports}"
         )

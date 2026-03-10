@@ -70,7 +70,7 @@ export class AuditInterceptor implements NestInterceptor {
     const startTime = Date.now();
 
     return next.handle().pipe(
-      tap(async (result) => {
+      tap(async (result: unknown) => {
         const duration = Date.now() - startTime;
 
         // Capture new value if tracking changes
@@ -144,7 +144,7 @@ export class AuditInterceptor implements NestInterceptor {
           this.logger.error("Failed to log audit event", error);
         }
       }),
-      catchError(async (error) => {
+      catchError(async (error: Error) => {
         const duration = Date.now() - startTime;
 
         // Log failure

@@ -59,9 +59,7 @@ async def test_marketplace_product_listing_workflow(
 
         # If it's a paginated response
         if isinstance(products_data, dict):
-            assert (
-                "products" in products_data or "items" in products_data or "data" in products_data
-            )
+            assert "products" in products_data or "items" in products_data or "data" in products_data
 
 
 @pytest.mark.integration
@@ -151,9 +149,7 @@ async def test_marketplace_product_details_workflow(
     # Get product details - الحصول على تفاصيل المنتج
     product_id = "product-test-001"
 
-    response = await http_client.get(
-        f"{marketplace_url}/api/v1/products/{product_id}", headers=auth_headers
-    )
+    response = await http_client.get(f"{marketplace_url}/api/v1/products/{product_id}", headers=auth_headers)
 
     if response.status_code == 200:
         product = response.json()
@@ -209,9 +205,7 @@ async def test_marketplace_seller_registration_workflow(
         },
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/sellers", json=seller_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/sellers", json=seller_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)
 
@@ -268,9 +262,7 @@ async def test_marketplace_create_product_workflow(
         "tags_ar": ["سماد", "NPK", "مركب", "محاصيل"],
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/products", json=product_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/products", json=product_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)
 
@@ -305,9 +297,7 @@ async def test_marketplace_shopping_cart_workflow(
         "notes": "Please deliver before weekend",
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/cart/items", json=cart_item, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/cart/items", json=cart_item, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -382,9 +372,7 @@ async def test_marketplace_order_placement_workflow(
         "notes": "Please call before delivery",
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/orders", json=order_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/orders", json=order_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)
 
@@ -496,9 +484,7 @@ async def test_marketplace_payment_workflow(
         },
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/payments", json=payment_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/payments", json=payment_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)
 
@@ -538,9 +524,7 @@ async def test_marketplace_product_review_workflow(
         "images": ["https://cdn.sahool.io/reviews/user-photo-1.jpg"],
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/reviews", json=review_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/reviews", json=review_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)
 
@@ -650,9 +634,7 @@ async def test_marketplace_delivery_tracking_workflow(
     order_id = "order-test-001"
 
     # Get delivery tracking - الحصول على تتبع التوصيل
-    response = await http_client.get(
-        f"{marketplace_url}/api/v1/orders/{order_id}/delivery", headers=auth_headers
-    )
+    response = await http_client.get(f"{marketplace_url}/api/v1/orders/{order_id}/delivery", headers=auth_headers)
 
     if response.status_code == 200:
         delivery = response.json()
@@ -691,8 +673,6 @@ async def test_marketplace_dispute_workflow(
         "evidence_urls": ["https://cdn.sahool.io/disputes/photo-1.jpg"],
     }
 
-    response = await http_client.post(
-        f"{marketplace_url}/api/v1/disputes", json=dispute_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{marketplace_url}/api/v1/disputes", json=dispute_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401, 422)

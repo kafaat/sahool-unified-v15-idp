@@ -394,6 +394,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Check architecture import rules
         run: python -m tools.arch.check_imports --root .
@@ -422,6 +423,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -764,6 +766,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Validate ENV configuration
         run: |
@@ -803,6 +806,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install security tools
         run: |
@@ -830,8 +834,15 @@ jobs:
             echo "Download failed, retrying in $((i * 4))s..."
             sleep $((i * 4))
           done
+          # Fallback: use official install script (latest stable)
+          echo "Trying official install script..."
+          if curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin; then
+            trivy --version
+            echo "installed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "installed=false" >> $GITHUB_OUTPUT
-          echo "::warning::Failed to install Trivy after 4 attempts"
+          echo "::warning::Failed to install Trivy after all attempts"
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'
@@ -860,10 +871,7 @@ jobs:
         run: |
           if [ ! -f "trivy-results.sarif" ]; then
             echo "Creating empty SARIF file (Trivy scan did not produce output)..."
-            # FIX: SARIF upload requires at least 1 run with a tool entry
-            cat > trivy-results.sarif <<'SARIF'
-          {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.0.0","rules":[]}},"results":[]}]}
-          SARIF
+            echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.62.1"}},"results":[]}]}' > trivy-results.sarif
           fi
 
       - name: Upload Trivy scan results to GitHub Security tab
@@ -900,6 +908,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install PyYAML
         run: pip install pyyaml

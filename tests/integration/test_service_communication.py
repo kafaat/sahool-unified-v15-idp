@@ -103,9 +103,7 @@ async def test_service_discovery_communication(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_cross_service_request_flow(
-    http_client: AsyncClient, service_headers: dict[str, str]
-):
+async def test_cross_service_request_flow(http_client: AsyncClient, service_headers: dict[str, str]):
     """
     Test complete request flow across multiple services
     اختبار تدفق الطلب الكامل عبر خدمات متعددة
@@ -153,14 +151,10 @@ async def test_service_error_propagation(http_client: AsyncClient, service_heade
     اختبار نشر الأخطاء بشكل صحيح بين الخدمات
     """
     # Test invalid request to field_ops
-    response = await http_client.get(
-        f"{SERVICES['field_ops']}/api/v1/fields/invalid-field-id", headers=service_headers
-    )
+    response = await http_client.get(f"{SERVICES['field_ops']}/api/v1/fields/invalid-field-id", headers=service_headers)
 
     # Should return proper error response (404 or 400)
-    assert response.status_code in [400, 404, 422], (
-        "Service should return proper error code for invalid request"
-    )
+    assert response.status_code in [400, 404, 422], "Service should return proper error code for invalid request"
 
     # Response should be JSON
     try:
@@ -189,9 +183,7 @@ async def test_concurrent_service_requests(http_client: AsyncClient):
     responses = await asyncio.gather(*tasks, return_exceptions=True)
 
     # All requests should succeed
-    successful_requests = [
-        r for r in responses if isinstance(r, httpx.Response) and r.status_code == 200
-    ]
+    successful_requests = [r for r in responses if isinstance(r, httpx.Response) and r.status_code == 200]
 
     assert len(successful_requests) >= 8, (
         f"At least 8/10 concurrent requests should succeed, got {len(successful_requests)}"
@@ -226,9 +218,7 @@ async def test_service_communication_parallelism(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_service_to_service_auth_headers(
-    http_client: AsyncClient, service_headers: dict[str, str]
-):
+async def test_service_to_service_auth_headers(http_client: AsyncClient, service_headers: dict[str, str]):
     """
     Test services properly validate authentication headers
     اختبار التحقق من صحة رؤوس المصادقة بين الخدمات
@@ -239,21 +229,15 @@ async def test_service_to_service_auth_headers(
         "Accept": "application/json",
     }
 
-    response = await http_client.get(
-        f"{SERVICES['field_ops']}/api/v1/fields", headers=headers_no_tenant
-    )
+    response = await http_client.get(f"{SERVICES['field_ops']}/api/v1/fields", headers=headers_no_tenant)
 
     # Should either reject (401/403) or accept with default tenant
-    assert response.status_code in [200, 401, 403, 422], (
-        f"Unexpected status code: {response.status_code}"
-    )
+    assert response.status_code in [200, 401, 403, 422], f"Unexpected status code: {response.status_code}"
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_service_request_id_propagation(
-    http_client: AsyncClient, service_headers: dict[str, str]
-):
+async def test_service_request_id_propagation(http_client: AsyncClient, service_headers: dict[str, str]):
     """
     Test request ID is propagated across service calls
     اختبار نشر معرف الطلب عبر استدعاءات الخدمة
@@ -314,9 +298,7 @@ async def test_service_graceful_degradation(http_client: AsyncClient):
             pass
 
     # At least one service should be available
-    assert len(available_services) >= 1, (
-        "At least one service should be available for graceful degradation"
-    )
+    assert len(available_services) >= 1, "At least one service should be available for graceful degradation"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

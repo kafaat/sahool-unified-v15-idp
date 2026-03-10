@@ -199,13 +199,7 @@ class BaselineComparator:
                     "current": current_score,
                     "baseline": baseline_score,
                     "change": change,
-                    "status": (
-                        "regression"
-                        if change < -5.0
-                        else "improvement"
-                        if change > 5.0
-                        else "stable"
-                    ),
+                    "status": ("regression" if change < -5.0 else "improvement" if change > 5.0 else "stable"),
                 }
             )
 
@@ -238,14 +232,12 @@ class BaselineComparator:
 
         if regressions:
             summary_parts.append(
-                f"⚠️ {len(regressions)} regression(s) detected: "
-                + ", ".join(r["metric"] for r in regressions)
+                f"⚠️ {len(regressions)} regression(s) detected: " + ", ".join(r["metric"] for r in regressions)
             )
 
         if improvements:
             summary_parts.append(
-                f"✅ {len(improvements)} improvement(s): "
-                + ", ".join(i["metric"] for i in improvements)
+                f"✅ {len(improvements)} improvement(s): " + ", ".join(i["metric"] for i in improvements)
             )
 
         if stable:

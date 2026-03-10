@@ -33,7 +33,7 @@ def test_health_check(client):
 
 def test_list_crops(client):
     """Test crops listing"""
-    response = client.get("/crops")
+    response = client.get("/api/v1/crops")
     assert response.status_code == 200
     data = response.json()
     assert "categories" in data
@@ -43,7 +43,7 @@ def test_list_crops(client):
 
 def test_get_crop_stages(client):
     """Test crop stages endpoint"""
-    response = client.get("/crops/tomato/stages")
+    response = client.get("/api/v1/crops/tomato/stages")
     assert response.status_code == 200
     data = response.json()
     # Response is wrapped in create_success_response
@@ -55,7 +55,7 @@ def test_get_crop_stages(client):
 
 def test_get_crop_requirements(client):
     """Test crop requirements endpoint"""
-    response = client.get("/crops/tomato/requirements")
+    response = client.get("/api/v1/crops/tomato/requirements")
     assert response.status_code == 200
     data = response.json()
     inner = data.get("data", data)
@@ -66,7 +66,7 @@ def test_get_crop_requirements(client):
 
 def test_get_disease_info(client):
     """Test disease info endpoint"""
-    response = client.get("/disease/tomato_late_blight")
+    response = client.get("/api/v1/disease/tomato_late_blight")
     assert response.status_code == 200
     data = response.json()
     inner = data.get("data", data)
@@ -78,13 +78,13 @@ def test_get_disease_info(client):
 
 def test_get_disease_not_found(client):
     """Test disease not found"""
-    response = client.get("/disease/nonexistent_disease")
+    response = client.get("/api/v1/disease/nonexistent_disease")
     assert response.status_code == 404
 
 
 def test_get_crop_diseases(client):
     """Test diseases by crop"""
-    response = client.get("/disease/crop/tomato")
+    response = client.get("/api/v1/disease/crop/tomato")
     assert response.status_code == 200
     data = response.json()
     assert data["crop"] == "tomato"
@@ -94,7 +94,7 @@ def test_get_crop_diseases(client):
 
 def test_search_diseases(client):
     """Test disease search"""
-    response = client.get("/disease/search?q=لفحة")
+    response = client.get("/api/v1/disease/search?q=لفحة")
     assert response.status_code == 200
     data = response.json()
     assert "results" in data
@@ -102,7 +102,7 @@ def test_search_diseases(client):
 
 def test_get_fertilizer_info(client):
     """Test fertilizer info endpoint"""
-    response = client.get("/fertilizer/urea")
+    response = client.get("/api/v1/fertilizer/urea")
     assert response.status_code == 200
     data = response.json()
     inner = data.get("data", data)
@@ -113,7 +113,7 @@ def test_get_fertilizer_info(client):
 
 def test_get_fertilizers_by_nutrient(client):
     """Test fertilizers by nutrient"""
-    response = client.get("/fertilizer/nutrient/N")
+    response = client.get("/api/v1/fertilizer/nutrient/N")
     assert response.status_code == 200
     data = response.json()
     assert data["nutrient"] == "N"
@@ -123,7 +123,7 @@ def test_get_fertilizers_by_nutrient(client):
 
 def test_get_action_details(client):
     """Test action details endpoint"""
-    response = client.get("/actions/spray_copper")
+    response = client.get("/api/v1/actions/spray_copper")
     assert response.status_code == 200
     data = response.json()
     inner = data.get("data", data)

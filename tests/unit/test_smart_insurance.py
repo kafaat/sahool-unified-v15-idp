@@ -1,10 +1,12 @@
 """Tests for smart crop insurance."""
+
 import pytest
 from shared.crop_insurance.smart_insurance import (
     SmartInsuranceEngine,
     InsuranceType,
     RiskLevel,
 )
+
 
 class TestSmartInsurance:
     def setup_method(self):
@@ -17,8 +19,10 @@ class TestSmartInsurance:
 
     def test_premium_calculation(self):
         premium = self.engine.calculate_premium(
-            field_id="F-001", tenant_id="T-001",
-            crop_type="wheat", area_hectares=10,
+            field_id="F-001",
+            tenant_id="T-001",
+            crop_type="wheat",
+            area_hectares=10,
         )
         assert premium.premium_sar > 0
         assert premium.coverage_amount_sar > 0

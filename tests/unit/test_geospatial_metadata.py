@@ -243,9 +243,9 @@ class TestDataQualityReport:
 
     def test_overall_quality_score(self):
         report = DataQualityReport()
-        report.add_positional_accuracy(5.0)       # 100 - 5 = 95 (weight 0.3)
-        report.add_completeness(90.0)              # 90 (weight 0.25)
-        report.add_thematic_accuracy(85.0)         # 85 (weight 0.25)
+        report.add_positional_accuracy(5.0)  # 100 - 5 = 95 (weight 0.3)
+        report.add_completeness(90.0)  # 90 (weight 0.25)
+        report.add_thematic_accuracy(85.0)  # 85 (weight 0.25)
         score = report.overall_quality_score()
         assert score is not None
         assert 85.0 <= score <= 95.0  # Weighted average should be in this range

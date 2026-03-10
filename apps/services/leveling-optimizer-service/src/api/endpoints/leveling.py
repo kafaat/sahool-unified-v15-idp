@@ -11,6 +11,8 @@ from typing import List, Optional
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 
+from shared.events.subjects import SAHOOL_TERRAIN_SIMULATION_COMPLETED
+
 from ...core.config import settings
 from ...utils.leveling_algorithms import (
     LevelingOptimizer,
@@ -792,9 +794,9 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
                     },
                     default=str,
                 ).encode()
-                await nc.publish("sahool.terrain.simulation_completed", event_payload)
+                await nc.publish(SAHOOL_TERRAIN_SIMULATION_COMPLETED, event_payload)
                 logger.info(
-                    "nats_event_published", subject="sahool.terrain.simulation_completed", field_id=request.field_id
+                    "nats_event_published", subject=SAHOOL_TERRAIN_SIMULATION_COMPLETED, field_id=request.field_id
                 )
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))

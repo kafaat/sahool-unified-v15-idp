@@ -206,8 +206,12 @@ class TestNewPestEntities:
     def test_pest_crop_relations_exist(self, graph: AgriculturalKnowledgeGraph):
         """Test new pests have 'affects' relations to crops."""
         new_pests = [
-            "pest_sunn_pest", "pest_armyworm", "pest_thrips",
-            "pest_bollworm", "pest_nematode", "pest_fruit_fly",
+            "pest_sunn_pest",
+            "pest_armyworm",
+            "pest_thrips",
+            "pest_bollworm",
+            "pest_nematode",
+            "pest_fruit_fly",
         ]
         for pest_id in new_pests:
             relations = _find_relations(graph, pest_id, "affects")
@@ -282,12 +286,8 @@ class TestDiagnosisScenarios:
         """
         wheat_diseases = _find_reverse_relations(graph, "crop_wheat", "affects")
         disease_ids = {r.source_id for r in wheat_diseases}
-        assert "disease_nitrogen_deficiency" in disease_ids, (
-            "Nitrogen deficiency should affect wheat"
-        )
-        assert "disease_rust" in disease_ids, (
-            "Rust should also affect wheat (differential diagnosis)"
-        )
+        assert "disease_nitrogen_deficiency" in disease_ids, "Nitrogen deficiency should affect wheat"
+        assert "disease_rust" in disease_ids, "Rust should also affect wheat (differential diagnosis)"
 
     @pytest.mark.unit
     def test_scenario_tomato_leaf_curl(self, graph: AgriculturalKnowledgeGraph):
@@ -414,7 +414,13 @@ class TestDiseaseDocsPopulation:
     @pytest.mark.unit
     def test_nutrient_deficiency_md_exists(self):
         """Test nutrient-deficiency.md file exists in the knowledge base."""
-        path = Path(__file__).parent.parent.parent.parent / "docs" / "knowledge-base" / "diseases" / "nutrient-deficiency.md"
+        path = (
+            Path(__file__).parent.parent.parent.parent
+            / "docs"
+            / "knowledge-base"
+            / "diseases"
+            / "nutrient-deficiency.md"
+        )
         assert path.exists(), "nutrient-deficiency.md not found in diseases/"
 
     @pytest.mark.unit
@@ -439,5 +445,5 @@ class TestDiseaseDocsPopulation:
         for filename in ["bacterial.md", "viral.md", "nutrient-deficiency.md"]:
             content = (diseases_dir / filename).read_text(encoding="utf-8")
             # Check for Arabic characters
-            has_arabic = any("\u0600" <= c <= "\u06FF" for c in content)
+            has_arabic = any("\u0600" <= c <= "\u06ff" for c in content)
             assert has_arabic, f"{filename} has no Arabic content"

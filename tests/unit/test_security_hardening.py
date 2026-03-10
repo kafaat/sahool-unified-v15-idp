@@ -1,4 +1,5 @@
 """Tests for security hardening module."""
+
 import pytest
 from shared.security.hardening import (
     SecurityHardening,

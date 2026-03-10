@@ -197,9 +197,7 @@ class TestLowStockEventFlow:
             await nats_client.subscribe("inventory.low_stock", cb=alert_handler)
 
         # Act - Create low stock item (should trigger event)
-        create_url = (
-            f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
-        )
+        create_url = f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
         response = await http_client.post(create_url, json=item_data, headers=auth_headers)
 
         # Wait for event processing

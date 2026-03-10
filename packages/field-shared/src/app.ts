@@ -53,7 +53,7 @@ export function createFieldApp(
   ];
 
   const corsOptions: cors.CorsOptions = {
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (mobile apps, curl, etc)
       if (!origin) return callback(null, true);
 
@@ -859,7 +859,7 @@ export function createFieldApp(
         fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
 
       // Transform fields with server_version for mobile sync
-      const syncData = fields.map((field) => ({
+      const syncData = fields.map((field: any) => ({
         ...field,
         server_version: field.version,
         etag: generateETag(field.id, field.version),
@@ -1250,7 +1250,7 @@ export function createFieldApp(
         });
 
         // Batch fetch all GeoJSON data in a single query to avoid N+1
-        const historyIds = history.map((h) => h.id);
+        const historyIds = history.map((h: any) => h.id);
         const geoJsonResults =
           historyIds.length > 0
             ? await AppDataSource.query(
@@ -1272,7 +1272,7 @@ export function createFieldApp(
         );
 
         // Convert geometries to GeoJSON for response
-        const historyWithGeoJson = history.map((entry) => {
+        const historyWithGeoJson = history.map((entry: any) => {
           const geoJsonResult: any = geoJsonMap.get(entry.id);
 
           return {

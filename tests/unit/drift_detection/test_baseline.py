@@ -132,9 +132,14 @@ class TestCompareWithBaseline:
     def test_no_regression(self):
         """Same counts as baseline → zero deltas."""
         report = _report_with_counts(critical=2, high=5, medium=3)
-        baseline = {"total": 10, "critical": 2, "high": 5, "by_category": {
-            "security": {"critical": 2, "high": 5, "medium": 3},
-        }}
+        baseline = {
+            "total": 10,
+            "critical": 2,
+            "high": 5,
+            "by_category": {
+                "security": {"critical": 2, "high": 5, "medium": 3},
+            },
+        }
         delta = compare_with_baseline(report, baseline)
         assert delta["total"] == 0
         assert delta["critical"] == 0
@@ -185,9 +190,14 @@ class TestCompareWithBaseline:
     def test_category_regression(self):
         """More drifts in a specific category than baseline."""
         report = _report_with_counts(high=5, category=DriftCategory.SECURITY)
-        baseline = {"total": 3, "critical": 0, "high": 3, "by_category": {
-            "security": {"high": 3},
-        }}
+        baseline = {
+            "total": 3,
+            "critical": 0,
+            "high": 3,
+            "by_category": {
+                "security": {"high": 3},
+            },
+        }
         delta = compare_with_baseline(report, baseline)
         assert delta["by_category"]["security"] == 2
 

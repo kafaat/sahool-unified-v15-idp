@@ -373,24 +373,12 @@ class TestEvaluationMetrics:
         # Record evaluation
         metrics_registry.evaluation_operations.inc()
         metrics_registry.evaluation_score_overall.observe(mock_evaluation_result.overall_score)
-        metrics_registry.evaluation_score_accuracy.observe(
-            mock_evaluation_result.criteria_scores["accuracy"]
-        )
-        metrics_registry.evaluation_score_actionability.observe(
-            mock_evaluation_result.criteria_scores["actionability"]
-        )
-        metrics_registry.evaluation_score_safety.observe(
-            mock_evaluation_result.criteria_scores["safety"]
-        )
-        metrics_registry.evaluation_score_relevance.observe(
-            mock_evaluation_result.criteria_scores["relevance"]
-        )
-        metrics_registry.evaluation_score_completeness.observe(
-            mock_evaluation_result.criteria_scores["completeness"]
-        )
-        metrics_registry.evaluation_score_clarity.observe(
-            mock_evaluation_result.criteria_scores["clarity"]
-        )
+        metrics_registry.evaluation_score_accuracy.observe(mock_evaluation_result.criteria_scores["accuracy"])
+        metrics_registry.evaluation_score_actionability.observe(mock_evaluation_result.criteria_scores["actionability"])
+        metrics_registry.evaluation_score_safety.observe(mock_evaluation_result.criteria_scores["safety"])
+        metrics_registry.evaluation_score_relevance.observe(mock_evaluation_result.criteria_scores["relevance"])
+        metrics_registry.evaluation_score_completeness.observe(mock_evaluation_result.criteria_scores["completeness"])
+        metrics_registry.evaluation_score_clarity.observe(mock_evaluation_result.criteria_scores["clarity"])
 
         # Verify metrics increased
         assert metrics_registry.evaluation_score_overall.count == initial_overall + 1

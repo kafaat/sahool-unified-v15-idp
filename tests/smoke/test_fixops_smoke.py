@@ -452,9 +452,7 @@ class TestCopilotApiImports:
             pytest.skip("pydantic_settings not available")
 
         # Handle dash in directory name
-        spec = importlib.util.spec_from_file_location(
-            "copilot_main", "apps/services/copilot-api/src/main.py"
-        )
+        spec = importlib.util.spec_from_file_location("copilot_main", "apps/services/copilot-api/src/main.py")
         if spec and spec.loader:
             try:
                 module = importlib.util.module_from_spec(spec)
@@ -481,9 +479,7 @@ class TestCopilotApiImports:
         except ImportError:
             pytest.skip("pydantic_settings not available")
 
-        spec = importlib.util.spec_from_file_location(
-            "copilot_config", "apps/services/copilot-api/src/core/config.py"
-        )
+        spec = importlib.util.spec_from_file_location("copilot_config", "apps/services/copilot-api/src/core/config.py")
         if spec and spec.loader:
             try:
                 module = importlib.util.module_from_spec(spec)

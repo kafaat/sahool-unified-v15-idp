@@ -372,9 +372,7 @@ class ComplianceChecker:
         """Verify consent management"""
         for py_file in self._find_python_files():
             content = py_file.read_text()
-            if "consent" in content.lower() and (
-                "record" in content.lower() or "grant" in content.lower()
-            ):
+            if "consent" in content.lower() and ("record" in content.lower() or "grant" in content.lower()):
                 self.report.add_check(
                     ComplianceCheck(
                         category="GDPR",

@@ -65,23 +65,17 @@ class TestDriftDetectionEngine:
 
     def test_ci_exit_code_critical(self):
         engine = DriftDetectionEngine()
-        report = DriftReport(
-            results=[DriftResult(severity=DriftSeverity.CRITICAL)]
-        )
+        report = DriftReport(results=[DriftResult(severity=DriftSeverity.CRITICAL)])
         assert engine.get_ci_exit_code(report) == 1
 
     def test_ci_exit_code_high(self):
         engine = DriftDetectionEngine()
-        report = DriftReport(
-            results=[DriftResult(severity=DriftSeverity.HIGH)]
-        )
+        report = DriftReport(results=[DriftResult(severity=DriftSeverity.HIGH)])
         assert engine.get_ci_exit_code(report) == 1
 
     def test_ci_exit_code_medium(self):
         engine = DriftDetectionEngine()
-        report = DriftReport(
-            results=[DriftResult(severity=DriftSeverity.MEDIUM)]
-        )
+        report = DriftReport(results=[DriftResult(severity=DriftSeverity.MEDIUM)])
         assert engine.get_ci_exit_code(report) == 2
 
     def test_json_output(self):
@@ -113,9 +107,7 @@ class TestQualityGatesEngine:
     @pytest.mark.asyncio
     async def test_pr_gate_critical_drift(self):
         engine = QualityGatesEngine()
-        report = DriftReport(
-            results=[DriftResult(severity=DriftSeverity.CRITICAL)]
-        )
+        report = DriftReport(results=[DriftResult(severity=DriftSeverity.CRITICAL)])
         result = await engine.evaluate_pr_gate(report)
 
         drift_checks = [c for c in result.checks if c.name == "drift_detection"]
@@ -124,9 +116,7 @@ class TestQualityGatesEngine:
     @pytest.mark.asyncio
     async def test_pr_gate_medium_drift(self):
         engine = QualityGatesEngine()
-        report = DriftReport(
-            results=[DriftResult(severity=DriftSeverity.MEDIUM)]
-        )
+        report = DriftReport(results=[DriftResult(severity=DriftSeverity.MEDIUM)])
         result = await engine.evaluate_pr_gate(report)
 
         drift_checks = [c for c in result.checks if c.name == "drift_detection"]

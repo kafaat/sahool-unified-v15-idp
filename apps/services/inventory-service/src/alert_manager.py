@@ -3,6 +3,7 @@ SAHOOL Inventory Alert Manager - مدير تنبيهات المخزون
 Manages low stock alerts, expiring items, and reorder notifications
 """
 
+import json
 import logging
 import uuid
 from dataclasses import dataclass, field
@@ -657,14 +658,22 @@ class AlertManager:
                 }
 
                 # Publish to NATS
-                await nats_client.publish("sahool.inventory.alert", notification_data)
+                encoded_payload = json.dumps(notification_data, default=str).encode()
+                await nats_client.publish("sahool.inventory.alert", encoded_payload)
 
                 sent += 1
                 logger.info(f"Notification sent for alert {alert.id}")
 
             except Exception as e:
                 failed += 1
-                logger.error(f"Failed to send notification for alert {alert.id}: {e}")
+                logger.error(
+                    "nats_publish_failed",
+                    extra={
+                        "subject": "sahool.inventory.alert",
+                        "alert_id": alert.id,
+                        "error": str(e),
+                    },
+                )
 
         return {"sent": sent, "failed": failed}
 

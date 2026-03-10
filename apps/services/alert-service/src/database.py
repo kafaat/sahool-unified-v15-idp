@@ -28,10 +28,9 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 IS_CI_OR_TEST = ENVIRONMENT in ("test", "ci", "testing")
 ALLOW_DEV_DEFAULTS = os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true"
 
-# Use default URL for development/CI if allowed
-if not DATABASE_URL and (IS_CI_OR_TEST or ALLOW_DEV_DEFAULTS):
-    DATABASE_URL = "postgresql://localhost:5432/sahool_alerts"
-    logger.warning("Using default DATABASE_URL for CI/test environment")
+# Warn if DATABASE_URL is not set
+if not DATABASE_URL:
+    logger.warning("DATABASE_URL not set, database features disabled")
 
 # Create SQLAlchemy engine with connection pooling and TLS support
 # SSL/TLS is enforced via DATABASE_URL parameter: ?sslmode=require
@@ -78,6 +77,8 @@ def get_db() -> Generator[Session, None, None]:
         def endpoint(db: Session = Depends(get_db)):
             # Use db here
     """
+    if SessionLocal is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     db = SessionLocal()
     try:
         yield db
@@ -101,6 +102,8 @@ def init_db():
     WARNING: This creates all tables defined in Base.
     In production, use Alembic migrations instead.
     """
+    if engine is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     Base.metadata.create_all(bind=engine)
 
 
@@ -111,6 +114,8 @@ def drop_all_tables():
     WARNING: This will delete all data!
     Only use in development/testing.
     """
+    if engine is None:
+        raise RuntimeError("Database not configured: DATABASE_URL is not set")
     Base.metadata.drop_all(bind=engine)
 
 

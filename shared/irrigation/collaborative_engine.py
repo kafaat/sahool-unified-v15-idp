@@ -702,7 +702,12 @@ class HMCIrrigationEngine:
             )
         """
         self._ensure_session_active()
-        if self._current_session is None or self._goal_dimension is None or self._experience_dimension is None or self._checklist is None:
+        if (
+            self._current_session is None
+            or self._goal_dimension is None
+            or self._experience_dimension is None
+            or self._checklist is None
+        ):
             raise HMCEngineError(HMCErrors.SESSION_INIT_ERROR)
 
         # Check goals are set

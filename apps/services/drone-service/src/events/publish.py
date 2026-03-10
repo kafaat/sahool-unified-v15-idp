@@ -95,6 +95,7 @@ class DronePublisher:
     async def connect(self) -> None:
         """Connect to NATS server."""
         import nats as nats_lib
+
         self.nc = await nats_lib.connect(self.nats_url)
         logger.info("drone_publisher_connected", url=self.nats_url)
 
@@ -155,44 +156,73 @@ class DronePublisher:
             return ""
 
     async def publish_drone_registered(
-        self, tenant_id: str, drone_id: str, model: str, correlation_id: str | None = None,
+        self,
+        tenant_id: str,
+        drone_id: str,
+        model: str,
+        correlation_id: str | None = None,
     ) -> str:
         from .types import DRONE_REGISTERED
+
         return await self.publish(
-            DRONE_REGISTERED, tenant_id, drone_id,
+            DRONE_REGISTERED,
+            tenant_id,
+            drone_id,
             {"drone_id": drone_id, "model": model},
             correlation_id,
         )
 
     async def publish_flight_planned(
-        self, tenant_id: str, plan_id: str, plan_type: str,
-        field_id: str, correlation_id: str | None = None,
+        self,
+        tenant_id: str,
+        plan_id: str,
+        plan_type: str,
+        field_id: str,
+        correlation_id: str | None = None,
     ) -> str:
         from .types import FLIGHT_PLANNED
+
         return await self.publish(
-            FLIGHT_PLANNED, tenant_id, plan_id,
+            FLIGHT_PLANNED,
+            tenant_id,
+            plan_id,
             {"plan_id": plan_id, "plan_type": plan_type, "field_id": field_id},
             correlation_id,
         )
 
     async def publish_mission_event(
-        self, event_type: str, tenant_id: str, mission_id: str,
-        drone_id: str | None = None, correlation_id: str | None = None,
+        self,
+        event_type: str,
+        tenant_id: str,
+        mission_id: str,
+        drone_id: str | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         payload: dict[str, Any] = {"mission_id": mission_id}
         if drone_id:
             payload["drone_id"] = drone_id
         return await self.publish(
-            event_type, tenant_id, mission_id, payload, correlation_id,
+            event_type,
+            tenant_id,
+            mission_id,
+            payload,
+            correlation_id,
         )
 
     async def publish_prescription_created(
-        self, tenant_id: str, prescription_id: str, field_id: str,
-        prescription_type: str = "ndvi", correlation_id: str | None = None,
+        self,
+        tenant_id: str,
+        prescription_id: str,
+        field_id: str,
+        prescription_type: str = "ndvi",
+        correlation_id: str | None = None,
     ) -> str:
         from .types import VRA_PRESCRIPTION_CREATED
+
         return await self.publish(
-            VRA_PRESCRIPTION_CREATED, tenant_id, prescription_id,
+            VRA_PRESCRIPTION_CREATED,
+            tenant_id,
+            prescription_id,
             {"prescription_id": prescription_id, "field_id": field_id, "type": prescription_type},
             correlation_id,
         )
@@ -202,6 +232,7 @@ def _get_tenant_subject(tenant_id: str, event_type: str) -> str:
     """Build tenant-scoped NATS subject."""
     try:
         from shared.events.subjects import get_tenant_subject
+
         action = event_type.replace("_", ".")
         return get_tenant_subject(tenant_id, "drone", action)
     except ImportError:
@@ -214,7 +245,10 @@ def _get_tenant_subject(tenant_id: str, event_type: str) -> str:
 
 
 async def publish_event(
-    nc, subject: str, payload: dict[str, Any], tenant_id: str | None = None,
+    nc,
+    subject: str,
+    payload: dict[str, Any],
+    tenant_id: str | None = None,
 ) -> None:
     """Publish a NATS event (simple helper for backward compatibility)."""
     if not nc:
@@ -229,7 +263,10 @@ async def publish_event(
 
 
 async def publish_drone_event(
-    nc, event: str, tenant_id: str, **kwargs: Any,
+    nc,
+    event: str,
+    tenant_id: str,
+    **kwargs: Any,
 ) -> None:
     """Publish drone event (backward-compatible helper)."""
     payload = {"tenant_id": tenant_id, **kwargs}

@@ -101,6 +101,7 @@ jobs:
   prepare:
     name: Prepare Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       emoji: ${{ steps.format.outputs.emoji }}
       color: ${{ steps.format.outputs.color }}
@@ -142,6 +143,7 @@ jobs:
   slack:
     name: Slack Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare
     if: inputs.notify-slack != false
     steps:
@@ -224,6 +226,7 @@ jobs:
   discord:
     name: Discord Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare
     if: inputs.notify-discord != false
     steps:
@@ -283,6 +286,7 @@ jobs:
   email:
     name: Email Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare
     if: inputs.notify-email == true
     steps:
@@ -334,6 +338,7 @@ jobs:
   github-issue:
     name: Create GitHub Issue
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: prepare
     if: inputs.create-issue == true && inputs.type == 'failure'
     permissions:
@@ -397,6 +402,7 @@ jobs:
   summary:
     name: Notification Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [prepare, slack, discord, email, github-issue]
     if: always()
     steps:

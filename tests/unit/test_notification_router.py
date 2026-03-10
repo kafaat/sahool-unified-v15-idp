@@ -1,4 +1,5 @@
 """Tests for multi-channel notification routing."""
+
 import pytest
 from shared.notification_routing import (
     NotificationRouter,

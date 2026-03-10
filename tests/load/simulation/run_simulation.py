@@ -38,9 +38,7 @@ from agents_simulator import AgentsSimulator
 from comprehensive_simulator import ComprehensiveSimulator
 from iot_simulator import IoTSimulator
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("sahool-simulation-runner")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -287,15 +285,9 @@ Examples:
         default="http://localhost:8081",
         help="Kong Gateway URL (default: http://localhost:8081)",
     )
-    parser.add_argument(
-        "--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)"
-    )
-    parser.add_argument(
-        "--iot-devices", type=int, default=50, help="Number of IoT devices (default: 50)"
-    )
-    parser.add_argument(
-        "--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)"
-    )
+    parser.add_argument("--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)")
+    parser.add_argument("--iot-devices", type=int, default=50, help="Number of IoT devices (default: 50)")
+    parser.add_argument("--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)")
 
     args = parser.parse_args()
 

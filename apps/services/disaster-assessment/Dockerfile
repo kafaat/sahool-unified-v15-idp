@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # SAHOOL Disaster Assessment Service v16.0
 # خدمة تقييم الكوارث الزراعية
 # Based on: Agricultural Remote Sensing On-Demand Service Model
@@ -24,6 +25,7 @@ COPY apps/services/disaster-assessment/prisma ./prisma/
 # Prisma schema is copied above so postinstall (prisma generate) can run successfully
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
+    install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..."; \
         if npm install --legacy-peer-deps \
@@ -33,20 +35,29 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund; then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
-    done || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+            --no-fund; then install_ok=true; break; fi; \
+        if [ "$i" != "3" ]; then \
+            echo "Attempt $i failed, waiting before retry..."; \
+            sleep $((i * 10)); \
+        fi; \
+    done; \
+    if [ "$install_ok" = "false" ]; then \
+        npm config set registry https://registry.npmjs.org && \
+        npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
+    fi
 
 # Generate Prisma client and verify output
 # Schema uses custom output (prisma/generated/client/) so verify that path
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate && \
-    test -f prisma/generated/client/index.js || \
-    (echo "Prisma client generation failed, retrying..." && npx prisma generate && \
-     test -f prisma/generated/client/index.js) || \
-    (echo "Prisma generate failed after retries" && exit 1)
+    if [ ! -f prisma/generated/client/index.js ]; then \
+        echo "Prisma client generation failed, retrying..."; \
+        npx prisma generate; \
+        if [ ! -f prisma/generated/client/index.js ]; then \
+            echo "Prisma generate failed after retries"; \
+            exit 1; \
+        fi; \
+    fi
 
 # Copy source code
 COPY apps/services/disaster-assessment/ .
@@ -79,6 +90,7 @@ COPY --from=builder /app/prisma ./prisma/
 
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
+    install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..."; \
         if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -96,11 +108,16 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund); then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting $((i * 10))s..."; sleep $((i * 10)); else false; fi; \
-    done || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+            --no-fund); then install_ok=true; break; fi; \
+        if [ "$i" != "3" ]; then \
+            echo "Attempt $i failed, waiting $((i * 10))s..."; \
+            sleep $((i * 10)); \
+        fi; \
+    done; \
+    if [ "$install_ok" = "false" ]; then \
+        npm config set registry https://registry.npmjs.org && \
+        npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
+    fi
 
 # Copy generated Prisma client from builder
 # Schema uses output = "./generated/client" so the actual client is at prisma/generated/client/
@@ -121,8 +138,7 @@ USER node
 ENV NODE_ENV=production
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3020/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 CMD curl -f http://localhost:3020/healthz || exit 1
 
 # Run database migrations and start the application
 # Note: In production, migrations should ideally be run as a separate init container

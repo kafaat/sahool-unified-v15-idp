@@ -121,7 +121,7 @@ export class PestIncident {
   // Relations
   // ─────────────────────────────────────────────────────────────────────────
 
-  @OneToMany(() => PestTreatment, (treatment) => treatment.incident)
+  @OneToMany(() => PestTreatment, (treatment: PestTreatment) => treatment.incident)
   treatments?: PestTreatment[];
 
   // ─────────────────────────────────────────────────────────────────────────

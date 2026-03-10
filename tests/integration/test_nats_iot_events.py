@@ -486,23 +486,17 @@ async def test_device_status_transition_sequence(mock_nats, mock_nats_msg):
     tenant_id = str(uuid.uuid4())
 
     # 1. Device comes online
-    online_payload = _make_device_status_payload(
-        device_id=device_id, tenant_id=tenant_id, status="online"
-    )
+    online_payload = _make_device_status_payload(device_id=device_id, tenant_id=tenant_id, status="online")
     msg = mock_nats_msg(SAHOOL_IOT_DEVICE_ONLINE, online_payload)
     await status_handler(msg)
 
     # 2. Device goes offline
-    offline_payload = _make_device_status_payload(
-        device_id=device_id, tenant_id=tenant_id, status="offline"
-    )
+    offline_payload = _make_device_status_payload(device_id=device_id, tenant_id=tenant_id, status="offline")
     msg = mock_nats_msg(SAHOOL_IOT_DEVICE_OFFLINE, offline_payload)
     await status_handler(msg)
 
     # 3. Device comes back online
-    back_online_payload = _make_device_status_payload(
-        device_id=device_id, tenant_id=tenant_id, status="online"
-    )
+    back_online_payload = _make_device_status_payload(device_id=device_id, tenant_id=tenant_id, status="online")
     msg = mock_nats_msg(SAHOOL_IOT_DEVICE_ONLINE, back_online_payload)
     await status_handler(msg)
 

@@ -49,10 +49,7 @@ def normalize_api_response(data: dict) -> dict:
 
     def normalize(obj: Any) -> Any:
         if isinstance(obj, dict):
-            return {
-                k: "<VOLATILE>" if k in volatile_fields else normalize(v)
-                for k, v in sorted(obj.items())
-            }
+            return {k: "<VOLATILE>" if k in volatile_fields else normalize(v) for k, v in sorted(obj.items())}
         elif isinstance(obj, list):
             return [normalize(item) for item in obj]
         else:

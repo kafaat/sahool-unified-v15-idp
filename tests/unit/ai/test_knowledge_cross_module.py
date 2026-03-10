@@ -54,6 +54,7 @@ class TestKnowledgePersistenceIntegration:
             repo.save(doc)
 
         from shared.ai.knowledge.persistence import DocumentQuery
+
         query = DocumentQuery(domain=KnowledgeDomain.CROPS)
         page = repo.find(query)
         assert len(page.items) >= 5
@@ -148,11 +149,11 @@ class TestQualityGateIntegration:
             title="High Quality Wheat Document",
             title_ar="وثيقة قمح عالية الجودة",
             content="Comprehensive guide to wheat cultivation including soil preparation, "
-                    "seed selection, irrigation scheduling, and pest management strategies "
-                    "for arid and semi-arid regions of the Middle East.",
+            "seed selection, irrigation scheduling, and pest management strategies "
+            "for arid and semi-arid regions of the Middle East.",
             content_ar="دليل شامل لزراعة القمح يتضمن تحضير التربة واختيار البذور "
-                       "وجدولة الري واستراتيجيات إدارة الآفات للمناطق الجافة وشبه الجافة "
-                       "في الشرق الأوسط.",
+            "وجدولة الري واستراتيجيات إدارة الآفات للمناطق الجافة وشبه الجافة "
+            "في الشرق الأوسط.",
         )
 
         # gate.check expects a list of documents

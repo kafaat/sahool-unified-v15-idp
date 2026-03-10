@@ -13,13 +13,14 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- Drop existing non-concurrent indexes from 20260101_add_audit_logs
-DROP INDEX IF EXISTS "idx_audit_tenant_created";
-DROP INDEX IF EXISTS "idx_audit_actor_created";
-DROP INDEX IF EXISTS "idx_audit_resource";
-DROP INDEX IF EXISTS "idx_audit_correlation";
-DROP INDEX IF EXISTS "idx_audit_category_created";
-DROP INDEX IF EXISTS "idx_audit_severity";
-DROP INDEX IF EXISTS "idx_audit_action";
+-- Using CONCURRENTLY to avoid blocking queries during drop
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_tenant_created";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_actor_created";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_resource";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_correlation";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_category_created";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_severity";
+DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_action";
 
 -- Recreate with CONCURRENTLY (no table locks)
 CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_tenant_created"

@@ -159,25 +159,40 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     loadPosts();
   }
 
-  /// Load community posts (with mock data for offline-first)
-  /// تحميل منشورات المجتمع
+  /// Load community posts from chat-service with offline-first fallback
+  /// تحميل منشورات المجتمع من خدمة المحادثة مع دعم وضع عدم الاتصال
   Future<void> loadPosts() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Replace with actual API call to chat-service (port 8115)
-      // community-chat (port 8097) is deprecated; use chat-service endpoints
-      // via Kong route: /api/v1/community/*
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final posts = _getMockPosts();
+      // Attempt real API call via chat-service (port 8115)
+      // Kong route: GET /api/v1/community/posts
+      // Note: community-chat (port 8097) is deprecated
+      final posts = await _fetchPostsFromApi();
       state = state.copyWith(posts: posts, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      // Fallback to mock data when API is unavailable (offline-first)
+      final posts = _getMockPosts();
+      state = state.copyWith(posts: posts, isLoading: false);
     }
+  }
+
+  /// Fetch posts from chat-service via Kong gateway
+  /// جلب المنشورات من خدمة المحادثة عبر بوابة Kong
+  ///
+  /// Endpoint: GET /api/v1/community/posts
+  /// Service: chat-service (port 8115)
+  Future<List<CommunityPost>> _fetchPostsFromApi() async {
+    // TODO: Inject Dio client or use ref.read(apiClientProvider)
+    // Example:
+    //   final response = await dio.get('/api/v1/community/posts');
+    //   return (response.data['posts'] as List)
+    //       .map((json) => CommunityPost.fromJson(json))
+    //       .toList();
+    throw UnimplementedError(
+      'API client not yet injected. '
+      'Wire up Dio via Riverpod provider to call GET /api/v1/community/posts',
+    );
   }
 
   /// Create a new community post

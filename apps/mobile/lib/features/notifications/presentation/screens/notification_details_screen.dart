@@ -645,10 +645,29 @@ class _NotificationDetailsScreenState
     final type = _notification.relatedEntityType;
     final id = _notification.relatedEntityId;
 
-    // TODO: Implement navigation to specific screens
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('الانتقال إلى $type: $id')),
-    );
+    if (type == null || id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا يمكن الانتقال | Cannot navigate')),
+      );
+      return;
+    }
+
+    switch (type.toLowerCase()) {
+      case 'field':
+        Navigator.of(context).pushNamed('/fields/$id');
+      case 'task':
+        Navigator.of(context).pushNamed('/tasks/$id');
+      case 'irrigation':
+        Navigator.of(context).pushNamed('/irrigation/$id');
+      case 'alert':
+        Navigator.of(context).pushNamed('/alerts/$id');
+      case 'equipment':
+        Navigator.of(context).pushNamed('/equipment/$id');
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('نوع غير معروف | Unknown type')),
+        );
+    }
   }
 
   IconData _getEntityIcon(String entityType) {

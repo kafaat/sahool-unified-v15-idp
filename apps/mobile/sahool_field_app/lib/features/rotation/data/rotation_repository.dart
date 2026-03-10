@@ -1,4 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../../core/config/api_config.dart';
 import '../models/rotation_models.dart';
 import '../services/rotation_service.dart';
 import 'rotation_local_data_source.dart';
@@ -9,14 +13,24 @@ class RotationRepository {
   final RotationService _service;
   final RotationLocalDataSource _localDataSource;
   final Connectivity _connectivity;
+  final Dio _dio;
 
   RotationRepository({
     required RotationService service,
     required RotationLocalDataSource localDataSource,
     Connectivity? connectivity,
+    Dio? dio,
   })  : _service = service,
         _localDataSource = localDataSource,
-        _connectivity = connectivity ?? Connectivity();
+        _connectivity = connectivity ?? Connectivity(),
+        _dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: ApiConfig.effectiveBaseUrl,
+              connectTimeout: ApiConfig.connectTimeout,
+              sendTimeout: ApiConfig.sendTimeout,
+              receiveTimeout: ApiConfig.receiveTimeout,
+              headers: ApiConfig.defaultHeaders,
+            ));
 
   /// Check if device has internet connectivity
   Future<bool> _hasConnectivity() async {
@@ -184,12 +198,16 @@ class RotationRepository {
       try {
         final plan = await _localDataSource.getRotationPlan(fieldId);
         if (plan != null) {
-          // TODO: Implement actual API sync when backend is ready
-          // await _apiService.syncRotationPlan(plan);
+          await _dio.put(
+            '/api/v1/rotation/plans/${plan.id}',
+            data: plan.toJson(),
+          );
           await _localDataSource.clearPendingSync(fieldId);
         }
       } catch (e) {
         // Log error but continue with other syncs
+        debugPrint(
+            'Failed to sync rotation plan for field $fieldId: $e');
         continue;
       }
     }

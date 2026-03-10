@@ -556,9 +556,15 @@ class _NotificationsCenterScreenState
   }
 
   void _dismissNotification(AppNotification notification) {
-    ref
-        .read(notificationsControllerProvider.notifier)
-        .deleteNotification(notification.id);
+    // Store the notification and its index before deleting for undo support
+    final deletedNotification = notification;
+    final controller = ref.read(notificationsControllerProvider.notifier);
+    final currentState = ref.read(notificationsControllerProvider);
+    final originalIndex = currentState.notifications.indexWhere(
+      (n) => n.id == notification.id,
+    );
+
+    controller.deleteNotification(notification.id);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -566,7 +572,33 @@ class _NotificationsCenterScreenState
         action: SnackBarAction(
           label: 'تراجع',
           onPressed: () {
-            // TODO: Implement undo
+            // Undo: re-insert the deleted notification at its original position
+            // and refresh from the server to ensure backend consistency.
+            final currentNotifications =
+                ref.read(notificationsControllerProvider);
+            final restoredList = List<AppNotification>.from(
+              currentNotifications.notifications,
+            );
+            final insertIndex = originalIndex >= 0 &&
+                    originalIndex <= restoredList.length
+                ? originalIndex
+                : 0;
+            restoredList.insert(insertIndex, deletedNotification);
+
+            // Optimistically restore local state for responsive UI
+            // ignore: invalid_use_of_protected_member
+            ref.read(notificationsControllerProvider.notifier).state =
+                currentNotifications.copyWith(
+              notifications: restoredList,
+              unreadCount: deletedNotification.isUnread
+                  ? currentNotifications.unreadCount + 1
+                  : currentNotifications.unreadCount,
+            );
+
+            // Refresh from server to sync the restored state
+            controller.refreshNotifications(
+              category: currentState.selectedCategory,
+            );
           },
         ),
       ),

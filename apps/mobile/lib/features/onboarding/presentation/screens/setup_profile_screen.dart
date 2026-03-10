@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../widgets/onboarding_page.dart';
 import '../../state/onboarding_providers.dart';
@@ -34,6 +37,8 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
   final _userNameFocusNode = FocusNode();
   final _farmNameFocusNode = FocusNode();
   bool _isLoading = false;
+  String? _profileImagePath;
+  final _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -189,7 +194,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
     return Center(
       child: Stack(
         children: [
-          // Profile picture placeholder
+          // Profile picture placeholder or selected image
           Container(
             width: 100,
             height: 100,
@@ -200,12 +205,20 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                 color: SahoolColors.primary.withOpacity(0.3),
                 width: 3,
               ),
+              image: _profileImagePath != null
+                  ? DecorationImage(
+                      image: FileImage(File(_profileImagePath!)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: const Icon(
-              Icons.person_rounded,
-              size: 50,
-              color: SahoolColors.primary,
-            ),
+            child: _profileImagePath == null
+                ? const Icon(
+                    Icons.person_rounded,
+                    size: 50,
+                    color: SahoolColors.primary,
+                  )
+                : null,
           ),
 
           // Camera button
@@ -229,15 +242,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                   size: 16,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  // TODO: Implement image picker
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('سيتم إضافة هذه الميزة قريباً'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
+                onPressed: _showImagePickerSheet,
                 padding: EdgeInsets.zero,
               ),
             ),
@@ -245,6 +250,104 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
         ],
       ),
     );
+  }
+
+  void _showImagePickerSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'اختر صورة الملف الشخصي',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: SahoolColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: SahoolColors.primary,
+                    child: Icon(Icons.camera_alt_rounded, color: Colors.white),
+                  ),
+                  title: const Text('الكاميرا'),
+                  subtitle: const Text('التقط صورة جديدة'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: SahoolColors.primary.withOpacity(0.8),
+                    child: const Icon(Icons.photo_library_rounded, color: Colors.white),
+                  ),
+                  title: const Text('المعرض'),
+                  subtitle: const Text('اختر من معرض الصور'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                if (_profileImagePath != null)
+                  ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: SahoolColors.danger,
+                      child: Icon(Icons.delete_rounded, color: Colors.white),
+                    ),
+                    title: const Text('إزالة الصورة'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() => _profileImagePath = null);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+      if (pickedFile != null && mounted) {
+        setState(() => _profileImagePath = pickedFile.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تعذر اختيار الصورة، يرجى المحاولة مرة أخرى'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildInputField({

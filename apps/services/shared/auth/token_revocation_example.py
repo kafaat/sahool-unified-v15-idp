@@ -6,6 +6,7 @@ Complete working examples showing how to implement token revocation
 in your authentication endpoints.
 """
 
+import hashlib
 from datetime import timedelta
 from typing import Annotated
 
@@ -16,6 +17,36 @@ from .dependencies import get_current_user, get_token_data
 from .jwt import TokenData, create_access_token, create_refresh_token, decode_token
 from .models import User
 from .token_revocation import get_revocation_store
+
+# ============================================
+# Mock User Database
+# ============================================
+# In production, replace this with actual database queries (e.g., asyncpg, Tortoise ORM).
+# Passwords should be hashed with a proper algorithm like bcrypt or argon2,
+# not SHA-256. We use SHA-256 here only for simplicity in this example.
+MOCK_USERS: dict[str, dict] = {
+    "farmer@example.com": {
+        "user_id": "user_123",
+        "password_hash": hashlib.sha256(b"password123").hexdigest(),
+        "tenant_id": "tenant_456",
+        "roles": ["farmer"],
+        "status": "active",
+    },
+    "admin@example.com": {
+        "user_id": "user_admin_001",
+        "password_hash": hashlib.sha256(b"adminpass456").hexdigest(),
+        "tenant_id": "tenant_456",
+        "roles": ["admin"],
+        "status": "active",
+    },
+    "suspended@example.com": {
+        "user_id": "user_suspended_002",
+        "password_hash": hashlib.sha256(b"suspendedpass").hexdigest(),
+        "tenant_id": "tenant_456",
+        "roles": ["farmer"],
+        "status": "suspended",
+    },
+}
 
 # Create router for auth endpoints
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -76,12 +107,43 @@ async def login(request: LoginRequest):
     - Rate limit login attempts
     - Log login events
     """
-    # TODO: Replace with actual user authentication
-    # For example purposes, we skip actual password verification
-    user_id = "user_123"
+    # Step 1: Look up user by email
+    # In production, query your database: SELECT * FROM users WHERE email = ?
+    user_record = MOCK_USERS.get(request.email)
+    if not user_record:
+        # Return a generic message to avoid leaking whether the email exists
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 2: Verify password hash
+    # In production, use bcrypt.checkpw() or argon2 instead of SHA-256.
+    # SHA-256 is NOT suitable for password hashing (no salting, too fast).
+    submitted_hash = hashlib.sha256(request.password.encode()).hexdigest()
+    if submitted_hash != user_record["password_hash"]:
+        # In production, also increment failed login counter for rate limiting
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 3: Check user status (active, suspended, etc.)
+    # In production, you may also check email verification, 2FA requirements, etc.
+    if user_record["status"] != "active":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is not active. Please contact support.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 4: Extract authenticated user data
+    user_id = user_record["user_id"]
     email = request.email
-    tenant_id = "tenant_456"
-    roles = ["farmer"]
+    tenant_id = user_record["tenant_id"]
+    roles = user_record["roles"]
 
     # Create access token with JTI
     access_token, access_jti = create_access_token(

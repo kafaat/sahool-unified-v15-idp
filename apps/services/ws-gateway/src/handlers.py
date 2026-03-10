@@ -6,11 +6,20 @@ Handles incoming WebSocket messages from clients
 """
 
 import logging
+import os
 from datetime import UTC, datetime
 from typing import Any
 
+import httpx
+
 from .events import EventType
 from .rooms import RoomManager, RoomType
+
+FIELD_MANAGEMENT_BASE_URL = os.getenv(
+    "FIELD_MANAGEMENT_SERVICE_URL",
+    "http://field-management-service:3000",
+)
+FIELD_MANAGEMENT_TIMEOUT = float(os.getenv("FIELD_MANAGEMENT_TIMEOUT", "5.0"))
 
 logger = logging.getLogger("ws-gateway.handlers")
 
@@ -101,7 +110,7 @@ class WebSocketMessageHandler:
 
         for topic in topics:
             # Validate topic format
-            if not self._validate_topic_access(connection_id, topic):
+            if not await self._validate_topic_access(connection_id, topic):
                 failed.append(topic)
                 continue
 
@@ -175,7 +184,7 @@ class WebSocketMessageHandler:
             }
 
         # Validate permission to broadcast to room
-        if not self._validate_broadcast_permission(connection_id, room_id):
+        if not await self._validate_broadcast_permission(connection_id, room_id):
             return {
                 "type": "error",
                 "error": "Not authorized to broadcast to this room",
@@ -221,7 +230,7 @@ class WebSocketMessageHandler:
                 "message_ar": "معرف الغرفة مفقود",
             }
 
-        if not self._validate_topic_access(connection_id, room_id):
+        if not await self._validate_topic_access(connection_id, room_id):
             return {
                 "type": "error",
                 "error": "Not authorized to join this room",
@@ -325,7 +334,7 @@ class WebSocketMessageHandler:
             "message_id": message_id,
         }
 
-    def _validate_topic_access(self, connection_id: str, topic: str) -> bool:
+    async def _validate_topic_access(self, connection_id: str, topic: str) -> bool:
         """
         Validate if connection has access to topic
         التحقق من صلاحية الوصول للموضوع
@@ -355,9 +364,7 @@ class WebSocketMessageHandler:
             topic_user = parts[1] if len(parts) > 1 else None
             return topic_user == user_id
 
-        # Field/Farm topics - validate format and log access
-        # NOTE: Full ownership validation requires database lookup
-        # For now, we validate format and support tenant-prefixed field IDs
+        # Field/Farm topics - validate via field-management-service with graceful fallback
         if topic_type in [RoomType.FIELD, RoomType.FARM]:
             resource_id = parts[1] if len(parts) > 1 else None
             if not resource_id:
@@ -374,21 +381,106 @@ class WebSocketMessageHandler:
                         f"User tenant: {tenant_id}, Topic tenant: {topic_tenant}"
                     )
                     return False
+                # The actual resource ID is the last segment when tenant-prefixed
+                resource_id = parts[2]
 
-            # Log field/farm access for audit trail
-            # TODO: Implement full database validation via field-management-service
-            logger.info(
-                f"Field/farm access granted (simplified validation). "
-                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            # Validate access via field-management-service
+            token = metadata.get("token")
+            return await self._validate_field_access(
+                resource_type=topic_type,
+                resource_id=resource_id,
+                user_id=user_id,
+                tenant_id=tenant_id,
+                token=token,
+                topic=topic,
             )
-            return True
 
         return False
 
-    def _validate_broadcast_permission(self, connection_id: str, room_id: str) -> bool:
+    async def _validate_field_access(
+        self,
+        resource_type: str,
+        resource_id: str,
+        user_id: str | None,
+        tenant_id: str | None,
+        token: str | None,
+        topic: str,
+    ) -> bool:
+        """
+        Validate field/farm access via field-management-service.
+        Falls back to simplified (tenant-based) validation when the service
+        is unreachable, ensuring graceful degradation for offline scenarios.
+
+        التحقق من صلاحية الوصول للحقل/المزرعة عبر خدمة إدارة الحقول
+        مع التراجع إلى التحقق المبسط عند عدم توفر الخدمة
+        """
+        # Build the endpoint path based on resource type
+        if resource_type == RoomType.FIELD:
+            path = f"/api/v1/fields/{resource_id}"
+        elif resource_type == RoomType.FARM:
+            path = f"/api/v1/farms/{resource_id}"
+        else:
+            path = f"/api/v1/fields/{resource_id}"
+
+        url = f"{FIELD_MANAGEMENT_BASE_URL}{path}"
+        headers: dict[str, str] = {}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        if tenant_id:
+            headers["X-Tenant-ID"] = tenant_id
+
+        try:
+            async with httpx.AsyncClient(timeout=FIELD_MANAGEMENT_TIMEOUT) as client:
+                response = await client.get(url, headers=headers)
+
+            if response.status_code == 200:
+                logger.info(
+                    f"Field/farm access validated via field-management-service. "
+                    f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+                )
+                return True
+
+            if response.status_code in (403, 404):
+                logger.warning(
+                    f"Field/farm access denied by field-management-service "
+                    f"(HTTP {response.status_code}). "
+                    f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+                )
+                return False
+
+            # Unexpected status code - fall through to simplified validation
+            logger.warning(
+                f"Unexpected response from field-management-service "
+                f"(HTTP {response.status_code}). "
+                f"Falling back to simplified validation. "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+
+        except (httpx.ConnectError, httpx.TimeoutException) as exc:
+            logger.warning(
+                f"field-management-service unreachable ({type(exc).__name__}). "
+                f"Falling back to simplified validation. "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+        except httpx.HTTPError as exc:
+            logger.warning(
+                f"HTTP error contacting field-management-service: {exc}. "
+                f"Falling back to simplified validation. "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+
+        # Graceful degradation: allow access based on tenant match
+        # when field-management-service is unavailable
+        logger.info(
+            f"Field/farm access granted (simplified validation - service unavailable). "
+            f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+        )
+        return True
+
+    async def _validate_broadcast_permission(self, connection_id: str, room_id: str) -> bool:
         """
         Validate if connection can broadcast to room
         التحقق من صلاحية البث في الغرفة
         """
-        # For now, allow broadcast if user can join the room
-        return self._validate_topic_access(connection_id, room_id)
+        # Allow broadcast if user can join the room
+        return await self._validate_topic_access(connection_id, room_id)

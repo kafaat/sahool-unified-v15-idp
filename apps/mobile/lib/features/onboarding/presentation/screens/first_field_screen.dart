@@ -239,13 +239,16 @@ class _FirstFieldScreenState extends ConsumerState<FirstFieldScreen> {
               ),
               child: InkWell(
                 onTap: () {
-                  // TODO: Navigate to map to draw field
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('يمكنك رسم حدود الحقل بعد الإنشاء'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                  try {
+                    Navigator.of(context).pushNamed('/field/draw-boundary');
+                  } catch (_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('يمكنك رسم حدود الحقل بعد الإنشاء'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
                 },
                 borderRadius: BorderRadius.circular(16),
                 child: Column(

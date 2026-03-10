@@ -11,7 +11,7 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall Platform Score** | **B+ (78/100)** |
+| **Overall Platform Score** | **B (75/100)** |
 | **Critical Issues** | 7 + 8 dependency |
 | **High Severity Issues** | 18 |
 | **Medium Severity Issues** | 34 + 12 dependency |
@@ -49,6 +49,10 @@
 | NPM Packages | 90/100 | A | 0 |
 | Terrain/Hydrology Services | 85/100 | B+ | 0 |
 | Governance/Compliance | 88/100 | A- | 0 |
+| Kong Gateway Integration | 80/100 | B | 1 (port mismatch) |
+| Inter-Service HTTP | 70/100 | B- | 0 |
+| Service Implementation Depth | 60/100 | C- | 4 skeleton services |
+| NATS Event Integration | 50/100 | D | 5 (orphans, no JetStream) |
 
 ---
 
@@ -541,6 +545,76 @@ uses: snyk/actions/node@<commit-sha>
 
 ---
 
+## Service Integration Audit (Deep Dive)
+
+### 14. Inter-Service HTTP Communication
+
+**Score: 70/100**
+
+| Metric | Value |
+|--------|-------|
+| ServiceClient adoption | 7/34 services (21%) |
+| Circuit breaker usage | 0/34 services (0%) - defined but unused |
+| Hardcoded service URLs | 3 services (advisory, task, agro-rules) |
+| Health check coverage | 96% of services |
+| Retry framework available | Yes (4 predefined configs) |
+| Correlation ID propagation | Not implemented |
+
+**Key Finding**: Unified `ServiceClient` with caching, retry, and circuit breaker exists in `shared/integration/` but most services bypass it with direct httpx/requests calls or hardcoded URLs.
+
+### 15. NATS Event Integration
+
+**Score: 50/100** (revised from 78/100)
+
+| Metric | Value |
+|--------|-------|
+| Event subjects defined | 273 |
+| Publisher services | 34 |
+| Subscriber services | 13 |
+| Orphaned events (no subscriber) | 11 |
+| Dead listeners (no publisher) | 8 |
+| JetStream usage | 1/34 publishers (3%) |
+| DLQ usage | 2/13 subscribers (15%) |
+| Shared EventPublisher usage | 5/34 publishers (15%) |
+| Tenant-scoped events | 1 service (edge-orchestrator only) |
+
+**Critical Issues**:
+1. `vision.critical_alert` (RPW detection) not routed to alert-service
+2. `irrigation.recommendation.ready` has no subscriber - farmers don't get irrigation notifications
+3. 79% of events use fire-and-forget (no JetStream durability)
+4. Circular self-subscription in crop-intelligence-service and ai-agents-service
+5. Multi-tenant event isolation not enforced - cross-tenant data leakage possible
+
+### 16. Kong API Gateway Integration
+
+**Score: 80/100**
+
+| Metric | Value |
+|--------|-------|
+| Total routes | 105+ |
+| Valid routes (active services) | 62 |
+| Invalid routes (deprecated services) | 11 |
+| Legacy routes awaiting sunset | 35 |
+| Authentication coverage | 98.7% |
+| Rate limiting coverage | 95%+ |
+| Port mismatches | 1 (chat-service) |
+
+### 17. Service Implementation Depth
+
+**Score: 60/100**
+
+Of 15 specialized services examined in depth:
+
+| Status | Count | Services |
+|--------|-------|----------|
+| **Skeleton/Stub** | 4 | mcp-server, wechat-service, ussd-gateway, whatsapp-bot-service |
+| **Partial (in-memory only)** | 5 | cooperative-service (~60%), traceability-service (~65%), drone-service (~50%), ground-vision-service (~40%) |
+| **Fully Implemented** | 6 | lowcode-engine, supply-chain-service, logistics-service, demo-data, + 3 math engines |
+
+**Pattern**: Partially implemented services have complete API frameworks but use `dict` in-memory storage instead of database persistence. Business logic completion is approximately 40%.
+
+---
+
 ## Prioritized Remediation Roadmap
 
 ### Phase 1: Immediate (Week 1-2) - Security Critical
@@ -556,13 +630,20 @@ uses: snyk/actions/node@<commit-sha>
 | P0 | Align PyJWT in docker/constraints-ai.txt to >=2.10.1 (CVE gap) | 30m | Critical |
 | P0 | Remove aerich==0.9.2 from apps/services/requirements.txt | 30m | Critical |
 | P0 | Update cryptography upper bound to <48.0.0 (unblock CVE fix) | 30m | Critical |
+| P0 | Subscribe alert-service to `sahool.vision.critical_alert` | 2h | Critical |
+| P0 | Subscribe notification-service to `sahool.irrigation.recommendation.ready.v1` | 2h | Critical |
+| P0 | Fix chat-service port mismatch in Kong (→ 8115) | 30m | Critical |
 | P1 | Unify FastAPI version to ==0.135.1 across all services | 4h | High |
 | P1 | Add RS256 support for inter-service JWT | 8h | High |
 
-### Phase 2: Short-term (Week 3-4) - Architecture & Quality
+### Phase 2: Short-term (Week 3-4) - Architecture & Integration
 
 | Priority | Action | Effort | Impact |
 |----------|--------|--------|--------|
+| P1 | Migrate 33 publishers to shared EventPublisher (JetStream) | 24h | High |
+| P1 | Enable DLQ in all 13 subscriber services | 8h | High |
+| P1 | Fix circular self-subscriptions (crop-intelligence, ai-agents) | 4h | High |
+| P1 | Enforce ServiceClient usage (remove 3 hardcoded URLs) | 4h | High |
 | P1 | Map remaining 18 NATS domains to JetStream streams | 8h | High |
 | P1 | Raise test coverage floor to 15% | 16h | High |
 | P1 | Implement or remove empty `code-review-agent` | 2h | High |

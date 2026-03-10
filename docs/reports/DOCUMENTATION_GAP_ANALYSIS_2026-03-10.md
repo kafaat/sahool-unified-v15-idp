@@ -68,7 +68,26 @@ Initial automated grep suggested mismatches, but deep analysis confirmed the gov
 | `apps/services/shared/globalgap/integrations/crop_health_integration.py` | `crop-health-ai` | `crop-intelligence-service` |
 | `apps/services/field-intelligence/src/models/events.py:69` | `ndvi-engine` | `vegetation-analysis-service` |
 
-### 3.2 CI/CD Workflows (Build Risk)
+### 3.2 Frontend & TypeScript Contracts (Runtime Risk)
+
+| File | Deprecated Reference | Should Be |
+|------|---------------------|-----------|
+| `apps/services/task-service/src/ndvi_client.py:27` | `http://ndvi-engine:8107` | `http://vegetation-analysis-service:8090` |
+| `apps/web/src/lib/api/client.ts:797,804,815` | `/api/v1/agro-advisor/*` (3 methods) | `advisory-service` endpoints |
+| `apps/web/src/lib/api/client.ts:856,893,901` | `/api/v1/field-chat/*` (3 methods) | `chat-service` endpoints |
+| `apps/admin/src/lib/api-gateway/index.ts:366-373` | `field-chat` service config | `chat-service` config |
+| `packages/shared-utils/src/api/kong-client.ts:242-250` | `community-chat` in KONG_SERVICES | Remove or redirect to `chat-service` |
+| `packages/shared-utils/src/api/kong-client.ts:273-281` | `yield-engine` in KONG_SERVICES | `yield-prediction-service` |
+
+### 3.3 Test Assertions (Test Risk)
+
+| File | Issue |
+|------|-------|
+| `tests/integration/test_kong_routes.py:94` | REQUIRED_SERVICES includes `ndvi-engine`, `crop-health-ai`, `satellite-service`, `weather-core` |
+| `tests/integration/test_field_workflow.py:179` | Hardcoded `http://localhost:8107` (ndvi-engine port) |
+| `tests/integration/test_user_journey.py:548` | Hardcoded `http://localhost:8107` (ndvi-engine port) |
+
+### 3.4 CI/CD Workflows (Build Risk)
 
 10 deprecated services still referenced across workflow files:
 

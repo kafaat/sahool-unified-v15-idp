@@ -1386,15 +1386,15 @@ open<span class="w"> </span>coverage_html/index.html
 <tbody>
 <tr>
 <td>Lint</td>
-<td>Ruff format and check pass</td>
+<td>Ruff check must pass (failures block merge)</td>
 </tr>
 <tr>
 <td>Unit Tests</td>
-<td>All tests pass</td>
+<td>All tests must pass (no <code>\|\| true</code> masking)</td>
 </tr>
 <tr>
 <td>Coverage</td>
-<td>≥ 60%</td>
+<td>≥ 5% (incrementally raising from baseline)</td>
 </tr>
 <tr>
 <td>Integration</td>
@@ -1402,6 +1402,11 @@ open<span class="w"> </span>coverage_html/index.html
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>Note (March 2026):</strong> Coverage threshold was raised from 1% to 5%. The target is 60% but
+enforcement is incremental as test coverage expands across all 72 services. Test failures
+now properly fail the CI pipeline (previously masked with <code>|| true</code>).</p>
+</blockquote>
 <h2 id="test-categories">Test Categories<a class="headerlink" href="#test-categories" title="Permanent link">&para;</a></h2>
 <h3 id="unit-tests-testsunit">Unit Tests (<code>tests/unit/</code>)<a class="headerlink" href="#unit-tests-testsunit" title="Permanent link">&para;</a></h3>
 <ul>

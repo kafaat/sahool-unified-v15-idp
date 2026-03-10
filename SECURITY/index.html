@@ -23,7 +23,7 @@
     
     
       
-        <title>SAHOOL v15.3.2 Security Guide - SAHOOL Developer Documentation</title>
+        <title>SAHOOL v16.0.0 Security Guide - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sahool-v1532-security-guide" class="md-skip">
+        <a href="#sahool-v1600-security-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SAHOOL v15.3.2 Security Guide
+              SAHOOL v16.0.0 Security Guide
             
           </span>
         </div>
@@ -1116,7 +1116,7 @@
 
 
 
-<h1 id="sahool-v1532-security-guide">SAHOOL v15.3.2 Security Guide<a class="headerlink" href="#sahool-v1532-security-guide" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-v1600-security-guide">SAHOOL v16.0.0 Security Guide<a class="headerlink" href="#sahool-v1600-security-guide" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>SAHOOL implements a comprehensive security layer including:</p>
 <ul>
@@ -1366,6 +1366,79 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 </tr>
 </tbody>
 </table>
+<h2 id="endpoint-authentication-requirements">Endpoint Authentication Requirements<a class="headerlink" href="#endpoint-authentication-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="delete-endpoint-protection-mandatory">DELETE Endpoint Protection (Mandatory)<a class="headerlink" href="#delete-endpoint-protection-mandatory" title="Permanent link">&para;</a></h3>
+<p>All DELETE endpoints <strong>MUST</strong> be protected with authentication. Use <code>get_current_user</code> dependency:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/resource/</span><span class="si">{resource_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_resource</span><span class="p">(</span><span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">_user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protected DELETE endpoint&quot;&quot;&quot;</span>
+    <span class="c1"># ... deletion logic</span>
+</code></pre></div>
+
+<p>For services where <code>shared.auth</code> may not be available, use a try/except fallback:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPAuthorizationCredentials</span><span class="p">,</span> <span class="n">HTTPBearer</span>
+
+    <span class="n">_bearer_scheme</span> <span class="o">=</span> <span class="n">HTTPBearer</span><span class="p">(</span><span class="n">auto_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+        <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">_bearer_scheme</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">credentials</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Authentication required&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="services-with-enforced-delete-auth-march-2026">Services with Enforced DELETE Auth (March 2026)<a class="headerlink" href="#services-with-enforced-delete-auth-march-2026" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Endpoint</th>
+<th>Auth Dependency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cooperative-service</code></td>
+<td><code>DELETE /{coop_id}</code>, <code>DELETE /{coop_id}/members/{id}</code></td>
+<td><code>get_current_user</code></td>
+</tr>
+<tr>
+<td><code>pest-detection-service</code></td>
+<td><code>DELETE /scouts/reports/{id}</code></td>
+<td><code>get_current_user</code></td>
+</tr>
+<tr>
+<td><code>soil-analysis-service</code></td>
+<td><code>DELETE /tests/{id}</code></td>
+<td><code>get_current_user</code></td>
+</tr>
+<tr>
+<td><code>indicators-service</code></td>
+<td><code>DELETE /v1/field/{id}/indicators</code></td>
+<td><code>get_current_user</code></td>
+</tr>
+<tr>
+<td><code>vegetation-analysis-service</code></td>
+<td><code>DELETE /v1/vra/prescription/{id}</code></td>
+<td><code>get_current_user</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="unified-error-handling-mandatory">Unified Error Handling (Mandatory)<a class="headerlink" href="#unified-error-handling-mandatory" title="Permanent link">&para;</a></h3>
+<p>All FastAPI services <strong>MUST</strong> include unified error handling via <code>shared.errors_py</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.errors_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_request_id_middleware</span><span class="p">,</span> <span class="n">setup_exception_handlers</span>
+
+<span class="n">setup_exception_handlers</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="n">add_request_id_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div>
+
+<p>This ensures consistent bilingual error responses (Arabic/English), request ID tracing, and structured error logging across all 72 services.</p>
 <h2 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h2>
 <h3 id="before-production">Before Production<a class="headerlink" href="#before-production" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1379,6 +1452,8 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <li>[ ] Enable mTLS between services (optional)</li>
 <li>[ ] Set up secrets rotation schedule</li>
 <li>[ ] Configure backup encryption</li>
+<li>[ ] Verify all DELETE endpoints require authentication</li>
+<li>[ ] Verify all services use unified error handling (<code>setup_exception_handlers</code>)</li>
 </ul>
 <h3 id="ongoing">Ongoing<a class="headerlink" href="#ongoing" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1387,6 +1462,7 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <li>[ ] Update dependencies monthly</li>
 <li>[ ] Review access permissions</li>
 <li>[ ] Test backup restoration</li>
+<li>[ ] Audit DELETE endpoints for missing authentication</li>
 </ul>
 <h2 id="incident-response">Incident Response<a class="headerlink" href="#incident-response" title="Permanent link">&para;</a></h2>
 <h3 id="suspected-breach">Suspected Breach<a class="headerlink" href="#suspected-breach" title="Permanent link">&para;</a></h3>

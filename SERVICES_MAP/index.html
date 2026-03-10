@@ -23,7 +23,7 @@
     
     
       
-        <title>SAHOOL Services Architecture Map - SAHOOL Developer Documentation</title>
+        <title>SAHOOL Services Architecture Map v16.0.0 - SAHOOL Developer Documentation</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sahool-services-architecture-map" class="md-skip">
+        <a href="#sahool-services-architecture-map-v1600" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SAHOOL Services Architecture Map
+              SAHOOL Services Architecture Map v16.0.0
             
           </span>
         </div>
@@ -1116,403 +1116,633 @@
 
 
 
-<h1 id="sahool-services-architecture-map">SAHOOL Services Architecture Map<a class="headerlink" href="#sahool-services-architecture-map" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-services-architecture-map-v1600">SAHOOL Services Architecture Map v16.0.0<a class="headerlink" href="#sahool-services-architecture-map-v1600" title="Permanent link">&para;</a></h1>
 <h1 id="_1">خريطة بنية خدمات سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <hr />
 <h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
-│                          SAHOOL Platform v15.5                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │   Mobile    │  │    Web      │  │   Admin     │  │  External   │        │
-│  │   (Flutter) │  │  Dashboard  │  │  Dashboard  │  │   APIs      │        │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
-│         │                │                │                │                │
-│         └────────────────┴────────────────┴────────────────┘                │
-│                                   │                                          │
-│                          ┌────────▼────────┐                                │
-│                          │   Kong Gateway  │ :8000                          │
-│                          │  (Auth &amp; Rate)  │                                │
-│                          └────────┬────────┘                                │
-│                                   │                                          │
-├───────────────────────────────────┼─────────────────────────────────────────┤
-│                                   │                                          │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Core Services Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │ billing_core │  │satellite_svc │  │weather_adv   │               │   │
-│  │  │    :8089     │  │    :8090     │  │    :8092     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │indicators_svc│  │fertilizer_adv│  │irrigation_sm │               │   │
-│  │  │    :8091     │  │    :8093     │  │    :8094     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │crop_health_ai│  │virtual_sensor│  │ yield_engine │               │   │
-│  │  │    :8095     │  │    :8096     │  │    :8098     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐                                 │   │
-│  │  │notification  │  │astro_calendar│                                 │   │
-│  │  │    :8110     │  │    :8111     │                                 │   │
-│  │  └──────────────┘  └──────────────┘                                 │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     NestJS Services Layer                            │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │ marketplace  │  │research_core │  │disaster_asse │               │   │
-│  │  │    :3010     │  │    :3015     │  │    :3020     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │yield_predict │  │lai_estimation│  │crop_growth_m │               │   │
-│  │  │    :3021     │  │    :3022     │  │    :3023     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Communication Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐                                                   │   │
-│  │  │community_chat│                                                   │   │
-│  │  │    :8097     │                                                   │   │
-│  │  └──────────────┘                                                   │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
+<p><strong>72 active services</strong> across 4 event architecture layers, plus 4 applications and 15 archived services.</p>
+<div class="codehilite"><pre><span></span><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                          SAHOOL Platform v16.0.0                              │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Infrastructure Layer                             │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │   │
-│  │  │ PostGIS  │  │  Redis   │  │   NATS   │  │   MQTT   │            │   │
-│  │  │  :5432   │  │  :6379   │  │  :4222   │  │  :1883   │            │   │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Observability Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────┐  ┌──────────┐                                         │   │
-│  │  │Prometheus│  │ Grafana  │                                         │   │
-│  │  │  :9090   │  │  :3002   │                                         │   │
-│  │  └──────────┘  └──────────┘                                         │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
+│                                                                               │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   Mobile    │  │    Web      │  │   Admin     │  │  External   │         │
+│  │  (Flutter)  │  │  Dashboard  │  │  Dashboard  │  │   APIs      │         │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘         │
+│         └────────────────┴────────────────┴────────────────┘                 │
+│                                  │                                            │
+│                         ┌────────▼────────┐                                  │
+│                         │   Kong Gateway  │ :8000                            │
+│                         │ (Auth &amp; Rate)   │                                  │
+│                         └────────┬────────┘                                  │
+│    ┌─────────────────────────────┼─────────────────────────────┐             │
+│    │            4-Layer Event Architecture (NATS)               │             │
+│    ├───────────────────────────────────────────────────────────┤             │
+│    │  Acquisition → Intelligence → Decision → Business         │             │
+│    └───────────────────────────────────────────────────────────┘             │
+│                                                                               │
+│  ┌───────────────────────────────────────────────────────────────────────┐   │
+│  │                        Infrastructure                                  │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
+│  │  │ PostGIS  │ │  Redis   │ │   NATS   │ │  Qdrant  │ │  MinIO   │   │   │
+│  │  │  :5432   │ │  :6379   │ │  :4222   │ │  :6333   │ │  :9000   │   │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
+│  └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                               │
+│  ┌───────────────────────────────────────────────────────────────────────┐   │
+│  │                        Observability                                   │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐                 │   │
+│  │  │Prometheus│ │ Grafana  │ │  Jaeger  │ │  OTel    │                 │   │
+│  │  │  :9090   │ │  :3002   │ │  :16686  │ │ Collector│                 │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘                 │   │
+│  └───────────────────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────────────────┘
 </code></pre></div>
 
 <hr />
-<h2 id="service-details">تفاصيل الخدمات | Service Details<a class="headerlink" href="#service-details" title="Permanent link">&para;</a></h2>
-<h3 id="python-services-fastapi">🐍 Python Services (FastAPI)<a class="headerlink" href="#python-services-fastapi" title="Permanent link">&para;</a></h3>
+<h2 id="service-layers-4-layer-event-architecture">طبقات الخدمات | Service Layers (4-Layer Event Architecture)<a class="headerlink" href="#service-layers-4-layer-event-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="layer-1-acquisition">Layer 1: Acquisition (اكتساب البيانات)<a class="headerlink" href="#layer-1-acquisition" title="Permanent link">&para;</a></h3>
+<p>Data ingestion and normalization.</p>
 <table>
 <thead>
 <tr>
-<th>الخدمة</th>
-<th>المنفذ</th>
-<th>المسار</th>
-<th>الوصف</th>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>billing_core</td>
-<td>8089</td>
-<td><code>/apps/services/billing-core</code></td>
-<td>إدارة الاشتراكات والفواتير والمدفوعات</td>
-</tr>
-<tr>
-<td>satellite_service</td>
+<td>vegetation-analysis-service</td>
 <td>8090</td>
-<td><code>/apps/services/satellite-service</code></td>
-<td>تحليل صور الأقمار الصناعية وNDVI</td>
+<td>Python</td>
+<td>Satellite imagery, NDVI, VRA</td>
 </tr>
 <tr>
-<td>indicators_service</td>
-<td>8091</td>
-<td><code>/apps/services/indicators-service</code></td>
-<td>مؤشرات الأداء الزراعية</td>
+<td>iot-service</td>
+<td>8117</td>
+<td>Node.js</td>
+<td>IoT device management</td>
 </tr>
 <tr>
-<td>weather_advanced</td>
+<td>iot-gateway</td>
+<td>8106</td>
+<td>Python</td>
+<td>IoT protocol gateway</td>
+</tr>
+<tr>
+<td>iot-sensor-hub</td>
+<td>8251</td>
+<td>Python</td>
+<td>IoT sensor hub</td>
+</tr>
+<tr>
+<td>weather-service</td>
 <td>8092</td>
-<td><code>/apps/services/weather-advanced</code></td>
-<td>التنبؤات الجوية المتقدمة</td>
+<td>Python</td>
+<td>Weather data</td>
 </tr>
 <tr>
-<td>fertilizer_advisor</td>
-<td>8093</td>
-<td><code>/apps/services/fertilizer-advisor</code></td>
-<td>توصيات التسميد الذكية</td>
+<td>virtual-sensors</td>
+<td>8119</td>
+<td>Python</td>
+<td>Virtual sensor computation</td>
 </tr>
 <tr>
-<td>irrigation_smart</td>
-<td>8094</td>
-<td><code>/apps/services/irrigation-smart</code></td>
-<td>إدارة الري باستخدام FAO-56</td>
-</tr>
-<tr>
-<td>crop_health_ai</td>
-<td>8095</td>
-<td><code>/apps/services/crop-health-ai</code></td>
-<td>تشخيص أمراض المحاصيل بالذكاء الاصطناعي</td>
-</tr>
-<tr>
-<td>virtual_sensors</td>
-<td>8096</td>
-<td><code>/apps/services/virtual-sensors</code></td>
-<td>حسابات ET0 والمستشعرات الافتراضية</td>
-</tr>
-<tr>
-<td>yield_engine</td>
-<td>8098</td>
-<td><code>/apps/services/yield-engine</code></td>
-<td>توقع الإنتاجية</td>
-</tr>
-<tr>
-<td>notification_service</td>
-<td>8110</td>
-<td><code>/apps/services/notification-service</code></td>
-<td>إشعارات Push والتنبيهات</td>
-</tr>
-<tr>
-<td>astronomical_calendar</td>
-<td>8111</td>
-<td><code>/apps/services/astronomical-calendar</code></td>
-<td>التقويم الفلكي الزراعي اليمني</td>
+<td>edge-orchestrator-service</td>
+<td>8180</td>
+<td>Python</td>
+<td>Edge device management (Jetson Orin)</td>
 </tr>
 </tbody>
 </table>
-<h3 id="nodejs-services-nestjs">🟢 Node.js Services (NestJS)<a class="headerlink" href="#nodejs-services-nestjs" title="Permanent link">&para;</a></h3>
+<h3 id="layer-2-intelligence">Layer 2: Intelligence (الذكاء)<a class="headerlink" href="#layer-2-intelligence" title="Permanent link">&para;</a></h3>
+<p>Feature extraction and AI.</p>
 <table>
 <thead>
 <tr>
-<th>الخدمة</th>
-<th>المنفذ</th>
-<th>المسار</th>
-<th>الوصف</th>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>marketplace_service</td>
-<td>3010</td>
-<td><code>/apps/services/marketplace-service</code></td>
-<td>سوق المنتجات الزراعية</td>
+<td>indicators-service</td>
+<td>8091</td>
+<td>Python</td>
+<td>Field indicators computation</td>
 </tr>
 <tr>
-<td>research_core</td>
-<td>3015</td>
-<td><code>/apps/services/research-core</code></td>
-<td>إدارة التجارب البحثية</td>
-</tr>
-<tr>
-<td>disaster_assessment</td>
-<td>3020</td>
-<td><code>/apps/services/disaster-assessment</code></td>
-<td>تقييم الكوارث الزراعية</td>
-</tr>
-<tr>
-<td>yield_prediction</td>
-<td>3021</td>
-<td><code>/apps/services/yield-prediction</code></td>
-<td>التنبؤ بالإنتاجية</td>
-</tr>
-<tr>
-<td>lai_estimation</td>
+<td>lai-estimation</td>
 <td>3022</td>
-<td><code>/apps/services/lai-estimation</code></td>
-<td>تقدير مؤشر مساحة الأوراق</td>
+<td>Node.js</td>
+<td>Leaf Area Index estimation</td>
 </tr>
 <tr>
-<td>crop_growth_model</td>
-<td>3023</td>
-<td><code>/apps/services/crop-growth-model</code></td>
-<td>نموذج نمو المحاصيل (WOFOST)</td>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td>Python</td>
+<td>Crop health AI</td>
+</tr>
+<tr>
+<td>field-intelligence</td>
+<td>8120</td>
+<td>Python</td>
+<td>Field analytics</td>
+</tr>
+<tr>
+<td>skills-service</td>
+<td>8121</td>
+<td>Python</td>
+<td>Farmer skills assessment</td>
+</tr>
+<tr>
+<td>yolo26-vision-service</td>
+<td>8150</td>
+<td>Python</td>
+<td>YOLO26 computer vision</td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>8182</td>
+<td>Python</td>
+<td>Ground-level vision analysis</td>
+</tr>
+<tr>
+<td>terrain-core-service</td>
+<td>8185</td>
+<td>Python</td>
+<td>DEM processing &amp; terrain analysis</td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td>8125</td>
+<td>Python</td>
+<td>Pest detection AI</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td>8134</td>
+<td>Python</td>
+<td>Soil analysis</td>
+</tr>
+<tr>
+<td>digital-twin-engine</td>
+<td>8253</td>
+<td>Python</td>
+<td>Digital twin simulation</td>
 </tr>
 </tbody>
 </table>
-<h3 id="communication-services">💬 Communication Services<a class="headerlink" href="#communication-services" title="Permanent link">&para;</a></h3>
+<h3 id="layer-3-decision">Layer 3: Decision (القرار)<a class="headerlink" href="#layer-3-decision" title="Permanent link">&para;</a></h3>
+<p>Recommendations and planning.</p>
 <table>
 <thead>
 <tr>
-<th>الخدمة</th>
-<th>المنفذ</th>
-<th>المسار</th>
-<th>الوصف</th>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>community_chat</td>
-<td>8097</td>
-<td><code>/apps/services/community-chat</code></td>
-<td>دردشة المجتمع الزراعي</td>
+<td>crop-growth-model</td>
+<td>3023</td>
+<td>Node.js</td>
+<td>Crop growth simulation (WOFOST)</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>8093</td>
+<td>Python</td>
+<td>Advisory &amp; recommendations</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>Python</td>
+<td>Smart irrigation (FAO-56)</td>
+</tr>
+<tr>
+<td>yield-prediction</td>
+<td>3021</td>
+<td>Node.js</td>
+<td>Yield prediction (legacy)</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>8152</td>
+<td>Node.js</td>
+<td>Yield prediction ML</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>Python</td>
+<td>Hydrology &amp; drainage analysis</td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td>8170</td>
+<td>Python</td>
+<td>Field leveling optimization</td>
+</tr>
+<tr>
+<td>agro-rules</td>
+<td>8151</td>
+<td>Python</td>
+<td>Agronomic rules engine</td>
+</tr>
+<tr>
+<td>irrigation-cycle-engine</td>
+<td>8250</td>
+<td>Python</td>
+<td>Irrigation cycle optimization</td>
+</tr>
+<tr>
+<td>fertigation-engine</td>
+<td>8252</td>
+<td>Python</td>
+<td>Fertigation management</td>
+</tr>
+</tbody>
+</table>
+<h3 id="layer-4-business">Layer 4: Business (الأعمال)<a class="headerlink" href="#layer-4-business" title="Permanent link">&para;</a></h3>
+<p>User-facing operations.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-management-service</td>
+<td>3000</td>
+<td>Node.js</td>
+<td>Field management (consolidated)</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>3025</td>
+<td>Node.js</td>
+<td>Authentication &amp; user management</td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>8110</td>
+<td>Python</td>
+<td>Push notifications</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>8089</td>
+<td>Python</td>
+<td>Billing &amp; invoicing</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>8103</td>
+<td>Python</td>
+<td>Task management</td>
+</tr>
+<tr>
+<td>equipment-service</td>
+<td>8101</td>
+<td>Python</td>
+<td>Equipment tracking</td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>8113</td>
+<td>Python</td>
+<td>Alert management</td>
+</tr>
+<tr>
+<td>provider-config</td>
+<td>8104</td>
+<td>Python</td>
+<td>Provider configuration</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>8114</td>
+<td>Python</td>
+<td>Audit logging</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>3010</td>
+<td>Node.js</td>
+<td>Agricultural marketplace</td>
+</tr>
+<tr>
+<td>chat-service</td>
+<td>8115</td>
+<td>Node.js</td>
+<td>Real-time messaging</td>
+</tr>
+<tr>
+<td>research-core</td>
+<td>3015</td>
+<td>Node.js</td>
+<td>Research trials</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td>3020</td>
+<td>Node.js</td>
+<td>Disaster risk assessment</td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>8116</td>
+<td>Python</td>
+<td>Inventory management</td>
+</tr>
+<tr>
+<td>cooperative-service</td>
+<td>8127</td>
+<td>Python</td>
+<td>Cooperative management</td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td>8131</td>
+<td>Python</td>
+<td>Farmer CRM</td>
+</tr>
+<tr>
+<td>logistics-service</td>
+<td>8167</td>
+<td>Python</td>
+<td>Logistics management</td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td>8230</td>
+<td>Python</td>
+<td>Supply chain management</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>8123</td>
+<td>Python</td>
+<td>Product traceability</td>
+</tr>
+<tr>
+<td>globalgap-compliance</td>
+<td>8128</td>
+<td>Python</td>
+<td>GlobalGAP compliance</td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td>8133</td>
+<td>Python</td>
+<td>WeChat integration</td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>Python</td>
+<td>Islamic calendar &amp; timings</td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>8081</td>
+<td>Python</td>
+<td>WebSocket gateway</td>
+</tr>
+<tr>
+<td>whatsapp-bot-service</td>
+<td>8240</td>
+<td>Python</td>
+<td>WhatsApp bot</td>
+</tr>
+<tr>
+<td>ussd-gateway</td>
+<td>8183</td>
+<td>Python</td>
+<td>USSD gateway</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>8126</td>
+<td>Python</td>
+<td>Drone integration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-agent-services">AI &amp; Agent Services<a class="headerlink" href="#ai-agent-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>agent-registry</td>
+<td>8160</td>
+<td>Python</td>
+<td>Agent registry service</td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>8112</td>
+<td>Python</td>
+<td>AI advisory service</td>
+</tr>
+<tr>
+<td>ai-agents-core</td>
+<td>8161</td>
+<td>Python</td>
+<td>AI agents core module</td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>8130</td>
+<td>Python</td>
+<td>AI agents service</td>
+</tr>
+<tr>
+<td>ai-chat-assistant</td>
+<td>8260</td>
+<td>Python</td>
+<td>AI chat assistant</td>
+</tr>
+<tr>
+<td>llm-orchestrator-service</td>
+<td>8164</td>
+<td>Python</td>
+<td>LLM orchestration</td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td>8088</td>
+<td>Python</td>
+<td>AI copilot (multi-LLM, RAG)</td>
+</tr>
+<tr>
+<td>knowledge-graph</td>
+<td>8140</td>
+<td>Python</td>
+<td>Knowledge graph service</td>
+</tr>
+<tr>
+<td>code-fix-agent</td>
+<td>8162</td>
+<td>Python</td>
+<td>Code fix AI agent</td>
+</tr>
+<tr>
+<td>code-review-agent</td>
+<td>8145</td>
+<td>Node.js</td>
+<td>Code review agent</td>
+</tr>
+<tr>
+<td>code-review-service</td>
+<td>8102</td>
+<td>Python</td>
+<td>Code review service</td>
+</tr>
+<tr>
+<td>mcp-server</td>
+<td>8201</td>
+<td>Python</td>
+<td>Model Context Protocol</td>
+</tr>
+</tbody>
+</table>
+<h3 id="specialized-services">Specialized Services<a class="headerlink" href="#specialized-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lowcode-engine</td>
+<td>8132</td>
+<td>Python</td>
+<td>Low-code workflow automation</td>
+</tr>
+<tr>
+<td>demo-data</td>
+<td>8261</td>
+<td>Python</td>
+<td>Demo data generator</td>
+</tr>
+<tr>
+<td>ndvi-processor</td>
+<td>8118</td>
+<td>Python</td>
+<td>NDVI processing (deprecating)</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="dependencies">التبعيات | Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><code>billing_core ──────► postgres, redis
-satellite_service ──► (standalone)
-weather_advanced ───► (standalone, OPENWEATHER_API)
-notification_service► postgres, redis, nats
-marketplace_service ► postgres, redis
-research_core ──────► postgres, redis
-disaster_assessment ► postgres, redis
-yield_prediction ───► postgres, redis
-lai_estimation ─────► postgres, redis
-crop_growth_model ──► postgres, redis
-astronomical_calendar► weather_advanced
-admin_dashboard ────► crop_health_ai, virtual_sensors
+<div class="codehilite"><pre><span></span><code>field-management-service ──► postgres, redis, nats
+user-service ──────────────► postgres, redis
+billing-core ──────────────► postgres, redis, nats
+notification-service ──────► postgres, redis, nats
+marketplace-service ───────► postgres, redis
+vegetation-analysis-service► postgres, nats, sentinel-hub
+indicators-service ────────► postgres, nats
+advisory-service ──────────► postgres, nats
+irrigation-smart ──────────► postgres, nats
+yolo26-vision-service ─────► gpu (cuda), redis, nats
+copilot-api ───────────────► qdrant, ollama, redis, nats
 </code></pre></div>
 
 <hr />
 <h2 id="health-endpoints">نقاط النهاية الصحية | Health Endpoints<a class="headerlink" href="#health-endpoints" title="Permanent link">&para;</a></h2>
-<p>كل خدمة توفر نقطة نهاية للتحقق من الصحة:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Python services</span>
-GET<span class="w"> </span>/healthz
-
-<span class="c1"># NestJS services</span>
-GET<span class="w"> </span>/api/v1/healthz
-GET<span class="w"> </span>/api/v1/<span class="o">{</span>service<span class="o">}</span>/health
+<p>All services provide:</p>
+<div class="codehilite"><pre><span></span><code>GET<span class="w"> </span>/healthz<span class="w">       </span><span class="c1"># Liveness probe</span>
+GET<span class="w"> </span>/readyz<span class="w">        </span><span class="c1"># Readiness probe</span>
+GET<span class="w"> </span>/health<span class="w">        </span><span class="c1"># Comprehensive status (some services)</span>
+GET<span class="w"> </span>/metrics<span class="w">       </span><span class="c1"># Prometheus metrics (some services)</span>
 </code></pre></div>
 
 <hr />
-<h2 id="environment-configuration">البيئة والتكوين | Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
-<h3 id="_2">متغيرات مشتركة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>LOG_LEVEL=INFO
-ENVIRONMENT=development
-</code></pre></div>
-
-<h3 id="_3">متغيرات قاعدة البيانات<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span><span class="o">=</span><span class="nl">postgresql</span><span class="p">:</span><span class="o">//</span><span class="nl">sahool</span><span class="p">:</span><span class="n">password</span><span class="nv">@postgres</span><span class="err">:</span><span class="mi">5432</span><span class="o">/</span><span class="n">sahool</span>
-<span class="n">REDIS_URL</span><span class="o">=</span><span class="nl">redis</span><span class="p">:</span><span class="o">//</span><span class="err">:</span><span class="n">password</span><span class="nv">@redis</span><span class="err">:</span><span class="mi">6379</span><span class="o">/</span><span class="mi">0</span>
-</code></pre></div>
-
-<h3 id="_4">متغيرات المصادقة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>JWT_SECRET_KEY=your-secret-key
-JWT_ALGORITHM=RS256
-</code></pre></div>
-
+<h2 id="security-march-2026">الأمان | Security (March 2026)<a class="headerlink" href="#security-march-2026" title="Permanent link">&para;</a></h2>
+<ul>
+<li>All DELETE endpoints require JWT authentication (<code>get_current_user</code>)</li>
+<li>All services use unified error handling (<code>shared.errors_py</code>)</li>
+<li>Multi-tenant isolation via <code>tenant_id</code> scoping</li>
+<li>Kong gateway handles external auth and rate limiting</li>
+</ul>
 <hr />
-<h2 id="inter-service-communication">الاتصال بين الخدمات | Inter-Service Communication<a class="headerlink" href="#inter-service-communication" title="Permanent link">&para;</a></h2>
-<h3 id="nats-events">NATS Events<a class="headerlink" href="#nats-events" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>sahool.billing.*     - أحداث الفوترة
-sahool.weather.*     - تحديثات الطقس
-sahool.satellite.*   - بيانات الأقمار الصناعية
-sahool.notification.*- الإشعارات
-sahool.iot.*         - بيانات IoT
-</code></pre></div>
-
-<h3 id="http-apis">HTTP APIs<a class="headerlink" href="#http-apis" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>http://billing_core:8089/v1/...
-http://weather_advanced:8092/v1/...
-http://satellite_service:8090/v1/...
-</code></pre></div>
-
-<hr />
-<h2 id="scaling">التوسع | Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h2>
-<h3 id="horizontal-scaling">Horizontal Scaling<a class="headerlink" href="#horizontal-scaling" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.override.yml</span>
-<span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">billing_core</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</code></pre></div>
-
-<h3 id="resource-limits">Resource Limits<a class="headerlink" href="#resource-limits" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">billing_core</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
-<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
-<span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.5&quot;</span>
-<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256M</span>
-</code></pre></div>
-
-<hr />
-<h2 id="versions">الإصدارات | Versions<a class="headerlink" href="#versions" title="Permanent link">&para;</a></h2>
+<h2 id="archived-services-15">الخدمات المؤرشفة | Archived Services (15)<a class="headerlink" href="#archived-services-15" title="Permanent link">&para;</a></h2>
+<p>See <code>apps/services/DEPRECATION_SUMMARY.md</code> for full list and migration guides.</p>
 <table>
 <thead>
 <tr>
-<th>الخدمة</th>
-<th>الإصدار</th>
-<th>آخر تحديث</th>
+<th>Deprecated</th>
+<th>Replaced By</th>
+<th>Sunset</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>billing_core</td>
-<td>15.5.0</td>
-<td>Dec 2025</td>
+<td>satellite-service</td>
+<td>vegetation-analysis-service</td>
+<td>2025-06</td>
 </tr>
 <tr>
-<td>satellite_service</td>
-<td>15.4.0</td>
-<td>Dec 2025</td>
+<td>crop-health-ai</td>
+<td>crop-intelligence-service</td>
+<td>2025-06</td>
 </tr>
 <tr>
-<td>weather_advanced</td>
-<td>15.4.0</td>
-<td>Dec 2025</td>
+<td>fertilizer-advisor</td>
+<td>advisory-service</td>
+<td>2025-06</td>
 </tr>
 <tr>
-<td>marketplace_service</td>
-<td>15.3.0</td>
-<td>Dec 2025</td>
+<td>field-ops, field-core, field-service</td>
+<td>field-management-service</td>
+<td>v17.0.0</td>
 </tr>
 <tr>
-<td>research_core</td>
-<td>15.3.0</td>
-<td>Dec 2025</td>
+<td>ndvi-engine, ndvi-processor</td>
+<td>vegetation-analysis-service</td>
+<td>2026-02</td>
 </tr>
 <tr>
-<td>crop_growth_model</td>
-<td>16.0.0</td>
-<td>Dec 2025</td>
+<td>community-chat, field-chat</td>
+<td>chat-service</td>
+<td>2026-02</td>
 </tr>
 <tr>
-<td>lai_estimation</td>
-<td>16.0.0</td>
-<td>Dec 2025</td>
-</tr>
-<tr>
-<td>disaster_assessment</td>
-<td>16.0.0</td>
-<td>Dec 2025</td>
-</tr>
-<tr>
-<td>yield_prediction</td>
-<td>16.0.0</td>
-<td>Dec 2025</td>
+<td>yield-engine</td>
+<td>yield-prediction-service</td>
+<td>2026-02</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <p align="center">
-  <strong>SAHOOL Platform v15.5</strong>
+  <strong>SAHOOL Platform v16.0.0</strong>
   <br>
-  <sub>Architecture Map - December 2025</sub>
+  <sub>Architecture Map - March 2026</sub>
 </p>
 
 

@@ -1,4 +1,5 @@
 """Tests for dashboard aggregation module."""
+
 import pytest
 from shared.dashboard import DashboardAggregator, FarmDashboard
 

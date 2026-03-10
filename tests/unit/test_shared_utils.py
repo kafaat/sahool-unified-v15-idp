@@ -360,9 +360,7 @@ class TestPage:
     def test_page_to_dict(self):
         """Test converting Page to dictionary"""
         items = [{"id": 1}, {"id": 2}]
-        page_info = PageInfo(
-            has_next_page=True, has_previous_page=False, start_cursor="c1", end_cursor="c2"
-        )
+        page_info = PageInfo(has_next_page=True, has_previous_page=False, start_cursor="c1", end_cursor="c2")
         page = Page(items=items, page_info=page_info)
 
         result = page.to_dict()

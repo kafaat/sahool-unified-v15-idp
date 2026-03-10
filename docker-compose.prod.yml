@@ -107,6 +107,8 @@ services:
         max-file: "3"
 
   qdrant:
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required}
     deploy:
       resources:
         limits:

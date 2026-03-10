@@ -26,6 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -1301,7 +1302,9 @@ async def check_all_free_providers():
 
 
 @app.get("/config/{tenant_id}")
-async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_session)):
+async def get_tenant_config(
+    tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)
+):
     """Get provider configuration for a tenant"""
     if not config_service:
         raise HTTPException(status_code=503, detail="Service not initialized")
@@ -1355,7 +1358,10 @@ async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_se
 
 @app.post("/config/{tenant_id}")
 async def update_tenant_config(
-    tenant_id: str, config: TenantProviderConfig, session: Session = Depends(get_db_session)
+    tenant_id: str,
+    config: TenantProviderConfig,
+    session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Update provider configuration for a tenant"""
     if not config_service:
@@ -1522,7 +1528,9 @@ async def update_tenant_config(
 
 
 @app.delete("/config/{tenant_id}")
-async def reset_tenant_config(tenant_id: str, session: Session = Depends(get_db_session)):
+async def reset_tenant_config(
+    tenant_id: str, session: Session = Depends(get_db_session), _current_user=Depends(get_current_user)
+):
     """Reset tenant configuration to defaults"""
     if not config_service:
         raise HTTPException(status_code=503, detail="Service not initialized")
@@ -1568,6 +1576,7 @@ async def get_config_history(
     provider_type: str | None = None,
     limit: int = 100,
     session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Get configuration change history for a tenant"""
     if not config_service:
@@ -1591,6 +1600,7 @@ async def rollback_config(
     config_id: str,
     version: int,
     session: Session = Depends(get_db_session),
+    _current_user=Depends(get_current_user),
 ):
     """Rollback configuration to a specific version"""
     if not config_service:

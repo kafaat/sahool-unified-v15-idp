@@ -256,9 +256,7 @@ class CooperativeOrchestrator:
 
     def get_system_metrics(self) -> dict[str, Any]:
         """Get system metrics"""
-        total_inferences = (
-            self._metrics["edge_inference_count"] + self._metrics["cloud_inference_count"]
-        )
+        total_inferences = self._metrics["edge_inference_count"] + self._metrics["cloud_inference_count"]
 
         return {
             "mode": self._mode,
@@ -269,9 +267,7 @@ class CooperativeOrchestrator:
             "total_inference_count": total_inferences,
             "sync_count": self._metrics["sync_count"],
             "fallback_count": self._metrics["fallback_count"],
-            "edge_inference_ratio": (
-                self._metrics["edge_inference_count"] / max(total_inferences, 1)
-            ),
+            "edge_inference_ratio": (self._metrics["edge_inference_count"] / max(total_inferences, 1)),
         }
 
 
@@ -318,9 +314,7 @@ class TestFullPipeline:
         assert result["routing_reason"] == "latency_requirement"
 
     @pytest.mark.asyncio
-    async def test_pipeline_routes_to_cloud_for_complex_tasks(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_pipeline_routes_to_cloud_for_complex_tasks(self, orchestrator: CooperativeOrchestrator):
         """Test pipeline routes to cloud for complex tasks"""
         result = await orchestrator.execute_pipeline(
             sensor_data={"soil_moisture": 30},
@@ -345,9 +339,7 @@ class TestFullPipeline:
         assert "confidence" in result["result"]
 
     @pytest.mark.asyncio
-    async def test_pipeline_cloud_inference_has_additional_analysis(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_pipeline_cloud_inference_has_additional_analysis(self, orchestrator: CooperativeOrchestrator):
         """Test cloud inference includes additional analysis"""
         orchestrator.set_mode(InferenceMode.CLOUD.value)
 

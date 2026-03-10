@@ -318,9 +318,7 @@ class TestPlantingRecommendations:
     def test_planting_recommendation_bilingual(self):
         """Test that recommendations are bilingual"""
         engine = PlantingRecommendationEngine()
-        rec = engine.get_planting_recommendation(
-            CropType.DATE_PALM, Region.RIYADH, date(2026, 1, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.DATE_PALM, Region.RIYADH, date(2026, 1, 1))
 
         # Should have both English and Arabic content
         assert len(rec.reasoning_en) > 0
@@ -366,18 +364,13 @@ class TestPlantingRecommendations:
     def test_generate_calendar_events(self):
         """Test generating calendar events for region"""
         engine = PlantingRecommendationEngine()
-        events = engine.generate_calendar_events(
-            Region.QASSIM, 2026, [CropType.WHEAT, CropType.TOMATO]
-        )
+        events = engine.generate_calendar_events(Region.QASSIM, 2026, [CropType.WHEAT, CropType.TOMATO])
 
         assert len(events) > 0
 
         # Should have planting and harvest events
         event_types = {e.event_type for e in events}
-        assert (
-            PlantingEventType.PLANTING_START in event_types
-            or PlantingEventType.HARVEST_START in event_types
-        )
+        assert PlantingEventType.PLANTING_START in event_types or PlantingEventType.HARVEST_START in event_types
 
     def test_calendar_event_priority_levels(self):
         """Test that calendar events have proper priority levels"""
@@ -793,20 +786,12 @@ class TestRegionalDifferences:
         riyadh_meta = get_region_info(Region.RIYADH)
         assert len(riyadh_meta.traditional_farming_practices_ar) > 0
         # Check that at least one practice is in Arabic (contains Arabic characters)
-        assert any(
-            ord(c) > 127
-            for practice in riyadh_meta.traditional_farming_practices_ar
-            for c in practice
-        )
+        assert any(ord(c) > 127 for practice in riyadh_meta.traditional_farming_practices_ar for c in practice)
 
         asir_meta = get_region_info(Region.ASIR)
         assert len(asir_meta.traditional_farming_practices_ar) > 0
         # Check that at least one practice is in Arabic
-        assert any(
-            ord(c) > 127
-            for practice in asir_meta.traditional_farming_practices_ar
-            for c in practice
-        )
+        assert any(ord(c) > 127 for practice in asir_meta.traditional_farming_practices_ar for c in practice)
 
     def test_get_region_info_helper(self):
         """Test get_region_info helper function"""
@@ -873,9 +858,7 @@ class TestIntegration:
         events_manager = IslamicEventsManager()
 
         # Get planting recommendation
-        planting_rec = engine.get_planting_recommendation(
-            CropType.WHEAT, Region.RIYADH, date(2026, 10, 1)
-        )
+        planting_rec = engine.get_planting_recommendation(CropType.WHEAT, Region.RIYADH, date(2026, 10, 1))
 
         # Check if any Islamic events affect planting period
         if planting_rec.recommended_planting_start:
@@ -912,18 +895,14 @@ class TestIntegration:
 
         # Using class method
         engine = PlantingRecommendationEngine()
-        rec_class = engine.get_planting_recommendation(
-            CropType.WHEAT, Region.HAIL, date(2026, 10, 1)
-        )
+        rec_class = engine.get_planting_recommendation(CropType.WHEAT, Region.HAIL, date(2026, 10, 1))
 
         # Should produce similar results
         assert rec_helper.crop_type == rec_class.crop_type
         assert rec_helper.region == rec_class.region
         if rec_helper.recommended_planting_start and rec_class.recommended_planting_start:
             # Dates should be very close (within 2 days due to calculations)
-            diff = abs(
-                (rec_helper.recommended_planting_start - rec_class.recommended_planting_start).days
-            )
+            diff = abs((rec_helper.recommended_planting_start - rec_class.recommended_planting_start).days)
             assert diff <= 2
 
 

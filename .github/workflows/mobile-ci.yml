@@ -32,6 +32,9 @@ on:
         default: 'false'
         type: boolean
 
+permissions:
+  contents: read
+
 # Prevent concurrent runs for the same branch
 concurrency:
   group: mobile-ci-${{ github.ref }}

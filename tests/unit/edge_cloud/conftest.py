@@ -454,9 +454,7 @@ def mock_edge_gateway() -> MagicMock:
     gateway.last_cloud_sync = datetime.now(UTC).isoformat()
 
     # Configure async methods
-    gateway.register_device = AsyncMock(
-        return_value={"success": True, "device_id": str(uuid.uuid4())}
-    )
+    gateway.register_device = AsyncMock(return_value={"success": True, "device_id": str(uuid.uuid4())})
     gateway.unregister_device = AsyncMock(return_value={"success": True})
     gateway.collect_data = AsyncMock(
         return_value={
@@ -468,9 +466,7 @@ def mock_edge_gateway() -> MagicMock:
     gateway.run_local_inference = AsyncMock(
         return_value={
             "inference_id": str(uuid.uuid4()),
-            "predictions": [
-                {"field_id": str(uuid.uuid4()), "irrigation_needed": True, "confidence": 0.87}
-            ],
+            "predictions": [{"field_id": str(uuid.uuid4()), "irrigation_needed": True, "confidence": 0.87}],
             "latency_ms": 150,
             "model_version": "edge-1.2.0",
         }

@@ -346,14 +346,10 @@ class TestHealthChecker:
         with patch.object(checker, "_check_port", new_callable=AsyncMock) as mock_port:
             mock_port.return_value = (True, 5.0)
 
-            with patch.object(
-                checker, "check_docker_containers", new_callable=AsyncMock
-            ) as mock_docker:
+            with patch.object(checker, "check_docker_containers", new_callable=AsyncMock) as mock_docker:
                 mock_docker.return_value = []
 
-                with patch.object(
-                    checker, "check_python_dependencies", new_callable=AsyncMock
-                ) as mock_py:
+                with patch.object(checker, "check_python_dependencies", new_callable=AsyncMock) as mock_py:
                     mock_py.return_value = HealthCheckResult(
                         component="Python Dependencies",
                         component_type=ComponentType.DEPENDENCY,
@@ -362,9 +358,7 @@ class TestHealthChecker:
                         message_ar="تمام",
                     )
 
-                    with patch.object(
-                        checker, "check_node_dependencies", new_callable=AsyncMock
-                    ) as mock_node:
+                    with patch.object(checker, "check_node_dependencies", new_callable=AsyncMock) as mock_node:
                         mock_node.return_value = HealthCheckResult(
                             component="Node.js Dependencies",
                             component_type=ComponentType.DEPENDENCY,

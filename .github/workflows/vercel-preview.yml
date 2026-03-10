@@ -33,6 +33,7 @@ jobs:
   deploy-preview:
     name: Deploy Preview to Vercel
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -121,6 +122,7 @@ jobs:
   deploy-production:
     name: Deploy Production to Vercel
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
 
     steps:

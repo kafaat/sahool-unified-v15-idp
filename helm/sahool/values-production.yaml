@@ -114,6 +114,7 @@ infrastructure:
 
   qdrant:
     enabled: true  # Enable for Enterprise AI features
+    apiKeyRequired: true
     replicaCount: 2
     persistence:
       enabled: true

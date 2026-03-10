@@ -121,6 +121,9 @@ on:
         description: 'Whether cache was restored'
         value: ${{ jobs.setup.outputs.cache-hit }}
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Environment Setup

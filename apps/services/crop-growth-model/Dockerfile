@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # SAHOOL Crop Growth Model Service v16.0
 # خدمة نموذج نمو المحاصيل
 # Based on WOFOST/DSSAT/APSIM mechanistic models
@@ -37,6 +38,7 @@ WORKDIR /workspace/crop-growth-model
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
+    install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..."; \
         if npm install --legacy-peer-deps --ignore-scripts \
@@ -46,11 +48,16 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund; then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
-    done || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --no-audit --no-fund)
+            --no-fund; then install_ok=true; break; fi; \
+        if [ "$i" != "3" ]; then \
+            echo "Attempt $i failed, waiting before retry..."; \
+            sleep $((i * 10)); \
+        fi; \
+    done; \
+    if [ "$install_ok" = "false" ]; then \
+        npm config set registry https://registry.npmjs.org && \
+        npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --no-audit --no-fund; \
+    fi
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
@@ -61,9 +68,12 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN npm install --no-save --legacy-peer-deps \
     typescript@5.9.3 "@liaoliaots/nestjs-redis@9" ioredis@5 && \
     ln -sf /workspace/crop-growth-model/node_modules /workspace/nestjs-auth/node_modules && \
-    (/workspace/crop-growth-model/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
-     npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
-     (echo "ERROR: nestjs-auth build failed" && exit 1))
+    if ! /workspace/crop-growth-model/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck; then \
+        if ! npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck; then \
+            echo "ERROR: nestjs-auth build failed"; \
+            exit 1; \
+        fi; \
+    fi
 
 # Build the application
 RUN npx nest build
@@ -95,6 +105,7 @@ COPY --from=builder /workspace/crop-growth-model/package.json ./
 COPY --from=builder /workspace/crop-growth-model/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
+    install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..."; \
         if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -112,11 +123,16 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund); then break; fi; \
-        if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
-    done || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+            --no-fund); then install_ok=true; break; fi; \
+        if [ "$i" != "3" ]; then \
+            echo "Attempt $i failed, waiting before retry..."; \
+            sleep $((i * 10)); \
+        fi; \
+    done; \
+    if [ "$install_ok" = "false" ]; then \
+        npm config set registry https://registry.npmjs.org && \
+        npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
+    fi
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)
@@ -135,8 +151,7 @@ USER node
 ENV NODE_ENV=production
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3023/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD curl -f http://localhost:3023/healthz || exit 1
 
 # Signal handling
 STOPSIGNAL SIGTERM

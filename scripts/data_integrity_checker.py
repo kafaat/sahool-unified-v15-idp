@@ -115,9 +115,7 @@ class IntegrityReport:
                     "low": "🟢",
                 }.get(issue["severity"], "⚪")
 
-                print(
-                    f"  {severity_icon} {issue['table']}: {issue['issue_type']} ({issue['count']} records)"
-                )
+                print(f"  {severity_icon} {issue['table']}: {issue['issue_type']} ({issue['count']} records)")
                 if issue.get("description"):
                     print(f"      {issue['description']}")
 
@@ -382,9 +380,7 @@ class DataIntegrityChecker:
 
             report = IntegrityReport(
                 timestamp=datetime.now(UTC).isoformat(),
-                database=self.database_url.split("@")[-1]
-                if "@" in self.database_url
-                else "localhost",
+                database=self.database_url.split("@")[-1] if "@" in self.database_url else "localhost",
                 total_issues=len(issues),
                 critical_issues=sum(1 for i in issues if i.severity == "critical"),
                 issues=[asdict(i) for i in issues],
@@ -453,20 +449,14 @@ class DataIntegrityChecker:
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Data Integrity Checker - فاحص سلامة البيانات"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Data Integrity Checker - فاحص سلامة البيانات")
 
     parser.add_argument("--full", "-f", action="store_true", help="Run full integrity check")
     parser.add_argument("--tables", "-t", type=str, help="Comma-separated list of tables to check")
     parser.add_argument("--auto-fix", action="store_true", help="Automatically fix detected issues")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be fixed without making changes"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be fixed without making changes")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
-    parser.add_argument(
-        "--database", "-d", type=str, help="Database URL (overrides DATABASE_URL env)"
-    )
+    parser.add_argument("--database", "-d", type=str, help="Database URL (overrides DATABASE_URL env)")
 
     args = parser.parse_args()
 
@@ -483,13 +473,7 @@ async def main():
                 print("  🔧 AUTO-FIX RESULTS")
                 print("=" * 70)
                 for fix in fixes:
-                    status_icon = (
-                        "✅"
-                        if fix["status"] == "fixed"
-                        else "⏳"
-                        if fix["status"] == "would_fix"
-                        else "❌"
-                    )
+                    status_icon = "✅" if fix["status"] == "fixed" else "⏳" if fix["status"] == "would_fix" else "❌"
                     print(f"  {status_icon} {fix['table']}: {fix['issue']} - {fix['status']}")
                 print("=" * 70 + "\n")
         else:

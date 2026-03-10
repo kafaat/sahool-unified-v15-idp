@@ -40,24 +40,15 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Configure pip for network resilience (PyPI first for CI reliability)
 RUN mkdir -p ~/.pip && \
-    cat > ~/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://pypi.org/simple/
-extra-index-url = https://mirrors.aliyun.com/pypi/simple/
-                  https://pypi.tuna.tsinghua.edu.cn/simple/
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://pypi.org/simple/\nextra-index-url = https://mirrors.aliyun.com/pypi/simple/\n                  https://pypi.tuna.tsinghua.edu.cn/simple/\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
 
 # Upgrade pip and build tools (multi-mirror fallback)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 build || \
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 build
+    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" build
 
 # Copy requirements and constraints | نسخ المتطلبات والقيود
 COPY --chown=sahool:sahool apps/services/ai-advisor/requirements.txt /tmp/requirements.txt

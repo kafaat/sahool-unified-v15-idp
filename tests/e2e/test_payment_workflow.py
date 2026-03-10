@@ -138,9 +138,7 @@ async def test_complete_payment_workflow(
     # ───────────────────────────────────────────────────────────────────────────
     print("\n[Step 4] Retrieving invoices...")
 
-    invoices_response = await workflow_client.get(
-        "http://localhost:8089/api/v1/invoices", headers=e2e_headers
-    )
+    invoices_response = await workflow_client.get("http://localhost:8089/api/v1/invoices", headers=e2e_headers)
 
     assert invoices_response.status_code in (200, 401), "Invoices should be accessible"
 
@@ -262,9 +260,7 @@ async def test_subscription_management_workflow(
     print(f"✓ Subscription created: {subscription_id}")
 
     # Step 2: List subscriptions
-    list_response = await workflow_client.get(
-        "http://localhost:8089/api/v1/subscriptions", headers=e2e_headers
-    )
+    list_response = await workflow_client.get("http://localhost:8089/api/v1/subscriptions", headers=e2e_headers)
 
     assert list_response.status_code in (
         200,
@@ -313,9 +309,7 @@ async def test_invoice_generation_workflow(
     print("\n[Invoice Generation Workflow]")
 
     # Get user invoices
-    invoices_response = await workflow_client.get(
-        "http://localhost:8089/api/v1/invoices", headers=e2e_headers
-    )
+    invoices_response = await workflow_client.get("http://localhost:8089/api/v1/invoices", headers=e2e_headers)
 
     assert invoices_response.status_code in (
         200,
@@ -347,9 +341,7 @@ async def test_invoice_generation_workflow(
                     print("✓ Invoice details retrieved")
 
                     # Verify invoice structure
-                    assert "amount" in invoice_detail or "total" in invoice_detail, (
-                        "Invoice should have amount"
-                    )
+                    assert "amount" in invoice_detail or "total" in invoice_detail, "Invoice should have amount"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -360,9 +352,7 @@ async def test_invoice_generation_workflow(
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
-async def test_payment_provider_configuration(
-    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
-):
+async def test_payment_provider_configuration(workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]):
     """
     Test payment provider configuration
     اختبار تكوين مزود الدفع
@@ -371,9 +361,7 @@ async def test_payment_provider_configuration(
     print("\n[Payment Provider Configuration Test]")
 
     # Get available payment providers
-    providers_response = await workflow_client.get(
-        "http://localhost:8104/api/v1/providers", headers=e2e_headers
-    )
+    providers_response = await workflow_client.get("http://localhost:8104/api/v1/providers", headers=e2e_headers)
 
     assert providers_response.status_code in (
         200,
@@ -388,9 +376,7 @@ async def test_payment_provider_configuration(
         # Verify Tharwatt is configured for Yemen
         if isinstance(providers, list):
             tharwatt_found = any(
-                p.get("name") == "tharwatt" or p.get("provider") == "tharwatt"
-                for p in providers
-                if isinstance(p, dict)
+                p.get("name") == "tharwatt" or p.get("provider") == "tharwatt" for p in providers if isinstance(p, dict)
             )
 
             if tharwatt_found:

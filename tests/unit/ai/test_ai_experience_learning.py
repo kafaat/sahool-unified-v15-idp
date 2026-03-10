@@ -473,9 +473,7 @@ class TestExperienceStore:
         await store.store_execution(success_exec)
         await store.store_execution(failure_exec)
 
-        success_results = await store.get_executions_by_type(
-            "test_type", status=ExecutionStatus.SUCCESS
-        )
+        success_results = await store.get_executions_by_type("test_type", status=ExecutionStatus.SUCCESS)
         assert len(success_results) == 1
         assert success_results[0].id == "success-1"
 
@@ -851,11 +849,7 @@ class TestArabicSupport:
 
         learner = ExperienceLearner()
 
-        steps = [
-            ExecutionStep(
-                step_number=1, action="check_soil", action_ar="فحص التربة", duration_ms=100
-            )
-        ]
+        steps = [ExecutionStep(step_number=1, action="check_soil", action_ar="فحص التربة", duration_ms=100)]
 
         execution = await learner.record_execution(
             task_type="irrigation_advisory",

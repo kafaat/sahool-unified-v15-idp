@@ -436,9 +436,7 @@ class TestDecodeTokenUnsafe:
 class TestRefreshAccessToken:
     """Tests for token refresh functionality."""
 
-    def test_refresh_creates_new_access_token(
-        self, valid_refresh_token, test_roles, test_permissions
-    ):
+    def test_refresh_creates_new_access_token(self, valid_refresh_token, test_roles, test_permissions):
         """Test that refresh creates a new access token."""
         new_token = refresh_access_token(
             refresh_token=valid_refresh_token,
@@ -502,9 +500,7 @@ class TestSecurityEdgeCases:
         payload["roles"] = ["super_admin"]  # Attempt privilege escalation
 
         # Re-encode payload
-        modified_payload = (
-            base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
-        )
+        modified_payload = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
 
         # Create modified token
         modified_token = f"{parts[0]}.{modified_payload}.{parts[2]}"

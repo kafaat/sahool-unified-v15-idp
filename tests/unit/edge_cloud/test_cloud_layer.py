@@ -367,9 +367,7 @@ class TestMoisturePrediction:
         return MoisturePredictionModel(model_version="2.1.0")
 
     @pytest.mark.asyncio
-    async def test_predict_moisture_multiple_horizons(
-        self, moisture_model: MoisturePredictionModel
-    ):
+    async def test_predict_moisture_multiple_horizons(self, moisture_model: MoisturePredictionModel):
         """Test moisture prediction for multiple time horizons"""
         result = await moisture_model.predict(
             field_id="field-001",
@@ -385,9 +383,7 @@ class TestMoisturePrediction:
         assert 48 in horizons
 
     @pytest.mark.asyncio
-    async def test_predict_confidence_decreases_with_horizon(
-        self, moisture_model: MoisturePredictionModel
-    ):
+    async def test_predict_confidence_decreases_with_horizon(self, moisture_model: MoisturePredictionModel):
         """Test prediction confidence decreases with time horizon"""
         result = await moisture_model.predict(
             field_id="field-001",
@@ -436,9 +432,7 @@ class TestMoisturePrediction:
         assert with_rain_24h["moisture_percent"] >= no_rain_24h["moisture_percent"]
 
     @pytest.mark.asyncio
-    async def test_predict_minimum_moisture_threshold(
-        self, moisture_model: MoisturePredictionModel
-    ):
+    async def test_predict_minimum_moisture_threshold(self, moisture_model: MoisturePredictionModel):
         """Test predictions don't go below minimum threshold"""
         result = await moisture_model.predict(
             field_id="field-001",

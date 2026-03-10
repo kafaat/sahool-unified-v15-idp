@@ -59,9 +59,7 @@ async def test_new_farmer_onboarding_journey(
     if plans_response.status_code == 200:
         plans = plans_response.json()
         # Farmer chooses starter plan
-        starter_plan = next(
-            (p for p in plans.get("plans", []) if p.get("plan_id") == "starter"), None
-        )
+        starter_plan = next((p for p in plans.get("plans", []) if p.get("plan_id") == "starter"), None)
         assert starter_plan is not None
 
     # Step 3: Create subscription
@@ -74,9 +72,7 @@ async def test_new_farmer_onboarding_journey(
         "billing_cycle": "monthly",
     }
 
-    subscription_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    subscription_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     if subscription_response.status_code == 200:
         subscription = subscription_response.json()
@@ -88,9 +84,7 @@ async def test_new_farmer_onboarding_journey(
 
     field_data = field_factory.create(name="My First Wheat Field", crop_type="wheat")
 
-    field_response = await http_client.post(
-        f"{field_ops_url}/api/v1/fields", json=field_data, headers=auth_headers
-    )
+    field_response = await http_client.post(f"{field_ops_url}/api/v1/fields", json=field_data, headers=auth_headers)
 
     if field_response.status_code == 201:
         field = field_response.json()
@@ -229,9 +223,7 @@ async def test_daily_farming_operations_journey(
         "language": "ar",
     }
 
-    ai_response = await http_client.post(
-        f"{ai_advisor_url}/api/v1/advisor/ask", json=question, headers=auth_headers
-    )
+    ai_response = await http_client.post(f"{ai_advisor_url}/api/v1/advisor/ask", json=question, headers=auth_headers)
 
     assert ai_response.status_code in (200, 401, 503)
 
@@ -283,9 +275,7 @@ async def test_crisis_management_journey(
     crop_health_url = service_urls.get("crop_health_ai", "http://localhost:8095")
 
     # Get crop health analysis
-    health_response = await http_client.get(
-        f"{crop_health_url}/api/v1/health/field/{field_id}", headers=auth_headers
-    )
+    health_response = await http_client.get(f"{crop_health_url}/api/v1/health/field/{field_id}", headers=auth_headers)
 
     assert health_response.status_code in (200, 404, 401)
 
@@ -382,9 +372,7 @@ async def test_seasonal_planning_journey(
     # Step 1: Review previous season's yield
     yield_url = service_urls.get("yield_engine", "http://localhost:3021")
 
-    yield_response = await http_client.get(
-        f"{yield_url}/api/v1/yield/history/{field_id}", headers=auth_headers
-    )
+    yield_response = await http_client.get(f"{yield_url}/api/v1/yield/history/{field_id}", headers=auth_headers)
 
     assert yield_response.status_code in (200, 404, 401)
 
@@ -467,9 +455,7 @@ async def test_seasonal_planning_journey(
 
     for task_data in tasks:
         task_data["field_id"] = field_id
-        task_response = await http_client.post(
-            f"{task_url}/api/v1/tasks", json=task_data, headers=auth_headers
-        )
+        task_response = await http_client.post(f"{task_url}/api/v1/tasks", json=task_data, headers=auth_headers)
 
         assert task_response.status_code in (200, 201, 401, 422)
 
@@ -526,9 +512,7 @@ async def test_business_growth_journey(
     billing_url = service_urls.get("billing_core", "http://localhost:8089")
 
     # Check current subscription
-    subscription_response = await http_client.get(
-        f"{billing_url}/v1/subscription", headers=auth_headers
-    )
+    subscription_response = await http_client.get(f"{billing_url}/v1/subscription", headers=auth_headers)
 
     if subscription_response.status_code == 200:
         subscription_response.json()
@@ -563,9 +547,7 @@ async def test_business_growth_journey(
     # Step 6: Get NDVI analysis for precision farming
     ndvi_url = service_urls.get("ndvi_engine", "http://localhost:8107")
 
-    ndvi_response = await http_client.get(
-        f"{ndvi_url}/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers
-    )
+    ndvi_response = await http_client.get(f"{ndvi_url}/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers)
 
     assert ndvi_response.status_code in (200, 404, 401)
 
@@ -716,9 +698,7 @@ async def test_multi_service_integration_journey(
         "parameters": {"duration_minutes": 30, "target_volume_liters": water_needed},
     }
 
-    await http_client.post(
-        f"{iot_url}/v1/actuators/command", json=valve_command, headers=auth_headers
-    )
+    await http_client.post(f"{iot_url}/v1/actuators/command", json=valve_command, headers=auth_headers)
 
     # Step 8: Monitor water usage (happens automatically)
 

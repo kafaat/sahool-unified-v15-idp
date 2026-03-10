@@ -57,9 +57,7 @@ async def test_kong_admin_api():
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_list_fields(
-    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_field_ops_list_fields(field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test listing fields endpoint
     اختبار نقطة نهاية قائمة الحقول
@@ -87,9 +85,7 @@ async def test_field_ops_create_field(
     Test creating a field
     اختبار إنشاء حقل
     """
-    response = await field_ops_client.post(
-        "/api/v1/fields", headers=auth_headers, json=sample_field
-    )
+    response = await field_ops_client.post("/api/v1/fields", headers=auth_headers, json=sample_field)
     # Should return 201 (created), 401 (unauthorized), or 422 (validation error)
     assert response.status_code in (
         201,
@@ -105,9 +101,7 @@ async def test_field_ops_create_field(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_get_field(
-    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_field_ops_get_field(field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test getting a specific field
     اختبار الحصول على حقل محدد
@@ -125,9 +119,7 @@ async def test_field_ops_get_field(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_invalid_field_data(
-    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_field_ops_invalid_field_data(field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test validation with invalid field data
     اختبار التحقق من صحة البيانات مع بيانات حقل غير صالحة
@@ -137,9 +129,7 @@ async def test_field_ops_invalid_field_data(
         "area_hectares": -10,  # Negative area should fail
     }
 
-    response = await field_ops_client.post(
-        "/api/v1/fields", headers=auth_headers, json=invalid_field
-    )
+    response = await field_ops_client.post("/api/v1/fields", headers=auth_headers, json=invalid_field)
     # Should return validation error or unauthorized
     assert response.status_code in (400, 401, 422), "Invalid data should be rejected"
 
@@ -161,9 +151,7 @@ async def test_weather_get_current(
     Test getting current weather
     اختبار الحصول على الطقس الحالي
     """
-    response = await weather_client.get(
-        "/api/v1/weather/current", headers=auth_headers, params=sample_location
-    )
+    response = await weather_client.get("/api/v1/weather/current", headers=auth_headers, params=sample_location)
     assert response.status_code in (
         200,
         401,
@@ -188,9 +176,7 @@ async def test_weather_get_forecast(
     Test getting weather forecast
     اختبار الحصول على توقعات الطقس
     """
-    response = await weather_client.get(
-        "/api/v1/weather/forecast", headers=auth_headers, params=sample_location
-    )
+    response = await weather_client.get("/api/v1/weather/forecast", headers=auth_headers, params=sample_location)
     assert response.status_code in (200, 401, 400), "Should return forecast or error"
 
 
@@ -202,17 +188,13 @@ async def test_weather_get_forecast(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ndvi_get_field_analysis(
-    ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_ndvi_get_field_analysis(ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test getting NDVI analysis for a field
     اختبار الحصول على تحليل NDVI للحقل
     """
     field_id = "test-field-123"
-    response = await ndvi_client.get(
-        f"/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers
-    )
+    response = await ndvi_client.get(f"/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers)
     assert response.status_code in (200, 401, 404), "Should return NDVI data or error"
 
 
@@ -226,9 +208,7 @@ async def test_ndvi_calculate_index(ndvi_client: httpx.AsyncClient, auth_headers
     """
     ndvi_data = {"red": 0.5, "nir": 0.8}
 
-    response = await ndvi_client.post(
-        "/api/v1/ndvi/calculate", headers=auth_headers, json=ndvi_data
-    )
+    response = await ndvi_client.post("/api/v1/ndvi/calculate", headers=auth_headers, json=ndvi_data)
     assert response.status_code in (
         200,
         401,
@@ -257,9 +237,7 @@ async def test_ai_advisor_ask_question(
     Test asking AI advisor a question
     اختبار طرح سؤال على المستشار الذكي
     """
-    response = await ai_advisor_client.post(
-        "/api/v1/advisor/ask", headers=auth_headers, json=sample_ai_question
-    )
+    response = await ai_advisor_client.post("/api/v1/advisor/ask", headers=auth_headers, json=sample_ai_question)
     assert response.status_code in (200, 401, 422, 503), "Should return answer or error"
 
     if response.status_code == 200:
@@ -270,9 +248,7 @@ async def test_ai_advisor_ask_question(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ai_advisor_get_agents(
-    ai_advisor_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_ai_advisor_get_agents(ai_advisor_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test getting available AI agents
     اختبار الحصول على الوكلاء الذكيين المتاحين
@@ -296,9 +272,7 @@ async def test_ai_advisor_get_agents(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_billing_get_subscriptions(
-    billing_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_billing_get_subscriptions(billing_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test getting user subscriptions
     اختبار الحصول على اشتراكات المستخدم
@@ -322,9 +296,7 @@ async def test_billing_create_payment_intent(
     Test creating payment intent
     اختبار إنشاء نية الدفع
     """
-    response = await billing_client.post(
-        "/api/v1/payments/intent", headers=auth_headers, json=sample_payment
-    )
+    response = await billing_client.post("/api/v1/payments/intent", headers=auth_headers, json=sample_payment)
     assert response.status_code in (
         200,
         201,
@@ -336,9 +308,7 @@ async def test_billing_create_payment_intent(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_billing_get_invoices(
-    billing_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_billing_get_invoices(billing_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test getting user invoices
     اختبار الحصول على فواتير المستخدم
@@ -441,9 +411,7 @@ async def test_equipment_service_list_equipment(auth_headers: dict[str, str]):
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_irrigation_smart_calculate_et0(
-    auth_headers: dict[str, str], sample_location: dict[str, float]
-):
+async def test_irrigation_smart_calculate_et0(auth_headers: dict[str, str], sample_location: dict[str, float]):
     """
     Test calculating ET0 (reference evapotranspiration)
     اختبار حساب ET0 (التبخر المرجعي)

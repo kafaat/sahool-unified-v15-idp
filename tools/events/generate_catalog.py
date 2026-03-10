@@ -126,9 +126,7 @@ def generate_catalog() -> str:
                             field_type = f"{field_type} ({field_def['format']})"
                         field_desc = field_def.get("description", "")
                         is_required = "✓" if field_name in required else ""
-                        lines.append(
-                            f"| `{field_name}` {is_required} | {field_type} | {field_desc} |"
-                        )
+                        lines.append(f"| `{field_name}` {is_required} | {field_type} | {field_desc} |")
                     lines.append("")
 
             except Exception as e:

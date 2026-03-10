@@ -75,6 +75,9 @@ services:
       - "6336:6334"
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
+      # SECURITY: API Key authentication required even in test environments
+      # الأمان: مصادقة مفتاح API مطلوبة حتى في بيئات الاختبار
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-test_qdrant_api_key_for_ci}
     healthcheck:
       # Qdrant image doesn't include curl/wget, use bash to check if port is listening
       test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/localhost/6333' || exit 1"]

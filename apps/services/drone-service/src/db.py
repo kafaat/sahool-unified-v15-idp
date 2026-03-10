@@ -55,7 +55,8 @@ class DroneRepository:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM drones WHERE id = $1 AND tenant_id = $2",
-                parsed, tenant_id,
+                parsed,
+                tenant_id,
             )
             return dict(row) if row else None
 
@@ -67,11 +68,15 @@ class DroneRepository:
                    drone_type, max_payload_kg, tank_capacity_l, max_flight_time_min, status)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'active')
                    RETURNING *""",
-                uuid.UUID(drone_id), tenant_id,
-                data["name"], data.get("name_ar"),
-                data["model"], data["serial_number"],
+                uuid.UUID(drone_id),
+                tenant_id,
+                data["name"],
+                data.get("name_ar"),
+                data["model"],
+                data["serial_number"],
                 data.get("drone_type", "custom"),
-                data.get("max_payload_kg"), data.get("tank_capacity_l"),
+                data.get("max_payload_kg"),
+                data.get("tank_capacity_l"),
                 data.get("max_flight_time_min"),
             )
             return dict(row)
@@ -84,9 +89,12 @@ class DroneRepository:
             row = await conn.fetchrow(
                 """UPDATE drones SET name=$3, name_ar=$4, model=$5, serial_number=$6, drone_type=$7
                    WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                parsed, tenant_id,
-                data["name"], data.get("name_ar"),
-                data["model"], data["serial_number"],
+                parsed,
+                tenant_id,
+                data["name"],
+                data.get("name_ar"),
+                data["model"],
+                data["serial_number"],
                 data.get("drone_type", "custom"),
             )
             return dict(row) if row else None
@@ -98,7 +106,8 @@ class DroneRepository:
         async with self.pool.acquire() as conn:
             result = await conn.execute(
                 "DELETE FROM drones WHERE id=$1 AND tenant_id=$2",
-                parsed, tenant_id,
+                parsed,
+                tenant_id,
             )
             return result == "DELETE 1"
 
@@ -109,7 +118,9 @@ class DroneRepository:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "UPDATE drones SET status=$3 WHERE id=$1 AND tenant_id=$2 RETURNING *",
-                parsed, tenant_id, status,
+                parsed,
+                tenant_id,
+                status,
             )
             return dict(row) if row else None
 
@@ -142,7 +153,8 @@ class DroneRepository:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM flight_plans WHERE id=$1 AND tenant_id=$2",
-                parsed, tenant_id,
+                parsed,
+                tenant_id,
             )
             return dict(row) if row else None
 
@@ -155,12 +167,18 @@ class DroneRepository:
                    total_spray_volume_l, area_ha, waypoints, boundary)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
                    RETURNING *""",
-                uuid.UUID(plan_id), tenant_id,
-                data.get("field_id"), data["name"], data.get("name_ar"),
-                data.get("plan_type", "spray"), data.get("success", True),
-                data.get("total_distance_m"), data.get("estimated_duration_min"),
+                uuid.UUID(plan_id),
+                tenant_id,
+                data.get("field_id"),
+                data["name"],
+                data.get("name_ar"),
+                data.get("plan_type", "spray"),
+                data.get("success", True),
+                data.get("total_distance_m"),
+                data.get("estimated_duration_min"),
                 data.get("waypoints_count", 0),
-                data.get("total_spray_volume_l"), data.get("area_ha"),
+                data.get("total_spray_volume_l"),
+                data.get("area_ha"),
                 json.dumps(data.get("waypoints", [])),
                 json.dumps(data.get("boundary")) if data.get("boundary") else None,
             )
@@ -170,9 +188,7 @@ class DroneRepository:
     # Missions - المهام
     # ─────────────────────────────────────────────────────────────────────
 
-    async def list_missions(
-        self, tenant_id: str, status: str | None = None, drone_id: str | None = None
-    ) -> list[dict]:
+    async def list_missions(self, tenant_id: str, status: str | None = None, drone_id: str | None = None) -> list[dict]:
         query = "SELECT * FROM missions WHERE tenant_id = $1"
         params: list[Any] = [tenant_id]
         idx = 2
@@ -197,7 +213,8 @@ class DroneRepository:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM missions WHERE id=$1 AND tenant_id=$2",
-                parsed, tenant_id,
+                parsed,
+                tenant_id,
             )
             return dict(row) if row else None
 
@@ -217,17 +234,18 @@ class DroneRepository:
                    name, name_ar, mission_type, field_id, status)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'planned')
                    RETURNING *""",
-                uuid.UUID(mission_id), tenant_id,
-                drone_uuid, plan_uuid,
-                data["name"], data.get("name_ar"),
+                uuid.UUID(mission_id),
+                tenant_id,
+                drone_uuid,
+                plan_uuid,
+                data["name"],
+                data.get("name_ar"),
                 data.get("mission_type", "spray"),
                 data.get("field_id"),
             )
             return dict(row)
 
-    async def update_mission_status(
-        self, mission_id: str, tenant_id: str, status: str
-    ) -> dict | None:
+    async def update_mission_status(self, mission_id: str, tenant_id: str, status: str) -> dict | None:
         parsed = _safe_uuid(mission_id)
         if not parsed:
             return None
@@ -237,17 +255,25 @@ class DroneRepository:
                 row = await conn.fetchrow(
                     """UPDATE missions SET status=$3, started_at=COALESCE(started_at, $4)
                        WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                    parsed, tenant_id, status, now,
+                    parsed,
+                    tenant_id,
+                    status,
+                    now,
                 )
             elif status in ("completed", "aborted"):
                 row = await conn.fetchrow(
                     """UPDATE missions SET status=$3, completed_at=$4
                        WHERE id=$1 AND tenant_id=$2 RETURNING *""",
-                    parsed, tenant_id, status, now,
+                    parsed,
+                    tenant_id,
+                    status,
+                    now,
                 )
             else:
                 row = await conn.fetchrow(
                     "UPDATE missions SET status=$3 WHERE id=$1 AND tenant_id=$2 RETURNING *",
-                    parsed, tenant_id, status,
+                    parsed,
+                    tenant_id,
+                    status,
                 )
             return dict(row) if row else None

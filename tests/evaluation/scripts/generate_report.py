@@ -97,9 +97,7 @@ class ReportGenerator:
         self.metrics.get("failed_tests", 0)
 
         status_emoji = "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"
-        status_text = (
-            "PASS" if overall_score >= 85 else "WARNING" if overall_score >= 70 else "FAIL"
-        )
+        status_text = "PASS" if overall_score >= 85 else "WARNING" if overall_score >= 70 else "FAIL"
 
         return [
             "## Executive Summary",
@@ -200,13 +198,7 @@ class ReportGenerator:
         max_latency = self.metrics.get("max_latency_ms", 0.0)
         min_latency = self.metrics.get("min_latency_ms", 0.0)
 
-        latency_status = (
-            "✅ Excellent"
-            if avg_latency < 2000
-            else "⚠️ Acceptable"
-            if avg_latency < 5000
-            else "❌ Poor"
-        )
+        latency_status = "✅ Excellent" if avg_latency < 2000 else "⚠️ Acceptable" if avg_latency < 5000 else "❌ Poor"
 
         return [
             "## Performance Metrics",
@@ -247,9 +239,7 @@ class ReportGenerator:
         elif overall_score >= 70:
             recommendations.append("⚠️ Good performance with room for improvement.")
         else:
-            recommendations.append(
-                "❌ Performance below threshold. Review and improve before deploying."
-            )
+            recommendations.append("❌ Performance below threshold. Review and improve before deploying.")
 
         if accuracy < 75:
             recommendations.append(

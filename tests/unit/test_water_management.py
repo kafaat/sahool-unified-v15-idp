@@ -450,9 +450,7 @@ class TestEfficiencyMetrics:
     def test_app_efficiency_benchmark_retrieval(self):
         """Test retrieving application efficiency benchmarks"""
         benchmarks = EfficiencyBenchmarks()
-        min_eff, good_eff, excellent_eff = benchmarks.get_app_efficiency_benchmark(
-            IrrigationMethod.DRIP
-        )
+        min_eff, good_eff, excellent_eff = benchmarks.get_app_efficiency_benchmark(IrrigationMethod.DRIP)
         assert min_eff == 85.0
         assert good_eff == 90.0
         assert excellent_eff == 95.0
@@ -893,9 +891,7 @@ class TestMEWACompliance:
 class TestWellExtractionReporting:
     """Test well extraction reporting"""
 
-    def test_well_extraction_report_generation(
-        self, sample_well_source, sample_consumption_records
-    ):
+    def test_well_extraction_report_generation(self, sample_well_source, sample_consumption_records):
         """Test generating well extraction report"""
         generator = WaterReportGenerator("tenant-001")
 

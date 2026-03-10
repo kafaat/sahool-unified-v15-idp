@@ -291,21 +291,25 @@ class TestQualityGateComprehensive:
 
         gate = KnowledgeQualityGate(min_domain_coverage=1)
         docs = []
-        for i, domain in enumerate([
-            KnowledgeDomain.CROPS,
-            KnowledgeDomain.SOIL,
-            KnowledgeDomain.IRRIGATION,
-            KnowledgeDomain.FERTILIZER,
-            KnowledgeDomain.PEST_DISEASE,
-        ]):
-            docs.append(_make_doc(
-                title=f"Doc {i}",
-                title_ar=f"وثيقة {i}",
-                domain=domain,
-                tags=["tag1", "tag2", "tag3"],
-                source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.INTERNATIONAL_ORGANIZATION),
-                verification_status=VerificationStatus.APPROVED,
-            ))
+        for i, domain in enumerate(
+            [
+                KnowledgeDomain.CROPS,
+                KnowledgeDomain.SOIL,
+                KnowledgeDomain.IRRIGATION,
+                KnowledgeDomain.FERTILIZER,
+                KnowledgeDomain.PEST_DISEASE,
+            ]
+        ):
+            docs.append(
+                _make_doc(
+                    title=f"Doc {i}",
+                    title_ar=f"وثيقة {i}",
+                    domain=domain,
+                    tags=["tag1", "tag2", "tag3"],
+                    source=KnowledgeSourceMeta(credibility=SourceCredibilityLevel.INTERNATIONAL_ORGANIZATION),
+                    verification_status=VerificationStatus.APPROVED,
+                )
+            )
         result = gate.check(docs)
         assert result.score > 0.5
 

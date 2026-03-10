@@ -50,9 +50,7 @@ async def test_create_field_workflow(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Act - تنفيذ عملية إنشاء الحقل
-    response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     # Assert - التحقق من النتائج
     assert response.status_code == 201, f"Failed to create field: {response.text}"
@@ -81,9 +79,7 @@ async def test_create_field_workflow(
 
     # Step 3: Calculate field area from boundary - حساب مساحة الحقل
     if field_data.get("boundary"):
-        area_response = await http_client.get(
-            f"{field_service_url}/fields/{field_id}/area", headers=headers
-        )
+        area_response = await http_client.get(f"{field_service_url}/fields/{field_id}/area", headers=headers)
 
         assert area_response.status_code == 200
         area_data = area_response.json()
@@ -126,9 +122,7 @@ async def test_link_field_to_satellite_data(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Step 1: Create field - إنشاء الحقل
-    field_response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    field_response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     assert field_response.status_code == 201
     field_id = field_response.json()["id"]
@@ -191,9 +185,7 @@ async def test_calculate_ndvi_for_field(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Step 1: Create field - إنشاء الحقل
-    field_response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    field_response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     assert field_response.status_code == 201
     field_id = field_response.json()["id"]
@@ -222,9 +214,7 @@ async def test_calculate_ndvi_for_field(
         ndvi_records.append(ndvi_record)
 
     # Step 3: Retrieve NDVI history - استرجاع سجل NDVI
-    history_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/ndvi/history", headers=headers
-    )
+    history_response = await http_client.get(f"{field_service_url}/fields/{field_id}/ndvi/history", headers=headers)
 
     assert history_response.status_code == 200
     history_data = history_response.json()
@@ -235,9 +225,7 @@ async def test_calculate_ndvi_for_field(
     assert history_data["field_id"] == field_id
 
     # Step 4: Get field details with NDVI trend - الحصول على تفاصيل الحقل مع اتجاه NDVI
-    field_details_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}", headers=headers
-    )
+    field_details_response = await http_client.get(f"{field_service_url}/fields/{field_id}", headers=headers)
 
     assert field_details_response.status_code == 200
     field_details = field_details_response.json()
@@ -286,9 +274,7 @@ async def test_crop_season_workflow(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Step 1: Create field
-    field_response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    field_response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     assert field_response.status_code == 201
     field_id = field_response.json()["id"]
@@ -317,9 +303,7 @@ async def test_crop_season_workflow(
     assert season["field_id"] == field_id
 
     # Step 3: Get crop history - الحصول على سجل المحاصيل
-    history_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/crops/history", headers=headers
-    )
+    history_response = await http_client.get(f"{field_service_url}/fields/{field_id}/crops/history", headers=headers)
 
     assert history_response.status_code == 200
     history = history_response.json()
@@ -381,9 +365,7 @@ async def test_field_zone_workflow(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Step 1: Create field
-    field_response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    field_response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     assert field_response.status_code == 201
     field_id = field_response.json()["id"]
@@ -421,9 +403,7 @@ async def test_field_zone_workflow(
     assert "area_hectares" in zone
 
     # Step 3: List zones - قائمة المناطق
-    list_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/zones", headers=headers
-    )
+    list_response = await http_client.get(f"{field_service_url}/fields/{field_id}/zones", headers=headers)
 
     assert list_response.status_code == 200
     zones_list = list_response.json()
@@ -433,9 +413,7 @@ async def test_field_zone_workflow(
     assert len(zones_list["zones"]) == 1
 
     # Step 4: Delete zone - حذف المنطقة
-    delete_response = await http_client.delete(
-        f"{field_service_url}/zones/{zone_id}", headers=headers
-    )
+    delete_response = await http_client.delete(f"{field_service_url}/zones/{zone_id}", headers=headers)
 
     assert delete_response.status_code == 200
     delete_result = delete_response.json()
@@ -475,17 +453,13 @@ async def test_field_statistics(
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Create field
-    field_response = await http_client.post(
-        f"{field_service_url}/fields", json=field_data, headers=headers
-    )
+    field_response = await http_client.post(f"{field_service_url}/fields", json=field_data, headers=headers)
 
     assert field_response.status_code == 201
     field_id = field_response.json()["id"]
 
     # Get field statistics - الحصول على إحصائيات الحقل
-    stats_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/stats", headers=headers
-    )
+    stats_response = await http_client.get(f"{field_service_url}/fields/{field_id}/stats", headers=headers)
 
     assert stats_response.status_code == 200
     stats = stats_response.json()

@@ -53,9 +53,16 @@ Remote sensing provides non-destructive, large-scale monitoring of crop health, 
 
 - **Resolution**: 1-5 cm/pixel (centimeter-level)
 - **Frequency**: On-demand
-- **Sensors**: RGB, multispectral (RedEdge), thermal, LiDAR
+- **Sensors**: RGB, multispectral (RedEdge), thermal, LiDAR, **hyperspectral**
 - **Coverage**: 10-200 hectares per flight
 - **Best for**: Field-level monitoring, variable rate application maps
+
+### Hyperspectral Imaging | التصوير الطيفي العالي
+
+- **Bands**: 200-400 contiguous spectral bands
+- **Resolution**: 2-10 nm spectral resolution
+- **Advantage**: Early disease detection 2-4 weeks before visible symptoms
+- **See**: [[hyperspectral-disease-detection|Hyperspectral Disease Detection Guide]]
 
 الدقة: 1-5 سم/بكسل | التكرار: حسب الطلب | التغطية: 10-200 هكتار لكل طلعة
 
@@ -126,6 +133,7 @@ Farmer Notification
 - [[lai-guide]] - LAI estimation and use
 - [[water-stress-index]] - Water stress detection
 - [[sentinel-guide]] - Sentinel-2 data access and processing
+- [[hyperspectral-disease-detection]] - Hyperspectral imaging for disease detection
 
 ## Sources | المصادر
 

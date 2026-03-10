@@ -210,9 +210,7 @@ class TestWorkflowEngine:
 
         # Mock the step handlers - handlers return (output, next_step) tuple
         engine._step_handlers["retrieve"] = AsyncMock(return_value=({"results": []}, "step2"))
-        engine._step_handlers["generate"] = AsyncMock(
-            return_value=({"answer": "Generated response"}, None)
-        )
+        engine._step_handlers["generate"] = AsyncMock(return_value=({"answer": "Generated response"}, None))
 
         result = await engine.execute("simple_wf")
 
@@ -271,9 +269,7 @@ class TestWorkflowEngine:
         engine.register_workflow(workflow)
 
         # Handler raises exception to simulate failure
-        engine._step_handlers["retrieve"] = AsyncMock(
-            side_effect=ValueError("Database unavailable")
-        )
+        engine._step_handlers["retrieve"] = AsyncMock(side_effect=ValueError("Database unavailable"))
 
         result = await engine.execute("fail_wf")
 
@@ -312,9 +308,7 @@ class TestWorkflowEngine:
 
         # Handlers return (output, next_step) tuple
         # Condition returns next_step to indicate branching
-        engine._step_handlers["condition"] = AsyncMock(
-            return_value=({"condition_result": True}, "success_step")
-        )
+        engine._step_handlers["condition"] = AsyncMock(return_value=({"condition_result": True}, "success_step"))
         engine._step_handlers["generate"] = AsyncMock(return_value=({"answer": "Generated"}, None))
 
         result = await engine.execute("branch_wf")

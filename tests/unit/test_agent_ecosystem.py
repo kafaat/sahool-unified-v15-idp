@@ -1,4 +1,5 @@
 """Tests for AI agent ecosystem."""
+
 import pytest
 from shared.ai.agent_ecosystem import (
     AgentEcosystem,
@@ -6,6 +7,7 @@ from shared.ai.agent_ecosystem import (
     AgentStatus,
     AGENT_DEFINITIONS,
 )
+
 
 class TestAgentEcosystem:
     def setup_method(self):

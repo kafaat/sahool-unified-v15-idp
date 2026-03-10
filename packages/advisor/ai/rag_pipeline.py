@@ -80,8 +80,7 @@ def run_rag(
     # Step 5: Handle fallback case (no relevant chunks)
     if not chunks:
         fallback_text = (
-            "المعلومات غير كافية لإعطاء توصية دقيقة. "
-            "زودني بنوع المحصول، عمره، برنامج الري، وآخر تحليل تربة."
+            "المعلومات غير كافية لإعطاء توصية دقيقة. زودني بنوع المحصول، عمره، برنامج الري، وآخر تحليل تربة."
         )
         return RagResponse(
             answer=fallback_text,

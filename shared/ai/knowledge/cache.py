@@ -121,10 +121,7 @@ class KnowledgeCache:
     def invalidate_collection(self, collection: str) -> int:
         """Invalidate all cached entries for a collection.
         إبطال جميع الإدخالات المخزنة مؤقتا لمجموعة معينة"""
-        keys_to_remove = [
-            key for key, entry in self._cache.items()
-            if entry.collection == collection
-        ]
+        keys_to_remove = [key for key, entry in self._cache.items() if entry.collection == collection]
         for key in keys_to_remove:
             del self._cache[key]
         if keys_to_remove:

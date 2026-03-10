@@ -92,13 +92,9 @@ def run_audit(repo_root: Path, config: dict) -> dict:
             stats["by_severity"][severity] = stats["by_severity"].get(severity, 0) + 1
 
     # Calculate health score
-    severity_weights = config.get(
-        "severity_weights", {"CRITICAL": 10, "HIGH": 7, "MEDIUM": 4, "LOW": 1}
-    )
+    severity_weights = config.get("severity_weights", {"CRITICAL": 10, "HIGH": 7, "MEDIUM": 4, "LOW": 1})
 
-    total_penalty = sum(
-        stats["by_severity"].get(sev, 0) * weight for sev, weight in severity_weights.items()
-    )
+    total_penalty = sum(stats["by_severity"].get(sev, 0) * weight for sev, weight in severity_weights.items())
 
     # Base score of 10, reduced by penalties (min 0)
     max_penalty = 100  # Normalize to this scale

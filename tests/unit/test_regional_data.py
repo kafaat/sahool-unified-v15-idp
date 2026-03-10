@@ -4,6 +4,7 @@ Tests for Regional Agricultural Data | اختبارات البيانات الز�
 Tests cover country profiles, suitable crops, climate data,
 bilingual content, and the legacy API.
 """
+
 from __future__ import annotations
 
 import pytest

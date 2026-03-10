@@ -56,8 +56,17 @@ class TestCRAGStepRegistration:
         """Test all 11 built-in handlers are present."""
         engine = WorkflowEngine()
         expected = {
-            "retrieve", "rerank", "generate", "condition", "loop",
-            "transform", "filter", "parallel", "aggregate", "call_rag", "crag",
+            "retrieve",
+            "rerank",
+            "generate",
+            "condition",
+            "loop",
+            "transform",
+            "filter",
+            "parallel",
+            "aggregate",
+            "call_rag",
+            "crag",
         }
         assert set(engine._step_handlers.keys()) == expected
 
@@ -160,10 +169,14 @@ class TestCRAGStepExecution:
 
         # Provide high-quality chunks directly
         ctx.variables["results"] = [
-            {"content": "Wheat rust (Puccinia triticina) causes yield losses. Treatment includes propiconazole fungicide at 125ml/ha.",
-             "metadata": {"domain": "pest_disease", "source_credibility": 5}},
-            {"content": "Rust disease in wheat requires early detection. Fungicide application at tillering stage is most effective.",
-             "metadata": {"domain": "pest_disease", "source_credibility": 4}},
+            {
+                "content": "Wheat rust (Puccinia triticina) causes yield losses. Treatment includes propiconazole fungicide at 125ml/ha.",
+                "metadata": {"domain": "pest_disease", "source_credibility": 5},
+            },
+            {
+                "content": "Rust disease in wheat requires early detection. Fungicide application at tillering stage is most effective.",
+                "metadata": {"domain": "pest_disease", "source_credibility": 4},
+            },
         ]
 
         step = WorkflowStep(
@@ -177,9 +190,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, __ = asyncio.get_event_loop().run_until_complete(
-            engine._handle_crag(step, ctx)
-        )
+        _, __ = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
 
         assert ctx.variables["crag_action"] in ("correct", "ambiguous", "incorrect")
         assert "crag_overall_score" in ctx.variables
@@ -201,9 +212,7 @@ class TestCRAGStepExecution:
             config={"domain": "crops"},
         )
 
-        _, __ = asyncio.get_event_loop().run_until_complete(
-            engine._handle_crag(step, ctx)
-        )
+        _, __ = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
 
         assert ctx.variables["crag_action"] == "incorrect"
         assert ctx.variables["crag_fallback_used"] is True
@@ -215,8 +224,10 @@ class TestCRAGStepExecution:
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "wheat irrigation schedule"
         ctx.variables["results"] = [
-            {"content": "Wheat irrigation every 10-14 days during tillering. ET-based scheduling recommended.",
-             "metadata": {"domain": "irrigation", "source_credibility": 5}},
+            {
+                "content": "Wheat irrigation every 10-14 days during tillering. ET-based scheduling recommended.",
+                "metadata": {"domain": "irrigation", "source_credibility": 5},
+            },
         ]
 
         step = WorkflowStep(
@@ -231,9 +242,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, next_step = asyncio.get_event_loop().run_until_complete(
-            engine._handle_crag(step, ctx)
-        )
+        _, next_step = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
 
         if ctx.variables["crag_action"] == "correct":
             assert next_step == "generate_advisory"
@@ -256,9 +265,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, next_step = asyncio.get_event_loop().run_until_complete(
-            engine._handle_crag(step, ctx)
-        )
+        _, next_step = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
         assert next_step == "fallback_search"
 
     @pytest.mark.unit
@@ -267,8 +274,10 @@ class TestCRAGStepExecution:
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "nitrogen deficiency wheat"
         ctx.variables["results"] = [
-            {"content": "Nitrogen deficiency causes yellowing. Apply urea 46kg/ha.",
-             "metadata": {"domain": "fertilizer"}},
+            {
+                "content": "Nitrogen deficiency causes yellowing. Apply urea 46kg/ha.",
+                "metadata": {"domain": "fertilizer"},
+            },
         ]
 
         step = WorkflowStep(
@@ -281,9 +290,15 @@ class TestCRAGStepExecution:
         asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
 
         expected_vars = [
-            "crag_result", "crag_action", "crag_confidence",
-            "crag_overall_score", "crag_fallback_used", "crag_fallback_source",
-            "crag_chunks_in", "crag_chunks_out", "crag_refinement_ratio",
+            "crag_result",
+            "crag_action",
+            "crag_confidence",
+            "crag_overall_score",
+            "crag_fallback_used",
+            "crag_fallback_source",
+            "crag_chunks_in",
+            "crag_chunks_out",
+            "crag_refinement_ratio",
         ]
         for var in expected_vars:
             assert var in ctx.variables, f"Missing context variable: {var}"
@@ -375,9 +390,7 @@ class TestYAMLWorkflowCRAGPresence:
 
     @pytest.mark.unit
     @pytest.mark.parametrize("workflow_id", CRAG_REQUIRED_WORKFLOWS)
-    def test_crag_step_between_rerank_and_generate(
-        self, workflow_map: dict[str, WorkflowConfig], workflow_id: str
-    ):
+    def test_crag_step_between_rerank_and_generate(self, workflow_map: dict[str, WorkflowConfig], workflow_id: str):
         """Test CRAG step is positioned between rerank and generate."""
         workflow = workflow_map[workflow_id]
         step_ids = [s.id for s in workflow.steps]
@@ -397,18 +410,13 @@ class TestYAMLWorkflowCRAGPresence:
         assert rerank_found, f"{workflow_id}: no rerank step points to CRAG"
 
         # CRAG should have on_correct or next_step pointing to a generate step
-        generate_target = (
-            crag_step.config.get("on_correct")
-            or crag_step.next_step
-        )
+        generate_target = crag_step.config.get("on_correct") or crag_step.next_step
         if generate_target:
             assert generate_target in step_ids, f"{workflow_id}: CRAG target '{generate_target}' not found"
 
     @pytest.mark.unit
     @pytest.mark.parametrize("workflow_id", CRAG_EXCLUDED_WORKFLOWS)
-    def test_excluded_workflows_no_crag(
-        self, workflow_map: dict[str, WorkflowConfig], workflow_id: str
-    ):
+    def test_excluded_workflows_no_crag(self, workflow_map: dict[str, WorkflowConfig], workflow_id: str):
         """Test search-only workflows do NOT have CRAG step."""
         if workflow_id not in workflow_map:
             pytest.skip(f"{workflow_id} not loaded")
@@ -445,10 +453,14 @@ class TestCRAGEngineIntegration:
         result = engine.evaluate_and_refine(
             query="wheat rust disease treatment fungicide",
             retrieved_chunks=[
-                {"content": "Wheat rust Puccinia treatment propiconazole fungicide 125ml",
-                 "metadata": {"domain": "pest_disease", "source_credibility": 5}},
-                {"content": "Rust disease wheat early detection tillering stage fungicide spray",
-                 "metadata": {"domain": "pest_disease", "source_credibility": 4}},
+                {
+                    "content": "Wheat rust Puccinia treatment propiconazole fungicide 125ml",
+                    "metadata": {"domain": "pest_disease", "source_credibility": 5},
+                },
+                {
+                    "content": "Rust disease wheat early detection tillering stage fungicide spray",
+                    "metadata": {"domain": "pest_disease", "source_credibility": 4},
+                },
             ],
             query_domain="pest_disease",
         )
@@ -490,8 +502,10 @@ class TestCRAGEngineIntegration:
         result = engine.evaluate_and_refine(
             query="nitrogen fertilizer wheat application rate",
             retrieved_chunks=[
-                {"content": "Apply nitrogen fertilizer at 46 kg/ha for wheat during tillering.",
-                 "metadata": {"domain": "fertilizer", "source_credibility": 5}},
+                {
+                    "content": "Apply nitrogen fertilizer at 46 kg/ha for wheat during tillering.",
+                    "metadata": {"domain": "fertilizer", "source_credibility": 5},
+                },
             ],
             query_domain="fertilizer",
         )

@@ -259,9 +259,7 @@ class TestEventPublisherPublishing:
         mock_js.publish.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_publish_event_sets_source_service(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_publish_event_sets_source_service(self, publisher, sample_field_event, mock_nats_client):
         """Test that source service is set on event."""
         mock_nc, mock_js = mock_nats_client
         publisher._connected = True
@@ -281,9 +279,7 @@ class TestEventPublisherPublishing:
         publisher._nc = mock_nc
         publisher._js = None  # Disable JetStream
 
-        result = await publisher.publish_event(
-            "test.subject", sample_field_event, use_jetstream=False
-        )
+        result = await publisher.publish_event("test.subject", sample_field_event, use_jetstream=False)
 
         assert result is True
         mock_nc.publish.assert_called_once()
@@ -328,9 +324,7 @@ class TestEventPublisherPublishing:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_publish_increments_error_count_on_failure(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_publish_increments_error_count_on_failure(self, publisher, sample_field_event, mock_nats_client):
         """Test that error count increments on publish failure."""
         mock_nc, mock_js = mock_nats_client
         mock_js.publish = AsyncMock(side_effect=Exception("Publish failed"))
@@ -386,9 +380,7 @@ class TestRetryLogic:
         """Test retry on publish failure."""
         mock_nc, mock_js = mock_nats_client
         # Fail first time, succeed second time
-        mock_js.publish = AsyncMock(
-            side_effect=[Exception("First failure"), MagicMock(stream="s", seq=1)]
-        )
+        mock_js.publish = AsyncMock(side_effect=[Exception("First failure"), MagicMock(stream="s", seq=1)])
         publisher._connected = True
         publisher._nc = mock_nc
         publisher._js = mock_js

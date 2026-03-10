@@ -26,6 +26,7 @@ except ImportError:
                 detail["resource_type"] = resource_type
             super().__init__(status_code=404, detail=detail)
 
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -84,6 +85,7 @@ def _get_repo(req: Request):
     pool = getattr(req.app.state, "db_pool", None)
     if pool:
         from src.db import DroneRepository
+
         return DroneRepository(pool)
     return None
 
@@ -139,9 +141,11 @@ async def register_drone(drone: DroneCreate, req: Request, user=Depends(get_curr
     else:
         drone_id = f"DRN-{uuid.uuid4().hex[:8].upper()}"
         drone_data = {
-            "id": drone_id, "tenant_id": tenant_id,
+            "id": drone_id,
+            "tenant_id": tenant_id,
             **drone.model_dump(),
-            "status": "active", "battery_percent": 100,
+            "status": "active",
+            "battery_percent": 100,
             "total_flight_hours": 0.0,
             "registered_at": datetime.now(UTC).isoformat(),
         }
@@ -151,10 +155,15 @@ async def register_drone(drone: DroneCreate, req: Request, user=Depends(get_curr
     # Publish NATS event
     try:
         from src.events import DRONE_REGISTERED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, DRONE_REGISTERED, tenant_id,
-            drone_id=result.id, model=drone.model, serial_number=drone.serial_number,
+            nc,
+            DRONE_REGISTERED,
+            tenant_id,
+            drone_id=result.id,
+            model=drone.model,
+            serial_number=drone.serial_number,
         )
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
@@ -199,6 +208,7 @@ async def update_drone(drone_id: str, drone: DroneCreate, req: Request, user=Dep
 
     try:
         from src.events import DRONE_UPDATED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, DRONE_UPDATED, tenant_id, drone_id=result.id)
     except Exception:
@@ -225,6 +235,7 @@ async def delete_drone(drone_id: str, req: Request, user=Depends(get_current_use
 
     try:
         from src.events import DRONE_DEREGISTERED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, DRONE_DEREGISTERED, tenant_id, drone_id=drone_id)
     except Exception:
@@ -244,7 +255,8 @@ async def get_drone_status(drone_id: str, req: Request, user=Depends(get_current
         if not row:
             _raise_not_found()
         return {
-            "drone_id": str(row["id"]), "status": row["status"],
+            "drone_id": str(row["id"]),
+            "status": row["status"],
             "battery_percent": float(row.get("battery_percent", 100)),
             "total_flight_hours": float(row.get("total_flight_hours", 0)),
             "last_updated": row.get("updated_at", datetime.now(UTC)).isoformat(),

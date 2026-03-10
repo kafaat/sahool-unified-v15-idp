@@ -18,6 +18,7 @@ Field-First Architecture:
 import asyncio
 import logging
 import os
+import structlog
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timezone
@@ -106,7 +107,7 @@ from .whatsapp_client import get_whatsapp_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-notifications")
+logger = structlog.get_logger("sahool-notifications")
 
 # =============================================================================
 # Enums & Models

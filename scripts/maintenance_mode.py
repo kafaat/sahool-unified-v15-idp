@@ -81,7 +81,8 @@ class MaintenanceState:
         if MAINTENANCE_FILE.exists():
             try:
                 return cls.from_json(MAINTENANCE_FILE.read_text())
-            except:
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"Failed to load maintenance state: {e}")
                 return None
         return None
 
@@ -193,9 +194,7 @@ class KongMaintenanceController:
         async with aiohttp.ClientSession() as session:
             try:
                 # Find and delete maintenance plugins
-                async with session.get(
-                    f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}
-                ) as response:
+                async with session.get(f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}) as response:
                     if response.status == 200:
                         data = await response.json()
                         for plugin in data.get("data", []):
@@ -204,9 +203,7 @@ class KongMaintenanceController:
                             logger.info(f"  🗑️ Removed maintenance plugin: {plugin_id}")
 
                 # Remove bypass routes
-                async with session.get(
-                    f"{self.admin_url}/routes", params={"tags": "maintenance-bypass"}
-                ) as response:
+                async with session.get(f"{self.admin_url}/routes", params={"tags": "maintenance-bypass"}) as response:
                     if response.status == 200:
                         data = await response.json()
                         for route in data.get("data", []):
@@ -224,9 +221,7 @@ class KongMaintenanceController:
         """Get current maintenance mode status from Kong."""
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(
-                    f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}
-                ) as response:
+                async with session.get(f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}) as response:
                     if response.status == 200:
                         data = await response.json()
                         plugins = data.get("data", [])
@@ -435,9 +430,7 @@ class MaintenanceModeController:
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Maintenance Mode Controller - وحدة التحكم في وضع الصيانة"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Maintenance Mode Controller - وحدة التحكم في وضع الصيانة")
 
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
@@ -456,12 +449,8 @@ async def main():
         default="System maintenance in progress",
         help="Maintenance message (English)",
     )
-    enable_parser.add_argument(
-        "--message-ar", default="صيانة النظام جارية", help="Maintenance message (Arabic)"
-    )
-    enable_parser.add_argument(
-        "--reason", "-r", default="scheduled_maintenance", help="Reason for maintenance"
-    )
+    enable_parser.add_argument("--message-ar", default="صيانة النظام جارية", help="Maintenance message (Arabic)")
+    enable_parser.add_argument("--reason", "-r", default="scheduled_maintenance", help="Reason for maintenance")
 
     # Disable command
     subparsers.add_parser("disable", help="Disable maintenance mode")

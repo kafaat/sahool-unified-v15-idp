@@ -172,15 +172,9 @@ class MetricsCollector:
             }
 
         true_positives = sum(1 for d in self._detections if d.get("predicted") and d.get("actual"))
-        false_positives = sum(
-            1 for d in self._detections if d.get("predicted") and not d.get("actual")
-        )
-        true_negatives = sum(
-            1 for d in self._detections if not d.get("predicted") and not d.get("actual")
-        )
-        false_negatives = sum(
-            1 for d in self._detections if not d.get("predicted") and d.get("actual")
-        )
+        false_positives = sum(1 for d in self._detections if d.get("predicted") and not d.get("actual"))
+        true_negatives = sum(1 for d in self._detections if not d.get("predicted") and not d.get("actual"))
+        false_negatives = sum(1 for d in self._detections if not d.get("predicted") and d.get("actual"))
 
         total = true_positives + false_positives + true_negatives + false_negatives
 

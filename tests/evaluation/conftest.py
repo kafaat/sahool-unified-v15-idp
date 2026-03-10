@@ -24,9 +24,7 @@ import pytest
 # Try to import from ai-advisor service, fallback to pure mocks if not available
 # This allows tests to run in environments without the full service dependencies
 try:
-    sys.path.insert(
-        0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor")
-    )
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor"))
     from src.agents.base_agent import BaseAgent
     from src.orchestration.supervisor import Supervisor
 except ImportError:
@@ -178,15 +176,9 @@ def evaluation_metrics_tracker():
                 "passed_tests": passed,
                 "failed_tests": failed,
                 "pass_rate": (passed / total * 100) if total > 0 else 0,
-                "accuracy": (
-                    sum(accuracy_scores) / len(accuracy_scores) * 100 if accuracy_scores else 0
-                ),
-                "latency_score": (
-                    sum(latency_scores) / len(latency_scores) * 100 if latency_scores else 0
-                ),
-                "safety_score": (
-                    sum(safety_scores) / len(safety_scores) * 100 if safety_scores else 0
-                ),
+                "accuracy": (sum(accuracy_scores) / len(accuracy_scores) * 100 if accuracy_scores else 0),
+                "latency_score": (sum(latency_scores) / len(latency_scores) * 100 if latency_scores else 0),
+                "safety_score": (sum(safety_scores) / len(safety_scores) * 100 if safety_scores else 0),
                 "overall_score": (
                     sum(
                         [
@@ -199,24 +191,14 @@ def evaluation_metrics_tracker():
                     if accuracy_scores
                     else 0
                 ),
-                "avg_latency_ms": (
-                    sum(r.get("latency_ms", 0) for r in self.results) / total if total > 0 else 0
-                ),
+                "avg_latency_ms": (sum(r.get("latency_ms", 0) for r in self.results) / total if total > 0 else 0),
                 "arabic_support": (
-                    (
-                        sum(1 for r in arabic_results if r.get("passed", False))
-                        / len(arabic_results)
-                        * 100
-                    )
+                    (sum(1 for r in arabic_results if r.get("passed", False)) / len(arabic_results) * 100)
                     if arabic_results
                     else 0
                 ),
                 "english_support": (
-                    (
-                        sum(1 for r in english_results if r.get("passed", False))
-                        / len(english_results)
-                        * 100
-                    )
+                    (sum(1 for r in english_results if r.get("passed", False)) / len(english_results) * 100)
                     if english_results
                     else 0
                 ),
@@ -545,5 +527,3 @@ def save_evaluation_metrics(request, evaluation_metrics_tracker):
     output_path = Path(__file__).parent / "evaluation-results.json"
     evaluation_metrics_tracker.save_results(output_path)
     print(f"\n✅ Evaluation results saved to: {output_path}")
-
-

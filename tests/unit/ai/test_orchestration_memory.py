@@ -104,15 +104,9 @@ class MemoryEntry:
             tags=data.get("tags", []),
             source_agent=data.get("source_agent"),
             confidence=data.get("confidence", 1.0),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if "created_at" in data
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if "updated_at" in data
-            else datetime.now(UTC),
-            expires_at=datetime.fromisoformat(data["expires_at"])
-            if data.get("expires_at")
-            else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
+            expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
             access_count=data.get("access_count", 0),
             metadata=data.get("metadata", {}),
         )
@@ -228,8 +222,7 @@ class LRUCache:
             "utilization": len(self._cache) / self.max_size if self.max_size > 0 else 0.0,
             "total_access_count": total_access,
             "entries_by_priority": {
-                p.value: sum(1 for e in self._cache.values() if e.priority == p)
-                for p in MemoryPriority
+                p.value: sum(1 for e in self._cache.values() if e.priority == p) for p in MemoryPriority
             },
         }
 

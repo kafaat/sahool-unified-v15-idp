@@ -530,9 +530,7 @@ class TerrainPipeline:
 
         # Waterlogging prediction (requires weather context)
         if weather_context:
-            waterlogging_result = await self.hydrology_service.predict_waterlogging(
-                field_geometry, weather_context
-            )
+            waterlogging_result = await self.hydrology_service.predict_waterlogging(field_geometry, weather_context)
             result["analyses"]["waterlogging"] = waterlogging_result
 
             # Add waterlogging recommendations
@@ -547,9 +545,7 @@ class TerrainPipeline:
 
         # Step 3: Leveling Analysis (if requested)
         if include_leveling:
-            leveling_result = await self.leveling_service.calculate_leveling(
-                field_geometry, terrain_result
-            )
+            leveling_result = await self.leveling_service.calculate_leveling(field_geometry, terrain_result)
             result["analyses"]["leveling"] = leveling_result
 
             cost_result = await self.leveling_service.estimate_cost(leveling_result)

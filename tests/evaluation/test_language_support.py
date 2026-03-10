@@ -358,9 +358,7 @@ class TestArabicLanguageSupport:
             )
 
             assert is_arabic, f"Response should be in Arabic for {test_case['id']}"
-            assert keyword_score >= 0.25, (
-                f"Should match at least 25% keywords for {test_case['id']}"
-            )
+            assert keyword_score >= 0.25, f"Should match at least 25% keywords for {test_case['id']}"
 
     def test_arabic_irrigation_advice(
         self,
@@ -483,9 +481,7 @@ class TestEnglishLanguageSupport:
             )
 
             assert is_english, f"Response should be in English for {test_case['id']}"
-            assert keyword_score >= 0.25, (
-                f"Should match at least 25% keywords for {test_case['id']}"
-            )
+            assert keyword_score >= 0.25, f"Should match at least 25% keywords for {test_case['id']}"
 
     def test_english_irrigation_advice(
         self,
@@ -577,8 +573,7 @@ class TestBilingualConsistency:
         en_categories = {tc["category"] for tc in english_test_cases}
 
         assert ar_categories == en_categories, (
-            f"Both languages should cover same categories. "
-            f"Arabic: {ar_categories}, English: {en_categories}"
+            f"Both languages should cover same categories. Arabic: {ar_categories}, English: {en_categories}"
         )
 
     def test_similar_response_structure(
@@ -601,11 +596,7 @@ class TestBilingualConsistency:
             en_words = len(en_response.split())
 
             # Word counts should be within 3x of each other
-            ratio = (
-                max(ar_words, en_words) / min(ar_words, en_words)
-                if min(ar_words, en_words) > 0
-                else float("inf")
-            )
+            ratio = max(ar_words, en_words) / min(ar_words, en_words) if min(ar_words, en_words) > 0 else float("inf")
             assert ratio <= 3.0, f"Word count ratio for {category} should be reasonable"
 
     def test_keyword_translation_coverage(
@@ -668,9 +659,7 @@ class TestArabicDialectSupport:
         for test_case in self.DIALECT_TEST_CASES:
             query = test_case["query"]
             # Should contain interrogative markers
-            has_question = any(
-                marker in query for marker in ["ما", "إيش", "شلون", "كيف", "متى", "أين", "؟"]
-            )
+            has_question = any(marker in query for marker in ["ما", "إيش", "شلون", "كيف", "متى", "أين", "؟"])
             assert has_question, f"Query '{query}' should be a question"
 
     def test_dialect_agricultural_context(self):
@@ -706,9 +695,7 @@ class TestLanguageSupportSummary:
         ar_passed = 0
         for tc in arabic_test_cases:
             if evaluator.is_arabic_text(tc["mock_response"]):
-                keyword_score, _ = evaluator.calculate_keyword_match(
-                    tc["mock_response"], tc["expected_keywords"]
-                )
+                keyword_score, _ = evaluator.calculate_keyword_match(tc["mock_response"], tc["expected_keywords"])
                 if keyword_score >= 0.25:
                     ar_passed += 1
 
@@ -716,9 +703,7 @@ class TestLanguageSupportSummary:
         en_passed = 0
         for tc in english_test_cases:
             if evaluator.is_english_text(tc["mock_response"]):
-                keyword_score, _ = evaluator.calculate_keyword_match(
-                    tc["mock_response"], tc["expected_keywords"]
-                )
+                keyword_score, _ = evaluator.calculate_keyword_match(tc["mock_response"], tc["expected_keywords"])
                 if keyword_score >= 0.25:
                     en_passed += 1
 

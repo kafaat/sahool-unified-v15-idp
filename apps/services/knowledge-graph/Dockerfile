@@ -37,16 +37,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
-    cat > /root/.pip/pip.conf <<'EOF'
-[global]
-timeout = 300
-retries = 10
-index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-                  https://pypi.org/simple/
-[install]
-prefer-binary = true
-EOF
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Install Python dependencies
 COPY constraints.txt .

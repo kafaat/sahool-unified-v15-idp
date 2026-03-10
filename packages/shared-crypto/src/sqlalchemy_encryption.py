@@ -425,9 +425,7 @@ def enable_encryption_logging(session: Session):
         for instance in session.new:
             print(f"[SQLAlchemy Encryption] Encrypting new instance: {type(instance).__name__}")
         for instance in session.dirty:
-            print(
-                f"[SQLAlchemy Encryption] Encrypting modified instance: {type(instance).__name__}"
-            )
+            print(f"[SQLAlchemy Encryption] Encrypting modified instance: {type(instance).__name__}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

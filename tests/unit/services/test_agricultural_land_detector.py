@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
 """
 Tests for Agricultural Land Detector (GeoLabel-inspired)
 اختبارات كاشف الأراضي الزراعية المستوحى من GeoLabel
@@ -19,7 +21,7 @@ class TestAgriculturalLandDetectorImport:
     """Test that all modules can be imported"""
 
     def test_import_main_module(self):
-        from apps.services.__dict__ import vegetation_analysis_service  # noqa: F401
+        import apps.services.vegetation_analysis_service  # noqa: F401
 
     def test_import_detector(self):
         from apps.services.vegetation_analysis_service.src.agricultural_land_detector import (
@@ -397,9 +399,11 @@ class TestVectorClassificationEngine:
                 detection_confidence=0.0,
                 detection_date=datetime.now(),
                 strategy=DetectionStrategy.HYBRID,
-                mean_ndvi=0.05,
-                mean_evi=0.02,
-                compactness=0.8,
+                mean_ndvi=0.0,
+                mean_evi=0.0,
+                compactness=0.01,
+                rectangularity=0.1,
+                elongation=9.0,
             ),
         ]
 

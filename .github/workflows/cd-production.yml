@@ -38,6 +38,10 @@ env:
   HELM_TIMEOUT: 15m
   ROLLBACK_TIMEOUT: 5m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -49,6 +53,7 @@ jobs:
   validate-release:
     name: Validate Release
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     outputs:
       version: ${{ steps.version.outputs.version }}
       deployment_id: ${{ steps.id.outputs.deployment_id }}
@@ -140,6 +145,7 @@ jobs:
   approval:
     name: Deployment Approval
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [validate-release]
     if: github.event.inputs.skip_approval != 'true' || github.event.inputs.hotfix_justification == ''
     environment:
@@ -157,6 +163,7 @@ jobs:
   backup-production:
     name: Backup Production State
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [validate-release, approval]
     if: always() && needs.validate-release.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
     steps:
@@ -205,6 +212,7 @@ jobs:
   deploy-green:
     name: Deploy to Green Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [validate-release, approval, backup-production]
     if: always() && needs.validate-release.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true' && needs.backup-production.result == 'success'
     environment:
@@ -357,6 +365,7 @@ jobs:
   test-green:
     name: Test Green Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [deploy-green, validate-release]
     if: needs.deploy-green.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
@@ -404,6 +413,7 @@ jobs:
   switch-traffic:
     name: Switch Traffic to Green
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [test-green, validate-release]
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
@@ -465,6 +475,7 @@ jobs:
   verify-production:
     name: Verify Production
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [switch-traffic, validate-release]
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
@@ -491,6 +502,7 @@ jobs:
   cleanup-blue:
     name: Cleanup Blue Environment
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [verify-production, validate-release]
     if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
@@ -518,6 +530,7 @@ jobs:
   rollback:
     name: Rollback Deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [deploy-green, test-green, switch-traffic, validate-release]
     if: failure() && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
@@ -571,6 +584,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [validate-release, deploy-green, test-green, switch-traffic, verify-production]
     if: always()
     steps:

@@ -782,9 +782,7 @@ async def test_platform_load_handling(http_client: AsyncClient, auth_headers: di
 
         # Get health check
         try:
-            health_resp = await http_client.get(
-                f"{SERVICE_URLS['field_ops']}/healthz", timeout=10.0
-            )
+            health_resp = await http_client.get(f"{SERVICE_URLS['field_ops']}/healthz", timeout=10.0)
             results["operations"].append({"type": "health", "status": health_resp.status_code})
         except Exception:
             results["operations"].append({"type": "health", "status": "error"})

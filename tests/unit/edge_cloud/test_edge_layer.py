@@ -115,9 +115,7 @@ class DataCleaner:
 
         return {"valid": True, "can_interpolate": False, "reason": None}
 
-    def _interpolate(
-        self, reading: dict[str, Any], all_readings: list[dict[str, Any]]
-    ) -> dict[str, Any] | None:
+    def _interpolate(self, reading: dict[str, Any], all_readings: list[dict[str, Any]]) -> dict[str, Any] | None:
         """Interpolate missing value from surrounding readings"""
         device_id = reading.get("device_id")
         sensor_type = reading.get("sensor_type")
@@ -126,9 +124,7 @@ class DataCleaner:
         valid_values = [
             r["value"]
             for r in all_readings
-            if r.get("device_id") == device_id
-            and r.get("sensor_type") == sensor_type
-            and r.get("value") is not None
+            if r.get("device_id") == device_id and r.get("sensor_type") == sensor_type and r.get("value") is not None
         ]
 
         if len(valid_values) >= 2:
@@ -155,9 +151,7 @@ class DataCleaner:
 
             if prev.get("value") is not None and curr.get("value") is not None:
                 if prev.get("sensor_type") == curr.get("sensor_type"):
-                    change_percent = (
-                        abs(curr["value"] - prev["value"]) / max(abs(prev["value"]), 0.01)
-                    ) * 100
+                    change_percent = (abs(curr["value"] - prev["value"]) / max(abs(prev["value"]), 0.01)) * 100
 
                     if change_percent > threshold_percent:
                         spikes.append(
@@ -203,9 +197,7 @@ class EdgeInferenceEngine:
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
-    async def run_batch_inference(
-        self, model_id: str, inputs: list[dict[str, Any]]
-    ) -> dict[str, Any]:
+    async def run_batch_inference(self, model_id: str, inputs: list[dict[str, Any]]) -> dict[str, Any]:
         """Run batch inference"""
         start_time = time.monotonic()
 
@@ -364,9 +356,7 @@ class AutoIrrigationController:
             },
         }
 
-    async def trigger_irrigation(
-        self, zone_id: str, amount_mm: float, evaluation: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def trigger_irrigation(self, zone_id: str, amount_mm: float, evaluation: dict[str, Any]) -> dict[str, Any]:
         """Trigger automatic irrigation"""
         if not self._enabled:
             return {
@@ -416,9 +406,7 @@ class TestDataCleaning:
     def cleaner(self) -> DataCleaner:
         return DataCleaner()
 
-    def test_clean_valid_readings(
-        self, cleaner: DataCleaner, sample_sensor_readings: list[dict[str, Any]]
-    ):
+    def test_clean_valid_readings(self, cleaner: DataCleaner, sample_sensor_readings: list[dict[str, Any]]):
         """Test cleaning valid sensor readings"""
         result = cleaner.clean(sample_sensor_readings)
 
@@ -767,9 +755,7 @@ class TestAutoIrrigationTrigger:
         assert len(result["reasons"]) > 0
         assert "below threshold" in result["reasons"][0].lower()
 
-    def test_evaluate_normal_conditions_no_trigger(
-        self, irrigation_controller: AutoIrrigationController
-    ):
+    def test_evaluate_normal_conditions_no_trigger(self, irrigation_controller: AutoIrrigationController):
         """Test no irrigation for normal conditions"""
         sensor_data = {
             "soil_moisture": 50.0,  # Within normal range
@@ -781,9 +767,7 @@ class TestAutoIrrigationTrigger:
         assert result["should_irrigate"] is False
         assert len(result["reasons"]) == 0
 
-    def test_evaluate_high_temp_with_low_moisture(
-        self, irrigation_controller: AutoIrrigationController
-    ):
+    def test_evaluate_high_temp_with_low_moisture(self, irrigation_controller: AutoIrrigationController):
         """Test irrigation triggered for high temp + low moisture"""
         sensor_data = {
             "soil_moisture": 45.0,  # Below 50% but above min
@@ -816,9 +800,7 @@ class TestAutoIrrigationTrigger:
         assert result_high["urgency"] == "high"
 
     @pytest.mark.asyncio
-    async def test_trigger_irrigation_success(
-        self, irrigation_controller: AutoIrrigationController
-    ):
+    async def test_trigger_irrigation_success(self, irrigation_controller: AutoIrrigationController):
         """Test successful irrigation trigger"""
         evaluation = irrigation_controller.evaluate_conditions(
             {
@@ -840,9 +822,7 @@ class TestAutoIrrigationTrigger:
         assert result["trigger"]["status"] == "triggered"
 
     @pytest.mark.asyncio
-    async def test_trigger_irrigation_when_disabled(
-        self, irrigation_controller: AutoIrrigationController
-    ):
+    async def test_trigger_irrigation_when_disabled(self, irrigation_controller: AutoIrrigationController):
         """Test irrigation trigger fails when disabled"""
         irrigation_controller.disable()
 

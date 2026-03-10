@@ -270,7 +270,7 @@ class SemanticSegmentationEngine:
     async def classify_pixels(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> np.ndarray:
         """
         Classify each pixel as cropland or non-cropland.
@@ -340,7 +340,7 @@ class SemanticSegmentationEngine:
     async def polygonize_mask(
         self,
         mask: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
         target_class: str = "cropland",
     ) -> list[list[tuple[float, float]]]:
         """
@@ -368,6 +368,8 @@ class SemanticSegmentationEngine:
 
         # Extract contours for each component
         polygons = []
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         lat_range = bounds["north"] - bounds["south"]
         lon_range = bounds["east"] - bounds["west"]
 
@@ -591,7 +593,7 @@ class BoundaryDetectionEngine:
     async def detect_boundaries(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Detect field boundaries from image data.
@@ -606,6 +608,8 @@ class BoundaryDetectionEngine:
         Returns:
             List of boundary polygons as coordinate lists
         """
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         h, w = image_data.shape[:2]
 
         # Step 1: Compute NDVI if multi-band
@@ -680,7 +684,8 @@ class BoundaryDetectionEngine:
         max_val = magnitude.max()
         if max_val > 0:
             magnitude = magnitude / max_val
-        return magnitude
+        result: np.ndarray = magnitude
+        return result
 
     def _non_maximum_suppression(self, gradient_mag: np.ndarray, image: np.ndarray) -> np.ndarray:
         """Thin edges using non-maximum suppression"""
@@ -958,7 +963,7 @@ class ParcelPostProcessor:
     def process_parcels(
         self,
         polygons: list[list[tuple[float, float]]],
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Apply full post-processing pipeline to detected parcels.
@@ -1604,7 +1609,7 @@ class AgriculturalLandDetector:
     async def _training_free_detection(
         self,
         image_data: np.ndarray,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
     ) -> list[list[tuple[float, float]]]:
         """
         Training-free approximate detection using spectral indices only.
@@ -1612,6 +1617,8 @@ class AgriculturalLandDetector:
 
         GeoLabel equivalent: Strategy 4 - Training-free approximate farmland detection
         """
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         h, w = image_data.shape[:2]
 
         # Compute NDVI
@@ -1666,10 +1673,12 @@ class AgriculturalLandDetector:
         self,
         polygon: list[tuple[float, float]],
         index: int,
-        bounds: dict[str, float],
+        bounds: dict[str, float] | None,
         image_data: np.ndarray,
     ) -> AgriculturalParcel:
         """Convert a polygon to an AgriculturalParcel with computed features"""
+        if bounds is None:
+            bounds = {"north": 1.0, "south": 0.0, "east": 1.0, "west": 0.0}
         area = self.post_processor._calculate_area(polygon)
         perimeter = self._calculate_perimeter(polygon)
         centroid = self.post_processor._centroid(polygon)
@@ -1730,9 +1739,10 @@ class AgriculturalLandDetector:
         R = 6371000
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(
-            dlon / 2
-        ) ** 2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        )
         return R * 2 * math.asin(math.sqrt(a))
 
     def _sample_ndvi_in_polygon(
@@ -1884,63 +1894,115 @@ class CropClassificationEngine:
 
     # Spectral signature profiles for common crops (NDVI temporal patterns)
     # Based on multi-temporal Sentinel-2 observations for Middle East / Yemen region
-    CROP_SPECTRAL_PROFILES = {
+    CROP_SPECTRAL_PROFILES: dict[CropType, dict[str, Any]] = {
         CropType.WHEAT: {
-            "ndvi_peak": 0.75, "ndvi_range": (0.3, 0.82), "evi_peak": 0.55,
-            "peak_month": 3, "growing_months": (11, 4), "ndwi_range": (-0.1, 0.15),
+            "ndvi_peak": 0.75,
+            "ndvi_range": (0.3, 0.82),
+            "evi_peak": 0.55,
+            "peak_month": 3,
+            "growing_months": (11, 4),
+            "ndwi_range": (-0.1, 0.15),
         },
         CropType.BARLEY: {
-            "ndvi_peak": 0.68, "ndvi_range": (0.25, 0.72), "evi_peak": 0.48,
-            "peak_month": 2, "growing_months": (10, 3), "ndwi_range": (-0.15, 0.1),
+            "ndvi_peak": 0.68,
+            "ndvi_range": (0.25, 0.72),
+            "evi_peak": 0.48,
+            "peak_month": 2,
+            "growing_months": (10, 3),
+            "ndwi_range": (-0.15, 0.1),
         },
         CropType.RICE: {
-            "ndvi_peak": 0.80, "ndvi_range": (0.15, 0.85), "evi_peak": 0.60,
-            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (0.1, 0.45),
+            "ndvi_peak": 0.80,
+            "ndvi_range": (0.15, 0.85),
+            "evi_peak": 0.60,
+            "peak_month": 8,
+            "growing_months": (5, 10),
+            "ndwi_range": (0.1, 0.45),
         },
         CropType.CORN: {
-            "ndvi_peak": 0.78, "ndvi_range": (0.2, 0.82), "evi_peak": 0.58,
-            "peak_month": 7, "growing_months": (4, 9), "ndwi_range": (-0.05, 0.2),
+            "ndvi_peak": 0.78,
+            "ndvi_range": (0.2, 0.82),
+            "evi_peak": 0.58,
+            "peak_month": 7,
+            "growing_months": (4, 9),
+            "ndwi_range": (-0.05, 0.2),
         },
         CropType.COTTON: {
-            "ndvi_peak": 0.65, "ndvi_range": (0.2, 0.70), "evi_peak": 0.45,
-            "peak_month": 8, "growing_months": (4, 10), "ndwi_range": (-0.1, 0.1),
+            "ndvi_peak": 0.65,
+            "ndvi_range": (0.2, 0.70),
+            "evi_peak": 0.45,
+            "peak_month": 8,
+            "growing_months": (4, 10),
+            "ndwi_range": (-0.1, 0.1),
         },
         CropType.SOYBEAN: {
-            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.78), "evi_peak": 0.52,
-            "peak_month": 7, "growing_months": (5, 10), "ndwi_range": (-0.05, 0.15),
+            "ndvi_peak": 0.72,
+            "ndvi_range": (0.2, 0.78),
+            "evi_peak": 0.52,
+            "peak_month": 7,
+            "growing_months": (5, 10),
+            "ndwi_range": (-0.05, 0.15),
         },
         CropType.VEGETABLES: {
-            "ndvi_peak": 0.60, "ndvi_range": (0.25, 0.65), "evi_peak": 0.42,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.1, 0.2),
+            "ndvi_peak": 0.60,
+            "ndvi_range": (0.25, 0.65),
+            "evi_peak": 0.42,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.1, 0.2),
         },
         CropType.FRUIT_TREES: {
-            "ndvi_peak": 0.55, "ndvi_range": (0.35, 0.60), "evi_peak": 0.38,
-            "peak_month": 6, "growing_months": (1, 12), "ndwi_range": (-0.15, 0.05),
+            "ndvi_peak": 0.55,
+            "ndvi_range": (0.35, 0.60),
+            "evi_peak": 0.38,
+            "peak_month": 6,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.15, 0.05),
         },
         CropType.DATE_PALM: {
-            "ndvi_peak": 0.45, "ndvi_range": (0.30, 0.50), "evi_peak": 0.30,
-            "peak_month": 7, "growing_months": (1, 12), "ndwi_range": (-0.2, 0.0),
+            "ndvi_peak": 0.45,
+            "ndvi_range": (0.30, 0.50),
+            "evi_peak": 0.30,
+            "peak_month": 7,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.2, 0.0),
         },
         CropType.ALFALFA: {
-            "ndvi_peak": 0.70, "ndvi_range": (0.35, 0.75), "evi_peak": 0.50,
-            "peak_month": None, "growing_months": (1, 12), "ndwi_range": (-0.05, 0.15),
+            "ndvi_peak": 0.70,
+            "ndvi_range": (0.35, 0.75),
+            "evi_peak": 0.50,
+            "peak_month": None,
+            "growing_months": (1, 12),
+            "ndwi_range": (-0.05, 0.15),
         },
         CropType.SORGHUM: {
-            "ndvi_peak": 0.72, "ndvi_range": (0.2, 0.76), "evi_peak": 0.52,
-            "peak_month": 8, "growing_months": (5, 10), "ndwi_range": (-0.1, 0.1),
+            "ndvi_peak": 0.72,
+            "ndvi_range": (0.2, 0.76),
+            "evi_peak": 0.52,
+            "peak_month": 8,
+            "growing_months": (5, 10),
+            "ndwi_range": (-0.1, 0.1),
         },
         CropType.FALLOW: {
-            "ndvi_peak": 0.18, "ndvi_range": (0.05, 0.22), "evi_peak": 0.10,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.1),
+            "ndvi_peak": 0.18,
+            "ndvi_range": (0.05, 0.22),
+            "evi_peak": 0.10,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.3, -0.1),
         },
         CropType.GREENHOUSE: {
-            "ndvi_peak": 0.10, "ndvi_range": (-0.05, 0.25), "evi_peak": 0.08,
-            "peak_month": None, "growing_months": None, "ndwi_range": (-0.3, -0.05),
+            "ndvi_peak": 0.10,
+            "ndvi_range": (-0.05, 0.25),
+            "evi_peak": 0.08,
+            "peak_month": None,
+            "growing_months": None,
+            "ndwi_range": (-0.3, -0.05),
         },
     }
 
     # Geometric feature ranges for crop types
-    CROP_GEOMETRIC_PROFILES = {
+    CROP_GEOMETRIC_PROFILES: dict[CropType, dict[str, Any]] = {
         CropType.WHEAT: {"area_range": (0.5, 100), "compactness_min": 0.3, "rectangularity_min": 0.5},
         CropType.RICE: {"area_range": (0.1, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
         CropType.CORN: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
@@ -2008,7 +2070,7 @@ class CropClassificationEngine:
             # Update parcel crop_type
             parcel.crop_type = final_result.predicted_crop.value
 
-        crop_counts = {}
+        crop_counts: dict[str, int] = {}
         for r in results:
             crop_counts[r.predicted_crop.value] = crop_counts.get(r.predicted_crop.value, 0) + 1
 
@@ -2727,8 +2789,10 @@ class ParcelEditingTools:
 
     def _segment_intersection(
         self,
-        a1: tuple[float, float], a2: tuple[float, float],
-        b1: tuple[float, float], b2: tuple[float, float],
+        a1: tuple[float, float],
+        a2: tuple[float, float],
+        b1: tuple[float, float],
+        b2: tuple[float, float],
     ) -> tuple[float, float] | None:
         """Find intersection point of two line segments"""
         dx1, dy1 = a2[0] - a1[0], a2[1] - a1[1]
@@ -2790,8 +2854,9 @@ class ParcelEditingTools:
 
         for p in sorted_pts[2:]:
             while len(hull) > 1:
-                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - \
-                        (hull[-1][1] - hull[-2][1]) * (p[0] - hull[-2][0])
+                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (
+                    p[0] - hull[-2][0]
+                )
                 if cross <= 0:
                     hull.pop()
                 else:
@@ -2809,9 +2874,10 @@ class ParcelEditingTools:
             c1, c2 = coords[i], coords[(i + 1) % n]
             dlat = math.radians(c2[1] - c1[1])
             dlon = math.radians(c2[0] - c1[0])
-            a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(c1[1])) * math.cos(
-                math.radians(c2[1])
-            ) * math.sin(dlon / 2) ** 2
+            a = (
+                math.sin(dlat / 2) ** 2
+                + math.cos(math.radians(c1[1])) * math.cos(math.radians(c2[1])) * math.sin(dlon / 2) ** 2
+            )
             perimeter += 6371000 * 2 * math.asin(math.sqrt(a))
         return perimeter
 
@@ -2882,11 +2948,13 @@ class QualityInspectionTool:
         for parcel in parcels:
             parcel_issues = self._inspect_parcel(parcel)
             if parcel_issues:
-                issues.append({
-                    "parcel_id": parcel.parcel_id,
-                    "issues": parcel_issues,
-                    "status": "failed",
-                })
+                issues.append(
+                    {
+                        "parcel_id": parcel.parcel_id,
+                        "issues": parcel_issues,
+                        "status": "failed",
+                    }
+                )
                 failed += 1
             else:
                 passed += 1
@@ -2965,10 +3033,13 @@ class QualityInspectionTool:
 
     def _segments_intersect(
         self,
-        a1: tuple[float, float], a2: tuple[float, float],
-        b1: tuple[float, float], b2: tuple[float, float],
+        a1: tuple[float, float],
+        a2: tuple[float, float],
+        b1: tuple[float, float],
+        b2: tuple[float, float],
     ) -> bool:
         """Check if two line segments intersect"""
+
         def cross(o, a, b):
             return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
@@ -3055,8 +3126,8 @@ class QualityInspectionTool:
             return {"total": 0}
 
         areas = [p.area_hectares for p in parcels]
-        crop_types = {}
-        land_covers = {}
+        crop_types: dict[str, int] = {}
+        land_covers: dict[str, int] = {}
 
         for p in parcels:
             ct = p.crop_type or "unknown"

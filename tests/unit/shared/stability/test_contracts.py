@@ -58,8 +58,7 @@ class TestEventEnvelopeValidation:
         report = validator.validate_event_envelope(event_data)
 
         type_violations = [
-            v for v in report.violations
-            if "type" in v.message.lower() and v.severity == ContractSeverity.BREAKING
+            v for v in report.violations if "type" in v.message.lower() and v.severity == ContractSeverity.BREAKING
         ]
         assert len(type_violations) > 0
 

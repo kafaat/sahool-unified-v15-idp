@@ -1783,9 +1783,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_large_batch(self):
         """Test batch with many items."""
-        items = [
-            FieldOperationItem(field_id=f"field_{i:04d}", area_hectares=1.0) for i in range(100)
-        ]
+        items = [FieldOperationItem(field_id=f"field_{i:04d}", area_hectares=1.0) for i in range(100)]
 
         batch = BatchOperation(
             tenant_id="farm_001",
@@ -2083,9 +2081,7 @@ class TestBatchOperationsIntegration:
                 water_amount_mm=30.0,
                 method="drip",
             ),
-            field_items=[
-                FieldOperationItem(field_id=f"field_{i}", area_hectares=5.0) for i in range(5)
-            ],
+            field_items=[FieldOperationItem(field_id=f"field_{i}", area_hectares=5.0) for i in range(5)],
             config=BatchConfig(
                 max_concurrent=2,
                 retry_failed_items=True,

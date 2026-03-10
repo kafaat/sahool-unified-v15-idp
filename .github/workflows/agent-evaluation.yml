@@ -327,6 +327,7 @@ jobs:
   regression-detection:
     name: Detect Performance Regression
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: agent-evaluation
     if: github.event_name == 'pull_request'
 
@@ -371,6 +372,7 @@ jobs:
   update-baseline:
     name: Update Evaluation Baseline
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: agent-evaluation
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 

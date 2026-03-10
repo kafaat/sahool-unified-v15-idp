@@ -145,9 +145,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \\
         modified = True
 
     # Pattern 3: Requirements installation (standalone)
-    req_install_pattern = (
-        r"RUN pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt"
-    )
+    req_install_pattern = r"RUN pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt"
     req_install_replacement = """# Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun mirror first (fast in China), fallback to official PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \\

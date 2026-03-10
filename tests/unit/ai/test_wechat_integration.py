@@ -654,10 +654,7 @@ class AutoReplierAgent:
         await self._handle_message(message)
 
         # Check if a reply was sent
-        if (
-            self._reply_history
-            and self._reply_history[-1]["original_message_id"] == message.message_id
-        ):
+        if self._reply_history and self._reply_history[-1]["original_message_id"] == message.message_id:
             reply_id = self._reply_history[-1]["reply_message_id"]
             messages = self.client._messages.get(message.chat_id, [])
             for msg in messages:

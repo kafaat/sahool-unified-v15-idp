@@ -103,9 +103,7 @@ class TestOpenAPICoverage:
             endpoints = get_openapi_endpoints(spec_file)
             total_endpoints += len(endpoints)
 
-        assert total_endpoints >= 50, (
-            f"Expected at least 50 documented endpoints, found {total_endpoints}"
-        )
+        assert total_endpoints >= 50, f"Expected at least 50 documented endpoints, found {total_endpoints}"
 
     def test_openapi_readme_lists_most_specs(self):
         """OpenAPI README should reference most spec files."""
@@ -158,12 +156,8 @@ class TestServiceOpenAPIAlignment:
             endpoints = get_service_endpoints(service_dir)
             endpoint_paths = [path for _, path in endpoints]
 
-            assert "/healthz" in endpoint_paths, (
-                f"{service_name} missing /healthz endpoint"
-            )
-            assert "/readyz" in endpoint_paths, (
-                f"{service_name} missing /readyz endpoint"
-            )
+            assert "/healthz" in endpoint_paths, f"{service_name} missing /healthz endpoint"
+            assert "/readyz" in endpoint_paths, f"{service_name} missing /readyz endpoint"
 
     def test_advisory_service_endpoints_documented(self):
         """Advisory service key endpoints should be documented in OpenAPI."""
@@ -248,10 +242,7 @@ class TestGovernanceAlignment:
         total = len(services)
         if total > 0:
             missing_pct = len(missing) / total
-            assert missing_pct < 0.3, (
-                f"{len(missing)}/{total} active services missing directories: "
-                f"{missing[:10]}..."
-            )
+            assert missing_pct < 0.3, f"{len(missing)}/{total} active services missing directories: {missing[:10]}..."
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -285,8 +276,19 @@ class TestDockerComposeAlignment:
 
         for name, config in services.items():
             # Skip infrastructure services
-            if name in ("postgres", "redis", "nats", "kong", "pgbouncer", "vault",
-                        "minio", "prometheus", "grafana", "jaeger", "qdrant"):
+            if name in (
+                "postgres",
+                "redis",
+                "nats",
+                "kong",
+                "pgbouncer",
+                "vault",
+                "minio",
+                "prometheus",
+                "grafana",
+                "jaeger",
+                "qdrant",
+            ):
                 continue
 
             if isinstance(config, dict) and config.get("build"):
@@ -351,6 +353,5 @@ class TestCrossServiceContracts:
         if subjects:
             invalid_pct = len(invalid) / len(subjects)
             assert invalid_pct < 0.2, (
-                f"{len(invalid)}/{len(subjects)} NATS subjects don't follow convention: "
-                f"{invalid[:5]}"
+                f"{len(invalid)}/{len(subjects)} NATS subjects don't follow convention: {invalid[:5]}"
             )

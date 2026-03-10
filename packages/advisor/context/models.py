@@ -50,9 +50,7 @@ class HistoricalContext:
             "average_yield_kg_per_hectare": self.average_yield_kg_per_hectare,
             "common_issues": self.common_issues,
             "successful_practices": self.successful_practices,
-            "last_soil_test_date": (
-                self.last_soil_test_date.isoformat() if self.last_soil_test_date else None
-            ),
+            "last_soil_test_date": (self.last_soil_test_date.isoformat() if self.last_soil_test_date else None),
             "soil_test_results": self.soil_test_results,
         }
 

@@ -16,6 +16,7 @@ import hashlib
 import hmac
 import logging
 import os
+import structlog
 
 # Authentication imports
 import sys
@@ -68,7 +69,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
+logger = structlog.get_logger("sahool-billing")
 
 
 def _sanitize_log(value: Any) -> str:
@@ -510,7 +511,7 @@ try:
     rate_limiter = setup_rate_limiting(
         app,
         use_redis=os.getenv("REDIS_URL") is not None,
-        exclude_paths=["/healthz", "/v1/webhooks/stripe", "/v1/webhooks/tharwatt"],
+        exclude_paths=["/healthz", "/api/v1/webhooks/stripe", "/api/v1/webhooks/tharwatt"],
     )
     logger.info("Rate limiting enabled for billing-core")
 except ImportError:
@@ -1762,7 +1763,7 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
     }
 
 
-@app.get("/v1/plans")
+@app.get("/api/v1/plans")
 async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db)):
     """قائمة الخطط المتاحة"""
     repo = BillingRepository(db)
@@ -1789,7 +1790,7 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
     }
 
 
-@app.get("/v1/plans/{plan_id}")
+@app.get("/api/v1/plans/{plan_id}")
 async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
     """تفاصيل خطة محددة"""
     repo = BillingRepository(db)
@@ -1821,7 +1822,7 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
     }
 
 
-@app.post("/v1/plans")
+@app.post("/api/v1/plans")
 async def create_plan(
     request: CreatePlanRequest,
     current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
@@ -1891,7 +1892,7 @@ async def create_plan(
 # =============================================================================
 
 
-@app.post("/v1/tenants")
+@app.post("/api/v1/tenants")
 async def create_tenant(
     request: CreateTenantRequest,
     db: AsyncSession = Depends(get_db),
@@ -1944,7 +1945,7 @@ async def create_tenant(
     }
 
 
-@app.get("/v1/tenants/{tenant_id}")
+@app.get("/api/v1/tenants/{tenant_id}")
 async def get_tenant(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
@@ -1998,7 +1999,7 @@ async def get_tenant(
     }
 
 
-@app.get("/v1/tenants/{tenant_id}/subscription")
+@app.get("/api/v1/tenants/{tenant_id}/subscription")
 async def get_subscription(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
@@ -2046,7 +2047,7 @@ async def get_subscription(
     }
 
 
-@app.patch("/v1/tenants/{tenant_id}/subscription")
+@app.patch("/api/v1/tenants/{tenant_id}/subscription")
 async def update_subscription(
     tenant_id: str,
     request: UpdateSubscriptionRequest,
@@ -2199,7 +2200,7 @@ async def update_subscription(
     }
 
 
-@app.post("/v1/tenants/{tenant_id}/cancel")
+@app.post("/api/v1/tenants/{tenant_id}/cancel")
 async def cancel_subscription(
     tenant_id: str,
     immediate: bool = False,
@@ -2241,7 +2242,7 @@ async def cancel_subscription(
 # =============================================================================
 
 
-@app.post("/v1/tenants/{tenant_id}/usage")
+@app.post("/api/v1/tenants/{tenant_id}/usage")
 async def record_usage(
     tenant_id: str,
     request: RecordUsageRequest,
@@ -2287,7 +2288,7 @@ async def record_usage(
     }
 
 
-@app.get("/v1/tenants/{tenant_id}/quota")
+@app.get("/api/v1/tenants/{tenant_id}/quota")
 async def get_quota(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
@@ -2333,7 +2334,7 @@ async def get_quota(
     }
 
 
-@app.get("/v1/enforce")
+@app.get("/api/v1/enforce")
 async def enforce_quota(
     x_tenant_id: str | None = Header(default=None),
     metric: str = Query(...),
@@ -2370,7 +2371,7 @@ async def enforce_quota(
 # =============================================================================
 
 
-@app.get("/v1/tenants/{tenant_id}/invoices")
+@app.get("/api/v1/tenants/{tenant_id}/invoices")
 async def list_invoices(
     tenant_id: str,
     status: InvoiceStatus | None = None,
@@ -2416,7 +2417,7 @@ async def list_invoices(
     }
 
 
-@app.get("/v1/invoices/{invoice_id}")
+@app.get("/api/v1/invoices/{invoice_id}")
 async def get_invoice(
     invoice_id: str,
     current_user=Depends(get_current_active_user),
@@ -2477,7 +2478,7 @@ async def get_invoice(
     }
 
 
-@app.post("/v1/tenants/{tenant_id}/invoices/generate")
+@app.post("/api/v1/tenants/{tenant_id}/invoices/generate")
 async def generate_tenant_invoice(
     tenant_id: str,
     background_tasks: BackgroundTasks,
@@ -2610,7 +2611,7 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
 
 
-@app.post("/v1/payments")
+@app.post("/api/v1/payments")
 async def create_payment(
     request: CreatePaymentRequest,
     background_tasks: BackgroundTasks,
@@ -2740,7 +2741,7 @@ async def create_payment(
     }
 
 
-@app.get("/v1/tenants/{tenant_id}/payments")
+@app.get("/api/v1/tenants/{tenant_id}/payments")
 async def list_payments(
     tenant_id: str,
     limit: int = Query(default=20, le=100),
@@ -2786,7 +2787,7 @@ class RefundRequest(BaseModel):
     reason_ar: str | None = None
 
 
-@app.post("/v1/refunds")
+@app.post("/api/v1/refunds")
 async def create_refund(
     request: RefundRequest,
     background_tasks: BackgroundTasks,
@@ -2990,7 +2991,7 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
         return False
 
 
-@app.post("/v1/webhooks/tharwatt")
+@app.post("/api/v1/webhooks/tharwatt")
 async def tharwatt_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -3139,7 +3140,7 @@ def verify_stripe_signature(payload: bytes, signature: str) -> bool:
         return False
 
 
-@app.post("/v1/webhooks/stripe")
+@app.post("/api/v1/webhooks/stripe")
 async def stripe_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -3264,7 +3265,7 @@ async def stripe_webhook(
 # =============================================================================
 
 
-@app.get("/v1/reports/revenue")
+@app.get("/api/v1/reports/revenue")
 async def get_revenue_report(
     start_date: date | None = None,
     end_date: date | None = None,
@@ -3319,7 +3320,7 @@ async def get_revenue_report(
     }
 
 
-@app.get("/v1/reports/subscriptions")
+@app.get("/api/v1/reports/subscriptions")
 async def get_subscriptions_report(
     current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
     db: AsyncSession = Depends(get_db),
@@ -3354,6 +3355,26 @@ async def get_subscriptions_report(
         "mrr_yer": float(convert_to_yer(mrr)),
         "total_tenants": total_tenants,
     }
+
+
+# ---------------------------------------------------------------------------
+# Backward-compatible route aliases (deprecated, remove in v17.0.0)
+# Clients/tests using the old /v1/... paths will continue to work.
+# New integrations should use /api/v1/... paths.
+# ---------------------------------------------------------------------------
+_v1_prefix = "/api/v1"
+for _route in list(app.routes):
+    _path = getattr(_route, "path", "")
+    if _path.startswith(_v1_prefix):
+        _old_path = "/v1" + _path[len(_v1_prefix):]
+        app.router.add_api_route(
+            _old_path,
+            _route.endpoint,
+            methods=[m for m in _route.methods] if _route.methods else ["GET"],
+            tags=["deprecated"],
+            include_in_schema=False,
+            deprecated=True,
+        )
 
 
 if __name__ == "__main__":

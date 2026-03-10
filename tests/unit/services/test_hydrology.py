@@ -424,9 +424,7 @@ class TestWaterloggingPrediction:
         soil_moisture = weather["current"]["soil_moisture_percent"]
 
         # Sum expected rainfall over next 7 days
-        total_expected_rain = sum(
-            day["precipitation_mm"] * day["probability"] for day in weather["forecast_7d"]
-        )
+        total_expected_rain = sum(day["precipitation_mm"] * day["probability"] for day in weather["forecast_7d"])
 
         # Risk factors
         current_moisture_risk = soil_moisture / 100  # 0-1 scale
@@ -487,9 +485,7 @@ class TestWaterloggingPrediction:
             rain_increase = day["precipitation_mm"] * 0.5
             evaporation_decrease = 2.0  # Base daily evaporation
 
-            new_moisture = min(
-                100, max(0, daily_moisture[-1] + rain_increase - evaporation_decrease)
-            )
+            new_moisture = min(100, max(0, daily_moisture[-1] + rain_increase - evaporation_decrease))
             daily_moisture.append(new_moisture)
 
             # Risk based on moisture level

@@ -211,9 +211,7 @@ class TestCropHealthAI:
         response = await http_client.post(
             url,
             files=files,
-            headers={
-                "Authorization": auth_headers["Authorization"]
-            },  # Don't include Content-Type for multipart
+            headers={"Authorization": auth_headers["Authorization"]},  # Don't include Content-Type for multipart
         )
 
         # Assert

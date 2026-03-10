@@ -41,9 +41,7 @@ from shared.process_models.models import (
 # ---------------------------------------------------------------------------
 
 
-def _make_weather_series(
-    start: date, n_days: int = 200
-) -> list[DailyWeather]:
+def _make_weather_series(start: date, n_days: int = 200) -> list[DailyWeather]:
     """Generate synthetic weather for testing."""
     return [
         DailyWeather(
@@ -232,19 +230,14 @@ class TestCropGrowthCalibrationE2E:
         runs end-to-end without errors and produces a valid result.
         """
         # Use biomass targets (more sensitive to RUE than LAI at early stages)
-        obs_dates = [
-            sowing_date + timedelta(days=d) for d in [30, 60, 90, 120]
-        ]
+        obs_dates = [sowing_date + timedelta(days=d) for d in [30, 60, 90, 120]]
 
         # Generate 'true' biomass predictions with known RUE
         true_theta = {"rue_g_mj": 1.5}
         synthetic_targets = [
             CalibrationTarget(
                 variable="biomass",
-                observations=[
-                    CalibrationObservation(t=d.isoformat(), value=0.0, uncertainty=50.0)
-                    for d in obs_dates
-                ],
+                observations=[CalibrationObservation(t=d.isoformat(), value=0.0, uncertainty=50.0) for d in obs_dates],
             )
         ]
         true_preds = predictor.predict(true_theta, synthetic_targets)
@@ -273,9 +266,7 @@ class TestCropGrowthCalibrationE2E:
             ],
             seed=42,
         )
-        result = engine.calibrate(
-            targets=real_targets, max_iter=50, n_restarts=2
-        )
+        result = engine.calibrate(targets=real_targets, max_iter=50, n_restarts=2)
 
         assert result.success
         assert result.n_evaluations > 0

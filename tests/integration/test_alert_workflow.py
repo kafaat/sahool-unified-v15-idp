@@ -65,9 +65,7 @@ async def test_weather_alert_creation_workflow(
     }
 
     # Act - تنفيذ
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     # Assert - التحقق
     assert response.status_code in (
@@ -129,9 +127,7 @@ async def test_frost_alert_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (
         200,
@@ -199,9 +195,7 @@ async def test_pest_outbreak_alert_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -261,9 +255,7 @@ async def test_disease_detection_alert_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -318,9 +310,7 @@ async def test_soil_moisture_alert_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -374,9 +364,7 @@ async def test_temperature_threshold_alert_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -446,9 +434,7 @@ async def test_acknowledge_alert_workflow(
         "field_id": "field-test-123",
     }
 
-    create_response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    create_response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     if create_response.status_code in (200, 201):
         created_alert = create_response.json()
@@ -491,18 +477,14 @@ async def test_dismiss_alert_workflow(
         "description_ar": "صيانة الجرار مستحقة هذا الأسبوع",
     }
 
-    create_response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    create_response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     if create_response.status_code in (200, 201):
         created_alert = create_response.json()
         alert_id = created_alert.get("id") or created_alert.get("alert_id")
 
         # Dismiss the alert - رفض التنبيه
-        dismiss_response = await http_client.delete(
-            f"{alert_service_url}/v1/alerts/{alert_id}", headers=auth_headers
-        )
+        dismiss_response = await http_client.delete(f"{alert_service_url}/v1/alerts/{alert_id}", headers=auth_headers)
 
         assert dismiss_response.status_code in (200, 204, 404, 401)
 
@@ -544,9 +526,7 @@ async def test_alert_priority_workflow(
         "escalation_minutes": 5,
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=critical_alert, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=critical_alert, headers=auth_headers)
 
     if response.status_code in (200, 201):
         alert = response.json()
@@ -583,9 +563,7 @@ async def test_multi_channel_alert_delivery(
         "priority": "critical",
     }
 
-    response = await http_client.post(
-        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -613,9 +591,7 @@ async def test_alert_statistics_workflow(
     alert_service_url = service_urls.get("alert_service", "http://localhost:8113")
 
     # Get alert statistics - الحصول على إحصائيات التنبيهات
-    response = await http_client.get(
-        f"{alert_service_url}/v1/alerts/statistics", headers=auth_headers
-    )
+    response = await http_client.get(f"{alert_service_url}/v1/alerts/statistics", headers=auth_headers)
 
     if response.status_code == 200:
         stats = response.json()

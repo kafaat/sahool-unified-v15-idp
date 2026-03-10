@@ -206,9 +206,7 @@ class AuditAnomalyDetector:
         # Parse timestamps
         for entry in entries:
             if isinstance(entry.get("created_at"), str):
-                entry["_timestamp"] = datetime.fromisoformat(
-                    entry["created_at"].replace("Z", "+00:00")
-                )
+                entry["_timestamp"] = datetime.fromisoformat(entry["created_at"].replace("Z", "+00:00"))
             else:
                 entry["_timestamp"] = entry.get("created_at", datetime.now(UTC))
 
@@ -255,9 +253,7 @@ class AuditAnomalyDetector:
 
             # Calculate bounds (3 sigma)
             baseline.volume_upper_bound = baseline.avg_daily_events + 3 * baseline.std_daily_events
-            baseline.volume_lower_bound = max(
-                0, baseline.avg_daily_events - 3 * baseline.std_daily_events
-            )
+            baseline.volume_lower_bound = max(0, baseline.avg_daily_events - 3 * baseline.std_daily_events)
 
         # Calculate hourly distribution
         hourly_counts = Counter(e["_timestamp"].hour for e in entries)
@@ -271,9 +267,7 @@ class AuditAnomalyDetector:
         # Track typical actions and resources
         baseline.typical_actions = {e.get("action") for e in entries if e.get("action")}
         baseline.typical_resources = {
-            f"{e.get('resource_type')}/{e.get('resource_id')}"
-            for e in entries
-            if e.get("resource_type")
+            f"{e.get('resource_type')}/{e.get('resource_id')}" for e in entries if e.get("resource_type")
         }
 
         return baseline
@@ -302,9 +296,7 @@ class AuditAnomalyDetector:
         # Parse timestamps
         for entry in entries:
             if isinstance(entry.get("created_at"), str):
-                entry["_timestamp"] = datetime.fromisoformat(
-                    entry["created_at"].replace("Z", "+00:00")
-                )
+                entry["_timestamp"] = datetime.fromisoformat(entry["created_at"].replace("Z", "+00:00"))
             else:
                 entry["_timestamp"] = entry.get("created_at", datetime.now(UTC))
 
@@ -321,9 +313,7 @@ class AuditAnomalyDetector:
         if use_baselines and not self._baselines:
             self.build_baselines(tenant_id)
 
-        report.actor_baselines = {
-            k: v for k, v in self._baselines.items() if k.startswith("actor:")
-        }
+        report.actor_baselines = {k: v for k, v in self._baselines.items() if k.startswith("actor:")}
 
         # Run detection algorithms
         anomalies = []
@@ -365,9 +355,7 @@ class AuditAnomalyDetector:
 
         report.anomalies = anomalies
         report.anomalies_detected = len(anomalies)
-        report.critical_anomalies = sum(
-            1 for a in anomalies if a.severity == SeverityLevel.CRITICAL
-        )
+        report.critical_anomalies = sum(1 for a in anomalies if a.severity == SeverityLevel.CRITICAL)
         report.high_anomalies = sum(1 for a in anomalies if a.severity == SeverityLevel.HIGH)
 
         # Calculate threat score
@@ -411,8 +399,7 @@ class AuditAnomalyDetector:
                         anomaly_id=self._generate_anomaly_id(),
                         anomaly_type=AnomalyType.VOLUME_SPIKE,
                         severity=SeverityLevel.MEDIUM if z_score < 4 else SeverityLevel.HIGH,
-                        description=f"Volume spike detected: {count} events in hour {hour} "
-                        f"(Z-score: {z_score:.2f})",
+                        description=f"Volume spike detected: {count} events in hour {hour} (Z-score: {z_score:.2f})",
                         confidence=min(0.95, 0.5 + z_score / 10),
                         timestamp=datetime.strptime(hour, "%Y-%m-%d %H").replace(tzinfo=UTC),
                         metrics={
@@ -463,8 +450,7 @@ class AuditAnomalyDetector:
                         anomaly_id=self._generate_anomaly_id(),
                         anomaly_type=AnomalyType.UNUSUAL_TIME,
                         severity=SeverityLevel.LOW,
-                        description=f"Activity during unusual hours by {actor_id}: "
-                        f"{len(unusual_entries)} events",
+                        description=f"Activity during unusual hours by {actor_id}: {len(unusual_entries)} events",
                         confidence=0.6,
                         timestamp=unusual_entries[-1]["_timestamp"],
                         actor_id=actor_id,
@@ -523,9 +509,7 @@ class AuditAnomalyDetector:
 
             # Check for new resources
             current_resources = {
-                f"{e.get('resource_type')}/{e.get('resource_id')}"
-                for e in actor_logs
-                if e.get("resource_type")
+                f"{e.get('resource_type')}/{e.get('resource_id')}" for e in actor_logs if e.get("resource_type")
             }
             new_resources = current_resources - baseline.typical_resources
 
@@ -578,9 +562,7 @@ class AuditAnomalyDetector:
                                 confidence=0.85,
                                 timestamp=actor_logs[i]["_timestamp"],
                                 actor_id=actor_id,
-                                evidence=[
-                                    {"action": a, "index": i + j} for j, a in enumerate(window)
-                                ],
+                                evidence=[{"action": a, "index": i + j} for j, a in enumerate(window)],
                                 recommendations=[
                                     "Investigate actor's recent activity",
                                     "Consider temporary access suspension",
@@ -614,9 +596,7 @@ class AuditAnomalyDetector:
                 window_start = entry["_timestamp"]
                 window_end = window_start + timedelta(minutes=1)
 
-                window_count = sum(
-                    1 for e in actor_logs[i:] if window_start <= e["_timestamp"] <= window_end
-                )
+                window_count = sum(1 for e in actor_logs[i:] if window_start <= e["_timestamp"] <= window_end)
 
                 if window_count >= self.VELOCITY_THRESHOLD:
                     anomalies.append(
@@ -817,8 +797,7 @@ def generate_markdown_report(report: DetectionReport) -> str:
         "",
         f"> Detection Time: {report.detection_time.isoformat()}",
         f"> Tenant: {report.tenant_id}",
-        f"> Analysis Period: {report.analysis_period[0].isoformat()} to "
-        f"{report.analysis_period[1].isoformat()}"
+        f"> Analysis Period: {report.analysis_period[0].isoformat()} to {report.analysis_period[1].isoformat()}"
         if report.analysis_period
         else "",
         f"> Duration: {report.detection_duration_ms:.2f}ms",
@@ -848,9 +827,7 @@ def generate_markdown_report(report: DetectionReport) -> str:
         lines.append("")
 
     # Critical and High anomalies
-    critical_high = [
-        a for a in report.anomalies if a.severity in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)
-    ]
+    critical_high = [a for a in report.anomalies if a.severity in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)]
 
     if critical_high:
         lines.extend(
@@ -883,11 +860,7 @@ def generate_markdown_report(report: DetectionReport) -> str:
             lines.append("")
 
     # Medium and Low anomalies summary
-    other = [
-        a
-        for a in report.anomalies
-        if a.severity not in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)
-    ]
+    other = [a for a in report.anomalies if a.severity not in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)]
 
     if other:
         lines.extend(

@@ -241,20 +241,20 @@ class DroneFlightPlanner:
             line_lon = center_lon - (side_m / 2.0) * deg_per_meter_lon + (i + 0.5) * line_spacing_deg
             if i % 2 == 0:
                 # Even lines: fly south→north
-                waypoints.append(Waypoint(
-                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
-                ))
-                waypoints.append(Waypoint(
-                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
-                ))
+                waypoints.append(
+                    Waypoint(latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m)
+                )
+                waypoints.append(
+                    Waypoint(latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m)
+                )
             else:
                 # Odd lines: fly north→south (reversed direction)
-                waypoints.append(Waypoint(
-                    latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m
-                ))
-                waypoints.append(Waypoint(
-                    latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m
-                ))
+                waypoints.append(
+                    Waypoint(latitude=center_lat + half_side_lat, longitude=line_lon, altitude_m=altitude_m)
+                )
+                waypoints.append(
+                    Waypoint(latitude=center_lat - half_side_lat, longitude=line_lon, altitude_m=altitude_m)
+                )
 
         return FlightPlan(
             plan_id=f"FLT-{field_id}-{datetime.now().strftime('%Y%m%d%H%M')}",

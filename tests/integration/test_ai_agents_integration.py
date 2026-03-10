@@ -98,9 +98,7 @@ class TestAIAgentsIntegration:
         return AgentExecutionFactory()
 
     @pytest.fixture
-    async def agent_client(
-        self, http_client: AsyncClient, auth_headers: dict[str, str]
-    ) -> AsyncClient:
+    async def agent_client(self, http_client: AsyncClient, auth_headers: dict[str, str]) -> AsyncClient:
         """HTTP client configured for AI Agents service."""
         http_client.base_url = self.SERVICE_URL
         http_client.headers.update(auth_headers)
@@ -361,9 +359,7 @@ class TestAIAgentsIntegration:
         await agent_client.post("/api/v1/agents/execute", json=request_data)
 
         # List running executions
-        response = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_id}&status=running"
-        )
+        response = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_id}&status=running")
 
         assert response.status_code == 200
         executions = response.json()
@@ -743,9 +739,7 @@ class TestAIAgentsIntegration:
         assert len(set(execution_ids)) == num_executions
 
         # List should show all executions
-        list_response = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_id}&limit=100"
-        )
+        list_response = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_id}&limit=100")
         assert list_response.status_code == 200
         executions = list_response.json()
         assert len(executions) >= num_executions

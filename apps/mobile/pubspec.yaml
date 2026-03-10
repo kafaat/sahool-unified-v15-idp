@@ -37,6 +37,7 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0  # Required by flutter_local_notifications for scheduled notifications
 
   # Firebase Cloud Messaging (FCM)
   # Note: Requires google-services.json for Android and GoogleService-Info.plist for iOS

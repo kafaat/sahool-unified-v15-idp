@@ -41,9 +41,7 @@ class QdrantVectorStore(VectorStore):
             vector_size: Dimension of embedding vectors (default: 384 for MiniLM)
         """
         if not QDRANT_AVAILABLE:
-            raise RuntimeError(
-                "qdrant-client not installed. Install with: pip install qdrant-client"
-            )
+            raise RuntimeError("qdrant-client not installed. Install with: pip install qdrant-client")
         self._client = QdrantClient(url=url)
         self._vector_size = vector_size
 

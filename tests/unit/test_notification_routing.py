@@ -1,4 +1,5 @@
 """Test notification routing logic for multi-channel notifications."""
+
 import pytest
 
 
@@ -52,7 +53,7 @@ class TestNotificationPayload:
             "body": "Immediate action required in Field-003",
             "body_ar": "\u0645\u0637\u0644\u0648\u0628 \u0625\u062c\u0631\u0627\u0621 \u0641\u0648\u0631\u064a \u0641\u064a \u0627\u0644\u062d\u0642\u0644 003",
             "channels": ["push", "whatsapp", "sms"],
-            "data": {"field_id": "FIELD-003", "pest_type": "rpw"}
+            "data": {"field_id": "FIELD-003", "pest_type": "rpw"},
         }
 
         assert payload["priority"] == "critical"

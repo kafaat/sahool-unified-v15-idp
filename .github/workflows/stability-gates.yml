@@ -17,6 +17,9 @@ on:
     # Run drift detection daily at 06:00 UTC
     - cron: '0 6 * * *'
 
+permissions:
+  contents: read
+
 concurrency:
   group: stability-${{ github.ref }}
   cancel-in-progress: true

@@ -43,6 +43,7 @@ jobs:
   setup-tests:
     name: Setup E2E Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       tests_exist: ${{ steps.check.outputs.exists }}
 
@@ -256,6 +257,7 @@ jobs:
   playwright-tests:
     name: Run E2E Tests (${{ matrix.browser }})
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: setup-tests
     # Only run if E2E_BASE_URL secret is set (external server available)
     # or skip with informative message
@@ -364,6 +366,7 @@ jobs:
   visual-regression:
     name: Visual Regression Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: setup-tests
     # Only run visual regression tests when explicitly enabled
     if: ${{ github.event_name == 'pull_request' && vars.VISUAL_TESTS_ENABLED == 'true' }}
@@ -482,6 +485,7 @@ jobs:
   test-summary:
     name: E2E Test Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [playwright-tests]
     if: always()
 

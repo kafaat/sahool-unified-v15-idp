@@ -1,4 +1,5 @@
 """Tests for Arabic dialect support."""
+
 import pytest
 from shared.nlp.dialect_support import (
     ArabicDialectProcessor,
@@ -59,7 +60,6 @@ class TestTermTranslation:
 
 class TestDialectVocabulary:
     def test_all_dialects_have_vocabulary(self):
-        for dialect in [ArabicDialect.YEMENI, ArabicDialect.SAUDI,
-                       ArabicDialect.IRAQI, ArabicDialect.EGYPTIAN]:
+        for dialect in [ArabicDialect.YEMENI, ArabicDialect.SAUDI, ArabicDialect.IRAQI, ArabicDialect.EGYPTIAN]:
             assert dialect in DIALECT_VOCABULARY
             assert len(DIALECT_VOCABULARY[dialect]) > 5

@@ -84,9 +84,7 @@ class AuthMiddleware:
 @pytest.fixture
 def auth_middleware():
     """Create auth middleware instance."""
-    return AuthMiddleware(
-        secret_key=TEST_SECRET_KEY, excluded_paths=["/healthz", "/readyz", "/docs", "/openapi.json"]
-    )
+    return AuthMiddleware(secret_key=TEST_SECRET_KEY, excluded_paths=["/healthz", "/readyz", "/docs", "/openapi.json"])
 
 
 @pytest.fixture
@@ -350,9 +348,7 @@ class TestMiddlewareConfiguration:
 
     def test_custom_excluded_paths(self):
         """Test custom excluded paths configuration."""
-        middleware = AuthMiddleware(
-            secret_key=TEST_SECRET_KEY, excluded_paths=["/custom/path", "/another/path"]
-        )
+        middleware = AuthMiddleware(secret_key=TEST_SECRET_KEY, excluded_paths=["/custom/path", "/another/path"])
 
         assert middleware.is_excluded_path("/custom/path")
         assert middleware.is_excluded_path("/another/path")

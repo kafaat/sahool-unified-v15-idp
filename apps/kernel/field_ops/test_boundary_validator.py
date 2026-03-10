@@ -6,9 +6,7 @@
 Comprehensive examples of using the field boundary validation service
 """
 
-from pathlib import Path
-
-from services.boundary_validator import (
+from apps.kernel.field_ops.services.boundary_validator import (
     AREA_LIMITS,
     YEMEN_BOUNDS,
     YEMEN_GOVERNORATES,

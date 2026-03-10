@@ -1,7 +1,6 @@
 """Health endpoint tests for terrain-core-service."""
 
 
-
 class TestHealthEndpoints:
     """Test health check endpoints."""
 

@@ -81,11 +81,7 @@ class PasswordMigrator:
         """
         if password_hash.startswith("$argon2"):
             return HashAlgorithm.ARGON2ID
-        elif (
-            password_hash.startswith("$2a$")
-            or password_hash.startswith("$2b$")
-            or password_hash.startswith("$2y$")
-        ):
+        elif password_hash.startswith("$2a$") or password_hash.startswith("$2b$") or password_hash.startswith("$2y$"):
             return HashAlgorithm.BCRYPT
         elif "$" in password_hash and len(password_hash.split("$")) >= 2:
             return HashAlgorithm.PBKDF2_SHA256
@@ -260,9 +256,7 @@ class PasswordMigrator:
         logger.info("Migration Summary")
         logger.info("=" * 80)
         logger.info(f"Total users processed:       {self.stats['total']}")
-        logger.info(
-            f"  - Argon2id (up to date):   {self.stats['argon2id'] - self.stats.get('argon2id_updated', 0)}"
-        )
+        logger.info(f"  - Argon2id (up to date):   {self.stats['argon2id'] - self.stats.get('argon2id_updated', 0)}")
         logger.info(f"  - bcrypt (legacy):         {self.stats['bcrypt']}")
         logger.info(f"  - PBKDF2 (legacy):         {self.stats['pbkdf2']}")
         logger.info(f"  - Unknown format:          {self.stats['unknown']}")

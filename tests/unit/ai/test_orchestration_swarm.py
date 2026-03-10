@@ -280,18 +280,10 @@ class SwarmCoordinator:
     def _select_agents(self, agent_ids: list[str] | None) -> list[SwarmAgent]:
         """Select agents for task execution"""
         if agent_ids:
-            return [
-                self.agents[aid]
-                for aid in agent_ids
-                if aid in self.agents and self.agents[aid].is_active
-            ]
+            return [self.agents[aid] for aid in agent_ids if aid in self.agents and self.agents[aid].is_active]
 
         # Select available agents with capacity
-        available = [
-            agent
-            for agent in self.agents.values()
-            if agent.is_active and agent.current_load < agent.capacity
-        ]
+        available = [agent for agent in self.agents.values() if agent.is_active and agent.current_load < agent.capacity]
 
         return available
 
@@ -459,9 +451,7 @@ class SwarmCoordinator:
 
         # Find aggregator agents
         aggregators = [
-            agent
-            for agent in self.agents.values()
-            if agent.role == AgentRole.AGGREGATOR and agent.is_active
+            agent for agent in self.agents.values() if agent.role == AgentRole.AGGREGATOR and agent.is_active
         ]
 
         if aggregators:
@@ -733,9 +723,7 @@ class TestCoordinateAgentsExecutesTask:
     """Tests for coordinate_agents executing tasks."""
 
     @pytest.mark.asyncio
-    async def test_coordinate_agents_executes_task(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_coordinate_agents_executes_task(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that coordinate_agents successfully executes a task."""
         result = await star_coordinator.coordinate_agents(swarm_task)
 
@@ -748,9 +736,7 @@ class TestCoordinateAgentsExecutesTask:
         self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
     ):
         """Test coordination with specific agent selection."""
-        result = await star_coordinator.coordinate_agents(
-            swarm_task, agent_ids=["worker_001", "worker_002"]
-        )
+        result = await star_coordinator.coordinate_agents(swarm_task, agent_ids=["worker_001", "worker_002"])
 
         assert result.success is True
         assert len(result.agents_participated) == 2
@@ -769,9 +755,7 @@ class TestCoordinateAgentsExecutesTask:
         assert task.completed_at is not None
 
     @pytest.mark.asyncio
-    async def test_coordinate_agents_collects_results(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_coordinate_agents_collects_results(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that agent results are collected."""
         result = await star_coordinator.coordinate_agents(swarm_task)
 
@@ -810,9 +794,7 @@ class TestAggregateResultsCombinesOutputs:
     """Tests for result aggregation."""
 
     @pytest.mark.asyncio
-    async def test_aggregate_results_combines_outputs(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_aggregate_results_combines_outputs(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that aggregate_results combines agent outputs."""
         agent_results = {
             "worker_001": {"value": 10},
@@ -827,9 +809,7 @@ class TestAggregateResultsCombinesOutputs:
         assert aggregated["agent_count"] == 3
 
     @pytest.mark.asyncio
-    async def test_aggregate_results_uses_aggregator_agent(
-        self, aggregator_handler: Callable, swarm_task: SwarmTask
-    ):
+    async def test_aggregate_results_uses_aggregator_agent(self, aggregator_handler: Callable, swarm_task: SwarmTask):
         """Test that aggregator agent is used when available."""
         coordinator = SwarmCoordinator()
         await coordinator.spawn_swarm(
@@ -850,18 +830,14 @@ class TestAggregateResultsCombinesOutputs:
         assert aggregated["total_results"] == 2
 
     @pytest.mark.asyncio
-    async def test_aggregate_results_empty_results(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_aggregate_results_empty_results(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test aggregation with empty results."""
         aggregated = await star_coordinator.aggregate_results(swarm_task, {})
 
         assert aggregated is None
 
     @pytest.mark.asyncio
-    async def test_aggregate_results_preserves_task_id(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_aggregate_results_preserves_task_id(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that aggregation preserves task context."""
         agent_results = {"worker_001": {"value": 10}}
 
@@ -933,9 +909,7 @@ class TestSwarmTopologies:
         assert result.agent_results["stage_3"]["previous_step"] == 2
 
     @pytest.mark.asyncio
-    async def test_hierarchical_topology(
-        self, hierarchical_configs: list[dict[str, Any]], swarm_task: SwarmTask
-    ):
+    async def test_hierarchical_topology(self, hierarchical_configs: list[dict[str, Any]], swarm_task: SwarmTask):
         """Test hierarchical topology with coordinators and workers."""
         coordinator = SwarmCoordinator(topology=SwarmTopology.HIERARCHICAL)
         await coordinator.spawn_swarm(hierarchical_configs)
@@ -949,9 +923,7 @@ class TestSwarmTopologies:
             assert coordinator_result.get("coordinated") is True
 
     @pytest.mark.asyncio
-    async def test_broadcast_topology(
-        self, agent_configs: list[dict[str, Any]], swarm_task: SwarmTask
-    ):
+    async def test_broadcast_topology(self, agent_configs: list[dict[str, Any]], swarm_task: SwarmTask):
         """Test broadcast topology."""
         coordinator = SwarmCoordinator(topology=SwarmTopology.BROADCAST)
         await coordinator.spawn_swarm(agent_configs)
@@ -978,9 +950,7 @@ class TestSwarmTopologies:
 
         # Star topology - concurrent execution
         star_coord = SwarmCoordinator(topology=SwarmTopology.STAR)
-        await star_coord.spawn_swarm(
-            [{"agent_id": f"agent_{i}", "handler": tracking_handler_star} for i in range(3)]
-        )
+        await star_coord.spawn_swarm([{"agent_id": f"agent_{i}", "handler": tracking_handler_star} for i in range(3)])
 
         # Pipeline topology - sequential execution
         pipe_coord = SwarmCoordinator(topology=SwarmTopology.PIPELINE)
@@ -989,9 +959,7 @@ class TestSwarmTopologies:
         )
 
         await star_coord.coordinate_agents(swarm_task)
-        await pipe_coord.coordinate_agents(
-            SwarmTask(task_id="pipe_task", description="Pipe test", input_data={})
-        )
+        await pipe_coord.coordinate_agents(SwarmTask(task_id="pipe_task", description="Pipe test", input_data={}))
 
         assert len(execution_order_star) == 3
         assert len(execution_order_pipeline) == 3
@@ -1036,9 +1004,7 @@ class TestAgentManagement:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_agent_load_tracking(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_agent_load_tracking(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that agent load is tracked during execution."""
         # Before execution
         agent = star_coordinator.get_agent("worker_001")
@@ -1050,9 +1016,7 @@ class TestAgentManagement:
         assert agent.current_load == 0
 
     @pytest.mark.asyncio
-    async def test_inactive_agent_not_selected(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_inactive_agent_not_selected(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that inactive agents are not selected."""
         # Deactivate one agent
         star_coordinator.agents["worker_001"].is_active = False
@@ -1135,9 +1099,7 @@ class TestSwarmStatistics:
         assert stats["active_agents"] == 3
 
     @pytest.mark.asyncio
-    async def test_stats_track_completed_tasks(
-        self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask
-    ):
+    async def test_stats_track_completed_tasks(self, star_coordinator: SwarmCoordinator, swarm_task: SwarmTask):
         """Test that stats track completed tasks."""
         await star_coordinator.coordinate_agents(swarm_task)
 

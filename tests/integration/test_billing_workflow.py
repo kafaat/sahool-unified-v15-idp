@@ -62,9 +62,7 @@ async def test_create_subscription_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_result = tenant_response.json()
@@ -127,9 +125,7 @@ async def test_subscription_upgrade_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
@@ -187,9 +183,7 @@ async def test_invoice_generation_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
@@ -268,18 +262,14 @@ async def test_list_invoices_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
 
     try:
         # Step 2: List invoices - قائمة الفواتير
-        list_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/invoices", headers=auth_headers
-        )
+        list_response = await http_client.get(f"{billing_url}/v1/tenants/{tenant_id}/invoices", headers=auth_headers)
 
         if list_response.status_code == 200:
             invoices_list = list_response.json()
@@ -326,9 +316,7 @@ async def test_payment_processing_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
@@ -408,9 +396,7 @@ async def test_tharwatt_payment_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
@@ -483,9 +469,7 @@ async def test_usage_tracking_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
@@ -512,9 +496,7 @@ async def test_usage_tracking_workflow(
             assert "remaining" in usage_result
 
         # Step 3: Check quota - فحص الحصة
-        quota_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers
-        )
+        quota_response = await http_client.get(f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers)
 
         if quota_response.status_code == 200:
             quota_data = quota_response.json()
@@ -559,18 +541,14 @@ async def test_quota_enforcement_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]
 
     try:
         # Get quota to know the limit
-        quota_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers
-        )
+        quota_response = await http_client.get(f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers)
 
         if quota_response.status_code == 200:
             quota_response.json()
@@ -630,9 +608,7 @@ async def test_subscription_cancellation_workflow(
         "billing_cycle": "monthly",
     }
 
-    tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
-    )
+    tenant_response = await http_client.post(f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers)
 
     assert tenant_response.status_code == 200
     tenant_id = tenant_response.json()["tenant_id"]

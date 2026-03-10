@@ -81,9 +81,7 @@ async def test_complete_ai_advisor_workflow(
         print("✓ Received immediate answer")
 
         # Verify answer structure
-        assert "answer" in answer_data or "response" in answer_data, (
-            "Response should contain answer"
-        )
+        assert "answer" in answer_data or "response" in answer_data, "Response should contain answer"
 
         answer_text = answer_data.get("answer") or answer_data.get("response")
         print(f"\nAnswer preview: {answer_text[:200]}...")
@@ -223,9 +221,7 @@ async def test_weather_agent_integration(
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
-async def test_crop_health_agent_integration(
-    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
-):
+async def test_crop_health_agent_integration(workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]):
     """
     Test Crop Health Agent integration
     اختبار تكامل وكيل صحة المحاصيل
@@ -245,9 +241,7 @@ async def test_crop_health_agent_integration(
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
-async def test_satellite_agent_integration(
-    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
-):
+async def test_satellite_agent_integration(workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]):
     """
     Test Satellite Agent integration
     اختبار تكامل وكيل الأقمار الصناعية
@@ -328,9 +322,7 @@ async def test_rag_knowledge_base(workflow_client: httpx.AsyncClient, e2e_header
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
-async def test_semantic_search_capability(
-    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
-):
+async def test_semantic_search_capability(workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]):
     """
     Test semantic search capability
     اختبار قدرة البحث الدلالي
@@ -546,9 +538,7 @@ async def test_conversation_history(
     print("\n[Conversation History Test]")
 
     # Get user's question history
-    history_response = await workflow_client.get(
-        "http://localhost:8112/api/v1/advisor/history", headers=e2e_headers
-    )
+    history_response = await workflow_client.get("http://localhost:8112/api/v1/advisor/history", headers=e2e_headers)
 
     assert history_response.status_code in (
         200,

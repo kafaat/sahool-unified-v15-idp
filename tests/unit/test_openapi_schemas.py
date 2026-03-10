@@ -84,9 +84,7 @@ class TestOpenAPIStructure:
         """Each spec must declare OpenAPI version."""
         data = load_yaml(spec_file)
         assert "openapi" in data, f"{spec_file.name} missing 'openapi' field"
-        assert data["openapi"].startswith("3.0"), (
-            f"{spec_file.name} should use OpenAPI 3.0.x, got {data['openapi']}"
-        )
+        assert data["openapi"].startswith("3.0"), f"{spec_file.name} should use OpenAPI 3.0.x, got {data['openapi']}"
 
     @pytest.mark.parametrize("spec_file", get_openapi_files(), ids=lambda p: p.name)
     def test_has_info_section(self, spec_file: Path):
@@ -106,9 +104,7 @@ class TestOpenAPIStructure:
         version = data.get("info", {}).get("version", "")
         assert version, f"{spec_file.name} missing info.version"
         # Accept 16.0.0 (platform version) or 1.0.0 (API version)
-        assert version in ("16.0.0", "1.0.0"), (
-            f"{spec_file.name} version should be 16.0.0 or 1.0.0, got {version}"
-        )
+        assert version in ("16.0.0", "1.0.0"), f"{spec_file.name} version should be 16.0.0 or 1.0.0, got {version}"
 
     @pytest.mark.parametrize("spec_file", get_openapi_files(), ids=lambda p: p.name)
     def test_has_servers(self, spec_file: Path):
@@ -137,14 +133,9 @@ class TestOpenAPIStructure:
         data = load_yaml(spec_file)
         components = data.get("components", {})
         security_schemes = components.get("securitySchemes", {})
-        assert len(security_schemes) > 0, (
-            f"{spec_file.name} missing security scheme definition"
-        )
+        assert len(security_schemes) > 0, f"{spec_file.name} missing security scheme definition"
         # Check for bearer auth
-        has_bearer = any(
-            s.get("type") == "http" and s.get("scheme") == "bearer"
-            for s in security_schemes.values()
-        )
+        has_bearer = any(s.get("type") == "http" and s.get("scheme") == "bearer" for s in security_schemes.values())
         assert has_bearer, f"{spec_file.name} missing bearerAuth security scheme"
 
 
@@ -167,9 +158,7 @@ class TestOpenAPIPaths:
             for method in http_methods:
                 if method in path_item:
                     operation = path_item[method]
-                    assert "responses" in operation, (
-                        f"{spec_file.name}: {method.upper()} {path} missing 'responses'"
-                    )
+                    assert "responses" in operation, f"{spec_file.name}: {method.upper()} {path} missing 'responses'"
                     assert len(operation["responses"]) > 0, (
                         f"{spec_file.name}: {method.upper()} {path} has no responses"
                     )
@@ -192,9 +181,7 @@ class TestOpenAPIPaths:
                     if not op_id:
                         missing_count += 1
                     else:
-                        assert op_id not in operation_ids, (
-                            f"{spec_file.name}: duplicate operationId '{op_id}'"
-                        )
+                        assert op_id not in operation_ids, f"{spec_file.name}: duplicate operationId '{op_id}'"
                         operation_ids.append(op_id)
 
         # Allow up to 10% of operations without operationId (legacy specs)
@@ -215,9 +202,7 @@ class TestOpenAPIPaths:
                 if method in path_item:
                     operation = path_item[method]
                     tags = operation.get("tags", [])
-                    assert len(tags) > 0, (
-                        f"{spec_file.name}: {method.upper()} {path} missing tags"
-                    )
+                    assert len(tags) > 0, f"{spec_file.name}: {method.upper()} {path} missing tags"
 
     @pytest.mark.parametrize("spec_file", get_openapi_files(), ids=lambda p: p.name)
     def test_health_endpoints_are_public(self, spec_file: Path):
@@ -233,9 +218,7 @@ class TestOpenAPIPaths:
                         operation = path_item[method]
                         security = operation.get("security")
                         if security is not None:
-                            assert security == [], (
-                                f"{spec_file.name}: {health_path} should have security: [] (public)"
-                            )
+                            assert security == [], f"{spec_file.name}: {health_path} should have security: [] (public)"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -260,9 +243,7 @@ class TestOpenAPIReferences:
             if not _resolve_ref(data, ref):
                 broken_refs.append(ref)
 
-        assert not broken_refs, (
-            f"{spec_file.name} has broken $ref references: {broken_refs}"
-        )
+        assert not broken_refs, f"{spec_file.name} has broken $ref references: {broken_refs}"
 
 
 def _collect_refs(obj: dict | list, refs: list[str] | None = None) -> list[str]:
@@ -311,29 +292,20 @@ class TestSAHOOLConventions:
         """API titles should reference SAHOOL platform."""
         data = load_yaml(spec_file)
         title = data.get("info", {}).get("title", "")
-        assert "SAHOOL" in title.upper(), (
-            f"{spec_file.name}: title should contain 'SAHOOL'"
-        )
+        assert "SAHOOL" in title.upper(), f"{spec_file.name}: title should contain 'SAHOOL'"
 
     @pytest.mark.parametrize("spec_file", get_openapi_files(), ids=lambda p: p.name)
     def test_error_response_schema_exists(self, spec_file: Path):
         """Specs should define an ErrorResponse schema."""
         data = load_yaml(spec_file)
         schemas = data.get("components", {}).get("schemas", {})
-        has_error = any(
-            "error" in name.lower()
-            for name in schemas
-        )
-        assert has_error, (
-            f"{spec_file.name}: should define an error response schema"
-        )
+        has_error = any("error" in name.lower() for name in schemas)
+        assert has_error, f"{spec_file.name}: should define an error response schema"
 
     def test_minimum_spec_count(self):
         """Platform should have at least 10 OpenAPI spec files."""
         files = get_openapi_files()
-        assert len(files) >= 10, (
-            f"Expected at least 10 OpenAPI specs, found {len(files)}: {[f.name for f in files]}"
-        )
+        assert len(files) >= 10, f"Expected at least 10 OpenAPI specs, found {len(files)}: {[f.name for f in files]}"
 
     def test_core_specs_exist(self):
         """Core service specs must exist."""
@@ -364,10 +336,22 @@ class TestSchemaQuality:
         data = load_yaml(spec_file)
         # Paths that legitimately don't need a request body
         exception_keywords = [
-            "/healthz", "/readyz", "/health", "/metrics",
-            "/acknowledge", "/resolve", "/logout", "/rotate",
-            "/warmup", "/preload", "/clear", "/revoke",
-            "/reboot", "/cancel", "/rollback", "/flush",
+            "/healthz",
+            "/readyz",
+            "/health",
+            "/metrics",
+            "/acknowledge",
+            "/resolve",
+            "/logout",
+            "/rotate",
+            "/warmup",
+            "/preload",
+            "/clear",
+            "/revoke",
+            "/reboot",
+            "/cancel",
+            "/rollback",
+            "/flush",
         ]
 
         missing = []
@@ -378,8 +362,7 @@ class TestSchemaQuality:
             if "post" in path_item:
                 operation = path_item["post"]
                 summary = operation.get("summary", "").lower()
-                action_words = ["acknowledge", "resolve", "warmup", "logout",
-                                "rotate", "clear", "revoke", "preload"]
+                action_words = ["acknowledge", "resolve", "warmup", "logout", "rotate", "clear", "revoke", "preload"]
                 if any(word in summary for word in action_words):
                     continue
 
@@ -387,9 +370,7 @@ class TestSchemaQuality:
                     missing.append(path)
 
         # Allow up to 2 missing (some POST endpoints are legitimate actions without body)
-        assert len(missing) <= 2, (
-            f"{spec_file.name}: POST endpoints missing requestBody: {missing}"
-        )
+        assert len(missing) <= 2, f"{spec_file.name}: POST endpoints missing requestBody: {missing}"
 
     @pytest.mark.parametrize("spec_file", get_openapi_files(), ids=lambda p: p.name)
     def test_responses_have_content_type(self, spec_file: Path):
@@ -453,14 +434,8 @@ class TestSchemaQuality:
         # Report all missing at once (many legacy specs use $ref extensively)
         if missing_params:
             # Only fail if more than 30% of parameterized paths are missing
-            total_parameterized = len([
-                p for p in data.get("paths", {})
-                if re.search(r"\{(\w+)\}", p)
-            ])
+            total_parameterized = len([p for p in data.get("paths", {}) if re.search(r"\{(\w+)\}", p)])
             if total_parameterized > 0:
                 missing_pct = len(missing_params) / (total_parameterized * 2)  # rough estimate
                 if missing_pct > 0.5:
-                    pytest.fail(
-                        f"{spec_file.name}: many path parameters not defined: "
-                        f"{missing_params[:3]}..."
-                    )
+                    pytest.fail(f"{spec_file.name}: many path parameters not defined: {missing_params[:3]}...")

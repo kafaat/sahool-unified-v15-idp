@@ -163,8 +163,6 @@ class TestCalibrationEngine:
             ],
             seed=42,
         )
-        result = engine.calibrate(
-            targets=simple_targets, max_iter=50, n_restarts=1
-        )
+        result = engine.calibrate(targets=simple_targets, max_iter=50, n_restarts=1)
         assert result.success
         assert result.best_cost < 0.5

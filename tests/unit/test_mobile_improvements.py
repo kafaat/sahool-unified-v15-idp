@@ -4,6 +4,7 @@ Tests for Mobile Improvement Tracker | اختبارات متتبع تحسينا�
 Tests cover tracker initialization, filtering by category/status/priority,
 completion statistics, and bilingual content.
 """
+
 from __future__ import annotations
 
 import pytest

@@ -19,6 +19,7 @@ import pytest
 # Helper to check if pydantic is available
 try:
     import pydantic  # noqa: F401
+
     _HAS_PYDANTIC = True
 except ImportError:
     _HAS_PYDANTIC = False
@@ -32,8 +33,11 @@ _ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 def _make_daily_weather(day, tmax=30.0, tmin=15.0):
     """Helper to create DailyWeather with all required fields."""
     from shared.process_models.models import DailyWeather
+
     return DailyWeather(
-        date=day, tmax_c=tmax, tmin_c=tmin,
+        date=day,
+        tmax_c=tmax,
+        tmin_c=tmin,
         solar_radiation_mj_m2=18.0,
         relative_humidity_pct=55.0,
         wind_speed_m_s=2.0,
@@ -49,6 +53,7 @@ def _make_daily_weather(day, tmax=30.0, tmin=15.0):
 def _import_subjects():
     """Import subjects module directly, bypassing shared.events.__init__."""
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(
         "shared.events.subjects",
         os.path.join(_ROOT, "shared", "events", "subjects.py"),
@@ -59,7 +64,6 @@ def _import_subjects():
 
 
 class TestCalibrationEventSubjects:
-
     def test_subjects_exist(self):
         m = _import_subjects()
         assert "sahool.calibration.run.queued" in m.SAHOOL_CALIBRATION_RUN_QUEUED
@@ -96,13 +100,17 @@ class TestCalibrationEventSubjects:
 
 @_SKIP_PYDANTIC
 class TestWeatherAdapter:
-
     def test_basic_conversion(self):
         from shared.digital_twin.adapters import weather_payload_to_daily
+
         payload = {
-            "day": "2026-02-20", "tmax_c": 32.0, "tmin_c": 18.0,
-            "solar_radiation_mj_m2": 20.5, "relative_humidity_pct": 45.0,
-            "wind_speed_m_s": 3.0, "precipitation_mm": 5.2,
+            "day": "2026-02-20",
+            "tmax_c": 32.0,
+            "tmin_c": 18.0,
+            "solar_radiation_mj_m2": 20.5,
+            "relative_humidity_pct": 45.0,
+            "wind_speed_m_s": 3.0,
+            "precipitation_mm": 5.2,
         }
         w = weather_payload_to_daily(payload)
         assert w.date == date(2026, 2, 20)
@@ -111,25 +119,47 @@ class TestWeatherAdapter:
 
     def test_alternative_keys(self):
         from shared.digital_twin.adapters import weather_payload_to_daily
-        payload = {"forecast_date": "2026-03-01", "temp_max": 35.0, "temp_min": 20.0,
-                   "solar_rad": 22.0, "humidity": 40.0, "wind_speed": 4.5, "rain_mm": 0.0}
+
+        payload = {
+            "forecast_date": "2026-03-01",
+            "temp_max": 35.0,
+            "temp_min": 20.0,
+            "solar_rad": 22.0,
+            "humidity": 40.0,
+            "wind_speed": 4.5,
+            "rain_mm": 0.0,
+        }
         w = weather_payload_to_daily(payload)
         assert w.date == date(2026, 3, 1)
         assert w.tmax_c == 35.0
 
     def test_defaults(self):
         from shared.digital_twin.adapters import weather_payload_to_daily
+
         w = weather_payload_to_daily({})
         assert w.tmax_c == 30.0
         assert w.tmin_c == 15.0
 
     def test_series_sorted(self):
         from shared.digital_twin.adapters import weather_series_from_rows
+
         rows = [
-            {"day": "2026-02-22", "tmax_c": 30, "tmin_c": 15,
-             "solar_radiation_mj_m2": 18, "relative_humidity_pct": 55, "wind_speed_m_s": 2},
-            {"day": "2026-02-20", "tmax_c": 28, "tmin_c": 14,
-             "solar_radiation_mj_m2": 18, "relative_humidity_pct": 55, "wind_speed_m_s": 2},
+            {
+                "day": "2026-02-22",
+                "tmax_c": 30,
+                "tmin_c": 15,
+                "solar_radiation_mj_m2": 18,
+                "relative_humidity_pct": 55,
+                "wind_speed_m_s": 2,
+            },
+            {
+                "day": "2026-02-20",
+                "tmax_c": 28,
+                "tmin_c": 14,
+                "solar_radiation_mj_m2": 18,
+                "relative_humidity_pct": 55,
+                "wind_speed_m_s": 2,
+            },
         ]
         series = weather_series_from_rows(rows)
         assert series[0].date == date(2026, 2, 20)
@@ -143,10 +173,10 @@ class TestWeatherAdapter:
 
 @_SKIP_PYDANTIC
 class TestNDVIAdapter:
-
     def test_ndvi_to_observation(self):
         from uuid import uuid4
         from shared.digital_twin.adapters import ndvi_to_field_observation
+
         payload = {"mean_ndvi": 0.72, "ts": "2026-02-20T10:30:00Z", "cloud_cover": 0.15}
         obs = ndvi_to_field_observation(payload, tenant_id=uuid4(), field_id=uuid4())
         assert obs.value == 0.72
@@ -154,11 +184,13 @@ class TestNDVIAdapter:
 
     def test_lai_estimate(self):
         from shared.digital_twin.adapters import ndvi_to_lai_estimate
+
         assert ndvi_to_lai_estimate(0.2) < ndvi_to_lai_estimate(0.6) < ndvi_to_lai_estimate(0.8)
         assert ndvi_to_lai_estimate(0.8) > 2.0
 
     def test_lai_boundary_safety(self):
         from shared.digital_twin.adapters import ndvi_to_lai_estimate
+
         assert math.isfinite(ndvi_to_lai_estimate(0.0))
         assert math.isfinite(ndvi_to_lai_estimate(1.0))
 
@@ -170,22 +202,24 @@ class TestNDVIAdapter:
 
 @_SKIP_PYDANTIC
 class TestCalibratedParamsAdapter:
-
     def test_merge(self):
         from shared.digital_twin.adapters import calibrated_params_to_crop
         from shared.process_models.models import CropType
+
         crop = calibrated_params_to_crop({"rue_g_mj": 1.8, "k_extinction": 0.45}, crop_type=CropType.WHEAT)
         assert crop.rue_g_mj == 1.8
         assert crop.k_extinction == 0.45
 
     def test_from_json_string(self):
         from shared.digital_twin.adapters import calibrated_params_to_crop
+
         crop = calibrated_params_to_crop('{"rue_g_mj": 2.0, "lai_max": 7.5}')
         assert crop.rue_g_mj == 2.0
         assert crop.lai_max == 7.5
 
     def test_unknown_keys_ignored(self):
         from shared.digital_twin.adapters import calibrated_params_to_crop
+
         crop = calibrated_params_to_crop({"rue_g_mj": 1.5, "unknown_param": 999})
         assert crop.rue_g_mj == 1.5
 
@@ -197,9 +231,9 @@ class TestCalibratedParamsAdapter:
 
 @_SKIP_PYDANTIC
 class TestSoilSensorAdapter:
-
     def test_basic(self):
         from shared.digital_twin.adapters import soil_sensor_to_profile
+
         payload = {"field_capacity": 320.0, "wilting_point": 160.0, "depth_m": 0.8, "texture": "clay"}
         soil = soil_sensor_to_profile(payload)
         assert soil.field_capacity_mm_per_m == 320.0
@@ -208,6 +242,7 @@ class TestSoilSensorAdapter:
     def test_with_base(self):
         from shared.digital_twin.adapters import soil_sensor_to_profile
         from shared.process_models.models import SoilProfile
+
         base = SoilProfile(field_capacity_mm_per_m=300.0, depth_m=0.6)
         soil = soil_sensor_to_profile({"wilting_point": 170.0}, base=base)
         assert soil.field_capacity_mm_per_m == 300.0
@@ -220,20 +255,22 @@ class TestSoilSensorAdapter:
 
 
 class TestCalibrationWorker:
-
     def test_instantiation(self):
         from shared.calibration.worker import CalibrationWorker
+
         worker = CalibrationWorker(db_pool=None, nats_client=None, n_trials=30)
         assert worker._n_trials == 30
 
     def test_process_pending_no_pool(self):
         from shared.calibration.worker import CalibrationWorker
+
         worker = CalibrationWorker(db_pool=None)
         result = asyncio.get_event_loop().run_until_complete(worker.process_pending())
         assert result == []
 
     def test_default_param_bounds(self):
         from shared.calibration.worker import _DEFAULT_PARAM_BOUNDS
+
         names = {b.name for b in _DEFAULT_PARAM_BOUNDS}
         assert "rue_g_mj" in names
         assert "k_extinction" in names
@@ -248,10 +285,10 @@ class TestCalibrationWorker:
 
 @_SKIP_PYDANTIC
 class TestDecisionEngineCalibrated:
-
     def test_default_thresholds(self):
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.repository import TwinRepository
+
         engine = DecisionEngine(repo=TwinRepository(db_pool=None))
         assert engine._eff == 0.80
         assert engine._p_offset == 0.0
@@ -259,6 +296,7 @@ class TestDecisionEngineCalibrated:
     def test_custom_thresholds(self):
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.repository import TwinRepository
+
         engine = DecisionEngine(
             repo=TwinRepository(db_pool=None),
             calibrated_thresholds={"application_efficiency": 0.90, "p_fraction_offset": -0.05},
@@ -274,28 +312,40 @@ class TestDecisionEngineCalibrated:
 
         repo = TwinRepository(db_pool=None)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date(2026, 2, 20),
-            et0_mm=5.0, etc_mm=4.0, phenology_stage="heading", gdd_cum=1200,
-            lai=4.0, biomass_kg_ha=5000, root_depth_m=0.4, soil_water_mm=120,
-            depletion_mm=60, water_stress=0.7, n_stress=0.9, runoff_mm=0,
-            deep_perc_mm=0, rainfall_mm=0, irrigation_applied_mm=0,
-            nitrogen_applied_kg_ha=0, confidence=0.8,
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date(2026, 2, 20),
+            et0_mm=5.0,
+            etc_mm=4.0,
+            phenology_stage="heading",
+            gdd_cum=1200,
+            lai=4.0,
+            biomass_kg_ha=5000,
+            root_depth_m=0.4,
+            soil_water_mm=120,
+            depletion_mm=60,
+            water_stress=0.7,
+            n_stress=0.9,
+            runoff_mm=0,
+            deep_perc_mm=0,
+            rainfall_mm=0,
+            irrigation_applied_mm=0,
+            nitrogen_applied_kg_ha=0,
+            confidence=0.8,
             assimilation_flags=[AssimilationFlag.MODEL_ONLY],
         )
 
         loop = asyncio.get_event_loop()
 
         # Default p for heading=0.45, RAW=81, depletion=60<81 → NO irrigation
-        rec_default = loop.run_until_complete(
-            DecisionEngine(repo=repo).recommend_irrigation(state, taw_mm=180.0)
-        )
+        rec_default = loop.run_until_complete(DecisionEngine(repo=repo).recommend_irrigation(state, taw_mm=180.0))
         assert rec_default.recommended_mm == 0.0
 
         # Strict: p_offset=-0.30 → p=0.15, RAW=27, depletion=60>27 → YES
         rec_strict = loop.run_until_complete(
-            DecisionEngine(
-                repo=repo, calibrated_thresholds={"p_fraction_offset": -0.30}
-            ).recommend_irrigation(state, taw_mm=180.0)
+            DecisionEngine(repo=repo, calibrated_thresholds={"p_fraction_offset": -0.30}).recommend_irrigation(
+                state, taw_mm=180.0
+            )
         )
         assert rec_strict.recommended_mm > 0.0
 
@@ -306,9 +356,9 @@ class TestDecisionEngineCalibrated:
 
 
 class TestBuildPredictorHelpers:
-
     def test_weather_provider_from_series(self):
         from shared.calibration.adapters.build_predictor import weather_provider_from_series
+
         series = [
             _make_daily_weather(date(2026, 1, 1), 30, 15),
             _make_daily_weather(date(2026, 1, 2), 31, 16),
@@ -327,7 +377,9 @@ class TestBuildPredictorHelpers:
         sowing = date(2026, 1, 1)
         weather = [_make_daily_weather(sowing + timedelta(days=d)) for d in range(200)]
         predictor = build_predictor_from_config(
-            weather_series=weather, soil_profile=SoilProfile(), sowing_date=sowing,
+            weather_series=weather,
+            soil_profile=SoilProfile(),
+            sowing_date=sowing,
         )
         assert predictor is not None
         assert callable(predictor.predict)
@@ -339,11 +391,8 @@ class TestBuildPredictorHelpers:
 
 
 class TestTwinStepInSeasonId:
-
     def test_season_id_in_source(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py")
         with open(path) as f:
             content = f.read()
         assert "season_id: str | None" in content
@@ -356,19 +405,14 @@ class TestTwinStepInSeasonId:
 
 
 class TestRequirements:
-
     def test_numpy_in_requirements(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt")
         with open(path) as f:
             content = f.read()
         assert "numpy" in content
 
     def test_optuna_in_requirements(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt")
         with open(path) as f:
             content = f.read()
         assert "optuna" in content
@@ -386,17 +430,12 @@ class TestRequirements:
 
 
 class TestEventSubscribers:
-
     def test_module_exists(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py")
         assert os.path.exists(path)
 
     def test_subscribes_to_ndvi_and_calibration(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py")
         with open(path) as f:
             content = f.read()
         assert "setup_nats_subscriptions" in content
@@ -411,7 +450,6 @@ class TestEventSubscribers:
 
 
 class TestWorkerModule:
-
     def test_worker_module_exists(self):
         path = os.path.join(_ROOT, "shared", "calibration", "worker.py")
         assert os.path.exists(path)
@@ -439,7 +477,6 @@ class TestWorkerModule:
 
 
 class TestAdaptersModule:
-
     def test_module_exists(self):
         path = os.path.join(_ROOT, "shared", "digital_twin", "adapters.py")
         assert os.path.exists(path)
@@ -461,11 +498,8 @@ class TestAdaptersModule:
 
 
 class TestCalibrationRouterEvents:
-
     def test_router_publishes_events(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "calibration_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "calibration_router.py")
         with open(path) as f:
             content = f.read()
         assert "SAHOOL_CALIBRATION_RUN_QUEUED" in content
@@ -480,9 +514,9 @@ class TestCalibrationRouterEvents:
 
 @_SKIP_PYDANTIC
 class TestAssimilationCalibratedK:
-
     def test_ndvi_to_lai_default_k(self):
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         # Default k=0.5
         lai = ndvi_to_lai(0.6, crop_type="wheat")
         assert lai > 0.0
@@ -490,6 +524,7 @@ class TestAssimilationCalibratedK:
 
     def test_ndvi_to_lai_custom_k(self):
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         lai_default = ndvi_to_lai(0.6, crop_type="wheat")
         lai_low_k = ndvi_to_lai(0.6, crop_type="wheat", k_extinction=0.3)
         lai_high_k = ndvi_to_lai(0.6, crop_type="wheat", k_extinction=0.8)
@@ -499,6 +534,7 @@ class TestAssimilationCalibratedK:
 
     def test_ndvi_to_lai_k_clamped(self):
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         # k_extinction out of range should be clamped
         lai_extreme_low = ndvi_to_lai(0.5, k_extinction=0.001)  # clamped to 0.1
         lai_at_min = ndvi_to_lai(0.5, k_extinction=0.1)
@@ -510,13 +546,12 @@ class TestAssimilationCalibratedK:
 
     def test_calibrated_params_used_flag(self):
         from shared.digital_twin.models import AssimilationFlag
+
         assert hasattr(AssimilationFlag, "CALIBRATED_PARAMS_USED")
         assert AssimilationFlag.CALIBRATED_PARAMS_USED == "CALIBRATED_PARAMS_USED"
 
     def test_twin_router_passes_calibrated_k(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py")
         with open(path) as f:
             content = f.read()
         assert "calibrated_k_ext" in content
@@ -530,17 +565,12 @@ class TestAssimilationCalibratedK:
 
 
 class TestSoilFertilityRouter:
-
     def test_module_exists(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py")
         assert os.path.exists(path)
 
     def test_endpoints_present(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py")
         with open(path) as f:
             content = f.read()
         assert "/soil/interpret" in content
@@ -551,18 +581,14 @@ class TestSoilFertilityRouter:
         assert "/fertilizer/blend" in content
 
     def test_imports_shared_modules(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py")
         with open(path) as f:
             content = f.read()
         assert "shared.soil_testing" in content
         assert "shared.fertilizer_management" in content
 
     def test_registered_in_main(self):
-        path = os.path.join(
-            _ROOT, "apps", "services", "crop-intelligence-service", "src", "main.py"
-        )
+        path = os.path.join(_ROOT, "apps", "services", "crop-intelligence-service", "src", "main.py")
         with open(path) as f:
             content = f.read()
         assert "soil_fertility_router" in content
@@ -574,7 +600,6 @@ class TestSoilFertilityRouter:
 
 
 class TestFertilizerManagement:
-
     def test_imports(self):
         from shared.fertilizer_management import (
             CROP_NUTRIENT_REQUIREMENTS,
@@ -583,6 +608,7 @@ class TestFertilizerManagement:
             calculate_blend_for_targets,
             get_supported_crops,
         )
+
         assert CROP_NUTRIENT_REQUIREMENTS is not None
         assert FertilizerCalculator is not None
         assert FertilizerRecommendationEngine is not None
@@ -591,6 +617,7 @@ class TestFertilizerManagement:
 
     def test_crop_requirements_structure(self):
         from shared.fertilizer_management import CROP_NUTRIENT_REQUIREMENTS
+
         assert "wheat" in CROP_NUTRIENT_REQUIREMENTS
         wheat = CROP_NUTRIENT_REQUIREMENTS["wheat"]
         assert "N" in wheat
@@ -601,14 +628,19 @@ class TestFertilizerManagement:
 
     def test_supported_crops_list(self):
         from shared.fertilizer_management import get_supported_crops
+
         crops = get_supported_crops()
         assert isinstance(crops, list)
         assert len(crops) >= 5  # wheat, barley, tomato, date_palm, etc.
 
     def test_quick_recommendation(self):
         from shared.fertilizer_management import calculate_quick_recommendation
+
         rec = calculate_quick_recommendation(
-            crop="wheat", soil_n_ppm=20, soil_p_ppm=15, soil_k_ppm=150,
+            crop="wheat",
+            soil_n_ppm=20,
+            soil_p_ppm=15,
+            soil_k_ppm=150,
         )
         assert isinstance(rec, dict)
         assert "crop" in rec
@@ -617,18 +649,24 @@ class TestFertilizerManagement:
 
     def test_quick_recommendation_unknown_crop(self):
         from shared.fertilizer_management import calculate_quick_recommendation
+
         rec = calculate_quick_recommendation(
-            crop="unknown_crop", soil_n_ppm=20, soil_p_ppm=15, soil_k_ppm=150,
+            crop="unknown_crop",
+            soil_n_ppm=20,
+            soil_p_ppm=15,
+            soil_k_ppm=150,
         )
         assert "error" in rec
 
     def test_blend_for_targets(self):
         from shared.fertilizer_management import calculate_blend_for_targets
+
         blend = calculate_blend_for_targets(n_kg_ha=100, p_kg_ha=50, k_kg_ha=60)
         assert isinstance(blend, dict)
 
     def test_recommendation_engine(self):
         from shared.fertilizer_management import FertilizerRecommendationEngine
+
         engine = FertilizerRecommendationEngine()
         reqs = engine.calculate_crop_requirements("wheat", target_yield_tons_ha=5.0)
         assert "N" in reqs
@@ -636,6 +674,7 @@ class TestFertilizerManagement:
 
     def test_nutrient_status(self):
         from shared.fertilizer_management import FertilizerRecommendationEngine
+
         engine = FertilizerRecommendationEngine()
         status, desc_en, desc_ar = engine.get_nutrient_status("N", 5.0)
         assert desc_ar  # has Arabic description
@@ -650,7 +689,6 @@ class TestFertilizerManagement:
 
 
 class TestSoilTestingModule:
-
     def test_imports(self):
         from shared.soil_testing import (
             NUTRIENT_THRESHOLDS,
@@ -661,6 +699,7 @@ class TestSoilTestingModule:
             get_ph_status,
             get_ec_status,
         )
+
         assert NUTRIENT_THRESHOLDS is not None
         assert SoilTestInterpreter is not None
         assert SoilAmendmentRecommender is not None
@@ -671,6 +710,7 @@ class TestSoilTestingModule:
 
     def test_nutrient_thresholds_structure(self):
         from shared.soil_testing import NUTRIENT_THRESHOLDS
+
         assert "N" in NUTRIENT_THRESHOLDS
         n_thresh = NUTRIENT_THRESHOLDS["N"]
         assert "deficient" in n_thresh
@@ -679,6 +719,7 @@ class TestSoilTestingModule:
 
     def test_get_nutrient_status(self):
         from shared.soil_testing import get_nutrient_status
+
         status, en, ar = get_nutrient_status("N", 5.0)
         assert ar  # has Arabic text
         status2, _, _ = get_nutrient_status("N", 50.0)
@@ -687,28 +728,33 @@ class TestSoilTestingModule:
 
     def test_ph_status(self):
         from shared.soil_testing import get_ph_status
+
         en, ar = get_ph_status(7.0)
         assert en  # has English text
         assert ar  # has Arabic text
 
     def test_ec_status(self):
         from shared.soil_testing import get_ec_status
+
         en, ar = get_ec_status(1.5)
         assert en  # has English text
         assert ar  # has Arabic text
 
     def test_interpreter_instantiation(self):
         from shared.soil_testing import SoilTestInterpreter
+
         interpreter = SoilTestInterpreter()
         assert interpreter is not None
 
     def test_recommender_instantiation(self):
         from shared.soil_testing import SoilAmendmentRecommender
+
         recommender = SoilAmendmentRecommender()
         assert recommender is not None
 
     def test_trend_analyzer_instantiation(self):
         from shared.soil_testing import SoilTrendAnalyzer
+
         analyzer = SoilTrendAnalyzer()
         assert analyzer is not None
 
@@ -719,7 +765,6 @@ class TestSoilTestingModule:
 
 
 class TestCIAndHelmChart:
-
     def test_ci_workflow_exists(self):
         path = os.path.join(_ROOT, ".github", "workflows", "ci-crop-intelligence.yml")
         assert os.path.exists(path)
@@ -757,28 +802,28 @@ class TestCIAndHelmChart:
         assert "8095" in content
 
     def test_helm_templates_exist(self):
-        templates_dir = os.path.join(
-            _ROOT, "helm", "services", "crop-intelligence-service", "templates"
-        )
-        for tpl in ["deployment.yaml", "service.yaml", "hpa.yaml", "pdb.yaml",
-                     "configmap.yaml", "serviceaccount.yaml", "_helpers.tpl"]:
+        templates_dir = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "templates")
+        for tpl in [
+            "deployment.yaml",
+            "service.yaml",
+            "hpa.yaml",
+            "pdb.yaml",
+            "configmap.yaml",
+            "serviceaccount.yaml",
+            "_helpers.tpl",
+        ]:
             assert os.path.exists(os.path.join(templates_dir, tpl)), f"Missing template: {tpl}"
 
     def test_helm_startup_probe_defined(self):
         """Verify startupProbe was added for calibration/assimilation init."""
-        dep_path = os.path.join(
-            _ROOT, "helm", "services", "crop-intelligence-service",
-            "templates", "deployment.yaml"
-        )
+        dep_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "templates", "deployment.yaml")
         with open(dep_path) as f:
             content = f.read()
         assert "startupProbe" in content
 
     def test_helm_resource_requests_adequate(self):
         """Resource requests should be >= 1000m CPU for ML workloads."""
-        values_path = os.path.join(
-            _ROOT, "helm", "services", "crop-intelligence-service", "values.yaml"
-        )
+        values_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "values.yaml")
         with open(values_path) as f:
             content = f.read()
         assert "1000m" in content  # CPU request
@@ -797,6 +842,7 @@ class TestNumericalEdgeCases:
     def test_ndvi_to_lai_bare_soil(self):
         """NDVI near 0 (bare soil) should return LAI near 0."""
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         lai = ndvi_to_lai(0.01)
         assert 0.0 <= lai <= 0.5
         assert math.isfinite(lai)
@@ -805,6 +851,7 @@ class TestNumericalEdgeCases:
     def test_ndvi_to_lai_maximum(self):
         """NDVI = 0.99 should not cause log(0) error."""
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         lai = ndvi_to_lai(0.99)
         assert 0.0 <= lai <= 10.0
         assert math.isfinite(lai)
@@ -813,6 +860,7 @@ class TestNumericalEdgeCases:
     def test_ndvi_to_lai_extreme_values_clamped(self):
         """NDVI outside [-1,1] should be safely clamped, not crash."""
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         # Below range
         lai_low = ndvi_to_lai(-0.5)
         assert math.isfinite(lai_low)
@@ -826,6 +874,7 @@ class TestNumericalEdgeCases:
     def test_ndvi_to_lai_k_extinction_extremes(self):
         """k_extinction near boundaries should not crash."""
         from shared.digital_twin.assimilation import ndvi_to_lai
+
         # Very small k (clamped to 0.1)
         lai_small_k = ndvi_to_lai(0.5, k_extinction=0.01)
         assert math.isfinite(lai_small_k)
@@ -839,6 +888,7 @@ class TestNumericalEdgeCases:
     def test_adapters_ndvi_to_lai_boundary(self):
         """Adapters version also safe at boundaries."""
         from shared.digital_twin.adapters import ndvi_to_lai_estimate
+
         # Near maximum
         lai = ndvi_to_lai_estimate(0.99)
         assert math.isfinite(lai)
@@ -852,6 +902,7 @@ class TestNumericalEdgeCases:
     def test_kalman_gain_zero_inputs(self):
         """Both quality=0 and confidence=0 should return default, not crash."""
         from shared.digital_twin.assimilation import _kalman_gain
+
         gain = _kalman_gain(0.0, 0.0)
         assert 0.0 < gain < 1.0
         assert math.isfinite(gain)
@@ -862,22 +913,30 @@ class TestNumericalEdgeCases:
         from shared.digital_twin.models import FieldDailyState
         from uuid import uuid4
         from pydantic import ValidationError
+
         # Valid
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            water_stress=0.5, n_stress=0.8,
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            water_stress=0.5,
+            n_stress=0.8,
         )
         assert state.water_stress == 0.5
         # Invalid: water_stress > 1
         with pytest.raises(ValidationError):
             FieldDailyState(
-                tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+                tenant_id=uuid4(),
+                field_id=uuid4(),
+                day=date.today(),
                 water_stress=1.5,
             )
         # Invalid: negative n_stress
         with pytest.raises(ValidationError):
             FieldDailyState(
-                tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+                tenant_id=uuid4(),
+                field_id=uuid4(),
+                day=date.today(),
                 n_stress=-0.1,
             )
 
@@ -894,6 +953,7 @@ class TestEnumSafety:
     def test_flag_roundtrip_by_value(self):
         """Flags stored as string values should deserialize correctly."""
         from shared.digital_twin.models import AssimilationFlag
+
         for flag in AssimilationFlag:
             # StrEnum: name == value for our flags
             recovered = AssimilationFlag(flag.value)
@@ -903,6 +963,7 @@ class TestEnumSafety:
     def test_flag_unknown_value_handled(self):
         """Unknown flag values in DB should not crash repository."""
         from shared.digital_twin.models import AssimilationFlag
+
         # Simulate what _row_to_state does
         flags_raw = ["NDVI_USED", "UNKNOWN_FLAG", "ASSIMILATED"]
         flags = []
@@ -922,6 +983,7 @@ class TestEnumSafety:
     def test_calibrated_params_flag_included(self):
         """CALIBRATED_PARAMS_USED must be in the enum."""
         from shared.digital_twin.models import AssimilationFlag
+
         assert "CALIBRATED_PARAMS_USED" in AssimilationFlag.__members__
 
 
@@ -944,8 +1006,12 @@ class TestDecisionEngineEdgeCases:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            depletion_mm=0.0, water_stress=1.0, phenology_stage="heading",
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            depletion_mm=0.0,
+            water_stress=1.0,
+            phenology_stage="heading",
         )
         loop = asyncio.get_event_loop()
         rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
@@ -963,8 +1029,12 @@ class TestDecisionEngineEdgeCases:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            depletion_mm=120.0, water_stress=0.4, phenology_stage="heading",
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            depletion_mm=120.0,
+            water_stress=0.4,
+            phenology_stage="heading",
         )
         loop = asyncio.get_event_loop()
         rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
@@ -982,8 +1052,11 @@ class TestDecisionEngineEdgeCases:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            depletion_mm=None, water_stress=None,
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            depletion_mm=None,
+            water_stress=None,
         )
         loop = asyncio.get_event_loop()
         rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
@@ -1001,8 +1074,11 @@ class TestDecisionEngineEdgeCases:
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            depletion_mm=50.0, water_stress=0.8,
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            depletion_mm=50.0,
+            water_stress=0.8,
         )
         loop = asyncio.get_event_loop()
         # taw_mm = 0 → clamped to 1.0
@@ -1028,8 +1104,12 @@ class TestDecisionEngineEdgeCases:
         )
         engine_default = DecisionEngine(repo=repo)
         state = FieldDailyState(
-            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
-            depletion_mm=100.0, water_stress=0.7, phenology_stage="heading",
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            day=date.today(),
+            depletion_mm=100.0,
+            water_stress=0.7,
+            phenology_stage="heading",
         )
         loop = asyncio.get_event_loop()
         rec_offset = loop.run_until_complete(engine_offset.recommend_irrigation(state))

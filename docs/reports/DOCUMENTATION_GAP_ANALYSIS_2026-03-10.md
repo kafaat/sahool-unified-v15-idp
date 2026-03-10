@@ -16,6 +16,7 @@
 | Services-Docs Coverage | MEDIUM | 5 stale docs, 1 missing doc |
 | Shared Module Docs | MEDIUM | 16 modules without README, 13 missing from CLAUDE.md |
 | Documentation Structure | LOW | Layer mismatches in SERVICES_MAP/CLAUDE.md |
+| NATS Event Architecture | WARNING | 272 defined, only 7 published (2.6%); 3 fragmented sources |
 | Knowledge Base | OK | Good coverage, no stub files |
 | Port Conflicts | OK | No conflicts detected |
 | Dockerfiles | OK | Only `migrations` missing (expected) |
@@ -150,7 +151,42 @@ Initial automated grep suggested mismatches, but deep analysis confirmed the gov
 
 ---
 
-## 7. Knowledge Base (OK)
+## 7. NATS Event Architecture (WARNING)
+
+### 7.1 Coverage Gap
+- **272 event subjects defined** in `shared/events/subjects.py`
+- **Only 7 events actually published** in production code (2.6% coverage)
+- Most definitions are aspirational/planned, not yet implemented
+
+### 7.2 Fragmented Governance (3 separate sources)
+
+| Source | Events | Purpose |
+|--------|--------|---------|
+| `shared/events/subjects.py` | 272 | Python constants |
+| `governance/events/catalog.yaml` | 22 | YAML catalog |
+| `governance/events/events-registry.yaml` | 16 | YAML registry |
+
+Overlap between governance files: **only 3 events** (14% alignment):
+`field.created`, `field.updated`, `weather.forecast_updated`
+
+### 7.3 Undefined Event Published
+- `sahool.irrigation.hmc` is published in `shared/irrigation/integration.py` but has no constant in `subjects.py`
+
+### 7.4 Active Events (7 total)
+
+| Event | Publisher |
+|-------|-----------|
+| `sahool.field.observation.ingested.v1` | ndvi-processor |
+| `sahool.inventory.alert` | inventory-service |
+| `sahool.satellite.ndvi.computed` | ndvi-processor |
+| `sahool.terrain.leveling_recommended` | leveling-optimizer-service |
+| `sahool.traceability.harvest_recorded` | traceability-service |
+| `sahool.vision.pest_detected` | pest-detection-service |
+| `sahool.irrigation.hmc` | shared/irrigation |
+
+---
+
+## 8. Knowledge Base (OK)
 
 Coverage is solid with 12 subdirectories:
 - `ai-smart-agriculture/`, `best-practices/`, `crops/` (19 files)
@@ -180,15 +216,18 @@ No stub files detected. Total: 74+ knowledge base documents.
 ### P1 - High (CI/CD Impact)
 4. Clean deprecated service references from 7 CI workflow files
 
-### P2 - Medium (Documentation Drift)
-5. Add README.md to 16 undocumented shared modules
-6. Add 13 missing modules to CLAUDE.md shared module listing
-6. Add documentation for `vllm-deepseek` service
-7. Archive/mark stale docs in services-docs
+### P2 - Medium (Architecture/Documentation)
+5. Consolidate NATS event governance into single source of truth
+6. Add `sahool.irrigation.hmc` to `shared/events/subjects.py`
+7. Add README.md to 16 undocumented shared modules
+8. Add 13 missing modules to CLAUDE.md shared module listing
+9. Add documentation for `vllm-deepseek` service
+10. Archive/mark stale docs in services-docs
 
 ### P3 - Low (Documentation Alignment)
-8. Fix event architecture layer mismatches in SERVICES_MAP.md and CLAUDE.md
-9. Correct phantom port for `agro-rules` (NATS worker, no HTTP port)
+11. Fix event architecture layer mismatches in SERVICES_MAP.md and CLAUDE.md
+12. Correct phantom port for `agro-rules` (NATS worker, no HTTP port)
+13. Audit 266 unused NATS event definitions - archive or implement
 
 ---
 

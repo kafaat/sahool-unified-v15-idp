@@ -79,8 +79,10 @@ except ImportError:
         def pyfloat(self, min_value: float = 0, max_value: float = 100, right_digits: int = 2) -> float:
             return round((min_value + max_value) / 2, right_digits)
 
-        def random_int(self, min: int = 0, max: int = 100) -> int:  # noqa: A002
-            return (min + max) // 2
+        def random_int(self, *args: int, **kwargs: int) -> int:
+            min_val = args[0] if args else kwargs.get("min", 0)
+            max_val = args[1] if len(args) > 1 else kwargs.get("max", 100)
+            return (min_val + max_val) // 2
 
         def random_element(self, elements: list) -> Any:
             return elements[0] if elements else None
@@ -329,7 +331,10 @@ def cleanup_test_data(db_cursor):
     تنظيف بيانات الاختبار قبل كل اختبار
     """
     yield
-    # Cleanup after test
+    # Cleanup after test — only runs when psycopg2 is available (db_cursor is
+    # provided by db_connection which calls pytest.skip() otherwise).
+    if not HAS_PSYCOPG2:
+        return
     try:
         # Clean up test tables in reverse order of dependencies
         tables = [
@@ -348,11 +353,10 @@ def cleanup_test_data(db_cursor):
             "fields",
         ]
 
-        _undefined_table = psycopg2.errors.UndefinedTable if HAS_PSYCOPG2 else Exception  # type: ignore[union-attr]
         for table in tables:
             try:
                 db_cursor.execute(f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'")
-            except _undefined_table:
+            except psycopg2.errors.UndefinedTable:  # type: ignore[union-attr]
                 # Table might not exist, skip
                 pass
     except Exception:

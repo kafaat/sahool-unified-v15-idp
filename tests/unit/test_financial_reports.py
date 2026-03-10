@@ -1,4 +1,5 @@
 """Tests for financial reports module."""
+
 import pytest
 from shared.financial_reports import (
     FinancialReportGenerator,
@@ -8,6 +9,7 @@ from shared.financial_reports import (
     Season,
     FieldFinancialReport,
 )
+
 
 class TestFinancialReportGenerator:
     def setup_method(self):

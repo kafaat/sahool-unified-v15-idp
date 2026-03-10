@@ -144,9 +144,12 @@ class TestDocumentStorageService:
             await service.upload_document(
                 file_content=b"x" * 20,
                 filename="big.pdf",
-                tenant_id="t1", farm_id="f1",
+                tenant_id="t1",
+                farm_id="f1",
                 document_type=DocumentType.REPORT,
-                title_en="Big", title_ar="كبير", uploaded_by="u1",
+                title_en="Big",
+                title_ar="كبير",
+                uploaded_by="u1",
             )
 
     @pytest.mark.asyncio
@@ -155,9 +158,12 @@ class TestDocumentStorageService:
             await storage_service.upload_document(
                 file_content=b"data",
                 filename="file.exe",
-                tenant_id="t1", farm_id="f1",
+                tenant_id="t1",
+                farm_id="f1",
                 document_type=DocumentType.OTHER,
-                title_en="T", title_ar="ت", uploaded_by="u1",
+                title_en="T",
+                title_ar="ت",
+                uploaded_by="u1",
             )
 
     @pytest.mark.asyncio
@@ -165,9 +171,12 @@ class TestDocumentStorageService:
         doc = await storage_service.upload_document(
             file_content=b"data",
             filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="T", title_ar="ت", uploaded_by="u1",
+            title_en="T",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         retrieved = await storage_service.get_document(doc.id)
         assert retrieved is not None
@@ -181,10 +190,14 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_delete_document_soft(self, storage_service):
         doc = await storage_service.upload_document(
-            file_content=b"data", filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"data",
+            filename="test.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="T", title_ar="ت", uploaded_by="u1",
+            title_en="T",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         result = await storage_service.delete_document(doc.id, "admin")
         assert result is True
@@ -195,10 +208,14 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_delete_document_hard(self, storage_service):
         doc = await storage_service.upload_document(
-            file_content=b"data", filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"data",
+            filename="test.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="T", title_ar="ت", uploaded_by="u1",
+            title_en="T",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         result = await storage_service.delete_document(doc.id, "admin", hard_delete=True)
         assert result is True
@@ -212,10 +229,14 @@ class TestDocumentStorageService:
     async def test_list_documents(self, storage_service):
         for i in range(3):
             await storage_service.upload_document(
-                file_content=b"data", filename=f"test{i}.pdf",
-                tenant_id="t1", farm_id="f1",
+                file_content=b"data",
+                filename=f"test{i}.pdf",
+                tenant_id="t1",
+                farm_id="f1",
                 document_type=DocumentType.REPORT,
-                title_en=f"T{i}", title_ar=f"ت{i}", uploaded_by="u1",
+                title_en=f"T{i}",
+                title_ar=f"ت{i}",
+                uploaded_by="u1",
             )
         docs = await storage_service.list_documents("t1", farm_id="f1")
         assert len(docs) == 3
@@ -224,10 +245,14 @@ class TestDocumentStorageService:
     async def test_list_documents_pagination(self, storage_service):
         for i in range(5):
             await storage_service.upload_document(
-                file_content=b"data", filename=f"test{i}.pdf",
-                tenant_id="t1", farm_id="f1",
+                file_content=b"data",
+                filename=f"test{i}.pdf",
+                tenant_id="t1",
+                farm_id="f1",
                 document_type=DocumentType.REPORT,
-                title_en=f"T{i}", title_ar=f"ت{i}", uploaded_by="u1",
+                title_en=f"T{i}",
+                title_ar=f"ت{i}",
+                uploaded_by="u1",
             )
         docs = await storage_service.list_documents("t1", limit=2, offset=0)
         assert len(docs) == 2
@@ -235,17 +260,23 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_search_documents(self, storage_service):
         await storage_service.upload_document(
-            file_content=b"data", filename="soil.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"data",
+            filename="soil.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.SOIL_TEST,
-            title_en="Soil Analysis Report", title_ar="تقرير تحليل التربة",
+            title_en="Soil Analysis Report",
+            title_ar="تقرير تحليل التربة",
             uploaded_by="u1",
         )
         await storage_service.upload_document(
-            file_content=b"data", filename="water.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"data",
+            filename="water.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.WATER_TEST,
-            title_en="Water Quality", title_ar="جودة المياه",
+            title_en="Water Quality",
+            title_ar="جودة المياه",
             uploaded_by="u1",
         )
         results = await storage_service.search_documents("t1", "soil")
@@ -254,13 +285,19 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_update_document(self, storage_service):
         doc = await storage_service.upload_document(
-            file_content=b"data", filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"data",
+            filename="test.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="Old Title", title_ar="ت", uploaded_by="u1",
+            title_en="Old Title",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         updated = await storage_service.update_document(
-            doc.id, "admin", title_en="New Title",
+            doc.id,
+            "admin",
+            title_en="New Title",
         )
         assert updated.title_en == "New Title"
 
@@ -272,13 +309,20 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_create_new_version(self, storage_service):
         doc = await storage_service.upload_document(
-            file_content=b"v1", filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"v1",
+            filename="test.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="T", title_ar="ت", uploaded_by="u1",
+            title_en="T",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         new_doc = await storage_service.create_new_version(
-            doc.id, b"v2", "test_v2.pdf", "u1",
+            doc.id,
+            b"v2",
+            "test_v2.pdf",
+            "u1",
         )
         assert new_doc.version == 2
         assert new_doc.previous_version_id == doc.id
@@ -301,10 +345,14 @@ class TestDocumentStorageService:
     @pytest.mark.asyncio
     async def test_get_storage_stats(self, storage_service):
         await storage_service.upload_document(
-            file_content=b"x" * 100, filename="test.pdf",
-            tenant_id="t1", farm_id="f1",
+            file_content=b"x" * 100,
+            filename="test.pdf",
+            tenant_id="t1",
+            farm_id="f1",
             document_type=DocumentType.REPORT,
-            title_en="T", title_ar="ت", uploaded_by="u1",
+            title_en="T",
+            title_ar="ت",
+            uploaded_by="u1",
         )
         stats = await storage_service.get_storage_stats("t1")
         assert stats["total_documents"] == 1
@@ -320,8 +368,10 @@ class TestHelperFunctions:
     def test_get_mime_type_for_format(self):
         assert get_mime_type_for_format(FileFormat.PDF) == "application/pdf"
         assert get_mime_type_for_format(FileFormat.PNG) == "image/png"
-        assert get_mime_type_for_format(FileFormat.XLSX) == \
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        assert (
+            get_mime_type_for_format(FileFormat.XLSX)
+            == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
     def test_is_image_format(self):
         assert is_image_format(FileFormat.PNG) is True

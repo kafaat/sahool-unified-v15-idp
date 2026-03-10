@@ -240,9 +240,7 @@ class CropFactory:
 
         # Calculate expected yield
         yield_range = crop_info["yield_per_hectare"]
-        expected_yield_tons = round(
-            area_hectares * random.uniform(yield_range[0], yield_range[1]), 2
-        )
+        expected_yield_tons = round(area_hectares * random.uniform(yield_range[0], yield_range[1]), 2)
 
         return CropData(
             id=id or f"crop-{uuid4().hex[:8]}",

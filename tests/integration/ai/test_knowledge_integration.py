@@ -153,11 +153,13 @@ class TestChunkerPipelineIntegration:
     def test_chunk_ingested_content(self):
         """Chunk content after ingestion preprocessing."""
         pipeline = KnowledgeIngestionPipeline()
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.HYBRID,
-            max_chunk_size=50,
-            min_chunk_size=5,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.HYBRID,
+                max_chunk_size=50,
+                min_chunk_size=5,
+            )
+        )
 
         text = """---
 title: Wheat Growing Guide

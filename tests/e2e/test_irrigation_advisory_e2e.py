@@ -441,9 +441,7 @@ class TestFertilizerPlan:
         # If we got results for both, they should differ
         if len(results) == 2:
             # Different crops should produce different plans
-            assert results[0] != results[1], (
-                "Fertilizer plans for different crops should differ"
-            )
+            assert results[0] != results[1], "Fertilizer plans for different crops should differ"
 
     async def test_get_fertilizer_by_nutrient(self, http_client: httpx.AsyncClient):
         """
@@ -601,9 +599,7 @@ class TestCrossServiceAdvisoryWorkflow:
             pytest.skip("Advisory service not available")
 
         # Step 2: Get crop requirements for wheat
-        crop_resp = await http_client.get(
-            f"{ADVISORY_BASE_URL}/crops/wheat/requirements"
-        )
+        crop_resp = await http_client.get(f"{ADVISORY_BASE_URL}/crops/wheat/requirements")
         assert crop_resp.status_code in (200, 404)
 
         # Step 3: Assess nutrient status from NDVI = 0.38 (stressed)

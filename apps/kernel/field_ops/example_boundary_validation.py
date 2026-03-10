@@ -10,14 +10,10 @@ Can be run directly after installing requirements:
 """
 
 import json
-import sys
 from pathlib import Path
 
-# إضافة المسار للوحدات - Add path to modules
-sys.path.insert(0, str(Path(__file__).parent))
-
 try:
-    from services.boundary_validator import (
+    from apps.kernel.field_ops.services.boundary_validator import (
         AREA_LIMITS,
         YEMEN_BOUNDS,
         BoundaryValidator,

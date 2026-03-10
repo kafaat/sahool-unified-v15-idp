@@ -157,9 +157,7 @@ async def test_route_to_field_ops_service(http_client: AsyncClient, auth_headers
         )
 
         # Should either succeed or return auth error (both indicate routing works)
-        assert response.status_code in [200, 401, 403, 404], (
-            f"Unexpected status code: {response.status_code}"
-        )
+        assert response.status_code in [200, 401, 403, 404], f"Unexpected status code: {response.status_code}"
     except httpx.ConnectError:
         pytest.skip("Kong gateway or field-management-service not available")
 
@@ -189,9 +187,7 @@ async def test_route_not_found(http_client: AsyncClient):
     اختبار إرجاع Kong لخطأ 404 للمسارات غير الموجودة
     """
     try:
-        response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/nonexistent/service", timeout=5.0
-        )
+        response = await http_client.get(f"{KONG_GATEWAY_URL}/api/v1/nonexistent/service", timeout=5.0)
 
         # Should return 404 Not Found
         assert response.status_code == 404
@@ -285,9 +281,7 @@ async def test_jwt_authentication_expired_token(http_client: AsyncClient, genera
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_jwt_authentication_invalid_signature(
-    http_client: AsyncClient, test_tenant_id: str, test_user_id: str
-):
+async def test_jwt_authentication_invalid_signature(http_client: AsyncClient, test_tenant_id: str, test_user_id: str):
     """
     Test requests with invalid JWT signature are rejected
     اختبار رفض الطلبات مع توقيع JWT غير صالح
@@ -588,9 +582,7 @@ async def test_api_version_in_header(http_client: AsyncClient, auth_headers):
     try:
         headers = {**auth_headers(), "Accept": "application/json; version=1"}
 
-        response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/fields/healthz", headers=headers, timeout=10.0
-        )
+        response = await http_client.get(f"{KONG_GATEWAY_URL}/api/fields/healthz", headers=headers, timeout=10.0)
 
         # Should handle version header
         assert response.status_code in [200, 401, 403, 404]
@@ -688,18 +680,14 @@ async def test_concurrent_requests_through_gateway(http_client: AsyncClient, aut
     try:
         # Send 20 concurrent requests
         tasks = [
-            http_client.get(
-                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
-            )
+            http_client.get(f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0)
             for _ in range(20)
         ]
 
         responses = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Count successful responses
-        successful = sum(
-            1 for r in responses if isinstance(r, httpx.Response) and r.status_code in [200, 404]
-        )
+        successful = sum(1 for r in responses if isinstance(r, httpx.Response) and r.status_code in [200, 404])
 
         # At least 80% should succeed
         assert successful >= 16, f"Only {successful}/20 concurrent requests succeeded"

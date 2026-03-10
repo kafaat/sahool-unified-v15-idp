@@ -39,6 +39,10 @@ env:
   ARGOCD_SERVER: argocd.sahool.io
   HELM_TIMEOUT: 15m
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: deploy-new-services-${{ github.event.inputs.environment || 'production' }}
   cancel-in-progress: false
@@ -50,6 +54,7 @@ jobs:
   validate:
     name: Validate Deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       version: ${{ steps.version.outputs.version }}
       environment: ${{ steps.env.outputs.environment }}
@@ -139,6 +144,7 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: validate
     if: needs.validate.outputs.environment == 'staging' && needs.validate.outputs.argocd_available == 'true'
     environment:
@@ -215,6 +221,7 @@ jobs:
   smoke-tests-staging:
     name: Smoke Tests (Staging)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-staging]
     if: needs.validate.outputs.environment == 'staging'
     steps:
@@ -293,6 +300,7 @@ jobs:
   production-approval:
     name: Production Approval
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, smoke-tests-staging]
     if: needs.validate.outputs.environment == 'production'
     environment:
@@ -307,6 +315,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, production-approval]
     if: needs.validate.outputs.environment == 'production' && needs.validate.outputs.argocd_available == 'true'
     environment:
@@ -391,6 +400,7 @@ jobs:
   smoke-tests-production:
     name: Smoke Tests (Production)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-production]
     if: needs.validate.outputs.environment == 'production'
     steps:
@@ -439,6 +449,7 @@ jobs:
   rollback:
     name: Rollback on Failure
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-production, smoke-tests-production]
     if: failure() && needs.validate.outputs.environment == 'production'
     steps:
@@ -485,6 +496,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, deploy-staging, deploy-production, smoke-tests-staging, smoke-tests-production]
     if: always()
     steps:

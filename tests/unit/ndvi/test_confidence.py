@@ -68,12 +68,8 @@ class TestConfidenceScore:
 
     def test_missing_percentiles_decreases_confidence(self):
         """Missing percentiles reduces confidence"""
-        complete = confidence_score(
-            cloud_coverage=0.0, age_days=0, has_percentiles=True, has_std=True
-        )
-        incomplete = confidence_score(
-            cloud_coverage=0.0, age_days=0, has_percentiles=False, has_std=False
-        )
+        complete = confidence_score(cloud_coverage=0.0, age_days=0, has_percentiles=True, has_std=True)
+        incomplete = confidence_score(cloud_coverage=0.0, age_days=0, has_percentiles=False, has_std=False)
 
         assert incomplete < complete
 

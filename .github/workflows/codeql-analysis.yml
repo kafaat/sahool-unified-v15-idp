@@ -76,6 +76,7 @@ jobs:
   security-summary:
     name: Security Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: analyze
     if: always()
     steps:

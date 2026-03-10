@@ -84,9 +84,7 @@ class TestGetCurrentUser:
     @pytest.mark.asyncio
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_valid_token_returns_user(
-        self, mock_repo, mock_cache, valid_credentials, mock_request
-    ):
+    async def test_valid_token_returns_user(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that valid token returns user."""
         mock_cache.return_value = None  # No cache
         mock_repo.return_value = None  # No repository
@@ -103,9 +101,7 @@ class TestGetCurrentUser:
     @pytest.mark.asyncio
     @patch("shared.auth.dependencies.get_user_cache")
     @patch("shared.auth.dependencies.get_user_repository")
-    async def test_user_stored_in_request_state(
-        self, mock_repo, mock_cache, valid_credentials, mock_request
-    ):
+    async def test_user_stored_in_request_state(self, mock_repo, mock_cache, valid_credentials, mock_request):
         """Test that user is stored in request state."""
         mock_cache.return_value = None
         mock_repo.return_value = None

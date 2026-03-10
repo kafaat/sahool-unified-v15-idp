@@ -22,6 +22,7 @@ class TestTwoFactorAuthService:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_service_initialization(self, service):
@@ -50,6 +51,7 @@ class TestSecretGeneration:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_generate_secret_returns_string(self, service):
@@ -93,6 +95,7 @@ class TestTOTPURIGeneration:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_generate_totp_uri_returns_string(self, service):
@@ -165,6 +168,7 @@ class TestQRCodeGeneration:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_generate_qr_code_returns_string(self, service):
@@ -241,6 +245,7 @@ class TestTOTPVerification:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_verify_totp_with_valid_token(self, service):
@@ -350,6 +355,7 @@ class TestBackupCodeGeneration:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_generate_backup_codes_returns_list(self, service):
@@ -411,6 +417,7 @@ class TestBackupCodeHashing:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_hash_backup_code_returns_string(self, service):
@@ -471,6 +478,7 @@ class TestBackupCodeVerification:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_verify_backup_code_returns_tuple(self, service):
@@ -567,6 +575,7 @@ class TestCurrentTOTP:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_get_current_totp_returns_string(self, service):
@@ -627,6 +636,7 @@ class TestTwoFAIntegration:
     def service(self):
         """Create a TwoFactorAuthService instance for testing"""
         from shared.auth.twofa_service import TwoFactorAuthService
+
         return TwoFactorAuthService()
 
     def test_complete_totp_setup_flow(self, service):

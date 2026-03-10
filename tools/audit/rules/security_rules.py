@@ -52,10 +52,7 @@ def check_hardcoded_secrets(repo_root: Path) -> list:
                 if "getenv" in match or "environ" in match or "os." in match:
                     continue
                 # Skip if it's clearly a placeholder
-                if any(
-                    placeholder in match.lower()
-                    for placeholder in ["xxx", "changeme", "your_", "example", "${"]
-                ):
+                if any(placeholder in match.lower() for placeholder in ["xxx", "changeme", "your_", "example", "${"]):
                     continue
 
                 findings.append(
@@ -168,9 +165,7 @@ def check_tenant_isolation(repo_root: Path) -> list:
     findings = []
 
     # Check repository/service files for tenant filtering
-    repo_files = list(repo_root.rglob("**/repository*.py")) + list(
-        repo_root.rglob("**/service*.py")
-    )
+    repo_files = list(repo_root.rglob("**/repository*.py")) + list(repo_root.rglob("**/service*.py"))
 
     for repo_file in repo_files:
         if "test" in str(repo_file).lower():
@@ -182,9 +177,7 @@ def check_tenant_isolation(repo_root: Path) -> list:
             continue
 
         # Check if file has database queries
-        has_queries = any(
-            pattern in content for pattern in ["query", "select", "filter", "where", "execute"]
-        )
+        has_queries = any(pattern in content for pattern in ["query", "select", "filter", "where", "execute"])
 
         if has_queries:
             has_tenant_filter = "tenant_id" in content or "tenant" in content.lower()

@@ -35,6 +35,7 @@ except ImportError:
                 detail["error_ar"] = message_ar
             super().__init__(status_code=422, detail=detail)
 
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -95,6 +96,7 @@ def _get_repo(req: Request):
     pool = getattr(req.app.state, "db_pool", None)
     if pool:
         from src.db import DroneRepository
+
         return DroneRepository(pool)
     return None
 
@@ -160,22 +162,30 @@ async def create_mission(mission: MissionCreate, req: Request, user=Depends(get_
     else:
         mission_id = f"MSN-{uuid.uuid4().hex[:8].upper()}"
         mission_data = {
-            "id": mission_id, "tenant_id": tenant_id,
+            "id": mission_id,
+            "tenant_id": tenant_id,
             **mission.model_dump(),
-            "status": "planned", "progress_percent": 0,
+            "status": "planned",
+            "progress_percent": 0,
             "created_at": datetime.now(UTC).isoformat(),
-            "started_at": None, "completed_at": None,
+            "started_at": None,
+            "completed_at": None,
         }
         _missions[mission_id] = mission_data
         result = MissionResponse(**_mission_to_response(mission_data))
 
     try:
         from src.events import MISSION_CREATED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, MISSION_CREATED, tenant_id,
-            mission_id=result.id, drone_id=mission.drone_id,
-            mission_type=mission.mission_type, field_id=mission.field_id,
+            nc,
+            MISSION_CREATED,
+            tenant_id,
+            mission_id=result.id,
+            drone_id=mission.drone_id,
+            mission_type=mission.mission_type,
+            field_id=mission.field_id,
         )
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
@@ -202,7 +212,10 @@ async def get_mission(mission_id: str, req: Request, user=Depends(get_current_us
 
 
 async def _transition_mission(
-    mission_id: str, target: str, req: Request, tenant_id: str,
+    mission_id: str,
+    target: str,
+    req: Request,
+    tenant_id: str,
 ) -> dict:
     """Transition mission status with validation."""
     repo = _get_repo(req)
@@ -235,6 +248,7 @@ async def start_mission(mission_id: str, req: Request, user=Depends(get_current_
 
     try:
         from src.events import MISSION_STARTED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_STARTED, tenant_id, mission_id=mission_id)
     except Exception:
@@ -252,12 +266,18 @@ async def pause_mission(mission_id: str, req: Request, user=Depends(get_current_
 
     try:
         from src.events import MISSION_PAUSED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_PAUSED, tenant_id, mission_id=mission_id)
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
 
-    return {"mission_id": mission_id, "status": "paused", "message": "Mission paused", "message_ar": "المهمة متوقفة مؤقتاً"}
+    return {
+        "mission_id": mission_id,
+        "status": "paused",
+        "message": "Mission paused",
+        "message_ar": "المهمة متوقفة مؤقتاً",
+    }
 
 
 @router.post("/{mission_id}/resume")
@@ -268,6 +288,7 @@ async def resume_mission(mission_id: str, req: Request, user=Depends(get_current
 
     try:
         from src.events import MISSION_RESUMED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_RESUMED, tenant_id, mission_id=mission_id)
     except Exception:
@@ -284,13 +305,19 @@ async def abort_mission(mission_id: str, req: Request, user=Depends(get_current_
 
     try:
         from src.events import MISSION_ABORTED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_ABORTED, tenant_id, mission_id=mission_id)
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_aborted", mission_id=mission_id, tenant_id=tenant_id)
-    return {"mission_id": mission_id, "status": "aborted", "message": "Mission aborted", "message_ar": "تم إلغاء المهمة"}
+    return {
+        "mission_id": mission_id,
+        "status": "aborted",
+        "message": "Mission aborted",
+        "message_ar": "تم إلغاء المهمة",
+    }
 
 
 @router.post("/{mission_id}/complete")
@@ -301,10 +328,16 @@ async def complete_mission(mission_id: str, req: Request, user=Depends(get_curre
 
     try:
         from src.events import MISSION_COMPLETED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(nc, MISSION_COMPLETED, tenant_id, mission_id=mission_id)
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
 
     logger.info("mission_completed", mission_id=mission_id, tenant_id=tenant_id)
-    return {"mission_id": mission_id, "status": "completed", "message": "Mission completed", "message_ar": "اكتملت المهمة"}
+    return {
+        "mission_id": mission_id,
+        "status": "completed",
+        "message": "Mission completed",
+        "message_ar": "اكتملت المهمة",
+    }

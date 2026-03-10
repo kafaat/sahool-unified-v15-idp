@@ -23,6 +23,7 @@ from datetime import UTC, date, datetime, timedelta
 from enum import Enum, StrEnum
 from typing import Any
 
+import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -33,7 +34,7 @@ from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Add shared modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
@@ -49,8 +50,6 @@ _change_detector = None
 try:
     from .multi_provider import (
         MultiSatelliteService,
-    )
-    from .multi_provider import (
         SatelliteType as MultiSatelliteType,
     )
 
@@ -166,7 +165,7 @@ try:
         AllIndices,
         BandData,
         CropType,
-        GrowthStage,
+        GrowthStage as VegGrowthStage,
         HealthStatus,
         IndexInterpreter,
         VegetationIndex,
@@ -254,49 +253,55 @@ async def lifespan(app: FastAPI):
         _change_detector, \
         _vra_generator
 
-    print("🛰️ Starting Satellite Service...")
+    logger.info("service_starting", service="satellite-service")
 
     # Initialize multi-provider service
     if USE_MULTI_PROVIDER and MultiSatelliteService:
         _multi_provider = MultiSatelliteService()
         providers = _multi_provider.get_available_providers()
         configured = [p["name"] for p in providers if p["configured"]]
-        print(f"🌍 Multi-provider satellite service: {', '.join(configured)}")
+        logger.info("multi_provider_initialized", providers=configured)
     else:
         _multi_provider = None
-        print("🌍 Using legacy eo-learn integration")
+        logger.info("using_legacy_eolearn_integration")
 
     # Initialize phenology detector
     _phenology_detector = PhenologyDetector()
-    print(f"🌱 Phenology detector loaded: {len(_phenology_detector.YEMEN_CROP_SEASONS)} crops supported")
+    logger.info("phenology_detector_loaded", crops_supported=len(_phenology_detector.YEMEN_CROP_SEASONS))
 
     # Initialize field boundary detector
     global _boundary_detector
     _boundary_detector = FieldBoundaryDetector(multi_provider=_multi_provider)
-    print("🗺️  Field Boundary Detector initialized for automatic field delineation")
+    logger.info("field_boundary_detector_initialized")
 
     # Initialize SAR processor
     if SARProcessor:
         _sar_processor = SARProcessor()
-        print("📡 SAR Processor initialized for soil moisture estimation")
+        logger.info("sar_processor_initialized")
 
     # Initialize Yield Predictor
     if YieldPredictor:
         _yield_predictor = YieldPredictor()
-        print("🌾 Yield Predictor initialized for crop yield forecasting")
+        logger.info("yield_predictor_initialized")
 
     # Initialize Change Detector
     _change_detector = ChangeDetector()
-    print("🔄 Change Detector initialized for agricultural change detection")
+    logger.info("change_detector_initialized")
 
     # Initialize Cloud Masker
     _cloud_masker = get_cloud_masker()
-    print("☁️ Cloud Masker initialized for quality assessment")
+    logger.info("cloud_masker_initialized")
 
     # Initialize VRA Generator
     if VRAGenerator:
         _vra_generator = VRAGenerator(multi_provider=_multi_provider)
-        print("🗺️ VRA Generator initialized for prescription map generation")
+        logger.info("vra_generator_initialized")
+
+    # Initialize Agricultural Land Detector (GeoLabel-inspired)
+    global _land_detector
+    if AgriculturalLandDetector:
+        _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
+        logger.info("agricultural_land_detector_initialized")
 
     # Initialize Agricultural Land Detector (GeoLabel-inspired)
     global _land_detector
@@ -316,12 +321,12 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
-    print("✅ Satellite Service ready on port 8090")
+    logger.info("service_ready", service="satellite-service", port=8090)
 
     yield
 
     # Cleanup
-    print("👋 Satellite Service shutting down...")
+    logger.info("service_shutting_down", service="satellite-service")
     if _multi_provider:
         try:
             await _multi_provider.close()
@@ -332,7 +337,7 @@ async def lifespan(app: FastAPI):
             await _sar_processor.close()
         except Exception as e:
             logger.warning(f"Error closing SAR processor: {e}")
-    print("✅ Satellite Service shutdown complete")
+    logger.info("service_shutdown_complete", service="satellite-service")
 
 
 app = FastAPI(
@@ -2228,9 +2233,9 @@ async def get_specific_index(
         crop_enum = CropType.UNKNOWN
 
     try:
-        stage_enum = GrowthStage(growth_stage.lower())
+        stage_enum = VegGrowthStage(growth_stage.lower())
     except ValueError:
-        stage_enum = GrowthStage.VEGETATIVE
+        stage_enum = VegGrowthStage.VEGETATIVE
 
     # Get all indices first
     all_indices_response = await get_all_indices(field_id, lat, lon, satellite)
@@ -2298,9 +2303,9 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
         crop_enum = CropType.UNKNOWN
 
     try:
-        stage_enum = GrowthStage(request.growth_stage.lower())
+        stage_enum = VegGrowthStage(request.growth_stage.lower())
     except ValueError:
-        stage_enum = GrowthStage.VEGETATIVE
+        stage_enum = VegGrowthStage.VEGETATIVE
 
     # Interpret each index
     interpreter = IndexInterpreter()

@@ -36,6 +36,7 @@ jobs:
   preflight:
     name: Pre-flight Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       has_python_changes: ${{ steps.changes.outputs.python }}
       has_config_changes: ${{ steps.changes.outputs.config }}
@@ -88,6 +89,7 @@ jobs:
   drift-detection:
     name: Drift Detection Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [preflight]
     steps:
       - uses: actions/checkout@v6
@@ -290,6 +292,7 @@ jobs:
   config-validation:
     name: Config Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [preflight]
     if: needs.preflight.outputs.has_config_changes == 'true' || github.event_name == 'schedule'
     steps:
@@ -331,6 +334,7 @@ jobs:
   report:
     name: Generate Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [drift-detection, config-validation]
     if: always()
     steps:

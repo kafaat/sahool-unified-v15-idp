@@ -211,9 +211,7 @@ class HMCChecklist:
         total = len(self.items)
         completed = len([item for item in self.items if item["is_completed"]])
         required_total = len([item for item in self.items if item["is_required"]])
-        required_completed = len(
-            [item for item in self.items if item["is_required"] and item["is_completed"]]
-        )
+        required_completed = len([item for item in self.items if item["is_required"] and item["is_completed"]])
 
         return {
             "total_items": total,
@@ -221,9 +219,7 @@ class HMCChecklist:
             "completion_percent": (completed / total * 100) if total > 0 else 0,
             "required_items": required_total,
             "required_completed": required_completed,
-            "required_completion_percent": (
-                (required_completed / required_total * 100) if required_total > 0 else 0
-            ),
+            "required_completion_percent": ((required_completed / required_total * 100) if required_total > 0 else 0),
             "is_complete": self.is_complete(),
         }
 
@@ -252,9 +248,7 @@ class TestGoalAnchoringChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("goal_anchoring")
 
-        water_savings_items = [
-            item for item in items if "water savings" in item["title_en"].lower()
-        ]
+        water_savings_items = [item for item in items if "water savings" in item["title_en"].lower()]
         assert len(water_savings_items) == 1
         assert water_savings_items[0]["is_required"] is True
 
@@ -309,9 +303,7 @@ class TestExperienceInjectionChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("experience_injection")
 
-        farmer_exp_items = [
-            item for item in items if "farmer experience" in item["title_en"].lower()
-        ]
+        farmer_exp_items = [item for item in items if "farmer experience" in item["title_en"].lower()]
         assert len(farmer_exp_items) == 1
 
     def test_experience_injection_has_reward_calibration_item(self):
@@ -599,9 +591,7 @@ class TestArabicLabels:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
 
         # Check water savings goal translation
-        water_items = [
-            item for item in checklist.items if "water savings" in item["title_en"].lower()
-        ]
+        water_items = [item for item in checklist.items if "water savings" in item["title_en"].lower()]
         assert len(water_items) > 0
         # Should contain "مياه" (water) in Arabic
         assert "مياه" in water_items[0]["title_ar"]

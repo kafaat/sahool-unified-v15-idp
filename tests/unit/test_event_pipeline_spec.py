@@ -22,6 +22,7 @@ import pytest
 
 try:
     import pydantic  # noqa: F401
+
     _HAS_PYDANTIC = True
 except ImportError:
     _HAS_PYDANTIC = False
@@ -342,9 +343,7 @@ class TestNotificationServiceConsumer:
             return f.read()
 
     def test_subscribes_to_recommendation_wildcard(self, notif_content):
-        assert "sahool.recommendation.>" in notif_content, (
-            "Must subscribe to broad recommendation subject"
-        )
+        assert "sahool.recommendation.>" in notif_content, "Must subscribe to broad recommendation subject"
 
     def test_subscribes_to_irrigation_specific(self, notif_content):
         assert "sahool.irrigation.recommendation.ready.v1" in notif_content
@@ -383,8 +382,10 @@ class TestProductionReadyChecklist:
         path = os.path.join(_ROOT, "shared/events/publisher.py")
         with open(path) as f:
             content = f.read()
-        assert "child.causation_id = parent.event_id" in content or \
-               'child.causation_id = parent.get("event_id")' in content
+        assert (
+            "child.causation_id = parent.event_id" in content
+            or 'child.causation_id = parent.get("event_id")' in content
+        )
 
     def test_durable_consumers_with_explicit_ack(self):
         path = os.path.join(

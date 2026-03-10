@@ -6,15 +6,9 @@
 Comprehensive examples for using the Crop Calendar Service
 """
 
-import sys
-from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
-
 from datetime import date, timedelta
 
-from services.crop_calendar import CropCalendarService
+from apps.kernel.field_ops.services.crop_calendar import CropCalendarService
 
 
 def test_get_calendar():

@@ -456,8 +456,12 @@ class TestVectorClassificationEngine:
     @pytest.mark.asyncio
     async def test_classify_water(self):
         parcel = make_parcel(
-            mean_ndvi=-0.1, mean_ndwi=0.5, mean_evi=0.0,
-            compactness=0.1, rectangularity=0.1, elongation=5.0,
+            mean_ndvi=-0.1,
+            mean_ndwi=0.5,
+            mean_evi=0.0,
+            compactness=0.1,
+            rectangularity=0.1,
+            elongation=5.0,
         )
         classified = await self.engine.classify_parcels([parcel])
         # With high NDWI and very low NDVI/compactness, should classify as water
@@ -580,24 +584,46 @@ class TestTopologyPreservingSimplifier:
     def test_adjacent_parcels(self):
         """Test that shared edges are preserved."""
         # Two adjacent rectangles sharing an edge
-        p1 = make_parcel("left", coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ])
-        p2 = make_parcel("right", coords=[
-            (44.201, 15.500), (44.202, 15.500),
-            (44.202, 15.501), (44.201, 15.501),
-        ])
+        p1 = make_parcel(
+            "left",
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ],
+        )
+        p2 = make_parcel(
+            "right",
+            coords=[
+                (44.201, 15.500),
+                (44.202, 15.500),
+                (44.202, 15.501),
+                (44.201, 15.501),
+            ],
+        )
         result = self.simplifier.simplify_with_topology([p1, p2])
         assert len(result) == 2
 
     def test_build_adjacency_graph(self):
-        p1 = make_parcel("a", coords=[
-            (0, 0), (1, 0), (1, 1), (0, 1),
-        ])
-        p2 = make_parcel("b", coords=[
-            (1, 0), (2, 0), (2, 1), (1, 1),
-        ])
+        p1 = make_parcel(
+            "a",
+            coords=[
+                (0, 0),
+                (1, 0),
+                (1, 1),
+                (0, 1),
+            ],
+        )
+        p2 = make_parcel(
+            "b",
+            coords=[
+                (1, 0),
+                (2, 0),
+                (2, 1),
+                (1, 1),
+            ],
+        )
         graph = self.simplifier._build_adjacency_graph([p1, p2])
         assert isinstance(graph, dict)
 
@@ -622,14 +648,28 @@ class TestParcelEditingTools:
         self.tools = ParcelEditingTools()
 
     def test_merge_two_parcels(self):
-        p1 = make_parcel("p1", coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ], area=1.0, mean_ndvi=0.6)
-        p2 = make_parcel("p2", coords=[
-            (44.201, 15.500), (44.202, 15.500),
-            (44.202, 15.501), (44.201, 15.501),
-        ], area=1.5, mean_ndvi=0.5)
+        p1 = make_parcel(
+            "p1",
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ],
+            area=1.0,
+            mean_ndvi=0.6,
+        )
+        p2 = make_parcel(
+            "p2",
+            coords=[
+                (44.201, 15.500),
+                (44.202, 15.500),
+                (44.202, 15.501),
+                (44.201, 15.501),
+            ],
+            area=1.5,
+            mean_ndvi=0.5,
+        )
 
         merged = self.tools.merge_parcels([p1, p2], ["p1", "p2"])
         assert merged is not None
@@ -652,10 +692,16 @@ class TestParcelEditingTools:
         assert merged is None
 
     def test_split_parcel(self):
-        parcel = make_parcel("to_split", coords=[
-            (44.200, 15.500), (44.204, 15.500),
-            (44.204, 15.504), (44.200, 15.504),
-        ], area=4.0)
+        parcel = make_parcel(
+            "to_split",
+            coords=[
+                (44.200, 15.500),
+                (44.204, 15.500),
+                (44.204, 15.504),
+                (44.200, 15.504),
+            ],
+            area=4.0,
+        )
         cutting_line = [(44.202, 15.499), (44.202, 15.505)]
 
         parts = self.tools.split_parcel(parcel, cutting_line)
@@ -666,36 +712,61 @@ class TestParcelEditingTools:
 
     def test_split_with_no_intersection(self):
         """Split line that doesn't intersect should return original."""
-        parcel = make_parcel("no_intersect", coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ])
+        parcel = make_parcel(
+            "no_intersect",
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ],
+        )
         cutting_line = [(44.210, 15.510), (44.211, 15.511)]  # Far away
         parts = self.tools.split_parcel(parcel, cutting_line)
         assert len(parts) >= 1
 
     def test_connect_nearby_parcels(self):
-        p1 = make_parcel("frag1", coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ])
-        p2 = make_parcel("frag2", coords=[
-            (44.2011, 15.500), (44.2021, 15.500),
-            (44.2021, 15.501), (44.2011, 15.501),
-        ])
+        p1 = make_parcel(
+            "frag1",
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ],
+        )
+        p2 = make_parcel(
+            "frag2",
+            coords=[
+                (44.2011, 15.500),
+                (44.2021, 15.500),
+                (44.2021, 15.501),
+                (44.2011, 15.501),
+            ],
+        )
         connected = self.tools.connect_parcels([p1, p2], ["frag1", "frag2"], max_gap_meters=500)
         assert connected is not None
 
     def test_connect_far_parcels(self):
         """Parcels too far apart shouldn't be connected."""
-        p1 = make_parcel("far1", coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ])
-        p2 = make_parcel("far2", coords=[
-            (44.210, 15.510), (44.211, 15.510),
-            (44.211, 15.511), (44.210, 15.511),
-        ])
+        p1 = make_parcel(
+            "far1",
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ],
+        )
+        p2 = make_parcel(
+            "far2",
+            coords=[
+                (44.210, 15.510),
+                (44.211, 15.510),
+                (44.211, 15.511),
+                (44.210, 15.511),
+            ],
+        )
         # With a small max gap, distant parcels won't bridge but still get convex hull
         result = self.tools.connect_parcels([p1, p2], ["far1", "far2"], max_gap_meters=5)
         # connect_parcels returns single parcel or None
@@ -747,10 +818,14 @@ class TestQualityInspectionTool:
         assert result["failed"] >= 1
 
     def test_parcel_to_wkt(self):
-        parcel = make_parcel(coords=[
-            (44.200, 15.500), (44.201, 15.500),
-            (44.201, 15.501), (44.200, 15.501),
-        ])
+        parcel = make_parcel(
+            coords=[
+                (44.200, 15.500),
+                (44.201, 15.500),
+                (44.201, 15.501),
+                (44.200, 15.501),
+            ]
+        )
         wkt = self.tool.parcel_to_wkt(parcel)
         assert "POLYGON" in wkt
         assert "44.2" in wkt

@@ -105,9 +105,7 @@ class TestPasswordHasher:
         import bcrypt
 
         # Create a legacy bcrypt hash
-        legacy_hash = bcrypt.hashpw(
-            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+        legacy_hash = bcrypt.hashpw(self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
         # Verify it can be validated
         is_valid, needs_migration = self.hasher.verify_password(self.test_password, legacy_hash)
@@ -124,9 +122,7 @@ class TestPasswordHasher:
         """Test bcrypt verification with incorrect password"""
         import bcrypt
 
-        legacy_hash = bcrypt.hashpw(
-            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+        legacy_hash = bcrypt.hashpw(self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
         is_valid, needs_migration = self.hasher.verify_password("WrongPassword", legacy_hash)
 
@@ -188,9 +184,7 @@ class TestPasswordHasher:
         """Test that bcrypt hashes always need rehash"""
         import bcrypt
 
-        legacy_hash = bcrypt.hashpw(
-            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+        legacy_hash = bcrypt.hashpw(self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
         assert self.hasher.needs_rehash(legacy_hash) is True
 
@@ -409,9 +403,7 @@ class TestPasswordMigrationScenarios:
         import bcrypt
 
         # Step 1: User has old bcrypt password
-        old_hash = bcrypt.hashpw(
-            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+        old_hash = bcrypt.hashpw(self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
         # Step 2: User logs in - verify old password
         is_valid, needs_migration = self.hasher.verify_password(self.test_password, old_hash)

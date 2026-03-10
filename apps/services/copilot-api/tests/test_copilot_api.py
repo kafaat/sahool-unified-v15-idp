@@ -239,11 +239,7 @@ class TestMultiLLMProviderDetection:
         settings = Settings()
 
         # Ollama should always be listed
-        available_providers = (
-            settings.get_available_providers()
-            if hasattr(settings, "get_available_providers")
-            else []
-        )
+        available_providers = settings.get_available_providers() if hasattr(settings, "get_available_providers") else []
         assert isinstance(available_providers, list)
         assert "ollama" in available_providers
 

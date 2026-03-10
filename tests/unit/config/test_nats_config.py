@@ -67,9 +67,7 @@ class TestNatsSecurityConfig:
 
         # Look for the default_permissions block
         # Should contain sahool.> in allow, not just >
-        default_perms_match = re.search(
-            r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content
-        )
+        default_perms_match = re.search(r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content)
         assert default_perms_match, "default_permissions block not found"
 
         default_perms = default_perms_match.group()
@@ -82,15 +80,11 @@ class TestNatsSecurityConfig:
         # Verify we're not allowing all subjects (">") in default permissions
         # The pattern should NOT have allow = [">"] in default_permissions
         dangerous_pattern = re.search(r'allow\s*=\s*\[\s*["\']>\s*["\']', default_perms)
-        assert dangerous_pattern is None, (
-            "default_permissions should NOT allow '>' (all subjects) - security risk!"
-        )
+        assert dangerous_pattern is None, "default_permissions should NOT allow '>' (all subjects) - security risk!"
 
     def test_system_subjects_denied(self, nats_config_content):
         """Test that system subjects ($SYS.>) are denied in default permissions."""
-        default_perms_match = re.search(
-            r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content
-        )
+        default_perms_match = re.search(r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content)
         assert default_perms_match, "default_permissions block not found"
 
         default_perms = default_perms_match.group()
@@ -102,59 +96,39 @@ class TestNatsSecurityConfig:
 
     def test_stream_deletion_denied(self, nats_config_content):
         """Test that JetStream stream deletion is denied in default permissions."""
-        default_perms_match = re.search(
-            r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content
-        )
+        default_perms_match = re.search(r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content)
         assert default_perms_match, "default_permissions block not found"
 
         default_perms = default_perms_match.group()
 
         # Check stream deletion denial
-        assert "$JS.API.STREAM.DELETE" in default_perms, (
-            "Stream deletion should be denied in default permissions"
-        )
+        assert "$JS.API.STREAM.DELETE" in default_perms, "Stream deletion should be denied in default permissions"
 
     def test_consumer_deletion_denied(self, nats_config_content):
         """Test that JetStream consumer deletion is denied in default permissions."""
-        default_perms_match = re.search(
-            r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content
-        )
+        default_perms_match = re.search(r"default_permissions\s*=\s*\{[\s\S]*?(?=users\s*=)", nats_config_content)
         assert default_perms_match, "default_permissions block not found"
 
         default_perms = default_perms_match.group()
 
         # Check consumer deletion denial
-        assert "$JS.API.CONSUMER.DELETE" in default_perms, (
-            "Consumer deletion should be denied in default permissions"
-        )
+        assert "$JS.API.CONSUMER.DELETE" in default_perms, "Consumer deletion should be denied in default permissions"
 
     def test_admin_user_requires_env_vars(self, nats_config_content):
         """Test that admin user credentials come from environment variables."""
         # Check that admin user uses environment variables, not hardcoded values
-        assert "$NATS_ADMIN_USER" in nats_config_content, (
-            "Admin username should be from environment variable"
-        )
-        assert "$NATS_ADMIN_PASSWORD" in nats_config_content, (
-            "Admin password should be from environment variable"
-        )
+        assert "$NATS_ADMIN_USER" in nats_config_content, "Admin username should be from environment variable"
+        assert "$NATS_ADMIN_PASSWORD" in nats_config_content, "Admin password should be from environment variable"
 
     def test_app_user_requires_env_vars(self, nats_config_content):
         """Test that application user credentials come from environment variables."""
-        assert "$NATS_USER" in nats_config_content, (
-            "App username should be from environment variable"
-        )
-        assert "$NATS_PASSWORD" in nats_config_content, (
-            "App password should be from environment variable"
-        )
+        assert "$NATS_USER" in nats_config_content, "App username should be from environment variable"
+        assert "$NATS_PASSWORD" in nats_config_content, "App password should be from environment variable"
 
     def test_monitor_user_requires_env_vars(self, nats_config_content):
         """Test that monitor user credentials come from environment variables."""
-        assert "$NATS_MONITOR_USER" in nats_config_content, (
-            "Monitor username should be from environment variable"
-        )
-        assert "$NATS_MONITOR_PASSWORD" in nats_config_content, (
-            "Monitor password should be from environment variable"
-        )
+        assert "$NATS_MONITOR_USER" in nats_config_content, "Monitor username should be from environment variable"
+        assert "$NATS_MONITOR_PASSWORD" in nats_config_content, "Monitor password should be from environment variable"
 
     def test_no_hardcoded_passwords(self, nats_config_content):
         """Test that there are no hardcoded passwords in the configuration."""
@@ -171,9 +145,7 @@ class TestNatsSecurityConfig:
                 # Check if the match is in a comment line
                 line_start = nats_config_content.rfind("\n", 0, match.start()) + 1
                 line = nats_config_content[line_start : match.end()]
-                assert line.strip().startswith("#"), (
-                    f"Potential hardcoded password found: {match.group()}"
-                )
+                assert line.strip().startswith("#"), f"Potential hardcoded password found: {match.group()}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -197,15 +169,11 @@ class TestNatsJetStreamConfig:
 
     def test_jetstream_memory_limit_set(self, nats_config_content):
         """Test that JetStream memory limit is configured."""
-        assert "max_memory_store:" in nats_config_content, (
-            "JetStream max_memory_store should be configured"
-        )
+        assert "max_memory_store:" in nats_config_content, "JetStream max_memory_store should be configured"
 
     def test_jetstream_file_limit_set(self, nats_config_content):
         """Test that JetStream file storage limit is configured."""
-        assert "max_file_store:" in nats_config_content, (
-            "JetStream max_file_store should be configured"
-        )
+        assert "max_file_store:" in nats_config_content, "JetStream max_file_store should be configured"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

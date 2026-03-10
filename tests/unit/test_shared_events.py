@@ -148,9 +148,7 @@ class TestEventPublisher:
     @pytest.fixture
     def config(self):
         """Create test publisher config"""
-        return PublisherConfig(
-            servers=["nats://localhost:4222"], name="test-publisher", enable_jetstream=True
-        )
+        return PublisherConfig(servers=["nats://localhost:4222"], name="test-publisher", enable_jetstream=True)
 
     @pytest.fixture
     def publisher(self, config):
@@ -374,9 +372,7 @@ class TestDomainEvents:
 
     def test_field_created_event(self):
         """Test FieldCreatedEvent"""
-        event = FieldCreatedEvent(
-            field_id="field-123", farm_id="farm-456", name="North Field", area_hectares=50.5
-        )
+        event = FieldCreatedEvent(field_id="field-123", farm_id="farm-456", name="North Field", area_hectares=50.5)
 
         assert event.field_id == "field-123"
         assert event.farm_id == "farm-456"
@@ -470,9 +466,7 @@ class TestRetryLogic:
         mock_nc.jetstream = MagicMock(return_value=mock_js)
 
         # First call fails, second succeeds
-        mock_js.publish = AsyncMock(
-            side_effect=[Exception("Network error"), AsyncMock(stream="test", seq=1)]
-        )
+        mock_js.publish = AsyncMock(side_effect=[Exception("Network error"), AsyncMock(stream="test", seq=1)])
 
         mock_nats.connect = AsyncMock(return_value=mock_nc)
 
@@ -539,9 +533,7 @@ class TestEventSystemIntegration:
         publisher._js = mock_js
 
         # Publish different event types
-        field_event = FieldCreatedEvent(
-            field_id="field-1", farm_id="farm-1", name="Field 1", area_hectares=50.0
-        )
+        field_event = FieldCreatedEvent(field_id="field-1", farm_id="farm-1", name="Field 1", area_hectares=50.0)
 
         crop_event = CropPlantedEvent(
             field_id="field-1",

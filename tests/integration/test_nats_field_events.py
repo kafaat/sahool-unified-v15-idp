@@ -57,6 +57,7 @@ except ImportError:
     def is_valid_subject(subject: str) -> bool:
         return subject.startswith("sahool.") and len(subject.split(".")) >= 3
 
+
 # Import event contracts
 try:
     from shared.events.contracts import (
@@ -254,9 +255,7 @@ async def test_field_deleted_event_schema(mock_nats):
     farm_id = str(uuid.uuid4())
     tenant_id = str(uuid.uuid4())
 
-    payload = _make_field_deleted_payload(
-        field_id=field_id, farm_id=farm_id, tenant_id=tenant_id
-    )
+    payload = _make_field_deleted_payload(field_id=field_id, farm_id=farm_id, tenant_id=tenant_id)
     data = json.dumps(payload).encode("utf-8")
 
     await mock_nats.publish(SAHOOL_FIELD_DELETED, data)

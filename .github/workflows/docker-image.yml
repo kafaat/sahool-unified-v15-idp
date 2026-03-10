@@ -6,11 +6,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
   # Validate Dockerfiles for PRs (fast, doesn't require Docker Hub)
   validate:
     name: Validate Dockerfiles
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: github.event_name == 'pull_request'
     strategy:
       matrix:
@@ -80,6 +84,7 @@ jobs:
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: github.event_name == 'push'
     strategy:
       matrix:

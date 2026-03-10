@@ -3,8 +3,12 @@ Configuration management for AI Chat Assistant service.
 إدارة التكوين لخدمة مساعد الشات الذكي.
 """
 
+import logging
+
 from pydantic_settings import BaseSettings
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -17,18 +21,18 @@ class Settings(BaseSettings):
     SERVICE_NAME: str = "ai-chat-assistant"
 
     # NATS
-    NATS_URL: str = "nats://localhost:4222"
+    NATS_URL: str = ""
     NATS_RECONNECT_TIME_WAIT: int = 2
     NATS_MAX_RECONNECT_ATTEMPTS: int = 60
 
     # Redis
-    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_URL: str = ""
     REDIS_DB: int = 0
     REDIS_PASSWORD: str | None = None
     REDIS_DECODE_RESPONSES: bool = True
 
     # LLM Orchestrator
-    LLM_ORCHESTRATOR_URL: str = "http://localhost:8164"
+    LLM_ORCHESTRATOR_URL: str = ""
     LLM_ORCHESTRATOR_TIMEOUT: int = 30
 
     # Caching
@@ -60,3 +64,11 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+# Warn about missing external service URLs
+if not settings.NATS_URL:
+    logger.warning("NATS_URL not set, NATS features disabled")
+if not settings.REDIS_URL:
+    logger.warning("REDIS_URL not set, Redis features disabled")
+if not settings.LLM_ORCHESTRATOR_URL:
+    logger.warning("LLM_ORCHESTRATOR_URL not set, LLM orchestrator features disabled")

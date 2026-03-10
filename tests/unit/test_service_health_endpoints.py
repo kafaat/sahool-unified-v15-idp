@@ -83,8 +83,7 @@ class TestHealthEndpointSchema:
     def test_all_python_services_detected(self):
         """Verify we detect a reasonable number of Python services."""
         assert len(PYTHON_SERVICES) >= 20, (
-            f"Expected at least 20 Python FastAPI services, found {len(PYTHON_SERVICES)}: "
-            f"{SERVICE_NAMES}"
+            f"Expected at least 20 Python FastAPI services, found {len(PYTHON_SERVICES)}: {SERVICE_NAMES}"
         )
 
     @pytest.mark.parametrize(
@@ -107,9 +106,7 @@ class TestHealthEndpointSchema:
         """Each service must define a /healthz endpoint."""
         service_dir = SERVICES_DIR / service_name
         main_content = (service_dir / "src" / "main.py").read_text(errors="ignore")
-        assert "/healthz" in main_content, (
-            f"{service_name} does not define /healthz endpoint"
-        )
+        assert "/healthz" in main_content, f"{service_name} does not define /healthz endpoint"
 
     @pytest.mark.parametrize(
         "service_name",
@@ -120,9 +117,7 @@ class TestHealthEndpointSchema:
         """Each service must define a /readyz endpoint."""
         service_dir = SERVICES_DIR / service_name
         main_content = (service_dir / "src" / "main.py").read_text(errors="ignore")
-        assert "/readyz" in main_content, (
-            f"{service_name} does not define /readyz endpoint"
-        )
+        assert "/readyz" in main_content, f"{service_name} does not define /readyz endpoint"
 
     @pytest.mark.parametrize(
         "service_name",
@@ -141,9 +136,7 @@ class TestHealthEndpointSchema:
             or "'status'" in main_content
             or "status" in main_content.lower()
         )
-        assert has_status, (
-            f"{service_name}: /healthz should return a status field"
-        )
+        assert has_status, f"{service_name}: /healthz should return a status field"
 
     @pytest.mark.parametrize(
         "service_name",
@@ -155,9 +148,7 @@ class TestHealthEndpointSchema:
         service_dir = SERVICES_DIR / service_name
         main_content = (service_dir / "src" / "main.py").read_text(errors="ignore")
         has_version = "version" in main_content.lower()
-        assert has_version, (
-            f"{service_name}: should define a version"
-        )
+        assert has_version, f"{service_name}: should define a version"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -177,10 +168,7 @@ class TestServiceStructure:
     def test_service_has_dockerfile(self, service_name: str):
         """Each service should have a Dockerfile."""
         service_dir = SERVICES_DIR / service_name
-        has_dockerfile = (
-            (service_dir / "Dockerfile").exists()
-            or (service_dir / "dockerfile").exists()
-        )
+        has_dockerfile = (service_dir / "Dockerfile").exists() or (service_dir / "dockerfile").exists()
         assert has_dockerfile, f"{service_name} missing Dockerfile"
 
     @pytest.mark.parametrize(
@@ -191,10 +179,7 @@ class TestServiceStructure:
     def test_service_has_requirements(self, service_name: str):
         """Each Python service should have requirements.txt."""
         service_dir = SERVICES_DIR / service_name
-        has_reqs = (
-            (service_dir / "requirements.txt").exists()
-            or (service_dir / "pyproject.toml").exists()
-        )
+        has_reqs = (service_dir / "requirements.txt").exists() or (service_dir / "pyproject.toml").exists()
         assert has_reqs, f"{service_name} missing requirements.txt or pyproject.toml"
 
     @pytest.mark.parametrize(
@@ -264,6 +249,4 @@ class TestNestJSServiceStructure:
     def test_nestjs_has_tsconfig(self, service_name: str):
         """NestJS services should have tsconfig.json."""
         service_dir = SERVICES_DIR / service_name
-        assert (service_dir / "tsconfig.json").exists(), (
-            f"{service_name} missing tsconfig.json"
-        )
+        assert (service_dir / "tsconfig.json").exists(), f"{service_name} missing tsconfig.json"

@@ -521,9 +521,7 @@ class TestSyncOperations:
             "item_id": str(uuid.uuid4()),
             "data": {
                 "model": "yolo26-s",
-                "detections": [
-                    {"class": "aphid", "confidence": 0.87, "bbox": [100, 100, 200, 200]}
-                ],
+                "detections": [{"class": "aphid", "confidence": 0.87, "bbox": [100, 100, 200, 200]}],
                 "timestamp": datetime.utcnow().isoformat(),
             },
             "timestamp": datetime.utcnow().isoformat(),
@@ -830,9 +828,7 @@ class TestDeviceMonitoring:
 
         now = datetime.utcnow()
         timed_out_devices = [
-            d
-            for d in devices
-            if (now - d["last_heartbeat"]).total_seconds() > timeout_threshold_seconds
+            d for d in devices if (now - d["last_heartbeat"]).total_seconds() > timeout_threshold_seconds
         ]
 
         assert len(timed_out_devices) == 1

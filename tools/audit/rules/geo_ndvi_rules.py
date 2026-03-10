@@ -146,9 +146,7 @@ def check_ndvi_async_processing(repo_root: Path) -> list:
 
         # Check for heavy computation in sync context
         has_heavy_sync = (
-            "def calculate_ndvi" in content
-            or "def compute_ndvi" in content
-            or "def process_ndvi" in content
+            "def calculate_ndvi" in content or "def compute_ndvi" in content or "def process_ndvi" in content
         ) and "async def" not in content
 
         if has_heavy_sync and not has_background:
@@ -183,10 +181,7 @@ def check_tenant_field_isolation(repo_root: Path) -> list:
             continue
 
         # Check if it's a field/geo model
-        is_geo_model = any(
-            pattern in content.lower()
-            for pattern in ["field", "polygon", "geometry", "ndvi", "zone"]
-        )
+        is_geo_model = any(pattern in content.lower() for pattern in ["field", "polygon", "geometry", "ndvi", "zone"])
 
         if is_geo_model:
             has_tenant = "tenant_id" in content or "tenant" in content.lower()

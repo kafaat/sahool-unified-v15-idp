@@ -11,6 +11,9 @@ on:
   push:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
 concurrency:
   group: quality-${{ github.ref }}
   cancel-in-progress: true

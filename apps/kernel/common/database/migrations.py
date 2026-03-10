@@ -580,7 +580,5 @@ class PostGISMigrationHelper:
         _validate_identifier(table, "table name")
         _validate_identifier(column, "column name")
         _validate_identifier(geometry_type, "geometry type")
-        conn.execute(
-            select(func.AddGeometryColumn(table, column, srid, geometry_type, 2))
-        )
+        conn.execute(select(func.AddGeometryColumn(table, column, srid, geometry_type, 2)))
         conn.commit()

@@ -230,9 +230,7 @@ class TestLoginEndpoint:
         data = response.json()
         assert "disabled" in data["detail"].lower()
 
-    def test_login_failure_account_not_verified(
-        self, client, mock_unverified_user, mock_user_service
-    ):
+    def test_login_failure_account_not_verified(self, client, mock_unverified_user, mock_user_service):
         """Test login fails when account is not verified"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_unverified_user
@@ -250,9 +248,7 @@ class TestLoginEndpoint:
         data = response.json()
         assert "verified" in data["detail"].lower()
 
-    def test_login_with_2fa_returns_temp_token(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_login_with_2fa_returns_temp_token(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test login with 2FA enabled returns temp token without code"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa
@@ -274,9 +270,7 @@ class TestLoginEndpoint:
         assert data["access_token"] == ""
         assert data["user"]["id"] == "user-456"
 
-    def test_login_with_valid_totp_code(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_login_with_valid_totp_code(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test login with 2FA and valid TOTP code"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa
@@ -304,9 +298,7 @@ class TestLoginEndpoint:
         assert data["requires_2fa"] is False
         mock_twofa_service.verify_totp.assert_called_once()
 
-    def test_login_with_invalid_totp_code(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_login_with_invalid_totp_code(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test login fails with invalid TOTP code"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa
@@ -327,9 +319,7 @@ class TestLoginEndpoint:
         data = response.json()
         assert "two-factor" in data["detail"].lower() or "totp" in data["detail"].lower()
 
-    def test_login_with_valid_backup_code(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_login_with_valid_backup_code(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test login with 2FA and valid backup code"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa
@@ -414,9 +404,7 @@ class TestLoginEndpoint:
 class TestTwoFALoginEndpoint:
     """Tests for POST /api/v1/auth/login/2fa endpoint"""
 
-    def test_2fa_login_success_with_valid_totp(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_success_with_valid_totp(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test successful 2FA login with valid TOTP code"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user_with_2fa
@@ -445,9 +433,7 @@ class TestTwoFALoginEndpoint:
         assert data["user"]["id"] == "user-456"
         mock_user_service.update_last_login.assert_called_once_with("user-456")
 
-    def test_2fa_login_failure_invalid_temp_token(
-        self, client, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_failure_invalid_temp_token(self, client, mock_user_service, mock_twofa_service):
         """Test 2FA login fails with invalid temp token"""
         set_user_service(mock_user_service)
 
@@ -464,9 +450,7 @@ class TestTwoFALoginEndpoint:
         data = response.json()
         assert "token" in data["detail"].lower()
 
-    def test_2fa_login_failure_expired_temp_token(
-        self, client, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_failure_expired_temp_token(self, client, mock_user_service, mock_twofa_service):
         """Test 2FA login fails with expired temp token"""
         set_user_service(mock_user_service)
 
@@ -495,9 +479,7 @@ class TestTwoFALoginEndpoint:
         data = response.json()
         assert "expired" in data["detail"].lower() or "token" in data["detail"].lower()
 
-    def test_2fa_login_with_valid_backup_code(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_with_valid_backup_code(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test 2FA login with valid backup code"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user_with_2fa
@@ -525,9 +507,7 @@ class TestTwoFALoginEndpoint:
         assert data["access_token"] == "backup_access_token"
         mock_user_service.remove_backup_code.assert_called_once_with("user-456", "5f6b2a3c8d9e1f4b")
 
-    def test_2fa_login_failure_invalid_code(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_failure_invalid_code(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test 2FA login fails with invalid TOTP and backup codes"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user_with_2fa
@@ -569,9 +549,7 @@ class TestTwoFALoginEndpoint:
         data = response.json()
         assert "two-factor" in data["detail"].lower() or "authentication" in data["detail"].lower()
 
-    def test_2fa_login_failure_2fa_not_enabled(
-        self, client, mock_user, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_failure_2fa_not_enabled(self, client, mock_user, mock_user_service, mock_twofa_service):
         """Test 2FA login fails when 2FA is not enabled for user"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user  # User without 2FA
@@ -1115,9 +1093,7 @@ class TestAuthIntegrationScenarios:
         user_data = response.json()
         assert user_data["data"]["id"] == "user-123"
 
-    def test_complete_login_flow_with_2fa(
-        self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service
-    ):
+    def test_complete_login_flow_with_2fa(self, client, mock_user_with_2fa, mock_user_service, mock_twofa_service):
         """Test complete login flow with 2FA"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user_with_2fa

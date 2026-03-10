@@ -61,8 +61,8 @@ resources:
     cpu: 500m
     memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 250m
+    memory: 256Mi
 
 nodeSelector: {}
 tolerations: []
@@ -97,6 +97,9 @@ infrastructure:
     # VPA Configuration for PostgreSQL (Stateful Database)
     # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
     # Prevents disruption to database connections and ensures data consistency
+    pdb:
+      enabled: true
+      minAvailable: 1
     vpa:
       enabled: true
       updateMode: "Off"  # Never auto-update database pods
@@ -121,6 +124,9 @@ infrastructure:
         requests:
           cpu: 100m
           memory: 256Mi
+    pdb:
+      enabled: true
+      minAvailable: 1
     # VPA Configuration for Redis (Stateful Cache/Data Store)
     # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
     # Prevents disruption to cache connections and session data
@@ -149,6 +155,9 @@ infrastructure:
       requests:
         cpu: 200m
         memory: 512Mi
+    pdb:
+      enabled: true
+      minAvailable: 1
     # VPA Configuration for NATS (Stateful Message Broker with JetStream)
     # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
     # Prevents disruption to message streams and persistent message storage
@@ -194,6 +203,7 @@ infrastructure:
     image:
       repository: qdrant/qdrant
       tag: "v1.10.1"
+    apiKeyRequired: true
     persistence:
       enabled: true
       size: 10Gi
@@ -1090,7 +1100,7 @@ security:
     enabled: false
 
   mtls:
-    enabled: false
+    enabled: true
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Monitoring & Observability

@@ -122,11 +122,7 @@ class HashChainValidator:
 
         from shared.libs.audit.models import AuditLog
 
-        stmt = (
-            select(AuditLog)
-            .where(AuditLog.tenant_id == tenant_id)
-            .order_by(AuditLog.created_at.asc())
-        )
+        stmt = select(AuditLog).where(AuditLog.tenant_id == tenant_id).order_by(AuditLog.created_at.asc())
 
         if start_date:
             stmt = stmt.where(AuditLog.created_at >= start_date)
@@ -247,9 +243,7 @@ class HashChainValidator:
             report.chain_integrity = round(valid_links / report.total_entries * 100, 2)
 
         # Count specific issues
-        report.chain_breaks_detected = sum(
-            1 for e in report.errors if e.error_type == "chain_break"
-        )
+        report.chain_breaks_detected = sum(1 for e in report.errors if e.error_type == "chain_break")
         report.tamper_indicators = sum(1 for e in report.errors if e.error_type == "hash_mismatch")
 
         # Forensic analysis
@@ -341,8 +335,7 @@ class HashChainValidator:
                         actual_value=stored_entry_hash,
                         timestamp=entry.get("created_at"),
                         recoverable=False,
-                        repair_suggestion="ALERT: Entry may have been tampered with. "
-                        "Compare with backups.",
+                        repair_suggestion="ALERT: Entry may have been tampered with. Compare with backups.",
                     )
                 )
 
@@ -395,9 +388,7 @@ class HashChainValidator:
 
         return segments
 
-    def _identify_suspicious_entries(
-        self, entries: list[dict], errors: list[ValidationError]
-    ) -> list[dict]:
+    def _identify_suspicious_entries(self, entries: list[dict], errors: list[ValidationError]) -> list[dict]:
         """Identify entries that require investigation"""
         suspicious = []
         error_indices = {e.entry_index for e in errors}
@@ -491,9 +482,7 @@ class HashChainValidator:
 
         for i, entry in enumerate(self.entries):
             canonical = self.build_canonical_string(entry)
-            computed_hash = self.compute_entry_hash(
-                prev_hash=entry.get("prev_hash"), canonical=canonical
-            )
+            computed_hash = self.compute_entry_hash(prev_hash=entry.get("prev_hash"), canonical=canonical)
 
             if computed_hash == entry.get("entry_hash"):
                 if i == 0 or entry.get("prev_hash") == prev_hash:
@@ -590,10 +579,7 @@ class HashChainValidator:
                 ]
             )
             for gap in report.timeline_gaps[:10]:
-                lines.append(
-                    f"- {gap['gap_hours']}h gap between entries "
-                    f"{gap['start_index']} and {gap['end_index']}"
-                )
+                lines.append(f"- {gap['gap_hours']}h gap between entries {gap['start_index']} and {gap['end_index']}")
             lines.append("")
 
         # Find recovery anchor
@@ -662,9 +648,7 @@ def generate_markdown_report(report: ValidationReport) -> str:
             ]
         )
         for err in report.errors[:50]:
-            lines.append(
-                f"| {err.entry_index} | {err.error_type} | {err.severity} | {err.description} |"
-            )
+            lines.append(f"| {err.entry_index} | {err.error_type} | {err.severity} | {err.description} |")
         lines.append("")
 
     if report.suspicious_entries:
@@ -675,10 +659,7 @@ def generate_markdown_report(report: ValidationReport) -> str:
             ]
         )
         for entry in report.suspicious_entries[:20]:
-            lines.append(
-                f"- Entry {entry['index']}: {entry['action']} "
-                f"by {entry['actor_id']} at {entry['timestamp']}"
-            )
+            lines.append(f"- Entry {entry['index']}: {entry['action']} by {entry['actor_id']} at {entry['timestamp']}")
         lines.append("")
 
     if report.timeline_gaps:

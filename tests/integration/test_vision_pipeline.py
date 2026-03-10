@@ -387,10 +387,7 @@ class TestVisionPipelineIntegration:
 
         # Verify event was published
         assert len(mock_nats_client.published_events) == 1
-        assert (
-            mock_nats_client.published_events[0]["data"]["event_type"]
-            == "vision.detection.completed"
-        )
+        assert mock_nats_client.published_events[0]["data"]["event_type"] == "vision.detection.completed"
 
     @pytest.mark.asyncio
     async def test_pipeline_with_multiple_detection_types(

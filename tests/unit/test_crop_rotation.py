@@ -1033,9 +1033,7 @@ class TestIntegration:
         # Estimate rotation impact
         estimate = soil_tracker.estimate_rotation_impact(
             field_id="FIELD-001",
-            planned_crops=[
-                rec.recommended_crop for rec in plan.yearly_recommendations if rec.recommended_crop
-            ][:6],
+            planned_crops=[rec.recommended_crop for rec in plan.yearly_recommendations if rec.recommended_crop][:6],
         )
 
         assert estimate is not None

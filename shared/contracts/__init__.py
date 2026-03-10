@@ -19,14 +19,14 @@ Submodules | الوحدات الفرعية:
 - events: Event schemas for NATS messaging | مخططات أحداث NATS
 """
 
+from shared.contracts import actions, events
 from shared.contracts.actions import *
 from shared.contracts.events import *
 
 __all__ = [
-    # Events submodule exports
-    "events",
-    # Actions submodule exports
+    # Submodule re-exports
     "actions",
+    "events",
 ]
 
 __version__ = "16.0.0"

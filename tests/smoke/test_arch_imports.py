@@ -126,9 +126,7 @@ class TestNoCircularImports:
     def test_module_imports_cleanly(self, module_name: str):
         """Each module can be imported independently without circular import errors"""
         # Remove from cache to ensure fresh import
-        modules_to_remove = [
-            key for key in sys.modules if key == module_name or key.startswith(f"{module_name}.")
-        ]
+        modules_to_remove = [key for key in sys.modules if key == module_name or key.startswith(f"{module_name}.")]
         for mod in modules_to_remove:
             sys.modules.pop(mod, None)
 

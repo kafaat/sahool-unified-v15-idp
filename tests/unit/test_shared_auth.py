@@ -38,9 +38,7 @@ class TestCreateAccessToken:
         mock_config.JWT_ISSUER = "sahool"
         mock_config.JWT_AUDIENCE = "sahool-api"
 
-        token = create_access_token(
-            user_id="user123", roles=["farmer", "admin"], permissions=["farm:read"]
-        )
+        token = create_access_token(user_id="user123", roles=["farmer", "admin"], permissions=["farm:read"])
 
         assert isinstance(token, str)
         assert len(token) > 0
@@ -256,9 +254,7 @@ class TestVerifyToken:
         mock_config.JWT_AUDIENCE = "sahool-api"
 
         # Create token that expires immediately
-        token = create_access_token(
-            user_id="user123", roles=["farmer"], expires_delta=timedelta(seconds=-1)
-        )
+        token = create_access_token(user_id="user123", roles=["farmer"], expires_delta=timedelta(seconds=-1))
 
         # Verify should raise expired token exception
         with pytest.raises(AuthException) as exc_info:
@@ -340,9 +336,7 @@ class TestRefreshAccessToken:
         refresh_token = create_refresh_token(user_id="user123")
 
         # Use refresh token to get new access token
-        new_access_token = refresh_access_token(
-            refresh_token, roles=["farmer"], permissions=["farm:read"]
-        )
+        new_access_token = refresh_access_token(refresh_token, roles=["farmer"], permissions=["farm:read"])
 
         # Verify new access token
         payload = verify_token(new_access_token)
@@ -388,9 +382,7 @@ class TestAlgorithmSecurity:
         # Try to create token with disallowed algorithm
         with pytest.raises(Exception):
             # This should fail when trying to verify
-            token = jwt.encode(
-                {"sub": "user123"}, "secret", algorithm="HS384", headers={"alg": "RS256"}
-            )
+            token = jwt.encode({"sub": "user123"}, "secret", algorithm="HS384", headers={"alg": "RS256"})
             verify_token(token)
 
 

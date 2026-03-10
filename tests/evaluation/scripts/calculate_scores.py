@@ -163,9 +163,7 @@ class ScoreCalculator:
             if result.get("passed", False):
                 categories[category]["passed"] += 1
 
-        category_scores = {
-            cat: (stats["passed"] / stats["total"] * 100) for cat, stats in categories.items()
-        }
+        category_scores = {cat: (stats["passed"] / stats["total"] * 100) for cat, stats in categories.items()}
 
         # Latency statistics
         latencies = [r.get("latency_ms", 0.0) for r in self.test_results]
@@ -260,9 +258,7 @@ def main():
     print(f"   Accuracy: {summary['accuracy']}%")
     print(f"   Latency Score: {summary['latency_score']}%")
     print(f"   Safety Score: {summary['safety_score']}%")
-    print(
-        f"   Pass Rate: {summary['pass_rate']}% ({summary['passed_tests']}/{summary['total_tests']})"
-    )
+    print(f"   Pass Rate: {summary['pass_rate']}% ({summary['passed_tests']}/{summary['total_tests']})")
     print(f"   Arabic Support: {summary['arabic_support']}%")
     print(f"   English Support: {summary['english_support']}%")
     print(f"   Avg Latency: {summary['avg_latency_ms']}ms")

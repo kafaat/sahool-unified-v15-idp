@@ -8,7 +8,7 @@ Practical examples of using the analytics system
 
 from datetime import date
 
-from analytics import (
+from apps.kernel.analytics import (
     EventType,
     Governorate,
     TimePeriod,

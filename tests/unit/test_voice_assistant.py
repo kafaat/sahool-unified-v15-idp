@@ -4,6 +4,7 @@ Tests for Voice Assistant | اختبارات المساعد الصوتي
 Tests cover initialization, intent detection, wake word detection,
 voice processing, and language support.
 """
+
 from __future__ import annotations
 
 import pytest

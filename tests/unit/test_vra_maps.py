@@ -1,4 +1,5 @@
 """Tests for VRA maps module."""
+
 import pytest
 from shared.vra_maps import (
     VRAMapGenerator,
@@ -8,6 +9,7 @@ from shared.vra_maps import (
     EQUIPMENT_FORMATS,
     DEFAULT_FERTILIZER_RATES,
 )
+
 
 class TestVRAMapGenerator:
     def setup_method(self):
@@ -80,6 +82,7 @@ class TestVRAMapGenerator:
         assert gen.num_zones == 3
         gen = VRAMapGenerator(num_zones=10)
         assert gen.num_zones == 7
+
 
 class TestDefaultRates:
     def test_all_zones_have_rates(self):

@@ -14,6 +14,9 @@ on:
     paths:
       - 'governance/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: governance-${{ github.ref }}
   cancel-in-progress: true
@@ -22,6 +25,7 @@ jobs:
   validate-services:
     name: Validate Service Governance
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -109,6 +113,7 @@ jobs:
   validate-templates:
     name: Validate IDP Templates
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -178,6 +183,7 @@ jobs:
   check-catalog-info:
     name: Check Catalog Info Files
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -260,6 +266,7 @@ jobs:
   ownership-check:
     name: Verify Service Ownership
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event_name == 'pull_request'
 
     steps:
@@ -327,6 +334,7 @@ jobs:
   deprecated-check:
     name: Check for Deprecated Services
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -389,6 +397,7 @@ jobs:
   summary:
     name: Governance Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [validate-services, validate-templates, check-catalog-info]
     if: always()
 

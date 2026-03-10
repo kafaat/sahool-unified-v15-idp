@@ -322,9 +322,7 @@ class TestTenantSettingsFeatures:
         """Test features with boolean values"""
         from shared.domain.tenancy.models import TenantSettings
 
-        settings = TenantSettings(
-            features={"ndvi_analysis": True, "weather_alerts": True, "marketplace": False}
-        )
+        settings = TenantSettings(features={"ndvi_analysis": True, "weather_alerts": True, "marketplace": False})
 
         assert settings.features["ndvi_analysis"] is True
         assert settings.features["marketplace"] is False
@@ -333,9 +331,7 @@ class TestTenantSettingsFeatures:
         """Test features with mixed value types"""
         from shared.domain.tenancy.models import TenantSettings
 
-        settings = TenantSettings(
-            features={"enabled": True, "max_alerts": 100, "channels": ["email", "sms"]}
-        )
+        settings = TenantSettings(features={"enabled": True, "max_alerts": 100, "channels": ["email", "sms"]})
 
         assert settings.features["enabled"] is True
         assert settings.features["max_alerts"] == 100

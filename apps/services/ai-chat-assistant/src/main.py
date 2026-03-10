@@ -39,25 +39,34 @@ async def lifespan(app: FastAPI):
     logger.info(f"Port: {settings.PORT}")
 
     try:
-        # Initialize Redis cache
-        logger.info("Connecting to Redis...")
-        await cache_manager.connect()
+        # Initialize Redis cache (only if REDIS_URL is configured)
+        if settings.REDIS_URL:
+            logger.info("Connecting to Redis...")
+            await cache_manager.connect()
+        else:
+            logger.warning("REDIS_URL not set - Redis cache disabled")
 
-        # Initialize LLM orchestrator client
-        logger.info("Connecting to LLM Orchestrator...")
-        await llm_client.connect()
+        # Initialize LLM orchestrator client (only if URL is configured)
+        if settings.LLM_ORCHESTRATOR_URL:
+            logger.info("Connecting to LLM Orchestrator...")
+            await llm_client.connect()
 
-        # Check orchestrator health
-        is_healthy = await llm_client.health_check()
-        if not is_healthy:
-            logger.warning("LLM Orchestrator health check failed - service may not be available")
+            # Check orchestrator health
+            is_healthy = await llm_client.health_check()
+            if not is_healthy:
+                logger.warning("LLM Orchestrator health check failed - service may not be available")
+        else:
+            logger.warning("LLM_ORCHESTRATOR_URL not set - LLM orchestrator disabled")
 
-        # Initialize NATS event handler
-        logger.info("Connecting to NATS...")
-        await event_handler.connect()
+        # Initialize NATS event handler (only if NATS_URL is configured)
+        if settings.NATS_URL:
+            logger.info("Connecting to NATS...")
+            await event_handler.connect()
+        else:
+            logger.warning("NATS_URL not set - NATS events disabled")
 
-        logger.info("✅ All services connected successfully")
-        logger.info(f"🚀 {settings.SERVICE_NAME} is ready to serve!")
+        logger.info(f"All services initialized for {settings.SERVICE_NAME}")
+        logger.info(f"{settings.SERVICE_NAME} is ready to serve!")
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize services: {e}")
@@ -77,6 +86,9 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error during shutdown: {e}")
 
 
+# Import unified error handling
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+
 # Create FastAPI app
 app = FastAPI(
     title="AI Chat Assistant",
@@ -84,6 +96,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)

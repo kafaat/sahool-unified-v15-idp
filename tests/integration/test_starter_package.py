@@ -337,9 +337,7 @@ class TestNotifications:
         اختبار إرسال إشعار
         """
         # Arrange
-        notification_data = notification_factory.create(
-            user_id="test-user-123", notification_type="weather_alert"
-        )
+        notification_data = notification_factory.create(user_id="test-user-123", notification_type="weather_alert")
         url = f"{service_urls['notification_service']}/api/v1/notifications"
 
         # Act

@@ -530,20 +530,14 @@ class TestResourcePoolService:
             type=ResourceType.EQUIPMENT,
         )
 
-        updated = await resource_pool_service.update_resource_status(
-            resource.resource_id, ResourceStatus.MAINTENANCE
-        )
+        updated = await resource_pool_service.update_resource_status(resource.resource_id, ResourceStatus.MAINTENANCE)
         assert updated.status == ResourceStatus.MAINTENANCE
 
     @pytest.mark.asyncio
     async def test_list_resources(self, resource_pool_service):
         """Test listing resources with filters"""
-        await resource_pool_service.register_resource(
-            name="Tractor 1", name_ar="جرار 1", type=ResourceType.EQUIPMENT
-        )
-        await resource_pool_service.register_resource(
-            name="Storage 1", name_ar="مخزن 1", type=ResourceType.STORAGE
-        )
+        await resource_pool_service.register_resource(name="Tractor 1", name_ar="جرار 1", type=ResourceType.EQUIPMENT)
+        await resource_pool_service.register_resource(name="Storage 1", name_ar="مخزن 1", type=ResourceType.STORAGE)
 
         # List all
         all_resources = await resource_pool_service.list_resources()
@@ -648,9 +642,7 @@ class TestResourcePoolService:
             duration_hours=4,
         )
 
-        cancelled = await resource_pool_service.cancel_booking(
-            booking.booking_id, reason="Weather conditions"
-        )
+        cancelled = await resource_pool_service.cancel_booking(booking.booking_id, reason="Weather conditions")
         assert cancelled.status == "cancelled"
 
     @pytest.mark.asyncio
@@ -1568,9 +1560,7 @@ class TestCooperativeWorkflow:
         assert period.net_income == Decimal("200000.00")
 
         # 5. Create distribution plan
-        production_data = {
-            sample_members[i].member_id: float((i + 1) * 20) for i in range(len(sample_members))
-        }
+        production_data = {sample_members[i].member_id: float((i + 1) * 20) for i in range(len(sample_members))}
 
         plan = await revenue_service.create_distribution_plan(
             period_id=period.period_id,

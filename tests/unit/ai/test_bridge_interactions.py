@@ -43,8 +43,9 @@ class TestKnowledgeServiceBridgeIntegration:
             pytest.skip(f"Missing dependency: {e}")
 
         for domain in QueryDomain:
-            assert domain in DOMAIN_COLLECTION_MAP or domain.value in DOMAIN_COLLECTION_MAP, \
+            assert domain in DOMAIN_COLLECTION_MAP or domain.value in DOMAIN_COLLECTION_MAP, (
                 f"QueryDomain.{domain.value} has no collection mapping"
+            )
 
 
 @pytest.mark.unit

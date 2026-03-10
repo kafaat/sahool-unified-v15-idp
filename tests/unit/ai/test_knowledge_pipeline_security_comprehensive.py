@@ -441,10 +441,7 @@ class TestPipelineStagesComprehensive:
             "bilingual" in issue.message.lower() or "arabic" in issue.message.lower()
             for issue in (result.validation.issues if result.validation else [])
         )
-        has_bilingual_warning = any(
-            "arabic" in w.lower() or "bilingual" in w.lower()
-            for w in result.warnings
-        )
+        has_bilingual_warning = any("arabic" in w.lower() or "bilingual" in w.lower() for w in result.warnings)
         assert has_bilingual_issue or has_bilingual_warning
 
     def test_resolve_collection_for_all_domains(self):

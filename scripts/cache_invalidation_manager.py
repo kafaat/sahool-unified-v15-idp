@@ -434,16 +434,10 @@ async def invalidate_after_orphaned_data_cleanup(
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL Cache Invalidation Manager - مدير إبطال ذاكرة التخزين المؤقت"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL Cache Invalidation Manager - مدير إبطال ذاكرة التخزين المؤقت")
 
-    parser.add_argument(
-        "--pattern", "-p", type=str, help="Cache key pattern to invalidate (e.g., 'field:*')"
-    )
-    parser.add_argument(
-        "--reason", "-r", type=str, default="manual", help="Reason for invalidation"
-    )
+    parser.add_argument("--pattern", "-p", type=str, help="Cache key pattern to invalidate (e.g., 'field:*')")
+    parser.add_argument("--reason", "-r", type=str, default="manual", help="Reason for invalidation")
     parser.add_argument(
         "--entity-type",
         "-e",
@@ -452,12 +446,8 @@ async def main():
         help="Entity type to invalidate",
     )
     parser.add_argument("--entity-ids", type=str, help="Comma-separated entity IDs to invalidate")
-    parser.add_argument(
-        "--migration", "-m", type=str, help="Migration name for post-migration invalidation"
-    )
-    parser.add_argument(
-        "--tables", "-t", type=str, help="Comma-separated table names affected by migration"
-    )
+    parser.add_argument("--migration", "-m", type=str, help="Migration name for post-migration invalidation")
+    parser.add_argument("--tables", "-t", type=str, help="Comma-separated table names affected by migration")
     parser.add_argument("--flush-all", action="store_true", help="Flush all cache keys (DANGEROUS)")
     parser.add_argument("--confirm", action="store_true", help="Confirm dangerous operations")
     parser.add_argument("--listen", action="store_true", help="Listen for invalidation events")

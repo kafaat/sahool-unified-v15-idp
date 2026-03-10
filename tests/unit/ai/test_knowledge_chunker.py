@@ -33,12 +33,14 @@ def heading_chunker() -> TextChunker:
 @pytest.fixture
 def sliding_chunker() -> TextChunker:
     """Create a TextChunker with sliding window strategy."""
-    return TextChunker(ChunkConfig(
-        strategy=ChunkStrategy.SLIDING_WINDOW,
-        max_chunk_size=10,
-        overlap_size=3,
-        min_chunk_size=3,
-    ))
+    return TextChunker(
+        ChunkConfig(
+            strategy=ChunkStrategy.SLIDING_WINDOW,
+            max_chunk_size=10,
+            overlap_size=3,
+            min_chunk_size=3,
+        )
+    )
 
 
 @pytest.fixture
@@ -154,11 +156,13 @@ class TestHeadingStrategy:
     @pytest.mark.unit
     def test_heading_levels_filter(self):
         """Only configured heading levels are split on."""
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.HEADING,
-            heading_levels=[2],
-            min_chunk_size=2,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.HEADING,
+                heading_levels=[2],
+                min_chunk_size=2,
+            )
+        )
         content = "## Section A\n\nContent A here.\n\n## Section B\n\nContent B here."
         chunks = chunker.chunk(content)
         assert len(chunks) == 2
@@ -229,11 +233,13 @@ class TestParagraphStrategy:
     @pytest.mark.unit
     def test_large_paragraph_separate(self):
         """Large paragraph exceeding limit starts new chunk."""
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.PARAGRAPH,
-            max_chunk_size=5,
-            min_chunk_size=2,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.PARAGRAPH,
+                max_chunk_size=5,
+                min_chunk_size=2,
+            )
+        )
         content = "word " * 10 + "\n\n" + "other " * 10
         chunks = chunker.chunk(content)
         assert len(chunks) >= 2
@@ -256,12 +262,14 @@ class TestHybridStrategy:
     @pytest.mark.unit
     def test_hybrid_subdivides_large_sections(self):
         """Large sections get further split by sliding window."""
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.HYBRID,
-            max_chunk_size=10,
-            min_chunk_size=3,
-            overlap_size=2,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.HYBRID,
+                max_chunk_size=10,
+                min_chunk_size=3,
+                overlap_size=2,
+            )
+        )
         large_section = " ".join(f"word{i}" for i in range(30))
         content = f"## Big Section\n\n{large_section}"
         chunks = chunker.chunk(content)
@@ -277,10 +285,12 @@ class TestMergeSmallChunks:
     @pytest.mark.unit
     def test_small_chunks_merged(self):
         """Chunks below min_chunk_size merge with previous."""
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.HEADING,
-            min_chunk_size=10,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.HEADING,
+                min_chunk_size=10,
+            )
+        )
         content = "## A\n\nOne word.\n\n## B\n\nAnother word."
         chunks = chunker.chunk(content)
         # Should be merged since each section < 10 words
@@ -289,10 +299,12 @@ class TestMergeSmallChunks:
     @pytest.mark.unit
     def test_merged_chunks_reindexed(self):
         """After merging, chunk indices are consecutive."""
-        chunker = TextChunker(ChunkConfig(
-            strategy=ChunkStrategy.HEADING,
-            min_chunk_size=10,
-        ))
+        chunker = TextChunker(
+            ChunkConfig(
+                strategy=ChunkStrategy.HEADING,
+                min_chunk_size=10,
+            )
+        )
         content = "## A\n\nShort.\n\n## B\n\nAlso short.\n\n## C\n\nStill short."
         chunks = chunker.chunk(content)
         for i, chunk in enumerate(chunks):

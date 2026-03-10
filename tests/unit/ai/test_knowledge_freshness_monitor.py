@@ -207,10 +207,7 @@ class TestCheckDocuments:
     @pytest.mark.unit
     def test_all_fresh(self, monitor: KnowledgeFreshnessMonitor, today: date):
         """All fresh documents report."""
-        docs = [
-            _make_doc(title=f"Doc {i}", expiration_date=today + timedelta(days=60 + i))
-            for i in range(5)
-        ]
+        docs = [_make_doc(title=f"Doc {i}", expiration_date=today + timedelta(days=60 + i)) for i in range(5)]
         report = monitor.check_documents(docs)
         assert report.total_documents == 5
         assert report.fresh_count == 5

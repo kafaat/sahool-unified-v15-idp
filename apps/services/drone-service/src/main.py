@@ -13,12 +13,14 @@ from fastapi.responses import PlainTextResponse
 
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
     TENANT_MIDDLEWARE_AVAILABLE = True
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
@@ -50,6 +52,7 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connection pool created")
@@ -129,6 +132,7 @@ app.add_middleware(
 # Unified error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
@@ -168,6 +172,7 @@ async def metrics_middleware(request: Request, call_next) -> Response:
 # Include API routers
 try:
     from src.api.v1 import drones, flights, missions, vra
+
     app.include_router(drones.router)
     app.include_router(flights.router)
     app.include_router(missions.router)
@@ -241,27 +246,27 @@ async def metrics():
     )
 
     lines = [
-        '# HELP drone_service_info Service version info',
-        '# TYPE drone_service_info gauge',
+        "# HELP drone_service_info Service version info",
+        "# TYPE drone_service_info gauge",
         'drone_service_info{service="drone-service",version="16.0.0"} 1',
-        '# HELP drone_service_up Service is up',
-        '# TYPE drone_service_up gauge',
-        'drone_service_up 1',
-        '# HELP drone_service_db_up Database connection status',
-        '# TYPE drone_service_db_up gauge',
-        f'drone_service_db_up {db_up}',
-        '# HELP drone_service_nats_up NATS connection status',
-        '# TYPE drone_service_nats_up gauge',
-        f'drone_service_nats_up {nats_up}',
-        '# HELP drone_service_requests_total Total HTTP requests',
-        '# TYPE drone_service_requests_total counter',
-        f'drone_service_requests_total {_metrics["requests_total"]}',
-        '# HELP drone_service_requests_errors_total Total HTTP errors',
-        '# TYPE drone_service_requests_errors_total counter',
-        f'drone_service_requests_errors_total {_metrics["requests_errors"]}',
-        '# HELP drone_service_request_duration_seconds_avg Average request duration',
-        '# TYPE drone_service_request_duration_seconds_avg gauge',
-        f'drone_service_request_duration_seconds_avg {avg_dur:.6f}',
+        "# HELP drone_service_up Service is up",
+        "# TYPE drone_service_up gauge",
+        "drone_service_up 1",
+        "# HELP drone_service_db_up Database connection status",
+        "# TYPE drone_service_db_up gauge",
+        f"drone_service_db_up {db_up}",
+        "# HELP drone_service_nats_up NATS connection status",
+        "# TYPE drone_service_nats_up gauge",
+        f"drone_service_nats_up {nats_up}",
+        "# HELP drone_service_requests_total Total HTTP requests",
+        "# TYPE drone_service_requests_total counter",
+        f"drone_service_requests_total {_metrics['requests_total']}",
+        "# HELP drone_service_requests_errors_total Total HTTP errors",
+        "# TYPE drone_service_requests_errors_total counter",
+        f"drone_service_requests_errors_total {_metrics['requests_errors']}",
+        "# HELP drone_service_request_duration_seconds_avg Average request duration",
+        "# TYPE drone_service_request_duration_seconds_avg gauge",
+        f"drone_service_request_duration_seconds_avg {avg_dur:.6f}",
     ]
 
     return PlainTextResponse(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
@@ -281,4 +286,5 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8126")))

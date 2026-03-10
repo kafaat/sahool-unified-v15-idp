@@ -5,7 +5,7 @@ Example usage of SAHOOL API Documentation Generator
 
 from pathlib import Path
 
-from api_docs_generator import APICategory, APIDocsGenerator
+from apps.kernel.common.docs.api_docs_generator import APICategory, APIDocsGenerator
 
 
 def example_basic_usage():

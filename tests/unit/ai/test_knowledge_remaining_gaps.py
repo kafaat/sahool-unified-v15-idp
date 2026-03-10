@@ -67,13 +67,15 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.document_ingested(
-            document_id="doc-001",
-            collection="crop_knowledge",
-            domain="crops",
-            source_credibility=4,
-            chunks_count=3,
-        ))
+        _run(
+            publisher.document_ingested(
+                document_id="doc-001",
+                collection="crop_knowledge",
+                domain="crops",
+                source_credibility=4,
+                chunks_count=3,
+            )
+        )
 
         mock_nc.publish.assert_called_once()
         call_args = mock_nc.publish.call_args
@@ -86,12 +88,14 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.document_verified(
-            document_id="doc-002",
-            status="approved",
-            confidence_score=0.92,
-            layers_passed=["structural", "semantic", "safety"],
-        ))
+        _run(
+            publisher.document_verified(
+                document_id="doc-002",
+                status="approved",
+                confidence_score=0.92,
+                layers_passed=["structural", "semantic", "safety"],
+            )
+        )
 
         mock_nc.publish.assert_called_once()
 
@@ -102,12 +106,14 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.document_expired(
-            document_id="doc-003",
-            title="Old Pesticide Guide",
-            domain="pest_disease",
-            days_past_expiry=15,
-        ))
+        _run(
+            publisher.document_expired(
+                document_id="doc-003",
+                title="Old Pesticide Guide",
+                domain="pest_disease",
+                days_past_expiry=15,
+            )
+        )
 
         mock_nc.publish.assert_called_once()
 
@@ -118,12 +124,14 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.collection_populated(
-            collection="crop_knowledge",
-            total_files=19,
-            succeeded=18,
-            failed=1,
-        ))
+        _run(
+            publisher.collection_populated(
+                collection="crop_knowledge",
+                total_files=19,
+                succeeded=18,
+                failed=1,
+            )
+        )
 
         mock_nc.publish.assert_called_once()
 
@@ -134,11 +142,13 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.ingestion_failed(
-            document_id="doc-004",
-            source_path="/path/to/file.md",
-            errors=["Validation failed"],
-        ))
+        _run(
+            publisher.ingestion_failed(
+                document_id="doc-004",
+                source_path="/path/to/file.md",
+                errors=["Validation failed"],
+            )
+        )
 
         mock_nc.publish.assert_called_once()
 
@@ -149,11 +159,13 @@ class TestKnowledgeEventPublisher:
         publisher = KnowledgeEventPublisher(nc=None)
 
         # Should not raise
-        _run(publisher.document_ingested(
-            document_id="doc-005",
-            collection="test",
-            domain="crops",
-        ))
+        _run(
+            publisher.document_ingested(
+                document_id="doc-005",
+                collection="test",
+                domain="crops",
+            )
+        )
 
     def test_event_payload_contains_timestamp(self):
         """Published event payload should include a timestamp."""
@@ -164,11 +176,13 @@ class TestKnowledgeEventPublisher:
         mock_nc = AsyncMock()
         publisher = KnowledgeEventPublisher(nc=mock_nc)
 
-        _run(publisher.document_ingested(
-            document_id="doc-006",
-            collection="soil_knowledge",
-            domain="soil",
-        ))
+        _run(
+            publisher.document_ingested(
+                document_id="doc-006",
+                collection="soil_knowledge",
+                domain="soil",
+            )
+        )
 
         payload_bytes = mock_nc.publish.call_args[0][1]
         payload = json.loads(payload_bytes)

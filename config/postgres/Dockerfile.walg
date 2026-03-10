@@ -22,7 +22,6 @@ RUN apt-get update 2>/dev/null || \
      sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list 2>/dev/null; \
      apt-get update) && \
     apt-get install -y --no-install-recommends \
-    wget \
     curl \
     ca-certificates \
     unzip \
@@ -38,7 +37,7 @@ RUN set -ex && \
         arm64) walg_arch='arm64' ;; \
         *) echo "Unsupported architecture: $arch"; exit 1 ;; \
     esac && \
-    wget -O /tmp/wal-g.tar.gz \
+    curl -fsSL -o /tmp/wal-g.tar.gz \
         "https://github.com/wal-g/wal-g/releases/download/${WALG_VERSION}/wal-g-pg-ubuntu-20.04-${walg_arch}.tar.gz" && \
     tar -xzf /tmp/wal-g.tar.gz -C /usr/local/bin && \
     chmod +x /usr/local/bin/wal-g && \

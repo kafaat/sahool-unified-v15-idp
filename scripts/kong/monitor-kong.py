@@ -147,9 +147,7 @@ class PrometheusMetricsHandler(BaseHTTPRequestHandler):
         lines.append("# HELP sahool_kong_service_up Service health status (1=up, 0=down)")
         lines.append("# TYPE sahool_kong_service_up gauge")
 
-        lines.append(
-            "# HELP sahool_kong_service_response_time_ms Service response time in milliseconds"
-        )
+        lines.append("# HELP sahool_kong_service_response_time_ms Service response time in milliseconds")
         lines.append("# TYPE sahool_kong_service_response_time_ms gauge")
 
         lines.append("# HELP sahool_kong_service_uptime_percent Service uptime percentage")
@@ -229,9 +227,7 @@ class KongMonitor:
         file_handler = logging.FileHandler(self.log_file, encoding="utf-8")
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(
-            logging.Formatter(
-                "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-            )
+            logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
         )
         logger.addHandler(file_handler)
 
@@ -281,9 +277,7 @@ class KongMonitor:
         try:
             if ASYNC_MODE:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(
-                        url, timeout=aiohttp.ClientTimeout(total=timeout_sec)
-                    ) as response:
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout_sec)) as response:
                         duration = (time.time() - start_time) * 1000
                         if response.status == expected_status:
                             return ServiceStatus.HEALTHY, duration, ""
@@ -440,9 +434,7 @@ class KongMonitor:
     def _start_metrics_server(self):
         """Start the Prometheus metrics HTTP server."""
         try:
-            self.metrics_server = HTTPServer(
-                ("0.0.0.0", self.metrics_port), PrometheusMetricsHandler
-            )
+            self.metrics_server = HTTPServer(("0.0.0.0", self.metrics_port), PrometheusMetricsHandler)
             logger.info(f"Prometheus metrics server started on port {self.metrics_port}")
             self.metrics_server.serve_forever()
         except Exception as e:
@@ -474,20 +466,14 @@ class KongMonitor:
         while self.running:
             try:
                 logger.info("-" * 60)
-                logger.info(
-                    f"Health check started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                )
+                logger.info(f"Health check started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
                 await self.check_all_services()
 
                 # Summary
                 total = len(self.services)
-                healthy = sum(
-                    1 for m in self.service_metrics.values() if m.status == ServiceStatus.HEALTHY
-                )
-                logger.info(
-                    f"Summary: {healthy}/{total} services healthy ({healthy * 100 // total}%)"
-                )
+                healthy = sum(1 for m in self.service_metrics.values() if m.status == ServiceStatus.HEALTHY)
+                logger.info(f"Summary: {healthy}/{total} services healthy ({healthy * 100 // total}%)")
 
                 # Wait for next interval
                 await asyncio.sleep(self.interval)
@@ -525,9 +511,7 @@ Environment Variables:
         default=DEFAULT_INTERVAL,
         help=f"Polling interval in seconds (default: {DEFAULT_INTERVAL})",
     )
-    parser.add_argument(
-        "--log-file", default=DEFAULT_LOG_FILE, help=f"Log file path (default: {DEFAULT_LOG_FILE})"
-    )
+    parser.add_argument("--log-file", default=DEFAULT_LOG_FILE, help=f"Log file path (default: {DEFAULT_LOG_FILE})")
     parser.add_argument(
         "--metrics-port",
         type=int,
@@ -555,9 +539,7 @@ Environment Variables:
         default=3,
         help="Consecutive failures before alert (default: 3)",
     )
-    parser.add_argument(
-        "--critical-only", action="store_true", help="Monitor only critical services"
-    )
+    parser.add_argument("--critical-only", action="store_true", help="Monitor only critical services")
 
     return parser.parse_args()
 

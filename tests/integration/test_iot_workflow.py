@@ -61,9 +61,7 @@ async def test_iot_device_registration_workflow(
     }
 
     # Act - تنفيذ
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/devices", json=device_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/devices", json=device_data, headers=auth_headers)
 
     # Assert - التحقق
     assert response.status_code in (
@@ -139,9 +137,7 @@ async def test_soil_moisture_reading_workflow(
     )
 
     # Send reading to gateway - إرسال القراءة إلى البوابة
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers)
 
     assert response.status_code in (
         200,
@@ -181,9 +177,7 @@ async def test_temperature_humidity_reading_workflow(
         "location": {"latitude": 15.3694, "longitude": 44.1910, "height_cm": 150},
     }
 
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -220,9 +214,7 @@ async def test_soil_nutrient_reading_workflow(
         "location": {"latitude": 15.3694, "longitude": 44.1910, "depth_cm": 20},
     }
 
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -280,9 +272,7 @@ async def test_batch_readings_workflow(
         ],
     }
 
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings/batch", json=batch_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/readings/batch", json=batch_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 
@@ -349,9 +339,7 @@ async def test_sensor_data_aggregation_workflow(
         "end_date": datetime.utcnow().isoformat(),
     }
 
-    response = await http_client.get(
-        f"{iot_gateway_url}/v1/readings/aggregated", params=params, headers=auth_headers
-    )
+    response = await http_client.get(f"{iot_gateway_url}/v1/readings/aggregated", params=params, headers=auth_headers)
 
     if response.status_code == 200:
         aggregated_data = response.json()
@@ -537,9 +525,7 @@ async def test_device_health_monitoring_workflow(
         "error_count": 0,
     }
 
-    response = await http_client.post(
-        f"{iot_gateway_url}/v1/devices/health", json=health_data, headers=auth_headers
-    )
+    response = await http_client.post(f"{iot_gateway_url}/v1/devices/health", json=health_data, headers=auth_headers)
 
     assert response.status_code in (200, 201, 401)
 

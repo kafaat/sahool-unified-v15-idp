@@ -17,9 +17,7 @@ import yaml
 # ═══════════════════════════════════════════════════════════════════════════
 
 KONG_CONFIG_PATH = Path(__file__).parent.parent.parent / "infra" / "kong" / "kong.yml"
-KONG_GATEWAY_CONFIG_PATH = (
-    Path(__file__).parent.parent.parent / "infrastructure" / "gateway" / "kong" / "kong.yml"
-)
+KONG_GATEWAY_CONFIG_PATH = Path(__file__).parent.parent.parent / "infrastructure" / "gateway" / "kong" / "kong.yml"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -174,9 +172,7 @@ class TestSecurityPlugins:
                 headers = plugin["config"].get("add", {}).get("headers", [])
                 header_str = " ".join(headers)
                 assert "X-Frame-Options" in header_str, "Missing X-Frame-Options header"
-                assert "X-Content-Type-Options" in header_str, (
-                    "Missing X-Content-Type-Options header"
-                )
+                assert "X-Content-Type-Options" in header_str, "Missing X-Content-Type-Options header"
                 assert "X-XSS-Protection" in header_str, "Missing X-XSS-Protection header"
                 return
         pytest.fail("response-transformer plugin not found")
@@ -254,9 +250,7 @@ class TestACLConfiguration:
         """Verify consumers have JWT secrets configured."""
         for consumer in kong_config["consumers"]:
             assert "jwt_secrets" in consumer, f"Consumer {consumer['username']} missing jwt_secrets"
-            assert len(consumer["jwt_secrets"]) > 0, (
-                f"Consumer {consumer['username']} has no jwt_secrets"
-            )
+            assert len(consumer["jwt_secrets"]) > 0, f"Consumer {consumer['username']} has no jwt_secrets"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

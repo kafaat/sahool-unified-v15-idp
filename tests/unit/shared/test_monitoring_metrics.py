@@ -178,9 +178,7 @@ class TestMetricsRegistry:
     def test_create_counter_with_labels(self):
         """Test creating counter with labels"""
         registry = MetricsRegistry()
-        counter = registry.counter(
-            "requests_total", "Total requests", labels={"method": "GET", "path": "/api"}
-        )
+        counter = registry.counter("requests_total", "Total requests", labels={"method": "GET", "path": "/api"})
         counter.inc()
         assert counter.value == 1
 

@@ -446,14 +446,10 @@ class TestNoDuplicatesAllPhases:
         """All scientific names should be ASCII-only."""
         for class_id, label in DISEASE_CLASSES.items():
             if label.scientific_name:
-                assert label.scientific_name.isascii(), (
-                    f"Disease {class_id} ({label.en}): non-ASCII scientific name"
-                )
+                assert label.scientific_name.isascii(), f"Disease {class_id} ({label.en}): non-ASCII scientific name"
         for class_id, label in PEST_CLASSES.items():
             if label.scientific_name:
-                assert label.scientific_name.isascii(), (
-                    f"Pest {class_id} ({label.en}): non-ASCII scientific name"
-                )
+                assert label.scientific_name.isascii(), f"Pest {class_id} ({label.en}): non-ASCII scientific name"
 
 
 if __name__ == "__main__":

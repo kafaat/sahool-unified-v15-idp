@@ -25,6 +25,7 @@ except ImportError:
                 detail["resource_type"] = resource_type
             super().__init__(status_code=404, detail=detail)
 
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -38,7 +39,6 @@ except ImportError:
         def __init__(self, **kw):
             self.id = kw.get("id", "anonymous")
             self.tenant_id = kw.get("tenant_id", "default")
-
 
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
@@ -102,7 +102,9 @@ def _raise_not_found():
 
 @router.post("/prescription/ndvi", status_code=201)
 async def create_ndvi_prescription(
-    request: NDVIPrescriptionRequest, req: Request, user=Depends(get_current_user),
+    request: NDVIPrescriptionRequest,
+    req: Request,
+    user=Depends(get_current_user),
 ):
     """Create NDVI-based prescription map - إنشاء خريطة وصفة مبنية على NDVI"""
     try:
@@ -132,14 +134,16 @@ async def create_ndvi_prescription(
     )
 
     zones_summary = []
-    for z in (prescription.zones or []):
-        zones_summary.append({
-            "zone_type": z.zone_type.value if z.zone_type else None,
-            "area_ha": z.area_ha,
-            "rate_l_ha": z.rate_l_ha,
-            "label_en": z.label_en,
-            "label_ar": z.label_ar,
-        })
+    for z in prescription.zones or []:
+        zones_summary.append(
+            {
+                "zone_type": z.zone_type.value if z.zone_type else None,
+                "area_ha": z.area_ha,
+                "rate_l_ha": z.rate_l_ha,
+                "label_en": z.label_en,
+                "label_ar": z.label_ar,
+            }
+        )
 
     result = {
         "id": prescription.id,
@@ -158,22 +162,30 @@ async def create_ndvi_prescription(
 
     try:
         from src.events import VRA_PRESCRIPTION_CREATED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, VRA_PRESCRIPTION_CREATED, tenant_id,
-            prescription_id=prescription.id, field_id=request.field_id,
+            nc,
+            VRA_PRESCRIPTION_CREATED,
+            tenant_id,
+            prescription_id=prescription.id,
+            field_id=request.field_id,
             zones_count=len(prescription.zones),
         )
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
 
-    logger.info("ndvi_prescription_created", prescription_id=prescription.id, field_id=request.field_id, tenant_id=tenant_id)
+    logger.info(
+        "ndvi_prescription_created", prescription_id=prescription.id, field_id=request.field_id, tenant_id=tenant_id
+    )
     return result
 
 
 @router.post("/prescription/spot-spray", status_code=201)
 async def create_spot_spray(
-    request: SpotSprayRequest, req: Request, user=Depends(get_current_user),
+    request: SpotSprayRequest,
+    req: Request,
+    user=Depends(get_current_user),
 ):
     """Create spot spray map from detection points - إنشاء خريطة رش نقطي من نقاط الكشف"""
     try:
@@ -213,16 +225,25 @@ async def create_spot_spray(
 
     try:
         from src.events import VRA_SPOT_SPRAY_CREATED, publish_drone_event
+
         nc = getattr(req.app.state, "nc", None)
         await publish_drone_event(
-            nc, VRA_SPOT_SPRAY_CREATED, tenant_id,
-            prescription_id=prescription.id, field_id=request.field_id,
+            nc,
+            VRA_SPOT_SPRAY_CREATED,
+            tenant_id,
+            prescription_id=prescription.id,
+            field_id=request.field_id,
             detection_type=request.detection_type,
         )
     except Exception:
         pass  # NATS event publishing is best-effort; do not block the request
 
-    logger.info("spot_spray_map_created", prescription_id=prescription.id, detection_type=request.detection_type, tenant_id=tenant_id)
+    logger.info(
+        "spot_spray_map_created",
+        prescription_id=prescription.id,
+        detection_type=request.detection_type,
+        tenant_id=tenant_id,
+    )
     return result
 
 

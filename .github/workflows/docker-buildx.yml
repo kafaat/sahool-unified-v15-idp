@@ -51,6 +51,7 @@ jobs:
   prepare:
     name: Prepare Build Matrix
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       services: ${{ steps.set-matrix.outputs.services }}
 
@@ -77,6 +78,7 @@ jobs:
   validate-typescript:
     name: Validate ${{ matrix.service }} Dockerfile
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare
     if: github.event_name == 'pull_request'
     strategy:
@@ -124,6 +126,7 @@ jobs:
   build-typescript:
     name: Build ${{ matrix.service }} (TypeScript)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare
     # Only run full builds on push to main/tags, not on PRs (PRs use validate-typescript)
     if: needs.prepare.outputs.services != '[]' && github.event_name != 'pull_request'
@@ -258,6 +261,7 @@ jobs:
   validate-python:
     name: Validate ${{ matrix.service }} Dockerfile
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare
     if: github.event_name == 'pull_request'
     strategy:
@@ -300,6 +304,7 @@ jobs:
   build-python:
     name: Build ${{ matrix.service }} (Python)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: prepare
     # Only run full builds on push to main/tags, not on PRs (PRs use validate-python)
     if: needs.prepare.outputs.services != '[]' && github.event_name != 'pull_request'
@@ -433,6 +438,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate-typescript, validate-python, build-typescript, build-python]
     if: always()
 

@@ -272,9 +272,7 @@ class TestCircuitBreaker:
         assert result == "success"
 
     @pytest.mark.asyncio
-    async def test_circuit_closes_after_successes_in_half_open(
-        self, circuit_breaker: CircuitBreaker
-    ):
+    async def test_circuit_closes_after_successes_in_half_open(self, circuit_breaker: CircuitBreaker):
         """Test circuit closes after success threshold in half-open."""
 
         async def fail_func():

@@ -260,9 +260,7 @@ class FertilizerController:
             return {"total_applications": 0}
 
         total_fertilizer = sum(a["fertilizer_rate_kg_ha"] for a in self._application_history)
-        avg_efficiency = sum(a["efficiency_score"] for a in self._application_history) / len(
-            self._application_history
-        )
+        avg_efficiency = sum(a["efficiency_score"] for a in self._application_history) / len(self._application_history)
 
         return {
             "total_applications": len(self._application_history),
@@ -432,9 +430,7 @@ class TestTargetNPKSetting:
         state = controller.get_state()
         assert state["setpoint"] == 30.0
 
-    def test_calculate_application_for_deficiency(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_calculate_application_for_deficiency(self, fertilizer_controller: FertilizerController):
         """Test calculating application for nitrogen deficiency"""
         current = {"nitrogen": 18.0, "phosphorus": 20.0, "potassium": 150.0}
         target = {"nitrogen": 25.0, "phosphorus": 25.0, "potassium": 180.0}
@@ -477,9 +473,7 @@ class TestAutoTune:
     def tuner(self, controller: PIDController) -> PIDAutoTuner:
         return PIDAutoTuner(controller)
 
-    def test_auto_tune_ziegler_nichols(
-        self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]
-    ):
+    def test_auto_tune_ziegler_nichols(self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]):
         """Test Ziegler-Nichols auto-tuning"""
         result = tuner.tune(sample_npk_readings, method="ziegler_nichols")
 
@@ -489,18 +483,14 @@ class TestAutoTune:
         assert "ki" in result["tuned_coefficients"]
         assert "kd" in result["tuned_coefficients"]
 
-    def test_auto_tune_cohen_coon(
-        self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]
-    ):
+    def test_auto_tune_cohen_coon(self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]):
         """Test Cohen-Coon auto-tuning"""
         result = tuner.tune(sample_npk_readings, method="cohen_coon")
 
         assert result["method"] == "cohen_coon"
         assert "tuned_coefficients" in result
 
-    def test_auto_tune_invalid_method(
-        self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]
-    ):
+    def test_auto_tune_invalid_method(self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]):
         """Test auto-tuning with invalid method"""
         with pytest.raises(ValueError, match="Unknown tuning method"):
             tuner.tune(sample_npk_readings, method="invalid_method")
@@ -510,9 +500,7 @@ class TestAutoTune:
         with pytest.raises(ValueError, match="Insufficient data"):
             tuner.tune([{"value": 20.0}], method="ziegler_nichols")
 
-    def test_apply_tuning_result(
-        self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]
-    ):
+    def test_apply_tuning_result(self, tuner: PIDAutoTuner, sample_npk_readings: list[dict[str, Any]]):
         """Test applying tuning result to controller"""
         result = tuner.tune(sample_npk_readings)
         tuner.apply_tuning(result)
@@ -560,20 +548,14 @@ class TestFertilizerEfficiency:
         assert "average_efficiency_percent" in metrics
         assert "savings_vs_traditional_percent" in metrics
 
-    def test_fertilizer_rate_proportional_to_deficit(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_fertilizer_rate_proportional_to_deficit(self, fertilizer_controller: FertilizerController):
         """Test fertilizer rate is proportional to deficit"""
-        result_large = fertilizer_controller.calculate_application(
-            {"nitrogen": 10.0}, {"nitrogen": 25.0}
-        )
+        result_large = fertilizer_controller.calculate_application({"nitrogen": 10.0}, {"nitrogen": 25.0})
 
         # Reset controller
         fertilizer_controller.pid.reset()
 
-        result_small = fertilizer_controller.calculate_application(
-            {"nitrogen": 22.0}, {"nitrogen": 25.0}
-        )
+        result_small = fertilizer_controller.calculate_application({"nitrogen": 22.0}, {"nitrogen": 25.0})
 
         # Larger deficit should result in higher rate
         assert result_large["fertilizer_rate_kg_ha"] > result_small["fertilizer_rate_kg_ha"]

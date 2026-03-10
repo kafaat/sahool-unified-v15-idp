@@ -263,16 +263,12 @@ class TestFixLearningSystemLogic:
         }
 
         # Initial confidence
-        initial_confidence = pattern["success_count"] / (
-            pattern["success_count"] + pattern["failure_count"]
-        )
+        initial_confidence = pattern["success_count"] / (pattern["success_count"] + pattern["failure_count"])
         assert initial_confidence == 0.8
 
         # Add successful fix
         pattern["success_count"] += 1
-        new_confidence = pattern["success_count"] / (
-            pattern["success_count"] + pattern["failure_count"]
-        )
+        new_confidence = pattern["success_count"] / (pattern["success_count"] + pattern["failure_count"])
 
         # Confidence should increase
         assert new_confidence > initial_confidence

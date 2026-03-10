@@ -159,9 +159,7 @@ class TestDEMLoading:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.content = b"fake_raster_data"
-            mock_client.return_value.__aenter__.return_value.get = AsyncMock(
-                return_value=mock_response
-            )
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             # Simulate DEM loading
             dem_source = "copernicus"

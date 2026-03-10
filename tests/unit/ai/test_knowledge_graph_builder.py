@@ -217,15 +217,16 @@ class TestBuildAgriculturalKnowledgeGraph:
     def test_relation_confidence_range(self, graph: AgriculturalKnowledgeGraph):
         """Test all relation confidences are in [0, 1]."""
         for rel in graph.relations:
-            assert 0.0 <= rel.confidence <= 1.0, f"Confidence {rel.confidence} out of range for {rel.source_id}→{rel.target_id}"
+            assert 0.0 <= rel.confidence <= 1.0, (
+                f"Confidence {rel.confidence} out of range for {rel.source_id}→{rel.target_id}"
+            )
 
     @pytest.mark.unit
     def test_wheat_rust_relation_exists(self, graph: AgriculturalKnowledgeGraph):
         """Test wheat-rust relationship exists (key agricultural knowledge)."""
         rust_wheat = [
-            r for r in graph.relations
-            if r.relation_type == "affects"
-            and "rust" in r.source_id
-            and "wheat" in r.target_id
+            r
+            for r in graph.relations
+            if r.relation_type == "affects" and "rust" in r.source_id and "wheat" in r.target_id
         ]
         assert len(rust_wheat) >= 1, "Missing wheat-rust affects relationship"

@@ -160,9 +160,7 @@ class TestUserRegistration:
             f"{AUTH_API}/register",
             json=registration_payload,
         )
-        assert resp.status_code in (201, 400, 401, 409, 429), (
-            f"Unexpected registration response: {resp.status_code}"
-        )
+        assert resp.status_code in (201, 400, 401, 409, 429), f"Unexpected registration response: {resp.status_code}"
 
         if resp.status_code == 201:
             body = resp.json()
@@ -190,9 +188,7 @@ class TestUserRegistration:
         await http_client.post(f"{AUTH_API}/register", json=registration_payload)
         # Duplicate registration
         resp = await http_client.post(f"{AUTH_API}/register", json=registration_payload)
-        assert resp.status_code in (400, 401, 409, 429), (
-            "Duplicate email registration should fail"
-        )
+        assert resp.status_code in (400, 401, 409, 429), "Duplicate email registration should fail"
 
     async def test_register_invalid_email_format(
         self,

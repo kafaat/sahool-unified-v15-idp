@@ -153,9 +153,7 @@ async def test_postgres_through_services():
         for service_url in services_with_db:
             try:
                 response = await client.get(service_url)
-                assert response.status_code == 200, (
-                    f"Service {service_url} returned {response.status_code}"
-                )
+                assert response.status_code == 200, f"Service {service_url} returned {response.status_code}"
                 healthy_services.append(service_url)
             except Exception as e:
                 pytest.skip(f"Service unavailable: {e}")
@@ -282,9 +280,7 @@ async def test_field_to_ndvi_data_flow(auth_headers: dict[str, str], sample_fiel
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_weather_to_irrigation_data_flow(
-    auth_headers: dict[str, str], sample_location: dict[str, float]
-):
+async def test_weather_to_irrigation_data_flow(auth_headers: dict[str, str], sample_location: dict[str, float]):
     """
     Test data flow from Weather to Irrigation Smart
     اختبار تدفق البيانات من الطقس إلى الري الذكي
@@ -400,9 +396,7 @@ async def test_notification_service_nats_subscription():
 
         # Service is running and connected to NATS
         data = response.json()
-        assert "status" in data or data is not None, (
-            "Notification service health check should return valid response"
-        )
+        assert "status" in data or data is not None, "Notification service health check should return valid response"
 
 
 @pytest.mark.integration
@@ -427,9 +421,7 @@ async def test_websocket_gateway_nats_integration():
 
         # WebSocket Gateway is healthy and connected to NATS
         data = response.json()
-        assert "status" in data or data is not None, (
-            "WebSocket Gateway health check should return valid response"
-        )
+        assert "status" in data or data is not None, "WebSocket Gateway health check should return valid response"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -478,8 +470,7 @@ async def test_field_data_consistency_across_services(auth_headers: dict[str, st
         # This indicates data consistency
         unique_statuses = set(responses)
         assert len(unique_statuses) <= 2, (
-            f"Services returned inconsistent statuses: {responses}. "
-            f"Expected consistent responses across services."
+            f"Services returned inconsistent statuses: {responses}. Expected consistent responses across services."
         )
 
 
@@ -547,6 +538,4 @@ async def test_satellite_to_yield_prediction_pipeline(auth_headers: dict[str, st
                 pytest.skip(f"Pipeline service unavailable ({service_url}): {e}")
 
         # At least one service in the pipeline should be healthy
-        assert healthy_count > 0, (
-            f"No pipeline services are healthy out of {len(pipeline_services)}"
-        )
+        assert healthy_count > 0, f"No pipeline services are healthy out of {len(pipeline_services)}"

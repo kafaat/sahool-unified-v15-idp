@@ -99,9 +99,7 @@ class DatasetValidator:
                 return False
 
             if not isinstance(test_case[field], field_type):
-                self.errors.append(
-                    f"Test case {idx}: Field '{field}' must be of type {field_type.__name__}"
-                )
+                self.errors.append(f"Test case {idx}: Field '{field}' must be of type {field_type.__name__}")
                 return False
 
         # Validate category
@@ -115,8 +113,7 @@ class DatasetValidator:
         # Validate language
         if test_case["language"] not in self.VALID_LANGUAGES:
             self.errors.append(
-                f"Test case {idx}: Invalid language '{test_case['language']}'. "
-                f"Valid languages: {self.VALID_LANGUAGES}"
+                f"Test case {idx}: Invalid language '{test_case['language']}'. Valid languages: {self.VALID_LANGUAGES}"
             )
             return False
 
@@ -139,9 +136,7 @@ class DatasetValidator:
                 return False
 
             if not isinstance(input_data[field], field_type):
-                self.errors.append(
-                    f"Test case {idx}: Input field '{field}' must be of type {field_type.__name__}"
-                )
+                self.errors.append(f"Test case {idx}: Input field '{field}' must be of type {field_type.__name__}")
                 return False
 
         # Check query is not empty
@@ -159,9 +154,7 @@ class DatasetValidator:
                 return False
 
             if not isinstance(output[field], field_type):
-                self.errors.append(
-                    f"Test case {idx}: Output field '{field}' must be of type {field_type.__name__}"
-                )
+                self.errors.append(f"Test case {idx}: Output field '{field}' must be of type {field_type.__name__}")
                 return False
 
         # Check response is not empty
@@ -198,9 +191,7 @@ class DatasetValidator:
             return False
 
         if max_latency > 30000:
-            self.warnings.append(
-                f"Test case {idx}: max_latency_ms of {max_latency}ms seems very high"
-            )
+            self.warnings.append(f"Test case {idx}: max_latency_ms of {max_latency}ms seems very high")
 
         return True
 
@@ -226,9 +217,7 @@ class DatasetValidator:
 
             missing_langs = self.VALID_LANGUAGES - category_langs
             if missing_langs:
-                self.warnings.append(
-                    f"Category '{category}' missing tests for languages: {missing_langs}"
-                )
+                self.warnings.append(f"Category '{category}' missing tests for languages: {missing_langs}")
 
     def print_results(self):
         """Print validation results"""

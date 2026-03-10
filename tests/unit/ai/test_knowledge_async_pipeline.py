@@ -29,10 +29,12 @@ class TestAsyncKnowledgeIngestionPipeline:
     @pytest.mark.unit
     def test_ingest_text_async(self, pipeline: AsyncKnowledgeIngestionPipeline):
         """Async text ingestion works."""
-        result = _run(pipeline.ingest_text(
-            "# Wheat Guide\n\nWheat is a major crop.",
-            title="Wheat Guide",
-        ))
+        result = _run(
+            pipeline.ingest_text(
+                "# Wheat Guide\n\nWheat is a major crop.",
+                title="Wheat Guide",
+            )
+        )
         assert isinstance(result, IngestionResult)
         assert result.success is True
 
@@ -67,10 +69,7 @@ title: دليل القمح
         """Multiple concurrent ingestions work."""
 
         async def _test():
-            tasks = [
-                pipeline.ingest_text(f"Content about topic {i}", title=f"Doc {i}")
-                for i in range(5)
-            ]
+            tasks = [pipeline.ingest_text(f"Content about topic {i}", title=f"Doc {i}") for i in range(5)]
             return await asyncio.gather(*tasks)
 
         results = _run(_test())

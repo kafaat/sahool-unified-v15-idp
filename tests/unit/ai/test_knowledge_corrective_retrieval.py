@@ -164,19 +164,19 @@ class TestCorrectiveRetrievalEngine:
         return [
             {
                 "content": "Wheat requires 450-650mm water per season. Irrigation schedule depends on growth stage. "
-                           "During tillering, apply 25mm every 10-14 days. ET values guide precise scheduling.",
+                "During tillering, apply 25mm every 10-14 days. ET values guide precise scheduling.",
                 "relevance_score": 0.9,
                 "metadata": {"domain": "irrigation", "region": "mena"},
             },
             {
                 "content": "Drip irrigation for wheat achieves 85-95% efficiency. Schedule based on soil moisture "
-                           "sensors and ET calculations. Water requirement varies by variety and climate.",
+                "sensors and ET calculations. Water requirement varies by variety and climate.",
                 "relevance_score": 0.85,
                 "metadata": {"domain": "irrigation"},
             },
             {
                 "content": "Wheat irrigation management in arid regions requires careful moisture monitoring. "
-                           "Apply water when soil moisture drops below 50% field capacity.",
+                "Apply water when soil moisture drops below 50% field capacity.",
                 "relevance_score": 0.82,
                 "metadata": {"domain": "irrigation"},
             },

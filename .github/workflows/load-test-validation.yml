@@ -25,6 +25,9 @@ on:
     paths:
       - 'tests/load/simulation/**'
 
+permissions:
+  contents: read
+
 env:
   SIMULATION_DIR: tests/load/simulation
 

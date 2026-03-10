@@ -57,6 +57,49 @@ topic readwrite sahool/system/#
 # topic read sahool/+/farm/+/field/+/actuator/+/command
 
 # ─────────────────────────────────────────────────────────────────────────────
+# IoT Gateway User (iot_gateway) - MQTT-to-NATS Bridge
+# Used by: iot-gateway service only
+# ─────────────────────────────────────────────────────────────────────────────
+user iot_gateway
+topic read sahool/+/farm/+/field/+/sensor/#
+topic read sahool/sensors/#
+topic read sahool/+/farm/+/field/+/actuator/#
+topic read sahool/+/farm/+/device/status
+topic write sahool/+/farm/+/field/+/actuator/+/command
+topic write sahool/+/farm/+/field/+/irrigation/schedule
+topic readwrite sahool/system/#
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IoT Sensor Hub User (iot_sensor_hub) - LoRaWAN Gateway
+# Used by: iot-sensor-hub service only
+# ─────────────────────────────────────────────────────────────────────────────
+user iot_sensor_hub
+topic read sahool/+/farm/+/field/+/sensor/#
+topic read sahool/sensors/#
+topic write sahool/+/farm/+/device/status
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Edge Orchestrator User (edge_orchestrator) - Edge Device Management
+# Used by: edge-orchestrator-service only
+# ─────────────────────────────────────────────────────────────────────────────
+user edge_orchestrator
+topic read sahool/+/farm/+/field/+/sensor/#
+topic read sahool/+/farm/+/device/status
+topic write sahool/+/farm/+/device/status
+topic readwrite sahool/edge/#
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Irrigation Service User (irrigation_smart) - Smart Irrigation
+# Used by: irrigation-smart service only
+# ─────────────────────────────────────────────────────────────────────────────
+user irrigation_smart
+topic read sahool/+/farm/+/field/+/sensor/soil_moisture
+topic read sahool/+/farm/+/field/+/sensor/soil_temperature
+topic write sahool/+/farm/+/field/+/actuator/pump/command
+topic write sahool/+/farm/+/field/+/actuator/valve/+/command
+topic write sahool/+/farm/+/field/+/irrigation/schedule
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Test/Simulation Users
 # ─────────────────────────────────────────────────────────────────────────────
 user test_sensor

@@ -65,15 +65,11 @@ create_composite = _processing.create_composite
 class TestCreateCompositeStore:
     """create_composite() must route all persistence through ndvi_store.save_composite()."""
 
-    async def test_create_composite_calls_save_composite(
-        self, monkeypatch: pytest.MonkeyPatch
-    ):
+    async def test_create_composite_calls_save_composite(self, monkeypatch: pytest.MonkeyPatch):
         """save_composite is awaited with the correct tenant/field IDs."""
         calls: dict = {}
 
-        async def fake_save_composite(
-            composite_id: str, tenant_id: str, composite_dict: dict
-        ):
+        async def fake_save_composite(composite_id: str, tenant_id: str, composite_dict: dict):
             calls["composite_id"] = composite_id
             calls["tenant_id"] = tenant_id
             calls["field_id"] = composite_dict["field_id"]
@@ -94,9 +90,7 @@ class TestCreateCompositeStore:
         assert calls["field_id"] == "field-test-99"
         assert calls["composite_id"] == result["composite_id"]
 
-    async def test_create_composite_returns_expected_shape(
-        self, monkeypatch: pytest.MonkeyPatch
-    ):
+    async def test_create_composite_returns_expected_shape(self, monkeypatch: pytest.MonkeyPatch):
         """Returned dict has all required CompositeResponse keys."""
 
         async def _noop(*_a, **_kw):
@@ -132,9 +126,7 @@ class TestCreateCompositeStore:
         assert result["method"] == CompositeMethod.MAX_NDVI.value
         assert result["source"] == SatelliteSource.LANDSAT_8.value
 
-    async def test_create_composite_does_not_write_composites_directly(
-        self, monkeypatch: pytest.MonkeyPatch
-    ):
+    async def test_create_composite_does_not_write_composites_directly(self, monkeypatch: pytest.MonkeyPatch):
         """_composites dict is updated only via save_composite, not bypassed directly."""
 
         async def _noop(*_a, **_kw):
@@ -153,6 +145,4 @@ class TestCreateCompositeStore:
         )
 
         # _noop did NOT write to _composites → dict stays empty
-        assert (
-            len(_store._composites) == 0
-        ), "_composites must only be written via save_composite, not bypassed"
+        assert len(_store._composites) == 0, "_composites must only be written via save_composite, not bypassed"

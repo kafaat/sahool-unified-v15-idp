@@ -107,9 +107,7 @@ class TestHMCEngineSessionManagement:
         )
 
         # Second session should fail
-        hmc_engine.start_session.side_effect = ValueError(
-            "Active session already exists for this field"
-        )
+        hmc_engine.start_session.side_effect = ValueError("Active session already exists for this field")
 
         with pytest.raises(ValueError) as exc_info:
             await hmc_engine.start_session(
@@ -580,9 +578,7 @@ class TestHMCEngineApprovalWithoutChecklist:
             {"item_id": "3", "is_completed": True},
         ]
 
-        hmc_engine.approve_program.side_effect = ValueError(
-            "Cannot approve program with incomplete checklist"
-        )
+        hmc_engine.approve_program.side_effect = ValueError("Cannot approve program with incomplete checklist")
 
         with pytest.raises(ValueError) as exc_info:
             await hmc_engine.approve_program(

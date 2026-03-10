@@ -4,6 +4,7 @@ Tests for Blockchain Traceability | اختبارات التتبع بالبلوك
 Tests cover trace creation, event chaining, chain validation,
 QR code generation, and origin certificate issuance.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -29,7 +30,13 @@ class TestTraceCreation:
     def test_create_trace_returns_product_trace(self) -> None:
         """Create trace returns a valid ProductTrace object."""
         trace = self.bc.create_trace(
-            "P-001", "wheat", "قمح", "Farm A", "مزرعة أ", "F-001", "T-001",
+            "P-001",
+            "wheat",
+            "قمح",
+            "Farm A",
+            "مزرعة أ",
+            "F-001",
+            "T-001",
         )
         assert isinstance(trace, ProductTrace)
         assert trace.trace_id != ""
@@ -38,7 +45,13 @@ class TestTraceCreation:
     def test_trace_has_bilingual_names(self) -> None:
         """Trace stores bilingual crop and farm names | أسماء ثنائية اللغة"""
         trace = self.bc.create_trace(
-            "P-002", "wheat", "قمح", "Al-Rashid Farm", "مزرعة الراشد", "F-002", "T-001",
+            "P-002",
+            "wheat",
+            "قمح",
+            "Al-Rashid Farm",
+            "مزرعة الراشد",
+            "F-002",
+            "T-001",
         )
         assert trace.crop_type == "wheat"
         assert trace.crop_type_ar == "قمح"
@@ -48,7 +61,13 @@ class TestTraceCreation:
     def test_trace_id_contains_product_id(self) -> None:
         """Trace ID should contain the product ID."""
         trace = self.bc.create_trace(
-            "PROD-123", "date", "تمر", "Farm B", "مزرعة ب", "F-003", "T-001",
+            "PROD-123",
+            "date",
+            "تمر",
+            "Farm B",
+            "مزرعة ب",
+            "F-003",
+            "T-001",
         )
         assert "PROD-123" in trace.trace_id
         assert trace.trace_id.startswith("TRC-")
@@ -56,7 +75,13 @@ class TestTraceCreation:
     def test_trace_starts_with_empty_events(self) -> None:
         """New trace should have an empty event list."""
         trace = self.bc.create_trace(
-            "P-003", "barley", "شعير", "Farm C", "مزرعة ج", "F-004", "T-001",
+            "P-003",
+            "barley",
+            "شعير",
+            "Farm C",
+            "مزرعة ج",
+            "F-004",
+            "T-001",
         )
         assert trace.events == []
         assert trace.chain_valid is True
@@ -64,14 +89,26 @@ class TestTraceCreation:
     def test_trace_has_created_at_timestamp(self) -> None:
         """Trace should have a created_at timestamp."""
         trace = self.bc.create_trace(
-            "P-004", "coffee", "بُن", "Farm D", "مزرعة د", "F-005", "T-001",
+            "P-004",
+            "coffee",
+            "بُن",
+            "Farm D",
+            "مزرعة د",
+            "F-005",
+            "T-001",
         )
         assert trace.created_at != ""
 
     def test_trace_stored_internally(self) -> None:
         """Created trace should be retrievable via internal storage."""
         trace = self.bc.create_trace(
-            "P-005", "rice", "أرز", "Farm E", "مزرعة هـ", "F-006", "T-001",
+            "P-005",
+            "rice",
+            "أرز",
+            "Farm E",
+            "مزرعة هـ",
+            "F-006",
+            "T-001",
         )
         assert trace.trace_id in self.bc._traces
 
@@ -82,7 +119,13 @@ class TestEventChaining:
     def setup_method(self) -> None:
         self.bc = BlockchainTraceability()
         self.trace = self.bc.create_trace(
-            "P-010", "wheat", "قمح", "Farm X", "مزرعة X", "F-010", "T-001",
+            "P-010",
+            "wheat",
+            "قمح",
+            "Farm X",
+            "مزرعة X",
+            "F-010",
+            "T-001",
         )
 
     def test_add_event_returns_trace_event(self) -> None:
@@ -153,14 +196,26 @@ class TestChainVerification:
     def test_empty_chain_is_valid(self) -> None:
         """Empty chain should be valid."""
         trace = self.bc.create_trace(
-            "P-020", "wheat", "قمح", "Farm V", "مزرعة ف", "F-020", "T-001",
+            "P-020",
+            "wheat",
+            "قمح",
+            "Farm V",
+            "مزرعة ف",
+            "F-020",
+            "T-001",
         )
         assert self.bc.verify_chain(trace.trace_id) is True
 
     def test_single_event_chain_valid(self) -> None:
         """Chain with one event should be valid."""
         trace = self.bc.create_trace(
-            "P-021", "date", "تمر", "Farm W", "مزرعة و", "F-021", "T-001",
+            "P-021",
+            "date",
+            "تمر",
+            "Farm W",
+            "مزرعة و",
+            "F-021",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.PLANTING)
         assert self.bc.verify_chain(trace.trace_id) is True
@@ -168,7 +223,13 @@ class TestChainVerification:
     def test_multi_event_chain_valid(self) -> None:
         """Chain with multiple events should be valid if not tampered."""
         trace = self.bc.create_trace(
-            "P-022", "wheat", "قمح", "Farm Y", "مزرعة ي", "F-022", "T-001",
+            "P-022",
+            "wheat",
+            "قمح",
+            "Farm Y",
+            "مزرعة ي",
+            "F-022",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.PLANTING)
         self.bc.add_event(trace.trace_id, TraceEventType.FERTILIZING)
@@ -179,7 +240,13 @@ class TestChainVerification:
     def test_tampered_chain_invalid(self) -> None:
         """Tampered chain should be detected as invalid."""
         trace = self.bc.create_trace(
-            "P-023", "coffee", "بُن", "Farm Z", "مزرعة ز", "F-023", "T-001",
+            "P-023",
+            "coffee",
+            "بُن",
+            "Farm Z",
+            "مزرعة ز",
+            "F-023",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.PLANTING)
         self.bc.add_event(trace.trace_id, TraceEventType.HARVESTING)
@@ -202,7 +269,13 @@ class TestQRCodeGeneration:
     def test_qr_contains_trace_id(self) -> None:
         """QR data should contain the trace ID."""
         trace = self.bc.create_trace(
-            "P-030", "wheat", "قمح", "Farm Q", "مزرعة ق", "F-030", "T-001",
+            "P-030",
+            "wheat",
+            "قمح",
+            "Farm Q",
+            "مزرعة ق",
+            "F-030",
+            "T-001",
         )
         qr = self.bc.generate_qr_data(trace.trace_id)
         assert "SAHOOL-TRACE" in qr
@@ -211,7 +284,13 @@ class TestQRCodeGeneration:
     def test_qr_contains_product_and_crop(self) -> None:
         """QR data should contain product ID and crop type."""
         trace = self.bc.create_trace(
-            "P-031", "date", "تمر", "Farm R", "مزرعة ر", "F-031", "T-001",
+            "P-031",
+            "date",
+            "تمر",
+            "Farm R",
+            "مزرعة ر",
+            "F-031",
+            "T-001",
         )
         qr = self.bc.generate_qr_data(trace.trace_id)
         assert "PRODUCT:P-031" in qr
@@ -220,7 +299,13 @@ class TestQRCodeGeneration:
     def test_qr_event_count(self) -> None:
         """QR data should reflect the number of events."""
         trace = self.bc.create_trace(
-            "P-032", "wheat", "قمح", "Farm S", "مزرعة س", "F-032", "T-001",
+            "P-032",
+            "wheat",
+            "قمح",
+            "Farm S",
+            "مزرعة س",
+            "F-032",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.PLANTING)
         self.bc.add_event(trace.trace_id, TraceEventType.HARVESTING)
@@ -234,7 +319,13 @@ class TestQRCodeGeneration:
     def test_qr_stored_on_trace(self) -> None:
         """Generated QR data is stored on the trace object."""
         trace = self.bc.create_trace(
-            "P-033", "rice", "أرز", "Farm T", "مزرعة ت", "F-033", "T-001",
+            "P-033",
+            "rice",
+            "أرز",
+            "Farm T",
+            "مزرعة ت",
+            "F-033",
+            "T-001",
         )
         qr = self.bc.generate_qr_data(trace.trace_id)
         assert trace.qr_code_data == qr
@@ -249,11 +340,21 @@ class TestOriginCertificate:
     def test_issue_certificate(self) -> None:
         """Certificate is issued with correct fields."""
         trace = self.bc.create_trace(
-            "P-040", "coffee", "بُن", "Farm U", "مزرعة ع", "F-040", "T-001",
+            "P-040",
+            "coffee",
+            "بُن",
+            "Farm U",
+            "مزرعة ع",
+            "F-040",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.HARVESTING, "Yemen", "اليمن")
         cert = self.bc.issue_origin_certificate(
-            trace.trace_id, "Yemen", "اليمن", "Highlands", "المرتفعات",
+            trace.trace_id,
+            "Yemen",
+            "اليمن",
+            "Highlands",
+            "المرتفعات",
         )
         assert isinstance(cert, OriginCertificate)
         assert cert.certificate_id.startswith("CERT-")
@@ -263,48 +364,95 @@ class TestOriginCertificate:
     def test_certificate_has_verification_hash(self) -> None:
         """Certificate should have a non-empty verification hash."""
         trace = self.bc.create_trace(
-            "P-041", "wheat", "قمح", "Farm V", "مزرعة ف", "F-041", "T-001",
+            "P-041",
+            "wheat",
+            "قمح",
+            "Farm V",
+            "مزرعة ف",
+            "F-041",
+            "T-001",
         )
         cert = self.bc.issue_origin_certificate(
-            trace.trace_id, "Iraq", "العراق", "Central", "الوسط",
+            trace.trace_id,
+            "Iraq",
+            "العراق",
+            "Central",
+            "الوسط",
         )
         assert cert.verification_hash != ""
 
     def test_certificate_harvest_date_from_event(self) -> None:
         """Certificate should pick up harvest date from events."""
         trace = self.bc.create_trace(
-            "P-042", "date", "تمر", "Farm W", "مزرعة و", "F-042", "T-001",
+            "P-042",
+            "date",
+            "تمر",
+            "Farm W",
+            "مزرعة و",
+            "F-042",
+            "T-001",
         )
         harvest_evt = self.bc.add_event(trace.trace_id, TraceEventType.HARVESTING)
         cert = self.bc.issue_origin_certificate(
-            trace.trace_id, "Oman", "عُمان", "Interior", "الداخلية",
+            trace.trace_id,
+            "Oman",
+            "عُمان",
+            "Interior",
+            "الداخلية",
         )
         assert cert.harvest_date == harvest_evt.timestamp
 
     def test_certificate_no_harvest_empty_date(self) -> None:
         """Certificate without harvest event should have empty harvest_date."""
         trace = self.bc.create_trace(
-            "P-043", "wheat", "قمح", "Farm X", "مزرعة X", "F-043", "T-001",
+            "P-043",
+            "wheat",
+            "قمح",
+            "Farm X",
+            "مزرعة X",
+            "F-043",
+            "T-001",
         )
         self.bc.add_event(trace.trace_id, TraceEventType.PLANTING)
         cert = self.bc.issue_origin_certificate(
-            trace.trace_id, "Egypt", "مصر", "Delta", "الدلتا",
+            trace.trace_id,
+            "Egypt",
+            "مصر",
+            "Delta",
+            "الدلتا",
         )
         assert cert.harvest_date == ""
 
     def test_certificate_nonexistent_trace(self) -> None:
         """Certificate for nonexistent trace returns None."""
-        assert self.bc.issue_origin_certificate(
-            "INVALID", "Yemen", "اليمن", "North", "الشمال",
-        ) is None
+        assert (
+            self.bc.issue_origin_certificate(
+                "INVALID",
+                "Yemen",
+                "اليمن",
+                "North",
+                "الشمال",
+            )
+            is None
+        )
 
     def test_certificate_quality_grade(self) -> None:
         """Certificate accepts custom quality grade."""
         trace = self.bc.create_trace(
-            "P-044", "coffee", "بُن", "Farm Y", "مزرعة ي", "F-044", "T-001",
+            "P-044",
+            "coffee",
+            "بُن",
+            "Farm Y",
+            "مزرعة ي",
+            "F-044",
+            "T-001",
         )
         cert = self.bc.issue_origin_certificate(
-            trace.trace_id, "Yemen", "اليمن", "Highlands", "المرتفعات",
+            trace.trace_id,
+            "Yemen",
+            "اليمن",
+            "Highlands",
+            "المرتفعات",
             quality_grade="Premium",
         )
         assert cert.quality_grade == "Premium"

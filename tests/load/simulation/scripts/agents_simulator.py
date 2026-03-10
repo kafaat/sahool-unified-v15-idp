@@ -31,9 +31,7 @@ from typing import Any
 
 import aiohttp
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("sahool-agents-simulator")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -188,12 +186,8 @@ class AIAgentSimulator:
 
                 try:
                     data = await response.json()
-                    tokens = (
-                        data.get("usage", {}).get("total_tokens", 0)
-                        if isinstance(data, dict)
-                        else 0
-                    )
-                except:
+                    tokens = data.get("usage", {}).get("total_tokens", 0) if isinstance(data, dict) else 0
+                except (json.JSONDecodeError, ValueError):
                     data = await response.text()
                     tokens = 0
 
@@ -321,9 +315,7 @@ class AIAgentSimulator:
                         "longitude": location["lng"],
                         "region": location["region"],
                     },
-                    "irrigation_system": random.choice(
-                        ["drip", "sprinkler", "flood", "center_pivot"]
-                    ),
+                    "irrigation_system": random.choice(["drip", "sprinkler", "flood", "center_pivot"]),
                 },
             },
         )
@@ -347,9 +339,7 @@ class AIAgentSimulator:
                 "recommendation_type": "yield",
                 "field_data": {
                     "area_hectares": random.uniform(1, 100),
-                    "planting_date": (
-                        datetime.now() - timedelta(days=random.randint(30, 120))
-                    ).strftime("%Y-%m-%d"),
+                    "planting_date": (datetime.now() - timedelta(days=random.randint(30, 120))).strftime("%Y-%m-%d"),
                     "variety": f"{crop}_variety_{random.randint(1, 5)}",
                     "soil": {
                         "type": random.choice(SOIL_TYPES),
@@ -410,9 +400,7 @@ class AIAgentSimulator:
                 "growth_stage": random.choice(GROWTH_STAGES),
                 "recommendation_type": "pest",
                 "field_data": {
-                    "pest_type": random.choice(
-                        ["aphids", "whitefly", "spider_mites", "locusts", "borers"]
-                    ),
+                    "pest_type": random.choice(["aphids", "whitefly", "spider_mites", "locusts", "borers"]),
                     "infestation_level": random.choice(["low", "medium", "high"]),
                     "location": location["region"],
                     "organic_only": random.choice([True, False]),
@@ -446,9 +434,7 @@ class AIAgentSimulator:
                 "top_k": random.randint(3, 10),
                 "language": random.choice(["ar", "en"]),
                 "filters": {
-                    "category": random.choice(
-                        ["irrigation", "pest_control", "fertilization", "diseases", None]
-                    ),
+                    "category": random.choice(["irrigation", "pest_control", "fertilization", "diseases", None]),
                     "region": random.choice([loc["region"] for loc in SAUDI_LOCATIONS] + [None]),
                 },
             },
@@ -556,9 +542,7 @@ class AgentsSimulator:
             await simulator.get_rag_info()
 
             # Create user tasks
-            tasks = [
-                asyncio.create_task(self.user_session(session, i)) for i in range(self.num_users)
-            ]
+            tasks = [asyncio.create_task(self.user_session(session, i)) for i in range(self.num_users)]
 
             # Run for specified duration
             await asyncio.sleep(self.duration_seconds)
@@ -585,9 +569,7 @@ class AgentsSimulator:
         logger.info("")
         logger.info("  Agent Results:")
         logger.info("  " + "-" * 76)
-        logger.info(
-            f"  {'Agent':<25} {'Requests':>10} {'Success':>10} {'Failed':>10} {'Rate':>10} {'Avg Latency':>12}"
-        )
+        logger.info(f"  {'Agent':<25} {'Requests':>10} {'Success':>10} {'Failed':>10} {'Rate':>10} {'Avg Latency':>12}")
         logger.info("  " + "-" * 76)
 
         total_requests = 0
@@ -662,18 +644,12 @@ def main():
         default="http://localhost:8081",
         help="Kong Gateway URL (default: http://localhost:8081)",
     )
-    parser.add_argument(
-        "--users", "-u", type=int, default=5, help="Number of virtual users (default: 5)"
-    )
-    parser.add_argument(
-        "--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)"
-    )
+    parser.add_argument("--users", "-u", type=int, default=5, help="Number of virtual users (default: 5)")
+    parser.add_argument("--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)")
 
     args = parser.parse_args()
 
-    simulator = AgentsSimulator(
-        gateway_url=args.gateway, num_users=args.users, duration_seconds=args.duration
-    )
+    simulator = AgentsSimulator(gateway_url=args.gateway, num_users=args.users, duration_seconds=args.duration)
 
     try:
         asyncio.run(simulator.run())

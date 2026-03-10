@@ -96,10 +96,7 @@ class TestConfigPolicyEngine:
         engine = ConfigPolicyEngine(service_name="test", env_override=env)
         result = engine.validate()
 
-        ssl_violations = [
-            v for v in result.violations
-            if v.variable == "DATABASE_URL" and "SSL" in v.message
-        ]
+        ssl_violations = [v for v in result.violations if v.variable == "DATABASE_URL" and "SSL" in v.message]
         assert len(ssl_violations) > 0
 
     def test_production_requires_longer_jwt(self):
@@ -113,8 +110,7 @@ class TestConfigPolicyEngine:
         result = engine.validate()
 
         jwt_violations = [
-            v for v in result.violations
-            if v.variable == "JWT_SECRET_KEY" and "64 characters" in v.message
+            v for v in result.violations if v.variable == "JWT_SECRET_KEY" and "64 characters" in v.message
         ]
         assert len(jwt_violations) > 0
 

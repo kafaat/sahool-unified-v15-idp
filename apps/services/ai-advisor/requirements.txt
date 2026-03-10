@@ -37,6 +37,10 @@ google-generativeai>=0.3.0
 sentence-transformers==5.2.3
 qdrant-client==1.11.1
 
+# Agent-to-Agent Protocol
+# بروتوكول الوكيل إلى الوكيل
+a2a>=0.1.0
+
 # NATS Messaging
 # نظام الرسائل NATS
 nats-py==2.14.0

@@ -12,9 +12,9 @@
 | Metric | Value |
 |--------|-------|
 | **Overall Platform Score** | **B+ (78/100)** |
-| **Critical Issues** | 7 |
+| **Critical Issues** | 7 + 8 dependency |
 | **High Severity Issues** | 18 |
-| **Medium Severity Issues** | 34 |
+| **Medium Severity Issues** | 34 + 12 dependency |
 | **Low Severity Issues** | 45+ |
 | **Microservices Audited** | 72 |
 | **Shared Modules Audited** | 85 |
@@ -42,7 +42,12 @@
 | API Contracts | 57/100 | C+ | 1 (inconsistency) |
 | Testing Coverage | 55/100 | C | 1 (0% floor) |
 | Node.js Services | 68/100 | C+ | 0 |
-| Documentation | 65/100 | C | 0 |
+| Documentation | 95/100 | A | 0 |
+| Dependency Management | 55/100 | C | 8 (version conflicts) |
+| Admin Portal | 85/100 | B+ | 0 |
+| Flutter Mobile | 75/100 | B | 2 (cert placeholders) |
+| NPM Packages | 90/100 | A | 0 |
+| Terrain/Hydrology Services | 85/100 | B+ | 0 |
 
 ---
 
@@ -452,6 +457,56 @@ uses: snyk/actions/node@<commit-sha>
 - No mutation testing
 - Load tests not in CI pipeline
 - Missing integration tests for vision/terrain services
+
+### 11. Dependency Management
+
+**Score: 55/100**
+
+| Metric | Value |
+|--------|-------|
+| Python constraint files | 2 (constraints.txt + docker/constraints-ai.txt) |
+| Total constraint entries | 278 |
+| Service requirements files | 147+ |
+| Lock files committed | 0 (non-reproducible builds) |
+| FastAPI version specs | 8 different across 57 services |
+| CVEs tracked in constraints | 11 |
+
+**Critical Issues (8)**:
+1. FastAPI version fragmentation (8 specs across 57 services)
+2. PyJWT version conflicts between constraint files (CVE gap in docker/constraints-ai.txt)
+3. Aerich 0.9.2 incompatible with pinned tortoise-orm 1.1.6
+4. NumPy upper bound `<2.5.0` too aggressive
+5. cryptography `<47.0.0` blocks CVE-2026-26007 fix
+6. asyncpg pinned vs range conflict between constraint files
+7. Redis `[hiredis]` extras inconsistency across services
+8. Tenacity version mismatch (pyproject.toml vs constraints.txt)
+
+**Recommendation**: Centralize all version management to constraints.txt, generate and commit lock files, align docker/constraints-ai.txt with main constraints.
+
+### 12. Documentation
+
+**Score: 95/100**
+
+| Metric | Value |
+|--------|-------|
+| Total documentation files | 524 |
+| Knowledge base files | 91 (20 crop varieties) |
+| OpenAPI specifications | 17 |
+| ADRs | 10 (complete coverage) |
+| Service README files | 97 |
+| Broken internal links | 0 |
+| Migration guides | 6 (complete) |
+
+**Strengths**:
+- 100% service documentation coverage
+- Well-maintained version references (v16.0.0)
+- Comprehensive knowledge base with 20 crop varieties
+- All deprecated services have clear migration paths
+
+**Weaknesses**:
+- IDP template directories lack individual README files
+- Limited best practices documentation (2 files)
+- No dedicated testing procedures guide
 
 ---
 

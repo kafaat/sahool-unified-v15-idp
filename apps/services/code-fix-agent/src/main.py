@@ -162,6 +162,15 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # CORS middleware - use environment variable for origins
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 app.add_middleware(

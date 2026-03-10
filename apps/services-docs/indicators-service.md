@@ -726,9 +726,14 @@ async def lifespan(app: FastAPI):
 2. **Input Validation:** Uses Pydantic models for request validation
 3. **Query Parameter Limits:** Enforces min/max on query parameters
 
-### Security Gaps
+### Authentication (March 2026 Update)
 
-1. **No Authentication:** Endpoints are not protected
+- **DELETE endpoint** (`DELETE /v1/field/{field_id}/indicators`) now requires JWT authentication via `get_current_user` dependency
+- Other endpoints remain unprotected (Kong gateway handles external auth)
+
+### Remaining Security Gaps
+
+1. **Partial Authentication:** Only DELETE endpoints are protected at service level; GET/POST rely on Kong gateway
 2. **No Authorization:** No RBAC or tenant isolation verification
 3. **No Rate Limiting:** Service-level rate limiting not implemented
 4. **No Input Sanitization:** Field IDs and tenant IDs not validated

@@ -553,7 +553,7 @@ _v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
+        _old_path = "/v1" + _path[len(_v1_prefix) :]
         app.router.add_api_route(
             _old_path,
             _route.endpoint,

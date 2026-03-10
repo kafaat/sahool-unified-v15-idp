@@ -10,7 +10,7 @@
 
 | Category | Status | Issues Found |
 |----------|--------|-------------|
-| Dependency Completeness | WARNING | 2 missing packages |
+| Dependency Completeness | WARNING | 4 missing packages (3 fixed, 1 added) |
 | Governance Registry | OK | All 70 active services registered; 14 deprecated properly archived |
 | Deprecated References | HIGH | 10 deprecated services referenced in CI/code |
 | Services-Docs Coverage | MEDIUM | 5 stale docs, 1 missing doc |
@@ -38,6 +38,24 @@
 
 ### 1.3 vegetation-analysis-service: `structlog` (FIXED)
 - Previously missing, fixed in this session.
+
+### 1.4 irrigation-smart: Missing `asyncpg` (FIXED)
+- **File:** `apps/services/irrigation-smart/src/database_utils.py:335`
+- **Import:** `import asyncpg` (inside function, guarded by try/except)
+- **Note:** Database functionality silently broken without it
+- **Fix:** Added `asyncpg>=0.30.0,<1.0.0` to requirements.txt
+
+### 1.5 Dead Code Dependencies (Not Runtime Risk)
+The following services have imports to missing packages, but the importing files are **dead code** (not imported by `main.py`):
+- `inventory-service`: `prisma` imported in `inventory_service.py`/`stock_manager.py` (unused alternative to SQLAlchemy implementation)
+- `field-management-service`: `sqlalchemy` imported in `rotation_models.py` (Node.js service, Python file is dead code)
+
+### 1.6 Optional Dependencies (Guarded by try/except)
+These are missing but won't crash services (features silently disabled):
+- `code-fix-agent`: `jedi`, `pyflakes` (LSP features disabled)
+- `ai-agents-core`: `onnxruntime`, `safetensors`, `torch`, `torchvision` (disease CNN model disabled)
+- `ground-vision-service`: `aiohttp`, `ultralytics` (MLLM reasoning and YOLO classification disabled)
+- `vegetation-analysis-service`: `eolearn`, `s2cloudless`, `sentinelhub` (Earth observation features disabled)
 
 ---
 
@@ -242,9 +260,11 @@ Overlap between governance files: **only 3 events** (14% alignment):
 ## Recommended Actions (Priority Order)
 
 ### P0 - Critical (Runtime Impact)
-1. Add `a2a` to `ai-advisor/requirements.txt`
-2. Add `torch` to `yolo26-vision-service/requirements.txt`
-3. Update deprecated service references in active code (7 files)
+1. ~~Add `a2a` to `ai-advisor/requirements.txt`~~ ✅ FIXED
+2. ~~Add `torch` to `yolo26-vision-service/requirements.txt`~~ ✅ FIXED
+3. ~~Add `asyncpg` to `irrigation-smart/requirements.txt`~~ ✅ FIXED
+4. Update deprecated service references in active code (7 files)
+5. Remove dead code: `inventory-service` prisma files, `field-management-service` rotation_models.py
 
 ### P1 - High (CI/CD Impact)
 4. Clean deprecated service references from 7 CI workflow files

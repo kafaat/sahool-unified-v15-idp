@@ -7,8 +7,16 @@ API endpoints for Variable Rate Application prescription maps.
 
 import logging
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+
+    async def get_current_user():
+        return None
+
 
 from .vra_generator import (
     VRAGenerator,
@@ -439,7 +447,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=500, detail=f"Failed to export prescription: {str(e)}")
 
     @app.delete("/v1/vra/prescription/{prescription_id}")
-    async def delete_prescription(prescription_id: str):
+    async def delete_prescription(prescription_id: str, _user=Depends(get_current_user)):
         """
         حذف الوصفة | Delete Prescription
 

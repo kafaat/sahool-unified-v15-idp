@@ -14,7 +14,7 @@
 | Governance Registry | CRITICAL | 72 services missing from governance |
 | Deprecated References | HIGH | 10 deprecated services referenced in CI/code |
 | Services-Docs Coverage | MEDIUM | 5 stale docs, 1 missing doc |
-| Shared Module Docs | MEDIUM | 10 modules without README |
+| Shared Module Docs | MEDIUM | 16 modules without README, 13 missing from CLAUDE.md |
 | Documentation Structure | LOW | Layer mismatches in SERVICES_MAP/CLAUDE.md |
 | Knowledge Base | OK | Good coverage, no stub files |
 | Port Conflicts | OK | No conflicts detected |
@@ -114,7 +114,9 @@ Governance lists services that have no matching directory:
 
 ## 5. Shared Module Documentation (MEDIUM)
 
-### 5.1 Modules Without README.md (10 modules)
+**Total shared modules:** 78 (all have `__init__.py` with docstrings)
+
+### 5.1 Modules Without README.md (16 modules)
 - `shared/dashboard/`
 - `shared/financial_reports/`
 - `shared/geospatial_metadata/`
@@ -125,6 +127,17 @@ Governance lists services that have no matching directory:
 - `shared/pivot_management/`
 - `shared/regional/`
 - `shared/vra_maps/`
+- `shared/calibration/`
+- `shared/digital_twin/`
+- `shared/drift_detection/`
+- `shared/process_models/`
+- `shared/stability/`
+
+### 5.2 Modules Not Documented in CLAUDE.md (13 modules)
+- `calibration`, `digital_twin`, `drift_detection`
+- `geospatial_metadata`, `iot_dashboard`, `marketplace_enhanced`
+- `mobile_config`, `notification_routing`, `pivot_management`
+- `process_models`, `regional`, `stability`, `vra_maps`
 
 ---
 
@@ -180,7 +193,8 @@ No stub files detected. Total: 74+ knowledge base documents.
 4. Clean deprecated service references from 7 CI workflow files
 
 ### P2 - Medium (Documentation Drift)
-5. Add README.md to 10 undocumented shared modules
+5. Add README.md to 16 undocumented shared modules
+6. Add 13 missing modules to CLAUDE.md shared module listing
 6. Add documentation for `vllm-deepseek` service
 7. Archive/mark stale docs in services-docs
 

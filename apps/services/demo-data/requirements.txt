@@ -10,7 +10,7 @@ httpx==0.28.1
 asyncio  # Built-in module
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Logging
 structlog>=24.1.0

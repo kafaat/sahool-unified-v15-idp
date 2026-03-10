@@ -23,11 +23,11 @@ bcrypt==5.0.0
 passlib[bcrypt]==1.7.4
 
 # Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 redis[hiredis]>=7.1.0,<8.0.0
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 python-multipart==0.0.22
 
 # Observability

@@ -14,10 +14,10 @@ redis>=7.1.0,<8.0.0
 
 # Validation
 pydantic==2.12.5
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
 
 # Environment
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Logging
 structlog==24.4.0

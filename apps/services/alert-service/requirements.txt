@@ -14,17 +14,17 @@ httpx==0.28.1
 
 # Database & ORM (sync SQLAlchemy - uses psycopg2)
 sqlalchemy==2.0.48
-alembic==1.18.3
-psycopg2-binary==2.9.9
+alembic==1.18.4
+psycopg2-binary==2.9.11
 
 # NATS Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Redis for caching and pub/sub
 redis>=7.1.0,<8.0.0
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 python-dateutil==2.9.0.post0
 
 # APScheduler for alert expiration checks

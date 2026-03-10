@@ -10,13 +10,13 @@ uvicorn[standard]>=0.30.0,<1.0.0
 
 # Data Validation
 pydantic==2.12.5
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
 
 # Database (optional, for result caching)
 asyncpg>=0.30.0,<1.0.0
 
 # Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # HTTP Client
 httpx==0.28.1
@@ -30,13 +30,13 @@ numpy>=1.26.0,<2.5.0
 scipy>=1.14.0,<1.18.0
 
 # Raster processing (requires GDAL)
-rasterio==1.4.3
+rasterio==1.4.4
 
 # Vector processing
-shapely==2.0.6
+shapely==2.1.2
 
 # Coordinate transformations
-pyproj==3.7.0
+pyproj==3.7.2
 
 # Affine transformations
 affine>=2.4.0
@@ -52,7 +52,7 @@ scikit-image>=0.24.0
 structlog==24.4.0
 
 # Environment variables
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Date utilities
 python-dateutil==2.9.0.post0

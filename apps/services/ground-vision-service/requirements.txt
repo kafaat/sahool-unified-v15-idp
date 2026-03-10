@@ -13,7 +13,7 @@ sqlalchemy==2.0.48
 geoalchemy2>=0.15.0
 
 # Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Computer Vision
 opencv-python-headless>=4.10.0,<5.0.0

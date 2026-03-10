@@ -193,9 +193,9 @@ jobs:
         id: ruff
         if: needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main'
         run: |
+          set -o pipefail
           echo "## Ruff Linting Results" >> $GITHUB_STEP_SUMMARY
-          ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt
-          if [ $? -ne 0 ]; then
+          if ! ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt; then
             echo "::error::Ruff found linting errors"
             echo "status=failure" >> $GITHUB_OUTPUT
             exit 1

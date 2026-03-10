@@ -5,20 +5,37 @@ Integrates with shared.cooperatives module.
 
 import json
 import uuid
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+# Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
 except ImportError:
-    # Fallback for environments without shared auth
-    async def get_current_user():
-        return None
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+    _bearer_scheme = HTTPBearer(auto_error=False)
+
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Fallback auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
+
+
+# Domain enums - used for request validation
+try:
+    from shared.cooperatives.models import CooperativeType, MemberRole, ResourceType, RevenueShareMethod
+except ImportError:
+    CooperativeType = None
+    MemberRole = None
+    ResourceType = None
+    RevenueShareMethod = None
 
 logger = structlog.get_logger()
 
@@ -29,6 +46,28 @@ _cooperatives: dict[str, dict] = {}
 _members: dict[str, dict] = {}
 _resources: dict[str, dict] = {}
 _bookings: dict[str, dict] = {}
+
+
+# === Helpers ===
+
+
+def _get_coop_or_404(coop_id: str) -> dict:
+    """Get cooperative by ID or raise 404."""
+    if coop_id not in _cooperatives:
+        raise HTTPException(
+            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
+        )
+    return _cooperatives[coop_id]
+
+
+def _members_for_coop(coop_id: str) -> list[dict]:
+    """Get all members belonging to a cooperative."""
+    return [m for m in _members.values() if m.get("cooperative_id") == coop_id]
+
+
+def _resources_for_coop(coop_id: str) -> list[dict]:
+    """Get all resources belonging to a cooperative."""
+    return [r for r in _resources.values() if r.get("cooperative_id") == coop_id]
 
 
 # === Request Models ===
@@ -94,9 +133,7 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
         from shared.cooperatives import Cooperative, CooperativeType
 
         coop_type = (
-            CooperativeType(request.type)
-            if hasattr(CooperativeType, request.type.upper())
-            else CooperativeType.MULTI_PURPOSE
+            CooperativeType(request.type) if hasattr(CooperativeType, request.type.upper()) else CooperativeType.MULTI_PURPOSE
         )
         coop = Cooperative.create(
             tenant_id=request.tenant_id,
@@ -105,8 +142,8 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
             type=coop_type,
         )
         coop_id = coop.cooperative_id
-    except (ImportError, Exception) as e:
-        logger.warning("cooperative_create_fallback", error=str(e))
+    except ImportError:
+        logger.warning("cooperative_create_fallback", error="shared.cooperatives not available")
 
     coop_data = {
         "id": coop_id,
@@ -119,7 +156,7 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
         "region": request.region,
         "status": "active",
         "member_count": 0,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
     _cooperatives[coop_id] = coop_data
 
@@ -146,23 +183,28 @@ async def list_cooperatives(tenant_id: str | None = None):
 @router.get("/{coop_id}")
 async def get_cooperative(coop_id: str):
     """Get cooperative details - تفاصيل التعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
-    coop = _cooperatives[coop_id]
-    coop["members"] = [m for m in _members.values() if m.get("cooperative_id") == coop_id]
-    coop["resources"] = [r for r in _resources.values() if r.get("cooperative_id") == coop_id]
-    return coop
+    coop = _get_coop_or_404(coop_id)
+    return {
+        **coop,
+        "members": _members_for_coop(coop_id),
+        "resources": _resources_for_coop(coop_id),
+    }
 
 
 @router.delete("/{coop_id}", status_code=204)
 async def delete_cooperative(coop_id: str, _user=Depends(get_current_user)):
     """Delete cooperative - حذف التعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
+    _get_coop_or_404(coop_id)
+
+    # Cascade: remove associated resources, bookings, and members
+    resource_ids = {r["id"] for r in _resources_for_coop(coop_id)}
+    for bk_id in [k for k, v in _bookings.items() if v.get("resource_id") in resource_ids]:
+        del _bookings[bk_id]
+    for res_id in resource_ids:
+        del _resources[res_id]
+    for mem_id in [k for k, v in _members.items() if v.get("cooperative_id") == coop_id]:
+        del _members[mem_id]
+
     del _cooperatives[coop_id]
 
 
@@ -172,10 +214,7 @@ async def delete_cooperative(coop_id: str, _user=Depends(get_current_user)):
 @router.post("/{coop_id}/members", status_code=201)
 async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
     """Add member to cooperative - إضافة عضو للتعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
+    _get_coop_or_404(coop_id)
 
     member_id = f"MBR-{uuid.uuid4().hex[:8].upper()}"
 
@@ -192,8 +231,8 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
             land_area_ha=request.land_area_ha,
         )
         member_id = member.member_id
-    except (ImportError, Exception) as e:
-        logger.warning("member_create_fallback", error=str(e))
+    except ImportError:
+        logger.warning("member_create_fallback", error="shared.cooperatives not available")
 
     member_data = {
         "id": member_id,
@@ -206,10 +245,10 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
         "share_count": request.share_count,
         "land_area_ha": request.land_area_ha,
         "status": "active",
-        "joined_at": datetime.utcnow().isoformat(),
+        "joined_at": datetime.now(UTC).isoformat(),
     }
     _members[member_id] = member_data
-    _cooperatives[coop_id]["member_count"] = len([m for m in _members.values() if m.get("cooperative_id") == coop_id])
+    _cooperatives[coop_id]["member_count"] = _cooperatives[coop_id].get("member_count", 0) + 1
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -224,11 +263,8 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
 @router.get("/{coop_id}/members")
 async def list_members(coop_id: str):
     """List cooperative members - قائمة أعضاء التعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
-    members = [m for m in _members.values() if m.get("cooperative_id") == coop_id]
+    _get_coop_or_404(coop_id)
+    members = _members_for_coop(coop_id)
     return {"cooperative_id": coop_id, "members": members, "count": len(members)}
 
 
@@ -237,8 +273,10 @@ async def remove_member(coop_id: str, member_id: str, _user=Depends(get_current_
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     if member_id not in _members:
         raise HTTPException(status_code=404, detail={"error": "Member not found", "error_ar": "العضو غير موجود"})
+    if _members[member_id].get("cooperative_id") != coop_id:
+        raise HTTPException(status_code=404, detail={"error": "Member not found in this cooperative", "error_ar": "العضو غير موجود في هذه التعاونية"})
     del _members[member_id]
-    _cooperatives[coop_id]["member_count"] = len([m for m in _members.values() if m.get("cooperative_id") == coop_id])
+    _cooperatives[coop_id]["member_count"] = max(0, _cooperatives[coop_id].get("member_count", 1) - 1)
 
 
 # === Resource Pool Endpoints ===
@@ -247,10 +285,7 @@ async def remove_member(coop_id: str, member_id: str, _user=Depends(get_current_
 @router.post("/{coop_id}/resources", status_code=201)
 async def register_resource(coop_id: str, request: ResourceCreateRequest):
     """Register shared resource - تسجيل مورد مشترك"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
+    _get_coop_or_404(coop_id)
 
     resource_id = f"RES-{uuid.uuid4().hex[:8].upper()}"
     resource_data = {
@@ -264,7 +299,7 @@ async def register_resource(coop_id: str, request: ResourceCreateRequest):
         "model": request.model,
         "hourly_rate": request.hourly_rate,
         "status": "available",
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
     _resources[resource_id] = resource_data
     logger.info("resource_registered", coop_id=coop_id, resource_id=resource_id)
@@ -274,11 +309,8 @@ async def register_resource(coop_id: str, request: ResourceCreateRequest):
 @router.get("/{coop_id}/resources")
 async def list_resources(coop_id: str):
     """List cooperative resources - قائمة موارد التعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
-    resources = [r for r in _resources.values() if r.get("cooperative_id") == coop_id]
+    _get_coop_or_404(coop_id)
+    resources = _resources_for_coop(coop_id)
     return {"cooperative_id": coop_id, "resources": resources, "count": len(resources)}
 
 
@@ -301,7 +333,7 @@ async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRe
         "duration_hours": request.duration_hours,
         "status": "confirmed",
         "cost": _resources[resource_id].get("hourly_rate", 0) * request.duration_hours,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
     }
     _bookings[booking_id] = booking_data
     logger.info("resource_booked", resource_id=resource_id, booking_id=booking_id)
@@ -314,75 +346,60 @@ async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRe
 @router.post("/{coop_id}/revenue/distribute")
 async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest):
     """Distribute revenue among members - توزيع الإيرادات بين الأعضاء"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
+    _get_coop_or_404(coop_id)
 
-    members = [m for m in _members.values() if m.get("cooperative_id") == coop_id]
+    members = _members_for_coop(coop_id)
     if not members:
         raise HTTPException(
             status_code=400, detail={"error": "No members in cooperative", "error_ar": "لا يوجد أعضاء في التعاونية"}
         )
 
-    try:
-        if request.method == "land_area":
-            shares_data = {m["id"]: m.get("land_area_ha", 1.0) for m in members}
-        elif request.method == "contribution":
-            shares_data = {m["id"]: float(m.get("share_count", 1)) for m in members}
-        else:
-            shares_data = {m["id"]: 1.0 for m in members}
+    if request.method == "land_area":
+        shares_data = {m["id"]: m.get("land_area_ha", 1.0) for m in members}
+    elif request.method == "contribution":
+        shares_data = {m["id"]: float(m.get("share_count", 1)) for m in members}
+    else:
+        shares_data = {m["id"]: 1.0 for m in members}
 
-        total_shares = sum(shares_data.values()) or 1.0
-        distributions = []
-        for m in members:
-            share_ratio = shares_data.get(m["id"], 1.0) / total_shares
-            amount = round(request.total_revenue * share_ratio, 2)
-            distributions.append(
-                {
-                    "member_id": m["id"],
-                    "member_name": m["name"],
-                    "member_name_ar": m["name_ar"],
-                    "share_ratio": round(share_ratio, 4),
-                    "amount": amount,
-                }
-            )
+    total_shares = sum(shares_data.values()) or 1.0
+    distributions = []
+    for m in members:
+        share_ratio = shares_data.get(m["id"], 1.0) / total_shares
+        amount = round(request.total_revenue * share_ratio, 2)
+        distributions.append(
+            {
+                "member_id": m["id"],
+                "member_name": m["name"],
+                "member_name_ar": m["name_ar"],
+                "share_ratio": round(share_ratio, 4),
+                "amount": amount,
+            }
+        )
 
-        return {
-            "cooperative_id": coop_id,
-            "total_revenue": request.total_revenue,
-            "method": request.method,
-            "period": request.period_name,
-            "distributions": distributions,
-            "distributed_at": datetime.utcnow().isoformat(),
-        }
-    except ImportError:
-        per_member = round(request.total_revenue / len(members), 2)
-        distributions = [{"member_id": m["id"], "member_name": m["name"], "amount": per_member} for m in members]
-        return {
-            "cooperative_id": coop_id,
-            "total_revenue": request.total_revenue,
-            "method": "equal_fallback",
-            "distributions": distributions,
-        }
+    return {
+        "cooperative_id": coop_id,
+        "total_revenue": request.total_revenue,
+        "method": request.method,
+        "period": request.period_name,
+        "distributions": distributions,
+        "distributed_at": datetime.now(UTC).isoformat(),
+    }
 
 
 @router.get("/{coop_id}/stats")
 async def get_cooperative_stats(coop_id: str):
     """Get cooperative statistics - إحصائيات التعاونية"""
-    if coop_id not in _cooperatives:
-        raise HTTPException(
-            status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
-        )
+    coop = _get_coop_or_404(coop_id)
 
-    members = [m for m in _members.values() if m.get("cooperative_id") == coop_id]
-    resources = [r for r in _resources.values() if r.get("cooperative_id") == coop_id]
-    coop_bookings = [b for b in _bookings.values() if b.get("resource_id") in {r["id"] for r in resources}]
+    members = _members_for_coop(coop_id)
+    resources = _resources_for_coop(coop_id)
+    resource_ids = {r["id"] for r in resources}
+    coop_bookings = [b for b in _bookings.values() if b.get("resource_id") in resource_ids]
 
     return {
         "cooperative_id": coop_id,
-        "name": _cooperatives[coop_id]["name"],
-        "name_ar": _cooperatives[coop_id]["name_ar"],
+        "name": coop["name"],
+        "name_ar": coop["name_ar"],
         "member_count": len(members),
         "resource_count": len(resources),
         "total_land_area_ha": sum(m.get("land_area_ha", 0) for m in members),

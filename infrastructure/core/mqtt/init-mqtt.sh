@@ -44,5 +44,13 @@ chmod 600 /mosquitto/config/acl
 # Create modified mosquitto.conf that points to the fixed ACL file
 sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig > /mosquitto/config/mosquitto.conf
 
+# Remove TLS listener blocks if certificate files are not present
+# This allows development environments to run without TLS certificates
+if [ ! -f /mosquitto/certs/ca.crt ] || [ ! -f /mosquitto/certs/server.crt ] || [ ! -f /mosquitto/certs/server.key ]; then
+    echo "NOTICE: TLS certificates not found at /mosquitto/certs/ - disabling TLS listeners (8883, 9443)"
+    # Remove TLS listener blocks (from "listener 8883" through the next blank line, and same for 9443)
+    sed -i '/^listener 8883$/,/^$/d; /^listener 9443$/,/^$/d' /mosquitto/config/mosquitto.conf
+fi
+
 # Start mosquitto - it will drop privileges to mosquitto user
 exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf

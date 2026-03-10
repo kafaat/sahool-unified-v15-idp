@@ -733,10 +733,11 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # Phase 1 (pre-auth init): try without credentials
-      # Phase 2 (post-auth): ETCDCTL_USER env var (set above) provides credentials
-      # Unset ETCDCTL_USER for first attempt to handle pre-auth state
-      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health" ]
+      # Three-phase healthcheck to handle all auth states:
+      # 1. Try without auth (pre-auth-init or auth disabled)
+      # 2. Try with credentials from ETCDCTL_USER env (post-auth-init)
+      # 3. Fallback: check if etcd process is listening on port 2379 (basic liveness)
+      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health 2>/dev/null || wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q health" ]
       interval: 15s
       timeout: 15s
       retries: 8

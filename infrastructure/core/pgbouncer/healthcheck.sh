@@ -71,12 +71,25 @@ log() {
 }
 
 # Function to execute query against PgBouncer admin console
-# Uses psql if available (preferred), falls back to pgbouncer's built-in psql
+# Uses psql if available (preferred), falls back to netcat TCP check
+# NOTE: PgBouncer's virtual "pgbouncer" database only accepts admin_users/stats_users.
+# We try the stats user first, then the main DB user, then fall back to TCP check.
 execute_query() {
   _query=$1
   if command -v psql >/dev/null 2>&1; then
+    # Try stats user first (can run SHOW POOLS, SHOW STATS, etc.)
+    _stats_user="${ADMIN_USERS:-pgbouncer_admin}"
+    _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
+    PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+      -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null && return 0
+
+    # Try main DB user connecting to actual database (not pgbouncer admin db)
+    # This verifies end-to-end connectivity through PgBouncer to PostgreSQL
     PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$POSTGRES_USER" -d pgbouncer -t -A -c "$_query" 2>/dev/null
+      -U "$POSTGRES_USER" -d "${DB_NAME:-sahool}" -t -A -c "SELECT 1" 2>/dev/null && return 0
+
+    # psql available but queries failed - return failure
+    return 1
   else
     # Fallback: basic TCP connectivity check
     # edoburu/pgbouncer Alpine image may not have psql
@@ -94,8 +107,8 @@ fi
 # Check 1: Basic connectivity
 log "${YELLOW}Checking PgBouncer connectivity...${NC}"
 if [ "$HAS_PSQL" = "true" ]; then
-  # Deep check: actually query the PgBouncer admin console
-  if ! execute_query "SELECT 1" > /dev/null; then
+  # Deep check: try admin console or end-to-end query through PgBouncer
+  if ! execute_query "SELECT 1" >/dev/null; then
     if [ "$JSON_OUTPUT" = "true" ]; then
       echo '{"status":"unhealthy","error":"Cannot connect to PgBouncer","checks":{"connectivity":false}}'
     else

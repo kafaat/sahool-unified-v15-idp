@@ -844,11 +844,10 @@ services:
       - ${MINIO_CERTS_DIR:-./docker/minio-certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
-      # Health check: Use MinIO's built-in /minio/health/live endpoint (unauthenticated)
-      # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة بدون بيانات اعتماد
-      # FIX: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
-      # FIX: mc alias set exposed credentials in docker inspect output
-      # Use 'mc ready local' with pre-configured alias via MC_HOST_local env var
+      # Health check: Uses 'mc ready local' with pre-configured alias via MC_HOST_local env var
+      # فحص صحة MinIO - يستخدم 'mc ready local' مع الاسم المستعار المُعدّ مسبقاً عبر MC_HOST_local
+      # NOTE: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
+      # NOTE: mc alias set is avoided to prevent credentials appearing in docker inspect output
       test: [ "CMD-SHELL", "mc ready local" ]
       interval: 15s
       timeout: 10s

@@ -380,6 +380,15 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # Configure rate limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)

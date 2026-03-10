@@ -183,6 +183,15 @@ Connects farmers to agricultural suppliers for auto-purchasing based on advisory
     lifespan=lifespan,
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

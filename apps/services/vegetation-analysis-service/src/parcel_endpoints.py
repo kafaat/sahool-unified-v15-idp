@@ -31,7 +31,10 @@ class ParcelDetectionRequest(BaseModel):
         "hybrid",
         description="Detection strategy: semantic_segmentation, boundary_detection, training_free, hybrid",
     )
-    precision: str = Field("high", description="Model precision: very_high, high, acceptable, speed_focused")
+    precision: str = Field(
+        "high",
+        description="Model precision: very_high, high, acceptable, speed_focused",
+    )
     target_shape: str = Field(
         "irregular",
         description="Shape regularization: irregular, rectangle, convex_hull, minimum_bounding",
@@ -58,9 +61,7 @@ class RegionDetectionRequest(BaseModel):
 class ParcelClassifyRequest(BaseModel):
     """Request model for vector classification"""
 
-    parcels: list[dict] = Field(
-        ..., description="List of GeoJSON features to classify"
-    )
+    parcels: list[dict] = Field(..., description="List of GeoJSON features to classify")
 
 
 class ParcelMergeRequest(BaseModel):
@@ -184,7 +185,8 @@ def register_parcel_endpoints(app, land_detector):
             from .agricultural_land_detector import AgriculturalLandDetector
 
             request_detector = AgriculturalLandDetector(
-                config, multi_provider=land_detector.multi_provider if land_detector else None
+                config,
+                multi_provider=land_detector.multi_provider if land_detector else None,
             )
 
             # Run detection
@@ -281,7 +283,8 @@ def register_parcel_endpoints(app, land_detector):
                 min_area_hectares=request.min_area_hectares,
             )
             request_detector = AgriculturalLandDetector(
-                config, multi_provider=land_detector.multi_provider if land_detector else None
+                config,
+                multi_provider=land_detector.multi_provider if land_detector else None,
             )
 
             report = await request_detector.detect_in_region(bounds)
@@ -452,29 +455,53 @@ def register_parcel_endpoints(app, land_detector):
                 {
                     "id": "very_high",
                     "name": {"en": "Very High Precision", "ar": "دقة عالية جداً"},
-                    "description": {"en": "Best accuracy, slowest processing", "ar": "أعلى دقة، أبطأ معالجة"},
+                    "description": {
+                        "en": "Best accuracy, slowest processing",
+                        "ar": "أعلى دقة، أبطأ معالجة",
+                    },
                 },
                 {
                     "id": "high",
-                    "name": {"en": "High Precision (Default)", "ar": "دقة عالية (افتراضي)"},
-                    "description": {"en": "Good balance of accuracy and speed", "ar": "توازن جيد بين الدقة والسرعة"},
+                    "name": {
+                        "en": "High Precision (Default)",
+                        "ar": "دقة عالية (افتراضي)",
+                    },
+                    "description": {
+                        "en": "Good balance of accuracy and speed",
+                        "ar": "توازن جيد بين الدقة والسرعة",
+                    },
                 },
                 {
                     "id": "acceptable",
                     "name": {"en": "Acceptable Precision", "ar": "دقة مقبولة"},
-                    "description": {"en": "Faster processing, adequate accuracy", "ar": "معالجة أسرع، دقة مقبولة"},
+                    "description": {
+                        "en": "Faster processing, adequate accuracy",
+                        "ar": "معالجة أسرع، دقة مقبولة",
+                    },
                 },
                 {
                     "id": "speed_focused",
                     "name": {"en": "Speed Focused", "ar": "التركيز على السرعة"},
-                    "description": {"en": "Fastest processing, basic accuracy", "ar": "أسرع معالجة، دقة أساسية"},
+                    "description": {
+                        "en": "Fastest processing, basic accuracy",
+                        "ar": "أسرع معالجة، دقة أساسية",
+                    },
                 },
             ],
             "shape_options": [
-                {"id": "irregular", "name": {"en": "Irregular (Original)", "ar": "غير منتظم (أصلي)"}},
+                {
+                    "id": "irregular",
+                    "name": {"en": "Irregular (Original)", "ar": "غير منتظم (أصلي)"},
+                },
                 {"id": "rectangle", "name": {"en": "Rectangle", "ar": "مستطيل"}},
                 {"id": "convex_hull", "name": {"en": "Convex Hull", "ar": "غلاف محدب"}},
-                {"id": "minimum_bounding", "name": {"en": "Minimum Bounding Rectangle", "ar": "أصغر مستطيل محيط"}},
+                {
+                    "id": "minimum_bounding",
+                    "name": {
+                        "en": "Minimum Bounding Rectangle",
+                        "ar": "أصغر مستطيل محيط",
+                    },
+                },
             ],
         }
 
@@ -905,19 +932,15 @@ def register_parcel_endpoints(app, land_detector):
                     "total_parcels": len(simplified),
                     "original_vertices": original_vertices,
                     "simplified_vertices": simplified_vertices,
-                    "reduction_percent": round(
-                        (1 - simplified_vertices / original_vertices) * 100, 1
-                    ) if original_vertices > 0 else 0,
+                    "reduction_percent": (
+                        round((1 - simplified_vertices / original_vertices) * 100, 1) if original_vertices > 0 else 0
+                    ),
                     "topology_preserved": True,
                     "summary": {
                         "en": (
-                            f"Simplified {len(simplified)} parcels:"
-                            f" {original_vertices}→{simplified_vertices} vertices"
+                            f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices"
                         ),
-                        "ar": (
-                            f"تم تبسيط {len(simplified)} قطعة:"
-                            f" {original_vertices}→{simplified_vertices} رأس"
-                        ),
+                        "ar": (f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس"),
                     },
                 },
             }

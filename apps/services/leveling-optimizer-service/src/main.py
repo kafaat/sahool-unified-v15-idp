@@ -174,6 +174,15 @@ Agricultural field leveling optimization service for the SAHOOL platform.
     openapi_url="/openapi.json",
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # Add CORS middleware
 ALLOWED_ORIGINS = os.getenv(
     "CORS_ORIGINS",

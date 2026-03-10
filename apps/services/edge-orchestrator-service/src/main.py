@@ -280,6 +280,15 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.is_development else None,
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # CORS middleware
 # Security: Never use allow_origins=["*"] with allow_credentials=True
 # الأمان: لا تستخدم أبداً allow_origins=["*"] مع allow_credentials=True

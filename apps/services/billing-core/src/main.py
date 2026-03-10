@@ -511,7 +511,11 @@ try:
     rate_limiter = setup_rate_limiting(
         app,
         use_redis=os.getenv("REDIS_URL") is not None,
-        exclude_paths=["/healthz", "/api/v1/webhooks/stripe", "/api/v1/webhooks/tharwatt"],
+        exclude_paths=[
+            "/healthz",
+            "/api/v1/webhooks/stripe",
+            "/api/v1/webhooks/tharwatt",
+        ],
     )
     logger.info("Rate limiting enabled for billing-core")
 except ImportError:
@@ -1657,9 +1661,7 @@ async def generate_invoice_for_subscription(
     cycle_label_ar = (
         "شهري"
         if subscription.billing_cycle == db_models.BillingCycle.MONTHLY
-        else "ربع سنوي"
-        if subscription.billing_cycle == db_models.BillingCycle.QUARTERLY
-        else "سنوي"
+        else ("ربع سنوي" if subscription.billing_cycle == db_models.BillingCycle.QUARTERLY else "سنوي")
     )
 
     line_items = [
@@ -2188,14 +2190,16 @@ async def update_subscription(
             "billing_cycle": subscription.billing_cycle.value,
             "end_date": subscription.end_date.isoformat(),
         },
-        "proration": {
-            "credit": float(proration_credit),
-            "charge": float(proration_charge),
-            "net": float(net_proration),
-            "invoice_id": str(proration_invoice.id) if proration_invoice else None,
-        }
-        if proration_credit or proration_charge
-        else None,
+        "proration": (
+            {
+                "credit": float(proration_credit),
+                "charge": float(proration_charge),
+                "net": float(net_proration),
+                "invoice_id": str(proration_invoice.id) if proration_invoice else None,
+            }
+            if proration_credit or proration_charge
+            else None
+        ),
         "changes": changes,
     }
 
@@ -3366,7 +3370,7 @@ _v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
+        _old_path = "/v1" + _path[len(_v1_prefix) :]
         app.router.add_api_route(
             _old_path,
             _route.endpoint,

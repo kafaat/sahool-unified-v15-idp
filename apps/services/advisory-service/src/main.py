@@ -178,7 +178,11 @@ def readiness():
         from fastapi.responses import JSONResponse
 
         return JSONResponse(
-            content={"status": "not_ready", "service": "advisory_service", "checks": checks},
+            content={
+                "status": "not_ready",
+                "service": "advisory_service",
+                "checks": checks,
+            },
             status_code=503,
         )
 
@@ -744,7 +748,7 @@ for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_api_v1_prefix):
         # Strip /api/v1 to restore original prefix-less path
-        _old_path = _path[len(_api_v1_prefix):]
+        _old_path = _path[len(_api_v1_prefix) :]
         if _old_path:  # skip empty path
             app.router.add_api_route(
                 _old_path,

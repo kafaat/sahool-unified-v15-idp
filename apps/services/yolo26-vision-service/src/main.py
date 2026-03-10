@@ -211,6 +211,15 @@ Current API version: v1
     openapi_url="/openapi.json" if not settings.is_production else None,
 )
 
+# Setup unified error handling
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+except ImportError:
+    pass
+
 # Register VisionError handler for structured bilingual error responses
 app.add_exception_handler(VisionError, vision_error_handler)
 

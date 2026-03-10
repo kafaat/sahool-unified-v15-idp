@@ -873,10 +873,12 @@ The service does not currently subscribe to external NATS events. It operates pr
 
 ## Security Notes
 
+- **Authentication**: DELETE endpoints (`DELETE /v1/vra/prescription/{id}`) require JWT authentication via `get_current_user` dependency
 - Satellite provider credentials stored in environment variables
 - No direct database credential exposure
 - NATS events include tenant_id for multi-tenancy isolation
 - API supports authentication via Kong gateway
+- Unified error handling via `shared.errors_py`
 
 ---
 

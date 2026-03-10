@@ -205,8 +205,9 @@ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'fields') THEN
             ALTER TABLE fields
             ADD CONSTRAINT fk_fields_user_id
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-            RAISE NOTICE '  ✅ Added FK: fields.user_id -> users.id (CASCADE)';
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE NOT VALID;
+            ALTER TABLE fields VALIDATE CONSTRAINT fk_fields_user_id;
+            RAISE NOTICE '  ✅ Added FK: fields.user_id -> users.id (CASCADE, NOT VALID + VALIDATE)';
         END IF;
     END IF;
 
@@ -218,8 +219,9 @@ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'fields') THEN
             ALTER TABLE fields
             ADD CONSTRAINT fk_fields_tenant_id
-            FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE;
-            RAISE NOTICE '  ✅ Added FK: fields.tenant_id -> tenants.id (CASCADE)';
+            FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE NOT VALID;
+            ALTER TABLE fields VALIDATE CONSTRAINT fk_fields_tenant_id;
+            RAISE NOTICE '  ✅ Added FK: fields.tenant_id -> tenants.id (CASCADE, NOT VALID + VALIDATE)';
         END IF;
     END IF;
 
@@ -231,8 +233,9 @@ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'sensor_readings') THEN
             ALTER TABLE sensor_readings
             ADD CONSTRAINT fk_sensor_readings_field_id
-            FOREIGN KEY (field_id) REFERENCES fields(id) ON DELETE CASCADE;
-            RAISE NOTICE '  ✅ Added FK: sensor_readings.field_id -> fields.id (CASCADE)';
+            FOREIGN KEY (field_id) REFERENCES fields(id) ON DELETE CASCADE NOT VALID;
+            ALTER TABLE sensor_readings VALIDATE CONSTRAINT fk_sensor_readings_field_id;
+            RAISE NOTICE '  ✅ Added FK: sensor_readings.field_id -> fields.id (CASCADE, NOT VALID + VALIDATE)';
         END IF;
     END IF;
 
@@ -244,8 +247,9 @@ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tasks') THEN
             ALTER TABLE tasks
             ADD CONSTRAINT fk_tasks_field_id
-            FOREIGN KEY (field_id) REFERENCES fields(id) ON DELETE CASCADE;
-            RAISE NOTICE '  ✅ Added FK: tasks.field_id -> fields.id (CASCADE)';
+            FOREIGN KEY (field_id) REFERENCES fields(id) ON DELETE CASCADE NOT VALID;
+            ALTER TABLE tasks VALIDATE CONSTRAINT fk_tasks_field_id;
+            RAISE NOTICE '  ✅ Added FK: tasks.field_id -> fields.id (CASCADE, NOT VALID + VALIDATE)';
         END IF;
     END IF;
 
@@ -257,8 +261,9 @@ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tasks') THEN
             ALTER TABLE tasks
             ADD CONSTRAINT fk_tasks_assigned_to
-            FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL;
-            RAISE NOTICE '  ✅ Added FK: tasks.assigned_to -> users.id (SET NULL)';
+            FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL NOT VALID;
+            ALTER TABLE tasks VALIDATE CONSTRAINT fk_tasks_assigned_to;
+            RAISE NOTICE '  ✅ Added FK: tasks.assigned_to -> users.id (SET NULL, NOT VALID + VALIDATE)';
         END IF;
     END IF;
 

@@ -51,14 +51,17 @@ COMMENT ON TABLE farms IS 'Farms that contain multiple agricultural fields';
 
 ALTER TABLE fields ADD COLUMN IF NOT EXISTS farm_id UUID;
 
--- Add FK constraint
+-- Add FK constraint (NOT VALID to avoid full table scan, validated in 20260303 remediation)
+-- drift:safe reason=not-valid-pattern remediated_by=20260303000000_safe_index_remediation
 ALTER TABLE fields ADD CONSTRAINT fk_fields_farm_id
-    FOREIGN KEY (farm_id) REFERENCES farms(id) ON DELETE SET NULL;
+    FOREIGN KEY (farm_id) REFERENCES farms(id) ON DELETE SET NULL NOT VALID;
 
--- Add index
+-- Add index (on existing table; remediated with CONCURRENTLY in 20260303)
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX IF NOT EXISTS idx_field_farm ON fields(farm_id);
 
--- Composite indexes for common queries
+-- Composite indexes for common queries (on existing table; remediated with CONCURRENTLY in 20260303)
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX IF NOT EXISTS idx_field_tenant_status ON fields(tenant_id, status);
 CREATE INDEX IF NOT EXISTS idx_field_tenant_crop ON fields(tenant_id, crop_type);
 CREATE INDEX IF NOT EXISTS idx_field_tenant_active ON fields(tenant_id, is_deleted);

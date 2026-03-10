@@ -201,8 +201,10 @@ CREATE TRIGGER wallet_balance_check_trigger
 -- 10. Add constraints
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE wallets
-ADD CONSTRAINT check_wallet_balance_non_negative CHECK (balance >= 0),
-ADD CONSTRAINT check_wallet_escrow_non_negative CHECK (escrow_balance >= 0);
+ADD CONSTRAINT check_wallet_balance_non_negative CHECK (balance >= 0) NOT VALID,
+ADD CONSTRAINT check_wallet_escrow_non_negative CHECK (escrow_balance >= 0) NOT VALID;
+ALTER TABLE wallets VALIDATE CONSTRAINT check_wallet_balance_non_negative;
+ALTER TABLE wallets VALIDATE CONSTRAINT check_wallet_escrow_non_negative;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 11. Create helper function for safe wallet updates with locking

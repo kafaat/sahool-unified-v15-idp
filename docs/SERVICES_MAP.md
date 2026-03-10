@@ -57,12 +57,12 @@ Data ingestion and normalization.
 
 | Service | Port | Type | Description |
 |---------|------|------|-------------|
-| vegetation-analysis-service | 8090 | Python | Satellite imagery, NDVI, VRA |
 | iot-service | 8117 | Node.js | IoT device management |
 | iot-gateway | 8106 | Python | IoT protocol gateway |
 | iot-sensor-hub | 8251 | Python | IoT sensor hub |
 | weather-service | 8092 | Python | Weather data |
 | virtual-sensors | 8119 | Python | Virtual sensor computation |
+| ground-vision-service | 8182 | Python | Ground-level vision analysis |
 | edge-orchestrator-service | 8180 | Python | Edge device management (Jetson Orin) |
 
 ### Layer 2: Intelligence (الذكاء)
@@ -71,14 +71,16 @@ Feature extraction and AI.
 
 | Service | Port | Type | Description |
 |---------|------|------|-------------|
+| vegetation-analysis-service | 8090 | Python | Satellite imagery, NDVI, VRA |
 | indicators-service | 8091 | Python | Field indicators computation |
 | lai-estimation | 3022 | Node.js | Leaf Area Index estimation |
 | crop-intelligence-service | 8095 | Python | Crop health AI |
 | field-intelligence | 8120 | Python | Field analytics |
 | skills-service | 8121 | Python | Farmer skills assessment |
 | yolo26-vision-service | 8150 | Python | YOLO26 computer vision |
-| ground-vision-service | 8182 | Python | Ground-level vision analysis |
 | terrain-core-service | 8185 | Python | DEM processing & terrain analysis |
+| hydrology-service | 8165 | Python | Hydrology & drainage analysis |
+| agro-rules | — | Python | Agronomic rules engine (NATS worker, no HTTP port) |
 | pest-detection-service | 8125 | Python | Pest detection AI |
 | soil-analysis-service | 8134 | Python | Soil analysis |
 | digital-twin-engine | 8253 | Python | Digital twin simulation |
@@ -92,11 +94,9 @@ Recommendations and planning.
 | crop-growth-model | 3023 | Node.js | Crop growth simulation (WOFOST) |
 | advisory-service | 8093 | Python | Advisory & recommendations |
 | irrigation-smart | 8094 | Python | Smart irrigation (FAO-56) |
-| yield-prediction | 3021 | Node.js | Yield prediction (legacy) |
+| yield-prediction | 3021 | Node.js | Yield prediction **(deprecated — use yield-prediction-service)** |
 | yield-prediction-service | 8152 | Node.js | Yield prediction ML |
-| hydrology-service | 8165 | Python | Hydrology & drainage analysis |
 | leveling-optimizer-service | 8170 | Python | Field leveling optimization |
-| agro-rules | 8151 | Python | Agronomic rules engine |
 | irrigation-cycle-engine | 8250 | Python | Irrigation cycle optimization |
 | fertigation-engine | 8252 | Python | Fertigation management |
 
@@ -149,6 +149,7 @@ User-facing operations.
 | code-review-agent | 8145 | Node.js | Code review agent |
 | code-review-service | 8102 | Python | Code review service |
 | mcp-server | 8201 | Python | Model Context Protocol |
+| vllm-deepseek | 8270 | Python | vLLM DeepSeek inference server (GPU-accelerated) |
 
 ### Specialized Services
 

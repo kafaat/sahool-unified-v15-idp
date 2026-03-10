@@ -1,3 +1,7 @@
+> **⚠️ DEPRECATED**: This service has been replaced by `weather-service`. See [weather-service.md](weather-service.md) for current documentation.
+
+---
+
 # Weather Core Service Analysis
 
 > **DEPRECATED**: This service has been deprecated and merged into `weather-service`.

@@ -159,7 +159,7 @@ jobs:
           generate-report: 'true'
 
       - name: Upload evaluation report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: blue-green-evaluation-report
           path: evaluation-report.json
@@ -202,7 +202,7 @@ jobs:
           echo "✅ Backup complete"
 
       - name: Upload backup artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: blue-green-backup-${{ github.run_id }}
           path: backups/

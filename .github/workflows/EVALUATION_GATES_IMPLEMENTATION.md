@@ -174,10 +174,10 @@ Enhanced SAHOOL CI/CD pipeline with comprehensive Evaluation Gates following Age
 ./scripts/rollback.sh -e staging -a
 
 # Rollback specific service in production
-./scripts/rollback.sh -e production -s field-ops
+./scripts/rollback.sh -e production -s field-management-service
 
 # Rollback to specific revision
-./scripts/rollback.sh -e staging -s weather-core -r 5
+./scripts/rollback.sh -e staging -s weather-service -r 5
 
 # Dry run
 ./scripts/rollback.sh -e production -a --dry-run

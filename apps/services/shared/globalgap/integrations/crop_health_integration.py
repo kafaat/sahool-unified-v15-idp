@@ -2,7 +2,7 @@
 SAHOOL GlobalGAP Integration - Crop Health AI Service Integration
 تكامل خدمة صحة المحاصيل مع GlobalGAP
 
-Links with crop-health-ai service to:
+Links with crop-intelligence-service to:
 - Map pest/disease detection to IPM documentation
 - Generate Integrated Pest Management reports
 - Track chemical PPP (Plant Protection Products) applications
@@ -145,7 +145,7 @@ class CropHealthIntegration:
         Map pest/disease detection to IPM documentation
 
         Args:
-            detection_data: Raw detection data from crop-health-ai service
+            detection_data: Raw detection data from crop-intelligence-service
             field_id: Field identifier
             tenant_id: Tenant identifier
 

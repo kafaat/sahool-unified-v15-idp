@@ -581,7 +581,7 @@ class ResourcePoolService:
 
         # Get booked slots
         booked_slots = []
-        day_start = datetime(date.year, date.month, date.day)
+        day_start = datetime(date.year, date.month, date.day, tzinfo=UTC)
         day_end = day_start + timedelta(days=1)
 
         for booking in self._bookings.values():
@@ -783,14 +783,14 @@ class ResourcePoolService:
         completed = [b for b in bookings if b.status == "completed"]
 
         now = datetime.now(UTC)
-        month_start = datetime(now.year, now.month, 1)
-        year_start = datetime(now.year, 1, 1)
+        month_start = datetime(now.year, now.month, 1, tzinfo=UTC)
+        year_start = datetime(now.year, 1, 1, tzinfo=UTC)
 
         # Determine season (simplified)
         if now.month in [10, 11, 12, 1, 2, 3]:
-            season_start = datetime(now.year if now.month >= 10 else now.year - 1, 10, 1)
+            season_start = datetime(now.year if now.month >= 10 else now.year - 1, 10, 1, tzinfo=UTC)
         else:
-            season_start = datetime(now.year, 4, 1)
+            season_start = datetime(now.year, 4, 1, tzinfo=UTC)
 
         stats = UsageStatistics(
             total_bookings=len(completed),
@@ -828,8 +828,8 @@ class ResourcePoolService:
         completed = [b for b in bookings if b.status == "completed"]
 
         now = datetime.now(UTC)
-        month_start = datetime(now.year, now.month, 1)
-        year_start = datetime(now.year, 1, 1)
+        month_start = datetime(now.year, now.month, 1, tzinfo=UTC)
+        year_start = datetime(now.year, 1, 1, tzinfo=UTC)
 
         stats = UsageStatistics(
             total_bookings=len(completed),
@@ -853,6 +853,7 @@ class ResourcePoolService:
         Get summary of the resource pool.
         الحصول على ملخص مجمع الموارد
         """
+        now = datetime.now(UTC)
         resources = list(self._resources.values())
 
         # Group by type
@@ -869,7 +870,7 @@ class ResourcePoolService:
         # Pending bookings
         pending_bookings = [b for b in self._bookings.values() if b.status == "confirmed"]
         upcoming_bookings = sorted(
-            [b for b in pending_bookings if b.start_time > datetime.now(UTC)],
+            [b for b in pending_bookings if b.start_time > now],
             key=lambda b: b.start_time,
         )[:5]
 
@@ -897,7 +898,7 @@ class ResourcePoolService:
                     b.actual_hours or 0
                     for b in self._bookings.values()
                     if b.status == "completed"
-                    and b.start_time >= datetime(datetime.now(UTC).year, datetime.now(UTC).month, 1)
+                    and b.start_time >= datetime(now.year, now.month, 1, tzinfo=UTC)
                 ),
             },
         }

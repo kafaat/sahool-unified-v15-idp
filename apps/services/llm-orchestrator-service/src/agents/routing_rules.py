@@ -231,7 +231,7 @@ ROUTING_RULES: dict[str, RoutingRule] = {
     # Yield Prediction - Medium priority
     "yield_prediction": RoutingRule(
         intent="yield_prediction",
-        agents=["crop-intelligence", "yield-engine", "field-intelligence"],
+        agents=["crop-intelligence", "yield-prediction-service", "field-intelligence"],
         priority=Priority.MEDIUM,
         requires_field_id=True,
         description_en="Yield estimation and harvest planning",
@@ -258,7 +258,7 @@ ROUTING_RULES: dict[str, RoutingRule] = {
             "تنبؤ",
             "طن",
         ],
-        fallback_agents=["yield-engine"],
+        fallback_agents=["yield-prediction-service"],
     ),
     # Field Analysis - Medium priority
     "field_analysis": RoutingRule(

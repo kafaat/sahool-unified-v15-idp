@@ -113,7 +113,7 @@ jobs:
           fi
 
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gitleaks-report
@@ -584,7 +584,7 @@ jobs:
 
       - name: Upload vulnerability report
         if: always() && steps.build_result.outputs.success == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-report-${{ matrix.service.name }}
           path: |
@@ -713,7 +713,7 @@ jobs:
           echo "download_success=false" >> $GITHUB_OUTPUT
 
       - name: Download artifacts (fallback)
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           path: test-artifacts
@@ -793,7 +793,7 @@ jobs:
           cat test-summary.json
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: test-summary
           path: test-summary.json

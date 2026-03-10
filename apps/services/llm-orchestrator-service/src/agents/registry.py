@@ -200,9 +200,9 @@ class AgentRegistry:
             tags=["weather", "forecast", "climate"],
         )
 
-        # Yield Engine
-        self._agents["yield-engine"] = AgentInfo(
-            name="yield-engine",
+        # Yield Prediction Service
+        self._agents["yield-prediction-service"] = AgentInfo(
+            name="yield-prediction-service",
             name_ar="محرك الإنتاجية",
             base_url=settings.yield_engine_url,
             category=AgentCategory.YIELD,

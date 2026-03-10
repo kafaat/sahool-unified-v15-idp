@@ -240,8 +240,8 @@ export const KONG_SERVICES: Record<string, KongService> = {
     tier: ["starter", "professional", "enterprise", "research"],
   },
   community: {
-    name: "community-chat",
-    port: 8097,
+    name: "chat-service",
+    port: 8115,
     basePath: "/api/v1/community",
     healthPath: "/healthz",
     description: "Community features",
@@ -271,8 +271,8 @@ export const KONG_SERVICES: Record<string, KongService> = {
 
   // Yield & Predictions - الإنتاج والتنبؤات
   yield: {
-    name: "yield-engine",
-    port: 8098,
+    name: "yield-prediction-service",
+    port: 8152,
     basePath: "/api/v1/yield",
     healthPath: "/healthz",
     description: "Yield prediction",

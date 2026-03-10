@@ -545,7 +545,7 @@ async def test_business_growth_journey(
     assert satellite_response.status_code in (200, 404, 401)
 
     # Step 6: Get NDVI analysis for precision farming
-    ndvi_url = service_urls.get("ndvi_engine", "http://localhost:8107")
+    ndvi_url = service_urls.get("vegetation_analysis", "http://localhost:8090")
 
     ndvi_response = await http_client.get(f"{ndvi_url}/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers)
 

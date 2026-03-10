@@ -86,13 +86,12 @@ class TestRequiredServices:
     """Test that all required services are configured."""
 
     REQUIRED_SERVICES = [
-        "field-core",
-        "weather-core",
+        "field-management-service",
+        "weather-service",
         "astronomical-calendar",
         "notification-service",
-        "satellite-service",
-        "ndvi-engine",
-        "crop-health-ai",
+        "vegetation-analysis-service",
+        "crop-intelligence-service",
         "ai-advisor",
         "field-intelligence",
     ]

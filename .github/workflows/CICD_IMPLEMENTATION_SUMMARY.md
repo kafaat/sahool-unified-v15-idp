@@ -21,11 +21,11 @@ Comprehensive continuous integration pipeline with:
 
 **Matrix Groups**:
 
-- Core Services (agro-advisor, weather-core, field-ops, agro-rules)
-- AI Services (crop-health-ai, fertilizer-advisor, irrigation-smart, yield-engine)
-- Advanced Services (satellite-service, indicators-service, weather-advanced)
+- Core Services (advisory-service, weather-service, field-management-service, agro-rules)
+- AI Services (crop-intelligence-service, irrigation-smart, yield-prediction-service)
+- Advanced Services (vegetation-analysis-service, indicators-service)
 - Business Services (billing-core, inventory-service, notification-service)
-- Node.js Services (community-chat, crop-growth-model, disaster-assessment, field-core, iot-service)
+- Node.js Services (chat-service, crop-growth-model, disaster-assessment, field-management-service, iot-service)
 
 ### 2. **cd-staging.yml** (23 KB)
 
@@ -42,9 +42,9 @@ Staging deployment pipeline with phased rollout:
 
 **Deployment Phases**:
 
-1. **Starter Package**: field-ops, weather-core, agro-advisor
-2. **Professional Package**: crop-health, ndvi-engine, irrigation-smart
-3. **Enterprise Package**: satellite-service, weather-advanced, crop-health-ai, yield-engine, billing-core, inventory-service
+1. **Starter Package**: field-management-service, weather-service, advisory-service
+2. **Professional Package**: crop-intelligence-service, vegetation-analysis-service, irrigation-smart
+3. **Enterprise Package**: vegetation-analysis-service, weather-service, crop-intelligence-service, yield-prediction-service, billing-core, inventory-service
 
 ### 3. **cd-production.yml** (25 KB)
 

@@ -217,7 +217,7 @@ async def handle_ndvi_anomaly(data: dict):
                     "Check for pests/diseases",
                 ],
                 metadata=data,
-                source_service="ndvi-engine",
+                source_service="vegetation-analysis-service",
                 correlation_id=data.get("correlation_id"),
             )
         )

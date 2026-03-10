@@ -593,6 +593,7 @@ SAHOOL_CHAT_ALL = "sahool.chat.*"
 
 SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
 SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
+SAHOOL_IRRIGATION_HMC = "sahool.irrigation.hmc"
 
 SAHOOL_IRRIGATION_ALL = "sahool.irrigation.*"
 
@@ -839,6 +840,7 @@ SUBJECT_REGISTRY = {
     # Irrigation (extended)
     "irrigation.applied": SAHOOL_IRRIGATION_APPLIED,
     "irrigation.alert": SAHOOL_IRRIGATION_ALERT,
+    "irrigation.hmc": SAHOOL_IRRIGATION_HMC,
     # Spray
     "spray.scheduled": SAHOOL_SPRAY_SCHEDULED,
     "spray.window": SAHOOL_SPRAY_WINDOW,

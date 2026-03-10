@@ -569,8 +569,10 @@ class HMCIntegrationManager:
             publisher: Callable that publishes events | كائن قابل للاستدعاء ينشر الأحداث
 
         Example:
+            from shared.events.subjects import SAHOOL_IRRIGATION_HMC
+
             async def publish_to_nats(event: dict):
-                await nats_client.publish("sahool.irrigation.hmc", json.dumps(event))
+                await nats_client.publish(SAHOOL_IRRIGATION_HMC, json.dumps(event))
 
             manager.register_event_publisher(publish_to_nats)
         """

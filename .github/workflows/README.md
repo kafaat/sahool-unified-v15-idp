@@ -38,9 +38,9 @@ typecheck-nodejs ───────────┘
 
 2. **Unit Tests**
    - Python services tested in parallel groups:
-     - Core Services (agro-advisor, weather-core, field-ops)
-     - AI Services (crop-health-ai, yield-engine, irrigation-smart)
-     - Advanced Services (satellite-service, weather-advanced)
+     - Core Services (advisory-service, weather-service, field-management-service)
+     - AI Services (crop-intelligence-service, yield-prediction-service, irrigation-smart)
+     - Advanced Services (vegetation-analysis-service, indicators-service)
      - Business Services (billing-core, inventory-service)
    - Node.js services: Jest/Vitest with coverage
 
@@ -88,20 +88,20 @@ Starter Package → Integration Tests → Professional Package → Integration T
 
 1. **Starter Package**
    - Infrastructure (PostgreSQL, Redis, NATS)
-   - field-ops
-   - weather-core
-   - agro-advisor
+   - field-management-service
+   - weather-service
+   - advisory-service
 
 2. **Professional Package**
-   - crop-health
-   - ndvi-engine
+   - crop-intelligence-service
+   - vegetation-analysis-service
    - irrigation-smart
 
 3. **Enterprise Package**
-   - satellite-service
-   - weather-advanced
-   - crop-health-ai
-   - yield-engine
+   - vegetation-analysis-service
+   - weather-service
+   - crop-intelligence-service
+   - yield-prediction-service
    - billing-core
    - inventory-service
 

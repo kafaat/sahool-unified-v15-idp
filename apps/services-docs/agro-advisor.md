@@ -1,3 +1,7 @@
+> **⚠️ DEPRECATED**: This service has been replaced by `advisory-service`. See [advisory-service.md](advisory-service.md) for current documentation.
+
+---
+
 # Agro Advisor Service - Comprehensive Analysis
 
 > **DEPRECATED SERVICE** - This service has been deprecated and merged into `advisory-service`.

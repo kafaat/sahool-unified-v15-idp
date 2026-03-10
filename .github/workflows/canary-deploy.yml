@@ -158,7 +158,7 @@ jobs:
           generate-report: 'true'
 
       - name: Upload evaluation report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: canary-evaluation-report
           path: evaluation-report.json

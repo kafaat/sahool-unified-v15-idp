@@ -738,9 +738,9 @@ services:
       # Unset ETCDCTL_USER for first attempt to handle pre-auth state
       test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health" ]
       interval: 15s
-      timeout: 10s
+      timeout: 15s
       retries: 8
-      start_period: 60s
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

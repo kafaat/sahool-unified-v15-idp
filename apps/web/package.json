@@ -73,7 +73,7 @@
     "eslint-config-next": "15.5.12",
     "eslint-plugin-react-hooks": "^7.0.1",
     "fraction.js": "^5.3.4",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "jsdom": "^27.3.0",
     "postcss": "8.5.6",
     "tailwindcss": "3.4.17",

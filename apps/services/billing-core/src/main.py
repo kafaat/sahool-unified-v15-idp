@@ -118,7 +118,9 @@ except ImportError:
     async def get_current_active_user():
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-            raise HTTPException(status_code=503, detail="Authentication service unavailable")
+            raise HTTPException(
+                status_code=503, detail="Authentication service unavailable"
+            )
         logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
         return None
 
@@ -127,7 +129,9 @@ except ImportError:
 
         async def check_roles():
             if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-                raise HTTPException(status_code=503, detail="Authorization service unavailable")
+                raise HTTPException(
+                    status_code=503, detail="Authorization service unavailable"
+                )
             logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
             return None
 
@@ -136,7 +140,9 @@ except ImportError:
     async def api_key_auth():
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-            raise HTTPException(status_code=503, detail="API key auth service unavailable")
+            raise HTTPException(
+                status_code=503, detail="API key auth service unavailable"
+            )
         return None
 
 
@@ -232,7 +238,9 @@ async def job_generate_invoices():
                     invoice = await generate_invoice_for_subscription(db, sub)
                     if invoice:
                         # Advance next_billing_date
-                        next_date = get_billing_period_end(sub.next_billing_date, sub.billing_cycle)
+                        next_date = get_billing_period_end(
+                            sub.next_billing_date, sub.billing_cycle
+                        )
                         await repo.subscriptions.update(
                             sub.id,
                             next_billing_date=next_date,
@@ -281,7 +289,9 @@ async def job_mark_overdue_invoices():
 
             for invoice in overdue_invoices:
                 if invoice.status != db_models.InvoiceStatus.OVERDUE:
-                    await repo.invoices.update(invoice.id, status=db_models.InvoiceStatus.OVERDUE)
+                    await repo.invoices.update(
+                        invoice.id, status=db_models.InvoiceStatus.OVERDUE
+                    )
                     marked += 1
 
                     await publish_event(
@@ -326,7 +336,8 @@ async def job_handle_trial_expiry():
             result = await db.execute(
                 sa_select(db_models.Subscription).where(
                     and_(
-                        db_models.Subscription.status == db_models.SubscriptionStatus.TRIAL,
+                        db_models.Subscription.status
+                        == db_models.SubscriptionStatus.TRIAL,
                         db_models.Subscription.trial_end_date <= date.today(),
                     )
                 )
@@ -337,9 +348,13 @@ async def job_handle_trial_expiry():
                 # Check if plan is free - auto-activate. Otherwise suspend.
                 plan = await repo.plans.get_by_plan_id(sub.plan_id)
                 if plan and plan.tier == db_models.PlanTier.FREE:
-                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.ACTIVE)
+                    await repo.subscriptions.update(
+                        sub.id, status=db_models.SubscriptionStatus.ACTIVE
+                    )
                 else:
-                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.SUSPENDED)
+                    await repo.subscriptions.update(
+                        sub.id, status=db_models.SubscriptionStatus.SUSPENDED
+                    )
 
                 expired += 1
 
@@ -383,7 +398,9 @@ async def job_suspend_past_due():
             for tenant_id in tenants_to_suspend:
                 sub = await repo.subscriptions.get_by_tenant(tenant_id)
                 if sub and sub.status == db_models.SubscriptionStatus.ACTIVE:
-                    await repo.subscriptions.update(sub.id, status=db_models.SubscriptionStatus.PAST_DUE)
+                    await repo.subscriptions.update(
+                        sub.id, status=db_models.SubscriptionStatus.PAST_DUE
+                    )
                     suspended += 1
 
                     await publish_event(
@@ -474,7 +491,9 @@ async def lifespan(app: FastAPI):
             # Start scheduled billing jobs
             start_scheduler()
         else:
-            logger.warning("Database connection check failed - some features may not work")
+            logger.warning(
+                "Database connection check failed - some features may not work"
+            )
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
         logger.warning("Service will start but database features will be unavailable")
@@ -511,7 +530,11 @@ try:
     rate_limiter = setup_rate_limiting(
         app,
         use_redis=os.getenv("REDIS_URL") is not None,
-        exclude_paths=["/healthz", "/api/v1/webhooks/stripe", "/api/v1/webhooks/tharwatt"],
+        exclude_paths=[
+            "/healthz",
+            "/api/v1/webhooks/stripe",
+            "/api/v1/webhooks/tharwatt",
+        ],
     )
     logger.info("Rate limiting enabled for billing-core")
 except ImportError:
@@ -532,7 +555,9 @@ DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
 YER_EXCHANGE_RATE = float(os.getenv("YER_EXCHANGE_RATE", "250"))  # 1 USD = 250 YER
 
 # Tharwatt Payment Gateway Configuration - بوابة ثروات
-THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253")
+THARWATT_BASE_URL = os.getenv(
+    "THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253"
+)
 THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
@@ -554,7 +579,9 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
         return env in ("development", "dev", "test", "testing")
 
     # Super admins can access any tenant
-    if hasattr(current_user, "has_any_role") and current_user.has_any_role(["super_admin"]):
+    if hasattr(current_user, "has_any_role") and current_user.has_any_role(
+        ["super_admin"]
+    ):
         return True
 
     # Users can only access their own tenant
@@ -568,7 +595,9 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     يتطلب أن يكون المستخدم مالك المستأجر أو مسؤول، ورفع 403 إذا لم يكن كذلك
     """
     if not verify_tenant_access(current_user, tenant_id):
-        raise HTTPException(status_code=403, detail="Access denied - cannot access this tenant's data")
+        raise HTTPException(
+            status_code=403, detail="Access denied - cannot access this tenant's data"
+        )
 
 
 # =============================================================================
@@ -848,7 +877,9 @@ class CreatePaymentRequest(BaseModel):
     amount: Decimal
     method: PaymentMethod
     stripe_token: str | None = None
-    phone_number: str | None = None  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    phone_number: str | None = (
+        None  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    )
 
 
 # =============================================================================
@@ -884,8 +915,7 @@ async def init_invoice_sequence() -> None:
             # Start from 1 and increment by 1
             # Note: Using literal string to avoid SQL injection warnings
             # INVOICE_SEQUENCE_NAME is a constant defined at module level
-            await db.execute(
-                text("""
+            await db.execute(text("""
                     DO $$
                     BEGIN
                         IF NOT EXISTS (
@@ -898,11 +928,12 @@ async def init_invoice_sequence() -> None:
                                 CACHE 10;
                         END IF;
                     END $$;
-                """)
-            )
+                """))
             await db.commit()
             _invoice_sequence_initialized = True
-            logger.info("Invoice sequence 'invoice_number_seq' initialized successfully")
+            logger.info(
+                "Invoice sequence 'invoice_number_seq' initialized successfully"
+            )
     except Exception:
         logger.error("Failed to initialize invoice sequence", exc_info=True)
         # Don't raise - allow service to start with fallback
@@ -940,7 +971,9 @@ async def get_next_invoice_number() -> str:
         import hashlib
 
         unique_suffix = (
-            hashlib.sha256(f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()).hexdigest()[:8].upper()
+            hashlib.sha256(f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode())
+            .hexdigest()[:8]
+            .upper()
         )
         return f"SAH-{year}-{unique_suffix}"
 
@@ -1440,7 +1473,9 @@ async def init_default_plans_in_db():
                     await repo.plans.upsert(**plan_data)
                     logger.info(f"Initialized plan: {plan_data['plan_id']}")
                 except Exception as e:
-                    logger.error(f"Failed to initialize plan {plan_data['plan_id']}: {e}")
+                    logger.error(
+                        f"Failed to initialize plan {plan_data['plan_id']}: {e}"
+                    )
 
             logger.info("Default plans initialized successfully")
     except Exception as e:
@@ -1513,7 +1548,9 @@ def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
         return start_date + timedelta(days=365)
 
 
-async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) -> dict[str, Any]:
+async def check_usage_limit_db(
+    db: AsyncSession, tenant_id: str, metric: str
+) -> dict[str, Any]:
     """
     Check usage limits for a tenant (database version)
     التحقق من حدود الاستخدام للمستأجر (نسخة قاعدة البيانات)
@@ -1549,7 +1586,9 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
         return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
     # Calculate current usage for the current month
-    current_month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_month_start = datetime.now(UTC).replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
     used = await repo.usage_records.get_metric_count(
         tenant_id=tenant_id,
         metric_type=metric,
@@ -1588,7 +1627,9 @@ async def calculate_overage_charges_db(
         return overage_items
 
     # Get current month usage from database
-    current_month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_month_start = datetime.now(UTC).replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
 
     # Calculate overages for each metered feature
     for metric, limit in plan_limits.items():
@@ -1608,7 +1649,12 @@ async def calculate_overage_charges_db(
             overage_amount = rate * Decimal(str(excess))
 
             # Create human-readable metric name with Arabic translation
-            metric_name = metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
+            metric_name = (
+                metric.replace("_", " ")
+                .replace(" per month", "")
+                .replace(" per day", "")
+                .title()
+            )
             metric_name_ar = translate_feature_name(metric)
 
             overage_items.append(
@@ -1650,16 +1696,20 @@ async def generate_invoice_for_subscription(
     # Get plan from database
     plan = await repo.plans.get_by_plan_id(subscription.plan_id)
     if not plan:
-        logger.error(f"Plan {subscription.plan_id} not found for subscription {subscription.id}")
+        logger.error(
+            f"Plan {subscription.plan_id} not found for subscription {subscription.id}"
+        )
         return None
 
     price = get_plan_price(plan.pricing, subscription.billing_cycle)
     cycle_label_ar = (
         "شهري"
         if subscription.billing_cycle == db_models.BillingCycle.MONTHLY
-        else "ربع سنوي"
-        if subscription.billing_cycle == db_models.BillingCycle.QUARTERLY
-        else "سنوي"
+        else (
+            "ربع سنوي"
+            if subscription.billing_cycle == db_models.BillingCycle.QUARTERLY
+            else "سنوي"
+        )
     )
 
     line_items = [
@@ -1714,7 +1764,9 @@ async def generate_invoice_for_subscription(
         notes_ar="شكراً لاختياركم منصة سهول الزراعية",
     )
 
-    logger.info(f"Invoice {invoice.invoice_number} generated for tenant {subscription.tenant_id}, total: ${total}")
+    logger.info(
+        f"Invoice {invoice.invoice_number} generated for tenant {subscription.tenant_id}, total: ${total}"
+    )
 
     return invoice
 
@@ -1777,10 +1829,16 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
-                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
+                    "monthly_usd": float(
+                        Decimal(str(p.pricing.get("monthly_usd", "0")))
+                    ),
+                    "monthly_yer": float(
+                        convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))
+                    ),
                     "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
-                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
+                    "yearly_yer": float(
+                        convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))
+                    ),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -1815,9 +1873,15 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
             "created_at": plan.created_at.isoformat(),
         },
         "pricing_yer": {
-            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
-            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
-            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
+            "monthly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))
+            ),
+            "quarterly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))
+            ),
+            "yearly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))
+            ),
         },
     }
 
@@ -1929,7 +1993,11 @@ async def create_tenant(
         billing_cycle=request.billing_cycle,
         start_date=today,
         end_date=get_billing_period_end(today, request.billing_cycle),
-        status=(db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE),
+        status=(
+            db_models.SubscriptionStatus.TRIAL
+            if trial_end
+            else db_models.SubscriptionStatus.ACTIVE
+        ),
         trial_end_date=trial_end,
     )
 
@@ -2028,7 +2096,11 @@ async def get_subscription(
             "start_date": subscription.start_date.isoformat(),
             "end_date": subscription.end_date.isoformat(),
             "next_billing_date": subscription.next_billing_date.isoformat(),
-            "trial_end_date": (subscription.trial_end_date.isoformat() if subscription.trial_end_date else None),
+            "trial_end_date": (
+                subscription.trial_end_date.isoformat()
+                if subscription.trial_end_date
+                else None
+            ),
         },
         "plan": (
             {
@@ -2096,16 +2168,22 @@ async def update_subscription(
                 daily_new = new_price / Decimal(str(total_days))
 
                 # Credit for unused days on old plan
-                proration_credit = (daily_old * Decimal(str(remaining_days))).quantize(Decimal("0.01"))
+                proration_credit = (daily_old * Decimal(str(remaining_days))).quantize(
+                    Decimal("0.01")
+                )
                 # Charge for remaining days on new plan
-                proration_charge = (daily_new * Decimal(str(remaining_days))).quantize(Decimal("0.01"))
+                proration_charge = (daily_new * Decimal(str(remaining_days))).quantize(
+                    Decimal("0.01")
+                )
 
         update_data["plan_id"] = request.plan_id
         changes.append(f"Plan changed to {new_plan.name}")
 
     if request.billing_cycle and request.billing_cycle != subscription.billing_cycle:
         update_data["billing_cycle"] = request.billing_cycle
-        update_data["end_date"] = get_billing_period_end(subscription.start_date, request.billing_cycle)
+        update_data["end_date"] = get_billing_period_end(
+            subscription.start_date, request.billing_cycle
+        )
         changes.append(f"Billing cycle changed to {request.billing_cycle.value}")
 
     if request.payment_method:
@@ -2188,14 +2266,16 @@ async def update_subscription(
             "billing_cycle": subscription.billing_cycle.value,
             "end_date": subscription.end_date.isoformat(),
         },
-        "proration": {
-            "credit": float(proration_credit),
-            "charge": float(proration_charge),
-            "net": float(net_proration),
-            "invoice_id": str(proration_invoice.id) if proration_invoice else None,
-        }
-        if proration_credit or proration_charge
-        else None,
+        "proration": (
+            {
+                "credit": float(proration_credit),
+                "charge": float(proration_charge),
+                "net": float(net_proration),
+                "invoice_id": str(proration_invoice.id) if proration_invoice else None,
+            }
+            if proration_credit or proration_charge
+            else None
+        ),
         "changes": changes,
     }
 
@@ -2321,7 +2401,9 @@ async def get_quota(
             "limit": limit if limit != -1 else "unlimited",
             "used": check.get("used", 0),
             "remaining": check.get("remaining", "unlimited" if limit == -1 else 0),
-            "percentage": (round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0),
+            "percentage": (
+                round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0
+            ),
         }
 
     return {
@@ -2473,7 +2555,9 @@ async def get_invoice(
             else None
         ),
         "amount_yer": (
-            float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total)
+            float(convert_to_yer(invoice.total))
+            if invoice.currency == db_models.Currency.USD
+            else float(invoice.total)
         ),
     }
 
@@ -2581,9 +2665,13 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPError as e:
-            logger.error("Tharwatt API error: %s", str(e).replace("\n", " ").replace("\r", " "))
+            logger.error(
+                "Tharwatt API error: %s", str(e).replace("\n", " ").replace("\r", " ")
+            )
             # Security: Don't expose internal error details to client
-            raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
+            raise HTTPException(
+                502, "Payment gateway temporarily unavailable. Please try again."
+            )
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
@@ -2606,9 +2694,13 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         )
         return {"stripe_charge_id": charge.id, "status": charge.status}
     except Exception as e:
-        logger.error("Stripe API error: %s", str(e).replace("\n", " ").replace("\r", " "))
+        logger.error(
+            "Stripe API error: %s", str(e).replace("\n", " ").replace("\r", " ")
+        )
         # Security: Don't expose internal error details to client
-        raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
+        raise HTTPException(
+            502, "Payment processing failed. Please try again or contact support."
+        )
 
 
 @app.post("/api/v1/payments")
@@ -2670,9 +2762,13 @@ async def create_payment(
             )()
             stripe_response = await call_stripe_api(temp_payment, token)
             if stripe_response.get("status") == "succeeded":
-                await repo.payments.mark_succeeded(payment.id, external_id=stripe_response.get("stripe_charge_id"))
+                await repo.payments.mark_succeeded(
+                    payment.id, external_id=stripe_response.get("stripe_charge_id")
+                )
             else:
-                await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
+                await repo.payments.update(
+                    payment.id, status=db_models.PaymentStatus.PROCESSING
+                )
 
     elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
         # Tharwatt Payment Gateway - بوابة ثروات
@@ -2688,9 +2784,13 @@ async def create_payment(
                 },
             )()
             tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
-            await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
+            await repo.payments.update(
+                payment.id, status=db_models.PaymentStatus.PROCESSING
+            )
             safe_resp = str(tharwatt_response).replace("\n", " ").replace("\r", " ")
-            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {safe_resp}")
+            logger.info(
+                f"Tharwatt payment initiated: {payment.id} - Response: {safe_resp}"
+            )
 
     elif request.method == PaymentMethod.CASH:
         await repo.payments.mark_succeeded(payment.id)
@@ -2820,7 +2920,11 @@ async def create_refund(
     # Process refund via payment gateway
     refund_external_id = None
 
-    if payment.method == db_models.PaymentMethod.CREDIT_CARD and STRIPE_API_KEY and payment.stripe_payment_id:
+    if (
+        payment.method == db_models.PaymentMethod.CREDIT_CARD
+        and STRIPE_API_KEY
+        and payment.stripe_payment_id
+    ):
         # Stripe refund
         try:
             import stripe
@@ -2931,7 +3035,9 @@ async def create_refund(
             "external_refund_id": refund_external_id,
         },
         "message_ar": (
-            "تم استرداد المبلغ بالكامل بنجاح" if is_full_refund else f"تم استرداد مبلغ {refund_amount} بنجاح"
+            "تم استرداد المبلغ بالكامل بنجاح"
+            if is_full_refund
+            else f"تم استرداد مبلغ {refund_amount} بنجاح"
         ),
     }
 
@@ -2969,11 +3075,15 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
 
     # Validate signature is present
     if not signature:
-        logger.error("Tharwatt webhook signature missing in X-Tharwatt-Signature header")
+        logger.error(
+            "Tharwatt webhook signature missing in X-Tharwatt-Signature header"
+        )
         return False
 
     try:
-        expected_signature = hmac.new(THARWATT_WEBHOOK_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()
+        expected_signature = hmac.new(
+            THARWATT_WEBHOOK_SECRET.encode("utf-8"), payload, hashlib.sha256
+        ).hexdigest()
 
         # Use constant-time comparison to prevent timing attacks
         is_valid = hmac.compare_digest(signature.lower(), expected_signature.lower())
@@ -3211,7 +3321,9 @@ async def stripe_webhook(
 
             if payment:
                 failure_reason = data.get("failure_message", "Payment failed")
-                await repo.payments.mark_failed(payment.id, failure_reason=failure_reason)
+                await repo.payments.mark_failed(
+                    payment.id, failure_reason=failure_reason
+                )
                 logger.warning(f"Stripe payment failed: {payment_id}")
 
                 # Publish payment failed event
@@ -3229,7 +3341,9 @@ async def stripe_webhook(
         subscription_id = data.get("metadata", {}).get("subscription_id")
         if subscription_id:
             try:
-                subscription = await repo.subscriptions.get_by_id(uuid.UUID(subscription_id))
+                subscription = await repo.subscriptions.get_by_id(
+                    uuid.UUID(subscription_id)
+                )
             except (ValueError, AttributeError):
                 subscription = None
 
@@ -3244,7 +3358,9 @@ async def stripe_webhook(
                 if new_status:
                     await repo.subscriptions.update(subscription.id, status=new_status)
 
-                logger.info(f"Stripe subscription updated: {subscription_id} -> {stripe_status}")
+                logger.info(
+                    f"Stripe subscription updated: {subscription_id} -> {stripe_status}"
+                )
 
                 # Publish subscription event
                 background_tasks.add_task(
@@ -3290,13 +3406,21 @@ async def get_revenue_report(
 
     # Revenue by payment method
     by_method = await repo.payments.get_total_by_method(
-        start_date=datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC),
+        start_date=datetime.combine(start_date, datetime.min.time()).replace(
+            tzinfo=UTC
+        ),
         end_date=datetime.combine(end_date, datetime.max.time()).replace(tzinfo=UTC),
     )
 
     # Count paid invoices in period
-    paid_invoices = await repo.invoices.list_by_tenant(tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000)
-    invoices_in_period = [inv for inv in paid_invoices if inv.paid_date and start_date <= inv.paid_date <= end_date]
+    paid_invoices = await repo.invoices.list_by_tenant(
+        tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000
+    )
+    invoices_in_period = [
+        inv
+        for inv in paid_invoices
+        if inv.paid_date and start_date <= inv.paid_date <= end_date
+    ]
 
     # Revenue by plan
     by_plan: dict[str, Decimal] = {}
@@ -3366,11 +3490,11 @@ _v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
+        _old_path = "/v1" + _path[len(_v1_prefix) :]
         app.router.add_api_route(
             _old_path,
             _route.endpoint,
-            methods=[m for m in _route.methods] if _route.methods else ["GET"],
+            methods=list(_route.methods) if _route.methods else ["GET"],
             tags=["deprecated"],
             include_in_schema=False,
             deprecated=True,

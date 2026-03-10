@@ -68,9 +68,13 @@ async def verify_api_key(x_api_key: str | None = Header(None)):
     """
     if settings.require_api_key:
         if not x_api_key:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API key required")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="API key required"
+            )
         if settings.api_key and x_api_key != settings.api_key:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key"
+            )
     return x_api_key
 
 
@@ -239,7 +243,9 @@ async def get_registry_stats():
 # ============================================================================
 
 
-@app.post("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
+@app.post(
+    "/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)]
+)
 async def register_agent(request: RegisterAgentRequest):
     """
     Register a new agent
@@ -278,7 +284,9 @@ async def register_agent(request: RegisterAgentRequest):
 
     except Exception as e:
         logger.error("register_agent_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"])
@@ -309,7 +317,9 @@ async def get_agent(agent_id: str):
         raise
     except Exception as e:
         logger.error("get_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.get("/api/v1/registry/agents", tags=["Agents"])
@@ -347,7 +357,9 @@ async def list_agents(
 
     except Exception as e:
         logger.error("list_agents_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.delete(
@@ -397,7 +409,9 @@ async def deregister_agent(agent_id: str):
         raise
     except Exception as e:
         logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 # ============================================================================
@@ -429,8 +443,12 @@ async def discover_by_capability(capability: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_capability_failed", capability=capability, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error(
+            "discover_by_capability_failed", capability=capability, error=str(e)
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.get("/api/v1/registry/discover/skill", tags=["Discovery"])
@@ -458,7 +476,9 @@ async def discover_by_skill(skill: str):
 
     except Exception as e:
         logger.error("discover_by_skill_failed", skill=skill, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.post("/api/v1/registry/discover/tags", tags=["Discovery"])
@@ -486,7 +506,9 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
 
     except Exception as e:
         logger.error("discover_by_tags_failed", tags=request.tags, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 # ============================================================================
@@ -514,7 +536,9 @@ async def check_agent_health(agent_id: str):
 
     except Exception as e:
         logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 @app.get("/api/v1/registry/health/all", tags=["Health"])
@@ -535,13 +559,18 @@ async def get_all_health_statuses():
 
         return {
             "status": "success",
-            "health_statuses": {agent_id: health.model_dump() for agent_id, health in health_statuses.items()},
+            "health_statuses": {
+                agent_id: health.model_dump()
+                for agent_id, health in health_statuses.items()
+            },
             "total": len(health_statuses),
         }
 
     except Exception as e:
         logger.error("get_all_health_statuses_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        ) from e
 
 
 # ---------------------------------------------------------------------------
@@ -553,11 +582,11 @@ _v1_prefix = "/api/v1"
 for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_v1_prefix):
-        _old_path = "/v1" + _path[len(_v1_prefix):]
+        _old_path = "/v1" + _path[len(_v1_prefix) :]
         app.router.add_api_route(
             _old_path,
             _route.endpoint,
-            methods=[m for m in _route.methods] if _route.methods else ["GET"],
+            methods=list(_route.methods) if _route.methods else ["GET"],
             tags=["deprecated"],
             include_in_schema=False,
             deprecated=True,

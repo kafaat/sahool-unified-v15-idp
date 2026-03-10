@@ -178,7 +178,11 @@ def readiness():
         from fastapi.responses import JSONResponse
 
         return JSONResponse(
-            content={"status": "not_ready", "service": "advisory_service", "checks": checks},
+            content={
+                "status": "not_ready",
+                "service": "advisory_service",
+                "checks": checks,
+            },
             status_code=503,
         )
 
@@ -266,7 +270,9 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/api/v1/disease/assess")
-async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
+async def assess_disease(
+    req: DiseaseAssessRequest, user: User = Depends(get_current_user)
+):
     """Assess disease from image classification result"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -309,7 +315,9 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
 
 
 @app.post("/api/v1/disease/symptoms")
-async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_current_user)):
+async def assess_symptoms(
+    req: SymptomAssessRequest, user: User = Depends(get_current_user)
+):
     """Assess possible diseases from reported symptoms"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -376,7 +384,9 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
         {
             "id": disease_id,
             **disease,
-            "actions_details": [get_action_details(action, lang) for action in disease["actions"]],
+            "actions_details": [
+                get_action_details(action, lang) for action in disease["actions"]
+            ],
         }
     )
 
@@ -385,7 +395,9 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 
 @app.post("/api/v1/nutrient/ndvi")
-async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends(get_current_user)):
+async def assess_from_ndvi_endpoint(
+    req: NDVIAssessRequest, user: User = Depends(get_current_user)
+):
     """Assess nutrient deficiency from NDVI data"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -422,7 +434,9 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
 
 
 @app.post("/api/v1/nutrient/visual")
-async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(get_current_user)):
+async def assess_visual_endpoint(
+    req: VisualAssessRequest, user: User = Depends(get_current_user)
+):
     """Assess nutrient deficiency from visual indicators"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -464,7 +478,9 @@ def get_deficiency_info(deficiency_id: str):
     """Get nutrient deficiency information by ID"""
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
-        raise HTTPException(status_code=404, detail=f"Deficiency not found: {deficiency_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Deficiency not found: {deficiency_id}"
+        )
 
     return create_success_response({"id": deficiency_id, **deficiency})
 
@@ -473,7 +489,9 @@ def get_deficiency_info(deficiency_id: str):
 
 
 @app.post("/api/v1/fertilizer/plan")
-async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
+async def create_fertilizer_plan(
+    req: FertilizerPlanRequest, user: User = Depends(get_current_user)
+):
     """Generate fertilizer plan for crop and stage"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -511,7 +529,9 @@ def get_fertilizer_info(fertilizer_id: str):
     """Get fertilizer information by ID"""
     fert = get_fertilizer(fertilizer_id)
     if not fert:
-        raise HTTPException(status_code=404, detail=f"Fertilizer not found: {fertilizer_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Fertilizer not found: {fertilizer_id}"
+        )
 
     return create_success_response({"id": fertilizer_id, **fert})
 
@@ -552,7 +572,9 @@ def list_categories():
 def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
-        raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
+        raise HTTPException(
+            status_code=422, detail="Query must be at least 2 characters"
+        )
 
     results = search_crops_catalog(q)
 
@@ -580,8 +602,12 @@ def search_crops_endpoint(q: str):
 
 @app.get("/api/v1/crops")
 def list_all_crops(
-    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
-    offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
+    limit: int = Query(
+        default=100, ge=1, le=500, description="Maximum number of crops per category"
+    ),
+    offset: int = Query(
+        default=0, ge=0, description="Number of crops to skip per category"
+    ),
 ):
     """List all crops grouped by category with pagination"""
     crops_by_category = {}
@@ -744,12 +770,12 @@ for _route in list(app.routes):
     _path = getattr(_route, "path", "")
     if _path.startswith(_api_v1_prefix):
         # Strip /api/v1 to restore original prefix-less path
-        _old_path = _path[len(_api_v1_prefix):]
+        _old_path = _path[len(_api_v1_prefix) :]
         if _old_path:  # skip empty path
             app.router.add_api_route(
                 _old_path,
                 _route.endpoint,
-                methods=[m for m in _route.methods] if _route.methods else ["GET"],
+                methods=list(_route.methods) if _route.methods else ["GET"],
                 tags=["deprecated"],
                 include_in_schema=False,
                 deprecated=True,

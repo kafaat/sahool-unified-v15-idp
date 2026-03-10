@@ -40,7 +40,6 @@ from src.agricultural_land_detector import (
     VectorClassificationEngine,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -107,7 +106,9 @@ def make_synthetic_image(size=64):
 
     for i in range(size):
         for j in range(size):
-            in_field = (10 <= i < 30 and 10 <= j < 30) or (35 <= i < 55 and 35 <= j < 55)
+            in_field = (10 <= i < 30 and 10 <= j < 30) or (
+                35 <= i < 55 and 35 <= j < 55
+            )
             if in_field:
                 image[i, j, 0] = 0.05 + rng.random() * 0.05
                 image[i, j, 1] = 0.08 + rng.random() * 0.05
@@ -280,7 +281,9 @@ class TestSemanticSegmentationEngine:
         mask = await self.engine.classify_pixels(image, bounds)
         assert mask.shape == (32, 32)
         # Should have some cropland pixels in the field regions
-        cropland_count = sum(1 for i in range(32) for j in range(32) if mask[i, j] == "cropland")
+        cropland_count = sum(
+            1 for i in range(32) for j in range(32) if mask[i, j] == "cropland"
+        )
         assert cropland_count > 0
 
     @pytest.mark.asyncio
@@ -404,7 +407,12 @@ class TestParcelPostProcessor:
 
     def test_calculate_area(self):
         # ~100m x 100m square
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         area = self.processor._calculate_area(coords)
         assert area > 0
         assert 0.5 < area < 2.0  # ~1 hectare
@@ -444,8 +452,13 @@ class TestVectorClassificationEngine:
     async def test_classify_parcels(self):
         parcels = [
             make_parcel("p1", mean_ndvi=0.65, mean_evi=0.4, compactness=0.8),
-            make_parcel("p2", mean_ndvi=0.1, mean_evi=0.05, compactness=0.3,
-                        land_cover=LandCoverClass.UNKNOWN),
+            make_parcel(
+                "p2",
+                mean_ndvi=0.1,
+                mean_evi=0.05,
+                compactness=0.3,
+                land_cover=LandCoverClass.UNKNOWN,
+            ),
         ]
         classified = await self.engine.classify_parcels(parcels)
         assert len(classified) == 2
@@ -502,7 +515,9 @@ class TestCropClassificationEngine:
     @pytest.mark.asyncio
     async def test_dl_classify(self):
         parcel = make_parcel(mean_ndvi=0.6, mean_evi=0.4, area=5.0)
-        crop, confidence = self.engine._dl_classify(parcel, image_data=None, bounds=None)
+        crop, confidence = self.engine._dl_classify(
+            parcel, image_data=None, bounds=None
+        )
         assert isinstance(crop, CropType)
         assert 0.0 <= confidence <= 1.0
 
@@ -566,7 +581,9 @@ class TestTopologyPreservingSimplifier:
 
     def test_simplify_single_parcel(self):
         # Many-vertex polygon
-        coords = [(44.19 + i * 0.0002, 15.49 + math.sin(i * 0.5) * 0.001) for i in range(20)]
+        coords = [
+            (44.19 + i * 0.0002, 15.49 + math.sin(i * 0.5) * 0.001) for i in range(20)
+        ]
         parcel = make_parcel("multi_vertex", coords=coords)
         result = self.simplifier.simplify_with_topology([parcel])
         assert len(result) == 1
@@ -574,8 +591,13 @@ class TestTopologyPreservingSimplifier:
         assert len(result[0].coordinates) <= len(coords)
 
     def test_simplify_preserves_area(self):
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.2015, 15.5005),
-                   (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.2015, 15.5005),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         parcel = make_parcel("area_test", coords=coords, area=1.0)
         result = self.simplifier.simplify_with_topology([parcel])
         # Area shouldn't change more than 5%
@@ -678,9 +700,7 @@ class TestParcelEditingTools:
         assert merged.mean_ndvi is not None
 
     def test_merge_three_parcels(self):
-        parcels = [
-            make_parcel(f"p{i}", area=1.0 + i * 0.5) for i in range(3)
-        ]
+        parcels = [make_parcel(f"p{i}", area=1.0 + i * 0.5) for i in range(3)]
         ids = [f"p{i}" for i in range(3)]
         merged = self.tools.merge_parcels(parcels, ids)
         assert merged is not None
@@ -744,7 +764,9 @@ class TestParcelEditingTools:
                 (44.2011, 15.501),
             ],
         )
-        connected = self.tools.connect_parcels([p1, p2], ["frag1", "frag2"], max_gap_meters=500)
+        connected = self.tools.connect_parcels(
+            [p1, p2], ["frag1", "frag2"], max_gap_meters=500
+        )
         assert connected is not None
 
     def test_connect_far_parcels(self):
@@ -768,7 +790,9 @@ class TestParcelEditingTools:
             ],
         )
         # With a small max gap, distant parcels won't bridge but still get convex hull
-        result = self.tools.connect_parcels([p1, p2], ["far1", "far2"], max_gap_meters=5)
+        result = self.tools.connect_parcels(
+            [p1, p2], ["far1", "far2"], max_gap_meters=5
+        )
         # connect_parcels returns single parcel or None
         # The method does convex hull even if gap is large, so it may return a result
         assert result is None or isinstance(result, AgriculturalParcel)
@@ -786,9 +810,7 @@ class TestQualityInspectionTool:
         self.tool = QualityInspectionTool()
 
     def test_inspect_valid_parcel(self):
-        parcel = make_parcel(
-            area=1.0, compactness=0.7, elongation=2.0, confidence=0.8
-        )
+        parcel = make_parcel(area=1.0, compactness=0.7, elongation=2.0, confidence=0.8)
         result = self.tool.inspect_all([parcel])
         assert result["total_parcels"] == 1
         assert result["passed"] == 1
@@ -863,12 +885,15 @@ class TestQualityInspectionTool:
 
     def test_get_statistics(self):
         parcels = [
-            make_parcel("p1", area=2.0, crop_type="wheat",
-                        land_cover=LandCoverClass.CROPLAND),
-            make_parcel("p2", area=3.0, crop_type="barley",
-                        land_cover=LandCoverClass.CROPLAND),
-            make_parcel("p3", area=1.0, crop_type="wheat",
-                        land_cover=LandCoverClass.GRASSLAND),
+            make_parcel(
+                "p1", area=2.0, crop_type="wheat", land_cover=LandCoverClass.CROPLAND
+            ),
+            make_parcel(
+                "p2", area=3.0, crop_type="barley", land_cover=LandCoverClass.CROPLAND
+            ),
+            make_parcel(
+                "p3", area=1.0, crop_type="wheat", land_cover=LandCoverClass.GRASSLAND
+            ),
         ]
         stats = self.tool.get_statistics(parcels)
         assert stats["total_parcels"] == 3
@@ -922,7 +947,9 @@ class TestAgriculturalLandDetector:
 
     @pytest.mark.asyncio
     async def test_detect_parcels_hybrid(self):
-        report = await self.detector.detect_parcels(latitude=15.5, longitude=44.2, radius_meters=500)
+        report = await self.detector.detect_parcels(
+            latitude=15.5, longitude=44.2, radius_meters=500
+        )
         assert isinstance(report, DetectionReport)
         assert report.strategy_used == DetectionStrategy.HYBRID
         assert report.total_parcels >= 0
@@ -979,7 +1006,12 @@ class TestAgriculturalLandDetector:
         assert bounds["east"] > bounds["west"]
 
     def test_polygon_to_parcel(self):
-        polygon = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        polygon = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         image, bounds = make_synthetic_image()
         parcel = self.detector._polygon_to_parcel(polygon, 0, bounds, image)
         assert isinstance(parcel, AgriculturalParcel)
@@ -994,7 +1026,12 @@ class TestAgriculturalLandDetector:
         assert 110000 < dist < 112000
 
     def test_calculate_perimeter(self):
-        coords = [(44.200, 15.500), (44.201, 15.500), (44.201, 15.501), (44.200, 15.501)]
+        coords = [
+            (44.200, 15.500),
+            (44.201, 15.500),
+            (44.201, 15.501),
+            (44.200, 15.501),
+        ]
         perimeter = self.detector._calculate_perimeter(coords)
         assert perimeter > 0
         assert 300 < perimeter < 600  # ~400m for ~100m square
@@ -1014,7 +1051,9 @@ class TestIntegration:
         detector = AgriculturalLandDetector()
 
         # Step 1: Detect parcels
-        report = await detector.detect_parcels(latitude=15.5, longitude=44.2, radius_meters=500)
+        report = await detector.detect_parcels(
+            latitude=15.5, longitude=44.2, radius_meters=500
+        )
 
         if report.total_parcels > 0:
             # Step 2: Classify crops
@@ -1038,7 +1077,9 @@ class TestIntegration:
     async def test_detection_and_editing(self):
         """Test detection → merge → split workflow."""
         detector = AgriculturalLandDetector()
-        report = await detector.detect_parcels(latitude=15.5, longitude=44.2, radius_meters=500)
+        report = await detector.detect_parcels(
+            latitude=15.5, longitude=44.2, radius_meters=500
+        )
 
         if report.total_parcels >= 2:
             ids = [p.parcel_id for p in report.parcels[:2]]
@@ -1049,17 +1090,23 @@ class TestIntegration:
     async def test_detection_and_topology(self):
         """Test detection → topology simplification."""
         detector = AgriculturalLandDetector()
-        report = await detector.detect_parcels(latitude=15.5, longitude=44.2, radius_meters=500)
+        report = await detector.detect_parcels(
+            latitude=15.5, longitude=44.2, radius_meters=500
+        )
 
         if report.total_parcels > 0:
-            simplified = detector.topology_simplifier.simplify_with_topology(report.parcels)
+            simplified = detector.topology_simplifier.simplify_with_topology(
+                report.parcels
+            )
             assert len(simplified) == len(report.parcels)
 
     @pytest.mark.asyncio
     async def test_batch_assign_workflow(self):
         """Test batch attribute assignment."""
         detector = AgriculturalLandDetector()
-        report = await detector.detect_parcels(latitude=15.5, longitude=44.2, radius_meters=500)
+        report = await detector.detect_parcels(
+            latitude=15.5, longitude=44.2, radius_meters=500
+        )
 
         if report.total_parcels > 0:
             ids = [p.parcel_id for p in report.parcels]

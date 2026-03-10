@@ -360,7 +360,9 @@ class SemanticSegmentationEngine:
         binary_mask = (mask == target_class).astype(np.uint8)
 
         # Apply morphological operations to clean up
-        binary_mask = self._morphological_close(binary_mask, iterations=self.config.boundary_closing_iterations)
+        binary_mask = self._morphological_close(
+            binary_mask, iterations=self.config.boundary_closing_iterations
+        )
         binary_mask = self._morphological_open(binary_mask, iterations=1)
 
         # Connected component labeling
@@ -539,7 +541,16 @@ class SemanticSegmentationEngine:
             return contour
 
         # Moore neighborhood tracing (8-connected)
-        directions = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
+        directions = [
+            (1, 0),
+            (1, 1),
+            (0, 1),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+        ]
         current = start
         direction_idx = 0  # Start looking right
         contour.append(current)
@@ -637,7 +648,9 @@ class BoundaryDetectionEngine:
         )
 
         # Step 5: Close boundaries using morphological operations
-        closed_mask = self._close_boundaries(edge_mask, iterations=self.config.boundary_closing_iterations)
+        closed_mask = self._close_boundaries(
+            edge_mask, iterations=self.config.boundary_closing_iterations
+        )
 
         # Step 6: Fill enclosed regions
         filled_regions = self._fill_enclosed_regions(closed_mask)
@@ -687,7 +700,9 @@ class BoundaryDetectionEngine:
         result: np.ndarray = magnitude
         return result
 
-    def _non_maximum_suppression(self, gradient_mag: np.ndarray, image: np.ndarray) -> np.ndarray:
+    def _non_maximum_suppression(
+        self, gradient_mag: np.ndarray, image: np.ndarray
+    ) -> np.ndarray:
         """Thin edges using non-maximum suppression"""
         h, w = gradient_mag.shape
         suppressed = np.zeros_like(gradient_mag)
@@ -699,8 +714,12 @@ class BoundaryDetectionEngine:
                     continue
 
                 # Estimate gradient direction from image differences
-                dx = abs(image[i, j + 1] - image[i, j - 1]) if j > 0 and j < w - 1 else 0
-                dy = abs(image[i + 1, j] - image[i - 1, j]) if i > 0 and i < h - 1 else 0
+                dx = (
+                    abs(image[i, j + 1] - image[i, j - 1]) if j > 0 and j < w - 1 else 0
+                )
+                dy = (
+                    abs(image[i + 1, j] - image[i - 1, j]) if i > 0 and i < h - 1 else 0
+                )
 
                 # Check if current pixel is local maximum along gradient
                 if dx > dy:  # Horizontal edge
@@ -744,7 +763,9 @@ class BoundaryDetectionEngine:
 
         return result
 
-    def _close_boundaries(self, edge_mask: np.ndarray, iterations: int = 3) -> np.ndarray:
+    def _close_boundaries(
+        self, edge_mask: np.ndarray, iterations: int = 3
+    ) -> np.ndarray:
         """Close gaps in boundary edges using morphological closing (dilate then erode)."""
         result = edge_mask.copy()
         h, w = result.shape
@@ -852,7 +873,12 @@ class BoundaryDetectionEngine:
         return labels, current_label
 
     def _regions_to_polygons(
-        self, labels: np.ndarray, num_regions: int, bounds: dict[str, float], h: int, w: int
+        self,
+        labels: np.ndarray,
+        num_regions: int,
+        bounds: dict[str, float],
+        h: int,
+        w: int,
     ) -> list[list[tuple[float, float]]]:
         """Convert labeled regions to geographic polygons"""
         lat_range = bounds["north"] - bounds["south"]
@@ -864,9 +890,12 @@ class BoundaryDetectionEngine:
 
             # Check minimum size
             pixel_count = np.sum(component)
-            pixel_area_m2 = (lat_range * 111320 / h) * (lon_range * 111320 * math.cos(
-                math.radians((bounds["north"] + bounds["south"]) / 2)
-            ) / w)
+            pixel_area_m2 = (lat_range * 111320 / h) * (
+                lon_range
+                * 111320
+                * math.cos(math.radians((bounds["north"] + bounds["south"]) / 2))
+                / w
+            )
             area_hectares = pixel_count * pixel_area_m2 / 10000
 
             if area_hectares < 0.01:  # Skip very small regions
@@ -900,7 +929,13 @@ class BoundaryDetectionEngine:
                     is_boundary = False
                     for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         ni, nj = i + di, j + dj
-                        if ni < 0 or ni >= h or nj < 0 or nj >= w or component[ni, nj] == 0:
+                        if (
+                            ni < 0
+                            or ni >= h
+                            or nj < 0
+                            or nj >= w
+                            or component[ni, nj] == 0
+                        ):
                             is_boundary = True
                             break
                     if is_boundary:
@@ -912,7 +947,9 @@ class BoundaryDetectionEngine:
 
         return boundary
 
-    def _order_boundary_points(self, points: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    def _order_boundary_points(
+        self, points: list[tuple[int, int]]
+    ) -> list[tuple[int, int]]:
         """Order boundary points counter-clockwise around centroid"""
         if len(points) < 3:
             return points
@@ -1023,10 +1060,14 @@ class ParcelPostProcessor:
         # Step 6: Remove duplicates/overlaps
         processed = self._remove_overlapping(processed)
 
-        logger.info(f"Post-processing complete: {len(polygons)} → {len(processed)} parcels")
+        logger.info(
+            f"Post-processing complete: {len(polygons)} → {len(processed)} parcels"
+        )
         return processed
 
-    def _chaikin_smooth(self, coords: list[tuple[float, float]], ratio: float = 0.25) -> list[tuple[float, float]]:
+    def _chaikin_smooth(
+        self, coords: list[tuple[float, float]], ratio: float = 0.25
+    ) -> list[tuple[float, float]]:
         """
         Chaikin's corner cutting algorithm for boundary smoothing.
         خوارزمية تشيكن لتنعيم الحدود
@@ -1099,7 +1140,9 @@ class ParcelPostProcessor:
         cos_angle = max(-1.0, min(1.0, dot / (mag1 * mag2)))
         return math.acos(cos_angle)
 
-    def _fit_rectangle(self, coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    def _fit_rectangle(
+        self, coords: list[tuple[float, float]]
+    ) -> list[tuple[float, float]]:
         """Fit polygon to minimum area bounding rectangle"""
         if len(coords) < 3:
             return coords
@@ -1117,7 +1160,9 @@ class ParcelPostProcessor:
             (min_lon, max_lat),
         ]
 
-    def _convex_hull(self, coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    def _convex_hull(
+        self, coords: list[tuple[float, float]]
+    ) -> list[tuple[float, float]]:
         """Compute convex hull using Graham scan"""
         if len(coords) < 3:
             return coords
@@ -1139,7 +1184,9 @@ class ParcelPostProcessor:
 
         return hull
 
-    def _minimum_bounding_rectangle(self, coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    def _minimum_bounding_rectangle(
+        self, coords: list[tuple[float, float]]
+    ) -> list[tuple[float, float]]:
         """Compute minimum area bounding rectangle using rotating calipers approximation"""
         hull = self._convex_hull(coords)
         if len(hull) < 3:
@@ -1205,7 +1252,7 @@ class ParcelPostProcessor:
         for idx, (i, area_i) in enumerate(areas):
             if i not in keep:
                 continue
-            for j, area_j in areas[idx + 1:]:
+            for j, area_j in areas[idx + 1 :]:
                 if j not in keep:
                     continue
                 # Simple centroid distance check for overlap
@@ -1244,14 +1291,22 @@ class ParcelPostProcessor:
             return [coords[0], coords[-1]]
 
     def _point_line_distance(
-        self, point: tuple[float, float], line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        point: tuple[float, float],
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> float:
         """Perpendicular distance from point to line"""
         dx = line_end[0] - line_start[0]
         dy = line_end[1] - line_start[1]
         if dx == 0 and dy == 0:
             return math.hypot(point[0] - line_start[0], point[1] - line_start[1])
-        num = abs(dy * point[0] - dx * point[1] + line_end[0] * line_start[1] - line_end[1] * line_start[0])
+        num = abs(
+            dy * point[0]
+            - dx * point[1]
+            + line_end[0] * line_start[1]
+            - line_end[1] * line_start[0]
+        )
         den = math.hypot(dx, dy)
         return num / den
 
@@ -1360,8 +1415,12 @@ class VectorClassificationEngine:
                 parcel.land_cover = LandCoverClass.BARREN
                 parcel.detection_confidence = 0.5 + (1 - score) * 0.3
 
-        cropland_count = sum(1 for p in parcels if p.land_cover == LandCoverClass.CROPLAND)
-        logger.info(f"Classification: {cropland_count}/{len(parcels)} parcels are cropland")
+        cropland_count = sum(
+            1 for p in parcels if p.land_cover == LandCoverClass.CROPLAND
+        )
+        logger.info(
+            f"Classification: {cropland_count}/{len(parcels)} parcels are cropland"
+        )
 
         return parcels
 
@@ -1402,12 +1461,14 @@ class VectorClassificationEngine:
         score = max(0.0, min(1.0, score + 0.3))
         return score
 
-    def _compute_compactness(self, area_hectares: float, perimeter_meters: float) -> float:
+    def _compute_compactness(
+        self, area_hectares: float, perimeter_meters: float
+    ) -> float:
         """Isoperimetric quotient: 4π·A/P²"""
         if perimeter_meters <= 0:
             return 0.0
         area_m2 = area_hectares * 10000
-        return min(1.0, (4 * math.pi * area_m2) / (perimeter_meters ** 2))
+        return min(1.0, (4 * math.pi * area_m2) / (perimeter_meters**2))
 
     def _area_to_score(self, area_hectares: float) -> float:
         """Convert area to agricultural likelihood score"""
@@ -1509,26 +1570,44 @@ class AgriculturalLandDetector:
         # Generate or use provided image data
         if image_data is None:
             if latitude is None or longitude is None:
-                raise ValueError("Either image_data+bounds or latitude+longitude must be provided")
+                raise ValueError(
+                    "Either image_data+bounds or latitude+longitude must be provided"
+                )
 
             # Generate synthetic data for demonstration
-            image_data, bounds = self._generate_synthetic_data(latitude, longitude, radius_meters)
-            warnings.append("Using synthetic data - connect satellite provider for real imagery")
+            image_data, bounds = self._generate_synthetic_data(
+                latitude, longitude, radius_meters
+            )
+            warnings.append(
+                "Using synthetic data - connect satellite provider for real imagery"
+            )
 
         h, w = image_data.shape[:2]
-        logger.info(f"Detecting parcels in {h}x{w} image, strategy={self.config.strategy.value}")
+        logger.info(
+            f"Detecting parcels in {h}x{w} image, strategy={self.config.strategy.value}"
+        )
 
         # Execute detection strategy
         all_polygons = []
 
-        if self.config.strategy in (DetectionStrategy.SEMANTIC_SEGMENTATION, DetectionStrategy.HYBRID):
+        if self.config.strategy in (
+            DetectionStrategy.SEMANTIC_SEGMENTATION,
+            DetectionStrategy.HYBRID,
+        ):
             seg_mask = await self.segmentation.classify_pixels(image_data, bounds)
-            seg_polygons = await self.segmentation.polygonize_mask(seg_mask, bounds, LandCoverClass.CROPLAND.value)
+            seg_polygons = await self.segmentation.polygonize_mask(
+                seg_mask, bounds, LandCoverClass.CROPLAND.value
+            )
             all_polygons.extend(seg_polygons)
             logger.info(f"Segmentation: {len(seg_polygons)} parcels")
 
-        if self.config.strategy in (DetectionStrategy.BOUNDARY_DETECTION, DetectionStrategy.HYBRID):
-            boundary_polygons = await self.boundary_detection.detect_boundaries(image_data, bounds)
+        if self.config.strategy in (
+            DetectionStrategy.BOUNDARY_DETECTION,
+            DetectionStrategy.HYBRID,
+        ):
+            boundary_polygons = await self.boundary_detection.detect_boundaries(
+                image_data, bounds
+            )
             all_polygons.extend(boundary_polygons)
             logger.info(f"Boundary detection: {len(boundary_polygons)} parcels")
 
@@ -1551,7 +1630,9 @@ class AgriculturalLandDetector:
 
         # Build report
         elapsed = time.time() - start_time
-        cropland_parcels = [p for p in parcels if p.land_cover == LandCoverClass.CROPLAND]
+        cropland_parcels = [
+            p for p in parcels if p.land_cover == LandCoverClass.CROPLAND
+        ]
 
         report = DetectionReport(
             total_parcels=len(parcels),
@@ -1602,7 +1683,9 @@ class AgriculturalLandDetector:
             center_lon = (bounds["east"] + bounds["west"]) / 2
             lat_range = bounds["north"] - bounds["south"]
             radius = lat_range * 111320 / 2
-            image_data, bounds = self._generate_synthetic_data(center_lat, center_lon, radius)
+            image_data, bounds = self._generate_synthetic_data(
+                center_lat, center_lon, radius
+            )
 
         return await self.detect_parcels(image_data=image_data, bounds=bounds)
 
@@ -1628,16 +1711,22 @@ class AgriculturalLandDetector:
             denom = nir + red
             ndvi = np.where(denom > 0, (nir - red) / denom, 0.0)
         else:
-            ndvi = image_data[:, :, 0].astype(np.float64) if len(image_data.shape) > 2 else image_data.astype(
-                np.float64
+            ndvi = (
+                image_data[:, :, 0].astype(np.float64)
+                if len(image_data.shape) > 2
+                else image_data.astype(np.float64)
             )
 
         # Simple threshold
         cropland_mask = (ndvi > self.config.ndvi_cropland_threshold).astype(np.uint8)
 
         # Clean up with morphology
-        cropland_mask = self.segmentation._morphological_close(cropland_mask, iterations=2)
-        cropland_mask = self.segmentation._morphological_open(cropland_mask, iterations=1)
+        cropland_mask = self.segmentation._morphological_close(
+            cropland_mask, iterations=2
+        )
+        cropland_mask = self.segmentation._morphological_open(
+            cropland_mask, iterations=1
+        )
 
         # Connected components
         labels, num_components = self.segmentation._connected_components(cropland_mask)
@@ -1685,7 +1774,7 @@ class AgriculturalLandDetector:
 
         # Compactness (isoperimetric quotient)
         area_m2 = area * 10000
-        compactness = (4 * math.pi * area_m2) / (perimeter ** 2) if perimeter > 0 else 0
+        compactness = (4 * math.pi * area_m2) / (perimeter**2) if perimeter > 0 else 0
 
         # Elongation (bounding box ratio)
         lons = [c[0] for c in polygon]
@@ -1719,7 +1808,9 @@ class AgriculturalLandDetector:
             elongation=round(elongation, 2),
             rectangularity=round(rectangularity, 3),
             num_vertices=len(polygon),
-            quality_score=round(min(1.0, compactness * 0.4 + rectangularity * 0.3 + 0.3), 2),
+            quality_score=round(
+                min(1.0, compactness * 0.4 + rectangularity * 0.3 + 0.3), 2
+            ),
         )
 
     def _calculate_perimeter(self, coords: list[tuple[float, float]]) -> float:
@@ -1741,7 +1832,9 @@ class AgriculturalLandDetector:
         dlon = math.radians(lon2 - lon1)
         a = (
             math.sin(dlat / 2) ** 2
-            + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+            + math.cos(math.radians(lat1))
+            * math.cos(math.radians(lat2))
+            * math.sin(dlon / 2) ** 2
         )
         return R * 2 * math.asin(math.sqrt(a))
 
@@ -2003,14 +2096,46 @@ class CropClassificationEngine:
 
     # Geometric feature ranges for crop types
     CROP_GEOMETRIC_PROFILES: dict[CropType, dict[str, Any]] = {
-        CropType.WHEAT: {"area_range": (0.5, 100), "compactness_min": 0.3, "rectangularity_min": 0.5},
-        CropType.RICE: {"area_range": (0.1, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
-        CropType.CORN: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
-        CropType.DATE_PALM: {"area_range": (0.2, 20), "compactness_min": 0.2, "rectangularity_min": 0.3},
-        CropType.VEGETABLES: {"area_range": (0.05, 5), "compactness_min": 0.4, "rectangularity_min": 0.6},
-        CropType.GREENHOUSE: {"area_range": (0.01, 2), "compactness_min": 0.6, "rectangularity_min": 0.8},
-        CropType.FRUIT_TREES: {"area_range": (0.5, 30), "compactness_min": 0.25, "rectangularity_min": 0.3},
-        CropType.ALFALFA: {"area_range": (0.5, 50), "compactness_min": 0.3, "rectangularity_min": 0.4},
+        CropType.WHEAT: {
+            "area_range": (0.5, 100),
+            "compactness_min": 0.3,
+            "rectangularity_min": 0.5,
+        },
+        CropType.RICE: {
+            "area_range": (0.1, 5),
+            "compactness_min": 0.4,
+            "rectangularity_min": 0.6,
+        },
+        CropType.CORN: {
+            "area_range": (0.5, 50),
+            "compactness_min": 0.3,
+            "rectangularity_min": 0.4,
+        },
+        CropType.DATE_PALM: {
+            "area_range": (0.2, 20),
+            "compactness_min": 0.2,
+            "rectangularity_min": 0.3,
+        },
+        CropType.VEGETABLES: {
+            "area_range": (0.05, 5),
+            "compactness_min": 0.4,
+            "rectangularity_min": 0.6,
+        },
+        CropType.GREENHOUSE: {
+            "area_range": (0.01, 2),
+            "compactness_min": 0.6,
+            "rectangularity_min": 0.8,
+        },
+        CropType.FRUIT_TREES: {
+            "area_range": (0.5, 30),
+            "compactness_min": 0.25,
+            "rectangularity_min": 0.3,
+        },
+        CropType.ALFALFA: {
+            "area_range": (0.5, 50),
+            "compactness_min": 0.3,
+            "rectangularity_min": 0.4,
+        },
     }
 
     # ML path: Feature weights for Random Forest-like classification
@@ -2072,7 +2197,9 @@ class CropClassificationEngine:
 
         crop_counts: dict[str, int] = {}
         for r in results:
-            crop_counts[r.predicted_crop.value] = crop_counts.get(r.predicted_crop.value, 0) + 1
+            crop_counts[r.predicted_crop.value] = (
+                crop_counts.get(r.predicted_crop.value, 0) + 1
+            )
 
         logger.info(f"Crop classification complete: {crop_counts}")
         return results
@@ -2103,10 +2230,14 @@ class CropClassificationEngine:
             # NDVI similarity to crop profile
             ndvi_min, ndvi_max = profile["ndvi_range"]
             if ndvi_min <= ndvi <= ndvi_max:
-                ndvi_dist = abs(ndvi - profile["ndvi_peak"]) / max(profile["ndvi_peak"], 0.01)
+                ndvi_dist = abs(ndvi - profile["ndvi_peak"]) / max(
+                    profile["ndvi_peak"], 0.01
+                )
                 features["ndvi_similarity"] = max(0, 1.0 - ndvi_dist)
             else:
-                features["ndvi_similarity"] = max(0, 1.0 - min(abs(ndvi - ndvi_min), abs(ndvi - ndvi_max)) * 3)
+                features["ndvi_similarity"] = max(
+                    0, 1.0 - min(abs(ndvi - ndvi_min), abs(ndvi - ndvi_max)) * 3
+                )
 
             # EVI similarity
             evi_diff = abs(evi - profile["evi_peak"]) / max(profile["evi_peak"], 0.01)
@@ -2117,7 +2248,9 @@ class CropClassificationEngine:
             if ndwi_min <= ndwi <= ndwi_max:
                 features["ndwi_similarity"] = 1.0
             else:
-                features["ndwi_similarity"] = max(0, 1.0 - min(abs(ndwi - ndwi_min), abs(ndwi - ndwi_max)) * 5)
+                features["ndwi_similarity"] = max(
+                    0, 1.0 - min(abs(ndwi - ndwi_min), abs(ndwi - ndwi_max)) * 5
+                )
 
             # Geometric features
             geo_profile = self.CROP_GEOMETRIC_PROFILES.get(crop_type, {})
@@ -2125,16 +2258,21 @@ class CropClassificationEngine:
             if area_range[0] <= area <= area_range[1]:
                 features["area_fit"] = 1.0
             else:
-                features["area_fit"] = max(0, 0.5 - abs(area - sum(area_range) / 2) / max(area_range[1], 1) * 0.5)
+                features["area_fit"] = max(
+                    0,
+                    0.5 - abs(area - sum(area_range) / 2) / max(area_range[1], 1) * 0.5,
+                )
 
             comp_min = max(geo_profile.get("compactness_min", 0.01), 0.01)
             features["compactness_fit"] = (
-                1.0 if compactness >= geo_profile.get("compactness_min", 0)
+                1.0
+                if compactness >= geo_profile.get("compactness_min", 0)
                 else compactness / comp_min
             )
             rect_min = max(geo_profile.get("rectangularity_min", 0.01), 0.01)
             features["rectangularity_fit"] = (
-                1.0 if rectangularity >= geo_profile.get("rectangularity_min", 0)
+                1.0
+                if rectangularity >= geo_profile.get("rectangularity_min", 0)
                 else rectangularity / rect_min
             )
 
@@ -2151,7 +2289,9 @@ class CropClassificationEngine:
                 features["temporal_fit"] = 0.7  # Year-round or unknown
 
             # Weighted score
-            score = sum(features.get(k, 0) * w for k, w in self.ML_FEATURE_WEIGHTS.items())
+            score = sum(
+                features.get(k, 0) * w for k, w in self.ML_FEATURE_WEIGHTS.items()
+            )
             all_scores[crop_type] = score
 
             if score > best_score:
@@ -2264,7 +2404,9 @@ class CropClassificationEngine:
         # If both agree, boost confidence
         if ml_crop == dl_crop:
             final_crop = ml_crop
-            final_conf = min(0.95, (ml_conf * self.ML_WEIGHT + dl_conf * self.DL_WEIGHT) * 1.2)
+            final_conf = min(
+                0.95, (ml_conf * self.ML_WEIGHT + dl_conf * self.DL_WEIGHT) * 1.2
+            )
         else:
             # Use higher-confidence prediction
             ml_weighted = ml_conf * self.ML_WEIGHT
@@ -2278,7 +2420,11 @@ class CropClassificationEngine:
 
         # Build secondary crops list from ML scores
         sorted_crops = sorted(ml_scores.items(), key=lambda x: x[1], reverse=True)
-        secondary = [(crop, round(score, 3)) for crop, score in sorted_crops[:3] if crop != final_crop]
+        secondary = [
+            (crop, round(score, 3))
+            for crop, score in sorted_crops[:3]
+            if crop != final_crop
+        ]
 
         return CropClassificationResult(
             parcel_id=parcel.parcel_id,
@@ -2352,7 +2498,9 @@ class TopologyPreservingSimplifier:
         # Step 3: Simplify shared edges consistently
         simplified_shared = {}
         for edge_key, edge_coords in shared_edges.items():
-            simplified_shared[edge_key] = self._douglas_peucker(edge_coords, self.tolerance)
+            simplified_shared[edge_key] = self._douglas_peucker(
+                edge_coords, self.tolerance
+            )
 
         # Step 4: Simplify each parcel using consistent shared edges
         for i, parcel in enumerate(parcels):
@@ -2451,7 +2599,9 @@ class TopologyPreservingSimplifier:
                     shared_vertex_set.add(pt)
 
         # Simplify while keeping shared vertices
-        simplified = self._douglas_peucker_preserve(coords, self.tolerance, shared_vertex_set)
+        simplified = self._douglas_peucker_preserve(
+            coords, self.tolerance, shared_vertex_set
+        )
         return simplified if len(simplified) >= 3 else coords
 
     def _douglas_peucker_preserve(
@@ -2474,27 +2624,43 @@ class TopologyPreservingSimplifier:
                 max_idx = i
 
         if max_dist > tolerance or coords[max_idx] in preserve:
-            left = self._douglas_peucker_preserve(coords[:max_idx + 1], tolerance, preserve)
-            right = self._douglas_peucker_preserve(coords[max_idx:], tolerance, preserve)
+            left = self._douglas_peucker_preserve(
+                coords[: max_idx + 1], tolerance, preserve
+            )
+            right = self._douglas_peucker_preserve(
+                coords[max_idx:], tolerance, preserve
+            )
             return left[:-1] + right
         else:
             # Check if any preserved points would be lost
             for i in range(1, len(coords) - 1):
                 if coords[i] in preserve:
-                    left = self._douglas_peucker_preserve(coords[:i + 1], tolerance, preserve)
-                    right = self._douglas_peucker_preserve(coords[i:], tolerance, preserve)
+                    left = self._douglas_peucker_preserve(
+                        coords[: i + 1], tolerance, preserve
+                    )
+                    right = self._douglas_peucker_preserve(
+                        coords[i:], tolerance, preserve
+                    )
                     return left[:-1] + right
             return [coords[0], coords[-1]]
 
     def _point_line_distance(
-        self, point: tuple[float, float], line_start: tuple[float, float], line_end: tuple[float, float]
+        self,
+        point: tuple[float, float],
+        line_start: tuple[float, float],
+        line_end: tuple[float, float],
     ) -> float:
         """Perpendicular distance from point to line segment"""
         dx = line_end[0] - line_start[0]
         dy = line_end[1] - line_start[1]
         if dx == 0 and dy == 0:
             return math.hypot(point[0] - line_start[0], point[1] - line_start[1])
-        num = abs(dy * point[0] - dx * point[1] + line_end[0] * line_start[1] - line_end[1] * line_start[0])
+        num = abs(
+            dy * point[0]
+            - dx * point[1]
+            + line_end[0] * line_start[1]
+            - line_end[1] * line_start[0]
+        )
         den = math.hypot(dx, dy)
         return num / den
 
@@ -2512,7 +2678,7 @@ class TopologyPreservingSimplifier:
                 max_dist = dist
                 max_idx = i
         if max_dist > tolerance:
-            left = self._douglas_peucker(coords[:max_idx + 1], tolerance)
+            left = self._douglas_peucker(coords[: max_idx + 1], tolerance)
             right = self._douglas_peucker(coords[max_idx:], tolerance)
             return left[:-1] + right
         return [coords[0], coords[-1]]
@@ -2597,7 +2763,9 @@ class ParcelEditingTools:
         )
 
         # Weighted average of spectral properties
-        weighted_ndvi = sum((p.mean_ndvi or 0) * p.area_hectares for p in to_merge) / max(total_area, 0.001)
+        weighted_ndvi = sum(
+            (p.mean_ndvi or 0) * p.area_hectares for p in to_merge
+        ) / max(total_area, 0.001)
 
         merged = AgriculturalParcel(
             parcel_id=f"merged_{uuid.uuid4().hex[:8]}",
@@ -2640,7 +2808,9 @@ class ParcelEditingTools:
             return [parcel]
 
         # Find intersection points of split line with parcel boundary
-        intersections = self._find_line_polygon_intersections(split_line, parcel.coordinates)
+        intersections = self._find_line_polygon_intersections(
+            split_line, parcel.coordinates
+        )
 
         if len(intersections) < 2:
             # Line doesn't properly cross the parcel
@@ -2825,7 +2995,9 @@ class ParcelEditingTools:
         right_coords = list(intersections[:2])
 
         for coord in polygon:
-            cross = (l2[0] - l1[0]) * (coord[1] - l1[1]) - (l2[1] - l1[1]) * (coord[0] - l1[0])
+            cross = (l2[0] - l1[0]) * (coord[1] - l1[1]) - (l2[1] - l1[1]) * (
+                coord[0] - l1[0]
+            )
             if cross >= 0:
                 left_coords.append(coord)
             else:
@@ -2840,7 +3012,9 @@ class ParcelEditingTools:
 
         return left_coords, right_coords
 
-    def _convex_hull(self, coords: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    def _convex_hull(
+        self, coords: list[tuple[float, float]]
+    ) -> list[tuple[float, float]]:
         """Graham scan convex hull"""
         if len(coords) < 3:
             return coords
@@ -2850,13 +3024,15 @@ class ParcelEditingTools:
             return math.atan2(p[1] - start[1], p[0] - start[0])
 
         sorted_pts = sorted(set(coords), key=polar_angle)
-        hull = [sorted_pts[0], sorted_pts[1]] if len(sorted_pts) >= 2 else list(sorted_pts)
+        hull = (
+            [sorted_pts[0], sorted_pts[1]] if len(sorted_pts) >= 2 else list(sorted_pts)
+        )
 
         for p in sorted_pts[2:]:
             while len(hull) > 1:
-                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (
-                    p[0] - hull[-2][0]
-                )
+                cross = (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (
+                    hull[-1][1] - hull[-2][1]
+                ) * (p[0] - hull[-2][0])
                 if cross <= 0:
                     hull.pop()
                 else:
@@ -2876,7 +3052,9 @@ class ParcelEditingTools:
             dlon = math.radians(c2[0] - c1[0])
             a = (
                 math.sin(dlat / 2) ** 2
-                + math.cos(math.radians(c1[1])) * math.cos(math.radians(c2[1])) * math.sin(dlon / 2) ** 2
+                + math.cos(math.radians(c1[1]))
+                * math.cos(math.radians(c2[1]))
+                * math.sin(dlon / 2) ** 2
             )
             perimeter += 6371000 * 2 * math.asin(math.sqrt(a))
         return perimeter
@@ -2932,9 +3110,7 @@ class QualityInspectionTool:
         self._current_index = 0
         logger.info("Quality Inspection Tool initialized")
 
-    def inspect_all(
-        self, parcels: list[AgriculturalParcel]
-    ) -> dict[str, Any]:
+    def inspect_all(self, parcels: list[AgriculturalParcel]) -> dict[str, Any]:
         """
         Run quality inspection on all parcels.
 
@@ -2984,19 +3160,31 @@ class QualityInspectionTool:
         # Check minimum area
         area_m2 = parcel.area_hectares * 10000
         if area_m2 < self.QUALITY_RULES["min_area_m2"]:
-            issues.append(f"Area too small: {area_m2:.0f}m² < {self.QUALITY_RULES['min_area_m2']}m²")
+            issues.append(
+                f"Area too small: {area_m2:.0f}m² < {self.QUALITY_RULES['min_area_m2']}m²"
+            )
 
         # Check minimum vertices
         if len(parcel.coordinates) < self.QUALITY_RULES["min_vertices"]:
-            issues.append(f"Too few vertices: {len(parcel.coordinates)} < {self.QUALITY_RULES['min_vertices']}")
+            issues.append(
+                f"Too few vertices: {len(parcel.coordinates)} < {self.QUALITY_RULES['min_vertices']}"
+            )
 
         # Check compactness
-        if parcel.compactness is not None and parcel.compactness < self.QUALITY_RULES["min_compactness"]:
+        if (
+            parcel.compactness is not None
+            and parcel.compactness < self.QUALITY_RULES["min_compactness"]
+        ):
             issues.append(f"Compactness too low: {parcel.compactness:.4f}")
 
         # Check elongation
-        if parcel.elongation is not None and parcel.elongation > self.QUALITY_RULES["max_elongation"]:
-            issues.append(f"Too elongated: {parcel.elongation:.1f} > {self.QUALITY_RULES['max_elongation']}")
+        if (
+            parcel.elongation is not None
+            and parcel.elongation > self.QUALITY_RULES["max_elongation"]
+        ):
+            issues.append(
+                f"Too elongated: {parcel.elongation:.1f} > {self.QUALITY_RULES['max_elongation']}"
+            )
 
         # Check for self-intersections (simplified check)
         if self._has_self_intersection(parcel.coordinates):
@@ -3011,7 +3199,9 @@ class QualityInspectionTool:
 
         # Check confidence
         if parcel.detection_confidence < 0.3:
-            issues.append(f"Low detection confidence: {parcel.detection_confidence:.2f}")
+            issues.append(
+                f"Low detection confidence: {parcel.detection_confidence:.2f}"
+            )
 
         return issues
 
@@ -3046,8 +3236,9 @@ class QualityInspectionTool:
         d1, d2 = cross(b1, b2, a1), cross(b1, b2, a2)
         d3, d4 = cross(a1, a2, b1), cross(a1, a2, b2)
 
-        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and \
-           ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+        if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and (
+            (d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)
+        ):
             return True
         return False
 
@@ -3143,6 +3334,10 @@ class QualityInspectionTool:
             "max_area_hectares": round(max(areas), 4),
             "crop_type_distribution": crop_types,
             "land_cover_distribution": land_covers,
-            "mean_confidence": round(sum(p.detection_confidence for p in parcels) / len(parcels), 3),
-            "mean_ndvi": round(sum((p.mean_ndvi or 0) for p in parcels) / len(parcels), 3),
+            "mean_confidence": round(
+                sum(p.detection_confidence for p in parcels) / len(parcels), 3
+            ),
+            "mean_ndvi": round(
+                sum((p.mean_ndvi or 0) for p in parcels) / len(parcels), 3
+            ),
         }

@@ -15,7 +15,7 @@ from typing import Any
 import asyncpg
 import nats
 import structlog
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -24,6 +24,23 @@ from pydantic import BaseModel
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+    _bearer_scheme = HTTPBearer(auto_error=False)
+
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
+
 
 logger = structlog.get_logger()
 
@@ -1024,7 +1041,7 @@ async def get_single_indicator(field_id: str, indicator_type: str):
 
 
 @app.delete("/v1/field/{field_id}/indicators")
-async def delete_field_indicators_endpoint(field_id: str):
+async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_current_user)):
     """حذف جميع مؤشرات حقل معين
 
     Delete all stored indicators for a specific field.

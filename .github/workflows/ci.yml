@@ -193,15 +193,10 @@ jobs:
         id: ruff
         if: needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main'
         run: |
+          set -o pipefail
           echo "## Ruff Linting Results" >> $GITHUB_STEP_SUMMARY
-          ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt || true
-          if grep -q "error" ruff-output.txt; then
-            echo "::warning::Ruff found linting errors"
-            echo "status=warning" >> $GITHUB_OUTPUT
-          else
-            echo "✅ No Ruff errors found" >> $GITHUB_STEP_SUMMARY
-          fi
-        continue-on-error: true
+          ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt
+          echo "✅ No Ruff errors found" >> $GITHUB_STEP_SUMMARY
 
       - name: Run Black (Python formatter check)
         id: black

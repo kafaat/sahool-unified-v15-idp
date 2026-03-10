@@ -7,7 +7,7 @@ API endpoints for Variable Rate Application prescription maps.
 
 import logging
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .vra_generator import (
@@ -15,6 +15,23 @@ from .vra_generator import (
     VRAType,
     ZoneMethod,
 )
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+    _bearer_scheme = HTTPBearer(auto_error=False)
+
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
+
 
 logger = logging.getLogger(__name__)
 
@@ -439,7 +456,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=500, detail=f"Failed to export prescription: {str(e)}")
 
     @app.delete("/v1/vra/prescription/{prescription_id}")
-    async def delete_prescription(prescription_id: str):
+    async def delete_prescription(prescription_id: str, _user=Depends(get_current_user)):
         """
         حذف الوصفة | Delete Prescription
 

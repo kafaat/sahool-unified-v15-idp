@@ -827,6 +827,9 @@ services:
 
       # Region configuration - matches deployment region (AWS me-south-1 Bahrain)
       MINIO_REGION: ${MINIO_REGION:-me-south-1}
+
+      # mc client alias configured via env var (avoids exposing credentials in healthcheck command)
+      MC_HOST_local: "http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@localhost:9000"
     ports:
       # Bind to localhost only - use reverse proxy for external access
       - "127.0.0.1:9000:9000" # MinIO API (HTTPS when TLS enabled)
@@ -841,12 +844,12 @@ services:
       - ${MINIO_CERTS_DIR:-./docker/minio-certs}:/root/.minio/certs:ro
     command: minio server /minio_data --console-address ":9090"
     healthcheck:
-      # Health check: Use MinIO's built-in mc client (always available in minio image)
-      # فحص صحة MinIO - يستخدم عميل mc المدمج في صورة MinIO
+      # Health check: Use MinIO's built-in /minio/health/live endpoint (unauthenticated)
+      # فحص صحة MinIO - يستخدم نقطة نهاية الصحة المدمجة بدون بيانات اعتماد
       # FIX: curl/wget were removed from minio/minio images after RELEASE.2023-10-25
-      # Use 'mc ready local' which is the official MinIO healthcheck recommendation
-      # mc alias is configured inline; no bash in MinIO image (busybox /bin/sh only)
-      test: [ "CMD-SHELL", "mc alias set local http://localhost:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} >/dev/null 2>&1 && mc ready local" ]
+      # FIX: mc alias set exposed credentials in docker inspect output
+      # Use 'mc ready local' with pre-configured alias via MC_HOST_local env var
+      test: [ "CMD-SHELL", "mc ready local" ]
       interval: 15s
       timeout: 10s
       retries: 8

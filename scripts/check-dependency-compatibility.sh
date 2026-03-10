@@ -5,7 +5,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 #
 # Usage:
-#   ./scripts/check-dependency-compatibility.sh [--fix] [--json]
+#   ./scripts/check-dependency-compatibility.sh
 #
 # Checks:
 #   1. Docker image version compatibility
@@ -20,7 +20,7 @@
 #   1 - Compatibility issues found
 # ═══════════════════════════════════════════════════════════════════════════════
 
-set -uo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -95,7 +95,7 @@ check_docker_images() {
     pgbouncer_image=$(grep -oP 'edoburu/pgbouncer:\K[^\s"]+' "$compose_file" 2>/dev/null || echo "")
     if [ -n "$pgbouncer_image" ]; then
         log_info "pgbouncer image: edoburu/pgbouncer:$pgbouncer_image"
-        log_pass "pgbouncer version $pgbouncer_image exists on Docker Hub"
+        log_pass "pgbouncer version $pgbouncer_image found in docker-compose.yml"
     fi
 
     # Check postgres version
@@ -147,10 +147,10 @@ check_compose_dependencies() {
 
     # Extract depends_on service references using python for reliable YAML parsing
     local dep_check_result
-    dep_check_result=$(python3 -c "
+    dep_check_result=$(python3 - "$compose_file" <<'PYEOF'
 import re, sys
 
-with open('$compose_file') as f:
+with open(sys.argv[1]) as f:
     content = f.read()
 
 # Find top-level service names (2-space indent)
@@ -179,7 +179,8 @@ if missing:
         print(f'MISSING:{m}')
 else:
     print('OK')
-" 2>/dev/null)
+PYEOF
+2>/dev/null)
 
     if echo "$dep_check_result" | grep -q "^MISSING:"; then
         while read -r line; do
@@ -370,7 +371,7 @@ check_compose_config() {
     fi
 
     # Healthcheck timing info (hardcoded from compose file to avoid slow grep)
-    log_info "etcd healthcheck: start_period=60s, retries=8, interval=15s (total ~180s)"
+    log_info "etcd healthcheck: start_period=90s, retries=8, interval=15s (total ~210s)"
     log_info "pgbouncer healthcheck: start_period=60s, retries=8, interval=15s (total ~180s)"
 }
 
@@ -424,9 +425,9 @@ check_infra_compatibility() {
     # etcd configuration check using python for reliable parsing
     local compose_file="$PROJECT_ROOT/docker-compose.yml"
     local etcd_check
-    etcd_check=$(python3 -c "
-import re
-with open('$compose_file') as f:
+    etcd_check=$(python3 - "$compose_file" <<'PYEOF'
+import re, sys
+with open(sys.argv[1]) as f:
     content = f.read()
 
 # Extract etcd quota
@@ -443,7 +444,8 @@ if quota_mb > 0:
         print(f'PASS:etcd memory limit ({mem_mb}MB) >= 2x quota ({quota_mb}MB)')
     else:
         print(f'WARN:etcd memory limit ({mem_mb}MB) should be >= 2x quota ({quota_mb}MB)')
-" 2>/dev/null)
+PYEOF
+2>/dev/null)
 
     while read -r line; do
         log_info "etcd backend quota: ${line#quota_mb=}MB"

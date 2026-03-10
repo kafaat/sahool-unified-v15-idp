@@ -67,7 +67,7 @@ sahool-unified-v15-idp/
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (75+ modules)
+├── shared/                     # Python shared modules (80 modules)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -149,18 +149,41 @@ sahool-unified-v15-idp/
 │   ├── scraping/               # Data scraping utilities
 │   ├── service_enhancements/   # Service improvement modules
 │   ├── templates/              # Configuration/code templates
+│   ├── calibration/            # Sensor & equipment calibration
+│   ├── dashboard/              # Dashboard utilities
+│   ├── digital_twin/           # Digital twin simulation
+│   ├── drift_detection/        # Model & data drift detection
+│   ├── financial_reports/      # Financial reporting
+│   ├── geospatial_metadata/    # Geospatial metadata management
+│   ├── iot_dashboard/          # IoT dashboard utilities
+│   ├── marketplace_enhanced/   # Enhanced marketplace features
+│   ├── mobile_config/          # Mobile configuration management
+│   ├── notification_routing/   # Notification routing logic
+│   ├── pivot_management/       # Center pivot irrigation management
+│   ├── process_models/         # Business process models
+│   ├── regional/               # Regional agricultural profiles
+│   ├── stability/              # System stability monitoring
+│   ├── vra_maps/               # Variable Rate Application maps
 │   └── python-lib/             # Python library utilities
+├── api/                        # OpenAPI schemas (gateway-openapi.yaml)
 ├── config/                     # Configuration files
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
+├── database/                   # Database utilities & configs
+├── dev/                        # Development tools (k3d local K8s)
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (475+ docs)
+├── docs/                       # Technical documentation (537 docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
-├── helm/                       # Kubernetes Helm charts
+├── helm/                       # Kubernetes Helm charts (15 charts)
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
-├── tests/                      # Test suites (18 categories)
+├── legacy/                     # Legacy code storage
+├── models/                     # ML model files
+├── monitoring/                 # Monitoring stack configs
+├── observability/              # Observability tools
+├── requirements/               # Python requirements files
+├── tests/                      # Test suites (19 categories)
 │   ├── unit/                   # Fast unit tests
 │   ├── integration/            # API & database tests
 │   ├── smoke/                  # Import verification
@@ -169,6 +192,7 @@ sahool-unified-v15-idp/
 │   ├── evaluation/             # AI agent evaluation
 │   ├── guardrails/             # Input validation tests
 │   ├── a2a/                    # Agent-to-Agent tests
+│   ├── ci/                     # CI integration tests
 │   ├── container/              # Docker container tests
 │   ├── database/               # Database-specific tests
 │   ├── frontend/               # React component tests
@@ -416,7 +440,7 @@ make deps-audit           # Security audit of dependencies
 
 ### Dockerfiles Overview
 
-The platform contains **109 Dockerfiles** across Python, Node.js, and infrastructure services.
+The platform contains **113 Dockerfiles** across Python, Node.js, and infrastructure services.
 
 | File | Purpose |
 | ---- | ------- |
@@ -761,6 +785,7 @@ NATS_URL=""
 | `tests/evaluation/`  | AI agent evaluation        |
 | `tests/guardrails/`  | Input validation tests     |
 | `tests/a2a/`         | Agent-to-Agent tests       |
+| `tests/ci/`          | CI integration tests       |
 | `tests/container/`   | Docker container tests     |
 | `tests/database/`    | Database-specific tests    |
 | `tests/frontend/`    | React component tests      |
@@ -1015,8 +1040,9 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.iot.yml` | IoT services                                |
 | `docker/docker-compose.secrets.yml` | Secrets management                       |
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
+| `docker/docker-compose.logging.yml` | Logging stack                             |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (25 packages + services) |
+| `package.json`                  | Node.js root workspace (24 packages + 13 services) |
 | `.env.example`                  | Environment template (copy of `.env.development.template`) |
 | `governance/services.yaml`      | Service registry v3.3.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1085,22 +1111,22 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (49):
+GitHub Workflows (54):
 
-- **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`
-- **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`
+- **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`, `reusable-setup.yml`
+- **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`, `ci-crop-intelligence.yml`
 - **Deployment**: `cd-production.yml`, `cd-staging.yml`, `cd-new-services.yml`, `canary-deploy.yml`, `blue-green-deploy.yml`
-- **Testing**: `frontend-tests.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-testing.yml`, `load-test-validation.yml`
-- **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`
-- **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`
+- **Testing**: `frontend-tests.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-testing.yml`, `load-test-validation.yml`, `skills-tests.yml`
+- **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`, `api-openapi-guard.yml`
+- **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`, `generator-guard.yml`
 - **Contracts**: `api-contracts-guard.yml`
-- **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `skills-tests.yml`
+- **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `stability-gates.yml`
 - **Frontend/Mobile**: `frontend-ci.yml`, `flutter-apk.yml`, `mobile-ci.yml`, `mobile-release.yml`
-- **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`
+- **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`, `dockerfile-lint.yml`, `drift-detection.yml`
 - **AI/Evaluation**: `agent-evaluation.yml`
 - **PR Automation**: `auto-merge-prs.yml`, `pr-status-monitor.yml`
 - **Docs/Preview**: `docs.yml`, `lighthouse-ci.yml`, `deploy-preview.yml`, `vercel-preview.yml`, `playwright-e2e.yml`
-- **Other**: `notifications.yml`, `scorecard.yml`, `reusable-setup.yml`, `generator-guard.yml`
+- **Other**: `notifications.yml`, `scorecard.yml`
 
 ---
 
@@ -1289,6 +1315,7 @@ docker-compose --profile legacy up
 | digital-twin-engine       | Python  | 8253 | Digital twin simulation          |
 | lowcode-engine            | Python  | 8132 | Low-code workflow automation     |
 | demo-data                 | Python  | 8261 | Demo data generator              |
+| vllm-deepseek             | Python  | 8270 | vLLM inference server (DeepSeek) |
 
 ---
 
@@ -2583,7 +2610,7 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Shared Agricultural Domain Modules
 
-The `shared/` directory contains 75+ Python modules organized by domain. Below is the complete listing:
+The `shared/` directory contains 80 Python modules organized by domain. Below is the complete listing:
 
 ### Core Infrastructure
 
@@ -2688,6 +2715,36 @@ The `shared/` directory contains 75+ Python modules organized by domain. Below i
 | `lowcode/` | Low-code/no-code workflow automation engine |
 | `scraping/` | Data scraping for price and weather data |
 
+### Precision Agriculture
+
+| Module | Purpose |
+|--------|---------|
+| `calibration/` | Sensor & equipment calibration utilities |
+| `digital_twin/` | Digital twin simulation models |
+| `drift_detection/` | Model & data drift detection |
+| `pivot_management/` | Center pivot irrigation management |
+| `vra_maps/` | Variable Rate Application map generation |
+| `geospatial_metadata/` | Geospatial metadata management |
+
+### Analytics & Monitoring
+
+| Module | Purpose |
+|--------|---------|
+| `dashboard/` | Dashboard utilities & widgets |
+| `financial_reports/` | Financial reporting & analysis |
+| `iot_dashboard/` | IoT sensor dashboard utilities |
+| `marketplace_enhanced/` | Enhanced marketplace features |
+| `stability/` | System stability monitoring & alerting |
+
+### Configuration & Routing
+
+| Module | Purpose |
+|--------|---------|
+| `mobile_config/` | Mobile app configuration management |
+| `notification_routing/` | Notification routing & delivery logic |
+| `process_models/` | Business process model definitions |
+| `regional/` | Regional agricultural profiles & data |
+
 ### Regional
 
 | Module | Purpose |
@@ -2699,32 +2756,38 @@ The `shared/` directory contains 75+ Python modules organized by domain. Below i
 
 ## Platform Documentation Map
 
-The platform contains **475+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **537+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 475+ files)
+### Main Documentation (`docs/` - 537+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
 | `docs/` (root) | 145 | Core platform docs (API, architecture, deployment, security, operations) |
-| `docs/adr/` | 9 | Architectural Decision Records (ADR-001 through ADR-007) |
-| `docs/api/` | 8 | API endpoint documentation (AI, auth, fields, sensors, weather) |
-| `docs/architecture/` | 9 | Architecture proposals, principles, service activation maps |
-| `docs/audits/` | 3 | Audit reports (security, rate limiting, secrets) |
-| `docs/compliance/` | 1 | Compliance checklists |
+| `docs/adr/` | 10 | Architectural Decision Records (ADR-001 through ADR-008, including AI architecture) |
+| `docs/api/` | 35 | API endpoint documentation (AI, auth, fields, sensors, weather, vision, terrain) |
+| `docs/architecture/` | 11 | Architecture proposals, principles, service activation maps |
+| `docs/audits/` | 4 | Audit reports (security, rate limiting, secrets) |
+| `docs/compliance/` | 2 | Compliance checklists |
+| `docs/configs/` | 2 | Configuration examples |
 | `docs/database/` | 3 | Database audit summaries |
 | `docs/disaster-recovery/` | 3 | DR runbook and implementation guide |
-| `docs/engineering/` | 2 | Engineering recovery plans |
-| `docs/guides/` | 20 | Quick start guides (2FA, build, deployment, MCP, testing) |
-| `docs/implementations/` | 35 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
-| `docs/infrastructure/` | 3 | Circuit breaker, Kong HA, PostGIS optimization |
-| `docs/knowledge-base/` | 74 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
-| `docs/migrations/` | 4 | Service migration summaries |
-| `docs/proposals/` | 1 | AI code agent proposal |
-| `docs/reports/` | 52 | Comprehensive audit and analysis reports |
-| `docs/research/` | 4 | AI landscape, open source exploration, vision integration |
-| `docs/security/` | 2 | Data classification, STRIDE threat model |
-| `docs/summaries/` | 42 | Work summaries (API fixes, CI/CD, security, rate limiting) |
-| `docs/tools/` | 1 | Platform tools reference |
+| `docs/engineering/` | 3 | Engineering recovery plans |
+| `docs/examples/` | 5 | Code examples and tutorials |
+| `docs/fixes/` | 2 | Fix documentation |
+| `docs/governance/` | 2 | Governance documentation |
+| `docs/guides/` | 21 | Quick start guides (2FA, build, deployment, MCP, testing) |
+| `docs/implementations/` | 38 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
+| `docs/infrastructure/` | 4 | Circuit breaker, Kong HA, PostGIS optimization |
+| `docs/knowledge-base/` | 91 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
+| `docs/migrations/` | 6 | Service migration summaries |
+| `docs/mobile-apps-audit/` | 1 | Mobile app comprehensive audit |
+| `docs/operations/` | 4 | Operational runbooks |
+| `docs/proposals/` | 2 | Architecture proposals |
+| `docs/reports/` | 82 | Comprehensive audit and analysis reports |
+| `docs/research/` | 5 | AI landscape, open source exploration, vision integration |
+| `docs/security/` | 3 | Data classification, STRIDE threat model |
+| `docs/summaries/` | 46 | Work summaries (API fixes, CI/CD, security, rate limiting) |
+| `docs/tools/` | 2 | Platform tools reference |
 
 ### Key Documents Quick Reference
 
@@ -2793,7 +2856,7 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 | `templates/data-pipeline/` | Data pipeline template |
 | `sahoolctl/README.md` | CLI tool documentation |
 
-### Infrastructure Documentation (`infrastructure/` - 182+ files)
+### Infrastructure Documentation (`infrastructure/` - 204+ files)
 
 | Path | Purpose |
 | ---- | ------- |
@@ -2807,7 +2870,10 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 | `core/vault/` | HashiCorp Vault secrets |
 | `core/ollama/` | Ollama local LLM deployment |
 | `core/qdrant/` | Qdrant vector database |
+| `istio/` | Istio service mesh configuration |
 | `nats/` | NATS cluster & K8s deployment |
+| `resilience/` | Circuit breaker & resilience patterns |
+| `security/` | Security policies & hardening |
 | `terraform/` | Infrastructure as Code |
 | `redis/` | Redis security & deployment checklist |
 

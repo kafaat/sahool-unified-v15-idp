@@ -25,9 +25,10 @@ ALTER TABLE tasks ALTER COLUMN task_id TYPE VARCHAR(50) USING task_id::text;
 -- Step 4: Convert parent_task_id from UUID to VARCHAR(50)
 ALTER TABLE tasks ALTER COLUMN parent_task_id TYPE VARCHAR(50) USING parent_task_id::text;
 
--- Step 5: Recreate parent_task_id foreign key
-ALTER TABLE tasks ADD CONSTRAINT tasks_parent_task_id_fkey 
-    FOREIGN KEY (parent_task_id) REFERENCES tasks(task_id);
+-- Step 5: Recreate parent_task_id foreign key (NOT VALID to avoid full table scan)
+ALTER TABLE tasks ADD CONSTRAINT tasks_parent_task_id_fkey
+    FOREIGN KEY (parent_task_id) REFERENCES tasks(task_id) NOT VALID;
+ALTER TABLE tasks VALIDATE CONSTRAINT tasks_parent_task_id_fkey;
 
 -- Step 6: Recreate any other foreign keys that referenced tasks (if they exist)
 -- Note: This will be handled by the services when they create their tables

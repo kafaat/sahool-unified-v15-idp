@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "generated_at": "2026-03-04T01:15:00.000000+00:00",
+  "generated_at": "2026-03-10T22:00:00.000000+00:00",
   "environment": "development",
-  "total": 94,
+  "total": 92,
   "critical": 0,
   "high": 2,
   "by_category": {
     "schema": {
       "critical": 0,
       "high": 0,
-      "medium": 4,
+      "medium": 0,
       "info": 1
     },
     "event": {
@@ -22,10 +22,10 @@
   },
   "acknowledged": {
     "schema_medium": [
-      "field-management-service: Non-concurrent index creation in 20260214 (remediated by 20260303000000_safe_index_remediation)",
-      "field-management-service: Adding constraint fk_fields_farm_id in 20260214 (uses NOT VALID + VALIDATE pattern)",
-      "marketplace-service: Non-concurrent index creation in 20260101 (remediated by 20260303000000_safe_index_remediation)",
-      "marketplace-service: Non-concurrent index creation in 20260101 (remediated by 20260303000000_safe_index_remediation)"
+      "field-management-service: Non-concurrent index creation in 20260214 (drift:safe, remediated by 20260303000000_safe_index_remediation)",
+      "field-management-service: FK constraint fk_fields_farm_id in 20260214 (drift:safe, uses NOT VALID + VALIDATE pattern)",
+      "marketplace-service: Non-concurrent index creation in 20260101000000_add_soft_delete_fields (drift:safe, remediated by 20260303000000_safe_index_remediation)",
+      "marketplace-service: Non-concurrent index creation in 20260101_add_audit_logs (drift:safe, new table creation)"
     ],
     "schema_info": [
       "Missing Row-Level Security policy files for new schemas (tracked for Phase 2)"

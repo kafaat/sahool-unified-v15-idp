@@ -146,7 +146,7 @@ export function useUpdateField() {
 | ai-chat-assistant | 8260 | /api/v1/ai-chat | - | AI Chat Assistant |
 | code-fix-agent | 8162 | /api/v1/code-fix | - | Code Fix AI Agent |
 | ground-vision-service | 8182 | /api/v1/ground-vision | - | Ground-level Vision Analysis |
-| mcp-server | 8200 | /api/v1/mcp | [mcp-server.md](./mcp-server.md) | MCP Protocol |
+| mcp-server | 8201 | /api/v1/mcp | [mcp-server.md](./mcp-server.md) | MCP Protocol |
 | agro-rules | N/A | NATS-only | [agro-rules.md](./agro-rules.md) | N/A (Worker) |
 
 ---

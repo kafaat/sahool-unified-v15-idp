@@ -164,35 +164,17 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
   Future<void> loadPosts() async {
     state = state.copyWith(isLoading: true, error: null);
 
-    try {
-      // Attempt real API call via chat-service (port 8115)
-      // Kong route: GET /api/v1/community/posts
-      // Note: community-chat (port 8097) is deprecated
-      final posts = await _fetchPostsFromApi();
-      state = state.copyWith(posts: posts, isLoading: false);
-    } catch (e) {
-      // Fallback to mock data when API is unavailable (offline-first)
-      final posts = _getMockPosts();
-      state = state.copyWith(posts: posts, isLoading: false);
-    }
-  }
-
-  /// Fetch posts from chat-service via Kong gateway
-  /// جلب المنشورات من خدمة المحادثة عبر بوابة Kong
-  ///
-  /// Endpoint: GET /api/v1/community/posts
-  /// Service: chat-service (port 8115)
-  Future<List<CommunityPost>> _fetchPostsFromApi() async {
-    // TODO: Inject Dio client or use ref.read(apiClientProvider)
-    // Example:
+    // TODO: Wire up Dio client via Riverpod provider to call
+    // GET /api/v1/community/posts on chat-service (port 8115).
+    // Once injected, replace mock data with real API call:
     //   final response = await dio.get('/api/v1/community/posts');
     //   return (response.data['posts'] as List)
     //       .map((json) => CommunityPost.fromJson(json))
     //       .toList();
-    throw UnimplementedError(
-      'API client not yet injected. '
-      'Wire up Dio via Riverpod provider to call GET /api/v1/community/posts',
-    );
+    //
+    // For now, use mock data (offline-first fallback).
+    final posts = _getMockPosts();
+    state = state.copyWith(posts: posts, isLoading: false);
   }
 
   /// Create a new community post

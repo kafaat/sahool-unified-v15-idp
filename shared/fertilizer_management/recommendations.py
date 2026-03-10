@@ -653,7 +653,18 @@ class FertilizerRecommendationEngine:
         if self.available_fertilizers:
             optimized = self._optimize_fertilizer_selection(n_required, p_required, k_required)
             if optimized:
-                return optimized
+                # Verify that the optimized selection meets nutrient needs
+                # within an acceptable tolerance (5 kg/ha) before returning.
+                # If requirements are not met, fall through to standard recs.
+                tolerance = 5.0  # kg/ha
+                total_n = sum(p.get("nutrients_supplied", {}).get("N", 0) for p in optimized)
+                total_p = sum(p.get("nutrients_supplied", {}).get("P2O5", 0) for p in optimized)
+                total_k = sum(p.get("nutrients_supplied", {}).get("K2O", 0) for p in optimized)
+                n_met = n_required <= tolerance or total_n >= n_required - tolerance
+                p_met = p_required <= tolerance or total_p >= p_required - tolerance
+                k_met = k_required <= tolerance or total_k >= k_required - tolerance
+                if n_met and p_met and k_met:
+                    return optimized
 
         # Otherwise, use standard recommendations
         if n_required > 0:

@@ -307,7 +307,7 @@ NATS 2.x with JetStream for event-driven architecture.
 |----------|-------------|-------|----------|---------|----------|
 | `PRIMARY_LLM_PROVIDER` | Primary LLM provider | المزود الرئيسي | No | `anthropic` | ai-advisor |
 | `ANTHROPIC_API_KEY` | Anthropic Claude API key | مفتاح API لـ Claude | No | - | ai-advisor |
-| `CLAUDE_MODEL` | Claude model ID | معرف نموذج Claude | No | `claude-sonnet-4-6` | ai-advisor |
+| `CLAUDE_MODEL` | Claude model ID | معرف نموذج Claude | No | `claude-3-5-sonnet-20241022` | ai-advisor |
 | `OPENAI_API_KEY` | OpenAI API key | مفتاح API لـ OpenAI | No | - | ai-advisor |
 | `OPENAI_MODEL` | OpenAI model ID | معرف نموذج OpenAI | No | `gpt-4o` | ai-advisor |
 | `GOOGLE_API_KEY` | Google AI API key | مفتاح API لـ Google AI | No | - | ai-advisor |

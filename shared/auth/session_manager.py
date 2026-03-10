@@ -716,24 +716,21 @@ class SessionSecurityChecker:
 
         return earth_radius_km * c
 
-    @staticmethod
-    def _get_ip_location(ip: str) -> tuple[float, float] | None:
-        """
-        Get geographic coordinates for an IP address using GeoIP2.
-        الحصول على الإحداثيات الجغرافية لعنوان IP.
+    # Cached GeoIP reader (class-level, opened once on first use)
+    _geoip_reader: Any = None
+    _geoip_resolved: bool = False
 
-        Returns a (latitude, longitude) tuple, or None if lookup is unavailable or fails.
+    @classmethod
+    def _get_geoip_reader(cls) -> Any:
+        """Get or initialize the cached GeoIP reader (opened once)."""
+        if cls._geoip_resolved:
+            return cls._geoip_reader
 
-        Args:
-            ip: IP address string
+        cls._geoip_resolved = True
 
-        Returns:
-            Tuple of (latitude, longitude) or None
-        """
         if not GEOIP_AVAILABLE or _geoip2_database is None:
             return None
 
-        # Common GeoIP database paths (GeoLite2-City)
         import os
 
         db_paths = [
@@ -748,15 +745,41 @@ class SessionSecurityChecker:
             if not db_path or not os.path.isfile(db_path):
                 continue
             try:
-                with _geoip2_database.Reader(db_path) as reader:
-                    response = reader.city(ip)
-                    lat = response.location.latitude
-                    lon = response.location.longitude
-                    if lat is not None and lon is not None:
-                        return (float(lat), float(lon))
+                cls._geoip_reader = _geoip2_database.Reader(db_path)
+                logger.info("GeoIP database loaded from %s", db_path)
+                return cls._geoip_reader
             except Exception:
-                # Any lookup failure (invalid IP, missing record, etc.) — skip gracefully
                 continue
+
+        return None
+
+    @staticmethod
+    def _get_ip_location(ip: str) -> tuple[float, float] | None:
+        """
+        Get geographic coordinates for an IP address using GeoIP2.
+        الحصول على الإحداثيات الجغرافية لعنوان IP.
+
+        Uses a cached GeoIP reader to avoid reopening the database on every call.
+
+        Args:
+            ip: IP address string
+
+        Returns:
+            Tuple of (latitude, longitude) or None
+        """
+        reader = SessionSecurityChecker._get_geoip_reader()
+        if reader is None:
+            return None
+
+        try:
+            response = reader.city(ip)
+            lat = response.location.latitude
+            lon = response.location.longitude
+            if lat is not None and lon is not None:
+                return (float(lat), float(lon))
+        except Exception:
+            # Any lookup failure (invalid IP, missing record, etc.) — skip gracefully
+            pass
 
         return None
 

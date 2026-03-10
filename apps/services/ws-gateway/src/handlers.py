@@ -440,7 +440,8 @@ class WebSocketMessageHandler:
                 )
                 return True
 
-            if response.status_code in (403, 404):
+            if 400 <= response.status_code < 500:
+                # All client errors (400, 401, 403, 404, etc.) are explicit denials
                 logger.warning(
                     f"Field/farm access denied by field-management-service "
                     f"(HTTP {response.status_code}). "
@@ -448,9 +449,9 @@ class WebSocketMessageHandler:
                 )
                 return False
 
-            # Unexpected status code - fall through to simplified validation
+            # Server errors (5xx) - fall through to simplified validation
             logger.warning(
-                f"Unexpected response from field-management-service "
+                f"Server error from field-management-service "
                 f"(HTTP {response.status_code}). "
                 f"Falling back to simplified validation. "
                 f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
@@ -469,13 +470,23 @@ class WebSocketMessageHandler:
                 f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
             )
 
-        # Graceful degradation: allow access based on tenant match
-        # when field-management-service is unavailable
-        logger.info(
-            f"Field/farm access granted (simplified validation - service unavailable). "
-            f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+        # Graceful degradation: allow access only if the user has a valid
+        # tenant_id (authenticated user).  Without the authoritative check from
+        # field-management-service we cannot verify field-level ownership, but
+        # we ensure at minimum that an authenticated, tenant-scoped user is
+        # making the request.
+        if tenant_id:
+            logger.info(
+                f"Field/farm access granted (simplified validation - service unavailable). "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+            return True
+
+        logger.warning(
+            f"Field/farm access denied (no tenant_id, service unavailable). "
+            f"Topic: {topic}, User: {user_id}"
         )
-        return True
+        return False
 
     async def _validate_broadcast_permission(self, connection_id: str, room_id: str) -> bool:
         """

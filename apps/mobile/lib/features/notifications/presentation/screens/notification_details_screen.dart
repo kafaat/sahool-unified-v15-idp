@@ -652,21 +652,21 @@ class _NotificationDetailsScreenState
       return;
     }
 
-    switch (type.toLowerCase()) {
-      case 'field':
-        Navigator.of(context).pushNamed('/fields/$id');
-      case 'task':
-        Navigator.of(context).pushNamed('/tasks/$id');
-      case 'irrigation':
-        Navigator.of(context).pushNamed('/irrigation/$id');
-      case 'alert':
-        Navigator.of(context).pushNamed('/alerts/$id');
-      case 'equipment':
-        Navigator.of(context).pushNamed('/equipment/$id');
-      default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('نوع غير معروف | Unknown type')),
-        );
+    final route = switch (type.toLowerCase()) {
+      'field' => '/fields/$id',
+      'task' => '/tasks/$id',
+      'irrigation' => '/irrigation/$id',
+      'alert' => '/alerts/$id',
+      'equipment' => '/equipment/$id',
+      _ => null,
+    };
+
+    if (route != null) {
+      Navigator.of(context).pushNamed(route);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('نوع غير معروف | Unknown type')),
+      );
     }
   }
 

@@ -282,9 +282,11 @@ class _CropsScreenState extends ConsumerState<CropsScreen> {
   // نافذة تفاصيل المحصول
   // ===========================================================================
 
-  void _showCropDetails(BuildContext context, ActiveCrop crop) {
+  Future<void> _showCropDetails(BuildContext context, ActiveCrop crop) async {
     final recommendations =
-        ref.read(cropsProvider.notifier).getRecommendations(crop.id);
+        await ref.read(cropsProvider.notifier).getRecommendations(crop.id);
+
+    if (!mounted) return;
 
     showModalBottomSheet(
       context: context,

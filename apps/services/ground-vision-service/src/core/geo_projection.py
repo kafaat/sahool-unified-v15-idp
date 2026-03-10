@@ -80,6 +80,16 @@ class DEMService:
         # Cache mapping tile_path -> opened rasterio dataset
         self._dem_cache: dict[str, Any] = {}
 
+    def close(self) -> None:
+        """Close all cached rasterio datasets to free file descriptors."""
+        for ds in self._dem_cache.values():
+            if ds is not None:
+                try:
+                    ds.close()
+                except Exception:
+                    pass
+        self._dem_cache.clear()
+
     # ------------------------------------------------------------------
     # Tile path helpers
     # ------------------------------------------------------------------

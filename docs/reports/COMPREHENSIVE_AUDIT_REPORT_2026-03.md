@@ -613,6 +613,36 @@ Of 15 specialized services examined in depth:
 
 **Pattern**: Partially implemented services have complete API frameworks but use `dict` in-memory storage instead of database persistence. Business logic completion is approximately 40%.
 
+### 18. Database Integration & Multi-Tenancy
+
+**Score: 75/100**
+
+| Metric | Value |
+|--------|-------|
+| Database architecture | Single shared PostgreSQL 16 |
+| Services with persistent storage | 16 (7 Python/SQLAlchemy + 9 Node.js/Prisma) |
+| Stateless services | 56 |
+| Multi-tenancy approach | Row-level `tenant_id` filtering (app layer only) |
+| PostgreSQL RLS policies | **Not enabled** |
+| PgBouncer pool | 250 max connections (transaction mode) |
+| Raw SQL queries | 26 instances across services |
+| Migration tools | Alembic (3 services) + Prisma Migrate (9 services) |
+| TLS enforcement | `sslmode=disable` in docker-compose (not enforced) |
+
+**Critical Issue**: No Row-Level Security (RLS) at database level. All tenant isolation depends on application-layer `WHERE tenant_id = ...` filtering. A compromised service can access all tenants' data.
+
+**Strengths**:
+- Consistent connection pooling with `pool_pre_ping=True` and `pool_recycle=3600`
+- PgBouncer efficiently manages connections across 16 persistent services
+- Tenant middleware properly extracts `tenant_id` from JWT `tid` claim
+- Prisma services use `directUrl` for migrations (bypasses PgBouncer correctly)
+
+**Weaknesses**:
+- No RLS policies (critical security gap)
+- All 59 DATABASE_URL configs point to same database (no service isolation)
+- Some services use raw SQL (potential injection if not parameterized)
+- No database-level audit trail for cross-tenant access
+
 ---
 
 ## Prioritized Remediation Roadmap

@@ -749,7 +749,7 @@ for _route in list(app.routes):
             app.router.add_api_route(
                 _old_path,
                 _route.endpoint,
-                methods=[m for m in _route.methods] if _route.methods else ["GET"],
+                methods=list(_route.methods) if _route.methods else ["GET"],
                 tags=["deprecated"],
                 include_in_schema=False,
                 deprecated=True,

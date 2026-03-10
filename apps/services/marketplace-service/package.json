@@ -1,7 +1,7 @@
 {
   "name": "sahool-marketplace-service",
   "version": "16.0.0",
-  "description": "SAHOOL Marketplace & FinTech Service - سوق سهول والخدمات المالية",
+  "description": "SAHOOL Marketplace & FinTech Service - \u0633\u0648\u0642 \u0633\u0647\u0648\u0644 \u0648\u0627\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0645\u0627\u0644\u064a\u0629",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -37,7 +37,7 @@
     "cache-manager": "^5.4.0",
     "cache-manager-redis-yet": "^4.1.2",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
+    "class-validator": "^0.15.1",
     "jsonwebtoken": "^9.0.3",
     "nats": "^2.28.2",
     "reflect-metadata": "^0.2.2",

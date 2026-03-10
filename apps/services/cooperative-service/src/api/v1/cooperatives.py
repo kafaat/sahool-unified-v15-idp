@@ -9,8 +9,16 @@ from datetime import datetime
 from typing import Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
+
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    # Fallback for environments without shared auth
+    async def get_current_user():
+        return None
+
 
 logger = structlog.get_logger()
 
@@ -149,7 +157,7 @@ async def get_cooperative(coop_id: str):
 
 
 @router.delete("/{coop_id}", status_code=204)
-async def delete_cooperative(coop_id: str):
+async def delete_cooperative(coop_id: str, _user=Depends(get_current_user)):
     """Delete cooperative - حذف التعاونية"""
     if coop_id not in _cooperatives:
         raise HTTPException(
@@ -225,7 +233,7 @@ async def list_members(coop_id: str):
 
 
 @router.delete("/{coop_id}/members/{member_id}", status_code=204)
-async def remove_member(coop_id: str, member_id: str):
+async def remove_member(coop_id: str, member_id: str, _user=Depends(get_current_user)):
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     if member_id not in _members:
         raise HTTPException(status_code=404, detail={"error": "Member not found", "error_ar": "العضو غير موجود"})

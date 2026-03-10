@@ -473,7 +473,7 @@ jobs:
       - name: Install Trivy
         id: install_trivy
         run: |
-          TRIVY_VERSION="0.62.1"
+          TRIVY_VERSION="0.69.3"
           echo "📦 Installing Trivy v${TRIVY_VERSION}..."
           for i in 1 2 3 4; do
             echo "Attempt $i: Downloading Trivy..."

@@ -1,4 +1,4 @@
-# SAHOOL v15.3.2 Security Guide
+# SAHOOL v16.0.0 Security Guide
 
 ## Overview
 
@@ -235,6 +235,62 @@ Default limits:
 | API writes     | 30/minute/user      |
 | WebSocket      | 50 connections/user |
 
+## Endpoint Authentication Requirements
+
+### DELETE Endpoint Protection (Mandatory)
+
+All DELETE endpoints **MUST** be protected with authentication. Use `get_current_user` dependency:
+
+```python
+from shared.auth.dependencies import get_current_user
+
+@router.delete("/resource/{resource_id}", status_code=204)
+async def delete_resource(resource_id: str, _user=Depends(get_current_user)):
+    """Protected DELETE endpoint"""
+    # ... deletion logic
+```
+
+For services where `shared.auth` may not be available, use a try/except fallback:
+
+```python
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+    _bearer_scheme = HTTPBearer(auto_error=False)
+
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
+```
+
+### Services with Enforced DELETE Auth (March 2026)
+
+| Service | Endpoint | Auth Dependency |
+|---------|----------|-----------------|
+| `cooperative-service` | `DELETE /{coop_id}`, `DELETE /{coop_id}/members/{id}` | `get_current_user` |
+| `pest-detection-service` | `DELETE /scouts/reports/{id}` | `get_current_user` |
+| `soil-analysis-service` | `DELETE /tests/{id}` | `get_current_user` |
+| `indicators-service` | `DELETE /v1/field/{id}/indicators` | `get_current_user` |
+| `vegetation-analysis-service` | `DELETE /v1/vra/prescription/{id}` | `get_current_user` |
+
+### Unified Error Handling (Mandatory)
+
+All FastAPI services **MUST** include unified error handling via `shared.errors_py`:
+
+```python
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+```
+
+This ensures consistent bilingual error responses (Arabic/English), request ID tracing, and structured error logging across all 72 services.
+
 ## Security Checklist
 
 ### Before Production
@@ -249,6 +305,8 @@ Default limits:
 - [ ] Enable mTLS between services (optional)
 - [ ] Set up secrets rotation schedule
 - [ ] Configure backup encryption
+- [ ] Verify all DELETE endpoints require authentication
+- [ ] Verify all services use unified error handling (`setup_exception_handlers`)
 
 ### Ongoing
 
@@ -257,6 +315,7 @@ Default limits:
 - [ ] Update dependencies monthly
 - [ ] Review access permissions
 - [ ] Test backup restoration
+- [ ] Audit DELETE endpoints for missing authentication
 
 ## Incident Response
 

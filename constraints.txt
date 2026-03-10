@@ -38,7 +38,7 @@ aiohttp>=3.13.3  # Security fixes for CVE-2025-53643 and CVE-2025-69223
 asyncpg==0.31.0
 sqlalchemy==2.0.48
 tortoise-orm==1.1.6
-aerich==0.9.2
+# aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.6
 psycopg2-binary==2.9.11
 alembic==1.18.4
 

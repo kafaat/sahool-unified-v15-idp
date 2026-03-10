@@ -194,6 +194,15 @@ markers = [
     "fixops: FixOps auto-fix engine tests",
     "llm: Tests for LLM provider functionality",
     "guardrails: Tests for AI safety guardrails",
+    "container: Container and Docker tests",
+    "ux: UX scenario tests",
+    "agent: Agent-related tests",
+    "auth: Authentication tests",
+    "coordinator: Coordinator agent tests",
+    "edge: Edge device tests",
+    "event_flow: Event flow tests",
+    "mock: Tests using mocked dependencies",
+    "specialist: Specialist agent tests",
 ]
 
 [tool.coverage.run]

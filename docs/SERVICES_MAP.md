@@ -1,4 +1,4 @@
-# SAHOOL Services Architecture Map
+# SAHOOL Services Architecture Map v16.0.0
 
 # خريطة بنية خدمات سهول
 
@@ -6,272 +6,218 @@
 
 ## نظرة عامة | Overview
 
+**72 active services** across 4 event architecture layers, plus 4 applications and 15 archived services.
+
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          SAHOOL Platform v15.5                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │   Mobile    │  │    Web      │  │   Admin     │  │  External   │        │
-│  │   (Flutter) │  │  Dashboard  │  │  Dashboard  │  │   APIs      │        │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
-│         │                │                │                │                │
-│         └────────────────┴────────────────┴────────────────┘                │
-│                                   │                                          │
-│                          ┌────────▼────────┐                                │
-│                          │   Kong Gateway  │ :8000                          │
-│                          │  (Auth & Rate)  │                                │
-│                          └────────┬────────┘                                │
-│                                   │                                          │
-├───────────────────────────────────┼─────────────────────────────────────────┤
-│                                   │                                          │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Core Services Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │ billing_core │  │satellite_svc │  │weather_adv   │               │   │
-│  │  │    :8089     │  │    :8090     │  │    :8092     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │indicators_svc│  │fertilizer_adv│  │irrigation_sm │               │   │
-│  │  │    :8091     │  │    :8093     │  │    :8094     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │crop_health_ai│  │virtual_sensor│  │ yield_engine │               │   │
-│  │  │    :8095     │  │    :8096     │  │    :8098     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐                                 │   │
-│  │  │notification  │  │astro_calendar│                                 │   │
-│  │  │    :8110     │  │    :8111     │                                 │   │
-│  │  └──────────────┘  └──────────────┘                                 │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     NestJS Services Layer                            │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │ marketplace  │  │research_core │  │disaster_asse │               │   │
-│  │  │    :3010     │  │    :3015     │  │    :3020     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │   │
-│  │  │yield_predict │  │lai_estimation│  │crop_growth_m │               │   │
-│  │  │    :3021     │  │    :3022     │  │    :3023     │               │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Communication Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────────┐                                                   │   │
-│  │  │community_chat│                                                   │   │
-│  │  │    :8097     │                                                   │   │
-│  │  └──────────────┘                                                   │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          SAHOOL Platform v16.0.0                              │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Infrastructure Layer                             │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │   │
-│  │  │ PostGIS  │  │  Redis   │  │   NATS   │  │   MQTT   │            │   │
-│  │  │  :5432   │  │  :6379   │  │  :4222   │  │  :1883   │            │   │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                     Observability Layer                              │   │
-│  ├─────────────────────────────────────────────────────────────────────┤   │
-│  │                                                                      │   │
-│  │  ┌──────────┐  ┌──────────┐                                         │   │
-│  │  │Prometheus│  │ Grafana  │                                         │   │
-│  │  │  :9090   │  │  :3002   │                                         │   │
-│  │  └──────────┘  └──────────┘                                         │   │
-│  │                                                                      │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
+│                                                                               │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   Mobile    │  │    Web      │  │   Admin     │  │  External   │         │
+│  │  (Flutter)  │  │  Dashboard  │  │  Dashboard  │  │   APIs      │         │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘         │
+│         └────────────────┴────────────────┴────────────────┘                 │
+│                                  │                                            │
+│                         ┌────────▼────────┐                                  │
+│                         │   Kong Gateway  │ :8000                            │
+│                         │ (Auth & Rate)   │                                  │
+│                         └────────┬────────┘                                  │
+│    ┌─────────────────────────────┼─────────────────────────────┐             │
+│    │            4-Layer Event Architecture (NATS)               │             │
+│    ├───────────────────────────────────────────────────────────┤             │
+│    │  Acquisition → Intelligence → Decision → Business         │             │
+│    └───────────────────────────────────────────────────────────┘             │
+│                                                                               │
+│  ┌───────────────────────────────────────────────────────────────────────┐   │
+│  │                        Infrastructure                                  │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
+│  │  │ PostGIS  │ │  Redis   │ │   NATS   │ │  Qdrant  │ │  MinIO   │   │   │
+│  │  │  :5432   │ │  :6379   │ │  :4222   │ │  :6333   │ │  :9000   │   │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
+│  └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                               │
+│  ┌───────────────────────────────────────────────────────────────────────┐   │
+│  │                        Observability                                   │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐                 │   │
+│  │  │Prometheus│ │ Grafana  │ │  Jaeger  │ │  OTel    │                 │   │
+│  │  │  :9090   │ │  :3002   │ │  :16686  │ │ Collector│                 │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘                 │   │
+│  └───────────────────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## تفاصيل الخدمات | Service Details
+## طبقات الخدمات | Service Layers (4-Layer Event Architecture)
 
-### 🐍 Python Services (FastAPI)
+### Layer 1: Acquisition (اكتساب البيانات)
 
-| الخدمة                | المنفذ | المسار                                 | الوصف                                  |
-| --------------------- | ------ | -------------------------------------- | -------------------------------------- |
-| billing_core          | 8089   | `/apps/services/billing-core`          | إدارة الاشتراكات والفواتير والمدفوعات  |
-| satellite_service     | 8090   | `/apps/services/satellite-service`     | تحليل صور الأقمار الصناعية وNDVI       |
-| indicators_service    | 8091   | `/apps/services/indicators-service`    | مؤشرات الأداء الزراعية                 |
-| weather_advanced      | 8092   | `/apps/services/weather-advanced`      | التنبؤات الجوية المتقدمة               |
-| fertilizer_advisor    | 8093   | `/apps/services/fertilizer-advisor`    | توصيات التسميد الذكية                  |
-| irrigation_smart      | 8094   | `/apps/services/irrigation-smart`      | إدارة الري باستخدام FAO-56             |
-| crop_health_ai        | 8095   | `/apps/services/crop-health-ai`        | تشخيص أمراض المحاصيل بالذكاء الاصطناعي |
-| virtual_sensors       | 8096   | `/apps/services/virtual-sensors`       | حسابات ET0 والمستشعرات الافتراضية      |
-| yield_engine          | 8098   | `/apps/services/yield-engine`          | توقع الإنتاجية                         |
-| notification_service  | 8110   | `/apps/services/notification-service`  | إشعارات Push والتنبيهات                |
-| astronomical_calendar | 8111   | `/apps/services/astronomical-calendar` | التقويم الفلكي الزراعي اليمني          |
+Data ingestion and normalization.
 
-### 🟢 Node.js Services (NestJS)
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| vegetation-analysis-service | 8090 | Python | Satellite imagery, NDVI, VRA |
+| iot-service | 8117 | Node.js | IoT device management |
+| iot-gateway | 8106 | Python | IoT protocol gateway |
+| iot-sensor-hub | 8251 | Python | IoT sensor hub |
+| weather-service | 8092 | Python | Weather data |
+| virtual-sensors | 8119 | Python | Virtual sensor computation |
+| edge-orchestrator-service | 8180 | Python | Edge device management (Jetson Orin) |
 
-| الخدمة              | المنفذ | المسار                               | الوصف                       |
-| ------------------- | ------ | ------------------------------------ | --------------------------- |
-| marketplace_service | 3010   | `/apps/services/marketplace-service` | سوق المنتجات الزراعية       |
-| research_core       | 3015   | `/apps/services/research-core`       | إدارة التجارب البحثية       |
-| disaster_assessment | 3020   | `/apps/services/disaster-assessment` | تقييم الكوارث الزراعية      |
-| yield_prediction    | 3021   | `/apps/services/yield-prediction`    | التنبؤ بالإنتاجية           |
-| lai_estimation      | 3022   | `/apps/services/lai-estimation`      | تقدير مؤشر مساحة الأوراق    |
-| crop_growth_model   | 3023   | `/apps/services/crop-growth-model`   | نموذج نمو المحاصيل (WOFOST) |
+### Layer 2: Intelligence (الذكاء)
 
-### 💬 Communication Services
+Feature extraction and AI.
 
-| الخدمة         | المنفذ | المسار                          | الوصف                 |
-| -------------- | ------ | ------------------------------- | --------------------- |
-| community_chat | 8097   | `/apps/services/community-chat` | دردشة المجتمع الزراعي |
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| indicators-service | 8091 | Python | Field indicators computation |
+| lai-estimation | 3022 | Node.js | Leaf Area Index estimation |
+| crop-intelligence-service | 8095 | Python | Crop health AI |
+| field-intelligence | 8120 | Python | Field analytics |
+| skills-service | 8121 | Python | Farmer skills assessment |
+| yolo26-vision-service | 8150 | Python | YOLO26 computer vision |
+| ground-vision-service | 8182 | Python | Ground-level vision analysis |
+| terrain-core-service | 8185 | Python | DEM processing & terrain analysis |
+| pest-detection-service | 8125 | Python | Pest detection AI |
+| soil-analysis-service | 8134 | Python | Soil analysis |
+| digital-twin-engine | 8253 | Python | Digital twin simulation |
+
+### Layer 3: Decision (القرار)
+
+Recommendations and planning.
+
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| crop-growth-model | 3023 | Node.js | Crop growth simulation (WOFOST) |
+| advisory-service | 8093 | Python | Advisory & recommendations |
+| irrigation-smart | 8094 | Python | Smart irrigation (FAO-56) |
+| yield-prediction | 3021 | Node.js | Yield prediction (legacy) |
+| yield-prediction-service | 8152 | Node.js | Yield prediction ML |
+| hydrology-service | 8165 | Python | Hydrology & drainage analysis |
+| leveling-optimizer-service | 8170 | Python | Field leveling optimization |
+| agro-rules | 8151 | Python | Agronomic rules engine |
+| irrigation-cycle-engine | 8250 | Python | Irrigation cycle optimization |
+| fertigation-engine | 8252 | Python | Fertigation management |
+
+### Layer 4: Business (الأعمال)
+
+User-facing operations.
+
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| field-management-service | 3000 | Node.js | Field management (consolidated) |
+| user-service | 3025 | Node.js | Authentication & user management |
+| notification-service | 8110 | Python | Push notifications |
+| billing-core | 8089 | Python | Billing & invoicing |
+| task-service | 8103 | Python | Task management |
+| equipment-service | 8101 | Python | Equipment tracking |
+| alert-service | 8113 | Python | Alert management |
+| provider-config | 8104 | Python | Provider configuration |
+| audit-service | 8114 | Python | Audit logging |
+| marketplace-service | 3010 | Node.js | Agricultural marketplace |
+| chat-service | 8115 | Node.js | Real-time messaging |
+| research-core | 3015 | Node.js | Research trials |
+| disaster-assessment | 3020 | Node.js | Disaster risk assessment |
+| inventory-service | 8116 | Python | Inventory management |
+| cooperative-service | 8127 | Python | Cooperative management |
+| crm-service | 8131 | Python | Farmer CRM |
+| logistics-service | 8167 | Python | Logistics management |
+| supply-chain-service | 8230 | Python | Supply chain management |
+| traceability-service | 8123 | Python | Product traceability |
+| globalgap-compliance | 8128 | Python | GlobalGAP compliance |
+| wechat-service | 8133 | Python | WeChat integration |
+| astronomical-calendar | 8111 | Python | Islamic calendar & timings |
+| ws-gateway | 8081 | Python | WebSocket gateway |
+| whatsapp-bot-service | 8240 | Python | WhatsApp bot |
+| ussd-gateway | 8183 | Python | USSD gateway |
+| drone-service | 8126 | Python | Drone integration |
+
+### AI & Agent Services
+
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| agent-registry | 8160 | Python | Agent registry service |
+| ai-advisor | 8112 | Python | AI advisory service |
+| ai-agents-core | 8161 | Python | AI agents core module |
+| ai-agents-service | 8130 | Python | AI agents service |
+| ai-chat-assistant | 8260 | Python | AI chat assistant |
+| llm-orchestrator-service | 8164 | Python | LLM orchestration |
+| copilot-api | 8088 | Python | AI copilot (multi-LLM, RAG) |
+| knowledge-graph | 8140 | Python | Knowledge graph service |
+| code-fix-agent | 8162 | Python | Code fix AI agent |
+| code-review-agent | 8145 | Node.js | Code review agent |
+| code-review-service | 8102 | Python | Code review service |
+| mcp-server | 8201 | Python | Model Context Protocol |
+
+### Specialized Services
+
+| Service | Port | Type | Description |
+|---------|------|------|-------------|
+| lowcode-engine | 8132 | Python | Low-code workflow automation |
+| demo-data | 8261 | Python | Demo data generator |
+| ndvi-processor | 8118 | Python | NDVI processing (deprecating) |
 
 ---
 
 ## التبعيات | Dependencies
 
 ```
-billing_core ──────► postgres, redis
-satellite_service ──► (standalone)
-weather_advanced ───► (standalone, OPENWEATHER_API)
-notification_service► postgres, redis, nats
-marketplace_service ► postgres, redis
-research_core ──────► postgres, redis
-disaster_assessment ► postgres, redis
-yield_prediction ───► postgres, redis
-lai_estimation ─────► postgres, redis
-crop_growth_model ──► postgres, redis
-astronomical_calendar► weather_advanced
-admin_dashboard ────► crop_health_ai, virtual_sensors
+field-management-service ──► postgres, redis, nats
+user-service ──────────────► postgres, redis
+billing-core ──────────────► postgres, redis, nats
+notification-service ──────► postgres, redis, nats
+marketplace-service ───────► postgres, redis
+vegetation-analysis-service► postgres, nats, sentinel-hub
+indicators-service ────────► postgres, nats
+advisory-service ──────────► postgres, nats
+irrigation-smart ──────────► postgres, nats
+yolo26-vision-service ─────► gpu (cuda), redis, nats
+copilot-api ───────────────► qdrant, ollama, redis, nats
 ```
 
 ---
 
 ## نقاط النهاية الصحية | Health Endpoints
 
-كل خدمة توفر نقطة نهاية للتحقق من الصحة:
+All services provide:
 
 ```bash
-# Python services
-GET /healthz
-
-# NestJS services
-GET /api/v1/healthz
-GET /api/v1/{service}/health
+GET /healthz       # Liveness probe
+GET /readyz        # Readiness probe
+GET /health        # Comprehensive status (some services)
+GET /metrics       # Prometheus metrics (some services)
 ```
 
 ---
 
-## البيئة والتكوين | Environment Configuration
+## الأمان | Security (March 2026)
 
-### متغيرات مشتركة
-
-```env
-LOG_LEVEL=INFO
-ENVIRONMENT=development
-```
-
-### متغيرات قاعدة البيانات
-
-```env
-DATABASE_URL=postgresql://sahool:password@postgres:5432/sahool
-REDIS_URL=redis://:password@redis:6379/0
-```
-
-### متغيرات المصادقة
-
-```env
-JWT_SECRET_KEY=your-secret-key
-JWT_ALGORITHM=RS256
-```
+- All DELETE endpoints require JWT authentication (`get_current_user`)
+- All services use unified error handling (`shared.errors_py`)
+- Multi-tenant isolation via `tenant_id` scoping
+- Kong gateway handles external auth and rate limiting
 
 ---
 
-## الاتصال بين الخدمات | Inter-Service Communication
+## الخدمات المؤرشفة | Archived Services (15)
 
-### NATS Events
+See `apps/services/DEPRECATION_SUMMARY.md` for full list and migration guides.
 
-```
-sahool.billing.*     - أحداث الفوترة
-sahool.weather.*     - تحديثات الطقس
-sahool.satellite.*   - بيانات الأقمار الصناعية
-sahool.notification.*- الإشعارات
-sahool.iot.*         - بيانات IoT
-```
-
-### HTTP APIs
-
-```
-http://billing_core:8089/v1/...
-http://weather_advanced:8092/v1/...
-http://satellite_service:8090/v1/...
-```
-
----
-
-## التوسع | Scaling
-
-### Horizontal Scaling
-
-```yaml
-# docker-compose.override.yml
-services:
-  billing_core:
-    deploy:
-      replicas: 3
-```
-
-### Resource Limits
-
-```yaml
-services:
-  billing_core:
-    deploy:
-      resources:
-        limits:
-          cpus: "1"
-          memory: 512M
-        reservations:
-          cpus: "0.5"
-          memory: 256M
-```
-
----
-
-## الإصدارات | Versions
-
-| الخدمة              | الإصدار | آخر تحديث |
-| ------------------- | ------- | --------- |
-| billing_core        | 15.5.0  | Dec 2025  |
-| satellite_service   | 15.4.0  | Dec 2025  |
-| weather_advanced    | 15.4.0  | Dec 2025  |
-| marketplace_service | 15.3.0  | Dec 2025  |
-| research_core       | 15.3.0  | Dec 2025  |
-| crop_growth_model   | 16.0.0  | Dec 2025  |
-| lai_estimation      | 16.0.0  | Dec 2025  |
-| disaster_assessment | 16.0.0  | Dec 2025  |
-| yield_prediction    | 16.0.0  | Dec 2025  |
+| Deprecated | Replaced By | Sunset |
+|------------|------------|--------|
+| satellite-service | vegetation-analysis-service | 2025-06 |
+| crop-health-ai | crop-intelligence-service | 2025-06 |
+| fertilizer-advisor | advisory-service | 2025-06 |
+| field-ops, field-core, field-service | field-management-service | v17.0.0 |
+| ndvi-engine, ndvi-processor | vegetation-analysis-service | 2026-02 |
+| community-chat, field-chat | chat-service | 2026-02 |
+| yield-engine | yield-prediction-service | 2026-02 |
 
 ---
 
 <p align="center">
-  <strong>SAHOOL Platform v15.5</strong>
+  <strong>SAHOOL Platform v16.0.0</strong>
   <br>
-  <sub>Architecture Map - December 2025</sub>
+  <sub>Architecture Map - March 2026</sub>
 </p>

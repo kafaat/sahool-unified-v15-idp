@@ -251,7 +251,9 @@ async def lifespan(app: FastAPI):
         _phenology_detector, \
         _cloud_masker, \
         _change_detector, \
-        _vra_generator
+        _vra_generator, \
+        _land_detector, \
+        _boundary_detector
 
     logger.info("service_starting", service="satellite-service")
 
@@ -270,7 +272,6 @@ async def lifespan(app: FastAPI):
     logger.info("phenology_detector_loaded", crops_supported=len(_phenology_detector.YEMEN_CROP_SEASONS))
 
     # Initialize field boundary detector
-    global _boundary_detector
     _boundary_detector = FieldBoundaryDetector(multi_provider=_multi_provider)
     logger.info("field_boundary_detector_initialized")
 
@@ -298,16 +299,9 @@ async def lifespan(app: FastAPI):
         logger.info("vra_generator_initialized")
 
     # Initialize Agricultural Land Detector (GeoLabel-inspired)
-    global _land_detector
     if AgriculturalLandDetector:
         _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
         logger.info("agricultural_land_detector_initialized")
-
-    # Initialize Agricultural Land Detector (GeoLabel-inspired)
-    global _land_detector
-    if AgriculturalLandDetector:
-        _land_detector = AgriculturalLandDetector(multi_provider=_multi_provider)
-        print("🌾 Agricultural Land Detector initialized (GeoLabel-inspired parcel generation)")
 
     # Register boundary detection endpoints
     if _boundary_detector:

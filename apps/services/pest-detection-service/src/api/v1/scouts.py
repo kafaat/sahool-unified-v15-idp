@@ -249,7 +249,7 @@ async def update_report(report_id: str, report_data: ScoutReportCreate):
 
 
 @router.delete("/scouts/reports/{report_id}")
-async def delete_report(report_id: str):
+async def delete_report(report_id: str, _user=Depends(get_current_user)):
     """
     Delete scout report.
     حذف تقرير المسح الحقلي.

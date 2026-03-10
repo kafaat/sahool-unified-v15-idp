@@ -194,14 +194,14 @@ jobs:
         if: needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main'
         run: |
           echo "## Ruff Linting Results" >> $GITHUB_STEP_SUMMARY
-          ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt || true
-          if grep -q "error" ruff-output.txt; then
-            echo "::warning::Ruff found linting errors"
-            echo "status=warning" >> $GITHUB_OUTPUT
+          ruff check apps/ shared/ packages/ --output-format=github 2>&1 | tee ruff-output.txt
+          if [ $? -ne 0 ]; then
+            echo "::error::Ruff found linting errors"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            exit 1
           else
             echo "✅ No Ruff errors found" >> $GITHUB_STEP_SUMMARY
           fi
-        continue-on-error: true
 
       - name: Run Black (Python formatter check)
         id: black
@@ -299,15 +299,19 @@ jobs:
           # ─────────────────────────────────────────────────────────────
           # SERVICE EXCLUSIONS:
           # - marketplace-service: NestJS/Node.js service (not Python)
+          # NOTE: Service tests use || true because many services have
+          # optional dependencies (torch, ultralytics, etc.) not available
+          # in CI. Collection errors are expected and safe to ignore.
           # ─────────────────────────────────────────────────────────────
           pytest apps/services/ -v -n auto --tb=short --timeout=60 --ignore=apps/services/marketplace-service \
             --cov=apps/services --cov=shared --cov-report=xml --cov-report=term-missing || true
 
-          # Run shared module tests
+          # Run shared module tests (MUST pass - no optional deps)
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short --timeout=60 \
-            --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
+            --cov-append --cov=shared --cov-report=xml --cov-report=term-missing
 
-          # Run all unit tests (excluding auth tests with pyo3 compatibility issues)
+          # Run all unit tests (MUST pass - no optional deps)
+          # Excluding auth tests with pyo3 compatibility issues
           pytest tests/unit/ -v --tb=short --timeout=60 \
             --ignore=tests/unit/auth \
             --ignore=tests/unit/shared/auth \
@@ -319,7 +323,7 @@ jobs:
             --ignore=tests/unit/shared/test_twofa_config.py \
             --ignore=tests/unit/shared/test_twofa_service.py \
             --ignore=tests/unit/test_shared_auth.py \
-            --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing || true
+            --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing
         env:
           ENVIRONMENT: test
           PYTHONPATH: .
@@ -341,10 +345,9 @@ jobs:
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
           # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Reverted to 1% after coverage scope expanded from shared/ai to shared+apps/services
-          # (PR #992 raised to 25% but the broader --cov scope dropped measured coverage to ~2%)
-          # TODO: Gradually increase as more tests are added for the expanded scope
-          MIN_COVERAGE=1
+          # Raised from 1% to 5% as baseline enforcement (March 2026)
+          # Previous: 1% after coverage scope expanded from shared/ai to shared+apps/services
+          MIN_COVERAGE=5
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "
@@ -818,7 +821,7 @@ jobs:
       - name: Install Trivy
         id: install_trivy
         run: |
-          TRIVY_VERSION="0.62.1"
+          TRIVY_VERSION="0.69.3"
           echo "Installing Trivy v${TRIVY_VERSION}..."
           for i in 1 2 3 4; do
             echo "Attempt $i: Downloading Trivy..."
@@ -993,6 +996,8 @@ jobs:
           echo "NATS_JETSTREAM_KEY=test_jetstream_key_ci_32_chars_min" >> .env
           echo "MINIO_ROOT_USER=test_minio_ci_user" >> .env
           echo "MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_min" >> .env
+          echo "MQTT_PASSWORD=test_mqtt_password_ci_32_chars" >> .env
+          echo "QDRANT_API_KEY=" >> .env
           cat .env
           echo "✅ Created .env file"
 

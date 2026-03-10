@@ -15,6 +15,9 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 # HTTP Client
 httpx==0.28.1
 
+# Logging
+structlog>=24.1.0,<26.0.0
+
 # Utilities
 python-dotenv==1.2.2
 

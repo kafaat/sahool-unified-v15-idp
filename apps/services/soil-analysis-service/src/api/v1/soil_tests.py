@@ -207,7 +207,7 @@ async def get_field_soil_tests(field_id: str):
 
 
 @router.delete("/tests/{test_id}", status_code=204)
-async def delete_soil_test(test_id: str):
+async def delete_soil_test(test_id: str, _user=Depends(get_current_user)):
     """Delete soil test - حذف تحليل التربة"""
     if test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})

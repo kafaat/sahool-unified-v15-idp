@@ -66,7 +66,7 @@ class FieldEvent(BaseModel):
     title_ar: str | None = None
     description: str
     description_ar: str | None = None
-    source_service: str  # e.g., "ndvi-engine", "weather-service", "iot-gateway"
+    source_service: str  # e.g., "vegetation-analysis-service", "weather-service", "iot-gateway"
     metadata: dict[str, Any] = Field(default_factory=dict)
     location: dict[str, float] | None = None  # {lat, lon}
     created_at: datetime

@@ -782,7 +782,7 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Agro Advisor API (خدمة مسترجعة من kernel)
+  // Advisory Service API (خدمة الاستشارات - formerly agro-advisor)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getAgroAdvice(data: {
@@ -845,7 +845,7 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Field Chat API (خدمة مسترجعة من kernel)
+  // Chat Service API (خدمة المحادثات - formerly field-chat)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldMessages(

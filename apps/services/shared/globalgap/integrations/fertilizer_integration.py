@@ -2,7 +2,7 @@
 SAHOOL GlobalGAP Integration - Fertilizer Advisor Service Integration
 تكامل خدمة مستشار الأسمدة مع GlobalGAP
 
-Links with fertilizer-advisor service to:
+Links with advisory-service to:
 - Track fertilizer applications for input management
 - Generate nutrient management plans
 - Ensure MRL (Maximum Residue Level) compliance
@@ -156,7 +156,7 @@ class FertilizerIntegration:
         Track fertilizer application for input management
 
         Args:
-            application_data: Raw application data from fertilizer-advisor service
+            application_data: Raw application data from advisory-service
             field_id: Field identifier
             tenant_id: Tenant identifier
 

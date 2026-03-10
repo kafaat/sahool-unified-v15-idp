@@ -1,3 +1,7 @@
+> **⚠️ DEPRECATED**: This service has been replaced by `chat-service`. See [chat-service.md](chat-service.md) for current documentation.
+
+---
+
 # Community Chat Service Analysis
 
 ## Service Overview

@@ -363,10 +363,10 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 5000,
     retries: 2,
   },
-  "field-chat": {
-    name: "field-chat",
-    baseUrl: `${API_BASE}:${SERVICE_PORTS.FIELD_CHAT}`,
-    port: SERVICE_PORTS.FIELD_CHAT,
+  "chat-service": {
+    name: "chat-service",
+    baseUrl: `${API_BASE}:${SERVICE_PORTS.CHAT_SERVICE}`,
+    port: SERVICE_PORTS.CHAT_SERVICE,
     healthEndpoint: "/healthz",
     timeout: 10000,
     retries: 2,

@@ -757,3 +757,10 @@ async def handle_alert_for_sms(app: FastAPI, msg):
 from .api.v1 import router as api_router
 
 app.include_router(api_router, prefix="/api/v1")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.getenv("PORT", 8183))
+    uvicorn.run(app, host="0.0.0.0", port=port)

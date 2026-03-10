@@ -48,6 +48,7 @@
 | Flutter Mobile | 75/100 | B | 2 (cert placeholders) |
 | NPM Packages | 90/100 | A | 0 |
 | Terrain/Hydrology Services | 85/100 | B+ | 0 |
+| Governance/Compliance | 88/100 | A- | 0 |
 
 ---
 
@@ -508,6 +509,36 @@ uses: snyk/actions/node@<commit-sha>
 - Limited best practices documentation (2 files)
 - No dedicated testing procedures guide
 
+### 13. Governance & Compliance
+
+**Score: 88/100**
+
+| Metric | Value |
+|--------|-------|
+| Overall governance completeness | 87.7% |
+| Services registered in governance | 84 (69 active, 11 archived, 4 deprecated) |
+| Agents defined | 33 across 11 categories |
+| Event catalog events | 22 with full producer/consumer mapping |
+| Event JSON schemas | 4/22 (18 use inline schemas) |
+| Kyverno policies | 4 (security, governance, resources, images) |
+| SLO definitions | 71 services (99% coverage) |
+| ADRs in governance/ | 1 of ~10 expected (14.3%) |
+| Deprecation tracking | 100% RFC 8594 compliant |
+| Deduplication matrix | Phase 1 complete, phases 2-4 pending |
+
+**Strengths**:
+- Perfect agent registry (33 agents, 11 categories, A2A compliant)
+- Full Kyverno policy enforcement (pod security, labels, resources, image tags)
+- SLO definitions for 71 services with error budget policy
+- RFC 8594 deprecation compliance with HTTP headers
+- Comprehensive deduplication tracking
+
+**Weaknesses**:
+- Only 1 ADR in governance/decisions/ (vs 10 in docs/adr/)
+- 18 events lack dedicated JSON schemas
+- Service count discrepancy (69 active in registry vs 72 in CLAUDE.md)
+- Deduplication phases 2-4 not yet executed
+
 ---
 
 ## Prioritized Remediation Roadmap
@@ -522,6 +553,10 @@ uses: snyk/actions/node@<commit-sha>
 | P0 | Enforce `sslmode=require` in all DATABASE_URLs | 2h | Critical |
 | P0 | Pin `snyk/actions/node` to commit SHA | 30m | Critical |
 | P0 | Implement real certificate pins for mobile | 4h | Critical |
+| P0 | Align PyJWT in docker/constraints-ai.txt to >=2.10.1 (CVE gap) | 30m | Critical |
+| P0 | Remove aerich==0.9.2 from apps/services/requirements.txt | 30m | Critical |
+| P0 | Update cryptography upper bound to <48.0.0 (unblock CVE fix) | 30m | Critical |
+| P1 | Unify FastAPI version to ==0.135.1 across all services | 4h | High |
 | P1 | Add RS256 support for inter-service JWT | 8h | High |
 
 ### Phase 2: Short-term (Week 3-4) - Architecture & Quality
@@ -533,6 +568,8 @@ uses: snyk/actions/node@<commit-sha>
 | P1 | Implement or remove empty `code-review-agent` | 2h | High |
 | P1 | Standardize API versioning (v1 only) | 8h | High |
 | P1 | Add CSP headers to web frontend | 4h | High |
+| P1 | Document 9 missing ADRs in governance/decisions/ | 16h | High |
+| P1 | Generate lock files for reproducible builds | 4h | High |
 | P2 | Re-enable Docker build caching in CI | 4h | Medium |
 | P2 | Convert 25 Dockerfiles to multi-stage | 16h | Medium |
 

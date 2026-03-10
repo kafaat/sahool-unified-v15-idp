@@ -55,7 +55,7 @@ export type ServiceName =
   | "logistics"
   // Communication
   | "notifications"
-  | "field-chat"
+  | "chat-service"
   // Configuration & Misc
   | "provider-config"
   | "alerts"

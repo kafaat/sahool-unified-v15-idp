@@ -20,6 +20,7 @@
 | Knowledge Base | GOOD | 91 docs, 100% bilingual; 9 module topics undocumented |
 | Port Conflicts | OK | No conflicts; 3 code-contract mismatches |
 | Dockerfiles | OK | Only `migrations` missing (expected) |
+| CI/CD Action Versions | CRITICAL | 82 non-existent action versions (all fixed) |
 
 ---
 
@@ -263,6 +264,25 @@ Overlap between governance files: **only 3 events** (14% alignment):
 | `astronomical-calendar` | 8111 | Defined in code but **missing from** `service-ports.ts` |
 | `ussd-gateway` | 8183 | In contracts and Dockerfile, but `main.py` doesn't use `PORT` env var |
 
+## 10. CI/CD Workflow Action Versions (CRITICAL)
+
+### 10.1 Non-Existent Action Versions (FIXED)
+
+| Action | Wrong Version | Correct Version | Occurrences | Files |
+|--------|--------------|-----------------|-------------|-------|
+| `actions/upload-artifact` | `@v7` | `@v4` | 59 | 26 workflows |
+| `actions/download-artifact` | `@v8` | `@v4` | 22 | 12 workflows |
+| `actions/checkout` | `@v4` | `@v6` | 1 | dockerfile-lint.yml |
+
+All 82 occurrences fixed in this session.
+
+### 10.2 Version Inconsistency (FIXED)
+- `anchore/sbom-action@v0` in ci-ai-rag-security.yml standardized to `@v0.18.0`
+
+### 10.3 Unmaintained Action (Remaining)
+- `8398a7/action-slack@v3` used in 4 workflows (cd-production, cd-staging, ci, security)
+- **Recommendation:** Replace with `slackapi/slack-send-action@v2` or GitHub native notifications
+
 ---
 
 ## Recommended Actions (Priority Order)
@@ -271,26 +291,31 @@ Overlap between governance files: **only 3 events** (14% alignment):
 1. ~~Add `a2a` to `ai-advisor/requirements.txt`~~ ✅ FIXED
 2. ~~Add `torch` to `yolo26-vision-service/requirements.txt`~~ ✅ FIXED
 3. ~~Add `asyncpg` to `irrigation-smart/requirements.txt`~~ ✅ FIXED
-4. Update deprecated service references in active code (7 files)
-5. Remove dead code: `inventory-service` prisma files, `field-management-service` rotation_models.py
+4. ~~Fix `upload-artifact@v7` → `@v4` (59 occurrences in 26 workflows)~~ ✅ FIXED
+5. ~~Fix `download-artifact@v8` → `@v4` (22 occurrences in 12 workflows)~~ ✅ FIXED
+6. ~~Fix `checkout@v4` → `@v6` in dockerfile-lint.yml~~ ✅ FIXED
+7. ~~Standardize `sbom-action` to `@v0.18.0`~~ ✅ FIXED
+8. Update deprecated service references in active code (7 files)
+9. Remove dead code: `inventory-service` prisma files, `field-management-service` rotation_models.py
 
 ### P1 - High (CI/CD Impact)
-4. Clean deprecated service references from 7 CI workflow files
+10. Clean deprecated service references from 7 CI workflow files
+11. Replace unmaintained `8398a7/action-slack@v3` in 4 workflows
 
 ### P2 - Medium (Architecture/Documentation)
-5. Consolidate NATS event governance into single source of truth
-6. Add `sahool.irrigation.hmc` to `shared/events/subjects.py`
-7. Add README.md to 16 undocumented shared modules
-8. Add 13 missing modules to CLAUDE.md shared module listing
-9. Add documentation for `vllm-deepseek` service
-10. Archive/mark stale docs in services-docs
+12. Consolidate NATS event governance into single source of truth
+13. Add `sahool.irrigation.hmc` to `shared/events/subjects.py`
+14. Add README.md to 16 undocumented shared modules
+15. Add 13 missing modules to CLAUDE.md shared module listing
+16. Add documentation for `vllm-deepseek` service
+17. Archive/mark stale docs in services-docs
 
 ### P3 - Low (Documentation Alignment)
-11. Fix event architecture layer mismatches in SERVICES_MAP.md and CLAUDE.md
-12. Correct phantom port for `agro-rules` (NATS worker, no HTTP port)
-13. Audit 266 unused NATS event definitions - archive or implement
-14. Add `task-service` (8103) and `astronomical-calendar` (8111) to `service-ports.ts`
-15. Fix `ussd-gateway` main.py to use `PORT` env var
+18. Fix event architecture layer mismatches in SERVICES_MAP.md and CLAUDE.md
+19. Correct phantom port for `agro-rules` (NATS worker, no HTTP port)
+20. Audit 266 unused NATS event definitions - archive or implement
+21. Add `task-service` (8103) and `astronomical-calendar` (8111) to `service-ports.ts`
+22. Fix `ussd-gateway` main.py to use `PORT` env var
 
 ---
 

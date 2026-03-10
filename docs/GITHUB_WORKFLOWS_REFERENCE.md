@@ -10,7 +10,7 @@ This document provides a comprehensive reference for all 54 GitHub Actions workf
 2. [Security](#2-security-6-workflows)
 3. [Testing](#3-testing-9-workflows)
 4. [Deployment](#4-deployment-6-workflows)
-5. [Build/Docker](#5-builddocker-4-workflows)
+5. [Build/Docker](#5-builddocker-3-workflows)
 6. [Governance](#6-governance-11-workflows)
 7. [Documentation](#7-documentation-1-workflow)
 8. [Mobile](#8-mobile-3-workflows)
@@ -596,7 +596,7 @@ This document provides a comprehensive reference for all 54 GitHub Actions workf
 
 ---
 
-## 5. Build/Docker (4 Workflows)
+## 5. Build/Docker (3 Workflows)
 
 ### docker-image.yml - Docker Image CI
 

@@ -236,6 +236,7 @@ analysis_report.txt
 analysis_report.json
 audit_report.json
 api/validation-report.json
+scripts/DEPENDENCY_COMPATIBILITY_REPORT.md
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CodeQL Analysis

@@ -1174,12 +1174,6 @@
 </thead>
 <tbody>
 <tr>
-<td>vegetation-analysis-service</td>
-<td>8090</td>
-<td>Python</td>
-<td>Satellite imagery, NDVI, VRA</td>
-</tr>
-<tr>
 <td>iot-service</td>
 <td>8117</td>
 <td>Node.js</td>
@@ -1210,6 +1204,12 @@
 <td>Virtual sensor computation</td>
 </tr>
 <tr>
+<td>ground-vision-service</td>
+<td>8182</td>
+<td>Python</td>
+<td>Ground-level vision analysis</td>
+</tr>
+<tr>
 <td>edge-orchestrator-service</td>
 <td>8180</td>
 <td>Python</td>
@@ -1229,6 +1229,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>Python</td>
+<td>Satellite imagery, NDVI, VRA</td>
+</tr>
 <tr>
 <td>indicators-service</td>
 <td>8091</td>
@@ -1266,16 +1272,22 @@
 <td>YOLO26 computer vision</td>
 </tr>
 <tr>
-<td>ground-vision-service</td>
-<td>8182</td>
-<td>Python</td>
-<td>Ground-level vision analysis</td>
-</tr>
-<tr>
 <td>terrain-core-service</td>
 <td>8185</td>
 <td>Python</td>
 <td>DEM processing &amp; terrain analysis</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>Python</td>
+<td>Hydrology &amp; drainage analysis</td>
+</tr>
+<tr>
+<td>agro-rules</td>
+<td>—</td>
+<td>Python</td>
+<td>Agronomic rules engine (NATS worker, no HTTP port)</td>
 </tr>
 <tr>
 <td>pest-detection-service</td>
@@ -1331,7 +1343,7 @@
 <td>yield-prediction</td>
 <td>3021</td>
 <td>Node.js</td>
-<td>Yield prediction (legacy)</td>
+<td>Yield prediction <strong>(deprecated — use yield-prediction-service)</strong></td>
 </tr>
 <tr>
 <td>yield-prediction-service</td>
@@ -1340,22 +1352,10 @@
 <td>Yield prediction ML</td>
 </tr>
 <tr>
-<td>hydrology-service</td>
-<td>8165</td>
-<td>Python</td>
-<td>Hydrology &amp; drainage analysis</td>
-</tr>
-<tr>
 <td>leveling-optimizer-service</td>
 <td>8170</td>
 <td>Python</td>
 <td>Field leveling optimization</td>
-</tr>
-<tr>
-<td>agro-rules</td>
-<td>8151</td>
-<td>Python</td>
-<td>Agronomic rules engine</td>
 </tr>
 <tr>
 <td>irrigation-cycle-engine</td>
@@ -1623,6 +1623,12 @@
 <td>8201</td>
 <td>Python</td>
 <td>Model Context Protocol</td>
+</tr>
+<tr>
+<td>vllm-deepseek</td>
+<td>8270</td>
+<td>Python</td>
+<td>vLLM DeepSeek inference server (GPU-accelerated)</td>
 </tr>
 </tbody>
 </table>

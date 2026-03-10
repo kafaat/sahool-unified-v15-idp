@@ -124,9 +124,9 @@ check_docker_images() {
     latest_count=$(echo "$latest_count" | tr -d '[:space:]' | head -1)
     if [ "${latest_count:-0}" -gt 0 ]; then
         log_warn "$latest_count images using :latest tag (should pin versions)"
-        grep -nP '^\s+image:.*:latest' "$compose_file" 2>/dev/null | while read -r line; do
+        while read -r line; do
             log_info "  $line"
-        done
+        done < <(grep -nP '^\s+image:.*:latest' "$compose_file" 2>/dev/null)
     else
         log_pass "No unpinned :latest tags found"
     fi
@@ -182,10 +182,10 @@ else:
 " 2>/dev/null)
 
     if echo "$dep_check_result" | grep -q "^MISSING:"; then
-        echo "$dep_check_result" | grep "^MISSING:" | while read -r line; do
+        while read -r line; do
             local svc_name="${line#MISSING:}"
             log_fail "Service '$svc_name' referenced in depends_on but not defined"
-        done
+        done < <(echo "$dep_check_result" | grep "^MISSING:")
     elif echo "$dep_check_result" | grep -q "^OK"; then
         log_pass "All depends_on references resolve to defined services"
     else
@@ -277,9 +277,9 @@ check_python_constraints() {
     if [ -n "$conflict_output" ]; then
         local conflict_count
         conflict_count=$(echo "$conflict_output" | wc -l)
-        echo "$conflict_output" | while read -r line; do
+        while read -r line; do
             log_warn "$line"
-        done
+        done <<< "$conflict_output"
     else
         log_pass "No version conflicts found between services and constraints"
     fi
@@ -411,10 +411,12 @@ check_infra_compatibility() {
         # Check entrypoint compatibility
         local entrypoint="$PROJECT_ROOT/infrastructure/core/pgbouncer/entrypoint.sh"
         if [ -f "$entrypoint" ]; then
-            # Check if entrypoint queries pg_authid (requires superuser)
-            if grep -q "pg_authid" "$entrypoint"; then
-                log_warn "entrypoint.sh queries pg_authid (requires superuser privileges)"
-                log_info "  Fallback to plaintext password may cause auth mismatch with SCRAM"
+            # Check if entrypoint queries pg_authid or pg_shadow directly (require superuser)
+            if grep -q "pg_authid\|FROM pg_shadow" "$entrypoint"; then
+                log_warn "entrypoint.sh queries pg_authid/pg_shadow directly (requires superuser privileges)"
+                log_info "  Should use pgbouncer.get_auth() SECURITY DEFINER function instead"
+            else
+                log_pass "entrypoint.sh uses SECURITY DEFINER function (no direct catalog access)"
             fi
         fi
     fi
@@ -443,18 +445,18 @@ if quota_mb > 0:
         print(f'WARN:etcd memory limit ({mem_mb}MB) should be >= 2x quota ({quota_mb}MB)')
 " 2>/dev/null)
 
-    echo "$etcd_check" | grep "^quota_mb=" | while read -r line; do
+    while read -r line; do
         log_info "etcd backend quota: ${line#quota_mb=}MB"
-    done
-    echo "$etcd_check" | grep "^mem_limit=" | while read -r line; do
+    done < <(echo "$etcd_check" | grep "^quota_mb=")
+    while read -r line; do
         log_info "etcd memory limit: ${line#mem_limit=}"
-    done
-    echo "$etcd_check" | grep "^PASS:" | while read -r line; do
+    done < <(echo "$etcd_check" | grep "^mem_limit=")
+    while read -r line; do
         log_pass "${line#PASS:}"
-    done
-    echo "$etcd_check" | grep "^WARN:" | while read -r line; do
+    done < <(echo "$etcd_check" | grep "^PASS:")
+    while read -r line; do
         log_warn "${line#WARN:}"
-    done
+    done < <(echo "$etcd_check" | grep "^WARN:")
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -501,9 +503,9 @@ check_security_vulnerabilities() {
             vuln_count=$(echo "$audit_output" | grep -cP '^\S+\s+\S+\s+\S+\s+' 2>/dev/null || echo "0")
             if [ "$vuln_count" -gt 0 ]; then
                 log_warn "pip-audit found $vuln_count potential issues"
-                echo "$audit_output" | grep -P '^\S+\s+\S+\s+\S+\s+' | head -10 | while read -r line; do
+                while read -r line; do
                     log_info "  $line"
-                done
+                done < <(echo "$audit_output" | grep -P '^\S+\s+\S+\s+\S+\s+' | head -10)
             else
                 log_pass "pip-audit: no known vulnerabilities in constraints"
             fi
@@ -534,9 +536,9 @@ check_version_pinning() {
     )
 
     if [ -n "$unpinned_services" ]; then
-        echo "$unpinned_services" | while read -r line; do
+        while read -r line; do
             log_warn "$line dependencies"
-        done
+        done <<< "$unpinned_services"
     else
         log_pass "All Python dependencies are version-pinned"
     fi

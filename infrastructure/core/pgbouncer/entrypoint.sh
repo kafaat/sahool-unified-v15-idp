@@ -88,9 +88,11 @@ generate_scram_hash() {
     _user=$1
     _pass=$2
     # Try to get SCRAM hash from PostgreSQL if psql is available and PG is reachable
+    # Uses pgbouncer.get_auth() SECURITY DEFINER function (defined in 02-pgbouncer-user.sql)
+    # which wraps pg_shadow access, avoiding the need for superuser privileges
     if command -v psql >/dev/null 2>&1 && nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; then
         _hash=$(PGPASSWORD="$_pass" psql -h "$DB_HOST" -p "$DB_PORT" -U "$_user" -d "$DB_NAME" \
-            -t -A -c "SELECT passwd FROM pg_shadow WHERE usename='$_user'" 2>/dev/null || echo "")
+            -t -A -c "SELECT passwd FROM pgbouncer.get_auth('$_user')" 2>/dev/null || echo "")
         if echo "$_hash" | grep -q "^SCRAM-SHA-256\$"; then
             echo "$_hash"
             return 0

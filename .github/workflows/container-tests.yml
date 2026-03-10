@@ -387,7 +387,7 @@ jobs:
         if: steps.build_result.outputs.success == 'true'
         id: install_trivy
         run: |
-          TRIVY_VERSION="0.62.1"
+          TRIVY_VERSION="0.69.3"
           echo "Installing Trivy v${TRIVY_VERSION}..."
           for i in 1 2 3 4; do
             echo "Attempt $i: Downloading Trivy..."
@@ -518,14 +518,17 @@ jobs:
           sleep 10
 
       - name: Check container is running
-        if: steps.build_result.outputs.success == 'true'
+        if: steps.build_result.outputs.success == 'true' && steps.start_container.outcome == 'success'
+        id: container_check
         run: |
           RUNNING=$(docker ps -q -f name=test-${{ matrix.service.name }})
           if [ -z "$RUNNING" ]; then
             echo "❌ Container failed to start or crashed"
-            docker logs test-${{ matrix.service.name }}
+            docker logs test-${{ matrix.service.name }} 2>&1 | tail -30
+            echo "container_running=false" >> $GITHUB_OUTPUT
             exit 1
           fi
+          echo "container_running=true" >> $GITHUB_OUTPUT
           echo "✅ Container is running"
 
       - name: Health check test
@@ -634,7 +637,9 @@ jobs:
           echo "ETCD_ROOT_PASSWORD=ci_etcd_password_123" >> .env
           echo "MINIO_ROOT_USER=ci_minio_admin_user" >> .env
           echo "MINIO_ROOT_PASSWORD=ci_minio_password_secure_123" >> .env
+          echo "MQTT_PASSWORD=ci_mqtt_password_secure_123" >> .env
           echo "GRAFANA_ADMIN_PASSWORD=ci_grafana_password" >> .env
+          echo "QDRANT_API_KEY=" >> .env
           echo "✅ Created .env file for CI"
 
       - name: Check if compose file exists

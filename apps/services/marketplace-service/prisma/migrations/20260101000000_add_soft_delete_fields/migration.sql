@@ -12,7 +12,8 @@ ALTER TABLE "products"
 ADD COLUMN "deleted_at" TIMESTAMPTZ,
 ADD COLUMN "deleted_by" VARCHAR(255);
 
--- Create index for soft delete queries
+-- Create index for soft delete queries (remediated with CONCURRENTLY in 20260303)
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX "idx_products_deleted_at" ON "products"("deleted_at");
 
 -- Add comment to columns
@@ -29,7 +30,7 @@ ALTER TABLE "orders"
 ADD COLUMN "deleted_at" TIMESTAMPTZ,
 ADD COLUMN "deleted_by" VARCHAR(255);
 
--- Create index for soft delete queries
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX "idx_orders_deleted_at" ON "orders"("deleted_at");
 
 -- Add comment to columns
@@ -46,7 +47,7 @@ ALTER TABLE "wallets"
 ADD COLUMN "deleted_at" TIMESTAMPTZ,
 ADD COLUMN "deleted_by" VARCHAR(255);
 
--- Create index for soft delete queries
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX "idx_wallets_deleted_at" ON "wallets"("deleted_at");
 
 -- Add comment to columns
@@ -63,7 +64,7 @@ ALTER TABLE "loans"
 ADD COLUMN "deleted_at" TIMESTAMPTZ,
 ADD COLUMN "deleted_by" VARCHAR(255);
 
--- Create index for soft delete queries
+-- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX "idx_loans_deleted_at" ON "loans"("deleted_at");
 
 -- Add comment to columns

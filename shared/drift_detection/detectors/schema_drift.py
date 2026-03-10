@@ -53,6 +53,10 @@ _NON_CONCURRENT_INDEX_RE = re.compile(r"\bCREATE\s+INDEX\b(?!\s+CONCURRENTLY)", 
 # Migration path patterns considered "initial" (CREATE TABLE from scratch, no existing data)
 _INIT_MIGRATION_RE = re.compile(r"(^|\/)0*1[_-]|init|initial|create[_-]tables", re.IGNORECASE)
 
+# Acknowledgement comment: -- drift:safe reason=... [remediated_by=...]
+# When present in a migration file, suppresses risky_migration findings for that file.
+_DRIFT_SAFE_RE = re.compile(r"--\s*drift:safe\b", re.IGNORECASE)
+
 
 def _extract_prisma_models(content: str) -> list[tuple[str, str]]:
     """Extract Prisma model name/body pairs using brace-depth counting.
@@ -158,6 +162,7 @@ class SchemaDriftDetector(BaseDriftDetector):
                     break
 
             is_init = _INIT_MIGRATION_RE.search(str(mig_file))
+            is_acknowledged = _DRIFT_SAFE_RE.search(content)
 
             # Check breaking patterns (DROP, RENAME, ALTER TYPE)
             for pattern, pattern_name in BREAKING_PATTERNS:
@@ -201,8 +206,10 @@ class SchemaDriftDetector(BaseDriftDetector):
                     )
                 )
 
-            # Check risky patterns
-            for pattern, pattern_name in RISKY_PATTERNS:
+            # Check risky patterns (skip if file has -- drift:safe acknowledgement)
+            if is_acknowledged:
+                logger.debug("Skipping risky pattern check for %s (drift:safe)", mig_file)
+            for pattern, pattern_name in RISKY_PATTERNS if not is_acknowledged else []:
                 matches = pattern.findall(content)
                 if matches:
                     self.add_result(
@@ -222,7 +229,8 @@ class SchemaDriftDetector(BaseDriftDetector):
             # Non-concurrent index creation: only flag on non-initial migrations
             # Initial migrations create tables from scratch with no existing data,
             # so CONCURRENTLY is unnecessary and actually unsupported inside transactions.
-            if not is_init and _NON_CONCURRENT_INDEX_RE.search(content):
+            # Also skip if file has -- drift:safe acknowledgement comment.
+            if not is_init and not is_acknowledged and _NON_CONCURRENT_INDEX_RE.search(content):
                 self.add_result(
                     DriftResult(
                         category=DriftCategory.SCHEMA,

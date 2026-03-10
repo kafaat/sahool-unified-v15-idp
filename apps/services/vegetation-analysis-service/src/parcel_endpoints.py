@@ -39,18 +39,10 @@ class ParcelDetectionRequest(BaseModel):
         "irregular",
         description="Shape regularization: irregular, rectangle, convex_hull, minimum_bounding",
     )
-    min_area_hectares: float = Field(
-        0.05, description="Minimum parcel area in hectares"
-    )
-    max_area_hectares: float = Field(
-        1000.0, description="Maximum parcel area in hectares"
-    )
-    ndvi_threshold: float = Field(
-        0.25, description="NDVI threshold for cropland detection"
-    )
-    smoothing_iterations: int = Field(
-        2, description="Number of boundary smoothing iterations"
-    )
+    min_area_hectares: float = Field(0.05, description="Minimum parcel area in hectares")
+    max_area_hectares: float = Field(1000.0, description="Maximum parcel area in hectares")
+    ndvi_threshold: float = Field(0.25, description="NDVI threshold for cropland detection")
+    smoothing_iterations: int = Field(2, description="Number of boundary smoothing iterations")
     use_gpu: bool = Field(True, description="Use GPU for inference if available")
 
 
@@ -83,17 +75,13 @@ class ParcelSplitRequest(BaseModel):
     """Request model for splitting a parcel"""
 
     parcel: dict = Field(..., description="GeoJSON feature of parcel to split")
-    cutting_line: list[list[float]] = Field(
-        ..., description="Cutting line coordinates [[lon, lat], ...]"
-    )
+    cutting_line: list[list[float]] = Field(..., description="Cutting line coordinates [[lon, lat], ...]")
 
 
 class ParcelConnectRequest(BaseModel):
     """Request model for connecting parcels"""
 
-    parcels: list[dict] = Field(
-        ..., description="GeoJSON features of fragments to connect"
-    )
+    parcels: list[dict] = Field(..., description="GeoJSON features of fragments to connect")
     max_gap_meters: float = Field(10.0, description="Maximum gap to bridge in meters")
 
 
@@ -102,9 +90,7 @@ class BatchAssignRequest(BaseModel):
 
     parcel_ids: list[str] = Field(..., description="IDs of parcels to update")
     parcels: list[dict] = Field(..., description="GeoJSON features to update")
-    attribute: str = Field(
-        ..., description="Attribute name: crop_type, land_cover, is_irrigated"
-    )
+    attribute: str = Field(..., description="Attribute name: crop_type, land_cover, is_irrigated")
     value: str = Field(..., description="Value to assign")
 
 
@@ -277,13 +263,9 @@ def register_parcel_endpoints(app, land_detector):
 
             # Validate bounds
             if request.north <= request.south:
-                raise HTTPException(
-                    status_code=400, detail="North must be greater than south"
-                )
+                raise HTTPException(status_code=400, detail="North must be greater than south")
             if request.east <= request.west:
-                raise HTTPException(
-                    status_code=400, detail="East must be greater than west"
-                )
+                raise HTTPException(status_code=400, detail="East must be greater than west")
 
             # Apply request config parameters
             try:
@@ -394,9 +376,7 @@ def register_parcel_endpoints(app, land_detector):
 
             # Build response
             features = [p.to_geojson() for p in classified]
-            cropland = [
-                p for p in classified if p.land_cover == LandCoverClass.CROPLAND
-            ]
+            cropland = [p for p in classified if p.land_cover == LandCoverClass.CROPLAND]
 
             return {
                 "type": "FeatureCollection",
@@ -405,9 +385,7 @@ def register_parcel_endpoints(app, land_detector):
                     "total_parcels": len(classified),
                     "cropland": len(cropland),
                     "non_cropland": len(classified) - len(cropland),
-                    "cropland_area_hectares": round(
-                        sum(p.area_hectares for p in cropland), 2
-                    ),
+                    "cropland_area_hectares": round(sum(p.area_hectares for p in cropland), 2),
                     "classification_method": "spectral_geometric_features",
                     "summary": {
                         "en": f"Classified {len(cropland)}/{len(classified)} parcels as agricultural land",
@@ -616,9 +594,7 @@ def register_parcel_endpoints(app, land_detector):
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
             if len(parcels) < 2:
-                raise HTTPException(
-                    status_code=400, detail="Need at least 2 parcels to merge"
-                )
+                raise HTTPException(status_code=400, detail="Need at least 2 parcels to merge")
 
             parcel_ids = request.parcel_ids or [p.parcel_id for p in parcels]
             merged = land_detector.editing_tools.merge_parcels(parcels, parcel_ids)
@@ -666,13 +642,9 @@ def register_parcel_endpoints(app, land_detector):
 
             cutting_line = [(c[0], c[1]) for c in request.cutting_line]
             if len(cutting_line) < 2:
-                raise HTTPException(
-                    status_code=400, detail="Cutting line needs at least 2 points"
-                )
+                raise HTTPException(status_code=400, detail="Cutting line needs at least 2 points")
 
-            result_parcels = land_detector.editing_tools.split_parcel(
-                parcels[0], cutting_line
-            )
+            result_parcels = land_detector.editing_tools.split_parcel(parcels[0], cutting_line)
             features = [p.to_geojson() for p in result_parcels]
 
             return {
@@ -715,9 +687,7 @@ def register_parcel_endpoints(app, land_detector):
         try:
             parcels = _geojson_to_parcels(request.parcels, land_detector)
             if len(parcels) < 2:
-                raise HTTPException(
-                    status_code=400, detail="Need at least 2 parcels to connect"
-                )
+                raise HTTPException(status_code=400, detail="Need at least 2 parcels to connect")
 
             parcel_ids = [p.parcel_id for p in parcels]
             connected = land_detector.editing_tools.connect_parcels(
@@ -816,9 +786,7 @@ def register_parcel_endpoints(app, land_detector):
                     }
                 )
 
-            collection_wkt = land_detector.quality_inspector.parcels_to_wkt_collection(
-                parcels
-            )
+            collection_wkt = land_detector.quality_inspector.parcels_to_wkt_collection(parcels)
 
             return {
                 "parcels_wkt": wkt_list,
@@ -951,9 +919,7 @@ def register_parcel_endpoints(app, land_detector):
             if not parcels:
                 raise HTTPException(status_code=400, detail="No valid parcels provided")
 
-            simplified = land_detector.topology_simplifier.simplify_with_topology(
-                parcels
-            )
+            simplified = land_detector.topology_simplifier.simplify_with_topology(parcels)
             features = [p.to_geojson() for p in simplified]
 
             original_vertices = sum(len(p.coordinates) for p in parcels)
@@ -967,18 +933,14 @@ def register_parcel_endpoints(app, land_detector):
                     "original_vertices": original_vertices,
                     "simplified_vertices": simplified_vertices,
                     "reduction_percent": (
-                        round((1 - simplified_vertices / original_vertices) * 100, 1)
-                        if original_vertices > 0
-                        else 0
+                        round((1 - simplified_vertices / original_vertices) * 100, 1) if original_vertices > 0 else 0
                     ),
                     "topology_preserved": True,
                     "summary": {
                         "en": (
                             f"Simplified {len(simplified)} parcels: {original_vertices}→{simplified_vertices} vertices"
                         ),
-                        "ar": (
-                            f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس"
-                        ),
+                        "ar": (f"تم تبسيط {len(simplified)} قطعة: {original_vertices}→{simplified_vertices} رأس"),
                     },
                 },
             }
@@ -989,9 +951,7 @@ def register_parcel_endpoints(app, land_detector):
             logger.error(f"Topology simplification failed: {e}")
             raise HTTPException(status_code=500, detail=str(e)) from e
 
-    logger.info(
-        "Agricultural parcel detection endpoints registered (with GeoLabel 4.0)"
-    )
+    logger.info("Agricultural parcel detection endpoints registered (with GeoLabel 4.0)")
 
 
 def _geojson_to_parcels(features: list[dict], land_detector) -> list:

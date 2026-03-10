@@ -17,7 +17,7 @@
 | **Medium Severity Issues** | 34 + 12 dependency |
 | **Low Severity Issues** | 45+ |
 | **Microservices Audited** | 72 |
-| **Shared Modules Audited** | 85 |
+| **Shared Modules Audited** | 80 |
 | **CI/CD Workflows Audited** | 54 |
 | **Dockerfiles Audited** | 113 |
 | **Test Files Analyzed** | 522 |
@@ -62,16 +62,16 @@
 
 **Location**: `.env.development` (committed to git)
 **Risk**: Credential exposure, unauthorized access
-**Details**: Production-style credentials committed to version control including database passwords, JWT secrets, and API keys.
+**Details**: Sensitive development credentials committed to version control, including database passwords, JWT secrets, and API keys.
 
 **Remediation**:
 ```bash
-# Remove from git history
-git filter-branch --force --index-filter \
-  'git rm --cached --ignore-unmatch .env.development' HEAD
-# Add to .gitignore
+# Remove .env.development from git history using git filter-repo (preferred over git filter-branch)
+git filter-repo --path .env.development --invert-paths
+
+# Ensure .env.development is ignored going forward
 echo ".env.development" >> .gitignore
-# Rotate ALL exposed credentials immediately
+# Rotate ALL exposed credentials immediately (DB passwords, JWT secrets, API keys, etc.)
 ```
 
 ### 2. `time.sleep()` in Async Code [CRITICAL]
@@ -139,9 +139,9 @@ uses: snyk/actions/node@<commit-sha>
 
 ### 7. Testing Coverage Floor at 0% [CRITICAL]
 
-**Location**: `pyproject.toml` (`fail_under = 5`)
+**Location**: `pyproject.toml` (`fail_under = 0`)
 **Risk**: Regressions shipped without detection
-**Details**: While 522 test files exist with 13,212 test functions, the coverage floor is effectively 0-5%, meaning large portions of code are untested.
+**Details**: While 522 test files exist with 13,212 test functions, the coverage floor is effectively 0%, meaning large portions of code are untested.
 
 **Remediation**: Incrementally raise `fail_under` to 30% over 3 months, then to 60% over 6 months.
 
@@ -237,7 +237,7 @@ uses: snyk/actions/node@<commit-sha>
 
 | # | Issue | Impact |
 |---|-------|--------|
-| M28 | 537 docs but no doc search/index | Low discoverability |
+| M28 | Large documentation corpus but no doc search/index | Low discoverability |
 | M29 | API docs not auto-generated from OpenAPI specs | Doc drift |
 | M30 | No architecture decision records for last 6 months | Decision context lost |
 | M31 | Service dependency graph not visualized | Onboarding difficulty |

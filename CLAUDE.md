@@ -2763,7 +2763,7 @@ The platform contains **537+ documentation files** spread across multiple direct
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
 | `docs/` (root) | 145 | Core platform docs (API, architecture, deployment, security, operations) |
-| `docs/adr/` | 10 | Architectural Decision Records (ADR-001 through ADR-007+) |
+| `docs/adr/` | 10 | Architectural Decision Records (ADR-001 through ADR-008, including AI architecture) |
 | `docs/api/` | 35 | API endpoint documentation (AI, auth, fields, sensors, weather, vision, terrain) |
 | `docs/architecture/` | 11 | Architecture proposals, principles, service activation maps |
 | `docs/audits/` | 4 | Audit reports (security, rate limiting, secrets) |

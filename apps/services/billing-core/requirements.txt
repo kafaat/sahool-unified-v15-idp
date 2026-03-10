@@ -12,7 +12,7 @@ email-validator==2.3.0
 # Database (async SQLAlchemy - uses asyncpg)
 sqlalchemy==2.0.48
 asyncpg>=0.30.0,<1.0.0
-alembic==1.18.3
+alembic==1.18.4
 
 # Payment Processing
 stripe==11.3.0
@@ -24,10 +24,10 @@ python-dateutil==2.9.0.post0
 httpx==0.28.1
 
 # NATS Messaging (for event-driven architecture)
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 
 # Scheduling (for recurring billing)
 apscheduler==3.11.2

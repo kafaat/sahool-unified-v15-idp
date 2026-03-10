@@ -30,7 +30,7 @@ structlog>=24.4.0
 python-json-logger>=3.2.0,<4.0.0
 
 # NATS Messaging
-nats-py==2.13.1
+nats-py==2.14.0
 
 # Shared modules (local)
 # -e ../../shared

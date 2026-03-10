@@ -655,9 +655,7 @@ def main():
         # Check if we got at least some specs
         if not aggregator.specs:
             logger.error("Failed to fetch any OpenAPI specs. Are the services running?")
-            logger.info(
-                "Start services with: docker-compose -f packages/starter/docker-compose.yml up -d"
-            )
+            logger.info("Start services with: docker-compose -f packages/starter/docker-compose.yml up -d")
             sys.exit(1)
 
         # Merge specs

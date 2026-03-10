@@ -1,0 +1,1731 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="دليل شامل للتصوير فوق الطيفي في كشف الأمراض الفطرية والآفات الزراعية">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Hyperspectral Imaging for Crop Disease Detection - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hyperspectral-imaging-for-crop-disease-detection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hyperspectral Imaging for Crop Disease Detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="hyperspectral-imaging-for-crop-disease-detection">التصوير الطيفي العالي للكشف عن أمراض المحاصيل | Hyperspectral Imaging for Crop Disease Detection<a class="headerlink" href="#hyperspectral-imaging-for-crop-disease-detection" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>التصوير الطيفي العالي (Hyperspectral Imaging - HSI) يلتقط صوراً في مئات النطاقات الطيفية المتجاورة (عادة 200-400 نطاق)، مما يوفر بصمة طيفية فريدة لكل بكسل. هذا يتيح الكشف المبكر عن الأمراض النباتية قبل ظهور الأعراض المرئية بأسابيع.</p>
+<p>Hyperspectral imaging captures images across hundreds of contiguous spectral bands (typically 200-400 bands), providing a unique spectral fingerprint for each pixel. This enables early detection of plant diseases weeks before visible symptoms appear.</p>
+<h3 id="comparison-with-other-technologies">المقارنة مع التقنيات الأخرى | Comparison with Other Technologies<a class="headerlink" href="#comparison-with-other-technologies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>عدد النطاقات</th>
+<th>الدقة الطيفية</th>
+<th>الكشف المبكر</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RGB (كاميرا عادية)</td>
+<td>3</td>
+<td>منخفضة</td>
+<td>لا</td>
+<td>منخفضة</td>
+</tr>
+<tr>
+<td>Multispectral (متعدد الأطياف)</td>
+<td>4-12</td>
+<td>متوسطة</td>
+<td>محدود</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td><strong>Hyperspectral (فوق طيفي)</strong></td>
+<td><strong>200-400</strong></td>
+<td><strong>عالية جداً</strong></td>
+<td><strong>نعم (2-4 أسابيع مبكراً)</strong></td>
+<td><strong>عالية</strong></td>
+</tr>
+<tr>
+<td>Thermal (حراري)</td>
+<td>1-2</td>
+<td>لا ينطبق</td>
+<td>محدود (إجهاد مائي)</td>
+<td>متوسطة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-agricultural-applications">التطبيقات الزراعية الرئيسية | Key Agricultural Applications<a class="headerlink" href="#key-agricultural-applications" title="Permanent link">&para;</a></h2>
+<h3 id="1-fungal-disease-detection">1. كشف الأمراض الفطرية | Fungal Disease Detection<a class="headerlink" href="#1-fungal-disease-detection" title="Permanent link">&para;</a></h3>
+<p>الأمراض الفطرية تغير التركيب الكيميائي للنبات قبل ظهور أعراض مرئية. التصوير الطيفي العالي يكشف هذه التغيرات من خلال:</p>
+<ul>
+<li>تغير امتصاص الكلوروفيل (680-740 نانومتر)</li>
+<li>تغير محتوى الماء في الأوراق (950-1050 نانومتر)</li>
+<li>تغير تركيب جدار الخلية (1100-1250 نانومتر)</li>
+<li>تغير محتوى الكاروتينويدات (500-550 نانومتر)</li>
+</ul>
+<h3 id="2-citrus-disease-classification">2. تصنيف أمراض الحمضيات | Citrus Disease Classification<a class="headerlink" href="#2-citrus-disease-classification" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>بحث مرجعي</strong>: Yu et al. (2025) - "Detection of fungal diseases in citrus fruits based on hyperspectral imaging"
+DOI: <a href="https://doi.org/10.1016/j.inpa.2025.02.006">10.1016/j.inpa.2025.02.006</a>
+المجلة: Information Processing in Agriculture (INPA), IF: 7.4</p>
+</blockquote>
+<p>هذه الدراسة الحديثة أثبتت فعالية التصوير الطيفي العالي في تصنيف ثلاث فئات من أمراض الحمضيات الفطرية + ثمار صحية:</p>
+<table>
+<thead>
+<tr>
+<th>المرض</th>
+<th>الاسم العلمي</th>
+<th>مستوى الحجر الصحي</th>
+<th>الكشف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>العفن الأخضر (Green Mold)</td>
+<td><em>Penicillium digitatum</em></td>
+<td>غير حجري</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>العفن الأزرق (Blue Mold)</td>
+<td><em>Penicillium italicum</em></td>
+<td>غير حجري</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>عفن القرنفل (Clove Rot / Diplodia)</td>
+<td><em>Diplodia natalensis</em></td>
+<td><strong>حجري</strong></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>ثمار صحية (Healthy)</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p><strong>النتائج الرئيسية</strong>:
+- دقة التصنيف: <strong>92.50%</strong> باستخدام 44 نطاقاً طيفياً مختاراً
+- خوارزمية CARS اختارت <strong>44 نطاقاً حساساً</strong> من أصل 224 نطاقاً كاملاً
+- تقليل الأبعاد حسّن الدقة بنسبة 1.87% مقارنة بالطيف الكامل
+- النموذج خفيف الوزن مناسب للنشر على أجهزة الحافة (Edge Devices)</p>
+<hr />
+<h2 id="neural-network-architecture">بنية النموذج العصبي | Neural Network Architecture<a class="headerlink" href="#neural-network-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="dual-branch-model">النموذج ثنائي الفرع | Dual-Branch Model<a class="headerlink" href="#dual-branch-model" title="Permanent link">&para;</a></h3>
+<p>النموذج المقترح في Yu et al. (2025) يستخدم بنية ثنائية الفرع:</p>
+<div class="codehilite"><pre><span></span><code>صورة طيفية عالية (H × W × 224/44 نطاق)
+         ↓
+    ┌────────────────┬──────────────────┐
+    │  الفرع المكاني  │  الفرع الطيفي     │
+    │ Spatial Branch  │ Spectral Branch  │
+    ├────────────────┼──────────────────┤
+    │ Conv 7×7, s=2  │ AdaptiveAvgPool  │
+    │ + BN + ReLU    │      ↓           │
+    │      ↓         │ FullyConnected   │
+    │ MaxPool 3×3    │      ↓           │
+    │      ↓         │ SE Block (r=0.25)│
+    │ BasicBlock×1   │      ↓           │
+    │ BasicBlock×2   │ Bi-LSTM (4, hid) │
+    │ BasicBlock×2   │                  │
+    │      ↓         │                  │
+    │ SE Block (0.25)│                  │
+    │ AdaptiveAvgPool│                  │
+    │ Flatten        │                  │
+    └───────┬────────┴──────┬───────────┘
+            │  دمج (Concat) │
+            └───────┬───────┘
+                    ↓
+            FullyConnected
+                    ↓
+            Class Output (4 فئات)
+</code></pre></div>
+
+<h3 id="key-components">المكونات الأساسية | Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h3>
+<h4 id="basicblock">BasicBlock (كتلة أساسية)<a class="headerlink" href="#basicblock" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Input (H×W×C) → Conv 3×3, s → BN → ReLU → Conv 3×3, s → BN → ReLU → Output (H×W×C)
+                                                                  + Skip Connection
+</code></pre></div>
+
+<h4 id="se-block">SE Block (كتلة الانتباه القنوي)<a class="headerlink" href="#se-block" title="Permanent link">&para;</a></h4>
+<p>Squeeze-and-Excitation block لإعادة معايرة الأهمية النسبية للقنوات:</p>
+<div class="codehilite"><pre><span></span><code>Input (H×W×C) → Global Avg Pool (1×1×C)
+             → FC (C/r) → ReLU → FC (C) → Sigmoid
+             → × (Channel-wise multiplication) → Output (H×W×C)
+</code></pre></div>
+
+<p>حيث <code>r = 4</code> (نسبة التقليل)</p>
+<hr />
+<h2 id="sensitive-band-selection">اختيار النطاقات الطيفية الحساسة | Sensitive Band Selection<a class="headerlink" href="#sensitive-band-selection" title="Permanent link">&para;</a></h2>
+<h3 id="cars-competitive-adaptive-reweighted-sampling">خوارزمية CARS | Competitive Adaptive Reweighted Sampling<a class="headerlink" href="#cars-competitive-adaptive-reweighted-sampling" title="Permanent link">&para;</a></h3>
+<p>اختيار النطاقات الطيفية الحساسة يقلل التكرار ويحسن الأداء:</p>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>الطيف الكامل</th>
+<th>الطيف المختار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>عدد النطاقات</td>
+<td>224</td>
+<td><strong>44</strong> (تقليل 80%)</td>
+</tr>
+<tr>
+<td>حجم البيانات</td>
+<td>كبير</td>
+<td><strong>أصغر 5×</strong></td>
+</tr>
+<tr>
+<td>الدقة</td>
+<td>90.63%</td>
+<td><strong>92.50%</strong> (تحسن)</td>
+</tr>
+<tr>
+<td>وقت المعالجة</td>
+<td>طويل</td>
+<td><strong>أسرع بكثير</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="disease-sensitive-spectral-bands">النطاقات الطيفية الحساسة للأمراض | Disease-Sensitive Spectral Bands<a class="headerlink" href="#disease-sensitive-spectral-bands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النطاق (نانومتر)</th>
+<th>المكون المستهدف</th>
+<th>التطبيق</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>450-520</td>
+<td>الكاروتينويدات</td>
+<td>مرحلة مبكرة من الإصابة</td>
+</tr>
+<tr>
+<td>550-570</td>
+<td>Green Peak</td>
+<td>تغير لون الأنسجة</td>
+</tr>
+<tr>
+<td>620-680</td>
+<td>امتصاص الكلوروفيل</td>
+<td>انخفاض الكلوروفيل</td>
+</tr>
+<tr>
+<td>700-740</td>
+<td>Red Edge</td>
+<td>إجهاد النبات المبكر</td>
+</tr>
+<tr>
+<td>760-900</td>
+<td>Near-Infrared</td>
+<td>تغير تركيب الخلايا</td>
+</tr>
+<tr>
+<td>950-1050</td>
+<td>امتصاص الماء</td>
+<td>فقدان الرطوبة</td>
+</tr>
+<tr>
+<td>1100-1250</td>
+<td>تركيب جدار الخلية</td>
+<td>تحلل الأنسجة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="benchmark-comparison">المقارنة مع النماذج المرجعية | Benchmark Comparison<a class="headerlink" href="#benchmark-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>النموذج</th>
+<th>دقة (طيف كامل)</th>
+<th>دقة (44 نطاق)</th>
+<th>المعلمات</th>
+<th>الحجم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>النموذج المقترح</strong></td>
+<td><strong>90.63%</strong></td>
+<td><strong>92.50%</strong></td>
+<td><strong>خفيف</strong></td>
+<td><strong>صغير</strong></td>
+</tr>
+<tr>
+<td>ViT (Vision Transformer)</td>
+<td>أقل</td>
+<td>أقل</td>
+<td>كبير جداً</td>
+<td>كبير</td>
+</tr>
+<tr>
+<td>EfficientNetV2</td>
+<td>أقل</td>
+<td>أقل</td>
+<td>كبير</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>ResNet</td>
+<td>86.25%</td>
+<td>أقل</td>
+<td>كبير</td>
+<td>كبير</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة</strong>: النموذج المقترح يتفوق في الدقة مع حجم أصغر بكثير، مما يسهل النشر على أجهزة الحافة.</p>
+<hr />
+<h2 id="detection-by-disease-stage">أداء الكشف حسب مرحلة المرض | Detection by Disease Stage<a class="headerlink" href="#detection-by-disease-stage" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>الوصف</th>
+<th>القدرة على الكشف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>مبكرة</strong> (Early)</td>
+<td>لا أعراض مرئية، تغيرات كيميائية فقط</td>
+<td>✓ دقة متسقة</td>
+</tr>
+<tr>
+<td><strong>متوسطة</strong> (Mid)</td>
+<td>أعراض أولية مرئية</td>
+<td>✓ دقة متسقة</td>
+</tr>
+<tr>
+<td><strong>متقدمة</strong> (Advanced)</td>
+<td>أعراض واضحة، تلف كبير</td>
+<td>✓ دقة متسقة</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>نتيجة مهمة</strong>: أداء النموذج متسق عبر جميع مراحل المرض، مما يعني فعالية الكشف المبكر قبل ظهور الأعراض.</p>
+</blockquote>
+<hr />
+<h2 id="sahool-platform-integration">التكامل مع منصة سهول | SAHOOL Platform Integration<a class="headerlink" href="#sahool-platform-integration" title="Permanent link">&para;</a></h2>
+<h3 id="related-services">الخدمات ذات الصلة | Related Services<a class="headerlink" href="#related-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الربط</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[[yolo26-vision-service]]</td>
+<td>8150</td>
+<td>كشف الآفات والأمراض بالصور</td>
+</tr>
+<tr>
+<td>[[crop-intelligence-service]]</td>
+<td>8095</td>
+<td>ذكاء صحة المحاصيل</td>
+</tr>
+<tr>
+<td>[[vegetation-analysis-service]]</td>
+<td>8090</td>
+<td>تحليل الصور الطيفية</td>
+</tr>
+<tr>
+<td>[[edge-orchestrator-service]]</td>
+<td>8180</td>
+<td>نشر النماذج على الأجهزة الطرفية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="integration-opportunities">فرص التكامل | Integration Opportunities<a class="headerlink" href="#integration-opportunities" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إضافة فرع طيفي لـ YOLO26</strong>: توسيع خدمة الرؤية لدعم المدخلات الطيفية العالية إلى جانب RGB</li>
+<li><strong>اختيار النطاقات الذكي</strong>: تطبيق خوارزمية CARS لتقليل حجم البيانات الطيفية قبل المعالجة</li>
+<li><strong>نموذج خفيف للحافة</strong>: النموذج ثنائي الفرع مناسب للنشر على Jetson Orin عبر edge-orchestrator</li>
+<li><strong>التنبيهات الاستباقية</strong>: الكشف المبكر يتيح إرسال تنبيهات قبل 2-4 أسابيع من الأعراض المرئية</li>
+<li><strong>تصنيف أمراض الحجر الصحي</strong>: التمييز بين الأمراض الحجرية (عفن القرنفل) والأمراض الشائعة</li>
+</ol>
+<h3 id="proposed-data-pipeline">خط معالجة البيانات المقترح | Proposed Data Pipeline<a class="headerlink" href="#proposed-data-pipeline" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>التقاط صور طيفية عالية (كاميرا/طائرة بدون طيار)
+    ↓
+اختيار 44 نطاقاً حساساً (CARS preprocessing)
+    ↓
+┌──────────────┬────────────────┐
+│ فرع مكاني    │ فرع طيفي        │
+│ (BasicBlocks │ (Bi-LSTM +     │
+│  + SE Block) │  SE Block)     │
+└──────┬───────┴───────┬────────┘
+       │    دمج وتصنيف  │
+       └───────┬────────┘
+               ↓
+    نتيجة: نوع المرض + مستوى الثقة
+               ↓
+    ┌──────────────────────┐
+    │ sahool.vision.disease│  ← حدث NATS
+    │ _detected            │
+    └──────────┬───────────┘
+               ↓
+    إشعار المزارع (عربي/إنجليزي)
+</code></pre></div>
+
+<hr />
+<h2 id="hyperspectral-imaging-equipment">أجهزة التصوير الطيفي العالي | Hyperspectral Imaging Equipment<a class="headerlink" href="#hyperspectral-imaging-equipment" title="Permanent link">&para;</a></h2>
+<h3 id="laboratory-systems">أجهزة مختبرية | Laboratory Systems<a class="headerlink" href="#laboratory-systems" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النظام</th>
+<th>النطاق (نانومتر)</th>
+<th>الدقة الطيفية</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Specim FX10</td>
+<td>400-1000</td>
+<td>5.5 nm</td>
+<td>VNIR مرئي + قريب الأشعة تحت الحمراء</td>
+</tr>
+<tr>
+<td>Specim FX17</td>
+<td>900-1700</td>
+<td>8 nm</td>
+<td>SWIR تحت الحمراء القريبة</td>
+</tr>
+<tr>
+<td>Resonon Pika L</td>
+<td>400-1000</td>
+<td>2.1 nm</td>
+<td>مختبري عالي الدقة</td>
+</tr>
+<tr>
+<td>Headwall Hyperspec</td>
+<td>400-2500</td>
+<td>4.5 nm</td>
+<td>نطاق واسع</td>
+</tr>
+</tbody>
+</table>
+<h3 id="drone-mounted-systems">أجهزة محمولة على الطائرات | Drone-Mounted Systems<a class="headerlink" href="#drone-mounted-systems" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النظام</th>
+<th>الوزن</th>
+<th>النطاق</th>
+<th>السعر التقريبي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Headwall Nano-Hyperspec</td>
+<td>640 غرام</td>
+<td>400-1000 nm</td>
+<td>$35,000+</td>
+</tr>
+<tr>
+<td>Specim AFX10</td>
+<td>1.3 كغم</td>
+<td>400-1000 nm</td>
+<td>$50,000+</td>
+</tr>
+<tr>
+<td>Cubert FireflEYE</td>
+<td>470 غرام</td>
+<td>450-850 nm</td>
+<td>$20,000+</td>
+</tr>
+<tr>
+<td>BaySpec OCI-2000</td>
+<td>680 غرام</td>
+<td>600-1000 nm</td>
+<td>$25,000+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cost-effective-alternatives">بدائل فعالة من حيث التكلفة | Cost-Effective Alternatives<a class="headerlink" href="#cost-effective-alternatives" title="Permanent link">&para;</a></h3>
+<p>بالنسبة للمزارعين الصغار، يمكن استخدام مرشحات طيفية محددة بدلاً من التصوير الطيفي الكامل:</p>
+<ul>
+<li><strong>كاميرات متعددة الأطياف</strong> (MicaSense, Sentera): 5-10 نطاقات، أقل تكلفة</li>
+<li><strong>مرشحات انتقائية</strong>: نطاقات Red Edge + NIR لكشف الإجهاد المبكر</li>
+<li><strong>الهواتف الذكية + مرشحات</strong>: حلول منخفضة التكلفة للمزارعين</li>
+</ul>
+<hr />
+<h2 id="available-datasets">مجموعات البيانات المتاحة | Available Datasets<a class="headerlink" href="#available-datasets" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>مجموعة البيانات</th>
+<th>المحاصيل</th>
+<th>الفئات</th>
+<th>الحجم</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Citrus HSI (Yu et al. 2025)</strong></td>
+<td>حمضيات</td>
+<td>4 (صحي + 3 أمراض)</td>
+<td>عام</td>
+<td>INPA / CAAS</td>
+</tr>
+<tr>
+<td>Indian Pines</td>
+<td>حبوب</td>
+<td>16</td>
+<td>عام</td>
+<td>Purdue University</td>
+</tr>
+<tr>
+<td>PlantVillage</td>
+<td>متعدد</td>
+<td>38</td>
+<td>RGB فقط</td>
+<td>Penn State</td>
+</tr>
+<tr>
+<td>Wheat Rust HSI</td>
+<td>قمح</td>
+<td>4</td>
+<td>محدود</td>
+<td>CIMMYT</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>مجموعة بيانات جديدة</strong>: Yu et al. (2025) أصدروا مجموعة بيانات حمضيات طيفية عالية مفتوحة المصدر تغطي 4 حالات مرضية.</p>
+</blockquote>
+<hr />
+<h2 id="challenges-and-limitations">التحديات والقيود | Challenges and Limitations<a class="headerlink" href="#challenges-and-limitations" title="Permanent link">&para;</a></h2>
+<h3 id="technical-challenges">تحديات تقنية | Technical Challenges<a class="headerlink" href="#technical-challenges" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>حجم البيانات</strong>: صورة طيفية واحدة قد تصل إلى عدة جيجابايت</li>
+<li><strong>تكلفة المعدات</strong>: أجهزة التصوير الطيفي العالي مكلفة ($20,000-100,000+)</li>
+<li><strong>المعالجة</strong>: تحتاج قدرة حسابية عالية لمعالجة 200+ نطاق</li>
+</ul>
+<h3 id="proposed-solutions">حلول مقترحة | Proposed Solutions<a class="headerlink" href="#proposed-solutions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>اختيار النطاقات</strong>: تقليل من 224 إلى 44 نطاقاً (تقليل 80% مع تحسين الدقة)</li>
+<li><strong>نماذج خفيفة</strong>: بنية ثنائية الفرع مدمجة للنشر على أجهزة الحافة</li>
+<li><strong>معالجة تدريجية</strong>: معالجة على مستوى الحقل بدلاً من المنطقة الكاملة</li>
+<li><strong>بدائل متعددة الأطياف</strong>: استخدام نطاقات محددة بدلاً من الطيف الكامل</li>
+</ul>
+<h3 id="known-misclassification">التصنيف الخاطئ المعروف | Known Misclassification<a class="headerlink" href="#known-misclassification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تشابه طيفي بين العفن الأخضر (<em>P. digitatum</em>) والعفن الأزرق (<em>P. italicum</em>)</li>
+<li>التمييز بين الإصابات الفطرية والإصابات الجسدية (physical damage)</li>
+</ul>
+<hr />
+<h2 id="future-research-directions">البحث المستقبلي | Future Research Directions<a class="headerlink" href="#future-research-directions" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>توسيع فئات الأمراض</strong>: شمول أمراض إضافية مثل التقرح البكتيري والتريستيزا</li>
+<li><strong>الإصابات المعقدة</strong>: كشف الإصابة بأكثر من مرض في نفس الثمرة</li>
+<li><strong>الكشف الميداني</strong>: نقل النماذج من المختبر إلى الحقل (Field deployment)</li>
+<li><strong>التكامل مع RGB</strong>: دمج البيانات الطيفية مع الصور العادية لتحسين الدقة</li>
+<li><strong>Transfer Learning</strong>: نقل النموذج إلى محاصيل أخرى (قمح، طماطم، نخيل)</li>
+</ol>
+<hr />
+<h2 id="references">المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>Yu, X., Liu, S., Wang, C., Jiao, B., Huang, C., Liu, B., Liu, C., Yin, L., Wan, F., Qian, W., Qiao, X. (2025). Detection of fungal diseases in citrus fruits based on hyperspectral imaging. <em>Information Processing in Agriculture</em>. https://doi.org/10.1016/j.inpa.2025.02.006</p>
+</li>
+<li>
+<p>ESA - Copernicus Hyperspectral Imaging Mission (CHIME)</p>
+</li>
+<li>
+<p>Lowe, A., Harrison, N., &amp; French, A.P. (2017). Hyperspectral image analysis techniques for the detection and classification of the early onset of plant disease and stress. <em>Plant Methods</em>, 13, 80.</p>
+</li>
+</ol>
+<hr />
+<h2 id="related-documents">وثائق ذات صلة | Related Documents<a class="headerlink" href="#related-documents" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[[ndvi-interpretation]] - تفسير مؤشر NDVI</li>
+<li>[[../diseases/fungal]] - دليل الأمراض الفطرية</li>
+<li>[[../crops/citrus]] - دليل زراعة الحمضيات</li>
+<li>[[../ai-smart-agriculture/computer-vision-plant-monitoring]] - رؤية حاسوبية لمراقبة النبات</li>
+<li>[[sentinel-guide]] - بيانات Sentinel-2</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: مارس 2026</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

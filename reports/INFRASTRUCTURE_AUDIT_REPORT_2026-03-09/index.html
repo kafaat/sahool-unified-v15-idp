@@ -1,0 +1,1830 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>SAHOOL Platform - Infrastructure Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-infrastructure-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Infrastructure Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-infrastructure-audit-report">SAHOOL Platform - Infrastructure Audit Report<a class="headerlink" href="#sahool-platform-infrastructure-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-09
+<strong>Version</strong>: 16.0.0
+<strong>Auditor</strong>: Claude Code Infrastructure Analysis
+<strong>Scope</strong>: Complete infrastructure stack (16 domains, 72+ services)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL National Agricultural Intelligence Platform demonstrates <strong>enterprise-grade infrastructure maturity</strong> across its 72+ microservices, with strong security posture, comprehensive monitoring, and production-ready deployment pipelines. The platform achieves an <strong>overall infrastructure score of 8.7/10</strong>.</p>
+<h3 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Microservices</strong></td>
+<td>72 active + 15 archived</td>
+</tr>
+<tr>
+<td><strong>Docker Compose Files</strong></td>
+<td>12 compose files, 109 Dockerfiles</td>
+</tr>
+<tr>
+<td><strong>Helm Charts</strong></td>
+<td>24 charts (17 services + 5 specialized + 2 infra)</td>
+</tr>
+<tr>
+<td><strong>CI/CD Workflows</strong></td>
+<td>53 GitHub Actions, 178 jobs</td>
+</tr>
+<tr>
+<td><strong>Alert Rules</strong></td>
+<td>129 Prometheus alerts</td>
+</tr>
+<tr>
+<td><strong>ArgoCD Applications</strong></td>
+<td>16 apps + 3 ApplicationSets</td>
+</tr>
+<tr>
+<td><strong>Monitoring Scrape Jobs</strong></td>
+<td>64 Prometheus targets</td>
+</tr>
+<tr>
+<td><strong>Security Scanning Tools</strong></td>
+<td>6 (CodeQL, Trivy, Bandit, Semgrep, Safety, OWASP DC)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="infrastructure-scorecard">Infrastructure Scorecard<a class="headerlink" href="#infrastructure-scorecard" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Score</th>
+<th>Status</th>
+<th>Key Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td>8.5/10</td>
+<td>Strong</td>
+<td>12 compose files, proper network isolation, health checks</td>
+</tr>
+<tr>
+<td><strong>Dockerfiles Security</strong></td>
+<td>9.2/10</td>
+<td>Excellent</td>
+<td>Non-root 100%, tini init, no secrets, multi-stage 96%</td>
+</tr>
+<tr>
+<td><strong>Kubernetes/Helm</strong></td>
+<td>8.0/10</td>
+<td>Good</td>
+<td>Strong security contexts, VPA tiered; resource limits inconsistent</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>PG16+PostGIS 3.4, TLS 1.3, SCRAM-SHA-256, PgBouncer 250 conn</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>HA with Sentinel, TLS, password auth, eviction policies</td>
+</tr>
+<tr>
+<td><strong>NATS Messaging</strong></td>
+<td>9.5/10</td>
+<td>Excellent</td>
+<td>mTLS enforced, AES-256 JetStream, 4-layer event arch</td>
+</tr>
+<tr>
+<td><strong>Kong API Gateway</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>105 routes, SQL injection/XSS prevention, tiered rate limiting</td>
+</tr>
+<tr>
+<td><strong>Terraform IaC</strong></td>
+<td>7.5/10</td>
+<td>Good</td>
+<td>AWS me-south-1, 4 security gaps (state locking, drift)</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>8.5/10</td>
+<td>Strong</td>
+<td>129 alerts, OTel v0.93, Jaeger v1.53; no log aggregation</td>
+</tr>
+<tr>
+<td><strong>Secrets Management</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>Vault HA (Raft), ESO v0.10.5, dynamic DB creds, TLS PKI</td>
+</tr>
+<tr>
+<td><strong>ArgoCD GitOps</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>Auto-sync + self-heal, sync waves, PR previews, Argo Rollouts</td>
+</tr>
+<tr>
+<td><strong>Network &amp; TLS</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>TLS 1.2+ all services, cert pinning mobile, security headers</td>
+</tr>
+<tr>
+<td><strong>CI/CD Pipeline</strong></td>
+<td>9.0/10</td>
+<td>Excellent</td>
+<td>53 workflows, blue-green/canary, multi-layer security scanning</td>
+</tr>
+<tr>
+<td><strong>IoT Infrastructure</strong></td>
+<td>7.0/10</td>
+<td>Adequate</td>
+<td>Mosquitto 2.0.20, LoRaWAN; <strong>no MQTT TLS</strong> (critical gap)</td>
+</tr>
+<tr>
+<td><strong>Edge/GPU</strong></td>
+<td>8.5/10</td>
+<td>Strong</td>
+<td>CUDA 12.1, Jetson Orin support, Ollama local LLM</td>
+</tr>
+<tr>
+<td><strong>Vector DB</strong></td>
+<td>8.0/10</td>
+<td>Good</td>
+<td>Qdrant+Milvus, Tri-RAG, 12 embedding models, Arabic support</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall Score: 8.7/10</strong></p>
+<hr />
+<h2 id="1-container-infrastructure">1. Container Infrastructure<a class="headerlink" href="#1-container-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="docker-compose-8510">Docker Compose (8.5/10)<a class="headerlink" href="#docker-compose-8510" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>12 compose files</strong> covering: main stack, HA, TLS, telemetry, IoT, secrets, DLQ, WAL-G, Redis HA, testing, production</li>
+<li><strong>Network isolation</strong>: <code>sahool-network</code> bridge with localhost-only port binding</li>
+<li><strong>Health checks</strong>: All 72 services implement Docker HEALTHCHECK</li>
+<li><strong>Resource limits</strong>: CPU/memory constraints on all containers</li>
+<li><strong>Dependency management</strong>: <code>depends_on</code> with <code>condition: service_healthy</code></li>
+</ul>
+<h3 id="dockerfiles-security-9210">Dockerfiles Security (9.2/10)<a class="headerlink" href="#dockerfiles-security-9210" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Non-root enforcement</strong>: 100% of services (UID 1000 <code>sahool</code> user)</li>
+<li><strong>Multi-stage builds</strong>: 96% (68/71 services), reduces image size 60-80%</li>
+<li><strong>Signal handling</strong>: 94% use <code>tini</code> init system (PID 1 zombie reaping)</li>
+<li><strong>No secrets in images</strong>: Zero hardcoded credentials detected</li>
+<li><strong>COPY over ADD</strong>: 100% compliance (no ADD commands)</li>
+<li><strong>Package cleanup</strong>: 100% clean apt lists, pip cache disabled</li>
+<li><strong>Base image pinning</strong>: All services use specific version tags</li>
+<li><strong>.dockerignore</strong>: 132 rules excluding .env, keys, models, node_modules</li>
+</ul>
+<hr />
+<h2 id="2-database-infrastructure">2. Database Infrastructure<a class="headerlink" href="#2-database-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-9010">PostgreSQL (9.0/10)<a class="headerlink" href="#postgresql-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Version</strong>: PostgreSQL 16 + PostGIS 3.4</li>
+<li><strong>Connection pooling</strong>: PgBouncer v1.23.1 (transaction mode, 250 max connections)</li>
+<li><strong>TLS</strong>: TLS 1.3 minimum enforced, SCRAM-SHA-256 authentication</li>
+<li><strong>HA</strong>: Streaming replication (primary→replica), Patroni optional</li>
+<li><strong>Backup</strong>: WAL-G to S3/MinIO, 1-hour archive timeout</li>
+<li><strong>Performance</strong>: 2GB shared_buffers, 6GB effective_cache_size, JIT enabled, 4 parallel workers</li>
+<li><strong>Extensions</strong>: uuid-ossp, pg_trgm, pgcrypto, PostGIS topology</li>
+<li><strong>Migrations</strong>: 15+ SQL migration files with tracking table</li>
+</ul>
+<h3 id="redis-9010">Redis (9.0/10)<a class="headerlink" href="#redis-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Version</strong>: Redis 7.x with Sentinel HA</li>
+<li><strong>TLS</strong>: Port 6379 with TLS, plaintext disabled</li>
+<li><strong>Authentication</strong>: Password + ACL-based per-user permissions</li>
+<li><strong>Persistence</strong>: AOF enabled, allkeys-lru eviction</li>
+<li><strong>Memory</strong>: 768MB default, configurable per environment</li>
+<li><strong>HA</strong>: 3-node Sentinel cluster with automatic failover</li>
+</ul>
+<hr />
+<h2 id="3-messaging-event-architecture">3. Messaging &amp; Event Architecture<a class="headerlink" href="#3-messaging-event-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="nats-9510">NATS (9.5/10)<a class="headerlink" href="#nats-9510" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Version</strong>: NATS 2.10.x with JetStream</li>
+<li><strong>Security</strong>: mTLS enforced (<code>verify_and_map: true</code>), modern cipher suites</li>
+<li><strong>Encryption at rest</strong>: AES-256 for JetStream storage</li>
+<li><strong>4-layer event architecture</strong>: Acquisition → Intelligence → Decision → Business</li>
+<li><strong>Subject pattern</strong>: <code>sahool.{domain}.{action}</code> with tenant scoping</li>
+<li><strong>Limits</strong>: 100 max connections, 500 subscriptions, 8MB payload</li>
+<li><strong>Authentication</strong>: NKey-ready, username/password per user role</li>
+</ul>
+<hr />
+<h2 id="4-api-gateway">4. API Gateway<a class="headerlink" href="#4-api-gateway" title="Permanent link">&para;</a></h2>
+<h3 id="kong-9010">Kong (9.0/10)<a class="headerlink" href="#kong-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Version</strong>: Kong 3.x with 105 routes</li>
+<li><strong>Security plugins</strong>: Bot detection, request size limiting, SQL injection prevention, XSS prevention</li>
+<li><strong>Rate limiting</strong>: 5-tier system (Starter 30/min → Internal 1000/min) via Redis</li>
+<li><strong>Headers</strong>: HSTS, CSP, X-Frame-Options DENY, CORP, COOP</li>
+<li><strong>TLS termination</strong>: Port 8443 with certificate support</li>
+<li><strong>Admin API</strong>: Disabled in production, localhost-only in development</li>
+</ul>
+<hr />
+<h2 id="5-kubernetes-orchestration">5. Kubernetes &amp; Orchestration<a class="headerlink" href="#5-kubernetes-orchestration" title="Permanent link">&para;</a></h2>
+<h3 id="helm-charts-8010">Helm Charts (8.0/10)<a class="headerlink" href="#helm-charts-8010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>24 charts</strong>: 17 application + 5 specialized (vision, terrain, edge) + 2 infrastructure</li>
+<li><strong>Security contexts</strong>: Non-root, no privilege escalation, readOnlyRootFilesystem, seccomp RuntimeDefault, drop ALL capabilities</li>
+<li><strong>HPA</strong>: v2 API, CPU 70% + Memory 80% targets, 2-6 replicas</li>
+<li><strong>VPA</strong>: Tiered approach (Off→Initial→Auto based on statefulness)</li>
+<li><strong>PDB</strong>: All application services (minAvailable: 1)</li>
+<li><strong>Sync</strong>: Rolling updates, maxSurge 1, maxUnavailable 0</li>
+<li><strong>Issues</strong>: Resource limits inconsistent (2-5x gaps), no PDB for infrastructure, incomplete RBAC</li>
+</ul>
+<h3 id="argocd-gitops-9010">ArgoCD GitOps (9.0/10)<a class="headerlink" href="#argocd-gitops-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>16 applications</strong> + 3 ApplicationSets</li>
+<li><strong>Auto-sync</strong>: Enabled with <code>prune: true</code>, <code>selfHeal: true</code></li>
+<li><strong>Sync waves</strong>: -1 (policies) → 0 (infra) → 1 (edge) → 2 (services)</li>
+<li><strong>PR previews</strong>: Automatic namespace per PR (<code>pr-{{number}}-sahool</code>)</li>
+<li><strong>Progressive delivery</strong>: Argo Rollouts v2.35 for canary/blue-green</li>
+<li><strong>Feature flags</strong>: flagd v0.11.1 (5 flags: NDVI pipeline, RAG, smart irrigation)</li>
+<li><strong>Notifications</strong>: Slack (<code>sahool-deployments</code>, <code>sahool-alerts</code>)</li>
+<li><strong>Revision history</strong>: 10 revisions retained for rollback</li>
+</ul>
+<hr />
+<h2 id="6-monitoring-observability">6. Monitoring &amp; Observability<a class="headerlink" href="#6-monitoring-observability" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-8510">Prometheus (8.5/10)<a class="headerlink" href="#prometheus-8510" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>64 scrape jobs</strong> covering infrastructure + application services</li>
+<li><strong>Scrape interval</strong>: 15s global</li>
+<li><strong>Retention</strong>: 30 days, 10GB max</li>
+<li><strong>129 alert rules</strong> across 5 categories:</li>
+<li>Core service alerts: 49</li>
+<li>Agricultural domain: 21 (NDVI, weather, crop health, irrigation)</li>
+<li>NATS messaging: 25</li>
+<li>Disaster recovery: 22</li>
+<li>SLO/SLI: 12</li>
+</ul>
+<h3 id="opentelemetry-jaeger">OpenTelemetry + Jaeger<a class="headerlink" href="#opentelemetry-jaeger" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OTel Collector v0.93</strong>: 9 receivers, 6 processors, 3 exporters</li>
+<li><strong>Jaeger v1.53</strong>: Badger persistent storage, UI on port 16686</li>
+<li><strong>Tail sampling</strong>: Always sample errors + slow requests (&gt;1s), 10% normal traffic</li>
+<li><strong>Resource enrichment</strong>: Platform version, region (MENA) attributes</li>
+</ul>
+<h3 id="grafana">Grafana<a class="headerlink" href="#grafana" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>4 dashboards</strong>: Edge devices, terrain services, YOLO26 vision, SLO</li>
+<li><strong>Timezone</strong>: Asia/Riyadh</li>
+<li><strong>Plugins</strong>: Clock, JSON, Piechart, Jaeger datasource</li>
+</ul>
+<h3 id="gaps">Gaps<a class="headerlink" href="#gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>No log aggregation</strong> (ELK/Loki) - critical gap</li>
+<li><strong>No APM/profiling</strong> (Pyroscope/Datadog)</li>
+<li><strong>No public status page</strong></li>
+<li><strong>No synthetic monitoring</strong></li>
+</ul>
+<hr />
+<h2 id="7-security-infrastructure">7. Security Infrastructure<a class="headerlink" href="#7-security-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="secrets-management-9010">Secrets Management (9.0/10)<a class="headerlink" href="#secrets-management-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>HashiCorp Vault</strong>: HA Raft storage, AppRole + K8s auth, audit logging</li>
+<li><strong>ESO v0.10.5</strong>: Auto-synced via ArgoCD, 1-hour refresh interval</li>
+<li><strong>TLS PKI</strong>: Internal CA (4096-bit RSA, 10-year), service certs (2048-bit, 825 days)</li>
+<li><strong>JWT</strong>: HS256, 32-char minimum key, token revocation via Redis, 60-min access tokens</li>
+<li><strong>Database creds</strong>: Dynamic via Vault (24-hour TTL), SCRAM-SHA-256</li>
+<li><strong>Docker secrets</strong>: File-based mounting at <code>/run/secrets/</code></li>
+<li><strong>No hardcoded secrets</strong>: Validation tools + CI scanning</li>
+</ul>
+<h3 id="network-security-9010">Network Security (9.0/10)<a class="headerlink" href="#network-security-9010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>TLS 1.2+ enforced</strong> on all internal services (PostgreSQL, Redis, NATS, Kong)</li>
+<li><strong>Certificate pinning</strong>: Flutter mobile (SHA-256 + SPKI for iOS)</li>
+<li><strong>CORS</strong>: Whitelist approach, environment-aware, HTTPS enforced in production</li>
+<li><strong>Security headers</strong>: 10+ headers (HSTS, CSP, CORP, COOP, X-Frame-Options)</li>
+<li><strong>Network policies</strong>: Kubernetes ingress/egress rules (basic but functional)</li>
+<li><strong>Attack prevention</strong>: SQL injection, XSS, bot detection at Kong layer</li>
+</ul>
+<h3 id="cicd-security">CI/CD Security<a class="headerlink" href="#cicd-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>6 scanning tools</strong>: CodeQL, Trivy, Bandit, Semgrep, Safety, OWASP DC</li>
+<li><strong>SBOM generation</strong>: CycloneDX per service</li>
+<li><strong>Secret detection</strong>: Custom grep patterns for PEM keys, AWS keys</li>
+<li><strong>License compliance</strong>: GPL detection with warnings</li>
+<li><strong>Container scanning</strong>: Dockerfile linting, root user checks</li>
+</ul>
+<hr />
+<h2 id="8-cicd-pipeline-9010">8. CI/CD Pipeline (9.0/10)<a class="headerlink" href="#8-cicd-pipeline-9010" title="Permanent link">&para;</a></h2>
+<h3 id="github-actions">GitHub Actions<a class="headerlink" href="#github-actions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>53 workflows</strong>, <strong>178 jobs</strong> total</li>
+<li><strong>Path-based change detection</strong>: Skip unnecessary jobs (2x speedup)</li>
+<li><strong>Concurrency control</strong>: 21 workflows with cancel-in-progress</li>
+<li><strong>Multi-platform</strong>: Docker builds for amd64 + arm64</li>
+</ul>
+<h3 id="deployment-strategies">Deployment Strategies<a class="headerlink" href="#deployment-strategies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Blue-green</strong>: Production with automatic rollback</li>
+<li><strong>Canary</strong>: 10% → 25% → 50% → 100% with metric observation</li>
+<li><strong>Staging</strong>: Auto-deploy on main push</li>
+<li><strong>PR previews</strong>: ArgoCD ApplicationSet</li>
+</ul>
+<h3 id="testing-pyramid">Testing Pyramid<a class="headerlink" href="#testing-pyramid" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Unit</strong>: pytest (Python), Vitest (Node.js), flutter test</li>
+<li><strong>Integration</strong>: API + database tests</li>
+<li><strong>E2E</strong>: Playwright (Chromium)</li>
+<li><strong>Load</strong>: k6 (smoke/load/stress/spike)</li>
+<li><strong>Security</strong>: CodeQL, Bandit, Semgrep</li>
+<li><strong>Governance</strong>: Event contracts, API contracts, service registry</li>
+</ul>
+<hr />
+<h2 id="9-iot-infrastructure-7010">9. IoT Infrastructure (7.0/10)<a class="headerlink" href="#9-iot-infrastructure-7010" title="Permanent link">&para;</a></h2>
+<h3 id="strengths">Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Mosquitto 2.0.20</strong>: 1000 max connections, ACL-based permissions</li>
+<li><strong>Multi-protocol</strong>: MQTT, LoRaWAN (15km suburban), HTTP, Zigbee, NB-IoT</li>
+<li><strong>Device registry</strong>: Pre-registration required, tenant isolation enforced</li>
+<li><strong>15 sensor types</strong>: Soil (moisture, temp, EC, pH, NPK), air, water, plant</li>
+<li><strong>Virtual sensors</strong>: FAO-56 ET calculations, offline-first</li>
+<li><strong>MQTT-to-NATS bridge</strong>: Event envelope with correlation IDs</li>
+</ul>
+<h3 id="critical-gaps">Critical Gaps<a class="headerlink" href="#critical-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>No MQTT TLS</strong>: Plaintext only (port 1883) - <strong>highest priority fix</strong></li>
+<li><strong>No client certificates</strong>: No device-level mTLS</li>
+<li><strong>Shared MQTT user</strong>: Single <code>sahool_iot</code> for all services</li>
+<li><strong>No MQTT rate limiting</strong>: Only HTTP endpoints rate-limited</li>
+</ul>
+<hr />
+<h2 id="10-edge-ai-infrastructure">10. Edge &amp; AI Infrastructure<a class="headerlink" href="#10-edge-ai-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="gpu-computing-8510">GPU Computing (8.5/10)<a class="headerlink" href="#gpu-computing-8510" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CUDA 12.1.1</strong> + cuDNN8 (NVIDIA runtime)</li>
+<li><strong>YOLO26 Vision</strong>: 5 model variants (nano→xlarge), 7 detection tasks</li>
+<li><strong>Jetson Orin Nano</strong>: Edge device management via orchestrator service</li>
+<li><strong>Ollama</strong>: Local LLM hosting (CodeLlama, DeepSeek, Mistral)</li>
+<li><strong>TensorRT</strong>: Optional optimization for inference</li>
+</ul>
+<h3 id="vector-databases-8010">Vector Databases (8.0/10)<a class="headerlink" href="#vector-databases-8010" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Qdrant v1.10.1</strong>: Enterprise tier only, 2 replicas production, 50Gi SSD</li>
+<li><strong>Milvus v2.3.3</strong>: Alternative with etcd + MinIO backend</li>
+<li><strong>4 backends</strong>: SQLite (offline-first), Filesystem, Memory, Qdrant</li>
+<li><strong>12 embedding models</strong>: Including Arabic (AraBERT, MARBERT, multilingual-e5)</li>
+<li><strong>Tri-RAG retrieval</strong>: Dense + Sparse + Knowledge Graph</li>
+<li><strong>9 knowledge collections</strong>: Agriculture-specific (crop, soil, irrigation, weather, etc.)</li>
+</ul>
+<hr />
+<h2 id="critical-findings-recommendations">Critical Findings &amp; Recommendations<a class="headerlink" href="#critical-findings-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="p0-critical-immediate-action">P0 - Critical (Immediate Action)<a class="headerlink" href="#p0-critical-immediate-action" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Impact</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>MQTT no TLS</strong></td>
+<td>Data interception risk</td>
+<td>Enable TLS 1.3 on Mosquitto port 8883</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>No log aggregation</strong></td>
+<td>Cannot investigate incidents</td>
+<td>Deploy Loki or ELK stack</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Shared MQTT credentials</strong></td>
+<td>Lateral movement risk</td>
+<td>Per-service MQTT users</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p1-high-next-sprint">P1 - High (Next Sprint)<a class="headerlink" href="#p1-high-next-sprint" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Impact</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>Helm resource limits inconsistent</td>
+<td>Pod eviction, OOM</td>
+<td>Standardize request/limit ratios to 2:1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>No PDB for infrastructure</td>
+<td>Downtime during upgrades</td>
+<td>Add PDB for PostgreSQL, Redis, NATS</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Qdrant API key optional</td>
+<td>Unauthorized vector access</td>
+<td>Enforce API key in production</td>
+</tr>
+<tr>
+<td>7</td>
+<td>No synthetic monitoring</td>
+<td>Reactive incident detection</td>
+<td>Add k6 proactive health checks</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Terraform state not locked</td>
+<td>Concurrent apply conflicts</td>
+<td>Enable S3 backend + DynamoDB lock</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p2-medium-next-quarter">P2 - Medium (Next Quarter)<a class="headerlink" href="#p2-medium-next-quarter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Impact</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>HS256 JWT (symmetric)</td>
+<td>Not ideal for multi-service</td>
+<td>Migrate to RS256 asymmetric keys</td>
+</tr>
+<tr>
+<td>10</td>
+<td>No service mesh</td>
+<td>No automatic mTLS</td>
+<td>Evaluate Istio/Linkerd</td>
+</tr>
+<tr>
+<td>11</td>
+<td>3 Grafana dashboards only</td>
+<td>Limited visibility</td>
+<td>Create dashboards per service category</td>
+</tr>
+<tr>
+<td>12</td>
+<td>No public status page</td>
+<td>Users unaware of outages</td>
+<td>Deploy statuspage.io or Cachet</td>
+</tr>
+<tr>
+<td>13</td>
+<td>No APM profiling</td>
+<td>Cannot identify slow code</td>
+<td>Add Grafana Pyroscope</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Network policies basic</td>
+<td>Lateral movement possible</td>
+<td>Per-service egress rules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p3-low-strategic">P3 - Low (Strategic)<a class="headerlink" href="#p3-low-strategic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Impact</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>No image signing</td>
+<td>Supply chain risk</td>
+<td>Implement SigStore/Cosign</td>
+</tr>
+<tr>
+<td>16</td>
+<td>No Dockerfile linting in CI</td>
+<td>Inconsistent practices</td>
+<td>Add hadolint to CI pipeline</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Single ingress host</td>
+<td>No tenant isolation at network</td>
+<td>Multi-host ingress per environment</td>
+</tr>
+<tr>
+<td>18</td>
+<td>No secret rotation automation</td>
+<td>Stale credentials</td>
+<td>Vault dynamic secrets + auto-rotation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="infrastructure-topology">Infrastructure Topology<a class="headerlink" href="#infrastructure-topology" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nv">Internet</span>
+<span class="w">    </span>│
+<span class="w">    </span>▼
+┌─────────────────────────────────┐
+│<span class="w">  </span><span class="nv">Kong</span><span class="w"> </span><span class="nv">API</span><span class="w"> </span><span class="nv">Gateway</span><span class="w"> </span><span class="ss">(</span><span class="mi">8000</span><span class="o">/</span><span class="mi">8443</span><span class="ss">)</span><span class="w">   </span>│<span class="w">  </span><span class="nv">TLS</span><span class="w"> </span><span class="nv">termination</span>,<span class="w"> </span><span class="nv">rate</span><span class="w"> </span><span class="nv">limiting</span>,<span class="w"> </span><span class="nv">auth</span>
+│<span class="w">  </span><span class="mi">105</span><span class="w"> </span><span class="nv">routes</span>,<span class="w"> </span><span class="mi">5</span><span class="o">-</span><span class="nv">tier</span><span class="w"> </span><span class="nv">rate</span><span class="w"> </span><span class="nv">limit</span><span class="w">  </span>│
+└──────────────┬──────────────────┘
+<span class="w">               </span>│
+<span class="w">    </span>┌──────────┼──────────┐
+<span class="w">    </span>▼<span class="w">          </span>▼<span class="w">          </span>▼
+┌────────┐<span class="w"> </span>┌────────┐<span class="w"> </span>┌────────┐
+│<span class="w"> </span><span class="nv">Web</span><span class="w">    </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Admin</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Mobile</span><span class="w"> </span>│<span class="w">   </span><span class="k">Next</span>.<span class="nv">js</span><span class="w"> </span><span class="mi">15</span>,<span class="w"> </span><span class="nv">Flutter</span><span class="w"> </span><span class="mi">3</span>.<span class="mi">27</span>
+│<span class="w"> </span>:<span class="mi">3000</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span>:<span class="mi">3001</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="ss">(</span><span class="nv">App</span><span class="ss">)</span><span class="w">  </span>│
+└───┬────┘<span class="w"> </span>└───┬────┘<span class="w"> </span>└───┬────┘
+<span class="w">    </span>│<span class="w">          </span>│<span class="w">          </span>│
+<span class="w">    </span>▼<span class="w">          </span>▼<span class="w">          </span>▼
+┌─────────────────────────────────┐
+│<span class="w">  </span><span class="mi">72</span><span class="w"> </span><span class="nv">Microservices</span><span class="w">               </span>│
+│<span class="w">  </span><span class="nv">Python</span><span class="w"> </span><span class="nv">FastAPI</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">Node</span>.<span class="nv">js</span><span class="w"> </span><span class="nv">NestJS</span>│
+│<span class="w">  </span><span class="nv">Ports</span>:<span class="w"> </span><span class="mi">3000</span><span class="o">-</span><span class="mi">8261</span><span class="w">               </span>│
+└──────────────┬──────────────────┘
+<span class="w">               </span>│
+<span class="w">    </span>┌──────────┼──────────┬──────────┐
+<span class="w">    </span>▼<span class="w">          </span>▼<span class="w">          </span>▼<span class="w">          </span>▼
+┌────────┐<span class="w"> </span>┌────────┐<span class="w"> </span>┌────────┐<span class="w"> </span>┌────────┐
+│<span class="nv">PostgreSQL</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Redis</span><span class="w">  </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">NATS</span><span class="w">  </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Qdrant</span><span class="w"> </span>│
+│<span class="mi">16</span><span class="o">+</span><span class="nv">PostGIS</span>│<span class="w"> </span>│<span class="w"> </span><span class="mi">7</span>.<span class="nv">x</span><span class="w"> </span><span class="nv">HA</span>│<span class="w"> </span>│<span class="mi">2</span>.<span class="mi">10</span><span class="w"> </span><span class="nv">JS</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">v1</span>.<span class="mi">10</span><span class="w">  </span>│
+│<span class="nv">PgBouncer</span><span class="w"> </span>│<span class="w"> </span>│<span class="nv">Sentinel</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">mTLS</span><span class="w">   </span>│<span class="w"> </span>│<span class="nv">VectorDB</span>│
+│<span class="nv">TLS</span><span class="w"> </span><span class="mi">1</span>.<span class="mi">3</span><span class="w">  </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">TLS</span><span class="w">   </span>│<span class="w"> </span>│<span class="nv">AES</span><span class="o">-</span><span class="mi">256</span><span class="w"> </span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">HNSW</span><span class="w">   </span>│
+└────────┘<span class="w"> </span>└────────┘<span class="w"> </span>└────────┘<span class="w"> </span>└────────┘
+<span class="w">               </span>│
+<span class="w">    </span>┌──────────┼──────────┐
+<span class="w">    </span>▼<span class="w">          </span>▼<span class="w">          </span>▼
+┌────────┐<span class="w"> </span>┌────────┐<span class="w"> </span>┌────────┐
+│<span class="nv">Mosquitto</span>│<span class="w"> </span>│<span class="w"> </span><span class="nv">Ollama</span><span class="w"> </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">MinIO</span><span class="w"> </span>│
+│<span class="nv">MQTT</span><span class="w"> </span><span class="mi">2</span>.<span class="mi">0</span><span class="w"> </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">LLM</span><span class="w">   </span>│<span class="w"> </span>│<span class="w">  </span><span class="nv">S3</span><span class="w">    </span>│
+│<span class="nv">IoT</span><span class="w"> </span><span class="nv">Hub</span><span class="w">  </span>│<span class="w"> </span>│<span class="nv">CodeLlama</span>│<span class="w"> </span>│<span class="nv">Backups</span><span class="w"> </span>│
+└────────┘<span class="w"> </span>└────────┘<span class="w"> </span>└────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="observability-stack">Observability Stack<a class="headerlink" href="#observability-stack" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">Services</span><span class="w"> </span><span class="p">(</span><span class="mi">72</span><span class="o">+</span><span class="p">)</span>
+<span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="o">/</span><span class="n">metrics</span><span class="p">,</span><span class="w"> </span><span class="o">/</span><span class="n">healthz</span><span class="p">,</span><span class="w"> </span><span class="n">traces</span>
+<span class="w">    </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">  </span><span class="n">OpenTelemetry</span><span class="w"> </span><span class="n">Collector</span><span class="w"> </span><span class="n">v0</span><span class="o">.</span><span class="mi">93</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mi">9</span><span class="w"> </span><span class="n">receivers</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="n">processors</span><span class="w">    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">exporters</span><span class="w">                 </span><span class="err">│</span>
+<span class="err">└──────────────┬──────────────────┘</span>
+<span class="w">    </span><span class="err">┌──────────┼──────────┐</span>
+<span class="w">    </span><span class="err">▼</span><span class="w">          </span><span class="err">▼</span><span class="w">          </span><span class="err">▼</span>
+<span class="err">┌────────┐</span><span class="w"> </span><span class="err">┌────────┐</span><span class="w"> </span><span class="err">┌────────┐</span>
+<span class="err">│</span><span class="n">Prometheus</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Jaeger</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="n">Console</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="mi">64</span><span class="w"> </span><span class="n">targets</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="n">Tracing</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Logs</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="mi">129</span><span class="w"> </span><span class="n">alerts</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="n">Badger</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="mi">30</span><span class="n">d</span><span class="w"> </span><span class="n">retain</span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">v1</span><span class="o">.</span><span class="mi">53</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">        </span><span class="err">│</span>
+<span class="err">└────┬────┘</span><span class="w"> </span><span class="err">└────────┘</span><span class="w"> </span><span class="err">└────────┘</span>
+<span class="w">     </span><span class="err">│</span>
+<span class="w">     </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Grafana</span><span class="w"> </span><span class="mf">10.2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Alertmanager</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mi">4</span><span class="w"> </span><span class="n">dashboards</span><span class="p">,</span><span class="w"> </span><span class="n">Asia</span><span class="o">/</span><span class="n">Riyadh</span><span class="w"> </span><span class="n">TZ</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Slack</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PagerDuty</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Email</span><span class="w">     </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────┘</span>
+</code></pre></div>
+
+<hr />
+<h2 id="deployment-pipeline">Deployment Pipeline<a class="headerlink" href="#deployment-pipeline" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">Developer</span><span class="w"> </span><span class="n">Push</span>
+<span class="w">    </span><span class="err">│</span>
+<span class="w">    </span><span class="err">▼</span>
+<span class="err">┌─</span><span class="w"> </span><span class="n">GitHub</span><span class="w"> </span><span class="n">Actions</span><span class="w"> </span><span class="p">(</span><span class="mh">53</span><span class="w"> </span><span class="n">workflows</span><span class="p">)</span><span class="w"> </span><span class="err">─────────────────────┐</span>
+<span class="err">│</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">1.</span><span class="w"> </span><span class="nl">DETECT:</span><span class="w"> </span><span class="n">Path</span><span class="o">-</span><span class="n">based</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="n">detection</span><span class="w">              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">2.</span><span class="w"> </span><span class="nl">LINT:</span><span class="w"> </span><span class="n">Ruff</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ESLint</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Dart</span><span class="w"> </span><span class="n">analyzer</span><span class="w">              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">3.</span><span class="w"> </span><span class="nl">TEST:</span><span class="w"> </span><span class="n">pytest</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Vitest</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Flutter</span><span class="w"> </span><span class="p">(</span><span class="n">parallel</span><span class="p">)</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">4.</span><span class="w"> </span><span class="nl">SECURITY:</span><span class="w"> </span><span class="n">CodeQL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Trivy</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Bandit</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Semgrep</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">5.</span><span class="w"> </span><span class="nl">GOVERNANCE:</span><span class="w"> </span><span class="n">Event</span><span class="o">/</span><span class="n">API</span><span class="w"> </span><span class="n">contracts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">registry</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">6.</span><span class="w"> </span><span class="nl">BUILD:</span><span class="w"> </span><span class="n">Docker</span><span class="w"> </span><span class="n">multi</span><span class="o">-</span><span class="n">platform</span><span class="w"> </span><span class="p">(</span><span class="n">amd64</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arm64</span><span class="p">)</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">7.</span><span class="w"> </span><span class="nl">PUSH:</span><span class="w"> </span><span class="n">GHCR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Docker</span><span class="w"> </span><span class="n">Hub</span><span class="w">                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">└──────────────────────┬──────────────────────────────┘</span>
+<span class="w">                       </span><span class="err">│</span>
+<span class="w">                       </span><span class="err">▼</span>
+<span class="err">┌─</span><span class="w"> </span><span class="n">ArgoCD</span><span class="w"> </span><span class="p">(</span><span class="mh">16</span><span class="w"> </span><span class="n">apps</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">3</span><span class="w"> </span><span class="n">AppSets</span><span class="p">)</span><span class="w"> </span><span class="err">──────────────────────┐</span>
+<span class="err">│</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Wave</span><span class="w"> </span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="w"> </span><span class="n">Kyverno</span><span class="w"> </span><span class="n">policies</span><span class="w">                           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Wave</span><span class="w">  </span><span class="mh">0</span><span class="o">:</span><span class="w"> </span><span class="n">Infrastructure</span><span class="w"> </span><span class="p">(</span><span class="n">cert</span><span class="o">-</span><span class="n">manager</span><span class="p">,</span><span class="w"> </span><span class="n">ESO</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">.)</span><span class="w">   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Wave</span><span class="w">  </span><span class="mh">1</span><span class="o">:</span><span class="w"> </span><span class="n">Edge</span><span class="w"> </span><span class="n">foundation</span><span class="w">                            </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Wave</span><span class="w">  </span><span class="mh">2</span><span class="o">:</span><span class="w"> </span><span class="n">Intelligence</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="p">(</span><span class="n">parallel</span><span class="p">)</span><span class="w">           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nl">Strategies:</span><span class="w"> </span><span class="n">Blue</span><span class="o">-</span><span class="n">green</span><span class="w"> </span><span class="p">(</span><span class="n">prod</span><span class="p">),</span><span class="w"> </span><span class="n">Canary</span><span class="p">,</span><span class="w"> </span><span class="n">Rolling</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="nl">Notifications:</span><span class="w"> </span><span class="n">Slack</span><span class="w"> </span><span class="p">(</span><span class="n">success</span><span class="o">/</span><span class="n">failure</span><span class="w"> </span><span class="n">channels</span><span class="p">)</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform demonstrates <strong>mature, production-ready infrastructure</strong> with strong security foundations across most domains. The platform excels in:</p>
+<ol>
+<li><strong>Security posture</strong>: Non-root containers, TLS everywhere (except IoT), Vault secrets, multi-layer CI scanning</li>
+<li><strong>Event-driven architecture</strong>: NATS with mTLS and AES-256 encryption, 4-layer event model</li>
+<li><strong>Deployment automation</strong>: GitOps with ArgoCD, progressive delivery, PR previews</li>
+<li><strong>Monitoring depth</strong>: 129 alert rules including agricultural domain-specific alerts</li>
+</ol>
+<p>The three highest-priority improvements are:
+1. <strong>Enable MQTT TLS</strong> to close the IoT security gap
+2. <strong>Deploy log aggregation</strong> (Loki/ELK) for incident investigation
+3. <strong>Standardize Helm resource limits</strong> to prevent pod eviction</p>
+<hr />
+<p><em>Report generated: 2026-03-09</em>
+<em>Platform version: 16.0.0</em>
+<em>Analysis scope: 16 infrastructure domains</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

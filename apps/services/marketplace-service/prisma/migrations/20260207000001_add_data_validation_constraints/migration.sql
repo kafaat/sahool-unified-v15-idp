@@ -310,8 +310,8 @@ ADD CONSTRAINT "chk_scheduled_payment_failed_attempts_non_negative"
 CHECK ("failed_attempts" >= 0) NOT VALID;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- Validate all constraints (uses SHARE UPDATE EXCLUSIVE lock, non-blocking)
--- التحقق من جميع القيود (يستخدم قفل غير حاجب)
+-- Validate all constraints (SHARE UPDATE EXCLUSIVE lock: allows concurrent reads/writes, blocks DDL)
+-- التحقق من جميع القيود (يسمح بالقراءة والكتابة المتزامنة، يحظر تعديلات الهيكل)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Products

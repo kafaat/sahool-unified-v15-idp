@@ -17,7 +17,7 @@
 | Shared Module Docs | MEDIUM | 16 modules without README, 13 missing from CLAUDE.md |
 | Documentation Structure | LOW | Layer mismatches in SERVICES_MAP/CLAUDE.md |
 | NATS Event Architecture | WARNING | 272 defined, only 7 published (2.6%); 3 fragmented sources |
-| Knowledge Base | OK | Good coverage, no stub files |
+| Knowledge Base | GOOD | 91 docs, 100% bilingual; 9 module topics undocumented |
 | Port Conflicts | OK | No conflicts detected |
 | Dockerfiles | OK | Only `migrations` missing (expected) |
 
@@ -205,19 +205,33 @@ Overlap between governance files: **only 3 events** (14% alignment):
 
 ---
 
-## 8. Knowledge Base (OK)
+## 8. Knowledge Base (GOOD with gaps)
 
-Coverage is solid with 12 subdirectories:
-- `ai-smart-agriculture/`, `best-practices/`, `crops/` (19 files)
-- `digital-twin/`, `diseases/` (7), `fertilization/` (8)
-- `irrigation/` (8), `monitoring/` (6), `precision-farming/` (5)
-- `remote-sensing/` (5), `soils/` (7), `weather/` (6)
+**91 documents, 843.6 KB, 100% bilingual (EN/AR), 13 subdirectories, 0 stub files.**
 
-No stub files detected. Total: 74+ knowledge base documents.
+### 8.1 Strengths
+- 20 crop varieties with complete cultivation guides
+- Comprehensive irrigation (11 docs), fertilization (8), soils (7), weather (6)
+- 15 AI/smart-agriculture documents (233 KB)
+- 6 remote sensing docs including NDVI, LAI, hyperspectral
+
+### 8.2 Knowledge Gaps (9 undocumented modules)
+
+| Missing Topic | Relevant Services |
+|---------------|-------------------|
+| Terrain/DEM analysis | terrain-core-service, hydrology-service, leveling-optimizer-service |
+| Crop rotation planning | crop-rotation module, agro-rules |
+| Field boundaries/geospatial | field-boundaries module, field-management-service |
+| Geofencing configuration | geofencing module, alert-service |
+| Post-harvest quality | harvest-quality module, traceability-service |
+| Soil sensor/IoT integration | soil_sensors module, iot-service |
+| Pesticide compliance (PHI/REI) | pesticide_compliance module, advisory-service |
+| Equipment maintenance | equipment_maintenance module, equipment-service |
+| Drone integration guides | drone-integration module, drone-service |
 
 ---
 
-## 8. Infrastructure (OK)
+## 9. Infrastructure (OK)
 
 - **Port Conflicts:** None detected
 - **Dockerfiles:** All services have Dockerfiles except `migrations` (expected - utility only)

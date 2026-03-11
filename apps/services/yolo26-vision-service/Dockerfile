@@ -9,7 +9,7 @@ ARG PYTHON_VERSION=3.11
 # -----------------------------------------------------------------------------
 # Stage 1: Base image with CUDA
 # -----------------------------------------------------------------------------
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS base
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive

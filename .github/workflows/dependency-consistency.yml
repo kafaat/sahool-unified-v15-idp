@@ -1,0 +1,73 @@
+name: Dependency Consistency Check
+
+on:
+  pull_request:
+    paths:
+      - "constraints.txt"
+      - "docker/constraints-ai.txt"
+      - "requirements/**"
+      - "apps/services/*/requirements.txt"
+      - "apps/kernel/requirements.txt"
+      - "pyproject.toml"
+  push:
+    branches: [main, develop]
+    paths:
+      - "constraints.txt"
+      - "requirements/**"
+
+permissions:
+  contents: read
+
+jobs:
+  check-consistency:
+    name: Python Dependency Consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check dependency drift
+        run: |
+          python3 scripts/check-dependency-drift.py
+          EXIT=$?
+          if [ $EXIT -eq 1 ]; then
+            echo "::error::Dependency version drift detected between constraints.txt and service requirements"
+            echo ""
+            echo "Run 'python3 scripts/check-dependency-drift.py --fix' for suggestions"
+            exit 1
+          fi
+
+      - name: Verify constraints.txt coverage
+        run: |
+          # Ensure critical security packages are pinned in constraints.txt
+          MISSING=0
+          for PKG in "PyJWT" "cryptography" "python-jose" "python-multipart" "setuptools" "wheel" "Pillow"; do
+            if ! grep -qi "^${PKG}" constraints.txt; then
+              echo "::error::Critical package ${PKG} missing from constraints.txt"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -eq 1 ]; then
+            exit 1
+          fi
+          echo "All critical security packages are pinned in constraints.txt"
+
+      - name: Check for CVE comments
+        run: |
+          # Warn if security-pinned packages lose their CVE comments
+          WARNINGS=0
+          for PKG in "PyJWT" "cryptography" "python-jose" "python-multipart" "Pillow" "setuptools" "wheel"; do
+            LINE=$(grep -i "^${PKG}" constraints.txt 2>/dev/null || true)
+            if [ -n "$LINE" ] && ! echo "$LINE" | grep -qi "CVE\|security\|fix"; then
+              echo "::warning::${PKG} in constraints.txt is missing CVE/security comment"
+              WARNINGS=1
+            fi
+          done
+          if [ $WARNINGS -eq 0 ]; then
+            echo "All security-pinned packages have CVE comments"
+          fi

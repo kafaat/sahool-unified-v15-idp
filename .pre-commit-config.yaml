@@ -119,6 +119,14 @@ repos:
         types: [file]
         stages: [pre-commit]
 
+      # Dependency consistency check
+      - id: dependency-drift
+        name: "Python: Dependency drift check"
+        entry: bash -c 'if git diff --cached --name-only | grep -E "(constraints\.txt|requirements/.*\.txt|apps/services/.*/requirements\.txt|pyproject\.toml)$"; then python3 scripts/check-dependency-drift.py 2>/dev/null || echo "⚠️ Dependency drift detected - run: python3 scripts/check-dependency-drift.py --fix"; fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
       # Python type checking with mypy (optional - slower)
       - id: mypy-check
         name: "Python: Type check (mypy)"

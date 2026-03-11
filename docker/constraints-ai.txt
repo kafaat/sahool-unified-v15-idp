@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL AI/RAG Services Dependency Constraints
 # Version: 16.0.0
-# Updated: February 2026
+# Updated: March 2026
 # 
 # This file contains pinned versions for all AI/RAG services to ensure:
 # 1. Security: All known CVEs are patched

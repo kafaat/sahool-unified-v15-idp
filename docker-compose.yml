@@ -469,7 +469,7 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
       # SECURITY: API Key authentication (set QDRANT_API_KEY in .env for production)
       # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-changeme_in_production}
       - QDRANT__LOG_LEVEL=INFO
     # Qdrant healthcheck - verify qdrant is listening on REST port (6333)
     # فحص صحة Qdrant - التحقق من أن qdrant يستمع على منفذ REST

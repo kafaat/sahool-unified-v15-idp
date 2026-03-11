@@ -241,7 +241,8 @@ class _FirstFieldScreenState extends ConsumerState<FirstFieldScreen> {
                 onTap: () {
                   try {
                     Navigator.of(context).pushNamed('/field/draw-boundary');
-                  } catch (_) {
+                  } on FlutterError {
+                    // Route not registered during onboarding - expected
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('يمكنك رسم حدود الحقل بعد الإنشاء'),

@@ -9,7 +9,7 @@ avoiding gimbal lock issues with traditional Euler angles.
 import logging
 import math
 import os
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel
@@ -179,9 +179,9 @@ class DEMService:
     # Public API
     # ------------------------------------------------------------------
 
-    async def get_elevation(self, lat: float, lon: float) -> float:
+    def get_elevation_sync(self, lat: float, lon: float) -> float:
         """
-        Get terrain elevation at a geographic point.
+        Get terrain elevation at a geographic point (synchronous).
 
         Attempts to read the value from a local SRTM GeoTIFF tile via
         rasterio.  Returns ``self.default_elevation`` when rasterio is not
@@ -198,6 +198,18 @@ class DEMService:
         if elevation is not None:
             return elevation
         return self.default_elevation
+
+    async def get_elevation(self, lat: float, lon: float) -> float:
+        """
+        Async wrapper around :meth:`get_elevation_sync`.
+
+        Offloads the synchronous rasterio I/O to the default thread-pool
+        executor so it doesn't block the event loop.
+        """
+        import asyncio
+
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self.get_elevation_sync, lat, lon)
 
     def get_elevation_grid(
         self, bounds: tuple[float, float, float, float], resolution: float = 10.0

@@ -28,6 +28,8 @@ Step-by-step guides for setting up and using SAHOOL platform features.
 | [VAULT_QUICK_START.md](./VAULT_QUICK_START.md) | HashiCorp Vault setup |
 | [VISION_SERVICE_GUIDE.md](./VISION_SERVICE_GUIDE.md) | YOLO26 Vision service setup |
 | [WEBSOCKET_GUIDE.md](./WEBSOCKET_GUIDE.md) | WebSocket integration |
+| [CLAUDE_CODE_QUICK_START.md](./CLAUDE_CODE_QUICK_START.md) | Claude Code setup & usage |
+| [CLAUDE_CODE_INTEGRATION_GUIDE.md](./CLAUDE_CODE_INTEGRATION_GUIDE.md) | Claude Code platform integration |
 
 ## Getting Started
 

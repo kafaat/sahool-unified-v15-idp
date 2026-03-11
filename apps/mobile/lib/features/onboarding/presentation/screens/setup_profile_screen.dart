@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'dart:io' if (dart.library.js_interop) 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -205,7 +206,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                 color: SahoolColors.primary.withOpacity(0.3),
                 width: 3,
               ),
-              image: _profileImagePath != null
+              image: _profileImagePath != null && !kIsWeb
                   ? DecorationImage(
                       image: FileImage(File(_profileImagePath!)),
                       fit: BoxFit.cover,

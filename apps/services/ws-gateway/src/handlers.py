@@ -19,9 +19,32 @@ FIELD_MANAGEMENT_BASE_URL = os.getenv(
     "FIELD_MANAGEMENT_SERVICE_URL",
     "http://field-management-service:3000",
 )
-FIELD_MANAGEMENT_TIMEOUT = float(os.getenv("FIELD_MANAGEMENT_TIMEOUT", "5.0"))
+
+try:
+    FIELD_MANAGEMENT_TIMEOUT = float(os.getenv("FIELD_MANAGEMENT_TIMEOUT", "5.0"))
+except (ValueError, TypeError):
+    FIELD_MANAGEMENT_TIMEOUT = 5.0
+
+# When True, field/farm access is granted when field-management-service is
+# unreachable (fail-open).  Set to "false" for fail-closed behaviour.
+WS_FIELD_ACCESS_FAIL_OPEN = os.getenv("WS_FIELD_ACCESS_FAIL_OPEN", "true").lower() in (
+    "true",
+    "1",
+    "yes",
+)
 
 logger = logging.getLogger("ws-gateway.handlers")
+
+# Reuse a single httpx.AsyncClient for connection pooling
+_http_client: httpx.AsyncClient | None = None
+
+
+def _get_http_client() -> httpx.AsyncClient:
+    """Return a shared httpx.AsyncClient, creating it on first use."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(timeout=FIELD_MANAGEMENT_TIMEOUT)
+    return _http_client
 
 
 class MessageType:
@@ -399,7 +422,7 @@ class WebSocketMessageHandler:
 
     async def _validate_field_access(
         self,
-        resource_type: str,
+        resource_type: RoomType,
         resource_id: str,
         user_id: str | None,
         tenant_id: str | None,
@@ -430,8 +453,8 @@ class WebSocketMessageHandler:
             headers["X-Tenant-ID"] = tenant_id
 
         try:
-            async with httpx.AsyncClient(timeout=FIELD_MANAGEMENT_TIMEOUT) as client:
-                response = await client.get(url, headers=headers)
+            client = _get_http_client()
+            response = await client.get(url, headers=headers)
 
             if response.status_code == 200:
                 logger.info(
@@ -470,14 +493,22 @@ class WebSocketMessageHandler:
                 f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
             )
 
-        # Graceful degradation: allow access only if the user has a valid
-        # tenant_id (authenticated user).  Without the authoritative check from
+        # Graceful degradation: behaviour depends on WS_FIELD_ACCESS_FAIL_OPEN.
+        if not WS_FIELD_ACCESS_FAIL_OPEN:
+            logger.warning(
+                f"Field/farm access denied (fail-closed, service unavailable). "
+                f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
+            )
+            return False
+
+        # Fail-open: allow access only if the user has a valid tenant_id
+        # (authenticated user).  Without the authoritative check from
         # field-management-service we cannot verify field-level ownership, but
         # we ensure at minimum that an authenticated, tenant-scoped user is
         # making the request.
         if tenant_id:
             logger.info(
-                f"Field/farm access granted (simplified validation - service unavailable). "
+                f"Field/farm access granted (fail-open, service unavailable). "
                 f"Topic: {topic}, User: {user_id}, Tenant: {tenant_id}"
             )
             return True

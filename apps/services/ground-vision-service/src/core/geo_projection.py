@@ -229,12 +229,60 @@ class DEMService:
         if not HAS_RASTERIO:
             return lon_grid, lat_grid, elevation_grid
 
-        # Attempt to populate from DEM tiles
+        # Group grid cells by DEM tile so we can read a single window per tile
+        # instead of one pixel at a time (avoids O(n²) individual reads).
+        tile_cells: dict[str, list[tuple[int, int, float, float]]] = {}
         for i, lat in enumerate(lat_grid):
             for j, lon in enumerate(lon_grid):
-                val = self._read_elevation(lat, lon)
-                if val is not None:
-                    elevation_grid[i, j] = val
+                tile_path = self._get_dem_tile_path(lat, lon)
+                tile_cells.setdefault(tile_path, []).append((i, j, lat, lon))
+
+        for tile_path, cells in tile_cells.items():
+            ds = self._open_tile(tile_path)
+            if ds is None:
+                continue
+
+            nodata = ds.nodata
+
+            # Compute a bounding window that covers all cells in this tile
+            rows_cols = []
+            for _, _, lat, lon in cells:
+                try:
+                    r, c = rowcol(ds.transform, lon, lat)
+                    rows_cols.append((r, c))
+                except Exception:
+                    rows_cols.append((None, None))
+
+            valid = [(r, c) for r, c in rows_cols if r is not None]
+            if not valid:
+                continue
+
+            min_row = max(min(r for r, _ in valid), 0)
+            max_row = min(max(r for r, _ in valid), ds.height - 1)
+            min_col = max(min(c for _, c in valid), 0)
+            max_col = min(max(c for _, c in valid), ds.width - 1)
+
+            try:
+                window = rasterio.windows.Window(
+                    min_col, min_row,
+                    max_col - min_col + 1, max_row - min_row + 1,
+                )
+                data = ds.read(1, window=window)
+            except Exception:
+                continue
+
+            # Map each cell to the batch-read data
+            for idx, (i, j, lat, lon) in enumerate(cells):
+                rc = rows_cols[idx]
+                if rc[0] is None:
+                    continue
+                r, c = rc
+                if r < min_row or r > max_row or c < min_col or c > max_col:
+                    continue
+                value = float(data[r - min_row, c - min_col])
+                if nodata is not None and value == nodata:
+                    continue
+                elevation_grid[i, j] = value
 
         return lon_grid, lat_grid, elevation_grid
 

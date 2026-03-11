@@ -6,7 +6,7 @@ NATS event handler for AI chat queries.
 import json
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import UTC, datetime
 
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
@@ -74,7 +74,7 @@ class NATSEventHandler:
         Args:
             msg: NATS message containing AI query
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             # Parse message data
@@ -90,7 +90,7 @@ class NATSEventHandler:
             await self._publish_response(response)
 
             # Log processing time
-            total_time_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
             logger.info(
                 f"Processed query in {total_time_ms}ms "
                 f"(cached: {response.metadata.cached}, "
@@ -109,7 +109,7 @@ class NATSEventHandler:
                 except Exception:
                     pass
 
-                total_time_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+                total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
                 error_response = AIResponse(
                     conversation_id=conversation_id,
                     answer="عذراً، حدث خطأ أثناء معالجة استفسارك. يرجى المحاولة مرة أخرى.",

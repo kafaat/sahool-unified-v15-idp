@@ -120,7 +120,9 @@ class FarmerRepository:
             conditions.append(
                 f"(LOWER(name) LIKE ${param_idx} OR name_ar LIKE ${param_idx} OR phone LIKE ${param_idx})"
             )
-            params.append(f"%{search.lower()}%")
+            # Escape LIKE wildcards to prevent LIKE injection
+            escaped = search.lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            params.append(f"%{escaped}%")
             param_idx += 1
 
         where_clause = " AND ".join(conditions)

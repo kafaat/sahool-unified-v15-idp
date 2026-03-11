@@ -210,6 +210,7 @@ export class AlertService {
         { severity: "desc" }, // Critical first
         { createdAt: "desc" },
       ],
+      take: 100,
     });
 
     // Sort by severity (critical first) - custom ordering since Prisma doesn't handle enum sorting well
@@ -260,6 +261,7 @@ export class AlertService {
     const weatherAlerts = await this.prisma.disasterAlert.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
 
     // Add hourly forecast summary (mock data - could be integrated with weather service)
@@ -327,6 +329,7 @@ export class AlertService {
     const alerts = await this.prisma.disasterAlert.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
 
     // Generate 10-day pest/disease risk forecast (mock data)

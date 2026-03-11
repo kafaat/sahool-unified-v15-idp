@@ -8,6 +8,7 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  Logger,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
@@ -288,6 +289,8 @@ class AnalyzeFieldDto {
 @Controller("planting-strategy")
 @UseGuards(JwtAuthGuard)
 export class PlantingStrategyController {
+  private readonly logger = new Logger(PlantingStrategyController.name);
+
   constructor(
     private readonly plantingStrategyService: PlantingStrategyService,
   ) {}
@@ -479,7 +482,11 @@ export class PlantingStrategyController {
         guidance,
       };
     } catch (error) {
-      throw new HttpException(error instanceof Error ? error.message : String(error), HttpStatus.BAD_REQUEST);
+      this.logger.error(`Failed to get method guidance for ${methodId}`, error instanceof Error ? error.stack : String(error));
+      throw new HttpException(
+        'An error occurred processing the request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

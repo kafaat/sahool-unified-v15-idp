@@ -12,7 +12,7 @@ prometheus-client>=0.20.0
 
 {%- if values.input_source == "nats" or values.output_sink == "nats" %}
 # NATS
-nats-py==2.13.1
+nats-py==2.14.0
 {%- endif %}
 
 {%- if values.input_source == "postgres" or values.output_sink == "postgres" %}

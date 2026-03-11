@@ -754,6 +754,7 @@ def generate_postgis_neighbors_query(
         SQL query string
     """
     g = geometry_column
+    # SECURITY: Use parameterized placeholder ($1) for boundary_id to prevent SQL injection
     return f"""
     SELECT
         b.id,
@@ -763,7 +764,7 @@ def generate_postgis_neighbors_query(
         ST_Touches(a.{g}, b.{g}) AS is_touching
     FROM {table} a
     JOIN {table} b ON a.id != b.id
-    WHERE a.id = '{boundary_id}'
+    WHERE a.id = $1
         AND (
             ST_Touches(a.{g}, b.{g})
             OR ST_DWithin(a.{g}::geography, b.{g}::geography, {buffer_m})

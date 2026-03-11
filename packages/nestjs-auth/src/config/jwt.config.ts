@@ -18,9 +18,15 @@ export interface JWTConfigInterface {
 export class JWTConfig {
   /**
    * JWT Secret Key (required)
+   * Throws if not set in non-test environments.
    */
-  static readonly SECRET: string =
-    process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
+  static readonly SECRET: string = (() => {
+    const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || '';
+    if (!secret && process.env.NODE_ENV !== 'test') {
+      throw new Error('JWT_SECRET_KEY or JWT_SECRET environment variable must be set');
+    }
+    return secret || 'test-secret-key-for-unit-tests-only-32chars';
+  })();
 
   /**
    * JWT Algorithm - HS256 only (RS256 deprecated)
@@ -101,7 +107,30 @@ export class JWTConfig {
     if (env === "production" || env === "staging") {
       if (!this.SECRET || this.SECRET.length < 32) {
         throw new Error(
-          "JWT_SECRET must be at least 32 characters in production",
+          "JWT_SECRET must be at least 32 characters in production/staging",
+        );
+      }
+    } else if (env === "development") {
+      if (!this.SECRET) {
+        throw new Error(
+          "JWT_SECRET must be set in development",
+        );
+      }
+      if (this.SECRET.length < 16) {
+        throw new Error(
+          "JWT_SECRET must be at least 16 characters in development",
+        );
+      }
+      if (this.SECRET.length < 32) {
+        console.warn(
+          "[SECURITY WARNING] JWT_SECRET is shorter than 32 characters in development. " +
+          "Use a stronger secret to match production requirements.",
+        );
+      }
+    } else if (env === "test") {
+      if (!this.SECRET) {
+        throw new Error(
+          "JWT_SECRET must not be empty, even in test environment",
         );
       }
     }

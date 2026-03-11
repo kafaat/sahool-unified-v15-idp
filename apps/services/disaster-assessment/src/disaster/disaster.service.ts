@@ -187,6 +187,7 @@ export class DisasterService {
     const disasters = await this.prisma.disasterReport.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
 
     return {
@@ -540,6 +541,7 @@ export class DisasterService {
     const disasters = await this.prisma.disasterReport.findMany({
       where,
       select: { totalEstimatedLossYER: true, type: true },
+      take: 1000,
     });
 
     const totalLoss = disasters.reduce(
@@ -596,37 +598,47 @@ export class DisasterService {
   }
 
   private async getMonthlyDistribution(year: number, tenantId: string, governorate?: string) {
-    const months = [];
-    for (let month = 1; month <= 12; month++) {
-      const startOfMonth = new Date(`${year}-${month.toString().padStart(2, "0")}-01`);
-      const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+    const startOfYear = new Date(`${year}-01-01T00:00:00Z`);
+    const endOfYear = new Date(`${year}-12-31T23:59:59Z`);
 
-      const where: any = {
-        tenantId,
-        createdAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      };
+    // Single query to fetch all disasters for the year, replacing 24 sequential queries (N+1)
+    const where: any = {
+      tenantId,
+      createdAt: {
+        gte: startOfYear,
+        lte: endOfYear,
+      },
+    };
 
-      if (governorate) {
-        where.governorate = governorate;
-      }
-
-      const count = await this.prisma.disasterReport.count({ where });
-      const disasters = await this.prisma.disasterReport.findMany({
-        where,
-        select: { totalEstimatedLossYER: true },
-      });
-
-      const lossYER = disasters.reduce(
-        (sum, d) => sum + (d.totalEstimatedLossYER ? Number(d.totalEstimatedLossYER) : 0),
-        0,
-      );
-
-      months.push({ month, count, lossYER });
+    if (governorate) {
+      where.governorate = governorate;
     }
-    return months;
+
+    const disasters = await this.prisma.disasterReport.findMany({
+      where,
+      select: { createdAt: true, totalEstimatedLossYER: true },
+      take: 10000,
+    });
+
+    // Initialize all 12 months
+    const monthMap = new Map<number, { count: number; lossYER: number }>();
+    for (let m = 1; m <= 12; m++) {
+      monthMap.set(m, { count: 0, lossYER: 0 });
+    }
+
+    // Aggregate in-memory by month
+    for (const d of disasters) {
+      const month = d.createdAt.getMonth() + 1; // getMonth() is 0-indexed
+      const entry = monthMap.get(month)!;
+      entry.count += 1;
+      entry.lossYER += d.totalEstimatedLossYER ? Number(d.totalEstimatedLossYER) : 0;
+    }
+
+    return Array.from(monthMap.entries()).map(([month, data]) => ({
+      month,
+      count: data.count,
+      lossYER: data.lossYER,
+    }));
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

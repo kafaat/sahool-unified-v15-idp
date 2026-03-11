@@ -3,7 +3,7 @@
 
 # FastAPI framework
 fastapi==0.135.1
-uvicorn>=0.34.0,<1.0.0
+uvicorn[standard]==0.41.0
 pydantic==2.12.5
 pydantic-settings==2.13.1
 # Async support

@@ -20,6 +20,7 @@
   "dependencies": {
     "@sahool/api-client": "^16.0.0",
     "@sahool/shared-types": "^16.0.0",
+    "@opentelemetry/api": "^1.9.0",
     "@sentry/nextjs": "^9.5.0",
     "axios": "1.13.6",
     "clsx": "2.1.1",
@@ -28,7 +29,7 @@
     "js-cookie": "3.0.5",
     "leaflet": "1.9.4",
     "lucide-react": "0.575.0",
-    "next": "^15.5.12",
+    "next": "15.5.12",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "4.2.1",

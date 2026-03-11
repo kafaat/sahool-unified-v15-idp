@@ -19,6 +19,16 @@ export default defineConfig({
       "shared/**/*.{test,spec}.{ts,tsx}",
       // API Integration Tests
       "tests/integration/api/**/*.{test,spec}.{ts,tsx}",
+      // Contract Consistency Tests
+      "tests/integration/contracts/**/*.{test,spec}.{ts,tsx}",
+      // Resilience & Error Handling Tests
+      "tests/integration/resilience/**/*.{test,spec}.{ts,tsx}",
+      // Security Integration Tests
+      "tests/integration/security/**/*.{test,spec}.{ts,tsx}",
+      // Database Integration Tests
+      "tests/integration/database/**/*.{test,spec}.{ts,tsx}",
+      // Financial Precision & Wallet Tests
+      "tests/integration/financial/**/*.{test,spec}.{ts,tsx}",
     ],
     exclude: [
       "**/node_modules/**",

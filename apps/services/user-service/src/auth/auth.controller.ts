@@ -18,6 +18,7 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  Logger,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -223,6 +224,8 @@ class RegisterRequestDto implements RegisterDto {
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   /**
@@ -277,7 +280,7 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     // SECURITY: Don't log email addresses - only log anonymized info for auditing
     // Use a hash or masked email for correlation if needed in production logging system
-    console.log(`Login attempt from IP: ${ip}`);
+    this.logger.log(`Login attempt from IP: ${ip}`);
 
     return this.authService.login(loginDto);
   }
@@ -336,7 +339,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: "Too many registration attempts" })
   async register(@Body() registerDto: RegisterRequestDto, @Req() request: Request) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`Registration attempt from IP: ${ip}`);
+    this.logger.log(`Registration attempt from IP: ${ip}`);
 
     return this.authService.register(registerDto);
   }
@@ -371,7 +374,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: "Too many password reset requests" })
   async forgotPassword(@Body() dto: ForgotPasswordRequestDto, @Req() request: Request) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`Password reset request from IP: ${ip}`);
+    this.logger.warn(`Password reset request from IP: ${ip}`);
 
     return this.authService.forgotPassword(dto.email);
   }
@@ -410,7 +413,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: "Too many reset attempts" })
   async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: Request) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`Password reset attempt from IP: ${ip}`);
+    this.logger.warn(`Password reset attempt from IP: ${ip}`);
 
     return this.authService.resetPassword(dto.token, dto.newPassword);
   }
@@ -450,7 +453,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: "Too many OTP requests" })
   async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: Request) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`OTP send request from IP: ${ip}`);
+    this.logger.log(`OTP send request from IP: ${ip}`);
 
     return this.authService.sendOtp(dto);
   }
@@ -494,7 +497,7 @@ export class AuthController {
   @ApiResponse({ status: 429, description: "Too many verification attempts" })
   async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: Request) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`OTP verification attempt from IP: ${ip}`);
+    this.logger.log(`OTP verification attempt from IP: ${ip}`);
 
     return this.authService.verifyOtp(dto);
   }

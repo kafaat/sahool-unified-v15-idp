@@ -16,8 +16,8 @@ on:
       - 'api/gateway-openapi.yaml'
       - 'infrastructure/gateway/kong/kong.yml'
       - 'infrastructure/gateway/kong/kong-v2-routes.yml'
-      - 'packages/shared-types/src/contracts/api-endpoints.ts'
-      - 'packages/shared-types/src/contracts/service-ports.ts'
+      # Contract files (api-endpoints, service-ports) are validated by
+      # api-contracts-guard.yml - no need to duplicate here
       - 'scripts/validate-kong-vs-openapi.ts'
 
 permissions:

@@ -228,6 +228,13 @@ class OfflineSyncEngine {
 
       AppLogger.sync('Sync completed', success: result.success, details: result.message);
 
+      // Auto-cleanup old completed items to prevent unbounded growth
+      try {
+        await _outbox.clearCompleted();
+      } catch (e) {
+        AppLogger.w('Failed to cleanup completed items', tag: 'SYNC', error: e);
+      }
+
       return result;
     } catch (e) {
       AppLogger.e('Sync failed', tag: 'SYNC', error: e);
@@ -277,25 +284,32 @@ class OfflineSyncEngine {
   Future<void> _processUpdate(OutboxEntry entry) async {
     // Check for conflicts
     if (entry.previousData != null) {
-      final serverData = await _fetchServerData(entry.entityType, entry.entityId!);
-      if (serverData != null) {
-        final hasConflict = _conflictResolver.detectConflict(
-          local: entry.data,
-          server: serverData,
-          base: entry.previousData!,
-        );
-
-        if (hasConflict) {
-          final resolved = await _conflictResolver.resolve(
+      try {
+        final serverData = await _fetchServerData(entry.entityType, entry.entityId!);
+        if (serverData != null) {
+          final hasConflict = _conflictResolver.detectConflict(
             local: entry.data,
             server: serverData,
             base: entry.previousData!,
-            strategy: ConflictStrategy.serverWins, // or custom logic
           );
 
-          // Use resolved data
-          entry = entry.copyWith(data: resolved);
+          if (hasConflict) {
+            final resolved = await _conflictResolver.resolve(
+              local: entry.data,
+              server: serverData,
+              base: entry.previousData!,
+              strategy: ConflictStrategy.serverWins, // or custom logic
+            );
+
+            // Use resolved data
+            entry = entry.copyWith(data: resolved);
+          }
         }
+      } catch (e) {
+        // Server data fetch failed - cannot detect conflicts safely
+        // Mark as failed for retry rather than silently proceeding
+        AppLogger.w('Conflict check failed, deferring update for retry', tag: 'SYNC', error: e);
+        rethrow;
       }
     }
 

@@ -121,7 +121,7 @@ services:
     volumes:
       - nats_data:/data
     ports:
-      - "${NATS_PORT:-4222}:4222"
+      - "127.0.0.1:${NATS_PORT:-4222}:4222"
       - "127.0.0.1:${NATS_MONITOR_PORT:-8222}:8222"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8222/healthz || exit 1"]

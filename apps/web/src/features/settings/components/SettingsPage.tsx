@@ -188,7 +188,7 @@ const NotificationsTab: React.FC = () => {
                 <span className="text-sm text-gray-700">{key}</span>
                 <input
                   type="checkbox"
-                  checked={value}
+                  checked={value as boolean}
                   onChange={(e) => handleUpdate("email", key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
                 />
@@ -211,7 +211,7 @@ const NotificationsTab: React.FC = () => {
                 <span className="text-sm text-gray-700">{key}</span>
                 <input
                   type="checkbox"
-                  checked={value}
+                  checked={value as boolean}
                   onChange={(e) => handleUpdate("push", key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
                 />

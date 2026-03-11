@@ -1298,5 +1298,55 @@ stats-detailed: ## إحصائيات المنصة المفصلة - Project statis
 	@echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Version & Dependency Management - إدارة الإصدارات والاعتماديات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: version version-bump version-bump-dry deps-drift deps-drift-json deps-sync
+
+version: ## عرض إصدار المنصة الحالي - Show current platform version
+	@echo "$(BLUE)SAHOOL Platform Version:$(RESET)"
+	@grep -oP '^version\s*=\s*"\K[^"]+' pyproject.toml 2>/dev/null || echo "unknown"
+	@echo ""
+	@echo "$(YELLOW)Component versions:$(RESET)"
+	@echo "  Python (pyproject.toml): $$(grep -oP '^version\s*=\s*\"\K[^\"]+' pyproject.toml 2>/dev/null || echo 'N/A')"
+	@echo "  Node.js (package.json):  $$(node -e 'console.log(require("./package.json").version)' 2>/dev/null || echo 'N/A')"
+
+version-bump: ## ترقية الإصدار - Bump platform version (usage: make version-bump V=16.1.0)
+	@if [ -z "$(V)" ]; then \
+		echo "$(RED)Error: Version required$(RESET)"; \
+		echo "$(YELLOW)Usage: make version-bump V=16.1.0$(RESET)"; \
+		exit 1; \
+	fi
+	@./scripts/bump-version.sh $(V)
+
+version-bump-dry: ## معاينة ترقية الإصدار - Preview version bump (usage: make version-bump-dry V=16.1.0)
+	@if [ -z "$(V)" ]; then \
+		echo "$(RED)Error: Version required$(RESET)"; \
+		echo "$(YELLOW)Usage: make version-bump-dry V=16.1.0$(RESET)"; \
+		exit 1; \
+	fi
+	@./scripts/bump-version.sh $(V) --dry-run
+
+deps-drift: ## كشف انحراف الاعتماديات - Detect dependency version drift
+	@python3 scripts/check-dependency-drift.py
+
+deps-drift-json: ## كشف الانحراف (JSON) - Dependency drift report as JSON
+	@python3 scripts/check-dependency-drift.py --json
+
+deps-sync: ## مزامنة الاعتماديات - Full dependency sync check (drift + compatibility)
+	@echo "$(BLUE)$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BLUE)$(BOLD)  SAHOOL - Full Dependency Sync Check$(RESET)"
+	@echo "$(BLUE)$(BOLD)  فحص مزامنة الاعتماديات الشامل$(RESET)"
+	@echo "$(BLUE)$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)Step 1: Drift detection...$(RESET)"
+	@python3 scripts/check-dependency-drift.py || true
+	@echo ""
+	@echo "$(YELLOW)Step 2: Compatibility check...$(RESET)"
+	@./scripts/check-dependency-compatibility.sh || true
+	@echo ""
+	@echo "$(GREEN)$(BOLD)Sync check complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -364,7 +364,9 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      this.logger.error(`Logout error: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Logout error: ${message}`, stack);
       throw new Error("Logout failed");
     }
   }
@@ -389,7 +391,9 @@ export class AuthService {
         throw new Error("Failed to revoke all tokens");
       }
     } catch (error) {
-      this.logger.error(`Logout all error: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Logout all error: ${message}`, stack);
       throw new Error("Logout from all devices failed");
     }
   }
@@ -428,9 +432,11 @@ export class AuthService {
         `Token family invalidated due to reuse detection: family=${family.substring(0, 8)}...`,
       );
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
-        `Failed to invalidate token family: ${error.message}`,
-        error.stack,
+        `Failed to invalidate token family: ${message}`,
+        stack,
       );
       throw error;
     }
@@ -545,7 +551,9 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      this.logger.error(`Token refresh error: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Token refresh error: ${message}`, stack);
       throw new UnauthorizedException("Invalid refresh token");
     }
   }
@@ -885,10 +893,12 @@ SAHOOL - National Agricultural Intelligence Platform
         email: this.sanitizeForLog(email),
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
       this.logger.error("Failed to send password reset email", {
         email: this.sanitizeForLog(email),
-        error: error.message,
-        stack: error.stack,
+        error: message,
+        stack,
       });
       // Don't throw error to prevent email enumeration
       // The caller will still return success message
@@ -1105,7 +1115,9 @@ SAHOOL - National Agricultural Intelligence Platform
       if (error instanceof BadRequestException) {
         throw error;
       }
-      this.logger.error(`Error sending OTP: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error sending OTP: ${message}`, stack);
       throw new BadRequestException(
         "Failed to send OTP. Please try again later.",
       );
@@ -1241,7 +1253,9 @@ SAHOOL - National Agricultural Intelligence Platform
       if (error instanceof BadRequestException) {
         throw error;
       }
-      this.logger.error(`Error verifying OTP: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error verifying OTP: ${message}`, stack);
       throw new BadRequestException(
         "Failed to verify OTP. Please try again.",
       );

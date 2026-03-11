@@ -53,9 +53,10 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is ready" })
   readyz() {
     return {
-      status: "ready",
+      status: "ok",
       service: "iot-service",
-      mqtt: "connected",
+      version: "16.0.0",
+      timestamp: new Date().toISOString(),
     };
   }
 }

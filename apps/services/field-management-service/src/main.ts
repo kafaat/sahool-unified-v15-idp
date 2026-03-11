@@ -13,12 +13,16 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, Logger } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 
 const logger = new Logger("Bootstrap");
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers
+  app.use(helmet());
 
   // Global validation pipe with transformation
   app.useGlobalPipes(
@@ -54,36 +58,38 @@ async function bootstrap() {
     exposedHeaders: ["ETag", "X-Cache", "X-Cache-Key"],
   });
 
-  // Swagger/OpenAPI Documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Field Management API")
-    .setDescription(
-      `
-      خدمة إدارة الحقول الزراعية
+  // Swagger/OpenAPI Documentation (non-production only)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Field Management API")
+      .setDescription(
+        `
+        خدمة إدارة الحقول الزراعية
 
-      ## Features
-      - **Field CRUD**: Full field management with PostGIS
-      - **Mobile Sync**: Delta sync for offline-first apps
-      - **NDVI Analysis**: Vegetation index tracking
-      - **Task Management**: Agricultural operations
-      - **Boundary History**: Version tracking with rollback
-    `,
-    )
-    .setVersion("16.0.0")
-    .addTag("Fields - الحقول", "Field management")
-    .addTag("Tasks - المهام", "Task management")
-    .addTag("NDVI - مؤشر الغطاء النباتي", "Vegetation index")
-    .addTag("Sync - المزامنة", "Mobile sync")
-    .addTag("Health - الصحة", "Service health")
-    .addBearerAuth()
-    .addApiKey(
-      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
-      "tenant-id",
-    )
-    .build();
+        ## Features
+        - **Field CRUD**: Full field management with PostGIS
+        - **Mobile Sync**: Delta sync for offline-first apps
+        - **NDVI Analysis**: Vegetation index tracking
+        - **Task Management**: Agricultural operations
+        - **Boundary History**: Version tracking with rollback
+      `,
+      )
+      .setVersion("16.0.0")
+      .addTag("Fields - الحقول", "Field management")
+      .addTag("Tasks - المهام", "Task management")
+      .addTag("NDVI - مؤشر الغطاء النباتي", "Vegetation index")
+      .addTag("Sync - المزامنة", "Mobile sync")
+      .addTag("Health - الصحة", "Service health")
+      .addBearerAuth()
+      .addApiKey(
+        { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+        "tenant-id",
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   // Start server
   const port = process.env.PORT || 3000;

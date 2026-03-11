@@ -1,7 +1,8 @@
 # SAHOOL Testing Requirements
 # ============================
 # Testing dependencies for all services
-# Updated: December 2025
+# Updated: March 2026
+# Synced with constraints.txt
 
 # Pytest Framework
 pytest==8.4.2

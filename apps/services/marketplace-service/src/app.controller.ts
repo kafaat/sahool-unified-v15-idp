@@ -86,9 +86,8 @@ export class AppController {
     @Query("sellerId") sellerId?: string,
     @Query("minPrice") minPrice?: string,
     @Query("maxPrice") maxPrice?: string,
-    @Query("tenantId") queryTenantId?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.marketService.findAllProducts({
       category,
       governorate,
@@ -187,8 +186,8 @@ export class AppController {
    * GET /api/v1/market/stats
    */
   @Get("market/stats")
-  async getMarketStats(@Req() req: any, @Query("tenantId") queryTenantId?: string) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+  async getMarketStats(@Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.marketService.getMarketStats(tenantId);
   }
 

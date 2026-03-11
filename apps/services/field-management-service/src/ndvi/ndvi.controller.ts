@@ -16,6 +16,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { NdviService } from "./ndvi.service";
 import { IsNumber, IsOptional, IsString, Min, Max } from "class-validator";
+import { getRequestTenantId } from "../auth/tenant.utils";
 
 class UpdateNdviDto {
   @IsNumber()
@@ -46,8 +47,12 @@ export class NdviController {
   @ApiOperation({ summary: "Get NDVI analysis for a field" })
   @ApiParam({ name: "id", type: String })
   @ApiResponse({ status: 200, description: "NDVI data retrieved" })
-  async getFieldNdvi(@Param("id", ParseUUIDPipe) id: string) {
-    const data = await this.ndviService.getFieldNdvi(id);
+  async getFieldNdvi(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const data = await this.ndviService.getFieldNdvi(id, tenantId);
     return {
       success: true,
       data,
@@ -62,11 +67,14 @@ export class NdviController {
   @ApiParam({ name: "id", type: String })
   @ApiResponse({ status: 200, description: "NDVI updated" })
   async updateFieldNdvi(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateNdviDto,
   ) {
+    const tenantId = getRequestTenantId(req);
     const data = await this.ndviService.updateFieldNdvi(
       id,
+      tenantId,
       dto.value,
       dto.source,
       dto.cloudCover,
@@ -83,13 +91,10 @@ export class NdviController {
    */
   @Get("ndvi/summary")
   @ApiOperation({ summary: "Get NDVI summary for tenant" })
-  @ApiQuery({ name: "tenantId", required: false })
   @ApiResponse({ status: 200, description: "NDVI summary retrieved" })
-  async getTenantSummary(
-    @Req() req: any,
-    @Query("tenantId") queryTenantId?: string,
-  ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+  async getTenantSummary(@Req() req: any) {
+    // Always use authenticated tenant, ignore query params
+    const tenantId = getRequestTenantId(req);
     const data = await this.ndviService.getTenantNdviSummary(tenantId);
     return {
       success: true,

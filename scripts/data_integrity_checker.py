@@ -46,7 +46,7 @@ logger = logging.getLogger("data-integrity")
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://sahool:sahool@localhost:5432/sahool")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Convert to asyncpg format
 if DATABASE_URL.startswith("postgresql://"):

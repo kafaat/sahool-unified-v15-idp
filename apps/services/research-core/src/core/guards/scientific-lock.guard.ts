@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  InternalServerErrorException,
   Logger,
   Inject,
 } from "@nestjs/common";
@@ -154,14 +155,19 @@ export class ScientificLockGuard implements CanActivate {
       };
     } catch (error) {
       this.logger.error(
-        `Error checking experiment lock status: ${error instanceof Error ? error.message : String(error)}`,
+        `SECURITY: Failed to verify experiment lock status for experiment=${experimentId} tenant=${tenantId}. ` +
+        `Failing closed to prevent unauthorized modification. Error: ${error instanceof Error ? error.message : String(error)}`,
       );
-      // On error, default to allowing the operation
-      // but log for investigation
-      return {
-        isLocked: false,
-        status: "error",
-      };
+      // SECURITY: Fail closed - deny modification when lock status cannot be verified
+      throw new InternalServerErrorException({
+        statusCode: 500,
+        error: "Lock Verification Failed",
+        message:
+          "تعذر التحقق من حالة قفل التجربة. تم رفض العملية للحفاظ على سلامة البيانات.",
+        messageEn:
+          "Unable to verify experiment lock status. Operation denied to maintain data integrity.",
+        experimentId,
+      });
     }
   }
 

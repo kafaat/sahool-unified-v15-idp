@@ -24,9 +24,6 @@ export class HealthController {
       status: "ready",
       service: "yield-prediction",
       version: "16.0.0",
-      checks: {
-        yield_engine: "initialized",
-      },
       timestamp: new Date().toISOString(),
     };
   }

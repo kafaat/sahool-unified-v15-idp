@@ -13,6 +13,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import helmet from 'helmet';
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
@@ -28,6 +29,9 @@ async function bootstrap() {
   // Global request logging interceptor with correlation IDs
   app.useGlobalInterceptors(new RequestLoggingInterceptor("lai-estimation"));
 
+  // Helmet security headers
+  app.use(helmet());
+
   // CORS
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
     "https://sahool.com",
@@ -35,11 +39,12 @@ async function bootstrap() {
   ];
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
-  // Swagger
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL LAI Estimation API")
-    .setDescription(
-      `
+  // Swagger - only in non-production environments
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL LAI Estimation API")
+      .setDescription(
+        `
       خدمة تقدير مؤشر مساحة الأوراق (LAI)
 
       Leaf Area Index Estimation Service based on LAI-TransNet research providing:
@@ -65,13 +70,14 @@ async function bootstrap() {
       - CNN-TL transfer learning (R²=0.81)
       - CycleGAN domain alignment
     `,
-    )
-    .setVersion("16.0.0")
-    .addBearerAuth()
-    .build();
+      )
+      .setVersion("16.0.0")
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 3022;
   await app.listen(port);

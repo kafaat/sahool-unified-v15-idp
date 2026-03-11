@@ -19,6 +19,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, RequestMethod } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
@@ -28,6 +29,9 @@ async function bootstrap() {
     logger: false, // Disable default logger, use Pino instead
     bufferLogs: true,
   });
+
+  // Security headers
+  app.use(helmet());
 
   // Use Pino logger
   app.useLogger(app.get(Logger));
@@ -74,45 +78,47 @@ async function bootstrap() {
     ],
   });
 
-  // Swagger/OpenAPI Documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Chat Service API")
-    .setDescription(
-      `
-      خدمة المحادثات للسوق الزراعي
+  // Swagger/OpenAPI Documentation - disabled in production
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Chat Service API")
+      .setDescription(
+        `
+        خدمة المحادثات للسوق الزراعي
 
-      ## Features
-      - **Real-time Messaging**: Socket.IO WebSocket for instant communication
-      - **Buyer-Seller Chat**: Direct messaging between buyers and sellers
-      - **Product Context**: Link conversations to specific products
-      - **Order Integration**: Associate chats with marketplace orders
-      - **Rich Messages**: Support text, images, and price offers
-      - **Read Receipts**: Track message delivery and read status
-      - **Typing Indicators**: Real-time typing notifications
-      - **Online Status**: Track user presence
+        ## Features
+        - **Real-time Messaging**: Socket.IO WebSocket for instant communication
+        - **Buyer-Seller Chat**: Direct messaging between buyers and sellers
+        - **Product Context**: Link conversations to specific products
+        - **Order Integration**: Associate chats with marketplace orders
+        - **Rich Messages**: Support text, images, and price offers
+        - **Read Receipts**: Track message delivery and read status
+        - **Typing Indicators**: Real-time typing notifications
+        - **Online Status**: Track user presence
 
-      ## WebSocket Events
-      - \`join_conversation\` - Join a conversation room
-      - \`send_message\` - Send a message to conversation
-      - \`message_received\` - Receive new messages
-      - \`typing\` - Send/receive typing indicators
-      - \`read_receipt\` - Mark messages as read
-      - \`user_online\` - User online status
-      - \`user_offline\` - User offline status
-    `,
-    )
-    .setVersion("16.0.0")
-    .addTag("Chat", "Chat conversation management")
-    .addTag("Messages", "Message operations")
-    .addBearerAuth()
-    .addApiKey(
-      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
-      "tenant-id",
-    )
-    .build();
+        ## WebSocket Events
+        - \`join_conversation\` - Join a conversation room
+        - \`send_message\` - Send a message to conversation
+        - \`message_received\` - Receive new messages
+        - \`typing\` - Send/receive typing indicators
+        - \`read_receipt\` - Mark messages as read
+        - \`user_online\` - User online status
+        - \`user_offline\` - User offline status
+      `,
+      )
+      .setVersion("16.0.0")
+      .addTag("Chat", "Chat conversation management")
+      .addTag("Messages", "Message operations")
+      .addBearerAuth()
+      .addApiKey(
+        { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+        "tenant-id",
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 8115;
   await app.listen(port);

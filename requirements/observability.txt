@@ -1,7 +1,8 @@
 # SAHOOL Observability Requirements
 # ==================================
 # Monitoring, logging, and tracing dependencies
-# Updated: December 2025
+# Updated: March 2026
+# Synced with constraints.txt
 
 # Prometheus Metrics
 prometheus-client==0.24.1

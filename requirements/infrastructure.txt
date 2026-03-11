@@ -1,21 +1,24 @@
 # SAHOOL Infrastructure Requirements
 # ===================================
 # Shared infrastructure dependencies for services with data/messaging needs
-# Updated: December 2025
+# Updated: March 2026
+# Synced with constraints.txt
 
 # Include base requirements
 -r base.txt
 
 # Database & ORM
 asyncpg==0.31.0
-tortoise-orm==0.25.4
+tortoise-orm==1.1.6
+# aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.6
 
 # NATS Messaging
 nats-py==2.14.0
 
 # Redis Caching
-redis==5.3.1
+redis>=7.1.0,<8.0.0
 
 # Authentication & Security
-python-jose[cryptography]>=3.4.0
+python-jose[cryptography]>=3.5.0  # CVE-2024-33663, CVE-2024-33664
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
 passlib[bcrypt]==1.7.4

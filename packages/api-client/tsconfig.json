@@ -5,8 +5,8 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@sahool/shared-types": ["../shared-types/dist"],
-      "@sahool/shared-types/*": ["../shared-types/dist/*"]
+      "@sahool/shared-types": ["../shared-types/src"],
+      "@sahool/shared-types/*": ["../shared-types/src/*"]
     },
     "lib": ["ES2020", "DOM"],
     "types": ["node"],
@@ -23,5 +23,8 @@
     "isolatedModules": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../shared-types" }
+  ]
 }

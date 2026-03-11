@@ -1,0 +1,1770 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Claude Code Integration Guide | دليل تكامل Claude Code مع منصة سهول - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#claude-code-integration-guide-claude-code" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Claude Code Integration Guide | دليل تكامل Claude Code مع منصة سهول
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="claude-code-integration-guide-claude-code">Claude Code Integration Guide | دليل تكامل Claude Code مع منصة سهول<a class="headerlink" href="#claude-code-integration-guide-claude-code" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: 16.0.0
+<strong>Platform</strong>: SAHOOL National Agricultural Intelligence Platform
+<strong>Last Updated</strong>: March 2026</p>
+<hr />
+<h2 id="1-overview">1. Overview | نظرة عامة<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<p>Claude Code serves as the primary AI-assisted development interface for the SAHOOL platform. It integrates deeply with the platform's offline-first architecture, 72 microservices, and agricultural domain intelligence to accelerate development, debugging, and operations across the entire stack.</p>
+<p>Claude Code leverages three key integration points within the SAHOOL repository:</p>
+<ul>
+<li><strong>CLAUDE.md</strong> (root configuration): A 112 KB context file that provides Claude Code with full architectural awareness of the platform, including service maps, conventions, and domain knowledge.</li>
+<li><strong>AI Skills</strong> (<code>.claude/skills/</code>): Reusable skill modules for context engineering, crop advisory, farm documentation, and development workflows.</li>
+<li><strong>MCP Server</strong> (<code>apps/services/mcp-server/</code>): Model Context Protocol server exposing SAHOOL-specific tools and data sources to Claude Code at runtime.</li>
+</ul>
+<p>Together, these allow Claude Code to navigate the codebase with full understanding of service boundaries, event flows, database schemas, and agricultural domain semantics.</p>
+<hr />
+<h2 id="2-claudemd-configuration-claudemd">2. CLAUDE.md Configuration | تكوين ملف CLAUDE.md<a class="headerlink" href="#2-claudemd-configuration-claudemd" title="Permanent link">&para;</a></h2>
+<h3 id="purpose-and-structure">Purpose and Structure | الغرض والهيكل<a class="headerlink" href="#purpose-and-structure" title="Permanent link">&para;</a></h3>
+<p>The root <code>CLAUDE.md</code> file is the single most important configuration artifact for Claude Code integration. At approximately 112 KB, it encodes:</p>
+<ul>
+<li><strong>Repository structure</strong>: Complete directory tree with descriptions for all 72 services, 27 npm workspaces, and 80 shared Python modules.</li>
+<li><strong>Technology stack</strong>: Exact versions for FastAPI, NestJS, Flutter, PostgreSQL, NATS, Redis, and all infrastructure components.</li>
+<li><strong>Event architecture</strong>: 4-layer event system (Acquisition, Intelligence, Decision, Business) with NATS subject patterns.</li>
+<li><strong>API conventions</strong>: Health endpoints, versioning, rate limiting tiers, unified contracts.</li>
+<li><strong>Development commands</strong>: All <code>make</code> targets, Docker Compose profiles, and testing commands.</li>
+<li><strong>Service registry</strong>: Ports, types, and descriptions for every active and deprecated service.</li>
+<li><strong>Domain knowledge</strong>: Agricultural integrations (NDVI, AraBERT, AgML, CrewAI agents).</li>
+</ul>
+<h3 id="how-claude-code-uses-it-claude-code">How Claude Code Uses It | كيف يستخدمه Claude Code<a class="headerlink" href="#how-claude-code-uses-it-claude-code" title="Permanent link">&para;</a></h3>
+<p>Claude Code reads <code>CLAUDE.md</code> at the start of every session. This provides:</p>
+<ol>
+<li><strong>Architectural context</strong>: Claude Code knows that <code>field-management-service</code> runs on port 3000 as a NestJS service, while <code>advisory-service</code> runs on port 8093 as a Python FastAPI service.</li>
+<li><strong>Convention enforcement</strong>: Claude Code follows the project's established patterns for health endpoints, error handling, authentication, and structured logging.</li>
+<li><strong>Command awareness</strong>: Claude Code can suggest and execute the correct <code>make</code> targets for building, testing, and deploying services.</li>
+<li><strong>Deprecation awareness</strong>: Claude Code avoids referencing archived services and suggests their active replacements.</li>
+</ol>
+<h3 id="best-practices-for-maintaining-claudemd">Best Practices for Maintaining CLAUDE.md | أفضل الممارسات للصيانة<a class="headerlink" href="#best-practices-for-maintaining-claudemd" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Update on service changes</strong>: When adding, removing, or modifying a service, update the corresponding section in <code>CLAUDE.md</code>.</li>
+<li><strong>Keep versions current</strong>: Bump version numbers when dependencies change (e.g., FastAPI, Flutter SDK).</li>
+<li><strong>Document new patterns</strong>: If a new architectural pattern is introduced (e.g., a new event layer), add it with examples.</li>
+<li><strong>Avoid secrets</strong>: Never include credentials, API keys, or connection strings with real passwords.</li>
+<li><strong>Test readability</strong>: Ensure tables render correctly and code blocks use proper syntax highlighting.</li>
+<li><strong>Section ordering</strong>: Maintain the existing section order. Claude Code relies on consistent structure for efficient context retrieval.</li>
+</ul>
+<hr />
+<h2 id="3-ai-skills-system">3. AI Skills System | نظام المهارات الذكية<a class="headerlink" href="#3-ai-skills-system" title="Permanent link">&para;</a></h2>
+<h3 id="directory-structure">Directory Structure | هيكل المجلدات<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="na">.claude</span><span class="err">/</span><span class="no">skills</span><span class="err">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nf">context-engineering</span><span class="err">/</span><span class="w">        </span><span class="c1"># Context optimization modules</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nf">memory.md</span><span class="w">              </span><span class="c1"># Farm history &amp; persistent memory</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nf">compression.md</span><span class="w">         </span><span class="c1"># Token-efficient data compression</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nf">evaluation.md</span><span class="w">          </span><span class="c1"># LLM-as-Judge advisory quality assessment</span>
+<span class="err">├──</span><span class="w"> </span><span class="nf">sahool</span><span class="err">/</span><span class="w">                    </span><span class="c1"># SAHOOL domain-specific skills</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nf">crop-advisor.md</span><span class="w">        </span><span class="c1"># Crop advisory &amp; recommendations</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nf">farm-documentation.md</span><span class="w">  </span><span class="c1"># Field &amp; farm knowledge base</span>
+<span class="err">├──</span><span class="w"> </span><span class="nf">obsidian</span><span class="err">/</span><span class="w">                  </span><span class="c1"># Documentation generation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nf">markdown.md</span><span class="w">            </span><span class="c1"># Obsidian markdown formatting</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nf">canvas.md</span><span class="w">              </span><span class="c1"># Canvas-based knowledge graphs</span>
+<span class="err">└──</span><span class="w"> </span><span class="nf">development</span><span class="err">/</span><span class="w">               </span><span class="c1"># Development workflow skills (extensible)</span>
+</code></pre></div>
+
+<h3 id="how-skills-are-invoked">How Skills Are Invoked | كيفية استدعاء المهارات<a class="headerlink" href="#how-skills-are-invoked" title="Permanent link">&para;</a></h3>
+<p>Skills are invoked within Claude Code sessions either explicitly by the developer or automatically when Claude Code identifies a matching task context:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Explicit invocation</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>crop-advisor<span class="w"> </span>--context<span class="w"> </span><span class="s2">&quot;Field-003 wheat yellowing&quot;</span>
+
+<span class="c1"># Evaluate advisory quality</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>evaluate<span class="w"> </span>--advisory<span class="w"> </span><span class="s2">&quot;irrigation_recommendation_001&quot;</span>
+
+<span class="c1"># Compress farm data for token efficiency</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>compress<span class="w"> </span>--level<span class="w"> </span><span class="m">2</span><span class="w"> </span>--input<span class="w"> </span><span class="s2">&quot;farm_sensor_data.json&quot;</span>
+
+<span class="c1"># Generate Obsidian-compatible farm documentation</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>farm-documentation<span class="w"> </span>--field<span class="w"> </span><span class="s2">&quot;FIELD-003&quot;</span><span class="w"> </span>--format<span class="w"> </span>obsidian
+</code></pre></div>
+
+<h3 id="creating-custom-skills">Creating Custom Skills | إنشاء مهارات مخصصة<a class="headerlink" href="#creating-custom-skills" title="Permanent link">&para;</a></h3>
+<p>To add a new skill:</p>
+<ol>
+<li>Create a Markdown file in the appropriate subdirectory under <code>.claude/skills/</code>.</li>
+<li>Define the skill's purpose, input schema, output format, and examples.</li>
+<li>Include bilingual (Arabic/English) descriptions where applicable.</li>
+<li>Reference relevant shared modules (e.g., <code>shared/irrigation/</code>, <code>shared/pest_scouting/</code>).</li>
+</ol>
+<p>Example skill file structure:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh"># Skill: Irrigation Scheduler | جدولة الري</span>
+
+<span class="gu">## Purpose</span>
+Generate optimized irrigation schedules based on field sensors, weather, and crop stage.
+
+<span class="gu">## Inputs</span>
+<span class="k">-</span><span class="w"> </span>field_id: Field identifier
+<span class="k">-</span><span class="w"> </span>crop_stage: Current growth stage
+<span class="k">-</span><span class="w"> </span>soil_moisture: Current SM reading (%)
+<span class="k">-</span><span class="w"> </span>weather_forecast: 72-hour forecast data
+
+<span class="gu">## Output Format</span>
+YAML-structured schedule with timing, volume, and method.
+
+<span class="gu">## Examples</span>
+[Include 2-3 worked examples with bilingual output]
+</code></pre></div>
+
+<h3 id="skill-categories">Skill Categories | فئات المهارات<a class="headerlink" href="#skill-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Directory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context Engineering</td>
+<td><code>context-engineering/</code></td>
+<td>Token compression, memory management, evaluation rubrics</td>
+</tr>
+<tr>
+<td>Domain Advisory</td>
+<td><code>sahool/</code></td>
+<td>Crop recommendations, pest management, irrigation scheduling</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td><code>obsidian/</code></td>
+<td>Markdown formatting, knowledge graph generation</td>
+</tr>
+<tr>
+<td>Development</td>
+<td><code>development/</code></td>
+<td>Code generation, testing, CI/CD assistance</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-mcp-integration">4. MCP Integration | تكامل بروتوكول سياق النموذج<a class="headerlink" href="#4-mcp-integration" title="Permanent link">&para;</a></h2>
+<h3 id="connection-to-sahool-mcp-server-mcp">Connection to SAHOOL MCP Server | الاتصال بخادم MCP<a class="headerlink" href="#connection-to-sahool-mcp-server-mcp" title="Permanent link">&para;</a></h3>
+<p>The SAHOOL MCP server runs on port <strong>8201</strong> and exposes platform-specific tools and data sources to Claude Code via the Model Context Protocol.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start MCP server</span>
+make<span class="w"> </span>dev-mcp
+
+<span class="c1"># Test MCP server</span>
+make<span class="w"> </span>test-mcp
+</code></pre></div>
+
+<h3 id="available-mcp-tools">Available MCP Tools | الأدوات المتاحة<a class="headerlink" href="#available-mcp-tools" title="Permanent link">&para;</a></h3>
+<p>The MCP server provides Claude Code with access to:</p>
+<ul>
+<li><strong>Field data queries</strong>: Retrieve field boundaries, crop history, and sensor readings.</li>
+<li><strong>Service health checks</strong>: Query <code>/healthz</code> and <code>/readyz</code> across all 72 services.</li>
+<li><strong>Event inspection</strong>: View recent NATS events by subject pattern.</li>
+<li><strong>Database queries</strong>: Execute read-only queries against PostgreSQL with PostGIS.</li>
+<li><strong>Knowledge base search</strong>: Query the agricultural knowledge base (91 documents in <code>docs/knowledge-base/</code>).</li>
+</ul>
+<h3 id="configuration">Configuration | التكوين<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>Add the SAHOOL MCP server to your Claude Desktop configuration:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;apps.services.mcp-server.src.main&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;DATABASE_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;postgresql://user:pass@localhost:6432/sahool&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;NATS_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;REDIS_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;MCP_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8201&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Ensure the infrastructure is running (<code>make infra-up</code>) before connecting.</p>
+<hr />
+<h2 id="5-event-driven-development-with-claude">5. Event-Driven Development with Claude | التطوير المبني على الأحداث<a class="headerlink" href="#5-event-driven-development-with-claude" title="Permanent link">&para;</a></h2>
+<h3 id="4-layer-event-architecture">4-Layer Event Architecture | معمارية الأحداث ذات الطبقات الأربع<a class="headerlink" href="#4-layer-event-architecture" title="Permanent link">&para;</a></h3>
+<p>SAHOOL uses NATS with JetStream for its event-driven architecture. Claude Code understands all four layers:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Purpose</th>
+<th>Example Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acquisition</strong></td>
+<td>Data ingestion and normalization</td>
+<td>iot-service, weather-service, edge-orchestrator</td>
+</tr>
+<tr>
+<td><strong>Intelligence</strong></td>
+<td>Feature extraction and AI processing</td>
+<td>indicators-service, yolo26-vision-service, terrain-core</td>
+</tr>
+<tr>
+<td><strong>Decision</strong></td>
+<td>Recommendations and planning</td>
+<td>advisory-service, irrigation-smart, yield-prediction</td>
+</tr>
+<tr>
+<td><strong>Business</strong></td>
+<td>User-facing operations</td>
+<td>notification-service, marketplace-service, chat-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="event-subject-patterns">Event Subject Patterns | أنماط موضوعات الأحداث<a class="headerlink" href="#event-subject-patterns" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Base pattern</span>
+<span class="s2">&quot;sahool.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>              <span class="c1"># e.g., sahool.field.created</span>
+
+<span class="c1"># Tenant-scoped pattern (preferred)</span>
+<span class="s2">&quot;sahool.tenant.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>  <span class="c1"># via get_tenant_subject()</span>
+
+<span class="c1"># Inline tenant pattern (some services)</span>
+<span class="s2">&quot;sahool.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h3 id="publishing-events">Publishing Events | نشر الأحداث<a class="headerlink" href="#publishing-events" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.subjects</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAHOOL_FIELD_CREATED</span><span class="p">,</span> <span class="n">get_tenant_subject</span>
+
+<span class="c1"># Simple publish</span>
+<span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+    <span class="n">SAHOOL_FIELD_CREATED</span><span class="p">,</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span> <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Tenant-scoped publish</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">get_tenant_subject</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+</code></pre></div>
+
+<p>When Claude Code generates new event handlers or publishers, it follows these patterns and imports subject constants from <code>shared/events/subjects.py</code> rather than using hardcoded strings.</p>
+<hr />
+<h2 id="6-multi-service-development">6. Multi-Service Development | التطوير متعدد الخدمات<a class="headerlink" href="#6-multi-service-development" title="Permanent link">&para;</a></h2>
+<h3 id="working-across-72-microservices-72">Working Across 72 Microservices | العمل عبر 72 خدمة مصغرة<a class="headerlink" href="#working-across-72-microservices-72" title="Permanent link">&para;</a></h3>
+<p>Claude Code navigates the service landscape using the unified contracts defined in <code>packages/shared-types/src/contracts/</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Always import from contracts - never hardcode ports</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SERVICE_PORTS</span><span class="p">,</span><span class="w"> </span><span class="nx">AUTH_ENDPOINTS</span><span class="p">,</span><span class="w"> </span><span class="nx">buildUrl</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-types/contracts&quot;</span><span class="p">;</span>
+
+<span class="c1">// Correct</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fieldServiceUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`http://localhost:</span><span class="si">${</span><span class="nx">SERVICE_PORTS</span><span class="p">.</span><span class="nx">FIELD_MANAGEMENT</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+
+<span class="c1">// Incorrect - do not do this</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fieldServiceUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// hardcoded port</span>
+</code></pre></div>
+
+<h3 id="service-port-conventions">Service Port Conventions | اتفاقيات منافذ الخدمات<a class="headerlink" href="#service-port-conventions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Node.js services</strong>: Ports 3000-3025</li>
+<li><strong>Python services</strong>: Ports 8081-8270</li>
+<li><strong>Infrastructure</strong>: Standard ports (5432 PostgreSQL, 6379 Redis, 4222 NATS)</li>
+</ul>
+<h3 id="docker-compose-profiles-docker-compose">Docker Compose Profiles | ملفات تعريف Docker Compose<a class="headerlink" href="#docker-compose-profiles-docker-compose" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>dev<span class="w">                    </span><span class="c1"># Full stack (all active services)</span>
+make<span class="w"> </span>dev-starter<span class="w">           </span><span class="c1"># Starter package only</span>
+make<span class="w"> </span>dev-professional<span class="w">      </span><span class="c1"># Professional package</span>
+make<span class="w"> </span>dev-enterprise<span class="w">        </span><span class="c1"># All enterprise services</span>
+make<span class="w"> </span>dev-vision<span class="w">            </span><span class="c1"># Vision services (yolo26-vision-service)</span>
+make<span class="w"> </span>dev-terrain<span class="w">           </span><span class="c1"># Terrain services (terrain-core, hydrology, leveling)</span>
+make<span class="w"> </span>dev-edge<span class="w">              </span><span class="c1"># Edge orchestrator service</span>
+make<span class="w"> </span>dev-ai<span class="w">                </span><span class="c1"># AI services</span>
+make<span class="w"> </span>dev-agents<span class="w">            </span><span class="c1"># Agent services</span>
+make<span class="w"> </span>infra-up<span class="w">              </span><span class="c1"># Infrastructure only (postgres, redis, nats, kong)</span>
+
+<span class="c1"># Deprecated services (testing only)</span>
+docker-compose<span class="w"> </span>--profile<span class="w"> </span>deprecated<span class="w"> </span>up
+</code></pre></div>
+
+<hr />
+<h2 id="7-database-operations">7. Database Operations | عمليات قاعدة البيانات<a class="headerlink" href="#7-database-operations" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-postgis">PostgreSQL + PostGIS | قاعدة البيانات الجغرافية<a class="headerlink" href="#postgresql-postgis" title="Permanent link">&para;</a></h3>
+<p>All services connect through PgBouncer (port 6432) in transaction mode with a 250 max connection pool. PostGIS 3.4 enables geospatial queries for field boundaries, NDVI analysis, and terrain operations.</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>db-shell<span class="w">              </span><span class="c1"># Connect to PostgreSQL</span>
+make<span class="w"> </span>db-migrate<span class="w">            </span><span class="c1"># Run Prisma migrations</span>
+make<span class="w"> </span>db-seed<span class="w">              </span><span class="c1"># Seed sample data</span>
+make<span class="w"> </span>db-backup<span class="w">            </span><span class="c1"># Create backup</span>
+make<span class="w"> </span>db-reset<span class="w">             </span><span class="c1"># Reset (WARNING: deletes data)</span>
+</code></pre></div>
+
+<h3 id="prisma-for-nodejs-services-prisma-nodejs">Prisma for Node.js Services | Prisma للخدمات Node.js<a class="headerlink" href="#prisma-for-nodejs-services-prisma-nodejs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>npx<span class="w"> </span>prisma<span class="w"> </span>generate<span class="w">        </span><span class="c1"># Generate client</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy<span class="w">  </span><span class="c1"># Run migrations</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>studio<span class="w">          </span><span class="c1"># GUI browser</span>
+</code></pre></div>
+
+<h3 id="asyncpg-for-python-services-asyncpg-python">asyncpg for Python Services | asyncpg للخدمات Python<a class="headerlink" href="#asyncpg-for-python-services-asyncpg-python" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standard connection pattern</span>
+<span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">),</span>
+    <span class="n">min_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+
+<span class="c1"># Query with PostGIS</span>
+<span class="n">row</span> <span class="o">=</span> <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span><span class="o">.</span><span class="n">fetchrow</span><span class="p">(</span>
+    <span class="s2">&quot;SELECT ST_AsGeoJSON(boundary) FROM fields WHERE id = $1&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Claude Code generates database code following these patterns and ensures all queries use parameterized inputs to prevent SQL injection.</p>
+<hr />
+<h2 id="8-testing-integration">8. Testing Integration | تكامل الاختبارات<a class="headerlink" href="#8-testing-integration" title="Permanent link">&para;</a></h2>
+<h3 id="19-test-categories-19">19 Test Categories | 19 فئة اختبار<a class="headerlink" href="#19-test-categories-19" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Directory</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td><code>tests/unit/</code></td>
+<td><code>make test-unit</code></td>
+</tr>
+<tr>
+<td>Integration</td>
+<td><code>tests/integration/</code></td>
+<td><code>make test-integration</code></td>
+</tr>
+<tr>
+<td>Smoke</td>
+<td><code>tests/smoke/</code></td>
+<td><code>pytest tests/smoke/</code></td>
+</tr>
+<tr>
+<td>E2E</td>
+<td><code>tests/e2e/</code></td>
+<td><code>pytest tests/e2e/</code></td>
+</tr>
+<tr>
+<td>Load</td>
+<td><code>tests/load/</code></td>
+<td>k6 / Locust</td>
+</tr>
+<tr>
+<td>Security</td>
+<td><code>tests/security/</code></td>
+<td><code>pytest tests/security/</code></td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td><code>tests/frontend/</code></td>
+<td><code>npm run test</code></td>
+</tr>
+<tr>
+<td>Container</td>
+<td><code>tests/container/</code></td>
+<td><code>make test-docker</code></td>
+</tr>
+<tr>
+<td>Guardrails</td>
+<td><code>tests/guardrails/</code></td>
+<td><code>pytest tests/guardrails/</code></td>
+</tr>
+<tr>
+<td>A2A</td>
+<td><code>tests/a2a/</code></td>
+<td>Agent-to-Agent protocol tests</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-markers">Test Markers | علامات الاختبار<a class="headerlink" href="#test-markers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>           <span class="c1"># Fast, no I/O - always run</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>    <span class="c1"># Requires database/NATS</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">smoke</span>          <span class="c1"># Import verification only</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>           <span class="c1"># Long-running tests</span>
+</code></pre></div>
+
+<h3 id="coverage-requirements">Coverage Requirements | متطلبات التغطية<a class="headerlink" href="#coverage-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Current minimum</strong>: 5% (enforced in CI via <code>fail_under = 5</code> in <code>pyproject.toml</code>)</li>
+<li><strong>Target</strong>: Incrementally raising</li>
+<li><strong>Reports</strong>: <code>coverage.xml</code> and <code>coverage_html/</code></li>
+</ul>
+<p>When Claude Code generates new code, it also generates corresponding test files using the appropriate markers and following the factory pattern from <code>tests/factories/</code>.</p>
+<hr />
+<h2 id="9-cicd-integration">9. CI/CD Integration | تكامل التكامل والنشر المستمر<a class="headerlink" href="#9-cicd-integration" title="Permanent link">&para;</a></h2>
+<h3 id="54-github-actions-workflows-54-github-actions">54 GitHub Actions Workflows | 54 سير عمل GitHub Actions<a class="headerlink" href="#54-github-actions-workflows-54-github-actions" title="Permanent link">&para;</a></h3>
+<p>Claude Code assists with CI/CD in several ways:</p>
+<ul>
+<li><strong>Diagnosing failures</strong>: When a CI workflow fails, Claude Code can read the workflow definition, understand the failure context, and suggest fixes.</li>
+<li><strong>Generating workflow updates</strong>: Adding new services requires updates to CI workflows. Claude Code generates workflow steps following existing patterns.</li>
+<li><strong>Security scanning</strong>: Claude Code ensures code passes CodeQL, Bandit, Semgrep, Trivy, and Gitleaks checks before suggesting commits.</li>
+</ul>
+<h3 id="key-workflow-categories">Key Workflow Categories | فئات سير العمل الرئيسية<a class="headerlink" href="#key-workflow-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Workflows</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core CI/CD</td>
+<td>5</td>
+<td><code>ci.yml</code>, <code>test.yml</code>, <code>release.yml</code></td>
+</tr>
+<tr>
+<td>Specialized CI</td>
+<td>5</td>
+<td><code>ci-yolo26-vision.yml</code>, <code>ci-terrain-services.yml</code></td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>5</td>
+<td><code>cd-production.yml</code>, <code>canary-deploy.yml</code></td>
+</tr>
+<tr>
+<td>Security</td>
+<td>5</td>
+<td><code>security-checks.yml</code>, <code>codeql-analysis.yml</code></td>
+</tr>
+<tr>
+<td>Governance</td>
+<td>5</td>
+<td><code>event-contracts-guard.yml</code>, <code>api-contracts-guard.yml</code></td>
+</tr>
+<tr>
+<td>Quality</td>
+<td>3</td>
+<td><code>quality-gates.yml</code>, <code>stability-gates.yml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="argocd-deployment-argocd">ArgoCD Deployment | نشر ArgoCD<a class="headerlink" href="#argocd-deployment-argocd" title="Permanent link">&para;</a></h3>
+<p>SAHOOL uses ArgoCD with 18 application definitions in <code>gitops/</code>. Claude Code understands the GitOps flow:</p>
+<ol>
+<li>Code merges to <code>main</code> or <code>develop</code></li>
+<li>Docker images build and push via GitHub Actions</li>
+<li>ArgoCD detects changes in <code>gitops/</code> manifests</li>
+<li>Rolling deployment to Kubernetes cluster</li>
+</ol>
+<hr />
+<h2 id="10-security-considerations">10. Security Considerations | اعتبارات الأمان<a class="headerlink" href="#10-security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="rules-claude-code-follows-claude-code">Rules Claude Code Follows | القواعد التي يتبعها Claude Code<a class="headerlink" href="#rules-claude-code-follows-claude-code" title="Permanent link">&para;</a></h3>
+<p><strong>Never do</strong>:
+- Commit <code>.env</code> files, API keys, or credentials
+- Use hardcoded passwords or connection strings
+- Skip authentication checks in endpoint handlers
+- Disable TLS/SSL in any configuration
+- Run containers as root
+- Use <code>--no-verify</code> for git hooks</p>
+<p><strong>Always do</strong>:
+- Use environment variables for all secrets
+- Follow RBAC patterns via <code>shared/auth/dependencies.py</code>
+- Validate all user input with Pydantic models
+- Use parameterized queries (never string concatenation for SQL)
+- Enable rate limiting on public endpoints
+- Include authentication dependencies on protected routes</p>
+<h3 id="certificate-pinning-mobile">Certificate Pinning (Mobile) | تثبيت الشهادات للموبايل<a class="headerlink" href="#certificate-pinning-mobile" title="Permanent link">&para;</a></h3>
+<p>The Flutter apps use 3-tier certificate pinning:</p>
+<ul>
+<li><strong>Production</strong>: <code>api.sahool.app</code>, <code>ws.sahool.app</code>, <code>*.sahool.io</code></li>
+<li><strong>Staging</strong>: Separate certificate set</li>
+<li><strong>Development</strong>: Local development certificates</li>
+</ul>
+<p>Claude Code never modifies pinning configuration without explicit instruction.</p>
+<h3 id="security-scanning">Security Scanning | المسح الأمني<a class="headerlink" href="#security-scanning" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>secrets-scan<span class="w">          </span><span class="c1"># Gitleaks secret detection</span>
+make<span class="w"> </span>deps-audit<span class="w">            </span><span class="c1"># Dependency security audit</span>
+</code></pre></div>
+
+<hr />
+<h2 id="11-monitoring-and-observability">11. Monitoring and Observability | المراقبة والرصد<a class="headerlink" href="#11-monitoring-and-observability" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics-prometheus">Prometheus Metrics | مقاييس Prometheus<a class="headerlink" href="#prometheus-metrics-prometheus" title="Permanent link">&para;</a></h3>
+<p>Services expose metrics at <code>/metrics</code> endpoints. Claude Code generates metrics following the existing patterns:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.monitoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">prometheus_metrics</span>
+
+<span class="c1"># Counter</span>
+<span class="n">request_counter</span> <span class="o">=</span> <span class="n">prometheus_metrics</span><span class="o">.</span><span class="n">counter</span><span class="p">(</span>
+    <span class="s2">&quot;http_requests_total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Total HTTP requests&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;endpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Histogram</span>
+<span class="n">latency_histogram</span> <span class="o">=</span> <span class="n">prometheus_metrics</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+    <span class="s2">&quot;request_duration_seconds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Request latency&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;endpoint&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="grafana-dashboards-grafana">Grafana Dashboards | لوحات Grafana<a class="headerlink" href="#grafana-dashboards-grafana" title="Permanent link">&para;</a></h3>
+<p>Four pre-built dashboards in <code>infrastructure/monitoring/grafana/dashboards/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Dashboard</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agricultural Insights</td>
+<td>Crop health, NDVI trends, irrigation efficiency</td>
+</tr>
+<tr>
+<td>Disaster Recovery</td>
+<td>DR status, RTO/RPO metrics</td>
+</tr>
+<tr>
+<td>SLO Dashboard</td>
+<td>Service level objectives tracking</td>
+</tr>
+<tr>
+<td>AI Skills</td>
+<td>Skill invocation metrics, quality scores</td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>monitoring-up<span class="w">         </span><span class="c1"># Start Prometheus/Grafana stack</span>
+make<span class="w"> </span>monitoring-down<span class="w">       </span><span class="c1"># Stop monitoring</span>
+make<span class="w"> </span>monitoring-logs<span class="w">       </span><span class="c1"># View monitoring logs</span>
+</code></pre></div>
+
+<h3 id="opentelemetry-tracing-opentelemetry">OpenTelemetry Tracing | تتبع OpenTelemetry<a class="headerlink" href="#opentelemetry-tracing-opentelemetry" title="Permanent link">&para;</a></h3>
+<p>Distributed tracing via Jaeger and OpenTelemetry Collector. Claude Code ensures new services include tracing middleware:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.observability</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_tracing</span>
+
+<span class="c1"># In service lifespan</span>
+<span class="n">setup_tracing</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="12-troubleshooting-common-issues">12. Troubleshooting Common Issues | استكشاف المشكلات الشائعة وإصلاحها<a class="headerlink" href="#12-troubleshooting-common-issues" title="Permanent link">&para;</a></h2>
+<h3 id="service-wont-start">Service Won't Start | الخدمة لا تبدأ<a class="headerlink" href="#service-wont-start" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Check infrastructure is running: <code>make health</code></li>
+<li>Verify environment variables: <code>make status</code></li>
+<li>Check port conflicts: <code>make ps</code></li>
+<li>Review logs: <code>docker compose logs -f [service_name]</code></li>
+</ol>
+<h3 id="database-connection-failures">Database Connection Failures | فشل الاتصال بقاعدة البيانات<a class="headerlink" href="#database-connection-failures" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Ensure PgBouncer is running (port 6432, not 5432 directly)</li>
+<li>Verify <code>DATABASE_URL</code> includes <code>?sslmode=require</code> for TLS</li>
+<li>Check connection pool limits (250 max via PgBouncer)</li>
+<li>Run <code>make db-shell</code> to test direct connectivity</li>
+</ul>
+<h3 id="nats-event-issues-nats">NATS Event Issues | مشكلات أحداث NATS<a class="headerlink" href="#nats-event-issues-nats" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify NATS is running: <code>make health</code> or check port 4222</li>
+<li>Check subject patterns match the 4-layer convention</li>
+<li>Inspect Dead Letter Queue: <code>docker compose -f docker/docker-compose.dlq.yml up</code></li>
+<li>Ensure <code>tenant_id</code> is a valid UUID from the JWT <code>tid</code> claim</li>
+</ul>
+<h3 id="ci-pipeline-failures-ci">CI Pipeline Failures | فشل خط أنابيب CI<a class="headerlink" href="#ci-pipeline-failures-ci" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Lint failures</strong>: Run <code>make lint</code> locally, then <code>make fmt</code> to auto-fix</li>
+<li><strong>Type errors</strong>: Run <code>npm run typecheck</code> for Node.js or <code>mypy</code> for Python</li>
+<li><strong>Test failures</strong>: Check <code>ENVIRONMENT=test</code> and empty <code>DATABASE_URL</code> for unit tests</li>
+<li><strong>Security scan failures</strong>: Run <code>make secrets-scan</code> and <code>make deps-audit</code></li>
+<li><strong>Contract guard failures</strong>: Ensure <code>CONTRACT_VERSION</code> is bumped in <code>packages/shared-types/src/contracts/index.ts</code></li>
+</ul>
+<h3 id="docker-build-failures-docker">Docker Build Failures | فشل بناء Docker<a class="headerlink" href="#docker-build-failures-docker" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pip timeout</strong>: The platform uses 3-tier mirror fallback (PyPI, Aliyun, Tencent). If all fail, check network connectivity.</li>
+<li><strong>NPM timeout</strong>: Falls back from <code>registry.npmmirror.com</code> to <code>registry.npmjs.org</code>.</li>
+<li><strong>GPU services</strong>: <code>yolo26-vision-service</code> requires NVIDIA CUDA 12.1. Use the <code>cpu-only</code> stage for development without GPU.</li>
+<li><strong>Constraint conflicts</strong>: Check <code>constraints.txt</code> and <code>docker/constraints-ai.txt</code> for version pin conflicts.</li>
+</ul>
+<h3 id="flutter-mobile-issues-flutter">Flutter / Mobile Issues | مشكلات Flutter والموبايل<a class="headerlink" href="#flutter-mobile-issues-flutter" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>mobile-clean<span class="w">          </span><span class="c1"># Clean build artifacts</span>
+make<span class="w"> </span>mobile-deps<span class="w">           </span><span class="c1"># Reinstall dependencies</span>
+make<span class="w"> </span>mobile-codegen<span class="w">        </span><span class="c1"># Regenerate code (Drift, Riverpod)</span>
+make<span class="w"> </span>mobile-analyze<span class="w">        </span><span class="c1"># Run Dart analyzer</span>
+</code></pre></div>
+
+<ul>
+<li><strong>SQLCipher errors</strong>: Ensure <code>flutter_secure_storage</code> is properly configured for the target platform.</li>
+<li><strong>Certificate pinning failures</strong>: Check that development certificates are installed for local testing.</li>
+<li><strong>Sync conflicts</strong>: Review <code>shared/mobile_sync/</code> conflict resolution logic (ETag-based, schema v4).</li>
+</ul>
+<h3 id="auto-fix-engine">Auto-Fix Engine | محرك الإصلاح التلقائي<a class="headerlink" href="#auto-fix-engine" title="Permanent link">&para;</a></h3>
+<p>For automated code diagnostics and fixing:</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>fixops<span class="w">               </span><span class="c1"># Preview issues (dry-run)</span>
+make<span class="w"> </span>fixops-run<span class="w">           </span><span class="c1"># Apply safe fixes</span>
+make<span class="w"> </span>fixops-comprehensive<span class="w"> </span><span class="c1"># Fix all issues including refactoring</span>
+make<span class="w"> </span>fixops-json<span class="w">          </span><span class="c1"># JSON output for CI/CD integration</span>
+</code></pre></div>
+
+<p>The Auto-Fix Engine supports Ruff, ESLint, Mypy, Bandit, and Dart Analyze with four fix strategies: MINIMAL, SAFE, COMPREHENSIVE, and REFACTOR.</p>
+<hr />
+<p><em>This guide is maintained alongside the root CLAUDE.md. For the complete platform reference, see <code>/CLAUDE.md</code>.</em>
+<em>يتم صيانة هذا الدليل جنبا إلى جنب مع ملف CLAUDE.md الجذري. للمرجع الكامل للمنصة، راجع <code>/CLAUDE.md</code>.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

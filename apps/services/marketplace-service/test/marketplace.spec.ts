@@ -234,7 +234,12 @@ describe("MarketplaceService - خدمة السوق", () => {
       const result = await service.findAllProducts({});
 
       expect(result.data).toHaveLength(2);
-      expect(mockPrismaService.product.findMany).toHaveBeenCalled();
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: "AVAILABLE" }),
+          orderBy: expect.anything(),
+        }),
+      );
     });
 
     it("should filter products by category", async () => {

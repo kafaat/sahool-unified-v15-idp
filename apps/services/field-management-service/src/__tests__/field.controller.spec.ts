@@ -123,21 +123,21 @@ describe("Field Management Service - Controller Tests", () => {
   });
 
   beforeEach(() => {
-    // Clear call history and reset return values (not implementations)
+    // Clear call history while preserving mock implementations
     jest.clearAllMocks();
 
-    // Reset mock return values to prevent bleed between tests
-    fieldMockRepository.findOne.mockReset();
-    fieldMockRepository.find.mockReset();
-    fieldMockRepository.create.mockReset();
-    fieldMockRepository.save.mockReset();
-    fieldMockRepository.delete.mockReset();
-    historyMockRepository.findOne.mockReset();
-    historyMockRepository.create.mockReset();
-    historyMockRepository.save.mockReset();
-    syncStatusMockRepository.findOne.mockReset();
-    syncStatusMockRepository.create.mockReset();
-    syncStatusMockRepository.save.mockReset();
+    // Clear per-method call history to prevent bleed between tests
+    fieldMockRepository.findOne.mockClear();
+    fieldMockRepository.find.mockClear();
+    fieldMockRepository.create.mockClear();
+    fieldMockRepository.save.mockClear();
+    fieldMockRepository.delete.mockClear();
+    historyMockRepository.findOne.mockClear();
+    historyMockRepository.create.mockClear();
+    historyMockRepository.save.mockClear();
+    syncStatusMockRepository.findOne.mockClear();
+    syncStatusMockRepository.create.mockClear();
+    syncStatusMockRepository.save.mockClear();
 
     // Re-bind query builder chain methods
     sharedQueryBuilder.where.mockReturnValue(sharedQueryBuilder);

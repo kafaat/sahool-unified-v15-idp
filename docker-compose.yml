@@ -194,8 +194,8 @@ services:
     ports:
       # Bind to localhost only for security (services access via Docker network)
       - "127.0.0.1:6379:6379"
-      # TLS port (REQUIRED for production)
-      - "127.0.0.1:6380:6380"
+      # TLS port (uncomment when TLS is enabled in redis-secure.conf)
+      # - "127.0.0.1:6380:6380"
     healthcheck:
       # FIX: Use REDISCLI_AUTH env var instead of -a flag to avoid credential exposure in process list
       test: [ "CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep PONG" ]

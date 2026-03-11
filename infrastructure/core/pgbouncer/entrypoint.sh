@@ -93,7 +93,7 @@ generate_scram_hash() {
     if command -v psql >/dev/null 2>&1 && nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; then
         _hash=$(PGPASSWORD="$_pass" psql -h "$DB_HOST" -p "$DB_PORT" -U "$_user" -d "$DB_NAME" \
             -t -A -c "SELECT passwd FROM pgbouncer.get_auth('$_user')" 2>/dev/null || echo "")
-        if echo "$_hash" | grep -q "^SCRAM-SHA-256\$"; then
+        if echo "$_hash" | grep -q '^SCRAM-SHA-256\$'; then
             echo "$_hash"
             return 0
         fi
@@ -125,7 +125,7 @@ generate_userlist() {
     _stats_pass="${PGBOUNCER_STATS_PASSWORD:-${DB_PASSWORD}}"
 
     # Determine hash type for logging
-    if echo "$_db_user_hash" | grep -q "^SCRAM-SHA-256\$"; then
+    if echo "$_db_user_hash" | grep -q '^SCRAM-SHA-256\$'; then
         log_info "Using SCRAM-SHA-256 hashed password for auth_user"
     else
         log_warn "Using plaintext password for auth_user (SCRAM hash unavailable)"

@@ -3,6 +3,13 @@
 # Complete platform deployment with all core, optional, and infrastructure services (v3.1: +4 optional profile services)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Default logging configuration to prevent unbounded log growth
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+
 services:
   # ─────────────────────────────────────────────────────────────────────────────
   # Infrastructure Services (6)
@@ -13,6 +20,9 @@ services:
   postgres:
     image: postgis/postgis:16-3.4
     container_name: sahool-postgres
+    # FIX: Set max_connections=300 to accommodate PgBouncer's max_db_connections=250
+    # plus superuser_reserved_connections (default 3) and direct admin connections
+    command: ["postgres", "-c", "max_connections=300"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
@@ -47,6 +57,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -126,11 +137,7 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -190,8 +197,8 @@ services:
     ports:
       # Bind to localhost only for security (services access via Docker network)
       - "127.0.0.1:6379:6379"
-      # TLS port (REQUIRED for production)
-      - "127.0.0.1:6380:6380"
+      # TLS port (uncomment when TLS is enabled in redis-secure.conf)
+      # - "127.0.0.1:6380:6380"
     healthcheck:
       # FIX: Use REDISCLI_AUTH env var instead of -a flag to avoid credential exposure in process list
       test: [ "CMD-SHELL", "REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping | grep PONG" ]
@@ -212,6 +219,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -253,6 +261,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -287,7 +296,7 @@ services:
       - ./config/certs:/etc/nats/certs:ro
     ports:
       - "127.0.0.1:4222:4222" # Standard NATS port (non-TLS for development)
-      - "127.0.0.1:4223:4223" # TLS NATS port (REQUIRED for production)
+      # - "127.0.0.1:4223:4223" # TLS NATS port (uncomment when TLS listener is configured)
       - "127.0.0.1:8222:8222" # Monitoring port
       # Cluster port (for HA setup)
       - "127.0.0.1:6222:6222"
@@ -309,6 +318,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -351,6 +361,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -374,7 +385,7 @@ services:
       - |
         pip install --quiet psycopg2-binary && \
         mlflow server --host 0.0.0.0 --port 5000 \
-          --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/mlflow?sslmode=disable&pgbouncer=true \
+          --backend-store-uri postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/mlflow?sslmode=disable&pgbouncer=true \
           --default-artifact-root /mlflow/artifacts \
           --serve-artifacts
     environment:
@@ -407,6 +418,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -454,6 +466,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -497,6 +510,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -553,6 +567,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: [ gpu ]
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -588,6 +603,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -686,6 +702,7 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    logging: *default-logging
     networks:
       - sahool-network
     deploy:
@@ -758,11 +775,7 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -802,6 +815,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
   # MinIO - Object storage for Milvus
@@ -881,6 +895,7 @@ services:
         reservations:
           cpus: '0.25' # Increased from 0.1
           memory: 256M # Increased from 128M
+    logging: *default-logging
     networks:
       - sahool-network
     labels:
@@ -916,6 +931,9 @@ services:
     depends_on:
       etcd:
         condition: service_healthy
+      # FIX: Wait for etcd-init to enable auth before Milvus connects with credentials
+      etcd-init:
+        condition: service_completed_successfully
       minio:
         condition: service_healthy
     healthcheck:
@@ -935,6 +953,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 1G
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1034,6 +1053,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1089,6 +1109,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1134,6 +1155,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1183,6 +1205,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1233,6 +1256,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1285,6 +1309,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1292,6 +1317,7 @@ services:
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
   lai-estimation:
+    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/lai-estimation/Dockerfile
@@ -1335,6 +1361,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1342,6 +1369,7 @@ services:
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
   crop-growth-model:
+    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile
@@ -1386,6 +1414,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1431,6 +1460,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1487,6 +1517,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1544,6 +1575,7 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1580,8 +1612,8 @@ services:
       notification-service:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Hit /health (NestJS excludes it from /api/v1 prefix via setGlobalPrefix exclude)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1597,6 +1629,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1643,6 +1676,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1657,7 +1691,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add ssl=disable for asyncpg (different parameter name than psycopg2)
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable
+      # FIX: Add prepared_statement_cache_size=0 for PgBouncer transaction pooling compatibility
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable&prepared_statement_cache_size=0
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -1692,6 +1727,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1743,6 +1779,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1784,6 +1821,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1841,6 +1879,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1883,6 +1922,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1900,7 +1940,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - IOT_GATEWAY_URL=http://iot-gateway:8106
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8094:8094"
@@ -1929,6 +1969,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -1976,6 +2017,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2017,6 +2059,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2061,6 +2104,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2103,6 +2147,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2143,6 +2188,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2185,6 +2231,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2205,7 +2252,7 @@ services:
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
@@ -2244,6 +2291,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2324,6 +2372,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2360,6 +2409,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2402,6 +2452,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2473,6 +2524,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2516,6 +2568,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2557,13 +2610,16 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
   # ⚠️ DEPRECATED: ndvi_processor - Migrating to vegetation-analysis-service
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
+  # DEPRECATED: ndvi-processor - Migrated to vegetation-analysis-service (sunset: 2026-02)
   ndvi-processor:
+    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile
@@ -2603,6 +2659,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2643,6 +2700,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2686,6 +2744,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2724,6 +2783,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2767,6 +2827,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2801,8 +2862,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8130/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8130/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2818,6 +2879,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2850,8 +2912,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8131/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8131/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2867,6 +2929,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2899,8 +2962,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8132/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8132/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2916,6 +2979,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -2964,6 +3028,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3012,6 +3077,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3059,6 +3125,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3106,6 +3173,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3157,6 +3225,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3206,6 +3275,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3255,6 +3325,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3303,6 +3374,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3347,6 +3419,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3398,6 +3471,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3446,6 +3520,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3491,6 +3566,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3535,6 +3611,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3583,6 +3660,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3630,6 +3708,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3677,45 +3756,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
-    networks:
-      - sahool-network
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # vLLM Inference Server - خادم استدلال vLLM
-  # GPU-accelerated LLM inference for code analysis
-  vllm:
-    profiles: [gpu]
-    build:
-      context: .
-      dockerfile: infrastructure/core/vllm/Dockerfile
-    image: sahool/vllm-deepseek:16.0.0
-    container_name: sahool-vllm
-    ports:
-      - "${VLLM_EXTERNAL_PORT:-127.0.0.1:8270}:${VLLM_PORT:-8270}"
-    volumes:
-      - vllm_models:/models
-      - vllm_hf_cache:/home/sahool/.cache/huggingface
-    environment:
-      - VLLM_MODEL=${VLLM_MODEL:-deepseek-ai/deepseek-coder-6.7b-instruct}
-      - VLLM_PORT=${VLLM_PORT:-8270}
-      - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-16384}
-      - VLLM_GPU_MEMORY_UTILIZATION=${VLLM_GPU_MEMORY_UTILIZATION:-0.85}
-      - VLLM_TENSOR_PARALLEL_SIZE=${VLLM_TENSOR_PARALLEL_SIZE:-1}
-      - HF_TOKEN=${HF_TOKEN:-}
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${VLLM_PORT:-8270}/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
-    restart: unless-stopped
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3773,6 +3814,7 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3817,6 +3859,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3862,6 +3905,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3908,6 +3952,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3953,6 +3998,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -3998,6 +4044,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4038,6 +4085,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4078,6 +4126,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4132,6 +4181,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4159,6 +4209,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4203,6 +4254,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4251,6 +4303,7 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 
@@ -4291,6 +4344,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 128M
+    logging: *default-logging
     networks:
       - sahool-network
 

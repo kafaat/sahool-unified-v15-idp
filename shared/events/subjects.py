@@ -335,7 +335,7 @@ SAHOOL_VISION_PEST_DETECTED = "sahool.vision.pest_detected"
 SAHOOL_VISION_DISEASE_DETECTED = "sahool.vision.disease_detected"
 SAHOOL_VISION_WEED_DETECTED = "sahool.vision.weed_detected"
 SAHOOL_VISION_PLANT_COUNT_COMPLETED = "sahool.vision.plant_count_completed"
-SAHOOL_VISION_CRITICAL_ALERT = "sahool.vision.critical_alert"
+SAHOOL_VISION_CRITICAL_ALERT = "sahool.vision.critical.alert"
 SAHOOL_VISION_ANALYSIS_STARTED = "sahool.vision.analysis_started"
 SAHOOL_VISION_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
 SAHOOL_VISION_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
@@ -731,7 +731,7 @@ SUBJECT_REGISTRY = {
     "vision.disease_detected": SAHOOL_VISION_DISEASE_DETECTED,
     "vision.weed_detected": SAHOOL_VISION_WEED_DETECTED,
     "vision.plant_count_completed": SAHOOL_VISION_PLANT_COUNT_COMPLETED,
-    "vision.critical_alert": SAHOOL_VISION_CRITICAL_ALERT,
+    "vision.critical.alert": SAHOOL_VISION_CRITICAL_ALERT,
     "vision.analysis_started": SAHOOL_VISION_ANALYSIS_STARTED,
     "vision.analysis_completed": SAHOOL_VISION_ANALYSIS_COMPLETED,
     "vision.analysis_failed": SAHOOL_VISION_ANALYSIS_FAILED,

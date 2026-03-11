@@ -6,7 +6,7 @@ LLM Orchestrator client for routing queries to AI agents.
 import logging
 from typing import Optional, List, Dict, Any
 import httpx
-from datetime import datetime
+from datetime import UTC, datetime
 
 from src.config import settings
 from src.models import ResponseMetadata
@@ -59,7 +59,7 @@ class LLMOrchestratorClient:
         if not self.client:
             raise RuntimeError("Client not initialized. Call connect() first.")
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             # Prepare request payload
@@ -85,7 +85,7 @@ class LLMOrchestratorClient:
             data = response.json()
 
             # Calculate processing time
-            processing_time_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            processing_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
             # Extract metadata
             metadata = self._extract_metadata(data, processing_time_ms)

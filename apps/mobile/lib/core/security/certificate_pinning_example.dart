@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'certificate_pinning_service.dart';
 import 'certificate_config.dart';
 import 'security_config.dart';
+import '../utils/app_logger.dart';
 
 /// Example: How to use Certificate Pinning in your app
 ///
@@ -119,7 +120,24 @@ void example4_checkExpiringCertificates() {
       }
     }
 
-    // TODO: Send notification to admin or logging service
+    // Log structured warning about expiring certificate pins
+    final expiringDetails = expiringPins
+        .map((pin) => {
+              'domain': pin.domain,
+              'days_until_expiry': pin.daysUntilExpiry,
+            })
+        .toList();
+
+    AppLogger.w(
+      'Certificate pins expiring soon',
+      tag: 'CertificatePinning',
+      data: {
+        'severity': 'warning',
+        'expiring_pin_count': expiringPins.length,
+        'pins': expiringDetails,
+        'threshold_days': 30,
+      },
+    );
   }
 }
 

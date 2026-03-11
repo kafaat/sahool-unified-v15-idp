@@ -15,7 +15,38 @@ from pydantic import BaseModel
 from .dependencies import get_current_user, get_token_data
 from .jwt import TokenData, create_access_token, create_refresh_token, decode_token
 from .models import User
+from .password import hash_password, verify_password
 from .token_revocation import get_revocation_store
+
+# ============================================
+# Mock User Database
+# ============================================
+# In production, replace this with actual database queries (e.g., asyncpg, Tortoise ORM).
+# Passwords are hashed with bcrypt (via hash_password) which is suitable for
+# password storage — it is salted, slow, and resistant to brute-force attacks.
+MOCK_USERS: dict[str, dict] = {
+    "farmer@example.com": {
+        "user_id": "user_123",
+        "password_hash": hash_password("password123"),
+        "tenant_id": "tenant_456",
+        "roles": ["farmer"],
+        "status": "active",
+    },
+    "admin@example.com": {
+        "user_id": "user_admin_001",
+        "password_hash": hash_password("adminpass456"),
+        "tenant_id": "tenant_456",
+        "roles": ["admin"],
+        "status": "active",
+    },
+    "suspended@example.com": {
+        "user_id": "user_suspended_002",
+        "password_hash": hash_password("suspendedpass"),
+        "tenant_id": "tenant_456",
+        "roles": ["farmer"],
+        "status": "suspended",
+    },
+}
 
 # Create router for auth endpoints
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -76,12 +107,40 @@ async def login(request: LoginRequest):
     - Rate limit login attempts
     - Log login events
     """
-    # TODO: Replace with actual user authentication
-    # For example purposes, we skip actual password verification
-    user_id = "user_123"
+    # Step 1: Look up user by email
+    # In production, query your database: SELECT * FROM users WHERE email = ?
+    user_record = MOCK_USERS.get(request.email)
+    if not user_record:
+        # Return a generic message to avoid leaking whether the email exists
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 2: Verify password hash using bcrypt (via verify_password)
+    if not verify_password(request.password, user_record["password_hash"]):
+        # In production, also increment failed login counter for rate limiting
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 3: Check user status (active, suspended, etc.)
+    # In production, you may also check email verification, 2FA requirements, etc.
+    if user_record["status"] != "active":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is not active. Please contact support.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Step 4: Extract authenticated user data
+    user_id = user_record["user_id"]
     email = request.email
-    tenant_id = "tenant_456"
-    roles = ["farmer"]
+    tenant_id = user_record["tenant_id"]
+    roles = user_record["roles"]
 
     # Create access token with JTI
     access_token, access_jti = create_access_token(

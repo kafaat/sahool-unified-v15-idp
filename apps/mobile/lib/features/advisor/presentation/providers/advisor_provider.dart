@@ -7,7 +7,10 @@
 /// with a screen-level StateNotifier for the full advisory dashboard.
 library;
 
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import '../../../../core/config/api_config.dart';
 
 // =============================================================================
 // Recommendation Model
@@ -179,7 +182,11 @@ class AdvisorDashboardState {
 /// Advisor dashboard notifier
 /// مُعلم لوحة المستشار
 class AdvisorDashboardNotifier extends StateNotifier<AdvisorDashboardState> {
-  AdvisorDashboardNotifier() : super(const AdvisorDashboardState()) {
+  final http.Client _client;
+
+  AdvisorDashboardNotifier({http.Client? client})
+      : _client = client ?? http.Client(),
+        super(const AdvisorDashboardState()) {
     loadRecommendations();
   }
 
@@ -189,17 +196,82 @@ class AdvisorDashboardNotifier extends StateNotifier<AdvisorDashboardState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Replace with actual AdvisorRepository calls
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final recommendations = _getMockRecommendations();
+      // Attempt to fetch from advisory-service (port 8093)
+      final recommendations = await _fetchRecommendations();
       state = state.copyWith(
         recommendations: recommendations,
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      // Fallback to mock data when API is unavailable
+      final recommendations = _getMockRecommendations();
+      state = state.copyWith(
+        recommendations: recommendations,
+        isLoading: false,
+      );
     }
+  }
+
+  /// Advisory service base URL (port 8093, gateway-aware)
+  /// رابط خدمة الاستشارات الأساسي (المنفذ 8093، متوافق مع البوابة)
+  static String get _advisoryBase => ApiConfig.useDirectServices
+      ? '${ApiConfig.fertilizerServiceUrl}/api/v1/advisories'
+      : '${ApiConfig.effectiveBaseUrl}/api/v1/fertilizer/advisories';
+
+  /// Fetch recommendations from the advisory service API
+  /// جلب التوصيات من واجهة خدمة المستشار
+  Future<List<Recommendation>> _fetchRecommendations() async {
+    final response = await _client
+        .get(
+          Uri.parse(_advisoryBase),
+          headers: ApiConfig.defaultHeaders,
+        )
+        .timeout(ApiConfig.connectTimeout);
+
+    if (response.statusCode != 200) {
+      throw Exception('Advisory API returned ${response.statusCode}');
+    }
+
+    final data = json.decode(response.body);
+    final items = (data is List) ? data : (data['items'] as List?) ?? [];
+
+    return items.map<Recommendation>((item) {
+      return Recommendation(
+        id: item['id']?.toString() ?? '',
+        type: _parseRecommendationType(item['type']?.toString()),
+        priority: _parseRecommendationPriority(item['priority']?.toString()),
+        title: item['title']?.toString() ?? '',
+        titleAr: item['title_ar']?.toString() ?? item['title']?.toString() ?? '',
+        description: item['description']?.toString() ?? '',
+        descriptionAr: item['description_ar']?.toString() ?? item['description']?.toString() ?? '',
+        fieldId: item['field_id']?.toString(),
+        fieldName: item['field_name']?.toString(),
+        actionLabel: item['action_label']?.toString(),
+        actionLabelAr: item['action_label_ar']?.toString(),
+        estimatedCost: (item['estimated_cost'] as num?)?.toDouble(),
+        estimatedROI: (item['estimated_roi'] as num?)?.toDouble(),
+        roiExplanation: item['roi_explanation']?.toString(),
+        roiExplanationAr: item['roi_explanation_ar']?.toString(),
+        createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
+        isCompleted: item['is_completed'] == true,
+      );
+    }).toList();
+  }
+
+  /// Parse recommendation type from API string
+  RecommendationType _parseRecommendationType(String? code) {
+    for (final type in RecommendationType.values) {
+      if (type.code == code) return type;
+    }
+    return RecommendationType.general;
+  }
+
+  /// Parse recommendation priority from API string
+  RecommendationPriority _parseRecommendationPriority(String? code) {
+    for (final priority in RecommendationPriority.values) {
+      if (priority.code == code) return priority;
+    }
+    return RecommendationPriority.info;
   }
 
   /// Get irrigation-specific advice
@@ -235,6 +307,13 @@ class AdvisorDashboardNotifier extends StateNotifier<AdvisorDashboardState> {
   /// تحديد فلتر الحقل
   void selectField(String? fieldId) {
     state = state.copyWith(selectedFieldId: fieldId);
+  }
+
+  /// Dispose HTTP client resources
+  @override
+  void dispose() {
+    _client.close();
+    super.dispose();
   }
 
   List<Recommendation> _getMockRecommendations() {

@@ -7,7 +7,7 @@ import hashlib
 import json
 import logging
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import UTC, datetime
 
 import redis.asyncio as redis
 from redis.asyncio import Redis
@@ -138,7 +138,7 @@ class CacheManager:
                 answer=answer,
                 answer_en=answer_en,
                 metadata=metadata,
-                cached_at=datetime.utcnow(),
+                cached_at=datetime.now(UTC),
                 hit_count=0,
             )
 

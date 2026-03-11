@@ -142,6 +142,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
+        id: restore-cache
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -156,6 +157,10 @@ jobs:
             echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
             sleep $((i * 5))
           done
+
+      - name: Rebuild packages if cache missed
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        run: npm run build:packages
 
       - name: Run Lint
         id: lint
@@ -177,7 +182,7 @@ jobs:
         if: matrix.check == 'typecheck'
         run: |
           echo "Running TypeScript type check on Web App..."
-          cd apps/web && npm run type-check
+          cd apps/web && npm run typecheck
         continue-on-error: true
 
       - name: Report Type Check Failure
@@ -185,7 +190,7 @@ jobs:
         run: |
           echo "::error::TypeScript found type errors in Web App. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
-          echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
+          echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run typecheck\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -219,6 +224,7 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Restore packages build
+        id: restore-cache-web-tests
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -233,6 +239,10 @@ jobs:
             echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
             sleep $((i * 5))
           done
+
+      - name: Rebuild packages if cache missed
+        if: steps.restore-cache-web-tests.outputs.cache-hit != 'true'
+        run: npm run build:packages
 
       - name: Run Unit Tests
         id: tests
@@ -376,6 +386,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Restore packages build
+        id: restore-cache-admin
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -390,6 +401,10 @@ jobs:
             echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
             sleep $((i * 5))
           done
+
+      - name: Rebuild packages if cache missed
+        if: steps.restore-cache-admin.outputs.cache-hit != 'true'
+        run: npm run build:packages
 
       - name: Run Lint
         id: lint
@@ -411,7 +426,7 @@ jobs:
         if: matrix.check == 'typecheck'
         run: |
           echo "Running TypeScript type check on Admin Dashboard..."
-          cd apps/admin && npm run type-check
+          cd apps/admin && npm run typecheck
         continue-on-error: true
 
       - name: Report Type Check Failure
@@ -419,7 +434,7 @@ jobs:
         run: |
           echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
           echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
-          echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run type-check\` locally to see details." >> $GITHUB_STEP_SUMMARY
+          echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run typecheck\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests
@@ -453,6 +468,7 @@ jobs:
             ${{ runner.os }}-admin-node-
 
       - name: Restore packages build
+        id: restore-cache-admin-tests
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -467,6 +483,10 @@ jobs:
             echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
             sleep $((i * 5))
           done
+
+      - name: Rebuild packages if cache missed
+        if: steps.restore-cache-admin-tests.outputs.cache-hit != 'true'
+        run: npm run build:packages
 
       - name: Run Unit Tests
         id: tests

@@ -178,7 +178,13 @@ export function createFieldApp(
    * Get a single field by ID
    * Returns ETag header for optimistic locking
    */
-  app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
+  app.get("/api/v1/fields/:id", async (req: Request, res: Response, next: NextFunction) => {
+    // Skip known sub-paths that have their own handlers registered later
+    const reservedPaths = ["nearby", "sync"];
+    if (reservedPaths.includes(req.params.id)) {
+      return next();
+    }
+
     try {
       const id = Array.isArray(req.params.id)
         ? req.params.id[0]

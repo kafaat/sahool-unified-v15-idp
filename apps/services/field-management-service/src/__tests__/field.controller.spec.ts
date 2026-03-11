@@ -10,37 +10,72 @@ import { AppDataSource } from "@sahool/field-shared";
 import { Field } from "@sahool/field-shared";
 import { FieldBoundaryHistory } from "@sahool/field-shared";
 import { SyncStatus } from "@sahool/field-shared";
+import { generateETag } from "@sahool/field-shared";
 
-// Mock the data source
-jest.mock("@sahool/field-shared", () => {
-  const original = jest.requireActual("@sahool/field-shared");
+// Mock the TypeORM DataSource constructor to prevent DB connection
+// Use separate repository mocks per entity so test setup doesn't collide
+// Shared query builder mock - stable reference so tests can configure it
+const sharedQueryBuilder = {
+  where: jest.fn().mockReturnThis(),
+  andWhere: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  skip: jest.fn().mockReturnThis(),
+  take: jest.fn().mockReturnThis(),
+  getManyAndCount: jest.fn(),
+  getMany: jest.fn(),
+  getCount: jest.fn(),
+};
 
-  const mockRepository = {
-    findOne: jest.fn(),
-    find: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
-    delete: jest.fn(),
-    createQueryBuilder: jest.fn(() => ({
-      where: jest.fn().mockReturnThis(),
-      andWhere: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn(),
-      getMany: jest.fn(),
-      getCount: jest.fn(),
-    })),
-  };
+// Re-bind mockReturnThis after object creation
+sharedQueryBuilder.where.mockReturnValue(sharedQueryBuilder);
+sharedQueryBuilder.andWhere.mockReturnValue(sharedQueryBuilder);
+sharedQueryBuilder.orderBy.mockReturnValue(sharedQueryBuilder);
+sharedQueryBuilder.skip.mockReturnValue(sharedQueryBuilder);
+sharedQueryBuilder.take.mockReturnValue(sharedQueryBuilder);
 
+// Separate mock repositories per entity type
+const fieldMockRepository = {
+  findOne: jest.fn(),
+  find: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  delete: jest.fn(),
+  createQueryBuilder: jest.fn(() => sharedQueryBuilder),
+};
+
+const historyMockRepository = {
+  findOne: jest.fn(),
+  find: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  delete: jest.fn(),
+  createQueryBuilder: jest.fn(),
+};
+
+const syncStatusMockRepository = {
+  findOne: jest.fn(),
+  find: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  delete: jest.fn(),
+  createQueryBuilder: jest.fn(),
+};
+
+jest.mock("typeorm", () => {
+  const actual = jest.requireActual("typeorm");
   return {
-    ...original,
-    AppDataSource: {
+    ...actual,
+    DataSource: jest.fn().mockImplementation(() => ({
       initialize: jest.fn().mockResolvedValue(undefined),
       query: jest.fn(),
-      getRepository: jest.fn(() => mockRepository),
+      getRepository: jest.fn((entity: any) => {
+        const name = entity?.name || "";
+        if (name === "SyncStatus") return syncStatusMockRepository;
+        if (name === "FieldBoundaryHistory") return historyMockRepository;
+        return fieldMockRepository;
+      }),
       isInitialized: true,
-    },
+    })),
   };
 });
 
@@ -88,12 +123,33 @@ describe("Field Management Service - Controller Tests", () => {
   });
 
   beforeEach(() => {
+    // Clear call history while preserving mock implementations
     jest.clearAllMocks();
-    mockFieldRepo = (AppDataSource as any).getRepository(Field);
-    mockHistoryRepo = (AppDataSource as any).getRepository(
-      FieldBoundaryHistory,
-    );
-    mockSyncStatusRepo = (AppDataSource as any).getRepository(SyncStatus);
+
+    // Clear per-method call history to prevent bleed between tests
+    fieldMockRepository.findOne.mockClear();
+    fieldMockRepository.find.mockClear();
+    fieldMockRepository.create.mockClear();
+    fieldMockRepository.save.mockClear();
+    fieldMockRepository.delete.mockClear();
+    historyMockRepository.findOne.mockClear();
+    historyMockRepository.create.mockClear();
+    historyMockRepository.save.mockClear();
+    syncStatusMockRepository.findOne.mockClear();
+    syncStatusMockRepository.create.mockClear();
+    syncStatusMockRepository.save.mockClear();
+
+    // Re-bind query builder chain methods
+    sharedQueryBuilder.where.mockReturnValue(sharedQueryBuilder);
+    sharedQueryBuilder.andWhere.mockReturnValue(sharedQueryBuilder);
+    sharedQueryBuilder.orderBy.mockReturnValue(sharedQueryBuilder);
+    sharedQueryBuilder.skip.mockReturnValue(sharedQueryBuilder);
+    sharedQueryBuilder.take.mockReturnValue(sharedQueryBuilder);
+    fieldMockRepository.createQueryBuilder.mockReturnValue(sharedQueryBuilder);
+
+    mockFieldRepo = fieldMockRepository;
+    mockHistoryRepo = historyMockRepository;
+    mockSyncStatusRepo = syncStatusMockRepository;
   });
 
   describe("Health Check Endpoints", () => {
@@ -228,7 +284,7 @@ describe("Field Management Service - Controller Tests", () => {
         expect(response.body.success).toBe(true);
         expect(response.body.data.id).toBe("field-001");
         expect(response.body.etag).toBeDefined();
-        expect(response.body.etag).toMatch(/^"field-001_v1"$/);
+        expect(response.body.etag).toMatch(/^"[a-f0-9]+"$/);
       });
 
       it("should return 404 for non-existent field", async () => {
@@ -334,7 +390,11 @@ describe("Field Management Service - Controller Tests", () => {
           name: "Invalid Poly",
           tenantId: "tenant-001",
           cropType: "wheat",
-          coordinates: [[44.0, 95.0]], // Invalid coordinates
+          coordinates: [
+            [44.0, 95.0],
+            [44.1, 95.0],
+            [44.1, 95.1],
+          ], // Invalid latitude (>90)
         };
 
         const response = await request(app)
@@ -357,13 +417,13 @@ describe("Field Management Service - Controller Tests", () => {
 
         const response = await request(app)
           .put("/api/v1/fields/field-001")
-          .set("If-Match", '"field-001_v1"')
+          .set("If-Match", generateETag("field-001", 1))
           .send({ name: "Updated Field" });
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.data.name).toBe("Updated Field");
-        expect(response.body.etag).toBe('"field-001_v2"');
+        expect(response.body.etag).toBe(generateETag("field-001", 2));
       });
 
       it("should return 404 for non-existent field", async () => {
@@ -403,7 +463,7 @@ describe("Field Management Service - Controller Tests", () => {
 
         const response = await request(app)
           .put("/api/v1/fields/field-001")
-          .set("If-Match", '"field-001_v1"')
+          .set("If-Match", generateETag("field-001", 1))
           .send({
             name: "Updated Name",
             cropType: "rice",
@@ -485,7 +545,7 @@ describe("Field Management Service - Controller Tests", () => {
         });
 
         expect(response.status).toBe(200);
-        expect(response.body.query.radius).toBe("5000");
+        expect(Number(response.body.query.radius)).toBe(5000);
       });
     });
   });

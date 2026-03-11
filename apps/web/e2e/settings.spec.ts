@@ -239,7 +239,7 @@ test.describe("Settings Page", () => {
       }
     });
 
-    test.skip("should change password successfully", async ({}) => {
+    test.skip("should change password successfully", async () => {
       // Skip - requires valid current password
     });
   });

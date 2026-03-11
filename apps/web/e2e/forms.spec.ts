@@ -339,12 +339,12 @@ test.describe("Form Interactions", () => {
   });
 
   test.describe("Multi-step Forms", () => {
-    test.skip("should navigate through wizard steps", async ({}) => {
+    test.skip("should navigate through wizard steps", async () => {
       // Skip if no multi-step forms exist
       // This is a placeholder for wizard-style forms
     });
 
-    test.skip("should save progress in multi-step form", async ({}) => {
+    test.skip("should save progress in multi-step form", async () => {
       // Test form state persistence across steps
     });
   });
@@ -368,11 +368,11 @@ test.describe("Form Interactions", () => {
       }
     });
 
-    test.skip("should validate file type", async ({}) => {
+    test.skip("should validate file type", async () => {
       // Test file type validation
     });
 
-    test.skip("should validate file size", async ({}) => {
+    test.skip("should validate file size", async () => {
       // Test file size validation
     });
   });
@@ -403,7 +403,7 @@ test.describe("Form Interactions", () => {
       }
     });
 
-    test.skip("should filter autocomplete suggestions", async ({}) => {
+    test.skip("should filter autocomplete suggestions", async () => {
       // Test autocomplete filtering
     });
   });

@@ -178,7 +178,15 @@ export function createFieldApp(
    * Get a single field by ID
    * Returns ETag header for optimistic locking
    */
-  app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
+  app.get("/api/v1/fields/:id", async (req: Request, res: Response, next: NextFunction) => {
+    // Skip fixed sub-paths that have their own handlers registered after this route.
+    // TODO: Move /nearby, /sync, /stats routes BEFORE /:id to use Express route
+    // ordering instead of this workaround. Add any new fixed sub-path here until then.
+    const reservedPaths = ["nearby", "sync", "stats"];
+    if (reservedPaths.includes(req.params.id)) {
+      return next();
+    }
+
     try {
       const id = Array.isArray(req.params.id)
         ? req.params.id[0]

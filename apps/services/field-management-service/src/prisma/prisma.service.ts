@@ -55,28 +55,44 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    try {
-      await this.$connect();
-      this.isConnected = true;
-      this.logger.log("Field Management Database connected successfully");
+    // Retry connection up to 3 times with exponential backoff
+    const maxRetries = this.isTestEnvironment ? 1 : 3;
 
-      // Enable PostGIS extension if not exists
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
-        this.logger.log("PostGIS extension verified");
-      } catch (e) {
-        this.logger.debug("PostGIS extension may already exist");
-      }
-    } catch (error) {
-      if (this.isTestEnvironment) {
+        await this.$connect();
+        this.isConnected = true;
+        this.logger.log("Field Management Database connected successfully");
+
+        // Enable PostGIS extension if not exists
+        try {
+          await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
+          this.logger.log("PostGIS extension verified");
+        } catch (e) {
+          this.logger.debug("PostGIS extension may already exist");
+        }
+        return; // Success — exit retry loop
+      } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        this.logger.warn(
-          `Database connection failed in test environment: ${errorMessage}`,
-        );
-        this.logger.warn("Running in degraded mode without database");
-        this.isConnected = false;
-      } else {
-        throw error;
+
+        if (this.isTestEnvironment) {
+          this.logger.warn(
+            `Database connection failed in test environment: ${errorMessage}`,
+          );
+          this.logger.warn("Running in degraded mode without database");
+          this.isConnected = false;
+          return;
+        }
+
+        if (attempt < maxRetries) {
+          const delay = attempt * 2000; // 2s, 4s backoff
+          this.logger.warn(
+            `Database connection failed (attempt ${attempt}/${maxRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
       }
     }
   }

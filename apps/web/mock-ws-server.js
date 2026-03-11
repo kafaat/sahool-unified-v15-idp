@@ -118,7 +118,7 @@ const server = http.createServer((req, res) => {
   res.end("SAHOOL WebSocket Server - Use WebSocket connection on /events");
 });
 
-server.on("upgrade", (req, socket, head) => {
+server.on("upgrade", (req, socket, _head) => {
   if (req.url === "/events") {
     // WebSocket handshake
     const key = req.headers["sec-websocket-key"];
@@ -220,7 +220,7 @@ setInterval(() => {
   for (const client of clients) {
     try {
       client.write(frame);
-    } catch (e) {
+    } catch (_e) {
       clients.delete(client);
     }
   }

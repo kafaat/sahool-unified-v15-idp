@@ -393,7 +393,7 @@ const routes = {
   }),
 
   // Agro Advisor API
-  "POST /api/v1/advisor/analyze": (params, body) => ({
+  "POST /api/v1/advisor/analyze": (_params, _body) => ({
     success: true,
     data: {
       recommendations: [

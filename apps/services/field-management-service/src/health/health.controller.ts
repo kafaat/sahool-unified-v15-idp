@@ -14,8 +14,10 @@ import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Public } from "../auth/public.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService } from "../cache/cache.service";
+import { SkipTenantCheck } from "../auth/tenant.guard";
 
 @ApiTags("Health - الصحة")
+@SkipTenantCheck()
 @Controller()
 export class HealthController {
   constructor(

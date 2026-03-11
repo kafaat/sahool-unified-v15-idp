@@ -133,8 +133,8 @@ export const test = base.extend<CustomFixtures>({
    * Test user fixture
    * إعداد المستخدم الاختباري
    */
-  testUser: async ({}, use) => {
-    await use(TEST_USER);
+  testUser: async (_options, useFixture) => {
+    await useFixture(TEST_USER);
   },
 
   /**
@@ -143,7 +143,7 @@ export const test = base.extend<CustomFixtures>({
    * إعداد الصفحة المصادقة
    * تسجيل دخول تلقائي قبل كل اختبار يستخدم هذا الإعداد
    */
-  authenticatedPage: async ({ page }, use) => {
+  authenticatedPage: async ({ page }, useFixture) => {
     // In CI, mock all API calls to return test data
     if (process.env.CI) {
       await page.route("**/api/**", async (route) => {
@@ -179,7 +179,7 @@ export const test = base.extend<CustomFixtures>({
     await waitForPageLoad(page);
 
     // Run the test
-    await use();
+    await useFixture();
 
     // Cleanup: logout after test (optional)
     try {

@@ -16,7 +16,7 @@ base = [
     "pydantic>=2.10.0,<3.0.0",
     "httpx==0.28.1",
     "python-dotenv==1.2.2",
-    "aiohttp>=3.13.3",  # Security fixes for CVE-2025-53643 and CVE-2025-69223
+    "aiohttp>=3.13.3,<4.0.0",  # Security fixes for CVE-2025-53643 and CVE-2025-69223
     "tenacity>=8.2.0,<10.0.0",  # Retry with backoff (used by globalgap, vision services)
 ]
 infrastructure = [

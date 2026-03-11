@@ -1429,7 +1429,7 @@ GET  /healthz, /readyz, /health, /metrics
 | `sahool.vision.pest_detected` | Pest detection |
 | `sahool.vision.disease_detected` | Disease detection |
 | `sahool.vision.weed_detected` | Weed detection |
-| `sahool.vision.critical_alert` | Critical pest (RPW, locust) |
+| `sahool.vision.critical.alert` | Critical pest (RPW, locust) |
 | `sahool.vision.plant_count_completed` | Plant counting |
 | `sahool.vision.analysis_completed` | Analysis (ripeness, segmentation) |
 | `sahool.vision.analysis_started` | Analysis started |

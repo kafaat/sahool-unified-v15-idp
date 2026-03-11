@@ -384,7 +384,7 @@ if REVOCATION_AVAILABLE:
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json", "/a2a"],
     )
 
-# Note: A2A router is registered during lifespan startup (see below)
+# Note: A2A router is registered during lifespan startup (see lifespan function above)
 
 
 # Endpoints | نقاط النهاية

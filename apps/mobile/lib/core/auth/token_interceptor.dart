@@ -79,35 +79,36 @@ class TokenInterceptor extends Interceptor {
     try {
       // Check if token needs proactive refresh
       await _checkAndRefreshTokenIfNeeded();
-
-      // Get current access token
-      final accessToken = await _secureStorage.getAccessToken();
-
-      if (accessToken != null && accessToken.isNotEmpty) {
-        options.headers['Authorization'] = 'Bearer $accessToken';
-      }
-
-      // Add tenant ID
-      final tenantId = await _secureStorage.getTenantId();
-      if (tenantId != null) {
-        options.headers['X-Tenant-Id'] = tenantId;
-      }
-
-      // Sanitized logging - no token values
-      AppLogger.network(
-        options.method,
-        options.path,
-        data: {
-          'authenticated': accessToken != null,
-          'hasTenant': tenantId != null,
-        },
-      );
-
-      handler.next(options);
     } catch (e) {
-      AppLogger.e('Error in token interceptor onRequest', tag: 'TOKEN', error: e);
-      handler.next(options);
+      // Proactive refresh failed - log but continue with existing token
+      // The server will return 401 if it's expired, and onError will handle it
+      AppLogger.w('Proactive token refresh failed, continuing with current token', tag: 'TOKEN', error: e);
     }
+
+    // Get current access token
+    final accessToken = await _secureStorage.getAccessToken();
+
+    if (accessToken != null && accessToken.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+
+    // Add tenant ID
+    final tenantId = await _secureStorage.getTenantId();
+    if (tenantId != null) {
+      options.headers['X-Tenant-Id'] = tenantId;
+    }
+
+    // Sanitized logging - no token values
+    AppLogger.network(
+      options.method,
+      options.path,
+      data: {
+        'authenticated': accessToken != null,
+        'hasTenant': tenantId != null,
+      },
+    );
+
+    handler.next(options);
   }
 
   @override

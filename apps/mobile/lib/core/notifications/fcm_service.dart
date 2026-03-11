@@ -716,14 +716,43 @@ class FCMService {
   Future<void> handleForegroundMessage(dynamic message) async {
     AppLogger.d('Foreground message received', tag: 'FCM');
 
-    // Extract notification data
-    // Note: message is RemoteMessage from firebase_messaging
+    // Extract actual notification data from RemoteMessage
+    String title = 'New Message';
+    String body = 'You have a new notification';
+    String? type;
+    String? priority;
+    Map<String, dynamic> data = {};
 
-    // Show local notification
+    try {
+      if (message != null) {
+        // RemoteMessage.notification contains title/body
+        final notification = message.notification;
+        if (notification != null) {
+          title = notification.title ?? title;
+          body = notification.body ?? body;
+        }
+
+        // RemoteMessage.data contains the data payload
+        if (message.data is Map) {
+          data = Map<String, dynamic>.from(message.data as Map);
+          // Data-only messages may have title/body in the data payload
+          title = data['title']?.toString() ?? title;
+          body = data['body']?.toString() ?? body;
+          type = data['type']?.toString();
+          priority = data['priority']?.toString();
+        }
+      }
+    } catch (e) {
+      AppLogger.w('Failed to parse foreground message: $e', tag: 'FCM');
+    }
+
+    // Show local notification with actual content
     await showLocalNotification(
-      title: 'New Message',
-      body: 'You have a new notification',
-      data: {},
+      title: title,
+      body: body,
+      type: type,
+      priority: priority,
+      data: data,
     );
   }
 
@@ -731,12 +760,31 @@ class FCMService {
   void handleMessageOpenedApp(dynamic message) {
     AppLogger.d('Message opened app', tag: 'FCM');
 
-    final payload = FCMNotificationPayload(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: '',
-      body: '',
-      data: {},
-      receivedAt: DateTime.now(),
+    String title = '';
+    String body = '';
+    Map<String, dynamic> data = {};
+
+    try {
+      if (message != null) {
+        final notification = message.notification;
+        if (notification != null) {
+          title = notification.title ?? '';
+          body = notification.body ?? '';
+        }
+        if (message.data is Map) {
+          data = Map<String, dynamic>.from(message.data as Map);
+          title = data['title']?.toString() ?? title;
+          body = data['body']?.toString() ?? body;
+        }
+      }
+    } catch (e) {
+      AppLogger.w('Failed to parse opened message: $e', tag: 'FCM');
+    }
+
+    final payload = FCMNotificationPayload.fromMap(
+      data,
+      title: title,
+      body: body,
       tapped: true,
       fromFCM: true,
     );

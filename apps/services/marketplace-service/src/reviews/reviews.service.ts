@@ -184,6 +184,7 @@ export class ReviewsService {
     const reviews = await this.prisma.productReview.findMany({
       where: { productId },
       select: { rating: true },
+      take: 100,
     });
 
     if (reviews.length === 0) {

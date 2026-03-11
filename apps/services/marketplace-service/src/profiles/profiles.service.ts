@@ -182,6 +182,7 @@ export class ProfilesService {
     return this.prisma.sellerProfile.findMany({
       where,
       orderBy: { rating: "desc" },
+      take: 100,
     });
   }
 
@@ -453,6 +454,7 @@ export class ProfilesService {
     return this.prisma.buyerProfile.findMany({
       where,
       orderBy: { totalSpent: "desc" },
+      take: 100,
     });
   }
 }

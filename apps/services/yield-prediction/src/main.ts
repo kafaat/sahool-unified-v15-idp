@@ -12,6 +12,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import helmet from 'helmet';
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
@@ -27,6 +28,9 @@ async function bootstrap() {
   // Global request logging interceptor with correlation IDs
   app.useGlobalInterceptors(new RequestLoggingInterceptor("yield-prediction"));
 
+  // Security headers
+  app.use(helmet());
+
   // CORS
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
     "https://sahool.com",
@@ -34,11 +38,12 @@ async function bootstrap() {
   ];
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
-  // Swagger
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Yield Prediction API")
-    .setDescription(
-      `
+  // Swagger - only in non-production environments
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Yield Prediction API")
+      .setDescription(
+        `
       خدمة التنبؤ بالإنتاجية الزراعية
 
       Agricultural Yield Prediction Service providing:
@@ -48,13 +53,14 @@ async function bootstrap() {
       - Historical yield analysis (تحليل الإنتاجية التاريخية)
       - Comparison with regional averages (المقارنة مع المعدلات الإقليمية)
     `,
-    )
-    .setVersion("16.0.0")
-    .addBearerAuth()
-    .build();
+      )
+      .setVersion("16.0.0")
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   // Health endpoints (/healthz, /readyz) are registered at root level
   // via AppController, outside any global prefix

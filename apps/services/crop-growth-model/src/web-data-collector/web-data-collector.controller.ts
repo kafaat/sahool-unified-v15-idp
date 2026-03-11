@@ -13,13 +13,39 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
+import { IsArray, IsString, IsOptional, MaxLength, ArrayMaxSize, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 import { WebDataCollectorService } from "./web-data-collector.service";
 
+class DateRangeInput {
+  @IsString()
+  from: string;
+
+  @IsString()
+  to: string;
+}
+
 class CollectionJobInput {
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(20)
   sources: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
   region?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(50)
   commodities?: string[];
-  dateRange?: { from: string; to: string };
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DateRangeInput)
+  dateRange?: DateRangeInput;
 }
 
 @ApiTags("web-data-collector")

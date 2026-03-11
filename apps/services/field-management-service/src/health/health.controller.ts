@@ -11,6 +11,7 @@ import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
 import { Response } from "express";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Public } from "../auth/public.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService } from "../cache/cache.service";
 
@@ -26,6 +27,7 @@ export class HealthController {
    * Liveness probe - is the service running?
    */
   @Get("healthz")
+  @Public()
   @SkipThrottle()
   @ApiOperation({ summary: "Liveness probe" })
   @ApiResponse({ status: 200, description: "Service is alive" })
@@ -42,6 +44,7 @@ export class HealthController {
    * Readiness probe - is the service ready to accept traffic?
    */
   @Get("readyz")
+  @Public()
   @SkipThrottle()
   @ApiOperation({ summary: "Readiness probe" })
   @ApiResponse({ status: 200, description: "Service is ready" })
@@ -82,6 +85,7 @@ export class HealthController {
    * Detailed health status
    */
   @Get("health")
+  @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: "Detailed health status" })
   @ApiResponse({ status: 200, description: "Health status retrieved" })
@@ -148,6 +152,7 @@ export class HealthController {
    * Prometheus metrics endpoint
    */
   @Get("metrics")
+  @Public()
   @SkipThrottle()
   @ApiOperation({ summary: "Prometheus metrics" })
   async metrics(@Res() res: Response) {

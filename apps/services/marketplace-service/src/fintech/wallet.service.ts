@@ -14,8 +14,15 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
+import { Prisma } from "../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import * as crypto from "crypto";
+
+/** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
+function toNum(v: Prisma.Decimal | number | null | undefined): number {
+  if (v == null) return 0;
+  return typeof v === "number" ? v : Number(v);
+}
 
 @Injectable()
 export class WalletService {
@@ -44,7 +51,7 @@ export class WalletService {
     return {
       ...wallet,
       creditTierAr: this.getCreditTierAr(wallet.creditTier),
-      availableCredit: wallet.loanLimit - wallet.currentLoan,
+      availableCredit: toNum(wallet.loanLimit) - toNum(wallet.currentLoan),
     };
   }
 
@@ -108,7 +115,7 @@ export class WalletService {
           throw new BadRequestException("المحفظة مجمدة أو محذوفة. يرجى التواصل مع الدعم");
         }
 
-        const balanceBefore = currentWallet.balance;
+        const balanceBefore = toNum(currentWallet.balance);
         const versionBefore = currentWallet.version;
         const newBalance = balanceBefore + amount;
         const newVersion = versionBefore + 1;
@@ -219,7 +226,7 @@ export class WalletService {
         // Check wallet is not frozen
         this.assertWalletActive(wallet);
 
-        const balanceBefore = wallet.balance;
+        const balanceBefore = toNum(wallet.balance);
         const versionBefore = wallet.version;
 
         // CRITICAL: Check balance WITHIN the transaction after locking
@@ -302,9 +309,10 @@ export class WalletService {
    * Check withdraw limits (transaction-safe version)
    */
   private async checkWithdrawLimitsInTransaction(wallet: any, amount: number) {
-    if (amount > wallet.singleTransactionLimit) {
+    const singleLimit = toNum(wallet.singleTransactionLimit);
+    if (amount > singleLimit) {
       throw new BadRequestException(
-        `المبلغ يتجاوز حد المعاملة الواحدة (${wallet.singleTransactionLimit} ر.ي)`,
+        `المبلغ يتجاوز حد المعاملة الواحدة (${singleLimit} ر.ي)`,
       );
     }
 
@@ -314,12 +322,13 @@ export class WalletService {
       : null;
     const needsReset = !lastReset || this.isNewDay(lastReset, now);
 
-    const currentDailyWithdrawn = needsReset ? 0 : wallet.dailyWithdrawnToday;
+    const currentDailyWithdrawn = needsReset ? 0 : toNum(wallet.dailyWithdrawnToday);
     const newDailyTotal = currentDailyWithdrawn + amount;
+    const dailyLimit = toNum(wallet.dailyWithdrawLimit);
 
-    if (newDailyTotal > wallet.dailyWithdrawLimit) {
+    if (newDailyTotal > dailyLimit) {
       throw new BadRequestException(
-        `تجاوزت حد السحب اليومي (${wallet.dailyWithdrawLimit} ر.ي). المتبقي: ${wallet.dailyWithdrawLimit - currentDailyWithdrawn} ر.ي`,
+        `تجاوزت حد السحب اليومي (${dailyLimit} ر.ي). المتبقي: ${dailyLimit - currentDailyWithdrawn} ر.ي`,
       );
     }
   }
@@ -337,7 +346,7 @@ export class WalletService {
     return {
       dailyWithdrawnToday: needsReset
         ? amount
-        : wallet.dailyWithdrawnToday + amount,
+        : toNum(wallet.dailyWithdrawnToday) + amount,
       lastWithdrawReset: needsReset ? now : wallet.lastWithdrawReset,
     };
   }
@@ -381,13 +390,14 @@ export class WalletService {
       ? new Date(wallet.lastWithdrawReset)
       : null;
     const needsReset = !lastReset || this.isNewDay(lastReset, now);
-    const currentDailyWithdrawn = needsReset ? 0 : wallet.dailyWithdrawnToday;
+    const currentDailyWithdrawn = needsReset ? 0 : toNum(wallet.dailyWithdrawnToday);
+    const dailyLimit = toNum(wallet.dailyWithdrawLimit);
 
     return {
-      dailyWithdrawLimit: wallet.dailyWithdrawLimit,
-      dailyRemaining: wallet.dailyWithdrawLimit - currentDailyWithdrawn,
-      singleTransactionLimit: wallet.singleTransactionLimit,
-      requiresPinForAmount: wallet.requiresPinForAmount,
+      dailyWithdrawLimit: dailyLimit,
+      dailyRemaining: dailyLimit - currentDailyWithdrawn,
+      singleTransactionLimit: toNum(wallet.singleTransactionLimit),
+      requiresPinForAmount: toNum(wallet.requiresPinForAmount),
       creditTier: wallet.creditTier,
     };
   }
@@ -648,7 +658,7 @@ export class WalletService {
     }
 
     // Check if PIN is required for this amount
-    if (amount >= wallet.requiresPinForAmount) {
+    if (amount >= toNum(wallet.requiresPinForAmount)) {
       if (!wallet.pin) {
         throw new BadRequestException(
           "يجب تعيين رمز PIN قبل إجراء معاملات كبيرة. استخدم set-pin أولاً",
@@ -738,17 +748,19 @@ export class WalletService {
           buyerWalletId: walletId,
           status: "HELD",
         },
+        take: 100,
       }),
       this.prisma.escrow.findMany({
         where: {
           sellerWalletId: walletId,
           status: "HELD",
         },
+        take: 100,
       }),
     ]);
 
-    const escrowAsBuyer = buyerEscrows.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
-    const escrowAsSeller = sellerEscrows.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
+    const escrowAsBuyer = buyerEscrows.reduce((sum: number, e: any) => sum + toNum(e.amount), 0);
+    const escrowAsSeller = sellerEscrows.reduce((sum: number, e: any) => sum + toNum(e.amount), 0);
 
     const pendingPayments = await this.prisma.scheduledPayment.findMany({
       where: {
@@ -761,7 +773,7 @@ export class WalletService {
     });
 
     const totalPendingPayments = pendingPayments.reduce(
-      (sum: number, p: { amount: number }) => sum + p.amount,
+      (sum: number, p: any) => sum + toNum(p.amount),
       0,
     );
 
@@ -772,6 +784,7 @@ export class WalletService {
         createdAt: { gte: thirtyDaysAgo },
       },
       orderBy: { createdAt: "asc" },
+      take: 1000,
     });
 
     const dailyStats: Record<
@@ -779,16 +792,17 @@ export class WalletService {
       { date: string; income: number; expense: number }
     > = {};
 
-    transactions.forEach((tx: { createdAt: Date; amount: number }) => {
+    transactions.forEach((tx: any) => {
       const dateKey = tx.createdAt.toISOString().split("T")[0];
       if (!dailyStats[dateKey]) {
         dailyStats[dateKey] = { date: dateKey, income: 0, expense: 0 };
       }
 
-      if (tx.amount > 0) {
-        dailyStats[dateKey].income += tx.amount;
+      const txAmount = toNum(tx.amount);
+      if (txAmount > 0) {
+        dailyStats[dateKey].income += txAmount;
       } else {
-        dailyStats[dateKey].expense += Math.abs(tx.amount);
+        dailyStats[dateKey].expense += Math.abs(txAmount);
       }
     });
 
@@ -799,30 +813,35 @@ export class WalletService {
       ? new Date(wallet.lastWithdrawReset)
       : null;
     const needsReset = !lastReset || this.isNewDay(lastReset, now);
-    const currentDailyWithdrawn = needsReset ? 0 : wallet.dailyWithdrawnToday;
+    const currentDailyWithdrawn = needsReset ? 0 : toNum(wallet.dailyWithdrawnToday);
+    const walletBalance = toNum(wallet.balance);
+    const walletEscrow = toNum(wallet.escrowBalance);
+    const walletLoanLimit = toNum(wallet.loanLimit);
+    const walletCurrentLoan = toNum(wallet.currentLoan);
+    const walletDailyLimit = toNum(wallet.dailyWithdrawLimit);
 
     return {
       wallet: {
         id: wallet.id,
-        balance: wallet.balance,
-        escrowBalance: wallet.escrowBalance,
+        balance: walletBalance,
+        escrowBalance: walletEscrow,
         creditScore: wallet.creditScore,
         creditTier: wallet.creditTier,
         creditTierAr: this.getCreditTierAr(wallet.creditTier),
       },
       summary: {
-        totalBalance: wallet.balance,
+        totalBalance: walletBalance,
         inEscrowAsBuyer: escrowAsBuyer,
         inEscrowAsSeller: escrowAsSeller,
         pendingPaymentsAmount: totalPendingPayments,
         pendingPaymentsCount: pendingPayments.length,
-        availableCredit: wallet.loanLimit - wallet.currentLoan,
-        currentLoan: wallet.currentLoan,
+        availableCredit: walletLoanLimit - walletCurrentLoan,
+        currentLoan: walletCurrentLoan,
       },
       limits: {
-        dailyWithdrawLimit: wallet.dailyWithdrawLimit,
-        dailyRemaining: wallet.dailyWithdrawLimit - currentDailyWithdrawn,
-        singleTransactionLimit: wallet.singleTransactionLimit,
+        dailyWithdrawLimit: walletDailyLimit,
+        dailyRemaining: walletDailyLimit - currentDailyWithdrawn,
+        singleTransactionLimit: toNum(wallet.singleTransactionLimit),
       },
       monthlyChart,
       recentTransactions: transactions.slice(-10),
@@ -889,16 +908,17 @@ export class WalletService {
         this.assertWalletActive(fromWallet);
         this.assertWalletActive(toWallet);
 
-        if (fromWallet.balance < amount) {
+        const fromBalance = toNum(fromWallet.balance);
+        if (fromBalance < amount) {
           throw new BadRequestException(
-            `الرصيد غير كافي. الرصيد الحالي: ${fromWallet.balance}`,
+            `الرصيد غير كافي. الرصيد الحالي: ${fromBalance}`,
           );
         }
 
         await this.checkWithdrawLimitsInTransaction(fromWallet, amount);
 
-        const fromNewBalance = fromWallet.balance - amount;
-        const toNewBalance = toWallet.balance + amount;
+        const fromNewBalance = fromBalance - amount;
+        const toNewBalance = toNum(toWallet.balance) + amount;
         const fromNewVersion = fromWallet.version + 1;
         const toNewVersion = toWallet.version + 1;
         const dailyWithdrawn = this.updateDailyWithdrawn(fromWallet, amount);
@@ -930,7 +950,7 @@ export class WalletService {
             type: "TRANSFER_OUT",
             amount: -amount,
             balanceAfter: fromNewBalance,
-            balanceBefore: fromWallet.balance,
+            balanceBefore: fromBalance,
             description: description || "Transfer to wallet",
             descriptionAr: description || "تحويل إلى محفظة أخرى",
             status: "COMPLETED",

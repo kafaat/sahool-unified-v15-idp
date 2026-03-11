@@ -17,7 +17,14 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from "@nestjs/common";
+import { Prisma } from "../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
+
+/** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
+function toNum(v: Prisma.Decimal | number | null | undefined): number {
+  if (v == null) return 0;
+  return typeof v === "number" ? v : Number(v);
+}
 
 interface CreateLoanDto {
   walletId: string;
@@ -161,7 +168,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
       throw new NotFoundException("المحفظة غير موجودة");
     }
 
-    const availableCredit = wallet.loanLimit - wallet.currentLoan;
+    const availableCredit = toNum(wallet.loanLimit) - toNum(wallet.currentLoan);
 
     if (data.amount > availableCredit) {
       throw new BadRequestException(
@@ -240,7 +247,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
             walletId: loan.walletId,
             type: "LOAN",
             amount: loan.amount,
-            balanceAfter: loan.wallet.balance + loan.amount,
+            balanceAfter: toNum(loan.wallet.balance) + toNum(loan.amount),
             referenceId: loanId,
             referenceType: "loan",
             description: `Agricultural loan - ${loan.purpose}`,
@@ -312,10 +319,12 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         }
 
         const wallet = walletRows[0];
-        const balanceBefore = wallet.balance;
+        const balanceBefore = toNum(wallet.balance);
         const versionBefore = wallet.version;
 
-        const remainingDue = loan.totalDue - loan.paidAmount;
+        const loanTotalDue = toNum(loan.totalDue);
+        const loanPaidAmount = toNum(loan.paidAmount);
+        const remainingDue = loanTotalDue - loanPaidAmount;
         const paymentAmount = Math.min(amount, remainingDue);
 
         if (balanceBefore < paymentAmount) {
@@ -324,8 +333,8 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
           );
         }
 
-        const newPaidAmount = loan.paidAmount + paymentAmount;
-        const isFullyPaid = newPaidAmount >= loan.totalDue;
+        const newPaidAmount = loanPaidAmount + paymentAmount;
+        const isFullyPaid = newPaidAmount >= loanTotalDue;
         const newBalance = balanceBefore - paymentAmount;
         const newVersion = versionBefore + 1;
 
@@ -384,7 +393,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
               loanId,
               paidAmount: paymentAmount,
               totalPaid: newPaidAmount,
-              remainingDue: loan.totalDue - newPaidAmount,
+              remainingDue: loanTotalDue - newPaidAmount,
               isFullyPaid,
             },
           },
@@ -398,7 +407,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
             data: {
               walletId: loan.walletId,
               eventType: isOnTime ? "LOAN_REPAID_ONTIME" : "LOAN_REPAID_LATE",
-              amount: loan.totalDue,
+              amount: loanTotalDue,
               impact: isOnTime ? 15 : -10,
               description: isOnTime
                 ? "قرض مسدد في الوقت المحدد"
@@ -411,10 +420,10 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
           loan: updatedLoan,
           wallet: updatedWallet,
           transaction,
-          remainingAmount: loan.totalDue - newPaidAmount,
+          remainingAmount: loanTotalDue - newPaidAmount,
           message: isFullyPaid
             ? "تهانينا! تم سداد القرض بالكامل. تم رفع تصنيفك الائتماني."
-            : `تم السداد بنجاح. المتبقي: ${loan.totalDue - newPaidAmount} ر.ي`,
+            : `تم السداد بنجاح. المتبقي: ${loanTotalDue - newPaidAmount} ر.ي`,
           duplicate: false,
         };
       },
@@ -433,6 +442,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.loan.findMany({
       where: { walletId },
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
   }
 
@@ -485,6 +495,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         ...(activeOnly && { isActive: true }),
       },
       orderBy: { nextPaymentDate: "asc" },
+      take: 100,
     });
   }
 
@@ -523,7 +534,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
       throw new BadRequestException("الدفعة المجدولة غير نشطة");
     }
 
-    if (payment.wallet.balance < payment.amount) {
+    if (toNum(payment.wallet.balance) < toNum(payment.amount)) {
       await this.prisma.scheduledPayment.update({
         where: { id: paymentId },
         data: {
@@ -556,7 +567,8 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         break;
     }
 
-    const newBalance = payment.wallet.balance - payment.amount;
+    const paymentAmountNum = toNum(payment.amount);
+    const newBalance = toNum(payment.wallet.balance) - paymentAmountNum;
 
     const [updatedPayment, updatedWallet, transaction] =
       await this.prisma.$transaction([
@@ -577,7 +589,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
           data: {
             walletId: payment.walletId,
             type: "SCHEDULED_PAYMENT",
-            amount: -payment.amount,
+            amount: -paymentAmountNum,
             balanceAfter: newBalance,
             referenceId: payment.loanId || paymentId,
             referenceType: payment.loanId ? "loan" : "scheduled_payment",

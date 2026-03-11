@@ -187,12 +187,12 @@ export class ChatService {
    */
   async getMessagesCursor(
     conversationId: string,
+    tenantId: string,
     cursor?: string,
     limit: number = 50,
-    tenantId?: string,
   ) {
     const messages = await this.prisma.message.findMany({
-      where: { conversationId, ...(tenantId && { tenantId }) },
+      where: { conversationId, tenantId },
       orderBy: { createdAt: "desc" },
       take: limit + 1, // Fetch one extra to determine if there are more
       ...(cursor && {
@@ -392,9 +392,9 @@ export class ChatService {
    * Update user online status
    * تحديث حالة الاتصال
    */
-  async updateOnlineStatus(userId: string, isOnline: boolean, tenantId?: string) {
+  async updateOnlineStatus(userId: string, isOnline: boolean, tenantId: string) {
     await this.prisma.participant.updateMany({
-      where: { userId, ...(tenantId && { tenantId }) },
+      where: { userId, tenantId },
       data: {
         isOnline,
         lastSeenAt: new Date(),
@@ -408,9 +408,9 @@ export class ChatService {
    * Get unread message count for user
    * الحصول على عدد الرسائل غير المقروءة للمستخدم
    */
-  async getUnreadCount(userId: string, tenantId?: string): Promise<number> {
+  async getUnreadCount(userId: string, tenantId: string): Promise<number> {
     const participants = await this.prisma.participant.findMany({
-      where: { userId, ...(tenantId && { tenantId }) },
+      where: { userId, tenantId },
       select: { unreadCount: true },
     });
 

@@ -13,12 +13,16 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers
+  app.use(helmet());
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -67,33 +71,35 @@ async function bootstrap() {
     ],
   });
 
-  // Swagger/OpenAPI Documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Marketplace & FinTech API")
-    .setDescription(
-      `
-      سوق سهول والخدمات المالية
+  // Swagger/OpenAPI Documentation (non-production only)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Marketplace & FinTech API")
+      .setDescription(
+        `
+        سوق سهول والخدمات المالية
 
-      ## Features
-      - **Marketplace**: Agricultural products B2B/B2C trading
-      - **Wallet**: Digital wallet management for farmers
-      - **Credit Scoring**: Farm data-based credit scoring
-      - **Loans**: Islamic finance compatible agricultural loans
-    `,
-    )
-    .setVersion("16.0.0")
-    .addTag("Market", "Marketplace operations")
-    .addTag("Wallet", "Digital wallet management")
-    .addTag("Loans", "Agricultural loan services")
-    .addBearerAuth()
-    .addApiKey(
-      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
-      "tenant-id",
-    )
-    .build();
+        ## Features
+        - **Marketplace**: Agricultural products B2B/B2C trading
+        - **Wallet**: Digital wallet management for farmers
+        - **Credit Scoring**: Farm data-based credit scoring
+        - **Loans**: Islamic finance compatible agricultural loans
+      `,
+      )
+      .setVersion("16.0.0")
+      .addTag("Market", "Marketplace operations")
+      .addTag("Wallet", "Digital wallet management")
+      .addTag("Loans", "Agricultural loan services")
+      .addBearerAuth()
+      .addApiKey(
+        { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+        "tenant-id",
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 3010;
   await app.listen(port);

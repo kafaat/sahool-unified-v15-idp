@@ -108,35 +108,39 @@ export class FieldsService {
       approximateArea = calculatePolygonArea(coords);
     }
 
-    // Create field
-    const field = await this.prisma.field.create({
-      data: {
-        name: dto.name,
-        tenantId: dto.tenantId,
-        cropType: dto.cropType,
-        ownerId: dto.ownerId,
-        farmId: dto.farmId,
-        irrigationType: dto.irrigationType,
-        soilType: dto.soilType,
-        plantingDate: dto.plantingDate ? new Date(dto.plantingDate) : null,
-        expectedHarvest: dto.expectedHarvest ? new Date(dto.expectedHarvest) : null,
-        metadata: dto.metadata,
-        status: "active",
-        areaHectares: approximateArea,
-      },
-    });
+    // Create field and update PostGIS boundary atomically
+    const field = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.field.create({
+        data: {
+          name: dto.name,
+          tenantId: dto.tenantId,
+          cropType: dto.cropType,
+          ownerId: dto.ownerId,
+          farmId: dto.farmId,
+          irrigationType: dto.irrigationType,
+          soilType: dto.soilType,
+          plantingDate: dto.plantingDate ? new Date(dto.plantingDate) : null,
+          expectedHarvest: dto.expectedHarvest ? new Date(dto.expectedHarvest) : null,
+          metadata: dto.metadata,
+          status: "active",
+          areaHectares: approximateArea,
+        },
+      });
 
-    // Update with PostGIS boundary if exists
-    if (boundary) {
-      await this.prisma.$executeRaw`
-        UPDATE fields
-        SET
-          boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326),
-          centroid = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(centroid)}), 4326),
-          area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326), 32637)) / 10000
-        WHERE id = ${field.id}::uuid
-      `;
-    }
+      // Update with PostGIS boundary if exists
+      if (boundary) {
+        await tx.$executeRaw`
+          UPDATE fields
+          SET
+            boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326),
+            centroid = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(centroid)}), 4326),
+            area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326), 32637)) / 10000
+          WHERE id = ${created.id}::uuid
+        `;
+      }
+
+      return created;
+    });
 
     // Fetch updated field
     const createdField = await this.findById(field.id);
@@ -320,31 +324,33 @@ export class FieldsService {
       }
     }
 
-    // Update field
-    const updated = await this.prisma.field.update({
-      where: { id, version: current.version },
-      data: {
-        ...(dto.name && { name: dto.name }),
-        ...(dto.cropType && { cropType: dto.cropType }),
-        ...(dto.status && { status: dto.status }),
-        ...(dto.irrigationType && { irrigationType: dto.irrigationType }),
-        ...(dto.soilType && { soilType: dto.soilType }),
-        ...(dto.plantingDate && { plantingDate: new Date(dto.plantingDate) }),
-        ...(dto.expectedHarvest && { expectedHarvest: new Date(dto.expectedHarvest) }),
-        ...(dto.metadata && { metadata: dto.metadata }),
-      },
-    });
+    // Update field and boundary atomically
+    await this.prisma.$transaction(async (tx) => {
+      await tx.field.update({
+        where: { id, version: current.version },
+        data: {
+          ...(dto.name && { name: dto.name }),
+          ...(dto.cropType && { cropType: dto.cropType }),
+          ...(dto.status && { status: dto.status }),
+          ...(dto.irrigationType && { irrigationType: dto.irrigationType }),
+          ...(dto.soilType && { soilType: dto.soilType }),
+          ...(dto.plantingDate && { plantingDate: new Date(dto.plantingDate) }),
+          ...(dto.expectedHarvest && { expectedHarvest: new Date(dto.expectedHarvest) }),
+          ...(dto.metadata && { metadata: dto.metadata }),
+        },
+      });
 
-    // Handle boundary update separately if provided
-    if (dto.boundary) {
-      await this.prisma.$executeRaw`
-        UPDATE fields
-        SET
-          boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326),
-          area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326), 32637)) / 10000
-        WHERE id = ${id}::uuid
-      `;
-    }
+      // Handle boundary update within the same transaction
+      if (dto.boundary) {
+        await tx.$executeRaw`
+          UPDATE fields
+          SET
+            boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326),
+            area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326), 32637)) / 10000
+          WHERE id = ${id}::uuid
+        `;
+      }
+    });
 
     // Invalidate caches
     await this.cacheService.invalidateField(id, current.tenantId);

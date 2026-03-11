@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, Logger, RequestMethod } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
@@ -9,6 +10,9 @@ import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
   const app = await NestFactory.create(AppModule);
+
+  // Security headers
+  app.use(helmet());
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -47,31 +51,35 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Research Core API")
-    .setDescription(
-      "نواة البحث العلمي الزراعي - Agricultural Research Core API",
-    )
-    .setVersion("16.0.0")
-    .addBearerAuth()
-    .addTag("experiments", "التجارب البحثية")
-    .addTag("protocols", "البروتوكولات")
-    .addTag("plots", "قطع الأرض")
-    .addTag("treatments", "المعاملات")
-    .addTag("logs", "السجلات اليومية")
-    .addTag("samples", "العينات")
-    .addTag("signatures", "التوقيعات الرقمية")
-    .build();
+  // Swagger documentation - disabled in production
+  if (process.env.NODE_ENV !== "production") {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Research Core API")
+      .setDescription(
+        "نواة البحث العلمي الزراعي - Agricultural Research Core API",
+      )
+      .setVersion("16.0.0")
+      .addBearerAuth()
+      .addTag("experiments", "التجارب البحثية")
+      .addTag("protocols", "البروتوكولات")
+      .addTag("plots", "قطع الأرض")
+      .addTag("treatments", "المعاملات")
+      .addTag("logs", "السجلات اليومية")
+      .addTag("samples", "العينات")
+      .addTag("signatures", "التوقيعات الرقمية")
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("api/docs", app, document);
+  }
 
   const port = process.env.PORT || 3015;
   await app.listen(port);
 
   logger.log(`Research Core service running on port ${port}`);
-  logger.log(`Swagger docs available at http://localhost:${port}/api/docs`);
+  if (process.env.NODE_ENV !== "production") {
+    logger.log(`Swagger docs available at http://localhost:${port}/api/docs`);
+  }
 
   // Graceful shutdown
   let isShuttingDown = false;

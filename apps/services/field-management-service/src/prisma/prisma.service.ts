@@ -114,17 +114,4 @@ export class PrismaService
       };
     }
   }
-
-  /**
-   * Execute raw PostGIS query for geospatial operations.
-   * Uses parameterized queries — never interpolate user input into `query`.
-   */
-  async executePostGIS<T>(query: string, params: any[] = []): Promise<T> {
-    if (params.length === 0) {
-      // Static queries with no params are safe
-      return this.$queryRawUnsafe<T>(query);
-    }
-    // Parameterized queries — values are bound, not interpolated
-    return this.$queryRawUnsafe<T>(query, ...params);
-  }
 }

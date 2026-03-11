@@ -26,13 +26,9 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is ready" })
   readinessCheck() {
     return {
-      status: "ready",
+      status: "ok",
       service: "lai-estimation",
       version: "16.0.0",
-      checks: {
-        lai_engine: "initialized",
-        indices_engine: "initialized",
-      },
       timestamp: new Date().toISOString(),
     };
   }

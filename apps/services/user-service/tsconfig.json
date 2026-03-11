@@ -23,7 +23,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "strictPropertyInitialization": false,
-    "useUnknownInCatchVariables": false,
+    "useUnknownInCatchVariables": true,
     "types": ["node"],
     "lib": ["ES2020"]
   },

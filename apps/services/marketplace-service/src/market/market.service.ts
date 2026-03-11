@@ -16,8 +16,15 @@ import {
   forwardRef,
   Logger,
 } from "@nestjs/common";
+import { Prisma } from "../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+
+/** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
+function toNum(v: Prisma.Decimal | number | null | undefined): number {
+  if (v == null) return 0;
+  return typeof v === "number" ? v : Number(v);
+}
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 import {
   calculatePagination,
@@ -68,6 +75,16 @@ interface CreateOrderDto {
 @Injectable()
 export class MarketService {
   private readonly logger = new Logger(MarketService.name);
+
+  /** Service fee rate applied to order subtotal (2%) */
+  private static readonly SERVICE_FEE_RATE = parseFloat(
+    process.env.MARKETPLACE_SERVICE_FEE_RATE || "0.02",
+  );
+
+  /** Fixed delivery fee in YER (Yemeni Rial) */
+  private static readonly DELIVERY_FEE = parseFloat(
+    process.env.MARKETPLACE_DELIVERY_FEE || "500",
+  );
 
   constructor(
     private prisma: PrismaService,
@@ -294,13 +311,14 @@ export class MarketService {
           );
         }
 
-        const totalPrice = product.price * item.quantity;
+        const productPrice = toNum(product.price);
+        const totalPrice = productPrice * item.quantity;
         subtotal += totalPrice;
 
         orderItems.push({
           productId: item.productId,
           quantity: item.quantity,
-          unitPrice: product.price,
+          unitPrice: productPrice,
           totalPrice,
         });
 
@@ -340,8 +358,8 @@ export class MarketService {
         console.error("Error publishing inventory low stock events:", err);
       });
 
-      const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
-      const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)
+      const serviceFee = subtotal * MarketService.SERVICE_FEE_RATE;
+      const deliveryFee = MarketService.DELIVERY_FEE;
       const totalAmount = subtotal + serviceFee + deliveryFee;
 
       // إنشاء رقم الطلب

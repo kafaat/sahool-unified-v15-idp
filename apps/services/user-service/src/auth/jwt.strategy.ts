@@ -66,8 +66,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw error;
       }
       // Fail-closed: If Redis is unavailable, deny access for security
+      const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Token revocation check failed (fail-closed): ${error.message}`,
+        `Token revocation check failed (fail-closed): ${message}`,
       );
       throw new UnauthorizedException(
         "Authentication service temporarily unavailable",

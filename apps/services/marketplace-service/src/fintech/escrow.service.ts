@@ -14,7 +14,14 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
+import { Prisma } from "../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
+
+/** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
+function toNum(v: Prisma.Decimal | number | null | undefined): number {
+  if (v == null) return 0;
+  return typeof v === "number" ? v : Number(v);
+}
 
 @Injectable()
 export class EscrowService {
@@ -71,8 +78,8 @@ export class EscrowService {
         }
 
         const buyerWallet = buyerWalletRows[0];
-        const balanceBefore = buyerWallet.balance;
-        const escrowBalanceBefore = buyerWallet.escrowBalance || 0;
+        const balanceBefore = toNum(buyerWallet.balance);
+        const escrowBalanceBefore = toNum(buyerWallet.escrow_balance ?? buyerWallet.escrowBalance);
         const versionBefore = buyerWallet.version;
 
         if (balanceBefore < amount) {
@@ -236,20 +243,21 @@ export class EscrowService {
         const buyerWallet = buyerWalletRows[0];
         const sellerWallet = sellerWalletRows[0];
 
-        const buyerEscrowBefore = buyerWallet.escrowBalance || 0;
-        const sellerBalanceBefore = sellerWallet.balance;
+        const buyerEscrowBefore = toNum(buyerWallet.escrow_balance ?? buyerWallet.escrowBalance);
+        const sellerBalanceBefore = toNum(sellerWallet.balance);
         const buyerVersionBefore = buyerWallet.version;
         const sellerVersionBefore = sellerWallet.version;
 
-        if (buyerEscrowBefore < escrow.amount) {
+        const escrowAmount = toNum(escrow.amount);
+        if (buyerEscrowBefore < escrowAmount) {
           throw new BadRequestException(
             "رصيد الإسكرو غير كافي - قد يكون تم إطلاقه مسبقاً",
           );
         }
 
         const now = new Date();
-        const buyerEscrowAfter = buyerEscrowBefore - escrow.amount;
-        const sellerBalanceAfter = sellerBalanceBefore + escrow.amount;
+        const buyerEscrowAfter = buyerEscrowBefore - escrowAmount;
+        const sellerBalanceAfter = sellerBalanceBefore + escrowAmount;
 
         const updatedEscrow = await tx.escrow.update({
           where: { id: escrowId },
@@ -282,13 +290,14 @@ export class EscrowService {
           },
         });
 
+        const buyerBalanceNum = toNum(buyerWallet.balance);
         const buyerTx = await tx.transaction.create({
           data: {
             walletId: escrow.buyerWalletId,
             type: "ESCROW_RELEASE",
             amount: 0,
-            balanceAfter: buyerWallet.balance,
-            balanceBefore: buyerWallet.balance,
+            balanceAfter: buyerBalanceNum,
+            balanceBefore: buyerBalanceNum,
             referenceId: escrow.orderId,
             referenceType: "order",
             description: "Escrow released to seller",
@@ -306,7 +315,7 @@ export class EscrowService {
           data: {
             walletId: escrow.sellerWalletId,
             type: "MARKETPLACE_SALE",
-            amount: escrow.amount,
+            amount: escrowAmount,
             balanceAfter: sellerBalanceAfter,
             balanceBefore: sellerBalanceBefore,
             referenceId: escrow.orderId,
@@ -327,8 +336,8 @@ export class EscrowService {
               transactionId: buyerTx.id,
               userId,
               operation: "ESCROW_RELEASE_BUYER",
-              balanceBefore: buyerWallet.balance,
-              balanceAfter: buyerWallet.balance,
+              balanceBefore: buyerBalanceNum,
+              balanceAfter: buyerBalanceNum,
               amount: 0,
               escrowBalanceBefore: buyerEscrowBefore,
               escrowBalanceAfter: buyerEscrowAfter,
@@ -338,7 +347,7 @@ export class EscrowService {
               metadata: {
                 escrowId,
                 orderId: escrow.orderId,
-                releasedAmount: escrow.amount,
+                releasedAmount: escrowAmount,
               },
             },
           }),
@@ -350,7 +359,7 @@ export class EscrowService {
               operation: "ESCROW_RELEASE_SELLER",
               balanceBefore: sellerBalanceBefore,
               balanceAfter: sellerBalanceAfter,
-              amount: escrow.amount,
+              amount: escrowAmount,
               versionBefore: sellerVersionBefore,
               versionAfter: sellerVersionBefore + 1,
               ipAddress,
@@ -366,7 +375,7 @@ export class EscrowService {
           data: {
             walletId: escrow.sellerWalletId,
             eventType: "ORDER_COMPLETED",
-            amount: escrow.amount,
+            amount: escrowAmount,
             impact: 5,
             description: "طلب مكتمل بنجاح في السوق",
             metadata: { orderId: escrow.orderId, escrowId },
@@ -440,19 +449,20 @@ export class EscrowService {
         }
 
         const buyerWallet = buyerWalletRows[0];
-        const balanceBefore = buyerWallet.balance;
-        const escrowBalanceBefore = buyerWallet.escrowBalance || 0;
+        const balanceBefore = toNum(buyerWallet.balance);
+        const escrowBalanceBefore = toNum(buyerWallet.escrow_balance ?? buyerWallet.escrowBalance);
         const versionBefore = buyerWallet.version;
+        const refundAmount = toNum(escrow.amount);
 
-        if (escrowBalanceBefore < escrow.amount) {
+        if (escrowBalanceBefore < refundAmount) {
           throw new BadRequestException(
             "رصيد الإسكرو غير كافي - قد يكون تم استرداده مسبقاً",
           );
         }
 
         const now = new Date();
-        const newBalance = balanceBefore + escrow.amount;
-        const newEscrowBalance = escrowBalanceBefore - escrow.amount;
+        const newBalance = balanceBefore + refundAmount;
+        const newEscrowBalance = escrowBalanceBefore - refundAmount;
         const newVersion = versionBefore + 1;
 
         const updatedEscrow = await tx.escrow.update({
@@ -480,7 +490,7 @@ export class EscrowService {
           data: {
             walletId: escrow.buyerWalletId,
             type: "ESCROW_REFUND",
-            amount: escrow.amount,
+            amount: refundAmount,
             balanceAfter: newBalance,
             balanceBefore,
             referenceId: escrow.orderId,
@@ -502,7 +512,7 @@ export class EscrowService {
             operation: "ESCROW_REFUND",
             balanceBefore,
             balanceAfter: newBalance,
-            amount: escrow.amount,
+            amount: refundAmount,
             escrowBalanceBefore,
             escrowBalanceAfter: newEscrowBalance,
             versionBefore,
@@ -521,7 +531,7 @@ export class EscrowService {
           data: {
             walletId: escrow.sellerWalletId,
             eventType: "ORDER_CANCELLED",
-            amount: escrow.amount,
+            amount: refundAmount,
             impact: -5,
             description: "طلب ملغي - تم استرداد المبلغ للمشتري",
             metadata: { orderId: escrow.orderId, escrowId, reason },
@@ -670,10 +680,12 @@ export class EscrowService {
       this.prisma.escrow.findMany({
         where: { buyerWalletId: walletId },
         orderBy: { createdAt: "desc" },
+        take: 100,
       }),
       this.prisma.escrow.findMany({
         where: { sellerWalletId: walletId },
         orderBy: { createdAt: "desc" },
+        take: 100,
       }),
     ]);
 

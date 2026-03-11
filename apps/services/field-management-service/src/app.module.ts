@@ -8,6 +8,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { TenantGuard } from "./auth/tenant.guard";
 
 // Core modules
@@ -62,6 +63,11 @@ import { HealthModule } from "./health/health.module";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global JWT authentication guard
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
     // Global tenant isolation guard
     {

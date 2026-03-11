@@ -38,6 +38,7 @@ class AlertTopics:
     IOT_THRESHOLD = "sahool.iot.threshold"
     CROP_HEALTH_ALERT = "sahool.health.crop.alert"
     IRRIGATION_ALERT = "sahool.irrigation.alert"
+    VISION_CRITICAL_ALERT = "sahool.vision.critical_alert"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -220,6 +221,7 @@ class AlertEventSubscriber:
             AlertTopics.IOT_THRESHOLD,
             AlertTopics.CROP_HEALTH_ALERT,
             AlertTopics.IRRIGATION_ALERT,
+            AlertTopics.VISION_CRITICAL_ALERT,
         ]
 
         for topic in topics:

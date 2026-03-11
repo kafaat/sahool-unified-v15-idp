@@ -197,7 +197,7 @@ jobs:
           npm audit || true
 
       - name: Run Snyk scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@cdb760004f9fbc2ab899c4135db1eea25c13365a  # v1.1306.0 - pinned for supply chain security
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

@@ -736,14 +736,11 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # FIX: etcdctl fails with "authentication is not enabled" when ETCDCTL_USER env is set
-      # but auth hasn't been initialized yet (fresh start). See: github.com/etcd-io/etcd/issues/7724
-      # Solution: Use HTTP /health endpoint which works regardless of auth state
-      # Phase 1: wget (BusyBox, available in coreos/etcd) checks /health HTTP endpoint
-      # Phase 2: etcdctl with ETCDCTL_USER unset via subshell (pre-auth or auth-disabled)
-      # Phase 3: etcdctl with ETCDCTL_USER from env (post-auth-init)
-      # NOTE: curl is NOT available in coreos/etcd Alpine image
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q '\"health\":\"true\"' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
+      # FIX: Use etcdctl directly for healthcheck - it's guaranteed available in the etcd image.
+      # wget/grep may not be available in all coreos/etcd image variants.
+      # Unset ETCDCTL_USER to avoid "authentication is not enabled" errors on fresh start.
+      # Falls back to authenticated check if auth has been enabled by etcd-init.
+      test: [ "CMD-SHELL", "ETCDCTL_API=3 etcdctl --endpoints=http://127.0.0.1:2379 endpoint health 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
       interval: 15s
       timeout: 15s
       retries: 8

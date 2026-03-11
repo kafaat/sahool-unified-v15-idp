@@ -1314,6 +1314,7 @@ services:
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
   lai-estimation:
+    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/lai-estimation/Dockerfile
@@ -1365,6 +1366,7 @@ services:
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
   crop-growth-model:
+    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile

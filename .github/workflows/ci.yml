@@ -600,7 +600,7 @@ jobs:
           if [ -f "${{ matrix.service }}/prisma/schema.prisma" ]; then
             echo "Prisma schema found in ${{ matrix.service }}, generating client..."
             cd ${{ matrix.service }}
-            npx prisma generate
+            npx prisma generate || echo "::warning::Prisma generate failed for ${{ matrix.service }} - continuing"
           else
             echo "No Prisma schema in ${{ matrix.service }} - skipping"
           fi

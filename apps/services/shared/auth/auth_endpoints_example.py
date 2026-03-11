@@ -16,7 +16,6 @@ Usage:
 """
 
 import logging
-import secrets
 import uuid
 from datetime import UTC, datetime
 
@@ -298,8 +297,9 @@ async def register(
     password_hash = hash_password(user_data.password)
 
     # Step 3: Create user record
+    user_id = str(uuid.uuid4())
     new_user = {
-        "id": str(uuid.uuid4()),
+        "id": user_id,
         "email": user_data.email,
         "full_name": user_data.full_name,
         "phone": user_data.phone,
@@ -311,19 +311,19 @@ async def register(
     }
 
     # In production: await db.users.insert_one(new_user)
-    logger.info("User created - ID: %s", new_user["id"])
+    logger.info("User created - ID: %s", user_id)
 
-    # Step 4: Generate email verification token
-    _verification_token = secrets.token_urlsafe(32)
-    # In production: store token with expiry and send verification email
+    # Step 4: Generate email verification token and send verification email
+    # In production:
+    # verification_token = secrets.token_urlsafe(32)
     # await db.email_verifications.insert_one({
-    #     "user_id": new_user["id"],
-    #     "token": _verification_token,
+    #     "user_id": user_id,
+    #     "token": verification_token,
     #     "expires_at": datetime.now(UTC) + timedelta(hours=24),
     # })
-    # await email_service.send_verification(user_data.email, _verification_token)
+    # await email_service.send_verification(user_data.email, verification_token)
 
-    logger.info("Verification email queued - User: %s", new_user["id"])
+    logger.info("Verification email queued - User: %s", user_id)
 
     return MessageResponse(message="Registration successful. Please check your email for verification.")
 
@@ -378,25 +378,20 @@ async def forgot_password(
     user = _mock_user_lookup(data.email)
 
     if user is not None:
-        # Step 1: Generate a cryptographically secure one-time-use reset token
-        _reset_token = secrets.token_urlsafe(32)
-
-        # Step 2: Store the token with a 15-minute expiry
-        # In production:
-        # await db.password_resets.delete_many({"user_id": user["id"]})  # Invalidate old tokens
+        # In production: generate token, store hashed, and send reset email
+        # reset_token = secrets.token_urlsafe(32)
+        # await db.password_resets.delete_many({"user_id": user["id"]})
         # await db.password_resets.insert_one({
         #     "user_id": user["id"],
-        #     "token_hash": hash_password(_reset_token),  # Store hashed, not plaintext
+        #     "token_hash": hash_password(reset_token),
         #     "expires_at": datetime.now(UTC) + timedelta(minutes=15),
         #     "used": False,
         # })
-        logger.info("Password reset token generated - User: %s", user["id"])
-
-        # Step 3: Send reset email with link containing the plaintext token
-        # In production: await email_service.send_password_reset(
+        # await email_service.send_password_reset(
         #     email=data.email,
-        #     reset_link=f"https://app.sahool.io/reset-password?token={_reset_token}"
+        #     reset_link=f"https://app.sahool.io/reset-password?token={reset_token}"
         # )
+        logger.info("Password reset token generated - User: %s", user["id"])
         logger.info("Password reset email queued - User: %s", user["id"])
     else:
         # Log for monitoring but do not reveal to the caller
@@ -474,14 +469,12 @@ async def reset_password(
             detail="Invalid or expired password reset token",
         )
 
-    # Step 3: Hash the new password
-    _new_password_hash = hash_password(data.new_password)
-
-    # Step 4: Update the user's password in the database
+    # Step 3: Hash the new password and update in the database
     # In production:
+    # new_password_hash = hash_password(data.new_password)
     # await db.users.update_one(
     #     {"id": reset_record["user_id"]},
-    #     {"$set": {"password_hash": _new_password_hash, "updated_at": datetime.now(UTC)}}
+    #     {"$set": {"password_hash": new_password_hash, "updated_at": datetime.now(UTC)}}
     # )
     logger.info("Password updated - User: %s", reset_record["user_id"])
 

@@ -409,9 +409,10 @@ monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
 
 deps-check: ## فحص توافق الاعتماديات - Check dependency compatibility
 	@echo "$(BLUE)🔍 فحص توافق الاعتماديات - Checking dependency compatibility...$(RESET)"
-	@pip check || true
+	@bash scripts/check-dependency-compatibility.sh || true
 	@echo ""
-	@echo "$(YELLOW)التعارضات المحتملة:$(RESET)"
+	@echo "$(YELLOW)التعارضات المحتملة (pip):$(RESET)"
+	@pip check 2>/dev/null || true
 	@pipdeptree --warn fail 2>&1 | grep -A2 "Warning!!! Possibly conflicting" || echo "$(GREEN)✅ لا توجد تعارضات$(RESET)"
 
 deps-tree: ## عرض شجرة الاعتماديات - Show dependency tree

@@ -142,7 +142,14 @@ bump_file \
     "version = \"$NEW_VERSION\"" \
     "Python project version"
 
-# 2. Root package.json
+# 2. VERSION file
+bump_file \
+    "$PROJECT_ROOT/VERSION" \
+    "^$CURRENT_VERSION" \
+    "$NEW_VERSION" \
+    "VERSION file"
+
+# 3. Root package.json
 bump_file \
     "$PROJECT_ROOT/package.json" \
     "\"version\": \"$CURRENT_VERSION\"" \

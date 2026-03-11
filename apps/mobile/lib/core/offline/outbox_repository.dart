@@ -61,8 +61,42 @@ class OutboxRepository {
   // العمليات الأساسية
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// إضافة عنصر جديد
+  /// إضافة عنصر جديد مع كشف التكرار
   Future<void> add(OutboxEntry entry) async {
+    // Deduplicate: if a pending entry exists for the same entity+operation, merge or replace
+    if (entry.entityId != null) {
+      final existingIndex = _entries.indexWhere((e) =>
+          e.entityType == entry.entityType &&
+          e.entityId == entry.entityId &&
+          e.operation == entry.operation &&
+          (e.status == OutboxStatus.pending || e.status == OutboxStatus.failed));
+
+      if (existingIndex >= 0) {
+        final existing = _entries[existingIndex];
+        if (entry.operation == SyncOperation.update) {
+          // Merge update data: new fields override old ones
+          final mergedData = {...existing.data, ...entry.data};
+          _entries[existingIndex] = existing.copyWith(
+            data: mergedData,
+            status: OutboxStatus.pending,
+            retryCount: 0,
+            lastError: null,
+          );
+          _sortByPriority();
+          await _save();
+          AppLogger.d('Merged duplicate UPDATE for ${entry.entityType}/${entry.entityId}', tag: 'OUTBOX');
+          return;
+        } else {
+          // For create/delete, replace the existing entry
+          _entries[existingIndex] = entry;
+          _sortByPriority();
+          await _save();
+          AppLogger.d('Replaced duplicate ${entry.operation.name} for ${entry.entityType}/${entry.entityId}', tag: 'OUTBOX');
+          return;
+        }
+      }
+    }
+
     _entries.add(entry);
     _sortByPriority();
     await _save();

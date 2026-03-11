@@ -99,12 +99,19 @@ Future<bool> _executeBackgroundSync() async {
 
     return true;
   } catch (e) {
-    await database.logSync(
-      type: 'background_sync',
-      status: 'failed',
-      message: 'Background sync failed: $e',
-    );
+    try {
+      await database.logSync(
+        type: 'background_sync',
+        status: 'failed',
+        message: 'Background sync failed: $e',
+      );
+    } catch (_) {
+      // Logging failure should not prevent cleanup
+    }
     return false;
+  } finally {
+    // Always close the database to prevent connection leaks
+    await database.close();
   }
 }
 
@@ -179,20 +186,28 @@ String _getEntityTypeAr(String type) {
 
 Future<void> _logBackgroundInfo(String message) async {
   final database = AppDatabase();
-  await database.logSync(
-    type: 'background_task',
-    status: 'info',
-    message: message,
-  );
+  try {
+    await database.logSync(
+      type: 'background_task',
+      status: 'info',
+      message: message,
+    );
+  } finally {
+    await database.close();
+  }
 }
 
 Future<void> _logBackgroundError(String message) async {
   final database = AppDatabase();
-  await database.logSync(
-    type: 'background_task',
-    status: 'error',
-    message: message,
-  );
+  try {
+    await database.logSync(
+      type: 'background_task',
+      status: 'error',
+      message: message,
+    );
+  } finally {
+    await database.close();
+  }
 }
 
 enum _SyncItemResult { success, conflict, failed }

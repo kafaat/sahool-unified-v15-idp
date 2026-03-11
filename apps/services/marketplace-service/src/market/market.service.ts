@@ -394,7 +394,7 @@ export class MarketService {
           quantity: item.quantity,
           price: item.unitPrice,
         })),
-        totalAmount: order.totalAmount,
+        totalAmount: toNum(order.totalAmount),
         currency: "YER", // Yemeni Rial
       });
 

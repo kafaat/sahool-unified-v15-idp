@@ -10,7 +10,14 @@
  */
 
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
+
+/** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
+function toNum(v: Prisma.Decimal | number | null | undefined): number {
+  if (v == null) return 0;
+  return typeof v === "number" ? v : Number(v);
+}
 
 // Types
 export interface FarmData {
@@ -194,7 +201,7 @@ export class CreditService {
         yieldScore: Math.round(farmData.avgYieldScore),
       },
       creditTierAr: this.getCreditTierAr(creditTier),
-      availableCredit: loanLimit - wallet.currentLoan,
+      availableCredit: loanLimit - toNum(wallet.currentLoan),
       message:
         score >= 650
           ? "تهانينا! لديك تصنيف ائتماني ممتاز يؤهلك للحصول على تمويل زراعي."
@@ -318,7 +325,7 @@ export class CreditService {
       creditTier,
       creditTierAr: this.getCreditTierAr(creditTier),
       loanLimit,
-      availableCredit: loanLimit - wallet.currentLoan,
+      availableCredit: loanLimit - toNum(wallet.currentLoan),
       breakdown,
       factors,
     };
@@ -507,7 +514,7 @@ export class CreditService {
       scoreBreakdown,
       recommendations,
       recentEvents: wallet.creditEvents,
-      availableCredit: wallet.loanLimit - wallet.currentLoan,
+      availableCredit: toNum(wallet.loanLimit) - toNum(wallet.currentLoan),
       riskLevel,
     };
   }

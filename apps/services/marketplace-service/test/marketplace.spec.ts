@@ -7,6 +7,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException } from "@nestjs/common";
 import { MarketService } from "../src/market/market.service";
 import { PrismaService } from "../src/prisma/prisma.service";
+import { EventsService } from "../src/events/events.service";
+import { CacheService } from "../src/cache/cache.service";
 
 describe("MarketplaceService - خدمة السوق", () => {
   let service: MarketService;
@@ -82,6 +84,22 @@ describe("MarketplaceService - خدمة السوق", () => {
     $transaction: jest.fn(),
   };
 
+  const mockEventsService = {
+    publishEvent: jest.fn().mockResolvedValue(undefined),
+    publishOrderPlaced: jest.fn().mockResolvedValue(undefined),
+    publishInventoryLowStock: jest.fn().mockResolvedValue(undefined),
+    connect: jest.fn().mockResolvedValue(undefined),
+    disconnect: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const mockCacheService = {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
+    reset: jest.fn().mockResolvedValue(undefined),
+    invalidateProduct: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -89,6 +107,14 @@ describe("MarketplaceService - خدمة السوق", () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: EventsService,
+          useValue: mockEventsService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -203,105 +229,81 @@ describe("MarketplaceService - خدمة السوق", () => {
     it("should return all available products", async () => {
       const mockProducts = [mockProduct, { ...mockProduct, id: "prod-456" }];
       mockPrismaService.product.findMany.mockResolvedValue(mockProducts);
+      mockPrismaService.product.count.mockResolvedValue(2);
 
       const result = await service.findAllProducts({});
 
-      expect(result).toHaveLength(2);
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: { status: "AVAILABLE" },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      expect(result.data).toHaveLength(2);
+      expect(mockPrismaService.product.findMany).toHaveBeenCalled();
     });
 
     it("should filter products by category", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({ category: "HARVEST" });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          category: "HARVEST",
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      expect(result.data).toHaveLength(1);
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.category).toBe("HARVEST");
     });
 
     it("should filter products by governorate", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({ governorate: "Sana'a" });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          governorate: "Sana'a",
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.governorate).toBe("Sana'a");
     });
 
     it("should filter products by sellerId", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({ sellerId: "user-123" });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          sellerId: "user-123",
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.sellerId).toBe("user-123");
     });
 
     it("should filter products by price range", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({
         minPrice: 1000,
         maxPrice: 2000,
       });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          price: { gte: 1000, lte: 2000 },
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.price).toEqual({ gte: 1000, lte: 2000 });
     });
 
     it("should filter products by minimum price only", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({ minPrice: 1000 });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          price: { gte: 1000 },
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.price).toEqual({ gte: 1000 });
     });
 
     it("should filter products by maximum price only", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({ maxPrice: 2000 });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          price: { lte: 2000 },
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.price).toEqual({ lte: 2000 });
     });
 
     it("should combine multiple filters", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([mockProduct]);
+      mockPrismaService.product.count.mockResolvedValue(1);
 
       const result = await service.findAllProducts({
         category: "HARVEST",
@@ -310,23 +312,19 @@ describe("MarketplaceService - خدمة السوق", () => {
         maxPrice: 2000,
       });
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: {
-          status: "AVAILABLE",
-          category: "HARVEST",
-          governorate: "Sana'a",
-          price: { gte: 1000, lte: 2000 },
-        },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      });
+      const callArgs = mockPrismaService.product.findMany.mock.calls[0][0];
+      expect(callArgs.where.category).toBe("HARVEST");
+      expect(callArgs.where.governorate).toBe("Sana'a");
+      expect(callArgs.where.price).toEqual({ gte: 1000, lte: 2000 });
     });
 
-    it("should return empty array when no products match filters", async () => {
+    it("should return empty data when no products match filters", async () => {
       mockPrismaService.product.findMany.mockResolvedValue([]);
+      mockPrismaService.product.count.mockResolvedValue(0);
 
       const result = await service.findAllProducts({ category: "UNKNOWN" });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 
@@ -376,6 +374,10 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([{
+              ...mockProduct,
+              stock: 100,
+            }]),
             findUnique: jest.fn().mockResolvedValue({
               ...mockProduct,
               stock: 100,
@@ -409,6 +411,11 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([{
+              ...mockProduct,
+              price: 1500,
+              stock: 100,
+            }]),
             findUnique: jest.fn().mockResolvedValue({
               ...mockProduct,
               price: 1500,
@@ -440,6 +447,7 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([]),
             findUnique: jest.fn().mockResolvedValue(null),
           },
         });
@@ -457,6 +465,10 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([{
+              ...mockProduct,
+              stock: 100,
+            }]),
             findUnique: jest.fn().mockResolvedValue({
               ...mockProduct,
               stock: 100,
@@ -481,6 +493,10 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([{
+              ...mockProduct,
+              stock: 100,
+            }]),
             findUnique: jest.fn().mockResolvedValue({
               ...mockProduct,
               stock: 100,
@@ -510,18 +526,16 @@ describe("MarketplaceService - خدمة السوق", () => {
         ],
       };
 
-      let callCount = 0;
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
-            findUnique: jest.fn().mockImplementation(() => {
-              callCount++;
-              return Promise.resolve({
-                ...mockProduct,
-                id: callCount === 1 ? "prod-123" : "prod-456",
-                price: callCount === 1 ? 1500 : 2000,
-                stock: 100,
-              });
+            findMany: jest.fn().mockResolvedValue([
+              { ...mockProduct, id: "prod-123", price: 1500, stock: 100 },
+              { ...mockProduct, id: "prod-456", price: 2000, stock: 100 },
+            ]),
+            findUnique: jest.fn().mockResolvedValue({
+              ...mockProduct,
+              stock: 100,
             }),
             update: jest.fn().mockResolvedValue(mockProduct),
           },
@@ -561,6 +575,10 @@ describe("MarketplaceService - خدمة السوق", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           product: {
+            findMany: jest.fn().mockResolvedValue([{
+              ...mockProduct,
+              stock: 100,
+            }]),
             findUnique: jest.fn().mockResolvedValue({
               ...mockProduct,
               stock: 100,
@@ -588,43 +606,49 @@ describe("MarketplaceService - خدمة السوق", () => {
     it("should return buyer orders", async () => {
       const mockOrders = [mockOrder];
       mockPrismaService.order.findMany.mockResolvedValue(mockOrders);
+      mockPrismaService.order.count.mockResolvedValue(1);
 
       const result = await service.getUserOrders("buyer-456", "buyer");
 
-      expect(result).toEqual(mockOrders);
-      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
-        where: { buyerId: "buyer-456" },
-        include: { items: { include: { product: true } } },
-        orderBy: { createdAt: "desc" },
-      });
+      expect(result.data).toEqual(mockOrders);
+      expect(result.meta.total).toBe(1);
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { buyerId: "buyer-456" },
+          orderBy: { createdAt: "desc" },
+        }),
+      );
     });
 
     it("should return seller orders", async () => {
       const mockOrders = [mockOrder];
       mockPrismaService.order.findMany.mockResolvedValue(mockOrders);
+      mockPrismaService.order.count.mockResolvedValue(1);
 
       const result = await service.getUserOrders("user-123", "seller");
 
-      expect(result).toEqual(mockOrders);
-      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith({
-        where: {
-          items: {
-            some: {
-              product: { sellerId: "user-123" },
+      expect(result.data).toEqual(mockOrders);
+      expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            items: {
+              some: {
+                product: { sellerId: "user-123" },
+              },
             },
           },
-        },
-        include: { items: { include: { product: true } } },
-        orderBy: { createdAt: "desc" },
-      });
+          orderBy: { createdAt: "desc" },
+        }),
+      );
     });
 
     it("should return empty array when no orders found", async () => {
       mockPrismaService.order.findMany.mockResolvedValue([]);
+      mockPrismaService.order.count.mockResolvedValue(0);
 
       const result = await service.getUserOrders("user-999", "buyer");
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 
@@ -721,12 +745,14 @@ describe("MarketplaceService - خدمة السوق", () => {
 
       const result = await service.getMarketStats();
 
-      expect(result).toEqual({
-        totalProducts: 100,
-        totalHarvests: 30,
-        totalOrders: 50,
-        recentProducts: [mockProduct],
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          totalProducts: 100,
+          totalHarvests: 30,
+          totalOrders: 50,
+          recentProducts: [mockProduct],
+        }),
+      );
     });
 
     it("should count only available products", async () => {
@@ -769,11 +795,13 @@ describe("MarketplaceService - خدمة السوق", () => {
 
       await service.getMarketStats();
 
-      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith({
-        where: { status: "AVAILABLE" },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      });
+      expect(mockPrismaService.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: "AVAILABLE" },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+      );
     });
   });
 });

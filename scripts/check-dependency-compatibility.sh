@@ -65,6 +65,113 @@ log_section() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# CHECK 0: Docker Runtime Prerequisites
+# Validates Docker daemon, .env file, ports, volumes, and shell script integrity
+# ═══════════════════════════════════════════════════════════════════════════════
+check_docker_runtime() {
+    log_section "Docker Runtime Prerequisites"
+
+    # Docker daemon check
+    if command -v docker >/dev/null 2>&1; then
+        log_pass "Docker CLI installed"
+    else
+        log_fail "Docker not found. Install Docker: https://docs.docker.com/get-docker/"
+        return
+    fi
+
+    if docker info >/dev/null 2>&1; then
+        log_pass "Docker daemon is running"
+
+        # Check available memory (important for etcd, milvus, postgres)
+        local docker_mem
+        docker_mem=$(docker info --format '{{.MemTotal}}' 2>/dev/null || echo "0")
+        if [ "$docker_mem" -gt 0 ] 2>/dev/null; then
+            local docker_mem_gb=$((docker_mem / 1073741824))
+            if [ "$docker_mem_gb" -ge 8 ]; then
+                log_pass "Docker memory: ${docker_mem_gb}GB (recommended: 8GB+)"
+            elif [ "$docker_mem_gb" -ge 4 ]; then
+                log_warn "Docker memory: ${docker_mem_gb}GB (recommended: 8GB+, etcd/milvus may be slow)"
+            else
+                log_fail "Docker memory: ${docker_mem_gb}GB (minimum 4GB required, etcd will fail to start)"
+            fi
+        fi
+    else
+        log_fail "Docker daemon is not running. Start Docker Desktop or the docker service."
+    fi
+
+    # Port availability check for critical infrastructure
+    local ports_to_check="5432:PostgreSQL 6432:PgBouncer 4222:NATS 6379:Redis 19530:Milvus 2379:etcd"
+    for entry in $ports_to_check; do
+        local port="${entry%%:*}"
+        local name="${entry#*:}"
+        if command -v ss >/dev/null 2>&1; then
+            if ss -tlnp 2>/dev/null | grep -q ":${port} "; then
+                log_fail "Port ${port} (${name}) is already in use - will cause startup failure"
+            else
+                log_pass "Port ${port} (${name}) is available"
+            fi
+        elif command -v netstat >/dev/null 2>&1; then
+            if netstat -tlnp 2>/dev/null | grep -q ":${port} "; then
+                log_fail "Port ${port} (${name}) is already in use - will cause startup failure"
+            fi
+        fi
+    done
+
+    # Shell script CRLF check (common Windows/Docker issue)
+    local scripts_to_check=(
+        "infrastructure/core/pgbouncer/entrypoint.sh:PgBouncer entrypoint"
+        "infrastructure/core/pgbouncer/healthcheck.sh:PgBouncer healthcheck"
+        "infrastructure/core/etcd/init-auth.sh:etcd init-auth"
+    )
+    for entry in "${scripts_to_check[@]}"; do
+        local script_path="${entry%%:*}"
+        local script_name="${entry#*:}"
+        local full_path="$PROJECT_ROOT/$script_path"
+        if [ -f "$full_path" ]; then
+            if file "$full_path" | grep -q "CRLF" 2>/dev/null; then
+                log_fail "${script_name}: has Windows CRLF line endings (will fail in container)"
+                log_info "  Fix: dos2unix $script_path  OR  sed -i 's/\\r$//' $script_path"
+            else
+                log_pass "${script_name}: Unix line endings (OK)"
+            fi
+        else
+            log_fail "${script_name}: file not found at $script_path"
+        fi
+    done
+
+    # Stale container check
+    local stale_count
+    stale_count=$(docker ps -a --filter "name=sahool-" --filter "status=exited" --format '{{.Names}}' 2>/dev/null | wc -l || echo "0")
+    stale_count=$(echo "$stale_count" | tr -d '[:space:]')
+    if [ "${stale_count:-0}" -gt 5 ]; then
+        log_warn "${stale_count} stopped sahool containers exist. Consider: docker compose down"
+    else
+        log_pass "No excessive stale containers"
+    fi
+
+    # Stale etcd volume check (common cause of etcd startup failure)
+    if docker volume ls --format '{{.Name}}' 2>/dev/null | grep -q "sahool-etcd-data"; then
+        log_info "Existing etcd data volume found. If etcd fails, try: docker volume rm sahool-etcd-data"
+    fi
+
+    # Disk space check
+    if command -v df >/dev/null 2>&1; then
+        local avail_kb
+        avail_kb=$(df -k / 2>/dev/null | tail -1 | awk '{print $4}')
+        if [ -n "$avail_kb" ] && [ "$avail_kb" -gt 0 ] 2>/dev/null; then
+            local avail_gb=$((avail_kb / 1048576))
+            if [ "$avail_gb" -ge 20 ]; then
+                log_pass "Disk space: ${avail_gb}GB available"
+            elif [ "$avail_gb" -ge 10 ]; then
+                log_warn "Disk space: ${avail_gb}GB available (recommend 20GB+ for all Docker images)"
+            else
+                log_fail "Disk space: ${avail_gb}GB available (need at least 10GB for Docker images)"
+            fi
+        fi
+    fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # CHECK 1: Docker Image Version Compatibility
 # ═══════════════════════════════════════════════════════════════════════════════
 check_docker_images() {
@@ -253,27 +360,38 @@ check_python_constraints() {
         log_pass "numpy/TensorFlow compatibility constraint defined"
     fi
 
-    # Check each service requirements.txt against constraints
+    # Check each service requirements.txt against constraints (using Python for speed)
     log_info "Checking service requirements against constraints..."
     local conflict_output
-    conflict_output=$(
-        for req_file in "$PROJECT_ROOT"/apps/services/*/requirements.txt; do
-            [ -f "$req_file" ] || continue
-            local svc
-            svc=$(basename "$(dirname "$req_file")")
-            while IFS= read -r line; do
-                [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-                local pkg req_ver con_ver
-                pkg=$(echo "$line" | sed 's/[><=!].*//' | tr -d '[:space:]')
-                [ -z "$pkg" ] && continue
-                req_ver=$(echo "$line" | grep -oP '==\K[\d.]+' || echo "")
-                [ -z "$req_ver" ] && continue
-                con_ver=$(grep -iP "^${pkg}==" "$constraints_file" 2>/dev/null | grep -oP '==\K[\d.]+' || echo "")
-                [ -z "$con_ver" ] && continue
-                [ "$req_ver" != "$con_ver" ] && echo "$svc: $pkg==$req_ver vs constraint $pkg==$con_ver"
-            done < "$req_file"
-        done
-    )
+    conflict_output=$(python3 - "$constraints_file" "$PROJECT_ROOT/apps/services" <<'PYEOF'
+import re, sys, os, glob
+
+constraints = {}
+with open(sys.argv[1]) as f:
+    for line in f:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        m = re.match(r'^([a-zA-Z][\w.-]+)==([\d.]+)', line)
+        if m:
+            constraints[m.group(1).lower()] = m.group(2)
+
+services_dir = sys.argv[2]
+for req_file in sorted(glob.glob(os.path.join(services_dir, '*/requirements.txt'))):
+    svc = os.path.basename(os.path.dirname(req_file))
+    with open(req_file) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#') or line.startswith('-'):
+                continue
+            m = re.match(r'^([a-zA-Z][\w.-]+)==([\d.]+)', line)
+            if not m:
+                continue
+            pkg, ver = m.group(1).lower(), m.group(2)
+            if pkg in constraints and constraints[pkg] != ver:
+                print(f'{svc}: {pkg}=={ver} vs constraint {pkg}=={constraints[pkg]}')
+PYEOF
+) || conflict_output=""
 
     if [ -n "$conflict_output" ]; then
         local conflict_count
@@ -370,8 +488,9 @@ check_compose_config() {
         log_pass "No duplicate port bindings"
     fi
 
-    # Healthcheck timing info (hardcoded from compose file to avoid slow grep)
-    log_info "etcd healthcheck: start_period=90s, retries=8, interval=15s (total ~210s)"
+    # Healthcheck timing info
+    log_info "postgres healthcheck: start_period=60s, retries=8, interval=15s (total ~180s)"
+    log_info "etcd healthcheck: start_period=45s, retries=15, interval=10s (total ~195s)"
     log_info "pgbouncer healthcheck: start_period=60s, retries=8, interval=15s (total ~180s)"
 }
 
@@ -525,21 +644,21 @@ check_security_vulnerabilities() {
 check_version_pinning() {
     log_section "Version Pinning Compliance"
 
-    # Check Python services for unpinned dependencies
+    # Check Python services for unpinned dependencies (with timeout)
     local unpinned_services
-    unpinned_services=$(
-        for req_file in "$PROJECT_ROOT"/apps/services/*/requirements.txt; do
+    unpinned_services=$(timeout 15 bash -c '
+        for req_file in '"$PROJECT_ROOT"'/apps/services/*/requirements.txt; do
             [ -f "$req_file" ] || continue
-            local svc unpinned
             svc=$(basename "$(dirname "$req_file")")
-            unpinned=$(grep -cP '^[a-zA-Z][\w-]+\s*$' "$req_file" 2>/dev/null || echo "0")
-            [ "$unpinned" -gt 0 ] && echo "$svc: $unpinned unpinned"
+            unpinned=$(grep -cP "^[a-zA-Z][\w-]+\s*$" "$req_file" 2>/dev/null || echo "0")
+            unpinned=$(echo "$unpinned" | tr -d "[:space:]")
+            [ "${unpinned:-0}" -gt 0 ] && echo "$svc: $unpinned unpinned"
         done
-    )
+    ' 2>/dev/null || echo "")
 
     if [ -n "$unpinned_services" ]; then
-        while read -r line; do
-            log_warn "$line dependencies"
+        while IFS= read -r line; do
+            [ -n "$line" ] && log_warn "$line dependencies"
         done <<< "$unpinned_services"
     else
         log_pass "All Python dependencies are version-pinned"
@@ -547,10 +666,10 @@ check_version_pinning() {
 
     # Count Dockerfiles using constraints.txt
     local docker_with_constraints
-    docker_with_constraints=$(grep -rl "constraints.txt" "$PROJECT_ROOT"/apps/services/*/Dockerfile 2>/dev/null | wc -l)
+    docker_with_constraints=$(timeout 10 grep -rl "constraints.txt" "$PROJECT_ROOT"/apps/services/*/Dockerfile 2>/dev/null | wc -l || echo "0")
     local docker_total
-    docker_total=$(ls "$PROJECT_ROOT"/apps/services/*/Dockerfile 2>/dev/null | wc -l)
-    log_info "Dockerfiles using constraints.txt: $docker_with_constraints/$docker_total"
+    docker_total=$(find "$PROJECT_ROOT/apps/services" -maxdepth 2 -name "Dockerfile" 2>/dev/null | wc -l || echo "0")
+    log_info "Dockerfiles using constraints.txt: $(echo "$docker_with_constraints" | tr -d '[:space:]')/$(echo "$docker_total" | tr -d '[:space:]')"
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -592,6 +711,7 @@ main() {
     printf "${BLUE}║  فحص توافق المكتبات والتبعيات لمنصة سهول                    ║${NC}\n"
     printf "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}\n"
 
+    check_docker_runtime
     check_docker_images
     check_compose_dependencies
     check_python_constraints

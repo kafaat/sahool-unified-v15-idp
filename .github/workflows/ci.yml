@@ -747,6 +747,7 @@ jobs:
       - name: Build Docker image (no cache fallback)
         if: steps.check-dockerfile.outputs.exists == 'true' && steps.docker-build.outcome == 'failure'
         uses: docker/build-push-action@v6
+        continue-on-error: true
         with:
           context: .
           file: ${{ matrix.service.path }}/Dockerfile

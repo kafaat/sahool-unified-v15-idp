@@ -145,7 +145,7 @@ class AiChatBubble extends StatelessWidget {
           if (!isUser && message.metadata != null &&
               message.metadata!['sources'] != null &&
               (message.metadata!['sources'] as List).isNotEmpty)
-            _buildSources(message.metadata!['sources'] as List),
+            _buildSources(context, message.metadata!['sources'] as List),
         ],
       ),
     );
@@ -182,12 +182,60 @@ class AiChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildSources(List sources) {
+  void _showSourcesDialog(BuildContext context, List sources) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'مصادر المعلومات | Information Sources',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: sources.length,
+              itemBuilder: (context, index) {
+                final source = sources[index].toString();
+                final isUrl = source.startsWith('http');
+                return ListTile(
+                  leading: Icon(
+                    isUrl ? Icons.link : Icons.article_outlined,
+                    size: 20,
+                    color: isUrl ? SahoolTheme.primary : Colors.grey[600],
+                  ),
+                  title: Text(
+                    source,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isUrl ? SahoolTheme.primary : const Color(0xFF1A1A1A),
+                      decoration: isUrl ? TextDecoration.underline : null,
+                    ),
+                  ),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('إغلاق'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSources(BuildContext context, List sources) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: InkWell(
         onTap: () {
-          // TODO: Show sources dialog
+          _showSourcesDialog(context, sources);
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,

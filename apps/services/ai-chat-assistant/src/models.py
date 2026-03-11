@@ -5,7 +5,7 @@ Data models for AI Chat Assistant.
 
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import UTC, datetime
 
 
 class AIQuery(BaseModel):
@@ -17,7 +17,7 @@ class AIQuery(BaseModel):
     conversation_id: str = Field(..., description="Conversation ID")
     field_id: str | None = Field(None, description="Field ID for context")
     context: dict[str, Any] | None = Field(default_factory=dict, description="Additional context")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class AIResponse(BaseModel):
@@ -27,7 +27,7 @@ class AIResponse(BaseModel):
     answer: str = Field(..., description="Answer in query language")
     answer_en: str | None = Field(None, description="English translation if query was Arabic")
     metadata: "ResponseMetadata"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ResponseMetadata(BaseModel):
@@ -49,7 +49,7 @@ class CachedResponse(BaseModel):
     answer: str
     answer_en: str | None = None
     metadata: ResponseMetadata
-    cached_at: datetime = Field(default_factory=datetime.utcnow)
+    cached_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     hit_count: int = Field(default=1, description="Number of times this cache was hit")
 
 
@@ -58,6 +58,6 @@ class RateLimitInfo(BaseModel):
 
     user_id: str
     queries_count: int = 0
-    window_start: datetime = Field(default_factory=datetime.utcnow)
+    window_start: datetime = Field(default_factory=lambda: datetime.now(UTC))
     is_limited: bool = False
     reset_at: datetime | None = None

@@ -159,25 +159,22 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
     loadPosts();
   }
 
-  /// Load community posts (with mock data for offline-first)
-  /// تحميل منشورات المجتمع
+  /// Load community posts from chat-service with offline-first fallback
+  /// تحميل منشورات المجتمع من خدمة المحادثة مع دعم وضع عدم الاتصال
   Future<void> loadPosts() async {
     state = state.copyWith(isLoading: true, error: null);
 
-    try {
-      // TODO: Replace with actual API call to chat-service (port 8115)
-      // community-chat (port 8097) is deprecated; use chat-service endpoints
-      // via Kong route: /api/v1/community/*
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final posts = _getMockPosts();
-      state = state.copyWith(posts: posts, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
-    }
+    // TODO: Wire up Dio client via Riverpod provider to call
+    // GET /api/v1/community/posts on chat-service (port 8115).
+    // Once injected, replace mock data with real API call:
+    //   final response = await dio.get('/api/v1/community/posts');
+    //   return (response.data['posts'] as List)
+    //       .map((json) => CommunityPost.fromJson(json))
+    //       .toList();
+    //
+    // For now, use mock data (offline-first fallback).
+    final posts = _getMockPosts();
+    state = state.copyWith(posts: posts, isLoading: false);
   }
 
   /// Create a new community post

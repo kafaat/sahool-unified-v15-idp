@@ -36,10 +36,6 @@ const config: Config = {
     },
   },
   plugins: [],
-  // Future flags for upcoming Tailwind CSS features
-  future: {
-    hoverOnlyWhenSupported: true,
-  },
 };
 
 export default config;

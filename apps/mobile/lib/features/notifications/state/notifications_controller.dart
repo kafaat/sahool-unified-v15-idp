@@ -282,6 +282,24 @@ class NotificationsController extends StateNotifier<NotificationsState> {
     }
   }
 
+  /// Restore a previously deleted notification at its original position.
+  /// Used by the undo action after a dismiss.
+  void restoreNotification(AppNotification notification, int originalIndex) {
+    final restoredList = List<AppNotification>.from(state.notifications);
+    final insertIndex =
+        originalIndex >= 0 && originalIndex <= restoredList.length
+            ? originalIndex
+            : 0;
+    restoredList.insert(insertIndex, notification);
+
+    state = state.copyWith(
+      notifications: restoredList,
+      unreadCount: notification.isUnread
+          ? state.unreadCount + 1
+          : state.unreadCount,
+    );
+  }
+
   /// Delete multiple notifications
   Future<void> deleteNotifications(List<String> ids) async {
     try {

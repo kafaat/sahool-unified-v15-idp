@@ -10,7 +10,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: "16.0.0"
-last_updated: "2026-02-10"
+last_updated: "2026-03-10"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Registry Configuration
@@ -130,7 +130,7 @@ agents:
 
     dependencies:
       - vegetation-analysis-service
-      - ndvi-processor
+      - ndvi-processor  # NOTE: ndvi-processor is deprecated, use vegetation-analysis-service
       - weather-service
       - iot-gateway
 
@@ -218,7 +218,7 @@ agents:
         keywords: ["vision", "image", "detection", "recognition"]
 
     dependencies:
-      - crop-health
+      - crop-health  # NOTE: crop-health is deprecated, use crop-intelligence-service
       - crop-intelligence-service
       - weather-service
 
@@ -467,7 +467,7 @@ agents:
 
     dependencies:
       - advisory-service
-      - agro-advisor
+      - agro-advisor  # NOTE: agro-advisor is deprecated, use advisory-service
 
     endpoint:
       url: "https://api.sahool.app/agents/fertilizer-advisor/invoke"
@@ -484,6 +484,7 @@ agents:
       organization: "SAHOOL"
       license: "MIT"
 
+    # DEPRECATED: underlying service fertilizer-advisor was sunset 2025-06-01
     status: "active"
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -596,7 +597,7 @@ agents:
 
     dependencies:
       - weather-service
-      - weather-core
+      - weather-core  # NOTE: weather-core is deprecated, use weather-service
 
     endpoint:
       url: "https://api.sahool.app/agents/weather-advisor/invoke"
@@ -667,8 +668,8 @@ agents:
 
     dependencies:
       - vegetation-analysis-service
-      - ndvi-processor
-      - ndvi-engine
+      - ndvi-processor  # NOTE: ndvi-processor is deprecated, use vegetation-analysis-service
+      - ndvi-engine  # NOTE: ndvi-engine is deprecated, use vegetation-analysis-service
 
     endpoint:
       url: "https://api.sahool.app/agents/satellite-analyst/invoke"
@@ -1541,7 +1542,7 @@ agents:
         keywords: ["harvest", "logistics", "planning", "scheduling"]
 
     dependencies:
-      - yield-engine
+      - yield-engine  # NOTE: yield-engine is deprecated, use yield-prediction-service
       - equipment-service
       - weather-service
       - task-service
@@ -1673,7 +1674,7 @@ agents:
 
     dependencies:
       - soil-analysis-service
-      - yield-engine
+      - yield-engine  # NOTE: yield-engine is deprecated, use yield-prediction-service
       - marketplace-service
       - advisory-service
 
@@ -2134,9 +2135,9 @@ agents:
         keywords: ["education", "training", "literacy", "simplification"]
 
     dependencies:
-      - field-chat
+      - field-chat  # NOTE: field-chat is deprecated, use chat-service
       - advisory-service
-      - agro-advisor
+      - agro-advisor  # NOTE: agro-advisor is deprecated, use advisory-service
 
     endpoint:
       url: "https://api.sahool.app/agents/farmer-advisor/invoke"

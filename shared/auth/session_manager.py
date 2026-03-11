@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import secrets
 import time
 import uuid
@@ -36,6 +37,14 @@ try:
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
+
+try:
+    import geoip2.database as _geoip2_database
+
+    GEOIP_AVAILABLE = True
+except ImportError:
+    _geoip2_database = None  # type: ignore[assignment]
+    GEOIP_AVAILABLE = False
 
 from .config import config
 from .security_enhancements import TokenFingerprint
@@ -677,6 +686,103 @@ class SessionSecurityChecker:
         self.max_rapid_requests = max_rapid_requests
         self.rapid_request_window = rapid_request_window
 
+    @staticmethod
+    def _calculate_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """
+        Calculate the great-circle distance between two points using the Haversine formula.
+        حساب المسافة بين نقطتين باستخدام صيغة هافرساين.
+
+        Args:
+            lat1: Latitude of first point in degrees
+            lon1: Longitude of first point in degrees
+            lat2: Latitude of second point in degrees
+            lon2: Longitude of second point in degrees
+
+        Returns:
+            Distance in kilometers
+        """
+        earth_radius_km = 6371.0
+
+        lat1_rad = math.radians(lat1)
+        lat2_rad = math.radians(lat2)
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
+        )
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        return earth_radius_km * c
+
+    # Cached GeoIP reader (class-level, opened once on first use)
+    _geoip_reader: Any = None
+    _geoip_resolved: bool = False
+
+    @classmethod
+    def _get_geoip_reader(cls) -> Any:
+        """Get or initialize the cached GeoIP reader (opened once)."""
+        if cls._geoip_resolved:
+            return cls._geoip_reader
+
+        cls._geoip_resolved = True
+
+        if not GEOIP_AVAILABLE or _geoip2_database is None:
+            return None
+
+        import os
+
+        db_paths = [
+            os.environ.get("GEOIP_DB_PATH", ""),
+            "/usr/share/GeoIP/GeoLite2-City.mmdb",
+            "/var/lib/GeoIP/GeoLite2-City.mmdb",
+            "/opt/geoip/GeoLite2-City.mmdb",
+            "/app/data/GeoLite2-City.mmdb",
+        ]
+
+        for db_path in db_paths:
+            if not db_path or not os.path.isfile(db_path):
+                continue
+            try:
+                cls._geoip_reader = _geoip2_database.Reader(db_path)
+                logger.info("GeoIP database loaded from %s", db_path)
+                return cls._geoip_reader
+            except Exception:
+                continue
+
+        return None
+
+    @staticmethod
+    def _get_ip_location(ip: str) -> tuple[float, float] | None:
+        """
+        Get geographic coordinates for an IP address using GeoIP2.
+        الحصول على الإحداثيات الجغرافية لعنوان IP.
+
+        Uses a cached GeoIP reader to avoid reopening the database on every call.
+
+        Args:
+            ip: IP address string
+
+        Returns:
+            Tuple of (latitude, longitude) or None
+        """
+        reader = SessionSecurityChecker._get_geoip_reader()
+        if reader is None:
+            return None
+
+        try:
+            response = reader.city(ip)
+            lat = response.location.latitude
+            lon = response.location.longitude
+            if lat is not None and lon is not None:
+                return (float(lat), float(lon))
+        except Exception:
+            # Any lookup failure (invalid IP, missing record, etc.) — skip gracefully
+            pass
+
+        return None
+
     def check_ip_anomaly(
         self,
         session: SessionInfo,
@@ -684,8 +790,12 @@ class SessionSecurityChecker:
         ip_history: list[str],
     ) -> tuple[bool, str | None]:
         """
-        Check for suspicious IP changes.
-        التحقق من تغييرات IP المشبوهة.
+        Check for suspicious IP changes including geographic anomaly detection.
+        التحقق من تغييرات IP المشبوهة بما في ذلك الكشف عن الشذوذ الجغرافي.
+
+        Detects:
+        1. Too many unique IPs in session history
+        2. Impossible travel — geographically distant IPs in a short time window
 
         Args:
             session: Current session
@@ -700,8 +810,36 @@ class SessionSecurityChecker:
         if len(unique_ips) > self.max_ip_changes:
             return True, f"Too many IP changes: {len(unique_ips)}"
 
-        # Check for rapid geographic changes (would need GeoIP)
-        # TODO: Implement geographic anomaly detection
+        # Geographic anomaly detection (impossible travel)
+        # We compare the two most recent distinct IPs to detect large jumps.
+        try:
+            if len(ip_history) >= 1 and current_ip != ip_history[-1]:
+                previous_ip = ip_history[-1]
+                loc_current = self._get_ip_location(current_ip)
+                loc_previous = self._get_ip_location(previous_ip)
+
+                if loc_current is not None and loc_previous is not None:
+                    distance_km = self._calculate_distance_km(
+                        loc_previous[0], loc_previous[1],
+                        loc_current[0], loc_current[1],
+                    )
+
+                    # Estimate time between requests.
+                    # Use session.last_activity_at as the timestamp of the previous IP,
+                    # and current time as the timestamp of the current request.
+                    time_diff_hours = (time.time() - session.last_activity_at) / 3600.0
+
+                    # Guard against zero/negative time differences
+                    if time_diff_hours <= 0:
+                        time_diff_hours = 0.01  # ~36 seconds minimum
+
+                    # Flag if distance > 500 km in less than 1 hour
+                    if distance_km > 500 and time_diff_hours < 1.0:
+                        return True, f"Impossible travel detected: {distance_km:.0f}km in {time_diff_hours * 60:.0f}min"
+        except Exception:
+            # If anything goes wrong with GeoIP lookup or distance calculation,
+            # just skip the geographic check rather than breaking session validation.
+            logger.debug("Geographic anomaly check skipped due to error", exc_info=True)
 
         return False, None
 

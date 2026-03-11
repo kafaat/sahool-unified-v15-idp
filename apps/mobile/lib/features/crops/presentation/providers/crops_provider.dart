@@ -6,7 +6,12 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/http/api_client.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../data/models/crop_model.dart';
+import '../../data/remote/crops_api.dart';
+import '../../data/repositories/crops_repository.dart';
 
 // =============================================================================
 // Active Crop Instance (field-specific)
@@ -109,24 +114,158 @@ class CropsState {
 /// Crops state notifier - manages crop lifecycle
 /// مُعلم حالة المحاصيل - يدير دورة حياة المحاصيل
 class CropsNotifier extends StateNotifier<CropsState> {
-  CropsNotifier() : super(const CropsState()) {
+  final ApiClient? _apiClient;
+  final CropsRepository? _cropsRepository;
+
+  CropsNotifier({ApiClient? apiClient, CropsRepository? cropsRepository})
+      : _apiClient = apiClient,
+        _cropsRepository = cropsRepository,
+        super(const CropsState()) {
     loadCrops();
   }
 
-  /// Load active crops from local storage or API
-  /// تحميل المحاصيل النشطة
+  /// Load active crops from CropsRepository / API with fallback to mock data
+  /// تحميل المحاصيل النشطة من مستودع المحاصيل / الخادم مع بيانات احتياطية
   Future<void> loadCrops() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // TODO: Replace with actual CropsRepository call
-      await Future.delayed(const Duration(milliseconds: 400));
+      // Strategy 1: Use CropsRepository (offline-first with caching)
+      if (_cropsRepository != null) {
+        try {
+          final catalogCrops = await _cropsRepository.getAllCrops();
+          if (catalogCrops.isNotEmpty) {
+            // Try to fetch active crop instances from the API to enrich
+            // catalog data with field-specific information
+            if (_apiClient != null) {
+              try {
+                final response =
+                    await _apiClient.get('/api/v1/crops/active');
+                final List<dynamic> data = response is List
+                    ? response
+                    : (response['data'] as List? ?? []);
 
+                if (data.isNotEmpty) {
+                  final crops = data
+                      .map((json) =>
+                          _activeCropFromJson(json as Map<String, dynamic>))
+                      .toList();
+                  AppLogger.i('Loaded active crops from API',
+                      tag: 'CropsNotifier', data: {'count': crops.length});
+                  state =
+                      state.copyWith(activeCrops: crops, isLoading: false);
+                  return;
+                }
+              } catch (e) {
+                AppLogger.w(
+                  'Active crops API unavailable, building from catalog',
+                  tag: 'CropsNotifier',
+                  error: e,
+                );
+              }
+            }
+
+            // Build active crop instances from catalog data when active
+            // endpoint is unavailable (offline scenario)
+            final activeCrops = _buildActiveCropsFromCatalog(catalogCrops);
+            AppLogger.i('Built active crops from repository catalog',
+                tag: 'CropsNotifier',
+                data: {'count': activeCrops.length});
+            state =
+                state.copyWith(activeCrops: activeCrops, isLoading: false);
+            return;
+          }
+        } catch (e) {
+          AppLogger.w(
+            'CropsRepository failed, trying direct API',
+            tag: 'CropsNotifier',
+            error: e,
+          );
+        }
+      }
+
+      // Strategy 2: Direct API call without repository
+      if (_apiClient != null) {
+        try {
+          final response = await _apiClient.get('/api/v1/crops/active');
+          final List<dynamic> data =
+              response is List ? response : (response['data'] as List? ?? []);
+
+          if (data.isNotEmpty) {
+            final crops = data
+                .map((json) =>
+                    _activeCropFromJson(json as Map<String, dynamic>))
+                .toList();
+            AppLogger.i('Loaded active crops from direct API call',
+                tag: 'CropsNotifier', data: {'count': crops.length});
+            state = state.copyWith(activeCrops: crops, isLoading: false);
+            return;
+          }
+        } catch (e) {
+          AppLogger.w(
+            'Direct API call failed, falling back to mock data',
+            tag: 'CropsNotifier',
+            error: e,
+          );
+        }
+      }
+
+      // Strategy 3: Fallback to mock data when all sources are unavailable
+      AppLogger.i('Using mock active crops (offline fallback)',
+          tag: 'CropsNotifier');
+      await Future.delayed(const Duration(milliseconds: 400));
       final crops = _getMockActiveCrops();
       state = state.copyWith(activeCrops: crops, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
+  }
+
+  /// Build ActiveCrop instances from catalog Crop data
+  /// بناء نسخ المحاصيل النشطة من بيانات كتالوج المحاصيل
+  List<ActiveCrop> _buildActiveCropsFromCatalog(List<Crop> catalogCrops) {
+    // When only catalog data is available (no active-crops endpoint),
+    // create placeholder active crop entries for the first few crops.
+    // These will be replaced with real field-specific data once online.
+    final limitedCrops = catalogCrops.take(5).toList();
+    return limitedCrops.asMap().entries.map((entry) {
+      final index = entry.key;
+      final crop = entry.value;
+      return ActiveCrop(
+        id: 'catalog_${crop.code}_$index',
+        fieldId: 'field_${index + 1}',
+        fieldName: 'Field ${index + 1} | الحقل ${index + 1}',
+        crop: crop,
+        growthStage: 'Unknown',
+        growthStageAr: 'غير محدد',
+        plantingDate: DateTime.now(),
+        areaHectares: 0.0,
+        healthStatus: 'unknown',
+        healthStatusAr: 'غير محدد',
+      );
+    }).toList();
+  }
+
+  /// Parse an ActiveCrop from API JSON response
+  /// تحويل بيانات JSON إلى محصول نشط
+  ActiveCrop _activeCropFromJson(Map<String, dynamic> json) {
+    return ActiveCrop(
+      id: json['id'] as String? ?? '',
+      fieldId: json['field_id'] as String? ?? '',
+      fieldName: json['field_name'] as String? ?? '',
+      crop: Crop.fromJson(json['crop'] as Map<String, dynamic>? ?? {}),
+      variety: json['variety'] as String? ?? '',
+      growthStage: json['growth_stage'] as String? ?? '',
+      growthStageAr: json['growth_stage_ar'] as String? ?? '',
+      ndviValue: (json['ndvi_value'] as num?)?.toDouble() ?? 0.0,
+      plantingDate: DateTime.tryParse(json['planting_date'] as String? ?? '') ??
+          DateTime.now(),
+      expectedHarvestDate:
+          DateTime.tryParse(json['expected_harvest_date'] as String? ?? ''),
+      areaHectares: (json['area_hectares'] as num?)?.toDouble() ?? 0.0,
+      healthStatus: json['health_status'] as String? ?? 'good',
+      healthStatusAr: json['health_status_ar'] as String? ?? 'جيد',
+    );
   }
 
   /// Add a new crop to a field
@@ -193,10 +332,51 @@ class CropsNotifier extends StateNotifier<CropsState> {
     state = state.copyWith(selectedCropId: cropId);
   }
 
-  /// Get recommendations for a specific crop (mock)
-  /// الحصول على التوصيات لمحصول محدد
-  List<String> getRecommendations(String cropId) {
-    // TODO: Replace with actual advisory service call
+  /// Get recommendations for a specific crop from advisory service
+  /// الحصول على التوصيات لمحصول محدد من خدمة الاستشارات
+  Future<List<String>> getRecommendations(String cropId) async {
+    // Try fetching recommendations from the advisory API
+    if (_apiClient != null) {
+      try {
+        final response = await _apiClient.get(
+          '/api/v1/advisory/recommendations',
+          queryParameters: {'crop_id': cropId},
+        );
+        final List<dynamic> data =
+            response is List ? response : (response['data'] as List? ?? []);
+
+        if (data.isNotEmpty) {
+          final recommendations = data.map((item) {
+            if (item is String) return item;
+            if (item is Map) {
+              final en = item['text'] ?? item['message'] ?? '';
+              final ar = item['text_ar'] ?? item['message_ar'] ?? '';
+              return ar.toString().isNotEmpty ? '$en | $ar' : en.toString();
+            }
+            return item.toString();
+          }).toList();
+
+          AppLogger.i('Loaded recommendations from advisory API',
+              tag: 'CropsNotifier',
+              data: {'crop_id': cropId, 'count': recommendations.length});
+          return recommendations;
+        }
+      } catch (e) {
+        AppLogger.w(
+          'Failed to fetch recommendations from advisory API, using defaults',
+          tag: 'CropsNotifier',
+          error: e,
+        );
+      }
+    }
+
+    // Fallback to default recommendations when API is unavailable
+    return _getMockRecommendations(cropId);
+  }
+
+  /// Default recommendations when advisory service is unavailable
+  /// التوصيات الافتراضية عند عدم توفر خدمة الاستشارات
+  List<String> _getMockRecommendations(String cropId) {
     return [
       'Irrigation recommended tomorrow morning | ينصح بالري غدا صباحا',
       'Apply nitrogen fertilizer this week | تطبيق سماد نيتروجيني هذا الاسبوع',
@@ -296,9 +476,48 @@ class CropsNotifier extends StateNotifier<CropsState> {
 // الموفرون
 // =============================================================================
 
+/// API client provider for crops feature
+/// موفر عميل الخادم لميزة المحاصيل
+final cropsApiClientProvider = Provider<ApiClient>((ref) {
+  return ApiClient();
+});
+
+/// CropsApi provider
+/// موفر واجهة المحاصيل البرمجية
+final cropsApiProvider = Provider<CropsApi>((ref) {
+  final apiClient = ref.watch(cropsApiClientProvider);
+  return CropsApi(apiClient);
+});
+
+/// SharedPreferences provider for crops feature
+/// موفر التخزين المحلي لميزة المحاصيل
+///
+/// Must be overridden in ProviderScope at app startup with the
+/// actual SharedPreferences instance from `SharedPreferences.getInstance()`.
+final cropsSharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError(
+    'cropsSharedPreferencesProvider must be overridden in ProviderScope',
+  );
+});
+
+/// CropsRepository provider (offline-first with caching)
+/// موفر مستودع المحاصيل (أولوية للعمل بدون اتصال مع التخزين المؤقت)
+final cropsRepositoryProvider = Provider<CropsRepository?>((ref) {
+  try {
+    final api = ref.watch(cropsApiProvider);
+    final prefs = ref.watch(cropsSharedPreferencesProvider);
+    return CropsRepository(api: api, prefs: prefs);
+  } catch (_) {
+    // SharedPreferences not yet initialized; repository unavailable
+    return null;
+  }
+});
+
 /// Main crops state provider
 /// الموفر الرئيسي لحالة المحاصيل
 final cropsProvider =
     StateNotifierProvider<CropsNotifier, CropsState>((ref) {
-  return CropsNotifier();
+  final apiClient = ref.watch(cropsApiClientProvider);
+  final repository = ref.watch(cropsRepositoryProvider);
+  return CropsNotifier(apiClient: apiClient, cropsRepository: repository);
 });

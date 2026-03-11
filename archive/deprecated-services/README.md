@@ -18,12 +18,23 @@ This directory contains services that have been deprecated and replaced by newer
 | `field-core` | `field-management-service` | 3000 | 2026-01-25 |
 | `field-service` | `field-management-service` | 3000 | 2026-01-25 |
 | `agro-advisor` | `advisory-service` | 8093 | 2026-02-14 |
-| `ndvi-engine` | `vegetation-analysis-service` | 8090 | 2026-02-14 |
+| `ndvi-engine` | `vegetation-analysis-service` | 8090 | 2026-01-25 |
 | `weather-core` | `weather-service` | 8092 | 2026-02-14 |
-| `community-chat` | `chat-service` | 8000 | 2026-02-16 |
-| `field-chat` | `chat-service` | 8000 | 2026-02-16 |
+| `community-chat` | `chat-service` | 8115 | 2026-02-16 |
+| `field-chat` | `chat-service` | 8115 | 2026-02-16 |
 | `ndvi-processor` | `vegetation-analysis-service` | 8090 | 2026-02-16 |
 | `yield-engine` | `yield-prediction-service` | 8152 | 2026-02-16 |
+
+## Overdue Sunset Notices
+
+The following archived services have passed their original sunset date (2025-06-01) and are eligible for complete removal from the archive:
+
+- `satellite-service` (sunset: 2025-06-01, replaced by `vegetation-analysis-service`)
+- `weather-advanced` (sunset: 2025-06-01, replaced by `weather-service`)
+- `crop-health-ai` (sunset: 2025-06-01, replaced by `crop-intelligence-service`)
+- `fertilizer-advisor` (sunset: 2025-06-01, replaced by `advisory-service`)
+
+> **Warning**: Past sunset date - eligible for complete removal from archive
 
 ## Why Archived
 

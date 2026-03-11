@@ -7,11 +7,23 @@ avoiding gimbal lock issues with traditional Euler angles.
 """
 
 import logging
-from typing import Optional
+import math
+import os
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel
 from scipy.spatial.transform import Rotation
+
+try:
+    import rasterio
+    from rasterio.transform import rowcol
+
+    HAS_RASTERIO = True
+except ImportError:
+    HAS_RASTERIO = False
+
+DEM_DATA_DIR = os.environ.get("DEM_DATA_DIR", "/app/data/dem")
 
 logger = logging.getLogger(__name__)
 
@@ -41,22 +53,139 @@ class CameraIntrinsicsMatrix(BaseModel):
 class DEMService:
     """
     Digital Elevation Model service for terrain-ray intersection.
-    Simplified implementation - in production, use rasterio with actual DEM tiles.
+
+    Loads SRTM-style GeoTIFF DEM tiles via rasterio when available.
+    Falls back to a flat terrain at ``default_elevation`` when rasterio is not
+    installed or the required tile is missing on disk.
+
+    Tile naming convention (SRTM):
+        * ``N24E046.tif`` for lat >= 0, lon >= 0
+        * ``S01W077.tif`` for lat < 0, lon < 0
+
+    The DEM directory is configured via the ``DEM_DATA_DIR`` environment
+    variable (default ``/app/data/dem``).
     """
 
-    def __init__(self, default_elevation: float = 0.0):
+    def __init__(self, default_elevation: float = 0.0, dem_dir: str | None = None):
         """
         Initialize DEM service.
 
         Args:
             default_elevation: Default terrain elevation (meters above WGS84 ellipsoid)
+            dem_dir: Directory containing DEM GeoTIFF tiles.
+                     Defaults to the ``DEM_DATA_DIR`` environment variable.
         """
         self.default_elevation = default_elevation
-        self._dem_cache: dict[str, np.ndarray] = {}
+        self.dem_dir = dem_dir or DEM_DATA_DIR
+        # Cache mapping tile_path -> opened rasterio dataset
+        self._dem_cache: dict[str, Any] = {}
 
-    async def get_elevation(self, lat: float, lon: float) -> float:
+    def close(self) -> None:
+        """Close all cached rasterio datasets to free file descriptors."""
+        for ds in self._dem_cache.values():
+            if ds is not None:
+                try:
+                    ds.close()
+                except Exception:
+                    pass  # Best-effort cleanup of rasterio dataset file handle
+        self._dem_cache.clear()
+
+    # ------------------------------------------------------------------
+    # Tile path helpers
+    # ------------------------------------------------------------------
+
+    def _get_dem_tile_path(self, lat: float, lon: float) -> str:
         """
-        Get terrain elevation at a geographic point.
+        Construct the filesystem path for the SRTM tile covering the given
+        latitude / longitude.
+
+        SRTM tiles are named after the *south-west* corner of the 1x1-degree
+        cell.  For example the tile covering latitudes 24-25 N and longitudes
+        46-47 E is ``N24E046.tif``.
+
+        Args:
+            lat: Latitude in degrees
+            lon: Longitude in degrees
+
+        Returns:
+            Absolute path to the expected DEM tile.
+        """
+        tile_lat = int(math.floor(lat))
+        tile_lon = int(math.floor(lon))
+
+        lat_prefix = "N" if tile_lat >= 0 else "S"
+        lon_prefix = "E" if tile_lon >= 0 else "W"
+
+        tile_name = f"{lat_prefix}{abs(tile_lat):02d}{lon_prefix}{abs(tile_lon):03d}.tif"
+        return os.path.join(self.dem_dir, tile_name)
+
+    def _open_tile(self, tile_path: str) -> Any:
+        """
+        Open (or retrieve from cache) a rasterio dataset for *tile_path*.
+
+        Returns:
+            An opened ``rasterio.DatasetReader``, or ``None`` when rasterio is
+            unavailable or the file cannot be opened.
+        """
+        if not HAS_RASTERIO:
+            return None
+
+        if tile_path in self._dem_cache:
+            return self._dem_cache[tile_path]
+
+        try:
+            ds = rasterio.open(tile_path)
+            self._dem_cache[tile_path] = ds
+            logger.info("Loaded DEM tile %s", tile_path)
+            return ds
+        except Exception:
+            # FileNotFoundError, RasterioIOError, etc.
+            logger.debug("DEM tile not available: %s – using default elevation", tile_path)
+            # Store None so we don't retry on every call
+            self._dem_cache[tile_path] = None
+            return None
+
+    def _read_elevation(self, lat: float, lon: float) -> float | None:
+        """
+        Read a single elevation value from the DEM tile covering (*lat*, *lon*).
+
+        Returns:
+            Elevation in meters, or ``None`` when the value cannot be read.
+        """
+        tile_path = self._get_dem_tile_path(lat, lon)
+        ds = self._open_tile(tile_path)
+        if ds is None:
+            return None
+
+        try:
+            row, col = rowcol(ds.transform, lon, lat)
+            # Bounds check
+            if row < 0 or row >= ds.height or col < 0 or col >= ds.width:
+                return None
+            # Read single pixel from band 1
+            window = rasterio.windows.Window(col, row, 1, 1)
+            data = ds.read(1, window=window)
+            value = float(data[0, 0])
+            # SRTM uses -32768 (or similar nodata) for voids
+            nodata = ds.nodata
+            if nodata is not None and value == nodata:
+                return None
+            return value
+        except Exception:
+            logger.debug("Error reading elevation at (%.6f, %.6f)", lat, lon, exc_info=True)
+            return None
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def get_elevation_sync(self, lat: float, lon: float) -> float:
+        """
+        Get terrain elevation at a geographic point (synchronous).
+
+        Attempts to read the value from a local SRTM GeoTIFF tile via
+        rasterio.  Returns ``self.default_elevation`` when rasterio is not
+        available, the tile is missing, or the pixel is nodata.
 
         Args:
             lat: Latitude in degrees
@@ -65,15 +194,31 @@ class DEMService:
         Returns:
             Elevation in meters above WGS84 ellipsoid
         """
-        # TODO: Implement actual DEM lookup using rasterio
-        # For now, return default elevation (flat terrain assumption)
+        elevation = self._read_elevation(lat, lon)
+        if elevation is not None:
+            return elevation
         return self.default_elevation
+
+    async def get_elevation(self, lat: float, lon: float) -> float:
+        """
+        Async wrapper around :meth:`get_elevation_sync`.
+
+        Offloads the synchronous rasterio I/O to the default thread-pool
+        executor so it doesn't block the event loop.
+        """
+        import asyncio
+
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self.get_elevation_sync, lat, lon)
 
     def get_elevation_grid(
         self, bounds: tuple[float, float, float, float], resolution: float = 10.0
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get elevation grid for a bounding box.
+
+        When DEM tiles are available the grid is populated from rasterio;
+        otherwise a flat grid at ``default_elevation`` is returned.
 
         Args:
             bounds: (min_lon, min_lat, max_lon, max_lat)
@@ -85,14 +230,71 @@ class DEMService:
         min_lon, min_lat, max_lon, max_lat = bounds
 
         # Create coordinate grids (simplified, assumes small area)
-        n_lon = int((max_lon - min_lon) * 111000 / resolution) + 1
-        n_lat = int((max_lat - min_lat) * 111000 / resolution) + 1
+        n_lon = max(int((max_lon - min_lon) * 111000 / resolution) + 1, 1)
+        n_lat = max(int((max_lat - min_lat) * 111000 / resolution) + 1, 1)
 
         lon_grid = np.linspace(min_lon, max_lon, n_lon)
         lat_grid = np.linspace(min_lat, max_lat, n_lat)
 
-        # For now, flat terrain
         elevation_grid = np.full((n_lat, n_lon), self.default_elevation)
+
+        if not HAS_RASTERIO:
+            return lon_grid, lat_grid, elevation_grid
+
+        # Group grid cells by DEM tile so we can read a single window per tile
+        # instead of one pixel at a time (avoids O(n²) individual reads).
+        tile_cells: dict[str, list[tuple[int, int, float, float]]] = {}
+        for i, lat in enumerate(lat_grid):
+            for j, lon in enumerate(lon_grid):
+                tile_path = self._get_dem_tile_path(lat, lon)
+                tile_cells.setdefault(tile_path, []).append((i, j, lat, lon))
+
+        for tile_path, cells in tile_cells.items():
+            ds = self._open_tile(tile_path)
+            if ds is None:
+                continue
+
+            nodata = ds.nodata
+
+            # Compute a bounding window that covers all cells in this tile
+            rows_cols = []
+            for _, _, lat, lon in cells:
+                try:
+                    r, c = rowcol(ds.transform, lon, lat)
+                    rows_cols.append((r, c))
+                except Exception:
+                    rows_cols.append((None, None))
+
+            valid = [(r, c) for r, c in rows_cols if r is not None]
+            if not valid:
+                continue
+
+            min_row = max(min(r for r, _ in valid), 0)
+            max_row = min(max(r for r, _ in valid), ds.height - 1)
+            min_col = max(min(c for _, c in valid), 0)
+            max_col = min(max(c for _, c in valid), ds.width - 1)
+
+            try:
+                window = rasterio.windows.Window(
+                    min_col, min_row,
+                    max_col - min_col + 1, max_row - min_row + 1,
+                )
+                data = ds.read(1, window=window)
+            except Exception:
+                continue
+
+            # Map each cell to the batch-read data
+            for idx, (i, j, lat, lon) in enumerate(cells):
+                rc = rows_cols[idx]
+                if rc[0] is None:
+                    continue
+                r, c = rc
+                if r < min_row or r > max_row or c < min_col or c > max_col:
+                    continue
+                value = float(data[r - min_row, c - min_col])
+                if nodata is not None and value == nodata:
+                    continue
+                elevation_grid[i, j] = value
 
         return lon_grid, lat_grid, elevation_grid
 

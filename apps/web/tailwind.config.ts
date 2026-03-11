@@ -3,9 +3,9 @@ import type { Config } from "tailwindcss";
 // Use relative import to load shared config
 import sharedConfig from "../../packages/tailwind-config";
 
-const config: Config = {
+const config = {
   // Use shared config as base
-  presets: [sharedConfig as Config],
+  presets: [sharedConfig],
 
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx}",
@@ -42,4 +42,4 @@ const config: Config = {
   },
 };
 
-export default config;
+export default config satisfies Config;

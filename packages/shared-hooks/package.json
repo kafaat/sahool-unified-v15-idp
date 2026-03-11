@@ -39,11 +39,6 @@
   "peerDependencies": {
     "react": ">=18.0.0"
   },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
-  },
   "engines": {
     "node": ">=20.0.0"
   }

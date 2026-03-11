@@ -51,7 +51,7 @@ class VisionSubjects:
     DISEASE_DETECTED = "sahool.vision.disease_detected"
     WEED_DETECTED = "sahool.vision.weed_detected"
     PLANT_COUNT_COMPLETED = "sahool.vision.plant_count_completed"
-    CRITICAL_ALERT = "sahool.vision.critical_alert"
+    CRITICAL_ALERT = "sahool.vision.critical.alert"
 
     # Processing events
     ANALYSIS_STARTED = "sahool.vision.analysis_started"

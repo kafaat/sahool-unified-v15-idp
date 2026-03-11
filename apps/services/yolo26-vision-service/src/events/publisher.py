@@ -12,7 +12,7 @@ Subjects:
     sahool.vision.disease_detected   - Disease detection results
     sahool.vision.weed_detected      - Weed detection results
     sahool.vision.plant_count_completed - Plant counting results
-    sahool.vision.critical_alert     - Critical pest alerts (RPW, locust)
+    sahool.vision.critical.alert     - Critical pest alerts (RPW, locust)
     sahool.vision.analysis_started   - Analysis job started
     sahool.vision.analysis_completed - Analysis job completed
     sahool.vision.analysis_failed    - Analysis job failed
@@ -40,7 +40,7 @@ SUBJECT_PEST_DETECTED = "sahool.vision.pest_detected"
 SUBJECT_DISEASE_DETECTED = "sahool.vision.disease_detected"
 SUBJECT_WEED_DETECTED = "sahool.vision.weed_detected"
 SUBJECT_PLANT_COUNT_COMPLETED = "sahool.vision.plant_count_completed"
-SUBJECT_CRITICAL_ALERT = "sahool.vision.critical_alert"
+SUBJECT_CRITICAL_ALERT = "sahool.vision.critical.alert"
 SUBJECT_ANALYSIS_STARTED = "sahool.vision.analysis_started"
 SUBJECT_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
 SUBJECT_ANALYSIS_FAILED = "sahool.vision.analysis_failed"

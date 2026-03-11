@@ -22,6 +22,7 @@ Architecture:
 import logging
 import os
 import sys
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -90,12 +91,102 @@ except ImportError:
 # Application Setup - إعداد التطبيق
 # ═══════════════════════════════════════════════════════════════════════════
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager | مدير دورة حياة التطبيق"""
+    logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}...")
+
+    # Initialize database
+    logger.info("Initializing database...")
+    try:
+        from .database import init_database, init_demo_data_if_needed
+
+        init_database(create_tables=True)
+        init_demo_data_if_needed()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error("Failed to initialize database: %s", type(e).__name__, exc_info=True)
+
+    # Initialize NATS connection
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+    safe_nats_url = str(nats_url).replace("\n", "").replace("\r", "")
+    logger.info("Connecting to NATS at %s...", safe_nats_url)
+    try:
+        from .events import NatsPublisher
+        from .events.nats_publisher import set_publisher
+
+        publisher = NatsPublisher()
+        connected = await publisher.connect(nats_url)
+        if connected:
+            set_publisher(publisher)
+            app.state.nats_publisher = publisher
+            logger.info("NATS connected: %s", safe_nats_url)
+        else:
+            app.state.nats_publisher = None
+            logger.warning("NATS connection failed: %s", safe_nats_url)
+    except ImportError:
+        app.state.nats_publisher = None
+        logger.warning("NATS events module not available")
+    except Exception as e:
+        app.state.nats_publisher = None
+        logger.warning("NATS connection error: %s", type(e).__name__)
+
+    # Initialize Redis cache
+    logger.info("Initializing Redis cache...")
+    try:
+        from .cache import get_redis_client
+
+        redis_client = await get_redis_client()
+        if redis_client:
+            logger.info("Redis cache connected")
+        else:
+            logger.info("Using in-memory cache (Redis unavailable)")
+    except Exception as e:
+        logger.warning("Redis connection error: %s, using in-memory cache", type(e).__name__)
+
+    logger.info(f"{SERVICE_NAME} started on port {SERVICE_PORT}")
+
+    yield
+
+    # Shutdown | الإغلاق
+    logger.info(f"Shutting down {SERVICE_NAME}...")
+
+    # Close NATS connection
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            await app.state.nats_publisher.close()
+            logger.info("NATS connection closed")
+        except Exception as e:
+            logger.warning("Error closing NATS: %s", type(e).__name__)
+
+    # Close Redis connection
+    try:
+        from .cache import close_redis
+
+        await close_redis()
+        logger.info("Redis connection closed")
+    except Exception as e:
+        logger.warning("Error closing Redis: %s", type(e).__name__)
+
+    # Close database connection
+    try:
+        from .database import close_database
+
+        close_database()
+        logger.info("Database connection closed")
+    except Exception as e:
+        logger.warning("Error closing database: %s", type(e).__name__)
+
+    logger.info(f"{SERVICE_NAME} shutdown complete")
+
+
 app = FastAPI(
     title="SAHOOL Task Service",
     description="Agricultural task management API with astronomical calendar integration",
     version=SERVICE_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Setup unified error handling
@@ -233,95 +324,6 @@ async def combined_health():
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database connection, NATS, and cache on startup"""
-    logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}...")
-
-    # Initialize database
-    logger.info("Initializing database...")
-    try:
-        from .database import init_database, init_demo_data_if_needed
-
-        init_database(create_tables=True)
-        init_demo_data_if_needed()
-        logger.info("✅ Database initialized successfully")
-    except Exception as e:
-        logger.error("❌ Failed to initialize database: %s", type(e).__name__, exc_info=True)
-
-    # Initialize NATS connection
-    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
-    # Sanitize URL for logging
-    safe_nats_url = str(nats_url).replace("\n", "").replace("\r", "")
-    logger.info("Connecting to NATS at %s...", safe_nats_url)
-    try:
-        from .events import NatsPublisher
-        from .events.nats_publisher import set_publisher
-
-        publisher = NatsPublisher()
-        connected = await publisher.connect(nats_url)
-        if connected:
-            set_publisher(publisher)
-            app.state.nats_publisher = publisher
-            logger.info("✅ NATS connected: %s", safe_nats_url)
-        else:
-            app.state.nats_publisher = None
-            logger.warning("⚠️ NATS connection failed: %s", safe_nats_url)
-    except ImportError:
-        app.state.nats_publisher = None
-        logger.warning("⚠️ NATS events module not available")
-    except Exception as e:
-        app.state.nats_publisher = None
-        logger.warning("⚠️ NATS connection error: %s", type(e).__name__)
-
-    # Initialize Redis cache
-    logger.info("Initializing Redis cache...")
-    try:
-        from .cache import get_redis_client
-
-        redis_client = await get_redis_client()
-        if redis_client:
-            logger.info("✅ Redis cache connected")
-        else:
-            logger.info("ℹ️ Using in-memory cache (Redis unavailable)")
-    except Exception as e:
-        logger.warning("⚠️ Redis connection error: %s, using in-memory cache", type(e).__name__)
-
-    logger.info(f"🚀 {SERVICE_NAME} started on port {SERVICE_PORT}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Clean up connections on shutdown"""
-    logger.info(f"Shutting down {SERVICE_NAME}...")
-
-    # Close NATS connection
-    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
-        try:
-            await app.state.nats_publisher.close()
-            logger.info("✅ NATS connection closed")
-        except Exception as e:
-            logger.warning("⚠️ Error closing NATS: %s", type(e).__name__)
-
-    # Close Redis connection
-    try:
-        from .cache import close_redis
-
-        await close_redis()
-        logger.info("✅ Redis connection closed")
-    except Exception as e:
-        logger.warning("⚠️ Error closing Redis: %s", type(e).__name__)
-
-    # Close database connection
-    try:
-        from .database import close_database
-
-        close_database()
-        logger.info("✅ Database connection closed")
-    except Exception as e:
-        logger.warning("⚠️ Error closing database: %s", type(e).__name__)
-
-    logger.info(f"👋 {SERVICE_NAME} shutdown complete")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

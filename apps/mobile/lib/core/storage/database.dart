@@ -246,20 +246,20 @@ class AppDatabase extends _$AppDatabase {
             status: Value(item['status'] ?? 'open'),
             priority: Value(item['priority'] ?? 'medium'),
             dueDate: Value(item['due_date'] != null
-                ? DateTime.parse(item['due_date'])
+                ? DateTime.tryParse(item['due_date'].toString())
                 : null),
             assignedTo: Value(item['assigned_to']),
             evidenceNotes: Value(item['evidence_notes']),
             evidencePhotos: Value(item['evidence_photos'] != null
                 ? (item['evidence_photos'] as List).join(',')
                 : null),
-            createdAt: DateTime.parse(item['created_at']),
-            updatedAt: DateTime.parse(item['updated_at']),
+            createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
+            updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
             synced: const Value(true),
           ),
           onConflict: DoUpdate((old) => TasksCompanion(
                 status: Value(item['status'] ?? 'open'),
-                updatedAt: Value(DateTime.parse(item['updated_at'])),
+                updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
                 synced: const Value(true),
               )),
         );
@@ -534,10 +534,10 @@ class AppDatabase extends _$AppDatabase {
             status: Value(item['status']),
             ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
             ndviUpdatedAt: Value(item['ndvi_updated_at'] != null
-                ? DateTime.parse(item['ndvi_updated_at'])
+                ? DateTime.tryParse(item['ndvi_updated_at'].toString())
                 : null),
-            createdAt: DateTime.parse(item['created_at']),
-            updatedAt: DateTime.parse(item['updated_at']),
+            createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),
+            updatedAt: DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now(),
             synced: const Value(true),
           ),
           onConflict: DoUpdate((old) => FieldsCompanion(
@@ -547,7 +547,7 @@ class AppDatabase extends _$AppDatabase {
                 areaHectares:
                     Value((item['area_hectares'] as num?)?.toDouble() ?? 0),
                 ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
-                updatedAt: Value(DateTime.parse(item['updated_at'])),
+                updatedAt: Value(DateTime.tryParse(item['updated_at']?.toString() ?? '') ?? DateTime.now()),
                 synced: const Value(true),
               )),
         );

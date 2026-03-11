@@ -928,6 +928,9 @@ services:
     depends_on:
       etcd:
         condition: service_healthy
+      # FIX: Wait for etcd-init to enable auth before Milvus connects with credentials
+      etcd-init:
+        condition: service_completed_successfully
       minio:
         condition: service_healthy
     healthcheck:

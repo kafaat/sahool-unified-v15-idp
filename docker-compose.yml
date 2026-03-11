@@ -293,7 +293,7 @@ services:
       - ./config/certs:/etc/nats/certs:ro
     ports:
       - "127.0.0.1:4222:4222" # Standard NATS port (non-TLS for development)
-      - "127.0.0.1:4223:4223" # TLS NATS port (REQUIRED for production)
+      # - "127.0.0.1:4223:4223" # TLS NATS port (uncomment when TLS listener is configured)
       - "127.0.0.1:8222:8222" # Monitoring port
       # Cluster port (for HA setup)
       - "127.0.0.1:6222:6222"

@@ -42,7 +42,8 @@ chown mosquitto:mosquitto /mosquitto/config/acl
 chmod 600 /mosquitto/config/acl
 
 # Create modified mosquitto.conf that points to the fixed ACL file
-sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig > /mosquitto/config/mosquitto.conf
+# Strip \r (Windows line endings) to ensure sed patterns match correctly on all platforms
+sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig | tr -d '\r' > /mosquitto/config/mosquitto.conf
 
 # Remove TLS listener blocks if certificate files are not present
 # This allows development environments to run without TLS certificates

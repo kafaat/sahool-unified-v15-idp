@@ -38,6 +38,27 @@
     "rxjs": "^7.0.0"
   },
   "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    },
+    "@nestjs/jwt": {
+      "optional": true
+    },
+    "@nestjs/passport": {
+      "optional": true
+    },
+    "passport": {
+      "optional": true
+    },
+    "passport-jwt": {
+      "optional": true
+    },
+    "jsonwebtoken": {
+      "optional": true
+    },
     "ioredis": {
       "optional": true
     },
@@ -45,6 +66,9 @@
       "optional": true
     },
     "redis": {
+      "optional": true
+    },
+    "rxjs": {
       "optional": true
     }
   },

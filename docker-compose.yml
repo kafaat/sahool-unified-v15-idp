@@ -431,12 +431,15 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      # FIX: Check actual MQTT connectivity instead of just process existence
-      test: [ "CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 3 2>/dev/null || (pidof mosquitto && nc -z localhost 1883)" ]
+      # FIX: sahool_iot user does NOT have $SYS ACL access (only 'monitor' user does)
+      # Use mosquitto_pub on sahool/system/# which sahool_iot has readwrite access to
+      # This proves: broker running + auth working + ACL correct
+      # NOTE: nc/netcat and /dev/tcp are NOT available in Alpine mosquitto image
+      test: [ "CMD-SHELL", "mosquitto_pub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t 'sahool/system/healthcheck' -m 'ok' -q 0" ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 20s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -733,11 +736,14 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # Three-phase healthcheck to handle all auth states:
-      # 1. Try without auth (pre-auth-init or auth disabled)
-      # 2. Try with credentials from ETCDCTL_USER env (post-auth-init)
-      # 3. Fallback: check if etcd process is listening on port 2379 (basic liveness)
-      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health 2>/dev/null || wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q health" ]
+      # FIX: etcdctl fails with "authentication is not enabled" when ETCDCTL_USER env is set
+      # but auth hasn't been initialized yet (fresh start). See: github.com/etcd-io/etcd/issues/7724
+      # Solution: Use HTTP /health endpoint which works regardless of auth state
+      # Phase 1: wget (BusyBox, available in coreos/etcd) checks /health HTTP endpoint
+      # Phase 2: etcdctl with ETCDCTL_USER unset via subshell (pre-auth or auth-disabled)
+      # Phase 3: etcdctl with ETCDCTL_USER from env (post-auth-init)
+      # NOTE: curl is NOT available in coreos/etcd Alpine image
+      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q '\"health\":\"true\"' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
       interval: 15s
       timeout: 15s
       retries: 8

@@ -13,11 +13,18 @@ export class AppController {
 
   @Get("readyz")
   readyz() {
+    const dbUrl = process.env.DATABASE_URL;
+    const databaseReady = dbUrl ? false : true; // No DB configured = no DB dependency; DB configured = not verified
+    const status = databaseReady ? "ok" : "degraded";
+
     return {
-      status: "ok",
+      status,
       service: "yield-prediction",
       version: "16.0.0",
-      database: true,
+      database: databaseReady,
+      checks: {
+        database: dbUrl ? "configured_but_not_verified" : "not_configured",
+      },
     };
   }
 }

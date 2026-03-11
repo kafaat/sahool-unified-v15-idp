@@ -28,6 +28,7 @@ import {
   IsUUID,
   Min,
 } from "class-validator";
+import { getRequestTenantId } from "../auth/tenant.utils";
 
 // Task DTOs
 class CreateTaskDto {
@@ -102,10 +103,12 @@ export class TasksController {
   @ApiQuery({ name: "status", required: false })
   @ApiResponse({ status: 200, description: "Tasks retrieved" })
   async getTasksForField(
+    @Req() req: any,
     @Param("fieldId", ParseUUIDPipe) fieldId: string,
     @Query("status") status?: TaskState,
   ) {
-    const tasks = await this.tasksService.getTasksForField(fieldId, status as TaskState | undefined);
+    const tenantId = getRequestTenantId(req);
+    const tasks = await this.tasksService.getTasksForField(fieldId, tenantId, status as TaskState | undefined);
     return {
       success: true,
       data: tasks,
@@ -121,10 +124,13 @@ export class TasksController {
   @ApiOperation({ summary: "Create a new task" })
   @ApiResponse({ status: 201, description: "Task created" })
   async createTask(
+    @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: CreateTaskDto,
   ) {
+    const tenantId = getRequestTenantId(req);
     const task = await this.tasksService.createTask({
       ...dto,
+      tenantId,
       taskType: dto.taskType as TaskType,
       priority: dto.priority as Priority | undefined,
       dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
@@ -144,11 +150,14 @@ export class TasksController {
   @ApiParam({ name: "id", type: String })
   @ApiResponse({ status: 200, description: "Task status updated" })
   async updateTaskStatus(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateTaskStatusDto,
   ) {
+    const tenantId = getRequestTenantId(req);
     const task = await this.tasksService.updateTaskStatus(
       id,
+      tenantId,
       dto.status as TaskState,
       dto.completionNotes,
       dto.actualMinutes,
@@ -165,13 +174,10 @@ export class TasksController {
    */
   @Get("overdue")
   @ApiOperation({ summary: "Get overdue tasks" })
-  @ApiQuery({ name: "tenantId", required: false })
   @ApiResponse({ status: 200, description: "Overdue tasks retrieved" })
-  async getOverdueTasks(
-    @Req() req: any,
-    @Query("tenantId") queryTenantId?: string,
-  ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+  async getOverdueTasks(@Req() req: any) {
+    // Always use authenticated tenant
+    const tenantId = getRequestTenantId(req);
     const tasks = await this.tasksService.getOverdueTasks(tenantId);
     return {
       success: true,

@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.37",
-    "typescript": "^5.9.3"
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "@prisma/client": "^5.22.0"

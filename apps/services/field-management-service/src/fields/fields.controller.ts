@@ -44,6 +44,7 @@ import {
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
+import { getRequestTenantId } from "../auth/tenant.utils";
 
 @ApiTags("Fields - الحقول")
 @Controller("api/v1/fields")
@@ -66,8 +67,12 @@ export class FieldsController {
   })
   @ApiResponse({ status: 400, description: "Invalid input data" })
   async create(
+    @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: CreateFieldDto,
   ) {
+    const tenantId = getRequestTenantId(req);
+    // Override DTO tenantId with authenticated tenant to prevent spoofing
+    dto.tenantId = tenantId;
     const field = await this.fieldsService.create(dto);
     return {
       success: true,
@@ -91,8 +96,12 @@ export class FieldsController {
     type: PaginatedFieldsResponseDto,
   })
   async findAll(
+    @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: QueryFieldsDto,
   ) {
+    const tenantId = getRequestTenantId(req);
+    // Always scope to authenticated tenant
+    query.tenantId = tenantId;
     const result = await this.fieldsService.findAll(query);
     return {
       success: true,
@@ -113,8 +122,12 @@ export class FieldsController {
   @ApiQuery({ name: "radius", type: Number, required: false })
   @ApiResponse({ status: 200, description: "Nearby fields found" })
   async findNearby(
+    @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: NearbyFieldsDto,
   ) {
+    const tenantId = getRequestTenantId(req);
+    // Scope nearby search to authenticated tenant
+    query.tenantId = tenantId;
     const fields = await this.fieldsService.findNearby(query);
     return {
       success: true,
@@ -138,8 +151,12 @@ export class FieldsController {
     type: FieldResponseDto,
   })
   @ApiResponse({ status: 404, description: "Field not found" })
-  async findOne(@Param("id", ParseUUIDPipe) id: string) {
-    const field = await this.fieldsService.findById(id);
+  async findOne(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const field = await this.fieldsService.findById(id, tenantId);
     return {
       success: true,
       data: field,
@@ -169,11 +186,13 @@ export class FieldsController {
   @ApiResponse({ status: 404, description: "Field not found" })
   @ApiResponse({ status: 409, description: "Conflict - field was modified" })
   async update(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateFieldDto,
     @Headers("if-match") ifMatch?: string,
   ) {
-    const field = await this.fieldsService.update(id, dto, ifMatch);
+    const tenantId = getRequestTenantId(req);
+    const field = await this.fieldsService.update(id, dto, tenantId, ifMatch);
     return {
       success: true,
       data: field,
@@ -194,8 +213,12 @@ export class FieldsController {
   @ApiParam({ name: "id", type: String, format: "uuid" })
   @ApiResponse({ status: 200, description: "Field deleted successfully" })
   @ApiResponse({ status: 404, description: "Field not found" })
-  async delete(@Param("id", ParseUUIDPipe) id: string) {
-    await this.fieldsService.delete(id);
+  async delete(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    await this.fieldsService.delete(id, tenantId);
     return {
       success: true,
       message: "تم حذف الحقل بنجاح",
@@ -214,10 +237,12 @@ export class FieldsController {
   @ApiQuery({ name: "limit", type: Number, required: false })
   @ApiResponse({ status: 200, description: "Boundary history retrieved" })
   async getBoundaryHistory(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Query("limit") limit?: number,
   ) {
-    const history = await this.fieldsService.getBoundaryHistory(id, limit);
+    const tenantId = getRequestTenantId(req);
+    const history = await this.fieldsService.getBoundaryHistory(id, tenantId, limit);
     return {
       success: true,
       data: history,
@@ -237,10 +262,12 @@ export class FieldsController {
   @ApiResponse({ status: 200, description: "Boundary updated successfully" })
   @ApiResponse({ status: 404, description: "Field not found" })
   async updateBoundary(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateBoundaryDto,
   ) {
-    const field = await this.fieldsService.updateBoundary(id, dto);
+    const tenantId = getRequestTenantId(req);
+    const field = await this.fieldsService.updateBoundary(id, dto, tenantId);
     return {
       success: true,
       data: field,
@@ -261,10 +288,12 @@ export class FieldsController {
   @ApiResponse({ status: 200, description: "Boundary rollback successful" })
   @ApiResponse({ status: 404, description: "Field or history entry not found" })
   async rollbackBoundary(
+    @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ValidationPipe({ transform: true })) dto: RollbackBoundaryDto,
   ) {
-    const field = await this.fieldsService.rollbackBoundary(id, dto);
+    const tenantId = getRequestTenantId(req);
+    const field = await this.fieldsService.rollbackBoundary(id, dto, tenantId);
     return {
       success: true,
       data: field,
@@ -284,11 +313,9 @@ export class FieldsController {
   })
   @ApiParam({ name: "tenantId", type: String })
   @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(
-    @Req() req: any,
-    @Param("tenantId") paramTenantId: string,
-  ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || paramTenantId;
+  async getStats(@Req() req: any) {
+    // Always use the authenticated tenant ID, ignore path param
+    const tenantId = getRequestTenantId(req);
     const stats = await this.fieldsService.getStats(tenantId);
     return {
       success: true,

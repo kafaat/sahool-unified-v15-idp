@@ -576,7 +576,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(({
                                       {isArabic
                                         ? categoryOption?.labelAr
                                         : categoryOption?.label}
-                                      : {count}
+                                      : {String(count)}
                                     </Badge>
                                   );
                                 },

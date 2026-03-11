@@ -11,12 +11,16 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers
+  app.use(helmet());
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -42,11 +46,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger/OpenAPI Documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Disaster Assessment API")
-    .setDescription(
-      `
+  // Swagger/OpenAPI Documentation (non-production only)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Disaster Assessment API")
+      .setDescription(
+        `
       خدمة تقييم الكوارث الزراعية
 
       Agricultural Disaster Assessment Service providing:
@@ -57,16 +62,17 @@ async function bootstrap() {
       - Pest & disease outbreak tracking (تتبع تفشي الآفات والأمراض)
       - Storm damage evaluation (تقييم أضرار العواصف)
     `,
-    )
-    .setVersion("16.0.0")
-    .addTag("disasters", "Disaster monitoring and assessment")
-    .addTag("alerts", "Early warning alerts")
-    .addTag("reports", "Damage reports and statistics")
-    .addBearerAuth()
-    .build();
+      )
+      .setVersion("16.0.0")
+      .addTag("disasters", "Disaster monitoring and assessment")
+      .addTag("alerts", "Early warning alerts")
+      .addTag("reports", "Damage reports and statistics")
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 3020;
   await app.listen(port);

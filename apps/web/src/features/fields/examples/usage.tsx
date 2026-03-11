@@ -240,7 +240,7 @@ export function FieldStatsExample() {
         <ul>
           {Object.entries(stats?.byCrop || {}).map(([crop, count]) => (
             <li key={crop}>
-              {crop}: {count}
+              {crop}: {String(count)}
             </li>
           ))}
         </ul>

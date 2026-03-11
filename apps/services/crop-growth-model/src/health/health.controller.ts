@@ -26,14 +26,9 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is ready" })
   readinessCheck() {
     return {
-      status: "ready",
+      status: "ok",
       service: "crop-growth-model",
       version: "16.0.0",
-      checks: {
-        phenology_engine: "initialized",
-        biomass_engine: "initialized",
-        simulation_engine: "initialized",
-      },
       timestamp: new Date().toISOString(),
     };
   }

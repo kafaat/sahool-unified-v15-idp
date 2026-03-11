@@ -85,6 +85,30 @@ _flags = DigitalTwinFlags()
 
 
 # ---------------------------------------------------------------------------
+# Tenant enforcement
+# ---------------------------------------------------------------------------
+
+
+def _enforce_tenant(request: Request, requested_tenant_id: UUID) -> None:
+    """Validate JWT tenant matches the requested tenant - فرض عزل المستأجر."""
+    user = getattr(request.state, "user", None) if request else None
+    if not user:
+        return  # Auth already enforced by router dependency
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and str(user_tenant) != str(requested_tenant_id):
+        user_roles = getattr(user, "roles", []) or []
+        if "admin" not in user_roles and "super_admin" not in user_roles:
+            raise HTTPException(
+                http_status.HTTP_403_FORBIDDEN,
+                detail={
+                    "error": "tenant_mismatch",
+                    "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                    "message_en": "Cannot access another tenant's data",
+                },
+            )
+
+
+# ---------------------------------------------------------------------------
 # Dependency helpers
 # ---------------------------------------------------------------------------
 
@@ -183,6 +207,7 @@ async def twin_step(
 
     Calls: ET₀ → Soil Water Balance → Crop Growth → persist → NATS event.
     """
+    _enforce_tenant(request, body.tenant_id)
     if not _flags.process_models_enabled:
         raise HTTPException(http_status.HTTP_503_SERVICE_UNAVAILABLE, "process_models_enabled=false")
 
@@ -340,6 +365,7 @@ async def get_twin_state(
     Retrieve FieldDailyState records for a date range.
     استرجاع سجلات الحالة اليومية لنطاق زمني.
     """
+    _enforce_tenant(request, tenant_id)
     today = date.today()
     from_date = from_date or today
     to_date = to_date or today
@@ -373,6 +399,7 @@ async def ingest_observations(
     Persists each observation and publishes NATS event per record.
     If assimilation is enabled, re-runs assimilation on today's state.
     """
+    _enforce_tenant(request, body.tenant_id)
     repo = _get_repo(request)
     nats = _get_nats(request)
     saved = 0
@@ -439,6 +466,7 @@ async def get_irrigation_recommendation(
 
     If no recommendation exists for the day, compute one from the latest state.
     """
+    _enforce_tenant(request, tenant_id)
     target_day = day or date.today()
     repo = _get_repo(request)
     nats = _get_nats(request)

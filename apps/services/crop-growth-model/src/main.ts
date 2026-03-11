@@ -12,12 +12,16 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers
+  app.use(helmet());
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -35,11 +39,12 @@ async function bootstrap() {
   ];
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
-  // Swagger
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Crop Growth Model API")
-    .setDescription(
-      `
+  // Swagger (non-production only)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Crop Growth Model API")
+      .setDescription(
+        `
       خدمة نموذج نمو المحاصيل الآلي والذكي والمتكامل
 
       Mechanistic Crop Growth Model Service providing:
@@ -71,13 +76,14 @@ async function bootstrap() {
 
       Based on scientific literature with Impact Factor 12.4+
     `,
-    )
-    .setVersion("16.0.0")
-    .addBearerAuth()
-    .build();
+      )
+      .setVersion("16.0.0")
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 3023;
   await app.listen(port);

@@ -403,7 +403,7 @@ export class FintechService {
 
     return {
       totalWallets,
-      totalBalance: totalBalance._sum.balance || 0,
+      totalBalance: Number(totalBalance._sum.balance ?? 0),
       activeLoans,
       paidLoans,
       avgCreditScore: Math.round(avgCreditScore._avg.creditScore || 0),

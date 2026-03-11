@@ -11,6 +11,7 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from 'helmet';
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
@@ -29,6 +30,9 @@ async function bootstrap() {
     new RequestLoggingInterceptor("yield-prediction-service"),
   );
 
+  // Security headers
+  app.use(helmet());
+
   // CORS
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
     "https://sahool.com",
@@ -36,27 +40,29 @@ async function bootstrap() {
   ];
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
-  // Swagger
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL Yield Prediction API")
-    .setDescription(
-      `
-      خدمة التنبؤ بالإنتاجية الزراعية
+  // Swagger (non-production only)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL Yield Prediction API")
+      .setDescription(
+        `
+        خدمة التنبؤ بالإنتاجية الزراعية
 
-      Agricultural Yield Prediction Service providing:
-      - Crop yield forecasting (التنبؤ بإنتاجية المحاصيل)
-      - Growth stage monitoring (مراقبة مراحل النمو)
-      - Harvest timing prediction (التنبؤ بموعد الحصاد)
-      - Historical yield analysis (تحليل الإنتاجية التاريخية)
-      - Comparison with regional averages (المقارنة مع المعدلات الإقليمية)
-    `,
-    )
-    .setVersion("16.0.0")
-    .addBearerAuth()
-    .build();
+        Agricultural Yield Prediction Service providing:
+        - Crop yield forecasting (التنبؤ بإنتاجية المحاصيل)
+        - Growth stage monitoring (مراقبة مراحل النمو)
+        - Harvest timing prediction (التنبؤ بموعد الحصاد)
+        - Historical yield analysis (تحليل الإنتاجية التاريخية)
+        - Comparison with regional averages (المقارنة مع المعدلات الإقليمية)
+      `,
+      )
+      .setVersion("16.0.0")
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 8152;
   await app.listen(port);

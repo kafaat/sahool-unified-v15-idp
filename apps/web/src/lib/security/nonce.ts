@@ -341,9 +341,23 @@ export function createInlineScript(
  * <style {...createInlineStyle(css, nonce)} />
  */
 export function createInlineStyle(css: string, nonce: string | null) {
+  // Validate CSS to prevent CSS injection attacks
+  const dangerousPatterns = [
+    /expression\s*\(/i,    // IE CSS expressions
+    /@import/i,            // CSS imports
+    /javascript\s*:/i,     // JavaScript protocol
+    /behavior\s*:/i,       // IE behaviors
+    /-moz-binding/i,       // Firefox XBL
+    /url\s*\(\s*['"]?\s*data:/i, // Data URLs in CSS
+  ];
+
+  const sanitizedCss = dangerousPatterns.some(p => p.test(css))
+    ? css.replace(/expression\s*\(/gi, '').replace(/@import/gi, '').replace(/javascript\s*:/gi, '').replace(/behavior\s*:/gi, '').replace(/-moz-binding/gi, '')
+    : css;
+
   return {
     ...getStyleNonceProps(nonce),
-    dangerouslySetInnerHTML: { __html: css },
+    dangerouslySetInnerHTML: { __html: sanitizedCss },
   };
 }
 

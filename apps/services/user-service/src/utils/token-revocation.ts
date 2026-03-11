@@ -142,7 +142,8 @@ export class RedisTokenRevocationStore
       this.initialized = true;
       this.logger.log("Redis token revocation store initialized");
     } catch (error) {
-      this.logger.error(`Failed to initialize Redis: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to initialize Redis: ${message}`);
       throw error;
     }
   }
@@ -199,7 +200,8 @@ export class RedisTokenRevocationStore
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke token: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to revoke token: ${message}`);
       return false;
     }
   }
@@ -221,7 +223,8 @@ export class RedisTokenRevocationStore
       const exists = await this.redis!.exists(key);
       return exists > 0;
     } catch (error) {
-      this.logger.error(`Error checking token revocation: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error checking token revocation: ${message}`);
       return false;
     }
   }
@@ -256,7 +259,8 @@ export class RedisTokenRevocationStore
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke user tokens: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to revoke user tokens: ${message}`);
       return false;
     }
   }
@@ -288,8 +292,9 @@ export class RedisTokenRevocationStore
 
       return false;
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking user token revocation: ${error.message}`,
+        `Error checking user token revocation: ${message}`,
       );
       return false;
     }
@@ -322,8 +327,9 @@ export class RedisTokenRevocationStore
 
       return false;
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking tenant token revocation: ${error.message}`,
+        `Error checking tenant token revocation: ${message}`,
       );
       return false;
     }
@@ -373,7 +379,8 @@ export class RedisTokenRevocationStore
       await this.redis!.ping();
       return true;
     } catch (error) {
-      this.logger.error(`Health check failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Health check failed: ${message}`);
       return false;
     }
   }

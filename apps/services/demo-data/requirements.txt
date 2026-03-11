@@ -6,8 +6,6 @@
 # HTTP Client for API requests
 httpx==0.28.1
 
-# Async support
-asyncio  # Built-in module
 
 # Utilities
 python-dotenv==1.2.2

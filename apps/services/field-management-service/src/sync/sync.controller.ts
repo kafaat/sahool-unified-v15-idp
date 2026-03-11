@@ -28,6 +28,7 @@ import {
   Max,
 } from "class-validator";
 import { Type, Transform } from "class-transformer";
+import { getRequestTenantId } from "../auth/tenant.utils";
 
 class DeltaSyncQueryDto {
   @IsString()
@@ -121,7 +122,8 @@ export class SyncController {
     @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: DeltaSyncQueryDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    // Always use authenticated tenant, override any user-supplied value
+    const tenantId = getRequestTenantId(req);
     const result = await this.syncService.deltaSync({ ...query, tenantId });
     return {
       success: true,
@@ -143,7 +145,8 @@ export class SyncController {
     @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: BatchSyncDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || dto.tenantId;
+    // Always use authenticated tenant, override any user-supplied value
+    const tenantId = getRequestTenantId(req);
     const result = await this.syncService.batchSync({ ...dto, tenantId });
     return {
       success: true,
@@ -167,7 +170,8 @@ export class SyncController {
     @Req() req: any,
     @Query(new ValidationPipe({ transform: true })) query: SyncStatusQueryDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    // Always use authenticated tenant
+    const tenantId = getRequestTenantId(req);
     const status = await this.syncService.getSyncStatus(
       query.deviceId,
       tenantId,
@@ -192,7 +196,8 @@ export class SyncController {
     @Req() req: any,
     @Body(new ValidationPipe({ transform: true })) dto: UpdateSyncStatusDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || dto.tenantId;
+    // Always use authenticated tenant
+    const tenantId = getRequestTenantId(req);
     const status = await this.syncService.updateDeviceSyncStatus({ ...dto, tenantId });
     return {
       success: true,

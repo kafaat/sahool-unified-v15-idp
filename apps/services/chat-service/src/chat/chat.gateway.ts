@@ -13,7 +13,7 @@ import {
   OnGatewayDisconnect,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { Logger } from "@nestjs/common";
+import { Logger, OnModuleDestroy } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { JoinConversationDto } from "./dto/join-conversation.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
@@ -33,7 +33,7 @@ import * as jwt from "jsonwebtoken";
   },
   namespace: "/chat",
 })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
   @WebSocketServer()
   server: Server;
 
@@ -43,6 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     { socketId: string; timestamp: number }
   >(); // userId -> {socketId, timestamp}
   private readonly SOCKET_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+  private cleanupInterval: NodeJS.Timeout;
 
   /**
    * Sanitize input for safe logging (prevents log injection)
@@ -54,7 +55,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(private readonly chatService: ChatService) {
     // Periodically clean up stale socket entries
-    setInterval(() => this.cleanupStaleEntries(), 5 * 60 * 1000); // Every 5 minutes
+    this.cleanupInterval = setInterval(() => this.cleanupStaleEntries(), 5 * 60 * 1000); // Every 5 minutes
+  }
+
+  onModuleDestroy() {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
   }
 
   /**

@@ -31,10 +31,13 @@ services:
       - no-new-privileges:true
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}" ]
-      interval: 30s
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      # FIX: Increased retries from 3 to 8 for first-time PostGIS initialization
+      # PostGIS extension creation + init scripts can take 2-3 minutes on slow machines
+      retries: 8
+      # FIX: Increased start_period from 30s to 60s for Docker Desktop/Windows environments
+      start_period: 60s
     restart: unless-stopped
     deploy:
       resources:
@@ -748,8 +751,10 @@ services:
       test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q 'true' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
       interval: 10s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 15
+      # FIX: Increased start_period from 30s to 45s for slow/resource-constrained environments
+      # etcd WAL replay and initial compaction can be slow on Windows Docker Desktop
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

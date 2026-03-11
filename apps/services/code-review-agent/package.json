@@ -29,9 +29,9 @@
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^9.17.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.9.3",
+    "typescript": "5.9.3",
     "typescript-eslint": "^8.56.1",
-    "vitest": "^3.0.0"
+    "vitest": "3.2.4"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -90,13 +90,13 @@
     "minimatch": ">=10.2.3",
     "multer": "2.1.1",
     "nodemailer": ">=7.0.11",
-    "ajv": ">=8.18.0",
     "@angular-devkit/core": {
       "ajv": "8.18.0"
     },
     "ajv-formats": {
       "ajv": "8.18.0"
-    }
+    },
+    "file-type": "21.3.1"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -106,7 +106,8 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "eslint": "^9.39.2",
-    "next-intl": "^3.26.5",
+    "helmet": "^8.1.0",
+    "next-intl": "3.26.5",
     "prisma": "^5.22.0",
     "react": "^19.2.4"
   }

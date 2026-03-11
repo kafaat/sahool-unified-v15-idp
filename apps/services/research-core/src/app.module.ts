@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { TenantGuard } from "./guards/tenant.guard";
 import { PrismaService } from "./config/prisma.service";
 import { SignatureService } from "./core/services/signature.service";
@@ -56,6 +57,11 @@ import { HealthController } from "./health.controller";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global JWT authentication guard
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
     // Global tenant isolation guard
     {

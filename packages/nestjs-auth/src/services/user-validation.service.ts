@@ -9,7 +9,6 @@
  */
 
 import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { InjectRedis } from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
 import { AuthErrors } from "../config/jwt.config";
 
@@ -53,7 +52,7 @@ export class UserValidationService {
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
-    @InjectRedis() private readonly redis: Redis,
+    private readonly redis: Redis,
     private readonly userRepository?: IUserRepository,
   ) {}
 

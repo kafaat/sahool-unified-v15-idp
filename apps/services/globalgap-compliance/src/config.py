@@ -6,6 +6,8 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,7 +24,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # Database Configuration | إعدادات قاعدة البيانات
-    database_url: str = "postgresql+asyncpg://sahool:sahool@postgres:5432/sahool_compliance"
+    database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:pass@postgres:5432/sahool_compliance")
     database_pool_size: int = 10
     database_max_overflow: int = 20
 

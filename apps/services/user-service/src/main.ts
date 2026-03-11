@@ -16,14 +16,19 @@
 import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe, RequestMethod } from "@nestjs/common";
+import { ValidationPipe, RequestMethod, Logger } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from 'helmet';
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+
+  // Security headers
+  app.use(helmet());
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -71,11 +76,12 @@ async function bootstrap() {
     ],
   });
 
-  // Swagger/OpenAPI Documentation
-  const config = new DocumentBuilder()
-    .setTitle("SAHOOL User Service API")
-    .setDescription(
-      `
+  // Swagger/OpenAPI Documentation - disabled in production
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle("SAHOOL User Service API")
+      .setDescription(
+        `
       خدمة إدارة المستخدمين
 
       ## Features
@@ -102,32 +108,24 @@ async function bootstrap() {
       - **SUSPENDED**: User is temporarily suspended
       - **PENDING**: User registration pending approval
     `,
-    )
-    .setVersion("16.0.0")
-    .addTag("Users", "User management operations")
-    .addBearerAuth()
-    .addApiKey(
-      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
-      "tenant-id",
-    )
-    .build();
+      )
+      .setVersion("16.0.0")
+      .addTag("Users", "User management operations")
+      .addBearerAuth()
+      .addApiKey(
+        { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+        "tenant-id",
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("docs", app, document);
+  }
 
   const port = process.env.PORT || 3025;
   await app.listen(port);
 
-  console.log(`
-  ╔═══════════════════════════════════════════════════════════════╗
-  ║   👤 SAHOOL User Service v16.0.0                              ║
-  ║   خدمة إدارة المستخدمين                                       ║
-  ╠═══════════════════════════════════════════════════════════════╣
-  ║   Server running on: http://localhost:${port}                   ║
-  ║   API Documentation: http://localhost:${port}/docs             ║
-  ║   Health Check:      http://localhost:${port}/api/v1/health    ║
-  ╚═══════════════════════════════════════════════════════════════╝
-  `);
+  logger.log(`SAHOOL User Service v16.0.0 running on http://localhost:${port}`);
 
   // Graceful shutdown handlers
   let isShuttingDown = false;
@@ -136,7 +134,7 @@ async function bootstrap() {
     if (isShuttingDown) return;
     isShuttingDown = true;
 
-    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+    logger.log(`Received ${signal}, starting graceful shutdown...`);
 
     try {
       // Close NestJS application
@@ -147,10 +145,11 @@ async function bootstrap() {
       // - Close all connections
       await app.close();
 
-      console.log("User Service shutdown complete");
+      logger.log("User Service shutdown complete");
       process.exit(0);
     } catch (error) {
-      console.error("Error during graceful shutdown:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`Error during graceful shutdown: ${message}`);
       process.exit(1);
     }
   }

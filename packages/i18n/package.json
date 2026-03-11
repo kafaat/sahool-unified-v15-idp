@@ -6,13 +6,13 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
       "require": "./dist/index.js",
+      "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./config": {
-      "import": "./dist/config.js",
       "require": "./dist/config.js",
+      "default": "./dist/config.js",
       "types": "./dist/config.d.ts"
     }
   },
@@ -29,5 +29,13 @@
   "peerDependencies": {
     "next": ">=14.0.0",
     "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
   }
 }

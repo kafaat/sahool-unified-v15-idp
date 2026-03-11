@@ -33,7 +33,6 @@
     "lint": "npm run lint --workspaces --if-present",
     "lint:all": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
-    "type-check": "npm run typecheck --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run && npm run test --workspace=apps/admin",
     "test:watch": "vitest",

@@ -7,8 +7,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -32,6 +32,6 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^5.22.0"
   }
 }

@@ -7,8 +7,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -36,6 +36,41 @@
     "@liaoliaots/nestjs-redis": "^9.0.0",
     "redis": "^4.6.0",
     "rxjs": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    },
+    "@nestjs/jwt": {
+      "optional": true
+    },
+    "@nestjs/passport": {
+      "optional": true
+    },
+    "passport": {
+      "optional": true
+    },
+    "passport-jwt": {
+      "optional": true
+    },
+    "jsonwebtoken": {
+      "optional": true
+    },
+    "ioredis": {
+      "optional": true
+    },
+    "@liaoliaots/nestjs-redis": {
+      "optional": true
+    },
+    "redis": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.19.37",

@@ -8,7 +8,6 @@
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "eslint src/",
-    "type-check": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -20,9 +19,7 @@
   },
   "dependencies": {
     "@sahool/api-client": "^16.0.0",
-    "@sahool/shared-hooks": "^16.0.0",
-    "@sahool/shared-ui": "^16.0.0",
-    "@sahool/shared-utils": "^16.0.0",
+    "@sahool/shared-types": "^16.0.0",
     "@sentry/nextjs": "^9.5.0",
     "axios": "1.13.6",
     "clsx": "2.1.1",

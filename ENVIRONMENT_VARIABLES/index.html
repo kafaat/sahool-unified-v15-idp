@@ -2318,7 +2318,26 @@
 </tr>
 </tbody>
 </table>
-<h3 id="kong-rate-limiting-kong">Kong Rate Limiting | تحديد معدل Kong<a class="headerlink" href="#kong-rate-limiting-kong" title="Permanent link">&para;</a></h3>
+<h3 id="kong-cors-configuration-cors-kong">Kong CORS Configuration | تكوين CORS لـ Kong<a class="headerlink" href="#kong-cors-configuration-cors-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>الوصف</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KONG_CORS_ORIGINS</code></td>
+<td>Comma-separated list of allowed CORS origins. Use specific domains in production instead of wildcard '*'.</td>
+<td>قائمة أصول CORS المسموح بها مفصولة بفواصل. استخدم نطاقات محددة في الإنتاج بدلاً من '*'.</td>
+<td><code>*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kong-rate-limiting-redis-based-distributed-kong-redis">Kong Rate Limiting (Redis-based distributed) | تحديد المعدل الموزع لـ Kong (عبر Redis)<a class="headerlink" href="#kong-rate-limiting-redis-based-distributed-kong-redis" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2331,20 +2350,20 @@
 <tbody>
 <tr>
 <td><code>KONG_RATE_LIMIT_REDIS_HOST</code></td>
-<td>Redis host for rate limiting</td>
-<td>مضيف Redis لتحديد المعدل</td>
+<td>Redis host for Redis-based distributed rate limiting</td>
+<td>مضيف Redis لتحديد المعدل الموزع</td>
 <td><code>redis</code></td>
 </tr>
 <tr>
 <td><code>KONG_RATE_LIMIT_REDIS_PORT</code></td>
-<td>Redis port</td>
-<td>منفذ Redis</td>
+<td>Redis port for distributed rate limiting</td>
+<td>منفذ Redis لتحديد المعدل الموزع</td>
 <td><code>6379</code></td>
 </tr>
 <tr>
 <td><code>KONG_RATE_LIMIT_REDIS_DB</code></td>
-<td>Redis database number</td>
-<td>رقم قاعدة بيانات Redis</td>
+<td>Redis database number for rate limiting</td>
+<td>رقم قاعدة بيانات Redis لتحديد المعدل</td>
 <td><code>1</code></td>
 </tr>
 </tbody>

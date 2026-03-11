@@ -1136,7 +1136,7 @@
 </ol>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The SAHOOL platform utilizes <strong>Kong API Gateway</strong> as the central entry point for all microservices. Kong provides a unified interface for managing authentication, rate limiting, load balancing, health monitoring, and traffic routing across 31 microservices.</p>
+<p>The SAHOOL platform utilizes <strong>Kong API Gateway</strong> as the central entry point for all microservices. Kong provides a unified interface for managing authentication, rate limiting, load balancing, health monitoring, and traffic routing across 73 microservices.</p>
 <h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Declarative Configuration</strong>: DB-less mode using <code>kong.yml</code></li>
@@ -1144,7 +1144,7 @@
 <li><strong>Rate Limiting</strong>: Tiered rate limits based on service criticality</li>
 <li><strong>JWT Authentication</strong>: RS256 algorithm with consumer-based access control</li>
 <li><strong>Load Balancing</strong>: Weighted round-robin with automatic failover</li>
-<li><strong>Service Discovery</strong>: 31 upstream services with health-based routing</li>
+<li><strong>Service Discovery</strong>: 73 upstream services with health-based routing</li>
 </ul>
 <h3 id="architecture-benefits">Architecture Benefits<a class="headerlink" href="#architecture-benefits" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1205,7 +1205,7 @@
 </ol>
 <hr />
 <h2 id="service-catalog">Service Catalog<a class="headerlink" href="#service-catalog" title="Permanent link">&para;</a></h2>
-<h3 id="complete-service-registry-31-services">Complete Service Registry (31 Services)<a class="headerlink" href="#complete-service-registry-31-services" title="Permanent link">&para;</a></h3>
+<h3 id="complete-service-registry-73-services">Complete Service Registry (73 Services)<a class="headerlink" href="#complete-service-registry-73-services" title="Permanent link">&para;</a></h3>
 <h4 id="core-services-field-operations">Core Services (Field Operations)<a class="headerlink" href="#core-services-field-operations" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -1221,13 +1221,13 @@
 <td><code>field-ops</code></td>
 <td>8080</td>
 <td><code>/api/v1/fields</code>, <code>/api/v1/tasks</code>, <code>/api/v1/assignments</code></td>
-<td>Field &amp; Task Management</td>
+<td><strong>DEPRECATED</strong> — use <code>field-management-service</code> (3000)</td>
 </tr>
 <tr>
 <td><code>field-core</code></td>
 <td>3000</td>
 <td><code>/api/v1/field-core/*</code></td>
-<td>Core Field Operations</td>
+<td><strong>DEPRECATED</strong> — use <code>field-management-service</code> (3000)</td>
 </tr>
 <tr>
 <td><code>task-service</code></td>
@@ -1258,25 +1258,25 @@
 <td><code>ndvi-engine</code></td>
 <td>8107</td>
 <td><code>/api/v1/ndvi</code>, <code>/api/v1/satellite</code></td>
-<td>Satellite Imagery &amp; NDVI Analysis</td>
+<td><strong>DEPRECATED</strong> — use <code>vegetation-analysis-service</code> (8090)</td>
 </tr>
 <tr>
 <td><code>crop-health-ai</code></td>
 <td>8095</td>
 <td><code>/api/v1/crop-health/*</code></td>
-<td>AI-Powered Crop Health Detection</td>
+<td><strong>DEPRECATED</strong> — use <code>crop-intelligence-service</code> (8095)</td>
 </tr>
 <tr>
 <td><code>agro-advisor</code></td>
 <td>8105</td>
 <td><code>/api/v1/advisor</code>, <code>/api/v1/recommendations</code></td>
-<td>AI Agricultural Recommendations</td>
+<td><strong>DEPRECATED</strong> — use <code>advisory-service</code> (8093)</td>
 </tr>
 <tr>
 <td><code>yield-engine</code></td>
 <td>8098</td>
 <td><code>/api/v1/yield/*</code></td>
-<td>Yield Prediction Engine</td>
+<td><strong>DEPRECATED</strong> — use <code>yield-prediction-service</code> (8152)</td>
 </tr>
 <tr>
 <td><code>lai-estimation</code></td>
@@ -1344,13 +1344,13 @@
 <td><code>field-chat</code></td>
 <td>8099</td>
 <td><code>/api/v1/chat</code>, <code>/api/v1/messages</code></td>
-<td>Real-time Team Collaboration</td>
+<td><strong>DEPRECATED</strong> — use <code>chat-service</code> (8115)</td>
 </tr>
 <tr>
 <td><code>community-chat</code></td>
 <td>8097</td>
 <td><code>/api/v1/community-chat/*</code></td>
-<td>Community Discussion Platform</td>
+<td><strong>DEPRECATED</strong> — use <code>chat-service</code> (8115)</td>
 </tr>
 <tr>
 <td><code>ws-gateway</code></td>
@@ -1657,7 +1657,7 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <hr />
 <h2 id="health-monitoring">Health Monitoring<a class="headerlink" href="#health-monitoring" title="Permanent link">&para;</a></h2>
 <h3 id="standardized-health-checks">Standardized Health Checks<a class="headerlink" href="#standardized-health-checks" title="Permanent link">&para;</a></h3>
-<p>All 31 services expose standardized health endpoints:</p>
+<p>All 73 services expose standardized health endpoints:</p>
 <div class="codehilite"><pre><span></span><code>/healthz - Unified health check endpoint
 </code></pre></div>
 
@@ -1713,13 +1713,13 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <hr />
 <h2 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
 <h3 id="rate-limiting-policies">Rate Limiting Policies<a class="headerlink" href="#rate-limiting-policies" title="Permanent link">&para;</a></h3>
-<p>Kong uses <strong>local</strong> rate limiting policy with per-consumer tracking:</p>
+<p>Kong uses <strong>Redis-based distributed</strong> rate limiting (policy: <code>redis</code>) with per-consumer tracking:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
 <span class="w">    </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;requests_per_minute&gt;</span>
 <span class="w">      </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;requests_per_hour&gt;</span>
-<span class="w">      </span><span class="nt">policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="w">      </span><span class="nt">policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
 </code></pre></div>
 
 <h3 id="service-specific-limits">Service-Specific Limits<a class="headerlink" href="#service-specific-limits" title="Permanent link">&para;</a></h3>
@@ -1770,7 +1770,7 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <ol>
 <li>Use the <code>sahool-internal-service</code> consumer</li>
 <li>Configure custom rate limits per service</li>
-<li>Implement Redis-based distributed rate limiting (future)</li>
+<li>Redis-based distributed rate limiting is already configured (policy: <code>redis</code>)</li>
 </ol>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
@@ -1864,12 +1864,12 @@ curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
 <li><code>ws-gateway</code>: 8089 → 8081</li>
 <li><code>crop-growth-model</code>: 3000 → 3023</li>
 <li><strong>New Services Added</strong>: 7 services added to Kong configuration</li>
-<li><strong>Total Upstreams</strong>: 31 services now managed by Kong</li>
+<li><strong>Total Upstreams</strong>: 73 services now managed by Kong</li>
 </ol>
 <h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added centralized CORS configuration documentation</li>
-<li>Updated service catalog with all 31 services</li>
+<li>Updated service catalog with all 73 services</li>
 <li>Enhanced security section with IoT validation details</li>
 </ul>
 <hr />
@@ -1910,7 +1910,7 @@ curl<span class="w"> </span>http://localhost:8001/upstreams/<span class="o">{</s
 <p align="center">
   <strong>SAHOOL API Gateway v16.0.1</strong><br>
   Last Updated: December 24, 2024<br>
-  <sub>31 Microservices | Enterprise Security | Production Ready</sub>
+  <sub>73 Microservices | Enterprise Security | Production Ready</sub>
 </p>
 
 

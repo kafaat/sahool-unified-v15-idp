@@ -1117,25 +1117,27 @@
 
 
 <h1 id="github-actions-workflows-reference">GitHub Actions Workflows Reference<a class="headerlink" href="#github-actions-workflows-reference" title="Permanent link">&para;</a></h1>
-<p>This document provides a comprehensive reference for all 37 GitHub Actions workflows in the SAHOOL platform repository.</p>
+<p>This document provides a comprehensive reference for all 54 GitHub Actions workflows in the SAHOOL platform repository.</p>
 <hr />
 <h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-cicd-core-5-workflows">CI/CD Core</a></li>
-<li><a href="#2-security-5-workflows">Security</a></li>
+<li><a href="#1-cicd-core-7-workflows">CI/CD Core</a></li>
+<li><a href="#2-security-6-workflows">Security</a></li>
 <li><a href="#3-testing-9-workflows">Testing</a></li>
-<li><a href="#4-deployment-5-workflows">Deployment</a></li>
-<li><a href="#5-builddocker-2-workflows">Build/Docker</a></li>
-<li><a href="#6-governance-5-workflows">Governance</a></li>
+<li><a href="#4-deployment-6-workflows">Deployment</a></li>
+<li><a href="#5-builddocker-3-workflows">Build/Docker</a></li>
+<li><a href="#6-governance-11-workflows">Governance</a></li>
 <li><a href="#7-documentation-1-workflow">Documentation</a></li>
 <li><a href="#8-mobile-3-workflows">Mobile</a></li>
 <li><a href="#9-frontend-1-workflow">Frontend</a></li>
 <li><a href="#10-aiagents-1-workflow">AI/Agents</a></li>
+<li><a href="#11-specialized-ci-4-workflows">Specialized CI</a></li>
+<li><a href="#12-automation-2-workflows">Automation</a></li>
 <li><a href="#workflow-dependencies">Workflow Dependencies</a></li>
 <li><a href="#secrets-reference">Secrets Reference</a></li>
 </ol>
 <hr />
-<h2 id="1-cicd-core-5-workflows">1. CI/CD Core (5 Workflows)<a class="headerlink" href="#1-cicd-core-5-workflows" title="Permanent link">&para;</a></h2>
+<h2 id="1-cicd-core-7-workflows">1. CI/CD Core (7 Workflows)<a class="headerlink" href="#1-cicd-core-7-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="ciyml-main-ci-pipeline">ci.yml - Main CI Pipeline<a class="headerlink" href="#ciyml-main-ci-pipeline" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Primary continuous integration pipeline that runs on every push and pull request.</p>
 <table>
@@ -1290,7 +1292,64 @@
 - <code>validate</code> - Acceptance testing</p>
 <p><strong>Required Secrets</strong>: None</p>
 <hr />
-<h2 id="2-security-5-workflows">2. Security (5 Workflows)<a class="headerlink" href="#2-security-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="reusable-setupyml-reusable-setup">reusable-setup.yml - Reusable Setup<a class="headerlink" href="#reusable-setupyml-reusable-setup" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Reusable workflow providing common setup steps for Python, Node.js, Flutter, and Docker BuildX environments with caching.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/reusable-setup.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_call</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong>:
+- <code>setup-python</code> - Set up Python environment (default: false)
+- <code>python-version</code> - Python version (default: "3.11")
+- <code>setup-node</code> - Set up Node.js environment (default: false)
+- <code>node-version</code> - Node.js version (default: "20")</p>
+<p><strong>Jobs</strong>:
+- Provides reusable setup steps called by other workflows</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="cd-new-servicesyml-deploy-new-services">cd-new-services.yml - Deploy New Services<a class="headerlink" href="#cd-new-servicesyml-deploy-new-services" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Continuous deployment for new services (yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator) using ArgoCD GitOps with staged rollout.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/cd-new-services.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (tags: v*), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>environment</code> - Deployment environment (staging or production)
+- <code>services</code> - Services to deploy (comma-separated or "all")</p>
+<p><strong>Jobs</strong>:
+- Deploy selected services to target environment</p>
+<p><strong>Required Secrets</strong>:
+- <code>KUBECONFIG</code></p>
+<hr />
+<h2 id="2-security-6-workflows">2. Security (6 Workflows)<a class="headerlink" href="#2-security-6-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="codeql-analysisyml-codeql-semantic-analysis">codeql-analysis.yml - CodeQL Semantic Analysis<a class="headerlink" href="#codeql-analysisyml-codeql-semantic-analysis" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: GitHub's semantic code analysis for security vulnerabilities.</p>
 <table>
@@ -1428,6 +1487,37 @@
 - <code>upload</code> - Upload results to GitHub Security</p>
 <p><strong>Required Secrets</strong>:
 - <code>SCORECARD_TOKEN</code> (optional, for higher rate limits)</p>
+<hr />
+<h3 id="ci-ai-rag-securityyml-airag-container-security">ci-ai-rag-security.yml - AI/RAG Container Security<a class="headerlink" href="#ci-ai-rag-securityyml-airag-container-security" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive security scanning for all AI and RAG services including dependency vulnerability scanning, container security, SBOM generation, and license compliance.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci-ai-rag-security.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop, copilot/**, claude/**), <code>pull_request</code> (main, develop), <code>schedule</code> (daily at 3 AM UTC), <code>workflow_dispatch</code></td>
+</tr>
+<tr>
+<td><strong>Paths</strong></td>
+<td>apps/services/ai-advisor/**, apps/services/ai-agents-service/**, apps/services/llm-orchestrator-service/**, apps/services/yolo26-vision-service/**, shared/ai/**, docker/constraints-ai.txt</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Dependency vulnerability scanning (Safety, pip-audit)
+- Container security scanning (Trivy, Grype)
+- SBOM generation
+- License compliance checks</p>
+<p><strong>Required Secrets</strong>: None</p>
 <hr />
 <h2 id="3-testing-9-workflows">3. Testing (9 Workflows)<a class="headerlink" href="#3-testing-9-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="testyml-python-unit-tests">test.yml - Python Unit Tests<a class="headerlink" href="#testyml-python-unit-tests" title="Permanent link">&para;</a></h3>
@@ -1681,7 +1771,7 @@
 - SEO (target: &gt;90%)</p>
 <p><strong>Required Secrets</strong>: None</p>
 <hr />
-<h2 id="4-deployment-5-workflows">4. Deployment (5 Workflows)<a class="headerlink" href="#4-deployment-5-workflows" title="Permanent link">&para;</a></h2>
+<h2 id="4-deployment-6-workflows">4. Deployment (6 Workflows)<a class="headerlink" href="#4-deployment-6-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="deploy-previewyml-preview-deployments">deploy-preview.yml - Preview Deployments<a class="headerlink" href="#deploy-previewyml-preview-deployments" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Deploys preview environments for pull requests.</p>
 <table>
@@ -1825,7 +1915,41 @@
 - Helm values are valid YAML</p>
 <p><strong>Required Secrets</strong>: None</p>
 <hr />
-<h2 id="5-builddocker-2-workflows">5. Build/Docker (2 Workflows)<a class="headerlink" href="#5-builddocker-2-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="notificationsyml-notifications">notifications.yml - Notifications<a class="headerlink" href="#notificationsyml-notifications" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Centralized reusable notification system supporting Slack, Discord, email (via SendGrid), and GitHub Issues for critical alerts.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/notifications.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_call</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong>:
+- <code>type</code> - Notification type (success, failure, warning, info)
+- <code>title</code> - Notification title
+- <code>message</code> - Notification message
+- <code>environment</code> - Environment (staging, production)
+- <code>create-issue</code> - Create GitHub issue for failures (default: false)</p>
+<p><strong>Jobs</strong>:
+- Send notifications to configured channels (Slack, Discord, email)
+- Optionally create GitHub issues for failures</p>
+<p><strong>Required Secrets</strong>:
+- <code>SLACK_WEBHOOK_URL</code> (optional)
+- <code>DISCORD_WEBHOOK_URL</code> (optional)
+- <code>SENDGRID_API_KEY</code> (optional)</p>
+<hr />
+<h2 id="5-builddocker-3-workflows">5. Build/Docker (3 Workflows)<a class="headerlink" href="#5-builddocker-3-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="docker-imageyml-docker-image-ci">docker-image.yml - Docker Image CI<a class="headerlink" href="#docker-imageyml-docker-image-ci" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Builds and validates Docker images for all microservices.</p>
 <table>
@@ -1900,7 +2024,35 @@
 - <code>DOCKERHUB_TOKEN</code>
 - <code>GITHUB_TOKEN</code> (automatic)</p>
 <hr />
-<h2 id="6-governance-5-workflows">6. Governance (5 Workflows)<a class="headerlink" href="#6-governance-5-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="dockerfile-lintyml-dockerfile-linting">dockerfile-lint.yml - Dockerfile Linting<a class="headerlink" href="#dockerfile-lintyml-dockerfile-linting" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Lints all Dockerfiles using hadolint to enforce best practices and security standards.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/dockerfile-lint.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (**/Dockerfile*, .hadolint.yaml), <code>push</code> (main, develop; **/Dockerfile*, .hadolint.yaml)</td>
+</tr>
+<tr>
+<td><strong>Runs On</strong></td>
+<td>ubuntu-latest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>hadolint</code> - Lint all Dockerfiles with hadolint</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="6-governance-11-workflows">6. Governance (11 Workflows)<a class="headerlink" href="#6-governance-11-workflows" title="Permanent link">&para;</a></h2>
 <h3 id="governance-ciyml-governance-validation">governance-ci.yml - Governance Validation<a class="headerlink" href="#governance-ciyml-governance-validation" title="Permanent link">&para;</a></h3>
 <p><strong>Purpose</strong>: Validates governance policies, schemas, and security configurations.</p>
 <table>
@@ -2049,6 +2201,160 @@
 - <code>security-gate</code> - Security scan must pass
 - <code>governance-gate</code> - Governance checks must pass
 - <code>agent-evaluation-gate</code> - AI agent evaluation (if applicable)</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="api-contracts-guardyml-api-contracts-guard">api-contracts-guard.yml - API Contracts Guard<a class="headerlink" href="#api-contracts-guardyml-api-contracts-guard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates unified API contracts, checks for breaking changes, and ensures TypeScript/Dart contract synchronization.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/api-contracts-guard.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (main, develop; packages/shared-types/src/contracts/**, apps/mobile/lib/core/contracts/**, packages/api-client/src/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate-contracts</code> - Validate contract integrity and synchronization</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="api-openapi-guardyml-openapi-kong-guard">api-openapi-guard.yml - OpenAPI &amp; Kong Guard<a class="headerlink" href="#api-openapi-guardyml-openapi-kong-guard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates OpenAPI specs, detects breaking API changes, and ensures Kong gateway routes match the documented API specifications.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/api-openapi-guard.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (main, develop; docs/api/openapi/**, api/gateway-openapi.yaml, infrastructure/gateway/kong/**, packages/shared-types/src/contracts/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Validate OpenAPI specification syntax and completeness
+- Detect breaking API changes
+- Verify Kong routes match OpenAPI specs</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="governance-validationyml-governance-validation">governance-validation.yml - Governance Validation<a class="headerlink" href="#governance-validationyml-governance-validation" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Validates service governance rules, ensuring all apps, packages, and governance definitions conform to platform standards.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/governance-validation.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (apps/**, packages/**, governance/**, idp/**), <code>push</code> (main, develop; governance/**)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- <code>validate-services</code> - Validate service governance rules</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="advanced-qualityyml-advanced-quality-analysis">advanced-quality.yml - Advanced Quality Analysis<a class="headerlink" href="#advanced-qualityyml-advanced-quality-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Deep code analysis including dead code detection, security scanning, and performance metrics.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/advanced-quality.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_dispatch</code> (full_scan input), <code>schedule</code> (weekly, Sunday 2 AM UTC), <code>pull_request</code> (main; apps/services/**.py, shared/**.py)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>full_scan</code> - Run full comprehensive scan (default: false)</p>
+<p><strong>Jobs</strong>:
+- <code>dead-code</code> - Dead code analysis with Vulture
+- Security scanning
+- Performance metrics analysis</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="stability-gatesyml-stability-gates">stability-gates.yml - Stability Gates<a class="headerlink" href="#stability-gatesyml-stability-gates" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Comprehensive stability checks including import verification, configuration validation, and drift detection for shared modules and services.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/stability-gates.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (main, develop; shared/**, apps/services/**, governance/**, docker-compose*.yml, .env.example, packages/shared-types/**), <code>push</code> (main, develop), <code>schedule</code> (daily at 6 AM UTC)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Stability and drift detection checks across shared modules and services</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="drift-detectionyml-drift-detection">drift-detection.yml - Drift Detection<a class="headerlink" href="#drift-detectionyml-drift-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Detects configuration, schema, contract, event, security, and Docker drift across the platform with automated PR comments and issue creation.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/drift-detection.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>pull_request</code> (main, develop), <code>push</code> (main, develop), <code>schedule</code> (daily at 6 AM UTC), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>categories</code> - Drift categories to check (comma-separated or "all", default: "all")
+- <code>environment</code> - Target environment (development, staging, production)</p>
+<p><strong>Jobs</strong>:
+- <code>preflight</code> - Pre-flight analysis to determine changed areas
+- Category-specific drift detection (Python, config, schema, contracts, events, security, Docker)</p>
 <p><strong>Required Secrets</strong>: None</p>
 <hr />
 <h2 id="7-documentation-1-workflow">7. Documentation (1 Workflow)<a class="headerlink" href="#7-documentation-1-workflow" title="Permanent link">&para;</a></h2>
@@ -2286,6 +2592,165 @@
 - <code>OPENAI_API_KEY</code> (optional)
 - <code>ANTHROPIC_API_KEY</code> (optional)
 - <code>GOOGLE_API_KEY</code> (optional)</p>
+<hr />
+<h2 id="11-specialized-ci-4-workflows">11. Specialized CI (4 Workflows)<a class="headerlink" href="#11-specialized-ci-4-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="ci-yolo26-visionyml-ci-yolo26-vision-service">ci-yolo26-vision.yml - CI - YOLO26 Vision Service<a class="headerlink" href="#ci-yolo26-visionyml-ci-yolo26-vision-service" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Continuous integration for the YOLO26 computer vision service with CUDA support, including linting, testing, container building, and security scanning.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci-yolo26-vision.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop, feature/**, release/**, claude/**; apps/services/yolo26-vision-service/**, shared/**), <code>pull_request</code> (main, develop; same paths), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Lint, test, build, and security scan for yolo26-vision-service</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="ci-terrain-servicesyml-ci-terrain-services">ci-terrain-services.yml - CI - Terrain Services<a class="headerlink" href="#ci-terrain-servicesyml-ci-terrain-services" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Matrix-based CI pipeline for terrain-core, hydrology, and leveling-optimizer services with parallel builds and testing.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci-terrain-services.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop, feature/**, release/**, claude/**; apps/services/terrain-core-service/**, apps/services/hydrology-service/**, apps/services/leveling-optimizer-service/**, shared/**), <code>pull_request</code> (main, develop; same paths), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Matrix build and test for terrain-core-service, hydrology-service, and leveling-optimizer-service</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="ci-edge-orchestratoryml-ci-edge-orchestrator-service">ci-edge-orchestrator.yml - CI - Edge Orchestrator Service<a class="headerlink" href="#ci-edge-orchestratoryml-ci-edge-orchestrator-service" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: CI pipeline for the edge device management and orchestration service (Jetson Orin support).</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci-edge-orchestrator.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop, feature/**, release/**, claude/**; apps/services/edge-orchestrator-service/**, shared/**), <code>pull_request</code> (main, develop; same paths), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Lint, test, build, and security scan for edge-orchestrator-service</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h3 id="ci-crop-intelligenceyml-ci-crop-intelligence">ci-crop-intelligence.yml - CI - Crop Intelligence<a class="headerlink" href="#ci-crop-intelligenceyml-ci-crop-intelligence" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: CI pipeline for the crop intelligence service and related shared modules (digital twin, calibration, process models, fertilizer management, soil testing).</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/ci-crop-intelligence.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>push</code> (main, develop, feature/**, release/**, claude/**; apps/services/crop-intelligence-service/**, shared/digital_twin/**, shared/calibration/**, shared/process_models/**, shared/fertilizer_management/**, shared/soil_testing/**), <code>pull_request</code> (main, develop; same paths), <code>workflow_dispatch</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jobs</strong>:
+- Lint, test, build, and validate crop-intelligence-service and dependent shared modules</p>
+<p><strong>Required Secrets</strong>: None</p>
+<hr />
+<h2 id="12-automation-2-workflows">12. Automation (2 Workflows)<a class="headerlink" href="#12-automation-2-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="auto-merge-prsyml-auto-merge-prs">auto-merge-prs.yml - Auto-Merge PRs<a class="headerlink" href="#auto-merge-prsyml-auto-merge-prs" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Automates conflict resolution, testing, and merging of open pull requests with configurable merge and conflict strategies.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/auto-merge-prs.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>workflow_dispatch</code> (pr_numbers, merge_strategy, conflict_strategy, require_approvals, dry_run inputs), <code>pull_request</code> (labeled)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>pr_numbers</code> - PR numbers to merge (comma-separated or "all")
+- <code>merge_strategy</code> - Merge strategy (auto, merge, squash, rebase)
+- <code>conflict_strategy</code> - Conflict resolution strategy (auto, ours, theirs, manual)
+- <code>require_approvals</code> - Require approvals before merge (default: true)
+- <code>dry_run</code> - Dry run without merging (default: true)</p>
+<p><strong>Jobs</strong>:
+- Conflict detection and resolution
+- Pre-merge testing
+- Merge execution with rollback on failure</p>
+<p><strong>Required Secrets</strong>: None (uses GITHUB_TOKEN)</p>
+<hr />
+<h3 id="pr-status-monitoryml-pr-status-monitor">pr-status-monitor.yml - PR Status Monitor<a class="headerlink" href="#pr-status-monitoryml-pr-status-monitor" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Monitors open pull requests for conflicts, CI status, and optionally auto-updates branches. Generates daily PR health reports.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File</strong></td>
+<td><code>.github/workflows/pr-status-monitor.yml</code></td>
+</tr>
+<tr>
+<td><strong>Triggers</strong></td>
+<td><code>schedule</code> (daily at 9 AM UTC), <code>workflow_dispatch</code> (auto_update, send_notifications inputs), <code>push</code> (main, develop)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inputs</strong> (workflow_dispatch):
+- <code>auto_update</code> - Automatically update PR branches (default: false)
+- <code>send_notifications</code> - Send notifications for issues (default: true)</p>
+<p><strong>Jobs</strong>:
+- Monitor open PRs for conflicts and CI status
+- Optionally auto-update PR branches from base branch
+- Generate PR health reports</p>
+<p><strong>Required Secrets</strong>: None (uses GITHUB_TOKEN)</p>
 <hr />
 <h2 id="workflow-dependencies">Workflow Dependencies<a class="headerlink" href="#workflow-dependencies" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TD</span>
@@ -2661,7 +3126,7 @@
 </tbody>
 </table>
 <hr />
-<p><em>Last Updated: January 2026</em></p>
+<p><em>Last Updated: March 2026</em></p>
 
 
 

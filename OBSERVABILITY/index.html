@@ -1121,8 +1121,27 @@
 <p>SAHOOL platform includes comprehensive observability features for monitoring, debugging, and maintaining services in production.</p>
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
 <h3 id="1-health-checks">1. Health Checks<a class="headerlink" href="#1-health-checks" title="Permanent link">&para;</a></h3>
-<p>All services expose standardized health check endpoints:</p>
+<p>All services expose health check endpoints using one of two patterns:</p>
+<blockquote>
+<p><strong>Note:</strong> The platform uses two health endpoint patterns. Both are valid and services may implement either depending on their framework and deployment requirements.</p>
+<ul>
+<li><strong>Pattern A</strong> (most Python/FastAPI services): <code>/healthz</code> (liveness), <code>/readyz</code> (readiness)</li>
+<li><strong>Pattern B</strong> (Kubernetes-oriented probes): <code>/health/live</code>, <code>/health/ready</code>, <code>/health/startup</code></li>
+</ul>
+<p>When configuring Kubernetes probes or monitoring, check which pattern your target service implements.</p>
+</blockquote>
 <h4 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h4>
+<p><strong>Pattern A</strong> (used by the majority of services):</p>
+<ul>
+<li><strong><code>GET /healthz</code></strong> - Liveness probe</li>
+<li>Returns 200 if service is running</li>
+<li>Used by Kubernetes to restart crashed containers</li>
+<li><strong><code>GET /readyz</code></strong> - Readiness probe</li>
+<li>Returns 200 if service can handle requests</li>
+<li>Returns 503 if dependencies are unavailable</li>
+<li>Used by Kubernetes to route traffic</li>
+</ul>
+<p><strong>Pattern B</strong> (Kubernetes-style probes):</p>
 <ul>
 <li><strong><code>GET /health/live</code></strong> - Liveness probe</li>
 <li>Returns 200 if service is running</li>
@@ -1134,6 +1153,9 @@
 <li><strong><code>GET /health/startup</code></strong> - Startup probe</li>
 <li>Returns 200 when service initialization is complete</li>
 <li>Used by Kubernetes for slow-starting containers</li>
+</ul>
+<p><strong>Common to both patterns:</strong></p>
+<ul>
 <li><strong><code>GET /health</code></strong> - Combined health check</li>
 <li>Returns overall service health status</li>
 <li>Includes all component checks</li>
@@ -1293,20 +1315,27 @@
 
 <h2 id="kubernetes-configuration">Kubernetes Configuration<a class="headerlink" href="#kubernetes-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="deployment-with-health-checks">Deployment with Health Checks<a class="headerlink" href="#deployment-with-health-checks" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Note:</strong> The example below uses <code>crop-health-ai</code> on port 8095 for illustration purposes only.
+That service has been deprecated and replaced by <code>crop-intelligence-service</code>.
+Replace the service name, image, and port with the actual target service for your deployment.
+Refer to <code>governance/services.yaml</code> for the current service registry and port assignments.</p>
+</blockquote>
 <div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span><span class="w">  </span><span class="c1"># Example only - replace with your target service</span>
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai:latest</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai:latest</span><span class="w">  </span><span class="c1"># Replace with actual service image</span>
 <span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8095</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8095</span><span class="w">  </span><span class="c1"># Replace with actual service port</span>
 
 <span class="w">          </span><span class="c1"># Liveness probe</span>
+<span class="w">          </span><span class="c1"># Use /healthz for Pattern A services, /health/live for Pattern B</span>
 <span class="w">          </span><span class="nt">livenessProbe</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">httpGet</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/health/live</span>
@@ -1317,6 +1346,7 @@
 <span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 
 <span class="w">          </span><span class="c1"># Readiness probe</span>
+<span class="w">          </span><span class="c1"># Use /readyz for Pattern A services, /health/ready for Pattern B</span>
 <span class="w">          </span><span class="nt">readinessProbe</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">httpGet</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/health/ready</span>

@@ -738,7 +738,8 @@ services:
       # etcdctl configuration for healthcheck
       - ETCDCTL_API=3
       - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
-      # Authentication credentials (used by init script and healthcheck)
+      # Authentication credentials (custom vars, NOT used by etcd server itself).
+      # Kept here to validate .env has these vars set (used by etcd-init container).
       # Override in .env file for production (copy from .env.example): cp .env.example .env
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}

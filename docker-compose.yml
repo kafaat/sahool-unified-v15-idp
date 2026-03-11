@@ -916,8 +916,10 @@ services:
   # Milvus Standalone - Vector Database
   # قاعدة البيانات الشعاعية Milvus
   # NOTE: v2.3.3 is stable but outdated (latest 2.3.x is v2.3.21, latest overall is v2.6.x).
+  # SECURITY: CVE-2026-26190 (CVSS 9.8) - auth bypass on metrics port 9091.
+  #   Fixed in v2.5.27+ and v2.6.10+. Mitigated here by binding 9091 to 127.0.0.1.
   # Official v2.3.3 docker-compose uses etcd:v3.5.5, but v3.5.16 is backward-compatible.
-  # Upgrade path: v2.3.3 → v2.3.21 (patch) or v2.4.x (supports etcd auth).
+  # Upgrade path: v2.3.3 → v2.3.21 (patch) or v2.5.27+ (CVE fix + etcd auth).
   milvus:
     image: milvusdb/milvus:v2.3.3
     container_name: sahool-milvus

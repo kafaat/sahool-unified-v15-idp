@@ -35,6 +35,9 @@ CRITICAL_PEST_IDS = {
     11,  # Locust (الجراد)
 }
 
+# Critical pest names (for test/external lookup)
+CRITICAL_PESTS = {"red_palm_weevil", "locust"}
+
 # NATS subjects (matching shared.events.vision_events.VisionSubjects)
 SUBJECT_PEST_DETECTED = "sahool.vision.pest_detected"
 SUBJECT_DISEASE_DETECTED = "sahool.vision.disease_detected"
@@ -44,6 +47,26 @@ SUBJECT_CRITICAL_ALERT = "sahool.vision.critical.alert"
 SUBJECT_ANALYSIS_STARTED = "sahool.vision.analysis_started"
 SUBJECT_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
 SUBJECT_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
+
+# Convenience dict for subject lookup by short key
+VISION_SUBJECTS: dict[str, str] = {
+    "pest_detected": SUBJECT_PEST_DETECTED,
+    "disease_detected": SUBJECT_DISEASE_DETECTED,
+    "weed_detected": SUBJECT_WEED_DETECTED,
+    "plant_count_completed": SUBJECT_PLANT_COUNT_COMPLETED,
+    "critical_alert": SUBJECT_CRITICAL_ALERT,
+    "analysis_started": SUBJECT_ANALYSIS_STARTED,
+    "analysis_completed": SUBJECT_ANALYSIS_COMPLETED,
+    "analysis_failed": SUBJECT_ANALYSIS_FAILED,
+}
+
+# Map critical pest names to class IDs
+_CRITICAL_PEST_NAME_TO_ID = {
+    "red_palm_weevil": 0,
+    "Red Palm Weevil": 0,
+    "locust": 11,
+    "Locust": 11,
+}
 
 
 class VisionEventPublisher:
@@ -453,3 +476,143 @@ class VisionEventPublisher:
             detection_count=len(detections),
             field_id=str(field_id) if field_id else None,
         )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Standalone convenience functions (request-based API)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _confidence_to_severity(confidence: float) -> str:
+    """Map detection confidence score to severity level."""
+    if confidence >= 0.85:
+        return "critical"
+    if confidence >= 0.70:
+        return "high"
+    if confidence >= 0.50:
+        return "medium"
+    return "low"
+
+
+def _get_nats_client(request: Any) -> Any | None:
+    """Extract NATS client from request, return None if unavailable."""
+    state = getattr(request.app, "state", None)
+    if state is None:
+        return None
+    nc = getattr(state, "nc", None)
+    if nc is None:
+        return None
+    if not getattr(state, "nats_connected", False):
+        return None
+    return nc
+
+
+async def publish_event(request: Any, subject: str, payload: dict) -> bool:
+    """
+    Publish a single event via the NATS client on request.app.state.
+
+    Returns True on success, False if NATS is unavailable or publish fails.
+    """
+    nc = _get_nats_client(request)
+    if nc is None:
+        return False
+    try:
+        data = json.dumps(payload, default=str).encode()
+        await nc.publish(subject, data)
+        return True
+    except Exception:
+        logger.error("publish_event_failed", subject=subject)
+        return False
+
+
+async def publish_pest_detection(
+    request: Any,
+    detections: list[dict],
+    model_variant: str = "m",
+) -> None:
+    """Publish pest detection event(s) using request-based NATS client."""
+    nc = _get_nats_client(request)
+    if nc is None:
+        return
+
+    envelope = {
+        "event_id": str(uuid4()),
+        "timestamp": datetime.now(UTC).isoformat(),
+        "detection_type": "pest",
+        "model_variant": model_variant,
+        "detection_count": len(detections),
+    }
+    for d in detections:
+        envelope["class_name_en"] = d.get("class_name_en")
+        envelope["class_name_ar"] = d.get("class_name_ar")
+        envelope["confidence"] = d.get("confidence")
+        envelope["bbox"] = d.get("bbox")
+
+    data = json.dumps(envelope, default=str).encode()
+    await nc.publish(SUBJECT_PEST_DETECTED, data)
+
+    # Check for critical pests by name
+    for d in detections:
+        name = d.get("class_name_en", "")
+        if name in _CRITICAL_PEST_NAME_TO_ID:
+            alert = {
+                "event_id": str(uuid4()),
+                "timestamp": datetime.now(UTC).isoformat(),
+                "alert_type": "pest_outbreak",
+                "severity": "critical",
+                "priority": 1,
+                "class_name_en": name,
+                "confidence": d.get("confidence"),
+            }
+            await nc.publish(SUBJECT_CRITICAL_ALERT, json.dumps(alert, default=str).encode())
+            break  # One critical alert per batch
+
+
+async def publish_disease_detection(
+    request: Any,
+    detections: list[dict],
+    model_variant: str = "m",
+) -> None:
+    """Publish disease detection event using request-based NATS client."""
+    nc = _get_nats_client(request)
+    if nc is None:
+        return
+
+    for d in detections:
+        envelope = {
+            "event_id": str(uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "detection_type": "disease",
+            "model_variant": model_variant,
+            "class_name_en": d.get("class_name_en"),
+            "class_name_ar": d.get("class_name_ar"),
+            "confidence": d.get("confidence"),
+            "affected_area_percentage": d.get("affected_area_percentage"),
+            "bbox": d.get("bbox"),
+        }
+        data = json.dumps(envelope, default=str).encode()
+        await nc.publish(SUBJECT_DISEASE_DETECTED, data)
+
+
+async def publish_analysis_event(
+    request: Any,
+    event_type: str,
+    **kwargs: Any,
+) -> None:
+    """Publish analysis lifecycle event using request-based NATS client."""
+    subject = VISION_SUBJECTS.get(event_type)
+    if subject is None:
+        return
+
+    nc = _get_nats_client(request)
+    if nc is None:
+        return
+
+    envelope = {
+        "event_id": str(uuid4()),
+        "timestamp": datetime.now(UTC).isoformat(),
+        "analysis_event": event_type,
+        **kwargs,
+    }
+    data = json.dumps(envelope, default=str).encode()
+    await nc.publish(subject, data)

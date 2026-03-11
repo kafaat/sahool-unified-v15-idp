@@ -7,7 +7,7 @@ Covers subjects:
     - sahool.vision.pest_detected
     - sahool.vision.disease_detected
     - sahool.vision.weed_detected
-    - sahool.vision.critical_alert
+    - sahool.vision.critical.alert
     - sahool.vision.analysis_started
     - sahool.vision.analysis_completed
 

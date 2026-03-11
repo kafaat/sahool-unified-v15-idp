@@ -431,12 +431,14 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      # FIX: Check actual MQTT connectivity instead of just process existence
-      test: [ "CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 3 2>/dev/null || (pidof mosquitto && nc -z localhost 1883)" ]
+      # FIX: Pass credentials to mosquitto_sub since allow_anonymous=false
+      # Phase 1: authenticated subscription to $SYS topic (proves broker + auth working)
+      # Phase 2: fallback to process + port check (proves broker is running)
+      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/version' -u $$MQTT_USER -P $$MQTT_PASSWORD -C 1 -W 3 2>/dev/null || (pidof mosquitto && nc -z localhost 1883)" ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 20s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -736,8 +738,11 @@ services:
       # Three-phase healthcheck to handle all auth states:
       # 1. Try without auth (pre-auth-init or auth disabled)
       # 2. Try with credentials from ETCDCTL_USER env (post-auth-init)
-      # 3. Fallback: check if etcd process is listening on port 2379 (basic liveness)
-      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health 2>/dev/null || wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q health" ]
+      # 3. Fallback: HTTP /health endpoint (wget or curl, whichever is available)
+      # NOTE: If etcd volume has auth from a prior run with different credentials,
+      # phases 1-2 will fail. Fix: ensure .env passwords match volume data, or
+      # reset volumes with: docker volume rm sahool-etcd-data
+      test: [ "CMD-SHELL", "ETCDCTL_USER= etcdctl endpoint health 2>/dev/null || etcdctl endpoint health 2>/dev/null || wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q '\"health\":\"true\"' || curl -sf http://127.0.0.1:2379/health 2>/dev/null | grep -q '\"health\":\"true\"'" ]
       interval: 15s
       timeout: 15s
       retries: 8

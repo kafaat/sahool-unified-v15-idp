@@ -310,6 +310,75 @@ ADD CONSTRAINT "chk_scheduled_payment_failed_attempts_non_negative"
 CHECK ("failed_attempts" >= 0) NOT VALID;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- Validate all constraints (SHARE UPDATE EXCLUSIVE lock: allows concurrent reads/writes, blocks DDL)
+-- التحقق من جميع القيود (يسمح بالقراءة والكتابة المتزامنة، يحظر تعديلات الهيكل)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Products
+ALTER TABLE "products" VALIDATE CONSTRAINT "chk_product_price_positive";
+ALTER TABLE "products" VALIDATE CONSTRAINT "chk_product_stock_non_negative";
+ALTER TABLE "products" VALIDATE CONSTRAINT "chk_product_quality_grade";
+
+-- Orders
+ALTER TABLE "orders" VALIDATE CONSTRAINT "chk_order_subtotal_positive";
+ALTER TABLE "orders" VALIDATE CONSTRAINT "chk_order_delivery_fee_non_negative";
+ALTER TABLE "orders" VALIDATE CONSTRAINT "chk_order_service_fee_non_negative";
+ALTER TABLE "orders" VALIDATE CONSTRAINT "chk_order_total_amount_positive";
+ALTER TABLE "orders" VALIDATE CONSTRAINT "chk_order_total_consistent";
+
+-- Order Items
+ALTER TABLE "order_items" VALIDATE CONSTRAINT "chk_order_item_quantity_positive";
+ALTER TABLE "order_items" VALIDATE CONSTRAINT "chk_order_item_unit_price_positive";
+ALTER TABLE "order_items" VALIDATE CONSTRAINT "chk_order_item_total_price_positive";
+ALTER TABLE "order_items" VALIDATE CONSTRAINT "chk_order_item_price_consistent";
+
+-- Wallets
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_balance_non_negative";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_escrow_non_negative";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_credit_score_range";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_loan_limit_non_negative";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_current_loan_non_negative";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_loan_within_limit";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_daily_limit_positive";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_daily_withdrawn_non_negative";
+ALTER TABLE "wallets" VALIDATE CONSTRAINT "chk_wallet_version_non_negative";
+
+-- Transactions
+ALTER TABLE "transactions" VALIDATE CONSTRAINT "chk_transaction_amount_positive";
+ALTER TABLE "transactions" VALIDATE CONSTRAINT "chk_transaction_balance_after_non_negative";
+
+-- Loans
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_amount_positive";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_interest_rate_non_negative";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_total_due_positive";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_paid_amount_non_negative";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_paid_not_exceeds_due";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_term_months_positive";
+ALTER TABLE "loans" VALIDATE CONSTRAINT "chk_loan_due_after_start";
+
+-- Escrows
+ALTER TABLE "escrows" VALIDATE CONSTRAINT "chk_escrow_amount_positive";
+ALTER TABLE "escrows" VALIDATE CONSTRAINT "chk_escrow_different_wallets";
+
+-- Seller Profiles
+ALTER TABLE "seller_profiles" VALIDATE CONSTRAINT "chk_seller_rating_range";
+ALTER TABLE "seller_profiles" VALIDATE CONSTRAINT "chk_seller_total_sales_non_negative";
+ALTER TABLE "seller_profiles" VALIDATE CONSTRAINT "chk_seller_total_revenue_non_negative";
+
+-- Buyer Profiles
+ALTER TABLE "buyer_profiles" VALIDATE CONSTRAINT "chk_buyer_total_purchases_non_negative";
+ALTER TABLE "buyer_profiles" VALIDATE CONSTRAINT "chk_buyer_total_spent_non_negative";
+ALTER TABLE "buyer_profiles" VALIDATE CONSTRAINT "chk_buyer_loyalty_points_non_negative";
+
+-- Product Reviews
+ALTER TABLE "product_reviews" VALIDATE CONSTRAINT "chk_review_rating_range";
+ALTER TABLE "product_reviews" VALIDATE CONSTRAINT "chk_review_helpful_non_negative";
+
+-- Scheduled Payments
+ALTER TABLE "scheduled_payments" VALIDATE CONSTRAINT "chk_scheduled_payment_amount_positive";
+ALTER TABLE "scheduled_payments" VALIDATE CONSTRAINT "chk_scheduled_payment_failed_attempts_non_negative";
+
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- Comments on constraints
 -- التعليقات على القيود
 -- ═══════════════════════════════════════════════════════════════════════════════

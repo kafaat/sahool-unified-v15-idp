@@ -289,6 +289,9 @@ async def lifespan(app: FastAPI):
                 base_url = os.getenv("SERVICE_BASE_URL", f"http://localhost:{settings.service_port}")
                 a2a_agent = create_ai_advisor_a2a_agent(base_url=base_url, agents=agents, supervisor=supervisor)
                 app_state["a2a_agent"] = a2a_agent
+                # Register A2A router now that the agent is created
+                a2a_router = create_a2a_router(a2a_agent, prefix="/a2a")
+                app.include_router(a2a_router)
                 logger.info("a2a_agent_initialized", agent_id=a2a_agent.agent_id)
             except Exception as e:
                 logger.error("a2a_agent_initialization_failed", error=str(e))
@@ -381,17 +384,7 @@ if REVOCATION_AVAILABLE:
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json", "/a2a"],
     )
 
-# Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
-if A2A_AVAILABLE:
-
-    @app.on_event("startup")
-    async def setup_a2a_routes():
-        """Setup A2A protocol routes after startup"""
-        a2a_agent = app_state.get("a2a_agent")
-        if a2a_agent:
-            a2a_router = create_a2a_router(a2a_agent, prefix="/a2a")
-            app.include_router(a2a_router)
-            logger.info("a2a_routes_registered")
+# Note: A2A router is registered during lifespan startup (see lifespan function above)
 
 
 # Endpoints | نقاط النهاية

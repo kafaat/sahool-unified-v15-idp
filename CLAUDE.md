@@ -42,7 +42,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (24 npm workspaces)
+├── packages/                   # Shared packages (27 npm workspaces)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -215,7 +215,7 @@ sahool-unified-v15-idp/
 
 | Layer                  | Technology                                                            |
 | ---------------------- | --------------------------------------------------------------------- |
-| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
+| **Python Services**    | FastAPI 0.135.1, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
 | **Python Version**     | >= 3.11 (target: py311)                                                |
 | **Node.js Services**   | NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, React 19.x               |
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
@@ -252,8 +252,8 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (32)      |
-| **CI/CD**        | GitHub Actions (53 workflows), Argo CD (18 apps)  |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (15)      |
+| **CI/CD**        | GitHub Actions (54 workflows), Argo CD (18 apps)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -1042,7 +1042,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `docker/docker-compose.logging.yml` | Logging stack                             |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (24 packages + 13 services) |
+| `package.json`                  | Node.js root workspace (27 packages + 13 services) |
 | `.env.example`                  | Environment template (copy of `.env.development.template`) |
 | `governance/services.yaml`      | Service registry v3.3.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1201,8 +1201,8 @@ docker-compose --profile legacy up
 
 | Application | Type | Framework | Version | LOC | Status |
 | ----------- | ---- | --------- | ------- | --- | ------ |
-| admin | Frontend | React/Next.js | 16.0.0 | 35,367 | Active |
-| web | Frontend | React/Next.js | 16.0.0 | 93,769 | Active |
+| admin | Frontend | React/Next.js | 16.0.0 | 50,448 | Active |
+| web | Frontend | React/Next.js | 16.0.0 | 122,057 | Active |
 | mobile | Mobile | Flutter 3.27.x | 16.0.0+1 | 335,301 | Active |
 | kernel | Backend | Python 3.11 | 16.0.0 | 26,253 | Active |
 
@@ -1429,7 +1429,7 @@ GET  /healthz, /readyz, /health, /metrics
 | `sahool.vision.pest_detected` | Pest detection |
 | `sahool.vision.disease_detected` | Disease detection |
 | `sahool.vision.weed_detected` | Weed detection |
-| `sahool.vision.critical_alert` | Critical pest (RPW, locust) |
+| `sahool.vision.critical.alert` | Critical pest (RPW, locust) |
 | `sahool.vision.plant_count_completed` | Plant counting |
 | `sahool.vision.analysis_completed` | Analysis (ripeness, segmentation) |
 | `sahool.vision.analysis_started` | Analysis started |

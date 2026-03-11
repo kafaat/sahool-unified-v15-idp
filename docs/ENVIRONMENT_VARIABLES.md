@@ -281,13 +281,19 @@ NATS 2.x with JetStream for event-driven architecture.
 | `KONG_DNS_STALE_TTL` | Stale DNS TTL | TTL DNS القديم | `30` |
 | `KONG_DNS_ERROR_TTL` | DNS error TTL | TTL خطأ DNS | `30` |
 
-### Kong Rate Limiting | تحديد معدل Kong
+### Kong CORS Configuration | تكوين CORS لـ Kong
 
 | Variable | Description | الوصف | Default |
 |----------|-------------|-------|---------|
-| `KONG_RATE_LIMIT_REDIS_HOST` | Redis host for rate limiting | مضيف Redis لتحديد المعدل | `redis` |
-| `KONG_RATE_LIMIT_REDIS_PORT` | Redis port | منفذ Redis | `6379` |
-| `KONG_RATE_LIMIT_REDIS_DB` | Redis database number | رقم قاعدة بيانات Redis | `1` |
+| `KONG_CORS_ORIGINS` | Comma-separated list of allowed CORS origins. Use specific domains in production instead of wildcard '*'. | قائمة أصول CORS المسموح بها مفصولة بفواصل. استخدم نطاقات محددة في الإنتاج بدلاً من '*'. | `*` |
+
+### Kong Rate Limiting (Redis-based distributed) | تحديد المعدل الموزع لـ Kong (عبر Redis)
+
+| Variable | Description | الوصف | Default |
+|----------|-------------|-------|---------|
+| `KONG_RATE_LIMIT_REDIS_HOST` | Redis host for Redis-based distributed rate limiting | مضيف Redis لتحديد المعدل الموزع | `redis` |
+| `KONG_RATE_LIMIT_REDIS_PORT` | Redis port for distributed rate limiting | منفذ Redis لتحديد المعدل الموزع | `6379` |
+| `KONG_RATE_LIMIT_REDIS_DB` | Redis database number for rate limiting | رقم قاعدة بيانات Redis لتحديد المعدل | `1` |
 
 ---
 

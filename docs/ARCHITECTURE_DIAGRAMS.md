@@ -105,7 +105,7 @@ This document provides visual representations of the SAHOOL platform architectur
     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
     │  │ Satellite│  │   IoT    │  │ Weather  │  │  Edge    │            │
     │  │ Service  │  │ Gateway  │  │ Service  │  │ Devices  │            │
-    │  │  :8090   │  │  :8106   │  │  :8092   │  │  :8190   │            │
+    │  │  :8090   │  │  :8106   │  │  :8092   │  │  :8180   │            │
     │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘            │
     │       │             │             │             │                    │
     └───────┼─────────────┼─────────────┼─────────────┼────────────────────┘
@@ -127,10 +127,11 @@ This document provides visual representations of the SAHOOL platform architectur
     │                                                                      │
     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
     │  │Indicators│  │ Crop     │  │  NDVI    │  │ Vision   │            │
-    │  │ Service  │  │ Intel    │  │Processor │  │ Service  │            │
+    │  │ Service  │  │ Intel    │  │Processor*│  │ Service  │            │
     │  │  :8091   │  │  :8095   │  │  :8118   │  │  :8150   │            │
     │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘            │
     │       │             │             │             │                    │
+    │  * NDVI Processor is deprecated → vegetation-analysis-service       │
     └───────┼─────────────┼─────────────┼─────────────┼────────────────────┘
             │             │             │             │
             └─────────────┼─────────────┼─────────────┘
@@ -142,8 +143,8 @@ This document provides visual representations of the SAHOOL platform architectur
     │                                                                      │
     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
     │  │ Advisory │  │Irrigation│  │  Yield   │  │ Hydrology│            │
-    │  │ Service  │  │  Smart   │  │ Engine   │  │ Service  │            │
-    │  │  :8093   │  │  :8094   │  │  :8098   │  │  :8165   │            │
+    │  │ Service  │  │  Smart   │  │Prediction│  │ Service  │            │
+    │  │  :8093   │  │  :8094   │  │  :8152   │  │  :8165   │            │
     │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘            │
     │       │             │             │             │                    │
     └───────┼─────────────┼─────────────┼─────────────┼────────────────────┘
@@ -190,10 +191,11 @@ Examples:
     │                    FIELD DOMAIN CLUSTER                              │
     │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐        │
     │  │  Field    │──│  Field    │──│  Field    │──│  Task     │        │
-    │  │Management │  │Intelligence│ │  Chat     │  │ Service   │        │
+    │  │Management │  │Intelligence│ │  Chat*    │  │ Service   │        │
     │  │  :3000    │  │  :8120    │  │  :8099    │  │  :8103    │        │
     │  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘        │
     │        │              │              │              │               │
+    │  * Field Chat is deprecated → chat-service                          │
     └────────┼──────────────┼──────────────┼──────────────┼───────────────┘
              │              │              │              │
              └──────────────┼──────────────┼──────────────┘
@@ -203,10 +205,11 @@ Examples:
     │                    ANALYTICS DOMAIN CLUSTER                          │
     │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐        │
     │  │Vegetation │──│   NDVI    │──│ Indicators│──│   LAI     │        │
-    │  │ Analysis  │  │ Processor │  │  Service  │  │Estimation │        │
+    │  │ Analysis  │  │Processor* │  │  Service  │  │Estimation │        │
     │  │  :8090    │  │  :8118    │  │  :8091    │  │  :3022    │        │
     │  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘        │
     │        │              │              │              │               │
+    │  * NDVI Processor is deprecated → vegetation-analysis-service       │
     └────────┼──────────────┼──────────────┼──────────────┼───────────────┘
              │              │              │              │
              └──────────────┼──────────────┼──────────────┘
@@ -216,10 +219,11 @@ Examples:
     │                    AI/ADVISORY DOMAIN CLUSTER                        │
     │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐        │
     │  │ Advisory  │──│   Crop    │──│   Agro    │──│  Vision   │        │
-    │  │ Service   │  │Intelligence│ │  Advisor  │  │ Service   │        │
+    │  │ Service   │  │Intelligence│ │ Advisor*  │  │ Service   │        │
     │  │  :8093    │  │  :8095    │  │  :8105    │  │  :8150    │        │
     │  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘        │
     │        │              │              │              │               │
+    │  * Agro Advisor is deprecated → advisory-service                    │
     └────────┼──────────────┼──────────────┼──────────────┼───────────────┘
              │              │              │              │
              └──────────────┼──────────────┼──────────────┘
@@ -230,7 +234,7 @@ Examples:
     │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐        │
     │  │   IoT     │──│  Weather  │──│  Virtual  │──│   Edge    │        │
     │  │ Gateway   │  │ Service   │  │  Sensors  │  │Orchestrate│        │
-    │  │  :8106    │  │  :8092    │  │  :8119    │  │  :8190    │        │
+    │  │  :8106    │  │  :8092    │  │  :8119    │  │  :8180    │        │
     │  └───────────┘  └───────────┘  └───────────┘  └───────────┘        │
     │                                                                      │
     └─────────────────────────────────────────────────────────────────────┘

@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import '../../../core/auth/auth_service.dart';
 import '../../../core/sync/network_status.dart';
 import '../domain/models/report_template.dart';
 import '../domain/models/report_data.dart';
@@ -25,11 +26,11 @@ final networkStatusProvider = Provider<NetworkStatus>((ref) {
 
 /// Reports API provider
 final reportsApiProvider = Provider<ReportsApi>((ref) {
+  final authState = ref.watch(authStateProvider);
   return ReportsApi(
     client: http.Client(),
-    // TODO: Get from auth context
-    authToken: null,
-    tenantId: null,
+    authToken: authState.accessToken,
+    tenantId: authState.user?.tenantId,
   );
 });
 

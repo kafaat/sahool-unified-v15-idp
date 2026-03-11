@@ -130,7 +130,24 @@ export async function middleware(request: NextRequest) {
   const detectedLocale = detectLocale(request);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 3. CSRF Protection for state-changing requests
+  // 3. Allow public routes (without authentication or CSRF)
+  //    Public routes are checked BEFORE CSRF to avoid blocking login/register
+  //    Server Actions (POST) that don't yet have a CSRF token.
+  // ═══════════════════════════════════════════════════════════════════════════
+  const isPublicRoute = publicRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+
+  if (isPublicRoute) {
+    // Still add basic security headers for public routes
+    const response = NextResponse.next();
+    addSecurityHeaders(response);
+    setLocaleCookie(response, detectedLocale);
+    return response;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 4. CSRF Protection for state-changing requests (after public route check)
   // ═══════════════════════════════════════════════════════════════════════════
   const csrfValidation = validateCsrfRequest(request);
   if (!csrfValidation.valid) {
@@ -151,22 +168,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 4. Allow public routes (without authentication)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
-  );
-
-  if (isPublicRoute) {
-    // Still add basic security headers for public routes
-    const response = NextResponse.next();
-    addSecurityHeaders(response);
-    setLocaleCookie(response, detectedLocale);
-    return response;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 5. Check if route requires authentication
+  // 5. Check if route requires authentication (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
   const isProtectedRoute = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),

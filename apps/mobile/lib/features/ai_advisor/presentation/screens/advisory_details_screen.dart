@@ -4,6 +4,7 @@
 /// Shows detailed information about a specific advisory
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/config/theme.dart';
@@ -757,7 +758,63 @@ class _AdvisoryDetailsScreenState extends ConsumerState<AdvisoryDetailsScreen> {
   void _handleMenuAction(String action, Advisory advisory) {
     switch (action) {
       case 'share':
-        // TODO: Implement share functionality
+        final buffer = StringBuffer();
+        buffer.writeln('━━━ ${advisory.titleAr} ━━━');
+        buffer.writeln(advisory.title);
+        buffer.writeln();
+        buffer.writeln('النوع | Type: ${advisory.type.name}');
+        buffer.writeln('الأولوية | Priority: ${advisory.priority.name}');
+        if (advisory.confidence != null) {
+          buffer.writeln(
+              'الثقة | Confidence: ${(advisory.confidence! * 100).toStringAsFixed(0)}%');
+        }
+        buffer.writeln();
+        if (advisory.fieldName != null) {
+          buffer.writeln('الحقل | Field: ${advisory.fieldName}');
+        }
+        if (advisory.cropTypeAr != null || advisory.cropType != null) {
+          buffer.writeln(
+              'المحصول | Crop: ${advisory.cropTypeAr ?? ''} ${advisory.cropType ?? ''}');
+        }
+        buffer.writeln();
+        buffer.writeln('--- الوصف | Description ---');
+        if (advisory.descriptionAr != null) {
+          buffer.writeln(advisory.descriptionAr);
+        }
+        if (advisory.description != null) {
+          buffer.writeln(advisory.description);
+        }
+        if (advisory.actionsAr != null && advisory.actionsAr!.isNotEmpty) {
+          buffer.writeln();
+          buffer.writeln('--- الإجراءات | Actions ---');
+          for (var i = 0; i < advisory.actionsAr!.length; i++) {
+            buffer.writeln('${i + 1}. ${advisory.actionsAr![i]}');
+          }
+        }
+        if (advisory.actions != null && advisory.actions!.isNotEmpty) {
+          if (advisory.actionsAr == null || advisory.actionsAr!.isEmpty) {
+            buffer.writeln();
+            buffer.writeln('--- Actions ---');
+          }
+          for (var i = 0; i < advisory.actions!.length; i++) {
+            buffer.writeln('${i + 1}. ${advisory.actions![i]}');
+          }
+        }
+        if (advisory.timing != null) {
+          buffer.writeln();
+          buffer.writeln('التوقيت | Timing: ${advisory.timing}');
+        }
+        buffer.writeln();
+        buffer.writeln('— SAHOOL سهول —');
+
+        Clipboard.setData(ClipboardData(text: buffer.toString()));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم نسخ التوصية | Advisory copied'),
+            ),
+          );
+        }
         break;
       case 'apply':
         ref.read(advisoryDetailsProvider(widget.advisoryId).notifier)

@@ -649,10 +649,22 @@ class FertilizerRecommendationEngine:
         """
         products = []
 
-        # If we have available fertilizers, use them
+        # If we have available fertilizers, use optimization algorithm
         if self.available_fertilizers:
-            # TODO: Implement optimization algorithm
-            pass
+            optimized = self._optimize_fertilizer_selection(n_required, p_required, k_required)
+            if optimized:
+                # Verify that the optimized selection meets nutrient needs
+                # within an acceptable tolerance (5 kg/ha) before returning.
+                # If requirements are not met, fall through to standard recs.
+                tolerance = 5.0  # kg/ha
+                total_n = sum(p.get("nutrients_supplied", {}).get("N", 0) for p in optimized)
+                total_p = sum(p.get("nutrients_supplied", {}).get("P2O5", 0) for p in optimized)
+                total_k = sum(p.get("nutrients_supplied", {}).get("K2O", 0) for p in optimized)
+                n_met = n_required <= tolerance or total_n >= n_required - tolerance
+                p_met = p_required <= tolerance or total_p >= p_required - tolerance
+                k_met = k_required <= tolerance or total_k >= k_required - tolerance
+                if n_met and p_met and k_met:
+                    return optimized
 
         # Otherwise, use standard recommendations
         if n_required > 0:
@@ -719,6 +731,126 @@ class FertilizerRecommendationEngine:
                     "total_cost": round(mop_rate * 2.8, 2),
                     "application_notes_en": "Apply in split doses, avoid for chloride-sensitive crops",
                     "application_notes_ar": "يطبق على جرعات مقسمة، يُتجنب للمحاصيل الحساسة للكلوريد",
+                }
+            )
+
+        return products
+
+    def _optimize_fertilizer_selection(
+        self,
+        n_required: float,
+        p_required: float,
+        k_required: float,
+    ) -> list[dict]:
+        """
+        Greedy cost-minimization algorithm for selecting fertilizer products.
+
+        For each remaining nutrient need (N, P, K), picks the cheapest
+        available fertilizer per kg of that nutrient, calculates the
+        application rate, clamps to min/max bounds, and tracks nutrients
+        already supplied by compound fertilizers to avoid double-supplying.
+
+        Returns:
+            List of product dicts if optimization succeeds, empty list otherwise.
+        """
+        # Track remaining nutrient needs (can decrease as compound fertilizers supply multiple)
+        remaining = {"N": n_required, "P2O5": p_required, "K2O": k_required}
+        products: list[dict] = []
+        used_fertilizer_ids: set[str] = set()
+
+        # Process nutrients in priority order: N first (usually largest), then P, then K
+        nutrient_keys = [
+            ("N", "nitrogen_n"),
+            ("P2O5", "phosphorus_p2o5"),
+            ("K2O", "potassium_k2o"),
+        ]
+
+        for nutrient_key, composition_attr in nutrient_keys:
+            if remaining[nutrient_key] <= 0.5:
+                # Negligible need, skip
+                continue
+
+            # Find the cheapest fertilizer that supplies this nutrient
+            # Cost metric: price per kg of the target nutrient delivered
+            best_fertilizer: Fertilizer | None = None
+            best_cost_per_kg_nutrient = float("inf")
+
+            for fert in self.available_fertilizers:
+                if not fert.is_active:
+                    continue
+                if fert.id in used_fertilizer_ids:
+                    continue
+
+                nutrient_percent = getattr(fert.composition, composition_attr, 0.0)
+                if nutrient_percent <= 0:
+                    continue
+
+                # Cost per kg of this nutrient = (unit_price / unit_size_kg) / (percent / 100)
+                price_per_kg_product = float(fert.unit_price) / fert.unit_size_kg if fert.unit_size_kg > 0 else float("inf")
+                cost_per_kg_nutrient = price_per_kg_product / (nutrient_percent / 100.0)
+
+                if cost_per_kg_nutrient < best_cost_per_kg_nutrient:
+                    best_cost_per_kg_nutrient = cost_per_kg_nutrient
+                    best_fertilizer = fert
+
+            if best_fertilizer is None:
+                continue
+
+            used_fertilizer_ids.add(best_fertilizer.id)
+
+            # Calculate application rate to meet the remaining need for this nutrient
+            nutrient_percent = getattr(best_fertilizer.composition, composition_attr, 0.0)
+            application_rate = remaining[nutrient_key] / (nutrient_percent / 100.0)
+
+            # Clamp to min/max application rates
+            if best_fertilizer.min_application_rate_kg_ha is not None:
+                application_rate = max(application_rate, best_fertilizer.min_application_rate_kg_ha)
+            if best_fertilizer.max_application_rate_kg_ha is not None:
+                application_rate = min(application_rate, best_fertilizer.max_application_rate_kg_ha)
+
+            # Calculate all nutrients supplied at this application rate
+            n_supplied = round(application_rate * best_fertilizer.composition.nitrogen_n / 100.0, 1)
+            p_supplied = round(application_rate * best_fertilizer.composition.phosphorus_p2o5 / 100.0, 1)
+            k_supplied = round(application_rate * best_fertilizer.composition.potassium_k2o / 100.0, 1)
+
+            # Subtract supplied nutrients from remaining needs
+            remaining["N"] = max(0, remaining["N"] - n_supplied)
+            remaining["P2O5"] = max(0, remaining["P2O5"] - p_supplied)
+            remaining["K2O"] = max(0, remaining["K2O"] - k_supplied)
+
+            # Calculate cost
+            price_per_kg = float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg if best_fertilizer.unit_size_kg > 0 else 0.0
+            total_cost = round(application_rate * price_per_kg, 2)
+
+            # Build application notes based on fertilizer type
+            notes_en = "Apply as recommended for the crop growth stage"
+            notes_ar = "يطبق حسب التوصية لمرحلة نمو المحصول"
+            if best_fertilizer.composition.nitrogen_n > 30:
+                notes_en = "Apply in 2-3 split doses during active growth"
+                notes_ar = "يطبق على 2-3 جرعات مقسمة خلال النمو النشط"
+            elif best_fertilizer.composition.phosphorus_p2o5 > 30:
+                notes_en = "Apply at planting or early growth stage"
+                notes_ar = "يطبق عند الزراعة أو في مرحلة النمو المبكر"
+            elif best_fertilizer.composition.potassium_k2o > 30:
+                notes_en = "Apply in split doses, avoid for chloride-sensitive crops"
+                notes_ar = "يطبق على جرعات مقسمة، يُتجنب للمحاصيل الحساسة للكلوريد"
+
+            products.append(
+                {
+                    "fertilizer_name": best_fertilizer.name,
+                    "fertilizer_name_ar": best_fertilizer.name_ar,
+                    "fertilizer_type": best_fertilizer.fertilizer_type.value,
+                    "npk_ratio": best_fertilizer.composition.npk_ratio,
+                    "application_rate_kg_ha": round(application_rate, 1),
+                    "nutrients_supplied": {
+                        "N": n_supplied,
+                        "P2O5": p_supplied,
+                        "K2O": k_supplied,
+                    },
+                    "unit_price_sar": float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg if best_fertilizer.unit_size_kg > 0 else 0.0,
+                    "total_cost": total_cost,
+                    "application_notes_en": notes_en,
+                    "application_notes_ar": notes_ar,
                 }
             )
 

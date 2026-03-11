@@ -439,7 +439,7 @@ kubectl exec -n sahool deploy/kong -- curl localhost:8000/healthz
 |---------|------|------------|-------------|
 | vegetation-analysis | 8090 | Python | Satellite imagery |
 | crop-intelligence | 8095 | Python | Crop health AI |
-| ndvi-processor | 8118 | Python | NDVI computation |
+| ndvi-processor | 8118 | Python | NDVI computation (deprecated, use vegetation-analysis-service) |
 | indicators-service | 8091 | Python | Field indicators |
 | lai-estimation | 3022 | Node.js | Leaf Area Index |
 
@@ -449,10 +449,10 @@ kubectl exec -n sahool deploy/kong -- curl localhost:8000/healthz
 |---------|------|------------|-------------|
 | advisory-service | 8093 | Python | AI recommendations |
 | irrigation-smart | 8094 | Python | Smart irrigation |
-| yield-engine | 8098 | Python | Yield prediction |
+| yield-prediction-service | 8152 | Node.js | Yield prediction ML |
 | hydrology-service | 8165 | Python | Drainage analysis |
 | leveling-optimizer | 8170 | Python | Field leveling |
-| vision-service | 8150 | Python | Computer vision |
+| yolo26-vision-service | 8150 | Python | Computer vision (YOLO26) |
 
 #### Infrastructure Services | خدمات البنية التحتية
 

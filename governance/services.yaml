@@ -3,8 +3,8 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "3.3.0"
-last_updated: "2026-02-28"
+version: "3.4.0"
+last_updated: "2026-03-10"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]  # ndvi-processor is deprecated → vegetation-analysis-service
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -1102,7 +1102,7 @@ services:
     port: 8118
     protocol: http
     health_endpoint: "/healthz"
-    status: active  # Restored from archive with complete src/ (mock/dev implementation)
+    status: deprecated  # Deprecated → vegetation-analysis-service (sunset: 2026-02)
     owner: "data-team@sahool.io"
     team: data
     lifecycle: experimental  # Mock/dev implementation - not yet production-ready

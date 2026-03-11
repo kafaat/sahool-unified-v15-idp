@@ -118,7 +118,7 @@ These services have NO dependencies and must start first:
 
 ---
 
-#### chat-service (Port 8114)
+#### chat-service (Port 8115)
 **Dependencies:**
 - postgres (via pgbouncer:6432)
 - redis:6379
@@ -151,7 +151,7 @@ These services have NO dependencies and must start first:
 - redis:6379
 - nats:4222
 
-**Replacement:** chat-service:8114
+**Replacement:** chat-service:8115
 
 ---
 
@@ -499,7 +499,7 @@ These services have NO dependencies and must start first:
 
 ---
 
-#### mcp-server (Port 8200)
+#### mcp-server (Port 8201)
 **Dependencies:**
 - kong:8000
 - postgres:5432
@@ -731,8 +731,8 @@ None detected.
 
 ### Port Conflicts
 
-1. **audit-service** (8114) conflicts with **chat-service** (8114)
-2. **mcp-server** has duplicate port mappings (8200 and 8201)
+1. **audit-service** uses port 8114. **chat-service** was moved to port 8115 to resolve the previous conflict.
+2. **mcp-server** uses port 8201 (moved from 8200 to avoid conflict with **vault** on 8200).
 
 ---
 

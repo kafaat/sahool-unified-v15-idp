@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../sync/network_status.dart';
 import '../utils/app_logger.dart';
-import 'offline_sync_engine.dart';
+import 'offline_sync_engine.dart' as sync_engine;
 
 // =============================================================================
 // Sync Status Indicator - مؤشر حالة المزامنة
@@ -34,8 +34,11 @@ class SyncStatusIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: Connect to actual sync status provider
-    final syncStatus = SyncStatus.idle;
+    final syncStatus = ref.watch(sync_engine.syncStatusProvider).when(
+      data: (engineStatus) => _mapEngineStatus(engineStatus),
+      loading: () => SyncStatus.syncing,
+      error: (_, __) => SyncStatus.error,
+    );
     final networkStatus = ref.watch(networkStatusProvider);
 
     final color = _getStatusColor(syncStatus, networkStatus.isConnected);
@@ -64,6 +67,24 @@ class SyncStatusIndicator extends ConsumerWidget {
         ],
       ],
     );
+  }
+
+  /// Maps engine SyncStatus to UI SyncStatus
+  SyncStatus _mapEngineStatus(sync_engine.SyncStatus engineStatus) {
+    switch (engineStatus) {
+      case sync_engine.SyncStatus.idle:
+        return SyncStatus.idle;
+      case sync_engine.SyncStatus.syncing:
+        return SyncStatus.syncing;
+      case sync_engine.SyncStatus.success:
+        return SyncStatus.idle;
+      case sync_engine.SyncStatus.partialSuccess:
+        return SyncStatus.pending;
+      case sync_engine.SyncStatus.error:
+        return SyncStatus.error;
+      case sync_engine.SyncStatus.offline:
+        return SyncStatus.offline;
+    }
   }
 
   Color _getStatusColor(SyncStatus status, bool isOnline) {

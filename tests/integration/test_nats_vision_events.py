@@ -7,7 +7,7 @@ Covers subjects:
     - sahool.vision.pest_detected
     - sahool.vision.disease_detected
     - sahool.vision.weed_detected
-    - sahool.vision.critical_alert
+    - sahool.vision.critical.alert
     - sahool.vision.analysis_started
     - sahool.vision.analysis_completed
 
@@ -46,7 +46,7 @@ except ImportError:
     SAHOOL_VISION_PEST_DETECTED = "sahool.vision.pest_detected"
     SAHOOL_VISION_DISEASE_DETECTED = "sahool.vision.disease_detected"
     SAHOOL_VISION_WEED_DETECTED = "sahool.vision.weed_detected"
-    SAHOOL_VISION_CRITICAL_ALERT = "sahool.vision.critical_alert"
+    SAHOOL_VISION_CRITICAL_ALERT = "sahool.vision.critical.alert"
     SAHOOL_VISION_ANALYSIS_STARTED = "sahool.vision.analysis_started"
     SAHOOL_VISION_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
     SAHOOL_VISION_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
@@ -524,7 +524,7 @@ async def test_vision_subjects_class_constants():
     assert VisionSubjects.PEST_DETECTED == "sahool.vision.pest_detected"
     assert VisionSubjects.DISEASE_DETECTED == "sahool.vision.disease_detected"
     assert VisionSubjects.WEED_DETECTED == "sahool.vision.weed_detected"
-    assert VisionSubjects.CRITICAL_ALERT == "sahool.vision.critical_alert"
+    assert VisionSubjects.CRITICAL_ALERT == "sahool.vision.critical.alert"
     assert VisionSubjects.ANALYSIS_STARTED == "sahool.vision.analysis_started"
     assert VisionSubjects.ANALYSIS_COMPLETED == "sahool.vision.analysis_completed"
     assert VisionSubjects.ANALYSIS_FAILED == "sahool.vision.analysis_failed"

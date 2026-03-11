@@ -8,9 +8,28 @@ SAHOOL platform includes comprehensive observability features for monitoring, de
 
 ### 1. Health Checks
 
-All services expose standardized health check endpoints:
+All services expose health check endpoints using one of two patterns:
+
+> **Note:** The platform uses two health endpoint patterns. Both are valid and services may implement either depending on their framework and deployment requirements.
+>
+> - **Pattern A** (most Python/FastAPI services): `/healthz` (liveness), `/readyz` (readiness)
+> - **Pattern B** (Kubernetes-oriented probes): `/health/live`, `/health/ready`, `/health/startup`
+>
+> When configuring Kubernetes probes or monitoring, check which pattern your target service implements.
 
 #### Endpoints
+
+**Pattern A** (used by the majority of services):
+
+- **`GET /healthz`** - Liveness probe
+  - Returns 200 if service is running
+  - Used by Kubernetes to restart crashed containers
+- **`GET /readyz`** - Readiness probe
+  - Returns 200 if service can handle requests
+  - Returns 503 if dependencies are unavailable
+  - Used by Kubernetes to route traffic
+
+**Pattern B** (Kubernetes-style probes):
 
 - **`GET /health/live`** - Liveness probe
   - Returns 200 if service is running
@@ -22,6 +41,9 @@ All services expose standardized health check endpoints:
 - **`GET /health/startup`** - Startup probe
   - Returns 200 when service initialization is complete
   - Used by Kubernetes for slow-starting containers
+
+**Common to both patterns:**
+
 - **`GET /health`** - Combined health check
   - Returns overall service health status
   - Includes all component checks
@@ -208,21 +230,27 @@ with tracer.start_as_current_span("process_data") as span:
 
 ### Deployment with Health Checks
 
+> **Note:** The example below uses `crop-health-ai` on port 8095 for illustration purposes only.
+> That service has been deprecated and replaced by `crop-intelligence-service`.
+> Replace the service name, image, and port with the actual target service for your deployment.
+> Refer to `governance/services.yaml` for the current service registry and port assignments.
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: crop-health-ai
+  name: crop-health-ai  # Example only - replace with your target service
 spec:
   template:
     spec:
       containers:
         - name: app
-          image: crop-health-ai:latest
+          image: crop-health-ai:latest  # Replace with actual service image
           ports:
-            - containerPort: 8095
+            - containerPort: 8095  # Replace with actual service port
 
           # Liveness probe
+          # Use /healthz for Pattern A services, /health/live for Pattern B
           livenessProbe:
             httpGet:
               path: /health/live
@@ -233,6 +261,7 @@ spec:
             failureThreshold: 3
 
           # Readiness probe
+          # Use /readyz for Pattern A services, /health/ready for Pattern B
           readinessProbe:
             httpGet:
               path: /health/ready

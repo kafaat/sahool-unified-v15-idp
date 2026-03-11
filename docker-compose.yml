@@ -741,9 +741,10 @@ services:
       # Override in .env file for production (copy from .env.example): cp .env.example .env
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
-      # ETCDCTL_USER is set via env so healthcheck doesn't embed credentials inline
-      # This avoids Checkov CKV_SECRET_6 (Base64 High Entropy String) false positive
-      - ETCDCTL_USER=${ETCD_ROOT_USERNAME:?}:${ETCD_ROOT_PASSWORD:?}
+      # NOTE: ETCDCTL_USER removed. etcd v3.5.16 has a bug where ETCDCTL_USER env var
+      # conflicts with --user flag (fatal error). The healthcheck uses CMD with etcdctl
+      # which reads ETCDCTL_USER if set, so we must NOT set it here.
+      # See: https://github.com/etcd-io/etcd/issues/7724
     volumes:
       - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
@@ -756,16 +757,13 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # FIX: etcdctl fails with "authentication is not enabled" when ETCDCTL_USER env is set
-      # but auth hasn't been initialized yet (fresh start). See: github.com/etcd-io/etcd/issues/7724
-      # Solution: Use HTTP /health endpoint which works regardless of auth state
-      # Phase 1: wget (BusyBox, available in coreos/etcd) checks /health HTTP endpoint
-      # Phase 2: etcdctl with ETCDCTL_USER unset via subshell (pre-auth or auth-disabled)
-      # Phase 3: etcdctl with ETCDCTL_USER from env (post-auth-init)
-      # NOTE: curl is NOT available in coreos/etcd Alpine image
-      # FIX: Use flexible grep pattern to handle JSON with or without spaces
-      # etcd v3.5.16 may return {"health": "true"} (with space) or {"health":"true"} (without)
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q 'true' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
+      # FIX: Use CMD (not CMD-SHELL) because GCR etcd image is distroless (no /bin/sh).
+      # quay.io/coreos/etcd has BusyBox but GCR gcr.io/etcd-development/etcd does not.
+      # etcdctl is available in ALL etcd images and works without a shell.
+      # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars are set above so etcdctl knows where to connect.
+      # Note: ETCDCTL_USER env may cause "authentication is not enabled" warning on fresh start,
+      # but etcdctl still exits 0 if the endpoint is healthy (the warning is on stderr only).
+      test: [ "CMD", "etcdctl", "endpoint", "health" ]
       interval: 10s
       timeout: 10s
       retries: 15
@@ -790,8 +788,17 @@ services:
 
   # Etcd Authentication Initializer - One-time service to enable authentication
   # خدمة تهيئة المصادقة لـ Etcd - تعمل مرة واحدة لتفعيل المصادقة
+  # NOTE: Disabled by default because Milvus v2.3.x does not support etcd auth.
+  # Enable in production with: docker compose --profile etcd-auth up -d etcd-init
   etcd-init:
-    image: quay.io/coreos/etcd:v3.5.16
+    profiles: ["etcd-auth"]
+    # FIX: Use alpine-based image with etcdctl because the GCR etcd image is distroless
+    # (no /bin/sh) and quay.io may be unavailable in some regions. This ensures the
+    # init shell script always has a working shell regardless of etcd image source.
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.etcd-init
+    image: sahool/etcd-init:v3.5.16
     container_name: sahool-etcd-init
     environment:
       - ETCDCTL_API=3
@@ -803,7 +810,8 @@ services:
         condition: service_healthy
     volumes:
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
-    command: [ "/bin/sh", "/scripts/init-auth.sh" ]
+    entrypoint: [ "/bin/sh" ]
+    command: [ "/scripts/init-auth.sh" ]
     restart: "no"
     security_opt:
       - no-new-privileges:true
@@ -910,13 +918,11 @@ services:
     image: milvusdb/milvus:v2.3.3
     container_name: sahool-milvus
     environment:
-      # Etcd connection with authentication
+      # Etcd connection (no auth: Milvus v2.3.x does not support etcd authentication)
+      # etcd auth is disabled in development; in production use network-level isolation
       ETCD_ENDPOINTS: etcd:2379
       ETCD_ROOT_PATH: /milvus
       ETCD_USE_SSL: "false"
-      # Etcd authentication credentials
-      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME is required}
-      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD is required}
       # MinIO connection with dedicated service account (least privilege)
       # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000
@@ -931,9 +937,11 @@ services:
     depends_on:
       etcd:
         condition: service_healthy
-      # FIX: Wait for etcd-init to enable auth before Milvus connects with credentials
-      etcd-init:
-        condition: service_completed_successfully
+      # NOTE: etcd-init dependency removed. Milvus v2.3.x does not support etcd auth,
+      # so etcd-init (which enables auth) is now behind the 'etcd-auth' profile.
+      # When upgrading to Milvus v2.4+ (which supports etcd auth), re-add:
+      #   etcd-init:
+      #     condition: service_completed_successfully
       minio:
         condition: service_healthy
     healthcheck:

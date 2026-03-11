@@ -48,8 +48,13 @@ echo "Waiting for etcd to be ready..."
 sleep 5
 
 # Check if etcd is responsive with retry logic
+# Try without credentials first (auth disabled), then with credentials (auth enabled)
 echo "Checking etcd health..."
-retry 3 2 etcdctl endpoint health || {
+check_health() {
+  etcdctl endpoint health 2>/dev/null || \
+  etcdctl --user "${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD}" endpoint health 2>/dev/null
+}
+retry 3 2 check_health || {
   echo "ERROR: Etcd failed to become healthy after multiple attempts"
   exit 1
 }

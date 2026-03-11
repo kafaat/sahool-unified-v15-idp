@@ -382,16 +382,12 @@ if REVOCATION_AVAILABLE:
     )
 
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
+# Note: A2A routes are registered in the lifespan startup phase via app_state["a2a_agent"]
 if A2A_AVAILABLE:
-
-    @app.on_event("startup")
-    async def setup_a2a_routes():
-        """Setup A2A protocol routes after startup"""
-        a2a_agent = app_state.get("a2a_agent")
-        if a2a_agent:
-            a2a_router = create_a2a_router(a2a_agent, prefix="/a2a")
-            app.include_router(a2a_router)
-            logger.info("a2a_routes_registered")
+    a2a_agent = app_state.get("a2a_agent")
+    if a2a_agent:
+        a2a_router = create_a2a_router(a2a_agent, prefix="/a2a")
+        app.include_router(a2a_router)
 
 
 # Endpoints | نقاط النهاية

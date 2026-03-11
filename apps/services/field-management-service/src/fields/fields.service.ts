@@ -27,6 +27,7 @@ import {
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
+import { assertTenantOwnership } from "../auth/tenant.utils";
 import { v4 as uuidv4 } from "uuid";
 
 // ETag generation
@@ -154,14 +155,21 @@ export class FieldsService {
   }
 
   /**
-   * Find field by ID
+   * Find field by ID with tenant isolation
+   *
+   * @param id - Field UUID
+   * @param tenantId - If provided, enforces tenant ownership check
    */
-  async findById(id: string): Promise<FieldResponseDto> {
+  async findById(id: string, tenantId?: string): Promise<FieldResponseDto> {
     // Try cache first
     const cached = await this.cacheService.get<FieldResponseDto>(
       CACHE_KEYS.FIELD(id),
     );
     if (cached) {
+      // Verify tenant ownership even for cached results
+      if (tenantId) {
+        assertTenantOwnership(cached.tenantId, tenantId, "field");
+      }
       return cached;
     }
 
@@ -189,6 +197,11 @@ export class FieldsService {
 
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
+    }
+
+    // Enforce tenant isolation: prevent cross-tenant data access
+    if (tenantId) {
+      assertTenantOwnership(field.tenantId, tenantId, "field");
     }
 
     const etag = generateETag(field.id, field.version);
@@ -225,9 +238,8 @@ export class FieldsService {
     const limit = Math.min(query.limit || 20, 100);
     const skip = (page - 1) * limit;
 
-    // Build where clause
-    const where: any = {};
-    if (query.tenantId) where.tenantId = query.tenantId;
+    // Build where clause - tenantId is always required for isolation
+    const where: any = { tenantId: query.tenantId };
     if (query.status) where.status = query.status;
     if (query.cropType) where.cropType = query.cropType;
 
@@ -294,11 +306,12 @@ export class FieldsService {
   }
 
   /**
-   * Update field with optimistic locking
+   * Update field with optimistic locking and tenant isolation
    */
   async update(
     id: string,
     dto: UpdateFieldDto,
+    tenantId: string,
     ifMatch?: string,
   ): Promise<FieldResponseDto & { etag: string }> {
     // Get current field
@@ -310,6 +323,9 @@ export class FieldsService {
     if (!current) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(current.tenantId, tenantId, "field");
 
     // Validate ETag if provided
     if (ifMatch) {
@@ -362,9 +378,9 @@ export class FieldsService {
   }
 
   /**
-   * Delete field (soft delete)
+   * Delete field (soft delete) with tenant isolation
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: string, tenantId: string): Promise<void> {
     const field = await this.prisma.field.findUnique({
       where: { id },
       select: { tenantId: true },
@@ -373,6 +389,9 @@ export class FieldsService {
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(field.tenantId, tenantId, "field");
 
     await this.prisma.field.update({
       where: { id },
@@ -418,11 +437,12 @@ export class FieldsService {
   }
 
   /**
-   * Update field boundary with history tracking
+   * Update field boundary with history tracking and tenant isolation
    */
   async updateBoundary(
     id: string,
     dto: UpdateBoundaryDto,
+    tenantId: string,
   ): Promise<FieldResponseDto & { etag: string }> {
     const field = await this.prisma.field.findUnique({
       where: { id },
@@ -432,6 +452,9 @@ export class FieldsService {
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(field.tenantId, tenantId, "field");
 
     // Ensure polygon is closed
     const coords = [...dto.coordinates];
@@ -485,11 +508,11 @@ export class FieldsService {
   }
 
   /**
-   * Get boundary history for a field
+   * Get boundary history for a field with tenant isolation
    */
-  async getBoundaryHistory(id: string, limit: number = 20): Promise<any[]> {
+  async getBoundaryHistory(id: string, tenantId: string, limit: number = 20): Promise<any[]> {
     const history = await this.prisma.fieldBoundaryHistory.findMany({
-      where: { fieldId: id },
+      where: { fieldId: id, tenantId },
       orderBy: { createdAt: "desc" },
       take: limit,
       select: {
@@ -539,11 +562,12 @@ export class FieldsService {
   }
 
   /**
-   * Rollback boundary to a previous version
+   * Rollback boundary to a previous version with tenant isolation
    */
   async rollbackBoundary(
     id: string,
     dto: RollbackBoundaryDto,
+    tenantId: string,
   ): Promise<FieldResponseDto & { etag: string }> {
     const [field, historyEntry] = await Promise.all([
       this.prisma.field.findUnique({
@@ -558,6 +582,9 @@ export class FieldsService {
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(field.tenantId, tenantId, "field");
 
     if (!historyEntry || historyEntry.fieldId !== id) {
       throw new NotFoundException("History entry not found - سجل التاريخ غير موجود");

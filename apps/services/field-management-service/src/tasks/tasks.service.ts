@@ -6,6 +6,7 @@ import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 import { TaskType, Priority, TaskState, Prisma } from "../../prisma/generated/client";
+import { assertTenantOwnership } from "../auth/tenant.utils";
 
 @Injectable()
 export class TasksService {
@@ -17,9 +18,9 @@ export class TasksService {
   ) {}
 
   /**
-   * Get tasks for a field
+   * Get tasks for a field with tenant isolation
    */
-  async getTasksForField(fieldId: string, status?: TaskState) {
+  async getTasksForField(fieldId: string, tenantId: string, status?: TaskState) {
     const cacheKey = CACHE_KEYS.TASK_LIST(fieldId);
 
     // Try cache if no status filter
@@ -28,7 +29,11 @@ export class TasksService {
       if (cached) return cached;
     }
 
-    const where: Prisma.TaskWhereInput = { fieldId };
+    // Scope tasks to tenant via field relationship
+    const where: Prisma.TaskWhereInput = {
+      fieldId,
+      field: { tenantId },
+    };
     if (status) where.status = status;
 
     const tasks = await this.prisma.task.findMany({
@@ -108,21 +113,27 @@ export class TasksService {
   }
 
   /**
-   * Update task status
+   * Update task status with tenant isolation
    */
   async updateTaskStatus(
     id: string,
+    tenantId: string,
     status: TaskState,
     completionNotes?: string,
     actualMinutes?: number,
   ) {
     const task = await this.prisma.task.findUnique({
       where: { id },
-      select: { fieldId: true },
+      select: { fieldId: true, tenantId: true },
     });
 
     if (!task) {
       throw new NotFoundException("Task not found - المهمة غير موجودة");
+    }
+
+    // Enforce tenant isolation
+    if (task.tenantId) {
+      assertTenantOwnership(task.tenantId, tenantId, "task");
     }
 
     const updated = await this.prisma.task.update({
@@ -144,19 +155,17 @@ export class TasksService {
   }
 
   /**
-   * Get overdue tasks
+   * Get overdue tasks - always scoped to tenant
    */
-  async getOverdueTasks(tenantId?: string) {
+  async getOverdueTasks(tenantId: string) {
     const now = new Date();
 
     const where: Prisma.TaskWhereInput = {
       status: { in: [TaskState.pending, TaskState.in_progress] },
       dueDate: { lt: now },
+      // Always filter by tenant for isolation
+      field: { tenantId },
     };
-
-    if (tenantId) {
-      where.field = { tenantId };
-    }
 
     return this.prisma.task.findMany({
       where,

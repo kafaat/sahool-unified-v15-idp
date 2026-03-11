@@ -27,10 +27,41 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
+
+    class User:  # type: ignore[no-redef]
+        tenant_id: str | None = None
+        roles: list[str] = []
 
     async def get_current_user():
         return None
+
+
+def _enforce_tenant(user: Any, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant - فرض عزل المستأجر."""
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "authentication_required",
+                "message_ar": "المصادقة مطلوبة",
+                "message_en": "Authentication required",
+            },
+        )
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and user_tenant != requested_tenant_id:
+        # Admin users can access any tenant
+        user_roles = getattr(user, "roles", []) or []
+        if "admin" not in user_roles and "super_admin" not in user_roles:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "tenant_mismatch",
+                    "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                    "message_en": "Cannot access another tenant's data",
+                },
+            )
 
 
 logger = structlog.get_logger()
@@ -1063,8 +1094,13 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
 
 
 @app.get("/v1/dashboard/{tenant_id}", response_model=DashboardSummary)
-async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)):
+async def get_dashboard_summary(
+    tenant_id: str,
+    num_fields: int = Query(default=10, ge=1, le=100),
+    user: Any = Depends(get_current_user),
+):
     """لوحة المعلومات الرئيسية للمستأجر"""
+    _enforce_tenant(user, tenant_id)
 
     # Generate mock data for multiple fields
     fields_data = []
@@ -1153,8 +1189,10 @@ async def get_tenant_alerts(
     tenant_id: str,
     severity: AlertSeverity | None = None,
     limit: int = Query(default=50, ge=1, le=200),
+    user: Any = Depends(get_current_user),
 ):
     """الحصول على تنبيهات المستأجر"""
+    _enforce_tenant(user, tenant_id)
     import random
 
     # Generate mock alerts

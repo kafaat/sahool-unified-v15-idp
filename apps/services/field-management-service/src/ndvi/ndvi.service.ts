@@ -5,6 +5,7 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
+import { assertTenantOwnership } from "../auth/tenant.utils";
 
 export interface NdviCategory {
   name: string;
@@ -22,9 +23,9 @@ export class NdviService {
   ) {}
 
   /**
-   * Get NDVI analysis for a field
+   * Get NDVI analysis for a field with tenant isolation
    */
-  async getFieldNdvi(fieldId: string) {
+  async getFieldNdvi(fieldId: string, tenantId: string) {
     const cacheKey = CACHE_KEYS.NDVI(fieldId);
     const cached = await this.cacheService.get<any>(cacheKey);
     if (cached) return cached;
@@ -34,6 +35,7 @@ export class NdviService {
       select: {
         id: true,
         name: true,
+        tenantId: true,
         ndviValue: true,
         healthScore: true,
       },
@@ -42,6 +44,9 @@ export class NdviService {
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(field.tenantId, tenantId, "field");
 
     // Get NDVI readings
     const readings = await this.prisma.ndviReading.findMany({
@@ -110,10 +115,11 @@ export class NdviService {
   }
 
   /**
-   * Update NDVI value for a field
+   * Update NDVI value for a field with tenant isolation
    */
   async updateFieldNdvi(
     fieldId: string,
+    tenantId: string,
     value: number,
     source: string = "manual",
     cloudCover?: number,
@@ -130,6 +136,9 @@ export class NdviService {
     if (!field) {
       throw new NotFoundException("Field not found - الحقل غير موجود");
     }
+
+    // Enforce tenant isolation
+    assertTenantOwnership(field.tenantId, tenantId, "field");
 
     // Create NDVI reading
     await this.prisma.ndviReading.create({

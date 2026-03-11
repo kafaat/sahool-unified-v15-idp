@@ -107,7 +107,7 @@ class NATSEventHandler:
                     data = json.loads(msg.data.decode())
                     conversation_id = data.get("conversation_id", "unknown")
                 except Exception:
-                    pass
+                    pass  # Best-effort extraction of conversation_id from malformed message
 
                 total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
                 error_response = AIResponse(

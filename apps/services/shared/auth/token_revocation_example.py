@@ -6,7 +6,6 @@ Complete working examples showing how to implement token revocation
 in your authentication endpoints.
 """
 
-import hashlib
 from datetime import timedelta
 from typing import Annotated
 
@@ -16,32 +15,33 @@ from pydantic import BaseModel
 from .dependencies import get_current_user, get_token_data
 from .jwt import TokenData, create_access_token, create_refresh_token, decode_token
 from .models import User
+from .password import hash_password, verify_password
 from .token_revocation import get_revocation_store
 
 # ============================================
 # Mock User Database
 # ============================================
 # In production, replace this with actual database queries (e.g., asyncpg, Tortoise ORM).
-# Passwords should be hashed with a proper algorithm like bcrypt or argon2,
-# not SHA-256. We use SHA-256 here only for simplicity in this example.
+# Passwords are hashed with bcrypt (via hash_password) which is suitable for
+# password storage — it is salted, slow, and resistant to brute-force attacks.
 MOCK_USERS: dict[str, dict] = {
     "farmer@example.com": {
         "user_id": "user_123",
-        "password_hash": hashlib.sha256(b"password123").hexdigest(),
+        "password_hash": hash_password("password123"),
         "tenant_id": "tenant_456",
         "roles": ["farmer"],
         "status": "active",
     },
     "admin@example.com": {
         "user_id": "user_admin_001",
-        "password_hash": hashlib.sha256(b"adminpass456").hexdigest(),
+        "password_hash": hash_password("adminpass456"),
         "tenant_id": "tenant_456",
         "roles": ["admin"],
         "status": "active",
     },
     "suspended@example.com": {
         "user_id": "user_suspended_002",
-        "password_hash": hashlib.sha256(b"suspendedpass").hexdigest(),
+        "password_hash": hash_password("suspendedpass"),
         "tenant_id": "tenant_456",
         "roles": ["farmer"],
         "status": "suspended",
@@ -118,11 +118,8 @@ async def login(request: LoginRequest):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Step 2: Verify password hash
-    # In production, use bcrypt.checkpw() or argon2 instead of SHA-256.
-    # SHA-256 is NOT suitable for password hashing (no salting, too fast).
-    submitted_hash = hashlib.sha256(request.password.encode()).hexdigest()
-    if submitted_hash != user_record["password_hash"]:
+    # Step 2: Verify password hash using bcrypt (via verify_password)
+    if not verify_password(request.password, user_record["password_hash"]):
         # In production, also increment failed login counter for rate limiting
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

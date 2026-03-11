@@ -18,7 +18,7 @@ Usage:
 import logging
 import secrets
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
@@ -311,19 +311,18 @@ async def register(
     }
 
     # In production: await db.users.insert_one(new_user)
-    logger.info("User created - ID: %s, Email: %s", new_user["id"], user_data.email)
+    logger.info("User created - ID: %s", new_user["id"])
 
     # Step 4: Generate email verification token
-    verification_token = secrets.token_urlsafe(32)
-    # In production: store token with expiry
+    _verification_token = secrets.token_urlsafe(32)
+    # In production: store token with expiry and send verification email
     # await db.email_verifications.insert_one({
     #     "user_id": new_user["id"],
-    #     "token": verification_token,
+    #     "token": _verification_token,
     #     "expires_at": datetime.now(UTC) + timedelta(hours=24),
     # })
+    # await email_service.send_verification(user_data.email, _verification_token)
 
-    # Step 5: Send verification email
-    # In production: await email_service.send_verification(user_data.email, verification_token)
     logger.info("Verification email queued - User: %s", new_user["id"])
 
     return MessageResponse(message="Registration successful. Please check your email for verification.")
@@ -380,14 +379,14 @@ async def forgot_password(
 
     if user is not None:
         # Step 1: Generate a cryptographically secure one-time-use reset token
-        reset_token = secrets.token_urlsafe(32)
+        _reset_token = secrets.token_urlsafe(32)
 
         # Step 2: Store the token with a 15-minute expiry
         # In production:
         # await db.password_resets.delete_many({"user_id": user["id"]})  # Invalidate old tokens
         # await db.password_resets.insert_one({
         #     "user_id": user["id"],
-        #     "token_hash": hash_password(reset_token),  # Store hashed, not plaintext
+        #     "token_hash": hash_password(_reset_token),  # Store hashed, not plaintext
         #     "expires_at": datetime.now(UTC) + timedelta(minutes=15),
         #     "used": False,
         # })
@@ -396,7 +395,7 @@ async def forgot_password(
         # Step 3: Send reset email with link containing the plaintext token
         # In production: await email_service.send_password_reset(
         #     email=data.email,
-        #     reset_link=f"https://app.sahool.io/reset-password?token={reset_token}"
+        #     reset_link=f"https://app.sahool.io/reset-password?token={_reset_token}"
         # )
         logger.info("Password reset email queued - User: %s", user["id"])
     else:
@@ -476,13 +475,13 @@ async def reset_password(
         )
 
     # Step 3: Hash the new password
-    new_password_hash = hash_password(data.new_password)
+    _new_password_hash = hash_password(data.new_password)
 
     # Step 4: Update the user's password in the database
     # In production:
     # await db.users.update_one(
     #     {"id": reset_record["user_id"]},
-    #     {"$set": {"password_hash": new_password_hash, "updated_at": datetime.now(UTC)}}
+    #     {"$set": {"password_hash": _new_password_hash, "updated_at": datetime.now(UTC)}}
     # )
     logger.info("Password updated - User: %s", reset_record["user_id"])
 

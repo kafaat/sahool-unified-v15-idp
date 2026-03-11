@@ -87,7 +87,7 @@ class DEMService:
                 try:
                     ds.close()
                 except Exception:
-                    pass
+                    pass  # Best-effort cleanup of rasterio dataset file handle
         self._dem_cache.clear()
 
     # ------------------------------------------------------------------

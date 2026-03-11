@@ -7,7 +7,7 @@ import hashlib
 import json
 import logging
 from typing import Optional
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import redis.asyncio as redis
 from redis.asyncio import Redis

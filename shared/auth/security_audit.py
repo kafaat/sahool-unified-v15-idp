@@ -841,6 +841,8 @@ class SecurityAuditLogger:
                 0,
                 -self.MAX_RECENT_EVENTS - 1,
             )
+            # Ensure TTL on recent events set to prevent unbounded growth
+            await self._redis.expire(self.RECENT_EVENTS_KEY, ttl)
         else:
             self._memory_events.append(event)
             # Keep memory bounded

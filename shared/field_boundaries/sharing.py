@@ -739,11 +739,13 @@ def generate_postgis_conflict_detection_query(
     """
     g = geometry_column
     threshold = overlap_threshold_sqm
+    # SECURITY: Use parameterized placeholders ($1, $2) for user-provided values
+    # Table/column names are application constants, not user input
     return f"""
     WITH target AS (
         SELECT id, field_id, owner_id, {g}
         FROM {table}
-        WHERE id = '{boundary_id}' AND tenant_id = '{tenant_id}'
+        WHERE id = $1 AND tenant_id = $2
     ),
     neighbors AS (
         SELECT
@@ -757,14 +759,14 @@ def generate_postgis_conflict_detection_query(
         FROM {table} b
         CROSS JOIN target t
         WHERE b.id != t.id
-            AND b.tenant_id = '{tenant_id}'
+            AND b.tenant_id = $2
             AND (
                 ST_Intersects(t.{g}, b.{g})
                 OR ST_DWithin(t.{g}::geography, b.{g}::geography, 10)
             )
     )
     SELECT
-        '{boundary_id}' AS boundary_id_a,
+        $1 AS boundary_id_a,
         n.id AS boundary_id_b,
         n.field_id AS field_id_b,
         n.owner_id AS owner_id_b,
@@ -793,6 +795,7 @@ def generate_postgis_shared_boundaries_query(
     Generate PostGIS query to get all boundaries shared with a user.
     إنشاء استعلام PostGIS للحصول على جميع الحدود المشتركة مع مستخدم.
     """
+    # SECURITY: Use parameterized placeholder ($1) for user_id to prevent SQL injection
     return f"""
     SELECT
         b.id,
@@ -809,7 +812,7 @@ def generate_postgis_shared_boundaries_query(
         p.expires_at
     FROM {permissions_table} p
     JOIN {boundaries_table} b ON p.boundary_id = b.id
-    WHERE p.user_id = '{user_id}'
+    WHERE p.user_id = $1
         AND p.is_active = true
         AND (p.expires_at IS NULL OR p.expires_at > NOW())
     ORDER BY p.granted_at DESC;
@@ -839,20 +842,20 @@ def generate_postgis_neighbor_notification_query(
     g = geometry_column
     tbl = boundaries_table
     bid = boundary_id
-    # nosec B608 - boundary_id validated as UUID, table/column are constants
+    # SECURITY: Use parameterized placeholder ($1) for boundary_id
     return f"""
     SELECT DISTINCT
         b.owner_id,
         b.field_id,
         b.name,
         ST_Distance(
-            (SELECT {g} FROM {tbl} WHERE id = '{bid}')::geography,
+            (SELECT {g} FROM {tbl} WHERE id = $1)::geography,
             b.{g}::geography
         ) AS distance_m
     FROM {tbl} b
-    WHERE b.id != '{bid}'
+    WHERE b.id != $1
         AND ST_DWithin(
-            (SELECT {g} FROM {tbl} WHERE id = '{bid}')::geography,
+            (SELECT {g} FROM {tbl} WHERE id = $1)::geography,
             b.{g}::geography,
             {buffer_m}
         )

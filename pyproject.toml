@@ -21,11 +21,11 @@ base = [
 ]
 infrastructure = [
     "asyncpg==0.31.0",
-    "tortoise-orm==0.25.4",
-    "aerich==0.9.2",
+    "tortoise-orm==1.1.6",  # Synced with constraints.txt (upgraded from 0.25.4)
+    # aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.6
     "nats-py==2.14.0",
     "redis>=7.1.0,<8.0.0",
-    "python-jose[cryptography]==3.5.0",  # CVE-2024-33663, CVE-2024-33664
+    "python-jose[cryptography]>=3.5.0",  # CVE-2024-33663, CVE-2024-33664 - synced with constraints.txt
     "PyJWT>=2.10.1,<3.0.0",  # CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1
     "passlib[bcrypt]==1.7.4",
     # Security: minimum versions to fix known CVEs

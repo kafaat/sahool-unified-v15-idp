@@ -163,7 +163,8 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
 
             <div className="space-y-2">
               {Object.entries(field.breakdown).map(([category, value]) => {
-                const percentage = (value / field.totalCost) * 100;
+                const numValue = value as number;
+                const percentage = (numValue / field.totalCost) * 100;
                 const label =
                   categoryLabels[category as keyof typeof categoryLabels] ||
                   category;
@@ -175,7 +176,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-700">{label}</span>
                       <span className="font-medium text-gray-900">
-                        {value.toLocaleString("ar-SA")} {t("sar")}
+                        {numValue.toLocaleString("ar-SA")} {t("sar")}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">

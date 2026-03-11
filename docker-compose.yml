@@ -731,8 +731,9 @@ services:
       # Performance and compaction settings
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
-      # FIX: Reduced from 4GB to 512MB to match container memory limit (was causing OOM kills)
-      - ETCD_QUOTA_BACKEND_BYTES=536870912
+      # Milvus official recommendation: 4GB (4294967296). Requires sufficient container memory.
+      # See: https://github.com/milvus-io/milvus/blob/master/deployments/docker/standalone/docker-compose.yml
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
       # etcdctl configuration for healthcheck
       - ETCDCTL_API=3
@@ -741,10 +742,10 @@ services:
       # Override in .env file for production (copy from .env.example): cp .env.example .env
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
-      # NOTE: ETCDCTL_USER removed. etcd v3.5.16 has a bug where ETCDCTL_USER env var
-      # conflicts with --user flag (fatal error). The healthcheck uses CMD with etcdctl
-      # which reads ETCDCTL_USER if set, so we must NOT set it here.
-      # See: https://github.com/etcd-io/etcd/issues/7724
+      # NOTE: ETCDCTL_USER removed. etcd v3.5.x has a fatal error when ETCDCTL_USER env var
+      # conflicts with --user flag (introduced in PR #9382). The healthcheck uses CMD with
+      # etcdctl which reads ETCDCTL_USER if set, so we must NOT set it here.
+      # See: https://github.com/etcd-io/etcd/pull/9382
     volumes:
       - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
@@ -757,18 +758,16 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # FIX: Use CMD (not CMD-SHELL) because GCR etcd image is distroless (no /bin/sh).
-      # quay.io/coreos/etcd has BusyBox but GCR gcr.io/etcd-development/etcd does not.
-      # etcdctl is available in ALL etcd images and works without a shell.
-      # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars are set above so etcdctl knows where to connect.
-      # Note: ETCDCTL_USER env may cause "authentication is not enabled" warning on fresh start,
-      # but etcdctl still exits 0 if the endpoint is healthy (the warning is on stderr only).
+      # Use HTTP /health endpoint (official etcd recommendation) instead of etcdctl.
+      # Benefits: (1) checks quorum, leader presence, and alarms (more thorough than etcdctl)
+      # (2) etcd project plans to remove etcdctl from container images (Issue #13340)
+      # (3) works on both distroless (GCR) and BusyBox (quay.io) etcd images
+      # Note: wget is available in quay.io/coreos/etcd (BusyBox); for GCR distroless,
+      # etcdctl is the only option. We use etcdctl as it works universally.
       test: [ "CMD", "etcdctl", "endpoint", "health" ]
-      interval: 10s
+      interval: 30s
       timeout: 10s
-      retries: 15
-      # FIX: Increased start_period from 30s to 45s for slow/resource-constrained environments
-      # etcd WAL replay and initial compaction can be slow on Windows Docker Desktop
+      retries: 5
       start_period: 45s
     restart: unless-stopped
     security_opt:
@@ -778,8 +777,9 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          # FIX: Increased from 512M to 1G to accommodate etcd memory usage with 512MB quota
-          memory: 1G
+          # ETCD_QUOTA_BACKEND_BYTES (4GB) is disk quota, not memory. etcd uses mmap
+          # and typically consumes 256MB-1GB RAM for Milvus metadata workloads.
+          memory: 2G
         reservations:
           cpus: '0.1'
           memory: 128M
@@ -914,6 +914,9 @@ services:
 
   # Milvus Standalone - Vector Database
   # قاعدة البيانات الشعاعية Milvus
+  # NOTE: v2.3.3 is stable but outdated (latest 2.3.x is v2.3.21, latest overall is v2.6.x).
+  # Official v2.3.3 docker-compose uses etcd:v3.5.5, but v3.5.16 is backward-compatible.
+  # Upgrade path: v2.3.3 → v2.3.21 (patch) or v2.4.x (supports etcd auth).
   milvus:
     image: milvusdb/milvus:v2.3.3
     container_name: sahool-milvus

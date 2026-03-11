@@ -1612,8 +1612,8 @@ services:
       notification-service:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Hit /health (NestJS excludes it from /api/v1 prefix via setGlobalPrefix exclude)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3025/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2862,8 +2862,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8130/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8130/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2912,8 +2912,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8131/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8131/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2962,8 +2962,8 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8132/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use python urllib (this is a Python service, not Node.js)
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8132/healthz')\" || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3

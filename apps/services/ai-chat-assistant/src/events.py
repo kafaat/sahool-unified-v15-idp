@@ -6,13 +6,13 @@ NATS event handler for AI chat queries.
 import json
 import logging
 from typing import Optional
-from datetime import datetime
+from datetime import UTC, datetime
 
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 
 from src.config import settings
-from src.models import AIQuery, AIResponse
+from src.models import AIQuery, AIResponse, ResponseMetadata
 from src.cache import cache_manager
 from src.llm_client import llm_client
 
@@ -74,7 +74,7 @@ class NATSEventHandler:
         Args:
             msg: NATS message containing AI query
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             # Parse message data
@@ -90,7 +90,7 @@ class NATSEventHandler:
             await self._publish_response(response)
 
             # Log processing time
-            total_time_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
             logger.info(
                 f"Processed query in {total_time_ms}ms "
                 f"(cached: {response.metadata.cached}, "
@@ -99,7 +99,33 @@ class NATSEventHandler:
 
         except Exception as e:
             logger.error(f"Error handling AI query: {e}", exc_info=True)
-            # TODO: Send error response back to chat
+
+            # Send error response back to chat so the user isn't left waiting
+            try:
+                conversation_id = "unknown"
+                try:
+                    data = json.loads(msg.data.decode())
+                    conversation_id = data.get("conversation_id", "unknown")
+                except Exception:
+                    pass  # Best-effort extraction of conversation_id from malformed message
+
+                total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
+                error_response = AIResponse(
+                    conversation_id=conversation_id,
+                    answer="عذراً، حدث خطأ أثناء معالجة استفسارك. يرجى المحاولة مرة أخرى.",
+                    answer_en="Sorry, an error occurred while processing your query. Please try again.",
+                    metadata=ResponseMetadata(
+                        confidence=0.0,
+                        agents_used=[],
+                        processing_time_ms=total_time_ms,
+                        cached=False,
+                        should_escalate=True,
+                        escalation_reason=f"Processing error: {type(e).__name__}",
+                    ),
+                )
+                await self._publish_response(error_response)
+            except Exception as publish_err:
+                logger.error(f"Failed to publish error response: {publish_err}")
 
     async def _process_query(self, query: AIQuery) -> AIResponse:
         """

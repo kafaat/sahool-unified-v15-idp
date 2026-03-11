@@ -58,9 +58,9 @@ python-json-logger>=3.2.0,<4.0.0
 # FastAPI Integration
 # ============================================================================
 
-# FastAPI and Starlette (should already be in service requirements)
-# Listed here for reference and version compatibility
-fastapi>=0.128.5,<1.0.0
+# FastAPI and Starlette - pinned centrally in constraints.txt
+# Use: pip install -c constraints.txt -r requirements.txt
+fastapi
 starlette>=0.37.0,<1.0.0
 
 # ============================================================================

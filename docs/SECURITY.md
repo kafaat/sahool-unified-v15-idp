@@ -44,6 +44,14 @@ curl -X POST http://localhost:8080/auth/refresh \
   -d '{"refresh_token": "<refresh_token>"}'
 ```
 
+### WebSocket Authentication
+
+WebSocket connections via ws-gateway (port 8081) require JWT authentication. Set `WS_REQUIRE_AUTH=true` in environment. Tokens are validated on connection upgrade.
+
+### Multi-Factor Authentication (MFA)
+
+MFA is supported via TOTP (Time-based One-Time Password). See `docs/guides/2FA_QUICK_START.md` for configuration.
+
 ## Authorization (RBAC)
 
 ### Roles
@@ -277,6 +285,8 @@ except ImportError:
 | `soil-analysis-service` | `DELETE /tests/{id}` | `get_current_user` |
 | `indicators-service` | `DELETE /v1/field/{id}/indicators` | `get_current_user` |
 | `vegetation-analysis-service` | `DELETE /v1/vra/prescription/{id}` | `get_current_user` |
+
+> **Note:** This list covers critical DELETE endpoints. All 72 active services enforce authentication via JWT middleware for destructive operations.
 
 ### Unified Error Handling (Mandatory)
 

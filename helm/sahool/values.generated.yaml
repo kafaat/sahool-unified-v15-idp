@@ -780,7 +780,7 @@ services:
       prometheus.io/port: '8081'
       prometheus.io/path: /metrics
   ndvi-processor:
-    enabled: true
+    enabled: false
     name: ndvi-processor
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-processor

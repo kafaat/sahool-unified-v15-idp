@@ -18,11 +18,13 @@ import '../utils/app_logger.dart';
 class RetryInterceptor extends Interceptor {
   final int maxRetries;
   final Duration initialDelay;
+  final Dio _dio;
 
   RetryInterceptor({
+    required Dio dio,
     this.maxRetries = 3,
     this.initialDelay = const Duration(seconds: 1),
-  });
+  }) : _dio = dio;
 
   @override
   Future<void> onError(
@@ -60,16 +62,9 @@ class RetryInterceptor extends Interceptor {
       requestOptions.extra['retry_count'] = nextRetryCount;
 
       try {
-        // Retry the request
-        final response = await Dio(
-          BaseOptions(
-            baseUrl: requestOptions.baseUrl,
-            connectTimeout: requestOptions.connectTimeout,
-            receiveTimeout: requestOptions.receiveTimeout,
-            sendTimeout: requestOptions.sendTimeout,
-            headers: requestOptions.headers,
-          ),
-        ).request(
+        // Retry the request using the original Dio instance so all
+        // interceptors (auth, cert pinning, signing) remain active.
+        final response = await _dio.request(
           requestOptions.path,
           data: requestOptions.data,
           queryParameters: requestOptions.queryParameters,

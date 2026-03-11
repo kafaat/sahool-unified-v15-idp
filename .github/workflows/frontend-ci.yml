@@ -98,6 +98,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps --ignore-scripts
 
+      - name: Build shared packages
+        run: npm run build:packages
+
       - name: Run ESLint on packages
         id: lint
         run: |
@@ -131,6 +134,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --ignore-scripts
+
+      - name: Build shared packages
+        run: npm run build:packages
 
       - name: TypeScript check - Web App
         id: typecheck-web
@@ -185,6 +191,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --ignore-scripts
+
+      - name: Build shared packages
+        run: npm run build:packages
 
       - name: Run Vitest
         id: vitest

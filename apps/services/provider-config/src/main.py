@@ -8,6 +8,7 @@ Port: 8104
 
 import json
 import os
+from contextlib import asynccontextmanager
 import sys
 from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
@@ -35,10 +36,73 @@ from .database_service import CacheManager, ProviderConfigService
 # Import database models and services
 from .models import Database
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager | مدير دورة حياة التطبيق"""
+    global database, cache_manager, config_service, nc
+
+    # Get configuration from environment
+    database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
+    if database_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in database_url:
+            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
+    redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
+    nats_url = os.getenv("NATS_URL")
+
+    # Initialize database
+    try:
+        database = Database(database_url)
+        database.create_tables()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error("Database initialization failed", error=str(e))
+        raise
+
+    # Initialize cache
+    try:
+        cache_manager = CacheManager(redis_url, cache_ttl=300)
+        logger.info("Cache initialized successfully")
+    except Exception as e:
+        logger.warning("Cache initialization failed, continuing without cache", error=str(e))
+        cache_manager = CacheManager(redis_url, cache_ttl=0)
+
+    # Initialize config service
+    config_service = ProviderConfigService(database, cache_manager)
+    logger.info("Provider Config Service initialized")
+
+    # Initialize NATS connection
+    if nats_url:
+        try:
+            nc = await nats.connect(nats_url)
+            logger.info("Connected to NATS", nats_url=nats_url)
+        except Exception as e:
+            logger.warning("Failed to connect to NATS", error=str(e))
+            nc = None
+    else:
+        logger.info("NATS_URL not configured, event publishing disabled")
+        nc = None
+
+    yield
+
+    # Shutdown | الإغلاق
+    if nc:
+        try:
+            await nc.close()
+            logger.info("NATS connection closed")
+        except Exception as e:
+            logger.warning("Error closing NATS connection", error=str(e))
+
+    if cache_manager and cache_manager.redis_client:
+        cache_manager.redis_client.close()
+
+    logger.info("Service shutdown complete")
+
+
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
     description="خدمة إدارة وتكوين المزودين الخارجيين للخرائط والطقس والأقمار الصناعية",
     version="16.0.0",
+    lifespan=lifespan,
 )
 
 # Setup unified error handling
@@ -682,74 +746,6 @@ def get_db_session():
         session.close()
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database, cache, and NATS on startup"""
-    global database, cache_manager, config_service, nc
-
-    # Get configuration from environment
-    # Security: No fallback credentials - require env vars to be set
-    database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
-    # Enforce sslmode for non-development database connections
-    if database_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in database_url:
-            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
-    redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
-    nats_url = os.getenv("NATS_URL")
-
-    # Initialize database
-    try:
-        database = Database(database_url)
-        database.create_tables()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error("Database initialization failed", error=str(e))
-        raise
-
-    # Initialize cache
-    try:
-        cache_manager = CacheManager(redis_url, cache_ttl=300)
-        logger.info("Cache initialized successfully")
-    except Exception as e:
-        logger.warning("Cache initialization failed, continuing without cache", error=str(e))
-        # Create a dummy cache manager that doesn't actually cache
-        cache_manager = CacheManager(redis_url, cache_ttl=0)
-
-    # Initialize config service
-    config_service = ProviderConfigService(database, cache_manager)
-    logger.info("Provider Config Service initialized")
-
-    # Initialize NATS connection
-    if nats_url:
-        try:
-            nc = await nats.connect(nats_url)
-            logger.info("Connected to NATS", nats_url=nats_url)
-        except Exception as e:
-            logger.warning("Failed to connect to NATS", error=str(e))
-            nc = None
-    else:
-        logger.info("NATS_URL not configured, event publishing disabled")
-        nc = None
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    global database, cache_manager, nc
-
-    # Close NATS connection
-    if nc:
-        try:
-            await nc.close()
-            logger.info("NATS connection closed")
-        except Exception as e:
-            logger.warning("Error closing NATS connection", error=str(e))
-
-    # Close cache connection
-    if cache_manager and cache_manager.redis_client:
-        cache_manager.redis_client.close()
-
-    logger.info("Service shutdown complete")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

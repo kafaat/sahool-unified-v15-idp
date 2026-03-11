@@ -1,9 +1,9 @@
 # دليل الإعداد والتشغيل - Setup and Deployment Guide
 
-## SAHOOL Platform v15.3 - Complete Setup Instructions
+## SAHOOL Platform v16.0 - Complete Setup Instructions
 
-**التاريخ / Date:** 2026-01-05  
-**الإصدار / Version:** 15.3.0
+**التاريخ / Date:** 2026-03-10
+**الإصدار / Version:** 16.0.0
 
 ---
 
@@ -16,8 +16,8 @@
 docker --version          # يجب أن يكون >= 20.10
 docker compose version    # يجب أن يكون >= 2.0
 make --version           # يجب أن يكون >= 4.0
-python3 --version        # يجب أن يكون >= 3.9
-node --version           # يجب أن يكون >= 18.0
+python3 --version        # يجب أن يكون >= 3.11
+node --version           # يجب أن يكون >= 20.0
 ```
 
 ### 2. إعداد ملف البيئة - Environment Setup

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../utils/app_logger.dart';
@@ -283,9 +284,11 @@ class EndpointConfig {
     );
   }
 
-  /// Calculate backoff duration for a given retry attempt
+  /// Calculate backoff duration for a given retry attempt (exponential)
   Duration getBackoffDuration(int retryCount) {
-    final backoff = initialBackoff * (backoffMultiplier * retryCount);
+    // Exponential backoff: initialBackoff * multiplier^retryCount
+    final multiplier = pow(backoffMultiplier, retryCount).toInt();
+    final backoff = initialBackoff * multiplier;
     return Duration(
       milliseconds: backoff.inMilliseconds.clamp(
         initialBackoff.inMilliseconds,
@@ -349,14 +352,17 @@ class _QueuedRequest {
 class RateLimitInterceptor extends Interceptor {
   final RateLimiter rateLimiter;
   final bool queueExceededRequests;
+  final Dio? _dio;
 
   RateLimitInterceptor({
     RateLimiter? rateLimiter,
     this.queueExceededRequests = true,
-  }) : rateLimiter = rateLimiter ?? RateLimiter();
+    Dio? dio,
+  })  : rateLimiter = rateLimiter ?? RateLimiter(),
+        _dio = dio;
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
@@ -447,21 +453,8 @@ class RateLimitInterceptor extends Interceptor {
             // Wait for rate limit token
             await rateLimiter.waitForToken(newOptions.path);
 
-            // Create a new Dio instance to retry (using the same base)
-            final dio = Dio(
-              BaseOptions(
-                baseUrl: newOptions.baseUrl,
-                headers: Map<String, dynamic>.from(newOptions.headers ?? const {}),
-                connectTimeout: newOptions.connectTimeout,
-                receiveTimeout: newOptions.receiveTimeout,
-                sendTimeout: newOptions.sendTimeout,
-                responseType: newOptions.responseType,
-                contentType: newOptions.contentType,
-                followRedirects: newOptions.followRedirects,
-                receiveDataWhenStatusError: newOptions.receiveDataWhenStatusError,
-                validateStatus: newOptions.validateStatus,
-              ),
-            );final response = await dio.fetch(newOptions);
+            // Retry using the original Dio instance to preserve interceptors
+            final response = await (_dio ?? Dio()).fetch(newOptions);
             handler.resolve(response);
           } catch (e) {
             if (e is DioException) {

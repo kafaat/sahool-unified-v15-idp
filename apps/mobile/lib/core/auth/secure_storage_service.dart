@@ -35,7 +35,7 @@ class SecureStorageService {
         preferencesKeyPrefix: 'sahool_',
       ),
       iOptions: IOSOptions(
-        accessibility: KeychainAccessibility.first_unlock_this_device,
+        accessibility: KeychainAccessibility.unlocked_this_device,
         accountName: 'com.sahool.field',
       ),
     );

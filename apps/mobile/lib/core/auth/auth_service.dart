@@ -88,9 +88,17 @@ class AuthState {
 /// Auth State Notifier
 class AuthStateNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
+  StreamSubscription<bool>? _authStreamSubscription;
 
   AuthStateNotifier(this._authService) : super(const AuthState()) {
     _init();
+    // Subscribe to auth state changes from TokenManager (via AuthService)
+    _authStreamSubscription = _authService.authStateStream.listen((isAuthenticated) {
+      if (!isAuthenticated && mounted) {
+        AppLogger.i('Forcing logout due to token refresh failure', tag: 'AUTH');
+        state = const AuthState(status: AuthStatus.unauthenticated);
+      }
+    });
   }
 
   Future<void> _init() async {
@@ -155,6 +163,12 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       return false;
     }
   }
+
+  @override
+  void dispose() {
+    _authStreamSubscription?.cancel();
+    super.dispose();
+  }
 }
 
 /// Auth Service Implementation
@@ -167,8 +181,14 @@ class AuthService {
   Timer? _refreshTimer;
   static const _tokenRefreshBuffer = Duration(minutes: 5);
 
-  /// Stream subscription for auth state changes
+  /// Stream subscription for auth state changes from TokenManager
   StreamSubscription<bool>? _authStateSubscription;
+
+  /// Stream controller to propagate auth state changes to AuthStateNotifier
+  final _authStateController = StreamController<bool>.broadcast();
+
+  /// Stream of auth state changes (consumed by AuthStateNotifier)
+  Stream<bool> get authStateStream => _authStateController.stream;
 
   AuthService({
     required this.secureStorage,
@@ -181,10 +201,12 @@ class AuthService {
       tokenManager.setApiClient(apiClient!);
     }
 
-    // Listen to auth state changes from TokenManager
+    // Listen to auth state changes from TokenManager and propagate them
     _authStateSubscription = tokenManager.authStateStream.listen((isAuthenticated) {
       if (!isAuthenticated) {
         AppLogger.i('Auth state changed to unauthenticated via TokenManager', tag: 'AUTH');
+        // Propagate to AuthStateNotifier via stream
+        _authStateController.add(false);
       }
     });
   }
@@ -678,6 +700,7 @@ class AuthService {
     _cancelTokenRefresh();
     _authStateSubscription?.cancel();
     _authStateSubscription = null;
+    _authStateController.close();
     tokenManager.dispose();
   }
 }

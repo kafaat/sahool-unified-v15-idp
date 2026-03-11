@@ -16,6 +16,7 @@ import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
 import '../providers/advisor_provider.dart';
 import '../widgets/recommendation_card.dart';
+import '../../../ai_advisor/presentation/screens/ai_advisor_screen.dart';
 
 /// Full agricultural advisor dashboard screen
 /// شاشة لوحة المستشار الزراعي الكاملة
@@ -483,12 +484,16 @@ class AdvisorDashboardScreen extends ConsumerWidget {
   // ===========================================================================
 
   void _openAIChat(BuildContext context) {
-    // TODO: Navigate to AI advisor chat screen
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
             'Opening AI Advisor... | جاري فتح المستشار الذكي...'),
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AiAdvisorScreen(),
       ),
     );
   }

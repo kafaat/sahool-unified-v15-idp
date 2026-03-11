@@ -95,6 +95,7 @@ class ApiClient {
     _dio.interceptors.add(RateLimitInterceptor(
       rateLimiter: _rateLimiter,
       queueExceededRequests: true,
+      dio: _dio,
     ));
 
     // Initialize and add robust retry interceptor with circuit breaker
@@ -121,6 +122,7 @@ class ApiClient {
         enableOfflineQueue: false,
       );
       _dio.interceptors.add(RetryInterceptor(
+        dio: _dio,
         maxRetries: 3,
         initialDelay: const Duration(seconds: 1),
       ));

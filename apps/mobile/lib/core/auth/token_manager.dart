@@ -103,6 +103,9 @@ class TokenManager {
   /// Flag to prevent multiple simultaneous background refreshes
   bool _isBackgroundRefreshing = false;
 
+  /// Completer-based lock for refresh operation to prevent concurrent refreshes
+  Completer<void>? _refreshLock;
+
   TokenManager({
     required SecureStorageService secureStorage,
     this.onAuthStateChanged,
@@ -124,10 +127,30 @@ class TokenManager {
     _refreshCallback = callback;
   }
 
-  /// Refresh the access token
+  /// Refresh the access token (re-entrant safe via Completer lock)
   Future<void> refreshToken() async {
+    // If a refresh is already in progress, wait for it to complete
+    if (_refreshLock != null) {
+      AppLogger.d('Refresh already in progress, waiting', tag: 'TOKEN_MANAGER');
+      return _refreshLock!.future;
+    }
+
+    _refreshLock = Completer<void>();
     AppLogger.i('Refreshing token', tag: 'TOKEN_MANAGER');
 
+    try {
+      await _doRefreshToken();
+      _refreshLock?.complete();
+    } catch (e) {
+      _refreshLock?.completeError(e);
+      rethrow;
+    } finally {
+      _refreshLock = null;
+    }
+  }
+
+  /// Internal refresh implementation
+  Future<void> _doRefreshToken() async {
     final refreshToken = await _secureStorage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
       throw TokenRefreshException(

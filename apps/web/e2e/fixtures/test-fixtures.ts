@@ -133,7 +133,8 @@ export const test = base.extend<CustomFixtures>({
    * Test user fixture
    * إعداد المستخدم الاختباري
    */
-  testUser: async ({}, use) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  testUser: async (_options, use) => {
     await use(TEST_USER);
   },
 
@@ -143,6 +144,7 @@ export const test = base.extend<CustomFixtures>({
    * إعداد الصفحة المصادقة
    * تسجيل دخول تلقائي قبل كل اختبار يستخدم هذا الإعداد
    */
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   authenticatedPage: async ({ page }, use) => {
     // In CI, mock all API calls to return test data
     if (process.env.CI) {

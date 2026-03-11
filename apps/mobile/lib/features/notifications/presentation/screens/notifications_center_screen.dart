@@ -556,9 +556,15 @@ class _NotificationsCenterScreenState
   }
 
   void _dismissNotification(AppNotification notification) {
-    ref
-        .read(notificationsControllerProvider.notifier)
-        .deleteNotification(notification.id);
+    // Store the notification and its index before deleting for undo support
+    final deletedNotification = notification;
+    final controller = ref.read(notificationsControllerProvider.notifier);
+    final currentState = ref.read(notificationsControllerProvider);
+    final originalIndex = currentState.notifications.indexWhere(
+      (n) => n.id == notification.id,
+    );
+
+    controller.deleteNotification(notification.id);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -566,7 +572,12 @@ class _NotificationsCenterScreenState
         action: SnackBarAction(
           label: 'تراجع',
           onPressed: () {
-            // TODO: Implement undo
+            // Undo: restore the notification via the controller's public API,
+            // then refresh from the server to ensure backend consistency.
+            controller.restoreNotification(deletedNotification, originalIndex);
+            controller.refreshNotifications(
+              category: currentState.selectedCategory,
+            );
           },
         ),
       ),

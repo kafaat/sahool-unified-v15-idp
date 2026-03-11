@@ -1,27 +1,29 @@
 # GitHub Actions Workflows Reference
 
-This document provides a comprehensive reference for all 37 GitHub Actions workflows in the SAHOOL platform repository.
+This document provides a comprehensive reference for all 54 GitHub Actions workflows in the SAHOOL platform repository.
 
 ---
 
 ## Table of Contents
 
-1. [CI/CD Core](#1-cicd-core-5-workflows)
-2. [Security](#2-security-5-workflows)
+1. [CI/CD Core](#1-cicd-core-7-workflows)
+2. [Security](#2-security-6-workflows)
 3. [Testing](#3-testing-9-workflows)
-4. [Deployment](#4-deployment-5-workflows)
-5. [Build/Docker](#5-builddocker-2-workflows)
-6. [Governance](#6-governance-5-workflows)
+4. [Deployment](#4-deployment-6-workflows)
+5. [Build/Docker](#5-builddocker-3-workflows)
+6. [Governance](#6-governance-11-workflows)
 7. [Documentation](#7-documentation-1-workflow)
 8. [Mobile](#8-mobile-3-workflows)
 9. [Frontend](#9-frontend-1-workflow)
 10. [AI/Agents](#10-aiagents-1-workflow)
-11. [Workflow Dependencies](#workflow-dependencies)
-12. [Secrets Reference](#secrets-reference)
+11. [Specialized CI](#11-specialized-ci-4-workflows)
+12. [Automation](#12-automation-2-workflows)
+13. [Workflow Dependencies](#workflow-dependencies)
+14. [Secrets Reference](#secrets-reference)
 
 ---
 
-## 1. CI/CD Core (5 Workflows)
+## 1. CI/CD Core (7 Workflows)
 
 ### ci.yml - Main CI Pipeline
 
@@ -125,7 +127,50 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 2. Security (5 Workflows)
+### reusable-setup.yml - Reusable Setup
+
+**Purpose**: Reusable workflow providing common setup steps for Python, Node.js, Flutter, and Docker BuildX environments with caching.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/reusable-setup.yml` |
+| **Triggers** | `workflow_call` |
+
+**Inputs**:
+- `setup-python` - Set up Python environment (default: false)
+- `python-version` - Python version (default: "3.11")
+- `setup-node` - Set up Node.js environment (default: false)
+- `node-version` - Node.js version (default: "20")
+
+**Jobs**:
+- Provides reusable setup steps called by other workflows
+
+**Required Secrets**: None
+
+---
+
+### cd-new-services.yml - Deploy New Services
+
+**Purpose**: Continuous deployment for new services (yolo26-vision, terrain-core, hydrology, leveling-optimizer, edge-orchestrator) using ArgoCD GitOps with staged rollout.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/cd-new-services.yml` |
+| **Triggers** | `push` (tags: v*), `workflow_dispatch` |
+
+**Inputs** (workflow_dispatch):
+- `environment` - Deployment environment (staging or production)
+- `services` - Services to deploy (comma-separated or "all")
+
+**Jobs**:
+- Deploy selected services to target environment
+
+**Required Secrets**:
+- `KUBECONFIG`
+
+---
+
+## 2. Security (6 Workflows)
 
 ### codeql-analysis.yml - CodeQL Semantic Analysis
 
@@ -216,6 +261,26 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 **Required Secrets**:
 - `SCORECARD_TOKEN` (optional, for higher rate limits)
+
+---
+
+### ci-ai-rag-security.yml - AI/RAG Container Security
+
+**Purpose**: Comprehensive security scanning for all AI and RAG services including dependency vulnerability scanning, container security, SBOM generation, and license compliance.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-ai-rag-security.yml` |
+| **Triggers** | `push` (main, develop, copilot/\*\*, claude/\*\*), `pull_request` (main, develop), `schedule` (daily at 3 AM UTC), `workflow_dispatch` |
+| **Paths** | apps/services/ai-advisor/\*\*, apps/services/ai-agents-service/\*\*, apps/services/llm-orchestrator-service/\*\*, apps/services/yolo26-vision-service/\*\*, shared/ai/\*\*, docker/constraints-ai.txt |
+
+**Jobs**:
+- Dependency vulnerability scanning (Safety, pip-audit)
+- Container security scanning (Trivy, Grype)
+- SBOM generation
+- License compliance checks
+
+**Required Secrets**: None
 
 ---
 
@@ -397,7 +462,7 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 4. Deployment (5 Workflows)
+## 4. Deployment (6 Workflows)
 
 ### deploy-preview.yml - Preview Deployments
 
@@ -504,7 +569,34 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 5. Build/Docker (2 Workflows)
+### notifications.yml - Notifications
+
+**Purpose**: Centralized reusable notification system supporting Slack, Discord, email (via SendGrid), and GitHub Issues for critical alerts.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/notifications.yml` |
+| **Triggers** | `workflow_call` |
+
+**Inputs**:
+- `type` - Notification type (success, failure, warning, info)
+- `title` - Notification title
+- `message` - Notification message
+- `environment` - Environment (staging, production)
+- `create-issue` - Create GitHub issue for failures (default: false)
+
+**Jobs**:
+- Send notifications to configured channels (Slack, Discord, email)
+- Optionally create GitHub issues for failures
+
+**Required Secrets**:
+- `SLACK_WEBHOOK_URL` (optional)
+- `DISCORD_WEBHOOK_URL` (optional)
+- `SENDGRID_API_KEY` (optional)
+
+---
+
+## 5. Build/Docker (3 Workflows)
 
 ### docker-image.yml - Docker Image CI
 
@@ -566,7 +658,24 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
-## 6. Governance (5 Workflows)
+### dockerfile-lint.yml - Dockerfile Linting
+
+**Purpose**: Lints all Dockerfiles using hadolint to enforce best practices and security standards.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/dockerfile-lint.yml` |
+| **Triggers** | `pull_request` (\*\*/Dockerfile\*, .hadolint.yaml), `push` (main, develop; \*\*/Dockerfile\*, .hadolint.yaml) |
+| **Runs On** | ubuntu-latest |
+
+**Jobs**:
+- `hadolint` - Lint all Dockerfiles with hadolint
+
+**Required Secrets**: None
+
+---
+
+## 6. Governance (11 Workflows)
 
 ### governance-ci.yml - Governance Validation
 
@@ -675,6 +784,114 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 - `security-gate` - Security scan must pass
 - `governance-gate` - Governance checks must pass
 - `agent-evaluation-gate` - AI agent evaluation (if applicable)
+
+**Required Secrets**: None
+
+---
+
+### api-contracts-guard.yml - API Contracts Guard
+
+**Purpose**: Validates unified API contracts, checks for breaking changes, and ensures TypeScript/Dart contract synchronization.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/api-contracts-guard.yml` |
+| **Triggers** | `pull_request` (main, develop; packages/shared-types/src/contracts/\*\*, apps/mobile/lib/core/contracts/\*\*, packages/api-client/src/\*\*) |
+
+**Jobs**:
+- `validate-contracts` - Validate contract integrity and synchronization
+
+**Required Secrets**: None
+
+---
+
+### api-openapi-guard.yml - OpenAPI & Kong Guard
+
+**Purpose**: Validates OpenAPI specs, detects breaking API changes, and ensures Kong gateway routes match the documented API specifications.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/api-openapi-guard.yml` |
+| **Triggers** | `pull_request` (main, develop; docs/api/openapi/\*\*, api/gateway-openapi.yaml, infrastructure/gateway/kong/\*\*, packages/shared-types/src/contracts/\*\*) |
+
+**Jobs**:
+- Validate OpenAPI specification syntax and completeness
+- Detect breaking API changes
+- Verify Kong routes match OpenAPI specs
+
+**Required Secrets**: None
+
+---
+
+### governance-validation.yml - Governance Validation
+
+**Purpose**: Validates service governance rules, ensuring all apps, packages, and governance definitions conform to platform standards.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/governance-validation.yml` |
+| **Triggers** | `pull_request` (apps/\*\*, packages/\*\*, governance/\*\*, idp/\*\*), `push` (main, develop; governance/\*\*) |
+
+**Jobs**:
+- `validate-services` - Validate service governance rules
+
+**Required Secrets**: None
+
+---
+
+### advanced-quality.yml - Advanced Quality Analysis
+
+**Purpose**: Deep code analysis including dead code detection, security scanning, and performance metrics.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/advanced-quality.yml` |
+| **Triggers** | `workflow_dispatch` (full_scan input), `schedule` (weekly, Sunday 2 AM UTC), `pull_request` (main; apps/services/\*\*.py, shared/\*\*.py) |
+
+**Inputs** (workflow_dispatch):
+- `full_scan` - Run full comprehensive scan (default: false)
+
+**Jobs**:
+- `dead-code` - Dead code analysis with Vulture
+- Security scanning
+- Performance metrics analysis
+
+**Required Secrets**: None
+
+---
+
+### stability-gates.yml - Stability Gates
+
+**Purpose**: Comprehensive stability checks including import verification, configuration validation, and drift detection for shared modules and services.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/stability-gates.yml` |
+| **Triggers** | `pull_request` (main, develop; shared/\*\*, apps/services/\*\*, governance/\*\*, docker-compose\*.yml, .env.example, packages/shared-types/\*\*), `push` (main, develop), `schedule` (daily at 6 AM UTC) |
+
+**Jobs**:
+- Stability and drift detection checks across shared modules and services
+
+**Required Secrets**: None
+
+---
+
+### drift-detection.yml - Drift Detection
+
+**Purpose**: Detects configuration, schema, contract, event, security, and Docker drift across the platform with automated PR comments and issue creation.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/drift-detection.yml` |
+| **Triggers** | `pull_request` (main, develop), `push` (main, develop), `schedule` (daily at 6 AM UTC), `workflow_dispatch` |
+
+**Inputs** (workflow_dispatch):
+- `categories` - Drift categories to check (comma-separated or "all", default: "all")
+- `environment` - Target environment (development, staging, production)
+
+**Jobs**:
+- `preflight` - Pre-flight analysis to determine changed areas
+- Category-specific drift detection (Python, config, schema, contracts, events, security, Docker)
 
 **Required Secrets**: None
 
@@ -869,6 +1086,121 @@ This document provides a comprehensive reference for all 37 GitHub Actions workf
 
 ---
 
+## 11. Specialized CI (4 Workflows)
+
+### ci-yolo26-vision.yml - CI - YOLO26 Vision Service
+
+**Purpose**: Continuous integration for the YOLO26 computer vision service with CUDA support, including linting, testing, container building, and security scanning.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-yolo26-vision.yml` |
+| **Triggers** | `push` (main, develop, feature/\*\*, release/\*\*, claude/\*\*; apps/services/yolo26-vision-service/\*\*, shared/\*\*), `pull_request` (main, develop; same paths), `workflow_dispatch` |
+
+**Jobs**:
+- Lint, test, build, and security scan for yolo26-vision-service
+
+**Required Secrets**: None
+
+---
+
+### ci-terrain-services.yml - CI - Terrain Services
+
+**Purpose**: Matrix-based CI pipeline for terrain-core, hydrology, and leveling-optimizer services with parallel builds and testing.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-terrain-services.yml` |
+| **Triggers** | `push` (main, develop, feature/\*\*, release/\*\*, claude/\*\*; apps/services/terrain-core-service/\*\*, apps/services/hydrology-service/\*\*, apps/services/leveling-optimizer-service/\*\*, shared/\*\*), `pull_request` (main, develop; same paths), `workflow_dispatch` |
+
+**Jobs**:
+- Matrix build and test for terrain-core-service, hydrology-service, and leveling-optimizer-service
+
+**Required Secrets**: None
+
+---
+
+### ci-edge-orchestrator.yml - CI - Edge Orchestrator Service
+
+**Purpose**: CI pipeline for the edge device management and orchestration service (Jetson Orin support).
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-edge-orchestrator.yml` |
+| **Triggers** | `push` (main, develop, feature/\*\*, release/\*\*, claude/\*\*; apps/services/edge-orchestrator-service/\*\*, shared/\*\*), `pull_request` (main, develop; same paths), `workflow_dispatch` |
+
+**Jobs**:
+- Lint, test, build, and security scan for edge-orchestrator-service
+
+**Required Secrets**: None
+
+---
+
+### ci-crop-intelligence.yml - CI - Crop Intelligence
+
+**Purpose**: CI pipeline for the crop intelligence service and related shared modules (digital twin, calibration, process models, fertilizer management, soil testing).
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/ci-crop-intelligence.yml` |
+| **Triggers** | `push` (main, develop, feature/\*\*, release/\*\*, claude/\*\*; apps/services/crop-intelligence-service/\*\*, shared/digital_twin/\*\*, shared/calibration/\*\*, shared/process_models/\*\*, shared/fertilizer_management/\*\*, shared/soil_testing/\*\*), `pull_request` (main, develop; same paths), `workflow_dispatch` |
+
+**Jobs**:
+- Lint, test, build, and validate crop-intelligence-service and dependent shared modules
+
+**Required Secrets**: None
+
+---
+
+## 12. Automation (2 Workflows)
+
+### auto-merge-prs.yml - Auto-Merge PRs
+
+**Purpose**: Automates conflict resolution, testing, and merging of open pull requests with configurable merge and conflict strategies.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/auto-merge-prs.yml` |
+| **Triggers** | `workflow_dispatch` (pr_numbers, merge_strategy, conflict_strategy, require_approvals, dry_run inputs), `pull_request` (labeled) |
+
+**Inputs** (workflow_dispatch):
+- `pr_numbers` - PR numbers to merge (comma-separated or "all")
+- `merge_strategy` - Merge strategy (auto, merge, squash, rebase)
+- `conflict_strategy` - Conflict resolution strategy (auto, ours, theirs, manual)
+- `require_approvals` - Require approvals before merge (default: true)
+- `dry_run` - Dry run without merging (default: true)
+
+**Jobs**:
+- Conflict detection and resolution
+- Pre-merge testing
+- Merge execution with rollback on failure
+
+**Required Secrets**: None (uses GITHUB_TOKEN)
+
+---
+
+### pr-status-monitor.yml - PR Status Monitor
+
+**Purpose**: Monitors open pull requests for conflicts, CI status, and optionally auto-updates branches. Generates daily PR health reports.
+
+| Property | Value |
+|----------|-------|
+| **File** | `.github/workflows/pr-status-monitor.yml` |
+| **Triggers** | `schedule` (daily at 9 AM UTC), `workflow_dispatch` (auto_update, send_notifications inputs), `push` (main, develop) |
+
+**Inputs** (workflow_dispatch):
+- `auto_update` - Automatically update PR branches (default: false)
+- `send_notifications` - Send notifications for issues (default: true)
+
+**Jobs**:
+- Monitor open PRs for conflicts and CI status
+- Optionally auto-update PR branches from base branch
+- Generate PR health reports
+
+**Required Secrets**: None (uses GITHUB_TOKEN)
+
+---
+
 ## Workflow Dependencies
 
 ```mermaid
@@ -1017,4 +1349,4 @@ The following services are deprecated and excluded from CI builds (see `docs/DEP
 
 ---
 
-_Last Updated: January 2026_
+_Last Updated: March 2026_

@@ -743,11 +743,13 @@ services:
       # Phase 2: etcdctl with ETCDCTL_USER unset via subshell (pre-auth or auth-disabled)
       # Phase 3: etcdctl with ETCDCTL_USER from env (post-auth-init)
       # NOTE: curl is NOT available in coreos/etcd Alpine image
-      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q '\"health\":\"true\"' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
-      interval: 15s
-      timeout: 15s
-      retries: 8
-      start_period: 90s
+      # FIX: Use flexible grep pattern to handle JSON with or without spaces
+      # etcd v3.5.16 may return {"health": "true"} (with space) or {"health":"true"} (without)
+      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1:2379/health 2>/dev/null | grep -q 'true' || (unset ETCDCTL_USER && etcdctl endpoint health) 2>/dev/null || etcdctl endpoint health 2>/dev/null" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1066,10 +1068,11 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
-      interval: 30s
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      # FIX: Increased from 15s to 60s - NestJS needs time for Prisma connect + PostGIS + Redis
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1077,7 +1080,7 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 384M
+          memory: 512M
         reservations:
           cpus: '0.25'
           memory: 256M

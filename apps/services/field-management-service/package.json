@@ -5,10 +5,8 @@
   "main": "dist/main.js",
   "scripts": {
     "start": "node dist/main.js",
-    "start:legacy": "node dist/index.js",
     "build": "prisma generate && nest build",
     "dev": "nest start --watch",
-    "dev:legacy": "ts-node-dev --respawn src/index.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "prisma:generate": "prisma generate",

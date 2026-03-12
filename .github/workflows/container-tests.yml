@@ -113,7 +113,7 @@ jobs:
           fi
 
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: gitleaks-report
@@ -331,7 +331,7 @@ jobs:
           df -h
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           # Pin buildkit version for reliability and cache efficiency (avoid :latest rate limiting)
           driver-opts: |
@@ -355,7 +355,7 @@ jobs:
         if: steps.check_dockerfile.outputs.exists == 'true'
         id: build
         continue-on-error: true
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           # Use repository root as context for shared module access
           context: .
@@ -584,7 +584,7 @@ jobs:
 
       - name: Upload vulnerability report
         if: always() && steps.build_result.outputs.success == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: trivy-report-${{ matrix.service.name }}
           path: |
@@ -713,7 +713,7 @@ jobs:
           echo "download_success=false" >> $GITHUB_OUTPUT
 
       - name: Download artifacts (fallback)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           path: test-artifacts
@@ -793,7 +793,7 @@ jobs:
           cat test-summary.json
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-summary
           path: test-summary.json

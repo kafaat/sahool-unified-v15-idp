@@ -260,7 +260,7 @@ jobs:
 
       - name: Upload Coverage Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: apps/web/coverage/
@@ -341,7 +341,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-web.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-build
           path: apps/web/.next
@@ -504,7 +504,7 @@ jobs:
 
       - name: Upload Admin Coverage Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: admin-coverage
           path: apps/admin/coverage/
@@ -585,7 +585,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: always() && steps.build-admin.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: admin-build
           path: apps/admin/.next
@@ -727,7 +727,7 @@ jobs:
 
       - name: Upload Test Coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-coverage
           path: apps/mobile/coverage/
@@ -849,7 +849,7 @@ jobs:
           flutter build apk --debug --no-shrink
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flutter-android-apk
           path: apps/mobile/build/app/outputs/flutter-apk/*.apk
@@ -984,7 +984,7 @@ jobs:
 
       - name: Download Web Build
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-build
           path: apps/web/.next
@@ -1062,7 +1062,7 @@ jobs:
 
       - name: Upload E2E Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results
           path: |
@@ -1072,7 +1072,7 @@ jobs:
 
       - name: Upload Server Logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-server-logs
           path: apps/web/server.log
@@ -1255,7 +1255,7 @@ jobs:
 
       - name: Upload Integration Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mobile-integration-results
           path: |
@@ -1296,7 +1296,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
         continue-on-error: true
@@ -1479,7 +1479,7 @@ jobs:
           NODE_ENV: production
 
       - name: Upload Bundle Analysis
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-analysis
           path: |

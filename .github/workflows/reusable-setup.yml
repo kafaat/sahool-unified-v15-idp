@@ -279,7 +279,7 @@ jobs:
       - name: Set up Docker BuildX
         id: docker
         if: inputs.setup-docker
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           platforms: ${{ inputs.docker-platforms }}
           driver-opts: |

@@ -461,7 +461,7 @@ jobs:
 
       - name: Upload merge report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: merge-report-pr-${{ matrix.pr_number }}
           path: pr-${{ matrix.pr_number }}-merge-report.md
@@ -478,7 +478,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Download all reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: merge-report-pr-*
           path: reports/

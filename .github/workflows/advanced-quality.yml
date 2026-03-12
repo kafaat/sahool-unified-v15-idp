@@ -70,7 +70,7 @@ jobs:
           head -50 dead-code-report.txt
 
       - name: Upload dead code report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dead-code-report
           path: dead-code-report.txt
@@ -120,7 +120,7 @@ jobs:
           head -100 complexity-report.txt
 
       - name: Upload complexity report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: complexity-report
           path: complexity-report.txt
@@ -192,7 +192,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: security-deep-reports
@@ -238,7 +238,7 @@ jobs:
           tail -30 docs-coverage-report.txt
 
       - name: Upload docs coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docs-coverage-report
           path: docs-coverage-report.txt
@@ -277,7 +277,7 @@ jobs:
           head -50 licenses-report.md
 
       - name: Upload license report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: licenses-report
           path: licenses-report.md

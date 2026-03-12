@@ -37,7 +37,7 @@ WORKDIR /workspace/crop-growth-model
 
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmjs.org && \
     install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..."; \
@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/root/.npm \
         fi; \
     done; \
     if [ "$install_ok" = "false" ]; then \
-        npm config set registry https://registry.npmjs.org && \
+        npm config set registry https://registry.npmmirror.com && \
         npm install --legacy-peer-deps --ignore-scripts --fetch-retries=5 --no-audit --no-fund; \
     fi
 
@@ -104,7 +104,7 @@ COPY --from=builder /workspace/nestjs-auth/package.json /nestjs-auth/package.jso
 COPY --from=builder /workspace/crop-growth-model/package.json ./
 COPY --from=builder /workspace/crop-growth-model/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmjs.org && \
     install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..."; \
@@ -130,7 +130,7 @@ RUN --mount=type=cache,target=/root/.npm \
         fi; \
     done; \
     if [ "$install_ok" = "false" ]; then \
-        npm config set registry https://registry.npmjs.org && \
+        npm config set registry https://registry.npmmirror.com && \
         npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
     fi
 

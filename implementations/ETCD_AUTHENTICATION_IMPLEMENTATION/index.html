@@ -1190,7 +1190,7 @@
 <p><strong>Purpose</strong>: One-time initialization service that runs the authentication setup script</p>
 <p><strong>Configuration</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">etcd-init</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quay.io/coreos/etcd:v3.5.5</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quay.io/coreos/etcd:v3.5.18</span>
 <span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-etcd-init</span>
 <span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ETCDCTL_API=3</span>
@@ -1228,6 +1228,7 @@
 </code></pre></div>
 
 <p><strong>Result</strong>: Milvus can now authenticate to etcd using the root credentials</p>
+<p><strong>Note</strong>: Milvus v2.5+ has native support for etcd authentication via <code>ETCD_USERNAME</code> and <code>ETCD_PASSWORD</code> environment variables, making this configuration straightforward.</p>
 <hr />
 <h2 id="services-affected">Services Affected<a class="headerlink" href="#services-affected" title="Permanent link">&para;</a></h2>
 <h3 id="direct-impact">Direct Impact:<a class="headerlink" href="#direct-impact" title="Permanent link">&para;</a></h3>

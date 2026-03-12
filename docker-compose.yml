@@ -122,18 +122,14 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      # FIX: Use comprehensive healthcheck that verifies actual query execution and pool status
-      # Previously used 'nc -z' which only checks TCP port, not actual PgBouncer functionality
-      # The healthcheck.sh script runs SHOW POOLS and checks pool utilization
-      # NOTE: Use $$ to escape dollar signs - docker-compose interpolates ${} but $$ passes $ to the shell
-      # FIX: Primary check is port liveness (nc), enhanced check via healthcheck.sh
-      # healthcheck.sh may fail if psql is not available (apk add fails without network)
-      # In that case, it falls back to nc-only check internally
-      test: [ "CMD-SHELL", "POSTGRES_USER=$$DB_USER POSTGRES_PASSWORD=$$DB_PASSWORD sh /healthcheck.sh || nc -z localhost 6432" ]
+      # Two-tier healthcheck: try deep check via healthcheck.sh, fallback to TCP port check
+      # healthcheck.sh uses POSTGRES_USER/POSTGRES_PASSWORD from container environment (set above as DB_USER/DB_PASSWORD)
+      # NOTE: Export DB_USER/DB_PASSWORD as POSTGRES_USER/POSTGRES_PASSWORD for healthcheck.sh compatibility
+      test: [ "CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && sh /healthcheck.sh || nc -z localhost 6432" ]
       interval: 15s
-      timeout: 10s
-      retries: 8
-      start_period: 60s
+      timeout: 15s
+      retries: 10
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

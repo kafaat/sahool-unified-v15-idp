@@ -759,12 +759,11 @@ services:
       -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # Use HTTP /health endpoint (official etcd recommendation) instead of etcdctl.
-      # Benefits: (1) checks quorum, leader presence, and alarms (more thorough than etcdctl)
-      # (2) etcd project plans to remove etcdctl from container images (Issue #13340)
-      # (3) works on both distroless (GCR) and BusyBox (quay.io) etcd images
-      # Note: wget is available in quay.io/coreos/etcd (BusyBox); for GCR distroless,
-      # etcdctl is the only option. We use etcdctl as it works universally.
+      # Uses etcdctl (exec form CMD, not CMD-SHELL) because etcd v3.5.7+ images are
+      # distroless with no /bin/sh, curl, or wget. etcdctl is the only available binary.
+      # Note: When auth is enabled (via etcd-auth profile), this check may log a warning
+      # "authentication is not enabled" on fresh start, but still exits 0 if healthy.
+      # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars above configure the connection.
       test: [ "CMD", "etcdctl", "endpoint", "health" ]
       interval: 30s
       timeout: 10s

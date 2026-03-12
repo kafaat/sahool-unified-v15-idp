@@ -50,11 +50,17 @@ const hasRedisUrl = !!process.env.REDIS_URL;
               port: parseInt(url.port) || 6379,
               connectTimeout: 5000, // 5 second connection timeout
               reconnectStrategy: (retries: number) => {
-                if (retries > 3) {
-                  logger.warn("Redis connection failed after 3 retries");
-                  return false; // Stop retrying
+                if (retries > 10) {
+                  // For node-redis's socket.reconnectStrategy, this sets an upper bound
+                  // on the backoff interval so the service gradually recovers without thrashing.
+                  if (retries === 11) {
+                    // Log only once when entering the capped-backoff regime to avoid
+                    // flooding logs during a long Redis outage (every 30 s indefinitely).
+                    logger.warn("Redis reconnect: entering slow-retry mode (30 s intervals)");
+                  }
+                  return 30000; // 30 s – keep retrying but slowly
                 }
-                return Math.min(retries * 1000, 3000); // Exponential backoff up to 3s
+                return Math.min(retries * 1000, 5000); // backoff up to 5 s
               },
             },
             password: password || undefined,

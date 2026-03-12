@@ -52,7 +52,14 @@ export class CacheService {
       }
       return value ?? null;
     } catch (error) {
-      this.logger.error(`Cache GET error for ${key}:`, error);
+      // Log at debug level for expected offline errors (Redis reconnecting);
+      // log at warn for unexpected issues to avoid noise in startup logs.
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("offline") || msg.includes("closed")) {
+        this.logger.debug(`Cache GET skipped (Redis offline): ${key}`);
+      } else {
+        this.logger.warn(`Cache GET error for ${key}: ${msg}`);
+      }
       return null;
     }
   }
@@ -65,7 +72,12 @@ export class CacheService {
       await this.cacheManager.set(key, value, ttl * 1000); // Convert to ms
       this.logger.debug(`Cache SET: ${key} (TTL: ${ttl}s)`);
     } catch (error) {
-      this.logger.error(`Cache SET error for ${key}:`, error);
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("offline") || msg.includes("closed")) {
+        this.logger.debug(`Cache SET skipped (Redis offline): ${key}`);
+      } else {
+        this.logger.warn(`Cache SET error for ${key}: ${msg}`);
+      }
     }
   }
 
@@ -77,7 +89,12 @@ export class CacheService {
       await this.cacheManager.del(key);
       this.logger.debug(`Cache DEL: ${key}`);
     } catch (error) {
-      this.logger.error(`Cache DEL error for ${key}:`, error);
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("offline") || msg.includes("closed")) {
+        this.logger.debug(`Cache DEL skipped (Redis offline): ${key}`);
+      } else {
+        this.logger.warn(`Cache DEL error for ${key}: ${msg}`);
+      }
     }
   }
 
@@ -146,16 +163,31 @@ export class CacheService {
   }
 
   /**
-   * Check if cache is available
+   * Check if cache is available.
+   * Uses a 2-second timeout so that a pending Redis connection (offline-queue mode)
+   * does not hang the /readyz probe indefinitely.
    */
   async isHealthy(): Promise<boolean> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     try {
-      const testKey = "health-check";
-      await this.set(testKey, "ok", CACHE_TTL.SHORT);
-      const value = await this.get<string>(testKey);
-      await this.del(testKey);
-      return value === "ok";
+      const checkFn = async () => {
+        const testKey = "health-check";
+        await this.set(testKey, "ok", CACHE_TTL.SHORT);
+        const value = await this.get<string>(testKey);
+        await this.del(testKey);
+        return value === "ok";
+      };
+      const timeoutFn = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error("Cache health-check timeout")),
+          2000,
+        );
+      });
+      const result = await Promise.race([checkFn(), timeoutFn]);
+      clearTimeout(timeoutId);
+      return result;
     } catch {
+      clearTimeout(timeoutId);
       return false;
     }
   }

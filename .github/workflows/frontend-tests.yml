@@ -26,6 +26,10 @@ on:
       - 'apps/mobile/**'
       - 'packages/**'
 
+concurrency:
+  group: frontend-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: '20'
   FLUTTER_VERSION: '3.27.1'
@@ -1386,6 +1390,7 @@ jobs:
             const e2eTests = fs.existsSync(`${artifactsPath}/playwright-results`);
             const mobileIntegration = fs.existsSync(`${artifactsPath}/mobile-integration-results`);
             const webCoverage = fs.existsSync(`${artifactsPath}/web-coverage`);
+            const adminCoverage = fs.existsSync(`${artifactsPath}/admin-coverage`);
             const flutterCoverage = fs.existsSync(`${artifactsPath}/flutter-coverage`);
 
             comment += `| Component | Status |\n`;
@@ -1397,9 +1402,10 @@ jobs:
             comment += `| Mobile Integration | ${mobileIntegration ? '✅ Completed' : '⚠️ Skipped'} |\n`;
 
             comment += '\n### 📊 Coverage Reports\n\n';
-            if (webCoverage || flutterCoverage) {
+            if (webCoverage || adminCoverage || flutterCoverage) {
               comment += 'Coverage reports are available in the workflow artifacts:\n';
               if (webCoverage) comment += '- Web App coverage\n';
+              if (adminCoverage) comment += '- Admin Dashboard coverage\n';
               if (flutterCoverage) comment += '- Flutter coverage\n';
             } else {
               comment += 'No coverage reports available.\n';
@@ -1407,7 +1413,7 @@ jobs:
             comment += '\n---\n';
             comment += `*Workflow run: [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})*`;
 
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -1497,7 +1503,7 @@ jobs:
               '- Web App bundle analysis available\n' +
               '- Admin Dashboard bundle analysis available\n';
 
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

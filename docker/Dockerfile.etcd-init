@@ -2,7 +2,7 @@
 # etcd v3.5.7+ images (both GCR and quay.io) are distroless with no /bin/sh.
 # This image copies etcdctl from the official GCR image into alpine for shell support.
 # No apk packages needed - etcdctl connects to etcd over HTTP on the internal network.
-# To use a different registry: docker build --build-arg ETCD_VERSION=v3.5.16 ...
+# To use a different version: docker build --build-arg ETCD_VERSION=v3.5.18 ...
 ARG ETCD_VERSION=v3.5.18
 FROM gcr.io/etcd-development/etcd:${ETCD_VERSION} AS etcd-bin
 

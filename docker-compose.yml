@@ -922,6 +922,10 @@ services:
       ETCD_ENDPOINTS: etcd:2379
       ETCD_ROOT_PATH: /milvus
       ETCD_USE_SSL: "false"
+      # Etcd auth credentials - required when etcd-auth profile is enabled
+      # Without these, Milvus will fail to connect once etcd auth is turned on
+      ETCD_USERNAME: ${ETCD_ROOT_USERNAME:-}
+      ETCD_PASSWORD: ${ETCD_ROOT_PASSWORD:-}
       # MinIO connection with dedicated service account (least privilege)
       # Falls back to root credentials for backward compatibility (not recommended for production)
       MINIO_ADDRESS: minio:9000

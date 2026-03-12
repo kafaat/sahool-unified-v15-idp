@@ -88,7 +88,7 @@ Vector Databases (قواعد بيانات المتجهات)
 ├─ Milvus:19530             ✅ Vector database v2.5.27
 │
 Coordination (التنسيق)
-├─ etcd:2379                ✅ etcd v3.5.5
+├─ etcd:2379                ✅ etcd v3.5.18
 │
 IoT Messaging (رسائل إنترنت الأشياء)
 ├─ MQTT:1883                ✅ Eclipse Mosquitto 2

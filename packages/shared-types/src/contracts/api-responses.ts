@@ -101,6 +101,7 @@ export interface UserProfile {
   nameAr?: string;
   role: string;
   tenantId?: string;
+  /** @deprecated Use `tenantId` instead */
   tenant_id?: string;
   permissions?: string[];
   phone?: string;

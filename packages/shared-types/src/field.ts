@@ -117,7 +117,8 @@ export type FieldStatus =
   | "fallow"        // بور - في راحة
   | "preparing"     // معد - جاهز للزراعة
   | "harvested"     // محصود
-  | "inactive";     // غير نشط
+  | "inactive"      // غير نشط
+  | "deleted";      // محذوف (soft delete)
 
 /**
  * Soil type classification

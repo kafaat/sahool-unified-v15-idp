@@ -7,9 +7,12 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  /** Arabic display name */
+  nameAr?: string;
+  /** @deprecated Use `nameAr` instead */
   name_ar?: string;
   role: string;
-  /** @deprecated Use tenantId instead */
+  /** @deprecated Use `tenantId` instead */
   tenant_id?: string;
   tenantId?: string;
   permissions?: string[];
@@ -22,6 +25,8 @@ export interface LoginResponse {
   refresh_token?: string;
   token_type?: string;
   expires_in?: number;
+  /** Whether 2-FA verification step is required before the token is active */
+  requires_2fa?: boolean;
   user: User;
 }
 
@@ -31,7 +36,7 @@ export interface JWTPayload {
   email?: string;
   role?: string;
   tenantId?: string;
-  /** @deprecated Use tenantId instead */
+  /** @deprecated Use `tenantId` instead */
   tenant_id?: string;
   permissions?: string[];
   iat?: number;

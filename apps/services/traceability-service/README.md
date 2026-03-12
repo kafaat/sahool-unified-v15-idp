@@ -89,41 +89,45 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 | `/api/v1/traceability/journey/{batch_code}` | GET | Get consumer-facing product journey |
 | `/api/v1/traceability/carbon/{batch_id}` | GET | Estimate carbon footprint from transport events |
 
-### Planned Endpoints (Not Yet Implemented)
+### Recall Management (GS1 EPCIS Compliant)
 
-The following endpoints are planned for future releases:
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/traceability/batches/{batch_id}/recall` | POST | Initiate product recall with forward trace |
+
+### Planned Endpoints (Not Yet Implemented)
 
 - **Batch Merge**: Merge multiple batches into one
 - **Retail Events**: Record retail/point-of-sale events
-- **QR Generation**: QR code generation (POST), label generation
 - **Consumer Features**: Consumer scan recording, certification display
 - **Certifications**: Full certification CRUD and batch attachment
 - **Reports**: Trace reports, supply chain reports, compliance reports
-- **Actors**: Producer, facility, transporter, and retailer management
 
 ---
 
-## Events | الأحداث
+## NATS Events | الأحداث
+
+All events use centralized constants from `shared.events.subjects`.
 
 ### Produces
 
-| Event | Description |
-|-------|-------------|
-| `BatchCreated.v1` | New produce batch created |
-| `HarvestRecorded.v1` | Harvest event recorded |
-| `BatchProcessed.v1` | Processing event recorded |
-| `BatchShipped.v1` | Transport event recorded |
-| `ConsumerScanned.v1` | Consumer scanned product |
-| `CertificationAttached.v1` | Certification attached to batch |
+| Event | NATS Subject | Description |
+|-------|-------------|-------------|
+| `BatchCreated.v1` | `sahool.traceability.batch_created` | New produce batch created |
+| `BatchSplit.v1` | `sahool.traceability.batch_split` | Batch split into sub-batches |
+| `BatchRecalled.v1` | `sahool.traceability.batch_recalled` | Product recall initiated |
+| `HarvestRecorded.v1` | `sahool.traceability.harvest_recorded` | Harvest event recorded |
+| `ProcessingRecorded.v1` | `sahool.traceability.processing_recorded` | Processing event recorded |
+| `StorageRecorded.v1` | `sahool.traceability.storage_recorded` | Storage event recorded |
+| `TransportRecorded.v1` | `sahool.traceability.transport_recorded` | Transport event recorded |
+| `NotificationSend.v1` | `sahool.notification.send` | Critical recall notifications |
 
 ### Consumes
 
 | Event | Description |
 |-------|-------------|
 | `FieldCreated.v1` | Field data for producer tracking |
-| `YieldEstimated.v1` | Yield for batch planning |
-| `TaskCompleted.v1` | Harvest task completion |
-| `QualityGraded.v1` | Quality grade assignment |
+| `HarvestCompleted.v1` | Harvest task completion |
 
 ---
 
@@ -346,4 +350,4 @@ Proprietary - KAFAAT
 ---
 
 **Version**: 16.0.0
-**Last Updated**: February 2026
+**Last Updated**: March 2026

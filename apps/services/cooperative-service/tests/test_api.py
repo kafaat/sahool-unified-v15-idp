@@ -288,3 +288,59 @@ class TestStatistics:
         assert data["member_count"] == 5
         assert data["resource_count"] == 3
         assert data["total_land_area_ha"] == 25.0
+
+
+class TestNATSEventPublishing:
+    """Test that NATS events are published correctly."""
+
+    def test_create_cooperative_publishes_event(self, db_client, mock_db_pool, mock_nats):
+        """Test cooperative creation publishes NATS event."""
+        mock_db_pool.fetchrow.return_value = _make_coop_record()
+
+        db_client.post(
+            "/api/v1/cooperatives/",
+            json={
+                "tenant_id": "T1",
+                "name": "Test Coop",
+                "name_ar": "تعاونية تجربة",
+            },
+        )
+
+        assert mock_nats.publish.called
+        subjects = [c.args[0] for c in mock_nats.publish.call_args_list]
+        assert "sahool.cooperative.created" in subjects
+
+    def test_add_member_publishes_event(self, db_client, mock_db_pool, mock_nats):
+        """Test adding member publishes NATS event."""
+        coop_id = uuid.uuid4()
+        mock_db_pool.fetchrow.side_effect = [
+            _make_coop_record(id=coop_id),  # _get_coop_or_404
+            _make_member_record(cooperative_id=coop_id),  # INSERT RETURNING
+        ]
+
+        db_client.post(
+            f"/api/v1/cooperatives/{coop_id}/members",
+            json={"farmer_id": "F1", "name": "Ahmed", "name_ar": "أحمد"},
+        )
+
+        assert mock_nats.publish.called
+        subjects = [c.args[0] for c in mock_nats.publish.call_args_list]
+        assert "sahool.cooperative.member_added" in subjects
+
+    def test_revenue_distribution_publishes_event_and_notification(self, db_client, mock_db_pool, mock_nats):
+        """Test revenue distribution publishes event + notification."""
+        coop_id = uuid.uuid4()
+        mock_db_pool.fetchrow.return_value = _make_coop_record(id=coop_id)
+        mock_db_pool.fetch.return_value = [
+            _make_member_record(cooperative_id=coop_id, name="Ahmed", name_ar="أحمد"),
+        ]
+
+        db_client.post(
+            f"/api/v1/cooperatives/{coop_id}/revenue/distribute",
+            json={"total_revenue": 5000.0, "method": "production"},
+        )
+
+        assert mock_nats.publish.called
+        subjects = [c.args[0] for c in mock_nats.publish.call_args_list]
+        assert "sahool.cooperative.revenue_distributed" in subjects
+        assert "sahool.notification.send" in subjects

@@ -321,3 +321,150 @@ class TestProductJourney:
 
         response = db_client.get("/api/v1/traceability/journey/INVALID-CODE")
         assert response.status_code == 404
+
+
+class TestRecallManagement:
+    """Test recall management endpoints (GS1 EPCIS compliance)."""
+
+    def test_initiate_recall(self, db_client, mock_db_pool):
+        """Test initiating a product recall."""
+        from src.main import app
+        from src.api.v1.batches import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            batch_id = uuid.uuid4()
+            recall_event = _make_event_record("recall", batch_id=batch_id)
+
+            mock_db_pool.fetchrow.side_effect = [
+                _make_batch_record(id=batch_id, status="in_transit"),  # get batch
+                recall_event,  # insert recall event
+            ]
+            mock_db_pool.fetch.return_value = []  # no child batches
+            mock_db_pool.execute.return_value = None
+
+            response = db_client.post(
+                f"/api/v1/traceability/batches/{batch_id}/recall",
+                json={
+                    "reason_en": "Contamination detected",
+                    "reason_ar": "تم اكتشاف تلوث",
+                    "severity": "critical",
+                    "affected_regions": ["Riyadh", "Jeddah"],
+                },
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "recalled"
+            assert data["severity"] == "critical"
+            assert data["reason_en"] == "Contamination detected"
+            assert data["reason_ar"] == "تم اكتشاف تلوث"
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+
+    def test_recall_already_recalled_batch(self, db_client, mock_db_pool):
+        """Test that recalling an already recalled batch returns 400."""
+        from src.main import app
+        from src.api.v1.batches import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            batch_id = uuid.uuid4()
+            mock_db_pool.fetchrow.return_value = _make_batch_record(id=batch_id, status="recalled")
+
+            response = db_client.post(
+                f"/api/v1/traceability/batches/{batch_id}/recall",
+                json={"reason_en": "Test", "reason_ar": "اختبار"},
+            )
+            assert response.status_code == 400
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+
+    def test_recall_with_child_batches(self, db_client, mock_db_pool):
+        """Test recall propagates to child batches."""
+        from src.main import app
+        from src.api.v1.batches import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            batch_id = uuid.uuid4()
+            child1_id = uuid.uuid4()
+            child2_id = uuid.uuid4()
+
+            mock_db_pool.fetchrow.side_effect = [
+                _make_batch_record(id=batch_id, batch_code="WH-26-001", status="in_transit"),
+                _make_event_record("recall", batch_id=batch_id),
+            ]
+            mock_db_pool.fetch.return_value = [
+                FakeRecord({"id": child1_id, "batch_code": "WH-26-001-S1", "status": "in_transit"}),
+                FakeRecord({"id": child2_id, "batch_code": "WH-26-001-S2", "status": "in_storage"}),
+            ]
+            mock_db_pool.execute.return_value = None
+
+            response = db_client.post(
+                f"/api/v1/traceability/batches/{batch_id}/recall",
+                json={"reason_en": "Quality issue", "reason_ar": "مشكلة في الجودة", "severity": "high"},
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert len(data["affected_children"]) == 2
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+
+
+class TestNATSEventPublishing:
+    """Test that NATS events are published correctly."""
+
+    def test_create_batch_publishes_event(self, db_client, mock_db_pool, mock_nats):
+        """Test batch creation publishes NATS event."""
+        from src.main import app
+        from src.api.v1.batches import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            mock_db_pool.fetchval.return_value = 0
+            mock_db_pool.fetchrow.return_value = _make_batch_record()
+
+            db_client.post(
+                "/api/v1/traceability/batches",
+                json={
+                    "tenant_id": "T1",
+                    "farm_id": "F1",
+                    "field_id": "FLD1",
+                    "product_name_en": "Wheat",
+                    "product_name_ar": "قمح",
+                    "quantity": 100.0,
+                },
+            )
+
+            # Verify NATS publish was called with correct subject
+            assert mock_nats.publish.called
+            call_args = mock_nats.publish.call_args_list
+            subjects = [c.args[0] for c in call_args]
+            assert "sahool.traceability.batch_created" in subjects
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+
+    def test_harvest_publishes_event(self, db_client, mock_db_pool, mock_nats):
+        """Test harvest event publishes NATS event."""
+        batch_id = uuid.uuid4()
+        mock_db_pool.fetchrow.side_effect = [
+            _make_batch_record(id=batch_id),
+            _make_event_record("harvest", batch_id=batch_id),
+        ]
+
+        db_client.post(
+            f"/api/v1/traceability/batches/{batch_id}/events/harvest",
+            json={
+                "field_name_en": "Field A",
+                "field_name_ar": "الحقل أ",
+                "crop_type": "wheat",
+            },
+        )
+
+        assert mock_nats.publish.called
+        subjects = [c.args[0] for c in mock_nats.publish.call_args_list]
+        assert "sahool.traceability.harvest_recorded" in subjects

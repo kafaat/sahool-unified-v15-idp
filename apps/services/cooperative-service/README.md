@@ -132,26 +132,26 @@ Agricultural cooperatives management service for resource pooling, group purchas
 
 ---
 
-## Events | الأحداث
+## NATS Events | الأحداث
+
+All events use centralized constants from `shared.events.subjects`.
 
 ### Produces
 
-| Event | Description |
-|-------|-------------|
-| `CooperativeCreated.v1` | New cooperative created |
-| `MemberJoined.v1` | Member joined cooperative |
-| `ResourceBooked.v1` | Resource booking created |
-| `RevenueDistributed.v1` | Revenue distributed to members |
-| `PurchaseOrderFinalized.v1` | Group purchase order finalized |
+| Event | NATS Subject | Description |
+|-------|-------------|-------------|
+| `CooperativeCreated.v1` | `sahool.cooperative.created` | New cooperative created |
+| `MemberAdded.v1` | `sahool.cooperative.member_added` | Member joined cooperative |
+| `MemberRemoved.v1` | `sahool.cooperative.member_removed` | Member removed from cooperative |
+| `ResourceBooked.v1` | `sahool.cooperative.resource_booked` | Resource booking created |
+| `RevenueDistributed.v1` | `sahool.cooperative.revenue_distributed` | Revenue distributed to members |
+| `NotificationSend.v1` | `sahool.notification.send` | Notification for revenue distribution |
 
 ### Consumes
 
 | Event | Description |
 |-------|-------------|
-| `YieldPredicted.v1` | Yield prediction for revenue planning |
-| `FieldCreated.v1` | Field creation for land area tracking |
-| `TaskCompleted.v1` | Task completion for resource usage |
-| `OrderPaid.v1` | Marketplace order payment |
+| `FarmerCreated.v1` | Farmer registration for member onboarding |
 
 ---
 

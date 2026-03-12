@@ -11,6 +11,18 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
+# NATS event subject constants
+from shared.events.subjects import (
+    SAHOOL_NOTIFICATION_SEND,
+    SAHOOL_TRACEABILITY_BATCH_CREATED,
+    SAHOOL_TRACEABILITY_BATCH_RECALLED,
+    SAHOOL_TRACEABILITY_BATCH_SPLIT,
+    SAHOOL_TRACEABILITY_HARVEST_RECORDED,
+    SAHOOL_TRACEABILITY_PROCESSING_RECORDED,
+    SAHOOL_TRACEABILITY_STORAGE_RECORDED,
+    SAHOOL_TRACEABILITY_TRANSPORT_RECORDED,
+)
+
 logger = structlog.get_logger()
 
 # Authentication dependency
@@ -187,7 +199,7 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            "sahool.traceability.batch_created",
+            SAHOOL_TRACEABILITY_BATCH_CREATED,
             json.dumps({"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": request.tenant_id}).encode(),
         )
 
@@ -281,7 +293,7 @@ async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req:
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish("sahool.traceability.harvest_recorded", json.dumps({"batch_id": batch_id}).encode())
+        await nc.publish(SAHOOL_TRACEABILITY_HARVEST_RECORDED, json.dumps({"batch_id": batch_id}).encode())
 
     logger.info("harvest_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
@@ -307,6 +319,11 @@ async def record_processing_event(batch_id: str, request: ProcessingEventRequest
     )
 
     await pool.execute("UPDATE produce_batches SET status = 'in_processing' WHERE id = $1", batch_uuid)
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(SAHOOL_TRACEABILITY_PROCESSING_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+
     logger.info("processing_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
 
@@ -331,6 +348,11 @@ async def record_storage_event(batch_id: str, request: StorageEventRequest, req:
     )
 
     await pool.execute("UPDATE produce_batches SET status = 'in_storage' WHERE id = $1", batch_uuid)
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(SAHOOL_TRACEABILITY_STORAGE_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+
     logger.info("storage_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
 
@@ -361,6 +383,11 @@ async def record_transport_event(batch_id: str, request: TransportEventRequest, 
     )
 
     await pool.execute("UPDATE produce_batches SET status = 'in_transit' WHERE id = $1", batch_uuid)
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(SAHOOL_TRACEABILITY_TRANSPORT_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+
     logger.info("transport_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
 
@@ -540,6 +567,13 @@ async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request):
         uuid.UUID(batch_id),
     )
 
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(
+            SAHOOL_TRACEABILITY_BATCH_SPLIT,
+            json.dumps({"batch_id": batch_id, "child_count": len(child_batches)}).encode(),
+        )
+
     logger.info("batch_split", parent_id=batch_id, children=len(child_batches))
     return {"parent_batch_id": batch_id, "remaining_quantity": remaining, "child_batches": child_batches}
 
@@ -584,3 +618,100 @@ async def estimate_carbon_footprint(batch_id: str, req: Request):
         return {"batch_id": batch_id, "carbon_footprint_kg_co2": round(total_footprint, 3)}
     except (ImportError, Exception):
         return {"batch_id": batch_id, "carbon_footprint_kg_co2": None, "message": "Carbon calculation not available"}
+
+
+# === Recall Management Endpoints (GS1 EPCIS compliance) ===
+
+
+class RecallInitiateRequest(BaseModel):
+    reason_en: str
+    reason_ar: str
+    severity: str = Field("high", description="low, medium, high, critical")
+    affected_regions: list[str] | None = None
+    notes: str | None = None
+
+
+@router.post("/batches/{batch_id}/recall")
+async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Request, _user=Depends(get_current_user)):
+    """Initiate product recall - بدء استرجاع المنتج (GS1 EPCIS compliant)"""
+    pool = await _get_db(req)
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+
+    if batch.get("status") == "recalled":
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Batch already recalled", "error_ar": "تم استرجاع الدفعة بالفعل"},
+        )
+
+    # Update batch status to recalled
+    await pool.execute("UPDATE produce_batches SET status = 'recalled' WHERE id = $1", uuid.UUID(batch_id))
+
+    # Record recall event in supply chain
+    recall_event = await pool.fetchrow(
+        """
+        INSERT INTO supply_chain_events (batch_id, event_type, notes, notes_ar, metadata)
+        VALUES ($1, 'recall', $2, $3, $4)
+        RETURNING *
+        """,
+        uuid.UUID(batch_id),
+        request.reason_en,
+        request.reason_ar,
+        json.dumps({
+            "severity": request.severity,
+            "affected_regions": request.affected_regions or [],
+            "initiated_at": datetime.now(UTC).isoformat(),
+        }),
+    )
+
+    # Forward trace: find child batches that need recall
+    child_batches = await pool.fetch(
+        "SELECT id, batch_code, status FROM produce_batches WHERE batch_code LIKE $1 AND status != 'recalled'",
+        f"{batch['batch_code']}-S%",
+    )
+    affected_children = [{"id": str(c["id"]), "batch_code": c["batch_code"], "status": c["status"]} for c in child_batches]
+
+    # Recall child batches too
+    if child_batches:
+        child_ids = [c["id"] for c in child_batches]
+        await pool.execute(
+            "UPDATE produce_batches SET status = 'recalled' WHERE id = ANY($1::uuid[])",
+            child_ids,
+        )
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(
+            SAHOOL_TRACEABILITY_BATCH_RECALLED,
+            json.dumps({
+                "batch_id": batch_id,
+                "batch_code": batch["batch_code"],
+                "severity": request.severity,
+                "affected_children": len(affected_children),
+            }).encode(),
+        )
+        # Critical notification for recalls
+        await nc.publish(
+            SAHOOL_NOTIFICATION_SEND,
+            json.dumps({
+                "type": "product_recall",
+                "priority": "critical",
+                "batch_id": batch_id,
+                "batch_code": batch["batch_code"],
+                "title_en": f"Product Recall: {batch['batch_code']} - {request.reason_en}",
+                "title_ar": f"استرجاع منتج: {batch['batch_code']} - {request.reason_ar}",
+                "severity": request.severity,
+            }).encode(),
+        )
+
+    logger.warning("batch_recalled", batch_id=batch_id, batch_code=batch["batch_code"], severity=request.severity)
+    return {
+        "status": "recalled",
+        "batch_id": batch_id,
+        "batch_code": batch["batch_code"],
+        "reason_en": request.reason_en,
+        "reason_ar": request.reason_ar,
+        "severity": request.severity,
+        "affected_children": affected_children,
+        "recall_event": _row_to_dict(recall_event),
+        "recalled_at": datetime.now(UTC).isoformat(),
+    }

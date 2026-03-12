@@ -11,6 +11,16 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+# NATS event subject constants
+from shared.events.subjects import (
+    SAHOOL_COOPERATIVE_CREATED,
+    SAHOOL_COOPERATIVE_MEMBER_ADDED,
+    SAHOOL_COOPERATIVE_MEMBER_REMOVED,
+    SAHOOL_COOPERATIVE_RESOURCE_BOOKED,
+    SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED,
+    SAHOOL_NOTIFICATION_SEND,
+)
+
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
@@ -151,7 +161,7 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            "sahool.cooperative.created",
+            SAHOOL_COOPERATIVE_CREATED,
             json.dumps({"cooperative_id": coop_data["id"], "tenant_id": request.tenant_id}).encode(),
         )
 
@@ -268,7 +278,7 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
     if nc:
         member_data = _row_to_dict(row)
         await nc.publish(
-            "sahool.cooperative.member_added",
+            SAHOOL_COOPERATIVE_MEMBER_ADDED,
             json.dumps({"cooperative_id": coop_id, "member_id": member_data["id"]}).encode(),
         )
 
@@ -313,6 +323,14 @@ async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depend
         "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1",
         coop_uuid,
     )
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(
+            SAHOOL_COOPERATIVE_MEMBER_REMOVED,
+            json.dumps({"cooperative_id": coop_id, "member_id": member_id}).encode(),
+        )
+
     logger.info("member_removed", coop_id=coop_id, member_id=member_id)
 
 
@@ -398,7 +416,7 @@ async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRe
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            "sahool.cooperative.resource_booked",
+            SAHOOL_COOPERATIVE_RESOURCE_BOOKED,
             json.dumps({"cooperative_id": coop_id, "resource_id": resource_id, "booking_id": str(row["id"])}).encode(),
         )
 
@@ -450,8 +468,19 @@ async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest, 
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            "sahool.cooperative.revenue_distributed",
+            SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED,
             json.dumps({"cooperative_id": coop_id, "total_revenue": request.total_revenue, "method": request.method}).encode(),
+        )
+        # Notify members about revenue distribution
+        await nc.publish(
+            SAHOOL_NOTIFICATION_SEND,
+            json.dumps({
+                "type": "cooperative_revenue",
+                "cooperative_id": coop_id,
+                "title_en": f"Revenue Distribution: {request.total_revenue}",
+                "title_ar": f"توزيع الإيرادات: {request.total_revenue}",
+                "member_count": len(distributions),
+            }).encode(),
         )
 
     return {

@@ -3051,7 +3051,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: false  # DB-backed with asyncpg, 14 endpoints (CRUD + PUT + revenue + stats)
+    skeleton: false  # DB-backed with asyncpg, 14 endpoints, NATS constants from shared.events.subjects
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3059,9 +3059,12 @@ services:
     events:
       produces:
         - CooperativeCreated.v1
+        - CooperativeUpdated.v1
         - MemberAdded.v1
+        - MemberRemoved.v1
         - ResourceBooked.v1
         - RevenueDistributed.v1
+        - NotificationSend.v1  # Revenue distribution notifications
       consumes:
         - FarmerCreated.v1
     dependencies:
@@ -3088,7 +3091,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: false  # DB-backed with asyncpg, 15 endpoints (batch CRUD + events + journey + QR + split + carbon)
+    skeleton: false  # DB-backed with asyncpg, 16 endpoints, NATS constants, GS1-compliant recall
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3096,8 +3099,13 @@ services:
     events:
       produces:
         - BatchCreated.v1
+        - BatchSplit.v1
+        - BatchRecalled.v1
         - HarvestRecorded.v1
+        - ProcessingRecorded.v1
+        - StorageRecorded.v1
         - TransportRecorded.v1
+        - NotificationSend.v1  # Recall notifications (critical priority)
       consumes:
         - FieldCreated.v1
         - HarvestCompleted.v1

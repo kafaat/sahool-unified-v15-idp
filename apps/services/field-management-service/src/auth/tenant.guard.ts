@@ -22,7 +22,7 @@ import {
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_KEY } from "./public.decorator";
 
-const SKIP_TENANT_KEY = "skipTenantCheck";
+export const SKIP_TENANT_KEY = "skipTenantCheck";
 
 export const SkipTenantCheck = () => SetMetadata(SKIP_TENANT_KEY, true);
 

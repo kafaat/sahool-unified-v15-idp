@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 2.1.0
+/// Contract version: 2.2.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -26,6 +26,7 @@ abstract final class ServicePorts {
   static const int cropGrowthModel = 3023;
   static const int yieldPrediction = 8152;
   static const int yieldEngine = 8098;
+  static const int yieldPredictionLegacy = 3021;
   static const int taskService = 8103;
   static const int equipment = 8101;
   static const int notifications = 8110;

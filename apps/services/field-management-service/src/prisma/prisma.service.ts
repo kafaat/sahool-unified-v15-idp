@@ -4,7 +4,6 @@
  * - Health check support
  * - Query logging for slow queries
  * - Graceful shutdown
- * - Graceful degraded mode: service starts even when DB is temporarily unavailable
  */
 
 import {
@@ -17,8 +16,6 @@ import { PrismaClient, Prisma } from "../../prisma/generated/client";
 
 // Slow query threshold in milliseconds
 const SLOW_QUERY_THRESHOLD = 1000;
-// Background reconnect interval (30 s)
-const RECONNECT_INTERVAL_MS = 30_000;
 
 @Injectable()
 export class PrismaService
@@ -28,7 +25,6 @@ export class PrismaService
   private readonly logger = new Logger(PrismaService.name);
   private isConnected = false;
   private readonly isTestEnvironment: boolean;
-  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     super({
@@ -59,108 +55,116 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    await this._tryConnect();
-  }
-
-  /**
-   * Attempt to connect with exponential-backoff retries.
-   * On final failure the service starts in degraded mode (isConnected = false)
-   * so the liveness probe (/healthz) still returns 200, while the readiness
-   * probe (/readyz) correctly returns 503 until the database is reachable.
-   * A background timer keeps retrying so the service self-heals automatically.
-   */
-  private async _tryConnect(): Promise<void> {
-    const maxRetries = this.isTestEnvironment ? 1 : 3;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    if (this.isTestEnvironment) {
       try {
         await this.$connect();
         this.isConnected = true;
         this.logger.log("Field Management Database connected successfully");
-
-        // Enable PostGIS extension if not already present
-        try {
-          await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
-          this.logger.log("PostGIS extension verified");
-        } catch {
-          this.logger.debug("PostGIS extension already exists or insufficient privilege (non-fatal)");
-        }
-        return; // Success — exit retry loop
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-
-        if (this.isTestEnvironment) {
-          this.logger.warn(
-            `Database connection failed in test environment: ${errorMessage}`,
-          );
-          this.logger.warn("Running in degraded mode without database");
-          this.isConnected = false;
-          return;
-        }
-
-        if (attempt < maxRetries) {
-          const delay = attempt * 2000; // 2 s, 4 s backoff
-          this.logger.warn(
-            `Database connection failed (attempt ${attempt}/${maxRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
-          );
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        } else {
-          // All retries exhausted — start in degraded mode instead of crashing.
-          // The liveness probe will still pass; readyz will report not-ready until
-          // the background reconnect loop succeeds.
-          this.logger.error(
-            `Database connection failed after ${maxRetries} attempts: ${errorMessage}. ` +
-            "Starting in degraded mode. Background reconnect will retry every " +
-            `${RECONNECT_INTERVAL_MS / 1000}s.`,
-          );
-          this.isConnected = false;
-          this._scheduleReconnect();
-        }
+        this.logger.warn(`Database connection failed in test environment: ${errorMessage}`);
+        this.logger.warn("Running in degraded mode without database");
+        this.isConnected = false;
       }
+      return;
     }
+
+    // In production: trigger the connection attempt asynchronously so that
+    // onModuleInit() returns immediately, allowing NestJS to proceed to app.listen()
+    // and serve /healthz before the DB retry loop completes.  The service starts
+    // in degraded mode (/readyz returns 503) and becomes ready once connected.
+    this.connectWithRetry().catch((error) => {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Unexpected error in background DB connection retry loop: ${errorMessage}`,
+      );
+    });
   }
 
-  /** Schedule a background reconnect attempt */
-  private _scheduleReconnect(): void {
-    if (this.reconnectTimer !== null || this.isTestEnvironment) return;
+  /**
+   * Attempt to connect with linear backoff.
+   * On final failure the service starts in degraded mode (isConnected = false)
+   * and schedules a background reconnection loop so it recovers automatically
+   * when the database becomes available.
+   */
+  private async connectWithRetry(attempt = 1): Promise<void> {
+    const maxInitialRetries = 5;
+    // Delay grows linearly with each attempt: 3 s, 6 s, 9 s, 12 s, 15 s (capped)
+    const delay = Math.min(attempt * 3000, 15000);
 
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectTimer = null;
-      // Wrap the async work and catch any unexpected rejection so the
-      // Node.js process is never taken down by an unhandled promise.
-      this._doReconnect().catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : String(err);
-        this.logger.error(`Unexpected error in background DB reconnect: ${msg}`);
-        this._scheduleReconnect();
-      });
-    }, RECONNECT_INTERVAL_MS);
-  }
-
-  /** Perform a single reconnect attempt (called from the background timer). */
-  private async _doReconnect(): Promise<void> {
-    this.logger.log("Background DB reconnect attempt starting...");
     try {
       await this.$connect();
       this.isConnected = true;
-      this.logger.log("Field Management Database reconnected successfully");
+      this.logger.log(`Field Management Database connected successfully (attempt ${attempt})`);
 
+      // Verify PostGIS extension
       try {
         await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
+        this.logger.log("PostGIS extension verified");
       } catch {
-        // non-fatal
+        this.logger.debug("PostGIS extension may already exist or is unavailable via pooler");
       }
     } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      this.logger.warn(`Background DB reconnect failed: ${msg}. Will retry in ${RECONNECT_INTERVAL_MS / 1000}s.`);
-      this._scheduleReconnect(); // keep retrying
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      if (attempt < maxInitialRetries) {
+        this.logger.warn(
+          `Database connection failed (attempt ${attempt}/${maxInitialRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return this.connectWithRetry(attempt + 1);
+      }
+
+      // All initial attempts exhausted — start in degraded mode and keep retrying.
+      this.isConnected = false;
+      this.logger.error(
+        `Database connection failed after ${maxInitialRetries} attempts: ${errorMessage}. ` +
+          "Service starting in degraded mode. Background reconnection scheduled.",
+      );
+      this.scheduleBackgroundReconnect();
     }
   }
 
-  async onModuleDestroy() {
-    if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
+  /**
+   * Retry the database connection in the background (linear backoff, capped at 60 s).
+   * Delay per attempt = min(attempt * 5000, 60000) ms: 5 s, 10 s, …, 60 s (cap at attempt 12).
+   * Total scheduled delay across 30 attempts ≈ 24.5 minutes (attempts 1-11 linear + 19 × 60 s).
+   * This allows the service to recover automatically when the database becomes available
+   * without crashing or blocking the HTTP server.
+   */
+  private scheduleBackgroundReconnect(attempt = 1): void {
+    const maxBackgroundAttempts = 30;
+    const delay = Math.min(attempt * 5000, 60000); // 5 s, 10 s, …, 60 s (cap reached at attempt 12)
+
+    if (attempt > maxBackgroundAttempts) {
+      this.logger.error(
+        `Background reconnect gave up after ${maxBackgroundAttempts} attempts. ` +
+          "Check database availability and restart the service manually.",
+      );
+      return;
     }
+
+    setTimeout(async () => {
+      if (this.isConnected) return; // already reconnected
+
+      try {
+        await this.$connect();
+        this.isConnected = true;
+        this.logger.log("Field Management Database reconnected successfully");
+        try {
+          await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
+        } catch {
+          // ignored
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Background reconnect attempt ${attempt} failed: ${errorMessage}`);
+        this.scheduleBackgroundReconnect(attempt + 1);
+      }
+    }, delay);
+  }
+
+  async onModuleDestroy() {
     if (this.isConnected) {
       await this.$disconnect();
       this.logger.log("Field Management Database disconnected");
@@ -180,15 +184,12 @@ export class PrismaService
   async getConnectionStatus() {
     try {
       await this.$queryRaw`SELECT 1`;
-      this.isConnected = true; // update flag on successful live check
       return {
         connected: true,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.isConnected = false;
       this.logger.error("Database connection check failed:", error);
-      this._scheduleReconnect(); // trigger background reconnect if not already running
       return {
         connected: false,
         timestamp: new Date().toISOString(),

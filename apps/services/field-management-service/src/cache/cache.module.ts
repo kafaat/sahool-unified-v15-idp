@@ -51,10 +51,13 @@ const hasRedisUrl = !!process.env.REDIS_URL;
               connectTimeout: 5000, // 5 second connection timeout
               reconnectStrategy: (retries: number) => {
                 if (retries > 10) {
-                  // Cap at 30 s to keep the connection alive without excessive retries.
-                  // ioredis never stops retrying once configured; this sets a ceiling on
-                  // the backoff so the service gradually recovers without thrashing.
-                  logger.warn(`Redis reconnect limit reached after ${retries} attempts, backing off to max interval`);
+                  // For node-redis's socket.reconnectStrategy, this sets an upper bound
+                  // on the backoff interval so the service gradually recovers without thrashing.
+                  if (retries === 11) {
+                    // Log only once when entering the capped-backoff regime to avoid
+                    // flooding logs during a long Redis outage (every 30 s indefinitely).
+                    logger.warn("Redis reconnect: entering slow-retry mode (30 s intervals)");
+                  }
                   return 30000; // 30 s – keep retrying but slowly
                 }
                 return Math.min(retries * 1000, 5000); // backoff up to 5 s

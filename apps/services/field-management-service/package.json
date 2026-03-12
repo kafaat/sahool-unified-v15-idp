@@ -26,7 +26,6 @@
     "@prisma/client": "^5.22.0",
     "cache-manager": "^5.4.0",
     "cache-manager-redis-yet": "^4.1.2",
-    "ioredis": "^5.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^16.4.7",

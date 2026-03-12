@@ -69,22 +69,27 @@ export class PrismaService
       return;
     }
 
-    // In production: attempt initial connection but do not crash the app on failure.
-    // The service starts in degraded mode and retries in the background so the
-    // /healthz liveness probe can respond immediately, preventing docker-compose
-    // from marking the container unhealthy while waiting for the database.
-    await this.connectWithRetry();
+    // In production: trigger the connection attempt asynchronously so that
+    // onModuleInit() returns immediately, allowing NestJS to proceed to app.listen()
+    // and serve /healthz before the DB retry loop completes.  The service starts
+    // in degraded mode (/readyz returns 503) and becomes ready once connected.
+    this.connectWithRetry().catch((error) => {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Unexpected error in background DB connection retry loop: ${errorMessage}`,
+      );
+    });
   }
 
   /**
-   * Attempt to connect with exponential backoff.
+   * Attempt to connect with linear backoff.
    * On final failure the service starts in degraded mode (isConnected = false)
    * and schedules a background reconnection loop so it recovers automatically
    * when the database becomes available.
    */
   private async connectWithRetry(attempt = 1): Promise<void> {
     const maxInitialRetries = 5;
-    // Delay grows with each attempt: 3 s, 6 s, 9 s, 12 s, 15 s (capped)
+    // Delay grows linearly with each attempt: 3 s, 6 s, 9 s, 12 s, 15 s (capped)
     const delay = Math.min(attempt * 3000, 15000);
 
     try {
@@ -121,8 +126,9 @@ export class PrismaService
   }
 
   /**
-   * Retry the database connection in the background (exponential backoff, capped at 60 s,
-   * max 30 background attempts ≈ 50 minutes of retrying after the initial failures).
+   * Retry the database connection in the background (linear backoff, capped at 60 s).
+   * Delay per attempt = min(attempt * 5000, 60000) ms: 5 s, 10 s, …, 60 s (cap at attempt 12).
+   * Total scheduled delay across 30 attempts ≈ 24.5 minutes (attempts 1-11 linear + 19 × 60 s).
    * This allows the service to recover automatically when the database becomes available
    * without crashing or blocking the HTTP server.
    */

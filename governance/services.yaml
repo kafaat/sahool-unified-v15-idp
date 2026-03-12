@@ -916,7 +916,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # Model Context Protocol server with limited endpoints
+    skeleton: false  # Full MCP server: 6,741 LOC across shared/mcp/ (tools, resources, prompts)
     owner: "iot-team@sahool.io"
     team: iot
     lifecycle: production
@@ -2334,7 +2334,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # Compliance checklist framework
+    skeleton: false  # Full IFA v6 compliance engine: 3,923 LOC, 18 endpoints, audit reports, bilingual
     owner: "platform-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3012,7 +3012,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # Drone integration framework, ready for enhancement
+    skeleton: false  # Full drone service: 2,397 LOC, 28 endpoints, state machine, VRA, asyncpg DB
     owner: "agri-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3051,7 +3051,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # Basic structure ready for enhancement
+    skeleton: true  # In-memory only (604 LOC), 12 CRUD endpoints, needs DB persistence layer
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3087,7 +3087,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # Blockchain-ready supply chain traceability framework
+    skeleton: true  # In-memory fallback only (748 LOC), 0 DB queries, migration exists but unused
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production

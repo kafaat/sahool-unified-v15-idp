@@ -1256,9 +1256,9 @@ docker-compose --profile legacy up
 | weather-service       | Python  | 8092 | Weather data                 |
 | virtual-sensors       | Python  | 8119 | Virtual sensor computation   |
 | ws-gateway            | Python  | 8081 | WebSocket gateway            |
-| mcp-server            | Python  | 8201 | Model Context Protocol (skeleton) |
+| mcp-server            | Python  | 8201 | Model Context Protocol             |
 | astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
-| drone-service         | Python  | 8126 | Drone integration (skeleton) |
+| drone-service         | Python  | 8126 | Drone fleet & VRA management |
 | ussd-gateway          | Python  | 8183 | USSD gateway                 |
 | whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 
@@ -1271,11 +1271,11 @@ docker-compose --profile legacy up
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | inventory-service    | Python  | 8116 | Inventory management     |
-| cooperative-service  | Python  | 8127 | Cooperative management (skeleton) |
+| cooperative-service  | Python  | 8127 | Cooperative management (skeleton)  |
 | crm-service          | Python  | 8131 | Farmer CRM               |
 | logistics-service    | Python  | 8167 | Logistics management     |
 | supply-chain-service | Python  | 8230 | Supply chain management  |
-| traceability-service | Python  | 8123 | Product traceability (skeleton) |
+| traceability-service | Python  | 8123 | Product traceability (skeleton)  |
 | globalgap-compliance | Python  | 8128 | GlobalGAP compliance     |
 | wechat-service       | Python  | 8133 | WeChat integration       |
 

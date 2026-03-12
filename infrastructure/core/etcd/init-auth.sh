@@ -48,8 +48,14 @@ echo "Waiting for etcd to be ready..."
 sleep 5
 
 # Check if etcd is responsive with retry logic
+# Try without credentials first (auth disabled), then with credentials (auth enabled)
+# SECURITY: Use ETCDCTL_USER env var (not --user flag) to avoid exposing credentials in ps output
 echo "Checking etcd health..."
-retry 3 2 etcdctl endpoint health || {
+check_health() {
+  etcdctl endpoint health 2>/dev/null || \
+  ETCDCTL_USER="${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD}" etcdctl endpoint health 2>/dev/null
+}
+retry 3 2 check_health || {
   echo "ERROR: Etcd failed to become healthy after multiple attempts"
   exit 1
 }
@@ -66,7 +72,8 @@ if etcdctl user list 2>/dev/null | grep -q "root"; then
 fi
 
 # Try with credentials (auth already enabled from a previous run)
-if etcdctl --user "${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD}" user list 2>/dev/null | grep -q "root"; then
+# SECURITY: Use env var prefix to pass credentials without exposing in process args
+if ETCDCTL_USER="${ETCD_ROOT_USERNAME}:${ETCD_ROOT_PASSWORD}" etcdctl user list 2>/dev/null | grep -q "root"; then
   echo "Authentication already configured and enabled. Root user exists."
   exit 0
 fi

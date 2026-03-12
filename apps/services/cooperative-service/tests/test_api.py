@@ -9,6 +9,7 @@ import pytest
 
 class FakeRecord(dict):
     """Fake asyncpg Record that supports both dict and attribute access."""
+
     def __getattr__(self, key):
         try:
             return self[key]
@@ -141,6 +142,7 @@ class TestCooperativeEndpoints:
     def test_no_database_returns_503(self):
         """Test that missing DB pool returns 503."""
         from src.main import app
+
         # Ensure no db_pool is set
         if hasattr(app.state, "db_pool"):
             saved = app.state.db_pool
@@ -149,6 +151,7 @@ class TestCooperativeEndpoints:
             saved = None
         try:
             from fastapi.testclient import TestClient
+
             c = TestClient(app)
             c.headers["X-Tenant-Id"] = "test-tenant-001"
             response = c.get("/api/v1/cooperatives/")
@@ -272,14 +275,16 @@ class TestStatistics:
         coop_id = uuid.uuid4()
         mock_db_pool.fetchrow.side_effect = [
             _make_coop_record(id=coop_id),
-            FakeRecord({
-                "member_count": 5,
-                "resource_count": 3,
-                "total_land_area_ha": 25.0,
-                "total_shares": 10,
-                "active_bookings": 2,
-                "total_booking_revenue": 1500.0,
-            }),
+            FakeRecord(
+                {
+                    "member_count": 5,
+                    "resource_count": 3,
+                    "total_land_area_ha": 25.0,
+                    "total_shares": 10,
+                    "active_bookings": 2,
+                    "total_booking_revenue": 1500.0,
+                }
+            ),
         ]
 
         response = db_client.get(f"/api/v1/cooperatives/{coop_id}/stats")

@@ -29,7 +29,7 @@ except ImportError:
 
     _bearer_scheme = HTTPBearer(auto_error=False)
 
-    async def get_current_user(
+    async def get_current_user(  # type: ignore[misc]
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
         """Fallback auth - validates Authorization header presence."""
@@ -175,9 +175,7 @@ async def list_cooperatives(req: Request, tenant_id: str | None = None):
     pool = await _get_db(req)
 
     if tenant_id:
-        rows = await pool.fetch(
-            "SELECT * FROM cooperatives WHERE tenant_id = $1 ORDER BY created_at DESC", tenant_id
-        )
+        rows = await pool.fetch("SELECT * FROM cooperatives WHERE tenant_id = $1 ORDER BY created_at DESC", tenant_id)
     else:
         rows = await pool.fetch("SELECT * FROM cooperatives ORDER BY created_at DESC")
 
@@ -206,14 +204,19 @@ async def get_cooperative(coop_id: str, req: Request):
 
 
 @router.put("/{coop_id}")
-async def update_cooperative(coop_id: str, request: CooperativeUpdateRequest, req: Request, _user=Depends(get_current_user)):
+async def update_cooperative(
+    coop_id: str, request: CooperativeUpdateRequest, req: Request, _user=Depends(get_current_user)
+):
     """Update cooperative - تحديث التعاونية"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id)
 
-    updates = request.model_dump(exclude_none=True)
+    ALLOWED_COLUMNS = {"name", "name_ar", "description", "description_ar", "region", "status"}
+    updates = {k: v for k, v in request.model_dump(exclude_none=True).items() if k in ALLOWED_COLUMNS}
     if not updates:
-        raise HTTPException(status_code=400, detail={"error": "No fields to update", "error_ar": "لا توجد حقول للتحديث"})
+        raise HTTPException(
+            status_code=400, detail={"error": "No fields to update", "error_ar": "لا توجد حقول للتحديث"}
+        )
 
     set_clauses = []
     values = []
@@ -223,7 +226,7 @@ async def update_cooperative(coop_id: str, request: CooperativeUpdateRequest, re
     values.append(uuid.UUID(coop_id))
 
     row = await pool.fetchrow(
-        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",
+        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist
         *values,
     )
     logger.info("cooperative_updated", coop_id=coop_id, fields=list(updates.keys()))
@@ -469,18 +472,22 @@ async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest, 
     if nc:
         await nc.publish(
             SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED,
-            json.dumps({"cooperative_id": coop_id, "total_revenue": request.total_revenue, "method": request.method}).encode(),
+            json.dumps(
+                {"cooperative_id": coop_id, "total_revenue": request.total_revenue, "method": request.method}
+            ).encode(),
         )
         # Notify members about revenue distribution
         await nc.publish(
             SAHOOL_NOTIFICATION_SEND,
-            json.dumps({
-                "type": "cooperative_revenue",
-                "cooperative_id": coop_id,
-                "title_en": f"Revenue Distribution: {request.total_revenue}",
-                "title_ar": f"توزيع الإيرادات: {request.total_revenue}",
-                "member_count": len(distributions),
-            }).encode(),
+            json.dumps(
+                {
+                    "type": "cooperative_revenue",
+                    "cooperative_id": coop_id,
+                    "title_en": f"Revenue Distribution: {request.total_revenue}",
+                    "title_ar": f"توزيع الإيرادات: {request.total_revenue}",
+                    "member_count": len(distributions),
+                }
+            ).encode(),
         )
 
     return {

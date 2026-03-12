@@ -33,7 +33,7 @@ except ImportError:
 
     _bearer_scheme = HTTPBearer(auto_error=False)
 
-    async def get_current_user(
+    async def get_current_user(  # type: ignore[misc]
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     ):
         """Lightweight auth - validates Authorization header presence."""
@@ -63,9 +63,7 @@ async def _get_batch_or_404(pool, batch_id: str) -> dict:
     """Get batch by ID or raise 404."""
     row = await pool.fetchrow("SELECT * FROM produce_batches WHERE id = $1", uuid.UUID(batch_id))
     if not row:
-        raise HTTPException(
-            status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"}
-        )
+        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
     return dict(row)
 
 
@@ -146,6 +144,7 @@ def _generate_batch_code(product_code: str, year: int | None, sequence: int, far
     """Generate batch code, using shared module if available."""
     try:
         from shared.traceability import generate_batch_code
+
         return generate_batch_code(
             product_code=product_code,
             year=year or datetime.now(UTC).year,
@@ -200,7 +199,9 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
     if nc:
         await nc.publish(
             SAHOOL_TRACEABILITY_BATCH_CREATED,
-            json.dumps({"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": request.tenant_id}).encode(),
+            json.dumps(
+                {"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": request.tenant_id}
+            ).encode(),
         )
 
     logger.info("batch_created", batch_id=batch_data["id"], batch_code=batch_code)
@@ -245,9 +246,12 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request)
     pool = await _get_db(req)
     await _get_batch_or_404(pool, batch_id)
 
-    updates = request.model_dump(exclude_none=True)
+    ALLOWED_COLUMNS = {"product_name_en", "product_name_ar", "quantity", "status"}
+    updates = {k: v for k, v in request.model_dump(exclude_none=True).items() if k in ALLOWED_COLUMNS}
     if not updates:
-        raise HTTPException(status_code=400, detail={"error": "No fields to update", "error_ar": "لا توجد حقول للتحديث"})
+        raise HTTPException(
+            status_code=400, detail={"error": "No fields to update", "error_ar": "لا توجد حقول للتحديث"}
+        )
 
     set_clauses = []
     values = []
@@ -257,7 +261,7 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request)
     values.append(uuid.UUID(batch_id))
 
     row = await pool.fetchrow(
-        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",
+        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist
         *values,
     )
     logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
@@ -289,7 +293,9 @@ async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req:
     )
 
     # Update batch status
-    await pool.execute("UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND status = 'created'", batch_uuid)
+    await pool.execute(
+        "UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND status = 'created'", batch_uuid
+    )
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
@@ -430,8 +436,8 @@ async def generate_qr_code(batch_id: str, req: Request):
         return {
             "batch_id": batch_id,
             "batch_code": batch["batch_code"],
-            "qr_data": qr_result.data,
-            "format": qr_result.format,
+            "qr_data": getattr(qr_result, "data", str(qr_result)),
+            "format": getattr(qr_result, "format", "png"),
         }
     except (ImportError, Exception) as e:
         logger.warning("qr_generation_fallback", error=str(e))
@@ -656,11 +662,13 @@ async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Re
         uuid.UUID(batch_id),
         request.reason_en,
         request.reason_ar,
-        json.dumps({
-            "severity": request.severity,
-            "affected_regions": request.affected_regions or [],
-            "initiated_at": datetime.now(UTC).isoformat(),
-        }),
+        json.dumps(
+            {
+                "severity": request.severity,
+                "affected_regions": request.affected_regions or [],
+                "initiated_at": datetime.now(UTC).isoformat(),
+            }
+        ),
     )
 
     # Forward trace: find child batches that need recall
@@ -668,7 +676,9 @@ async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Re
         "SELECT id, batch_code, status FROM produce_batches WHERE batch_code LIKE $1 AND status != 'recalled'",
         f"{batch['batch_code']}-S%",
     )
-    affected_children = [{"id": str(c["id"]), "batch_code": c["batch_code"], "status": c["status"]} for c in child_batches]
+    affected_children = [
+        {"id": str(c["id"]), "batch_code": c["batch_code"], "status": c["status"]} for c in child_batches
+    ]
 
     # Recall child batches too
     if child_batches:
@@ -682,25 +692,29 @@ async def initiate_recall(batch_id: str, request: RecallInitiateRequest, req: Re
     if nc:
         await nc.publish(
             SAHOOL_TRACEABILITY_BATCH_RECALLED,
-            json.dumps({
-                "batch_id": batch_id,
-                "batch_code": batch["batch_code"],
-                "severity": request.severity,
-                "affected_children": len(affected_children),
-            }).encode(),
+            json.dumps(
+                {
+                    "batch_id": batch_id,
+                    "batch_code": batch["batch_code"],
+                    "severity": request.severity,
+                    "affected_children": len(affected_children),
+                }
+            ).encode(),
         )
         # Critical notification for recalls
         await nc.publish(
             SAHOOL_NOTIFICATION_SEND,
-            json.dumps({
-                "type": "product_recall",
-                "priority": "critical",
-                "batch_id": batch_id,
-                "batch_code": batch["batch_code"],
-                "title_en": f"Product Recall: {batch['batch_code']} - {request.reason_en}",
-                "title_ar": f"استرجاع منتج: {batch['batch_code']} - {request.reason_ar}",
-                "severity": request.severity,
-            }).encode(),
+            json.dumps(
+                {
+                    "type": "product_recall",
+                    "priority": "critical",
+                    "batch_id": batch_id,
+                    "batch_code": batch["batch_code"],
+                    "title_en": f"Product Recall: {batch['batch_code']} - {request.reason_en}",
+                    "title_ar": f"استرجاع منتج: {batch['batch_code']} - {request.reason_ar}",
+                    "severity": request.severity,
+                }
+            ).encode(),
         )
 
     logger.warning("batch_recalled", batch_id=batch_id, batch_code=batch["batch_code"], severity=request.severity)

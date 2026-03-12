@@ -20,6 +20,7 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 def client():
     """Create test client with tenant header."""
     from src.main import app
+
     c = TestClient(app)
     c.headers["X-Tenant-Id"] = "test-tenant-001"
     return c

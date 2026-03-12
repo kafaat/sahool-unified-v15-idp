@@ -51,6 +51,9 @@ const hasRedisUrl = !!process.env.REDIS_URL;
               connectTimeout: 5000, // 5 second connection timeout
               reconnectStrategy: (retries: number) => {
                 if (retries > 10) {
+                  // Cap at 30 s to keep the connection alive without excessive retries.
+                  // ioredis never stops retrying once configured; this sets a ceiling on
+                  // the backoff so the service gradually recovers without thrashing.
                   logger.warn(`Redis reconnect limit reached after ${retries} attempts, backing off to max interval`);
                   return 30000; // 30 s – keep retrying but slowly
                 }

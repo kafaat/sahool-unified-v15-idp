@@ -84,7 +84,8 @@ export class PrismaService
    */
   private async connectWithRetry(attempt = 1): Promise<void> {
     const maxInitialRetries = 5;
-    const delays = [3000, 6000, 9000, 12000, 15000]; // 3 s, 6 s, … 15 s
+    // Delay grows with each attempt: 3 s, 6 s, 9 s, 12 s, 15 s (capped)
+    const delay = Math.min(attempt * 3000, 15000);
 
     try {
       await this.$connect();
@@ -102,7 +103,6 @@ export class PrismaService
       const errorMessage = error instanceof Error ? error.message : String(error);
 
       if (attempt < maxInitialRetries) {
-        const delay = delays[attempt - 1] ?? 15000;
         this.logger.warn(
           `Database connection failed (attempt ${attempt}/${maxInitialRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
         );
@@ -121,12 +121,22 @@ export class PrismaService
   }
 
   /**
-   * Retry the database connection in the background (exponential backoff, max 60 s).
+   * Retry the database connection in the background (exponential backoff, capped at 60 s,
+   * max 30 background attempts ≈ 50 minutes of retrying after the initial failures).
    * This allows the service to recover automatically when the database becomes available
    * without crashing or blocking the HTTP server.
    */
   private scheduleBackgroundReconnect(attempt = 1): void {
-    const delay = Math.min(attempt * 5000, 60000); // 5 s, 10 s, … 60 s
+    const maxBackgroundAttempts = 30;
+    const delay = Math.min(attempt * 5000, 60000); // 5 s, 10 s, …, 60 s (cap reached at attempt 12)
+
+    if (attempt > maxBackgroundAttempts) {
+      this.logger.error(
+        `Background reconnect gave up after ${maxBackgroundAttempts} attempts. ` +
+          "Check database availability and restart the service manually.",
+      );
+      return;
+    }
 
     setTimeout(async () => {
       if (this.isConnected) return; // already reconnected

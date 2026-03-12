@@ -164,7 +164,11 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=5 \
     CMD node -e "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
-CMD ["node", "dist/main.js"]
+# Run Prisma migrations then start the service.
+# Schema is at ./prisma/schema.prisma (WORKDIR /app, copied from builder stage).
+# Migration errors are non-fatal: the service starts in degraded mode and
+# the background reconnect loop in PrismaService will retry automatically.
+CMD ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema.prisma || echo '[WARN] Prisma migrate failed - starting in degraded mode'; exec node dist/main.js"]

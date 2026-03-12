@@ -59,7 +59,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # 2. Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
 # 3. Run tsc with local binary, falling back to npx if not found
 RUN npm install --no-save --legacy-peer-deps \
-    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 && \
+    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 redis@4 && \
     ln -sf /workspace/yield-prediction-service/node_modules /workspace/nestjs-auth/node_modules && \
     (/workspace/yield-prediction-service/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
      npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \

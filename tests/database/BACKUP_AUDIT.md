@@ -136,7 +136,7 @@ The SAHOOL platform has implemented a **comprehensive, production-grade backup a
 **Services Deployed:**
 
 1. **MinIO** - S3-compatible object storage
-   - Pinned version: `RELEASE.2024-01-16T16-07-38Z`
+   - Pinned version: `RELEASE.2024-05-28T17-19-04Z`
    - Health checks: ✅ Enabled
    - Resource limits: ✅ Configured
    - Ports: 9000 (API), 9001 (Console)

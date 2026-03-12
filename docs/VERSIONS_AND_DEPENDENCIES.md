@@ -3,7 +3,7 @@
 > Comprehensive documentation of all platform versions, libraries, and dependencies
 
 **Platform Version**: 16.0.0
-**Last Updated**: January 2026
+**Last Updated**: March 2026
 
 ---
 
@@ -54,7 +54,9 @@
 | **PostGIS** | 3.4 | (included) | Geospatial extension |
 | **PgBouncer** | latest | `edoburu/pgbouncer` | Connection pooling |
 | **Redis** | 7.4 | `redis:7.4-alpine` | Caching & sessions |
-| **MinIO** | 2024-01-16 | `minio/minio:RELEASE.2024-01-16T16-07-38Z` | Object storage |
+| **MinIO** | 2024-05-28 | `minio/minio:RELEASE.2024-05-28T17-19-04Z` | Object storage |
+| **Milvus** | 2.5.27 | `milvusdb/milvus:v2.5.27` | Vector database |
+| **etcd** | 3.5.18 | `quay.io/coreos/etcd:v3.5.18` | Milvus metadata storage |
 
 ### Messaging & Events | الرسائل والأحداث
 
@@ -515,6 +517,7 @@
 
 | CVE | Package | Fixed Version |
 |-----|---------|---------------|
+| CVE-2026-26190 | Milvus | 2.5.27 |
 | CVE-2025-53643 | aiohttp | >=3.11.12 |
 | CVE-2024-33663 | python-jose | 3.4.0 |
 | CVE-2024-33664 | python-jose | 3.4.0 |
@@ -547,6 +550,8 @@
 | **ORM (Python)** | Tortoise/SQLAlchemy | 0.21.7/2.0+ |
 | **ORM (Node.js)** | Prisma | 5.22.0 |
 | **ORM (Flutter)** | Drift + SQLCipher | 2.24.0 + 0.6.1 |
+| **Vector DB** | Milvus | 2.5.27 |
+| **Metadata Store** | etcd | 3.5.18 |
 | **ML** | TensorFlow | 2.18.0 |
 | **Kubernetes** | EKS | 1.28 |
 | **IaC** | Terraform | >=1.5.0 |
@@ -578,5 +583,5 @@ npm install typescript@5.7.2 --save-exact
 ---
 
 **Document Version**: 1.0
-**Last Updated**: January 2026
+**Last Updated**: March 2026
 **Maintained By**: SAHOOL Platform Team

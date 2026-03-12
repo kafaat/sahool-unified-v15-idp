@@ -255,7 +255,7 @@ The SAHOOL National Agricultural Intelligence Platform demonstrates **enterprise
 
 ### Vector Databases (8.0/10)
 - **Qdrant v1.10.1**: Enterprise tier only, 2 replicas production, 50Gi SSD
-- **Milvus v2.3.3**: Alternative with etcd + MinIO backend
+- **Milvus v2.5.27**: Alternative with etcd + MinIO backend
 - **4 backends**: SQLite (offline-first), Filesystem, Memory, Qdrant
 - **12 embedding models**: Including Arabic (AraBERT, MARBERT, multilingual-e5)
 - **Tri-RAG retrieval**: Dense + Sparse + Knowledge Graph

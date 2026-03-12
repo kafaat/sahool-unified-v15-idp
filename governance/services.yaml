@@ -3587,7 +3587,7 @@ infrastructure_services:
     name: "etcd"
     name_ar: "إتسد"
     description: "Distributed key-value store for Milvus service discovery"
-    image: "quay.io/coreos/etcd:v3.5.16"
+    image: "quay.io/coreos/etcd:v3.5.18"
     port: 2379
     category: database
     profile: default
@@ -3596,16 +3596,16 @@ infrastructure_services:
     name: "etcd Auth Initializer"
     name_ar: "مهيئ مصادقة إتسد"
     description: "One-time service to enable etcd authentication"
-    image: "quay.io/coreos/etcd:v3.5.16"
+    image: "sahool/etcd-init:v3.5.18"
     category: init
-    profile: default
+    profile: etcd-auth
     depends_on: [etcd]
 
   minio:
     name: "MinIO Object Storage"
     name_ar: "تخزين كائنات MinIO"
     description: "S3-compatible object storage with TLS and SSE encryption"
-    image: "minio/minio:RELEASE.2024-01-16T16-07-38Z"
+    image: "minio/minio:RELEASE.2024-05-28T17-19-04Z"
     ports: [9000, 9090]
     category: storage
     profile: default
@@ -3617,7 +3617,7 @@ infrastructure_services:
     name: "Milvus Vector Database"
     name_ar: "قاعدة بيانات Milvus الشعاعية"
     description: "Distributed vector database for large-scale AI embeddings"
-    image: "milvusdb/milvus:v2.3.3"
+    image: "milvusdb/milvus:v2.5.27"
     ports: [19530, 9091]
     category: database
     profile: default

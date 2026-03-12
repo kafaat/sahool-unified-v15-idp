@@ -41,9 +41,9 @@ This report analyzes the **actual search infrastructure** implemented in the pla
 | Component                | Purpose                             | Version    | Status                           |
 | ------------------------ | ----------------------------------- | ---------- | -------------------------------- |
 | **Qdrant**               | Vector search, RAG, semantic search | v1.7.4     | ✅ Primary                       |
-| **Milvus**               | Alternative vector database         | v2.3.3     | ⚠️ Configured, not actively used |
-| **Etcd**                 | Metadata storage for Milvus         | v3.5.5     | ✅ Active                        |
-| **MinIO**                | Object storage for Milvus           | 2023-03-20 | ✅ Active                        |
+| **Milvus**               | Alternative vector database         | v2.5.27    | ⚠️ Configured, not actively used |
+| **Etcd**                 | Metadata storage for Milvus         | v3.5.18    | ✅ Active                        |
+| **MinIO**                | Object storage for Milvus           | 2024-05-28 | ✅ Active                        |
 | **PostgreSQL + PostGIS** | Spatial queries, text search        | v16.3.4    | ✅ Primary Database              |
 
 ### 1.2 Search Use Cases
@@ -175,7 +175,7 @@ results = store.search("agricultural_kb", "wheat irrigation", limit=5)
 
 ```yaml
 milvus:
-  image: milvusdb/milvus:v2.3.3
+  image: milvusdb/milvus:v2.5.27
   container_name: sahool-milvus
   environment:
     ETCD_ENDPOINTS: etcd:2379
@@ -200,7 +200,7 @@ milvus:
 
 ```yaml
 etcd:
-  image: quay.io/coreos/etcd:v3.5.5
+  image: quay.io/coreos/etcd:v3.5.18
   environment:
     - ETCD_AUTO_COMPACTION_MODE=revision
     - ETCD_AUTO_COMPACTION_RETENTION=1000
@@ -217,7 +217,7 @@ etcd:
 
 ```yaml
 minio:
-  image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+  image: minio/minio:RELEASE.2024-05-28T17-19-04Z
   environment:
     MINIO_ROOT_USER: ${MINIO_ROOT_USER} # Min 16 chars
     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD} # Min 16 chars
@@ -292,7 +292,7 @@ minio:
    - Metadata transmitted without encryption
 
 2. **MEDIUM:** MinIO uses old image version
-   - `RELEASE.2023-03-20T20-16-18Z` (2023 release)
+   - `RELEASE.2024-05-28T17-19-04Z` (2024 release)
    - May have known vulnerabilities
 
 #### 4.2.3 Etcd Security

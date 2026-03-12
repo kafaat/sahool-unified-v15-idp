@@ -20,7 +20,7 @@ COPY packages/nestjs-auth ./packages/nestjs-auth/
 # Build errors are logged but non-fatal since local guards handle auth at runtime
 WORKDIR /workspace/packages/nestjs-auth
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com; \
+    npm config set registry https://registry.npmjs.org; \
     if npm install --legacy-peer-deps --no-audit --no-fund 2>/dev/null && \
        npx tsc --skipLibCheck; then \
         echo "INFO: nestjs-auth built successfully"; \
@@ -50,7 +50,7 @@ WORKDIR /workspace/marketplace-service
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmjs.org && \
     for i in 1 2 3 4 5; do \
         echo "Attempt $i: Installing npm dependencies..."; \
         if npm install --legacy-peer-deps \
@@ -63,7 +63,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-fund; then break; fi; \
         if [ "$i" != "5" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
-    (npm config set registry https://registry.npmjs.org && \
+    (npm config set registry https://registry.npmmirror.com && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
 # Generate Prisma client and verify output
@@ -112,7 +112,7 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/nestjs-auth|file:./packages/nestjs-au
 
 # Install production dependencies with retry loop
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmjs.org && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..."; \
         if (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -133,7 +133,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-fund); then break; fi; \
         if [ "$i" != "3" ]; then echo "Attempt $i failed, waiting before retry..."; sleep $((i * 10)); else false; fi; \
     done || \
-    (npm config set registry https://registry.npmjs.org && \
+    (npm config set registry https://registry.npmmirror.com && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema from builder (for migrations)

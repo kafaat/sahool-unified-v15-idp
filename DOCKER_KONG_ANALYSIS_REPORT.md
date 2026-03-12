@@ -34,9 +34,9 @@ This report provides a comprehensive analysis of the SAHOOL platform's Docker in
 | mlflow | 5000 | Warning | pip install errors |
 | mqtt | 1883 | Healthy | Eclipse Mosquitto 2 |
 | qdrant | 6333 | Healthy | Qdrant v1.7.4 |
-| etcd | 2379 | Healthy | etcd v3.5.5 |
+| etcd | 2379 | Healthy | etcd v3.5.18 |
 | minio | 9000 | Healthy | MinIO object storage |
-| milvus | 19530 | Healthy | Milvus v2.3.3 |
+| milvus | 19530 | Healthy | Milvus v2.5.27 |
 | kong | 8000 | Healthy | Kong 3.4 (DB-less mode) |
 | ollama | 11434 | GPU Profile | Requires NVIDIA runtime |
 

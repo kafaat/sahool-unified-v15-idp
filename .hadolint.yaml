@@ -16,6 +16,10 @@ ignored:
   - DL3059
   # DL4006: Set SHELL option -o pipefail (not all base images support it)
   - DL4006
+  # SC2015: A && B || C pattern used intentionally for npm/pip mirror fallback chains
+  - SC2015
+  # SC2102: Range pattern false positive in printf/heredoc pip.conf generation
+  - SC2102
 
 # Trusted registries
 trustedRegistries:

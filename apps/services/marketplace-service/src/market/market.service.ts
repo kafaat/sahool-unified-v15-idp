@@ -16,7 +16,7 @@ import {
   forwardRef,
   Logger,
 } from "@nestjs/common";
-import { Prisma } from "../prisma/generated/client";
+import { Prisma } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
 

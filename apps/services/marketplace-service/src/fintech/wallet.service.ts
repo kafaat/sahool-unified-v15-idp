@@ -14,7 +14,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Prisma } from "../prisma/generated/client";
+import { Prisma } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import * as crypto from "crypto";
 

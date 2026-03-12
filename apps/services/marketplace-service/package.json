@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@sahool/nestjs-auth": "file:../../../packages/nestjs-auth",
+    "helmet": "^8.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "passport": "^0.7.0",

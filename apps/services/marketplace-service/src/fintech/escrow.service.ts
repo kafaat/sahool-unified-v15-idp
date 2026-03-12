@@ -14,7 +14,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Prisma } from "../prisma/generated/client";
+import { Prisma } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 /** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */

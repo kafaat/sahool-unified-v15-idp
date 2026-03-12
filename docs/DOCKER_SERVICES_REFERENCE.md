@@ -391,7 +391,7 @@ start_period: 60s
 | Property | Value |
 |----------|-------|
 | **Container Name** | `sahool-etcd` |
-| **Image** | `quay.io/coreos/etcd:v3.5.5` |
+| **Image** | `quay.io/coreos/etcd:v3.5.18` |
 | **Network** | `sahool-network` |
 
 **Description**: Metadata storage for Milvus vector database with authentication.
@@ -419,7 +419,7 @@ start_period: 60s
 | Property | Value |
 |----------|-------|
 | **Container Name** | `sahool-minio` |
-| **Image** | `minio/minio:RELEASE.2024-01-16T16-07-38Z` |
+| **Image** | `minio/minio:RELEASE.2024-05-28T17-19-04Z` |
 | **Ports** | `127.0.0.1:9000:9000` (API), `127.0.0.1:9090:9090` (Console) |
 | **Network** | `sahool-network` |
 
@@ -449,7 +449,7 @@ start_period: 60s
 | Property | Value |
 |----------|-------|
 | **Container Name** | `sahool-milvus` |
-| **Image** | `milvusdb/milvus:v2.3.3` |
+| **Image** | `milvusdb/milvus:v2.5.27` |
 | **Ports** | `127.0.0.1:19530:19530`, `127.0.0.1:9091:9091` |
 | **Network** | `sahool-network` |
 

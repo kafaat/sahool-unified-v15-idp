@@ -3,7 +3,7 @@
 # This image copies etcdctl from the official GCR image into alpine for shell support.
 # No apk packages needed - etcdctl connects to etcd over HTTP on the internal network.
 # To use a different registry: docker build --build-arg ETCD_VERSION=v3.5.16 ...
-ARG ETCD_VERSION=v3.5.16
+ARG ETCD_VERSION=v3.5.18
 FROM gcr.io/etcd-development/etcd:${ETCD_VERSION} AS etcd-bin
 
 FROM alpine:3.19

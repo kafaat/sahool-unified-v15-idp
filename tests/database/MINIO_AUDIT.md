@@ -64,7 +64,7 @@ The platform runs **TWO separate MinIO instances**:
 
 - **Purpose:** Backup storage for database/redis/minio backups
 - **Container:** `sahool-backup-minio`
-- **Image:** `minio/minio:RELEASE.2024-01-16T16-07-38Z`
+- **Image:** `minio/minio:RELEASE.2024-05-28T17-19-04Z`
 - **Ports:**
   - API: `127.0.0.1:9000:9000`
   - Console: `127.0.0.1:9001:9001`
@@ -1579,9 +1579,9 @@ mc admin service restart primary
 
 | Component        | Current Version              | Latest Version               | Upgrade Priority |
 | ---------------- | ---------------------------- | ---------------------------- | ---------------- |
-| Production MinIO | RELEASE.2023-03-20T20-16-18Z | RELEASE.2024-01-16T16-07-38Z | 🟡 High          |
-| Backup MinIO     | RELEASE.2024-01-16T16-07-38Z | RELEASE.2024-01-16T16-07-38Z | ✅ Current       |
-| MinIO Client     | RELEASE.2024-01-16T16-06-34Z | RELEASE.2024-01-16T16-06-34Z | ✅ Current       |
+| Production MinIO | RELEASE.2023-03-20T20-16-18Z | RELEASE.2024-05-28T17-19-04Z | 🟡 High          |
+| Backup MinIO     | RELEASE.2024-05-28T17-19-04Z | RELEASE.2024-05-28T17-19-04Z | ✅ Current       |
+| MinIO Client     | RELEASE.2024-05-28T01-53-16Z | RELEASE.2024-05-28T01-53-16Z | ✅ Current       |
 
 ### 18.2 Upgrade Procedure
 

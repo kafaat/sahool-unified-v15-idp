@@ -160,7 +160,7 @@ ETCD_ROOT_PASSWORD=<secure-password>
 
 | Property | Value |
 |----------|-------|
-| Image | `quay.io/coreos/etcd:v3.5.5` |
+| Image | `quay.io/coreos/etcd:v3.5.18` |
 | Command | `/bin/sh /scripts/init-auth.sh` |
 | Restart | no (one-time execution) |
 | Depends On | etcd (healthy) |

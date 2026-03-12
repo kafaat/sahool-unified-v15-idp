@@ -109,7 +109,7 @@ This document provides a comprehensive summary of the MinIO security hardening i
 
 **Changes:**
 
-- Updated MinIO image to `RELEASE.2024-01-16T16-07-38Z` (from 2023 version)
+- Updated MinIO image to `RELEASE.2024-05-28T17-19-04Z`
 - Added TLS certificate volume mounts
 - Configured SSE encryption with KMS
 - Disabled browser console (MINIO_BROWSER=off)

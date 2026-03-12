@@ -99,7 +99,7 @@ This allows the healthcheck to work during initialization (before auth is enable
 
 ```yaml
 etcd-init:
-  image: quay.io/coreos/etcd:v3.5.5
+  image: quay.io/coreos/etcd:v3.5.18
   container_name: sahool-etcd-init
   environment:
     - ETCDCTL_API=3
@@ -143,6 +143,8 @@ environment:
 ```
 
 **Result**: Milvus can now authenticate to etcd using the root credentials
+
+**Note**: Milvus v2.5+ has native support for etcd authentication via `ETCD_USERNAME` and `ETCD_PASSWORD` environment variables, making this configuration straightforward.
 
 ---
 

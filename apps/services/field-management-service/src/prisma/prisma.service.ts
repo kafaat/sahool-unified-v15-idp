@@ -55,46 +55,97 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    // Retry connection up to 3 times with exponential backoff
-    const maxRetries = this.isTestEnvironment ? 1 : 3;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    if (this.isTestEnvironment) {
       try {
         await this.$connect();
         this.isConnected = true;
         this.logger.log("Field Management Database connected successfully");
-
-        // Enable PostGIS extension if not exists
-        try {
-          await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
-          this.logger.log("PostGIS extension verified");
-        } catch (e) {
-          this.logger.debug("PostGIS extension may already exist");
-        }
-        return; // Success — exit retry loop
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-
-        if (this.isTestEnvironment) {
-          this.logger.warn(
-            `Database connection failed in test environment: ${errorMessage}`,
-          );
-          this.logger.warn("Running in degraded mode without database");
-          this.isConnected = false;
-          return;
-        }
-
-        if (attempt < maxRetries) {
-          const delay = attempt * 2000; // 2s, 4s backoff
-          this.logger.warn(
-            `Database connection failed (attempt ${attempt}/${maxRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
-          );
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        } else {
-          throw error;
-        }
+        this.logger.warn(`Database connection failed in test environment: ${errorMessage}`);
+        this.logger.warn("Running in degraded mode without database");
+        this.isConnected = false;
       }
+      return;
     }
+
+    // In production: attempt initial connection but do not crash the app on failure.
+    // The service starts in degraded mode and retries in the background so the
+    // /healthz liveness probe can respond immediately, preventing docker-compose
+    // from marking the container unhealthy while waiting for the database.
+    await this.connectWithRetry();
+  }
+
+  /**
+   * Attempt to connect with exponential backoff.
+   * On final failure the service starts in degraded mode (isConnected = false)
+   * and schedules a background reconnection loop so it recovers automatically
+   * when the database becomes available.
+   */
+  private async connectWithRetry(attempt = 1): Promise<void> {
+    const maxInitialRetries = 5;
+    const delays = [3000, 6000, 9000, 12000, 15000]; // 3 s, 6 s, … 15 s
+
+    try {
+      await this.$connect();
+      this.isConnected = true;
+      this.logger.log(`Field Management Database connected successfully (attempt ${attempt})`);
+
+      // Verify PostGIS extension
+      try {
+        await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
+        this.logger.log("PostGIS extension verified");
+      } catch {
+        this.logger.debug("PostGIS extension may already exist or is unavailable via pooler");
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      if (attempt < maxInitialRetries) {
+        const delay = delays[attempt - 1] ?? 15000;
+        this.logger.warn(
+          `Database connection failed (attempt ${attempt}/${maxInitialRetries}): ${errorMessage}. Retrying in ${delay}ms...`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return this.connectWithRetry(attempt + 1);
+      }
+
+      // All initial attempts exhausted — start in degraded mode and keep retrying.
+      this.isConnected = false;
+      this.logger.error(
+        `Database connection failed after ${maxInitialRetries} attempts: ${errorMessage}. ` +
+          "Service starting in degraded mode. Background reconnection scheduled.",
+      );
+      this.scheduleBackgroundReconnect();
+    }
+  }
+
+  /**
+   * Retry the database connection in the background (exponential backoff, max 60 s).
+   * This allows the service to recover automatically when the database becomes available
+   * without crashing or blocking the HTTP server.
+   */
+  private scheduleBackgroundReconnect(attempt = 1): void {
+    const delay = Math.min(attempt * 5000, 60000); // 5 s, 10 s, … 60 s
+
+    setTimeout(async () => {
+      if (this.isConnected) return; // already reconnected
+
+      try {
+        await this.$connect();
+        this.isConnected = true;
+        this.logger.log("Field Management Database reconnected successfully");
+        try {
+          await this.$queryRaw`CREATE EXTENSION IF NOT EXISTS postgis`;
+        } catch {
+          // ignored
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Background reconnect attempt ${attempt} failed: ${errorMessage}`);
+        this.scheduleBackgroundReconnect(attempt + 1);
+      }
+    }, delay);
   }
 
   async onModuleDestroy() {

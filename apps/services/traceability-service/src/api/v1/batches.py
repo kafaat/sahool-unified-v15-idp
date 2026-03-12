@@ -8,7 +8,7 @@ import uuid
 from datetime import UTC, datetime
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 # NATS event subject constants
@@ -43,6 +43,26 @@ except ImportError:
 
 
 router = APIRouter(prefix="/api/v1/traceability", tags=["traceability"])
+
+
+# === Tenant Extraction ===
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header."""
+    if not x_tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "X-Tenant-Id header is required", "error_ar": "ترويسة معرّف المستأجر مطلوبة"},
+        )
+    try:
+        uuid.UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "X-Tenant-Id must be a valid UUID", "error_ar": "معرّف المستأجر يجب أن يكون UUID صالح"},
+        )
+    return x_tenant_id
 
 
 # === Database Helpers ===
@@ -82,7 +102,6 @@ def _row_to_dict(row) -> dict:
 
 
 class BatchCreateRequest(BaseModel):
-    tenant_id: str
     farm_id: str
     field_id: str
     product_name_en: str
@@ -163,7 +182,9 @@ def _generate_batch_code(product_code: str, year: int | None, sequence: int, far
 
 
 @router.post("/batches", status_code=201)
-async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(get_current_user)):
+async def create_batch(
+    request: BatchCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+):
     """Create a new produce batch - إنشاء دفعة منتج جديدة"""
     pool = await _get_db(req)
 
@@ -172,7 +193,7 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
         batch_code = request.batch_code
     else:
         # Count existing batches for sequence
-        count = await pool.fetchval("SELECT COUNT(*) FROM produce_batches WHERE tenant_id = $1", request.tenant_id)
+        count = await pool.fetchval("SELECT COUNT(*) FROM produce_batches WHERE tenant_id = $1", tenant_id)
         product_code = request.product_name_en[:2].upper()
         farm_code = request.farm_id[:3].upper() if request.farm_id else None
         batch_code = _generate_batch_code(product_code, datetime.now(UTC).year, count + 1, farm_code)
@@ -183,7 +204,7 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'A', 'created')
         RETURNING *
         """,
-        request.tenant_id,
+        tenant_id,
         request.farm_id,
         request.field_id,
         batch_code,
@@ -199,9 +220,7 @@ async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(
     if nc:
         await nc.publish(
             SAHOOL_TRACEABILITY_BATCH_CREATED,
-            json.dumps(
-                {"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": request.tenant_id}
-            ).encode(),
+            json.dumps({"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": tenant_id}).encode(),
         )
 
     logger.info("batch_created", batch_id=batch_data["id"], batch_code=batch_code)
@@ -217,18 +236,14 @@ async def get_batch(batch_id: str, req: Request):
 
 
 @router.get("/batches")
-async def list_batches(req: Request, tenant_id: str | None = None, farm_id: str | None = None):
+async def list_batches(req: Request, tenant_id: str = Depends(get_tenant_id), farm_id: str | None = None):
     """List batches with optional filtering - قائمة الدفعات"""
     pool = await _get_db(req)
 
-    query = "SELECT * FROM produce_batches WHERE 1=1"
-    params = []
-    idx = 1
+    query = "SELECT * FROM produce_batches WHERE tenant_id = $1"
+    params = [tenant_id]
+    idx = 2
 
-    if tenant_id:
-        query += f" AND tenant_id = ${idx}"
-        params.append(tenant_id)
-        idx += 1
     if farm_id:
         query += f" AND farm_id = ${idx}"
         params.append(farm_id)

@@ -89,7 +89,6 @@ class TestCooperativeEndpoints:
         response = db_client.post(
             "/api/v1/cooperatives/",
             json={
-                "tenant_id": "TENANT-001",
                 "name": "Al-Falah Cooperative",
                 "name_ar": "تعاونية الفلاح",
                 "type": "multi_purpose",
@@ -111,11 +110,11 @@ class TestCooperativeEndpoints:
         assert data["count"] == 2
         assert len(data["cooperatives"]) == 2
 
-    def test_list_cooperatives_with_tenant_filter(self, db_client, mock_db_pool):
-        """Test listing cooperatives filtered by tenant."""
-        mock_db_pool.fetch.return_value = [_make_coop_record(tenant_id="T1")]
+    def test_list_cooperatives_filtered_by_tenant_header(self, db_client, mock_db_pool):
+        """Test listing cooperatives filtered by tenant from X-Tenant-Id header."""
+        mock_db_pool.fetch.return_value = [_make_coop_record(tenant_id="00000000-0000-0000-0000-000000000001")]
 
-        response = db_client.get("/api/v1/cooperatives/?tenant_id=T1")
+        response = db_client.get("/api/v1/cooperatives/")
         assert response.status_code == 200
         data = response.json()
         assert data["count"] == 1
@@ -153,7 +152,7 @@ class TestCooperativeEndpoints:
             from fastapi.testclient import TestClient
 
             c = TestClient(app)
-            c.headers["X-Tenant-Id"] = "test-tenant-001"
+            c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
             response = c.get("/api/v1/cooperatives/")
             assert response.status_code == 503
         finally:
@@ -305,7 +304,6 @@ class TestNATSEventPublishing:
         db_client.post(
             "/api/v1/cooperatives/",
             json={
-                "tenant_id": "T1",
                 "name": "Test Coop",
                 "name_ar": "تعاونية تجربة",
             },

@@ -88,7 +88,6 @@ class TestBatchEndpoints:
             response = db_client.post(
                 "/api/v1/traceability/batches",
                 json={
-                    "tenant_id": "TENANT-001",
                     "farm_id": "FARM-001",
                     "field_id": "FIELD-001",
                     "product_name_en": "Organic Wheat",
@@ -131,10 +130,10 @@ class TestBatchEndpoints:
         assert data["count"] == 2
 
     def test_list_batches_with_filters(self, db_client, mock_db_pool):
-        """Test listing batches with tenant and farm filters."""
+        """Test listing batches with farm filter (tenant from header)."""
         mock_db_pool.fetch.return_value = [_make_batch_record()]
 
-        response = db_client.get("/api/v1/traceability/batches?tenant_id=T1&farm_id=F1")
+        response = db_client.get("/api/v1/traceability/batches?farm_id=F1")
         assert response.status_code == 200
 
     def test_no_database_returns_503(self):
@@ -151,7 +150,7 @@ class TestBatchEndpoints:
             from fastapi.testclient import TestClient
 
             c = TestClient(app)
-            c.headers["X-Tenant-Id"] = "test-tenant-001"
+            c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
             response = c.get("/api/v1/traceability/batches")
             assert response.status_code == 503
         finally:
@@ -434,7 +433,6 @@ class TestNATSEventPublishing:
             db_client.post(
                 "/api/v1/traceability/batches",
                 json={
-                    "tenant_id": "T1",
                     "farm_id": "F1",
                     "field_id": "FLD1",
                     "product_name_en": "Wheat",

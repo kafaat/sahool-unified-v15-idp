@@ -8,7 +8,7 @@ import uuid
 from datetime import UTC, datetime
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 # NATS event subject constants
@@ -41,6 +41,26 @@ except ImportError:
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/cooperatives", tags=["cooperatives"])
+
+
+# === Tenant Extraction ===
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header."""
+    if not x_tenant_id:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "X-Tenant-Id header is required", "error_ar": "ترويسة معرّف المستأجر مطلوبة"},
+        )
+    try:
+        uuid.UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "X-Tenant-Id must be a valid UUID", "error_ar": "معرّف المستأجر يجب أن يكون UUID صالح"},
+        )
+    return x_tenant_id
 
 
 # === Database Helpers ===
@@ -82,7 +102,6 @@ def _row_to_dict(row) -> dict:
 
 
 class CooperativeCreateRequest(BaseModel):
-    tenant_id: str
     name: str
     name_ar: str
     type: str = "multi_purpose"
@@ -138,7 +157,7 @@ class RevenueDistributionRequest(BaseModel):
 
 
 @router.post("/", status_code=201)
-async def create_cooperative(request: CooperativeCreateRequest, req: Request):
+async def create_cooperative(request: CooperativeCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Create a new cooperative - إنشاء تعاونية جديدة"""
     pool = await _get_db(req)
 
@@ -148,7 +167,7 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
         VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', 0)
         RETURNING *
         """,
-        request.tenant_id,
+        tenant_id,
         request.name,
         request.name_ar,
         request.type,
@@ -162,7 +181,7 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
     if nc:
         await nc.publish(
             SAHOOL_COOPERATIVE_CREATED,
-            json.dumps({"cooperative_id": coop_data["id"], "tenant_id": request.tenant_id}).encode(),
+            json.dumps({"cooperative_id": coop_data["id"], "tenant_id": tenant_id}).encode(),
         )
 
     logger.info("cooperative_created", coop_id=coop_data["id"])
@@ -170,14 +189,11 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request):
 
 
 @router.get("/")
-async def list_cooperatives(req: Request, tenant_id: str | None = None):
+async def list_cooperatives(req: Request, tenant_id: str = Depends(get_tenant_id)):
     """List cooperatives - قائمة التعاونيات"""
     pool = await _get_db(req)
 
-    if tenant_id:
-        rows = await pool.fetch("SELECT * FROM cooperatives WHERE tenant_id = $1 ORDER BY created_at DESC", tenant_id)
-    else:
-        rows = await pool.fetch("SELECT * FROM cooperatives ORDER BY created_at DESC")
+    rows = await pool.fetch("SELECT * FROM cooperatives WHERE tenant_id = $1 ORDER BY created_at DESC", tenant_id)
 
     result = [_row_to_dict(r) for r in rows]
     return {"cooperatives": result, "count": len(result)}

@@ -22,7 +22,7 @@ def client():
     from src.main import app
 
     c = TestClient(app)
-    c.headers["X-Tenant-Id"] = "test-tenant-001"
+    c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
     return c
 
 
@@ -61,5 +61,5 @@ def app_with_db(mock_db_pool, mock_nats):
 def db_client(app_with_db):
     """Create test client with DB mock and tenant header."""
     c = TestClient(app_with_db)
-    c.headers["X-Tenant-Id"] = "test-tenant-001"
+    c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
     return c

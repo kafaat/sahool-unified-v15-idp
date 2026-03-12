@@ -19,7 +19,6 @@ export interface ApiResponse<T = unknown> {
   /** Correlation ID echoed from X-Request-Id header */
   requestId?: string;
   message?: string;
-  statusCode?: number;
   pagination?: PaginationMeta;
 }
 
@@ -33,7 +32,7 @@ export interface PaginationMeta {
   limit: number;
   totalPages?: number;
   hasMore?: boolean;
-  /** Zero-based item offset — used as an alternative to `page`/`limit` */
+  /** Zero-based item offset — may be provided/derived in addition to `page`/`limit` */
   offset?: number;
 }
 

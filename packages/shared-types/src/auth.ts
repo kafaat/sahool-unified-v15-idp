@@ -25,8 +25,17 @@ export interface LoginResponse {
   refresh_token?: string;
   token_type?: string;
   expires_in?: number;
-  /** Whether 2-FA verification step is required before the token is active */
+  /**
+   * Whether a 2-FA verification step is required before the token is active.
+   * When `true`, `access_token` is an empty string and `temp_token` should be
+   * passed to the `/auth/login/2fa` endpoint to complete authentication.
+   */
   requires_2fa?: boolean;
+  /**
+   * Short-lived token returned alongside `requires_2fa: true`.
+   * Must be passed to `/auth/login/2fa` — not usable as a bearer token.
+   */
+  temp_token?: string;
   user: User;
 }
 

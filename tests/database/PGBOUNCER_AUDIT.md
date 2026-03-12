@@ -355,11 +355,11 @@ services:
     networks:
       - sahool-network
     healthcheck:
-      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "6432"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      test: ["CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && sh /healthcheck.sh || nc -z localhost 6432"]
+      interval: 15s
+      timeout: 15s
+      retries: 10
+      start_period: 90s
     deploy:
       resources:
         limits:
@@ -733,12 +733,12 @@ None found. System is production-ready.
      test:
        [
          "CMD-SHELL",
-         "psql -h localhost -p 6432 -U sahool -d pgbouncer -c 'SHOW POOLS;' || exit 1",
+         "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && sh /healthcheck.sh || nc -z localhost 6432",
        ]
-     interval: 10s
-     timeout: 5s
-     retries: 3
-     start_period: 15s
+     interval: 15s
+     timeout: 15s
+     retries: 10
+     start_period: 90s
    ```
 
 ---

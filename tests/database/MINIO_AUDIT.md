@@ -48,7 +48,7 @@ The platform runs **TWO separate MinIO instances**:
 
 - **Purpose:** Object storage for Milvus vector database
 - **Container:** `sahool-minio`
-- **Image:** `minio/minio:RELEASE.2023-03-20T20-16-18Z`
+- **Image:** `minio/minio:RELEASE.2024-05-28T17-19-04Z`
 - **Ports:**
   - API: `127.0.0.1:9000:9000`
   - Console: `127.0.0.1:9090:9090`
@@ -1373,7 +1373,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 ```yaml
 minio:
-  image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+  image: minio/minio:RELEASE.2024-05-28T17-19-04Z
   container_name: sahool-minio
   environment:
     MINIO_ROOT_USER: ${MINIO_ROOT_USER}
@@ -1579,7 +1579,7 @@ mc admin service restart primary
 
 | Component        | Current Version              | Latest Version               | Upgrade Priority |
 | ---------------- | ---------------------------- | ---------------------------- | ---------------- |
-| Production MinIO | RELEASE.2023-03-20T20-16-18Z | RELEASE.2024-05-28T17-19-04Z | 🟡 High          |
+| Production MinIO | RELEASE.2024-05-28T17-19-04Z | RELEASE.2024-05-28T17-19-04Z | ✅ Current       |
 | Backup MinIO     | RELEASE.2024-05-28T17-19-04Z | RELEASE.2024-05-28T17-19-04Z | ✅ Current       |
 | MinIO Client     | RELEASE.2024-05-28T01-53-16Z | RELEASE.2024-05-28T01-53-16Z | ✅ Current       |
 
@@ -1661,7 +1661,7 @@ mc ls primary/restricted-bucket  # Should fail without credentials
 mc admin trace primary --verbose --all
 
 # 5. Vulnerability scanning
-docker scan minio/minio:RELEASE.2023-03-20T20-16-18Z
+docker scan minio/minio:RELEASE.2024-05-28T17-19-04Z
 ```
 
 ### 19.2 Performance Testing

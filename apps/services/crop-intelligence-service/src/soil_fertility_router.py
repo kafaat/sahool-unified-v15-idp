@@ -21,12 +21,19 @@ from datetime import datetime
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger()
 
 router = APIRouter(tags=["Soil & Fertility"])
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # ---------------------------------------------------------------------------
@@ -53,7 +60,6 @@ class SoilPropertiesIn(BaseModel):
 class SoilTestIn(BaseModel):
     """Input for soil test interpretation. مدخلات تحليل التربة."""
 
-    tenant_id: str
     field_id: str
     sample_date: datetime | None = None
     crop: str = Field(default="wheat", description="Target crop")
@@ -85,7 +91,6 @@ class BlendTargetsIn(BaseModel):
 class SoilTrendIn(BaseModel):
     """Multi-year trend request. طلب اتجاهات التربة."""
 
-    tenant_id: str
     field_id: str
     tests: list[dict[str, Any]] = Field(
         ..., min_length=2, description="List of {sample_date, n_ppm, p_ppm, k_ppm, ph, ec}"
@@ -101,7 +106,7 @@ class SoilTrendIn(BaseModel):
     "/soil/interpret",
     summary="Interpret soil test | تفسير تحليل التربة",
 )
-def interpret_soil_test(body: SoilTestIn) -> dict:
+def interpret_soil_test(body: SoilTestIn, tenant_id: str = Depends(get_tenant_id)) -> dict:
     """
     Run soil test interpretation using shared/soil_testing module.
     تفسير نتائج تحليل التربة باستخدام وحدة التحليل المشتركة.
@@ -119,7 +124,7 @@ def interpret_soil_test(body: SoilTestIn) -> dict:
     sample_date = body.sample_date or datetime.utcnow()
     result = SoilTestResult(
         id=f"api-{body.field_id}",
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_id,
         field_id=body.field_id,
         sample_id=f"sample-{body.field_id}",
         sample_date=sample_date,
@@ -158,7 +163,7 @@ def interpret_soil_test(body: SoilTestIn) -> dict:
     "/soil/amendment-plan",
     summary="Generate amendment plan | خطة التعديل",
 )
-def generate_amendment_plan(body: SoilTestIn) -> dict:
+def generate_amendment_plan(body: SoilTestIn, tenant_id: str = Depends(get_tenant_id)) -> dict:
     """
     Generate soil amendment plan using shared/soil_testing.
     إنشاء خطة تعديل التربة.
@@ -176,7 +181,7 @@ def generate_amendment_plan(body: SoilTestIn) -> dict:
     sample_date = body.sample_date or datetime.utcnow()
     result = SoilTestResult(
         id=f"api-{body.field_id}",
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_id,
         field_id=body.field_id,
         sample_id=f"sample-{body.field_id}",
         sample_date=sample_date,
@@ -215,7 +220,7 @@ def generate_amendment_plan(body: SoilTestIn) -> dict:
     "/soil/trends",
     summary="Analyse soil trends | تحليل اتجاهات التربة",
 )
-def analyse_soil_trends(body: SoilTrendIn) -> dict:
+def analyse_soil_trends(body: SoilTrendIn, tenant_id: str = Depends(get_tenant_id)) -> dict:
     """
     Analyse multi-year soil nutrient trends using shared/soil_testing.
     تحليل اتجاهات العناصر الغذائية على مدى عدة سنوات.
@@ -228,7 +233,7 @@ def analyse_soil_trends(body: SoilTrendIn) -> dict:
     analyzer = SoilTrendAnalyzer()
     trend_report = analyzer.analyze_trends(
         body.field_id,
-        body.tenant_id,
+        tenant_id,
         body.tests,
     )
 

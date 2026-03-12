@@ -8,7 +8,7 @@ Handles HTTP endpoints for managing user notification channels
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from .channels_service import ChannelsService
@@ -19,6 +19,13 @@ logger = logging.getLogger("sahool-notifications.channels-controller")
 # Note: No prefix - Kong handles /api/v1/channels routing with strip_path: true
 # Kong strips /api/v1/channels, so service receives /add, /list, etc.
 router = APIRouter(prefix="", tags=["Channels"])
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # =============================================================================
@@ -90,7 +97,7 @@ class UpdateChannelStatusRequest(BaseModel):
 
 
 @router.post("/add", summary="إضافة قناة إشعار - Add Notification Channel")
-async def add_channel(request: AddChannelRequest):
+async def add_channel(request: AddChannelRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     إضافة قناة إشعار جديدة للمستخدم
     Add a new notification channel for a user
@@ -106,7 +113,7 @@ async def add_channel(request: AddChannelRequest):
             user_id=request.user_id,
             channel_type=request.channel_type,
             address=request.address,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
             metadata=request.metadata,
         )
 
@@ -192,7 +199,7 @@ async def remove_channel(
 @router.get("/list", summary="قائمة قنوات المستخدم - List User Channels")
 async def list_channels(
     user_id: str = Query(..., description="User ID"),
-    tenant_id: str | None = Query(None, description="Tenant ID"),
+    tenant_id: str = Depends(get_tenant_id),
     channel_type: str | None = Query(None, description="Filter by channel type"),
     enabled_only: bool = Query(False, description="Show only enabled channels"),
     limit: int = Query(default=50, ge=1, le=100, description="Maximum number of channels to return"),

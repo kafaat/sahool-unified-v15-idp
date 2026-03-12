@@ -8,7 +8,7 @@ Handles HTTP endpoints for managing user notification preferences
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from .preferences_service import PreferencesService
@@ -19,6 +19,13 @@ logger = logging.getLogger("sahool-notifications.preferences-controller")
 # Note: No prefix - Kong handles /api/v1/preferences routing with strip_path: true
 # Kong strips /api/v1/preferences, so service receives /, /update, etc.
 router = APIRouter(prefix="", tags=["Preferences"])
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # =============================================================================
@@ -111,7 +118,7 @@ class BulkUpdatePreferencesRequest(BaseModel):
 @router.get("/", summary="الحصول على تفضيلات المستخدم - Get User Preferences")
 async def get_preferences(
     user_id: str = Query(..., description="User ID"),
-    tenant_id: str | None = Query(None, description="Tenant ID"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الحصول على جميع تفضيلات الإشعارات للمستخدم
@@ -141,7 +148,7 @@ async def get_preferences(
 async def get_event_preference(
     event_type: str,
     user_id: str = Query(..., description="User ID"),
-    tenant_id: str | None = Query(None, description="Tenant ID"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الحصول على تفضيلات نوع حدث معين
@@ -185,7 +192,7 @@ async def get_event_preference(
 
 
 @router.post("/update", summary="تحديث تفضيلات حدث - Update Event Preference")
-async def update_preference(request: UpdateEventPreferenceRequest):
+async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     تحديث تفضيلات نوع حدث معين
     Update preferences for a specific event type
@@ -199,7 +206,7 @@ async def update_preference(request: UpdateEventPreferenceRequest):
             event_type=request.event_type,
             channels=request.channels,
             enabled=request.enabled,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
             metadata=request.metadata,
         )
 
@@ -218,7 +225,7 @@ async def update_preference(request: UpdateEventPreferenceRequest):
 
 
 @router.post("/quiet-hours", summary="تحديد ساعات الهدوء - Set Quiet Hours")
-async def set_quiet_hours(request: SetQuietHoursRequest):
+async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     تحديد ساعات الهدوء (عدم الإزعاج)
     Set quiet hours (do not disturb period)
@@ -232,7 +239,7 @@ async def set_quiet_hours(request: SetQuietHoursRequest):
             user_id=request.user_id,
             quiet_hours_start=request.quiet_hours_start,
             quiet_hours_end=request.quiet_hours_end,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
         )
 
         return {
@@ -254,7 +261,7 @@ async def set_quiet_hours(request: SetQuietHoursRequest):
 
 
 @router.post("/bulk-update", summary="تحديث تفضيلات متعددة - Bulk Update Preferences")
-async def bulk_update_preferences(request: BulkUpdatePreferencesRequest):
+async def bulk_update_preferences(request: BulkUpdatePreferencesRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     تحديث تفضيلات متعددة دفعة واحدة
     Bulk update multiple preferences at once
@@ -265,7 +272,7 @@ async def bulk_update_preferences(request: BulkUpdatePreferencesRequest):
         result = await PreferencesService.bulk_update_preferences(
             user_id=request.user_id,
             preferences=request.preferences,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
         )
 
         return {

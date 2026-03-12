@@ -12,6 +12,10 @@ on:
       - 'apps/web/**'
       - '.github/workflows/e2e-tests.yml'
 
+concurrency:
+  group: e2e-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   checks: write

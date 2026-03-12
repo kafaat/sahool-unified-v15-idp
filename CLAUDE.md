@@ -1271,11 +1271,11 @@ docker-compose --profile legacy up
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | inventory-service    | Python  | 8116 | Inventory management     |
-| cooperative-service  | Python  | 8127 | Cooperative management (skeleton)  |
+| cooperative-service  | Python  | 8127 | Cooperative management             |
 | crm-service          | Python  | 8131 | Farmer CRM               |
 | logistics-service    | Python  | 8167 | Logistics management     |
 | supply-chain-service | Python  | 8230 | Supply chain management  |
-| traceability-service | Python  | 8123 | Product traceability (skeleton)  |
+| traceability-service | Python  | 8123 | Product traceability              |
 | globalgap-compliance | Python  | 8128 | GlobalGAP compliance     |
 | wechat-service       | Python  | 8133 | WeChat integration       |
 

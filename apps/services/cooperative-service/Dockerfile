@@ -21,13 +21,17 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY apps/services/cooperative-service/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
     -c constraints.txt -r requirements.txt
 
 # Copy shared libraries (root shared for cooperatives module, then service-shared overlay)

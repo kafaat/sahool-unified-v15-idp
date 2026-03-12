@@ -3051,7 +3051,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # In-memory only (604 LOC), 12 CRUD endpoints, needs DB persistence layer
+    skeleton: false  # DB-backed with asyncpg, 14 endpoints (CRUD + PUT + revenue + stats)
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production
@@ -3061,6 +3061,7 @@ services:
         - CooperativeCreated.v1
         - MemberAdded.v1
         - ResourceBooked.v1
+        - RevenueDistributed.v1
       consumes:
         - FarmerCreated.v1
     dependencies:
@@ -3087,7 +3088,7 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: active
-    skeleton: true  # In-memory fallback only (748 LOC), 0 DB queries, migration exists but unused
+    skeleton: false  # DB-backed with asyncpg, 15 endpoints (batch CRUD + events + journey + QR + split + carbon)
     owner: "business-team@sahool.io"
     team: platform
     lifecycle: production

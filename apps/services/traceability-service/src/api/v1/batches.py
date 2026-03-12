@@ -1,12 +1,11 @@
 """
 Traceability API endpoints - نقاط نهاية التتبع
-Integrates with shared.traceability module for supply chain tracking.
+Integrates with shared.traceability module and PostgreSQL persistence.
 """
 
 import json
 import uuid
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -33,21 +32,40 @@ except ImportError:
 
 router = APIRouter(prefix="/api/v1/traceability", tags=["traceability"])
 
-# In-memory storage
-_batches: dict[str, dict] = {}
-_tracker = None
+
+# === Database Helpers ===
 
 
-def _get_tracker():
-    global _tracker
-    if _tracker is None:
-        try:
-            from shared.traceability import SupplyChainTracker
+async def _get_db(request: Request):
+    """Get database pool from app state."""
+    pool = getattr(request.app.state, "db_pool", None)
+    if not pool:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "Database not available", "error_ar": "قاعدة البيانات غير متوفرة"},
+        )
+    return pool
 
-            _tracker = SupplyChainTracker()
-        except ImportError:
-            pass
-    return _tracker
+
+async def _get_batch_or_404(pool, batch_id: str) -> dict:
+    """Get batch by ID or raise 404."""
+    row = await pool.fetchrow("SELECT * FROM produce_batches WHERE id = $1", uuid.UUID(batch_id))
+    if not row:
+        raise HTTPException(
+            status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"}
+        )
+    return dict(row)
+
+
+def _row_to_dict(row) -> dict:
+    """Convert asyncpg Record to JSON-serializable dict."""
+    d = dict(row)
+    for k, v in d.items():
+        if isinstance(v, uuid.UUID):
+            d[k] = str(v)
+        elif isinstance(v, datetime):
+            d[k] = v.isoformat()
+    return d
 
 
 # === Request Models ===
@@ -66,7 +84,6 @@ class BatchCreateRequest(BaseModel):
 
 
 class HarvestEventRequest(BaseModel):
-    batch_id: str
     field_name_en: str
     field_name_ar: str
     crop_type: str
@@ -76,25 +93,23 @@ class HarvestEventRequest(BaseModel):
 
 
 class ProcessingEventRequest(BaseModel):
-    batch_id: str
     facility_name: str
     process_type: str
     notes: str | None = None
 
 
 class StorageEventRequest(BaseModel):
-    batch_id: str
     location: str
     temperature_c: float | None = None
     humidity_percent: float | None = None
 
 
 class TransportEventRequest(BaseModel):
-    batch_id: str
     origin: str
     destination: str
     transport_mode: str = "truck"
     vehicle_id: str | None = None
+    distance_km: float | None = None
 
 
 class BatchUpdateRequest(BaseModel):
@@ -105,7 +120,6 @@ class BatchUpdateRequest(BaseModel):
 
 
 class BatchSplitRequest(BaseModel):
-    batch_id: str
     quantities: list[float]
 
 
@@ -116,321 +130,375 @@ class GenerateCodeRequest(BaseModel):
     farm_code: str | None = Field(None, min_length=3, max_length=3)
 
 
-# === Endpoints ===
+def _generate_batch_code(product_code: str, year: int | None, sequence: int, farm_code: str | None = None) -> str:
+    """Generate batch code, using shared module if available."""
+    try:
+        from shared.traceability import generate_batch_code
+        return generate_batch_code(
+            product_code=product_code,
+            year=year or datetime.now(UTC).year,
+            sequence=sequence,
+            farm_code=farm_code,
+        )
+    except ImportError:
+        year_short = str(year or datetime.now(UTC).year)[-2:]
+        code = f"{product_code}-{year_short}-{sequence:03d}"
+        if farm_code:
+            code = f"{product_code}-{farm_code}-{year_short}-{sequence:03d}"
+        return code
+
+
+# === Batch Endpoints ===
 
 
 @router.post("/batches", status_code=201)
 async def create_batch(request: BatchCreateRequest, req: Request, _user=Depends(get_current_user)):
     """Create a new produce batch - إنشاء دفعة منتج جديدة"""
-    tracker = _get_tracker()
+    pool = await _get_db(req)
 
-    if tracker:
-        try:
-            from shared.traceability import generate_batch_code
-
-            product_code = request.product_name_en[:2].upper()
-            batch_code = request.batch_code or generate_batch_code(
-                product_code=product_code,
-                year=datetime.utcnow().year,
-                sequence=len(_batches) + 1,
-                farm_code=request.farm_id[:3].upper() if request.farm_id else None,
-            )
-            batch = tracker.create_batch(
-                tenant_id=request.tenant_id,
-                farm_id=request.farm_id,
-                field_id=request.field_id,
-                product_name_en=request.product_name_en,
-                product_name_ar=request.product_name_ar,
-                batch_code=batch_code,
-                quantity=request.quantity,
-            )
-            batch_data = {
-                "id": batch.id,
-                "batch_code": batch.batch_code,
-                "product_name_en": batch.product_name_en,
-                "product_name_ar": batch.product_name_ar,
-                "quantity": batch.quantity,
-                "farm_id": request.farm_id,
-                "field_id": request.field_id,
-                "tenant_id": request.tenant_id,
-                "status": batch.status.value if hasattr(batch.status, "value") else str(batch.status),
-                "created_at": datetime.utcnow().isoformat(),
-                "_batch_obj": batch,
-            }
-            _batches[batch.id] = batch_data
-
-            nc = getattr(req.app.state, "nc", None)
-            if nc:
-                await nc.publish(
-                    "sahool.traceability.batch_created",
-                    json.dumps(
-                        {"batch_id": batch.id, "batch_code": batch_code, "tenant_id": request.tenant_id}
-                    ).encode(),
-                )
-
-            logger.info("batch_created", batch_id=batch.id, batch_code=batch_code)
-            return {k: v for k, v in batch_data.items() if k != "_batch_obj"}
-        except Exception as e:
-            logger.error("batch_creation_failed", error=str(e))
-            raise HTTPException(status_code=500, detail=str(e))
+    # Generate batch code
+    if request.batch_code:
+        batch_code = request.batch_code
     else:
-        batch_id = f"BATCH-{uuid.uuid4().hex[:8].upper()}"
-        batch_data = {
-            "id": batch_id,
-            "batch_code": request.batch_code
-            or f"{request.product_name_en[:2].upper()}-{datetime.utcnow().strftime('%y')}-{uuid.uuid4().hex[:4].upper()}",
-            "product_name_en": request.product_name_en,
-            "product_name_ar": request.product_name_ar,
-            "quantity": request.quantity,
-            "unit": request.unit,
-            "farm_id": request.farm_id,
-            "field_id": request.field_id,
-            "tenant_id": request.tenant_id,
-            "status": "created",
-            "events": [],
-            "created_at": datetime.utcnow().isoformat(),
-        }
-        _batches[batch_id] = batch_data
-        return batch_data
+        # Count existing batches for sequence
+        count = await pool.fetchval("SELECT COUNT(*) FROM produce_batches WHERE tenant_id = $1", request.tenant_id)
+        product_code = request.product_name_en[:2].upper()
+        farm_code = request.farm_id[:3].upper() if request.farm_id else None
+        batch_code = _generate_batch_code(product_code, datetime.now(UTC).year, count + 1, farm_code)
+
+    row = await pool.fetchrow(
+        """
+        INSERT INTO produce_batches (tenant_id, farm_id, field_id, batch_code, product_name_en, product_name_ar, variety, quantity, unit, quality_grade, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'A', 'created')
+        RETURNING *
+        """,
+        request.tenant_id,
+        request.farm_id,
+        request.field_id,
+        batch_code,
+        request.product_name_en,
+        request.product_name_ar,
+        request.variety,
+        request.quantity,
+        request.unit,
+    )
+    batch_data = _row_to_dict(row)
+
+    nc = getattr(req.app.state, "nc", None)
+    if nc:
+        await nc.publish(
+            "sahool.traceability.batch_created",
+            json.dumps({"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": request.tenant_id}).encode(),
+        )
+
+    logger.info("batch_created", batch_id=batch_data["id"], batch_code=batch_code)
+    return batch_data
 
 
 @router.get("/batches/{batch_id}")
-async def get_batch(batch_id: str):
+async def get_batch(batch_id: str, req: Request):
     """Get batch details - الحصول على تفاصيل الدفعة"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
-    return {k: v for k, v in _batches[batch_id].items() if k != "_batch_obj"}
+    pool = await _get_db(req)
+    row = await _get_batch_or_404(pool, batch_id)
+    return _row_to_dict(row)
 
 
 @router.get("/batches")
-async def list_batches(tenant_id: str | None = None, farm_id: str | None = None):
+async def list_batches(req: Request, tenant_id: str | None = None, farm_id: str | None = None):
     """List batches with optional filtering - قائمة الدفعات"""
-    result = list(_batches.values())
+    pool = await _get_db(req)
+
+    query = "SELECT * FROM produce_batches WHERE 1=1"
+    params = []
+    idx = 1
+
     if tenant_id:
-        result = [b for b in result if b.get("tenant_id") == tenant_id]
+        query += f" AND tenant_id = ${idx}"
+        params.append(tenant_id)
+        idx += 1
     if farm_id:
-        result = [b for b in result if b.get("farm_id") == farm_id]
-    return {"batches": [{k: v for k, v in b.items() if k != "_batch_obj"} for b in result], "count": len(result)}
+        query += f" AND farm_id = ${idx}"
+        params.append(farm_id)
+        idx += 1
+
+    query += " ORDER BY created_at DESC"
+    rows = await pool.fetch(query, *params)
+    result = [_row_to_dict(r) for r in rows]
+    return {"batches": result, "count": len(result)}
+
+
+@router.put("/batches/{batch_id}")
+async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request):
+    """Update batch details - تحديث تفاصيل الدفعة"""
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+
+    updates = request.model_dump(exclude_none=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail={"error": "No fields to update", "error_ar": "لا توجد حقول للتحديث"})
+
+    set_clauses = []
+    values = []
+    for i, (key, val) in enumerate(updates.items(), 1):
+        set_clauses.append(f"{key} = ${i}")
+        values.append(val)
+    values.append(uuid.UUID(batch_id))
+
+    row = await pool.fetchrow(
+        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",
+        *values,
+    )
+    logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
+    return _row_to_dict(row)
+
+
+# === Supply Chain Event Endpoints ===
 
 
 @router.post("/batches/{batch_id}/events/harvest")
 async def record_harvest_event(batch_id: str, request: HarvestEventRequest, req: Request):
     """Record harvest event - تسجيل حدث الحصاد"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+    batch_uuid = uuid.UUID(batch_id)
 
-    tracker = _get_tracker()
-    if tracker:
-        try:
-            batch_obj = _batches[batch_id].get("_batch_obj")
-            if batch_obj:
-                tracker.record_harvest(
-                    batch_id=batch_obj.id,
-                    field_name_en=request.field_name_en,
-                    field_name_ar=request.field_name_ar,
-                    crop_type=request.crop_type,
-                    harvest_method_en=request.harvest_method_en,
-                    harvest_method_ar=request.harvest_method_ar,
-                )
-        except Exception as e:
-            logger.warning("harvest_record_fallback", error=str(e))
+    row = await pool.fetchrow(
+        """
+        INSERT INTO supply_chain_events (batch_id, event_type, location, crop_type, harvest_method, quality_grade, metadata)
+        VALUES ($1, 'harvest', $2, $3, $4, $5, $6)
+        RETURNING *
+        """,
+        batch_uuid,
+        request.field_name_en,
+        request.crop_type,
+        request.harvest_method_en,
+        request.quality_grade,
+        json.dumps({"field_name_ar": request.field_name_ar, "harvest_method_ar": request.harvest_method_ar}),
+    )
 
-    event = {
-        "type": "harvest",
-        "timestamp": datetime.utcnow().isoformat(),
-        "crop_type": request.crop_type,
-        "quality_grade": request.quality_grade,
-        "field_name": request.field_name_en,
-    }
-    _batches[batch_id].setdefault("events", []).append(event)
+    # Update batch status
+    await pool.execute("UPDATE produce_batches SET status = 'harvested' WHERE id = $1 AND status = 'created'", batch_uuid)
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish("sahool.traceability.harvest_recorded", json.dumps({"batch_id": batch_id}).encode())
 
     logger.info("harvest_recorded", batch_id=batch_id)
-    return {"status": "recorded", "event": event}
+    return {"status": "recorded", "event": _row_to_dict(row)}
 
 
 @router.post("/batches/{batch_id}/events/processing")
-async def record_processing_event(batch_id: str, request: ProcessingEventRequest):
+async def record_processing_event(batch_id: str, request: ProcessingEventRequest, req: Request):
     """Record processing event - تسجيل حدث المعالجة"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+    batch_uuid = uuid.UUID(batch_id)
 
-    event = {
-        "type": "processing",
-        "timestamp": datetime.utcnow().isoformat(),
-        "facility": request.facility_name,
-        "process_type": request.process_type,
-    }
-    _batches[batch_id].setdefault("events", []).append(event)
-    return {"status": "recorded", "event": event}
+    row = await pool.fetchrow(
+        """
+        INSERT INTO supply_chain_events (batch_id, event_type, facility_name, process_type, notes)
+        VALUES ($1, 'processing', $2, $3, $4)
+        RETURNING *
+        """,
+        batch_uuid,
+        request.facility_name,
+        request.process_type,
+        request.notes,
+    )
+
+    await pool.execute("UPDATE produce_batches SET status = 'in_processing' WHERE id = $1", batch_uuid)
+    logger.info("processing_recorded", batch_id=batch_id)
+    return {"status": "recorded", "event": _row_to_dict(row)}
 
 
 @router.post("/batches/{batch_id}/events/storage")
-async def record_storage_event(batch_id: str, request: StorageEventRequest):
+async def record_storage_event(batch_id: str, request: StorageEventRequest, req: Request):
     """Record storage event - تسجيل حدث التخزين"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+    batch_uuid = uuid.UUID(batch_id)
 
-    event = {
-        "type": "storage",
-        "timestamp": datetime.utcnow().isoformat(),
-        "location": request.location,
-        "temperature_c": request.temperature_c,
-        "humidity_percent": request.humidity_percent,
-    }
-    _batches[batch_id].setdefault("events", []).append(event)
-    return {"status": "recorded", "event": event}
+    row = await pool.fetchrow(
+        """
+        INSERT INTO supply_chain_events (batch_id, event_type, location, temperature_c, humidity_percent)
+        VALUES ($1, 'storage', $2, $3, $4)
+        RETURNING *
+        """,
+        batch_uuid,
+        request.location,
+        request.temperature_c,
+        request.humidity_percent,
+    )
+
+    await pool.execute("UPDATE produce_batches SET status = 'in_storage' WHERE id = $1", batch_uuid)
+    logger.info("storage_recorded", batch_id=batch_id)
+    return {"status": "recorded", "event": _row_to_dict(row)}
 
 
 @router.post("/batches/{batch_id}/events/transport")
-async def record_transport_event(batch_id: str, request: TransportEventRequest):
+async def record_transport_event(batch_id: str, request: TransportEventRequest, req: Request):
     """Record transport event - تسجيل حدث النقل"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+    batch_uuid = uuid.UUID(batch_id)
 
-    event = {
-        "type": "transport",
-        "timestamp": datetime.utcnow().isoformat(),
-        "origin": request.origin,
-        "destination": request.destination,
-        "mode": request.transport_mode,
-    }
-    _batches[batch_id].setdefault("events", []).append(event)
-    return {"status": "recorded", "event": event}
+    metadata = {}
+    if request.distance_km:
+        metadata["distance_km"] = request.distance_km
+
+    row = await pool.fetchrow(
+        """
+        INSERT INTO supply_chain_events (batch_id, event_type, origin, destination, transport_mode, vehicle_id, metadata)
+        VALUES ($1, 'transport', $2, $3, $4, $5, $6)
+        RETURNING *
+        """,
+        batch_uuid,
+        request.origin,
+        request.destination,
+        request.transport_mode,
+        request.vehicle_id,
+        json.dumps(metadata) if metadata else "{}",
+    )
+
+    await pool.execute("UPDATE produce_batches SET status = 'in_transit' WHERE id = $1", batch_uuid)
+    logger.info("transport_recorded", batch_id=batch_id)
+    return {"status": "recorded", "event": _row_to_dict(row)}
+
+
+@router.get("/batches/{batch_id}/events")
+async def list_batch_events(batch_id: str, req: Request):
+    """List all events for a batch - قائمة أحداث الدفعة"""
+    pool = await _get_db(req)
+    await _get_batch_or_404(pool, batch_id)
+
+    rows = await pool.fetch(
+        "SELECT * FROM supply_chain_events WHERE batch_id = $1 ORDER BY timestamp ASC",
+        uuid.UUID(batch_id),
+    )
+    events = [_row_to_dict(r) for r in rows]
+    return {"batch_id": batch_id, "events": events, "count": len(events)}
+
+
+# === QR Code & Journey Endpoints ===
 
 
 @router.get("/batches/{batch_id}/qr")
-async def generate_qr_code(batch_id: str):
+async def generate_qr_code(batch_id: str, req: Request):
     """Generate QR code for batch - إنشاء رمز QR للدفعة"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
 
-    batch = _batches[batch_id]
     try:
         from shared.traceability import QRCodeGenerator
+        from shared.traceability.models import ProduceBatch
 
         qr_gen = QRCodeGenerator()
-        batch_obj = batch.get("_batch_obj")
-        if batch_obj:
-            qr_result = qr_gen.generate_for_batch(batch_obj)
-            return {
-                "batch_id": batch_id,
-                "batch_code": batch.get("batch_code"),
-                "qr_data": qr_result.data,
-                "format": qr_result.format,
-            }
+        batch_obj = ProduceBatch(
+            id=batch["id"],
+            batch_code=batch["batch_code"],
+            product_name_en=batch["product_name_en"],
+            product_name_ar=batch["product_name_ar"],
+        )
+        qr_result = qr_gen.generate_for_batch(batch_obj)
+        return {
+            "batch_id": batch_id,
+            "batch_code": batch["batch_code"],
+            "qr_data": qr_result.data,
+            "format": qr_result.format,
+        }
     except (ImportError, Exception) as e:
         logger.warning("qr_generation_fallback", error=str(e))
 
     return {
         "batch_id": batch_id,
-        "batch_code": batch.get("batch_code"),
-        "qr_data": f"https://sahool.app/trace/{batch.get('batch_code', batch_id)}",
+        "batch_code": batch["batch_code"],
+        "qr_data": f"https://sahool.app/trace/{batch['batch_code']}",
         "format": "url",
     }
 
 
 @router.get("/journey/{batch_code}")
-async def get_product_journey(batch_code: str):
+async def get_product_journey(batch_code: str, req: Request):
     """Get consumer-facing product journey - رحلة المنتج للمستهلك"""
-    batch = next((b for b in _batches.values() if b.get("batch_code") == batch_code), None)
+    pool = await _get_db(req)
+
+    batch = await pool.fetchrow("SELECT * FROM produce_batches WHERE batch_code = $1", batch_code)
     if not batch:
         raise HTTPException(status_code=404, detail={"error": "Product not found", "error_ar": "المنتج غير موجود"})
 
-    tracker = _get_tracker()
-    if tracker:
-        try:
-            batch_obj = batch.get("_batch_obj")
-            if batch_obj:
-                journey = tracker.build_product_journey(batch_obj.id)
-                return {
-                    "batch_code": batch_code,
-                    "product_name_en": batch.get("product_name_en"),
-                    "product_name_ar": batch.get("product_name_ar"),
-                    "journey": journey,
-                }
-        except Exception as e:
-            logger.warning("journey_build_fallback", error=str(e))
+    batch_data = _row_to_dict(batch)
+    events = await pool.fetch(
+        "SELECT * FROM supply_chain_events WHERE batch_id = $1 ORDER BY timestamp ASC",
+        batch["id"],
+    )
+
+    journey_steps = []
+    for e in events:
+        step = {
+            "event_type": e["event_type"],
+            "timestamp": e["timestamp"].isoformat() if e["timestamp"] else None,
+            "location": e["location"],
+        }
+        if e["event_type"] == "harvest":
+            step["crop_type"] = e["crop_type"]
+            step["quality_grade"] = e["quality_grade"]
+        elif e["event_type"] == "processing":
+            step["facility"] = e["facility_name"]
+            step["process_type"] = e["process_type"]
+        elif e["event_type"] == "storage":
+            step["temperature_c"] = float(e["temperature_c"]) if e["temperature_c"] else None
+        elif e["event_type"] == "transport":
+            step["origin"] = e["origin"]
+            step["destination"] = e["destination"]
+            step["mode"] = e["transport_mode"]
+        journey_steps.append(step)
+
+    # Get certifications
+    certs = await pool.fetch(
+        "SELECT * FROM batch_certifications WHERE batch_id = $1 AND status = 'active'",
+        batch["id"],
+    )
 
     return {
         "batch_code": batch_code,
-        "product_name_en": batch.get("product_name_en"),
-        "product_name_ar": batch.get("product_name_ar"),
-        "events": batch.get("events", []),
-        "farm_id": batch.get("farm_id"),
-        "status": batch.get("status"),
+        "product_name_en": batch_data["product_name_en"],
+        "product_name_ar": batch_data["product_name_ar"],
+        "farm_id": batch_data["farm_id"],
+        "status": batch_data["status"],
+        "quality_grade": batch_data.get("quality_grade"),
+        "journey": journey_steps,
+        "certifications": [_row_to_dict(c) for c in certs],
     }
 
 
-@router.put("/batches/{batch_id}")
-async def update_batch(batch_id: str, request: BatchUpdateRequest):
-    """Update batch details - تحديث تفاصيل الدفعة"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
-
-    batch = _batches[batch_id]
-    updates = request.model_dump(exclude_none=True)
-    batch.update(updates)
-    logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
-    return {k: v for k, v in batch.items() if k != "_batch_obj"}
-
-
-@router.get("/batches/{batch_id}/events")
-async def list_batch_events(batch_id: str):
-    """List all events for a batch - قائمة أحداث الدفعة"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
-
-    events = _batches[batch_id].get("events", [])
-    return {"batch_id": batch_id, "events": events, "count": len(events)}
+# === Batch Code Endpoints ===
 
 
 @router.post("/batches/generate-code")
 async def generate_code(request: GenerateCodeRequest):
     """Generate a batch code - إنشاء رمز دفعة"""
-    try:
-        from shared.traceability import generate_batch_code
-
-        code = generate_batch_code(
-            product_code=request.product_code,
-            year=request.year or datetime.utcnow().year,
-            sequence=request.sequence,
-            farm_code=request.farm_code,
-        )
-        return {"batch_code": code}
-    except ImportError:
-        year_short = str(request.year or datetime.utcnow().year)[-2:]
-        code = f"{request.product_code}-{year_short}-{request.sequence:03d}"
-        if request.farm_code:
-            code = f"{request.product_code}-{request.farm_code}-{year_short}-{request.sequence:03d}"
-        return {"batch_code": code}
+    code = _generate_batch_code(request.product_code, request.year, request.sequence, request.farm_code)
+    return {"batch_code": code}
 
 
 @router.get("/batches/verify-code/{code}")
-async def verify_code(code: str):
+async def verify_code(code: str, req: Request):
     """Verify a batch code format - التحقق من صيغة رمز الدفعة"""
-    try:
-        from shared.traceability import decode_qr_data
+    pool = await _get_db(req)
+    exists = await pool.fetchval("SELECT EXISTS(SELECT 1 FROM produce_batches WHERE batch_code = $1)", code)
+    return {"code": code, "valid": bool(code), "exists": exists}
 
-        decoded = decode_qr_data(code)
-        exists = any(b.get("batch_code") == code for b in _batches.values())
-        return {"code": code, "valid": decoded is not None, "exists": exists, "decoded": decoded}
-    except ImportError:
-        exists = any(b.get("batch_code") == code for b in _batches.values())
-        return {"code": code, "valid": bool(code), "exists": exists}
+
+# === Batch Split Endpoint ===
 
 
 @router.post("/batches/{batch_id}/split")
-async def split_batch(batch_id: str, request: BatchSplitRequest):
+async def split_batch(batch_id: str, request: BatchSplitRequest, req: Request):
     """Split a batch into sub-batches - تقسيم الدفعة إلى دفعات فرعية"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    parent = _row_to_dict(await _get_batch_or_404(pool, batch_id))
 
-    parent = _batches[batch_id]
-    parent_qty = parent.get("quantity", 0)
+    parent_qty = float(parent.get("quantity", 0))
     total_split = sum(request.quantities)
     if total_split > parent_qty:
         raise HTTPException(
@@ -443,48 +511,57 @@ async def split_batch(batch_id: str, request: BatchSplitRequest):
 
     child_batches = []
     for i, qty in enumerate(request.quantities, 1):
-        child_id = f"BATCH-{uuid.uuid4().hex[:8].upper()}"
-        child = {
-            "id": child_id,
-            "batch_code": f"{parent.get('batch_code', '')}-S{i}",
-            "product_name_en": parent.get("product_name_en"),
-            "product_name_ar": parent.get("product_name_ar"),
-            "quantity": qty,
-            "unit": parent.get("unit", "kg"),
-            "farm_id": parent.get("farm_id"),
-            "field_id": parent.get("field_id"),
-            "tenant_id": parent.get("tenant_id"),
-            "parent_batch_id": batch_id,
-            "status": "created",
-            "events": list(parent.get("events", [])),
-            "created_at": datetime.utcnow().isoformat(),
-        }
-        _batches[child_id] = child
-        child_batches.append(child)
+        child_code = f"{parent['batch_code']}-S{i}"
+        child = await pool.fetchrow(
+            """
+            INSERT INTO produce_batches (tenant_id, farm_id, field_id, batch_code, product_name_en, product_name_ar, variety, quantity, unit, quality_grade, status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'created')
+            RETURNING *
+            """,
+            parent["tenant_id"],
+            parent["farm_id"],
+            parent["field_id"],
+            child_code,
+            parent["product_name_en"],
+            parent["product_name_ar"],
+            parent.get("variety"),
+            qty,
+            parent.get("unit", "kg"),
+            parent.get("quality_grade", "A"),
+        )
+        child_batches.append(_row_to_dict(child))
 
-    parent["quantity"] = parent_qty - total_split
-    parent["status"] = "split" if parent["quantity"] == 0 else parent.get("status", "created")
+    remaining = parent_qty - total_split
+    new_status = "split" if remaining == 0 else parent.get("status", "created")
+    await pool.execute(
+        "UPDATE produce_batches SET quantity = $1, status = $2 WHERE id = $3",
+        remaining,
+        new_status,
+        uuid.UUID(batch_id),
+    )
 
     logger.info("batch_split", parent_id=batch_id, children=len(child_batches))
-    return {"parent_batch_id": batch_id, "remaining_quantity": parent["quantity"], "child_batches": child_batches}
+    return {"parent_batch_id": batch_id, "remaining_quantity": remaining, "child_batches": child_batches}
+
+
+# === Carbon Footprint Endpoint ===
 
 
 @router.get("/carbon/{batch_id}")
-async def estimate_carbon_footprint(batch_id: str):
+async def estimate_carbon_footprint(batch_id: str, req: Request):
     """Estimate carbon footprint for batch - تقدير البصمة الكربونية"""
-    if batch_id not in _batches:
-        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+    pool = await _get_db(req)
+    batch = _row_to_dict(await _get_batch_or_404(pool, batch_id))
+
+    transport_events = await pool.fetch(
+        "SELECT * FROM supply_chain_events WHERE batch_id = $1 AND event_type = 'transport'",
+        uuid.UUID(batch_id),
+    )
 
     try:
         from shared.traceability import calculate_carbon_footprint
         from shared.traceability.models import TransportMode
 
-        batch = _batches[batch_id]
-        events = batch.get("events", [])
-        transport_events = [e for e in events if e.get("type") == "transport"]
-
-        total_footprint = 0.0
-        quantity_kg = batch.get("quantity", 0)
         mode_map = {
             "truck": TransportMode.TRUCK_AMBIENT,
             "truck_refrigerated": TransportMode.TRUCK_REFRIGERATED,
@@ -493,9 +570,15 @@ async def estimate_carbon_footprint(batch_id: str):
             "rail": TransportMode.RAIL,
             "local": TransportMode.LOCAL_DELIVERY,
         }
+
+        total_footprint = 0.0
+        quantity_kg = float(batch.get("quantity", 0))
         for te in transport_events:
-            mode = mode_map.get(te.get("mode", "truck"), TransportMode.TRUCK_AMBIENT)
-            distance = te.get("distance_km", 100.0)
+            mode = mode_map.get(te["transport_mode"] or "truck", TransportMode.TRUCK_AMBIENT)
+            metadata = te.get("metadata") or {}
+            if isinstance(metadata, str):
+                metadata = json.loads(metadata)
+            distance = metadata.get("distance_km", 100.0)
             total_footprint += calculate_carbon_footprint(distance, mode, quantity_kg)
 
         return {"batch_id": batch_id, "carbon_footprint_kg_co2": round(total_footprint, 3)}

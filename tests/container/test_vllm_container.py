@@ -362,17 +362,18 @@ class TestVLLMMainComposeIntegration:
 
     def test_vllm_service_in_main_compose(self):
         """vLLM service exists in main docker-compose.yml."""
-        assert "vllm" in self.compose.get("services", {}), "vLLM service missing from main compose"
+        services = self.compose.get("services", {})
+        assert "vllm-deepseek" in services, "vLLM service missing from main compose"
 
     def test_vllm_under_gpu_profile(self):
         """vLLM service is under 'gpu' profile."""
-        vllm = self.compose["services"]["vllm"]
+        vllm = self.compose["services"]["vllm-deepseek"]
         profiles = vllm.get("profiles", [])
         assert "gpu" in profiles, f"Expected 'gpu' profile, got {profiles}"
 
     def test_vllm_has_gpu_reservation_in_main(self):
         """vLLM in main compose has GPU device reservation."""
-        vllm = self.compose["services"]["vllm"]
+        vllm = self.compose["services"]["vllm-deepseek"]
         deploy = vllm.get("deploy", {})
         resources = deploy.get("resources", {})
         reservations = resources.get("reservations", {})
@@ -751,7 +752,7 @@ class TestVLLMCrossComponentConsistency:
         main_compose = _load_yaml(MAIN_COMPOSE)
 
         standalone_name = compose["services"]["vllm"].get("container_name")
-        main_name = main_compose["services"]["vllm"].get("container_name")
+        main_name = main_compose["services"]["vllm-deepseek"].get("container_name")
 
         assert standalone_name == "sahool-vllm"
         assert main_name == "sahool-vllm"

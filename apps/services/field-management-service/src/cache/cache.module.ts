@@ -50,17 +50,18 @@ const hasRedisUrl = !!process.env.REDIS_URL;
               port: parseInt(url.port) || 6379,
               connectTimeout: 5000, // 5 second per-attempt timeout
               reconnectStrategy: (retries: number) => {
-                if (retries > 10) {
-                  // For node-redis's socket.reconnectStrategy, this sets an upper bound
-                  // on the backoff interval so the service gradually recovers without thrashing.
-                  if (retries === 11) {
-                    // Log only once when entering the capped-backoff regime to avoid
-                    // flooding logs during a long Redis outage (every 30 s indefinitely).
-                    logger.warn("Redis reconnect: entering slow-retry mode (30 s intervals)");
-                  }
-                  return 30000; // 30 s – keep retrying but slowly
+                // IMPORTANT: this callback is invoked by node-redis for BOTH the initial
+                // connect() call and subsequent reconnections after a disconnect.  If it
+                // never returns `false` or an Error, the initial connect() promise will
+                // loop forever, hanging NestFactory.create() before app.listen() is ever
+                // called — /healthz never responds and the container is marked unhealthy.
+                // Returning `false` after a few retries lets connect() reject so the
+                // try-catch above can fall back to in-memory cache and let the service start.
+                if (retries > 3) {
+                  logger.warn("Redis connection failed after 3 retries, falling back to in-memory cache");
+                  return false; // Stop retrying — allows connect() to reject
                 }
-                return Math.min(retries * 1000, 5000); // backoff up to 5 s
+                return Math.min(retries * 1000, 3000); // backoff: 0 s, 1 s, 2 s, 3 s
               },
             },
             password: password || undefined,

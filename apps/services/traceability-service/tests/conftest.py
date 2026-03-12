@@ -1,9 +1,9 @@
-"""Test configuration for cooperative-service."""
+"""Test configuration for traceability-service."""
 
 import os
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient

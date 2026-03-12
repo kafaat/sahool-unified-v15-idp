@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger()
@@ -37,6 +37,13 @@ router = APIRouter(prefix="/api/v1/soil", tags=["soil-analysis"])
 _soil_tests: dict[str, dict] = {}
 
 
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
+
+
 # === Request/Response Models ===
 
 
@@ -58,7 +65,6 @@ class SoilPropertiesInput(BaseModel):
 
 class SoilTestCreateRequest(BaseModel):
     field_id: str
-    tenant_id: str
     sample_date: datetime | None = None
     sample_depth_cm: float = 30.0
     macronutrients: MacronutrientsInput
@@ -100,13 +106,11 @@ class FertilizerRateRequest(BaseModel):
 
 class NutrientTrendRequest(BaseModel):
     field_id: str
-    tenant_id: str
     nutrient: str = Field(..., description="Nutrient code: N, P, K, etc.")
 
 
 class PeriodCompareRequest(BaseModel):
     field_id: str
-    tenant_id: str
     period1_start: datetime
     period1_end: datetime
     period2_start: datetime
@@ -115,14 +119,15 @@ class PeriodCompareRequest(BaseModel):
 
 class TrendRequest(BaseModel):
     field_id: str
-    tenant_id: str
 
 
 # === Endpoints ===
 
 
 @router.post("/tests", status_code=201)
-async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=Depends(get_current_user)):
+async def create_soil_test(
+    request: SoilTestCreateRequest, req: Request, _user=Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)
+):
     """Create a new soil test record - إنشاء سجل تحليل تربة جديد"""
     test_id = f"ST-{uuid.uuid4().hex[:8].upper()}"
     sample_id = f"SMP-{uuid.uuid4().hex[:8].upper()}"
@@ -132,7 +137,7 @@ async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=D
 
         soil_test = SoilTestResult(
             id=test_id,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
             field_id=request.field_id,
             sample_id=sample_id,
             sample_date=request.sample_date or datetime.utcnow(),
@@ -152,7 +157,7 @@ async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=D
             "id": test_id,
             "sample_id": sample_id,
             "field_id": request.field_id,
-            "tenant_id": request.tenant_id,
+            "tenant_id": tenant_id,
             "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
@@ -166,7 +171,7 @@ async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=D
         if nc:
             await nc.publish(
                 "sahool.soil.test_created",
-                json.dumps({"test_id": test_id, "field_id": request.field_id, "tenant_id": request.tenant_id}).encode(),
+                json.dumps({"test_id": test_id, "field_id": request.field_id, "tenant_id": tenant_id}).encode(),
             )
 
         logger.info("soil_test_created", test_id=test_id, field_id=request.field_id)
@@ -178,7 +183,7 @@ async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=D
             "id": test_id,
             "sample_id": sample_id,
             "field_id": request.field_id,
-            "tenant_id": request.tenant_id,
+            "tenant_id": tenant_id,
             "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
@@ -352,10 +357,10 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
 
 
 @router.post("/trends")
-async def analyze_soil_trends(request: TrendRequest, req: Request):
+async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
     field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
     ]
 
     if not field_tests:
@@ -374,7 +379,7 @@ async def analyze_soil_trends(request: TrendRequest, req: Request):
             return {"field_id": request.field_id, "message": "No processable tests", "trends": []}
 
         analyzer = SoilTrendAnalyzer()
-        report = analyzer.analyze_trends(request.field_id, request.tenant_id, soil_test_objs)
+        report = analyzer.analyze_trends(request.field_id, tenant_id, soil_test_objs)
 
         result = {
             "field_id": request.field_id,
@@ -399,7 +404,7 @@ async def analyze_soil_trends(request: TrendRequest, req: Request):
                     json.dumps(
                         {
                             "field_id": request.field_id,
-                            "tenant_id": request.tenant_id,
+                            "tenant_id": tenant_id,
                             "trends_count": len(report.trends),
                         }
                     ).encode(),
@@ -514,10 +519,10 @@ async def calculate_rate(request: FertilizerRateRequest):
 
 
 @router.post("/trends/nutrient")
-async def get_single_nutrient_trend(request: NutrientTrendRequest):
+async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id)):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
     field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
     ]
 
     if not field_tests:
@@ -552,10 +557,10 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest):
 
 
 @router.post("/trends/compare-periods")
-async def compare_periods(request: PeriodCompareRequest):
+async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id)):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
     field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id
+        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
     ]
 
     if not field_tests:

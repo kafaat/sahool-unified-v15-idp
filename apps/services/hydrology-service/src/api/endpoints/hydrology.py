@@ -90,8 +90,10 @@ router = APIRouter(prefix="/api/v1/hydrology", tags=["Hydrology | الهيدرو
 # ==============================================================================
 
 
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str | None:
-    """Extract tenant ID from header (optional)."""
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     return x_tenant_id
 
 
@@ -235,7 +237,7 @@ def generate_mock_analysis_data(field_id: str, resolution_m: float = 30.0) -> tu
 
 @router.post("/analyze", response_model=HydrologyAnalysisResponse)
 async def analyze_hydrology(
-    request: HydrologyAnalysisRequest, tenant_id: str | None = Depends(get_tenant_id)
+    request: HydrologyAnalysisRequest, tenant_id: str = Depends(get_tenant_id)
 ) -> HydrologyAnalysisResponse:
     """
     Full hydrology analysis for a field.
@@ -254,7 +256,7 @@ async def analyze_hydrology(
     start_time = time.time()
     settings = get_settings()
 
-    effective_tenant_id = request.tenant_id or tenant_id
+    effective_tenant_id = tenant_id
 
     logger.info("Starting hydrology analysis", field_id=request.field_id, tenant_id=effective_tenant_id)
 
@@ -346,7 +348,7 @@ async def get_drainage_network(
     field_id: str,
     flow_threshold: int = Query(default=100, ge=10, le=10000, description="Flow accumulation threshold"),
     include_pattern: bool = Query(default=True, description="Include drainage pattern classification"),
-    tenant_id: str | None = Depends(get_tenant_id),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> DrainageNetworkResponse:
     """
     Get drainage network for a field.
@@ -374,7 +376,7 @@ async def get_wetness_analysis(
     field_id: str,
     include_prediction: bool = Query(default=True, description="Include waterlogging prediction"),
     rainfall_mm: float | None = Query(default=None, ge=0, description="Expected rainfall for prediction"),
-    tenant_id: str | None = Depends(get_tenant_id),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> WetnessAnalysisResponse:
     """
     Get wetness/waterlogging analysis for a field.
@@ -403,7 +405,7 @@ async def get_depressions(
     field_id: str,
     min_depth_m: float = Query(default=0.1, ge=0.01, le=10.0, description="Minimum depression depth"),
     min_area_sqm: float = Query(default=10.0, ge=1.0, description="Minimum depression area"),
-    tenant_id: str | None = Depends(get_tenant_id),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> DepressionAnalysisResponse:
     """
     Identify depressions/sinks in the field.
@@ -425,7 +427,7 @@ async def get_depressions(
 async def get_streams(
     field_id: str,
     min_order: int = Query(default=1, ge=1, le=6, description="Minimum Strahler stream order"),
-    tenant_id: str | None = Depends(get_tenant_id),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> StreamNetworkResponse:
     """
     Detect streams in the field.
@@ -446,7 +448,7 @@ async def get_streams(
 async def get_basins(
     field_id: str,
     min_area_ha: float = Query(default=0.5, ge=0.1, description="Minimum basin area in hectares"),
-    tenant_id: str | None = Depends(get_tenant_id),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> BasinDelineationResponse:
     """
     Delineate drainage basins/watersheds.

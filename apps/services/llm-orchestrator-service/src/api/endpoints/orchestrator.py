@@ -16,7 +16,7 @@ import uuid
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 
 from ...agents.executor import AgentExecutor
 from ...agents.quick_responses import QuickResponse
@@ -41,6 +41,13 @@ from ..schemas import (
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["orchestrator"])
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 def get_executor(request: Request) -> AgentExecutor:
@@ -76,6 +83,7 @@ async def orchestrate(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> OrchestratorResponse:
     """Main orchestration endpoint."""
     start_time = time.time()
@@ -290,6 +298,7 @@ async def execute_action(
     action_request: ExecuteActionRequest,
     request: Request,
     executor: AgentExecutor = Depends(get_executor),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> ExecuteActionResponse:
     """Execute a recommended action."""
     action = action_request.action
@@ -318,7 +327,7 @@ async def execute_action(
         result = await _execute_action_type(
             action,
             action_request.field_id,
-            action_request.tenant_id,
+            tenant_id,
             executor,
         )
 
@@ -439,9 +448,7 @@ def _build_agent_params(intent: Any, user_intent: UserIntent, agent_name: str) -
     if user_intent.field_id:
         params["field_id"] = user_intent.field_id
 
-    # Add tenant ID if available
-    if user_intent.tenant_id:
-        params["tenant_id"] = user_intent.tenant_id
+    # Note: tenant_id is injected from X-Tenant-Id header at endpoint level, not from body
 
     # Add image data for vision agents
     if agent_name in ("yolo-vision", "pest-detection"):
@@ -631,6 +638,7 @@ async def orchestrate_simple(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> OrchestratorResponse:
     """Simplified orchestration with quick responses and rule-based routing."""
     start_time = time.time()
@@ -706,8 +714,8 @@ async def orchestrate_simple(
         params: dict[str, Any] = {}
         if user_intent.field_id:
             params["field_id"] = user_intent.field_id
-        if user_intent.tenant_id:
-            params["tenant_id"] = user_intent.tenant_id
+        # tenant_id is injected from X-Tenant-Id header at endpoint level
+        params["tenant_id"] = tenant_id
         if agent.requires_image and has_image:
             if user_intent.image_base64:
                 params["image_base64"] = user_intent.image_base64

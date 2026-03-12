@@ -94,8 +94,10 @@ execute_admin_query() {
     _stats_user=$(resolve_admin_user)
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
     # Use explicit || return 1 to prevent set -e from exiting the script
-    # when psql fails, allowing callers to handle the failure gracefully
-    PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    # when psql fails, allowing callers to handle the failure gracefully.
+    # PGCONNECT_TIMEOUT=5: cap TCP connection-establishment time so a
+    # non-responding PgBouncer never blocks the healthcheck longer than 5 s.
+    PGCONNECT_TIMEOUT=5 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
       -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
     return 0
   else
@@ -110,14 +112,21 @@ execute_admin_query() {
 # This is used only for the initial connectivity probe (Check 1).
 check_connectivity() {
   if command -v psql >/dev/null 2>&1; then
-    # Try admin console SELECT 1
+    # Try admin console using SHOW VERSION - a valid PgBouncer admin command that
+    # always returns one row and executes entirely within PgBouncer (no PostgreSQL
+    # server connection needed, so it never blocks waiting for query_wait_timeout).
+    # FIX: "SELECT 1" is not a valid admin console command; it always fails here,
+    # forcing the code to fall through to the end-to-end check below, which CAN
+    # hang for up to query_wait_timeout (30 s) waiting for a server connection.
+    # That exceeds Docker's 15 s healthcheck timeout, killing the CMD-SHELL before
+    # the "|| nc -z localhost 6432" fallback in docker-compose can run.
     _stats_user=$(resolve_admin_user)
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
-    PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$_stats_user" -d pgbouncer -t -A -c "SELECT 1" 2>/dev/null && return 0
+    PGCONNECT_TIMEOUT=5 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+      -U "$_stats_user" -d pgbouncer -t -A -c "SHOW VERSION;" 2>/dev/null && return 0
 
     # Try end-to-end: main DB user connecting through PgBouncer to PostgreSQL
-    PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    PGCONNECT_TIMEOUT=5 PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
       -U "$POSTGRES_USER" -d "${DB_NAME:-sahool}" -t -A -c "SELECT 1" 2>/dev/null && return 0
 
     return 1
@@ -167,8 +176,12 @@ log "${GREEN}✓ PgBouncer is reachable${NC}"
 
 # Check 2: Pool status
 log "${YELLOW}Checking pool status...${NC}"
-POOL_DATA=$(execute_admin_query "SHOW POOLS;" 2>/dev/null || echo "")
-if [ -z "$POOL_DATA" ]; then
+# FIX: Use "if !" to capture exit status separately from output.
+# On a freshly-started PgBouncer with no client connections yet, SHOW POOLS
+# returns zero rows (empty output) but exits 0 - that is healthy, not an error.
+# The old "if [ -z "$POOL_DATA" ]" check could not distinguish "command failed"
+# from "command succeeded with no rows" and incorrectly exited 1 in the latter case.
+if ! POOL_DATA=$(execute_admin_query "SHOW POOLS;" 2>/dev/null); then
   if [ "$JSON_OUTPUT" = "true" ]; then
     echo '{"status":"unhealthy","error":"Cannot retrieve pool status","checks":{"connectivity":true,"pools":false}}'
   else

@@ -1,4 +1,4 @@
-"""Health endpoint tests for cooperative-service."""
+"""Health endpoint tests for traceability-service."""
 
 import pytest
 
@@ -12,7 +12,7 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert data["service"] == "cooperative-service"
+        assert data["service"] == "traceability-service"
         assert data["version"] == "16.0.0"
 
     def test_readyz(self, client):
@@ -29,18 +29,18 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "checks" in data
-        assert data["service"] == "cooperative-service"
+        assert data["service"] == "traceability-service"
 
     def test_metrics(self, client):
         """Test Prometheus metrics endpoint."""
         response = client.get("/metrics")
         assert response.status_code == 200
-        assert "cooperative_service_up 1" in response.text
+        assert "traceability_service_up 1" in response.text
 
     def test_root(self, client):
         """Test root endpoint."""
         response = client.get("/")
         assert response.status_code == 200
         data = response.json()
-        assert data["service"] == "cooperative-service"
+        assert data["service"] == "traceability-service"
         assert data["version"] == "16.0.0"

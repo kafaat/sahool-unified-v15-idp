@@ -25,11 +25,19 @@ if ! command -v psql >/dev/null 2>&1; then
     fi
 fi
 
-# Create runtime directory for userlist.txt
+# Create runtime directory for userlist.txt and pidfile
 # The docker-compose mounts a tmpfs at /etc/pgbouncer/runtime (writable by any user)
 # Previously used a named volume which caused "Permission denied" for non-root containers
 mkdir -p /etc/pgbouncer/runtime 2>/dev/null || true
-chmod 700 /etc/pgbouncer/runtime 2>/dev/null || true
+chmod 777 /etc/pgbouncer/runtime 2>/dev/null || true
+
+# FIX: Create default PgBouncer directories as fallback
+# The edoburu/pgbouncer image normally creates these in its own entrypoint,
+# but since we override it, these directories may not exist
+mkdir -p /var/run/pgbouncer 2>/dev/null || true
+mkdir -p /var/log/pgbouncer 2>/dev/null || true
+chmod 777 /var/run/pgbouncer 2>/dev/null || true
+chmod 777 /var/log/pgbouncer 2>/dev/null || true
 
 # Configuration from environment
 DB_HOST="${DB_HOST:-postgres}"

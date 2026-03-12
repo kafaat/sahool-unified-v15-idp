@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from ...training import (
@@ -44,6 +44,14 @@ router = APIRouter(
     prefix="/api/v1/training",
     tags=["Training | التدريب"],
 )
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
+
 
 # Global instances (initialized in main.py lifespan)
 trainer: AGLTrainer | None = None
@@ -358,7 +366,7 @@ async def get_optimized_prompt(agent_name: str) -> dict[str, Any]:
 
 
 @router.post("/feedback", response_model=FeedbackResponse)
-async def record_feedback(request: FeedbackRequest) -> FeedbackResponse:
+async def record_feedback(request: FeedbackRequest, tenant_id: str = Depends(get_tenant_id)) -> FeedbackResponse:
     """
     Record feedback on an agent's response.
     تسجيل تغذية راجعة على استجابة الوكيل
@@ -381,7 +389,7 @@ async def record_feedback(request: FeedbackRequest) -> FeedbackResponse:
         rating=request.rating,
         correction=request.correction,
         user_id=request.user_id,
-        tenant_id=request.tenant_id,
+        tenant_id=tenant_id,
         field_id=request.field_id,
         crop_type=request.crop_type,
         intent_type=request.intent_type,

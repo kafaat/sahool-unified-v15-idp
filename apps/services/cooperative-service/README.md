@@ -132,26 +132,26 @@ Agricultural cooperatives management service for resource pooling, group purchas
 
 ---
 
-## Events | الأحداث
+## NATS Events | الأحداث
+
+All events use centralized constants from `shared.events.subjects`.
 
 ### Produces
 
-| Event | Description |
-|-------|-------------|
-| `CooperativeCreated.v1` | New cooperative created |
-| `MemberJoined.v1` | Member joined cooperative |
-| `ResourceBooked.v1` | Resource booking created |
-| `RevenueDistributed.v1` | Revenue distributed to members |
-| `PurchaseOrderFinalized.v1` | Group purchase order finalized |
+| Event | NATS Subject | Description |
+|-------|-------------|-------------|
+| `CooperativeCreated.v1` | `sahool.cooperative.created` | New cooperative created |
+| `MemberAdded.v1` | `sahool.cooperative.member_added` | Member joined cooperative |
+| `MemberRemoved.v1` | `sahool.cooperative.member_removed` | Member removed from cooperative |
+| `ResourceBooked.v1` | `sahool.cooperative.resource_booked` | Resource booking created |
+| `RevenueDistributed.v1` | `sahool.cooperative.revenue_distributed` | Revenue distributed to members |
+| `NotificationSend.v1` | `sahool.notification.send` | Notification for revenue distribution |
 
 ### Consumes
 
 | Event | Description |
 |-------|-------------|
-| `YieldPredicted.v1` | Yield prediction for revenue planning |
-| `FieldCreated.v1` | Field creation for land area tracking |
-| `TaskCompleted.v1` | Task completion for resource usage |
-| `OrderPaid.v1` | Marketplace order payment |
+| `FarmerCreated.v1` | Farmer registration for member onboarding |
 
 ---
 
@@ -159,7 +159,7 @@ Agricultural cooperatives management service for resource pooling, group purchas
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PORT` | Service port | `8173` | No |
+| `PORT` | Service port | `8127` | No |
 | `HOST` | Bind address | `0.0.0.0` | No |
 | `ENVIRONMENT` | Environment (development/staging/production) | `development` | No |
 | `DATABASE_URL` | PostgreSQL connection string | - | Yes |
@@ -171,7 +171,7 @@ Agricultural cooperatives management service for resource pooling, group purchas
 
 ## Port
 
-**8173**
+**8127**
 
 ---
 
@@ -184,7 +184,7 @@ Agricultural cooperatives management service for resource pooling, group purchas
 pip install -r requirements.txt
 
 # Run the service
-uvicorn src.main:app --host 0.0.0.0 --port 8173 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8127 --reload
 ```
 
 ### Docker
@@ -194,7 +194,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8173 --reload
 docker build -t sahool/cooperative-service .
 
 # Run container
-docker run -p 8173:8173 \
+docker run -p 8127:8127 \
   -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
   -e REDIS_URL=redis://localhost:6379 \
   -e NATS_URL=nats://localhost:4222 \
@@ -228,10 +228,10 @@ spec:
         - name: cooperative-service
           image: sahool/cooperative-service:latest
           ports:
-            - containerPort: 8173
+            - containerPort: 8127
           env:
             - name: PORT
-              value: "8173"
+              value: "8127"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -250,13 +250,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8173
+              port: 8127
             initialDelaySeconds: 10
             periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /readyz
-              port: 8173
+              port: 8127
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -276,8 +276,8 @@ spec:
   selector:
     app: cooperative-service
   ports:
-    - port: 8173
-      targetPort: 8173
+    - port: 8127
+      targetPort: 8127
   type: ClusterIP
 ```
 
@@ -321,5 +321,5 @@ Proprietary - KAFAAT
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 16.0.0
+**Last Updated**: March 2026

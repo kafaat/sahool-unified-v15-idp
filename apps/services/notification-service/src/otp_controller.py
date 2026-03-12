@@ -22,7 +22,7 @@ from datetime import datetime
 from enum import Enum, StrEnum
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field, field_validator
 
 from .security_utils import sanitize_for_log
@@ -55,6 +55,13 @@ logger = logging.getLogger("sahool-notifications.otp-controller")
 # Note: Router uses prefix="/otp" for OTP operations
 # Kong handles /api/v1/otp routing with strip_path: true
 router = APIRouter(prefix="/otp", tags=["OTP - رموز التحقق"])
+
+
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # =============================================================================
@@ -587,7 +594,7 @@ async def send_otp_via_channel(
     },
 )
 @rate_limit(requests_per_minute=3, requests_per_hour=20, burst_limit=2)
-async def send_otp(request: Request, body: SendOTPRequest):
+async def send_otp(request: Request, body: SendOTPRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     إرسال رمز OTP إلى المستخدم
     Send OTP code to user via specified channel
@@ -611,7 +618,7 @@ async def send_otp(request: Request, body: SendOTPRequest):
     can_resend, wait_seconds = _otp_storage.can_resend(
         identifier=body.identifier,
         purpose=body.purpose.value,
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_id,
     )
 
     if not can_resend:
@@ -654,7 +661,7 @@ async def send_otp(request: Request, body: SendOTPRequest):
     otp_code, expires_in = _otp_storage.create_otp(
         identifier=body.identifier,
         purpose=body.purpose.value,
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_id,
     )
 
     # Send OTP via channel
@@ -706,7 +713,7 @@ async def send_otp(request: Request, body: SendOTPRequest):
         401: {"description": "Invalid or expired OTP"},
     },
 )
-async def verify_otp(body: VerifyOTPRequest):
+async def verify_otp(body: VerifyOTPRequest, tenant_id: str = Depends(get_tenant_id)):
     """
     التحقق من رمز OTP
     Verify the OTP code entered by user
@@ -717,7 +724,7 @@ async def verify_otp(body: VerifyOTPRequest):
         identifier=body.identifier,
         otp_code=body.otp_code,
         purpose=body.purpose.value,
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_id,
     )
 
     # Generate reset token for password reset purpose
@@ -766,7 +773,7 @@ async def verify_otp(body: VerifyOTPRequest):
 async def get_otp_status(
     identifier: str = Query(..., min_length=3, description="Phone number or email | رقم الهاتف أو البريد"),
     purpose: OTPPurpose = Query(..., description="OTP purpose | غرض OTP"),
-    tenant_id: str | None = Query(None, description="Tenant ID | معرف المستأجر"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     التحقق من حالة OTP

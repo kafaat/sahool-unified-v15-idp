@@ -463,7 +463,12 @@ SAHOOL_SKILLS_ALL = "sahool.skills.*"
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_COOPERATIVE_CREATED = "sahool.cooperative.created"
+SAHOOL_COOPERATIVE_UPDATED = "sahool.cooperative.updated"
+SAHOOL_COOPERATIVE_DELETED = "sahool.cooperative.deleted"
 SAHOOL_COOPERATIVE_MEMBER_ADDED = "sahool.cooperative.member_added"
+SAHOOL_COOPERATIVE_MEMBER_REMOVED = "sahool.cooperative.member_removed"
+SAHOOL_COOPERATIVE_RESOURCE_BOOKED = "sahool.cooperative.resource_booked"
+SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED = "sahool.cooperative.revenue_distributed"
 
 SAHOOL_COOPERATIVE_ALL = "sahool.cooperative.*"
 
@@ -485,7 +490,13 @@ SAHOOL_DRONE_ALL = "sahool.drone.*"
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_TRACEABILITY_BATCH_CREATED = "sahool.traceability.batch_created"
+SAHOOL_TRACEABILITY_BATCH_UPDATED = "sahool.traceability.batch_updated"
+SAHOOL_TRACEABILITY_BATCH_SPLIT = "sahool.traceability.batch_split"
+SAHOOL_TRACEABILITY_BATCH_RECALLED = "sahool.traceability.batch_recalled"
 SAHOOL_TRACEABILITY_HARVEST_RECORDED = "sahool.traceability.harvest_recorded"
+SAHOOL_TRACEABILITY_PROCESSING_RECORDED = "sahool.traceability.processing_recorded"
+SAHOOL_TRACEABILITY_STORAGE_RECORDED = "sahool.traceability.storage_recorded"
+SAHOOL_TRACEABILITY_TRANSPORT_RECORDED = "sahool.traceability.transport_recorded"
 
 SAHOOL_TRACEABILITY_ALL = "sahool.traceability.*"
 
@@ -790,7 +801,12 @@ SUBJECT_REGISTRY = {
     "skills.learning_path_created": SAHOOL_SKILLS_LEARNING_PATH_CREATED,
     # Cooperative
     "cooperative.created": SAHOOL_COOPERATIVE_CREATED,
+    "cooperative.updated": SAHOOL_COOPERATIVE_UPDATED,
+    "cooperative.deleted": SAHOOL_COOPERATIVE_DELETED,
     "cooperative.member_added": SAHOOL_COOPERATIVE_MEMBER_ADDED,
+    "cooperative.member_removed": SAHOOL_COOPERATIVE_MEMBER_REMOVED,
+    "cooperative.resource_booked": SAHOOL_COOPERATIVE_RESOURCE_BOOKED,
+    "cooperative.revenue_distributed": SAHOOL_COOPERATIVE_REVENUE_DISTRIBUTED,
     # Drone
     "drone.flight_planned": SAHOOL_DRONE_FLIGHT_PLANNED,
     "drone.mission_created": SAHOOL_DRONE_MISSION_CREATED,
@@ -798,7 +814,13 @@ SUBJECT_REGISTRY = {
     "drone.mission_aborted": SAHOOL_DRONE_MISSION_ABORTED,
     # Traceability
     "traceability.batch_created": SAHOOL_TRACEABILITY_BATCH_CREATED,
+    "traceability.batch_updated": SAHOOL_TRACEABILITY_BATCH_UPDATED,
+    "traceability.batch_split": SAHOOL_TRACEABILITY_BATCH_SPLIT,
+    "traceability.batch_recalled": SAHOOL_TRACEABILITY_BATCH_RECALLED,
     "traceability.harvest_recorded": SAHOOL_TRACEABILITY_HARVEST_RECORDED,
+    "traceability.processing_recorded": SAHOOL_TRACEABILITY_PROCESSING_RECORDED,
+    "traceability.storage_recorded": SAHOOL_TRACEABILITY_STORAGE_RECORDED,
+    "traceability.transport_recorded": SAHOOL_TRACEABILITY_TRANSPORT_RECORDED,
     # Compliance
     "compliance.updated": SAHOOL_COMPLIANCE_UPDATED,
     "compliance.audit.completed": SAHOOL_COMPLIANCE_AUDIT_COMPLETED,

@@ -768,6 +768,275 @@ void main() {
     });
   });
 
+  group('Pending Tasks Query - getPendingTasks', () {
+    late TestDatabase db;
+
+    setUp(() async {
+      db = createTestDatabase();
+      final now = DateTime.now();
+
+      // Insert tasks with various statuses
+      await db.batch((batch) {
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-1', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Open Task 1', status: const Value('open'),
+          priority: const Value('high'),
+          dueDate: Value(now.add(const Duration(days: 1))),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-2', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'In Progress Task', status: const Value('in_progress'),
+          priority: const Value('medium'),
+          dueDate: Value(now.add(const Duration(days: 3))),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-3', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Done Task', status: const Value('done'),
+          priority: const Value('low'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-4', tenantId: 'tenant-1', fieldId: 'field-2',
+          title: 'Cancelled Task', status: const Value('cancelled'),
+          priority: const Value('medium'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-5', tenantId: 'tenant-2', fieldId: 'field-3',
+          title: 'Other Tenant Open', status: const Value('open'),
+          priority: const Value('high'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-6', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Open Task 2', status: const Value('open'),
+          priority: const Value('low'),
+          dueDate: Value(now.add(const Duration(days: 5))),
+          createdAt: now, updatedAt: now,
+        ));
+      });
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    test('should return only open and in_progress tasks for tenant', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress']))
+            ..orderBy([
+              (t) => OrderingTerm.asc(t.dueDate),
+              (t) => OrderingTerm.desc(t.priority),
+            ]))
+          .get();
+
+      expect(pendingTasks.length, equals(3));
+      expect(
+        pendingTasks.every((t) =>
+            t.status == 'open' || t.status == 'in_progress'),
+        isTrue,
+      );
+      expect(pendingTasks.every((t) => t.tenantId == 'tenant-1'), isTrue);
+    });
+
+    test('should not include done or cancelled tasks', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      final ids = pendingTasks.map((t) => t.id).toSet();
+      expect(ids, isNot(contains('pending-3'))); // done
+      expect(ids, isNot(contains('pending-4'))); // cancelled
+    });
+
+    test('should not include tasks from other tenants', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      expect(pendingTasks.every((t) => t.tenantId == 'tenant-1'), isTrue);
+      expect(
+        pendingTasks.map((t) => t.id).toSet(),
+        isNot(contains('pending-5')),
+      );
+    });
+
+    test('should order by due date ascending then priority descending', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress']))
+            ..orderBy([
+              (t) => OrderingTerm.asc(t.dueDate),
+              (t) => OrderingTerm.desc(t.priority),
+            ]))
+          .get();
+
+      expect(pendingTasks.length, equals(3));
+      final withDueDates = pendingTasks.where((t) => t.dueDate != null).toList();
+      for (int i = 0; i < withDueDates.length - 1; i++) {
+        expect(
+          withDueDates[i].dueDate!.isBefore(withDueDates[i + 1].dueDate!) ||
+              withDueDates[i].dueDate!.isAtSameMomentAs(withDueDates[i + 1].dueDate!),
+          isTrue,
+        );
+      }
+    });
+
+    test('should return empty list when no pending tasks exist', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-nonexistent'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      expect(pendingTasks, isEmpty);
+    });
+  });
+
+  group('Mark Task Done - markTaskDone', () {
+    late TestDatabase db;
+
+    setUp(() async {
+      db = createTestDatabase();
+      final now = DateTime.now();
+
+      await db.into(db.testTasks).insert(TestTasksCompanion.insert(
+            id: 'mark-done-1',
+            tenantId: 'tenant-1',
+            fieldId: 'field-1',
+            title: 'Task to Complete',
+            status: const Value('open'),
+            createdAt: now,
+            updatedAt: now,
+          ));
+
+      await db.into(db.testTasks).insert(TestTasksCompanion.insert(
+            id: 'mark-done-2',
+            tenantId: 'tenant-1',
+            fieldId: 'field-1',
+            title: 'Task with Evidence',
+            status: const Value('in_progress'),
+            createdAt: now,
+            updatedAt: now,
+          ));
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    test('should mark task as done with status change', () async {
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.synced, isFalse);
+    });
+
+    test('should mark task done with evidence notes', () async {
+      const notes = 'تم الانتهاء من رش المبيدات - Applied pesticide successfully';
+
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-2')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        evidenceNotes: const Value(notes),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-2')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, equals(notes));
+      expect(task.synced, isFalse);
+    });
+
+    test('should mark task done with evidence photos as CSV', () async {
+      final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
+      final photosStr = photos.join(',');
+
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        evidenceNotes: const Value('Field inspection complete'),
+        evidencePhotos: Value(photosStr),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, equals('Field inspection complete'));
+      expect(task.evidencePhotos, equals('photo_001.jpg,photo_002.jpg,photo_003.jpg'));
+
+      // Verify photos can be split back to list
+      final photoList = task.evidencePhotos!.split(',');
+      expect(photoList.length, equals(3));
+      expect(photoList.first, equals('photo_001.jpg'));
+    });
+
+    test('should mark task done with null evidence', () async {
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(const TestTasksCompanion(
+        status: Value('done'),
+        evidenceNotes: Value(null),
+        evidencePhotos: Value(null),
+        synced: Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, isNull);
+      expect(task.evidencePhotos, isNull);
+    });
+
+    test('should set synced to false when marking task done', () async {
+      // First set as synced
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(const TestTasksCompanion(synced: Value(true)));
+
+      // Then mark as done (mirrors production markTaskDone)
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.synced, isFalse);
+    });
+  });
+
   group('Performance', () {
     late TestDatabase db;
 

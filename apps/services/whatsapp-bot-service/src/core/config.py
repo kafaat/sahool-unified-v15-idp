@@ -58,8 +58,8 @@ class Settings(BaseSettings):
         description="WhatsApp Business phone number ID | معرف رقم الهاتف التجاري",
     )
     whatsapp_verify_token: str = Field(
-        default="sahool_whatsapp_verify_2026",
-        description="Webhook verification token | رمز التحقق من webhook",
+        default="",
+        description="Webhook verification token (MUST be set via env) | رمز التحقق من webhook (يجب تعيينه عبر متغير البيئة)",
     )
     whatsapp_api_version: str = Field(
         default="v17.0",

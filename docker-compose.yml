@@ -3208,8 +3208,7 @@ services:
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
       - WECHAT_ENCODING_AES_KEY=${WECHAT_ENCODING_AES_KEY:-}
-    ports:
-      - "127.0.0.1:8133:8133"
+    # No host port mapping - deprecated service conflicts with community-service on 8133
     depends_on:
       pgbouncer:
         condition: service_healthy

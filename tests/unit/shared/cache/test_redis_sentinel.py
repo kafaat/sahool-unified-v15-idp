@@ -16,6 +16,8 @@ from unittest.mock import MagicMock, patch, PropertyMock
 
 import pytest
 
+pytest.importorskip("redis")
+
 from shared.cache.redis_sentinel import (
     CircuitBreaker,
     RedisSentinelConfig,

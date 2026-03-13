@@ -13,6 +13,7 @@ class TestSharedModulesImport:
         from shared import events
 
     def test_import_cache(self):
+        pytest.importorskip("redis")
         from shared import cache
 
     def test_import_monitoring(self):
@@ -85,6 +86,7 @@ class TestAgriculturalModulesImport:
         from shared import crop_insurance
 
     def test_import_globalgap(self):
+        pytest.importorskip("tenacity")
         from shared import globalgap
 
     def test_import_cooperatives(self):

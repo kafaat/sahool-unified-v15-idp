@@ -287,7 +287,7 @@ class TestJWTConfig:
     def test_get_signing_key_hs256(self):
         """Test get_signing_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test_secret_key"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -296,12 +296,12 @@ class TestJWTConfig:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         key = module.JWTConfig.get_signing_key()
-        assert key == "test_secret_key"
+        assert key == "test-secret-key-for-unit-tests-only-32chars"
 
     def test_get_verification_key_hs256(self):
         """Test get_verification_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test_secret_key"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -310,7 +310,7 @@ class TestJWTConfig:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         key = module.JWTConfig.get_verification_key()
-        assert key == "test_secret_key"
+        assert key == "test-secret-key-for-unit-tests-only-32chars"
 
     def test_rate_limit_disabled_from_env(self):
         """Test rate limiting can be disabled"""

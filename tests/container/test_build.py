@@ -157,7 +157,7 @@ def _extract_expose_ports(content: str) -> list[int]:
     """Return list of integer ports declared in EXPOSE directives (literals only)."""
     ports: list[int] = []
     for match in re.finditer(
-        r"^\s*EXPOSE\s+([\d\s/tcp/udp]+)", content, re.IGNORECASE | re.MULTILINE
+        r"^\s*EXPOSE\s+([\d/\s]+)", content, re.IGNORECASE | re.MULTILINE
     ):
         for token in match.group(1).split():
             port_str = token.split("/")[0].strip()

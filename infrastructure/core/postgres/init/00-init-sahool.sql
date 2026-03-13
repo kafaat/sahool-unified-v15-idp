@@ -109,46 +109,10 @@ DO $$ BEGIN
     CREATE TYPE change_source AS ENUM ('user', 'system', 'import', 'satellite', 'survey');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- Marketplace Enums
-DO $$ BEGIN
-    CREATE TYPE product_category AS ENUM ('seeds', 'fertilizers', 'pesticides', 'equipment', 'crops', 'livestock', 'services');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE product_status AS ENUM ('draft', 'active', 'sold', 'expired', 'suspended');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE seller_type AS ENUM ('farmer', 'supplier', 'cooperative', 'company');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE transaction_type AS ENUM ('deposit', 'withdrawal', 'purchase', 'sale', 'refund', 'loan', 'repayment', 'fee');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed', 'reversed');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE loan_status AS ENUM ('pending', 'approved', 'active', 'paid', 'defaulted', 'rejected');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE loan_purpose AS ENUM ('seeds', 'equipment', 'fertilizer', 'irrigation', 'labor', 'general');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-    CREATE TYPE credit_tier AS ENUM ('bronze', 'silver', 'gold', 'platinum');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Marketplace Enums - REMOVED: Now managed by Prisma ORM (marketplace-service)
+-- The marketplace-service runs `prisma migrate deploy` on startup which creates
+-- its own enums (ProductCategory, ProductStatus, etc.) with different naming conventions.
+-- See: apps/services/marketplace-service/prisma/schema.prisma
 
 -- Research Enums
 DO $$ BEGIN
@@ -709,159 +673,13 @@ CREATE INDEX IF NOT EXISTS idx_sync_status_user ON sync_status(user_id);
 CREATE INDEX IF NOT EXISTS idx_sync_status_device ON sync_status(device_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- SECTION 10: MARKETPLACE TABLES
+-- SECTION 10: MARKETPLACE TABLES - REMOVED
+-- Now managed by Prisma ORM (marketplace-service runs `prisma migrate deploy` on startup)
+-- Tables: products, orders, order_items, wallets, transactions, loans,
+--         credit_scores, shipping_zones, delivery_estimates, escrows,
+--         scheduled_payments, recurring_payments, reviews, payments
+-- See: apps/services/marketplace-service/prisma/schema.prisma
 -- ─────────────────────────────────────────────────────────────────────────────
-
--- Products (المنتجات)
-CREATE TABLE IF NOT EXISTS products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    seller_id UUID REFERENCES users(id),
-    name VARCHAR(255) NOT NULL,
-    name_ar VARCHAR(255),
-    description TEXT,
-    description_ar TEXT,
-    category product_category NOT NULL,
-    price DECIMAL(12,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'SAR',
-    stock INTEGER DEFAULT 0,
-    unit VARCHAR(50),
-    image_url VARCHAR(500),
-    images TEXT[],
-    seller_type seller_type DEFAULT 'farmer',
-    seller_name VARCHAR(255),
-    governorate VARCHAR(100),
-    district VARCHAR(100),
-    crop_type VARCHAR(100),
-    harvest_date DATE,
-    quality_grade VARCHAR(50),
-    status product_status DEFAULT 'draft',
-    featured BOOLEAN DEFAULT false,
-    views_count INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_products_tenant ON products(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_products_seller ON products(seller_id);
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
-CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
-
--- Orders (الطلبات)
-CREATE TABLE IF NOT EXISTS orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    order_number VARCHAR(50) UNIQUE NOT NULL,
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    buyer_id UUID REFERENCES users(id),
-    buyer_name VARCHAR(255),
-    buyer_phone VARCHAR(50),
-    buyer_email VARCHAR(255),
-    subtotal DECIMAL(12,2) NOT NULL,
-    delivery_fee DECIMAL(12,2) DEFAULT 0,
-    service_fee DECIMAL(12,2) DEFAULT 0,
-    discount DECIMAL(12,2) DEFAULT 0,
-    total_amount DECIMAL(12,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'SAR',
-    status order_status DEFAULT 'pending',
-    payment_status payment_status DEFAULT 'pending',
-    payment_method VARCHAR(50),
-    delivery_address TEXT,
-    delivery_governorate VARCHAR(100),
-    delivery_district VARCHAR(100),
-    delivery_date DATE,
-    delivery_notes TEXT,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_orders_buyer ON orders(buyer_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_orders_number ON orders(order_number);
-
--- Order Items (عناصر الطلب)
-CREATE TABLE IF NOT EXISTS order_items (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    product_id UUID NOT NULL REFERENCES products(id),
-    seller_id UUID REFERENCES users(id),
-    quantity INTEGER NOT NULL,
-    unit_price DECIMAL(12,2) NOT NULL,
-    total_price DECIMAL(12,2) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
-CREATE INDEX IF NOT EXISTS idx_order_items_product ON order_items(product_id);
-
--- Wallets (المحافظ)
-CREATE TABLE IF NOT EXISTS wallets (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    user_type VARCHAR(50) DEFAULT 'farmer',
-    balance DECIMAL(14,2) DEFAULT 0,
-    currency VARCHAR(3) DEFAULT 'SAR',
-    credit_score INTEGER DEFAULT 500,
-    credit_tier credit_tier DEFAULT 'bronze',
-    loan_limit DECIMAL(14,2) DEFAULT 0,
-    current_loan DECIMAL(14,2) DEFAULT 0,
-    is_verified BOOLEAN DEFAULT false,
-    kyc_status VARCHAR(50) DEFAULT 'pending',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_wallets_user ON wallets(user_id);
-
--- Transactions (المعاملات المالية)
-CREATE TABLE IF NOT EXISTS transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    order_id UUID REFERENCES orders(id),
-    type transaction_type NOT NULL,
-    amount DECIMAL(14,2) NOT NULL,
-    balance_after DECIMAL(14,2),
-    currency VARCHAR(3) DEFAULT 'SAR',
-    reference_id VARCHAR(255),
-    reference_type VARCHAR(100),
-    description VARCHAR(500),
-    description_ar VARCHAR(500),
-    status transaction_status DEFAULT 'pending',
-    metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_transactions_wallet ON transactions(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
-CREATE INDEX IF NOT EXISTS idx_transactions_status ON transactions(status);
-
--- Loans (القروض)
-CREATE TABLE IF NOT EXISTS loans (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    amount DECIMAL(14,2) NOT NULL,
-    interest_rate DECIMAL(5,4) DEFAULT 0,
-    total_due DECIMAL(14,2) NOT NULL,
-    paid_amount DECIMAL(14,2) DEFAULT 0,
-    term_months INTEGER DEFAULT 12,
-    start_date DATE,
-    due_date DATE,
-    purpose loan_purpose,
-    purpose_details TEXT,
-    collateral_type VARCHAR(100),
-    collateral_value DECIMAL(14,2),
-    status loan_status DEFAULT 'pending',
-    approved_by UUID REFERENCES users(id),
-    approved_at TIMESTAMPTZ,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_loans_wallet ON loans(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_loans_status ON loans(status);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION 11: RESEARCH TABLES
@@ -1541,23 +1359,8 @@ VALUES
     ('00000000-0000-0000-0004-000000000003', 'a0000000-0000-0000-0000-000000000001', NULL, 'Harvest Season Reminder', 'تذكير موسم الحصاد', 'Wheat harvest season approaching in 30 days', 'يقترب موسم حصاد القمح خلال 30 يوماً', 'harvest', 'info', 'active')
 ON CONFLICT DO NOTHING;
 
--- Insert demo products for marketplace
-INSERT INTO products (id, tenant_id, seller_id, name, name_ar, category, price, stock, unit, seller_type, status, governorate, quality_grade)
-VALUES
-    ('00000000-0000-0000-0005-000000000001', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Premium Wheat Seeds', 'بذور قمح ممتازة', 'seeds', 250.00, 500, 'kg', 'farmer', 'active', 'Riyadh', 'A'),
-    ('00000000-0000-0000-0005-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Organic Fertilizer', 'سماد عضوي', 'fertilizers', 180.00, 1000, 'kg', 'supplier', 'active', 'Riyadh', 'A'),
-    ('00000000-0000-0000-0005-000000000003', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'Fresh Tomatoes', 'طماطم طازجة', 'crops', 8.50, 200, 'kg', 'farmer', 'active', 'Riyadh', 'A+'),
-    ('00000000-0000-0000-0005-000000000004', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'Drip Irrigation Kit', 'طقم الري بالتنقيط', 'equipment', 1500.00, 50, 'set', 'supplier', 'active', 'Riyadh', NULL)
-ON CONFLICT DO NOTHING;
-
--- Insert demo wallets
-INSERT INTO wallets (id, user_id, tenant_id, balance, credit_score, credit_tier, loan_limit, is_verified)
-VALUES
-    ('00000000-0000-0000-0006-000000000001', 'b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 50000.00, 800, 'platinum', 100000.00, true),
-    ('00000000-0000-0000-0006-000000000002', 'b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 15000.00, 650, 'gold', 50000.00, true),
-    ('00000000-0000-0000-0006-000000000003', 'b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 8500.00, 550, 'silver', 20000.00, true),
-    ('00000000-0000-0000-0006-000000000004', 'b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 2500.00, 450, 'bronze', 5000.00, false)
-ON CONFLICT DO NOTHING;
+-- Demo marketplace data REMOVED: Tables now managed by Prisma (marketplace-service)
+-- Marketplace seed data should be added via marketplace-service's own seed mechanism
 
 -- Insert demo experiment
 INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)

@@ -248,11 +248,11 @@ class TokenBucket {
       return Duration.zero;
     }
 
-    // Calculate time needed to refill one token
-    final tokensNeeded = 1 - _tokens;
+    // Calculate time needed to refill one token (clamp to avoid negative from float errors)
+    final tokensNeeded = (1 - _tokens).clamp(0.0, capacity.toDouble());
     final secondsNeeded = tokensNeeded / refillRate;
 
-    return Duration(milliseconds: (secondsNeeded * 1000).ceil());
+    return Duration(milliseconds: (secondsNeeded * 1000).ceil().clamp(0, 60000));
   }
 }
 

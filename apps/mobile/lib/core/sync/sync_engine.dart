@@ -148,6 +148,7 @@ class SyncEngine {
         _syncTimer?.cancel();
         _syncTimer = Timer(jitteredDuration, () {
           _syncTimer?.cancel();
+          _consecutiveFailures = 0; // Reset after backoff period
           startPeriodic();
         });
       }

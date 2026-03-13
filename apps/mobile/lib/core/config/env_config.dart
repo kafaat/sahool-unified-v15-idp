@@ -281,7 +281,12 @@ class EnvConfig {
   static int _getInt(String key, int defaultValue) {
     final value = _getString(key, '');
     if (value.isEmpty) return defaultValue;
-    return int.tryParse(value) ?? defaultValue;
+    final parsed = int.tryParse(value);
+    if (parsed == null) {
+      AppLogger.w('Failed to parse int for key "$key" value "$value", using default $defaultValue',
+          tag: 'ENV_CONFIG');
+    }
+    return parsed ?? defaultValue;
   }
 
   static bool _getBool(String key, bool defaultValue) {

@@ -1602,7 +1602,7 @@ class TestEdgeCases:
         from src.main import DEFAULT_AGRI_CHANNELS
 
         for ch in DEFAULT_AGRI_CHANNELS:
-            assert "name" in ch, f"Missing name for channel"
+            assert "name" in ch, "Missing name for channel"
             assert "name_ar" in ch, f"Missing name_ar for {ch['name']}"
             assert "description" in ch, f"Missing description for {ch['name']}"
             assert "description_ar" in ch, f"Missing description_ar for {ch['name']}"

@@ -1440,6 +1440,34 @@ services:
     - postgres
     - redis
     - nats
+  community-service:
+    build:
+      context: ../../apps/services/community-service
+      dockerfile: Dockerfile
+    ports:
+    - 8133:8133
+    environment:
+    - PORT=8133
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8133/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - redis
+    - nats
+    - rocketchat
   wechat-service:
     build:
       context: ../../apps/services/wechat-service

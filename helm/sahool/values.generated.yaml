@@ -1387,8 +1387,40 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8132'
       prometheus.io/path: /metrics
-  wechat-service:
+  community-service:
     enabled: true
+    name: community-service
+    image:
+      repository: ghcr.io/kafaat/sahool-community-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8133
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8133'
+    serviceAccount:
+      create: true
+      name: sahool-community-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8133'
+      prometheus.io/path: /metrics
+  wechat-service:
+    enabled: false
     name: wechat-service
     image:
       repository: ghcr.io/kafaat/sahool-wechat-service
@@ -2833,6 +2865,10 @@ ingress:
       pathType: Prefix
       service: lowcode-engine
       port: 8132
+    - path: /api/v1/community/service
+      pathType: Prefix
+      service: community-service
+      port: 8133
     - path: /api/v1/wechat/service
       pathType: Prefix
       service: wechat-service

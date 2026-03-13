@@ -491,10 +491,10 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Community Service Endpoints (port 8133, Rocket.Chat)
   // خدمة المجتمع الزراعي
-  // Kong route: /api/v1/community-rc
+  // Kong route: /api/v1/community
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _communityBase => useDirectServices ? communityServiceUrl : '$effectiveBaseUrl/api/v1/community-rc';
+  static String get _communityBase => useDirectServices ? communityServiceUrl : '$effectiveBaseUrl/api/v1/community';
 
   /// Community channel endpoints
   static String get communityChannels => '$_communityBase/channels';

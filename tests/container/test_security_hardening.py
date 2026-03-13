@@ -11,8 +11,8 @@ Coverage:
 2.  No secrets in Dockerfiles       – no API keys, tokens, .env copies
 3.  Container security config       – no privileged, no host PID/network
 4.  Python base image security      – slim image, Python >= 3.11
-5.  Node.js base image security     – slim/alpine, Node >= 20
-6.  Network security config         – internal network, no 0.0.0.0
+5.  Node.js base image security     – slim/alpine
+6.  Network security config         – services have network configuration
 7.  Compose secrets handling        – variable substitution for credentials
 8.  Dockerfile layer optimization   – deps before source for caching
 
@@ -106,10 +106,18 @@ class TestDockerfileSecurityPatterns:
         content = _read_dockerfile(svc_name)
         if "apt-get install" not in content:
             pytest.skip(f"{svc_name} doesn't use apt-get install")
-        has_cleanup = "rm -rf /var/lib/apt/lists" in content or "apt-get clean" in content
-        assert has_cleanup, (
+        has_lists_cleanup = "rm -rf /var/lib/apt/lists" in content or "rm -r /var/lib/apt/lists" in content
+        has_apt_clean = "apt-get clean" in content
+        assert has_lists_cleanup or has_apt_clean, (
             f"{svc_name}: apt-get install without cleaning /var/lib/apt/lists/*"
         )
+        if has_apt_clean and not has_lists_cleanup:
+            import warnings
+            warnings.warn(
+                f"{svc_name}: uses apt-get clean but does not remove /var/lib/apt/lists/* "
+                "(apt-get clean only clears .deb caches, not lists)",
+                stacklevel=2,
+            )
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_chmod_777(self, svc_name: str) -> None:
@@ -128,7 +136,7 @@ class TestDockerfileSecurityPatterns:
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
         unsafe = bool(re.search(
-            r"curl\s+.*\|\s*(sh|bash|python)", content, re.IGNORECASE
+            r"curl\s+.*\|\s*(sh|bash|python)", content, re.IGNORECASE | re.DOTALL
         ))
         assert not unsafe, (
             f"{svc_name}: Dockerfile uses curl|sh pattern (unsafe)"
@@ -385,8 +393,8 @@ class TestNetworkSecurity:
     يجب أن يكون تكوين الشبكة آمناً."""
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
-    def test_service_on_internal_network(self, services: dict, svc_name: str) -> None:
-        """Application services must be on an internal network."""
+    def test_service_has_network_config(self, services: dict, svc_name: str) -> None:
+        """Application services must have explicit network configuration."""
         svc = services.get(svc_name, {})
         networks = svc.get("networks", {})
         if isinstance(networks, list):
@@ -425,12 +433,21 @@ class TestComposeSecretsHandling:
             db_url = ""
         if not db_url:
             pytest.skip(f"{svc_name} has no DATABASE_URL")
-        # Should contain ${} substitution for password
-        if "://" in str(db_url) and "@" in str(db_url):
-            uses_var = "${" in str(db_url) or str(db_url).startswith("postgresql://")
-            assert uses_var, (
-                f"'{svc_name}' DATABASE_URL may have hardcoded credentials"
-            )
+        # Should contain ${} substitution for password, not hardcoded credentials
+        db_str = str(db_url)
+        if "://" in db_str and "@" in db_str:
+            uses_var = "${" in db_str
+            if not uses_var:
+                # Extract user:pass portion to check for hardcoded credentials
+                import urllib.parse
+                try:
+                    parsed = urllib.parse.urlparse(db_str)
+                    has_hardcoded_pass = parsed.password and "${" not in (parsed.password or "")
+                except Exception:
+                    has_hardcoded_pass = False
+                assert not has_hardcoded_pass, (
+                    f"'{svc_name}' DATABASE_URL has hardcoded credentials (use ${{}} substitution)"
+                )
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
     def test_jwt_secret_uses_substitution(

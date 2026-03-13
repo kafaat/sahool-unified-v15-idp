@@ -109,7 +109,6 @@ export function useUpdateField() {
 | chat-service | 8115 | /api/v1/chat | [chat-service.md](./chat-service.md) | Chat Management |
 | iot-service | 8117 | /api/v1/iot | [iot-service.md](./iot-service.md) | IoT Dashboard |
 | community-chat *(deprecated)* | 8097 | /api/v1/community | [community-chat.md](./community-chat.md) | DEPRECATED |
-| community-service | 8133 | /api/v1/community | [community-service.md](./community-service.md) | Community Hub |
 
 ### Python Services (FastAPI)
 
@@ -148,6 +147,7 @@ export function useUpdateField() {
 | code-fix-agent | 8162 | /api/v1/code-fix | - | Code Fix AI Agent |
 | ground-vision-service | 8182 | /api/v1/ground-vision | - | Ground-level Vision Analysis |
 | mcp-server | 8201 | /api/v1/mcp | [mcp-server.md](./mcp-server.md) | MCP Protocol |
+| community-service | 8133 | /api/v1/community | [community-service.md](./community-service.md) | Community Hub |
 | wechat-service *(deprecated)* | 8133 | /api/v1/wechat | [wechat-service.md](./wechat-service.md) | DEPRECATED (use community-service) |
 | agro-rules | N/A | NATS-only | [agro-rules.md](./agro-rules.md) | N/A (Worker) |
 

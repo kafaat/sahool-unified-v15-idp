@@ -20,7 +20,7 @@ import { UserStatus, UserRole } from "../utils/validation";
 
 describe("UsersService", () => {
   let service: UsersService;
-  let prismaService: jest.Mocked<PrismaService>;
+  let prismaService: any;
 
   // Mock data
   const mockUserId = "user-123";
@@ -354,7 +354,7 @@ describe("UsersService", () => {
     const updateUserDto: UpdateUserDto = {
       firstName: "Updated",
       lastName: "Name",
-      role: UserRole.OPERATOR,
+      role: UserRole.WORKER,
     };
 
     it("should successfully update a user", async () => {
@@ -375,7 +375,7 @@ describe("UsersService", () => {
         data: expect.objectContaining({
           firstName: "Updated",
           lastName: "Name",
-          role: UserRole.OPERATOR,
+          role: UserRole.WORKER,
         }),
         select: expect.any(Object),
       });

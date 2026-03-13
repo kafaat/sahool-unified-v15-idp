@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS research_sites (
     soil_classification VARCHAR(100),
     elevation_meters DECIMAL(8,2),
     infrastructure JSONB DEFAULT '{}',
-    contact_person UUID REFERENCES users(id),
+    contact_person UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS protocol_templates (
     certified_by VARCHAR(255),
     certified_at TIMESTAMPTZ,
     version INTEGER DEFAULT 1,
-    created_by UUID REFERENCES users(id),
+    created_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -108,7 +108,7 @@ CREATE INDEX IF NOT EXISTS idx_laboratories_code ON laboratories(code);
 CREATE TABLE IF NOT EXISTS sample_batches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    experiment_id UUID REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID /* REFERENCES experiments(id) ON DELETE CASCADE -- softened: experiments table is Prisma-managed */,
     batch_code VARCHAR(100) UNIQUE NOT NULL,
     laboratory_id UUID REFERENCES laboratories(id),
     status sample_status DEFAULT 'pending',
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS sample_batches (
     tracking_number VARCHAR(255),
     storage_conditions VARCHAR(255),
     notes TEXT,
-    created_by UUID REFERENCES users(id),
+    created_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -134,27 +134,31 @@ CREATE INDEX IF NOT EXISTS idx_sample_batches_code ON sample_batches(batch_code)
 -- Extended Lab Samples (تفاصيل العينات الموسعة)
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- Add batch_id to existing lab_samples if not exists
+-- Add batch_id to existing lab_samples if the table exists (Prisma-managed by research-core)
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'batch_id') THEN
-        ALTER TABLE lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
-    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'lab_samples' AND table_schema = 'public') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'batch_id') THEN
+            ALTER TABLE lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
+        END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'barcode') THEN
-        ALTER TABLE lab_samples ADD COLUMN barcode VARCHAR(100);
-    END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'barcode') THEN
+            ALTER TABLE lab_samples ADD COLUMN barcode VARCHAR(100);
+        END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
-        ALTER TABLE lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
+            ALTER TABLE lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
+        END IF;
+
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_lab_samples_batch ON lab_samples(batch_id)';
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_lab_samples_barcode ON lab_samples(barcode)';
+    ELSE
+        RAISE NOTICE 'lab_samples table not found (Prisma-managed by research-core) - skipping ALTER';
     END IF;
 END $$;
-
-CREATE INDEX IF NOT EXISTS idx_lab_samples_batch ON lab_samples(batch_id);
-CREATE INDEX IF NOT EXISTS idx_lab_samples_barcode ON lab_samples(barcode);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Analysis Types (أنواع التحليل)
@@ -167,7 +171,7 @@ CREATE TABLE IF NOT EXISTS analysis_types (
     name_ar VARCHAR(255),
     category VARCHAR(100),
     description TEXT,
-    sample_types sample_type[],
+    sample_types TEXT[], /* was sample_type[] enum -- softened: Prisma-managed */
     parameters JSONB DEFAULT '[]',
     unit VARCHAR(50),
     method VARCHAR(255),
@@ -186,7 +190,7 @@ CREATE INDEX IF NOT EXISTS idx_analysis_types_code ON analysis_types(code);
 
 CREATE TABLE IF NOT EXISTS sample_analysis_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    sample_id UUID NOT NULL REFERENCES lab_samples(id) ON DELETE CASCADE,
+    sample_id UUID NOT NULL /* REFERENCES lab_samples(id) ON DELETE CASCADE -- softened: Prisma-managed */,
     analysis_type_id UUID REFERENCES analysis_types(id),
     parameter_name VARCHAR(255) NOT NULL,
     value DECIMAL(20,6),
@@ -198,9 +202,9 @@ CREATE TABLE IF NOT EXISTS sample_analysis_results (
     is_within_range BOOLEAN,
     method_used VARCHAR(255),
     equipment_used VARCHAR(255),
-    analyzed_by UUID REFERENCES users(id),
+    analyzed_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     analyzed_at TIMESTAMPTZ,
-    verified_by UUID REFERENCES users(id),
+    verified_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     verified_at TIMESTAMPTZ,
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -215,9 +219,9 @@ CREATE INDEX IF NOT EXISTS idx_analysis_results_type ON sample_analysis_results(
 
 CREATE TABLE IF NOT EXISTS research_data_points (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
-    plot_id UUID REFERENCES research_plots(id),
-    treatment_id UUID REFERENCES treatments(id),
+    experiment_id UUID NOT NULL /* REFERENCES experiments(id) ON DELETE CASCADE -- softened: experiments table is Prisma-managed */,
+    plot_id UUID /* REFERENCES research_plots(id) -- softened: Prisma-managed */,
+    treatment_id UUID /* REFERENCES treatments(id) -- softened: Prisma-managed */,
     measurement_date DATE NOT NULL,
     measurement_time TIME,
     parameter_name VARCHAR(255) NOT NULL,
@@ -227,7 +231,7 @@ CREATE TABLE IF NOT EXISTS research_data_points (
     unit VARCHAR(50),
     measurement_method VARCHAR(255),
     equipment_id VARCHAR(100),
-    recorded_by UUID REFERENCES users(id),
+    recorded_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     location GEOGRAPHY(POINT, 4326),
     environmental_conditions JSONB DEFAULT '{}',
     quality_flag VARCHAR(50) DEFAULT 'valid',
@@ -248,13 +252,13 @@ CREATE INDEX IF NOT EXISTS idx_data_points_parameter ON research_data_points(par
 
 CREATE TABLE IF NOT EXISTS experiment_locks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID NOT NULL /* REFERENCES experiments(id) ON DELETE CASCADE -- softened: experiments table is Prisma-managed */,
     action VARCHAR(50) NOT NULL, -- 'lock', 'unlock', 'extend'
     reason TEXT,
-    locked_by UUID REFERENCES users(id),
+    locked_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     lock_level VARCHAR(50) DEFAULT 'full', -- 'full', 'partial', 'data_only'
     expires_at TIMESTAMPTZ,
-    previous_status experiment_status,
+    previous_status TEXT, /* was experiment_status enum -- softened: Prisma-managed */
     signature_hash VARCHAR(512),
     ip_address INET,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -269,7 +273,7 @@ CREATE INDEX IF NOT EXISTS idx_experiment_locks_experiment ON experiment_locks(e
 CREATE TABLE IF NOT EXISTS research_reports (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    experiment_id UUID REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID /* REFERENCES experiments(id) ON DELETE CASCADE -- softened: experiments table is Prisma-managed */,
     report_type VARCHAR(100) NOT NULL,
     title VARCHAR(500) NOT NULL,
     title_ar VARCHAR(500),
@@ -279,16 +283,16 @@ CREATE TABLE IF NOT EXISTS research_reports (
     authors UUID[],
     status VARCHAR(50) DEFAULT 'draft',
     submitted_at TIMESTAMPTZ,
-    reviewed_by UUID REFERENCES users(id),
+    reviewed_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     reviewed_at TIMESTAMPTZ,
-    approved_by UUID REFERENCES users(id),
+    approved_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     approved_at TIMESTAMPTZ,
     published_at TIMESTAMPTZ,
     file_url VARCHAR(500),
     doi VARCHAR(255),
     citation TEXT,
     keywords TEXT[],
-    created_by UUID REFERENCES users(id),
+    created_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -302,7 +306,7 @@ CREATE INDEX IF NOT EXISTS idx_reports_status ON research_reports(status);
 
 CREATE TABLE IF NOT EXISTS statistical_analyses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID NOT NULL /* REFERENCES experiments(id) ON DELETE CASCADE -- softened: experiments table is Prisma-managed */,
     analysis_name VARCHAR(255) NOT NULL,
     analysis_type VARCHAR(100), -- 'anova', 't_test', 'regression', 'correlation', etc.
     dependent_variable VARCHAR(255),
@@ -318,7 +322,7 @@ CREATE TABLE IF NOT EXISTS statistical_analyses (
     interpretation_ar TEXT,
     software_used VARCHAR(100),
     script_used TEXT,
-    performed_by UUID REFERENCES users(id),
+    performed_by UUID /* REFERENCES users(id) -- softened: users table is Prisma-managed */,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -370,61 +374,19 @@ VALUES (
 -- Insert demo analysis types
 INSERT INTO analysis_types (id, code, name, name_ar, category, sample_types, unit)
 VALUES
-    ('a7000000-0000-0000-0000-000000000001', 'SOIL-NPK', 'Soil NPK Analysis', 'تحليل NPK للتربة', 'soil', ARRAY['soil']::sample_type[], 'mg/kg'),
-    ('a7000000-0000-0000-0000-000000000002', 'SOIL-PH', 'Soil pH Test', 'اختبار حموضة التربة', 'soil', ARRAY['soil']::sample_type[], 'pH'),
-    ('a7000000-0000-0000-0000-000000000003', 'LEAF-CHLOROPHYLL', 'Leaf Chlorophyll Content', 'محتوى الكلوروفيل في الأوراق', 'plant', ARRAY['plant_tissue']::sample_type[], 'SPAD'),
-    ('a7000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::sample_type[], 'dS/m')
+    ('a7000000-0000-0000-0000-000000000001', 'SOIL-NPK', 'Soil NPK Analysis', 'تحليل NPK للتربة', 'soil', ARRAY['soil']::TEXT[], 'mg/kg'),
+    ('a7000000-0000-0000-0000-000000000002', 'SOIL-PH', 'Soil pH Test', 'اختبار حموضة التربة', 'soil', ARRAY['soil']::TEXT[], 'pH'),
+    ('a7000000-0000-0000-0000-000000000003', 'LEAF-CHLOROPHYLL', 'Leaf Chlorophyll Content', 'محتوى الكلوروفيل في الأوراق', 'plant', ARRAY['plant_tissue']::TEXT[], 'SPAD'),
+    ('a7000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::TEXT[], 'dS/m')
 ON CONFLICT (code) DO NOTHING;
 
--- Insert demo experiment for research expansion (required for sample_batches FK)
-INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)
-VALUES (
-    'ae000000-0000-0000-0000-000000000001',
-    'a0000000-0000-0000-0000-000000000001',
-    'Soil Nutrient Analysis Study',
-    'دراسة تحليل العناصر الغذائية في التربة',
-    'Comprehensive soil nutrient analysis across multiple research plots',
-    'Soil nutrient levels correlate with crop yield improvements',
-    '2025-01-15',
-    'active',
-    'b0000000-0000-0000-0000-000000000005'
-) ON CONFLICT DO NOTHING;
+-- Demo experiment: REMOVED - experiments table is now Prisma-managed (research-core)
+-- Seed via: cd apps/services/research-core && npx prisma db seed
 
--- Insert demo sample batch
-INSERT INTO sample_batches (id, tenant_id, experiment_id, batch_code, laboratory_id, status, sample_count, collection_date)
-VALUES (
-    '5b000000-0000-0000-0000-000000000001',
-    'a0000000-0000-0000-0000-000000000001',
-    'ae000000-0000-0000-0000-000000000001',
-    'BATCH-2025-001',
-    '1ab00000-0000-0000-0000-000000000001',
-    'received',
-    10,
-    CURRENT_DATE - 3
-) ON CONFLICT (batch_code) DO NOTHING;
-
--- Update existing lab samples with batch info
--- Note: PostgreSQL doesn't allow window functions directly in UPDATE,
--- so we use a CTE to compute row numbers first
-WITH numbered_samples AS (
-    SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as row_num
-    FROM lab_samples
-    WHERE batch_id IS NULL
-)
-UPDATE lab_samples
-SET batch_id = '5b000000-0000-0000-0000-000000000001',
-    barcode = 'SOIL-' || LPAD(numbered_samples.row_num::TEXT, 4, '0')
-FROM numbered_samples
-WHERE lab_samples.id = numbered_samples.id;
-
--- Insert demo research data points
-INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit, recorded_by)
-VALUES
-    ('ad000000-0000-0000-0000-000000000001', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Plant Height', 'PLANT_HEIGHT', 45.5, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000002', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD', 'b0000000-0000-0000-0000-000000000005')
-ON CONFLICT DO NOTHING;
+-- Demo sample batch and research data points: REMOVED
+-- experiment_id FK references experiments table which is Prisma-managed (research-core)
+-- lab_samples table is also Prisma-managed
+-- Seed research demo data via: cd apps/services/research-core && npx prisma db seed
 
 -- Summary
 DO $$

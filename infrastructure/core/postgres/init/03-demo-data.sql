@@ -62,7 +62,7 @@ VALUES (
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DEMO USERS - REMOVED
 -- Users table is now managed by Prisma ORM (user-service)
--- Seed demo users via: cd apps/services/user-service && npx prisma db seed
+-- Demo users should be created via service API or a custom seed script
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════════════════════

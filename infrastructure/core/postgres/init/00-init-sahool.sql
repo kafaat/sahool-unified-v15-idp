@@ -484,7 +484,7 @@ CREATE SEQUENCE IF NOT EXISTS order_number_seq START 1;
 -- ║                                                                               ║
 -- ║  Demo data for Prisma-managed tables (users, fields, tasks, IoT devices,    ║
 -- ║  experiments, etc.) should be inserted via each service's own seed mechanism ║
--- ║  or via `prisma db seed` after the services have run their migrations.      ║
+-- ║  or via service API / custom seed scripts after migrations have run.        ║
 -- ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 -- Insert default tenant

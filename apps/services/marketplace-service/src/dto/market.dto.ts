@@ -20,6 +20,7 @@ import {
   IsEnum,
   IsDateString,
   IsObject,
+  IsUUID,
 } from "class-validator";
 import { Type } from "class-transformer";
 import {
@@ -104,7 +105,7 @@ export class CreateProductDto {
  * Order Item for CreateOrderDto
  */
 class OrderItemDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   productId: string;
 

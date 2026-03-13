@@ -106,6 +106,11 @@ COPY --from=builder /workspace/research-core/prisma/generated ./prisma/generated
 COPY --from=builder /workspace/research-core/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/research-core/node_modules/@prisma/client ./node_modules/@prisma/client/
 
+# Copy Prisma CLI from builder (needed for `prisma migrate deploy` at startup)
+# prisma is a devDependency, so it's not installed in production via --omit=dev
+COPY --from=builder /workspace/research-core/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=builder /workspace/research-core/node_modules/prisma ./node_modules/prisma/
+
 # Copy built application
 COPY --from=builder /workspace/research-core/dist ./dist
 

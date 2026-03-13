@@ -10,6 +10,7 @@ import {
   IsBoolean,
   IsArray,
   IsNotEmpty,
+  IsUUID,
   Min,
   Max,
 } from "class-validator";
@@ -21,18 +22,18 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export class CreateProductReviewDto {
-  @ApiProperty({ description: "Product ID", example: "prod-123" })
-  @IsString()
+  @ApiProperty({ description: "Product ID (UUID)", example: "550e8400-e29b-41d4-a716-446655440000" })
+  @IsUUID()
   @IsNotEmpty()
   productId: string;
 
-  @ApiProperty({ description: "Buyer profile ID", example: "buyer-123" })
-  @IsString()
+  @ApiProperty({ description: "Buyer profile ID (UUID)", example: "550e8400-e29b-41d4-a716-446655440001" })
+  @IsUUID()
   @IsNotEmpty()
   buyerId: string;
 
-  @ApiProperty({ description: "Order ID", example: "order-123" })
-  @IsString()
+  @ApiProperty({ description: "Order ID (UUID)", example: "550e8400-e29b-41d4-a716-446655440002" })
+  @IsUUID()
   @IsNotEmpty()
   orderId: string;
 
@@ -121,13 +122,13 @@ export class ReportReviewDto {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export class CreateReviewResponseDto {
-  @ApiProperty({ description: "Review ID", example: "review-123" })
-  @IsString()
+  @ApiProperty({ description: "Review ID (UUID)", example: "550e8400-e29b-41d4-a716-446655440003" })
+  @IsUUID()
   @IsNotEmpty()
   reviewId: string;
 
-  @ApiProperty({ description: "Seller profile ID", example: "seller-123" })
-  @IsString()
+  @ApiProperty({ description: "Seller profile ID (UUID)", example: "550e8400-e29b-41d4-a716-446655440004" })
+  @IsUUID()
   @IsNotEmpty()
   sellerId: string;
 

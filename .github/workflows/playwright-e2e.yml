@@ -36,6 +36,10 @@ on:
           - firefox
           - webkit
 
+concurrency:
+  group: playwright-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

@@ -39,6 +39,10 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: docker-buildx-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write

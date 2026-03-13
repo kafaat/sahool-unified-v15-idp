@@ -16,6 +16,10 @@ on:
       - "helm/**"
       - "apps/**"
 
+concurrency:
+  group: governance-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

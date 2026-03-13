@@ -31,6 +31,10 @@ on:
       - 'packages/i18n/**'
       - 'packages/mock-data/**'
 
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: '20'
   NEXT_TELEMETRY_DISABLED: 1

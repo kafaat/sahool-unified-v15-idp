@@ -2,16 +2,16 @@
 Database Init Scripts Integrity Tests for SAHOOL Platform.
 
 Validates that SQL init scripts can execute without errors by checking:
-1. No FK references to Prisma-managed tables (users, experiments, etc.)
-2. All required enums are defined before use
-3. All referenced tables exist within the same init script or earlier scripts
-4. Demo data doesn't reference non-existent tables without safety wrappers
+1. No FK references to Prisma-managed tables (users, experiments, lab_samples, etc.)
+2. All required enums are defined with idempotent EXCEPTION WHEN duplicate_object handlers
+3. Demo data doesn't insert into Prisma-managed tables
+4. Demo data uses ON CONFLICT for idempotency
+5. PgBouncer auth setup (schema, function, grants)
 
 FIX (2026-03-13): Created after discovering startup failures caused by
 01-research-expansion.sql referencing Prisma-managed tables (users, experiments).
 """
 
-import os
 import re
 import pytest
 from pathlib import Path
@@ -52,6 +52,7 @@ PRISMA_MANAGED_TABLES = {
     "sensors",
     "actuators",
     "sensor_readings",
+    "lab_samples",
 }
 
 # Pattern to match FK references like: REFERENCES users(id) or REFERENCES experiments(id)
@@ -68,11 +69,6 @@ def strip_sql_comments(sql: str) -> str:
         if not line.strip().startswith("--")
     )
 
-# Pattern to match enum usage in column definitions (not in CREATE TYPE)
-ENUM_USAGE_PATTERN = re.compile(
-    r"^\s+\w+\s+(\w+)(?:\[\])?\s*(?:DEFAULT|NOT NULL|,|$)",
-    re.MULTILINE,
-)
 
 
 class TestInitScriptsExist:

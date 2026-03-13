@@ -74,8 +74,10 @@ class EnvConfig {
           AppLogger.i('Environment loaded from: $fileName', tag: 'EnvConfig');
         }
         break;
-      } catch (_) {
-        // Try next file
+      } catch (e) {
+        if (kDebugMode) {
+          AppLogger.d('Could not load $fileName: $e', tag: 'EnvConfig');
+        }
         continue;
       }
     }

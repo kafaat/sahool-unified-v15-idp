@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
@@ -136,13 +137,16 @@ class SyncEngine {
       // Apply exponential backoff if too many failures
       if (_consecutiveFailures >= 3) {
         final backoffDuration = _calculateBackoff(_consecutiveFailures);
+        // Add jitter to prevent thundering herd when multiple devices reconnect
+        final jitterMs = Random().nextInt(backoffDuration.inMilliseconds ~/ 2 + 1);
+        final jitteredDuration = backoffDuration + Duration(milliseconds: jitterMs);
         AppLogger.w('Too many sync failures, backing off',
             tag: 'SyncEngine',
-            data: {'backoff_seconds': backoffDuration.inSeconds});
+            data: {'backoff_seconds': jitteredDuration.inSeconds});
 
-        // Reschedule next sync with backoff
+        // Reschedule next sync with jittered backoff
         _syncTimer?.cancel();
-        _syncTimer = Timer(backoffDuration, () {
+        _syncTimer = Timer(jitteredDuration, () {
           _syncTimer?.cancel();
           startPeriodic();
         });

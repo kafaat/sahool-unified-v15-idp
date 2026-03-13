@@ -52,7 +52,8 @@ COPY apps/services/wechat-service/src/ ./src/
 RUN touch ./src/__init__.py 2>/dev/null || true
 
 # Set Python path for shared module imports
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1
 
 # Security: Change ownership and use non-root user
 RUN chown -R sahool:sahool /app

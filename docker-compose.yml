@@ -673,6 +673,7 @@ services:
       dockerfile: apps/services/code-review-service/Dockerfile
     container_name: sahool-code-review
     environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - OLLAMA_URL=http://ollama:11434
       - OLLAMA_MODEL=deepseek
       - WATCH_PATHS=infrastructure:docker-compose.yml:docker
@@ -1108,19 +1109,19 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
-      # FIX: Increased from 15s to 60s - NestJS needs time for Prisma connect + PostGIS + Redis
-      start_period: 60s
+      # FIX: Increased from 60s to 120s - NestJS+Prisma startup is slow on Docker Desktop/Windows
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
+          cpus: '1.00'
+          memory: 1G
+        reservations:
           cpus: '0.50'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     logging: *default-logging
     networks:
       - sahool-network
@@ -1963,7 +1964,7 @@ services:
       nats:
         condition: service_healthy
       iot-gateway:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')" ]
       interval: 30s
@@ -2130,6 +2131,7 @@ services:
     container_name: sahool-equipment-service
     environment:
       - PORT=8101
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -2171,6 +2173,7 @@ services:
     container_name: sahool-task-service
     environment:
       - PORT=8103
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -2212,6 +2215,7 @@ services:
     container_name: sahool-provider-config
     environment:
       - PORT=8104
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true

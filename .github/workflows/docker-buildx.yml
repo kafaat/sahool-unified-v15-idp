@@ -39,6 +39,10 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: docker-buildx-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write
@@ -197,7 +201,7 @@ jobs:
       # Use docker driver as fallback when buildkit pull fails (avoids Docker Hub dependency)
       - name: Set up Docker Buildx
         if: steps.check.outputs.exists == 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           # Use docker driver if buildkit pull failed (doesn't require external images)
           driver: ${{ steps.prepull.outputs.success == 'true' && 'docker-container' || 'docker' }}
@@ -216,7 +220,7 @@ jobs:
       - name: Extract metadata
         if: steps.check.outputs.exists == 'true'
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
           tags: |
@@ -229,7 +233,7 @@ jobs:
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
         id: build-push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/services/${{ matrix.service }}/Dockerfile
@@ -250,7 +254,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.18.0
+        uses: anchore/sbom-action@v0.23.1
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
@@ -380,7 +384,7 @@ jobs:
       # Use docker driver as fallback when buildkit pull fails (avoids Docker Hub dependency)
       - name: Set up Docker Buildx
         if: steps.check.outputs.exists == 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           # Use docker driver if buildkit pull failed (doesn't require external images)
           driver: ${{ steps.prepull.outputs.success == 'true' && 'docker-container' || 'docker' }}
@@ -399,7 +403,7 @@ jobs:
       - name: Extract metadata
         if: steps.check.outputs.exists == 'true'
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
           tags: |
@@ -411,7 +415,7 @@ jobs:
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
         id: build-push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/services/${{ matrix.service }}/Dockerfile
@@ -428,7 +432,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.18.0
+        uses: anchore/sbom-action@v0.23.1
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}

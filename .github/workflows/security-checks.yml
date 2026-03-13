@@ -361,7 +361,7 @@ jobs:
           fi
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: security-reports
@@ -471,7 +471,7 @@ jobs:
           echo "✅ SBOM generation complete"
 
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ github.sha }}
           path: |
@@ -548,7 +548,7 @@ jobs:
           category: 'owasp-dependency-check'
 
       - name: Upload OWASP reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: owasp-reports-${{ github.sha }}

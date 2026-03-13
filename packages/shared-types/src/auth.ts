@@ -7,9 +7,12 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  /** Arabic display name */
+  nameAr?: string;
+  /** @deprecated Use `nameAr` instead */
   name_ar?: string;
   role: string;
-  /** @deprecated Use tenantId instead */
+  /** @deprecated Use `tenantId` instead */
   tenant_id?: string;
   tenantId?: string;
   permissions?: string[];
@@ -22,6 +25,17 @@ export interface LoginResponse {
   refresh_token?: string;
   token_type?: string;
   expires_in?: number;
+  /**
+   * Whether a 2-FA verification step is required before the token is active.
+   * When `true`, `access_token` is an empty string and `temp_token` should be
+   * passed to the `/auth/login/2fa` endpoint to complete authentication.
+   */
+  requires_2fa?: boolean;
+  /**
+   * Short-lived token returned alongside `requires_2fa: true`.
+   * Must be passed to `/auth/login/2fa` — not usable as a bearer token.
+   */
+  temp_token?: string;
   user: User;
 }
 
@@ -31,7 +45,7 @@ export interface JWTPayload {
   email?: string;
   role?: string;
   tenantId?: string;
-  /** @deprecated Use tenantId instead */
+  /** @deprecated Use `tenantId` instead */
   tenant_id?: string;
   permissions?: string[];
   iat?: number;

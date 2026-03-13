@@ -45,7 +45,7 @@ jobs:
       # Use git-diff mode instead of GitHub API to avoid "Bad credentials"
       # errors with github.token. This works because fetch-depth: 0 above
       # fetches full history needed for accurate diff detection.
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -221,7 +221,7 @@ jobs:
           NATS_URL: ""
 
       - name: Upload Coverage Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report

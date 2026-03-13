@@ -360,7 +360,7 @@ services:
     status: deprecated  # Use chat-service instead
     replaced_by: chat-service
     deprecation_date: "2026-01-15"
-    sunset_date: "2026-02"
+    sunset_date: "2026-02-28"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated
@@ -774,7 +774,7 @@ services:
     status: deprecated  # Archived - use yield-prediction-service instead
     replaced_by: yield-prediction-service
     deprecation_date: "2026-01-15"
-    sunset_date: "2026-02"
+    sunset_date: "2026-02-28"
     owner: "data-team@sahool.io"
     team: data
     lifecycle: deprecated
@@ -1678,7 +1678,7 @@ services:
     status: deprecated  # Archived - use chat-service instead
     replaced_by: chat-service
     deprecation_date: "2026-01-15"
-    sunset_date: "2026-02"
+    sunset_date: "2026-02-28"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated

@@ -271,7 +271,7 @@ class JWTConfig:
         """Get the key for signing tokens (HS256 only).
 
         Raises:
-            JWTConfigError: If JWT_SECRET is empty or too short
+            JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
         if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(
@@ -285,7 +285,7 @@ class JWTConfig:
         """Get the key for verifying tokens (HS256 only).
 
         Raises:
-            JWTConfigError: If JWT_SECRET is empty or too short
+            JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
         if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(

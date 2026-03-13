@@ -178,23 +178,25 @@ The following channels are auto-created per tenant on first initialization:
 
 | Event Subject | Trigger | Payload |
 |---------------|---------|---------|
-| `sahool.{tenant_id}.community.message.sent` | Message sent to channel | `{ channel_id, message_id, sender_id, content_preview, timestamp }` |
-| `sahool.{tenant_id}.community.channel.created` | New channel created | `{ channel_id, name, name_ar, created_by, timestamp }` |
-| `sahool.{tenant_id}.community.member.joined` | User joins channel | `{ channel_id, user_id, timestamp }` |
-| `sahool.{tenant_id}.community.member.left` | User leaves channel | `{ channel_id, user_id, timestamp }` |
-| `sahool.{tenant_id}.community.question.asked` | Expert question posted | `{ question_id, channel_id, user_id, topic, timestamp }` |
-| `sahool.{tenant_id}.community.question.answered` | Expert answers question | `{ question_id, answer_id, expert_id, timestamp }` |
-| `sahool.{tenant_id}.community.moderation.action` | Moderation action taken | `{ report_id, action, moderator_id, target_user_id, timestamp }` |
+| `sahool.community.message_posted` | Message sent to channel | `{ channel_id, message_id, sender_id, content_preview, timestamp }` |
+| `sahool.community.channel_created` | New channel created | `{ channel_id, name, name_ar, created_by, timestamp }` |
+| `sahool.community.user_joined` | User joins channel | `{ channel_id, user_id, timestamp }` |
+| `sahool.community.user_left` | User leaves channel | `{ channel_id, user_id, timestamp }` |
+| `sahool.community.question_asked` | Expert question posted | `{ question_id, channel_id, user_id, topic, timestamp }` |
+| `sahool.community.question_answered` | Expert answers question | `{ question_id, answer_id, expert_id, timestamp }` |
+| `sahool.community.moderation_action` | Moderation action taken | `{ report_id, action, moderator_id, target_user_id, timestamp }` |
+
+> **Tenant scoping**: For multi-tenant isolation, use `get_tenant_subject(tenant_id, "community", action)` which produces `sahool.tenant.{tenant_id}.community.{action}`.
 
 ### Subscribed Events
 
 | Event Subject | Source Service | Action |
 |---------------|----------------|--------|
-| `sahool.{tenant_id}.advisory.recommendation.created` | advisory-service | Broadcast summary to `crop-health` channel |
-| `sahool.{tenant_id}.weather.alert.issued` | weather-service | Broadcast alert to `weather` and `irrigation` channels |
-| `sahool.{tenant_id}.pest.detection.confirmed` | pest-detection-service | Broadcast alert to `pest-control` channel |
-| `sahool.{tenant_id}.marketplace.price.updated` | marketplace-service | Broadcast price update to `market-prices` channel |
-| `sahool.{tenant_id}.notification.broadcast` | notification-service | Broadcast to `announcements` channel |
+| `sahool.advisory.recommendation_created` | advisory-service | Broadcast summary to `crop-health` channel |
+| `sahool.weather.alert_issued` | weather-service | Broadcast alert to `weather` and `irrigation` channels |
+| `sahool.pest.detection_confirmed` | pest-detection-service | Broadcast alert to `pest-control` channel |
+| `sahool.marketplace.price_updated` | marketplace-service | Broadcast price update to `market-prices` channel |
+| `sahool.notification.broadcast` | notification-service | Broadcast to `announcements` channel |
 
 ---
 

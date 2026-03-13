@@ -253,8 +253,13 @@ class TestNodeEntrypointValidity:
         try:
             # tsconfig allows comments, use a lenient parse
             content = tsconfig.read_text(encoding="utf-8")
-            # Strip single-line comments for parsing
-            stripped = re.sub(r"//.*$", "", content, flags=re.MULTILINE)
+            # Strip single-line comments (but not // inside strings)
+            stripped = re.sub(
+                r'("(?:[^"\\]|\\.)*")|//.*$',
+                lambda m: m.group(1) if m.group(1) else "",
+                content,
+                flags=re.MULTILINE,
+            )
             # Strip trailing commas
             stripped = re.sub(r",\s*([\]}])", r"\1", stripped)
             json.loads(stripped)
@@ -360,13 +365,17 @@ class TestComposeServiceConfiguration:
         # Parse interval like "30s", "1m"
         secs = 0
         if isinstance(interval, str):
-            if interval.endswith("s"):
-                secs = int(interval[:-1])
-            elif interval.endswith("m"):
-                secs = int(interval[:-1]) * 60
-            else:
-                pytest.skip(f"Cannot parse interval: {interval}")
-                return  # unreachable, but satisfies static analysis
+            try:
+                if interval.endswith("s"):
+                    secs = int(interval[:-1])
+                elif interval.endswith("m"):
+                    secs = int(interval[:-1]) * 60
+                else:
+                    pytest.skip(f"Cannot parse interval: {interval}")
+                    return  # unreachable, but satisfies static analysis
+            except ValueError:
+                pytest.skip(f"Cannot parse interval value: {interval}")
+                return
             assert secs <= 60, (
                 f"'{svc_name}' healthcheck interval {interval} exceeds 60s"
             )

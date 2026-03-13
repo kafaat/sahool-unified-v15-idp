@@ -244,7 +244,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - postgres
@@ -493,7 +493,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - redis
@@ -893,7 +893,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service

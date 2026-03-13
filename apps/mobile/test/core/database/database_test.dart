@@ -37,7 +37,7 @@ class TestTasks extends Table {
   DateTimeColumn get dueDate => dateTime().nullable()();
   TextColumn get assignedTo => text().nullable()();
   TextColumn get evidenceNotes => text().nullable()();
-  TextColumn get evidencePhotos => text().nullable()(); // JSON array
+  TextColumn get evidencePhotos => text().nullable()(); // JSON array of file paths
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
@@ -966,16 +966,16 @@ void main() {
       expect(task.synced, isFalse);
     });
 
-    test('should mark task done with evidence photos as CSV', () async {
+    test('should mark task done with evidence photos as JSON array', () async {
       final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
-      final photosStr = photos.join(',');
+      final photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
 
       await (db.update(db.testTasks)
             ..where((t) => t.id.equals('mark-done-1')))
           .write(TestTasksCompanion(
         status: const Value('done'),
         evidenceNotes: const Value('Field inspection complete'),
-        evidencePhotos: Value(photosStr),
+        evidencePhotos: Value(photosJson),
         updatedAt: Value(DateTime.now()),
         synced: const Value(false),
       ));
@@ -986,12 +986,15 @@ void main() {
 
       expect(task.status, equals('done'));
       expect(task.evidenceNotes, equals('Field inspection complete'));
-      expect(task.evidencePhotos, equals('photo_001.jpg,photo_002.jpg,photo_003.jpg'));
+      expect(task.evidencePhotos, equals(photosJson));
 
-      // Verify photos can be split back to list
-      final photoList = task.evidencePhotos!.split(',');
-      expect(photoList.length, equals(3));
-      expect(photoList.first, equals('photo_001.jpg'));
+      // Verify photos can be decoded from JSON
+      final decoded = (task.evidencePhotos!.substring(1, task.evidencePhotos!.length - 1))
+          .split(',')
+          .map((s) => s.replaceAll('"', '').trim())
+          .toList();
+      expect(decoded.length, equals(3));
+      expect(decoded.first, equals('photo_001.jpg'));
     });
 
     test('should mark task done with null evidence', () async {

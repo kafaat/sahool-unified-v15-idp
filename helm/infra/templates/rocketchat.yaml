@@ -60,6 +60,33 @@ spec:
               mountPath: /data/db
           securityContext:
             runAsUser: 0
+        - name: init-replset
+          image: "{{ .Values.rocketchat.mongodb.image.repository }}:{{ .Values.rocketchat.mongodb.image.tag }}"
+          command:
+            - bash
+            - -c
+            - |
+              mongod --replSet rs0 --storageEngine wiredTiger --dbpath /data/db --bind_ip 127.0.0.1 --port 27017 --fork --logpath /tmp/mongod.log
+              echo "Waiting for mongod to start..."
+              for i in $(seq 1 30); do
+                if mongosh --quiet --eval "db.runCommand({ping:1})" 2>/dev/null; then
+                  break
+                fi
+                sleep 1
+              done
+              echo "Initializing replica set..."
+              mongosh --quiet --eval '
+                rs.status().ok || rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:27017"}]})
+              ' || true
+              echo "Shutting down temporary mongod..."
+              mongosh --quiet --eval 'db.adminCommand({shutdown: 1, force: true})' || true
+              sleep 2
+              echo "Replica set initialization complete"
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+          securityContext:
+            runAsUser: 999
       containers:
         - name: mongodb
           image: "{{ .Values.rocketchat.mongodb.image.repository }}:{{ .Values.rocketchat.mongodb.image.tag }}"

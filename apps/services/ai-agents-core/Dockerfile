@@ -36,6 +36,7 @@ RUN chown -R sahool:sahool /app
 
 # Set Python path and default port
 ENV PYTHONPATH=/app:/app/src \
+    PYTHONUNBUFFERED=1 \
     PORT=8161
 
 # Expose port

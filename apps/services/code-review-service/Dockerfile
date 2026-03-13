@@ -45,8 +45,8 @@ COPY apps/services/code-review-service/config/ ./config/
 RUN chown -R sahool:sahool /app
 
 # Set Python path for shared module imports
-ENV PYTHONPATH=/app
-
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1
 # Expose API port (standardized to 8102 per docker-compose.yml)
 EXPOSE 8102
 

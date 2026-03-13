@@ -48,6 +48,10 @@ services:
       retries: 8
       # FIX: Increased start_period from 30s to 60s for Docker Desktop/Windows environments
       start_period: 60s
+    # FIX (2026-03-13): Added stop_grace_period to allow PostgreSQL to complete
+    # checkpoint before shutdown, preventing WAL recovery on next startup.
+    # Log evidence: "database system was not properly shut down; automatic recovery in progress"
+    stop_grace_period: 30s
     restart: unless-stopped
     deploy:
       resources:
@@ -1149,7 +1153,10 @@ services:
       KONG_DNS_NOT_FOUND_TTL: 30
 
       # Performance Optimization - Worker Processes
-      KONG_NGINX_WORKER_PROCESSES: auto
+      # FIX (2026-03-13): Changed from 'auto' (spawns 24 workers on high-core hosts)
+      # to 4, which reduces startup timeouts and event broker connection resets.
+      # 'auto' caused 12+ worker.lua:138 timeout errors and 200+ blocking sleep logs.
+      KONG_NGINX_WORKER_PROCESSES: "4"
       KONG_NGINX_WORKER_CONNECTIONS: 4096
 
       # Nginx Keepalive Settings
@@ -1190,10 +1197,14 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "kong", "health" ]
-      interval: 30s
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      # FIX (2026-03-13): Increased retries from 3 to 5 and start_period from 30s to 45s
+      # to accommodate declarative config loading time with multiple workers
+      retries: 5
+      start_period: 45s
+    # FIX (2026-03-13): Added stop_grace_period to allow Kong to drain connections gracefully
+    stop_grace_period: 15s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2105,6 +2116,8 @@ services:
       nats:
         condition: service_healthy
       iot-gateway:
+        # FIX (2026-03-13): Changed from service_started to service_healthy
+        # to prevent irrigation-smart from querying before iot-gateway is ready
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')" ]

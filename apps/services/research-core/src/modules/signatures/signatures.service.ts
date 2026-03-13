@@ -90,6 +90,7 @@ export class SignaturesService {
         isValid: true,
       },
       orderBy: { timestamp: "desc" },
+      take: 100,
     });
 
     if (signatures.length === 0) {
@@ -139,6 +140,7 @@ export class SignaturesService {
     return this.prisma.digitalSignature.findMany({
       where: { tenantId, entityType, entityId },
       orderBy: { timestamp: "desc" },
+      take: 100,
     });
   }
 

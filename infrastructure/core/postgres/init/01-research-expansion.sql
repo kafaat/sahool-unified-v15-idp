@@ -457,10 +457,16 @@ ON CONFLICT DO NOTHING;
 -- Deferred FK: sample_analysis_results.sample_id → lab_samples(id)
 -- Only added when lab_samples exists (created by research-core Prisma migration)
 -- ─────────────────────────────────────────────────────────────────────────────
+-- NOTE: lab_samples is created by Prisma migrations (not by this init script).
+-- This deferred FK will only succeed if Prisma migrations have already run.
+-- For fresh environments, the FK should be added via a Prisma migration instead.
+-- Kept as a best-effort fallback for environments where migrations ran before init.
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables
                WHERE table_schema = 'public' AND table_name = 'lab_samples')
+       AND EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'public' AND table_name = 'sample_analysis_results')
        AND NOT EXISTS (
            SELECT 1 FROM information_schema.table_constraints
            WHERE constraint_name = 'fk_analysis_results_lab_samples'
@@ -470,6 +476,8 @@ BEGIN
             ADD CONSTRAINT fk_analysis_results_lab_samples
             FOREIGN KEY (sample_id) REFERENCES public.lab_samples(id) ON DELETE CASCADE;
         RAISE NOTICE 'Added FK: sample_analysis_results.sample_id → lab_samples(id)';
+    ELSE
+        RAISE NOTICE 'Skipping deferred FK: lab_samples or sample_analysis_results not yet created (will be added by Prisma migration)';
     END IF;
 EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'Skipping deferred FK for sample_analysis_results: %', SQLERRM;

@@ -1983,7 +1983,6 @@ services:
     dependencies:
       - redis
       - nats
-      - rocketchat
     infrastructure:
       rocketchat:
         type: "Rocket.Chat 7.5"

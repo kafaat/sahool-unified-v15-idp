@@ -1975,9 +1975,10 @@ services:
       nats:
         condition: service_healthy
       iot-gateway:
-        # FIX (2026-03-13): Changed from service_started to service_healthy
-        # to prevent irrigation-smart from querying before iot-gateway is ready
-        condition: service_healthy
+        # NOTE: Using service_started (not service_healthy) because iot-gateway
+        # healthcheck is unreliable - see PR #1213. irrigation-smart handles
+        # iot-gateway unavailability gracefully with retries.
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')" ]
       interval: 30s

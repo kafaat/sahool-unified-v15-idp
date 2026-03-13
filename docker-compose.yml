@@ -1108,19 +1108,19 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
-      # FIX: Increased from 15s to 60s - NestJS needs time for Prisma connect + PostGIS + Redis
-      start_period: 60s
+      # FIX: Increased from 60s to 120s - NestJS+Prisma startup is slow on Docker Desktop/Windows
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
+          cpus: '1.00'
+          memory: 1G
+        reservations:
           cpus: '0.50'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     logging: *default-logging
     networks:
       - sahool-network

@@ -105,10 +105,19 @@ wait_for_postgres() {
                 return 0
             fi
         else
-            # No psql available, fall back to a generous sleep
-            log_warn "psql not available, waiting 15s for init scripts to complete..."
-            sleep 15
-            return 0
+            # psql not available despite install attempt at startup — cannot verify schema
+            # Retry a few times in case the apk install is still completing
+            log_warn "psql not available, retrying installation..."
+            if command -v apk >/dev/null 2>&1; then
+                apk add --no-cache postgresql-client >/dev/null 2>&1 || true
+            fi
+            if command -v psql >/dev/null 2>&1; then
+                log_info "psql now available after retry, continuing schema check..."
+                # Continue the loop — psql check will happen on next iteration
+            else
+                log_error "psql unavailable — cannot verify pgbouncer schema readiness"
+                return 1
+            fi
         fi
 
         log_info "Init scripts still running ($_attempt/$_max_init_attempts), waiting..."

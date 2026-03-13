@@ -166,18 +166,18 @@ BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables
                WHERE table_schema = 'public' AND table_name = 'lab_samples') THEN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                       WHERE table_name = 'lab_samples' AND column_name = 'batch_id') THEN
-            ALTER TABLE lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
+                       WHERE table_schema = 'public' AND table_name = 'lab_samples' AND column_name = 'batch_id') THEN
+            ALTER TABLE public.lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                       WHERE table_name = 'lab_samples' AND column_name = 'barcode') THEN
-            ALTER TABLE lab_samples ADD COLUMN barcode VARCHAR(100);
+                       WHERE table_schema = 'public' AND table_name = 'lab_samples' AND column_name = 'barcode') THEN
+            ALTER TABLE public.lab_samples ADD COLUMN barcode VARCHAR(100);
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                       WHERE table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
-            ALTER TABLE lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
+                       WHERE table_schema = 'public' AND table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
+            ALTER TABLE public.lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
         END IF;
 
         EXECUTE 'CREATE INDEX IF NOT EXISTS idx_lab_samples_batch ON lab_samples(batch_id)';
@@ -217,7 +217,7 @@ CREATE INDEX IF NOT EXISTS idx_analysis_types_code ON analysis_types(code);
 
 CREATE TABLE IF NOT EXISTS sample_analysis_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    sample_id UUID NOT NULL,  -- FK to lab_samples(id) added post-startup after Prisma migration
+    sample_id UUID NOT NULL,  -- No FK: lab_samples is Prisma-managed; FK added below when table exists
     analysis_type_id UUID REFERENCES analysis_types(id),
     parameter_name VARCHAR(255) NOT NULL,
     value DECIMAL(20,6),
@@ -452,6 +452,28 @@ VALUES
     ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm'),
     ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD')
 ON CONFLICT DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Deferred FK: sample_analysis_results.sample_id → lab_samples(id)
+-- Only added when lab_samples exists (created by research-core Prisma migration)
+-- ─────────────────────────────────────────────────────────────────────────────
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'public' AND table_name = 'lab_samples')
+       AND NOT EXISTS (
+           SELECT 1 FROM information_schema.table_constraints
+           WHERE constraint_name = 'fk_analysis_results_lab_samples'
+             AND table_schema = 'public')
+    THEN
+        ALTER TABLE public.sample_analysis_results
+            ADD CONSTRAINT fk_analysis_results_lab_samples
+            FOREIGN KEY (sample_id) REFERENCES public.lab_samples(id) ON DELETE CASCADE;
+        RAISE NOTICE 'Added FK: sample_analysis_results.sample_id → lab_samples(id)';
+    END IF;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Skipping deferred FK for sample_analysis_results: %', SQLERRM;
+END $$;
 
 -- Summary
 DO $$

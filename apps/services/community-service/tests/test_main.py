@@ -5,7 +5,6 @@ Tests cover all endpoints, authentication, tenant isolation, rate limiting,
 error handling, and Rocket.Chat client interaction.
 """
 
-import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

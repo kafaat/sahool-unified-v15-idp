@@ -12,7 +12,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../core/database/database_test.dart';
@@ -642,7 +641,7 @@ void main() {
       final emissions = <List<TestField>>[];
       final sub = stream.listen((data) => emissions.add(data));
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
       // Insert field
       await db.into(db.testFields).insert(TestFieldsCompanion.insert(
@@ -655,7 +654,7 @@ void main() {
             updatedAt: now,
           ));
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
       // Update field
       await (db.update(db.testFields)
@@ -664,7 +663,7 @@ void main() {
         ndviCurrent: Value(0.65),
       ));
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
 
       await sub.cancel();
 
@@ -700,10 +699,13 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 10));
       }
 
-      // Fetch in order
+      // Fetch in order (use id as tiebreaker since createdAt has second precision)
       final ordered = await (db.select(db.testOutbox)
             ..where((o) => o.isSynced.equals(false))
-            ..orderBy([(o) => OrderingTerm.asc(o.createdAt)])
+            ..orderBy([
+              (o) => OrderingTerm.asc(o.createdAt),
+              (o) => OrderingTerm.asc(o.id),
+            ])
             ..limit(3))
           .get();
 

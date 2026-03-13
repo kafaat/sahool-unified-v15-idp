@@ -512,7 +512,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     });
 
     it("should handle stop typing", async () => {
-      const result = await gateway.handleTyping(
+      await gateway.handleTyping(
         {
           conversationId: mockConversationId,
           userId: mockUserId,

@@ -33,7 +33,6 @@ import yaml
 from tests.container.service_registry import (
     ALL_BUILT_SERVICES,
     ALL_HTTP_SERVICES,
-    INFRA_SERVICES,
     NODE_SERVICES,
     PYTHON_SERVICES,
 )

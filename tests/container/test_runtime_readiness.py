@@ -33,9 +33,7 @@ import yaml
 
 from tests.container.service_registry import (
     ALL_HTTP_SERVICES,
-    INFRA_SERVICES,
     NODE_SERVICES,
-    PORTLESS_SERVICES,
     PYTHON_SERVICES,
 )
 
@@ -360,6 +358,7 @@ class TestComposeServiceConfiguration:
         if not interval:
             pytest.skip(f"{svc_name} healthcheck has no interval")
         # Parse interval like "30s", "1m"
+        secs = 0
         if isinstance(interval, str):
             if interval.endswith("s"):
                 secs = int(interval[:-1])
@@ -367,9 +366,12 @@ class TestComposeServiceConfiguration:
                 secs = int(interval[:-1]) * 60
             else:
                 pytest.skip(f"Cannot parse interval: {interval}")
+                return  # unreachable, but satisfies static analysis
             assert secs <= 60, (
                 f"'{svc_name}' healthcheck interval {interval} exceeds 60s"
             )
+        else:
+            pytest.skip(f"Cannot parse non-string interval: {interval}")
 
 
 # ===========================================================================

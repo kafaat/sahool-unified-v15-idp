@@ -12,7 +12,6 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 // Note: We create a test-specific in-memory database since the actual
 // AppDatabase uses SQLCipher encryption which requires native libraries

@@ -18,10 +18,9 @@ import os
 import sys
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
-from enum import Enum
+from datetime import datetime, UTC
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -56,7 +55,6 @@ except ImportError:
 try:
     from shared.errors_py import (
         add_request_id_middleware,
-        create_success_response,
         setup_exception_handlers,
     )
 

@@ -469,7 +469,7 @@ describe("ChatController", () => {
     it("should not mark own message as read", async () => {
       mockChatService.markMessageAsRead.mockResolvedValue(mockMessage);
 
-      const result = await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
+      await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
 
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,

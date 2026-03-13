@@ -499,6 +499,33 @@ services:
     - redis
     - nats
     - rocketchat
+  wechat-service:
+    build:
+      context: ../../apps/services/wechat-service
+      dockerfile: Dockerfile
+    ports:
+    - 8135:8135
+    environment:
+    - PORT=8135
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8135/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 384Mi
+    depends_on:
+    - redis
+    - nats
   agent-registry:
     build:
       context: ../../apps/services/agent-registry

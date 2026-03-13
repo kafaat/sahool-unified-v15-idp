@@ -70,6 +70,7 @@ def strip_sql_comments(sql: str) -> str:
     )
 
 
+
 class TestInitScriptsExist:
     """Verify init scripts directory and files exist."""
 

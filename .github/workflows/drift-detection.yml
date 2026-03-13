@@ -50,7 +50,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: changes
         with:
           filters: |
@@ -246,7 +246,7 @@ jobs:
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Upload Drift Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: drift-report

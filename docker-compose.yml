@@ -1964,7 +1964,7 @@ services:
       nats:
         condition: service_healthy
       iot-gateway:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')" ]
       interval: 30s

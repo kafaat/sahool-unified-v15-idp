@@ -502,7 +502,7 @@ class BatchReadingRequest(BaseModel):
     device_id: str = Field(..., min_length=1, max_length=100)
     tenant_id: str = Field(..., min_length=1, max_length=100)
     field_id: str = Field(..., min_length=1, max_length=100)
-    readings: list[dict] = Field(..., min_items=1, max_items=100)
+    readings: list[dict] = Field(..., min_length=1, max_length=100)
 
 
 class DeviceRegisterRequest(BaseModel):

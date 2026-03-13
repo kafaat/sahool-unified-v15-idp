@@ -103,7 +103,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - crop-growth-model
@@ -130,7 +130,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - weather-service
@@ -157,7 +157,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -185,7 +185,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -241,7 +241,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - terrain-core-service
@@ -297,7 +297,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - weather-service
@@ -352,7 +352,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - irrigation-smart
@@ -379,7 +379,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - irrigation-smart
@@ -406,7 +406,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - weather-service
@@ -433,7 +433,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
@@ -460,7 +460,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
@@ -486,7 +486,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '800'
+          cpus: '0.8'
           memory: 1Gi
     depends_on:
     - vegetation-analysis-service
@@ -564,7 +564,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - indicators-service
@@ -618,7 +618,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - postgres
@@ -673,7 +673,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - redis
@@ -699,7 +699,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - redis
@@ -725,7 +725,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -752,7 +752,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - postgres
@@ -805,7 +805,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1000'
+          cpus: '1.0'
           memory: 2Gi
     depends_on:
     - imagery-service
@@ -860,7 +860,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - terrain-core-service
@@ -887,7 +887,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8'
+          cpus: '0.008'
           memory: 32Gi
   soil-analysis-service:
     build:
@@ -911,7 +911,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - advisory-service
@@ -965,7 +965,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - crop-growth-model
@@ -991,7 +991,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - redis
@@ -1017,7 +1017,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   research-core:
     build:
@@ -1041,7 +1041,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
   billing-core:
     build:
@@ -1065,7 +1065,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   notification-service:
     build:
@@ -1089,7 +1089,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   mcp-server:
     build:
@@ -1113,7 +1113,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - kong
@@ -1139,7 +1139,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   task-service:
     build:
@@ -1163,7 +1163,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   ws-gateway:
     build:
@@ -1187,7 +1187,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - nats
@@ -1241,7 +1241,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1268,7 +1268,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -1296,7 +1296,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1324,7 +1324,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -1351,7 +1351,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -1379,7 +1379,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -1406,7 +1406,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1434,7 +1434,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1489,7 +1489,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - redis
@@ -1516,7 +1516,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -1543,7 +1543,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1571,7 +1571,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1598,7 +1598,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1625,7 +1625,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -1653,7 +1653,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -1680,7 +1680,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
   field-ops:
     build:
@@ -1704,7 +1704,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
   field-service:
     build:
@@ -1728,7 +1728,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
   supply-chain-service:
     build:
@@ -1752,7 +1752,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - advisory-service
@@ -1780,7 +1780,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
@@ -1808,7 +1808,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - user-service
@@ -1835,7 +1835,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - field-management-service
@@ -1888,7 +1888,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
@@ -1914,7 +1914,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
   ground-vision-service:
     build:
@@ -1938,7 +1938,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1000'
+          cpus: '1.0'
           memory: 2Gi
     depends_on:
     - vegetation-analysis-service
@@ -1966,7 +1966,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '600'
+          cpus: '0.6'
           memory: 768Mi
   weather-advanced:
     build:
@@ -1990,7 +1990,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   virtual-sensors:
     build:
@@ -2014,7 +2014,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - weather-service
@@ -2041,7 +2041,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -2069,7 +2069,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -2096,7 +2096,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -2125,7 +2125,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -2151,7 +2151,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - yolo26-vision-service
@@ -2177,7 +2177,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - iot-service

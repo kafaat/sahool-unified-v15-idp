@@ -103,7 +103,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - crop-growth-model
@@ -130,7 +130,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - weather-service
@@ -157,7 +157,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -185,7 +185,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -241,7 +241,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - terrain-core-service
@@ -297,7 +297,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - weather-service
@@ -352,7 +352,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - irrigation-smart
@@ -379,7 +379,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - irrigation-smart

@@ -22,7 +22,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - redis
@@ -48,7 +48,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   research-core:
     build:
@@ -72,7 +72,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
   billing-core:
     build:
@@ -96,7 +96,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   notification-service:
     build:
@@ -120,7 +120,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   mcp-server:
     build:
@@ -144,7 +144,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - kong
@@ -170,7 +170,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   task-service:
     build:
@@ -194,7 +194,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
   ws-gateway:
     build:
@@ -218,7 +218,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - nats
@@ -272,7 +272,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -299,7 +299,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -327,7 +327,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -355,7 +355,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -382,7 +382,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -410,7 +410,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -437,7 +437,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -465,7 +465,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -520,7 +520,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - redis
@@ -547,7 +547,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -574,7 +574,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -602,7 +602,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -629,7 +629,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -656,7 +656,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - postgres
@@ -684,7 +684,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -711,7 +711,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
   field-ops:
     build:
@@ -735,7 +735,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
   field-service:
     build:
@@ -759,7 +759,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
   supply-chain-service:
     build:
@@ -783,7 +783,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - advisory-service
@@ -811,7 +811,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service
@@ -839,7 +839,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - user-service
@@ -866,7 +866,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - field-management-service
@@ -919,7 +919,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - llm-orchestrator-service

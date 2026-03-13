@@ -101,8 +101,8 @@ CREATE TABLE "orders" (
 CREATE TABLE "order_items" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
-    "order_id" TEXT NOT NULL,
-    "product_id" TEXT NOT NULL,
+    "order_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
     "quantity" DOUBLE PRECISION NOT NULL,
     "unit_price" DECIMAL(15,2) NOT NULL,
     "total_price" DECIMAL(15,2) NOT NULL,
@@ -305,9 +305,9 @@ CREATE TABLE "buyer_profiles" (
 CREATE TABLE "product_reviews" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
-    "product_id" TEXT NOT NULL,
-    "buyer_id" TEXT NOT NULL,
-    "order_id" TEXT NOT NULL,
+    "product_id" UUID NOT NULL,
+    "buyer_id" UUID NOT NULL,
+    "order_id" UUID NOT NULL,
     "rating" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
     "comment" TEXT,
@@ -325,8 +325,8 @@ CREATE TABLE "product_reviews" (
 CREATE TABLE "review_responses" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
-    "review_id" TEXT NOT NULL,
-    "seller_id" TEXT NOT NULL,
+    "review_id" UUID NOT NULL,
+    "seller_id" UUID NOT NULL,
     "response" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -565,8 +565,8 @@ ALTER TABLE "order_items" ADD CONSTRAINT "order_items_product_id_fkey" FOREIGN K
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_wallet_id_fkey" FOREIGN KEY ("wallet_id") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_reference_id_fkey" FOREIGN KEY ("reference_id") REFERENCES "orders"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- NOTE: transactions.reference_id is a polymorphic reference (can point to orders, loans,
+-- scheduled_payments, etc. based on reference_type). No FK constraint is added intentionally.
 
 -- AddForeignKey
 ALTER TABLE "loans" ADD CONSTRAINT "loans_wallet_id_fkey" FOREIGN KEY ("wallet_id") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

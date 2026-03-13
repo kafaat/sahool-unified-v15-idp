@@ -134,7 +134,6 @@ model Order {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   items       OrderItem[]
-  transactions Transaction[]
 
   @@map("orders")
   @@index([tenantId], name: "idx_order_tenant")
@@ -150,8 +149,8 @@ model Order {
 model OrderItem {
   id          String   @id @default(uuid()) @db.Uuid
   tenantId    String   @default("unassigned") @map("tenant_id")
-  orderId     String   @map("order_id")
-  productId   String   @map("product_id")
+  orderId     String   @map("order_id") @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
 
   quantity    Float
   unitPrice   Decimal  @map("unit_price") @db.Decimal(15, 2)
@@ -264,9 +263,10 @@ model Transaction {
   balanceAfter Decimal @map("balance_after") @db.Decimal(15, 2)
   balanceBefore Decimal? @map("balance_before") @db.Decimal(15, 2) // الرصيد قبل المعاملة
 
-  // المرجع
-  referenceId String?  @map("reference_id") // order_id, loan_id, etc.
-  referenceType String? @map("reference_type")
+  // المرجع (polymorphic: can reference orders, loans, scheduled payments, etc.)
+  // No FK constraint - referenceType determines the target table
+  referenceId String?  @map("reference_id")
+  referenceType String? @map("reference_type") // 'order', 'loan', 'scheduled_payment', etc.
 
   description String?
   descriptionAr String? @map("description_ar")
@@ -281,7 +281,6 @@ model Transaction {
   createdAt   DateTime @default(now()) @map("created_at")
 
   wallet      Wallet   @relation(fields: [walletId], references: [id])
-  order       Order?   @relation(fields: [referenceId], references: [id])
   auditLogs   WalletAuditLog[]
 
   @@index([tenantId], name: "idx_transaction_tenant")
@@ -645,9 +644,9 @@ model BuyerProfile {
 model ProductReview {
   id          String   @id @default(uuid()) @db.Uuid
   tenantId    String   @default("unassigned") @map("tenant_id")
-  productId   String   @map("product_id")
-  buyerId     String   @map("buyer_id")
-  orderId     String   @map("order_id")
+  productId   String   @map("product_id") @db.Uuid
+  buyerId     String   @map("buyer_id") @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
 
   // التقييم والمحتوى
   rating      Int      // 1-5 نجوم
@@ -680,8 +679,8 @@ model ProductReview {
 model ReviewResponse {
   id          String   @id @default(uuid()) @db.Uuid
   tenantId    String   @default("unassigned") @map("tenant_id")
-  reviewId    String   @unique @map("review_id")
-  sellerId    String   @map("seller_id")
+  reviewId    String   @unique @map("review_id") @db.Uuid
+  sellerId    String   @map("seller_id") @db.Uuid
 
   response    String   @db.Text
 

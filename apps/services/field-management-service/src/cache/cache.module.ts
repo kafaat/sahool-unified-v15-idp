@@ -61,7 +61,10 @@ const hasRedisUrl = !!process.env.REDIS_URL;
                   logger.warn("Redis connection failed after 3 retries, falling back to in-memory cache");
                   return false; // Stop retrying — allows connect() to reject
                 }
-                return Math.min(retries * 1000, 3000); // backoff: 0 s, 1 s, 2 s, 3 s
+                // Start at 500 ms so the first retry is never immediate (avoids rapid
+                // error bursts at container startup when Redis needs a moment to accept
+                // connections, even after its Docker health-check has passed).
+                return Math.min((retries + 1) * 500, 3000); // backoff: 500 ms, 1 s, 1.5 s, 2 s
               },
             },
             password: password || undefined,

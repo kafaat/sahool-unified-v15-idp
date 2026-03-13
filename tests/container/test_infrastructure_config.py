@@ -20,7 +20,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.parent
 DOCKER_COMPOSE_PATH = REPO_ROOT / "docker-compose.yml"
 PGBOUNCER_ENTRYPOINT = REPO_ROOT / "infrastructure" / "core" / "pgbouncer" / "entrypoint.sh"
-PGBOUNCER_INI = REPO_ROOT / "infrastructure" / "core" / "pgbouncer" / "pgbouncer.ini"
 
 
 @pytest.fixture(scope="module")

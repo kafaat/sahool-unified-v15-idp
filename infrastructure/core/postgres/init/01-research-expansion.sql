@@ -159,26 +159,33 @@ CREATE INDEX IF NOT EXISTS idx_sample_batches_code ON sample_batches(batch_code)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Add batch_id to existing lab_samples if not exists
+-- FIX (2026-03-13): Guard all lab_samples DDL behind table-existence check.
+-- lab_samples is created by research-core Prisma migrations, not by Docker init.
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'batch_id') THEN
-        ALTER TABLE lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
-    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'public' AND table_name = 'lab_samples') THEN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'batch_id') THEN
+            ALTER TABLE lab_samples ADD COLUMN batch_id UUID REFERENCES sample_batches(id);
+        END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'barcode') THEN
-        ALTER TABLE lab_samples ADD COLUMN barcode VARCHAR(100);
-    END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'barcode') THEN
+            ALTER TABLE lab_samples ADD COLUMN barcode VARCHAR(100);
+        END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
-        ALTER TABLE lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_name = 'lab_samples' AND column_name = 'chain_of_custody') THEN
+            ALTER TABLE lab_samples ADD COLUMN chain_of_custody JSONB DEFAULT '[]';
+        END IF;
+
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_lab_samples_batch ON lab_samples(batch_id)';
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_lab_samples_barcode ON lab_samples(barcode)';
+    ELSE
+        RAISE NOTICE 'lab_samples table does not exist yet (Prisma-managed), skipping column additions';
     END IF;
 END $$;
-
-CREATE INDEX IF NOT EXISTS idx_lab_samples_batch ON lab_samples(batch_id);
-CREATE INDEX IF NOT EXISTS idx_lab_samples_barcode ON lab_samples(barcode);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Analysis Types (أنواع التحليل)
@@ -210,7 +217,7 @@ CREATE INDEX IF NOT EXISTS idx_analysis_types_code ON analysis_types(code);
 
 CREATE TABLE IF NOT EXISTS sample_analysis_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    sample_id UUID NOT NULL REFERENCES lab_samples(id) ON DELETE CASCADE,
+    sample_id UUID NOT NULL,  -- FK to lab_samples(id) added post-startup after Prisma migration
     analysis_type_id UUID REFERENCES analysis_types(id),
     parameter_name VARCHAR(255) NOT NULL,
     value DECIMAL(20,6),

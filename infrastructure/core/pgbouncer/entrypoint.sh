@@ -116,8 +116,8 @@ wait_for_postgres() {
         _attempt=$((_attempt + 1))
     done
 
-    log_warn "Timed out waiting for init scripts, proceeding anyway..."
-    return 0
+    log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
+    return 1
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -230,9 +230,10 @@ main() {
     log_info "DB_NAME: ${DB_NAME}"
     log_info "═══════════════════════════════════════════════════════════════════"
 
-    # Wait for PostgreSQL
+    # Wait for PostgreSQL (exit if not available, auth_query requires pgbouncer schema)
     if ! wait_for_postgres; then
-        log_warn "PostgreSQL not available, but continuing anyway..."
+        log_error "PostgreSQL not available or init scripts incomplete. Cannot start PgBouncer without pgbouncer schema."
+        exit 1
     fi
 
     # Generate userlist.txt

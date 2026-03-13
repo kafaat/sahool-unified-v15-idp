@@ -268,12 +268,30 @@ class JWTConfig:
 
     @classmethod
     def get_signing_key(cls) -> str:
-        """Get the key for signing tokens (HS256 only)"""
+        """Get the key for signing tokens (HS256 only).
+
+        Raises:
+            JWTConfigError: If JWT_SECRET is empty or too short
+        """
+        if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+            raise JWTConfigError(
+                f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
+                "Set JWT_SECRET_KEY environment variable."
+            )
         return cls.JWT_SECRET
 
     @classmethod
     def get_verification_key(cls) -> str:
-        """Get the key for verifying tokens (HS256 only)"""
+        """Get the key for verifying tokens (HS256 only).
+
+        Raises:
+            JWTConfigError: If JWT_SECRET is empty or too short
+        """
+        if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+            raise JWTConfigError(
+                f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
+                "Set JWT_SECRET_KEY environment variable."
+            )
         return cls.JWT_SECRET
 
 

@@ -273,7 +273,7 @@ class TokenInterceptor extends Interceptor {
     final exponentialDelay = _initialRetryDelay.inMilliseconds * pow(2, retryCount - 1);
 
     // Add jitter (0-25% of delay) to prevent thundering herd
-    final jitter = Random().nextInt((exponentialDelay * 0.25).toInt());
+    final jitter = Random.secure().nextInt((exponentialDelay * 0.25).toInt());
 
     final totalDelay = Duration(milliseconds: exponentialDelay.toInt() + jitter);
 

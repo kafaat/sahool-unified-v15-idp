@@ -100,6 +100,13 @@ const mockPrismaService = {
       }
       return Promise.resolve(null);
     }),
+    findFirst: jest.fn().mockImplementation(({ where }) => {
+      const disaster = mockDisasters.find((d) => d.id === where.id);
+      if (disaster) {
+        return Promise.resolve({ ...disaster, fieldAssessments: [] });
+      }
+      return Promise.resolve(null);
+    }),
     create: jest.fn().mockImplementation(({ data }) => {
       const newDisaster = {
         id: `disaster-${Date.now()}`,
@@ -185,7 +192,7 @@ describe("DisasterService", () => {
 
   describe("getActiveDisasters", () => {
     it("should return all disasters when no filters", async () => {
-      const result = await service.getActiveDisasters({});
+      const result = await service.getActiveDisasters("tenant-001", {});
 
       expect(result.total).toBeGreaterThan(0);
       expect(result.disasters).toBeDefined();
@@ -197,7 +204,7 @@ describe("DisasterService", () => {
         mockDisasters.filter((d) => d.type === "flood"),
       );
 
-      const result = await service.getActiveDisasters({
+      const result = await service.getActiveDisasters("tenant-001", {
         type: DisasterType.FLOOD,
       });
 
@@ -209,7 +216,7 @@ describe("DisasterService", () => {
         mockDisasters.filter((d) => d.governorate === "hadramaut"),
       );
 
-      const result = await service.getActiveDisasters({
+      const result = await service.getActiveDisasters("tenant-001", {
         governorate: "hadramaut",
       });
 
@@ -223,7 +230,7 @@ describe("DisasterService", () => {
         mockDisasters.filter((d) => d.severity === "high"),
       );
 
-      const result = await service.getActiveDisasters({
+      const result = await service.getActiveDisasters("tenant-001", {
         severity: Severity.HIGH,
       });
 
@@ -231,7 +238,7 @@ describe("DisasterService", () => {
     });
 
     it("should include Arabic translations", async () => {
-      const result = await service.getActiveDisasters({});
+      const result = await service.getActiveDisasters("tenant-001", {});
 
       expect(result.disasters[0].governorateAr).toBeDefined();
       expect(result.disasters[0].typeAr).toBeDefined();
@@ -240,7 +247,7 @@ describe("DisasterService", () => {
     it("should return empty array when no matches", async () => {
       mockPrismaService.disasterReport.findMany.mockResolvedValueOnce([]);
 
-      const result = await service.getActiveDisasters({
+      const result = await service.getActiveDisasters("tenant-001", {
         governorate: "nonexistent",
       });
 
@@ -255,7 +262,7 @@ describe("DisasterService", () => {
         ),
       );
 
-      const result = await service.getActiveDisasters({
+      const result = await service.getActiveDisasters("tenant-001", {
         type: DisasterType.LOCUST,
         severity: Severity.CRITICAL,
       });
@@ -273,7 +280,7 @@ describe("DisasterService", () => {
 
   describe("getDisasterById", () => {
     it("should return disaster when found", async () => {
-      const result = await service.getDisasterById("disaster-001");
+      const result = await service.getDisasterById("disaster-001", "tenant-001");
 
       expect(result.id).toBe("disaster-001");
       expect(result.type).toBe("flood");
@@ -282,7 +289,7 @@ describe("DisasterService", () => {
     });
 
     it("should include affected fields list", async () => {
-      const result = await service.getDisasterById("disaster-001");
+      const result = await service.getDisasterById("disaster-001", "tenant-001");
 
       expect(result.affectedFields).toBeDefined();
       expect(Array.isArray(result.affectedFields)).toBe(true);
@@ -291,14 +298,14 @@ describe("DisasterService", () => {
     it("should return error for non-existent disaster", async () => {
       mockPrismaService.disasterReport.findUnique.mockResolvedValueOnce(null);
 
-      const result = await service.getDisasterById("nonexistent");
+      const result = await service.getDisasterById("nonexistent", "tenant-001");
 
       expect(result.error).toBe("Disaster not found");
       expect(result.errorAr).toBe("الكارثة غير موجودة");
     });
 
     it("should include localized governorate name", async () => {
-      const result = await service.getDisasterById("disaster-001");
+      const result = await service.getDisasterById("disaster-001", "tenant-001");
 
       expect(result.governorateAr).toBe("حضرموت");
     });
@@ -321,7 +328,7 @@ describe("DisasterService", () => {
         startDate: "2024-12-20T00:00:00Z",
       };
 
-      const result = await service.reportDisaster(dto);
+      const result = await service.reportDisaster(dto, "tenant-001");
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("Disaster reported successfully");
@@ -342,7 +349,7 @@ describe("DisasterService", () => {
         startDate: "2024-12-20T00:00:00Z",
       };
 
-      const result = await service.reportDisaster(dto);
+      const result = await service.reportDisaster(dto, "tenant-001");
 
       expect(result.disaster.status).toBe("active");
     });
@@ -359,7 +366,7 @@ describe("DisasterService", () => {
         startDate: "2024-12-20T00:00:00Z",
       };
 
-      const result = await service.reportDisaster(dto);
+      const result = await service.reportDisaster(dto, "tenant-001");
 
       expect(result.disaster.governorateAr).toBe("تعز");
       expect(result.disaster.typeAr).toBeDefined();
@@ -381,7 +388,7 @@ describe("DisasterService", () => {
         assessmentNotes: "Significant flood damage",
       };
 
-      const result = await service.assessFieldDamage("field-123", dto);
+      const result = await service.assessFieldDamage("field-123", dto, "tenant-001");
 
       expect(result.fieldId).toBe("field-123");
       expect(result.disasterId).toBe("disaster-001");
@@ -403,7 +410,7 @@ describe("DisasterService", () => {
         const result = await service.assessFieldDamage("field-123", {
           disasterId: "disaster-001",
           damagePercentage: percentage,
-        });
+        }, "tenant-001");
 
         expect(result.damageLevel).toBe(expectedLevel);
       }
@@ -413,7 +420,7 @@ describe("DisasterService", () => {
       const result = await service.assessFieldDamage("field-123", {
         disasterId: "disaster-001",
         damagePercentage: 50,
-      });
+      }, "tenant-001");
 
       expect(result.damageLevelAr).toBeDefined();
       expect(typeof result.damageLevelAr).toBe("string");
@@ -424,7 +431,7 @@ describe("DisasterService", () => {
       const result1 = await service.assessFieldDamage("field-123", {
         disasterId: "disaster-001",
         damagePercentage: 25,
-      });
+      }, "tenant-001");
       expect(result1.insuranceEligible).toBe(false);
       expect(result1.insuranceClaimAmount).toBe(0);
 
@@ -433,7 +440,7 @@ describe("DisasterService", () => {
         disasterId: "disaster-001",
         damagePercentage: 50,
         estimatedLossYER: 1000000,
-      });
+      }, "tenant-001");
       expect(result2.insuranceEligible).toBe(true);
       expect(result2.insuranceClaimAmount).toBe(700000); // 70% of loss
     });
@@ -442,7 +449,7 @@ describe("DisasterService", () => {
       const result = await service.assessFieldDamage("field-123", {
         disasterId: "disaster-001",
         damagePercentage: 40,
-      });
+      }, "tenant-001");
 
       expect(result.recommendations).toBeDefined();
       expect(Array.isArray(result.recommendations)).toBe(true);
@@ -453,7 +460,7 @@ describe("DisasterService", () => {
     it("should include timestamp", async () => {
       const result = await service.assessFieldDamage("field-123", {
         disasterId: "disaster-001",
-      });
+      }, "tenant-001");
 
       expect(result.assessedAt).toBeDefined();
       // Should be valid ISO date
@@ -467,7 +474,7 @@ describe("DisasterService", () => {
 
   describe("getFloodRiskMap", () => {
     it("should return flood risk data for governorate", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       expect(result.governorate).toBe("hadramaut");
       expect(result.governorateAr).toBe("حضرموت");
@@ -476,7 +483,7 @@ describe("DisasterService", () => {
     });
 
     it("should include risk zone breakdown", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       const zones = result.riskZones;
       expect(zones.some((z) => z.zone === "high")).toBe(true);
@@ -485,7 +492,7 @@ describe("DisasterService", () => {
     });
 
     it("should include Arabic zone names", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       result.riskZones.forEach((zone) => {
         expect(zone.zoneAr).toBeDefined();
@@ -495,14 +502,14 @@ describe("DisasterService", () => {
     });
 
     it("should include area calculations", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       expect(result.totalAreaHectares).toBeGreaterThan(0);
       expect(result.highRiskAreaHectares).toBeGreaterThan(0);
     });
 
     it("should include recommendations", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       expect(result.recommendations).toBeDefined();
       expect(result.recommendations.length).toBeGreaterThan(0);
@@ -511,7 +518,7 @@ describe("DisasterService", () => {
     });
 
     it("should include data source information", async () => {
-      const result = await service.getFloodRiskMap("hadramaut");
+      const result = await service.getFloodRiskMap("hadramaut", "tenant-001");
 
       expect(result.dataSource).toBeDefined();
       expect(result.dataSourceAr).toBeDefined();
@@ -525,7 +532,7 @@ describe("DisasterService", () => {
 
   describe("getDroughtIndex", () => {
     it("should return drought index for governorate", async () => {
-      const result = await service.getDroughtIndex("marib");
+      const result = await service.getDroughtIndex("marib", "tenant-001");
 
       expect(result.governorate).toBe("marib");
       expect(result.governorateAr).toBe("مأرب");
@@ -534,7 +541,7 @@ describe("DisasterService", () => {
     });
 
     it("should include status and color", async () => {
-      const result = await service.getDroughtIndex("marib");
+      const result = await service.getDroughtIndex("marib", "tenant-001");
 
       expect(result.status).toBeDefined();
       expect(result.statusAr).toBeDefined();
@@ -543,7 +550,7 @@ describe("DisasterService", () => {
     });
 
     it("should include historical comparison", async () => {
-      const result = await service.getDroughtIndex("marib");
+      const result = await service.getDroughtIndex("marib", "tenant-001");
 
       expect(result.historicalComparison).toBeDefined();
       expect(result.historicalComparison.lastMonth).toBeDefined();
@@ -552,7 +559,7 @@ describe("DisasterService", () => {
     });
 
     it("should include forecast", async () => {
-      const result = await service.getDroughtIndex("marib");
+      const result = await service.getDroughtIndex("marib", "tenant-001");
 
       expect(result.forecast).toBeDefined();
       expect(result.forecast.nextMonth).toBeDefined();
@@ -560,7 +567,7 @@ describe("DisasterService", () => {
     });
 
     it("should include data source", async () => {
-      const result = await service.getDroughtIndex("marib");
+      const result = await service.getDroughtIndex("marib", "tenant-001");
 
       expect(result.dataSource).toBeDefined();
       expect(result.dataSourceAr).toBeDefined();
@@ -575,7 +582,7 @@ describe("DisasterService", () => {
   describe("getStatistics", () => {
     it("should return statistics for current year by default", async () => {
       const currentYear = new Date().getFullYear();
-      const result = await service.getStatistics({});
+      const result = await service.getStatistics("tenant-001", {});
 
       expect(result.year).toBe(currentYear);
       expect(result.governorate).toBe("all");
@@ -583,20 +590,20 @@ describe("DisasterService", () => {
     });
 
     it("should filter by year", async () => {
-      const result = await service.getStatistics({ year: 2023 });
+      const result = await service.getStatistics("tenant-001", { year: 2023 });
 
       expect(result.year).toBe(2023);
     });
 
     it("should filter by governorate", async () => {
-      const result = await service.getStatistics({ governorate: "sanaa" });
+      const result = await service.getStatistics("tenant-001", { governorate: "sanaa" });
 
       expect(result.governorate).toBe("sanaa");
       expect(result.governorateAr).toBe("صنعاء");
     });
 
     it("should include summary statistics", async () => {
-      const result = await service.getStatistics({});
+      const result = await service.getStatistics("tenant-001", {});
 
       expect(result.summary).toBeDefined();
       expect(result.summary.totalDisasters).toBeDefined();
@@ -609,7 +616,7 @@ describe("DisasterService", () => {
     });
 
     it("should include breakdown by type", async () => {
-      const result = await service.getStatistics({});
+      const result = await service.getStatistics("tenant-001", {});
 
       expect(result.byType).toBeDefined();
       expect(Array.isArray(result.byType)).toBe(true);
@@ -622,7 +629,7 @@ describe("DisasterService", () => {
     });
 
     it("should include breakdown by month", async () => {
-      const result = await service.getStatistics({});
+      const result = await service.getStatistics("tenant-001", {});
 
       expect(result.byMonth).toBeDefined();
       expect(result.byMonth.length).toBe(12);
@@ -635,7 +642,7 @@ describe("DisasterService", () => {
     });
 
     it("should include trend information", async () => {
-      const result = await service.getStatistics({});
+      const result = await service.getStatistics("tenant-001", {});
 
       expect(result.trend).toBeDefined();
       expect(result.trendAr).toBeDefined();
@@ -659,7 +666,7 @@ describe("DisasterService", () => {
       ];
 
       for (const { en, ar } of governorates) {
-        const result = await service.getFloodRiskMap(en);
+        const result = await service.getFloodRiskMap(en, "tenant-001");
         expect(result.governorateAr).toBe(ar);
       }
     });

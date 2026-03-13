@@ -49,11 +49,15 @@ log_error() {
     echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
-# Install postgresql-client — REQUIRED for schema readiness check in wait_for_postgres()
-# Without psql, we cannot verify that init scripts (02-pgbouncer-user.sql) have completed,
-# which leads to auth_query failures when PgBouncer starts before the pgbouncer schema exists.
-# Retries with backoff to handle transient network/DNS issues in Alpine environments.
-if ! command -v psql >/dev/null 2>&1; then
+# Install postgresql-client for schema readiness check in wait_for_postgres().
+# Without psql, we fall back to a simple TCP port check + delay, which is less
+# reliable but avoids hard network dependencies that break offline/locked-down
+# environments. Ideally, psql should be baked into a custom PgBouncer image.
+HAVE_PSQL=false
+if command -v psql >/dev/null 2>&1; then
+    HAVE_PSQL=true
+    log_info "psql already available: $(command -v psql)"
+else
     _psql_installed=false
     for _psql_wait in 2 5 10; do
         log_info "Installing postgresql-client (attempt with ${_psql_wait}s timeout)..."
@@ -64,14 +68,14 @@ if ! command -v psql >/dev/null 2>&1; then
         fi
         sleep 1
     done
-    if [ "$_psql_installed" = false ]; then
-        log_error "FATAL: Cannot install postgresql-client. PgBouncer requires psql to verify"
-        log_error "that init scripts have completed (pgbouncer schema exists). Without this check,"
-        log_error "PgBouncer may start before auth_query schema is ready. Aborting."
-        exit 1
+    if [ "$_psql_installed" = true ]; then
+        HAVE_PSQL=true
+        log_info "psql installed: $(command -v psql)"
+    else
+        log_warn "Could not install postgresql-client. Will use TCP-only readiness check"
+        log_warn "with extended delay as fallback. Consider baking psql into the image."
     fi
 fi
-log_info "psql available: $(command -v psql)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Wait for PostgreSQL to be FULLY ready (init scripts completed)
@@ -105,24 +109,33 @@ wait_for_postgres() {
     # The pgbouncer schema is created by 02-pgbouncer-user.sql (one of the last init scripts)
     _attempt=1
     _max_init_attempts=30
-    log_info "Waiting for PostgreSQL init scripts to complete (checking pgbouncer schema)..."
 
-    while [ "$_attempt" -le "$_max_init_attempts" ]; do
-        # psql is guaranteed available (installed at startup with hard failure)
-        _schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
-            -t -A -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" 2>/dev/null || echo "f")
-        if [ "$_schema_exists" = "t" ]; then
-            log_info "PostgreSQL init scripts completed (pgbouncer schema exists)"
-            return 0
-        fi
+    if [ "$HAVE_PSQL" = true ]; then
+        log_info "Waiting for PostgreSQL init scripts to complete (checking pgbouncer schema)..."
 
-        log_info "Init scripts still running ($_attempt/$_max_init_attempts), waiting..."
-        sleep 3
-        _attempt=$((_attempt + 1))
-    done
+        while [ "$_attempt" -le "$_max_init_attempts" ]; do
+            _schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+                -t -A -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" 2>/dev/null || echo "f")
+            if [ "$_schema_exists" = "t" ]; then
+                log_info "PostgreSQL init scripts completed (pgbouncer schema exists)"
+                return 0
+            fi
 
-    log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
-    return 1
+            log_info "Init scripts still running ($_attempt/$_max_init_attempts), waiting..."
+            sleep 3
+            _attempt=$((_attempt + 1))
+        done
+
+        log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
+        return 1
+    else
+        # Fallback: psql not available, use a fixed delay after port is open
+        # to allow init scripts time to complete
+        log_warn "psql not available — using fixed 15s delay for init script completion"
+        sleep 15
+        log_info "Proceeding without schema verification (psql unavailable)"
+        return 0
+    fi
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

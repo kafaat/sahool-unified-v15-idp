@@ -20,7 +20,7 @@ import { UserStatus } from "../utils/validation";
 
 describe("AuthService", () => {
   let service: AuthService;
-  let prismaService: jest.Mocked<PrismaService>;
+  let prismaService: any;
   let jwtService: jest.Mocked<JwtService>;
   let revocationStore: jest.Mocked<RedisTokenRevocationStore>;
 

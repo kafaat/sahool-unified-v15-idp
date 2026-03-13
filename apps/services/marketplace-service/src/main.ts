@@ -18,13 +18,11 @@ import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
-// Prevent unhandled Redis/NATS errors from crashing the process
+// Log unhandled rejections without suppressing them.
+// Redis/NATS connection errors should be handled at the source (module-level
+// error listeners) rather than globally swallowed by substring matching, which
+// can hide legitimate bugs.
 process.on("unhandledRejection", (reason) => {
-  const msg = reason instanceof Error ? reason.message : String(reason);
-  if (msg.includes("SocketClosedUnexpectedly") || msg.includes("ECONNREFUSED")) {
-    console.warn(`[marketplace-service] Suppressed connection error: ${msg}`);
-    return;
-  }
   console.error("[marketplace-service] Unhandled rejection:", reason);
 });
 

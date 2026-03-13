@@ -11,11 +11,38 @@ import {
   DisasterType,
   Severity,
 } from "./disaster.dto";
-import {
-  DisasterType as PrismaDisasterType,
-  DisasterSeverity as PrismaSeverity,
-  DisasterStatus as PrismaDisasterStatus,
-} from "@prisma/client";
+// Prisma enum values as string constants (matches schema.prisma definitions)
+// Using local constants instead of generated @prisma/client to avoid build dependency
+const PrismaDisasterType = {
+  flood: "flood",
+  drought: "drought",
+  frost: "frost",
+  hail: "hail",
+  storm: "storm",
+  pest: "pest",
+  disease: "disease",
+  locust: "locust",
+  wildfire: "wildfire",
+} as const;
+type PrismaDisasterType = (typeof PrismaDisasterType)[keyof typeof PrismaDisasterType];
+
+const PrismaSeverity = {
+  low: "low",
+  medium: "medium",
+  high: "high",
+  critical: "critical",
+} as const;
+type PrismaSeverity = (typeof PrismaSeverity)[keyof typeof PrismaSeverity];
+
+const PrismaDisasterStatus = {
+  reported: "reported",
+  verified: "verified",
+  active: "active",
+  monitoring: "monitoring",
+  resolved: "resolved",
+  archived: "archived",
+} as const;
+type PrismaDisasterStatus = (typeof PrismaDisasterStatus)[keyof typeof PrismaDisasterStatus];
 
 // Governorate translations
 const GOVERNORATE_AR: Record<string, string> = {

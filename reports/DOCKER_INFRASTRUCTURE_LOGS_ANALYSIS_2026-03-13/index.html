@@ -1,0 +1,1844 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Docker Infrastructure Logs Analysis Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-infrastructure-logs-analysis-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker Infrastructure Logs Analysis Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="docker-infrastructure-logs-analysis-report">Docker Infrastructure Logs Analysis Report<a class="headerlink" href="#docker-infrastructure-logs-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-03-13
+<strong>Services Analyzed:</strong> PostgreSQL, PgBouncer, Kong
+<strong>Severity Scale:</strong> CRITICAL &gt; HIGH &gt; MEDIUM &gt; LOW</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Analysis of <code>docker compose logs postgres pgbouncer kong</code> reveals <strong>4 critical issues</strong>, <strong>5 high-severity issues</strong>, and several medium/low findings across the three infrastructure services. The platform starts successfully but with degraded security and missing database objects.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Critical</th>
+<th>High</th>
+<th>Medium</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL</td>
+<td>Running (with init errors)</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>PgBouncer</td>
+<td>Running (degraded auth)</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Kong</td>
+<td>Running (startup errors)</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-postgresql-sahool-postgres">1. PostgreSQL (sahool-postgres)<a class="headerlink" href="#1-postgresql-sahool-postgres" title="Permanent link">&para;</a></h2>
+<h3 id="11-successful-operations">1.1 Successful Operations<a class="headerlink" href="#11-successful-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>PostgreSQL 16.4 initialized and running</li>
+<li><code>00-init-sahool.sql</code> completed: 12 tables, 40 indexes, 856 functions</li>
+<li>Extensions loaded: PostGIS, pgcrypto, uuid-ossp, pg_trgm, btree_gist</li>
+<li>Demo data seeded: tenants (1), crops (10), equipment (3), fields (3), alerts (2)</li>
+<li>WAL recovery completed successfully after unclean shutdown</li>
+</ul>
+<h3 id="12-critical-01-research-expansionsql-fails-on-missing-users-table">1.2 CRITICAL: <code>01-research-expansion.sql</code> Fails on Missing <code>users</code> Table<a class="headerlink" href="#12-critical-01-research-expansionsql-fails-on-missing-users-table" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code>sahool-postgres | 2026-03-13 19:39:16.359 UTC [64] ERROR: relation &quot;users&quot; does not exist
+sahool-postgres | STATEMENT: CREATE TABLE IF NOT EXISTS research_sites (
+    ...
+    contact_person UUID REFERENCES users(id),
+    ...
+)
+</code></pre></div>
+
+<p><strong>Root Cause:</strong>
+The <code>users</code> table is managed by Prisma ORM in <code>user-service</code> and created only when that NestJS service runs <code>prisma migrate deploy</code> on startup. However, <code>01-research-expansion.sql</code> executes during Docker init (before any NestJS service starts) and contains 12+ foreign key references to <code>users(id)</code>.</p>
+<p><strong>Affected References in <code>01-research-expansion.sql</code>:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Table</th>
+<th>Column</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>39</td>
+<td><code>research_sites</code></td>
+<td><code>contact_person</code></td>
+</tr>
+<tr>
+<td>70</td>
+<td><code>protocol_templates</code></td>
+<td><code>created_by</code></td>
+</tr>
+<tr>
+<td>124</td>
+<td><code>sample_batches</code></td>
+<td><code>created_by</code></td>
+</tr>
+<tr>
+<td>201</td>
+<td><code>sample_analysis_results</code></td>
+<td><code>analyzed_by</code></td>
+</tr>
+<tr>
+<td>203</td>
+<td><code>sample_analysis_results</code></td>
+<td><code>verified_by</code></td>
+</tr>
+<tr>
+<td>230</td>
+<td><code>research_data_points</code></td>
+<td><code>recorded_by</code></td>
+</tr>
+<tr>
+<td>254</td>
+<td><code>experiment_locks</code></td>
+<td><code>locked_by</code></td>
+</tr>
+<tr>
+<td>282</td>
+<td><code>research_reports</code></td>
+<td><code>reviewed_by</code></td>
+</tr>
+<tr>
+<td>284</td>
+<td><code>research_reports</code></td>
+<td><code>approved_by</code></td>
+</tr>
+<tr>
+<td>291</td>
+<td><code>research_reports</code></td>
+<td><code>created_by</code></td>
+</tr>
+<tr>
+<td>321</td>
+<td><code>statistical_analyses</code></td>
+<td><code>performed_by</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Additionally Missing Enums:</strong>
+- <code>sample_type</code> (used line 170)
+- <code>experiment_status</code> (used line 257)
+- <code>protocol_status</code> (used line 64)
+- <code>governance_level</code> (used line 64)</p>
+<p><strong>Impact:</strong> All research-related tables fail to create. The <code>research-core</code> service will have incomplete schema.</p>
+<p><strong>Fix Options:</strong>
+1. <strong>Option A (Recommended):</strong> Remove FK constraints from init script, add them via a post-startup migration after <code>user-service</code> creates the <code>users</code> table
+2. <strong>Option B:</strong> Create a minimal <code>users</code> table stub in <code>00-init-sahool.sql</code> with just <code>id UUID PRIMARY KEY</code> that Prisma can later alter
+3. <strong>Option C:</strong> Move research tables entirely to Prisma migrations in <code>research-core</code> service</p>
+<p><strong>File:</strong> <code>infrastructure/core/postgres/init/01-research-expansion.sql</code></p>
+<hr />
+<h3 id="13-high-pgbouncer-auth_query-schema-missing-at-first-boot">1.3 HIGH: PgBouncer <code>auth_query</code> Schema Missing at First Boot<a class="headerlink" href="#13-high-pgbouncer-auth_query-schema-missing-at-first-boot" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code>sahool-postgres | 2026-03-13 19:39:25.908 UTC [44] ERROR: schema &quot;pgbouncer&quot; does not exist at character 20
+sahool-postgres | STATEMENT: SELECT passwd FROM pgbouncer.get_auth(&#39;sahool&#39;)
+</code></pre></div>
+
+<p><strong>Root Cause:</strong>
+PgBouncer starts and attempts <code>auth_query</code> at <code>19:39:25</code>, but the <code>pgbouncer</code> schema is created by <code>02-pgbouncer-user.sql</code> which hasn't executed yet at that point. The init scripts are still running when PgBouncer connects.</p>
+<p><strong>Timeline:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mi">14</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">accepting</span><span class="w"> </span><span class="n">connections</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mi">22</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="n">open</span><span class="o">,</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">connecting</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mi">25</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">executes</span><span class="w"> </span><span class="n">auth_query</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">FAILS</span><span class="w"> </span><span class="o">(</span><span class="n">schema</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">yet</span><span class="w"> </span><span class="n">created</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mi">25</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">falls</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">plaintext</span><span class="w"> </span><span class="n">userlist</span><span class="o">.</span><span class="na">txt</span>
+<span class="w">           </span><span class="o">(</span><span class="n">later</span><span class="o">)</span><span class="w"> </span><span class="mi">02</span><span class="o">-</span><span class="n">pgbouncer</span><span class="o">-</span><span class="n">user</span><span class="o">.</span><span class="na">sql</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">schema</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> PgBouncer uses plaintext password fallback instead of SCRAM-SHA-256 <code>auth_query</code>. After restart, <code>auth_query</code> would work correctly.</p>
+<p><strong>Fix:</strong> Add <code>start_period</code> or readiness dependency so PgBouncer waits for init scripts to complete, not just for the port to open.</p>
+<hr />
+<h3 id="14-high-missing-calibration_run-table-query">1.4 HIGH: Missing <code>calibration_run</code> Table Query<a class="headerlink" href="#14-high-missing-calibration_run-table-query" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">sahool</span><span class="o">-</span><span class="nx">postgres</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">2026</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">13</span><span class="w"> </span><span class="mi">19</span><span class="p">:</span><span class="mi">39</span><span class="p">:</span><span class="m m-Double">51.981</span><span class="w"> </span><span class="nx">UTC</span><span class="w"> </span><span class="p">[</span><span class="mi">62</span><span class="p">]</span><span class="w"> </span><span class="nx">ERROR</span><span class="p">:</span><span class="w"> </span><span class="nx">relation</span><span class="w"> </span><span class="s">&quot;calibration_run&quot;</span><span class="w"> </span><span class="nx">does</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">exist</span>
+<span class="nx">sahool</span><span class="o">-</span><span class="nx">postgres</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">STATEMENT</span><span class="p">:</span>
+<span class="w">    </span><span class="nx">SELECT</span><span class="w"> </span><span class="nx">id</span><span class="o">::</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="nx">field_id</span><span class="p">,</span><span class="w"> </span><span class="nx">season_id</span><span class="p">,</span><span class="w"> </span><span class="nx">crop_type</span><span class="p">,</span>
+<span class="w">           </span><span class="nx">model_name</span><span class="p">,</span><span class="w"> </span><span class="nx">model_version</span><span class="p">,</span><span class="w"> </span><span class="nx">method</span><span class="p">,</span><span class="w"> </span><span class="nx">dataset_fingerprint</span>
+<span class="w">    </span><span class="nx">FROM</span><span class="w"> </span><span class="nx">calibration_run</span>
+<span class="w">    </span><span class="nx">WHERE</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">queued</span><span class="err">&#39;</span>
+<span class="w">    </span><span class="nx">ORDER</span><span class="w"> </span><span class="nx">BY</span><span class="w"> </span><span class="nx">started_at</span><span class="w"> </span><span class="nx">ASC</span>
+<span class="w">    </span><span class="nx">LIMIT</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span>
+</code></pre></div>
+
+<p><strong>Root Cause:</strong>
+The <code>calibration_run</code> table is defined in <code>07-calibration-tables.sql</code>. However, the service querying it connects before all init scripts finish. This is the same timing issue as the PgBouncer auth_query problem.</p>
+<p><strong>Impact:</strong> Calibration service cannot find queued jobs until restart.</p>
+<hr />
+<h3 id="15-medium-unclean-shutdown-wal-recovery">1.5 MEDIUM: Unclean Shutdown / WAL Recovery<a class="headerlink" href="#15-medium-unclean-shutdown-wal-recovery" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code>sahool-postgres | database system was not properly shut down; automatic recovery in progress
+sahool-postgres | redo starts at 0/14E6AA8
+sahool-postgres | invalid magic number 0000 in WAL segment 000000010000000000000002
+sahool-postgres | redo done at 0/23C1FB8
+sahool-postgres | checkpoint complete: wrote 2133 buffers (13.0%)
+</code></pre></div>
+
+<p><strong>Analysis:</strong> PostgreSQL detected an unclean shutdown and performed automatic WAL recovery. The "invalid magic number" in the WAL segment is expected at the end of replay (marks the boundary of valid WAL data). Recovery completed successfully with 2133 buffers written.</p>
+<p><strong>Impact:</strong> None after recovery. However, repeated unclean shutdowns indicate <code>docker compose down</code> may not be waiting for PostgreSQL to finish its checkpoint.</p>
+<p><strong>Fix:</strong> Ensure <code>stop_grace_period: 30s</code> is set for the postgres service in docker-compose.yml.</p>
+<hr />
+<h2 id="2-pgbouncer-sahool-pgbouncer">2. PgBouncer (sahool-pgbouncer)<a class="headerlink" href="#2-pgbouncer-sahool-pgbouncer" title="Permanent link">&para;</a></h2>
+<h3 id="21-successful-operations">2.1 Successful Operations<a class="headerlink" href="#21-successful-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>PgBouncer 1.23.1 started on port 6432</li>
+<li>Kernel file descriptor limit: 1,048,576 (sufficient)</li>
+<li>Max client connections: 800</li>
+<li>Established ~11 server connections to PostgreSQL</li>
+<li>Stats reporting: 5 queries/s, 774us wait time (healthy)</li>
+</ul>
+<h3 id="22-critical-plaintext-password-fallback">2.2 CRITICAL: Plaintext Password Fallback<a class="headerlink" href="#22-critical-plaintext-password-fallback" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">sahool</span><span class="o">-</span><span class="n">pgbouncer</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="o">[</span><span class="n">WARN</span><span class="o">]</span><span class="w"> </span><span class="mi">2026</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">13</span><span class="w"> </span><span class="mi">19</span><span class="err">:</span><span class="mi">39</span><span class="err">:</span><span class="mi">25</span><span class="w"> </span><span class="k">Using</span><span class="w"> </span><span class="n">plaintext</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">auth_user</span><span class="w"> </span><span class="p">(</span><span class="n">SCRAM</span><span class="w"> </span><span class="n">hash</span><span class="w"> </span><span class="n">unavailable</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Root Cause:</strong>
+The entrypoint script attempts to fetch SCRAM-SHA-256 hash from PostgreSQL via <code>pgbouncer.get_auth()</code>, but the function doesn't exist yet (see issue 1.3). It falls back to storing the plaintext password in <code>userlist.txt</code>.</p>
+<p><strong>Security Impact:</strong> Passwords are stored in plaintext on disk at <code>/etc/pgbouncer/runtime/userlist.txt</code>. Even though the file is <code>chmod 600</code>, this is a security risk.</p>
+<p><strong>Configuration Reference:</strong>
+- Auth type: <code>scram-sha-256</code> (in <code>pgbouncer.ini</code> line 60)
+- Auth query: <code>SELECT usename, passwd FROM pgbouncer.get_auth($1)</code> (line 64)
+- Fallback: Plaintext in <code>userlist.txt</code></p>
+<p><strong>Fix:</strong> Ensure PgBouncer starts only after init scripts complete, or restart PgBouncer after init.</p>
+<hr />
+<h3 id="23-critical-timestamp-overflow-in-connection-ages">2.3 CRITICAL: Timestamp Overflow in Connection Ages<a class="headerlink" href="#23-critical-timestamp-overflow-in-connection-ages" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">sahool</span><span class="o">-</span><span class="n">pgbouncer</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">LOG</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="p">...</span><span class="o">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">/</span><span class="n">sahool</span><span class="mf">@172.18.0.33</span><span class="o">:</span><span class="mi">40476</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="n">because</span><span class="o">:</span><span class="w"> </span><span class="n">client_idle_timeout</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">18446744073707</span><span class="n">s</span><span class="p">)</span>
+<span class="n">sahool</span><span class="o">-</span><span class="n">pgbouncer</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">LOG</span><span class="w"> </span><span class="n">S</span><span class="o">-</span><span class="p">...</span><span class="o">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">/</span><span class="n">sahool</span><span class="mf">@172.18.0.8</span><span class="o">:</span><span class="mi">5432</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="n">because</span><span class="o">:</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">lifetime</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">18446744073704</span><span class="n">s</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong>
+The value <code>18446744073707</code> is approximately <code>2^64 - 5</code> seconds, which is a classic <strong>unsigned integer underflow</strong>. This happens when:
+1. A timestamp calculation results in a negative value
+2. The negative value is interpreted as an unsigned 64-bit integer</p>
+<p><strong>Possible Causes:</strong>
+- System clock skew between containers
+- PgBouncer's internal timer wraps around during startup
+- Connection established before PgBouncer's internal clock initializes</p>
+<p><strong>Impact:</strong> Connections are closed prematurely with incorrect age values. The <code>client_idle_timeout</code> (900s) triggers incorrectly because PgBouncer calculates a massive positive age instead of the actual connection duration.</p>
+<p><strong>Affected Connections:</strong> ~30 connections from various services (IPs: 172.18.0.20-55) were terminated with this overflow.</p>
+<p><strong>Fix Options:</strong>
+1. Verify Docker host time synchronization (<code>timedatectl</code> or NTP)
+2. Add <code>--privileged</code> or <code>SYS_TIME</code> capability if time sync is needed
+3. Consider upgrading PgBouncer if this is a known bug in 1.23.1</p>
+<hr />
+<h3 id="24-high-all-connections-without-tls">2.4 HIGH: All Connections Without TLS<a class="headerlink" href="#24-high-all-connections-without-tls" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong>
+Every connection shows <code>tls=no</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sahool</span><span class="o">-</span><span class="n">pgbouncer</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">LOG</span><span class="w"> </span><span class="n">C</span><span class="o">-</span><span class="p">...</span><span class="o">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">/</span><span class="n">sahool</span><span class="mf">@172.18.0.41</span><span class="o">:</span><span class="mi">38030</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="o">:</span><span class="w"> </span><span class="n">db</span><span class="o">=</span><span class="n">sahool</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="n">sahool</span><span class="w"> </span><span class="n">tls</span><span class="o">=</span><span class="n">no</span>
+</code></pre></div>
+
+<p><strong>Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># infrastructure/core/pgbouncer/pgbouncer.ini</span>
+<span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+<span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> All database traffic between microservices and PgBouncer, and between PgBouncer and PostgreSQL, is unencrypted. Acceptable for development only.</p>
+<p><strong>Fix for Production:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">require</span>
+<span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">require</span>
+</code></pre></div>
+
+<hr />
+<h3 id="25-medium-rapid-connectdisconnect-from-service-17218051">2.5 MEDIUM: Rapid Connect/Disconnect from Service 172.18.0.51<a class="headerlink" href="#25-medium-rapid-connectdisconnect-from-service-17218051" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.139</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59872</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.143</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59874</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.247</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59878</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.370</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59890</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.590</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59906</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.681</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59914</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+<span class="mi">19</span><span class="o">:</span><span class="mi">39</span><span class="o">:</span><span class="mf">54.778</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">(</span><span class="mf">172.18</span><span class="o">.</span><span class="mf">0.51</span><span class="o">:</span><span class="mi">59924</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">closing</span><span class="w"> </span><span class="o">(</span><span class="n">client</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">request</span><span class="o">)</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong> A service at <code>172.18.0.51</code> connects 7 times within 640ms and disconnects immediately each time. This pattern suggests:
+- Health check probes (connect → query → disconnect)
+- OR a service failing to run migrations and retrying rapidly</p>
+<p><strong>Impact:</strong> Low. Connections are short-lived and don't accumulate.</p>
+<hr />
+<h2 id="3-kong-sahool-kong">3. Kong (sahool-kong)<a class="headerlink" href="#3-kong-sahool-kong" title="Permanent link">&para;</a></h2>
+<h3 id="31-successful-operations">3.1 Successful Operations<a class="headerlink" href="#31-successful-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>OpenResty/1.21.4.1 (Kong 3.5-alpine) running</li>
+<li>24 worker processes started (PIDs 1260-1283)</li>
+<li>Declarative config loaded from <code>/kong/declarative/kong.yml</code></li>
+<li>Event method: epoll (optimal for Linux)</li>
+</ul>
+<h3 id="32-critical-startup-timeout-errors-across-all-workers">3.2 CRITICAL: Startup Timeout Errors Across All Workers<a class="headerlink" href="#32-critical-startup-timeout-errors-across-all-workers" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1283</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">26</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">connect</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">receive</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="nl">header</span><span class="p">:</span><span class="w"> </span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1282</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">30</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">connect</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1281</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">34</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">connect</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1263</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">38</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">connect</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1278</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">551</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1279</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">563</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1280</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">665</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1277</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">1048</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1274</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">1196</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">worker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">138</span><span class="err">:</span><span class="w"> </span><span class="n">communicate</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="p">...</span><span class="n">timeout</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong> 12 timeout errors across 9 different worker processes during startup. The <code>worker.lua:138 communicate()</code> function handles inter-worker communication for declarative config synchronization. The timeouts occur because:</p>
+<ol>
+<li>All 24 workers start simultaneously</li>
+<li>Each worker tries to load the declarative config from disk</li>
+<li>Worker #1263 (the "config worker") loads <code>kong.yml</code> and purges cache</li>
+<li>Other workers wait for config broadcast, but the 24 workers create contention</li>
+<li>Some workers timeout waiting for the config event</li>
+</ol>
+<p><strong>Evidence of Successful Recovery:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">notice</span><span class="o">]</span><span class="w"> </span><span class="mi">1263</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">3</span><span class="w"> </span><span class="o">[</span><span class="n">kong</span><span class="o">]</span><span class="w"> </span><span class="n">init</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">523</span><span class="w"> </span><span class="n">declarative</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">loaded</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="o">/</span><span class="n">kong</span><span class="o">/</span><span class="n">declarative</span><span class="o">/</span><span class="n">kong</span><span class="p">.</span><span class="n">yml</span>
+</code></pre></div>
+
+<p>Worker 1263 successfully loaded the config. The other workers would eventually receive it via the event system.</p>
+<p><strong>Impact:</strong> Temporary - requests during the first ~15 seconds of startup may fail or route incorrectly. After config propagation completes, all workers function normally.</p>
+<p><strong>Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Reduce worker count if not needed</span>
+<span class="nt">KONG_NGINX_WORKER_PROCESSES</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">  </span><span class="c1"># Instead of &#39;auto&#39; (24 on this host)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="33-high-event-broker-connection-failures">3.3 HIGH: Event Broker Connection Failures<a class="headerlink" href="#33-high-event-broker-connection-failures" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1260</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">3116</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">111</span><span class="err">:</span><span class="w"> </span><span class="n">run</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">init</span><span class="w"> </span><span class="nl">socket</span><span class="p">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">flush</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="nl">header</span><span class="p">:</span><span class="w"> </span><span class="n">nginx</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="k">filter</span><span class="w"> </span><span class="n">error</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1260</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">3109</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">208</span><span class="err">:</span><span class="w"> </span><span class="n">run</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="n">broker</span><span class="w"> </span><span class="nl">failed</span><span class="p">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">receive</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">header</span><span class="w"> </span><span class="nl">bytes</span><span class="p">:</span><span class="w"> </span><span class="k">connection</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">peer</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="mi">1260</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">3112</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">184</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="nl">event</span><span class="p">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="nl">frame</span><span class="p">:</span><span class="w"> </span><span class="n">broken</span><span class="w"> </span><span class="n">pipe</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong> The event broker (worker #1260, the master event dispatcher) fails to communicate with other workers. Three distinct error types:</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Count</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nginx output filter error</code></td>
+<td>4</td>
+<td>Worker closed connection before response sent</td>
+</tr>
+<tr>
+<td><code>connection reset by peer</code></td>
+<td>5</td>
+<td>Worker crashed or restarted during communication</td>
+</tr>
+<tr>
+<td><code>broken pipe</code></td>
+<td>1</td>
+<td>Attempted write to closed connection</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Root Cause:</strong> These errors are cascading from the config loading timeouts. When workers timeout on config loading, they restart their event connections, causing resets for the broker.</p>
+<p><strong>Impact:</strong> Temporary. Self-resolving after startup stabilization (~15-20s).</p>
+<hr />
+<h3 id="34-high-exponential-backoff-sleep-flooding">3.4 HIGH: Exponential Backoff Sleep Flooding<a class="headerlink" href="#34-high-exponential-backoff-sleep-flooding" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence (sample):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">notice</span><span class="o">]</span><span class="w"> </span><span class="mi">1273</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">8</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">globalpatches</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">73</span><span class="err">:</span><span class="w"> </span><span class="n">sleep</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">blocking</span><span class="w"> </span><span class="s1">&#39;sleep&#39;</span><span class="w"> </span><span class="p">(</span><span class="mf">0.001</span><span class="w"> </span><span class="n">seconds</span><span class="p">)</span>
+<span class="o">[</span><span class="n">notice</span><span class="o">]</span><span class="w"> </span><span class="mi">1273</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">8</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">globalpatches</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">73</span><span class="err">:</span><span class="w"> </span><span class="n">sleep</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">blocking</span><span class="w"> </span><span class="s1">&#39;sleep&#39;</span><span class="w"> </span><span class="p">(</span><span class="mf">0.002</span><span class="w"> </span><span class="n">seconds</span><span class="p">)</span>
+<span class="o">[</span><span class="n">notice</span><span class="o">]</span><span class="w"> </span><span class="mi">1273</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">8</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">globalpatches</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">73</span><span class="err">:</span><span class="w"> </span><span class="n">sleep</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">blocking</span><span class="w"> </span><span class="s1">&#39;sleep&#39;</span><span class="w"> </span><span class="p">(</span><span class="mf">0.004</span><span class="w"> </span><span class="n">seconds</span><span class="p">)</span>
+<span class="p">...</span>
+<span class="o">[</span><span class="n">notice</span><span class="o">]</span><span class="w"> </span><span class="mi">1273</span><span class="n">#0</span><span class="err">:</span><span class="w"> </span><span class="o">*</span><span class="mi">8</span><span class="w"> </span><span class="o">[</span><span class="n">lua</span><span class="o">]</span><span class="w"> </span><span class="n">globalpatches</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">73</span><span class="err">:</span><span class="w"> </span><span class="n">sleep</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">blocking</span><span class="w"> </span><span class="s1">&#39;sleep&#39;</span><span class="w"> </span><span class="p">(</span><span class="mf">0.5</span><span class="w"> </span><span class="n">seconds</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong> Each of the 24 workers performs exponential backoff sleep (0.001s → 0.002s → 0.004s → ... → 0.5s) while waiting for the declarative config to load. This generates <strong>200+ log entries</strong> per startup and indicates workers are blocking during initialization.</p>
+<p><strong>Impact:</strong> Log noise and delayed startup. Each worker blocks for up to ~1 second total (sum of geometric series).</p>
+<p><strong>Fix:</strong> Reduce <code>log_level</code> for <code>notice</code> messages or reduce worker count.</p>
+<hr />
+<h3 id="35-medium-non-root-user-warning">3.5 MEDIUM: Non-Root User Warning<a class="headerlink" href="#35-medium-non-root-user-warning" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">warn</span><span class="o">]</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="ss">&quot;user&quot;</span><span class="w"> </span><span class="n">directive</span><span class="w"> </span><span class="n">makes</span><span class="w"> </span><span class="n">sense</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="n">process</span><span class="w"> </span><span class="n">runs</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">super</span><span class="o">-</span><span class="k">user</span><span class="w"> </span><span class="k">privileges</span>
+</code></pre></div>
+
+<p><strong>Analysis:</strong> Kong's nginx.conf contains a <code>user</code> directive, but the container runs as non-root. This is expected behavior in Docker and harmless.</p>
+<hr />
+<h2 id="4-cross-service-timing-issues">4. Cross-Service Timing Issues<a class="headerlink" href="#4-cross-service-timing-issues" title="Permanent link">&para;</a></h2>
+<p>The root cause of multiple issues is a <strong>startup race condition</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">  </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="n">starts</span><span class="p">,</span><span class="w"> </span><span class="n">begins</span><span class="w"> </span><span class="n">init</span><span class="w"> </span><span class="n">scripts</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">  </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="n">starts</span><span class="p">,</span><span class="w"> </span><span class="n">waits</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mi">5432</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">  </span><span class="n">Kong</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="n">starts</span>
+
+<span class="n">T</span><span class="o">=</span><span class="mf">0.8</span><span class="n">s</span><span class="w">  </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="n">begins</span><span class="w"> </span><span class="n">accepting</span><span class="w"> </span><span class="n">connections</span><span class="w"> </span><span class="p">(</span><span class="n">init</span><span class="w"> </span><span class="n">scripts</span><span class="w"> </span><span class="n">still</span><span class="w"> </span><span class="n">running</span><span class="o">!</span><span class="p">)</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">3.0</span><span class="n">s</span><span class="w">  </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="n">open</span><span class="p">,</span><span class="w"> </span><span class="n">starts</span><span class="w"> </span><span class="n">connecting</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">3.0</span><span class="n">s</span><span class="w">  </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="n">auth_query</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">FAILS</span><span class="w"> </span><span class="p">(</span><span class="mi">02</span><span class="o">-</span><span class="n">pgbouncer</span><span class="o">-</span><span class="n">user</span><span class="o">.</span><span class="n">sql</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">yet</span><span class="w"> </span><span class="n">run</span><span class="p">)</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">3.0</span><span class="n">s</span><span class="w">  </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">falls</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">plaintext</span><span class="w"> </span><span class="n">passwords</span>
+
+<span class="n">T</span><span class="o">=</span><span class="mf">5.0</span><span class="n">s</span><span class="w">  </span><span class="n">Services</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">connecting</span><span class="w"> </span><span class="n">through</span><span class="w"> </span><span class="n">PgBouncer</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">5.0</span><span class="n">s</span><span class="w">  </span><span class="n">Some</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="n">tables</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">yet</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">ERRORS</span>
+
+<span class="n">T</span><span class="o">=</span><span class="mi">10</span><span class="n">s</span><span class="w">   </span><span class="n">Kong</span><span class="w"> </span><span class="n">workers</span><span class="w"> </span><span class="n">loading</span><span class="w"> </span><span class="n">declarative</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">TIMEOUTS</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">workers</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="n">s</span><span class="w">   </span><span class="mi">00</span><span class="o">-</span><span class="n">init</span><span class="o">-</span><span class="n">sahool</span><span class="o">.</span><span class="n">sql</span><span class="w"> </span><span class="n">completes</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">16</span><span class="n">s</span><span class="w">   </span><span class="mi">01</span><span class="o">-</span><span class="n">research</span><span class="o">-</span><span class="n">expansion</span><span class="o">.</span><span class="n">sql</span><span class="w"> </span><span class="n">runs</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">FAILS</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">missing</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="n">table</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">18</span><span class="n">s</span><span class="w">   </span><span class="mi">02</span><span class="o">-</span><span class="n">pgbouncer</span><span class="o">-</span><span class="n">user</span><span class="o">.</span><span class="n">sql</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">pgbouncer</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="p">(</span><span class="n">too</span><span class="w"> </span><span class="n">late</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">boot</span><span class="p">)</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">20</span><span class="n">s</span><span class="w">   </span><span class="n">Remaining</span><span class="w"> </span><span class="n">init</span><span class="w"> </span><span class="n">scripts</span><span class="w"> </span><span class="n">complete</span>
+
+<span class="n">T</span><span class="o">=</span><span class="mi">25</span><span class="n">s</span><span class="w">   </span><span class="n">NestJS</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">Prisma</span><span class="w"> </span><span class="n">migrations</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="w">   </span><span class="n">user</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="p">(</span><span class="n">needed</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">research</span><span class="w"> </span><span class="n">tables</span><span class="p">)</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">35</span><span class="n">s</span><span class="w">   </span><span class="n">Platform</span><span class="w"> </span><span class="n">stabilizes</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-recommendations-summary">5. Recommendations Summary<a class="headerlink" href="#5-recommendations-summary" title="Permanent link">&para;</a></h2>
+<h3 id="critical-fix-immediately">Critical (Fix Immediately)<a class="headerlink" href="#critical-fix-immediately" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td><code>01-research-expansion.sql</code> fails on missing <code>users</code> table</td>
+<td>Remove FK constraints, add via post-migration</td>
+<td><code>infrastructure/core/postgres/init/01-research-expansion.sql</code></td>
+</tr>
+<tr>
+<td>C2</td>
+<td>PgBouncer plaintext password fallback</td>
+<td>Add readiness check for init scripts completion</td>
+<td><code>infrastructure/core/pgbouncer/entrypoint.sh</code></td>
+</tr>
+<tr>
+<td>C3</td>
+<td>Timestamp overflow in PgBouncer connection ages</td>
+<td>Check Docker host time sync, consider PgBouncer upgrade</td>
+<td><code>docker-compose.yml</code> (pgbouncer service)</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>Kong worker timeouts during startup</td>
+<td>Reduce <code>KONG_NGINX_WORKER_PROCESSES</code> from <code>auto</code> to <code>4</code></td>
+<td><code>docker-compose.yml</code> (kong service)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="high-priority">High Priority<a class="headerlink" href="#high-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>PgBouncer auth_query fails at first boot</td>
+<td>Ensure PgBouncer waits for full DB init, not just port</td>
+<td><code>infrastructure/core/pgbouncer/entrypoint.sh</code></td>
+</tr>
+<tr>
+<td>H2</td>
+<td><code>calibration_run</code> table not found by service</td>
+<td>Add service dependency on DB readiness</td>
+<td><code>docker-compose.yml</code></td>
+</tr>
+<tr>
+<td>H3</td>
+<td>All PgBouncer connections without TLS</td>
+<td>Enable TLS for production deployments</td>
+<td><code>infrastructure/core/pgbouncer/pgbouncer.ini</code></td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Kong event broker connection resets</td>
+<td>Reduce worker count, increase startup timeout</td>
+<td><code>docker-compose.yml</code> (kong service)</td>
+</tr>
+<tr>
+<td>H5</td>
+<td>NATS service_started vs service_healthy</td>
+<td>Change all <code>depends_on</code> to <code>service_healthy</code></td>
+<td><code>docker-compose.yml</code> (all services)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-priority">Medium Priority<a class="headerlink" href="#medium-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>Unclean PostgreSQL shutdown</td>
+<td>Set <code>stop_grace_period: 30s</code></td>
+</tr>
+<tr>
+<td>M2</td>
+<td>Kong startup log flooding (200+ notice lines)</td>
+<td>Reduce worker count or adjust log level</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Rapid connect/disconnect from 172.18.0.51</td>
+<td>Investigate service behavior</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>Missing enums in research-expansion.sql</td>
+<td>Add enum definitions before table creation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-service-connection-map-from-pgbouncer-logs">6. Service Connection Map (from PgBouncer logs)<a class="headerlink" href="#6-service-connection-map-from-pgbouncer-logs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>IP Address</th>
+<th>Connections</th>
+<th>First Seen</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>172.18.0.20</td>
+<td>2</td>
+<td>19:39:44</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.23</td>
+<td>3</td>
+<td>19:39:53</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.25</td>
+<td>2</td>
+<td>19:39:52</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.33</td>
+<td>2</td>
+<td>19:39:42</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.34</td>
+<td>2</td>
+<td>19:39:42</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.35</td>
+<td>1</td>
+<td>19:39:51</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.36</td>
+<td>2</td>
+<td>19:39:46</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.38</td>
+<td>2</td>
+<td>19:39:43</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.39</td>
+<td>2</td>
+<td>19:39:49</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.40</td>
+<td>2</td>
+<td>19:39:49</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.41</td>
+<td>2</td>
+<td>19:39:42</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.42</td>
+<td>8</td>
+<td>19:39:52</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.46</td>
+<td>2</td>
+<td>19:39:49</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.47</td>
+<td>2</td>
+<td>19:39:46</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.48</td>
+<td>2</td>
+<td>19:39:51</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.49</td>
+<td>2</td>
+<td>19:39:44</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.50</td>
+<td>1</td>
+<td>19:39:53</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.51</td>
+<td>7</td>
+<td>19:39:53</td>
+<td>rapid reconnect</td>
+</tr>
+<tr>
+<td>172.18.0.55</td>
+<td>1</td>
+<td>19:39:53</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.61</td>
+<td>2</td>
+<td>19:39:41</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.63</td>
+<td>2</td>
+<td>19:39:45</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.65</td>
+<td>2</td>
+<td>19:39:45</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.68</td>
+<td>2</td>
+<td>19:40:23</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.71</td>
+<td>1</td>
+<td>19:40:10</td>
+<td>active</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total unique service IPs:</strong> 24
+<strong>Total connections observed:</strong> ~55
+<strong>Connections terminated by idle_timeout:</strong> ~30 (with timestamp overflow)</p>
+<hr />
+<p><em>Generated: 2026-03-13 | Analyst: Claude Code</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

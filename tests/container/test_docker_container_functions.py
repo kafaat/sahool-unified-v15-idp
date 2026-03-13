@@ -46,6 +46,9 @@ SUPPORTING_CONTAINERS = {
     "mlflow": {"image_pattern": "mlflow"},
     "etcd": {"image_pattern": "etcd"},
     "nats-prometheus-exporter": {"image_pattern": "nats"},
+    "mongo": {"image_pattern": "mongo"},
+    "mongo-init-replica": {"image_pattern": "mongo"},
+    "rocketchat": {"image_pattern": "rocket.chat"},
 }
 
 # All Python/FastAPI service containers expected to be fully functional
@@ -62,6 +65,7 @@ PYTHON_SERVICES = [
     "billing-core",
     "code-fix-agent",
     "code-review-service",
+    "community-service",
     "cooperative-service",
     "copilot-api",
     "crm-service",
@@ -261,10 +265,16 @@ class TestDockerComposeStructure:
         assert "networks" in compose_data
 
     def test_no_duplicate_ports(self, compose_data):
-        """No two services should expose the same host port."""
+        """No two active services should expose the same host port.
+        يجب ألا تستخدم خدمتان نشطتان نفس منفذ المضيف."""
+        deprecated_profiles = {"deprecated", "legacy"}
         host_ports = {}
         conflicts = []
         for svc_name, svc_def in compose_data["services"].items():
+            # Skip deprecated/profiled services that don't run by default
+            svc_profiles = set(svc_def.get("profiles", []))
+            if svc_profiles & deprecated_profiles:
+                continue
             for port_mapping in svc_def.get("ports", []):
                 port_str = str(port_mapping)
                 # Extract host port: "127.0.0.1:8093:8093" -> 8093

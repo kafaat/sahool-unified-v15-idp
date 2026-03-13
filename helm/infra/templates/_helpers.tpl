@@ -124,6 +124,40 @@ Return the Redis secret name
 {{- end }}
 
 {{/*
+Rocket.Chat labels
+*/}}
+{{- define "infra.rocketchat.labels" -}}
+{{ include "infra.labels" . }}
+app.kubernetes.io/component: rocketchat
+{{- end }}
+
+{{/*
+Rocket.Chat selector labels
+*/}}
+{{- define "infra.rocketchat.selectorLabels" -}}
+app.kubernetes.io/name: sahool-rocketchat
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: rocketchat
+{{- end }}
+
+{{/*
+Rocket.Chat MongoDB labels
+*/}}
+{{- define "infra.rocketchat.mongodb.labels" -}}
+{{ include "infra.labels" . }}
+app.kubernetes.io/component: rocketchat-mongodb
+{{- end }}
+
+{{/*
+Rocket.Chat MongoDB selector labels
+*/}}
+{{- define "infra.rocketchat.mongodb.selectorLabels" -}}
+app.kubernetes.io/name: sahool-rocketchat-mongodb
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: rocketchat-mongodb
+{{- end }}
+
+{{/*
 Return the namespace
 */}}
 {{- define "infra.namespace" -}}

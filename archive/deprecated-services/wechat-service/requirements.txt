@@ -1,0 +1,36 @@
+# SAHOOL WeChat Integration Service Dependencies
+# Port: 8133
+
+# Web Framework
+fastapi==0.135.1
+uvicorn[standard]==0.41.0
+
+# Data Validation
+pydantic>=2.10.0,<3.0.0
+email-validator>=2.2.0,<3.0.0
+
+# Async Support
+httpx>=0.27.0,<1.0.0
+aiofiles>=24.0.0,<25.0.0
+
+# NATS Messaging
+nats-py==2.14.0
+
+# Database
+asyncpg>=0.30.0,<1.0.0
+
+# Logging
+structlog>=24.0.0,<25.0.0
+
+# Security
+pyjwt>=2.9.0,<3.0.0
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+
+# Rate Limiting
+slowapi>=0.1.9,<1.0.0
+
+# Caching
+redis>=7.1.0,<8.0.0
+
+# WeChat API (optional - for production)
+# wechatpy>=1.8.18,<2.0.0

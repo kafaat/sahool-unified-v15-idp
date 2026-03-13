@@ -32,6 +32,7 @@ PYTHON_SERVICES: dict[str, int] = {
     "billing-core": 8089,
     "code-fix-agent": 8162,
     "code-review-service": 8102,
+    "community-service": 8133,
     "cooperative-service": 8127,
     "copilot-api": 8088,
     "crm-service": 8131,
@@ -71,7 +72,6 @@ PYTHON_SERVICES: dict[str, int] = {
     "vegetation-analysis-service": 8090,
     "virtual-sensors": 8119,
     "weather-service": 8092,
-    "wechat-service": 8133,
     "whatsapp-bot-service": 8240,
     "ws-gateway": 8081,
     "yolo26-vision-service": 8150,
@@ -100,6 +100,14 @@ NODE_SERVICES: dict[str, int] = {
 # ---------------------------------------------------------------------------
 
 PORTLESS_SERVICES: set[str] = {"agro-rules", "code-review-agent", "demo-data"}
+
+# ---------------------------------------------------------------------------
+# Deprecated / archived services – kept for reference, not started by default
+# ---------------------------------------------------------------------------
+
+DEPRECATED_SERVICES: dict[str, int] = {
+    "wechat-service": 8133,  # replaced by community-service (2026-03-13)
+}
 
 # ---------------------------------------------------------------------------
 # Infrastructure / supporting services (image-based, not built from src)

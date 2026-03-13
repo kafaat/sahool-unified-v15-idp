@@ -511,6 +511,147 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Rocket.Chat Community Platform - منصة المجتمع الزراعي
+  # Self-hosted community messaging for farmers (channels, groups, bots)
+  # Requires MongoDB. Use: docker compose --profile community up -d
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # MongoDB for Rocket.Chat - قاعدة بيانات MongoDB لمنصة المجتمع
+  mongo:
+    profiles:
+      - community
+    image: mongo:6.0
+    container_name: sahool-mongo
+    volumes:
+      - mongo_data:/data/db
+      - mongo_configdb:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-sahool}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # MongoDB Replica Set Initializer - تهيئة مجموعة النسخ المتماثل
+  mongo-init-replica:
+    profiles:
+      - community
+    image: mongo:6.0
+    container_name: sahool-mongo-init-replica
+    depends_on:
+      mongo:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Initializing MongoDB replica set..."
+        mongosh --host mongo:27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --eval '
+          try {
+            rs.status();
+            print("Replica set already initialized");
+          } catch(e) {
+            rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongo:27017" }] });
+            print("Replica set initialized successfully");
+          }
+        '
+        echo "MongoDB replica set ready."
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-sahool}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # Rocket.Chat - Community Messaging Platform
+  # منصة المراسلة المجتمعية للمزارعين
+  rocketchat:
+    profiles:
+      - community
+    image: registry.rocket.chat/rocketchat/rocket.chat:7.5
+    container_name: sahool-rocketchat
+    environment:
+      # MongoDB connection (replica set required for Rocket.Chat)
+      MONGO_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:?MONGO_PASSWORD is required}@mongo:27017/rocketchat?authSource=admin&replicaSet=rs0
+      MONGO_OPLOG_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:?MONGO_PASSWORD is required}@mongo:27017/local?authSource=admin&replicaSet=rs0
+      # Rocket.Chat configuration
+      ROOT_URL: ${ROCKETCHAT_URL:-http://localhost:3100}
+      PORT: "3000"
+      DEPLOY_METHOD: docker
+      DEPLOY_PLATFORM: sahool
+      # Admin auto-setup
+      ADMIN_USERNAME: ${ROCKETCHAT_ADMIN_USER:-rc_admin}
+      ADMIN_PASS: ${ROCKETCHAT_ADMIN_PASSWORD:?ROCKETCHAT_ADMIN_PASSWORD is required}
+      ADMIN_EMAIL: ${ROCKETCHAT_ADMIN_EMAIL:-admin@sahool.io}
+      # Internationalization
+      OVERWRITE_SETTING_Language: ${ROCKETCHAT_LANGUAGE:-ar}
+      OVERWRITE_SETTING_Show_Setup_Wizard: completed
+      # API rate limits
+      OVERWRITE_SETTING_API_Enable_Rate_Limiter: "true"
+      OVERWRITE_SETTING_API_Enable_Rate_Limiter_Limit_Time_Default: "60000"
+      OVERWRITE_SETTING_API_Enable_Rate_Limiter_Limit_Calls_Default: "30"
+      # File upload
+      OVERWRITE_SETTING_FileUpload_MaxFileSize: "10485760"
+      OVERWRITE_SETTING_FileUpload_MediaTypeWhiteList: "image/jpeg,image/png,image/gif,application/pdf,audio/mpeg,audio/ogg,video/mp4"
+      # Registration
+      OVERWRITE_SETTING_Accounts_RegistrationForm: Disabled
+      # SAHOOL branding
+      OVERWRITE_SETTING_Site_Name: "SAHOOL Community | مجتمع سهول"
+      OVERWRITE_SETTING_Layout_Home_Title: "مرحباً بك في مجتمع المزارعين"
+    volumes:
+      - rocketchat_uploads:/app/uploads
+    ports:
+      - "127.0.0.1:3100:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/info"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Ollama - Local LLM Server for Log Analysis
   # خادم نماذج الذكاء الاصطناعي المحلي لتحليل السجلات
   # ─────────────────────────────────────────────────────────────────────────────
@@ -2999,13 +3140,62 @@ services:
     networks:
       - sahool-network
 
-  # WeChat Service - خدمة ويتشات
-  # WeChat integration for farmer communication and engagement
+  # Community Service - خدمة المجتمع الزراعي
+  # Bridges SAHOOL with Rocket.Chat for farmer community messaging
+  community-service:
+    build:
+      context: .
+      dockerfile: apps/services/community-service/Dockerfile
+    container_name: sahool-community-service
+    environment:
+      - PORT=8133
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - ROCKETCHAT_URL=${ROCKETCHAT_INTERNAL_URL:-http://rocketchat:3000}
+      - ROCKETCHAT_ADMIN_USER=${ROCKETCHAT_ADMIN_USER:-rc_admin}
+      - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:?ROCKETCHAT_ADMIN_PASSWORD is required}
+    ports:
+      - "127.0.0.1:8133:8133"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8133/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # WeChat Service (DEPRECATED) - خدمة ويتشات (مُهملة)
+  # Replaced by community-service. Use: docker compose --profile deprecated up
   wechat-service:
     build:
       context: .
       dockerfile: apps/services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
+    profiles:
+      - deprecated
     environment:
       - PORT=8133
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -4415,6 +4605,13 @@ volumes:
     name: sahool-minio-data
   milvus_data:
     name: sahool-milvus-data
+  # Rocket.Chat Community Platform Volumes
+  mongo_data:
+    name: sahool-mongo-data
+  mongo_configdb:
+    name: sahool-mongo-configdb
+  rocketchat_uploads:
+    name: sahool-rocketchat-uploads
   # Vision & Terrain Services Volumes
   yolo26-models:
     name: sahool-yolo26-models

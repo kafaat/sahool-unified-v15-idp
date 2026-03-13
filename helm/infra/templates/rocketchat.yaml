@@ -1,0 +1,255 @@
+{{- if .Values.rocketchat.enabled }}
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# MongoDB Service (for Rocket.Chat)
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Service
+metadata:
+  name: sahool-rocketchat-mongodb
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.rocketchat.mongodb.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None  # Headless service
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: mongodb
+      protocol: TCP
+  selector:
+    {{- include "infra.rocketchat.mongodb.selectorLabels" . | nindent 4 }}
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# MongoDB StatefulSet
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sahool-rocketchat-mongodb
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.rocketchat.mongodb.labels" . | nindent 4 }}
+spec:
+  serviceName: sahool-rocketchat-mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "infra.rocketchat.mongodb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "infra.rocketchat.mongodb.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsNonRoot: true
+      initContainers:
+        - name: init-chmod-data
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 999:999 /data/db
+              chmod 0700 /data/db
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: mongodb
+          image: "{{ .Values.rocketchat.mongodb.image.repository }}:{{ .Values.rocketchat.mongodb.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mongodb
+              containerPort: 27017
+              protocol: TCP
+          args:
+            - mongod
+            - --oplogSize
+            - "128"
+            - --replSet
+            - rs0
+            - --storageEngine
+            - wiredTiger
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rocketchat.mongodb.auth.existingSecret }}
+                  key: {{ .Values.rocketchat.mongodb.auth.secretKeys.rootPasswordKey }}
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mongosh --eval "db.adminCommand('ping')" --quiet
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mongosh --eval "db.adminCommand('ping')" --quiet
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.rocketchat.mongodb.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+  {{- if .Values.rocketchat.mongodb.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "infra.rocketchat.mongodb.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.rocketchat.mongodb.persistence.size | quote }}
+  {{- else }}
+      volumes:
+        - name: data
+          emptyDir: {}
+  {{- end }}
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Rocket.Chat ConfigMap
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sahool-rocketchat-config
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.rocketchat.labels" . | nindent 4 }}
+data:
+  OVERWRITE_SETTING_Language: {{ .Values.rocketchat.settings.language | quote }}
+  OVERWRITE_SETTING_Site_Name: {{ .Values.rocketchat.settings.siteName | quote }}
+  OVERWRITE_SETTING_Accounts_RegistrationForm: {{ .Values.rocketchat.settings.registrationForm | quote }}
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Rocket.Chat Service
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Service
+metadata:
+  name: sahool-rocketchat
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.rocketchat.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "infra.rocketchat.selectorLabels" . | nindent 4 }}
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Rocket.Chat Deployment
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sahool-rocketchat
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.rocketchat.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "infra.rocketchat.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "infra.rocketchat.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 65533
+        runAsUser: 65533
+        runAsNonRoot: true
+      containers:
+        - name: rocketchat
+          image: "{{ .Values.rocketchat.image.repository }}:{{ .Values.rocketchat.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: sahool-rocketchat-config
+          env:
+            - name: MONGO_URL
+              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/rocketchat?authSource=admin&replicaSet=rs0"
+            - name: MONGO_OPLOG_URL
+              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/local?authSource=admin&replicaSet=rs0"
+            - name: MONGO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rocketchat.mongodb.auth.existingSecret }}
+                  key: {{ .Values.rocketchat.mongodb.auth.secretKeys.rootPasswordKey }}
+            - name: ROOT_URL
+              value: "http://sahool-rocketchat:3000"
+            - name: PORT
+              value: "3000"
+            - name: ADMIN_USERNAME
+              value: {{ .Values.rocketchat.admin.username | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.rocketchat.admin.email | quote }}
+            - name: ADMIN_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rocketchat.admin.existingSecret }}
+                  key: {{ .Values.rocketchat.admin.secretKeys.passwordKey }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.rocketchat.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}

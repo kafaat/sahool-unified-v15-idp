@@ -178,6 +178,8 @@ class EnvConfig {
         return const String.fromEnvironment('BILLING_PORT');
       case 'AI_ADVISOR_PORT':
         return const String.fromEnvironment('AI_ADVISOR_PORT');
+      case 'COMMUNITY_PORT':
+        return const String.fromEnvironment('COMMUNITY_PORT');
       case 'GATEWAY_PORT':
         return const String.fromEnvironment('GATEWAY_PORT');
       // Service Health Monitoring
@@ -400,6 +402,7 @@ class EnvConfig {
   static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110); // notification-service
   static int get billingPort => _getInt('BILLING_PORT', 8089); // billing-core
   static int get aiAdvisorPort => _getInt('AI_ADVISOR_PORT', 8112); // ai-advisor service
+  static int get communityPort => _getInt('COMMUNITY_PORT', 8133); // community service (Rocket.Chat)
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Service URLs
@@ -430,6 +433,7 @@ class EnvConfig {
   static String get notificationsUrl => _serviceUrl(notificationsPort);
   static String get billingUrl => _serviceUrl(billingPort);
   static String get aiAdvisorUrl => _serviceUrl(aiAdvisorPort);
+  static String get communityUrl => _serviceUrl(communityPort);
 
   /// Marketplace service URL (supports env override)
   static String get marketplaceUrl {

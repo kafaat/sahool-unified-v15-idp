@@ -70,6 +70,10 @@ abstract final class ServicePorts {
   static const int logistics = 8167;
   static const int supplyChain = 8230;
   static const int lowcodeEngine = 8132;
+  /// Community service (Rocket.Chat) - خدمة المجتمع الزراعي
+  static const int community = 8133;
+
+  /// @deprecated Use community instead
   static const int wechat = 8133;
   static const int whatsappBot = 8240;
   static const int ussdGateway = 8183;

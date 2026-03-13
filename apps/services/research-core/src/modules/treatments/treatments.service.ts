@@ -208,6 +208,7 @@ export class TreatmentsService {
         tenantId,
       },
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
   }
 }

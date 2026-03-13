@@ -88,6 +88,7 @@ export class ChatService {
         },
         isActive: true,
       },
+      take: 100,
       include: {
         participants: {
           where: {
@@ -412,6 +413,7 @@ export class ChatService {
     const participants = await this.prisma.participant.findMany({
       where: { userId, tenantId },
       select: { unreadCount: true },
+      take: 500,
     });
 
     return participants.reduce((total: number, p: { unreadCount: number }) => total + p.unreadCount, 0);

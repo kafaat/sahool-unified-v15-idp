@@ -169,6 +169,7 @@ describe("SignaturesService", () => {
       expect(prisma.digitalSignature.findMany).toHaveBeenCalledWith({
         where: expect.objectContaining({ tenantId: "tenant-001" }),
         orderBy: { timestamp: "desc" },
+        take: 100,
       });
     });
 
@@ -208,6 +209,7 @@ describe("SignaturesService", () => {
       expect(prisma.digitalSignature.findMany).toHaveBeenCalledWith({
         where: expect.objectContaining({ tenantId: "tenant-001" }),
         orderBy: { timestamp: "desc" },
+        take: 100,
       });
     });
   });

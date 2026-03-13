@@ -979,7 +979,7 @@ void main() {
     });
 
     test('should handle bulk insert of multiple fields', () async {
-      final serverData = List.generate(10, (i) => {
+      final serverData = List.generate(10, (i) {
         return {
           'id': 'bulk-field-$i',
           'tenant_id': 'tenant-bulk',

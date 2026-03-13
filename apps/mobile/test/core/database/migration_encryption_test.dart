@@ -583,9 +583,16 @@ void main() {
       // Create a corrupted file
       File(targetPath).writeAsBytesSync([0, 1, 2, 3, 4, 5]);
 
-      // Attempt to open should fail
+      // Attempt to open and query should fail (open is lazy, query forces read)
       expect(
-        () => sqlite3.open(targetPath),
+        () {
+          final db = sqlite3.open(targetPath);
+          try {
+            db.execute('SELECT * FROM sqlite_master');
+          } finally {
+            db.dispose();
+          }
+        },
         throwsA(isA<SqliteException>()),
       );
     });

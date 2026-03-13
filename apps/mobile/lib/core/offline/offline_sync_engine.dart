@@ -232,7 +232,7 @@ class OfflineSyncEngine {
       try {
         await _outbox.clearCompleted();
       } catch (e) {
-        AppLogger.w('Failed to cleanup completed items', tag: 'SYNC', error: e);
+        AppLogger.w('Failed to cleanup completed items', tag: 'SYNC', data: {'error': '$e'});
       }
 
       return result;
@@ -308,7 +308,7 @@ class OfflineSyncEngine {
       } catch (e) {
         // Server data fetch failed - cannot detect conflicts safely
         // Mark as failed for retry rather than silently proceeding
-        AppLogger.w('Conflict check failed, deferring update for retry', tag: 'SYNC', error: e);
+        AppLogger.w('Conflict check failed, deferring update for retry', tag: 'SYNC', data: {'error': '$e'});
         rethrow;
       }
     }

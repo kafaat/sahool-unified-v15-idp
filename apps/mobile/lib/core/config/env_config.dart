@@ -108,7 +108,9 @@ class EnvConfig {
     try {
       final dotenvValue = dotenv.maybeGet(key);
       if (dotenvValue != null && dotenvValue.isNotEmpty) return dotenvValue;
-    } catch (_) {}
+    } catch (e) {
+      AppLogger.w('Failed to read dotenv key "$key"', tag: 'ENV_CONFIG');
+    }
 
     // 3. Return default
     return defaultValue;
@@ -396,151 +398,37 @@ class EnvConfig {
   // Service URLs
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Base URL for field-core service
-  static String get fieldCoreUrl {
+  /// Build service URL: uses API gateway in prod/staging, direct port in dev
+  static String _serviceUrl(int devPort) {
     if (isProduction || isStaging) {
       return '$apiProtocol://$apiHost';
     }
-    return 'http://$developmentHost:$fieldCorePort';
+    return 'http://$developmentHost:$devPort';
   }
 
-  /// Gateway URL (Kong API Gateway)
-  static String get gatewayUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$gatewayPort';
-  }
+  static String get fieldCoreUrl => _serviceUrl(fieldCorePort);
+  static String get gatewayUrl => _serviceUrl(gatewayPort);
+  static String get chatUrl => _serviceUrl(chatPort);
+  static String get satelliteUrl => _serviceUrl(satellitePort);
+  static String get indicatorsUrl => _serviceUrl(indicatorsPort);
+  static String get weatherUrl => _serviceUrl(weatherPort);
+  static String get fertilizerUrl => _serviceUrl(fertilizerPort);
+  static String get irrigationUrl => _serviceUrl(irrigationPort);
+  static String get cropHealthUrl => _serviceUrl(cropHealthPort);
+  static String get virtualSensorsUrl => _serviceUrl(virtualSensorsPort);
+  static String get communityChatUrl => _serviceUrl(communityChatPort);
+  static String get sprayUrl => _serviceUrl(sprayPort);
+  static String get equipmentUrl => _serviceUrl(equipmentPort);
+  static String get inventoryUrl => _serviceUrl(inventoryPort);
+  static String get notificationsUrl => _serviceUrl(notificationsPort);
+  static String get billingUrl => _serviceUrl(billingPort);
+  static String get aiAdvisorUrl => _serviceUrl(aiAdvisorPort);
 
-  /// Marketplace service URL
+  /// Marketplace service URL (supports env override)
   static String get marketplaceUrl {
     final override = _getString('MARKETPLACE_URL', '');
     if (override.isNotEmpty) return override;
-
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$marketplacePort';
-  }
-
-  /// Chat service URL
-  static String get chatUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$chatPort';
-  }
-
-  /// Satellite service URL
-  static String get satelliteUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$satellitePort';
-  }
-
-  /// Indicators service URL
-  static String get indicatorsUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$indicatorsPort';
-  }
-
-  /// Weather service URL
-  static String get weatherUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$weatherPort';
-  }
-
-  /// Fertilizer service URL
-  static String get fertilizerUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$fertilizerPort';
-  }
-
-  /// Irrigation service URL
-  static String get irrigationUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$irrigationPort';
-  }
-
-  /// Crop health service URL
-  static String get cropHealthUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$cropHealthPort';
-  }
-
-  /// Virtual sensors service URL
-  static String get virtualSensorsUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$virtualSensorsPort';
-  }
-
-  /// Community chat service URL
-  static String get communityChatUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$communityChatPort';
-  }
-
-  /// Spray service URL
-  static String get sprayUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$sprayPort';
-  }
-
-  /// Equipment service URL
-  static String get equipmentUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$equipmentPort';
-  }
-
-  /// Inventory service URL
-  static String get inventoryUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$inventoryPort';
-  }
-
-  /// Notifications service URL
-  static String get notificationsUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$notificationsPort';
-  }
-
-  /// Billing service URL
-  static String get billingUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$billingPort';
-  }
-
-  /// AI Advisor service URL
-  static String get aiAdvisorUrl {
-    if (isProduction || isStaging) {
-      return '$apiProtocol://$apiHost';
-    }
-    return 'http://$developmentHost:$aiAdvisorPort';
+    return _serviceUrl(marketplacePort);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

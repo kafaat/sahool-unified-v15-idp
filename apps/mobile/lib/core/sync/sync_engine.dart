@@ -17,6 +17,7 @@ class SyncEngine {
   late final ApiClient _apiClient;
 
   Timer? _syncTimer;
+  StreamSubscription<bool>? _networkSubscription;
   bool _isSyncing = false;
   int _consecutiveFailures = 0;
   DateTime? _lastSuccessfulSync;
@@ -55,7 +56,8 @@ class SyncEngine {
     );
 
     // Also sync when network comes back online
-    _networkStatus.onlineStream.listen((online) {
+    _networkSubscription?.cancel();
+    _networkSubscription = _networkStatus.onlineStream.listen((online) {
       if (online) {
         AppLogger.i('Network restored - triggering sync', tag: 'SyncEngine');
         runOnce();
@@ -465,6 +467,8 @@ class SyncEngine {
 
   void dispose() {
     stop();
+    _networkSubscription?.cancel();
+    _networkSubscription = null;
     _networkStatus.dispose();
     _syncStatusController.close();
     _backoffStatusController.close();

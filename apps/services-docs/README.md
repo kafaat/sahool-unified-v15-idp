@@ -109,7 +109,7 @@ export function useUpdateField() {
 | chat-service | 8115 | /api/v1/chat | [chat-service.md](./chat-service.md) | Chat Management |
 | iot-service | 8117 | /api/v1/iot | [iot-service.md](./iot-service.md) | IoT Dashboard |
 | community-chat *(deprecated)* | 8097 | /api/v1/community | [community-chat.md](./community-chat.md) | DEPRECATED |
-| community-service | 8135 | /api/v1/community | [community-service.md](./community-service.md) | Community Hub |
+| community-service | 8133 | /api/v1/community | [community-service.md](./community-service.md) | Community Hub |
 
 ### Python Services (FastAPI)
 

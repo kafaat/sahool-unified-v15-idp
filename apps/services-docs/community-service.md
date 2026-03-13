@@ -2,7 +2,7 @@
 
 Community collaboration and knowledge-sharing service for SAHOOL farmers, powered by Rocket.Chat. Provides real-time group messaging, topic-based agricultural channels, expert Q&A, and integration with SAHOOL advisory, weather, and pest detection services.
 
-**Port:** 8135 | **Type:** Python / FastAPI | **Version:** 16.0.0
+**Port:** 8133 | **Type:** Python / FastAPI | **Version:** 16.0.0
 
 ---
 
@@ -44,7 +44,7 @@ The Community Service connects SAHOOL farmers with each other and with agricultu
                                    v
 +------------------+      +-------------------+      +-------------------+
 |  SAHOOL Mobile   |----->| community-service |----->|   Rocket.Chat     |
-|  SAHOOL Web      |      |   (Port 8135)     |      |   (Port 3100)     |
+|  SAHOOL Web      |      |   (Port 8133)     |      |   (Port 3100)     |
 |  SAHOOL Admin    |      |   FastAPI + WS    |      |   REST + Realtime |
 +------------------+      +--------+----------+      +--------+----------+
                                    |                           |
@@ -216,7 +216,7 @@ The following channels are auto-created per tenant on first initialization:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Service port | `8135` |
+| `PORT` | Service port | `8133` |
 | `HOST` | Bind address | `0.0.0.0` |
 | `ENVIRONMENT` | Environment mode | `development` |
 | `LOG_LEVEL` | Logging level | `INFO` |
@@ -242,9 +242,9 @@ services:
       dockerfile: apps/services/community-service/Dockerfile
     container_name: sahool-community-service
     ports:
-      - "8135:8135"
+      - "8133:8133"
     environment:
-      - PORT=8135
+      - PORT=8133
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB}
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
@@ -264,7 +264,7 @@ services:
       rocketchat:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8135/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8133/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -366,12 +366,12 @@ COPY shared /app/shared
 RUN chown -R sahool:sahool /app
 USER sahool
 
-EXPOSE 8135
+EXPOSE 8133
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8135/healthz || exit 1
+    CMD curl -f http://localhost:8133/healthz || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8135"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8133"]
 ```
 
 ---
@@ -389,7 +389,7 @@ community-service:
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
-    port: 8135
+    port: 8133
   resources:
     requests:
       cpu: 250m
@@ -399,7 +399,7 @@ community-service:
       memory: 512Mi
   env:
     - name: PORT
-      value: "8135"
+      value: "8133"
     - name: ENVIRONMENT
       value: "production"
     - name: DATABASE_URL
@@ -437,12 +437,12 @@ community-service:
   probes:
     liveness:
       path: /healthz
-      port: 8135
+      port: 8133
       initialDelaySeconds: 15
       periodSeconds: 30
     readiness:
       path: /readyz
-      port: 8135
+      port: 8133
       initialDelaySeconds: 10
       periodSeconds: 10
   autoscaling:
@@ -452,7 +452,7 @@ community-service:
     targetCPUUtilizationPercentage: 70
   podAnnotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8135"
+    prometheus.io/port: "8133"
     prometheus.io/path: "/metrics"
 
 rocketchat:
@@ -477,7 +477,7 @@ rocketchat:
 ```yaml
 services:
   - name: community-service
-    url: http://sahool-community-service:8135
+    url: http://sahool-community-service:8133
     routes:
       - name: community-route
         paths:
@@ -573,7 +573,7 @@ The community-service replaces the deprecated `wechat-service` (Port 8133). The 
 |---------|---------------|-------------------|
 | **Backend** | WeChat Open Platform API | Self-hosted Rocket.Chat |
 | **Data Store** | PostgreSQL + WeChat servers | PostgreSQL + MongoDB (local) |
-| **Port** | 8133 | 8135 |
+| **Port** | 8133 | 8133 |
 | **Language Focus** | Chinese (WeChat-native) | Arabic/English (bilingual) |
 | **Offline Support** | No | Yes (message queueing) |
 | **Data Sovereignty** | WeChat servers (China) | Self-hosted (on-premise/cloud) |

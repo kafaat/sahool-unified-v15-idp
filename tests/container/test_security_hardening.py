@@ -96,9 +96,7 @@ class TestDockerfileSecurityPatterns:
                     full_cmd += " " + lines[j].strip()
                     j += 1
                 if "--no-install-recommends" not in full_cmd:
-                    pytest.fail(
-                        f"{svc_name}: apt-get install without --no-install-recommends"
-                    )
+                    pytest.fail(f"{svc_name}: apt-get install without --no-install-recommends")
 
     @pytest.mark.parametrize("svc_name", sorted(PYTHON_SERVICES))
     def test_apt_lists_cleaned(self, svc_name: str) -> None:
@@ -108,11 +106,10 @@ class TestDockerfileSecurityPatterns:
             pytest.skip(f"{svc_name} doesn't use apt-get install")
         has_lists_cleanup = "rm -rf /var/lib/apt/lists" in content or "rm -r /var/lib/apt/lists" in content
         has_apt_clean = "apt-get clean" in content
-        assert has_lists_cleanup or has_apt_clean, (
-            f"{svc_name}: apt-get install without cleaning /var/lib/apt/lists/*"
-        )
+        assert has_lists_cleanup or has_apt_clean, f"{svc_name}: apt-get install without cleaning /var/lib/apt/lists/*"
         if has_apt_clean and not has_lists_cleanup:
             import warnings
+
             warnings.warn(
                 f"{svc_name}: uses apt-get clean but does not remove /var/lib/apt/lists/* "
                 "(apt-get clean only clears .deb caches, not lists)",
@@ -125,9 +122,7 @@ class TestDockerfileSecurityPatterns:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        assert "chmod 777" not in content, (
-            f"{svc_name}: Dockerfile uses chmod 777 (security risk)"
-        )
+        assert "chmod 777" not in content, f"{svc_name}: Dockerfile uses chmod 777 (security risk)"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_curl_pipe_sh(self, svc_name: str) -> None:
@@ -135,12 +130,8 @@ class TestDockerfileSecurityPatterns:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        unsafe = bool(re.search(
-            r"curl\s+.*\|\s*(sh|bash|python)", content, re.IGNORECASE | re.DOTALL
-        ))
-        assert not unsafe, (
-            f"{svc_name}: Dockerfile uses curl|sh pattern (unsafe)"
-        )
+        unsafe = bool(re.search(r"curl\s+.*\|\s*(sh|bash|python)", content, re.IGNORECASE | re.DOTALL))
+        assert not unsafe, f"{svc_name}: Dockerfile uses curl|sh pattern (unsafe)"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_add_with_url(self, svc_name: str) -> None:
@@ -149,12 +140,8 @@ class TestDockerfileSecurityPatterns:
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
         # ADD https://... is risky
-        has_remote_add = bool(re.search(
-            r"^\s*ADD\s+https?://", content, re.IGNORECASE | re.MULTILINE
-        ))
-        assert not has_remote_add, (
-            f"{svc_name}: Dockerfile uses ADD with remote URL (use COPY instead)"
-        )
+        has_remote_add = bool(re.search(r"^\s*ADD\s+https?://", content, re.IGNORECASE | re.MULTILINE))
+        assert not has_remote_add, f"{svc_name}: Dockerfile uses ADD with remote URL (use COPY instead)"
 
 
 # ===========================================================================
@@ -172,12 +159,8 @@ class TestNoSecretsInDockerfile:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        has_env_copy = bool(re.search(
-            r"^\s*COPY\s+.*\.env\b", content, re.IGNORECASE | re.MULTILINE
-        ))
-        assert not has_env_copy, (
-            f"{svc_name}: Dockerfile copies .env file into image"
-        )
+        has_env_copy = bool(re.search(r"^\s*COPY\s+.*\.env\b", content, re.IGNORECASE | re.MULTILINE))
+        assert not has_env_copy, f"{svc_name}: Dockerfile copies .env file into image"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_ssh_keys_in_image(self, svc_name: str) -> None:
@@ -185,14 +168,14 @@ class TestNoSecretsInDockerfile:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        has_ssh = bool(re.search(
-            r"(?:COPY|ADD)\s+.*(?:id_rsa|id_ed25519|\.ssh)",
-            content,
-            re.IGNORECASE,
-        ))
-        assert not has_ssh, (
-            f"{svc_name}: Dockerfile references SSH keys"
+        has_ssh = bool(
+            re.search(
+                r"(?:COPY|ADD)\s+.*(?:id_rsa|id_ed25519|\.ssh)",
+                content,
+                re.IGNORECASE,
+            )
         )
+        assert not has_ssh, f"{svc_name}: Dockerfile references SSH keys"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_git_credentials(self, svc_name: str) -> None:
@@ -200,14 +183,14 @@ class TestNoSecretsInDockerfile:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        has_git_creds = bool(re.search(
-            r"git\s+clone\s+https://[^@]+:[^@]+@",
-            content,
-            re.IGNORECASE,
-        ))
-        assert not has_git_creds, (
-            f"{svc_name}: Dockerfile contains git credentials in clone URL"
+        has_git_creds = bool(
+            re.search(
+                r"git\s+clone\s+https://[^@]+:[^@]+@",
+                content,
+                re.IGNORECASE,
+            )
         )
+        assert not has_git_creds, f"{svc_name}: Dockerfile contains git credentials in clone URL"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_arg_secrets_no_default(self, svc_name: str) -> None:
@@ -225,9 +208,7 @@ class TestNoSecretsInDockerfile:
                 stripped,
                 re.IGNORECASE,
             ):
-                pytest.fail(
-                    f"{svc_name}: ARG with secret has default value: {stripped}"
-                )
+                pytest.fail(f"{svc_name}: ARG with secret has default value: {stripped}")
 
 
 # ===========================================================================
@@ -243,9 +224,7 @@ class TestContainerSecurityConfig:
     def test_no_privileged(self, services: dict, svc_name: str) -> None:
         """No privileged: true on application services."""
         svc = services.get(svc_name, {})
-        assert svc.get("privileged") is not True, (
-            f"'{svc_name}' runs as privileged container"
-        )
+        assert svc.get("privileged") is not True, f"'{svc_name}' runs as privileged container"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
     def test_no_cap_add_all(self, services: dict, svc_name: str) -> None:
@@ -254,9 +233,7 @@ class TestContainerSecurityConfig:
         caps = svc.get("cap_add", [])
         forbidden = {"ALL", "SYS_ADMIN", "NET_ADMIN"}
         bad_caps = [c for c in caps if c in forbidden]
-        assert not bad_caps, (
-            f"'{svc_name}' has dangerous capabilities: {bad_caps}"
-        )
+        assert not bad_caps, f"'{svc_name}' has dangerous capabilities: {bad_caps}"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
     def test_no_docker_socket_mount(self, services: dict, svc_name: str) -> None:
@@ -265,25 +242,19 @@ class TestContainerSecurityConfig:
         volumes = svc.get("volumes", [])
         for vol in volumes:
             vol_str = str(vol)
-            assert "/var/run/docker.sock" not in vol_str, (
-                f"'{svc_name}' mounts Docker socket (security risk)"
-            )
+            assert "/var/run/docker.sock" not in vol_str, f"'{svc_name}' mounts Docker socket (security risk)"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
     def test_no_host_network_mode(self, services: dict, svc_name: str) -> None:
         """No network_mode: host on application services."""
         svc = services.get(svc_name, {})
-        assert svc.get("network_mode") != "host", (
-            f"'{svc_name}' uses host network mode"
-        )
+        assert svc.get("network_mode") != "host", f"'{svc_name}' uses host network mode"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
     def test_no_host_pid(self, services: dict, svc_name: str) -> None:
         """No pid: host on application services."""
         svc = services.get(svc_name, {})
-        assert svc.get("pid") != "host", (
-            f"'{svc_name}' shares host PID namespace"
-        )
+        assert svc.get("pid") != "host", f"'{svc_name}' shares host PID namespace"
 
 
 # ===========================================================================
@@ -307,13 +278,9 @@ class TestPythonBaseImageSecurity:
             pytest.skip(f"No FROM in {svc_name}")
         # At least one FROM should use an acceptable base
         is_acceptable = any(
-            "slim" in img or "alpine" in img or "nvidia/cuda" in img
-            or "distroless" in img
-            for img in from_images
+            "slim" in img or "alpine" in img or "nvidia/cuda" in img or "distroless" in img for img in from_images
         )
-        assert is_acceptable, (
-            f"{svc_name}: no base image uses slim/alpine/cuda: {from_images}"
-        )
+        assert is_acceptable, f"{svc_name}: no base image uses slim/alpine/cuda: {from_images}"
 
     @pytest.mark.parametrize("svc_name", sorted(PYTHON_SERVICES))
     def test_python_version_minimum(self, svc_name: str) -> None:
@@ -330,9 +297,7 @@ class TestPythonBaseImageSecurity:
             pytest.skip(f"{svc_name}: cannot determine Python version")
         version = version_match.group(1)
         major, minor = version.split(".")
-        assert int(major) >= 3 and int(minor) >= 11, (
-            f"{svc_name}: Python {version} < 3.11 (minimum required)"
-        )
+        assert int(major) >= 3 and int(minor) >= 11, f"{svc_name}: Python {version} < 3.11 (minimum required)"
 
     @pytest.mark.parametrize("svc_name", sorted(PYTHON_SERVICES))
     def test_pythondontwritebytecode(self, svc_name: str) -> None:
@@ -341,9 +306,7 @@ class TestPythonBaseImageSecurity:
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
         if "PYTHONDONTWRITEBYTECODE" not in content:
-            pytest.xfail(
-                f"{svc_name}: missing PYTHONDONTWRITEBYTECODE=1 (recommended)"
-            )
+            pytest.xfail(f"{svc_name}: missing PYTHONDONTWRITEBYTECODE=1 (recommended)")
 
 
 # ===========================================================================
@@ -363,14 +326,9 @@ class TestNodeBaseImageSecurity:
             pytest.skip(f"No Dockerfile for {svc_name}")
         # Check all FROM lines - at least one should use slim/alpine
         from_images = re.findall(r"FROM\s+(\S+)", content, re.IGNORECASE)
-        is_acceptable = any(
-            "slim" in img or "alpine" in img or "distroless" in img
-            for img in from_images
-        )
+        is_acceptable = any("slim" in img or "alpine" in img or "distroless" in img for img in from_images)
         if not is_acceptable:
-            pytest.xfail(
-                f"{svc_name}: no base image uses slim/alpine: {from_images}"
-            )
+            pytest.xfail(f"{svc_name}: no base image uses slim/alpine: {from_images}")
 
     @pytest.mark.parametrize("svc_name", sorted(NODE_SERVICES))
     def test_node_env_production_in_final_stage(self, svc_name: str) -> None:
@@ -378,9 +336,7 @@ class TestNodeBaseImageSecurity:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        assert "NODE_ENV=production" in content, (
-            f"{svc_name}: missing NODE_ENV=production in Dockerfile"
-        )
+        assert "NODE_ENV=production" in content, f"{svc_name}: missing NODE_ENV=production in Dockerfile"
 
 
 # ===========================================================================
@@ -416,9 +372,7 @@ class TestComposeSecretsHandling:
     يجب أن تستخدم بيانات الاعتماد في Compose استبدال المتغيرات."""
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
-    def test_database_url_uses_substitution(
-        self, services: dict, svc_name: str
-    ) -> None:
+    def test_database_url_uses_substitution(self, services: dict, svc_name: str) -> None:
         """DATABASE_URL must use ${} variable substitution."""
         svc = services.get(svc_name, {})
         env = svc.get("environment", {})
@@ -440,6 +394,7 @@ class TestComposeSecretsHandling:
             if not uses_var:
                 # Extract user:pass portion to check for hardcoded credentials
                 import urllib.parse
+
                 try:
                     parsed = urllib.parse.urlparse(db_str)
                     has_hardcoded_pass = parsed.password and "${" not in (parsed.password or "")
@@ -450,9 +405,7 @@ class TestComposeSecretsHandling:
                 )
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_HTTP_SERVICES))
-    def test_jwt_secret_uses_substitution(
-        self, services: dict, svc_name: str
-    ) -> None:
+    def test_jwt_secret_uses_substitution(self, services: dict, svc_name: str) -> None:
         """JWT_SECRET_KEY must use ${} variable substitution."""
         svc = services.get(svc_name, {})
         env = svc.get("environment", {})
@@ -469,9 +422,7 @@ class TestComposeSecretsHandling:
             pytest.skip(f"{svc_name} has no JWT_SECRET_KEY")
         val = str(jwt)
         if len(val) > 10 and "${" not in val and "test" not in val.lower():
-            pytest.fail(
-                f"'{svc_name}' JWT_SECRET_KEY appears hardcoded: {val[:20]}..."
-            )
+            pytest.fail(f"'{svc_name}' JWT_SECRET_KEY appears hardcoded: {val[:20]}...")
 
 
 # ===========================================================================

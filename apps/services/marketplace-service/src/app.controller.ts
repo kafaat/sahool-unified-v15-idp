@@ -22,6 +22,7 @@ import { Throttle } from "@nestjs/throttler";
 import { MarketService } from "./market/market.service";
 import { FintechService } from "./fintech/fintech.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+import { SkipTenantCheck } from "./auth/tenant.guard";
 import {
   CreateProductDto,
   CreateOrderDto,
@@ -44,6 +45,7 @@ export class AppController {
   // Health Check
   // ═══════════════════════════════════════════════════════════════════════════
 
+  @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("healthz")
   healthCheck() {
@@ -55,6 +57,7 @@ export class AppController {
     };
   }
 
+  @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("readyz")
   readinessCheck() {

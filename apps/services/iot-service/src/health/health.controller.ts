@@ -6,13 +6,17 @@
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { IotService } from "../iot/iot.service";
+import { Public } from "../auth/public.decorator";
+import { SkipTenantCheck } from "../auth/tenant.guard";
 
 @ApiTags("Health")
+@SkipTenantCheck()
 @Controller()
 export class HealthController {
   constructor(private readonly iotService: IotService) {}
 
   @Get("health")
+  @Public()
   @ApiOperation({ summary: "Health check endpoint" })
   @ApiResponse({ status: 200, description: "Service is healthy" })
   async health() {
@@ -39,6 +43,7 @@ export class HealthController {
   }
 
   @Get("healthz")
+  @Public()
   @ApiOperation({ summary: "Kubernetes health check" })
   @ApiResponse({ status: 200, description: "Service is healthy" })
   healthz() {
@@ -49,6 +54,7 @@ export class HealthController {
   }
 
   @Get("readyz")
+  @Public()
   @ApiOperation({ summary: "Kubernetes readiness check" })
   @ApiResponse({ status: 200, description: "Service is ready" })
   readyz() {

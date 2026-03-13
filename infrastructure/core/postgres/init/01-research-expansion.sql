@@ -2,6 +2,18 @@
 -- SAHOOL Research Expansion Pack - Additional Tables
 -- حزمة التوسع البحثي - جداول إضافية
 -- ═══════════════════════════════════════════════════════════════════════════════
+--
+-- FIX (2026-03-13): Removed all REFERENCES users(id) foreign key constraints.
+-- The users table is managed by Prisma ORM (user-service) and does NOT exist
+-- during Docker init. FK constraints will be added by a post-startup migration
+-- after user-service runs `prisma migrate deploy`.
+--
+-- FIX (2026-03-13): Added missing enums (sample_type, experiment_status) that
+-- are normally created by Prisma but are needed here for column definitions.
+--
+-- FIX (2026-03-13): Removed REFERENCES experiments(id), research_plots(id),
+-- treatments(id) as those tables are also Prisma-managed (research-core).
+-- ═══════════════════════════════════════════════════════════════════════════════
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Additional Research Enums
@@ -17,6 +29,18 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
     CREATE TYPE governance_level AS ENUM ('standard', 'strict', 'regulatory', 'gmp');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- FIX: Create sample_type enum (normally created by Prisma in research-core)
+-- Required by analysis_types.sample_types column and demo data INSERT casts
+DO $$ BEGIN
+    CREATE TYPE sample_type AS ENUM ('soil', 'plant_tissue', 'water', 'grain', 'fruit', 'leaf', 'root', 'seed');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- FIX: Create experiment_status enum (normally created by Prisma in research-core)
+-- Required by experiment_locks.previous_status column
+DO $$ BEGIN
+    CREATE TYPE experiment_status AS ENUM ('draft', 'planning', 'active', 'paused', 'completed', 'cancelled', 'archived');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -36,7 +60,7 @@ CREATE TABLE IF NOT EXISTS research_sites (
     soil_classification VARCHAR(100),
     elevation_meters DECIMAL(8,2),
     infrastructure JSONB DEFAULT '{}',
-    contact_person UUID REFERENCES users(id),
+    contact_person UUID,  -- FK to users(id) added post-startup after Prisma migration
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -67,7 +91,7 @@ CREATE TABLE IF NOT EXISTS protocol_templates (
     certified_by VARCHAR(255),
     certified_at TIMESTAMPTZ,
     version INTEGER DEFAULT 1,
-    created_by UUID REFERENCES users(id),
+    created_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -108,7 +132,7 @@ CREATE INDEX IF NOT EXISTS idx_laboratories_code ON laboratories(code);
 CREATE TABLE IF NOT EXISTS sample_batches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    experiment_id UUID REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID,  -- FK to experiments(id) added post-startup after Prisma migration
     batch_code VARCHAR(100) UNIQUE NOT NULL,
     laboratory_id UUID REFERENCES laboratories(id),
     status sample_status DEFAULT 'pending',
@@ -121,7 +145,7 @@ CREATE TABLE IF NOT EXISTS sample_batches (
     tracking_number VARCHAR(255),
     storage_conditions VARCHAR(255),
     notes TEXT,
-    created_by UUID REFERENCES users(id),
+    created_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -198,9 +222,9 @@ CREATE TABLE IF NOT EXISTS sample_analysis_results (
     is_within_range BOOLEAN,
     method_used VARCHAR(255),
     equipment_used VARCHAR(255),
-    analyzed_by UUID REFERENCES users(id),
+    analyzed_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     analyzed_at TIMESTAMPTZ,
-    verified_by UUID REFERENCES users(id),
+    verified_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     verified_at TIMESTAMPTZ,
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -215,9 +239,9 @@ CREATE INDEX IF NOT EXISTS idx_analysis_results_type ON sample_analysis_results(
 
 CREATE TABLE IF NOT EXISTS research_data_points (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
-    plot_id UUID REFERENCES research_plots(id),
-    treatment_id UUID REFERENCES treatments(id),
+    experiment_id UUID NOT NULL,  -- FK to experiments(id) added post-startup after Prisma migration
+    plot_id UUID,  -- FK to research_plots(id) added post-startup after Prisma migration
+    treatment_id UUID,  -- FK to treatments(id) added post-startup after Prisma migration
     measurement_date DATE NOT NULL,
     measurement_time TIME,
     parameter_name VARCHAR(255) NOT NULL,
@@ -227,7 +251,7 @@ CREATE TABLE IF NOT EXISTS research_data_points (
     unit VARCHAR(50),
     measurement_method VARCHAR(255),
     equipment_id VARCHAR(100),
-    recorded_by UUID REFERENCES users(id),
+    recorded_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     location GEOGRAPHY(POINT, 4326),
     environmental_conditions JSONB DEFAULT '{}',
     quality_flag VARCHAR(50) DEFAULT 'valid',
@@ -248,10 +272,10 @@ CREATE INDEX IF NOT EXISTS idx_data_points_parameter ON research_data_points(par
 
 CREATE TABLE IF NOT EXISTS experiment_locks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID NOT NULL,  -- FK to experiments(id) added post-startup after Prisma migration
     action VARCHAR(50) NOT NULL, -- 'lock', 'unlock', 'extend'
     reason TEXT,
-    locked_by UUID REFERENCES users(id),
+    locked_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     lock_level VARCHAR(50) DEFAULT 'full', -- 'full', 'partial', 'data_only'
     expires_at TIMESTAMPTZ,
     previous_status experiment_status,
@@ -269,7 +293,7 @@ CREATE INDEX IF NOT EXISTS idx_experiment_locks_experiment ON experiment_locks(e
 CREATE TABLE IF NOT EXISTS research_reports (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    experiment_id UUID REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID,  -- FK to experiments(id) added post-startup after Prisma migration
     report_type VARCHAR(100) NOT NULL,
     title VARCHAR(500) NOT NULL,
     title_ar VARCHAR(500),
@@ -279,16 +303,16 @@ CREATE TABLE IF NOT EXISTS research_reports (
     authors UUID[],
     status VARCHAR(50) DEFAULT 'draft',
     submitted_at TIMESTAMPTZ,
-    reviewed_by UUID REFERENCES users(id),
+    reviewed_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     reviewed_at TIMESTAMPTZ,
-    approved_by UUID REFERENCES users(id),
+    approved_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     approved_at TIMESTAMPTZ,
     published_at TIMESTAMPTZ,
     file_url VARCHAR(500),
     doi VARCHAR(255),
     citation TEXT,
     keywords TEXT[],
-    created_by UUID REFERENCES users(id),
+    created_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -302,7 +326,7 @@ CREATE INDEX IF NOT EXISTS idx_reports_status ON research_reports(status);
 
 CREATE TABLE IF NOT EXISTS statistical_analyses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    experiment_id UUID NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
+    experiment_id UUID NOT NULL,  -- FK to experiments(id) added post-startup after Prisma migration
     analysis_name VARCHAR(255) NOT NULL,
     analysis_type VARCHAR(100), -- 'anova', 't_test', 'regression', 'correlation', etc.
     dependent_variable VARCHAR(255),
@@ -318,7 +342,7 @@ CREATE TABLE IF NOT EXISTS statistical_analyses (
     interpretation_ar TEXT,
     software_used VARCHAR(100),
     script_used TEXT,
-    performed_by UUID REFERENCES users(id),
+    performed_by UUID,  -- FK to users(id) added post-startup after Prisma migration
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -376,21 +400,11 @@ VALUES
     ('a7000000-0000-0000-0000-000000000004', 'WATER-EC', 'Water Electrical Conductivity', 'التوصيل الكهربائي للماء', 'water', ARRAY['water']::sample_type[], 'dS/m')
 ON CONFLICT (code) DO NOTHING;
 
--- Insert demo experiment for research expansion (required for sample_batches FK)
-INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)
-VALUES (
-    'ae000000-0000-0000-0000-000000000001',
-    'a0000000-0000-0000-0000-000000000001',
-    'Soil Nutrient Analysis Study',
-    'دراسة تحليل العناصر الغذائية في التربة',
-    'Comprehensive soil nutrient analysis across multiple research plots',
-    'Soil nutrient levels correlate with crop yield improvements',
-    '2025-01-15',
-    'active',
-    'b0000000-0000-0000-0000-000000000005'
-) ON CONFLICT DO NOTHING;
+-- FIX: Demo data referencing Prisma-managed tables (experiments, lab_samples)
+-- is wrapped in a DO block with exception handling to avoid errors when those
+-- tables don't exist yet. The data will be inserted if tables exist (e.g. on restart).
 
--- Insert demo sample batch
+-- Insert demo sample batch (experiment_id is just a UUID reference, no FK enforced)
 INSERT INTO sample_batches (id, tenant_id, experiment_id, batch_code, laboratory_id, status, sample_count, collection_date)
 VALUES (
     '5b000000-0000-0000-0000-000000000001',
@@ -403,27 +417,33 @@ VALUES (
     CURRENT_DATE - 3
 ) ON CONFLICT (batch_code) DO NOTHING;
 
--- Update existing lab samples with batch info
--- Note: PostgreSQL doesn't allow window functions directly in UPDATE,
--- so we use a CTE to compute row numbers first
-WITH numbered_samples AS (
-    SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as row_num
-    FROM lab_samples
-    WHERE batch_id IS NULL
-)
-UPDATE lab_samples
-SET batch_id = '5b000000-0000-0000-0000-000000000001',
-    barcode = 'SOIL-' || LPAD(numbered_samples.row_num::TEXT, 4, '0')
-FROM numbered_samples
-WHERE lab_samples.id = numbered_samples.id;
+-- Update existing lab samples with batch info (safe: skips if lab_samples doesn't exist yet)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'lab_samples') THEN
+        EXECUTE '
+            WITH numbered_samples AS (
+                SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as row_num
+                FROM lab_samples
+                WHERE batch_id IS NULL
+            )
+            UPDATE lab_samples
+            SET batch_id = ''5b000000-0000-0000-0000-000000000001'',
+                barcode = ''SOIL-'' || LPAD(numbered_samples.row_num::TEXT, 4, ''0000'')
+            FROM numbered_samples
+            WHERE lab_samples.id = numbered_samples.id';
+    END IF;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Skipping lab_samples update: %', SQLERRM;
+END $$;
 
--- Insert demo research data points
-INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit, recorded_by)
+-- Insert demo research data points (experiment_id is just a UUID, no FK enforced)
+INSERT INTO research_data_points (id, experiment_id, measurement_date, parameter_name, parameter_code, value, unit)
 VALUES
-    ('ad000000-0000-0000-0000-000000000001', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Plant Height', 'PLANT_HEIGHT', 45.5, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000002', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm', 'b0000000-0000-0000-0000-000000000005'),
-    ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD', 'b0000000-0000-0000-0000-000000000005')
+    ('ad000000-0000-0000-0000-000000000001', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Plant Height', 'PLANT_HEIGHT', 45.5, 'cm'),
+    ('ad000000-0000-0000-0000-000000000002', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Leaf Count', 'LEAF_COUNT', 12, 'count'),
+    ('ad000000-0000-0000-0000-000000000003', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Plant Height', 'PLANT_HEIGHT', 52.3, 'cm'),
+    ('ad000000-0000-0000-0000-000000000004', 'ae000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Chlorophyll Index', 'SPAD', 42.8, 'SPAD')
 ON CONFLICT DO NOTHING;
 
 -- Summary

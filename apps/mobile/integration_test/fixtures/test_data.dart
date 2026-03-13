@@ -1,27 +1,39 @@
 /// SAHOOL Integration Test - Test Data Fixtures
 /// بيانات الاختبار الثابتة
 
-/// Test user credentials
-/// بيانات المستخدمين للاختبار
+/// Test user credentials - loaded from environment or use test-only defaults
+/// بيانات المستخدمين للاختبار - تحمّل من البيئة أو تستخدم القيم الافتراضية للاختبار فقط
+///
+/// SECURITY: These credentials are for local integration tests ONLY.
+/// They use a dedicated test subdomain and must NEVER match production accounts.
+/// In CI, override via --dart-define (e.g., --dart-define=TEST_USER_EMAIL=...).
 class TestUsers {
   // Valid test user
-  static const String validEmail = 'test@sahool.app';
-  static const String validPhone = '+967771234567';
-  static const String validPassword = 'Test@1234';
+  static const String validEmail = String.fromEnvironment(
+      'TEST_USER_EMAIL',
+      defaultValue: 'test-runner@test.sahool.local');
+  static const String validPhone = '+967700000000';
+  static const String validPassword = String.fromEnvironment(
+      'TEST_USER_PASSWORD',
+      defaultValue: 'TestOnly!NotReal#2026');
   static const String validUsername = 'أحمد المزارع';
 
   // Invalid credentials for negative testing
-  static const String invalidEmail = 'invalid@sahool.app';
+  static const String invalidEmail = 'invalid@test.sahool.local';
   static const String invalidPassword = 'wrong_password';
   static const String weakPassword = '123';
 
-  // Admin user
-  static const String adminEmail = 'admin@sahool.app';
-  static const String adminPassword = 'Admin@1234';
+  // Admin user (test-only)
+  static const String adminEmail = String.fromEnvironment(
+      'TEST_ADMIN_EMAIL',
+      defaultValue: 'admin-test@test.sahool.local');
+  static const String adminPassword = String.fromEnvironment(
+      'TEST_ADMIN_PASSWORD',
+      defaultValue: 'AdminTestOnly!#2026');
 
-  // Demo user with existing data
-  static const String demoEmail = 'demo@sahool.app';
-  static const String demoPassword = 'Demo@1234';
+  // Demo user with existing data (test-only)
+  static const String demoEmail = 'demo@test.sahool.local';
+  static const String demoPassword = 'DemoTestOnly!#2026';
   static const String demoUserId = 'demo-user-001';
 }
 

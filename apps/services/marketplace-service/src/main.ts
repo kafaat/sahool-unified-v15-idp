@@ -18,6 +18,14 @@ import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
+// Log unhandled rejections without suppressing them.
+// Redis/NATS connection errors should be handled at the source (module-level
+// error listeners) rather than globally swallowed by substring matching, which
+// can hide legitimate bugs.
+process.on("unhandledRejection", (reason) => {
+  console.error("[marketplace-service] Unhandled rejection:", reason);
+});
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

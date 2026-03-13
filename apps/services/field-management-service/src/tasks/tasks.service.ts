@@ -39,6 +39,7 @@ export class TasksService {
     const tasks = await this.prisma.task.findMany({
       where,
       orderBy: [{ priority: "desc" }, { dueDate: "asc" }],
+      take: 100,
       select: {
         id: true,
         title: true,
@@ -179,6 +180,7 @@ export class TasksService {
         },
       },
       orderBy: { dueDate: "asc" },
+      take: 100,
     });
   }
 }

@@ -104,6 +104,7 @@ def get_engine() -> AsyncEngine:
                     "application_name": "sahool-billing-core",
                     "jit": "off",  # Disable JIT for better compatibility
                 },
+                "statement_cache_size": 0,  # Disable prepared statements for PgBouncer compatibility
                 "command_timeout": 60,  # Query timeout in seconds
                 "timeout": 10,  # Connection timeout in seconds
             },

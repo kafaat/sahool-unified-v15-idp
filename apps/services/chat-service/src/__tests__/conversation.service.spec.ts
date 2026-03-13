@@ -20,7 +20,6 @@ describe("ConversationService (Conversation Operations)", () => {
   let prismaService: PrismaService;
 
   // Mock data
-  const TENANT_ID = "tenant-001";
   const mockUserId = "user-123";
   const mockUserId2 = "user-456";
   const mockUserId3 = "user-789";
@@ -123,12 +122,12 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      const result = await service.createConversation(createDto, TENANT_ID);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
         where: {
-          tenantId: TENANT_ID,
+          tenantId: "tenant-001",
           participantIds: {
             hasEvery: createDto.participantIds,
           },
@@ -151,7 +150,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.createConversation(createDto, TENANT_ID);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
@@ -161,12 +160,11 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      await service.createConversation(createDto, TENANT_ID);
+      await service.createConversation(createDto, "tenant-001");
 
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            tenantId: TENANT_ID,
             productId: mockProductId,
           }),
         }),
@@ -188,13 +186,12 @@ describe("ConversationService (Conversation Operations)", () => {
         orderConversation,
       );
 
-      const result = await service.createConversation(orderDto, TENANT_ID);
+      const result = await service.createConversation(orderDto, "tenant-001");
 
       expect(result.orderId).toBe(mockOrderId);
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            tenantId: TENANT_ID,
             orderId: mockOrderId,
           }),
         }),
@@ -216,7 +213,7 @@ describe("ConversationService (Conversation Operations)", () => {
         minimalConversation,
       );
 
-      const result = await service.createConversation(minimalDto, TENANT_ID);
+      const result = await service.createConversation(minimalDto, "tenant-001");
 
       expect(result.productId).toBeNull();
       expect(result.orderId).toBeNull();
@@ -226,16 +223,14 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      await service.createConversation(createDto, TENANT_ID);
+      await service.createConversation(createDto, "tenant-001");
 
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            tenantId: TENANT_ID,
             participants: {
               create: expect.arrayContaining([
                 expect.objectContaining({
-                  tenantId: TENANT_ID,
                   userId: mockUserId,
                   role: "BUYER",
                 }),
@@ -250,16 +245,14 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      await service.createConversation(createDto, TENANT_ID);
+      await service.createConversation(createDto, "tenant-001");
 
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            tenantId: TENANT_ID,
             participants: {
               create: expect.arrayContaining([
                 expect.objectContaining({
-                  tenantId: TENANT_ID,
                   userId: mockUserId2,
                   role: "SELLER",
                 }),
@@ -274,16 +267,15 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      await service.createConversation(createDto, TENANT_ID);
+      await service.createConversation(createDto, "tenant-001");
 
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            tenantId: TENANT_ID,
             participants: {
               create: expect.arrayContaining([
-                expect.objectContaining({ tenantId: TENANT_ID, userId: mockUserId }),
-                expect.objectContaining({ tenantId: TENANT_ID, userId: mockUserId2 }),
+                expect.objectContaining({ userId: mockUserId }),
+                expect.objectContaining({ userId: mockUserId2 }),
               ]),
             },
           }),
@@ -295,7 +287,7 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      const result = await service.createConversation(createDto, TENANT_ID);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result.participants).toBeDefined();
       expect(result.messages).toBeDefined();
@@ -315,7 +307,7 @@ describe("ConversationService (Conversation Operations)", () => {
         new Error("Database connection failed"),
       );
 
-      await expect(service.createConversation(createDto, TENANT_ID)).rejects.toThrow();
+      await expect(service.createConversation(createDto, "tenant-001")).rejects.toThrow();
     });
   });
 
@@ -361,15 +353,16 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result).toHaveLength(3);
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith({
         where: {
-          tenantId: TENANT_ID,
+          tenantId: "tenant-001",
           participantIds: { has: mockUserId },
           isActive: true,
         },
+        take: 100,
         include: {
           participants: { where: { userId: mockUserId } },
           messages: {
@@ -396,7 +389,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      await service.getUserConversations(mockUserId, TENANT_ID);
+      await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -410,7 +403,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result[0]).toHaveProperty("unreadCount", 5);
       expect(result[1]).toHaveProperty("unreadCount", 0);
@@ -422,7 +415,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result[0]).toHaveProperty("lastReadAt");
       expect(result[0].lastReadAt).toBeInstanceOf(Date);
@@ -433,7 +426,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result[0].messages).toHaveLength(1);
       expect(result[0].messages[0].content).toBe("Latest message");
@@ -444,7 +437,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData[1],
       ]);
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result[0].messages).toHaveLength(0);
       expect(result[0].unreadCount).toBe(0);
@@ -455,7 +448,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      await service.getUserConversations(mockUserId, TENANT_ID);
+      await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -469,7 +462,7 @@ describe("ConversationService (Conversation Operations)", () => {
     it("should return empty array when user has no conversations", async () => {
       mockPrismaService.conversation.findMany.mockResolvedValue([]);
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result).toEqual([]);
       expect(Array.isArray(result)).toBe(true);
@@ -480,7 +473,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      await service.getUserConversations(mockUserId, TENANT_ID);
+      await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -496,7 +489,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversationsData,
       );
 
-      await service.getUserConversations(mockUserId, TENANT_ID);
+      await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -521,7 +514,7 @@ describe("ConversationService (Conversation Operations)", () => {
         new Error("Database error"),
       );
 
-      await expect(service.getUserConversations(mockUserId, TENANT_ID)).rejects.toThrow();
+      await expect(service.getUserConversations(mockUserId, "tenant-001")).rejects.toThrow();
     });
   });
 
@@ -531,11 +524,11 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
-        where: { id: mockConversationId, tenantId: TENANT_ID },
+        where: { id: mockConversationId, tenantId: "tenant-001" },
         include: { participants: true },
       });
     });
@@ -545,7 +538,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants).toBeDefined();
       expect(result.participants).toHaveLength(2);
@@ -557,10 +550,10 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.getConversationById("non-existent-id", TENANT_ID),
+        service.getConversationById("non-existent-id", "tenant-001"),
       ).rejects.toThrow(NotFoundException);
       await expect(
-        service.getConversationById("non-existent-id", TENANT_ID),
+        service.getConversationById("non-existent-id", "tenant-001"),
       ).rejects.toThrow("Conversation not found");
     });
 
@@ -573,7 +566,7 @@ describe("ConversationService (Conversation Operations)", () => {
         conversationWithProduct,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.productId).toBe(mockProductId);
     });
@@ -587,7 +580,7 @@ describe("ConversationService (Conversation Operations)", () => {
         conversationWithOrder,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.orderId).toBe(mockOrderId);
     });
@@ -598,7 +591,7 @@ describe("ConversationService (Conversation Operations)", () => {
       );
 
       await expect(
-        service.getConversationById(mockConversationId, TENANT_ID),
+        service.getConversationById(mockConversationId, "tenant-001"),
       ).rejects.toThrow();
     });
   });
@@ -609,7 +602,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participantIds).toContain(mockUserId);
       expect(result.participantIds).toContain(mockUserId2);
@@ -620,7 +613,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0].role).toBe("BUYER");
       expect(result.participants[1].role).toBe("SELLER");
@@ -631,7 +624,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0]).toHaveProperty("isOnline");
       expect(result.participants[0]).toHaveProperty("lastSeenAt");
@@ -642,7 +635,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0]).toHaveProperty("unreadCount", 0);
       expect(result.participants[1]).toHaveProperty("unreadCount", 3);
@@ -653,7 +646,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0]).toHaveProperty("isTyping");
       expect(result.participants[1]).toHaveProperty("isTyping");
@@ -664,7 +657,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0]).toHaveProperty("joinedAt");
       expect(result.participants[0].joinedAt).toBeInstanceOf(Date);
@@ -675,7 +668,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0]).toHaveProperty("lastReadAt");
       expect(result.participants[0].lastReadAt).toBeInstanceOf(Date);
@@ -695,7 +688,7 @@ describe("ConversationService (Conversation Operations)", () => {
         multiPartyConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants).toHaveLength(3);
       expect(result.participantIds).toContain(mockUserId3);
@@ -708,7 +701,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toHaveProperty("isActive", true);
     });
@@ -718,7 +711,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toHaveProperty("lastMessageAt");
       expect(result.lastMessageAt).toBeInstanceOf(Date);
@@ -729,7 +722,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toHaveProperty("lastMessage");
       expect(result.lastMessage).toBe("Hello, interested in your product");
@@ -740,7 +733,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toHaveProperty("createdAt");
       expect(result.createdAt).toBeInstanceOf(Date);
@@ -751,7 +744,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toHaveProperty("updatedAt");
       expect(result.updatedAt).toBeInstanceOf(Date);
@@ -768,11 +761,11 @@ describe("ConversationService (Conversation Operations)", () => {
         updatedConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.lastMessage).toBe("New message");
       expect(result.lastMessageAt!.getTime()).toBeGreaterThan(
-        mockConversation.lastMessageAt.getTime(),
+        mockConversation.lastMessageAt!.getTime(),
       );
     });
   });
@@ -788,7 +781,7 @@ describe("ConversationService (Conversation Operations)", () => {
         productConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.productId).toBe(mockProductId);
       expect(result.orderId).toBeNull();
@@ -804,7 +797,7 @@ describe("ConversationService (Conversation Operations)", () => {
         orderConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.orderId).toBe(mockOrderId);
       expect(result.productId).toBeNull();
@@ -820,7 +813,7 @@ describe("ConversationService (Conversation Operations)", () => {
         fullContextConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.productId).toBe(mockProductId);
       expect(result.orderId).toBe(mockOrderId);
@@ -841,7 +834,7 @@ describe("ConversationService (Conversation Operations)", () => {
         standaloneConversation,
       );
 
-      const result = await service.createConversation(standaloneDto, TENANT_ID);
+      const result = await service.createConversation(standaloneDto, "tenant-001");
 
       expect(result.productId).toBeNull();
       expect(result.orderId).toBeNull();
@@ -860,7 +853,7 @@ describe("ConversationService (Conversation Operations)", () => {
         newConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.lastMessage).toBeNull();
       expect(result.lastMessageAt).toBeNull();
@@ -869,7 +862,7 @@ describe("ConversationService (Conversation Operations)", () => {
     it("should handle conversation lookup with invalid ID format", async () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
-      await expect(service.getConversationById("invalid-id", TENANT_ID)).rejects.toThrow(
+      await expect(service.getConversationById("invalid-id", "tenant-001")).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -884,7 +877,7 @@ describe("ConversationService (Conversation Operations)", () => {
         mockConversation,
       );
 
-      const result = await service.createConversation(createDto, TENANT_ID);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
@@ -893,7 +886,7 @@ describe("ConversationService (Conversation Operations)", () => {
     it("should handle user with no active conversations", async () => {
       mockPrismaService.conversation.findMany.mockResolvedValue([]);
 
-      const result = await service.getUserConversations("user-new", TENANT_ID);
+      const result = await service.getUserConversations("user-new", "tenant-001");
 
       expect(result).toEqual([]);
       expect(Array.isArray(result)).toBe(true);
@@ -913,8 +906,8 @@ describe("ConversationService (Conversation Operations)", () => {
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
       const [result1, result2] = await Promise.all([
-        service.createConversation(createDto, TENANT_ID),
-        service.createConversation(createDto, TENANT_ID),
+        service.createConversation(createDto, "tenant-001"),
+        service.createConversation(createDto, "tenant-001"),
       ]);
 
       expect(result1).toBeDefined();
@@ -933,7 +926,7 @@ describe("ConversationService (Conversation Operations)", () => {
         conversationWithNullRead,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants[0].lastReadAt).toBeNull();
     });
@@ -953,7 +946,7 @@ describe("ConversationService (Conversation Operations)", () => {
         manyConversations,
       );
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result).toHaveLength(100);
       expect(result[0].unreadCount).toBe(0);
@@ -966,7 +959,7 @@ describe("ConversationService (Conversation Operations)", () => {
       );
 
       await expect(
-        service.getConversationById(mockConversationId, TENANT_ID),
+        service.getConversationById(mockConversationId, "tenant-001"),
       ).rejects.toThrow("Connection timeout");
     });
 
@@ -979,7 +972,7 @@ describe("ConversationService (Conversation Operations)", () => {
         malformedConversation,
       );
 
-      const result = await service.getConversationById(mockConversationId, TENANT_ID);
+      const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.participants).toBeNull();
     });
@@ -999,7 +992,7 @@ describe("ConversationService (Conversation Operations)", () => {
 
       mockPrismaService.conversation.findMany.mockResolvedValue(conversations);
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result.length).toBeLessThanOrEqual(50);
     });
@@ -1014,7 +1007,7 @@ describe("ConversationService (Conversation Operations)", () => {
         },
       ]);
 
-      await service.getUserConversations(mockUserId, TENANT_ID);
+      await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1035,7 +1028,7 @@ describe("ConversationService (Conversation Operations)", () => {
 
       const promises = Array(10)
         .fill(null)
-        .map(() => service.getConversationById(mockConversationId, TENANT_ID));
+        .map(() => service.getConversationById(mockConversationId, "tenant-001"));
 
       const results = await Promise.all(promises);
 
@@ -1053,7 +1046,7 @@ describe("ConversationService (Conversation Operations)", () => {
         },
       ]);
 
-      const result = await service.getUserConversations(mockUserId, TENANT_ID);
+      const result = await service.getUserConversations(mockUserId, "tenant-001");
 
       expect(result[0].unreadCount).toBe(42);
       // Should use _count aggregation, not fetch all messages

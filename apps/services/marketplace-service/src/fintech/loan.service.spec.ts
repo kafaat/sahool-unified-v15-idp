@@ -255,6 +255,7 @@ describe("LoanService", () => {
       expect(mockPrismaService.loan.findMany).toHaveBeenCalledWith({
         where: { walletId: "wallet-1" },
         orderBy: { createdAt: "desc" },
+        take: 100,
       });
       expect(result).toEqual(mockLoans);
     });
@@ -319,6 +320,7 @@ describe("LoanService", () => {
       expect(mockPrismaService.scheduledPayment.findMany).toHaveBeenCalledWith({
         where: { walletId: "wallet-1", isActive: true },
         orderBy: { nextPaymentDate: "asc" },
+        take: 100,
       });
       expect(result).toEqual(mockPayments);
     });
@@ -329,6 +331,7 @@ describe("LoanService", () => {
       expect(mockPrismaService.scheduledPayment.findMany).toHaveBeenCalledWith({
         where: { walletId: "wallet-1" },
         orderBy: { nextPaymentDate: "asc" },
+        take: 100,
       });
     });
   });

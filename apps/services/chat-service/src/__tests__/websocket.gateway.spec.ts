@@ -139,6 +139,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       jest.spyOn(jwt, "verify").mockReturnValue({
         userId: mockUserId,
         sub: mockUserId,
+        tenant_id: "tenant-001",
       } as any);
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
@@ -153,7 +154,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         true,
-        '',
+        "tenant-001",
       );
       expect(mockServer.emit).toHaveBeenCalledWith("user_online", {
         userId: mockUserId,
@@ -237,7 +238,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Client Disconnection", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId, tenantId: '' };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
         isOnline: false,
@@ -250,7 +251,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        '',
+        "tenant-001",
       );
       expect(mockServer.emit).toHaveBeenCalledWith("user_offline", {
         userId: mockUserId,
@@ -264,7 +265,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        '',
+        "tenant-001",
       );
     });
 
@@ -300,7 +301,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Join Conversation", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
     });
 
@@ -322,8 +323,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       );
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
-        mockConversationId,
-        undefined,
+        mockConversationId, "tenant-001",
       );
     });
 
@@ -371,7 +371,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Send Message", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.sendMessage.mockResolvedValue(mockMessage);
     });
 
@@ -390,7 +390,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
       expect(result.event).toBe("message_sent");
       expect(result.data.message).toBeDefined();
-      expect(mockChatService.sendMessage).toHaveBeenCalledWith(messageData, undefined);
+      expect(mockChatService.sendMessage).toHaveBeenCalledWith(messageData, "tenant-001");
     });
 
     it("should broadcast message to conversation room", async () => {
@@ -465,7 +465,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Typing Indicator", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.updateTypingIndicator.mockResolvedValue({
         conversationId: mockConversationId,
         userId: mockUserId,
@@ -488,7 +488,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
         mockConversationId,
         mockUserId,
         true,
-        undefined,
+        "tenant-001",
       );
     });
 
@@ -512,7 +512,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     });
 
     it("should handle stop typing", async () => {
-      await gateway.handleTyping(
+      const result = await gateway.handleTyping(
         {
           conversationId: mockConversationId,
           userId: mockUserId,
@@ -525,7 +525,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
         mockConversationId,
         mockUserId,
         false,
-        undefined,
+        "tenant-001",
       );
     });
 
@@ -564,7 +564,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Read Receipt", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.markMessageAsRead.mockResolvedValue(mockMessage);
     });
 
@@ -582,7 +582,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
         mockUserId,
-        undefined,
+        "tenant-001",
       );
     });
 
@@ -640,7 +640,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Mark Conversation Read", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.markConversationAsRead.mockResolvedValue({
         success: true,
         conversationId: mockConversationId,
@@ -657,7 +657,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.markConversationAsRead).toHaveBeenCalledWith(
         mockConversationId,
         mockUserId,
-        undefined,
+        "tenant-001",
       );
     });
 
@@ -702,7 +702,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Leave Conversation", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
     });
 
     it("should allow user to leave conversation", () => {
@@ -736,6 +736,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       } as any);
       jest.spyOn(jwt, "verify").mockReturnValue({
         userId: mockUserId,
+        tenant_id: "tenant-001",
       } as any);
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
@@ -763,12 +764,12 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         true,
-        '',
+        "tenant-001",
       );
     });
 
     it("should update offline status on disconnection", async () => {
-      mockSocket.data = { userId: mockUserId, tenantId: '' };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
         isOnline: false,
@@ -779,7 +780,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        '',
+        "tenant-001",
       );
     });
   });
@@ -791,6 +792,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       } as any);
       jest.spyOn(jwt, "verify").mockReturnValue({
         userId: mockUserId,
+        tenant_id: "tenant-001",
       } as any);
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
@@ -851,7 +853,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     });
 
     it("should use authenticated userId from socket data", async () => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.sendMessage.mockResolvedValue(mockMessage);
 
       // Try to send with different senderId
@@ -887,6 +889,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       } as any);
       jest.spyOn(jwt, "verify").mockReturnValue({
         userId: mockUserId,
+        tenant_id: "tenant-001",
       } as any);
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
@@ -898,7 +901,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       await gateway.handleConnection(mockSocket as Socket);
       expect(gateway.isUserOnline(mockUserId)).toBe(true);
 
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
         isOnline: false,
@@ -924,7 +927,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Error Messages", () => {
     it("should not expose internal errors to clients", async () => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.sendMessage.mockRejectedValue(
         new Error("Internal database connection failed on server X"),
       );
@@ -946,7 +949,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     });
 
     it("should provide generic error messages", async () => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: "tenant-001" };
       mockChatService.getConversationById.mockRejectedValue(
         new Error("Prisma error: Connection pool exhausted"),
       );

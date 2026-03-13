@@ -20,7 +20,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.parent
 DOCKER_COMPOSE_PATH = REPO_ROOT / "docker-compose.yml"
 PGBOUNCER_ENTRYPOINT = REPO_ROOT / "infrastructure" / "core" / "pgbouncer" / "entrypoint.sh"
-PGBOUNCER_INI = REPO_ROOT / "infrastructure" / "core" / "pgbouncer" / "pgbouncer.ini"
 
 
 @pytest.fixture(scope="module")
@@ -222,6 +221,39 @@ class TestServiceDependencies:
         pgbouncer = compose_config["services"]["pgbouncer"]
         deps = pgbouncer.get("depends_on", {})
         assert "postgres" in deps
+
+    def test_prisma_services_have_direct_url(self, compose_config):
+        """NestJS services with Prisma must have DATABASE_URL_DIRECT for migrations.
+
+        PgBouncer transaction mode breaks Prisma's advisory locks used during
+        prisma migrate deploy. Services need a direct PostgreSQL connection
+        (bypassing PgBouncer) for migrations to succeed.
+        """
+        # Services known to run prisma migrate deploy on startup
+        prisma_services = {
+            "marketplace-service",
+            "research-core",
+            "user-service",
+            "chat-service",
+            "disaster-assessment",
+            "field-management-service",
+            "iot-service",
+        }
+        services = compose_config.get("services", {})
+        missing = []
+        for svc_name in prisma_services:
+            svc_config = services.get(svc_name, {})
+            env = svc_config.get("environment", [])
+            env_str = str(env)
+            if "DATABASE_URL_DIRECT" not in env_str:
+                missing.append(svc_name)
+
+        assert len(missing) == 0, (
+            f"Prisma services missing DATABASE_URL_DIRECT:\n"
+            + "\n".join(f"  - {s}" for s in sorted(missing))
+            + "\nPgBouncer transaction mode breaks prisma migrate deploy. "
+            "Add DATABASE_URL_DIRECT pointing to postgres:5432."
+        )
 
     def test_all_healthchecked_services_have_start_period(self, compose_config):
         """Services with healthchecks should have start_period to avoid premature failures."""

@@ -1007,7 +1007,7 @@ describe("ChatService - Participant Management", () => {
       expect(result.isOnline).toBe(false);
     });
 
-    it("should scope update to tenant when tenantId is provided", async () => {
+    it("should work with tenantId parameter", async () => {
       mockPrisma.participant.updateMany.mockResolvedValue({ count: 3 });
 
       const result = await service.updateOnlineStatus(USER_ID_BUYER, true, TENANT_ID);
@@ -1032,6 +1032,7 @@ describe("ChatService - Participant Management", () => {
       expect(mockPrisma.participant.findMany).toHaveBeenCalledWith({
         where: { userId: USER_ID_BUYER, tenantId: TENANT_ID },
         select: { unreadCount: true },
+        take: 500,
       });
     });
 
@@ -1054,7 +1055,7 @@ describe("ChatService - Participant Management", () => {
       expect(result).toBe(0);
     });
 
-    it("should scope unread count query to tenant", async () => {
+    it("should work with tenantId parameter", async () => {
       mockPrisma.participant.findMany.mockResolvedValue([{ unreadCount: 5 }]);
 
       const result = await service.getUnreadCount(USER_ID_BUYER, TENANT_ID);

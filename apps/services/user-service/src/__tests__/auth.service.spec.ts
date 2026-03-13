@@ -178,11 +178,12 @@ describe("AuthService", () => {
     it("should reset failed login attempts on successful login", async () => {
       mockPrismaService.user.findUnique
         .mockResolvedValueOnce({ ...mockUser, failedLoginAttempts: 3 })
-        .mockResolvedValueOnce({ failedLoginAttempts: 3, lockoutUntil: null });
+        .mockResolvedValueOnce({ failedLoginAttempts: 0, lockoutUntil: null });
 
       jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(true));
       mockPrismaService.user.update.mockResolvedValue(mockUser);
       mockPrismaService.refreshToken.create.mockResolvedValue({});
+      mockPrismaService.refreshToken.findMany.mockResolvedValue([]);
 
       await service.login(loginDto);
 

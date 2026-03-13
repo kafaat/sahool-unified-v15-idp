@@ -75,7 +75,10 @@ describe("ChatController", () => {
     getUnreadCount: jest.fn(),
   };
 
-  const mockReq = { user: { tenantId: 'tenant-001' }, headers: {} };
+  const mockReq = {
+    user: { tenantId: "tenant-001" },
+    headers: { "x-tenant-id": "tenant-001" },
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -144,7 +147,7 @@ describe("ChatController", () => {
       expect(result).toEqual(mockConversation);
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
         createDto,
-        'tenant-001',
+        "tenant-001",
       );
       expect(mockChatService.createConversation).toHaveBeenCalledTimes(1);
     });
@@ -161,7 +164,7 @@ describe("ChatController", () => {
       expect(result.orderId).toBe("order-123");
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
         dtoWithOrder,
-        'tenant-001',
+        "tenant-001",
       );
     });
 
@@ -191,7 +194,7 @@ describe("ChatController", () => {
       const result = await controller.createConversation(createDto, mockUserId2, mockReq);
 
       expect(result).toEqual(mockConversation);
-      expect(mockChatService.createConversation).toHaveBeenCalledWith(createDto, 'tenant-001');
+      expect(mockChatService.createConversation).toHaveBeenCalledWith(createDto, "tenant-001");
     });
 
     it("should handle service errors", async () => {
@@ -221,8 +224,7 @@ describe("ChatController", () => {
 
       expect(result).toEqual(mockConversations);
       expect(mockChatService.getUserConversations).toHaveBeenCalledWith(
-        mockUserId,
-        'tenant-001',
+        mockUserId, "tenant-001",
       );
       expect(mockChatService.getUserConversations).toHaveBeenCalledTimes(1);
     });
@@ -255,12 +257,14 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
       const result = await controller.getConversation(
-        mockConversationId, mockUserId, mockReq);
+        mockConversationId,
+        mockUserId,
+        mockReq,
+      );
 
       expect(result).toEqual(mockConversation);
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
-        mockConversationId,
-        'tenant-001',
+        mockConversationId, "tenant-001",
       );
     });
 
@@ -306,14 +310,20 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
       mockChatService.getMessages.mockResolvedValue(mockMessagesResponse);
 
-      const result = await controller.getMessages(mockConversationId, "1", "50", mockUserId, mockReq);
+      const result = await controller.getMessages(
+        mockConversationId,
+        "1",
+        "50",
+        mockUserId,
+        mockReq,
+      );
 
       expect(result).toEqual(mockMessagesResponse);
       expect(mockChatService.getMessages).toHaveBeenCalledWith(
         mockConversationId,
         1,
         50,
-        'tenant-001',
+        "tenant-001",
       );
     });
 
@@ -321,13 +331,19 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
       mockChatService.getMessages.mockResolvedValue(mockMessagesResponse);
 
-      await controller.getMessages(mockConversationId, undefined, undefined, mockUserId, mockReq);
+      await controller.getMessages(
+        mockConversationId,
+        undefined,
+        undefined,
+        mockUserId,
+        mockReq,
+      );
 
       expect(mockChatService.getMessages).toHaveBeenCalledWith(
         mockConversationId,
         1,
         50,
-        'tenant-001',
+        "tenant-001",
       );
     });
 
@@ -345,7 +361,7 @@ describe("ChatController", () => {
         mockConversationId,
         2,
         20,
-        'tenant-001',
+        "tenant-001",
       );
     });
 
@@ -356,8 +372,7 @@ describe("ChatController", () => {
       await controller.getMessages(mockConversationId, "1", "50", mockUserId, mockReq);
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
-        mockConversationId,
-        'tenant-001',
+        mockConversationId, "tenant-001",
       );
     });
 
@@ -387,7 +402,7 @@ describe("ChatController", () => {
       expect(mockChatService.sendMessage).toHaveBeenCalledWith({
         ...sendMessageDto,
         senderId: mockUserId,
-      }, 'tenant-001');
+      }, "tenant-001");
     });
 
     it("should override senderId with authenticated userId", async () => {
@@ -399,7 +414,7 @@ describe("ChatController", () => {
       expect(mockChatService.sendMessage).toHaveBeenCalledWith({
         ...dtoWithWrongSender,
         senderId: mockUserId,
-      }, 'tenant-001');
+      }, "tenant-001");
     });
 
     it("should send message with offer", async () => {
@@ -455,26 +470,32 @@ describe("ChatController", () => {
       const readMessage = { ...mockMessage, isRead: true, readAt: new Date() };
       mockChatService.markMessageAsRead.mockResolvedValue(readMessage);
 
-      const result = await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
+      const result = await controller.markMessageAsRead(
+        mockMessageId,
+        mockUserId,
+        mockReq,
+      );
 
       expect(result.isRead).toBe(true);
       expect(result.readAt).toBeDefined();
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
-        mockUserId,
-        'tenant-001',
+        mockUserId, "tenant-001",
       );
     });
 
     it("should not mark own message as read", async () => {
       mockChatService.markMessageAsRead.mockResolvedValue(mockMessage);
 
-      await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
+      const result = await controller.markMessageAsRead(
+        mockMessageId,
+        mockUserId,
+        mockReq,
+      );
 
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
-        mockUserId,
-        'tenant-001',
+        mockUserId, "tenant-001",
       );
     });
 
@@ -498,14 +519,16 @@ describe("ChatController", () => {
       });
 
       const result = await controller.markConversationAsRead(
-        mockConversationId, mockUserId, mockReq);
+        mockConversationId,
+        mockUserId,
+        mockReq,
+      );
 
       expect(result.success).toBe(true);
       expect(result.conversationId).toBe(mockConversationId);
       expect(mockChatService.markConversationAsRead).toHaveBeenCalledWith(
         mockConversationId,
-        mockUserId,
-        'tenant-001',
+        mockUserId, "tenant-001",
       );
     });
 
@@ -519,8 +542,7 @@ describe("ChatController", () => {
       await controller.markConversationAsRead(mockConversationId, mockUserId, mockReq);
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
-        mockConversationId,
-        'tenant-001',
+        mockConversationId, "tenant-001",
       );
     });
 
@@ -543,7 +565,7 @@ describe("ChatController", () => {
         userId: mockUserId,
         unreadCount: 5,
       });
-      expect(mockChatService.getUnreadCount).toHaveBeenCalledWith(mockUserId, 'tenant-001');
+      expect(mockChatService.getUnreadCount).toHaveBeenCalledWith(mockUserId, "tenant-001");
     });
 
     it("should return zero for no unread messages", async () => {

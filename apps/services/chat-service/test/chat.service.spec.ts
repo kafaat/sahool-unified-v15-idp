@@ -81,6 +81,7 @@ describe("ChatService", () => {
       update: jest.fn(),
     },
     message: {
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
@@ -475,15 +476,15 @@ describe("ChatService", () => {
 
   describe("getConversationById - جلب المحادثة بالمعرف", () => {
     it("should return conversation by ID", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
       const result = await service.getConversationById("conv-123", "tenant-001");
 
       expect(result).toEqual(mockConversation);
-      expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: "conv-123" },
+      expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
+        where: { id: "conv-123", tenantId: "tenant-001" },
         include: {
           participants: true,
         },
@@ -491,7 +492,7 @@ describe("ChatService", () => {
     });
 
     it("should throw NotFoundException when conversation not found", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
       await expect(service.getConversationById("conv-999", "tenant-001")).rejects.toThrow(
         NotFoundException,
@@ -563,7 +564,7 @@ describe("ChatService", () => {
         conversation: mockConversation,
       };
 
-      mockPrismaService.message.findUnique.mockResolvedValue(
+      mockPrismaService.message.findFirst.mockResolvedValue(
         messageWithConversation,
       );
       mockPrismaService.message.update.mockResolvedValue({
@@ -590,7 +591,7 @@ describe("ChatService", () => {
         conversation: mockConversation,
       };
 
-      mockPrismaService.message.findUnique.mockResolvedValue(
+      mockPrismaService.message.findFirst.mockResolvedValue(
         messageWithConversation,
       );
 
@@ -600,7 +601,7 @@ describe("ChatService", () => {
     });
 
     it("should throw NotFoundException when message not found", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue(null);
+      mockPrismaService.message.findFirst.mockResolvedValue(null);
 
       await expect(
         service.markMessageAsRead("msg-999", "user-123", "tenant-001"),
@@ -648,7 +649,7 @@ describe("ChatService", () => {
 
   describe("markConversationAsRead - تحديد المحادثة كمقروءة", () => {
     it("should mark all messages in conversation as read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
@@ -678,7 +679,7 @@ describe("ChatService", () => {
     });
 
     it("should reset unread count for participant", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });

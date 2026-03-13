@@ -127,6 +127,7 @@ describe("ConversationService (Conversation Operations)", () => {
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           participantIds: {
             hasEvery: createDto.participantIds,
           },
@@ -357,9 +358,11 @@ describe("ConversationService (Conversation Operations)", () => {
       expect(result).toHaveLength(3);
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           participantIds: { has: mockUserId },
           isActive: true,
         },
+        take: 100,
         include: {
           participants: { where: { userId: mockUserId } },
           messages: {
@@ -517,21 +520,21 @@ describe("ConversationService (Conversation Operations)", () => {
 
   describe("Get Conversation By ID", () => {
     it("should retrieve conversation by ID", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
       const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result).toEqual(mockConversation);
-      expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: mockConversationId },
+      expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
+        where: { id: mockConversationId, tenantId: "tenant-001" },
         include: { participants: true },
       });
     });
 
     it("should include participants in response", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -544,7 +547,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should throw NotFoundException when conversation does not exist", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
       await expect(
         service.getConversationById("non-existent-id", "tenant-001"),
@@ -559,7 +562,7 @@ describe("ConversationService (Conversation Operations)", () => {
         ...mockConversation,
         productId: mockProductId,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         conversationWithProduct,
       );
 
@@ -573,7 +576,7 @@ describe("ConversationService (Conversation Operations)", () => {
         ...mockConversation,
         orderId: mockOrderId,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         conversationWithOrder,
       );
 
@@ -595,7 +598,7 @@ describe("ConversationService (Conversation Operations)", () => {
 
   describe("Conversation Participants", () => {
     it("should verify user is a participant in conversation", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -606,7 +609,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant roles", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -617,7 +620,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant online status", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -628,7 +631,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant unread count", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -639,7 +642,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant typing status", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -650,7 +653,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant join timestamp", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -661,7 +664,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should include participant last read timestamp", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -681,7 +684,7 @@ describe("ConversationService (Conversation Operations)", () => {
           { ...mockParticipant1, id: "part-3", userId: mockUserId3 },
         ],
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         multiPartyConversation,
       );
 
@@ -694,7 +697,7 @@ describe("ConversationService (Conversation Operations)", () => {
 
   describe("Conversation State Management", () => {
     it("should track conversation active state", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -704,7 +707,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should track last message timestamp", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -715,7 +718,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should track last message content", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -726,7 +729,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should track conversation creation timestamp", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -737,7 +740,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should track conversation update timestamp", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
@@ -754,15 +757,15 @@ describe("ConversationService (Conversation Operations)", () => {
         lastMessageAt: new Date("2024-01-01T11:00:00Z"),
         updatedAt: new Date("2024-01-01T11:00:00Z"),
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         updatedConversation,
       );
 
       const result = await service.getConversationById(mockConversationId, "tenant-001");
 
       expect(result.lastMessage).toBe("New message");
-      expect(result.lastMessageAt.getTime()).toBeGreaterThan(
-        mockConversation.lastMessageAt.getTime(),
+      expect(result.lastMessageAt!.getTime()).toBeGreaterThan(
+        mockConversation.lastMessageAt!.getTime(),
       );
     });
   });
@@ -774,7 +777,7 @@ describe("ConversationService (Conversation Operations)", () => {
         productId: mockProductId,
         orderId: null,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         productConversation,
       );
 
@@ -790,7 +793,7 @@ describe("ConversationService (Conversation Operations)", () => {
         productId: null,
         orderId: mockOrderId,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         orderConversation,
       );
 
@@ -806,7 +809,7 @@ describe("ConversationService (Conversation Operations)", () => {
         productId: mockProductId,
         orderId: mockOrderId,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         fullContextConversation,
       );
 
@@ -846,7 +849,7 @@ describe("ConversationService (Conversation Operations)", () => {
         lastMessageAt: null,
         messages: [],
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         newConversation,
       );
 
@@ -857,7 +860,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should handle conversation lookup with invalid ID format", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
       await expect(service.getConversationById("invalid-id", "tenant-001")).rejects.toThrow(
         NotFoundException,
@@ -919,7 +922,7 @@ describe("ConversationService (Conversation Operations)", () => {
           mockParticipant2,
         ],
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         conversationWithNullRead,
       );
 
@@ -965,7 +968,7 @@ describe("ConversationService (Conversation Operations)", () => {
         ...mockConversation,
         participants: null,
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         malformedConversation,
       );
 
@@ -1019,7 +1022,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should handle concurrent conversation retrievals", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 

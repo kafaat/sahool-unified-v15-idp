@@ -55,12 +55,14 @@ describe("MessageService (Message Operations)", () => {
   // Mock PrismaService
   const mockPrismaService = {
     conversation: {
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
     },
     message: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       count: jest.fn(),
       update: jest.fn(),
@@ -104,7 +106,7 @@ describe("MessageService (Message Operations)", () => {
     };
 
     beforeEach(() => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -213,7 +215,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should validate conversation exists before sending", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
       await expect(service.sendMessage(sendMessageDto, "tenant-001")).rejects.toThrow(
         NotFoundException,
@@ -225,7 +227,7 @@ describe("MessageService (Message Operations)", () => {
         ...mockConversation,
         participantIds: [mockUserId2],
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         unauthorizedConversation,
       );
 
@@ -418,7 +420,7 @@ describe("MessageService (Message Operations)", () => {
 
   describe("Message Read Status", () => {
     it("should mark single message as read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
@@ -447,7 +449,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should not mark own messages as read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         senderId: mockUserId,
         conversation: mockConversation,
@@ -459,7 +461,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should update participant lastReadAt when marking message read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
@@ -484,7 +486,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should reset unread count when marking message read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
@@ -503,7 +505,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should throw NotFoundException for non-existent message", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue(null);
+      mockPrismaService.message.findFirst.mockResolvedValue(null);
 
       await expect(
         service.markMessageAsRead("invalid-id", mockUserId, "tenant-001"),
@@ -513,7 +515,7 @@ describe("MessageService (Message Operations)", () => {
 
   describe("Bulk Read Operations", () => {
     it("should mark all messages in conversation as read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 10 });
@@ -528,6 +530,7 @@ describe("MessageService (Message Operations)", () => {
       expect(result.success).toBe(true);
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           conversationId: mockConversationId,
           senderId: { not: mockUserId },
           isRead: false,
@@ -540,7 +543,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should only mark unread messages", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
@@ -558,7 +561,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should not mark own messages as read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 3 });
@@ -576,7 +579,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should update participant after bulk read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 7 });
@@ -586,6 +589,7 @@ describe("MessageService (Message Operations)", () => {
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           conversationId: mockConversationId,
           userId: mockUserId,
         },
@@ -635,8 +639,9 @@ describe("MessageService (Message Operations)", () => {
       await service.getUnreadCount(mockUserId, "tenant-001");
 
       expect(mockPrismaService.participant.findMany).toHaveBeenCalledWith({
-        where: { userId: mockUserId },
+        where: { userId: mockUserId, tenantId: "tenant-001" },
         select: { unreadCount: true },
+        take: 500,
       });
     });
   });
@@ -650,7 +655,7 @@ describe("MessageService (Message Operations)", () => {
         messageType: MessageType.TEXT,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -673,7 +678,7 @@ describe("MessageService (Message Operations)", () => {
         attachmentUrl: "https://cdn.sahool.com/image.jpg",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -703,7 +708,7 @@ describe("MessageService (Message Operations)", () => {
         offerCurrency: "YER",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -731,7 +736,7 @@ describe("MessageService (Message Operations)", () => {
         messageType: MessageType.SYSTEM,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -753,7 +758,7 @@ describe("MessageService (Message Operations)", () => {
 
   describe("Error Handling", () => {
     it("should handle database transaction failures", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockRejectedValue(
@@ -771,7 +776,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should handle message not found error", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue(null);
+      mockPrismaService.message.findFirst.mockResolvedValue(null);
 
       await expect(
         service.markMessageAsRead("invalid-id", mockUserId, "tenant-001"),
@@ -779,7 +784,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should sanitize error messages for security", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockRejectedValue(
@@ -813,7 +818,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should handle concurrent read operations", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
@@ -830,7 +835,7 @@ describe("MessageService (Message Operations)", () => {
 
     it("should handle message with maximum content length", async () => {
       const maxContent = "a".repeat(10000);
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {

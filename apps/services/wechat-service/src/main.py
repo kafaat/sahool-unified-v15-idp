@@ -10,7 +10,7 @@ Features:
 - Chat summarization (AI-powered)
 - Chat insights extraction
 
-Port: 8133
+Port: 8135
 """
 
 import json
@@ -47,7 +47,7 @@ sys.path.insert(
 SERVICE_NAME = "wechat-service"
 SERVICE_NAME_AR = "خدمة تكامل ويتشات"
 SERVICE_VERSION = "16.0.0"
-SERVICE_PORT = 8133
+SERVICE_PORT = 8135
 
 # Logger
 logger = structlog.get_logger()

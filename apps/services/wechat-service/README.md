@@ -8,7 +8,7 @@ WeChat messaging and social integration service for SAHOOL agricultural platform
 |----------|-------|
 | Service Name | wechat-service |
 | Arabic Name | خدمة تكامل ويتشات |
-| Port | 8133 |
+| Port | 8135 |
 | Version | 16.0.0 |
 
 ## Features
@@ -63,7 +63,7 @@ WeChat messaging and social integration service for SAHOOL agricultural platform
 
 ```bash
 # Service Configuration
-SERVICE_PORT=8133
+SERVICE_PORT=8135
 
 # Database
 DATABASE_URL=postgresql://user:pass@host:5432/sahool
@@ -95,7 +95,7 @@ JWT_ALGORITHM=HS256
 pip install -r requirements.txt
 
 # Run the service
-uvicorn src.main:app --host 0.0.0.0 --port 8133 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8135 --reload
 ```
 
 ### Running Tests
@@ -115,7 +115,7 @@ pytest tests/ -v --cov=src --cov-report=html
 docker build -t sahool/wechat-service:latest -f apps/services/wechat-service/Dockerfile .
 
 # Run container
-docker run -p 8133:8133 \
+docker run -p 8135:8135 \
   -e JWT_SECRET_KEY=your_secret \
   -e WECHAT_APP_ID=your_app_id \
   -e WECHAT_APP_SECRET=your_app_secret \

@@ -1,5 +1,5 @@
 # SAHOOL WeChat Integration Service Dependencies
-# Port: 8133
+# Port: 8135
 
 # Web Framework
 fastapi==0.135.1

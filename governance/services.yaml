@@ -2060,7 +2060,7 @@ services:
     category: community
     layer: business
     path: "apps/services/wechat-service"
-    port: null
+    port: 8135
     protocol: http
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"

@@ -3197,7 +3197,7 @@ services:
     profiles:
       - deprecated
     environment:
-      - PORT=8133
+      - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3208,7 +3208,6 @@ services:
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
       - WECHAT_ENCODING_AES_KEY=${WECHAT_ENCODING_AES_KEY:-}
-    # No host port mapping - deprecated service conflicts with community-service on 8133
     depends_on:
       pgbouncer:
         condition: service_healthy

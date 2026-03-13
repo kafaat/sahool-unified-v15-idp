@@ -130,8 +130,16 @@ class TestDockerfileSecurityPatterns:
         content = _read_dockerfile(svc_name)
         if not content:
             pytest.skip(f"No Dockerfile for {svc_name}")
-        unsafe = bool(re.search(r"curl\s+.*\|\s*(sh|bash|python)", content, re.IGNORECASE | re.DOTALL))
-        assert not unsafe, f"{svc_name}: Dockerfile uses curl|sh pattern (unsafe)"
+        # Scan per-RUN-command to avoid false positives from DOTALL matching
+        # across separate RUN instructions (e.g. curl in one RUN, pipe in another)
+        run_blocks = re.findall(
+            r"^\s*RUN\s+(.*?)(?=^\s*(?:FROM|RUN|COPY|ADD|ENV|EXPOSE|CMD|ENTRYPOINT|WORKDIR|USER|ARG|LABEL|HEALTHCHECK|SHELL|STOPSIGNAL|ONBUILD|VOLUME)\s|\Z)",
+            content,
+            re.MULTILINE | re.DOTALL | re.IGNORECASE,
+        )
+        for block in run_blocks:
+            unsafe = bool(re.search(r"curl\s+.*\|\s*(sh|bash|python)", block, re.IGNORECASE | re.DOTALL))
+            assert not unsafe, f"{svc_name}: Dockerfile RUN uses curl|sh pattern (unsafe)"
 
     @pytest.mark.parametrize("svc_name", sorted(ALL_BUILT_SERVICES))
     def test_no_add_with_url(self, svc_name: str) -> None:

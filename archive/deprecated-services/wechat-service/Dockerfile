@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 
 # Install dependencies
 COPY constraints.txt .
-COPY apps/services/wechat-service/requirements.txt .
+COPY archive/deprecated-services/wechat-service/requirements.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -46,7 +46,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY shared/ ./shared/
 
 # Copy source code
-COPY apps/services/wechat-service/src/ ./src/
+COPY archive/deprecated-services/wechat-service/src/ ./src/
 
 # Create __init__.py files if needed
 RUN touch ./src/__init__.py 2>/dev/null || true

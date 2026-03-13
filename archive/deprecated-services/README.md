@@ -24,7 +24,7 @@ This directory contains services that have been deprecated and replaced by newer
 | `field-chat` | `chat-service` | 8115 | 2026-02-16 |
 | `ndvi-processor` | `vegetation-analysis-service` | 8090 | 2026-02-16 |
 | `yield-engine` | `yield-prediction-service` | 8152 | 2026-02-16 |
-| `wechat-service` | `community-service` | 8133 | 2026-03-13 |
+| `wechat-service` | `community-service` | 8135 | 2026-03-13 |
 
 ## Overdue Sunset Notices
 

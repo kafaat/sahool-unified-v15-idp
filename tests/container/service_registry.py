@@ -106,7 +106,7 @@ PORTLESS_SERVICES: set[str] = {"agro-rules", "code-review-agent", "demo-data"}
 # ---------------------------------------------------------------------------
 
 DEPRECATED_SERVICES: dict[str, int] = {
-    "wechat-service": 8133,  # replaced by community-service (2026-03-13)
+    "wechat-service": 8135,  # replaced by community-service (2026-03-13)
 }
 
 # ---------------------------------------------------------------------------

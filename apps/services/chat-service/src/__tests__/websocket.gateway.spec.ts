@@ -237,7 +237,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
   describe("Client Disconnection", () => {
     beforeEach(() => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: '' };
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
         isOnline: false,
@@ -250,7 +250,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        undefined,
+        '',
       );
       expect(mockServer.emit).toHaveBeenCalledWith("user_offline", {
         userId: mockUserId,
@@ -264,7 +264,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        undefined,
+        '',
       );
     });
 
@@ -768,7 +768,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     });
 
     it("should update offline status on disconnection", async () => {
-      mockSocket.data = { userId: mockUserId };
+      mockSocket.data = { userId: mockUserId, tenantId: '' };
       mockChatService.updateOnlineStatus.mockResolvedValue({
         userId: mockUserId,
         isOnline: false,
@@ -779,7 +779,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
-        undefined,
+        '',
       );
     });
   });

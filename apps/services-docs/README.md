@@ -148,7 +148,7 @@ export function useUpdateField() {
 | ground-vision-service | 8182 | /api/v1/ground-vision | - | Ground-level Vision Analysis |
 | mcp-server | 8201 | /api/v1/mcp | [mcp-server.md](./mcp-server.md) | MCP Protocol |
 | community-service | 8133 | /api/v1/community | [community-service.md](./community-service.md) | Community Hub |
-| wechat-service *(deprecated)* | 8133 | /api/v1/wechat | [wechat-service.md](./wechat-service.md) | DEPRECATED (use community-service) |
+| wechat-service *(deprecated)* | 8135 | /api/v1/wechat | [wechat-service.md](./wechat-service.md) | DEPRECATED (use community-service) |
 | agro-rules | N/A | NATS-only | [agro-rules.md](./agro-rules.md) | N/A (Worker) |
 
 ---

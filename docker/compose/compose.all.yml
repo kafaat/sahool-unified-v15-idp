@@ -1467,7 +1467,6 @@ services:
     depends_on:
     - redis
     - nats
-    - rocketchat
   wechat-service:
     build:
       context: ../../apps/services/wechat-service

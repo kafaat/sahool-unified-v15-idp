@@ -3169,7 +3169,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - ROCKETCHAT_URL=${ROCKETCHAT_INTERNAL_URL:-http://rocketchat:3000}
       - ROCKETCHAT_ADMIN_USER=${ROCKETCHAT_ADMIN_USER:-rc_admin}
-      - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:?ROCKETCHAT_ADMIN_PASSWORD is required}
+      - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:-}
     ports:
       - "127.0.0.1:8133:8133"
     depends_on:
@@ -3201,11 +3201,12 @@ services:
       - sahool-network
 
   # WeChat Service (DEPRECATED) - خدمة ويتشات (مُهملة)
+  # Port 8135 (was 8133, reassigned to community-service)
   # Replaced by community-service. Use: docker compose --profile deprecated up
   wechat-service:
     build:
       context: .
-      dockerfile: apps/services/wechat-service/Dockerfile
+      dockerfile: archive/deprecated-services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
     profiles:
       - deprecated
@@ -3229,7 +3230,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8133/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8135/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

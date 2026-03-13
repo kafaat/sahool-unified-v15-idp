@@ -720,6 +720,7 @@ jobs:
 
       - name: Run container smoke & startup configuration tests
         id: smoke_tests
+        if: always()
         run: |
           python -m pytest tests/container/test_container_smoke.py \
             -v \

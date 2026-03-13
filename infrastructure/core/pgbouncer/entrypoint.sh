@@ -62,30 +62,62 @@ log_error() {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Wait for PostgreSQL to be ready using netcat (available in Alpine)
+# Wait for PostgreSQL to be FULLY ready (init scripts completed)
+# FIX (2026-03-13): Changed from simple port check to actual query verification.
+# The port opens BEFORE init scripts finish, causing PgBouncer to fail auth_query
+# because the pgbouncer schema (02-pgbouncer-user.sql) hasn't been created yet.
 # ═══════════════════════════════════════════════════════════════════════════════
 wait_for_postgres() {
-    _max_attempts=30
+    _max_attempts=60
     _attempt=1
 
     log_info "Waiting for PostgreSQL at ${DB_HOST}:${DB_PORT}..."
 
+    # Phase 1: Wait for TCP port to be open
     while [ "$_attempt" -le "$_max_attempts" ]; do
-        # Try to connect to PostgreSQL port using nc (netcat)
         if nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; then
             log_info "PostgreSQL port is open!"
-            # Give PostgreSQL a moment to finish initialization
-            sleep 2
-            return 0
+            break
         fi
-
-        log_warn "Attempt $_attempt/$_max_attempts: PostgreSQL not ready, waiting..."
+        log_warn "Attempt $_attempt/$_max_attempts: PostgreSQL port not ready, waiting..."
         sleep 2
         _attempt=$((_attempt + 1))
     done
 
-    log_error "PostgreSQL did not become ready in time"
-    return 1
+    if [ "$_attempt" -gt "$_max_attempts" ]; then
+        log_error "PostgreSQL port did not open in time"
+        return 1
+    fi
+
+    # Phase 2: Wait for init scripts to complete by checking for pgbouncer schema
+    # The pgbouncer schema is created by 02-pgbouncer-user.sql (one of the last init scripts)
+    _attempt=1
+    _max_init_attempts=30
+    log_info "Waiting for PostgreSQL init scripts to complete (checking pgbouncer schema)..."
+
+    while [ "$_attempt" -le "$_max_init_attempts" ]; do
+        if command -v psql >/dev/null 2>&1; then
+            # Check if pgbouncer schema exists (created by 02-pgbouncer-user.sql)
+            _schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+                -t -A -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" 2>/dev/null || echo "f")
+            if [ "$_schema_exists" = "t" ]; then
+                log_info "PostgreSQL init scripts completed (pgbouncer schema exists)"
+                return 0
+            fi
+        else
+            # No psql available, fall back to a generous sleep
+            log_warn "psql not available, waiting 15s for init scripts to complete..."
+            sleep 15
+            return 0
+        fi
+
+        log_info "Init scripts still running ($_attempt/$_max_init_attempts), waiting..."
+        sleep 3
+        _attempt=$((_attempt + 1))
+    done
+
+    log_warn "Timed out waiting for init scripts, proceeding anyway..."
+    return 0
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

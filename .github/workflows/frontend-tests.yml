@@ -613,6 +613,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -677,6 +681,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -774,6 +782,10 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -1114,6 +1126,10 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
 
       - name: Setup Java
         uses: actions/setup-java@v5

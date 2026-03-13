@@ -3,15 +3,15 @@
  * بيانات مؤشر الكتابة
  */
 
-import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsUUID } from "class-validator";
 
 export class TypingIndicatorDto {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   conversationId: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   userId: string;
 
   @IsBoolean()

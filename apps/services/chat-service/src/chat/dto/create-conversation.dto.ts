@@ -24,18 +24,18 @@ export class CreateConversationDto {
   participantIds: string[];
 
   @ApiPropertyOptional({
-    description: "Product ID if conversation is about a product",
-    example: "prod-789",
+    description: "Product ID if conversation is about a product (UUID)",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   productId?: string;
 
   @ApiPropertyOptional({
-    description: "Order ID if conversation is about an order",
-    example: "order-101",
+    description: "Order ID if conversation is about an order (UUID)",
+    example: "550e8400-e29b-41d4-a716-446655440001",
   })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   orderId?: string;
 }

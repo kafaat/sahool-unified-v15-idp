@@ -3,14 +3,14 @@
  * بيانات الانضمام للمحادثة عبر WebSocket
  */
 
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsUUID } from "class-validator";
 
 export class JoinConversationDto {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   conversationId: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   userId: string;
 }

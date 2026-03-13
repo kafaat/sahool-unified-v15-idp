@@ -10,6 +10,7 @@ import {
   IsOptional,
   IsArray,
   IsDateString,
+  IsUUID,
   Min,
   Max,
   ValidateNested,
@@ -131,8 +132,8 @@ export class CreateDisasterReportDto {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class DisasterAssessmentDto {
-  @ApiProperty({ description: "معرف الكارثة" })
-  @IsString()
+  @ApiProperty({ description: "معرف الكارثة (UUID)", example: "550e8400-e29b-41d4-a716-446655440000" })
+  @IsUUID()
   disasterId: string;
 
   @ApiPropertyOptional({

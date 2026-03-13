@@ -3,18 +3,18 @@
  * بيانات تأكيد القراءة
  */
 
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsUUID } from "class-validator";
 
 export class ReadReceiptDto {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   conversationId: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   userId: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   messageId: string;
 }

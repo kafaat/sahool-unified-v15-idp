@@ -26,19 +26,19 @@ export enum MessageType {
 
 export class SendMessageDto {
   @ApiProperty({
-    description: "Conversation ID",
-    example: "conv-123",
+    description: "Conversation ID (UUID)",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   conversationId: string;
 
   @ApiProperty({
-    description: "Sender user ID",
-    example: "user-123",
+    description: "Sender user ID (UUID)",
+    example: "550e8400-e29b-41d4-a716-446655440001",
   })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   senderId: string;
 
   @ApiProperty({

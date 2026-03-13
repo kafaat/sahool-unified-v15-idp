@@ -1419,6 +1419,38 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8133'
       prometheus.io/path: /metrics
+  wechat-service:
+    enabled: false
+    name: wechat-service
+    image:
+      repository: ghcr.io/kafaat/sahool-wechat-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8135
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8135'
+    serviceAccount:
+      create: true
+      name: sahool-wechat-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8135'
+      prometheus.io/path: /metrics
   agent-registry:
     enabled: true
     name: agent-registry
@@ -2837,6 +2869,10 @@ ingress:
       pathType: Prefix
       service: community-service
       port: 8133
+    - path: /api/v1/wechat/service
+      pathType: Prefix
+      service: wechat-service
+      port: 8135
     - path: /api/v1/agent/registry
       pathType: Prefix
       service: agent-registry

@@ -13,18 +13,6 @@
 
 set -e
 
-# Install postgresql-client for healthcheck.sh (SHOW POOLS queries)
-# This enables deep health checks instead of simple port checks
-# FIX: Added timeout to prevent blocking in environments without internet access
-# DNS resolution for Alpine repos can hang for minutes without network connectivity
-if ! command -v psql >/dev/null 2>&1; then
-    if command -v timeout >/dev/null 2>&1; then
-        timeout 15 apk add --no-cache postgresql-client >/dev/null 2>&1 || true
-    else
-        apk add --no-cache postgresql-client >/dev/null 2>&1 || true
-    fi
-fi
-
 # Create runtime directory for userlist.txt and pidfile
 # The docker-compose mounts a tmpfs at /etc/pgbouncer/runtime (writable by any user)
 # Previously used a named volume which caused "Permission denied" for non-root containers
@@ -61,6 +49,30 @@ log_error() {
     echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
+# Install postgresql-client — REQUIRED for schema readiness check in wait_for_postgres()
+# Without psql, we cannot verify that init scripts (02-pgbouncer-user.sql) have completed,
+# which leads to auth_query failures when PgBouncer starts before the pgbouncer schema exists.
+# Retries with backoff to handle transient network/DNS issues in Alpine environments.
+if ! command -v psql >/dev/null 2>&1; then
+    _psql_installed=false
+    for _psql_wait in 2 5 10; do
+        log_info "Installing postgresql-client (attempt with ${_psql_wait}s timeout)..."
+        if command -v timeout >/dev/null 2>&1; then
+            timeout "$_psql_wait" apk add --no-cache postgresql-client >/dev/null 2>&1 && _psql_installed=true && break
+        else
+            apk add --no-cache postgresql-client >/dev/null 2>&1 && _psql_installed=true && break
+        fi
+        sleep 1
+    done
+    if [ "$_psql_installed" = false ]; then
+        log_error "FATAL: Cannot install postgresql-client. PgBouncer requires psql to verify"
+        log_error "that init scripts have completed (pgbouncer schema exists). Without this check,"
+        log_error "PgBouncer may start before auth_query schema is ready. Aborting."
+        exit 1
+    fi
+fi
+log_info "psql available: $(command -v psql)"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Wait for PostgreSQL to be FULLY ready (init scripts completed)
 # FIX (2026-03-13): Changed from simple port check to actual query verification.
@@ -96,18 +108,11 @@ wait_for_postgres() {
     log_info "Waiting for PostgreSQL init scripts to complete (checking pgbouncer schema)..."
 
     while [ "$_attempt" -le "$_max_init_attempts" ]; do
-        if command -v psql >/dev/null 2>&1; then
-            # Check if pgbouncer schema exists (created by 02-pgbouncer-user.sql)
-            _schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
-                -t -A -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" 2>/dev/null || echo "f")
-            if [ "$_schema_exists" = "t" ]; then
-                log_info "PostgreSQL init scripts completed (pgbouncer schema exists)"
-                return 0
-            fi
-        else
-            # No psql available, fall back to a generous sleep
-            log_warn "psql not available, waiting 15s for init scripts to complete..."
-            sleep 15
+        # psql is guaranteed available (installed at startup with hard failure)
+        _schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+            -t -A -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" 2>/dev/null || echo "f")
+        if [ "$_schema_exists" = "t" ]; then
+            log_info "PostgreSQL init scripts completed (pgbouncer schema exists)"
             return 0
         fi
 
@@ -116,8 +121,8 @@ wait_for_postgres() {
         _attempt=$((_attempt + 1))
     done
 
-    log_warn "Timed out waiting for init scripts, proceeding anyway..."
-    return 0
+    log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
+    return 1
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -230,9 +235,10 @@ main() {
     log_info "DB_NAME: ${DB_NAME}"
     log_info "═══════════════════════════════════════════════════════════════════"
 
-    # Wait for PostgreSQL
+    # Wait for PostgreSQL (exit if not available, auth_query requires pgbouncer schema)
     if ! wait_for_postgres; then
-        log_warn "PostgreSQL not available, but continuing anyway..."
+        log_error "PostgreSQL not available or init scripts incomplete. Cannot start PgBouncer without pgbouncer schema."
+        exit 1
     fi
 
     # Generate userlist.txt

@@ -153,6 +153,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         true,
+        '',
       );
       expect(mockServer.emit).toHaveBeenCalledWith("user_online", {
         userId: mockUserId,
@@ -249,6 +250,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
+        undefined,
       );
       expect(mockServer.emit).toHaveBeenCalledWith("user_offline", {
         userId: mockUserId,
@@ -262,6 +264,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
+        undefined,
       );
     });
 
@@ -320,6 +323,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
         mockConversationId,
+        undefined,
       );
     });
 
@@ -386,7 +390,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
 
       expect(result.event).toBe("message_sent");
       expect(result.data.message).toBeDefined();
-      expect(mockChatService.sendMessage).toHaveBeenCalledWith(messageData);
+      expect(mockChatService.sendMessage).toHaveBeenCalledWith(messageData, undefined);
     });
 
     it("should broadcast message to conversation room", async () => {
@@ -484,6 +488,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
         mockConversationId,
         mockUserId,
         true,
+        undefined,
       );
     });
 
@@ -520,6 +525,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
         mockConversationId,
         mockUserId,
         false,
+        undefined,
       );
     });
 
@@ -576,6 +582,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
         mockUserId,
+        undefined,
       );
     });
 
@@ -650,6 +657,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.markConversationAsRead).toHaveBeenCalledWith(
         mockConversationId,
         mockUserId,
+        undefined,
       );
     });
 
@@ -755,6 +763,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         true,
+        '',
       );
     });
 
@@ -770,6 +779,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       expect(mockChatService.updateOnlineStatus).toHaveBeenCalledWith(
         mockUserId,
         false,
+        undefined,
       );
     });
   });

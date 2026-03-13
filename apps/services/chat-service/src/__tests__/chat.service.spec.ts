@@ -1007,14 +1007,14 @@ describe("ChatService - Participant Management", () => {
       expect(result.isOnline).toBe(false);
     });
 
-    it("should work without tenantId (optional parameter)", async () => {
+    it("should scope update to tenant when tenantId is provided", async () => {
       mockPrisma.participant.updateMany.mockResolvedValue({ count: 3 });
 
-      const result = await service.updateOnlineStatus(USER_ID_BUYER, true);
+      const result = await service.updateOnlineStatus(USER_ID_BUYER, true, TENANT_ID);
 
       expect(result).toEqual({ userId: USER_ID_BUYER, isOnline: true });
       const callArg = mockPrisma.participant.updateMany.mock.calls[0][0];
-      expect(callArg.where).toEqual({ userId: USER_ID_BUYER });
+      expect(callArg.where).toEqual({ userId: USER_ID_BUYER, tenantId: TENANT_ID });
     });
   });
 
@@ -1054,14 +1054,14 @@ describe("ChatService - Participant Management", () => {
       expect(result).toBe(0);
     });
 
-    it("should work without tenantId (optional parameter)", async () => {
+    it("should scope unread count query to tenant", async () => {
       mockPrisma.participant.findMany.mockResolvedValue([{ unreadCount: 5 }]);
 
-      const result = await service.getUnreadCount(USER_ID_BUYER);
+      const result = await service.getUnreadCount(USER_ID_BUYER, TENANT_ID);
 
       expect(result).toBe(5);
       const callArg = mockPrisma.participant.findMany.mock.calls[0][0];
-      expect(callArg.where).toEqual({ userId: USER_ID_BUYER });
+      expect(callArg.where).toEqual({ userId: USER_ID_BUYER, tenantId: TENANT_ID });
     });
   });
 
@@ -1073,7 +1073,7 @@ describe("ChatService - Participant Management", () => {
       ];
       mockPrisma.message.findMany.mockResolvedValue(messages);
 
-      const result = await service.getMessagesCursor(CONVERSATION_ID, undefined, 50, TENANT_ID);
+      const result = await service.getMessagesCursor(CONVERSATION_ID, TENANT_ID, undefined, 50);
 
       expect(result.messages).toHaveLength(2);
       expect(result.hasMore).toBe(false);
@@ -1088,7 +1088,7 @@ describe("ChatService - Participant Management", () => {
       }));
       mockPrisma.message.findMany.mockResolvedValue(messages);
 
-      const result = await service.getMessagesCursor(CONVERSATION_ID, undefined, 10, TENANT_ID);
+      const result = await service.getMessagesCursor(CONVERSATION_ID, TENANT_ID, undefined, 10);
 
       expect(result.hasMore).toBe(true);
       expect(result.messages).toHaveLength(10);
@@ -1099,7 +1099,7 @@ describe("ChatService - Participant Management", () => {
     it("should use cursor and skip for subsequent pages", async () => {
       mockPrisma.message.findMany.mockResolvedValue([mockMessage]);
 
-      await service.getMessagesCursor(CONVERSATION_ID, "cursor-msg-50", 20, TENANT_ID);
+      await service.getMessagesCursor(CONVERSATION_ID, TENANT_ID, "cursor-msg-50", 20);
 
       expect(mockPrisma.message.findMany).toHaveBeenCalledWith(
         expect.objectContaining({

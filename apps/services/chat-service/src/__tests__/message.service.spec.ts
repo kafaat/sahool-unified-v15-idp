@@ -22,6 +22,7 @@ describe("MessageService (Message Operations)", () => {
   // Mock data
   const mockUserId = "user-123";
   const mockUserId2 = "user-456";
+  const TENANT_ID = "tenant-001";
   const mockConversationId = "conv-789";
   const mockMessageId = "msg-001";
 
@@ -55,11 +56,13 @@ describe("MessageService (Message Operations)", () => {
   // Mock PrismaService
   const mockPrismaService = {
     conversation: {
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
     },
     message: {
       create: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       count: jest.fn(),
@@ -104,7 +107,7 @@ describe("MessageService (Message Operations)", () => {
     };
 
     beforeEach(() => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -123,11 +126,11 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should send a text message", async () => {
-      const result = await service.sendMessage(sendMessageDto);
+      const result = await service.sendMessage(sendMessageDto, TENANT_ID);
 
       expect(result).toBeDefined();
-      expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: mockConversationId },
+      expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
+        where: { id: mockConversationId, tenantId: TENANT_ID },
       });
     });
 
@@ -153,7 +156,7 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await service.sendMessage(imageDto);
+      await service.sendMessage(imageDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
@@ -182,7 +185,7 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await service.sendMessage(offerDto);
+      await service.sendMessage(offerDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
@@ -207,15 +210,15 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await service.sendMessage(systemDto);
+      await service.sendMessage(systemDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
 
     it("should validate conversation exists before sending", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
-      await expect(service.sendMessage(sendMessageDto)).rejects.toThrow(
+      await expect(service.sendMessage(sendMessageDto, TENANT_ID)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -225,23 +228,23 @@ describe("MessageService (Message Operations)", () => {
         ...mockConversation,
         participantIds: [mockUserId2],
       };
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         unauthorizedConversation,
       );
 
-      await expect(service.sendMessage(sendMessageDto)).rejects.toThrow(
+      await expect(service.sendMessage(sendMessageDto, TENANT_ID)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it("should update conversation lastMessage and lastMessageAt", async () => {
-      await service.sendMessage(sendMessageDto);
+      await service.sendMessage(sendMessageDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
 
     it("should increment unread count for recipients", async () => {
-      await service.sendMessage(sendMessageDto);
+      await service.sendMessage(sendMessageDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
@@ -250,7 +253,7 @@ describe("MessageService (Message Operations)", () => {
       const emptyDto = { ...sendMessageDto, content: "" };
 
       // Should not throw, validation happens at DTO level
-      await service.sendMessage(emptyDto);
+      await service.sendMessage(emptyDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
@@ -261,7 +264,7 @@ describe("MessageService (Message Operations)", () => {
         content: "Hello! @#$%^&*() 🌾 السلام عليكم",
       };
 
-      await service.sendMessage(specialCharsDto);
+      await service.sendMessage(specialCharsDto, TENANT_ID);
 
       expect(mockPrismaService.$transaction).toHaveBeenCalled();
     });
@@ -292,7 +295,7 @@ describe("MessageService (Message Operations)", () => {
       );
       mockPrismaService.message.count.mockResolvedValue(3);
 
-      const result = await service.getMessages(mockConversationId);
+      const result = await service.getMessages(mockConversationId, 1, 50, TENANT_ID);
 
       expect(result.messages).toHaveLength(3);
       expect(result.page).toBe(1);
@@ -305,7 +308,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.message.findMany.mockResolvedValue([mockMessages[0]]);
       mockPrismaService.message.count.mockResolvedValue(100);
 
-      const result = await service.getMessages(mockConversationId, 2, 20);
+      const result = await service.getMessages(mockConversationId, 2, 20, TENANT_ID);
 
       expect(result.page).toBe(2);
       expect(result.limit).toBe(20);
@@ -319,7 +322,7 @@ describe("MessageService (Message Operations)", () => {
       );
       mockPrismaService.message.count.mockResolvedValue(3);
 
-      const result = await service.getMessages(mockConversationId);
+      const result = await service.getMessages(mockConversationId, 1, 50, TENANT_ID);
 
       expect(result.messages[0].id).toBe("msg-1");
       expect(result.messages[1].id).toBe("msg-2");
@@ -330,7 +333,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(0);
 
-      await service.getMessages(mockConversationId, 3, 25);
+      await service.getMessages(mockConversationId, 3, 25, TENANT_ID);
 
       expect(mockPrismaService.message.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -344,7 +347,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(0);
 
-      const result = await service.getMessages(mockConversationId);
+      const result = await service.getMessages(mockConversationId, 1, 50, TENANT_ID);
 
       expect(result.messages).toEqual([]);
       expect(result.total).toBe(0);
@@ -366,7 +369,7 @@ describe("MessageService (Message Operations)", () => {
         mockMessages.slice(0, 51),
       );
 
-      const result = await service.getMessagesCursor(mockConversationId);
+      const result = await service.getMessagesCursor(mockConversationId, TENANT_ID);
 
       expect(result.messages).toHaveLength(50);
       expect(result.hasMore).toBe(true);
@@ -380,6 +383,7 @@ describe("MessageService (Message Operations)", () => {
 
       const result = await service.getMessagesCursor(
         mockConversationId,
+        TENANT_ID,
         "msg-49",
         50,
       );
@@ -392,7 +396,7 @@ describe("MessageService (Message Operations)", () => {
     it("should indicate no more messages when at end", async () => {
       mockPrismaService.message.findMany.mockResolvedValue([mockMessage]);
 
-      const result = await service.getMessagesCursor(mockConversationId);
+      const result = await service.getMessagesCursor(mockConversationId, TENANT_ID);
 
       expect(result.hasMore).toBe(false);
       expect(result.nextCursor).toBeNull();
@@ -405,6 +409,7 @@ describe("MessageService (Message Operations)", () => {
 
       const result = await service.getMessagesCursor(
         mockConversationId,
+        TENANT_ID,
         undefined,
         20,
       );
@@ -416,7 +421,7 @@ describe("MessageService (Message Operations)", () => {
 
   describe("Message Read Status", () => {
     it("should mark single message as read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
@@ -430,6 +435,7 @@ describe("MessageService (Message Operations)", () => {
       const result = await service.markMessageAsRead(
         mockMessageId,
         mockUserId2,
+        TENANT_ID,
       );
 
       // Service returns the original message from findUnique, not the updated one
@@ -444,19 +450,19 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should not mark own messages as read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         senderId: mockUserId,
         conversation: mockConversation,
       });
 
-      await service.markMessageAsRead(mockMessageId, mockUserId);
+      await service.markMessageAsRead(mockMessageId, mockUserId, TENANT_ID);
 
       expect(mockPrismaService.message.update).not.toHaveBeenCalled();
     });
 
     it("should update participant lastReadAt when marking message read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
@@ -466,7 +472,7 @@ describe("MessageService (Message Operations)", () => {
       });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markMessageAsRead(mockMessageId, mockUserId2);
+      await service.markMessageAsRead(mockMessageId, mockUserId2, TENANT_ID);
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
@@ -481,14 +487,14 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should reset unread count when marking message read", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue({
+      mockPrismaService.message.findFirst.mockResolvedValue({
         ...mockMessage,
         conversation: mockConversation,
       });
       mockPrismaService.message.update.mockResolvedValue(mockMessage);
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markMessageAsRead(mockMessageId, mockUserId2);
+      await service.markMessageAsRead(mockMessageId, mockUserId2, TENANT_ID);
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -500,17 +506,17 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should throw NotFoundException for non-existent message", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue(null);
+      mockPrismaService.message.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.markMessageAsRead("invalid-id", mockUserId),
+        service.markMessageAsRead("invalid-id", mockUserId, TENANT_ID),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe("Bulk Read Operations", () => {
     it("should mark all messages in conversation as read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 10 });
@@ -519,11 +525,13 @@ describe("MessageService (Message Operations)", () => {
       const result = await service.markConversationAsRead(
         mockConversationId,
         mockUserId,
+        TENANT_ID,
       );
 
       expect(result.success).toBe(true);
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: TENANT_ID,
           conversationId: mockConversationId,
           senderId: { not: mockUserId },
           isRead: false,
@@ -536,13 +544,13 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should only mark unread messages", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markConversationAsRead(mockConversationId, mockUserId);
+      await service.markConversationAsRead(mockConversationId, mockUserId, TENANT_ID);
 
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -554,13 +562,13 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should not mark own messages as read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 3 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markConversationAsRead(mockConversationId, mockUserId);
+      await service.markConversationAsRead(mockConversationId, mockUserId, TENANT_ID);
 
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -572,16 +580,17 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should update participant after bulk read", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 7 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markConversationAsRead(mockConversationId, mockUserId);
+      await service.markConversationAsRead(mockConversationId, mockUserId, TENANT_ID);
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: TENANT_ID,
           conversationId: mockConversationId,
           userId: mockUserId,
         },
@@ -601,7 +610,7 @@ describe("MessageService (Message Operations)", () => {
         { unreadCount: 7 },
       ]);
 
-      const result = await service.getUnreadCount(mockUserId);
+      const result = await service.getUnreadCount(mockUserId, TENANT_ID);
 
       expect(result).toBe(15);
     });
@@ -612,7 +621,7 @@ describe("MessageService (Message Operations)", () => {
         { unreadCount: 0 },
       ]);
 
-      const result = await service.getUnreadCount(mockUserId);
+      const result = await service.getUnreadCount(mockUserId, TENANT_ID);
 
       expect(result).toBe(0);
     });
@@ -620,7 +629,7 @@ describe("MessageService (Message Operations)", () => {
     it("should return zero when user has no conversations", async () => {
       mockPrismaService.participant.findMany.mockResolvedValue([]);
 
-      const result = await service.getUnreadCount(mockUserId);
+      const result = await service.getUnreadCount(mockUserId, TENANT_ID);
 
       expect(result).toBe(0);
     });
@@ -628,10 +637,10 @@ describe("MessageService (Message Operations)", () => {
     it("should query only user-specific participants", async () => {
       mockPrismaService.participant.findMany.mockResolvedValue([]);
 
-      await service.getUnreadCount(mockUserId);
+      await service.getUnreadCount(mockUserId, TENANT_ID);
 
       expect(mockPrismaService.participant.findMany).toHaveBeenCalledWith({
-        where: { userId: mockUserId },
+        where: { userId: mockUserId, tenantId: TENANT_ID },
         select: { unreadCount: true },
       });
     });
@@ -646,7 +655,7 @@ describe("MessageService (Message Operations)", () => {
         messageType: MessageType.TEXT,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -657,7 +666,7 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await expect(service.sendMessage(dto)).resolves.toBeDefined();
+      await expect(service.sendMessage(dto, TENANT_ID)).resolves.toBeDefined();
     });
 
     it("should handle IMAGE message type with URL", async () => {
@@ -669,7 +678,7 @@ describe("MessageService (Message Operations)", () => {
         attachmentUrl: "https://cdn.sahool.com/image.jpg",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -686,7 +695,7 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await expect(service.sendMessage(dto)).resolves.toBeDefined();
+      await expect(service.sendMessage(dto, TENANT_ID)).resolves.toBeDefined();
     });
 
     it("should handle OFFER message type with amount", async () => {
@@ -699,7 +708,7 @@ describe("MessageService (Message Operations)", () => {
         offerCurrency: "YER",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -716,7 +725,7 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await expect(service.sendMessage(dto)).resolves.toBeDefined();
+      await expect(service.sendMessage(dto, TENANT_ID)).resolves.toBeDefined();
     });
 
     it("should handle SYSTEM message type", async () => {
@@ -727,7 +736,7 @@ describe("MessageService (Message Operations)", () => {
         messageType: MessageType.SYSTEM,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -743,13 +752,13 @@ describe("MessageService (Message Operations)", () => {
         });
       });
 
-      await expect(service.sendMessage(dto)).resolves.toBeDefined();
+      await expect(service.sendMessage(dto, TENANT_ID)).resolves.toBeDefined();
     });
   });
 
   describe("Error Handling", () => {
     it("should handle database transaction failures", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockRejectedValue(
@@ -762,20 +771,20 @@ describe("MessageService (Message Operations)", () => {
           senderId: mockUserId,
           content: "Test",
           messageType: MessageType.TEXT,
-        }),
+        }, TENANT_ID),
       ).rejects.toThrow(BadRequestException);
     });
 
     it("should handle message not found error", async () => {
-      mockPrismaService.message.findUnique.mockResolvedValue(null);
+      mockPrismaService.message.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.markMessageAsRead("invalid-id", mockUserId),
+        service.markMessageAsRead("invalid-id", mockUserId, TENANT_ID),
       ).rejects.toThrow(NotFoundException);
     });
 
     it("should sanitize error messages for security", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockRejectedValue(
@@ -788,7 +797,7 @@ describe("MessageService (Message Operations)", () => {
           senderId: mockUserId,
           content: "Test",
           messageType: MessageType.TEXT,
-        }),
+        }, TENANT_ID),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -798,7 +807,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(1000);
 
-      const result = await service.getMessages(mockConversationId, 20, 50);
+      const result = await service.getMessages(mockConversationId, 20, 50, TENANT_ID);
 
       expect(result.page).toBe(20);
       expect(mockPrismaService.message.findMany).toHaveBeenCalledWith(
@@ -809,7 +818,7 @@ describe("MessageService (Message Operations)", () => {
     });
 
     it("should handle concurrent read operations", async () => {
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
@@ -818,7 +827,7 @@ describe("MessageService (Message Operations)", () => {
       const promises = Array(3)
         .fill(null)
         .map(() =>
-          service.markConversationAsRead(mockConversationId, mockUserId),
+          service.markConversationAsRead(mockConversationId, mockUserId, TENANT_ID),
         );
 
       await expect(Promise.all(promises)).resolves.toHaveLength(3);
@@ -826,7 +835,7 @@ describe("MessageService (Message Operations)", () => {
 
     it("should handle message with maximum content length", async () => {
       const maxContent = "a".repeat(10000);
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -848,7 +857,7 @@ describe("MessageService (Message Operations)", () => {
           senderId: mockUserId,
           content: maxContent,
           messageType: MessageType.TEXT,
-        }),
+        }, TENANT_ID),
       ).resolves.toBeDefined();
     });
   });

@@ -75,6 +75,8 @@ describe("ChatController", () => {
     getUnreadCount: jest.fn(),
   };
 
+  const mockReq = { user: { tenantId: 'tenant-001' }, headers: {} };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChatController],
@@ -137,11 +139,12 @@ describe("ChatController", () => {
     it("should create a new conversation when user is a participant", async () => {
       mockChatService.createConversation.mockResolvedValue(mockConversation);
 
-      const result = await controller.createConversation(createDto, mockUserId);
+      const result = await controller.createConversation(createDto, mockUserId, mockReq);
 
       expect(result).toEqual(mockConversation);
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
         createDto,
+        'tenant-001',
       );
       expect(mockChatService.createConversation).toHaveBeenCalledTimes(1);
     });
@@ -153,11 +156,12 @@ describe("ChatController", () => {
         orderId: "order-123",
       });
 
-      const result = await controller.createConversation(dtoWithOrder, mockUserId);
+      const result = await controller.createConversation(dtoWithOrder, mockUserId, mockReq);
 
       expect(result.orderId).toBe("order-123");
       expect(mockChatService.createConversation).toHaveBeenCalledWith(
         dtoWithOrder,
+        'tenant-001',
       );
     });
 
@@ -165,7 +169,7 @@ describe("ChatController", () => {
       const existingConv = { ...mockConversation, id: "existing-conv" };
       mockChatService.createConversation.mockResolvedValue(existingConv);
 
-      const result = await controller.createConversation(createDto, mockUserId);
+      const result = await controller.createConversation(createDto, mockUserId, mockReq);
 
       expect(result).toEqual(existingConv);
     });
@@ -174,7 +178,7 @@ describe("ChatController", () => {
       const unauthorizedUserId = "user-999";
 
       await expect(
-        controller.createConversation(createDto, unauthorizedUserId),
+        controller.createConversation(createDto, unauthorizedUserId, mockReq),
       ).rejects.toThrow(UnauthorizedException);
 
       // Service should not be called if authorization fails
@@ -184,10 +188,10 @@ describe("ChatController", () => {
     it("should allow second participant to create conversation", async () => {
       mockChatService.createConversation.mockResolvedValue(mockConversation);
 
-      const result = await controller.createConversation(createDto, mockUserId2);
+      const result = await controller.createConversation(createDto, mockUserId2, mockReq);
 
       expect(result).toEqual(mockConversation);
-      expect(mockChatService.createConversation).toHaveBeenCalledWith(createDto);
+      expect(mockChatService.createConversation).toHaveBeenCalledWith(createDto, 'tenant-001');
     });
 
     it("should handle service errors", async () => {
@@ -195,7 +199,7 @@ describe("ChatController", () => {
         new Error("Database error"),
       );
 
-      await expect(controller.createConversation(createDto, mockUserId)).rejects.toThrow();
+      await expect(controller.createConversation(createDto, mockUserId, mockReq)).rejects.toThrow();
     });
   });
 
@@ -213,11 +217,12 @@ describe("ChatController", () => {
     it("should return user conversations", async () => {
       mockChatService.getUserConversations.mockResolvedValue(mockConversations);
 
-      const result = await controller.getUserConversations(mockUserId);
+      const result = await controller.getUserConversations(mockUserId, mockReq);
 
       expect(result).toEqual(mockConversations);
       expect(mockChatService.getUserConversations).toHaveBeenCalledWith(
         mockUserId,
+        'tenant-001',
       );
       expect(mockChatService.getUserConversations).toHaveBeenCalledTimes(1);
     });
@@ -225,7 +230,7 @@ describe("ChatController", () => {
     it("should return empty array if user has no conversations", async () => {
       mockChatService.getUserConversations.mockResolvedValue([]);
 
-      const result = await controller.getUserConversations(mockUserId);
+      const result = await controller.getUserConversations(mockUserId, mockReq);
 
       expect(result).toEqual([]);
       expect(Array.isArray(result)).toBe(true);
@@ -238,7 +243,7 @@ describe("ChatController", () => {
       }));
       mockChatService.getUserConversations.mockResolvedValue(convsWithUnread);
 
-      const result = await controller.getUserConversations(mockUserId);
+      const result = await controller.getUserConversations(mockUserId, mockReq);
 
       expect(result[0]).toHaveProperty("unreadCount");
       expect(result[1]).toHaveProperty("unreadCount");
@@ -250,20 +255,19 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
       const result = await controller.getConversation(
-        mockConversationId,
-        mockUserId,
-      );
+        mockConversationId, mockUserId, mockReq);
 
       expect(result).toEqual(mockConversation);
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
         mockConversationId,
+        'tenant-001',
       );
     });
 
     it("should verify user access before returning conversation", async () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
-      await controller.getConversation(mockConversationId, mockUserId);
+      await controller.getConversation(mockConversationId, mockUserId, mockReq);
 
       // Called twice: once for verification, once for returning
       expect(mockChatService.getConversationById).toHaveBeenCalledTimes(2);
@@ -274,7 +278,7 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
       await expect(
-        controller.getConversation(mockConversationId, unauthorizedUserId),
+        controller.getConversation(mockConversationId, unauthorizedUserId, mockReq),
       ).rejects.toThrow(UnauthorizedException);
     });
 
@@ -284,7 +288,7 @@ describe("ChatController", () => {
       );
 
       await expect(
-        controller.getConversation("invalid-id", mockUserId),
+        controller.getConversation("invalid-id", mockUserId, mockReq),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -302,18 +306,14 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
       mockChatService.getMessages.mockResolvedValue(mockMessagesResponse);
 
-      const result = await controller.getMessages(
-        mockConversationId,
-        "1",
-        "50",
-        mockUserId,
-      );
+      const result = await controller.getMessages(mockConversationId, "1", "50", mockUserId, mockReq);
 
       expect(result).toEqual(mockMessagesResponse);
       expect(mockChatService.getMessages).toHaveBeenCalledWith(
         mockConversationId,
         1,
         50,
+        'tenant-001',
       );
     });
 
@@ -321,17 +321,13 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
       mockChatService.getMessages.mockResolvedValue(mockMessagesResponse);
 
-      await controller.getMessages(
-        mockConversationId,
-        undefined,
-        undefined,
-        mockUserId,
-      );
+      await controller.getMessages(mockConversationId, undefined, undefined, mockUserId, mockReq);
 
       expect(mockChatService.getMessages).toHaveBeenCalledWith(
         mockConversationId,
         1,
         50,
+        'tenant-001',
       );
     });
 
@@ -343,12 +339,13 @@ describe("ChatController", () => {
         limit: 20,
       });
 
-      await controller.getMessages(mockConversationId, "2", "20", mockUserId);
+      await controller.getMessages(mockConversationId, "2", "20", mockUserId, mockReq);
 
       expect(mockChatService.getMessages).toHaveBeenCalledWith(
         mockConversationId,
         2,
         20,
+        'tenant-001',
       );
     });
 
@@ -356,10 +353,11 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
       mockChatService.getMessages.mockResolvedValue(mockMessagesResponse);
 
-      await controller.getMessages(mockConversationId, "1", "50", mockUserId);
+      await controller.getMessages(mockConversationId, "1", "50", mockUserId, mockReq);
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
         mockConversationId,
+        'tenant-001',
       );
     });
 
@@ -367,7 +365,7 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
       await expect(
-        controller.getMessages(mockConversationId, "1", "50", "user-999"),
+        controller.getMessages(mockConversationId, "1", "50", "user-999", mockReq),
       ).rejects.toThrow(UnauthorizedException);
     });
   });
@@ -383,25 +381,25 @@ describe("ChatController", () => {
     it("should send a message", async () => {
       mockChatService.sendMessage.mockResolvedValue(mockMessage);
 
-      const result = await controller.sendMessage(sendMessageDto, mockUserId);
+      const result = await controller.sendMessage(sendMessageDto, mockUserId, mockReq);
 
       expect(result).toEqual(mockMessage);
       expect(mockChatService.sendMessage).toHaveBeenCalledWith({
         ...sendMessageDto,
         senderId: mockUserId,
-      });
+      }, 'tenant-001');
     });
 
     it("should override senderId with authenticated userId", async () => {
       const dtoWithWrongSender = { ...sendMessageDto, senderId: "wrong-user" };
       mockChatService.sendMessage.mockResolvedValue(mockMessage);
 
-      await controller.sendMessage(dtoWithWrongSender, mockUserId);
+      await controller.sendMessage(dtoWithWrongSender, mockUserId, mockReq);
 
       expect(mockChatService.sendMessage).toHaveBeenCalledWith({
         ...dtoWithWrongSender,
         senderId: mockUserId,
-      });
+      }, 'tenant-001');
     });
 
     it("should send message with offer", async () => {
@@ -417,7 +415,7 @@ describe("ChatController", () => {
         offerAmount: 5000.0,
       });
 
-      const result = await controller.sendMessage(offerMessage, mockUserId);
+      const result = await controller.sendMessage(offerMessage, mockUserId, mockReq);
 
       expect(result.messageType).toBe("OFFER");
       expect(result.offerAmount).toBe(5000.0);
@@ -435,7 +433,7 @@ describe("ChatController", () => {
         attachmentUrl: "https://cdn.sahool.com/image.jpg",
       });
 
-      const result = await controller.sendMessage(imageMessage, mockUserId);
+      const result = await controller.sendMessage(imageMessage, mockUserId, mockReq);
 
       expect(result.messageType).toBe("IMAGE");
       expect(result.attachmentUrl).toBe("https://cdn.sahool.com/image.jpg");
@@ -447,7 +445,7 @@ describe("ChatController", () => {
       );
 
       await expect(
-        controller.sendMessage(sendMessageDto, mockUserId),
+        controller.sendMessage(sendMessageDto, mockUserId, mockReq),
       ).rejects.toThrow();
     });
   });
@@ -457,30 +455,26 @@ describe("ChatController", () => {
       const readMessage = { ...mockMessage, isRead: true, readAt: new Date() };
       mockChatService.markMessageAsRead.mockResolvedValue(readMessage);
 
-      const result = await controller.markMessageAsRead(
-        mockMessageId,
-        mockUserId,
-      );
+      const result = await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
 
       expect(result.isRead).toBe(true);
       expect(result.readAt).toBeDefined();
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
         mockUserId,
+        'tenant-001',
       );
     });
 
     it("should not mark own message as read", async () => {
       mockChatService.markMessageAsRead.mockResolvedValue(mockMessage);
 
-      const result = await controller.markMessageAsRead(
-        mockMessageId,
-        mockUserId,
-      );
+      const result = await controller.markMessageAsRead(mockMessageId, mockUserId, mockReq);
 
       expect(mockChatService.markMessageAsRead).toHaveBeenCalledWith(
         mockMessageId,
         mockUserId,
+        'tenant-001',
       );
     });
 
@@ -490,7 +484,7 @@ describe("ChatController", () => {
       );
 
       await expect(
-        controller.markMessageAsRead("invalid-id", mockUserId),
+        controller.markMessageAsRead("invalid-id", mockUserId, mockReq),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -504,15 +498,14 @@ describe("ChatController", () => {
       });
 
       const result = await controller.markConversationAsRead(
-        mockConversationId,
-        mockUserId,
-      );
+        mockConversationId, mockUserId, mockReq);
 
       expect(result.success).toBe(true);
       expect(result.conversationId).toBe(mockConversationId);
       expect(mockChatService.markConversationAsRead).toHaveBeenCalledWith(
         mockConversationId,
         mockUserId,
+        'tenant-001',
       );
     });
 
@@ -523,10 +516,11 @@ describe("ChatController", () => {
         conversationId: mockConversationId,
       });
 
-      await controller.markConversationAsRead(mockConversationId, mockUserId);
+      await controller.markConversationAsRead(mockConversationId, mockUserId, mockReq);
 
       expect(mockChatService.getConversationById).toHaveBeenCalledWith(
         mockConversationId,
+        'tenant-001',
       );
     });
 
@@ -534,7 +528,7 @@ describe("ChatController", () => {
       mockChatService.getConversationById.mockResolvedValue(mockConversation);
 
       await expect(
-        controller.markConversationAsRead(mockConversationId, "user-999"),
+        controller.markConversationAsRead(mockConversationId, "user-999", mockReq),
       ).rejects.toThrow(UnauthorizedException);
     });
   });
@@ -543,19 +537,19 @@ describe("ChatController", () => {
     it("should return unread message count", async () => {
       mockChatService.getUnreadCount.mockResolvedValue(5);
 
-      const result = await controller.getUnreadCount(mockUserId);
+      const result = await controller.getUnreadCount(mockUserId, mockReq);
 
       expect(result).toEqual({
         userId: mockUserId,
         unreadCount: 5,
       });
-      expect(mockChatService.getUnreadCount).toHaveBeenCalledWith(mockUserId);
+      expect(mockChatService.getUnreadCount).toHaveBeenCalledWith(mockUserId, 'tenant-001');
     });
 
     it("should return zero for no unread messages", async () => {
       mockChatService.getUnreadCount.mockResolvedValue(0);
 
-      const result = await controller.getUnreadCount(mockUserId);
+      const result = await controller.getUnreadCount(mockUserId, mockReq);
 
       expect(result.unreadCount).toBe(0);
     });
@@ -563,7 +557,7 @@ describe("ChatController", () => {
     it("should handle large unread counts", async () => {
       mockChatService.getUnreadCount.mockResolvedValue(999);
 
-      const result = await controller.getUnreadCount(mockUserId);
+      const result = await controller.getUnreadCount(mockUserId, mockReq);
 
       expect(result.unreadCount).toBe(999);
     });
@@ -575,7 +569,7 @@ describe("ChatController", () => {
 
       // Should not throw for authorized user
       await expect(
-        controller.getConversation(mockConversationId, mockUserId),
+        controller.getConversation(mockConversationId, mockUserId, mockReq),
       ).resolves.toBeDefined();
     });
 
@@ -584,7 +578,7 @@ describe("ChatController", () => {
 
       // Should throw for unauthorized user
       await expect(
-        controller.getConversation(mockConversationId, "unauthorized-user"),
+        controller.getConversation(mockConversationId, "unauthorized-user", mockReq),
       ).rejects.toThrow(UnauthorizedException);
     });
 
@@ -593,11 +587,11 @@ describe("ChatController", () => {
 
       // Both users should have access
       await expect(
-        controller.getConversation(mockConversationId, mockUserId),
+        controller.getConversation(mockConversationId, mockUserId, mockReq),
       ).resolves.toBeDefined();
 
       await expect(
-        controller.getConversation(mockConversationId, mockUserId2),
+        controller.getConversation(mockConversationId, mockUserId2, mockReq),
       ).resolves.toBeDefined();
     });
   });
@@ -609,7 +603,7 @@ describe("ChatController", () => {
       );
 
       await expect(
-        controller.getConversation("invalid-id", mockUserId),
+        controller.getConversation("invalid-id", mockUserId, mockReq),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -619,7 +613,7 @@ describe("ChatController", () => {
       );
 
       await expect(
-        controller.getUserConversations(mockUserId),
+        controller.getUserConversations(mockUserId, mockReq),
       ).rejects.toThrow();
     });
 
@@ -629,7 +623,7 @@ describe("ChatController", () => {
         new Error("Validation failed"),
       );
 
-      await expect(controller.createConversation(invalidDto, mockUserId)).rejects.toThrow();
+      await expect(controller.createConversation(invalidDto, mockUserId, mockReq)).rejects.toThrow();
     });
   });
 });

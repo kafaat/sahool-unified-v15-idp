@@ -389,6 +389,7 @@ export class DisasterService {
   private async updateDisasterStats(disasterId: string) {
     const assessments = await this.prisma.fieldAssessment.findMany({
       where: { disasterId },
+      take: 1000,
     });
 
     const totalArea = assessments.reduce(

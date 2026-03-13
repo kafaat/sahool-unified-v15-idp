@@ -146,11 +146,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   private subscriptions: Subscription[] = [];
   private readonly serviceName = "marketplace-service";
 
+  private reconnectAttempts = 0;
+  private readonly MAX_RECONNECT_WAIT = 60000; // Max 60 seconds between attempts
+
   // Configuration
   private readonly config = {
     servers: process.env.NATS_URL || "nats://localhost:4222",
     maxReconnectAttempts: -1, // infinite reconnect
-    reconnectTimeWait: 2000, // 2 seconds between attempts
+    reconnectTimeWait: 2000, // base wait between attempts
     timeout: 10000, // 10 second connection timeout
     debug: process.env.NODE_ENV !== "production",
   };
@@ -257,17 +260,36 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     this.isConnecting = true;
 
     try {
+      // Parse NATS URL to extract credentials (nats.js doesn't support userinfo in URLs)
       const connectionOptions: ConnectionOptions = {
-        servers: this.config.servers,
         name: this.serviceName,
         maxReconnectAttempts: this.config.maxReconnectAttempts,
         reconnectTimeWait: this.config.reconnectTimeWait,
         timeout: this.config.timeout,
       };
 
-      this.logger.log(`Connecting to NATS server at ${this.config.servers}...`);
+      const natsUrl = this.config.servers;
+      try {
+        const parsed = new URL(natsUrl);
+        if (parsed.username) {
+          connectionOptions.user = decodeURIComponent(parsed.username);
+          if (parsed.password) {
+            connectionOptions.pass = decodeURIComponent(parsed.password);
+          }
+          // Rebuild URL without credentials
+          connectionOptions.servers = `${parsed.protocol}//${parsed.host}`;
+        } else {
+          connectionOptions.servers = natsUrl;
+        }
+      } catch {
+        // If URL parsing fails, use as-is (e.g. plain host:port)
+        connectionOptions.servers = natsUrl;
+      }
+
+      this.logger.log(`Connecting to NATS server at ${connectionOptions.servers}...`);
       this.connection = await connect(connectionOptions);
       this.logger.log("Successfully connected to NATS server");
+      this.reconnectAttempts = 0; // Reset backoff on successful connection
 
       // Setup status monitoring
       this.monitorConnectionStatus();
@@ -328,8 +350,15 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       return; // Already scheduled
     }
 
+    // Exponential backoff: 2s, 4s, 8s, 16s, 32s, 60s (capped)
+    const delay = Math.min(
+      this.config.reconnectTimeWait * Math.pow(2, this.reconnectAttempts),
+      this.MAX_RECONNECT_WAIT,
+    );
+    this.reconnectAttempts++;
+
     this.logger.debug(
-      `Scheduling reconnection in ${this.config.reconnectTimeWait}ms...`,
+      `Scheduling reconnection attempt #${this.reconnectAttempts} in ${delay}ms...`,
     );
 
     this.reconnectTimer = setTimeout(() => {
@@ -337,7 +366,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       this.connect().catch((err) => {
         this.logger.error(`Reconnection failed: ${err}`);
       });
-    }, this.config.reconnectTimeWait);
+    }, delay);
   }
 
   /**

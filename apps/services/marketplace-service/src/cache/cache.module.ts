@@ -49,11 +49,13 @@ const hasRedisUrl = !!process.env.REDIS_URL;
               port: parseInt(url.port) || 6379,
               connectTimeout: 5000, // 5 second connection timeout
               reconnectStrategy: (retries: number) => {
-                if (retries > 3) {
-                  logger.warn("Redis connection failed after 3 retries");
-                  return false; // Stop retrying
+                if (retries > 5) {
+                  logger.warn("Redis connection failed after 5 retries, stopping reconnect");
+                  return new Error("Redis max retries exceeded");
                 }
-                return Math.min(retries * 1000, 3000); // Exponential backoff up to 3s
+                const delay = Math.min(retries * 1000, 5000);
+                logger.debug?.(`Redis reconnect attempt #${retries} in ${delay}ms`);
+                return delay;
               },
             },
             password: password || undefined,

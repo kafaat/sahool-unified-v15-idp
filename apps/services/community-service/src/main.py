@@ -18,7 +18,7 @@ import os
 import sys
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
@@ -213,10 +213,10 @@ class ChannelCreate(BaseModel):
     """Create a new community channel | إنشاء قناة مجتمع جديدة"""
 
     name: str = Field(..., min_length=2, max_length=64, description="Channel name (English)")
-    name_ar: Optional[str] = Field(None, description="Channel name (Arabic) | اسم القناة بالعربية")
-    description: Optional[str] = Field(None, max_length=500, description="Channel description")
-    description_ar: Optional[str] = Field(None, max_length=500, description="وصف القناة بالعربية")
-    topic: Optional[str] = Field(None, max_length=200)
+    name_ar: str | None = Field(None, description="Channel name (Arabic) | اسم القناة بالعربية")
+    description: str | None = Field(None, max_length=500, description="Channel description")
+    description_ar: str | None = Field(None, max_length=500, description="وصف القناة بالعربية")
+    topic: str | None = Field(None, max_length=200)
     members: list[str] = Field(default_factory=list, description="Initial member usernames")
     read_only: bool = Field(False, description="Read-only channel | قناة للقراءة فقط")
 
@@ -226,13 +226,13 @@ class ChannelResponse(BaseModel):
 
     id: str
     name: str
-    name_ar: Optional[str] = None
-    description: Optional[str] = None
-    description_ar: Optional[str] = None
-    topic: Optional[str] = None
+    name_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
+    topic: str | None = None
     members_count: int = 0
     read_only: bool = False
-    created_at: Optional[str] = None
+    created_at: str | None = None
 
 
 class MessagePost(BaseModel):
@@ -240,9 +240,9 @@ class MessagePost(BaseModel):
 
     channel_id: str = Field(..., description="Target channel ID or name")
     text: str = Field(..., min_length=1, max_length=5000, description="Message text | نص الرسالة")
-    alias: Optional[str] = Field(None, description="Display name override")
-    emoji: Optional[str] = Field(None, description="Avatar emoji")
-    attachments: Optional[list[dict[str, Any]]] = Field(None, description="Message attachments")
+    alias: str | None = Field(None, description="Display name override")
+    emoji: str | None = Field(None, description="Avatar emoji")
+    attachments: list[dict[str, Any]] | None = Field(None, description="Message attachments")
 
 
 class MessageResponse(BaseModel):
@@ -251,8 +251,8 @@ class MessageResponse(BaseModel):
     id: str
     channel_id: str
     text: str
-    user: Optional[str] = None
-    timestamp: Optional[str] = None
+    user: str | None = None
+    timestamp: str | None = None
 
 
 class MessageSearchRequest(BaseModel):
@@ -268,9 +268,9 @@ class UserSyncRequest(BaseModel):
     email: str = Field(..., description="User email")
     name: str = Field(..., description="Display name | الاسم المعروض")
     username: str = Field(..., description="Username")
-    password: Optional[str] = Field(None, description="Password (generated if empty)")
+    password: str | None = Field(None, description="Password (generated if empty)")
     roles: list[str] = Field(default_factory=lambda: ["user"], description="Rocket.Chat roles")
-    avatar_url: Optional[str] = Field(None, description="Avatar URL")
+    avatar_url: str | None = Field(None, description="Avatar URL")
 
 
 class UserSyncResponse(BaseModel):
@@ -289,10 +289,10 @@ class AdvisoryBotMessage(BaseModel):
         description="Advisory type: irrigation | crop-diseases | pest-management | weather-alerts | market-prices | best-practices",
     )
     text: str = Field(..., min_length=1, max_length=5000, description="Advisory text | نص الاستشارة")
-    text_ar: Optional[str] = Field(None, max_length=5000, description="Arabic advisory text | النص بالعربية")
-    severity: Optional[str] = Field(None, description="Alert severity: info | warning | critical")
-    source: Optional[str] = Field(None, description="Advisory source service")
-    metadata: Optional[dict[str, Any]] = Field(None, description="Additional metadata")
+    text_ar: str | None = Field(None, max_length=5000, description="Arabic advisory text | النص بالعربية")
+    severity: str | None = Field(None, description="Alert severity: info | warning | critical")
+    source: str | None = Field(None, description="Advisory source service")
+    metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
 
 class AlertBotMessage(BaseModel):
@@ -303,12 +303,12 @@ class AlertBotMessage(BaseModel):
         description="Alert type: weather | pest | disease | frost | flood | heatwave",
     )
     title: str = Field(..., max_length=200, description="Alert title | عنوان التنبيه")
-    title_ar: Optional[str] = Field(None, max_length=200, description="Arabic title | العنوان بالعربية")
+    title_ar: str | None = Field(None, max_length=200, description="Arabic title | العنوان بالعربية")
     text: str = Field(..., min_length=1, max_length=5000, description="Alert body | نص التنبيه")
-    text_ar: Optional[str] = Field(None, max_length=5000, description="Arabic alert body | النص بالعربية")
+    text_ar: str | None = Field(None, max_length=5000, description="Arabic alert body | النص بالعربية")
     severity: str = Field("warning", description="Severity: info | warning | critical")
-    affected_area: Optional[str] = Field(None, description="Affected geographic area")
-    expires_at: Optional[str] = Field(None, description="Alert expiry ISO timestamp")
+    affected_area: str | None = Field(None, description="Affected geographic area")
+    expires_at: str | None = Field(None, description="Alert expiry ISO timestamp")
 
 
 class TenantSetupRequest(BaseModel):
@@ -316,8 +316,8 @@ class TenantSetupRequest(BaseModel):
 
     tenant_id: str = Field(..., description="Tenant UUID")
     tenant_name: str = Field(..., description="Tenant display name | اسم المستأجر")
-    admin_username: Optional[str] = Field(None, description="Tenant admin username")
-    admin_email: Optional[str] = Field(None, description="Tenant admin email")
+    admin_username: str | None = Field(None, description="Tenant admin username")
+    admin_email: str | None = Field(None, description="Tenant admin email")
     extra_channels: list[ChannelCreate] = Field(
         default_factory=list,
         description="Additional channels beyond defaults",
@@ -338,8 +338,8 @@ class MemberInfo(BaseModel):
 
     user_id: str
     username: str
-    name: Optional[str] = None
-    status: Optional[str] = None
+    name: str | None = None
+    status: str | None = None
 
 
 class HistoryMessage(BaseModel):
@@ -347,9 +347,9 @@ class HistoryMessage(BaseModel):
 
     id: str
     text: str
-    user: Optional[str] = None
-    username: Optional[str] = None
-    timestamp: Optional[str] = None
+    user: str | None = None
+    username: str | None = None
+    timestamp: str | None = None
     pinned: bool = False
 
 
@@ -364,9 +364,9 @@ class RocketChatClient:
         self.api_url = f"{self.base_url}/api/v1"
         self.admin_user = admin_user
         self.admin_password = admin_password
-        self._auth_token: Optional[str] = None
-        self._user_id: Optional[str] = None
-        self._client: Optional[httpx.AsyncClient] = None
+        self._auth_token: str | None = None
+        self._user_id: str | None = None
+        self._client: httpx.AsyncClient | None = None
 
     async def init(self) -> None:
         """Initialize HTTP client and authenticate."""
@@ -390,8 +390,8 @@ class RocketChatClient:
         self,
         method: str,
         endpoint: str,
-        data: Optional[dict] = None,
-        params: Optional[dict] = None,
+        data: dict | None = None,
+        params: dict | None = None,
     ) -> dict:
         """Execute an authenticated request to Rocket.Chat API."""
         if not self._client:
@@ -450,7 +450,7 @@ class RocketChatClient:
         self,
         name: str,
         description: str = "",
-        members: Optional[list[str]] = None,
+        members: list[str] | None = None,
         read_only: bool = False,
     ) -> dict:
         """Create a public channel."""
@@ -501,7 +501,7 @@ class RocketChatClient:
         self,
         channel_id: str,
         count: int = 50,
-        oldest: Optional[str] = None,
+        oldest: str | None = None,
     ) -> list[dict]:
         """Get channel message history."""
         params: dict[str, Any] = {"roomId": channel_id, "count": count}
@@ -539,9 +539,9 @@ class RocketChatClient:
         self,
         channel: str,
         text: str,
-        alias: Optional[str] = None,
-        emoji: Optional[str] = None,
-        attachments: Optional[list[dict]] = None,
+        alias: str | None = None,
+        emoji: str | None = None,
+        attachments: list[dict] | None = None,
     ) -> dict:
         """Post a message to a channel (by name or ID)."""
         payload: dict[str, Any] = {"channel": channel, "text": text}
@@ -563,7 +563,7 @@ class RocketChatClient:
         name: str,
         username: str,
         password: str,
-        roles: Optional[list[str]] = None,
+        roles: list[str] | None = None,
     ) -> dict:
         """Create a new Rocket.Chat user."""
         payload: dict[str, Any] = {
@@ -595,7 +595,7 @@ async def publish_event(app: FastAPI, subject: str, payload: dict) -> None:
     if nc:
         try:
             data = json.dumps(
-                {**payload, "timestamp": datetime.now(timezone.utc).isoformat(), "service": "community-service"},
+                {**payload, "timestamp": datetime.now(UTC).isoformat(), "service": "community-service"},
             ).encode()
             await nc.publish(subject, data)
             logger.debug("nats_event_published", subject=subject)
@@ -1080,7 +1080,7 @@ async def get_channel_history(
     request: Request,
     channel_id: str,
     count: int = Query(50, ge=1, le=200),
-    oldest: Optional[str] = Query(None, description="ISO timestamp for oldest message"),
+    oldest: str | None = Query(None, description="ISO timestamp for oldest message"),
     user: User = Depends(get_current_user),
 ):
     """Get channel message history | عرض سجل رسائل القناة"""

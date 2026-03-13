@@ -506,11 +506,10 @@ describe("ChatService", () => {
 
   describe("getUserConversations - جلب محادثات المستخدم", () => {
     it("should return all conversations for a user", async () => {
-      const mockConversations = [mockConversation];
+      const mockConversations = [{ ...mockConversation, _count: { messages: 2 } }];
       mockPrismaService.conversation.findMany.mockResolvedValue(
         mockConversations,
       );
-      mockPrismaService.message.count.mockResolvedValue(2);
 
       const result = await service.getUserConversations("user-123", "tenant-001");
 
@@ -518,11 +517,13 @@ describe("ChatService", () => {
       expect(result[0]).toHaveProperty("unreadCount");
       expect(mockPrismaService.conversation.findMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           participantIds: {
             has: "user-123",
           },
           isActive: true,
         },
+        take: 100,
         include: {
           participants: {
             where: {
@@ -533,6 +534,16 @@ describe("ChatService", () => {
             orderBy: { createdAt: "desc" },
             take: 1,
           },
+          _count: {
+            select: {
+              messages: {
+                where: {
+                  senderId: { not: "user-123" },
+                  isRead: false,
+                },
+              },
+            },
+          },
         },
         orderBy: {
           updatedAt: "desc",
@@ -541,11 +552,10 @@ describe("ChatService", () => {
     });
 
     it("should include unread count for each conversation", async () => {
-      const mockConversations = [mockConversation];
+      const mockConversations = [{ ...mockConversation, _count: { messages: 5 } }];
       mockPrismaService.conversation.findMany.mockResolvedValue(
         mockConversations,
       );
-      mockPrismaService.message.count.mockResolvedValue(5);
 
       const result = await service.getUserConversations("user-123", "tenant-001");
 
@@ -629,8 +639,9 @@ describe("ChatService", () => {
 
       expect(result).toBe(10);
       expect(mockPrismaService.participant.findMany).toHaveBeenCalledWith({
-        where: { userId: "user-123" },
+        where: { userId: "user-123", tenantId: "tenant-001" },
         select: { unreadCount: true },
+        take: 500,
       });
     });
 
@@ -667,6 +678,7 @@ describe("ChatService", () => {
       });
       expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           conversationId: "conv-123",
           senderId: { not: "user-456" },
           isRead: false,
@@ -689,6 +701,7 @@ describe("ChatService", () => {
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           conversationId: "conv-123",
           userId: "user-456",
         },
@@ -722,6 +735,7 @@ describe("ChatService", () => {
       });
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           conversationId: "conv-123",
           userId: "user-123",
         },
@@ -747,7 +761,7 @@ describe("ChatService", () => {
         isOnline: true,
       });
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
-        where: { userId: "user-123" },
+        where: { userId: "user-123", tenantId: "tenant-001" },
         data: {
           isOnline: true,
           lastSeenAt: expect.any(Date),

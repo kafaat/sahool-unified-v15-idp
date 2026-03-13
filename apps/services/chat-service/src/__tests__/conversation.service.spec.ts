@@ -586,7 +586,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should handle database errors", async () => {
-      mockPrismaService.conversation.findUnique.mockRejectedValue(
+      mockPrismaService.conversation.findFirst.mockRejectedValue(
         new Error("Database connection failed"),
       );
 
@@ -954,7 +954,7 @@ describe("ConversationService (Conversation Operations)", () => {
     });
 
     it("should handle database timeout errors", async () => {
-      mockPrismaService.conversation.findUnique.mockRejectedValue(
+      mockPrismaService.conversation.findFirst.mockRejectedValue(
         new Error("Connection timeout"),
       );
 

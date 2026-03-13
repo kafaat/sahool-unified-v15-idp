@@ -128,11 +128,12 @@ describe("ChatService", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      const result = await service.createConversation(createDto);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
         where: {
+          tenantId: "tenant-001",
           participantIds: {
             hasEvery: createDto.participantIds,
           },
@@ -160,7 +161,7 @@ describe("ChatService", () => {
         mockConversation,
       );
 
-      const result = await service.createConversation(createDto);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
@@ -178,7 +179,7 @@ describe("ChatService", () => {
         orderId: "order-101",
       });
 
-      const result = await service.createConversation(createDto);
+      const result = await service.createConversation(createDto, "tenant-001");
 
       expect(result.orderId).toBe("order-101");
     });
@@ -191,7 +192,7 @@ describe("ChatService", () => {
       mockPrismaService.conversation.findFirst.mockResolvedValue(null);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
-      await service.createConversation(createDto);
+      await service.createConversation(createDto, "tenant-001");
 
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -228,7 +229,7 @@ describe("ChatService", () => {
         messageType: MessageType.TEXT,
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -245,11 +246,11 @@ describe("ChatService", () => {
         });
       });
 
-      const result = await service.sendMessage(sendDto);
+      const result = await service.sendMessage(sendDto, "tenant-001");
 
       expect(result).toBeDefined();
-      expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
-        where: { id: "conv-123" },
+      expect(mockPrismaService.conversation.findFirst).toHaveBeenCalledWith({
+        where: { id: "conv-123", tenantId: "tenant-001" },
       });
     });
 
@@ -260,9 +261,9 @@ describe("ChatService", () => {
         content: "Hello",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(null);
+      mockPrismaService.conversation.findFirst.mockResolvedValue(null);
 
-      await expect(service.sendMessage(sendDto)).rejects.toThrow(
+      await expect(service.sendMessage(sendDto, "tenant-001")).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -274,11 +275,11 @@ describe("ChatService", () => {
         content: "Hello",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
 
-      await expect(service.sendMessage(sendDto)).rejects.toThrow(
+      await expect(service.sendMessage(sendDto, "tenant-001")).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -292,7 +293,7 @@ describe("ChatService", () => {
         attachmentUrl: "https://cdn.sahool.com/images/product.jpg",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -312,7 +313,7 @@ describe("ChatService", () => {
         });
       });
 
-      const result = await service.sendMessage(sendDto);
+      const result = await service.sendMessage(sendDto, "tenant-001");
 
       expect(result).toBeDefined();
     });
@@ -327,7 +328,7 @@ describe("ChatService", () => {
         offerCurrency: "YER",
       };
 
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -348,7 +349,7 @@ describe("ChatService", () => {
         });
       });
 
-      const result = await service.sendMessage(sendDto);
+      const result = await service.sendMessage(sendDto, "tenant-001");
 
       expect(result).toBeDefined();
     });
@@ -361,7 +362,7 @@ describe("ChatService", () => {
       };
 
       const mockUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
-      mockPrismaService.conversation.findUnique.mockResolvedValue(
+      mockPrismaService.conversation.findFirst.mockResolvedValue(
         mockConversation,
       );
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
@@ -378,7 +379,7 @@ describe("ChatService", () => {
         });
       });
 
-      await service.sendMessage(sendDto);
+      await service.sendMessage(sendDto, "tenant-001");
 
       expect(mockUpdateMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -409,7 +410,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findMany.mockResolvedValue(mockMessages);
       mockPrismaService.message.count.mockResolvedValue(10);
 
-      const result = await service.getMessages("conv-123", 1, 50);
+      const result = await service.getMessages("conv-123", 1, 50, "tenant-001");
 
       expect(result).toEqual({
         messages: mockMessages.reverse(),
@@ -419,7 +420,7 @@ describe("ChatService", () => {
         totalPages: 1,
       });
       expect(mockPrismaService.message.findMany).toHaveBeenCalledWith({
-        where: { conversationId: "conv-123" },
+        where: { conversationId: "conv-123", tenantId: "tenant-001" },
         orderBy: { createdAt: "desc" },
         skip: 0,
         take: 50,
@@ -430,7 +431,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(100);
 
-      const result = await service.getMessages("conv-123", 2, 50);
+      const result = await service.getMessages("conv-123", 2, 50, "tenant-001");
 
       expect(result.page).toBe(2);
       expect(result.totalPages).toBe(2);
@@ -452,7 +453,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findMany.mockResolvedValue(mockMessages);
       mockPrismaService.message.count.mockResolvedValue(3);
 
-      const result = await service.getMessages("conv-123", 1, 50);
+      const result = await service.getMessages("conv-123", 1, 50, "tenant-001");
 
       // Messages should be reversed to chronological order
       expect(result.messages).toEqual(mockMessages.reverse());
@@ -462,7 +463,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findMany.mockResolvedValue([]);
       mockPrismaService.message.count.mockResolvedValue(75);
 
-      const result = await service.getMessages("conv-123", 1, 25);
+      const result = await service.getMessages("conv-123", 1, 25, "tenant-001");
 
       expect(result.totalPages).toBe(3);
     });
@@ -478,7 +479,7 @@ describe("ChatService", () => {
         mockConversation,
       );
 
-      const result = await service.getConversationById("conv-123");
+      const result = await service.getConversationById("conv-123", "tenant-001");
 
       expect(result).toEqual(mockConversation);
       expect(mockPrismaService.conversation.findUnique).toHaveBeenCalledWith({
@@ -492,7 +493,7 @@ describe("ChatService", () => {
     it("should throw NotFoundException when conversation not found", async () => {
       mockPrismaService.conversation.findUnique.mockResolvedValue(null);
 
-      await expect(service.getConversationById("conv-999")).rejects.toThrow(
+      await expect(service.getConversationById("conv-999", "tenant-001")).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -510,7 +511,7 @@ describe("ChatService", () => {
       );
       mockPrismaService.message.count.mockResolvedValue(2);
 
-      const result = await service.getUserConversations("user-123");
+      const result = await service.getUserConversations("user-123", "tenant-001");
 
       expect(result).toHaveLength(1);
       expect(result[0]).toHaveProperty("unreadCount");
@@ -545,7 +546,7 @@ describe("ChatService", () => {
       );
       mockPrismaService.message.count.mockResolvedValue(5);
 
-      const result = await service.getUserConversations("user-123");
+      const result = await service.getUserConversations("user-123", "tenant-001");
 
       expect(result[0].unreadCount).toBe(5);
     });
@@ -571,7 +572,7 @@ describe("ChatService", () => {
       });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      const result = await service.markMessageAsRead("msg-123", "user-456");
+      const result = await service.markMessageAsRead("msg-123", "user-456", "tenant-001");
 
       expect(mockPrismaService.message.update).toHaveBeenCalledWith({
         where: { id: "msg-123" },
@@ -593,7 +594,7 @@ describe("ChatService", () => {
         messageWithConversation,
       );
 
-      await service.markMessageAsRead("msg-123", "user-123");
+      await service.markMessageAsRead("msg-123", "user-123", "tenant-001");
 
       expect(mockPrismaService.message.update).not.toHaveBeenCalled();
     });
@@ -602,7 +603,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.markMessageAsRead("msg-999", "user-123"),
+        service.markMessageAsRead("msg-999", "user-123", "tenant-001"),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -623,7 +624,7 @@ describe("ChatService", () => {
         mockParticipants,
       );
 
-      const result = await service.getUnreadCount("user-123");
+      const result = await service.getUnreadCount("user-123", "tenant-001");
 
       expect(result).toBe(10);
       expect(mockPrismaService.participant.findMany).toHaveBeenCalledWith({
@@ -635,7 +636,7 @@ describe("ChatService", () => {
     it("should return 0 when user has no unread messages", async () => {
       mockPrismaService.participant.findMany.mockResolvedValue([]);
 
-      const result = await service.getUnreadCount("user-123");
+      const result = await service.getUnreadCount("user-123", "tenant-001");
 
       expect(result).toBe(0);
     });
@@ -656,6 +657,7 @@ describe("ChatService", () => {
       const result = await service.markConversationAsRead(
         "conv-123",
         "user-456",
+        "tenant-001",
       );
 
       expect(result).toEqual({
@@ -682,7 +684,7 @@ describe("ChatService", () => {
       mockPrismaService.message.updateMany.mockResolvedValue({ count: 5 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
-      await service.markConversationAsRead("conv-123", "user-456");
+      await service.markConversationAsRead("conv-123", "user-456", "tenant-001");
 
       expect(mockPrismaService.participant.updateMany).toHaveBeenCalledWith({
         where: {
@@ -709,6 +711,7 @@ describe("ChatService", () => {
         "conv-123",
         "user-123",
         true,
+        "tenant-001",
       );
 
       expect(result).toEqual({
@@ -736,7 +739,7 @@ describe("ChatService", () => {
     it("should update user online status", async () => {
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 2 });
 
-      const result = await service.updateOnlineStatus("user-123", true);
+      const result = await service.updateOnlineStatus("user-123", true, "tenant-001");
 
       expect(result).toEqual({
         userId: "user-123",
@@ -754,7 +757,7 @@ describe("ChatService", () => {
     it("should set user offline status", async () => {
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 2 });
 
-      const result = await service.updateOnlineStatus("user-123", false);
+      const result = await service.updateOnlineStatus("user-123", false, "tenant-001");
 
       expect(result.isOnline).toBe(false);
     });

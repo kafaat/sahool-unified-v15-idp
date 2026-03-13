@@ -83,11 +83,8 @@ section("SERVICE_PORTS - Uniqueness & Range");
 const allPorts = Object.entries(SERVICE_PORTS);
 
 // Infrastructure ports (gateways, proxies) may share ports with services they front
-// Deprecated ports are aliases that intentionally share a port with their replacement
 const INFRA_PORTS = ["KONG_GATEWAY", "KONG_ADMIN"];
-const DEPRECATED_PORTS = ["WECHAT"];
-const EXCLUDED_PORTS = [...INFRA_PORTS, ...DEPRECATED_PORTS];
-const servicePorts = allPorts.filter(([name]) => !EXCLUDED_PORTS.includes(name));
+const servicePorts = allPorts.filter(([name]) => !INFRA_PORTS.includes(name));
 const servicePortValues = servicePorts.map(([, v]) => v);
 const uniqueServicePorts = new Set(servicePortValues);
 

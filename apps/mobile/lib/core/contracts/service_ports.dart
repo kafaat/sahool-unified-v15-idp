@@ -71,7 +71,6 @@ abstract final class ServicePorts {
   static const int supplyChain = 8230;
   static const int lowcodeEngine = 8132;
   static const int community = 8133;
-  static const int wechat = 8133;
   static const int whatsappBot = 8240;
   static const int ussdGateway = 8183;
   static const int fertigationEngine = 8252;

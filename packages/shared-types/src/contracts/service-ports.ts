@@ -162,8 +162,6 @@ export const SERVICE_PORTS = {
   LOWCODE_ENGINE: 8132,
   /** Community service (Rocket.Chat) - خدمة المجتمع الزراعي */
   COMMUNITY: 8133,
-  /** @deprecated Use SERVICE_PORTS.COMMUNITY instead. Removal: v18.0.0 */
-  WECHAT: 8133,
   /** WhatsApp bot - بوت واتساب */
   WHATSAPP_BOT: 8240,
   /** USSD gateway - بوابة USSD */
@@ -757,8 +755,8 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
   },
   /** @deprecated Use community-service instead */
   "wechat-service": {
-    key: "WECHAT",
-    port: SERVICE_PORTS.WECHAT,
+    key: "COMMUNITY",
+    port: SERVICE_PORTS.COMMUNITY,
     name: "WeChat Service (Deprecated)",
     nameAr: "خدمة ويتشات (مُهملة)",
     kongRoute: "/api/v1/wechat",

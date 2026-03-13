@@ -8,16 +8,19 @@
 -- ╔═══════════════════════════════════════════════════════════════════════════════╗
 -- ║  DO NOT RUN THIS FILE IN PRODUCTION ENVIRONMENTS                             ║
 -- ║                                                                               ║
--- ║  This file contains:                                                         ║
--- ║  - Hardcoded passwords (admin, manager123, etc.)                             ║
--- ║  - Test user accounts                                                        ║
--- ║  - Sample data that may not be suitable for production                       ║
--- ║                                                                               ║
 -- ║  For production deployments:                                                 ║
 -- ║  1. Remove or rename this file                                               ║
 -- ║  2. Or set SKIP_DEMO_DATA=true environment variable                          ║
 -- ║  3. Create production users via secure admin API                             ║
 -- ╚═══════════════════════════════════════════════════════════════════════════════╝
+--
+-- NOTE: Demo data for Prisma-managed tables (users, fields, tasks, IoT devices,
+-- experiments, chat, marketplace, etc.) should be inserted via each NestJS
+-- service's own seed mechanism (prisma db seed) after the services start.
+--
+-- This file only seeds tables managed by the init script (00-init-sahool.sql):
+--   tenants, crops, alerts, anwa_events, weather_records, weather_forecasts,
+--   audit_logs, ai_consultations, equipment, equipment_maintenance
 --
 -- Usage:
 --   Development: Keep this file as-is (03-demo-data.sql)
@@ -57,36 +60,10 @@ VALUES (
 ) ON CONFLICT (slug) DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO USERS
+-- DEMO USERS - REMOVED
+-- Users table is now managed by Prisma ORM (user-service)
+-- Seed demo users via: cd apps/services/user-service && npx prisma db seed
 -- ═══════════════════════════════════════════════════════════════════════════════
--- WARNING: These passwords are for DEVELOPMENT ONLY
--- Password hashes are generated using bcrypt with cost factor 12
-
--- Admin user (password: admin)
-INSERT INTO users (id, tenant_id, email, password_hash, first_name, last_name, role, status, email_verified)
-VALUES (
-    'b0000000-0000-0000-0000-000000000001',
-    'a0000000-0000-0000-0000-000000000001',
-    'n@admin.com',
-    crypt('admin', gen_salt('bf', 12)),
-    'Admin',
-    'User',
-    'ADMIN',
-    'ACTIVE',
-    true
-) ON CONFLICT (email) DO UPDATE SET
-    password_hash = crypt('admin', gen_salt('bf', 12)),
-    role = 'ADMIN',
-    status = 'ACTIVE';
-
--- Additional demo users
-INSERT INTO users (id, tenant_id, email, password_hash, first_name, last_name, role, status, email_verified)
-VALUES
-    ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'manager@sahool.io', crypt('manager123', gen_salt('bf', 12)), 'Farm', 'Manager', 'MANAGER', 'ACTIVE', true),
-    ('b0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'agronomist@sahool.io', crypt('agro123', gen_salt('bf', 12)), 'Ahmed', 'Al-Rashid', 'FARMER', 'ACTIVE', true),
-    ('b0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'worker@sahool.io', crypt('worker123', gen_salt('bf', 12)), 'Mohammed', 'Ali', 'WORKER', 'ACTIVE', true),
-    ('b0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'researcher@sahool.io', crypt('research123', gen_salt('bf', 12)), 'Fatima', 'Hassan', 'VIEWER', 'ACTIVE', true)
-ON CONFLICT (email) DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DEMO CROPS (Master Data)
@@ -107,121 +84,39 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO FIELDS
+-- DEMO FIELDS - REMOVED
+-- Fields table is now managed by Prisma ORM (field-management-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO fields (id, tenant_id, owner_id, name, name_ar, governorate, district, soil_type, irrigation_type, current_crop_id, status, health_score, boundary, area_hectares)
-VALUES
-    (
-        'd0000000-0000-0000-0000-000000000001',
-        'a0000000-0000-0000-0000-000000000001',
-        'b0000000-0000-0000-0000-000000000002',
-        'North Field',
-        'الحقل الشمالي',
-        'Riyadh',
-        'Al-Kharj',
-        'loam',
-        'drip',
-        'c0000000-0000-0000-0000-000000000001',
-        'active',
-        85.5,
-        ST_GeomFromText('POLYGON((46.7 24.1, 46.71 24.1, 46.71 24.11, 46.7 24.11, 46.7 24.1))', 4326),
-        120.5
-    ),
-    (
-        'd0000000-0000-0000-0000-000000000002',
-        'a0000000-0000-0000-0000-000000000001',
-        'b0000000-0000-0000-0000-000000000002',
-        'South Field',
-        'الحقل الجنوبي',
-        'Riyadh',
-        'Al-Kharj',
-        'sandy',
-        'center_pivot',
-        'c0000000-0000-0000-0000-000000000003',
-        'active',
-        78.2,
-        ST_GeomFromText('POLYGON((46.72 24.08, 46.73 24.08, 46.73 24.09, 46.72 24.09, 46.72 24.08))', 4326),
-        85.0
-    ),
-    (
-        'd0000000-0000-0000-0000-000000000003',
-        'a0000000-0000-0000-0000-000000000001',
-        'b0000000-0000-0000-0000-000000000003',
-        'East Greenhouse',
-        'البيت المحمي الشرقي',
-        'Riyadh',
-        'Al-Kharj',
-        'mixed',
-        'drip',
-        'c0000000-0000-0000-0000-000000000004',
-        'active',
-        92.0,
-        ST_GeomFromText('POLYGON((46.74 24.1, 46.745 24.1, 46.745 24.105, 46.74 24.105, 46.74 24.1))', 4326),
-        2.5
-    )
-ON CONFLICT DO NOTHING;
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO FIELD CROPS
+-- DEMO FIELD CROPS - REMOVED
+-- Table is now managed by Prisma ORM (field-management-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO field_crops (id, field_id, crop_id, tenant_id, planting_date, expected_harvest_date, status, growth_stage, planted_area_hectares)
-VALUES
-    ('e0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', '2025-01-15', '2025-05-15', 'growing', 'vegetative', 120.5),
-    ('e0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', '2020-03-01', '2025-09-01', 'growing', 'fruiting', 85.0),
-    ('e0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', '2025-02-01', '2025-05-01', 'growing', 'flowering', 2.5)
-ON CONFLICT DO NOTHING;
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO TASKS
+-- DEMO TASKS - REMOVED
+-- Tasks table is now managed by Prisma ORM (field-management-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO tasks (task_id, tenant_id, field_id, title, title_ar, task_type, status, priority, assigned_to, created_by, due_date)
-VALUES
-    ('f0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Apply fertilizer', 'تطبيق السماد', 'fertilization', 'pending', 'high', 'b0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000001', CURRENT_DATE + 2),
-    ('f0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'Irrigation check', 'فحص الري', 'irrigation', 'scheduled', 'medium', 'b0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000001', CURRENT_DATE + 1),
-    ('f0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'Pest inspection', 'فحص الآفات', 'inspection', 'pending', 'high', 'b0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000001', CURRENT_DATE + 3),
-    ('f0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'Soil sampling', 'أخذ عينات التربة', 'soil_prep', 'completed', 'low', 'b0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000001', CURRENT_DATE - 2)
-ON CONFLICT DO NOTHING;
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO NDVI RECORDS
+-- DEMO NDVI RECORDS - REMOVED
+-- Table is now managed by Prisma ORM (field-management-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO ndvi_records (id, field_id, tenant_id, capture_date, satellite, cloud_coverage_percent, ndvi_mean, ndvi_min, ndvi_max, classification, health_score, trend)
-VALUES
-    ('00000000-0000-0000-0001-000000000001', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Sentinel-2', 5.2, 0.72, 0.45, 0.89, 'good', 85.5, 'improving'),
-    ('00000000-0000-0000-0001-000000000002', 'd0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 14, 'Sentinel-2', 8.1, 0.68, 0.42, 0.85, 'good', 82.0, 'stable'),
-    ('00000000-0000-0000-0001-000000000003', 'd0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 7, 'Landsat-8', 3.5, 0.65, 0.38, 0.82, 'moderate', 78.2, 'stable'),
-    ('00000000-0000-0000-0001-000000000004', 'd0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', CURRENT_DATE - 5, 'Sentinel-2', 2.0, 0.85, 0.72, 0.95, 'excellent', 92.0, 'improving')
-ON CONFLICT DO NOTHING;
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO IOT DEVICES
+-- DEMO IOT DEVICES - REMOVED
+-- Table is now managed by Prisma ORM (iot-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO iot_devices (id, tenant_id, field_id, device_id, device_type, name, name_ar, status, battery_level)
-VALUES
-    ('00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'SOIL-001', 'soil_sensor', 'Soil Sensor North-1', 'مستشعر التربة شمال-1', 'online', 85.0),
-    ('00000000-0000-0000-0002-000000000002', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'WEATHER-001', 'weather_station', 'Weather Station Main', 'محطة الطقس الرئيسية', 'online', 92.0),
-    ('00000000-0000-0000-0002-000000000003', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000002', 'WATER-001', 'water_meter', 'Water Meter South', 'عداد المياه الجنوبي', 'online', 78.0),
-    ('00000000-0000-0000-0002-000000000004', 'a0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000003', 'CAM-001', 'camera', 'Greenhouse Camera', 'كاميرا البيت المحمي', 'online', 100.0)
-ON CONFLICT DO NOTHING;
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO IOT READINGS
+-- DEMO IOT READINGS - REMOVED
+-- Table is now managed by Prisma ORM (iot-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
-
-INSERT INTO iot_readings (id, device_id, tenant_id, recorded_at, readings, soil_moisture, soil_temperature, air_temperature, humidity)
-VALUES
-    ('00000000-0000-0000-0003-000000000001', '00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"moisture": 45.2, "temperature": 22.5, "ec": 1.2}', 45.2, 22.5, 28.0, 55.0),
-    ('00000000-0000-0000-0003-000000000002', '00000000-0000-0000-0002-000000000001', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '2 hours', '{"moisture": 44.8, "temperature": 23.0, "ec": 1.1}', 44.8, 23.0, 29.0, 52.0),
-    ('00000000-0000-0000-0003-000000000003', '00000000-0000-0000-0002-000000000002', 'a0000000-0000-0000-0000-000000000001', NOW() - INTERVAL '1 hour', '{"temperature": 28.5, "humidity": 45, "pressure": 1013}', NULL, NULL, 28.5, 45.0)
-ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DEMO ALERTS
+-- NOTE: field_id values reference fields that will be created by
+-- field-management-service's Prisma migrations. No FK constraint enforced.
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 INSERT INTO alerts (id, tenant_id, field_id, title, title_ar, message, message_ar, category, severity, status)
@@ -236,18 +131,11 @@ ON CONFLICT DO NOTHING;
 -- Tables now managed by Prisma ORM (marketplace-service)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- DEMO WALLETS - REMOVED
--- Tables now managed by Prisma ORM (marketplace-service)
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- DEMO EXPERIMENT - REMOVED
+-- Tables now managed by Prisma ORM (research-core)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- DEMO EXPERIMENT
--- ═══════════════════════════════════════════════════════════════════════════════
-
-INSERT INTO experiments (id, tenant_id, title, title_ar, description, hypothesis, start_date, status, principal_researcher_id)
-VALUES
-    ('00000000-0000-0000-0007-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Drought-Resistant Wheat Varieties Trial', 'تجربة أصناف القمح المقاومة للجفاف', 'Testing 5 wheat varieties for drought resistance in Al-Kharj region', 'Variety X-15 will show 20% higher yield under water stress conditions', '2025-01-01', 'active', 'b0000000-0000-0000-0000-000000000005')
-ON CONFLICT DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- DEMO ANWA EVENTS (Agricultural Calendar)
@@ -276,28 +164,27 @@ ON CONFLICT DO NOTHING;
 
 DO $$
 DECLARE
-    user_count INTEGER;
-    field_count INTEGER;
+    tenant_count INTEGER;
     crop_count INTEGER;
+    alert_count INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO user_count FROM users WHERE tenant_id = 'a0000000-0000-0000-0000-000000000001';
-    SELECT COUNT(*) INTO field_count FROM fields WHERE tenant_id = 'a0000000-0000-0000-0000-000000000001';
+    SELECT COUNT(*) INTO tenant_count FROM tenants;
     SELECT COUNT(*) INTO crop_count FROM crops;
+    SELECT COUNT(*) INTO alert_count FROM alerts;
 
     RAISE NOTICE '';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
     RAISE NOTICE '  DEMO DATA LOADED SUCCESSFULLY';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
-    RAISE NOTICE '  Demo Users: %', user_count;
-    RAISE NOTICE '  Demo Fields: %', field_count;
+    RAISE NOTICE '  Tenants: %', tenant_count;
     RAISE NOTICE '  Crop Types: %', crop_count;
+    RAISE NOTICE '  Alerts: %', alert_count;
     RAISE NOTICE '';
-    RAISE NOTICE '  Demo Admin Login:';
-    RAISE NOTICE '    Email: n@admin.com';
-    RAISE NOTICE '    Password: admin';
+    RAISE NOTICE '  NOTE: Demo data for users, fields, tasks, IoT, experiments,';
+    RAISE NOTICE '  and chat should be seeded via NestJS services after startup:';
+    RAISE NOTICE '    cd apps/services/<service> && npx prisma db seed';
     RAISE NOTICE '';
     RAISE NOTICE '  WARNING: This is demo data for development only!';
-    RAISE NOTICE '  Do NOT use these credentials in production.';
     RAISE NOTICE '═══════════════════════════════════════════════════════════════════';
 END;
 $$;

@@ -68,13 +68,14 @@ void main() {
       });
 
       test('Migration base is importable', () {
-        // MigrationResult should be accessible
-        final result = MigrationResult.success(
-          targetVersion: 5,
-          fromVersion: 4,
-          duration: const Duration(milliseconds: 1),
+        // MigrationStep is defined in migration_base.dart
+        final step = MigrationStep(
+          stepNumber: 1,
+          description: 'Test step',
         );
-        expect(result.success, isTrue);
+        expect(step.stepNumber, equals(1));
+        expect(step.description, equals('Test step'));
+        expect(step.completed, isFalse);
       });
 
       test('MigrationV5 is importable and has correct version', () {

@@ -1,15 +1,15 @@
-/// Comprehensive Offline Sync Tests
-/// اختبارات شاملة للمزامنة دون اتصال
+/// Offline Sync Unit Tests
+/// اختبارات وحدة المزامنة دون اتصال
 ///
-/// Tests the offline-first synchronization mechanisms:
-/// - Sync queue management
-/// - Conflict resolution strategies
-/// - ETag-based optimistic locking
-/// - Network status integration
-/// - Retry logic and backoff
-/// - Sync priority ordering
-/// - Queue cleanup operations
-/// - Sync event notifications
+/// Tests the following offline-sync components:
+/// - SyncPriority constants and ordering (migration_v5.dart)
+/// - ExponentialBackoff policy (core/utils/retry_policy.dart)
+/// - SyncConflictResolver strategies (core/offline/sync_conflict_resolver.dart)
+/// - ETag-based optimistic locking (pure string logic)
+/// - Sync queue item builder (pure logic)
+/// - Sync statistics helpers (pure logic)
+/// - Delta sync logic (pure logic)
+/// - Offline operation queue ordering (pure logic)
 ///
 /// Run with: flutter test test/unit/offline_sync_test.dart
 
@@ -18,6 +18,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/database/migrations/migration_v5.dart'
     show SyncPriority;
+import 'package:sahool_field_app/core/utils/retry_policy.dart';
+import 'package:sahool_field_app/core/offline/sync_conflict_resolver.dart';
 
 void main() {
   // ============================================================
@@ -163,40 +165,68 @@ void main() {
   });
 
   // ============================================================
-  // Retry Logic Tests (pure logic, no DB needed)
+  // Retry Logic Tests — uses production ExponentialBackoff
   // ============================================================
   group('Retry Logic - منطق إعادة المحاولة', () {
-    test('calculates exponential backoff correctly', () {
-      int calculateBackoffMs(int retryCount, {int baseMs = 1000}) {
-        return (baseMs * (1 << retryCount)).clamp(0, 60000);
-      }
+    late ExponentialBackoff backoff;
 
-      expect(calculateBackoffMs(0), equals(1000)); // 1s
-      expect(calculateBackoffMs(1), equals(2000)); // 2s
-      expect(calculateBackoffMs(2), equals(4000)); // 4s
-      expect(calculateBackoffMs(3), equals(8000)); // 8s
-      expect(calculateBackoffMs(4), equals(16000)); // 16s
-      expect(calculateBackoffMs(5), equals(32000)); // 32s
-      expect(calculateBackoffMs(6), equals(60000)); // capped at 60s
-      expect(calculateBackoffMs(10), equals(60000)); // still capped
+    setUp(() {
+      // Disable jitter so delays are deterministic in tests
+      backoff = ExponentialBackoff(
+        initialDelayMs: 1000,
+        multiplier: 2.0,
+        maxDelayMs: 300000, // 300,000 ms = 5 minutes (production default)
+        maxRetries: 5,
+        enableJitter: false,
+      );
     });
 
-    test('max retries check works correctly', () {
-      bool shouldRetry(int retryCount, int maxRetries) =>
-          retryCount < maxRetries;
-
-      expect(shouldRetry(0, 5), isTrue);
-      expect(shouldRetry(4, 5), isTrue);
-      expect(shouldRetry(5, 5), isFalse);
-      expect(shouldRetry(10, 5), isFalse);
+    test('calculateDelay returns initialDelayMs for retry 0', () {
+      expect(backoff.calculateDelay(0), equals(1000));
     });
 
-    test('retry count increments correctly', () {
-      int retryCount = 0;
-      for (int i = 0; i < 3; i++) {
-        retryCount++;
-      }
-      expect(retryCount, equals(3));
+    test('calculateDelay doubles on each retry (exponential)', () {
+      expect(backoff.calculateDelay(0), equals(1000)); // 1s
+      expect(backoff.calculateDelay(1), equals(2000)); // 2s
+      expect(backoff.calculateDelay(2), equals(4000)); // 4s
+      expect(backoff.calculateDelay(3), equals(8000)); // 8s
+      expect(backoff.calculateDelay(4), equals(16000)); // 16s
+    });
+
+    test('calculateDelay is capped at maxDelayMs (5 min default)', () {
+      // At retry 9: 1000 * 2^9 = 512,000ms > 300,000ms → capped at 300,000ms
+      expect(backoff.calculateDelay(9), equals(300000));
+      expect(backoff.calculateDelay(20), equals(300000));
+    });
+
+    test('shouldRetry returns true while under maxRetries', () {
+      expect(backoff.shouldRetry(0), isTrue);
+      expect(backoff.shouldRetry(4), isTrue);
+    });
+
+    test('shouldRetry returns false at or above maxRetries', () {
+      expect(backoff.shouldRetry(5), isFalse);
+      expect(backoff.shouldRetry(10), isFalse);
+    });
+
+    test('calculateNextRetryTime is in the future', () {
+      final before = DateTime.now();
+      final nextRetry = backoff.calculateNextRetryTime(0);
+      expect(nextRetry.isAfter(before), isTrue);
+    });
+
+    test('calculateNextRetryTime delay increases with retry count', () {
+      final t0 = backoff.calculateNextRetryTime(0);
+      final t1 = backoff.calculateNextRetryTime(1);
+      final t2 = backoff.calculateNextRetryTime(2);
+      expect(t1.isAfter(t0), isTrue);
+      expect(t2.isAfter(t1), isTrue);
+    });
+
+    test('getDelayDescription returns human-readable string', () {
+      final desc = backoff.getDelayDescription(0);
+      expect(desc, isA<String>());
+      expect(desc, isNotEmpty);
     });
 
     test('handles network timeout simulation', () {
@@ -217,9 +247,15 @@ void main() {
   });
 
   // ============================================================
-  // ETag Conflict Resolution Tests (pure logic)
+  // ETag / Conflict Resolution Tests — uses SyncConflictResolver
   // ============================================================
   group('ETag Conflict Resolution - حل تعارضات ETag', () {
+    late SyncConflictResolver resolver;
+
+    setUp(() {
+      resolver = SyncConflictResolver();
+    });
+
     test('ETag comparison detects no conflict for same ETag', () {
       const localEtag = '"abc123"';
       const serverEtag = '"abc123"';
@@ -238,40 +274,74 @@ void main() {
       expect(isFirstSync, isTrue);
     });
 
-    test('resolves conflict with local_wins strategy', () {
-      String resolveConflict(
-          String? localEtag, String? serverEtag, String strategy) {
-        if (strategy == 'local_wins') return 'local';
-        if (strategy == 'server_wins') return 'server';
-        return 'manual';
-      }
-
+    test('detectConflict returns false when the same field has the same value', () {
+      final base = {'name': 'Field A', 'area': 5.0};
+      final local = {'name': 'Field A updated', 'area': 5.0};
+      final server = {'name': 'Field A updated', 'area': 5.0}; // identical change
       expect(
-        resolveConflict('"abc"', '"def"', 'local_wins'),
-        equals('local'),
+        resolver.detectConflict(local: local, server: server, base: base),
+        isFalse,
       );
     });
 
-    test('resolves conflict with server_wins strategy', () {
-      String resolveConflict(
-          String? localEtag, String? serverEtag, String strategy) {
-        if (strategy == 'local_wins') return 'local';
-        if (strategy == 'server_wins') return 'server';
-        return 'manual';
-      }
-
+    test('detectConflict returns true when both sides changed the same field differently', () {
+      final base = {'name': 'Field A', 'area': 5.0};
+      final local = {'name': 'Local Name', 'area': 5.0};
+      final server = {'name': 'Server Name', 'area': 5.0};
       expect(
-        resolveConflict('"abc"', '"def"', 'server_wins'),
-        equals('server'),
+        resolver.detectConflict(local: local, server: server, base: base),
+        isTrue,
       );
+    });
+
+    test('resolve with ConflictStrategy.localWins returns local data', () async {
+      final base = {'name': 'Base', 'area': 5.0};
+      final local = {'name': 'Local', 'area': 5.0};
+      final server = {'name': 'Server', 'area': 6.0};
+
+      final result = await resolver.resolve(
+        local: local,
+        server: server,
+        base: base,
+        strategy: ConflictStrategy.localWins,
+      );
+
+      expect(result, equals(local));
+    });
+
+    test('resolve with ConflictStrategy.serverWins returns server data', () async {
+      final base = {'name': 'Base', 'area': 5.0};
+      final local = {'name': 'Local', 'area': 5.0};
+      final server = {'name': 'Server', 'area': 6.0};
+
+      final result = await resolver.resolve(
+        local: local,
+        server: server,
+        base: base,
+        strategy: ConflictStrategy.serverWins,
+      );
+
+      expect(result, equals(server));
+    });
+
+    test('resolve with ConflictStrategy.lastWriteWins picks the newer record', () async {
+      final base = {'name': 'Base', 'updatedAt': '2025-01-01T00:00:00Z'};
+      final local = {'name': 'Local', 'updatedAt': '2025-01-15T10:00:00Z'};  // newer
+      final server = {'name': 'Server', 'updatedAt': '2025-01-10T08:00:00Z'};
+
+      final result = await resolver.resolve(
+        local: local,
+        server: server,
+        base: base,
+        strategy: ConflictStrategy.lastWriteWins,
+      );
+
+      expect(result, equals(local)); // local is more recent
     });
 
     test('generates If-Match header from ETag', () {
       const etag = '"abc123"';
-      final headers = {
-        'If-Match': etag,
-      };
-
+      final headers = {'If-Match': etag};
       expect(headers['If-Match'], equals(etag));
     });
 

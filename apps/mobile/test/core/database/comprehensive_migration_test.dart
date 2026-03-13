@@ -210,11 +210,11 @@ void main() {
       expect(checksum1, equals(checksum2));
     });
 
-    test('checksum should be a non-empty hex string', () {
+    test('checksum should be a non-empty hex string (MD5, 32 chars)', () {
       final checksum = migration.checksum;
       expect(checksum, isNotEmpty);
-      // SHA-256 hex string should be 64 chars
-      expect(checksum.length, greaterThan(0));
+      // Migration.checksum is an MD5 digest → always 32 lowercase hex chars
+      expect(checksum.length, equals(32));
       // Should only contain hex characters
       expect(RegExp(r'^[0-9a-f]+$').hasMatch(checksum), isTrue);
     });

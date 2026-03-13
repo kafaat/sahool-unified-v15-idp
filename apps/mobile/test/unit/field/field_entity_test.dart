@@ -282,7 +282,7 @@ void main() {
   // JSON Serialization Tests
   // ============================================================
   group('Field JSON Serialization - التسلسل عبر JSON', () {
-    test('toJson returns map with required fields', () {
+    test('toJson returns GeoJSON Feature with properties map', () {
       final field = createTestField(
         id: 'field-json-1',
         tenantId: 'tenant-json',
@@ -294,24 +294,25 @@ void main() {
       final json = field.toJson();
 
       expect(json, isA<Map<String, dynamic>>());
+      // GeoJSON top-level shape
+      expect(json['type'], equals('Feature'));
       expect(json['id'], equals('field-json-1'));
-      expect(json['tenantId'], equals('tenant-json'));
-      expect(json['name'], equals('JSON Test Field'));
+      expect(json['geometry'], isA<Map<String, dynamic>>());
+      // Properties are nested under 'properties' with snake_case keys
+      final props = json['properties'] as Map<String, dynamic>;
+      expect(props['tenant_id'], equals('tenant-json'));
+      expect(props['name'], equals('JSON Test Field'));
+      expect(props['area_hectares'], equals(7.5));
+      expect(props['ndvi_current'], equals(0.68));
     });
 
-    test('fromJson creates field from valid JSON', () {
+    test('fromJson creates field from valid GeoJSON', () {
       final now = DateTime(2025, 1, 15, 8, 0, 0);
+      // Construct GeoJSON Feature with snake_case keys under 'properties'
       final json = {
+        'type': 'Feature',
         'id': 'field-from-json',
-        'tenantId': 'tenant-json',
-        'name': 'From JSON Field',
-        'areaHectares': 8.5,
-        'ndviCurrent': 0.72,
-        'synced': false,
-        'isDeleted': false,
-        'createdAt': now.toIso8601String(),
-        'updatedAt': now.toIso8601String(),
-        'boundary': {
+        'geometry': {
           'type': 'Polygon',
           'coordinates': [
             [
@@ -322,6 +323,17 @@ void main() {
               [46.7, 24.7],
             ]
           ],
+        },
+        'properties': {
+          'id': 'field-from-json',
+          'tenant_id': 'tenant-json',
+          'name': 'From JSON Field',
+          'area_hectares': 8.5,
+          'ndvi_current': 0.72,
+          'synced': false,
+          'is_deleted': false,
+          'created_at': now.toIso8601String(),
+          'updated_at': now.toIso8601String(),
         },
       };
 

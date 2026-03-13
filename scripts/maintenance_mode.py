@@ -32,6 +32,7 @@ import asyncio
 import json
 import logging
 import os
+import subprocess
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -279,7 +280,7 @@ location @maintenance {{
             self.MAINTENANCE_CONF.write_text(nginx_config)
 
             # Reload Nginx
-            os.system("nginx -s reload 2>/dev/null || true")
+            subprocess.run(["nginx", "-s", "reload"], capture_output=True, check=False)
 
             logger.info("✅ Nginx maintenance mode enabled")
             return True
@@ -297,7 +298,7 @@ location @maintenance {{
             if self.MAINTENANCE_CONF.exists():
                 self.MAINTENANCE_CONF.unlink()
 
-            os.system("nginx -s reload 2>/dev/null || true")
+            subprocess.run(["nginx", "-s", "reload"], capture_output=True, check=False)
 
             logger.info("✅ Nginx maintenance mode disabled")
             return True

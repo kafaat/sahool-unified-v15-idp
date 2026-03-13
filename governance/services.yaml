@@ -358,6 +358,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Use chat-service instead
+    replaced_by: chat-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated
@@ -769,6 +772,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Archived - use yield-prediction-service instead
+    replaced_by: yield-prediction-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02"
     owner: "data-team@sahool.io"
     team: data
     lifecycle: deprecated
@@ -1670,6 +1676,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Archived - use chat-service instead
+    replaced_by: chat-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated
@@ -2862,7 +2871,7 @@ services:
     description: "GPU-accelerated LLM inference server serving DeepSeek Coder 6.7B via vLLM with OpenAI-compatible API"
     description_ar: "خادم استدلال النماذج اللغوية الكبيرة مسرّع بالمعالج الرسومي يقدم نموذج ديب سيك كودر عبر vLLM مع واجهة متوافقة مع OpenAI"
     type: python
-    category: intelligence
+    category: infrastructure
     layer: intelligence
     path: "apps/services/vllm-deepseek"
     port: 8270

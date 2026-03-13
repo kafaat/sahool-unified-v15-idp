@@ -18,10 +18,14 @@ import 'package:latlong2/latlong.dart';
 // AppDatabase uses SQLCipher encryption which requires native libraries
 part 'database_test.g.dart';
 
-/// Test Tasks Table - mirrors production structure
+/// Test Tasks Table - mirrors production structure with all indexes
+/// جدول المهام التجريبي - يعكس بنية الإنتاج مع جميع الفهارس
 @TableIndex(name: 'test_tasks_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_tasks_field_idx', columns: {#fieldId})
 @TableIndex(name: 'test_tasks_status_idx', columns: {#status})
+@TableIndex(name: 'test_tasks_synced_idx', columns: {#synced})
+@TableIndex(name: 'test_tasks_tenant_status_idx', columns: {#tenantId, #status})
+@TableIndex(name: 'test_tasks_created_idx', columns: {#createdAt})
 class TestTasks extends Table {
   TextColumn get id => text()();
   TextColumn get tenantId => text()();
@@ -33,6 +37,8 @@ class TestTasks extends Table {
   TextColumn get priority => text().withDefault(const Constant('medium'))();
   DateTimeColumn get dueDate => dateTime().nullable()();
   TextColumn get assignedTo => text().nullable()();
+  TextColumn get evidenceNotes => text().nullable()();
+  TextColumn get evidencePhotos => text().nullable()(); // JSON array
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
@@ -41,9 +47,13 @@ class TestTasks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Test Outbox Table - for offline sync queue
+/// Test Outbox Table - for offline sync queue with ETag support
+/// جدول صندوق الصادر التجريبي - لقائمة المزامنة غير المتصلة مع دعم ETag
 @TableIndex(name: 'test_outbox_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_outbox_synced_idx', columns: {#isSynced})
+@TableIndex(name: 'test_outbox_entity_idx', columns: {#entityType, #entityId})
+@TableIndex(name: 'test_outbox_created_idx', columns: {#createdAt})
+@TableIndex(name: 'test_outbox_tenant_synced_idx', columns: {#tenantId, #isSynced})
 class TestOutbox extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -58,10 +68,15 @@ class TestOutbox extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Test Fields Table with GIS support
+/// Test Fields Table with GIS support and all production indexes
+/// جدول الحقول التجريبي مع دعم نظم المعلومات الجغرافية وجميع فهارس الإنتاج
 @TableIndex(name: 'test_fields_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_fields_farm_idx', columns: {#farmId})
 @TableIndex(name: 'test_fields_synced_idx', columns: {#synced})
+@TableIndex(name: 'test_fields_deleted_idx', columns: {#isDeleted})
+@TableIndex(name: 'test_fields_tenant_deleted_idx', columns: {#tenantId, #isDeleted})
+@TableIndex(name: 'test_fields_updated_idx', columns: {#updatedAt})
+@TableIndex(name: 'test_fields_remote_idx', columns: {#remoteId})
 class TestFields extends Table {
   TextColumn get id => text()();
   TextColumn get remoteId => text().nullable()();
@@ -86,7 +101,11 @@ class TestFields extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Test SyncLogs Table
+/// Test SyncLogs Table with performance indexes
+/// جدول سجلات المزامنة التجريبي مع فهارس الأداء
+@TableIndex(name: 'test_sync_logs_status_idx', columns: {#status})
+@TableIndex(name: 'test_sync_logs_timestamp_idx', columns: {#timestamp})
+@TableIndex(name: 'test_sync_logs_type_status_idx', columns: {#type, #status})
 class TestSyncLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get type => text()();
@@ -95,9 +114,11 @@ class TestSyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-/// Test SyncEvents Table
+/// Test SyncEvents Table - أحداث المزامنة والتعارضات
 @TableIndex(name: 'test_sync_events_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_sync_events_read_idx', columns: {#isRead})
+@TableIndex(name: 'test_sync_events_tenant_read_idx', columns: {#tenantId, #isRead})
+@TableIndex(name: 'test_sync_events_created_idx', columns: {#createdAt})
 class TestSyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -205,11 +226,40 @@ void main() {
 
       final indexNames = indexes.map((r) => r.read<String>('name')).toSet();
 
-      // Verify key indexes exist
+      // Verify all TestTasks indexes
       expect(indexNames, contains('test_tasks_tenant_idx'));
       expect(indexNames, contains('test_tasks_field_idx'));
+      expect(indexNames, contains('test_tasks_status_idx'));
+      expect(indexNames, contains('test_tasks_synced_idx'));
+      expect(indexNames, contains('test_tasks_tenant_status_idx'));
+      expect(indexNames, contains('test_tasks_created_idx'));
+
+      // Verify all TestOutbox indexes
       expect(indexNames, contains('test_outbox_tenant_idx'));
+      expect(indexNames, contains('test_outbox_synced_idx'));
+      expect(indexNames, contains('test_outbox_entity_idx'));
+      expect(indexNames, contains('test_outbox_created_idx'));
+      expect(indexNames, contains('test_outbox_tenant_synced_idx'));
+
+      // Verify all TestFields indexes
       expect(indexNames, contains('test_fields_tenant_idx'));
+      expect(indexNames, contains('test_fields_farm_idx'));
+      expect(indexNames, contains('test_fields_synced_idx'));
+      expect(indexNames, contains('test_fields_deleted_idx'));
+      expect(indexNames, contains('test_fields_tenant_deleted_idx'));
+      expect(indexNames, contains('test_fields_updated_idx'));
+      expect(indexNames, contains('test_fields_remote_idx'));
+
+      // Verify all TestSyncLogs indexes
+      expect(indexNames, contains('test_sync_logs_status_idx'));
+      expect(indexNames, contains('test_sync_logs_timestamp_idx'));
+      expect(indexNames, contains('test_sync_logs_type_status_idx'));
+
+      // Verify all TestSyncEvents indexes
+      expect(indexNames, contains('test_sync_events_tenant_idx'));
+      expect(indexNames, contains('test_sync_events_read_idx'));
+      expect(indexNames, contains('test_sync_events_tenant_read_idx'));
+      expect(indexNames, contains('test_sync_events_created_idx'));
     });
 
     test('should handle close and reopen', () async {

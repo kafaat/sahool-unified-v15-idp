@@ -685,12 +685,107 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Note: Full service startup tests should be run locally or in dedicated test environments." >> $GITHUB_STEP_SUMMARY
 
-  # Job 5: Generate comprehensive test report
+  # Job 5: Python static container tests (build validation + smoke config)
+  # These tests run in seconds without Docker daemon – no image builds required.
+  python-container-tests:
+    name: Python Container Tests (Static)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [dockerfile-lint, secrets-scan]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-xdist pyyaml
+
+      - name: Run Dockerfile build-context validation tests
+        id: build_tests
+        run: |
+          python -m pytest tests/container/test_build.py \
+            -v \
+            --tb=short \
+            --junitxml=test-results-build.xml \
+            -n auto \
+            2>&1 | tee build-test-output.txt
+
+      - name: Run container smoke & startup configuration tests
+        id: smoke_tests
+        if: always()
+        run: |
+          python -m pytest tests/container/test_container_smoke.py \
+            -v \
+            --tb=short \
+            --junitxml=test-results-smoke.xml \
+            -n auto \
+            2>&1 | tee smoke-test-output.txt
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-container-test-results
+          path: |
+            test-results-build.xml
+            test-results-smoke.xml
+            build-test-output.txt
+            smoke-test-output.txt
+          retention-days: 30
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🐍 Python Container Tests (Static)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Build tests summary
+          if [ -f build-test-output.txt ]; then
+            RESULT=$(tail -3 build-test-output.txt | grep -oE "[0-9]+ passed|[0-9]+ failed|[0-9]+ skipped" | tr '\n' ' ')
+            echo "### Dockerfile Build-Context Tests" >> $GITHUB_STEP_SUMMARY
+            echo "**Result:** $RESULT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Smoke tests summary
+          if [ -f smoke-test-output.txt ]; then
+            RESULT=$(tail -3 smoke-test-output.txt | grep -oE "[0-9]+ passed|[0-9]+ failed|[0-9]+ skipped" | tr '\n' ' ')
+            echo "### Container Smoke & Startup Tests" >> $GITHUB_STEP_SUMMARY
+            echo "**Result:** $RESULT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "**Tests cover:**" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build context integrity (requirements.txt, package.json, src/)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Base image convention (python:*-slim, node:20)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Non-root user security" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ HEALTHCHECK presence and timing parameters" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ EXPOSE port vs service registry alignment" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PYTHONUNBUFFERED for live container logs" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ No hardcoded credentials in Dockerfiles" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ docker-compose service definitions completeness" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Restart policy (unless-stopped)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Logging configuration (json-file with size limits)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Required environment variables (PORT, ENVIRONMENT, LOG_LEVEL)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency chain validity" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ No privileged containers" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Network membership (sahool-network)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ No duplicate host port mappings" >> $GITHUB_STEP_SUMMARY
+
+  # Job 6: Generate comprehensive test report
   test-report:
     name: Generate Test Report
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [dockerfile-lint, secrets-scan, build-and-test, docker-compose-test]
+    needs: [dockerfile-lint, secrets-scan, build-and-test, docker-compose-test, python-container-tests]
     if: always()
     steps:
       - name: Download all artifacts with retry
@@ -739,13 +834,15 @@ jobs:
           echo "| Secrets Scan | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build & Test | ${{ needs.build-and-test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker Compose | ${{ needs.docker-compose-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python Container Tests | ${{ needs.python-container-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Overall status
           if [ "${{ needs.dockerfile-lint.result }}" == "success" ] && \
              [ "${{ needs.secrets-scan.result }}" == "success" ] && \
              [ "${{ needs.build-and-test.result }}" == "success" ] && \
-             [ "${{ needs.docker-compose-test.result }}" == "success" ]; then
+             [ "${{ needs.docker-compose-test.result }}" == "success" ] && \
+             [ "${{ needs.python-container-tests.result }}" == "success" ]; then
             echo "## ✅ All Tests Passed!" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ⚠️ Some Tests Failed" >> $GITHUB_STEP_SUMMARY

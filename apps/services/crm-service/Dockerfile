@@ -9,6 +9,10 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 
+# Python environment settings
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
 # Security: Create non-root user
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool

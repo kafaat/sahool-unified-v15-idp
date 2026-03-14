@@ -44,7 +44,7 @@ COPY constraints.txt .
 COPY apps/services/ws-gateway/requirements.txt .
 
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
+# Try Aliyun mirror first (fastest in Asia), then official PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \

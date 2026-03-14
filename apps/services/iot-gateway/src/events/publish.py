@@ -102,7 +102,21 @@ class IoTPublisher:
         try:
             await self.nc.connect(self.nats_url)
             self._connected = True
-            print(f"📡 IoT Publisher connected to NATS: {self.nats_url}")
+            # Mask credentials in NATS URL before logging
+            from urllib.parse import urlparse
+
+            try:
+                parsed = urlparse(self.nats_url)
+                if parsed.password:
+                    host = parsed.hostname or "localhost"
+                    port_str = f":{parsed.port}" if parsed.port else ""
+                    user_part = f"{parsed.username}:***@" if parsed.username else "***@"
+                    masked = f"{parsed.scheme}://{user_part}{host}{port_str}"
+                else:
+                    masked = self.nats_url
+            except Exception:
+                masked = "nats://***"
+            print(f"📡 IoT Publisher connected to NATS: {masked}")
         except Exception as e:
             print(f"❌ Failed to connect to NATS: {e}")
             raise

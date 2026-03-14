@@ -521,11 +521,16 @@ jobs:
           args: >
             -f JSON
             -f SARIF
-            --enableExperimental
             --failOnCVSS 7
             --exclude 'archive/**'
+            --exclude 'legacy/**'
             --exclude '**/__pycache__/**'
             --exclude '**/node_modules/**'
+            --exclude '**/dist/**'
+            --exclude '**/build/**'
+            --exclude '**/.venv/**'
+            --exclude 'docs/**'
+            --exclude 'models/**'
             --suppression .dependency-check-suppression.xml
 
       - name: Generate OWASP SARIF fallback

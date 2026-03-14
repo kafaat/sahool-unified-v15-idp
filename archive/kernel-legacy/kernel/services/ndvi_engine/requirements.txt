@@ -10,7 +10,7 @@ httpx==0.28.1
 python-dotenv==1.0.1
 
 # ML requirements (inlined from requirements/ml.txt)
-Pillow==11.0.0
+Pillow>=12.1.1
 numpy<2.1.0,>=1.26.0
 tensorflow-cpu==2.18.0
 

@@ -16,7 +16,7 @@ asyncpg==0.30.0
 aerich==0.7.2
 
 # Caching
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Messaging
 nats-py==2.9.0

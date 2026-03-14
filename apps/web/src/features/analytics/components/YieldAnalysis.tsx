@@ -8,17 +8,17 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+  DynamicLineChart as LineChart,
+  DynamicLine as Line,
+  DynamicBarChart as BarChart,
+  DynamicBar as Bar,
+  DynamicXAxis as XAxis,
+  DynamicYAxis as YAxis,
+  DynamicCartesianGrid as CartesianGrid,
+  DynamicTooltip as Tooltip,
+  DynamicLegend as Legend,
+  DynamicResponsiveContainer as ResponsiveContainer,
+} from "@/components/charts/LazyRecharts.dynamic";
 import { TrendingUp, AlertTriangle } from "lucide-react";
 import { useYieldAnalysis } from "../hooks/useAnalytics";
 import type { AnalyticsFilters } from "../types";

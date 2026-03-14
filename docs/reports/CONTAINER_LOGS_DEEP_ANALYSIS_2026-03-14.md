@@ -3,71 +3,55 @@
 **Date:** 2026-03-14
 **Containers Analyzed:** 73 (all succeeded)
 **Severity Scale:** CRITICAL > HIGH > MEDIUM > LOW
+**Verification Status:** Code-verified on 2026-03-14 (see verification notes per issue)
 
 ---
 
 ## Executive Summary
 
-Deep analysis of all 73 SAHOOL containers reveals **12 critical issues**, **18 high-severity issues**, and **25+ medium/low findings** across infrastructure, microservices, and configuration layers. While all containers report as running, multiple systemic issues affect reliability, security, and data integrity.
+Deep analysis of all 73 SAHOOL containers reveals **6 active critical issues**, **18 high-severity issues**, and **25+ medium/low findings** across infrastructure, microservices, and configuration layers. While all containers report as running, multiple systemic issues affect reliability, security, and data integrity.
 
-### Issue Distribution
+> **Note:** Several issues from the initial analysis (C1, C3, C5, C10, C11, C12) were found to be **already fixed** or **overstated** during code-level verification on 2026-03-14. These are marked with `[VERIFIED: FIXED]` or `[VERIFIED: OVERSTATED]` below. Active issue counts have been adjusted accordingly.
+
+### Issue Distribution (Post-Verification)
 
 | Category | Critical | High | Medium | Low |
 |----------|----------|------|--------|-----|
-| PostgreSQL & Init Scripts | 2 | 2 | 2 | 1 |
-| PgBouncer | 3 | 1 | 2 | 0 |
-| Kong API Gateway | 1 | 3 | 2 | 1 |
+| PostgreSQL & Init Scripts | 1 | 2 | 2 | 1 |
+| PgBouncer | 1 | 1 | 2 | 0 |
+| Kong API Gateway | 0 | 3 | 2 | 1 |
 | Redis | 1 | 2 | 2 | 1 |
 | NATS | 0 | 2 | 2 | 0 |
 | Vault | 2 | 0 | 0 | 1 |
 | Milvus/Qdrant/etcd | 1 | 1 | 1 | 0 |
-| Microservices (Python) | 2 | 5 | 6 | 2 |
+| Microservices (Python) | 0 | 5 | 6 | 2 |
 | Docker Compose Config | 0 | 2 | 4 | 2 |
-| **Total** | **12** | **18** | **21** | **8** |
+| **Total** | **6** | **18** | **21** | **8** |
 
 ---
 
 ## 1. Infrastructure: PostgreSQL (sahool-postgres)
 
-### 1.1 CRITICAL: `01-research-expansion.sql` Fails on Missing `users` Table
+### 1.1 ~~CRITICAL~~ [VERIFIED: FIXED 2026-03-13]: `01-research-expansion.sql` FK Constraints
 
-**Log Evidence:**
+> **Verification Result:** This issue was **already fixed** on 2026-03-13. Source code at `infrastructure/core/postgres/init/01-research-expansion.sql` (lines 5-16) shows all FK constraints to `users(id)` have been replaced with plain UUID columns, with comments indicating FKs should be added post-startup via Prisma migration. Missing enums (`sample_type`, `experiment_status`, `protocol_status`, `governance_level`, `sample_status`) have also been added (lines 22-44).
+
+**Original Issue:** The script contained 11 foreign key references to `users(id)`, which doesn't exist at init time (managed by Prisma in user-service).
+
+**Current Code (Fixed):**
+```sql
+-- FIX (2026-03-13): Removed REFERENCES users(id) constraints
+-- FK constraints will be added post-startup after Prisma migration creates users table
+contact_person UUID,  -- FK to users(id) added post-startup after Prisma migration
 ```
-sahool-postgres | ERROR: relation "users" does not exist
-sahool-postgres | STATEMENT: CREATE TABLE IF NOT EXISTS research_sites (
-    contact_person UUID REFERENCES users(id), ...
-)
-```
 
-**Root Cause:** The `users` table is managed by Prisma ORM in `user-service` (NestJS). It is created only when `prisma migrate deploy` runs on service startup. However, `01-research-expansion.sql` executes during Docker init (before any NestJS service starts) and contains **11 foreign key references** to `users(id)`.
-
-**Affected Tables (11 FK references):**
-
-| Table | Column |
-|-------|--------|
-| `research_sites` | `contact_person` |
-| `protocol_templates` | `created_by` |
-| `sample_batches` | `created_by` |
-| `sample_analysis_results` | `analyzed_by` |
-| `sample_analysis_results` | `verified_by` |
-| `research_data_points` | `recorded_by` |
-| `experiment_locks` | `locked_by` |
-| `research_reports` | `reviewed_by` |
-| `research_reports` | `approved_by` |
-| `research_reports` | `created_by` |
-| `statistical_analyses` | `performed_by` |
-
-**Additionally Missing Enums:** `sample_type`, `experiment_status`, `protocol_status`, `governance_level`
-
-**Impact:** All research-related tables fail to create. `research-core` service has incomplete schema.
-
-**Fix:** `infrastructure/core/postgres/init/01-research-expansion.sql`
-- Option A (Recommended): Remove FK constraints, add via post-startup migration
-- Option B: Create minimal `users` stub in `00-init-sahool.sql` with `id UUID PRIMARY KEY`
+**Status:** No action required.
 
 ---
 
-### 1.2 CRITICAL: `04-mlflow-db.sql` Uses psql-Only Syntax
+### 1.2 CRITICAL: `04-mlflow-db.sql` Uses psql-Only Syntax [VERIFIED: CONFIRMED]
+
+> **Verification Result:** **Confirmed** — `infrastructure/core/postgres/init/04-mlflow-db.sql` line 23-24 still contains `\gexec` psql meta-command.
 
 **File:** `infrastructure/core/postgres/init/04-mlflow-db.sql` (Line 24)
 
@@ -92,15 +76,11 @@ END $$;
 
 ---
 
-### 1.3 HIGH: PgBouncer `auth_query` Schema Missing at First Boot
+### 1.3 ~~HIGH~~ [VERIFIED: FIXED 2026-03-13]: PgBouncer `auth_query` Schema Race Condition
 
-**Log Evidence:**
-```
-sahool-postgres | ERROR: schema "pgbouncer" does not exist at character 20
-sahool-postgres | STATEMENT: SELECT passwd FROM pgbouncer.get_auth('sahool')
-```
+> **Verification Result:** This issue was **already fixed** on 2026-03-13. The PgBouncer `entrypoint.sh` (lines 82-138) now implements a two-phase wait: Phase 1 checks TCP port availability, Phase 2 queries for pgbouncer schema existence via psql before proceeding. If psql is unavailable, a 15s fixed delay fallback is used.
 
-**Timeline:**
+**Original Timeline (before fix):**
 ```
 T=0.8s  PostgreSQL accepts connections (init scripts still running)
 T=3.0s  PgBouncer connects, tries auth_query → FAILS
@@ -108,7 +88,15 @@ T=3.0s  PgBouncer falls back to plaintext passwords
 T=18s   02-pgbouncer-user.sql creates the schema (too late)
 ```
 
-**Fix:** Add readiness dependency so PgBouncer waits for all init scripts to complete.
+**Current Code (Fixed):**
+```bash
+# Phase 2: Wait for init scripts to complete by checking for pgbouncer schema
+_schema_exists=$(PGPASSWORD="$DB_PASSWORD" psql ... -c "SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')" ...)
+```
+
+**Residual Risk:** If psql cannot be installed (locked-down environment), falls back to 15s fixed delay which may still be insufficient.
+
+**Status:** Fixed. Monitor in locked-down environments.
 
 ---
 
@@ -146,15 +134,15 @@ sahool-postgres | checkpoint complete: wrote 2133 buffers (13.0%)
 
 ## 2. Infrastructure: PgBouncer (sahool-pgbouncer)
 
-### 2.1 CRITICAL: Plaintext Password Fallback
+### 2.1 ~~CRITICAL~~ MEDIUM [VERIFIED: PARTIALLY FIXED]: Plaintext Password Fallback
 
-```
-sahool-pgbouncer | [WARN] Using plaintext password for auth_user (SCRAM hash unavailable)
-```
+> **Verification Result:** The root cause (race condition) was **fixed** on 2026-03-13 — PgBouncer now waits for pgbouncer schema before starting (see 1.3 above). The `generate_scram_hash()` function (lines 145-163) retrieves SCRAM hashes from PostgreSQL via `pgbouncer.get_auth()`. However, a **residual fallback** still exists: if the SCRAM hash query fails for any reason, plaintext password is used (line 159-161).
 
-PgBouncer stores the plaintext password in `/etc/pgbouncer/runtime/userlist.txt` (even with `chmod 600`).
+**Residual Risks:**
+- Admin/stats passwords default to DB password if `PGBOUNCER_ADMIN_PASSWORD`/`PGBOUNCER_STATS_PASSWORD` not set (line 182-183)
+- `chmod 600` on userlist.txt silently ignores failures (line 210)
 
-**Fix:** Ensure PgBouncer starts only after all init scripts complete, or auto-restart after init.
+**Status:** Downgraded from CRITICAL to MEDIUM. Core race condition fixed; residual plaintext fallback is a defense-in-depth concern.
 
 ---
 
@@ -175,27 +163,26 @@ sahool-pgbouncer | LOG: closing because: server lifetime over (age=1844674407370
 
 ---
 
-### 2.3 CRITICAL: Healthcheck Variable Scope Bug
+### 2.3 ~~CRITICAL~~ [VERIFIED: FIXED]: Healthcheck Variable Scope Bug
 
-**File:** `infrastructure/core/pgbouncer/healthcheck.sh` (Lines 202-223)
+> **Verification Result:** This issue was **already fixed**. The `infrastructure/core/pgbouncer/healthcheck.sh` now uses a temp file pattern to work around the subshell variable scope problem.
 
+**Current Code (Fixed):**
 ```bash
-echo "$POOL_DATA" | while read -r ... do
-    TOTAL_CL_ACTIVE=$((TOTAL_CL_ACTIVE + cl_active))  # Lost in subshell!
-done
-echo $TOTAL_CL_ACTIVE  # Always prints 0
-```
+# Write parsed data to temp file from subshell
+echo "$POOL_DATA" | while IFS='|' read -r ... do
+    echo "$cl_active $cl_waiting $sv_active $sv_idle $maxwait"
+done > /tmp/pgbouncer_pool_data.$$
 
-**Root Cause:** The `while` loop runs in a subshell due to the pipe (`|`). All variable assignments inside are lost when the subshell exits.
-
-**Impact:** Pool utilization metrics are always reported as 0%, making the healthcheck unreliable.
-
-**Fix:** Use process substitution:
-```bash
-while read -r ... ; do
+# Read back in main shell (variables persist)
+while read -r cl_active cl_waiting sv_active sv_idle maxwait; do
+    TOTAL_CL_ACTIVE=$((TOTAL_CL_ACTIVE + cl_active))
     ...
-done < <(echo "$POOL_DATA")
+done < /tmp/pgbouncer_pool_data.$$
+rm -f /tmp/pgbouncer_pool_data.$$
 ```
+
+**Status:** No action required.
 
 ---
 
@@ -232,17 +219,15 @@ Silent permission failures could cause runtime file generation to fail, leading 
 
 ## 3. Infrastructure: Kong API Gateway (sahool-kong)
 
-### 3.1 CRITICAL: Startup Timeout Errors Across All Workers
+### 3.1 ~~CRITICAL~~ [VERIFIED: FIXED]: Startup Timeout Errors Across All Workers
 
-```
-[error] 1283#0: *26 [lua] worker.lua:138: communicate(): failed to connect: timeout
-[error] 1282#0: *30 [lua] worker.lua:138: communicate(): failed to connect: timeout
-... (12 timeout errors across 9 workers)
-```
+> **Verification Result:** **Confirmed fixed** — `docker-compose.yml` line 1159 shows `KONG_NGINX_WORKER_PROCESSES: "4"` (reduced from auto-detected 24). Timeout errors are transient and self-resolve within ~15s.
 
 **Root Cause:** Originally 24 auto-detected workers caused contention during declarative config synchronization. Fixed by reducing to `KONG_NGINX_WORKER_PROCESSES: 4`.
 
-**Impact:** Temporary - requests during first ~15s of startup may fail.
+**Impact:** Transient only — requests during first ~15s of startup may fail. Self-resolving.
+
+**Status:** No action required.
 
 ---
 
@@ -401,41 +386,42 @@ Only checks if port 6333 is listening — doesn't verify Qdrant is actually acce
 
 ## 8. Microservices: Python FastAPI Services
 
-### 8.1 CRITICAL: Missing DATABASE_URL Handling (12 Services)
+### 8.1 ~~CRITICAL~~ HIGH [VERIFIED: OVERSTATED]: Missing DATABASE_URL Handling
 
-**Affected Services:**
-- `audit-service` (8114)
-- `equipment-service` (8101)
-- `field-intelligence` (8120)
-- `hydrology-service` (8165)
-- `leveling-optimizer-service` (8170)
-- `advisory-service` (8093)
-- `alert-service` (8113)
-- `irrigation-smart` (8094)
-- `notification-service` (8110)
-- `crop-intelligence-service` (8095)
-- `vegetation-analysis-service` (8090)
-- `weather-service` (8092)
+> **Verification Result:** This issue was **significantly overstated**. Code-level verification shows that most services handle missing `DATABASE_URL` gracefully with warnings. Only **2 services** actually crash:
+> - `notification-service` (`src/database.py` line 27): `raise OSError("DATABASE_URL environment variable is required...")`
+> - `inventory-service` (`src/main.py` line 94-95): `raise ValueError("DATABASE_URL environment variable is required...")`
+>
+> Services verified as **gracefully degrading** (not crashing):
+> - `audit-service`: Uses in-memory storage (`_audit_logs: dict`), no DATABASE_URL usage
+> - `equipment-service`: `init_db()` wrapped in try/except, logs warning on failure
+> - `advisory-service`: No DATABASE_URL usage at all
+> - All other listed services: Use try/except around pool creation, log warnings
 
-Services crash or fail silently if `DATABASE_URL` is not set. Lifespan context manager tries to create a database pool without proper validation.
+**Actually Affected Services (crash on missing DATABASE_URL):**
+- `notification-service` (8110) — raises `OSError`
+- `inventory-service` (8116) — raises `ValueError`
+
+**Status:** Downgraded from CRITICAL (12 services) to HIGH (2 services).
 
 ---
 
-### 8.2 CRITICAL: NATS Connection Failures Not Handled Downstream (14 Services)
+### 8.2 ~~CRITICAL~~ [VERIFIED: INCORRECT]: NATS Connection Failures Not Handled Downstream
 
-Services log NATS connection failures as warnings but set `app.state.nc = None`. Downstream code doesn't always check before publishing:
+> **Verification Result:** This issue is **largely incorrect**. Code-level verification shows that **all services** properly guard NATS publishing with null checks. Examples from verified services:
+>
+> - `advisory-service`: `if getattr(app.state, "publisher", None):` (lines 293, 335, 405, 443, 494)
+> - `indicators-service`, `hydrology-service`, `terrain-core-service`, `ussd-gateway`, `edge-orchestrator-service`: All use `if hasattr(app.state, "nc") and app.state.nc:` before `nc.publish()`
+>
+> The pattern described in the original report (`app.state.nc.publish(...)` without null check) was **not found** in any verified service.
 
+**Typical Actual Pattern (found across all services):**
 ```python
-# Typical pattern - warning logged but code continues
-nats_url = os.getenv("NATS_URL")
-if nats_url:
-    try:
-        app.state.nc = await nats.connect(nats_url)
-    except Exception as e:
-        logger.warning(f"NATS connection failed: {e}")
-        app.state.nc = None
-# Later: app.state.nc.publish(...)  → AttributeError: 'NoneType' has no attribute 'publish'
+if hasattr(app.state, "nc") and app.state.nc:
+    await app.state.nc.publish(subject, payload)
 ```
+
+**Status:** Removed from critical issues. NATS null-safety is properly implemented across the codebase.
 
 ---
 
@@ -490,13 +476,13 @@ T=0.0s   PostgreSQL starts, begins init scripts
 T=0.0s   PgBouncer starts, waits for port 5432
 T=0.0s   Kong starts
 T=0.8s   PostgreSQL accepts connections (init scripts still running!)
-T=3.0s   PgBouncer detects port → tries auth_query → FAILS → plaintext fallback
-T=5.0s   Services start connecting through PgBouncer
+T=3.0s   PgBouncer detects port → Phase 2: checks for pgbouncer schema [FIXED 2026-03-13]
 T=5.0s   Some services query tables not yet created → ERRORS
-T=10s    Kong workers loading config → TIMEOUTS between workers
+T=10s    Kong workers loading config (4 workers) → minor timeouts [FIXED]
 T=15s    00-init-sahool.sql completes
-T=16s    01-research-expansion.sql → FAILS (no users table)
-T=18s    02-pgbouncer-user.sql creates pgbouncer schema (too late)
+T=16s    01-research-expansion.sql → creates tables with plain UUID columns [FIXED 2026-03-13]
+T=18s    02-pgbouncer-user.sql creates pgbouncer schema
+T=18s    PgBouncer detects schema → proceeds with SCRAM auth [FIXED 2026-03-13]
 T=20s    Init scripts complete
 T=25s    NestJS services start, run Prisma migrations
 T=30s    user-service creates users table
@@ -540,7 +526,7 @@ No documented rationale for varying strategies.
 
 | # | Issue | Severity | Location |
 |---|-------|----------|----------|
-| S1 | PgBouncer plaintext password fallback | CRITICAL | pgbouncer entrypoint.sh |
+| S1 | PgBouncer plaintext password fallback (residual) | MEDIUM | pgbouncer entrypoint.sh (mostly fixed) |
 | S2 | All PgBouncer connections without TLS | HIGH | pgbouncer.ini |
 | S3 | Redis ACL users commented out | CRITICAL | redis-secure.conf |
 | S4 | NATS credentials in plaintext (no TLS) | HIGH | nats.conf |
@@ -557,20 +543,20 @@ No documented rationale for varying strategies.
 
 ### Immediate Action (Critical)
 
-| # | Issue | Fix | File |
-|---|-------|-----|------|
-| C1 | `01-research-expansion.sql` fails | Remove FK constraints to `users`, add via post-migration | `infrastructure/core/postgres/init/01-research-expansion.sql` |
-| C2 | `04-mlflow-db.sql` uses `\gexec` | Rewrite using `DO $$ ... EXECUTE` block | `infrastructure/core/postgres/init/04-mlflow-db.sql` |
-| C3 | PgBouncer plaintext fallback | Add init-complete readiness gate | `infrastructure/core/pgbouncer/entrypoint.sh` |
-| C4 | PgBouncer timestamp overflow | Verify NTP sync, consider PgBouncer upgrade | `docker-compose.yml` |
-| C5 | Healthcheck variable scope bug | Use process substitution `< <(...)` | `infrastructure/core/pgbouncer/healthcheck.sh` |
-| C6 | Redis ACL not enforced | Uncomment ACL user definitions | `infrastructure/redis/redis-secure.conf` |
-| C7 | Vault cluster_addr placeholder | Replace with `${VAULT_NODE_IP}` or dynamic hostname | `infrastructure/core/vault/vault-production.hcl` |
-| C8 | Vault no auto-unseal | Enable appropriate cloud KMS provider | `infrastructure/core/vault/vault-production.hcl` |
-| C9 | Milvus/etcd-auth race | Add `etcd-init` dependency for Milvus | `docker-compose.yml` |
-| C10 | 12 services crash on missing DATABASE_URL | Add environment validation before lifespan | Multiple `main.py` files |
-| C11 | 14 services NoneType NATS errors | Add null-check before `nc.publish()` | Multiple `main.py` files |
-| C12 | Kong worker startup timeouts | Already fixed (workers=4), monitor | `docker-compose.yml` |
+| # | Issue | Fix | File | Status |
+|---|-------|-----|------|--------|
+| ~~C1~~ | ~~`01-research-expansion.sql` fails~~ | ~~Remove FK constraints~~ | `01-research-expansion.sql` | **FIXED (2026-03-13)** |
+| C2 | `04-mlflow-db.sql` uses `\gexec` | Rewrite using `DO $$ ... EXECUTE` block | `04-mlflow-db.sql` | **ACTIVE** |
+| ~~C3~~ | ~~PgBouncer plaintext fallback~~ | ~~Add init-complete readiness gate~~ | `entrypoint.sh` | **FIXED (2026-03-13)** |
+| C4 | PgBouncer timestamp overflow | Verify NTP sync, consider PgBouncer upgrade | `docker-compose.yml` | **ACTIVE** (runtime) |
+| ~~C5~~ | ~~Healthcheck variable scope bug~~ | ~~Use process substitution~~ | `healthcheck.sh` | **FIXED** |
+| C6 | Redis ACL not enforced | Uncomment ACL user definitions | `redis-secure.conf` | **ACTIVE** |
+| C7 | Vault cluster_addr placeholder | Replace with `${VAULT_NODE_IP}` or dynamic hostname | `vault-production.hcl` | **ACTIVE** |
+| C8 | Vault no auto-unseal | Enable appropriate cloud KMS provider | `vault-production.hcl` | **ACTIVE** |
+| C9 | Milvus/etcd-auth race | Add `etcd-init` dependency for Milvus | `docker-compose.yml` | **ACTIVE** |
+| ~~C10~~ | ~~12 services crash on missing DATABASE_URL~~ | Only 2 services actually crash (notification-service, inventory-service) | Multiple `main.py` | **OVERSTATED** → HIGH |
+| ~~C11~~ | ~~14 services NoneType NATS errors~~ | All services properly guard with null checks | Multiple `main.py` | **INCORRECT** → Removed |
+| ~~C12~~ | ~~Kong worker startup timeouts~~ | ~~workers=4~~ | `docker-compose.yml` | **FIXED** |
 
 ### High Priority
 
@@ -681,4 +667,4 @@ pgbouncer:
 
 ---
 
-_Generated: 2026-03-14 | Analyst: Claude Code | Containers: 73 | Issues: 59 total (12 Critical, 18 High, 21 Medium, 8 Low)_
+_Generated: 2026-03-14 | Code-Verified: 2026-03-14 | Analyst: Claude Code | Containers: 73 | Active Issues: 53 total (6 Critical, 18 High, 21 Medium, 8 Low) | Fixed/Removed: 6 issues (C1, C3, C5, C10↓, C11✗, C12)_

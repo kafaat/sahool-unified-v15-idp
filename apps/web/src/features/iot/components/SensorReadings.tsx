@@ -89,6 +89,7 @@ export function SensorReadings({
           <div className="flex gap-2" role="group" aria-label="الفترة الزمنية | Time interval">
             <button
               onClick={() => setTimeInterval("1h")}
+              aria-pressed={timeInterval === "1h"}
               className={`px-3 py-1 rounded-lg text-sm ${
                 timeInterval === "1h"
                   ? "bg-green-600 text-white"
@@ -99,6 +100,7 @@ export function SensorReadings({
             </button>
             <button
               onClick={() => setTimeInterval("1d")}
+              aria-pressed={timeInterval === "1d"}
               className={`px-3 py-1 rounded-lg text-sm ${
                 timeInterval === "1d"
                   ? "bg-green-600 text-white"
@@ -109,6 +111,7 @@ export function SensorReadings({
             </button>
             <button
               onClick={() => setTimeInterval("1w")}
+              aria-pressed={timeInterval === "1w"}
               className={`px-3 py-1 rounded-lg text-sm ${
                 timeInterval === "1w"
                   ? "bg-green-600 text-white"
@@ -119,6 +122,7 @@ export function SensorReadings({
             </button>
             <button
               onClick={() => setTimeInterval("1m")}
+              aria-pressed={timeInterval === "1m"}
               className={`px-3 py-1 rounded-lg text-sm ${
                 timeInterval === "1m"
                   ? "bg-green-600 text-white"

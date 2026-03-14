@@ -69,11 +69,16 @@ export const SensorChart: React.FC<SensorChartProps> = ({
     const firstHalf = values.slice(0, mid);
     const secondHalf = values.slice(mid);
     const firstAvg =
-      firstHalf.reduce((sum, v) => sum + v, 0) / firstHalf.length;
+      firstHalf.length > 0
+        ? firstHalf.reduce((sum, v) => sum + v, 0) / firstHalf.length
+        : 0;
     const secondAvg =
-      secondHalf.reduce((sum, v) => sum + v, 0) / secondHalf.length;
-    const trend =
+      secondHalf.length > 0
+        ? secondHalf.reduce((sum, v) => sum + v, 0) / secondHalf.length
+        : 0;
+    const rawTrend =
       firstAvg !== 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
+    const trend = Number.isFinite(rawTrend) ? rawTrend : 0;
 
     return { current, average, min, max, trend };
   }, [readings]);

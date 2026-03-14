@@ -96,6 +96,10 @@ describe("DTO Validation - التحقق من كائنات نقل البيانا�
   // Email format validation
   // ---------------------------------------------------------------------------
 
+  /** Shared email validation regex used when services are unavailable. */
+  const EMAIL_REGEX =
+    /^[a-zA-Z0-9](?:[a-zA-Z0-9.+_-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+
   describe("Email format validation", () => {
     const INVALID_EMAILS = [
       "",
@@ -122,8 +126,7 @@ describe("DTO Validation - التحقق من كائنات نقل البيانا�
       if (!userServiceAvailable) {
         // Contract test: all invalid emails should fail validation
         for (const email of INVALID_EMAILS) {
-          const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9.+_-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
-          expect(emailRegex.test(email)).toBe(false);
+          expect(EMAIL_REGEX.test(email)).toBe(false);
         }
         return;
       }
@@ -145,8 +148,7 @@ describe("DTO Validation - التحقق من كائنات نقل البيانا�
     it("should accept valid email formats", async () => {
       // Contract validation: all valid emails pass basic regex
       for (const email of VALID_EMAILS) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        expect(emailRegex.test(email)).toBe(true);
+        expect(EMAIL_REGEX.test(email)).toBe(true);
       }
     });
   });

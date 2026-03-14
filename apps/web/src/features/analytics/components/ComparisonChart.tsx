@@ -46,7 +46,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64" role="status" aria-label="جاري التحميل | Loading">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
       </div>
     );
@@ -75,7 +75,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
       const dataPoint: Record<string, unknown> = { date };
       comparison.items.forEach((item) => {
         const point = item.data.find((p) => p.date === date);
-        dataPoint[item.nameAr] = point?.value || 0;
+        dataPoint[item.nameAr] = point?.value ?? 0;
       });
       return dataPoint;
     });
@@ -92,9 +92,10 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="نوع المخطط | Chart type">
           <button
             onClick={() => setChartType("bar")}
+            aria-pressed={chartType === "bar"}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               chartType === "bar"
                 ? "bg-green-500 text-white"
@@ -105,6 +106,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
           </button>
           <button
             onClick={() => setChartType("line")}
+            aria-pressed={chartType === "line"}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               chartType === "line"
                 ? "bg-green-500 text-white"

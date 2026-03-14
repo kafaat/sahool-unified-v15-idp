@@ -1015,6 +1015,8 @@ jobs:
           echo "MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_min" >> .env
           echo "MQTT_PASSWORD=test_mqtt_password_ci_32_chars" >> .env
           echo "QDRANT_API_KEY=" >> .env
+          echo "MONGO_PASSWORD=test_mongo_password_ci_32_chars_min" >> .env
+          echo "ROCKETCHAT_ADMIN_PASSWORD=test_rocketchat_password_ci_32ch" >> .env
           cat .env
           echo "✅ Created .env file"
 

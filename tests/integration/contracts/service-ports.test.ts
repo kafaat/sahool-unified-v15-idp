@@ -219,11 +219,14 @@ describe("Service Ports", () => {
       }
     });
 
-    it("should have no duplicate kongRoutes in registry", () => {
+    it("should have no duplicate kongRoutes in registry (excluding deprecated)", () => {
       const routeMap = new Map<string, string>();
       const duplicates: string[] = [];
 
       for (const [serviceName, info] of Object.entries(SERVICE_REGISTRY)) {
+        // Skip deprecated services — they may share routes with their replacements
+        if (info.deprecated) continue;
+
         if (routeMap.has(info.kongRoute)) {
           duplicates.push(
             `Kong route "${info.kongRoute}" is claimed by "${routeMap.get(info.kongRoute)}" and "${serviceName}"`,

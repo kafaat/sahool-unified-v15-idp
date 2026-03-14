@@ -25,7 +25,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 import { checkAccess } from "../route-guard";
-import type { User, RouteGuardOptions } from "../route-guard";
+import type { User } from "../route-guard";
 
 const makeUser = (overrides: Partial<User> = {}): User => ({
   id: "user-1",

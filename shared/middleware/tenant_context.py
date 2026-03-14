@@ -124,6 +124,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         self.require_tenant = require_tenant
         self.allow_query_param = allow_query_param
         self.exempt_paths = exempt_paths or [
+            "/health",
             "/healthz",
             "/readyz",
             "/health",

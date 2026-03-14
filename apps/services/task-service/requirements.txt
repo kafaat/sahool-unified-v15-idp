@@ -33,7 +33,6 @@ bcrypt>=4.0.0,<6.0.0
 
 # 2FA/MFA support (shared.auth.twofa_service)
 pyotp>=2.8.0,<3.0.0
-qrcode[pil]>=7.4.0,<9.0.0  # QR code generation for TOTP 2FA setup
 
 # NATS messaging
 nats-py==2.14.0

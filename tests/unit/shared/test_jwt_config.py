@@ -25,6 +25,7 @@ class TestJWTConfig:
             "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
             "JWT_ISSUER",
             "JWT_AUDIENCE",
+            "JWT_ALGORITHM",
             "RATE_LIMIT_ENABLED",
             "RATE_LIMIT_REQUESTS",
             "RATE_LIMIT_WINDOW_SECONDS",
@@ -45,6 +46,16 @@ class TestJWTConfig:
                 os.environ.pop(var, None)
             else:
                 os.environ[var] = value
+        # Re-sync JWTConfig class-level attributes with restored env vars
+        # This prevents test pollution when other test modules use JWTConfig
+        try:
+            from shared.auth.config import JWTConfig
+            JWTConfig.JWT_SECRET = os.environ.get("JWT_SECRET_KEY") or os.environ.get("JWT_SECRET", "")
+            JWTConfig.JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
+            JWTConfig.JWT_ISSUER = os.environ.get("JWT_ISSUER", "sahool-platform")
+            JWTConfig.JWT_AUDIENCE = os.environ.get("JWT_AUDIENCE", "sahool-api")
+        except ImportError:
+            pass
 
     def test_jwt_config_import(self):
         """Test JWTConfig can be imported"""

@@ -104,22 +104,28 @@ class TestGetSigningKey:
     def test_get_signing_key_too_short(self):
         """Test that short secret raises error"""
         original = JWTConfig.JWT_SECRET
+        original_env = os.environ.pop("JWT_SECRET_KEY", None)
         try:
             JWTConfig.JWT_SECRET = "short"
             with pytest.raises(JWTConfigError):
                 JWTConfig.get_signing_key()
         finally:
             JWTConfig.JWT_SECRET = original
+            if original_env is not None:
+                os.environ["JWT_SECRET_KEY"] = original_env
 
     def test_get_signing_key_empty(self):
         """Test that empty secret raises error"""
         original = JWTConfig.JWT_SECRET
+        original_env = os.environ.pop("JWT_SECRET_KEY", None)
         try:
             JWTConfig.JWT_SECRET = ""
             with pytest.raises(JWTConfigError):
                 JWTConfig.get_signing_key()
         finally:
             JWTConfig.JWT_SECRET = original
+            if original_env is not None:
+                os.environ["JWT_SECRET_KEY"] = original_env
 
 
 @pytest.mark.unit

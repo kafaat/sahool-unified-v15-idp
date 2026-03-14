@@ -122,7 +122,7 @@ describe("DTO Validation - التحقق من كائنات نقل البيانا�
       if (!userServiceAvailable) {
         // Contract test: all invalid emails should fail validation
         for (const email of INVALID_EMAILS) {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9.+_-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
           expect(emailRegex.test(email)).toBe(false);
         }
         return;

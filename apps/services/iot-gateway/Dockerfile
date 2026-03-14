@@ -48,16 +48,6 @@ RUN mkdir -p /root/.pip && \
 COPY constraints.txt .
 COPY apps/services/iot-gateway/requirements.txt .
 
-# Copy root shared modules (shared.ai, shared.events, etc.)
-COPY shared/ ./shared/
-
-# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
-COPY apps/services/shared/ ./shared/
-
-# Copy source
-COPY apps/services/iot-gateway/src/ ./src/
-
-# Install dependencies and set ownership
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -68,8 +58,19 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt && \
-    chown -R sahool:sahool /app
+    -c constraints.txt -r requirements.txt
+
+# Copy root shared modules (shared.ai, shared.events, etc.)
+COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
+
+# Copy source
+COPY apps/services/iot-gateway/src/ ./src/
+
+# Set ownership
+RUN chown -R sahool:sahool /app
 
 USER sahool
 

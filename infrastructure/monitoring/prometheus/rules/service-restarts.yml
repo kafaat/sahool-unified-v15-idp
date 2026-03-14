@@ -1,0 +1,185 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Service Restart & Container Health Alert Rules
+# قواعد التنبيهات لإعادة تشغيل الخدمات وصحة الحاويات
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-03-14
+# Purpose: Detect silent service crashes, restart loops, and OOM kills
+# that would otherwise go unnoticed without Alertmanager integration.
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Service Restart Alerts - تنبيهات إعادة تشغيل الخدمات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_service_restarts
+    interval: 30s
+    rules:
+      # Detect services that keep restarting (crash loop)
+      - alert: ServiceCrashLooping
+        expr: |
+          increase(
+            process_start_time_seconds[15m]
+          ) > 2
+        for: 5m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} is crash-looping"
+          summary_ar: "الخدمة {{ $labels.service }} في حلقة إعادة تشغيل"
+          description: "Service {{ $labels.service }} has restarted more than 2 times in the last 15 minutes, indicating a crash loop."
+          description_ar: "الخدمة {{ $labels.service }} أعيد تشغيلها أكثر من مرتين خلال آخر 15 دقيقة، مما يشير إلى حلقة انهيار."
+          impact: "Service is unstable and may be unavailable to users"
+          impact_ar: "الخدمة غير مستقرة وقد تكون غير متاحة للمستخدمين"
+          action: "Check service logs with: docker logs sahool-{{ $labels.service }} --tail 200"
+          action_ar: "تحقق من سجلات الخدمة باستخدام: docker logs sahool-{{ $labels.service }} --tail 200"
+
+      # Detect service that recently restarted (single restart event)
+      - alert: ServiceRestarted
+        expr: |
+          (time() - process_start_time_seconds) < 300
+          and
+          up == 1
+        for: 0m
+        labels:
+          severity: warning
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} was recently restarted"
+          summary_ar: "الخدمة {{ $labels.service }} أعيد تشغيلها مؤخراً"
+          description: "Service {{ $labels.service }} started {{ $value | humanizeDuration }} ago. Check if this was an expected restart."
+          description_ar: "الخدمة {{ $labels.service }} بدأت منذ {{ $value | humanizeDuration }}. تحقق مما إذا كان هذا إعادة تشغيل متوقعة."
+          action: "Review service logs for crash reason or OOM kill"
+          action_ar: "راجع سجلات الخدمة لمعرفة سبب الانهيار أو القتل بسبب نفاد الذاكرة"
+
+      # Detect service flapping (up/down oscillation)
+      - alert: ServiceFlapping
+        expr: |
+          changes(up[30m]) > 4
+        for: 5m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} is flapping"
+          summary_ar: "الخدمة {{ $labels.service }} متذبذبة"
+          description: "Service {{ $labels.service }} has changed state {{ $value }} times in the last 30 minutes."
+          description_ar: "الخدمة {{ $labels.service }} تغيرت حالتها {{ $value }} مرات خلال آخر 30 دقيقة."
+          impact: "Users experience intermittent failures"
+          impact_ar: "المستخدمون يعانون من أعطال متقطعة"
+          action: "Investigate resource constraints (CPU, memory, disk) and dependency health"
+          action_ar: "تحقق من قيود الموارد (CPU، الذاكرة، القرص) وصحة التبعيات"
+
+      # Detect service that has been down for extended period
+      - alert: ServiceDownExtended
+        expr: up == 0
+        for: 10m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} has been down for over 10 minutes"
+          summary_ar: "الخدمة {{ $labels.service }} متوقفة منذ أكثر من 10 دقائق"
+          description: "Service {{ $labels.service }} ({{ $labels.tier }}) has been unreachable for more than 10 minutes. This is beyond normal restart times."
+          description_ar: "الخدمة {{ $labels.service }} ({{ $labels.tier }}) غير قابلة للوصول منذ أكثر من 10 دقائق."
+          impact: "Feature is completely unavailable. Users affected."
+          impact_ar: "الميزة غير متاحة بالكامل. المستخدمون متأثرون."
+          action: "URGENT: Check container status (docker ps), logs, and resource availability"
+          action_ar: "عاجل: تحقق من حالة الحاوية والسجلات وتوفر الموارد"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Resource Exhaustion Alerts - تنبيهات استنفاد الموارد
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_resource_exhaustion
+    interval: 30s
+    rules:
+      # High memory usage that may lead to OOM kills
+      - alert: ServiceHighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes
+            / on(instance) group_left()
+            machine_memory_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} has high memory usage"
+          summary_ar: "الخدمة {{ $labels.service }} تستخدم ذاكرة عالية"
+          description: "Service memory usage is at {{ $value | humanizePercentage }} of available memory"
+          description_ar: "استخدام الذاكرة {{ $value | humanizePercentage }} من الذاكرة المتاحة"
+          impact: "Service may be OOM killed by the kernel, causing unexpected restart"
+          impact_ar: "قد يتم إيقاف الخدمة بسبب نفاد الذاكرة، مما يسبب إعادة تشغيل غير متوقعة"
+          action: "Check for memory leaks or increase container memory limits"
+          action_ar: "تحقق من تسربات الذاكرة أو زيادة حدود ذاكرة الحاوية"
+
+      # High open file descriptors (may cause service crash)
+      - alert: ServiceHighFileDescriptors
+        expr: |
+          process_open_fds
+          /
+          process_max_fds
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} running low on file descriptors"
+          summary_ar: "الخدمة {{ $labels.service }} تنفد منها واصفات الملفات"
+          description: "Using {{ $value | humanizePercentage }} of max file descriptors"
+          description_ar: "تستخدم {{ $value | humanizePercentage }} من الحد الأقصى لواصفات الملفات"
+          action: "Investigate connection leaks or increase ulimits"
+          action_ar: "تحقق من تسربات الاتصالات أو زيادة حدود ulimit"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Health Endpoint Alerts - تنبيهات نقاط فحص الصحة
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_health_endpoint_alerts
+    interval: 30s
+    rules:
+      # Service is up but health endpoint returning errors
+      - alert: ServiceHealthcheckFailing
+        expr: |
+          probe_success == 0
+          and
+          up == 1
+        for: 3m
+        labels:
+          severity: warning
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} healthcheck is failing"
+          summary_ar: "فحص صحة الخدمة {{ $labels.service }} فاشل"
+          description: "Service is running but its health endpoint is returning errors. It may have lost connection to a dependency (database, NATS, Redis)."
+          description_ar: "الخدمة تعمل لكن نقطة فحص الصحة تعيد أخطاء. قد فقدت الاتصال بتبعية (قاعدة البيانات، NATS، Redis)."
+          action: "Check readiness endpoint (/readyz) and dependency connectivity"
+          action_ar: "تحقق من نقطة الجاهزية (/readyz) واتصال التبعيات"
+
+      # No scrape target found for expected service
+      - alert: ServiceTargetMissing
+        expr: |
+          up{tier=~"application|core|ai-ml|smart-agriculture|iot"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} scrape target is unreachable"
+          summary_ar: "هدف جمع بيانات الخدمة {{ $labels.service }} غير قابل للوصول"
+          description: "Prometheus cannot reach {{ $labels.service }} at {{ $labels.instance }}. The service may have crashed silently or failed to start."
+          description_ar: "لا يمكن لـ Prometheus الوصول إلى {{ $labels.service }} في {{ $labels.instance }}. قد تكون الخدمة انهارت بصمت أو فشلت في البدء."
+          impact: "Service is completely down and no metrics are being collected"
+          impact_ar: "الخدمة متوقفة تماماً ولا يتم جمع أي مقاييس"
+          action: "Check container status: docker ps | grep {{ $labels.service }}"
+          action_ar: "تحقق من حالة الحاوية: docker ps | grep {{ $labels.service }}"

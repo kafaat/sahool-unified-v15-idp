@@ -68,7 +68,11 @@ class JWTConfig:
 
     # Redis configuration for token revocation
     REDIS_URL: str | None = os.getenv("REDIS_URL")
-    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
+    # Default to "redis" (Docker service name) instead of "localhost" so that
+    # services running inside Docker containers can reach the Redis container
+    # without explicitly setting REDIS_URL.  Local development can override via
+    # REDIS_HOST=localhost in the shell environment.
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "redis")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
     REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
     REDIS_PASSWORD: str | None = os.getenv("REDIS_PASSWORD")

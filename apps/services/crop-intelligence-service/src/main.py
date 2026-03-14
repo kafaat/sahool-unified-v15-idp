@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.errors_py import SahoolException, add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
 try:
@@ -633,6 +633,19 @@ async def lifespan(app: FastAPI):
                         tenant_id VARCHAR(255)
                     )
                 """)
+                # Create processed_events table for NATS subscriber idempotency (Spec §4)
+                await conn.execute("""
+                    CREATE TABLE IF NOT EXISTS processed_events (
+                        tenant_id      TEXT        NOT NULL DEFAULT '_global',
+                        event_id       TEXT        NOT NULL,
+                        subject        TEXT        NOT NULL,
+                        service        TEXT        NOT NULL,
+                        correlation_id TEXT,
+                        status         TEXT        NOT NULL DEFAULT 'processed',
+                        processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                        PRIMARY KEY (tenant_id, event_id)
+                    )
+                """)
                 # Create indexes for faster queries
                 await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_observations_field_zone
@@ -645,6 +658,15 @@ async def lifespan(app: FastAPI):
                 await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_disease_field
                     ON disease_detections(field_id)
+                """)
+                await conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
+                    ON processed_events (processed_at)
+                """)
+                await conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
+                    ON processed_events (correlation_id)
+                    WHERE correlation_id IS NOT NULL
                 """)
             logger.info("Database tables initialized")
         except Exception as e:

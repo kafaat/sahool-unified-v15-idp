@@ -156,7 +156,7 @@ class NotificationQueueProcessor:
             processing_timeout: Timeout for processing a notification
             rate_limit_per_second: Maximum notifications per second
         """
-        self.redis_url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379")
+        self.redis_url = redis_url or os.getenv("REDIS_URL", "redis://redis:6379")
         self.batch_size = batch_size
         self.processing_timeout = processing_timeout
         self.rate_limit_per_second = rate_limit_per_second

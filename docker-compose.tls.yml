@@ -26,11 +26,46 @@ services:
       - ./config/certs/postgres:/var/lib/postgresql/certs:ro
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # PgBouncer with TLS
+  # PgBouncer with TLS (full enforcement)
+  # SECURITY: Overrides pgbouncer.ini defaults (allow) to enforce TLS for all
+  # client and server connections. All 728+ connections will require TLS.
   # ─────────────────────────────────────────────────────────────────────────────
   pgbouncer:
+    environment:
+      # Override pgbouncer.ini TLS settings for production enforcement
+      # These env vars are used by the entrypoint to patch pgbouncer.ini at runtime
+      SERVER_TLS_SSLMODE: require
+      CLIENT_TLS_SSLMODE: require
+      CLIENT_TLS_CERT_FILE: /etc/pgbouncer/certs/server.crt
+      CLIENT_TLS_KEY_FILE: /etc/pgbouncer/certs/server.key
+      CLIENT_TLS_CA_FILE: /etc/pgbouncer/certs/ca.crt
     volumes:
       - ./config/certs/pgbouncer:/etc/pgbouncer/certs:ro
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Etcd with TLS (manual certificates)
+  # SECURITY: Overrides auto-TLS with proper CA-signed certificates.
+  # Generate certs first: ./infrastructure/core/etcd/generate-certs.sh
+  # ─────────────────────────────────────────────────────────────────────────────
+  etcd:
+    environment:
+      # Disable auto-TLS in favor of manual certificates
+      - ETCD_AUTO_TLS=false
+      - ETCD_PEER_AUTO_TLS=false
+      # Client TLS (etcd ↔ clients like Milvus)
+      - ETCD_CERT_FILE=/etc/etcd/certs/server.pem
+      - ETCD_KEY_FILE=/etc/etcd/certs/server-key.pem
+      - ETCD_TRUSTED_CA_FILE=/etc/etcd/certs/ca.pem
+      - ETCD_CLIENT_CERT_AUTH=false
+      # Peer TLS (etcd ↔ etcd, for future multi-node clusters)
+      - ETCD_PEER_CERT_FILE=/etc/etcd/certs/server.pem
+      - ETCD_PEER_KEY_FILE=/etc/etcd/certs/server-key.pem
+      - ETCD_PEER_TRUSTED_CA_FILE=/etc/etcd/certs/ca.pem
+      # Healthcheck with proper CA verification
+      - ETCDCTL_CACERT=/etc/etcd/certs/ca.pem
+      - ETCDCTL_INSECURE_SKIP_TLS_VERIFY=false
+    volumes:
+      - ./infrastructure/core/etcd/certs:/etc/etcd/certs:ro
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Redis with TLS
@@ -97,6 +132,7 @@ services:
 # 1. Certificate Generation:
 #    Before using this configuration, generate certificates:
 #    ./config/certs/generate-internal-tls.sh
+#    ./infrastructure/core/etcd/generate-certs.sh
 #
 # 2. Service Connection Updates:
 #    Application services need to be updated to use TLS connections:
@@ -104,6 +140,8 @@ services:
 #    - Redis: Use rediss:// instead of redis:// (TLS port)
 #    - NATS: Use nats+tls:// or configure TLS in client
 #    - Kong: Access via https://kong:8443 for TLS
+#    - Etcd: Clients must use https://etcd:2379 (auto-TLS by default, CA-signed with overlay)
+#    - PgBouncer: Clients should use sslmode=require in connection string
 #
 # 3. Client Certificates:
 #    For full mTLS (mutual TLS), clients need:

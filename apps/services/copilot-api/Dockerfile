@@ -57,8 +57,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # ─────────────────────────────────────────────────────────────────────────────
 FROM dependencies AS production
 
-# Copy shared modules (required for shared.ai imports)
+# Copy root shared modules first, then overlay with services shared
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
 
 # Copy application code
 COPY apps/services/copilot-api/src/ ./src/

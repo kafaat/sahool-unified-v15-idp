@@ -198,17 +198,23 @@ jobs:
           # and can prevent pytest-cov plugin detection (exit code 4).
           SERVICES="ndvi-processor alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
           FIRST=true
+          FAILED=""
           for svc in $SERVICES; do
             echo "--- Testing $svc ---"
             COV_ARGS="--cov=apps/services"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=0 || {
+              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {
               rc=$?
-              echo "⚠ pytest exited with code $rc for $svc, continuing"
+              echo "⚠ pytest exited with code $rc for $svc"
+              FAILED="$FAILED $svc(rc=$rc)"
             }
             FIRST=false
           done
+          if [ -n "$FAILED" ]; then
+            echo "::error::Service tests failed:$FAILED"
+            exit 1
+          fi
           # Generate combined coverage report
           coverage report --show-missing || true
           coverage xml || true

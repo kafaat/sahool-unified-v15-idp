@@ -270,29 +270,36 @@ class JWTConfig:
     def get_signing_key(cls) -> str:
         """Get the key for signing tokens (HS256 only).
 
+        Reads from environment at call time to support dynamic configuration
+        (e.g., test fixtures that set JWT_SECRET_KEY after module import).
+
         Raises:
             JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
-        if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "") or cls.JWT_SECRET
+        if not secret or len(secret) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(
                 f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
                 "Set JWT_SECRET_KEY environment variable."
             )
-        return cls.JWT_SECRET
+        return secret
 
     @classmethod
     def get_verification_key(cls) -> str:
         """Get the key for verifying tokens (HS256 only).
 
+        Reads from environment at call time to support dynamic configuration.
+
         Raises:
             JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
-        if not cls.JWT_SECRET or len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
+        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "") or cls.JWT_SECRET
+        if not secret or len(secret) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(
                 f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
                 "Set JWT_SECRET_KEY environment variable."
             )
-        return cls.JWT_SECRET
+        return secret
 
 
 # Singleton instance

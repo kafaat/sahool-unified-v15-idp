@@ -64,6 +64,29 @@ def detect_conflict(
     elif not local_deleted and server_deleted:
         conflict_type = ConflictType.UPDATE_DELETE
     else:
+        # Detect schema mismatch - significant structural differences indicate schema version change
+        # Only trigger when overlap is below 50% of total unique keys (not for minor field differences)
+        local_keys = set(local_item.local_data.keys()) - {"id", "updated_at", "created_at"}
+        server_keys = set(server_data.keys()) - {"id", "updated_at", "created_at", "_deleted"}
+        all_keys = local_keys | server_keys
+        overlap = local_keys & server_keys
+        if all_keys and len(overlap) / len(all_keys) < 0.5:
+            return SyncConflict(
+                sync_item_id=local_item.id,
+                entity_id=local_item.entity_id,
+                entity_type=local_item.entity_type,
+                conflict_type=ConflictType.SCHEMA_MISMATCH,
+                local_data=local_item.local_data,
+                server_data=server_data,
+                base_data=base_data,
+                conflicting_fields=sorted(local_keys.symmetric_difference(server_keys)),
+                local_modified_at=local_item.local_modified_at,
+                server_modified_at=server_modified_at,
+                local_modified_by=local_item.user_id,
+                server_modified_by=server_modified_by,
+                tenant_id=local_item.tenant_id,
+                auto_resolvable=False,
+            )
         conflict_type = ConflictType.UPDATE_UPDATE
 
     # Find conflicting fields

@@ -147,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: [validate-release]
-    if: github.event.inputs.skip_approval != 'true' || github.event.inputs.hotfix_justification == ''
+    if: github.event.inputs.skip_approval != 'true' || (github.event.inputs.skip_approval == 'true' && github.event.inputs.hotfix_justification == '')
     environment:
       name: production-approval
     steps:

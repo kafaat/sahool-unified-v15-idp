@@ -1,0 +1,17 @@
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "sahool.fullname" . }}-quota
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.resourceQuota.requestsCpu | default "20" | quote }}
+    requests.memory: {{ .Values.resourceQuota.requestsMemory | default "40Gi" | quote }}
+    limits.cpu: {{ .Values.resourceQuota.limitsCpu | default "40" | quote }}
+    limits.memory: {{ .Values.resourceQuota.limitsMemory | default "80Gi" | quote }}
+    pods: {{ .Values.resourceQuota.maxPods | default "100" | quote }}
+    persistentvolumeclaims: {{ .Values.resourceQuota.maxPVCs | default "20" | quote }}
+{{- end }}

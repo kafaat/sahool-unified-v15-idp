@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 import time
 from contextlib import contextmanager
 from typing import Any
@@ -116,17 +117,19 @@ class CircuitBreaker:
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "CLOSED"
+        self._lock = threading.Lock()
 
     def call(self, func, *args, **kwargs):
         """
         استدعاء دالة مع حماية Circuit Breaker
         """
-        if self.state == "OPEN":
-            if time.time() - self.last_failure_time > self.recovery_timeout:
-                self.state = "HALF_OPEN"
-                logger.info("Circuit breaker entering HALF_OPEN state")
-            else:
-                raise Exception("Circuit breaker is OPEN")
+        with self._lock:
+            if self.state == "OPEN":
+                if time.time() - self.last_failure_time > self.recovery_timeout:
+                    self.state = "HALF_OPEN"
+                    logger.info("Circuit breaker entering HALF_OPEN state")
+                else:
+                    raise Exception("Circuit breaker is OPEN")
 
         try:
             result = func(*args, **kwargs)
@@ -138,17 +141,19 @@ class CircuitBreaker:
 
     def _on_success(self):
         """نجاح العملية"""
-        self.failure_count = 0
-        self.state = "CLOSED"
+        with self._lock:
+            self.failure_count = 0
+            self.state = "CLOSED"
 
     def _on_failure(self):
         """فشل العملية"""
-        self.failure_count += 1
-        self.last_failure_time = time.time()
+        with self._lock:
+            self.failure_count += 1
+            self.last_failure_time = time.time()
 
-        if self.failure_count >= self.failure_threshold:
-            self.state = "OPEN"
-            logger.error(f"Circuit breaker opened after {self.failure_count} failures")
+            if self.failure_count >= self.failure_threshold:
+                self.state = "OPEN"
+                logger.error(f"Circuit breaker opened after {self.failure_count} failures")
 
 
 class RedisSentinelClient:
@@ -266,7 +271,10 @@ class RedisSentinelClient:
         try:
             yield conn
         finally:
-            pass  # Connection pooling handles cleanup
+            # No explicit cleanup needed: redis-py uses connection pooling internally.
+            # Connections are returned to the pool automatically when the command completes.
+            # The pool manages connection lifecycle, reuse, and health checks.
+            pass
 
     def _execute_with_retry(self, func, *args, max_retries: int = 3, retry_delay: float = 0.5, **kwargs) -> Any:
         """
@@ -525,7 +533,7 @@ class RedisSentinelClient:
         try:
             yield pipe
         finally:
-            pass
+            pipe.reset()
 
     # ─────────────────────────────────────────────────────────────────────────
     # Health & Monitoring

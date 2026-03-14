@@ -241,23 +241,50 @@ metadata:
   namespace: nats-system
   labels:
     app: nats
+  annotations:
+    sahool.io/placeholder-secret: "true"
+    sahool.io/security-warning: >-
+      THIS SECRET CONTAINS PLACEHOLDER VALUES ONLY. You MUST replace all
+      credentials before deploying to any environment. Use one of:
+      1. External Secrets Operator (preferred): ExternalSecret CR pointing to Vault/AWS SM
+      2. Sealed Secrets: kubeseal encrypt and commit SealedSecret CR
+      3. Manual: kubectl create secret generic nats-credentials --from-literal=...
+      See docs/guides/nats-credentials-setup.md for instructions.
 type: Opaque
 stringData:
-  # These should be replaced with actual values or loaded from external secrets
-  # For production, use Sealed Secrets, External Secrets Operator, or Vault
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  WARNING: PLACEHOLDER VALUES - DO NOT DEPLOY WITHOUT REPLACING     ║
+  # ║                                                                    ║
+  # ║  All passwords below are non-functional placeholders. You MUST     ║
+  # ║  provision real credentials before deployment via one of:          ║
+  # ║                                                                    ║
+  # ║  Option 1 (recommended): External Secrets Operator                 ║
+  # ║    - Create an ExternalSecret CR that populates this Secret        ║
+  # ║    - Source: HashiCorp Vault path secret/data/nats/credentials     ║
+  # ║                                                                    ║
+  # ║  Option 2: kubectl create secret                                   ║
+  # ║    kubectl create secret generic nats-credentials \                ║
+  # ║      --from-literal=NATS_ADMIN_USER=admin \                       ║
+  # ║      --from-literal=NATS_ADMIN_PASSWORD=$(openssl rand -base64 32) \  ║
+  # ║      ... (repeat for all keys below)                               ║
+  # ║      -n nats-system                                                ║
+  # ║                                                                    ║
+  # ║  Option 3: Sealed Secrets                                          ║
+  # ║    kubeseal --format=yaml < secret.yaml > sealed-secret.yaml       ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
   NATS_ADMIN_USER: "admin"
-  NATS_ADMIN_PASSWORD: "CHANGE_ME_ADMIN_PASSWORD"
+  NATS_ADMIN_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_USER: "sahool"
-  NATS_PASSWORD: "CHANGE_ME_USER_PASSWORD"
+  NATS_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_MONITOR_USER: "monitor"
-  NATS_MONITOR_PASSWORD: "CHANGE_ME_MONITOR_PASSWORD"
+  NATS_MONITOR_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_SYSTEM_USER: "system"
-  NATS_SYSTEM_PASSWORD: "CHANGE_ME_SYSTEM_PASSWORD"
+  NATS_SYSTEM_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_CLUSTER_USER: "cluster_user"
-  NATS_CLUSTER_PASSWORD: "CHANGE_ME_CLUSTER_PASSWORD"
+  NATS_CLUSTER_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_GATEWAY_USER: "gateway_user"
-  NATS_GATEWAY_PASSWORD: "CHANGE_ME_GATEWAY_PASSWORD"
-  NATS_JETSTREAM_KEY: "CHANGE_ME_BASE64_ENCODED_32_BYTE_KEY"
+  NATS_GATEWAY_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
+  NATS_JETSTREAM_KEY: "PLACEHOLDER_MUST_BE_REPLACED"
 
 ---
 apiVersion: apps/v1

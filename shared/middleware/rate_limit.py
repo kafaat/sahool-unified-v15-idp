@@ -84,6 +84,7 @@ class RateLimiter:
         self.tier_config = tier_config or TierConfig()
         self._buckets: dict[str, TokenBucket] = {}
         self._request_counts: dict[str, list[float]] = defaultdict(list)
+        self._lock = asyncio.Lock()
 
     def _get_bucket(self, key: str, config: RateLimitConfig) -> TokenBucket:
         """Get or create token bucket for a key"""
@@ -99,6 +100,8 @@ class RateLimiter:
         """Remove requests older than the window"""
         cutoff = time.time() - window_seconds
         self._request_counts[key] = [t for t in self._request_counts[key] if t > cutoff]
+        if not self._request_counts[key]:
+            del self._request_counts[key]
 
     def _get_tier(self, request: Request) -> str:
         """Get rate limit tier from verified auth context, not client headers.
@@ -127,7 +130,7 @@ class RateLimiter:
         """Get rate limit config for tier"""
         return getattr(self.tier_config, tier, self.tier_config.free)
 
-    def check_rate_limit(self, request: Request) -> tuple[bool, dict]:
+    async def check_rate_limit(self, request: Request) -> tuple[bool, dict]:
         """
         Check if request is within rate limits
         Returns (allowed, headers_dict)
@@ -145,21 +148,22 @@ class RateLimiter:
         if not bucket.consume():
             return False, self._build_headers(key, config, tier, exceeded=True)
 
-        # Check sliding window (per-minute)
-        self._clean_old_requests(key, 60)
-        if len(self._request_counts[key]) >= config.requests_per_minute:
-            return False, self._build_headers(key, config, tier, exceeded=True)
+        async with self._lock:
+            # Check sliding window (per-minute)
+            self._clean_old_requests(key, 60)
+            if len(self._request_counts.get(key, [])) >= config.requests_per_minute:
+                return False, self._build_headers(key, config, tier, exceeded=True)
 
-        # Check hourly limit
-        hourly_key = f"{key}:hourly"
-        self._clean_old_requests(hourly_key, 3600)
-        if len(self._request_counts[hourly_key]) >= config.requests_per_hour:
-            return False, self._build_headers(key, config, tier, exceeded=True)
+            # Check hourly limit
+            hourly_key = f"{key}:hourly"
+            self._clean_old_requests(hourly_key, 3600)
+            if len(self._request_counts.get(hourly_key, [])) >= config.requests_per_hour:
+                return False, self._build_headers(key, config, tier, exceeded=True)
 
-        # Record this request
-        now = time.time()
-        self._request_counts[key].append(now)
-        self._request_counts[hourly_key].append(now)
+            # Record this request
+            now = time.time()
+            self._request_counts[key].append(now)
+            self._request_counts[hourly_key].append(now)
 
         return True, self._build_headers(key, config, tier, exceeded=False)
 
@@ -241,7 +245,7 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
     if request.url.path in ["/healthz", "/readyz", "/metrics"]:
         return await call_next(request)
 
-    allowed, headers = _rate_limiter.check_rate_limit(request)
+    allowed, headers = await _rate_limiter.check_rate_limit(request)
 
     if not allowed:
         # Log rate limit exceeded for security monitoring
@@ -329,7 +333,7 @@ def rate_limit(
                 custom_key = key_func(request)
                 request.state._rate_limit_key = custom_key
 
-            allowed, headers = limiter.check_rate_limit(request)
+            allowed, headers = await limiter.check_rate_limit(request)
 
             if not allowed:
                 raise HTTPException(

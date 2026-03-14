@@ -236,7 +236,7 @@ services:
     ports:
       - "127.0.0.1:8200:8200"
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"
+      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:?VAULT_DEV_TOKEN must be set - do not use default tokens}"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
       VAULT_LOG_LEVEL: "info"
       VAULT_ADDR: "http://127.0.0.1:8200"
@@ -426,7 +426,7 @@ services:
   mqtt:
     image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
-    user: root
+    user: "1883:1883"
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
@@ -485,7 +485,7 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
       # SECURITY: API Key authentication (set QDRANT_API_KEY in .env for production)
       # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-changeme_in_production}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY must be set}
       - QDRANT__LOG_LEVEL=INFO
     # Qdrant healthcheck - verify qdrant is listening on REST port (6333)
     # فحص صحة Qdrant - التحقق من أن qdrant يستمع على منفذ REST

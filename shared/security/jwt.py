@@ -53,6 +53,7 @@ JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
 JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
+JWT_LEEWAY_SECONDS = int(os.getenv("JWT_LEEWAY_SECONDS", "30"))  # Clock skew tolerance
 
 # SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
 # Only HS256 is allowed - RS256 has been deprecated
@@ -100,13 +101,15 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def verify_token(token: str, check_revocation: bool = True) -> dict:
+def verify_token(token: str, check_revocation: bool = True, leeway: int | None = None) -> dict:
     """
     Verify and decode a JWT token.
 
     Args:
         token: The JWT token string
         check_revocation: Whether to check if token is revoked (default: True)
+        leeway: Clock skew tolerance in seconds for expiry check.
+                Defaults to JWT_LEEWAY_SECONDS env var (30s).
 
     Returns:
         Decoded payload dictionary
@@ -134,12 +137,14 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
             raise AuthError(f"Invalid token: unsupported algorithm {algorithm}", "invalid_token")
 
         # SECURITY FIX: Use hardcoded whitelist instead of environment variable
+        effective_leeway = leeway if leeway is not None else JWT_LEEWAY_SECONDS
         payload = jwt.decode(
             token,
             JWT_SECRET_KEY,
             algorithms=ALLOWED_ALGORITHMS,
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE,
+            leeway=timedelta(seconds=effective_leeway),
             options={
                 "require": ["sub", "tid", "exp", "iat"],
             },
@@ -167,9 +172,15 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                 iat = payload.get("iat")
 
                 # Convert iat to datetime if it's a timestamp
-                if isinstance(iat, int | float):
+                if isinstance(iat, (int, float)):
                     iat = datetime.fromtimestamp(iat, tz=UTC)
 
+                # NOTE: is_revoked() is a synchronous call that may block if the
+                # revocation store uses I/O (e.g., Redis). Since verify_token() is itself
+                # synchronous (not async def), wrapping with asyncio.to_thread() is not
+                # applicable here. If this function is called from an async context (e.g.,
+                # FastAPI endpoint), consider migrating verify_token to an async version
+                # or offloading the entire call via asyncio.to_thread(verify_token, ...).
                 is_revoked, reason = revocation_svc.is_revoked(
                     jti=jti,
                     user_id=user_id,
@@ -182,8 +193,12 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                     raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
 
             except ImportError:
-                # Revocation service not available, skip check
-                pass
+                # Module genuinely not installed - log warning
+                logger.warning("token_revocation module not installed, skipping revocation check")
+            except Exception as e:
+                # Code error in revocation service - fail closed (reject token)
+                logger.error(f"Token revocation check failed: {e}")
+                raise AuthError("Token revocation check failed", "revocation_check_failed")
 
         return payload
 

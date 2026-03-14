@@ -126,11 +126,15 @@ plugins:
   # إضافة قوائم التحكم في الوصول
   # --------------------------------------------------------------------------
   - name: acl
-    enabled: false  # Enable per-route - تفعيل لكل مسار
+    enabled: true  # Global ACL enforcement - تفعيل عالمي لقوائم التحكم في الوصول
     config:
       hide_groups_header: true
       allow:
-        - authenticated-users
+        - starter-users
+        - professional-users
+        - enterprise-users
+        - research-users
+        - internal-users
 
 # ==============================================================================
 # Admin Routes Security
@@ -158,9 +162,10 @@ services:
       - name: ip-restriction
         config:
           allow:
-            # Office IP ranges - نطاقات IP المكتب
-            - "10.0.0.0/8"       # Internal network - الشبكة الداخلية
-            - "172.16.0.0/12"    # Docker networks - شبكات Docker
+            # NOTE: Adjust these CIDR ranges per deployment environment
+            # ملاحظة: اضبط نطاقات CIDR هذه حسب بيئة النشر
+            - "10.42.0.0/16"     # K8s pod CIDR - نطاق بودات Kubernetes
+            - "172.20.0.0/16"    # Docker network - شبكة Docker المحددة
             - "192.168.0.0/16"   # Private network - الشبكة الخاصة
             - "127.0.0.1/32"     # Localhost - المضيف المحلي
             # Add production office IPs here - أضف عناوين IP المكتب للإنتاج هنا

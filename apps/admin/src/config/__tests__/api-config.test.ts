@@ -47,7 +47,7 @@ describe("SERVICE_PORTS", () => {
   });
 
   it("ports are valid numbers", () => {
-    Object.entries(SERVICE_PORTS).forEach(([key, port]) => {
+    Object.entries(SERVICE_PORTS).forEach(([_key, port]) => {
       expect(typeof port).toBe("number");
       expect(port).toBeGreaterThan(0);
       expect(port).toBeLessThan(65536);

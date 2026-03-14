@@ -5,7 +5,7 @@
  * Tests for auth store helper functions (non-component logic)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import Cookies from "js-cookie";
+import _Cookies from "js-cookie";
 
 // Mock modules
 vi.mock("js-cookie", () => ({
@@ -209,20 +209,5 @@ describe("Auth Store helpers", () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// useAuth hook contract
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe("useAuth contract", () => {
-  it("should throw when used outside AuthProvider", async () => {
-    // This tests the hook throws properly
-    const { renderHook } = await import("@testing-library/react");
-
-    // Import the actual hook - note: this will fail because there's no provider
-    const { useAuth } = await import("../../stores/auth.store");
-
-    expect(() => {
-      renderHook(() => useAuth());
-    }).toThrow("useAuth must be used within AuthProvider");
-  });
-});
+// useAuth hook contract test moved to use-auth-contract.test.ts
+// to avoid vi.resetModules() contamination breaking renderHook's React.act

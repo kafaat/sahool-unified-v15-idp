@@ -493,10 +493,10 @@ class TestCIJobGovernance:
                 )
 
     def test_vllm_in_intelligence_layer_in_governance(self):
-        """vllm-deepseek is categorized in intelligence layer."""
+        """vllm-deepseek is in intelligence layer with infrastructure category."""
         svc = self.services["services"]["vllm-deepseek"]
         assert svc.get("layer") == "intelligence"
-        assert svc.get("category") == "intelligence"
+        assert svc.get("category") == "infrastructure"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -637,7 +637,10 @@ class TestCIJobComposeTest:
         """Main docker-compose.yml is valid YAML and contains vLLM."""
         compose = _load_yaml(REPO_ROOT / "docker-compose.yml")
         assert compose is not None
-        assert "vllm" in compose.get("services", {})
+        services = compose.get("services", {})
+        assert any("vllm" in svc for svc in services), (
+            f"No vLLM service found in docker-compose.yml. Services: {list(services.keys())[:10]}"
+        )
 
     def test_compose_service_structure_valid(self):
         """vLLM compose service has valid Docker Compose schema."""

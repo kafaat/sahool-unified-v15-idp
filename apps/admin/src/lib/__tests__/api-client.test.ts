@@ -5,8 +5,7 @@
  * Tests lib/api.ts: apiClient setup, interceptors, and API functions
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import axios from "axios";
+import { describe, it, expect, vi } from "vitest";
 
 // Mock config/api before importing lib/api
 vi.mock("@/config/api", () => ({

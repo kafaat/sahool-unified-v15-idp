@@ -30,7 +30,7 @@ vi.mock("next/navigation", () => ({
 
 // Mock next/dynamic to render the component inline (skip SSR checks)
 vi.mock("next/dynamic", () => ({
-  default: (loader: () => Promise<{ default: React.ComponentType }>, _opts?: unknown) => {
+  default: (_loader: () => Promise<{ default: React.ComponentType }>, _opts?: unknown) => {
     // Return a simple placeholder since dynamic imports are complex in test
     const DynamicComponent = (props: Record<string, unknown>) => {
       return React.createElement("div", { "data-testid": "dynamic-component", ...props });

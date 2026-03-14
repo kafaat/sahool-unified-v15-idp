@@ -41,6 +41,8 @@ class JWTConfig:
 
     # JWT Secret Key (required) - JWT_SECRET_KEY is the canonical name.
     # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
+    # Note: Use get_signing_key()/get_verification_key() methods instead of reading
+    # this attribute directly, as they re-read from env at call time.
     JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or ""
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
@@ -267,10 +269,10 @@ class JWTConfig:
         }
 
     @classmethod
-    def get_signing_key(cls) -> str:
-        """Get the key for signing tokens (HS256 only).
+    def _resolve_secret(cls) -> str:
+        """Resolve JWT secret from environment at call time.
 
-        Reads from environment at call time to support dynamic configuration
+        Reads from environment to support dynamic configuration
         (e.g., test fixtures that set JWT_SECRET_KEY after module import).
 
         Raises:
@@ -285,21 +287,14 @@ class JWTConfig:
         return secret
 
     @classmethod
+    def get_signing_key(cls) -> str:
+        """Get the key for signing tokens (HS256 only)."""
+        return cls._resolve_secret()
+
+    @classmethod
     def get_verification_key(cls) -> str:
-        """Get the key for verifying tokens (HS256 only).
-
-        Reads from environment at call time to support dynamic configuration.
-
-        Raises:
-            JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
-        """
-        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or cls.JWT_SECRET
-        if not secret or len(secret) < MIN_SECRET_KEY_LENGTH:
-            raise JWTConfigError(
-                f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
-                "Set JWT_SECRET_KEY environment variable."
-            )
-        return secret
+        """Get the key for verifying tokens (HS256 only)."""
+        return cls._resolve_secret()
 
 
 # Singleton instance

@@ -167,11 +167,16 @@ class RateLimiter:
             self._request_counts[key].append(now)
             self._request_counts[hourly_key].append(now)
 
-        return True, self._build_headers(key, config, tier, exceeded=False)
+            remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
 
-    def _build_headers(self, key: str, config: RateLimitConfig, tier: str, exceeded: bool) -> dict:
+        return True, self._build_headers(key, config, tier, exceeded=False, remaining=remaining)
+
+    def _build_headers(
+        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int | None = None
+    ) -> dict:
         """Build rate limit response headers"""
-        remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
+        if remaining is None:
+            remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
 
         headers = {
             "X-RateLimit-Limit": str(config.requests_per_minute),

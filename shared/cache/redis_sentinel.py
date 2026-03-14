@@ -127,9 +127,13 @@ class CircuitBreaker:
             if self.state == "OPEN":
                 if time.time() - self.last_failure_time > self.recovery_timeout:
                     self.state = "HALF_OPEN"
+                    self._half_open_pending = True
                     logger.info("Circuit breaker entering HALF_OPEN state")
                 else:
                     raise Exception("Circuit breaker is OPEN")
+            elif self.state == "HALF_OPEN" and getattr(self, "_half_open_pending", False):
+                # Only one trial request allowed in HALF_OPEN state
+                raise Exception("Circuit breaker is HALF_OPEN - trial request in progress")
 
         try:
             result = func(*args, **kwargs)
@@ -144,12 +148,14 @@ class CircuitBreaker:
         with self._lock:
             self.failure_count = 0
             self.state = "CLOSED"
+            self._half_open_pending = False
 
     def _on_failure(self):
         """فشل العملية"""
         with self._lock:
             self.failure_count += 1
             self.last_failure_time = time.time()
+            self._half_open_pending = False
 
             if self.failure_count >= self.failure_threshold:
                 self.state = "OPEN"

@@ -131,6 +131,11 @@ plugins:
       hide_groups_header: true
       allow:
         - authenticated-users
+        - starter-users
+        - professional-users
+        - enterprise-users
+        - research-users
+        - internal-users
 
 # ==============================================================================
 # Admin Routes Security

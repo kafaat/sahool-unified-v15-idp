@@ -447,6 +447,8 @@ class LLMProviderManager:
         """Call a specific LLM provider."""
         if provider == LLMProvider.OLLAMA:
             return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
+        elif provider == LLMProvider.VLLM:
+            return await self._call_vllm(prompt, system_prompt, temperature, max_tokens)
         elif provider == LLMProvider.ANTHROPIC:
             return await self._call_anthropic(prompt, system_prompt, temperature, max_tokens)
         elif provider == LLMProvider.OPENAI:
@@ -457,6 +459,53 @@ class LLMProviderManager:
             return await self._call_deepseek(prompt, system_prompt, temperature, max_tokens)
         else:
             raise LLMProviderError(f"Unknown provider: {provider}", provider)
+
+    async def _call_vllm(
+        self,
+        prompt: str,
+        system_prompt: str | None,
+        temperature: float,
+        max_tokens: int,
+    ) -> LLMResponse:
+        """Call vLLM API (OpenAI-compatible)."""
+        try:
+            import httpx
+        except ImportError:
+            raise LLMProviderError("httpx required for vLLM", LLMProvider.VLLM) from None
+
+        config = self.configs[LLMProvider.VLLM]
+        base_url = (config.base_url or "http://localhost:8270/v1").rstrip("/")
+
+        async with httpx.AsyncClient(timeout=config.timeout) as client:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            response = await client.post(
+                f"{base_url}/chat/completions",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "model": config.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            text = data["choices"][0]["message"]["content"]
+
+            return LLMResponse(
+                text=text,
+                provider=LLMProvider.VLLM,
+                model=config.model,
+                tokens_input=data.get("usage", {}).get("prompt_tokens", 0),
+                tokens_output=data.get("usage", {}).get("completion_tokens", 0),
+                finish_reason=data["choices"][0].get("finish_reason"),
+                raw_response=data,
+            )
 
     async def _call_ollama(
         self,

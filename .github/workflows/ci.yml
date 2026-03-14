@@ -592,9 +592,6 @@ jobs:
           for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
             if [ -f "$GITHUB_WORKSPACE/$pkg/package.json" ] && grep -q '"build"' "$GITHUB_WORKSPACE/$pkg/package.json"; then
               echo "Building $pkg..."
-              cd "$GITHUB_WORKSPACE/$pkg"
-              npm install --legacy-peer-deps --quiet || true
-              cd "$GITHUB_WORKSPACE"
               npm run build --workspace=$pkg || echo "::warning::Failed to build $pkg — dependent service tests may fail"
             fi
           done

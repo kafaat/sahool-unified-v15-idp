@@ -49,7 +49,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64" role="status" aria-label="جاري التحميل | Loading">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
       </div>
     );

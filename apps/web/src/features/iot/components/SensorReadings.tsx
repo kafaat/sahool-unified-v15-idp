@@ -33,12 +33,14 @@ export function SensorReadings({
   unit,
   limit,
 }: SensorReadingsProps) {
-  const [interval, setInterval] = useState<"1h" | "1d" | "1w" | "1m">("1d");
+  const [timeInterval, setTimeInterval] = useState<"1h" | "1d" | "1w" | "1m">(
+    "1d",
+  );
 
   const query: SensorReadingsQuery = {
     sensorId,
-    interval,
-    startDate: getStartDate(interval),
+    interval: timeInterval,
+    startDate: getStartDate(timeInterval),
     endDate: new Date().toISOString(),
     limit,
   };
@@ -67,8 +69,8 @@ export function SensorReadings({
       timestamp: new Date(reading.timestamp).toLocaleString("ar-YE", {
         month: "short",
         day: "numeric",
-        hour: interval === "1h" ? "2-digit" : undefined,
-        minute: interval === "1h" ? "2-digit" : undefined,
+        hour: timeInterval === "1h" ? "2-digit" : undefined,
+        minute: timeInterval === "1h" ? "2-digit" : undefined,
       }),
       value: reading.value,
     })) || [];
@@ -84,11 +86,11 @@ export function SensorReadings({
           </h2>
 
           {/* Interval Selector */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" role="group" aria-label="الفترة الزمنية | Time interval">
             <button
-              onClick={() => setInterval("1h")}
+              onClick={() => setTimeInterval("1h")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === "1h"
+                timeInterval === "1h"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -96,9 +98,9 @@ export function SensorReadings({
               ساعة
             </button>
             <button
-              onClick={() => setInterval("1d")}
+              onClick={() => setTimeInterval("1d")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === "1d"
+                timeInterval === "1d"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -106,9 +108,9 @@ export function SensorReadings({
               يوم
             </button>
             <button
-              onClick={() => setInterval("1w")}
+              onClick={() => setTimeInterval("1w")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === "1w"
+                timeInterval === "1w"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -116,9 +118,9 @@ export function SensorReadings({
               أسبوع
             </button>
             <button
-              onClick={() => setInterval("1m")}
+              onClick={() => setTimeInterval("1m")}
               className={`px-3 py-1 rounded-lg text-sm ${
-                interval === "1m"
+                timeInterval === "1m"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}

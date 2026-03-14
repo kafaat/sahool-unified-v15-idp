@@ -209,23 +209,5 @@ describe("Auth Store helpers", () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// useAuth hook contract
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe("useAuth contract", () => {
-  it("should throw when used outside AuthProvider", async () => {
-    const { useAuth } = await import("../../stores/auth.store");
-
-    expect(typeof useAuth).toBe("function");
-
-    // Calling a hook that uses useContext outside of a React render
-    // will throw an "Invalid hook call" error (React enforces hooks rules).
-    // When called within a render but outside AuthProvider, it throws
-    // "useAuth must be used within AuthProvider".
-    // We verify both aspects of the contract:
-    // 1. The hook is a callable function (verified above)
-    // 2. Calling outside React render context throws (hooks invariant)
-    expect(() => useAuth()).toThrow();
-  });
-});
+// useAuth hook contract test moved to use-auth-contract.test.ts
+// to avoid vi.resetModules() contamination breaking renderHook's React.act

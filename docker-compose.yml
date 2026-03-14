@@ -2341,12 +2341,17 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      # FIX: Add REDIS_URL — without it the service falls back to in-memory cache, losing sync between instances
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
       - "127.0.0.1:8103:8103"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
+        condition: service_healthy
+      # FIX: Add redis dependency — task-service uses Redis for caching
+      redis:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2603,8 +2608,8 @@ services:
       - PORT=8120
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add DATABASE_URL for persistence (was running in memory-only mode)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - TASK_SERVICE_URL=http://task-service:8103
       - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
@@ -3579,8 +3584,8 @@ services:
       - PORT=8114
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3958,8 +3963,8 @@ services:
       - PORT=8167
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
@@ -4011,8 +4016,8 @@ services:
       - PORT=8150
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MODEL_PATH=/app/models/yolo26m.engine

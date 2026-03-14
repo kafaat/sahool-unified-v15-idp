@@ -143,7 +143,7 @@ vi.mock("@/components/ui/AlertBadge", () => ({
 }));
 
 vi.mock("@/components/ui/DataTable", () => ({
-  default: ({ data, columns }: { data: unknown[]; columns: unknown[] }) =>
+  default: ({ data, columns: _columns }: { data: unknown[]; columns: unknown[] }) =>
     React.createElement("table", { "data-testid": "data-table" },
       React.createElement("tbody", null,
         React.createElement("tr", null,

@@ -172,7 +172,7 @@ def verify_token(token: str, check_revocation: bool = True, leeway: int | None =
                 iat = payload.get("iat")
 
                 # Convert iat to datetime if it's a timestamp
-                if isinstance(iat, int | float):
+                if isinstance(iat, (int, float)):
                     iat = datetime.fromtimestamp(iat, tz=UTC)
 
                 # NOTE: is_revoked() is a synchronous call that may block if the

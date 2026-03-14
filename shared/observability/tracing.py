@@ -248,7 +248,6 @@ class DistributedTracer:
         """Inject trace context into NATS message headers."""
         headers = headers or {}
         if OTEL_AVAILABLE:
-            from opentelemetry import context
             from opentelemetry.propagate import inject
 
             inject(headers)

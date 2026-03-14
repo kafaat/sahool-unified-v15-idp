@@ -564,7 +564,8 @@ class TestEmailClient:
         assert client._validate_email("invalid") is False
         assert client._validate_email("@example.com") is False
         assert client._validate_email("user@") is False
-        assert client._validate_email("user@domain") is True  # Missing TLD is allowed
+        assert client._validate_email("user@domain") is False  # Domain without TLD (dot) is invalid
+        assert client._validate_email("user@domain.com") is True  # Valid email with TLD
 
 
 class TestGlobalClientInstances:

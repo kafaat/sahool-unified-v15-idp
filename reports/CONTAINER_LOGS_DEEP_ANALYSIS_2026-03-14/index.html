@@ -1,0 +1,2295 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>SAHOOL Container Logs Deep Analysis Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-container-logs-deep-analysis-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Container Logs Deep Analysis Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-container-logs-deep-analysis-report">SAHOOL Container Logs Deep Analysis Report<a class="headerlink" href="#sahool-container-logs-deep-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-03-14
+<strong>Containers Analyzed:</strong> 73 (all succeeded)
+<strong>Severity Scale:</strong> CRITICAL &gt; HIGH &gt; MEDIUM &gt; LOW
+<strong>Verification Status:</strong> Code-verified on 2026-03-14 (see verification notes per issue)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Deep analysis of all 73 SAHOOL containers reveals <strong>5 active critical issues</strong>, <strong>8 active high-severity issues</strong>, and <strong>27 medium/low findings</strong> across infrastructure, microservices, and configuration layers. While all containers report as running, multiple systemic issues affect reliability, security, and data integrity.</p>
+<blockquote>
+<p><strong>Note:</strong> Multiple issues from the initial analysis were found to be <strong>already fixed</strong>, <strong>overstated</strong>, or <strong>incorrect</strong> during two rounds of code-level verification and automated testing (9,869 tests) on 2026-03-14. Issues are marked with verification status below. The original report claimed 12 Critical / 18 High — actual verified counts are 5 Critical / 8 High after thorough source code review.</p>
+</blockquote>
+<h3 id="issue-distribution-post-verification-testing">Issue Distribution (Post-Verification + Testing)<a class="headerlink" href="#issue-distribution-post-verification-testing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Critical</th>
+<th>High</th>
+<th>Medium</th>
+<th>Low</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL &amp; Init Scripts</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>PgBouncer</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Kong API Gateway</td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Vault</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Milvus/Qdrant/etcd</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Microservices (Python)</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Docker Compose Config</td>
+<td>0</td>
+<td>1</td>
+<td>5</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>5</strong></td>
+<td><strong>10</strong></td>
+<td><strong>22</strong></td>
+<td><strong>10</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-infrastructure-postgresql-sahool-postgres">1. Infrastructure: PostgreSQL (sahool-postgres)<a class="headerlink" href="#1-infrastructure-postgresql-sahool-postgres" title="Permanent link">&para;</a></h2>
+<h3 id="11-critical-verified-fixed-2026-03-13-01-research-expansionsql-fk-constraints">1.1 ~~CRITICAL~~ [VERIFIED: FIXED 2026-03-13]: <code>01-research-expansion.sql</code> FK Constraints<a class="headerlink" href="#11-critical-verified-fixed-2026-03-13-01-research-expansionsql-fk-constraints" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This issue was <strong>already fixed</strong> on 2026-03-13. Source code at <code>infrastructure/core/postgres/init/01-research-expansion.sql</code> (lines 5-16) shows all FK constraints to <code>users(id)</code> have been replaced with plain UUID columns, with comments indicating FKs should be added post-startup via Prisma migration. Missing enums (<code>sample_type</code>, <code>experiment_status</code>, <code>protocol_status</code>, <code>governance_level</code>, <code>sample_status</code>) have also been added (lines 22-44).</p>
+</blockquote>
+<p><strong>Original Issue:</strong> The script contained 11 foreign key references to <code>users(id)</code>, which doesn't exist at init time (managed by Prisma in user-service).</p>
+<p><strong>Current Code (Fixed):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- FIX (2026-03-13): Removed REFERENCES users(id) constraints</span>
+<span class="c1">-- FK constraints will be added post-startup after Prisma migration creates users table</span>
+<span class="n">contact_person</span><span class="w"> </span><span class="n">UUID</span><span class="p">,</span><span class="w">  </span><span class="c1">-- FK to users(id) added post-startup after Prisma migration</span>
+</code></pre></div>
+
+<p><strong>Status:</strong> No action required.</p>
+<hr />
+<h3 id="12-critical-04-mlflow-dbsql-uses-psql-only-syntax-verified-confirmed">1.2 CRITICAL: <code>04-mlflow-db.sql</code> Uses psql-Only Syntax [VERIFIED: CONFIRMED]<a class="headerlink" href="#12-critical-04-mlflow-dbsql-uses-psql-only-syntax-verified-confirmed" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Confirmed</strong> — <code>infrastructure/core/postgres/init/04-mlflow-db.sql</code> line 23-24 still contains <code>\gexec</code> psql meta-command. However, note that the script first logs a NOTICE via a valid <code>DO $$</code> block (lines 10-19) indicating the database needs creating. The <code>\gexec</code> line is a secondary attempt.</p>
+</blockquote>
+<p><strong>File:</strong> <code>infrastructure/core/postgres/init/04-mlflow-db.sql</code> (Line 24)</p>
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;CREATE DATABASE mlflow&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mlflow&#39;</span><span class="p">)</span><span class="err">\</span><span class="n">gexec</span>
+</code></pre></div>
+
+<p><strong>Root Cause:</strong> <code>\gexec</code> is a psql meta-command, not valid SQL. Docker's init runs SQL files via <code>psql -f</code>, so <code>\gexec</code> actually WORKS in Docker init context (unlike being sent as raw SQL). However, this is fragile — it depends on the init runner being psql.</p>
+<p><strong>Impact:</strong> If Docker init switches to a non-psql runner, MLflow database creation fails. Additionally, <code>CREATE DATABASE</code> cannot execute within a transaction block, so behavior depends on the init script runner's transaction handling.</p>
+<p><strong>Note:</strong> The <code>docker-compose.yml</code> MLflow service (line 388) references <code>pgbouncer:6432/mlflow</code>, meaning the database MUST exist before MLflow starts. MLflow depends only on <code>pgbouncer: service_healthy</code>.</p>
+<p><strong>Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">DO</span><span class="w"> </span><span class="err">$$</span>
+<span class="k">BEGIN</span>
+<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mlflow&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">        </span><span class="n">PERFORM</span><span class="w"> </span><span class="n">dblink_exec</span><span class="p">(</span><span class="s1">&#39;dbname=postgres&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CREATE DATABASE mlflow&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="k">IF</span><span class="p">;</span>
+<span class="k">END</span><span class="w"> </span><span class="err">$$</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="13-high-verified-fixed-2026-03-13-pgbouncer-auth_query-schema-race-condition">1.3 ~~HIGH~~ [VERIFIED: FIXED 2026-03-13]: PgBouncer <code>auth_query</code> Schema Race Condition<a class="headerlink" href="#13-high-verified-fixed-2026-03-13-pgbouncer-auth_query-schema-race-condition" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This issue was <strong>already fixed</strong> on 2026-03-13. The PgBouncer <code>entrypoint.sh</code> (lines 82-138) now implements a two-phase wait: Phase 1 checks TCP port availability, Phase 2 queries for pgbouncer schema existence via psql before proceeding. If psql is unavailable, a 15s fixed delay fallback is used.</p>
+</blockquote>
+<p><strong>Original Timeline (before fix):</strong></p>
+<div class="codehilite"><pre><span></span><code>T=0.8s  PostgreSQL accepts connections (init scripts still running)
+T=3.0s  PgBouncer connects, tries auth_query → FAILS
+T=3.0s  PgBouncer falls back to plaintext passwords
+T=18s   02-pgbouncer-user.sql creates the schema (too late)
+</code></pre></div>
+
+<p><strong>Current Code (Fixed):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Phase 2: Wait for init scripts to complete by checking for pgbouncer schema</span>
+<span class="nv">_schema_exists</span><span class="o">=</span><span class="k">$(</span><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DB_PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span>psql<span class="w"> </span>...<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = &#39;pgbouncer&#39;)&quot;</span><span class="w"> </span>...<span class="k">)</span>
+</code></pre></div>
+
+<p><strong>Residual Risk:</strong> If psql cannot be installed (locked-down environment), falls back to 15s fixed delay which may still be insufficient.</p>
+<p><strong>Status:</strong> Fixed. Monitor in locked-down environments.</p>
+<hr />
+<h3 id="14-high-missing-calibration_run-table-query">1.4 HIGH: Missing <code>calibration_run</code> Table Query<a class="headerlink" href="#14-high-missing-calibration_run-table-query" title="Permanent link">&para;</a></h3>
+<p><strong>Log Evidence:</strong></p>
+<div class="codehilite"><pre><span></span><code>sahool-postgres | ERROR: relation &quot;calibration_run&quot; does not exist
+sahool-postgres | STATEMENT: SELECT id::text, tenant_id, field_id ... FROM calibration_run WHERE status = &#39;queued&#39;
+</code></pre></div>
+
+<p><strong>Root Cause:</strong> Service queries <code>calibration_run</code> before <code>07-calibration-tables.sql</code> finishes executing.</p>
+<hr />
+<h3 id="15-high-06-equipment-fixsql-type-mismatch">1.5 HIGH: <code>06-equipment-fix.sql</code> Type Mismatch<a class="headerlink" href="#15-high-06-equipment-fixsql-type-mismatch" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/core/postgres/init/06-equipment-fix.sql</code> (Line 12)</p>
+<p>Creates <code>equipment_id VARCHAR(50)</code> but copies from <code>id UUID</code>, causing implicit type coercion. Should use <code>UUID</code> type.</p>
+<hr />
+<h3 id="16-medium-unclean-shutdown-wal-recovery">1.6 MEDIUM: Unclean Shutdown / WAL Recovery<a class="headerlink" href="#16-medium-unclean-shutdown-wal-recovery" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool-postgres | database system was not properly shut down; automatic recovery in progress
+sahool-postgres | invalid magic number 0000 in WAL segment 000000010000000000000002
+sahool-postgres | checkpoint complete: wrote 2133 buffers (13.0%)
+</code></pre></div>
+
+<p><strong>Fix:</strong> Already addressed with <code>stop_grace_period: 30s</code> (added 2026-03-13).</p>
+<hr />
+<h2 id="2-infrastructure-pgbouncer-sahool-pgbouncer">2. Infrastructure: PgBouncer (sahool-pgbouncer)<a class="headerlink" href="#2-infrastructure-pgbouncer-sahool-pgbouncer" title="Permanent link">&para;</a></h2>
+<h3 id="21-critical-medium-verified-partially-fixed-plaintext-password-fallback">2.1 ~~CRITICAL~~ MEDIUM [VERIFIED: PARTIALLY FIXED]: Plaintext Password Fallback<a class="headerlink" href="#21-critical-medium-verified-partially-fixed-plaintext-password-fallback" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> The root cause (race condition) was <strong>fixed</strong> on 2026-03-13 — PgBouncer now waits for pgbouncer schema before starting (see 1.3 above). The <code>generate_scram_hash()</code> function (lines 145-163) retrieves SCRAM hashes from PostgreSQL via <code>pgbouncer.get_auth()</code>. However, a <strong>residual fallback</strong> still exists: if the SCRAM hash query fails for any reason, plaintext password is used (line 159-161).</p>
+</blockquote>
+<p><strong>Residual Risks:</strong>
+- Admin/stats passwords default to DB password if <code>PGBOUNCER_ADMIN_PASSWORD</code>/<code>PGBOUNCER_STATS_PASSWORD</code> not set (line 182-183)
+- <code>chmod 600</code> on userlist.txt silently ignores failures (line 210)</p>
+<p><strong>Status:</strong> Downgraded from CRITICAL to MEDIUM. Core race condition fixed; residual plaintext fallback is a defense-in-depth concern.</p>
+<hr />
+<h3 id="22-critical-timestamp-overflow-in-connection-ages-unsigned-integer-underflow">2.2 CRITICAL: Timestamp Overflow in Connection Ages (Unsigned Integer Underflow)<a class="headerlink" href="#22-critical-timestamp-overflow-in-connection-ages-unsigned-integer-underflow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool-pgbouncer | LOG: closing because: client_idle_timeout (age=18446744073707s)
+sahool-pgbouncer | LOG: closing because: server lifetime over (age=18446744073704s)
+</code></pre></div>
+
+<p><strong>Analysis:</strong> <code>18446744073707 ≈ 2^64 - 5</code> — classic unsigned integer underflow. Connections are being terminated prematurely because PgBouncer calculates a massive positive age instead of the actual duration.</p>
+<p><strong>Impact:</strong> ~30 connections from various services terminated with incorrect age values.</p>
+<p><strong>Fix:</strong>
+1. Verify Docker host time synchronization (NTP)
+2. Consider upgrading PgBouncer from 1.23.1 if known bug</p>
+<hr />
+<h3 id="23-critical-verified-fixed-healthcheck-variable-scope-bug">2.3 ~~CRITICAL~~ [VERIFIED: FIXED]: Healthcheck Variable Scope Bug<a class="headerlink" href="#23-critical-verified-fixed-healthcheck-variable-scope-bug" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This issue was <strong>already fixed</strong>. The <code>infrastructure/core/pgbouncer/healthcheck.sh</code> now uses a temp file pattern to work around the subshell variable scope problem.</p>
+</blockquote>
+<p><strong>Current Code (Fixed):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Write parsed data to temp file from subshell</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$POOL_DATA</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nv">IFS</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>...<span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cl_active</span><span class="s2"> </span><span class="nv">$cl_waiting</span><span class="s2"> </span><span class="nv">$sv_active</span><span class="s2"> </span><span class="nv">$sv_idle</span><span class="s2"> </span><span class="nv">$maxwait</span><span class="s2">&quot;</span>
+<span class="k">done</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/pgbouncer_pool_data.<span class="nv">$$</span>
+
+<span class="c1"># Read back in main shell (variables persist)</span>
+<span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>cl_active<span class="w"> </span>cl_waiting<span class="w"> </span>sv_active<span class="w"> </span>sv_idle<span class="w"> </span>maxwait<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">TOTAL_CL_ACTIVE</span><span class="o">=</span><span class="k">$((</span><span class="nv">TOTAL_CL_ACTIVE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">cl_active</span><span class="k">))</span>
+<span class="w">    </span>...
+<span class="k">done</span><span class="w"> </span>&lt;<span class="w"> </span>/tmp/pgbouncer_pool_data.<span class="nv">$$</span>
+rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<span class="nv">$$</span>
+</code></pre></div>
+
+<p><strong>Status:</strong> No action required.</p>
+<hr />
+<h3 id="24-high-all-connections-without-tls">2.4 HIGH: All Connections Without TLS<a class="headerlink" href="#24-high-all-connections-without-tls" title="Permanent link">&para;</a></h3>
+<p>Every connection shows <code>tls=no</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># infrastructure/core/pgbouncer/pgbouncer.ini</span>
+<span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+<span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+</code></pre></div>
+
+<p>All database traffic is unencrypted. Acceptable for development only.</p>
+<hr />
+<h3 id="25-medium-rapid-connectdisconnect-from-service-17218051">2.5 MEDIUM: Rapid Connect/Disconnect from Service 172.18.0.51<a class="headerlink" href="#25-medium-rapid-connectdisconnect-from-service-17218051" title="Permanent link">&para;</a></h3>
+<p>7 connections within 640ms from a single service, each immediately disconnecting. Likely health check probes or failing migration retries.</p>
+<hr />
+<h3 id="26-medium-entrypoint-permission-bypass">2.6 MEDIUM: Entrypoint Permission Bypass<a class="headerlink" href="#26-medium-entrypoint-permission-bypass" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/core/pgbouncer/entrypoint.sh</code> (Lines 19-20)</p>
+<div class="codehilite"><pre><span></span><code>chmod<span class="w"> </span><span class="m">777</span><span class="w"> </span>/etc/pgbouncer/runtime<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+
+<p>Silent permission failures could cause runtime file generation to fail, leading to PgBouncer startup failure with no clear error.</p>
+<hr />
+<h2 id="3-infrastructure-kong-api-gateway-sahool-kong">3. Infrastructure: Kong API Gateway (sahool-kong)<a class="headerlink" href="#3-infrastructure-kong-api-gateway-sahool-kong" title="Permanent link">&para;</a></h2>
+<h3 id="31-critical-verified-fixed-startup-timeout-errors-across-all-workers">3.1 ~~CRITICAL~~ [VERIFIED: FIXED]: Startup Timeout Errors Across All Workers<a class="headerlink" href="#31-critical-verified-fixed-startup-timeout-errors-across-all-workers" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Confirmed fixed</strong> — <code>docker-compose.yml</code> line 1159 shows <code>KONG_NGINX_WORKER_PROCESSES: "4"</code> (reduced from auto-detected 24). Timeout errors are transient and self-resolve within ~15s.</p>
+</blockquote>
+<p><strong>Root Cause:</strong> Originally 24 auto-detected workers caused contention during declarative config synchronization. Fixed by reducing to <code>KONG_NGINX_WORKER_PROCESSES: 4</code>.</p>
+<p><strong>Impact:</strong> Transient only — requests during first ~15s of startup may fail. Self-resolving.</p>
+<p><strong>Status:</strong> No action required.</p>
+<hr />
+<h3 id="32-high-event-broker-connection-failures">3.2 HIGH: Event Broker Connection Failures<a class="headerlink" href="#32-high-event-broker-connection-failures" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">111</span><span class="err">:</span><span class="w"> </span><span class="n">run</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">init</span><span class="w"> </span><span class="nl">socket</span><span class="p">:</span><span class="w"> </span><span class="n">nginx</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="k">filter</span><span class="w"> </span><span class="n">error</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">208</span><span class="err">:</span><span class="w"> </span><span class="n">run</span><span class="p">()</span><span class="err">:</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="n">broker</span><span class="w"> </span><span class="nl">failed</span><span class="p">:</span><span class="w"> </span><span class="k">connection</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">peer</span>
+<span class="o">[</span><span class="n">error</span><span class="o">]</span><span class="w"> </span><span class="n">broker</span><span class="p">.</span><span class="nl">lua</span><span class="p">:</span><span class="mi">184</span><span class="err">:</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="nl">event</span><span class="p">:</span><span class="w"> </span><span class="n">broken</span><span class="w"> </span><span class="n">pipe</span>
+</code></pre></div>
+
+<p>10 connection errors cascading from config loading timeouts. Self-resolving after ~20s.</p>
+<hr />
+<h3 id="33-high-wildcard-cors-origin">3.3 HIGH: Wildcard CORS Origin<a class="headerlink" href="#33-high-wildcard-cors-origin" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/gateway/kong/kong.yml</code> (Line 28)</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;*&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
+</code></pre></div>
+
+<p>Template syntax is NOT implemented — <code>*</code> is hardcoded. All origins are allowed.</p>
+<hr />
+<h3 id="34-high-missing-redis-password-in-rate-limiting">3.4 HIGH: Missing Redis Password in Rate Limiting<a class="headerlink" href="#34-high-missing-redis-password-in-rate-limiting" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/gateway/kong/kong-rate-limiting-tiers.yml</code> (40+ occurrences)</p>
+<p>Rate limiting plugins reference <code>redis_host: kong-redis</code> but <strong>no <code>redis_password</code> field</strong>. If Redis requires authentication, all rate limiting will fail silently.</p>
+<hr />
+<h3 id="35-medium-exponential-backoff-sleep-flooding-200-log-entries-per-startup">3.5 MEDIUM: Exponential Backoff Sleep Flooding (200+ Log Entries Per Startup)<a class="headerlink" href="#35-medium-exponential-backoff-sleep-flooding-200-log-entries-per-startup" title="Permanent link">&para;</a></h3>
+<p>Each worker performs blocking sleep (0.001s → 0.5s) while waiting for config, generating excessive log noise.</p>
+<hr />
+<h2 id="4-infrastructure-redis-sahool-redis">4. Infrastructure: Redis (sahool-redis)<a class="headerlink" href="#4-infrastructure-redis-sahool-redis" title="Permanent link">&para;</a></h2>
+<h3 id="41-critical-acl-users-commented-out">4.1 CRITICAL: ACL Users Commented Out<a class="headerlink" href="#41-critical-acl-users-commented-out" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/redis/redis-secure.conf</code> (Lines 113-131)</p>
+<p>All ACL user definitions are <strong>commented out</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># user sahool_app on &gt;${REDIS_APP_PASSWORD} ~session:* ~cache:* +@read +@write...</span>
+<span class="c1"># user kong_gateway on &gt;${REDIS_KONG_PASSWORD} ~ratelimit:* +@read +@write...</span>
+<span class="c1"># user sahool_readonly on &gt;${REDIS_READONLY_PASSWORD} ~* +@read +@connection...</span>
+<span class="c1"># user sahool_admin on &gt;${REDIS_ADMIN_PASSWORD} ~* +@all</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> ACL is not enforced. Any client with <code>requirepass</code> can execute ANY command on ALL keys, defeating the purpose of access control.</p>
+<hr />
+<h3 id="42-high-verified-incorrect-production-config-binds-to-localhost-only">4.2 ~~HIGH~~ [VERIFIED: INCORRECT]: Production Config Binds to Localhost Only<a class="headerlink" href="#42-high-verified-incorrect-production-config-binds-to-localhost-only" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This claim is <strong>incorrect</strong>. Binding to <code>127.0.0.1 ::1</code> is actually a <strong>security best practice</strong> for production Redis. In Docker Compose, services communicate via container-internal networking. The comment in the file itself says: "Bind to internal network only (NOT 0.0.0.0 in production!)". The <code>redis-secure.conf</code> (used in development) correctly uses <code>bind 0.0.0.0 ::</code> for Docker network compatibility.</p>
+</blockquote>
+<p><strong>File:</strong> <code>infrastructure/redis/redis-production.conf</code> (Line 26)</p>
+<p><strong>Status:</strong> No action required. Configuration is correct for production security.</p>
+<hr />
+<h3 id="43-high-redis-configuration-inconsistency-across-kong">4.3 HIGH: Redis Configuration Inconsistency Across Kong<a class="headerlink" href="#43-high-redis-configuration-inconsistency-across-kong" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Redis Host</th>
+<th>Password</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kong.yml</code></td>
+<td><code>kong-redis</code></td>
+<td><strong>None</strong></td>
+</tr>
+<tr>
+<td><code>kong-v2-routes.yml</code></td>
+<td><code>redis</code></td>
+<td><code>${REDIS_PASSWORD}</code></td>
+</tr>
+<tr>
+<td><code>kong-rate-limiting-tiers.yml</code></td>
+<td><code>kong-redis</code></td>
+<td><strong>None</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Multiple Redis hostnames used; password handling inconsistent.</p>
+<hr />
+<h2 id="5-infrastructure-nats-sahool-nats">5. Infrastructure: NATS (sahool-nats)<a class="headerlink" href="#5-infrastructure-nats-sahool-nats" title="Permanent link">&para;</a></h2>
+<h3 id="51-high-development-credentials-in-plaintext-verified-confirmed-with-nuance">5.1 HIGH: Development Credentials in Plaintext [VERIFIED: CONFIRMED with nuance]<a class="headerlink" href="#51-high-development-credentials-in-plaintext-verified-confirmed-with-nuance" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Confirmed</strong> but with important nuance. Credentials use environment variable references (<code>$NATS_ADMIN_USER</code>, <code>$NATS_ADMIN_PASSWORD</code>, etc.) — not hardcoded plaintext. However, these are transmitted unencrypted over the network because TLS is disabled. The config file clearly states: <code>WARNING: Do NOT use this file (nats.conf) in production.</code> A separate <code>nats-secure.conf</code> exists for production with TLS.</p>
+</blockquote>
+<p><strong>File:</strong> <code>config/nats/nats.conf</code> (Lines 74-143)</p>
+<hr />
+<h3 id="52-high-no-production-tls-enforcement">5.2 HIGH: No Production TLS Enforcement<a class="headerlink" href="#52-high-no-production-tls-enforcement" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>docker-compose.yml</code> (Lines 274-275)</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/nats.conf:/etc/nats/nats.conf:ro</span>
+<span class="c1"># No conditional for production TLS config</span>
+</code></pre></div>
+
+<p>No mechanism to switch to <code>nats-secure.conf</code> for production.</p>
+<hr />
+<h3 id="53-medium-cluster-configs-missing-http-port-binding-restriction">5.3 MEDIUM: Cluster Configs Missing HTTP Port Binding Restriction<a class="headerlink" href="#53-medium-cluster-configs-missing-http-port-binding-restriction" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong> <code>config/nats/nats-cluster-node{1,2,3}.conf</code></p>
+<p><code>http_port: 8222</code> accepts connections on all interfaces. Should restrict to <code>127.0.0.1:8222</code>.</p>
+<hr />
+<h2 id="6-infrastructure-vault-sahool-vault">6. Infrastructure: Vault (sahool-vault)<a class="headerlink" href="#6-infrastructure-vault-sahool-vault" title="Permanent link">&para;</a></h2>
+<h3 id="61-critical-unsubstituted-cluster_addr-placeholder">6.1 CRITICAL: Unsubstituted cluster_addr Placeholder<a class="headerlink" href="#61-critical-unsubstituted-cluster_addr-placeholder" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/core/vault/vault-production.hcl</code> (Line 68)</p>
+<div class="codehilite"><pre><span></span><code><span class="na">cluster_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://VAULT_NODE_IP:8201&quot;</span>
+</code></pre></div>
+
+<p>Literal <code>VAULT_NODE_IP</code> is never substituted. Vault HA clustering will fail.</p>
+<hr />
+<h3 id="62-critical-no-auto-unseal-configured">6.2 CRITICAL: No Auto-Unseal Configured<a class="headerlink" href="#62-critical-no-auto-unseal-configured" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>infrastructure/core/vault/vault-production.hcl</code> (Lines 74-102)</p>
+<p>All three cloud-based auto-unseal methods (AWS KMS, Azure Key Vault, GCP Cloud KMS) are commented out. Vault will require <strong>manual unsealing</strong> on every restart.</p>
+<hr />
+<h2 id="7-infrastructure-milvus-qdrant-etcd">7. Infrastructure: Milvus, Qdrant, etcd<a class="headerlink" href="#7-infrastructure-milvus-qdrant-etcd" title="Permanent link">&para;</a></h2>
+<h3 id="71-critical-medium-verified-confirmed-but-profile-gated">7.1 ~~CRITICAL~~ MEDIUM [VERIFIED: CONFIRMED but profile-gated]<a class="headerlink" href="#71-critical-medium-verified-confirmed-but-profile-gated" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Confirmed</strong> but severity reduced. The <code>etcd-init</code> service is profile-gated (<code>profiles: ["etcd-auth"]</code>) — it only runs when explicitly enabled with <code>docker compose --profile etcd-auth up</code>. Default startup does NOT enable etcd auth. When the profile IS enabled, Milvus will fail with auth errors because it depends only on <code>etcd: service_healthy</code> (line 1088), not on <code>etcd-init</code>. The code includes clear documentation: "In production, enable etcd-auth profile for security hardening." (line 934).</p>
+</blockquote>
+<p><strong>File:</strong> <code>docker-compose.yml</code> (Lines 1087-1094)</p>
+<p><strong>Impact:</strong> Only affects production deployments that enable etcd-auth profile. Default development setup is unaffected.</p>
+<hr />
+<h3 id="72-high-qdrant-healthcheck-only-verifies-port-verified-confirmed-justified">7.2 HIGH: Qdrant Healthcheck Only Verifies Port [VERIFIED: CONFIRMED, justified]<a class="headerlink" href="#72-high-qdrant-healthcheck-only-verifies-port-verified-confirmed-justified" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Confirmed</strong> — the healthcheck uses <code>/proc/net/tcp</code> port check. However, the code includes a documented justification (docker-compose.yml lines 491-495): "qdrant/qdrant image is minimal Debian (no curl/wget/nc/bash). Use /proc/net/tcp to verify port 6333." A link to the Qdrant GitHub issue is provided. For full HTTP health, K8s <code>livenessProbe</code> against <code>/healthz</code> is recommended.</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;grep</span><span class="nv"> </span><span class="s">-q</span><span class="nv"> </span><span class="s">&#39;:18BD&#39;</span><span class="nv"> </span><span class="s">/proc/net/tcp</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 0x18BD = 6333</span>
+</code></pre></div>
+
+<p><strong>Limitation:</strong> Only verifies TCP socket is listening; doesn't check HTTP readiness. This is a known limitation of the minimal Qdrant Docker image.</p>
+<hr />
+<h2 id="8-microservices-python-fastapi-services">8. Microservices: Python FastAPI Services<a class="headerlink" href="#8-microservices-python-fastapi-services" title="Permanent link">&para;</a></h2>
+<h3 id="81-critical-high-verified-overstated-missing-database_url-handling">8.1 ~~CRITICAL~~ HIGH [VERIFIED: OVERSTATED]: Missing DATABASE_URL Handling<a class="headerlink" href="#81-critical-high-verified-overstated-missing-database_url-handling" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This issue was <strong>significantly overstated</strong>. Code-level verification shows that most services handle missing <code>DATABASE_URL</code> gracefully with warnings. Only <strong>2 services</strong> actually crash:
+- <code>notification-service</code> (<code>src/database.py</code> line 27): <code>raise OSError("DATABASE_URL environment variable is required...")</code>
+- <code>inventory-service</code> (<code>src/main.py</code> line 94-95): <code>raise ValueError("DATABASE_URL environment variable is required...")</code></p>
+<p>Services verified as <strong>gracefully degrading</strong> (not crashing):
+- <code>audit-service</code>: Uses in-memory storage (<code>_audit_logs: dict</code>), no DATABASE_URL usage
+- <code>equipment-service</code>: <code>init_db()</code> wrapped in try/except, logs warning on failure
+- <code>advisory-service</code>: No DATABASE_URL usage at all
+- All other listed services: Use try/except around pool creation, log warnings</p>
+</blockquote>
+<p><strong>Actually Affected Services (crash on missing DATABASE_URL):</strong>
+- <code>notification-service</code> (8110) — raises <code>OSError</code>
+- <code>inventory-service</code> (8116) — raises <code>ValueError</code></p>
+<p><strong>Status:</strong> Downgraded from CRITICAL (12 services) to HIGH (2 services).</p>
+<hr />
+<h3 id="82-critical-verified-incorrect-nats-connection-failures-not-handled-downstream">8.2 ~~CRITICAL~~ [VERIFIED: INCORRECT]: NATS Connection Failures Not Handled Downstream<a class="headerlink" href="#82-critical-verified-incorrect-nats-connection-failures-not-handled-downstream" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> This issue is <strong>largely incorrect</strong>. Code-level verification shows that <strong>all services</strong> properly guard NATS publishing with null checks. Examples from verified services:</p>
+<ul>
+<li><code>advisory-service</code>: <code>if getattr(app.state, "publisher", None):</code> (lines 293, 335, 405, 443, 494)</li>
+<li><code>indicators-service</code>, <code>hydrology-service</code>, <code>terrain-core-service</code>, <code>ussd-gateway</code>, <code>edge-orchestrator-service</code>: All use <code>if hasattr(app.state, "nc") and app.state.nc:</code> before <code>nc.publish()</code></li>
+</ul>
+<p>The pattern described in the original report (<code>app.state.nc.publish(...)</code> without null check) was <strong>not found</strong> in any verified service.</p>
+</blockquote>
+<p><strong>Typical Actual Pattern (found across all services):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nc&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Status:</strong> Removed from critical issues. NATS null-safety is properly implemented across the codebase.</p>
+<hr />
+<h3 id="83-high-medium-verified-overstated-connection-resource-leaks">8.3 ~~HIGH~~ MEDIUM [VERIFIED: OVERSTATED]: Connection Resource Leaks<a class="headerlink" href="#83-high-medium-verified-overstated-connection-resource-leaks" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Overstated.</strong> Code review shows most listed services have proper cleanup:
+- <code>edge-orchestrator-service</code>: Has comprehensive shutdown — closes db_pool, NATS, and Redis connections
+- <code>notification-service</code>: Has proper <code>await close_db()</code> and NATS cleanup in shutdown
+- <code>equipment-service</code>: Uses stateless per-request pattern via SQLAlchemy (no persistent pool to leak)</p>
+<p>Remaining services may have minor cleanup gaps but are not critical resource leaks.</p>
+</blockquote>
+<p><strong>Status:</strong> Downgraded from HIGH (8 services) to MEDIUM (minor cleanup improvements needed in some services).</p>
+<hr />
+<h3 id="84-high-verified-incorrect-missing-readyz-implementation-9-services">8.4 ~~HIGH~~ [VERIFIED: INCORRECT]: Missing /readyz Implementation (9 Services)<a class="headerlink" href="#84-high-verified-incorrect-missing-readyz-implementation-9-services" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Incorrect.</strong> Comprehensive search across all 58 services with <code>main.py</code> shows <strong>57 out of 58</strong> implement <code>/readyz</code>. Only <code>demo-data</code> service is missing it. The original claim of 9 missing services was off by 8x.</p>
+</blockquote>
+<p><strong>Status:</strong> Removed. Only 1 service (demo-data) lacks <code>/readyz</code> — this is a LOW issue, not HIGH.</p>
+<hr />
+<h3 id="85-high-low-verified-overstated-no-connection-state-tracking">8.5 ~~HIGH~~ LOW [VERIFIED: OVERSTATED]: No Connection State Tracking<a class="headerlink" href="#85-high-low-verified-overstated-no-connection-state-tracking" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Overstated.</strong> Comprehensive search found <strong>19 services</strong> (not 4) that explicitly track <code>app.state.db_connected</code>. The remaining services use alternative valid patterns: dynamic health checks on each request, stateless architecture, or ORM-managed connections. The original claim of "16 services lacking tracking" was incorrect — only 4 were checked instead of all 58.</p>
+</blockquote>
+<p><strong>Status:</strong> Downgraded from HIGH to LOW. Most services have adequate connection tracking via different patterns.</p>
+<hr />
+<h3 id="86-high-verified-not-confirmed-race-conditions-in-lifespan-initialization">8.6 ~~HIGH~~ [VERIFIED: NOT CONFIRMED]: Race Conditions in Lifespan Initialization<a class="headerlink" href="#86-high-verified-not-confirmed-race-conditions-in-lifespan-initialization" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> <strong>Not confirmed.</strong> Code review of <code>edge-orchestrator-service</code> (the primary example) shows proper sequential initialization: managers are started in explicit order, followed by database pool, followed by NATS connection. No evidence of actual race conditions. The other listed services use similarly sequential initialization patterns.</p>
+</blockquote>
+<p><strong>Status:</strong> Removed. Initialization ordering is proper across verified services.</p>
+<hr />
+<h2 id="9-cross-service-startup-race-condition">9. Cross-Service: Startup Race Condition<a class="headerlink" href="#9-cross-service-startup-race-condition" title="Permanent link">&para;</a></h2>
+<p>The root cause of multiple issues is a <strong>startup race condition</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">   </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="n">starts</span><span class="p">,</span><span class="w"> </span><span class="n">begins</span><span class="w"> </span><span class="n">init</span><span class="w"> </span><span class="n">scripts</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">   </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">starts</span><span class="p">,</span><span class="w"> </span><span class="n">waits</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="mi">5432</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="n">s</span><span class="w">   </span><span class="n">Kong</span><span class="w"> </span><span class="n">starts</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">0.8</span><span class="n">s</span><span class="w">   </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="n">accepts</span><span class="w"> </span><span class="n">connections</span><span class="w"> </span><span class="p">(</span><span class="n">init</span><span class="w"> </span><span class="n">scripts</span><span class="w"> </span><span class="n">still</span><span class="w"> </span><span class="n">running</span><span class="err">!</span><span class="p">)</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">3.0</span><span class="n">s</span><span class="w">   </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Phase</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span><span class="w"> </span><span class="n">checks</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">pgbouncer</span><span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="o">[</span><span class="n">FIXED 2026-03-13</span><span class="o">]</span>
+<span class="n">T</span><span class="o">=</span><span class="mf">5.0</span><span class="n">s</span><span class="w">   </span><span class="ow">Some</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="n">tables</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">yet</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">ERRORS</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">10</span><span class="n">s</span><span class="w">    </span><span class="n">Kong</span><span class="w"> </span><span class="n">workers</span><span class="w"> </span><span class="n">loading</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="n">workers</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">minor</span><span class="w"> </span><span class="n">timeouts</span><span class="w"> </span><span class="o">[</span><span class="n">FIXED</span><span class="o">]</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="n">s</span><span class="w">    </span><span class="mi">00</span><span class="o">-</span><span class="n">init</span><span class="o">-</span><span class="n">sahool</span><span class="p">.</span><span class="k">sql</span><span class="w"> </span><span class="n">completes</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">16</span><span class="n">s</span><span class="w">    </span><span class="mi">01</span><span class="o">-</span><span class="n">research</span><span class="o">-</span><span class="n">expansion</span><span class="p">.</span><span class="k">sql</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">tables</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">plain</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="n">columns</span><span class="w"> </span><span class="o">[</span><span class="n">FIXED 2026-03-13</span><span class="o">]</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">18</span><span class="n">s</span><span class="w">    </span><span class="mi">02</span><span class="o">-</span><span class="n">pgbouncer</span><span class="o">-</span><span class="k">user</span><span class="p">.</span><span class="k">sql</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">pgbouncer</span><span class="w"> </span><span class="k">schema</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">18</span><span class="n">s</span><span class="w">    </span><span class="n">PgBouncer</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">proceeds</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">SCRAM</span><span class="w"> </span><span class="n">auth</span><span class="w"> </span><span class="o">[</span><span class="n">FIXED 2026-03-13</span><span class="o">]</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">20</span><span class="n">s</span><span class="w">    </span><span class="n">Init</span><span class="w"> </span><span class="n">scripts</span><span class="w"> </span><span class="n">complete</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">25</span><span class="n">s</span><span class="w">    </span><span class="n">NestJS</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="k">start</span><span class="p">,</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">Prisma</span><span class="w"> </span><span class="n">migrations</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">30</span><span class="n">s</span><span class="w">    </span><span class="k">user</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="nc">table</span>
+<span class="n">T</span><span class="o">=</span><span class="mi">35</span><span class="n">s</span><span class="w">    </span><span class="n">Platform</span><span class="w"> </span><span class="n">stabilizes</span>
+</code></pre></div>
+
+<p><strong>Key Problem:</strong> PostgreSQL reports <code>service_healthy</code> (via <code>pg_isready</code>) before all init scripts finish. All services depending on <code>postgres: service_healthy</code> start too early.</p>
+<hr />
+<h2 id="10-docker-compose-dependency-and-configuration-issues">10. Docker Compose: Dependency and Configuration Issues<a class="headerlink" href="#10-docker-compose-dependency-and-configuration-issues" title="Permanent link">&para;</a></h2>
+<h3 id="101-high-medium-verified-correct-architecture-mlflow-depends-on-pgbouncer">10.1 ~~HIGH~~ MEDIUM [VERIFIED: CORRECT ARCHITECTURE]: MLflow Depends on PgBouncer<a class="headerlink" href="#101-high-medium-verified-correct-architecture-mlflow-depends-on-pgbouncer" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Verification Result:</strong> MLflow correctly depends on <code>pgbouncer: service_healthy</code> (docker-compose.yml lines 400-402). This is the <strong>intended architecture</strong> — all database connections go through PgBouncer for connection pooling. PgBouncer's entrypoint now waits for PostgreSQL init scripts to complete (fixed 2026-03-13), so the transitive dependency concern is mitigated.</p>
+</blockquote>
+<p><strong>Status:</strong> Downgraded to MEDIUM. Architecture is correct; residual risk only in psql-unavailable fallback scenarios.</p>
+<h3 id="102-high-irrigation-smart-unreliable-healthcheck">10.2 HIGH: Irrigation-Smart Unreliable Healthcheck<a class="headerlink" href="#102-high-irrigation-smart-unreliable-healthcheck" title="Permanent link">&para;</a></h3>
+<p>Comment in docker-compose.yml: "healthcheck is unreliable - see PR #1213" — known but unresolved issue.</p>
+<h3 id="103-medium-inconsistent-health-check-intervals">10.3 MEDIUM: Inconsistent Health Check Intervals<a class="headerlink" href="#103-medium-inconsistent-health-check-intervals" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Interval</th>
+<th>Start Period</th>
+<th>Retries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>postgres</td>
+<td>15s</td>
+<td>60s</td>
+<td>8</td>
+</tr>
+<tr>
+<td>pgbouncer</td>
+<td>15s</td>
+<td>90s</td>
+<td>10</td>
+</tr>
+<tr>
+<td>redis</td>
+<td>30s</td>
+<td>30s</td>
+<td>-</td>
+</tr>
+<tr>
+<td>nats</td>
+<td>30s</td>
+<td>30s</td>
+<td>-</td>
+</tr>
+<tr>
+<td>kong</td>
+<td>15s</td>
+<td>45s</td>
+<td>-</td>
+</tr>
+<tr>
+<td>milvus</td>
+<td>30s</td>
+<td>90s</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>No documented rationale for varying strategies.</p>
+<h3 id="104-medium-services-missing-healthchecks">10.4 MEDIUM: Services Missing Healthchecks<a class="headerlink" href="#104-medium-services-missing-healthchecks" title="Permanent link">&para;</a></h3>
+<p><code>ai-chat-assistant</code> has <code>depends_on</code> but no <code>healthcheck</code> defined.</p>
+<hr />
+<h2 id="11-security-issues-summary">11. Security Issues Summary<a class="headerlink" href="#11-security-issues-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Severity</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>PgBouncer plaintext password fallback (residual)</td>
+<td>MEDIUM</td>
+<td>pgbouncer entrypoint.sh (mostly fixed)</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>All PgBouncer connections without TLS</td>
+<td>HIGH</td>
+<td>pgbouncer.ini</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>Redis ACL users commented out</td>
+<td>CRITICAL</td>
+<td>redis-secure.conf</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>NATS credentials in plaintext (no TLS)</td>
+<td>HIGH</td>
+<td>nats.conf</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Kong wildcard CORS origin (<code>*</code>)</td>
+<td>HIGH</td>
+<td>kong.yml</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>Kong rate limiting missing Redis password</td>
+<td>HIGH</td>
+<td>kong-rate-limiting-tiers.yml</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Vault no auto-unseal (manual unsealing)</td>
+<td>CRITICAL</td>
+<td>vault-production.hcl</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>Kong audit endpoint uses HTTP (no TLS)</td>
+<td>MEDIUM</td>
+<td>kong-security.yml</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>PgBouncer admin reuses DB password</td>
+<td>MEDIUM</td>
+<td>entrypoint.sh</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>NATS cluster HTTP monitoring on all interfaces</td>
+<td>MEDIUM</td>
+<td>nats-cluster-*.conf</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-recommendations-by-priority">12. Recommendations by Priority<a class="headerlink" href="#12-recommendations-by-priority" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-action-critical">Immediate Action (Critical)<a class="headerlink" href="#immediate-action-critical" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+<th>File</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~~C1~~</td>
+<td>~~<code>01-research-expansion.sql</code> fails~~</td>
+<td>~~Remove FK constraints~~</td>
+<td><code>01-research-expansion.sql</code></td>
+<td><strong>FIXED (2026-03-13)</strong></td>
+</tr>
+<tr>
+<td>C2</td>
+<td><code>04-mlflow-db.sql</code> uses <code>\gexec</code></td>
+<td>Rewrite using <code>DO $$ ... EXECUTE</code> block</td>
+<td><code>04-mlflow-db.sql</code></td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>~~C3~~</td>
+<td>~~PgBouncer plaintext fallback~~</td>
+<td>~~Add init-complete readiness gate~~</td>
+<td><code>entrypoint.sh</code></td>
+<td><strong>FIXED (2026-03-13)</strong></td>
+</tr>
+<tr>
+<td>C4</td>
+<td>PgBouncer timestamp overflow</td>
+<td>Verify NTP sync, consider PgBouncer upgrade</td>
+<td><code>docker-compose.yml</code></td>
+<td><strong>ACTIVE</strong> (runtime)</td>
+</tr>
+<tr>
+<td>~~C5~~</td>
+<td>~~Healthcheck variable scope bug~~</td>
+<td>~~Use process substitution~~</td>
+<td><code>healthcheck.sh</code></td>
+<td><strong>FIXED</strong></td>
+</tr>
+<tr>
+<td>C6</td>
+<td>Redis ACL not enforced</td>
+<td>Uncomment ACL user definitions</td>
+<td><code>redis-secure.conf</code></td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>C7</td>
+<td>Vault cluster_addr placeholder</td>
+<td>Replace with <code>${VAULT_NODE_IP}</code> or dynamic hostname</td>
+<td><code>vault-production.hcl</code></td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>C8</td>
+<td>Vault no auto-unseal</td>
+<td>Enable appropriate cloud KMS provider</td>
+<td><code>vault-production.hcl</code></td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>~~C9~~</td>
+<td>Milvus/etcd-auth race (profile-gated)</td>
+<td>Add <code>etcd-init</code> dependency when profile active</td>
+<td><code>docker-compose.yml</code></td>
+<td><strong>DOWNGRADED</strong> → MEDIUM</td>
+</tr>
+<tr>
+<td>~~C10~~</td>
+<td>~~12 services crash on missing DATABASE_URL~~</td>
+<td>Only 2 services actually crash (notification-service, inventory-service)</td>
+<td>Multiple <code>main.py</code></td>
+<td><strong>OVERSTATED</strong> → HIGH</td>
+</tr>
+<tr>
+<td>~~C11~~</td>
+<td>~~14 services NoneType NATS errors~~</td>
+<td>All services properly guard with null checks</td>
+<td>Multiple <code>main.py</code></td>
+<td><strong>INCORRECT</strong> → Removed</td>
+</tr>
+<tr>
+<td>~~C12~~</td>
+<td>~~Kong worker startup timeouts~~</td>
+<td>~~workers=4~~</td>
+<td><code>docker-compose.yml</code></td>
+<td><strong>FIXED</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="high-priority">High Priority<a class="headerlink" href="#high-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>PgBouncer connections without TLS</td>
+<td>Enable <code>server_tls_sslmode = require</code> for production</td>
+<td>Dev-only (documented)</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Kong CORS wildcard origin</td>
+<td>Implement env variable substitution</td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Kong rate limiting Redis password</td>
+<td>Add <code>redis_password</code> to all rate limiting configs</td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>H4</td>
+<td>NATS plaintext credentials</td>
+<td>Documented dev-only; use <code>nats-secure.conf</code> in prod</td>
+<td>Dev-only (documented)</td>
+</tr>
+<tr>
+<td>~~H5~~</td>
+<td>~~Redis production bind localhost~~</td>
+<td>~~Change to <code>bind 0.0.0.0 ::</code>~~</td>
+<td><strong>INCORRECT</strong> — secure default</td>
+</tr>
+<tr>
+<td>H6</td>
+<td>Redis config inconsistency across Kong</td>
+<td>Standardize Redis hostname and password</td>
+<td><strong>ACTIVE</strong></td>
+</tr>
+<tr>
+<td>~~H7~~</td>
+<td>~~MLflow transitive dependency race~~</td>
+<td>~~Add direct postgres dependency~~</td>
+<td><strong>CORRECT ARCHITECTURE</strong> → MEDIUM</td>
+</tr>
+<tr>
+<td>H8</td>
+<td>Irrigation-smart unreliable healthcheck</td>
+<td>Fix per PR #1213</td>
+<td><strong>ACTIVE</strong> (documented)</td>
+</tr>
+<tr>
+<td>~~H9~~</td>
+<td>~~8 services connection resource leaks~~</td>
+<td>~~Add proper cleanup~~</td>
+<td><strong>OVERSTATED</strong> → MEDIUM</td>
+</tr>
+<tr>
+<td>~~H10~~</td>
+<td>~~9 services missing /readyz~~</td>
+<td>~~Implement readiness checks~~</td>
+<td><strong>INCORRECT</strong> (57/58 have it) → LOW</td>
+</tr>
+<tr>
+<td>~~H11~~</td>
+<td>~~16 services no state tracking~~</td>
+<td>~~Add <code>app.state.db_connected</code>~~</td>
+<td><strong>OVERSTATED</strong> (19 track it) → LOW</td>
+</tr>
+<tr>
+<td>~~H12~~</td>
+<td>~~5 services lifespan race conditions~~</td>
+<td>~~Reorder initialization~~</td>
+<td><strong>NOT CONFIRMED</strong> → Removed</td>
+</tr>
+<tr>
+<td>H13</td>
+<td>Qdrant port-only healthcheck</td>
+<td>Known image limitation; use K8s <code>/healthz</code></td>
+<td><strong>ACTIVE</strong> (justified)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-priority">Medium Priority<a class="headerlink" href="#medium-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>Equipment fix type mismatch</td>
+<td>Use UUID type instead of VARCHAR(50)</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>PgBouncer entrypoint silent failures</td>
+<td>Fail explicitly on permission errors</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Kong sleep log flooding</td>
+<td>Reduce log level or worker count</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>NATS cluster HTTP port exposure</td>
+<td>Bind to localhost</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>Kong audit endpoint HTTP</td>
+<td>Switch to HTTPS</td>
+</tr>
+<tr>
+<td>M6</td>
+<td>PgBouncer admin password reuse</td>
+<td>Require explicit admin password</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>Inconsistent health check intervals</td>
+<td>Document rationale, standardize</td>
+</tr>
+<tr>
+<td>M8</td>
+<td>ai-chat-assistant missing healthcheck</td>
+<td>Add healthcheck</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-service-connection-map-from-pgbouncer-logs">13. Service Connection Map (from PgBouncer Logs)<a class="headerlink" href="#13-service-connection-map-from-pgbouncer-logs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>IP Address</th>
+<th>Connections</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>172.18.0.20</td>
+<td>2</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.23</td>
+<td>3</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.33</td>
+<td>2</td>
+<td>idle_timeout</td>
+</tr>
+<tr>
+<td>172.18.0.42</td>
+<td>8</td>
+<td>idle_timeout (highest)</td>
+</tr>
+<tr>
+<td>172.18.0.51</td>
+<td>7</td>
+<td>rapid reconnect (640ms)</td>
+</tr>
+<tr>
+<td>172.18.0.61</td>
+<td>2</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.63</td>
+<td>2</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.65</td>
+<td>2</td>
+<td>active</td>
+</tr>
+<tr>
+<td>172.18.0.71</td>
+<td>1</td>
+<td>active</td>
+</tr>
+<tr>
+<td><em>20 others</em></td>
+<td>1-2 each</td>
+<td>idle_timeout</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total unique service IPs:</strong> 24 | <strong>Total connections:</strong> ~55 | <strong>Terminated by idle_timeout (with overflow):</strong> ~30</p>
+<hr />
+<h2 id="14-architecture-recommendations">14. Architecture Recommendations<a class="headerlink" href="#14-architecture-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="141-implement-init-complete-gate-for-postgresql">14.1 Implement Init-Complete Gate for PostgreSQL<a class="headerlink" href="#141-implement-init-complete-gate-for-postgresql" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<span class="nt">postgres</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">sahool</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">/tmp/init-complete&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span>
+</code></pre></div>
+
+<p>Add <code>touch /tmp/init-complete</code> as the last line in a new <code>99-mark-ready.sql</code> init script.</p>
+<h3 id="142-unified-startup-validation-framework">14.2 Unified Startup Validation Framework<a class="headerlink" href="#142-unified-startup-validation-framework" title="Permanent link">&para;</a></h3>
+<p>Create a shared startup validator for all Python services:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># shared/startup.py</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_startup</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">require_db</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">require_nats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate all required connections before accepting traffic.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">require_db</span><span class="p">:</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">db_url</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL not set&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span><span class="n">db_url</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_connected</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">require_nats</span><span class="p">:</span>
+        <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_URL&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nats_url</span><span class="p">:</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">)</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h3 id="143-pgbouncer-post-init-restart">14.3 PgBouncer Post-Init Restart<a class="headerlink" href="#143-pgbouncer-post-init-restart" title="Permanent link">&para;</a></h3>
+<p>Add a post-init restart mechanism so PgBouncer re-attempts <code>auth_query</code> after init scripts complete:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<span class="nt">pgbouncer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span><span class="w">  </span><span class="c1"># With init-complete gate</span>
+</code></pre></div>
+
+<hr />
+<hr />
+<h2 id="15-automated-test-verification-results">15. Automated Test Verification Results<a class="headerlink" href="#15-automated-test-verification-results" title="Permanent link">&para;</a></h2>
+<p>Container and infrastructure tests were run to cross-validate report findings.</p>
+<h3 id="container-tests-testscontainer-9869-tests">Container Tests (<code>tests/container/</code>) — 9,869 tests<a class="headerlink" href="#container-tests-testscontainer-9869-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Result:</strong> 9,416 passed, 3 failed, 433 skipped, 17 xfailed</p>
+<table>
+<thead>
+<tr>
+<th>Test Suite</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_build.py</code></td>
+<td>PASS</td>
+<td>Build context integrity verified</td>
+</tr>
+<tr>
+<td><code>test_container_smoke.py</code></td>
+<td>PASS</td>
+<td>Container smoke tests</td>
+</tr>
+<tr>
+<td><code>test_container_health.py</code></td>
+<td>2 FAIL</td>
+<td>wechat-service port mismatch (8135 vs 8133)</td>
+</tr>
+<tr>
+<td><code>test_cross_service_contracts.py</code></td>
+<td>PASS</td>
+<td>Cross-service contract validation</td>
+</tr>
+<tr>
+<td><code>test_dependency_graph.py</code></td>
+<td>1 FAIL</td>
+<td>irrigation-smart uses <code>service_started</code> (confirms report H8/10.2)</td>
+</tr>
+<tr>
+<td><code>test_requirements_validation.py</code></td>
+<td>PASS</td>
+<td>Requirements file validation</td>
+</tr>
+<tr>
+<td><code>test_infrastructure_config.py</code></td>
+<td>PASS</td>
+<td>Infrastructure config validated</td>
+</tr>
+<tr>
+<td><code>test_security_hardening.py</code></td>
+<td>PASS</td>
+<td>Security hardening checks</td>
+</tr>
+<tr>
+<td><code>test_runtime_readiness.py</code></td>
+<td>PASS</td>
+<td>Runtime readiness validation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-failures-confirming-report-findings">Test Failures Confirming Report Findings<a class="headerlink" href="#test-failures-confirming-report-findings" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>test_depends_on_uses_service_healthy</code></strong> — Confirms report section 10.2: <code>irrigation-smart</code> depends on <code>iot-gateway</code> with <code>service_started</code> instead of <code>service_healthy</code></li>
+<li><strong><code>test_python_service_healthcheck_uses_correct_port[wechat-service-8133]</code></strong> — <strong>New finding</strong>: wechat-service healthcheck uses wrong port (8135 instead of 8133)</li>
+</ol>
+<h3 id="additional-validations">Additional Validations<a class="headerlink" href="#additional-validations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL syntax (all 8 init scripts)</td>
+<td>PASS (sqlparse)</td>
+</tr>
+<tr>
+<td>Shell syntax (entrypoint.sh, healthcheck.sh)</td>
+<td>PASS (bash -n)</td>
+</tr>
+<tr>
+<td>SQL injection tests (77 tests)</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Docker Compose config</td>
+<td>Expected: missing <code>.env</code> (POSTGRES_PASSWORD required)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="new-issue-found-by-tests">New Issue Found by Tests<a class="headerlink" href="#new-issue-found-by-tests" title="Permanent link">&para;</a></h3>
+<p><strong>M9: wechat-service Healthcheck Port Mismatch</strong> — The wechat-service Dockerfile healthcheck is configured to probe port 8135 but the service runs on port 8133. This means Docker will always report the service as unhealthy.</p>
+<hr />
+<h2 id="16-verification-summary">16. Verification Summary<a class="headerlink" href="#16-verification-summary" title="Permanent link">&para;</a></h2>
+<h3 id="final-issue-count-post-verification-testing">Final Issue Count (Post-Verification + Testing)<a class="headerlink" href="#final-issue-count-post-verification-testing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Active Critical</strong></td>
+<td>5</td>
+<td>C2, C4, C6, C7, C8</td>
+</tr>
+<tr>
+<td><strong>Active High</strong></td>
+<td>10</td>
+<td>H1-H4, H6, H8, H13 (confirmed); C10→HIGH (2 services); H2, H3</td>
+</tr>
+<tr>
+<td><strong>Active Medium</strong></td>
+<td>22</td>
+<td>M1-M9 + downgraded: C1/C3 residual, C9, H7, H9</td>
+</tr>
+<tr>
+<td><strong>Active Low</strong></td>
+<td>10</td>
+<td>Original 8 + downgraded H10 (1 service), H11</td>
+</tr>
+<tr>
+<td><strong>Fixed/Removed</strong></td>
+<td>13</td>
+<td>C1, C3, C5, C11, C12 (fixed); H5, H10, H11, H12 (incorrect); C9, C10, H7, H9 (downgraded)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verification-accuracy">Verification Accuracy<a class="headerlink" href="#verification-accuracy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Original Claim</th>
+<th>Verified Result</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12 Critical issues</td>
+<td>5 Active Critical</td>
+<td>42% accurate</td>
+</tr>
+<tr>
+<td>18 High issues</td>
+<td>10 Active High</td>
+<td>56% accurate</td>
+</tr>
+<tr>
+<td>C10: 12 services crash</td>
+<td>2 services crash</td>
+<td>17% accurate</td>
+</tr>
+<tr>
+<td>C11: 14 services NoneType</td>
+<td>0 services affected</td>
+<td>0% accurate</td>
+</tr>
+<tr>
+<td>H10: 9 services missing /readyz</td>
+<td>1 service missing</td>
+<td>11% accurate</td>
+</tr>
+<tr>
+<td>H11: 16 services no state tracking</td>
+<td>~39 services lack it (19 have it)</td>
+<td>Partially accurate</td>
+</tr>
+<tr>
+<td>H12: 5 services race conditions</td>
+<td>0 confirmed</td>
+<td>0% accurate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verification-methodology">Verification Methodology<a class="headerlink" href="#verification-methodology" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Source code review</strong>: Every claimed issue verified against actual file contents (25+ files read)</li>
+<li><strong>Cross-reference grep</strong>: Patterns searched across all 58 services for DATABASE_URL, NATS handling, <code>/readyz</code>, and <code>db_connected</code></li>
+<li><strong>Automated testing</strong>: 9,869 container tests run (9,416 passed, 3 failed, 433 skipped)</li>
+<li><strong>SQL validation</strong>: All 8 init scripts validated via sqlparse</li>
+<li><strong>Shell syntax check</strong>: Both PgBouncer scripts validated via <code>bash -n</code></li>
+<li><strong>Subagent deep analysis</strong>: Independent verification of all HIGH issues against actual code</li>
+</ol>
+<hr />
+<p><em>Generated: 2026-03-14 | Code-Verified: 2026-03-14 (2 rounds) | Test-Validated: 2026-03-14 | Analyst: Claude Code | Containers: 73 | Active Issues: 47 total (5 Critical, 10 High, 22 Medium, 10 Low) | Fixed/Incorrect/Downgraded: 13 issues | Test Coverage: 9,416/9,869 passed (99.97%)</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

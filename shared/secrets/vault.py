@@ -122,6 +122,7 @@ class VaultClient:
         self._cache: dict[str, tuple[Any, datetime]] = {}
         self._token_expiry: datetime | None = None
         self._renewal_task: asyncio.Task | None = None
+        self._renewal_lock: asyncio.Lock = asyncio.Lock()
 
     async def connect(self) -> bool:
         """
@@ -199,14 +200,15 @@ class VaultClient:
                 try:
                     await asyncio.sleep(60)  # Check every minute
 
-                    if self._token_expiry is None:
-                        continue
+                    async with self._renewal_lock:
+                        if self._token_expiry is None:
+                            continue
 
-                    # Check if renewal is needed
-                    time_until_expiry = (self._token_expiry - datetime.now(UTC)).total_seconds()
+                        # Check if renewal is needed
+                        time_until_expiry = (self._token_expiry - datetime.now(UTC)).total_seconds()
 
-                    if time_until_expiry < self.config.renewal_threshold_seconds:
-                        await self._renew_token()
+                        if time_until_expiry < self.config.renewal_threshold_seconds:
+                            await self._renew_token()
 
                 except asyncio.CancelledError:
                     break
@@ -301,14 +303,23 @@ class VaultClient:
             # Get specific key
             password = await client.get_secret("database/credentials", "password")
             # "secret123"
-        """
-        if not self.is_connected():
-            raise ConnectionError("Not connected to Vault")
 
+        Graceful Degradation:
+            If Vault is unreachable, falls back to previously cached values.
+            Only raises ConnectionError if no cached value is available.
+        """
         full_path = self._get_full_path(path)
         cache_key = f"{full_path}:{key}" if key else full_path
 
-        # Check cache
+        if not self.is_connected():
+            # Graceful degradation: try cache fallback when Vault is unreachable
+            cached = self._get_from_cache(cache_key)
+            if cached is not None:
+                logger.warning(f"Vault unreachable, using cached secret for {path}")
+                return cached
+            raise ConnectionError("Not connected to Vault and no cached value available")
+
+        # Check cache (respects TTL)
         cached = self._get_from_cache(cache_key)
         if cached is not None:
             return cached
@@ -335,6 +346,11 @@ class VaultClient:
             return value
 
         except Exception as e:
+            # On fetch failure, attempt cache fallback (even if TTL expired)
+            if cache_key in self._cache:
+                logger.warning(f"Vault fetch failed for '{path}', using stale cached value: {e}")
+                value, _cached_at = self._cache[cache_key]
+                return value
             logger.error(f"Failed to get secret '{path}': {e}")
             raise
 

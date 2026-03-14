@@ -113,9 +113,12 @@ services:
       jaeger:
         condition: service_healthy
     healthcheck:
-      # OTel Collector contrib image is scratch-based with no shell
-      # Disable custom healthcheck; container startup indicates readiness
-      disable: true
+      # OTel Collector exposes health_check extension on port 13133
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:13133/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     deploy:
       resources:
         limits:

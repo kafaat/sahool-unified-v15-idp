@@ -271,7 +271,10 @@ class RedisSentinelClient:
         try:
             yield conn
         finally:
-            pass  # Connection pooling handles cleanup
+            # No explicit cleanup needed: redis-py uses connection pooling internally.
+            # Connections are returned to the pool automatically when the command completes.
+            # The pool manages connection lifecycle, reuse, and health checks.
+            pass
 
     def _execute_with_retry(self, func, *args, max_retries: int = 3, retry_delay: float = 0.5, **kwargs) -> Any:
         """
@@ -530,7 +533,7 @@ class RedisSentinelClient:
         try:
             yield pipe
         finally:
-            pass
+            pipe.reset()
 
     # ─────────────────────────────────────────────────────────────────────────
     # Health & Monitoring

@@ -287,6 +287,10 @@ resource "aws_db_instance" "primary" {
   performance_insights_retention_period = var.performance_insights_enabled ? var.performance_insights_retention_days : null
   enabled_cloudwatch_logs_exports = var.cloudwatch_log_exports
 
+  # مصادقة IAM لقاعدة البيانات
+  # IAM Database Authentication
+  iam_database_authentication_enabled = var.enable_iam_auth
+
   # الحماية
   # Protection
   deletion_protection = var.deletion_protection

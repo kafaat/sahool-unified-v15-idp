@@ -235,6 +235,34 @@ class DistributedTracer:
         except Exception as e:
             logger.warning(f"Failed to instrument AsyncPG: {e}")
 
+        # Instrument NATS (for message-based distributed tracing)
+        # Note: nats-py doesn't have native OTel instrumentation
+        # Context must be propagated manually via message headers
+        logger.info(
+            "NATS instrumentation: use TracingConfig.inject_context()/extract_context() "
+            "for manual context propagation in NATS messages"
+        )
+
+    @staticmethod
+    def inject_context(headers: dict | None = None) -> dict:
+        """Inject trace context into NATS message headers."""
+        headers = headers or {}
+        if OTEL_AVAILABLE:
+            from opentelemetry import context
+            from opentelemetry.propagate import inject
+
+            inject(headers)
+        return headers
+
+    @staticmethod
+    def extract_context(headers: dict | None = None):
+        """Extract trace context from NATS message headers."""
+        if OTEL_AVAILABLE and headers:
+            from opentelemetry.propagate import extract
+
+            return extract(headers)
+        return None
+
     @contextmanager
     def span(
         self,

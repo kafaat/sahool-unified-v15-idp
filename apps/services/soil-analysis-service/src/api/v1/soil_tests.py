@@ -5,8 +5,7 @@ Integrates with shared.soil_testing module for business logic.
 
 import json
 import uuid
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -143,7 +142,7 @@ async def create_soil_test(
             tenant_id=tenant_id,
             field_id=request.field_id,
             sample_id=sample_id,
-            sample_date=request.sample_date or datetime.utcnow(),
+            sample_date=request.sample_date or datetime.now(UTC),
             macronutrients=MacronutrientResults(
                 nitrogen_nitrate_ppm=request.macronutrients.nitrogen_nitrate_ppm,
                 phosphorus_ppm=request.macronutrients.phosphorus_ppm,
@@ -161,11 +160,11 @@ async def create_soil_test(
             "sample_id": sample_id,
             "field_id": request.field_id,
             "tenant_id": tenant_id,
-            "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
+            "sample_date": (request.sample_date or datetime.now(UTC)).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
             "notes": request.notes,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "_soil_test_obj": soil_test,
         }
 
@@ -187,11 +186,11 @@ async def create_soil_test(
             "sample_id": sample_id,
             "field_id": request.field_id,
             "tenant_id": tenant_id,
-            "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
+            "sample_date": (request.sample_date or datetime.now(UTC)).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
             "notes": request.notes,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         return _soil_tests[test_id]
 

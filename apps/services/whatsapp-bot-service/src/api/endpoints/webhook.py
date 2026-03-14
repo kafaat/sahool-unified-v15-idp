@@ -78,7 +78,7 @@ async def verify_webhook(
 
     logger.warning(
         "webhook_verification_failed",
-        expected_token=settings.whatsapp_verify_token[:8] + "...",
+        expected_token=(settings.whatsapp_verify_token[:8] + "...") if settings.whatsapp_verify_token else None,
         received_token=hub_verify_token[:8] + "..." if hub_verify_token else None,
     )
     raise HTTPException(

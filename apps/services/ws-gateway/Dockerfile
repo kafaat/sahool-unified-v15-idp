@@ -43,6 +43,18 @@ RUN mkdir -p /root/.pip && \
 COPY constraints.txt .
 COPY apps/services/ws-gateway/requirements.txt .
 
+# Install dependencies with resilient multi-mirror fallback strategy
+# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    -c constraints.txt -r requirements.txt
+
 # Copy shared libraries
 COPY shared/ ./shared/
 
@@ -55,19 +67,8 @@ RUN cp -r ./apps/services/shared/errors_py ./shared/errors_py || true
 # Copy source
 COPY apps/services/ws-gateway/src/ ./src/
 
-# Install dependencies and set ownership
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt && \
-    chown -R sahool:sahool /app
+# Set ownership
+RUN chown -R sahool:sahool /app
 
 USER sahool
 

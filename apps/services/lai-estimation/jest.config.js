@@ -8,4 +8,7 @@ module.exports = {
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
   coverageDirectory: "coverage",
   verbose: true,
+  moduleNameMapper: {
+    "^@sahool/nestjs-auth$": "<rootDir>/../../../packages/nestjs-auth/src/index.ts",
+  },
 };

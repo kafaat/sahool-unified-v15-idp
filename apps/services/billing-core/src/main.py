@@ -68,7 +68,14 @@ from .repository import BillingRepository
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
-logging.basicConfig(level=logging.INFO)
+# FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True,
+)
+# Suppress duplicate uvicorn access/error logs
+logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
 
 

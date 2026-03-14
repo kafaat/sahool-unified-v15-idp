@@ -92,10 +92,14 @@ class TestGetSigningKey:
 
     def test_get_signing_key_with_valid_secret(self):
         """Test getting signing key with valid secret"""
-        # The test environment should have JWT_SECRET_KEY set
-        key = JWTConfig.get_signing_key()
-        assert isinstance(key, str)
-        assert len(key) >= MIN_SECRET_KEY_LENGTH
+        original = JWTConfig.JWT_SECRET
+        try:
+            JWTConfig.JWT_SECRET = "test-secret-key-for-unit-tests-only-32chars"
+            key = JWTConfig.get_signing_key()
+            assert isinstance(key, str)
+            assert len(key) >= MIN_SECRET_KEY_LENGTH
+        finally:
+            JWTConfig.JWT_SECRET = original
 
     def test_get_signing_key_too_short(self):
         """Test that short secret raises error"""
@@ -124,15 +128,25 @@ class TestGetVerificationKey:
 
     def test_get_verification_key_with_valid_secret(self):
         """Test getting verification key"""
-        key = JWTConfig.get_verification_key()
-        assert isinstance(key, str)
-        assert len(key) >= MIN_SECRET_KEY_LENGTH
+        original = JWTConfig.JWT_SECRET
+        try:
+            JWTConfig.JWT_SECRET = "test-secret-key-for-unit-tests-only-32chars"
+            key = JWTConfig.get_verification_key()
+            assert isinstance(key, str)
+            assert len(key) >= MIN_SECRET_KEY_LENGTH
+        finally:
+            JWTConfig.JWT_SECRET = original
 
     def test_signing_and_verification_keys_match(self):
         """Test that signing and verification keys are the same for HS256"""
-        signing = JWTConfig.get_signing_key()
-        verification = JWTConfig.get_verification_key()
-        assert signing == verification
+        original = JWTConfig.JWT_SECRET
+        try:
+            JWTConfig.JWT_SECRET = "test-secret-key-for-unit-tests-only-32chars"
+            signing = JWTConfig.get_signing_key()
+            verification = JWTConfig.get_verification_key()
+            assert signing == verification
+        finally:
+            JWTConfig.JWT_SECRET = original
 
 
 @pytest.mark.unit

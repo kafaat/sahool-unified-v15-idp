@@ -2,56 +2,30 @@
  * Route Guard Tests
  * اختبارات حماية المسارات
  *
- * Tests the checkAccess function logic from route-guard.tsx
+ * Tests the checkAccess function from route-guard.tsx
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
-// Re-implement checkAccess for unit testing (it's not exported)
+// Mock next/navigation and next/headers since route-guard.tsx imports them at module level
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
+}));
 
-type Permission = string;
-type Role = string;
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
 
-interface User {
-  id: string;
-  roles: Role[];
-  permissions: Permission[];
-  tenantId: string;
-}
+vi.mock("@/lib/logger", () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
-interface RouteGuardOptions {
-  permission?: Permission | Permission[];
-  role?: Role | Role[];
-  requireAll?: boolean;
-  redirectTo?: string;
-}
-
-function checkAccess(user: User | null, options: RouteGuardOptions): boolean {
-  if (!user) return false;
-
-  const { permission, role, requireAll = false } = options;
-
-  // Check permissions
-  if (permission) {
-    const permissions = Array.isArray(permission) ? permission : [permission];
-    const hasPermissionAccess = requireAll
-      ? permissions.every((p) => user.permissions.includes(p))
-      : permissions.some((p) => user.permissions.includes(p));
-
-    if (!hasPermissionAccess) return false;
-  }
-
-  // Check roles
-  if (role) {
-    const roles = Array.isArray(role) ? role : [role];
-    const hasRoleAccess = requireAll
-      ? roles.every((r) => user.roles.includes(r))
-      : roles.some((r) => user.roles.includes(r));
-
-    if (!hasRoleAccess) return false;
-  }
-
-  return true;
-}
+import { checkAccess } from "../route-guard";
+import type { User, RouteGuardOptions } from "../route-guard";
 
 const makeUser = (overrides: Partial<User> = {}): User => ({
   id: "user-1",

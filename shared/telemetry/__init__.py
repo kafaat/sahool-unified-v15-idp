@@ -36,6 +36,8 @@ Date: 2025-12-26
    See: docs/adr/ for related Architecture Decision Records.
 """
 
+_TELEMETRY_AVAILABLE = False
+
 try:
     from .logging import (
         get_logger,
@@ -57,10 +59,32 @@ try:
         instrument_all,
         trace_method,
     )
-except ImportError:
-    # opentelemetry packages not installed — degrade gracefully.
-    # Services that need telemetry should use shared.observability instead.
-    pass
+
+    _TELEMETRY_AVAILABLE = True
+except ModuleNotFoundError:
+    # opentelemetry packages not installed — provide explicit stubs that
+    # raise a clear error when called, rather than failing silently.
+
+    def _not_available(*args, **kwargs):  # noqa: ANN002, ANN003, ANN201
+        raise ModuleNotFoundError(
+            "opentelemetry packages are not installed. "
+            "Install them or use shared.observability (which degrades gracefully)."
+        )
+
+    get_logger = _not_available
+    log_exception = _not_available
+    setup_logging = _not_available
+    SahoolMetrics = _not_available  # type: ignore[assignment,misc]
+    get_meter = _not_available
+    init_metrics = _not_available
+    track_business_metric = _not_available
+    track_request = _not_available
+    get_current_span_id = _not_available
+    get_current_trace_id = _not_available
+    get_tracer = _not_available
+    init_tracer = _not_available
+    instrument_all = _not_available
+    trace_method = _not_available
 
 __version__ = "1.0.0"
 

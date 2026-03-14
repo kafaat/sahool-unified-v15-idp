@@ -41,7 +41,11 @@ Example with configuration:
 
 from __future__ import annotations
 
-try:
+import importlib.util
+
+_PLAYWRIGHT_AVAILABLE = importlib.util.find_spec("playwright") is not None
+
+if _PLAYWRIGHT_AVAILABLE:
     # Browser management
     from .browser import (
         BrowserError,
@@ -118,9 +122,6 @@ try:
         parse_temperature,
         sanitize_filename,
     )
-except ImportError:
-    # playwright package not installed — scraping features unavailable.
-    pass
 
 __all__ = [
     # Browser

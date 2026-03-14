@@ -4,7 +4,8 @@
  *
  * Tests for auth store helper functions (non-component logic)
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import Cookies from "js-cookie";
 
 // Mock modules
 vi.mock("js-cookie", () => ({
@@ -36,45 +37,61 @@ vi.mock("@/lib/api/auth-client", () => ({
 }));
 
 describe("Auth Store helpers", () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
   // isE2ETestModeEnabled
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("isE2ETestModeEnabled logic", () => {
-    // Re-implement the function for testing
-    function isE2ETestModeEnabled(nodeEnv: string, e2eFlag: string | undefined): boolean {
-      if (nodeEnv !== "development") {
-        return false;
-      }
-      return e2eFlag === "true";
-    }
-
-    it("should return false in production", () => {
-      expect(isE2ETestModeEnabled("production", "true")).toBe(false);
+  describe("isE2ETestModeEnabled", () => {
+    it("should return false in production", async () => {
+      process.env.NODE_ENV = "production";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      // Re-import to pick up env changes
+      vi.resetModules();
+      const { isE2ETestModeEnabled } = await import("../../stores/auth.store");
+      expect(isE2ETestModeEnabled()).toBe(false);
     });
 
-    it("should return false in staging", () => {
-      expect(isE2ETestModeEnabled("staging", "true")).toBe(false);
+    it("should return false in test environment", async () => {
+      process.env.NODE_ENV = "test";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const { isE2ETestModeEnabled } = await import("../../stores/auth.store");
+      expect(isE2ETestModeEnabled()).toBe(false);
     });
 
-    it("should return false in test environment", () => {
-      expect(isE2ETestModeEnabled("test", "true")).toBe(false);
+    it("should return false in development without E2E flag", async () => {
+      process.env.NODE_ENV = "development";
+      delete process.env.NEXT_PUBLIC_E2E_TEST;
+      vi.resetModules();
+      const { isE2ETestModeEnabled } = await import("../../stores/auth.store");
+      expect(isE2ETestModeEnabled()).toBe(false);
     });
 
-    it("should return false in development without E2E flag", () => {
-      expect(isE2ETestModeEnabled("development", undefined)).toBe(false);
+    it("should return false in development with E2E flag set to false", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "false";
+      vi.resetModules();
+      const { isE2ETestModeEnabled } = await import("../../stores/auth.store");
+      expect(isE2ETestModeEnabled()).toBe(false);
     });
 
-    it("should return false in development with E2E flag set to false", () => {
-      expect(isE2ETestModeEnabled("development", "false")).toBe(false);
-    });
-
-    it("should return true only in development with E2E flag set to true", () => {
-      expect(isE2ETestModeEnabled("development", "true")).toBe(true);
+    it("should return true only in development with E2E flag set to true", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const { isE2ETestModeEnabled } = await import("../../stores/auth.store");
+      expect(isE2ETestModeEnabled()).toBe(true);
     });
   });
 
@@ -82,61 +99,50 @@ describe("Auth Store helpers", () => {
   // tryLoadMockSession
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("tryLoadMockSession logic", () => {
-    interface User {
-      id: string;
-      email: string;
-      name: string;
-      name_ar?: string;
-      role: string;
-    }
-
-    // Re-implement for testing
-    function tryLoadMockSession(isE2EEnabled: boolean, cookieValue: string | undefined): User | null {
-      if (!isE2EEnabled) {
-        return null;
-      }
-
-      if (!cookieValue) {
-        return null;
-      }
-
-      try {
-        const mockUser = JSON.parse(cookieValue);
-        return {
-          id: mockUser.id || "test-user",
-          email: mockUser.email || "test@sahool.com",
-          name: mockUser.name || "Test User",
-          name_ar: mockUser.nameAr || "مستخدم اختباري",
-          role: mockUser.role || "user",
-        };
-      } catch {
-        return null;
-      }
-    }
-
-    it("should return null when E2E mode is disabled", () => {
-      expect(tryLoadMockSession(false, '{"id":"1"}')).toBeNull();
+  describe("tryLoadMockSession", () => {
+    it("should return null when E2E mode is disabled", async () => {
+      process.env.NODE_ENV = "production";
+      vi.resetModules();
+      const { tryLoadMockSession } = await import("../../stores/auth.store");
+      expect(tryLoadMockSession()).toBeNull();
     });
 
-    it("should return null when no mock session cookie", () => {
-      expect(tryLoadMockSession(true, undefined)).toBeNull();
+    it("should return null when no mock session cookie", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const cookiesMod = await import("js-cookie");
+      vi.mocked(cookiesMod.default.get).mockReturnValue(undefined);
+      const { tryLoadMockSession } = await import("../../stores/auth.store");
+      expect(tryLoadMockSession()).toBeNull();
     });
 
-    it("should return null for invalid JSON", () => {
-      expect(tryLoadMockSession(true, "not-json")).toBeNull();
+    it("should return null for invalid JSON", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const cookiesMod = await import("js-cookie");
+      vi.mocked(cookiesMod.default.get).mockReturnValue("not-json");
+      const { tryLoadMockSession } = await import("../../stores/auth.store");
+      expect(tryLoadMockSession()).toBeNull();
     });
 
-    it("should parse valid mock session", () => {
-      const session = JSON.stringify({
-        id: "mock-1",
-        email: "test@test.com",
-        name: "Tester",
-        nameAr: "مختبر",
-        role: "admin",
-      });
-
-      const result = tryLoadMockSession(true, session);
+    it("should parse valid mock session", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const cookiesMod = await import("js-cookie");
+      vi.mocked(cookiesMod.default.get).mockReturnValue(
+        JSON.stringify({
+          id: "mock-1",
+          email: "test@test.com",
+          name: "Tester",
+          nameAr: "مختبر",
+          role: "admin",
+        }),
+      );
+      const { tryLoadMockSession } = await import("../../stores/auth.store");
+      const result = tryLoadMockSession();
 
       expect(result).toEqual({
         id: "mock-1",
@@ -147,8 +153,14 @@ describe("Auth Store helpers", () => {
       });
     });
 
-    it("should use defaults for missing fields", () => {
-      const result = tryLoadMockSession(true, "{}");
+    it("should use defaults for missing fields", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.NEXT_PUBLIC_E2E_TEST = "true";
+      vi.resetModules();
+      const cookiesMod = await import("js-cookie");
+      vi.mocked(cookiesMod.default.get).mockReturnValue("{}");
+      const { tryLoadMockSession } = await import("../../stores/auth.store");
+      const result = tryLoadMockSession();
 
       expect(result).toEqual({
         id: "test-user",
@@ -164,25 +176,14 @@ describe("Auth Store helpers", () => {
   // fetchCsrfToken
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("fetchCsrfToken logic", () => {
-    async function fetchCsrfToken(): Promise<boolean> {
-      try {
-        const response = await fetch("/api/csrf-token");
-        if (response.ok) {
-          return true;
-        }
-        return false;
-      } catch {
-        return false;
-      }
-    }
-
+  describe("fetchCsrfToken", () => {
     it("should return true on successful fetch", async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({}),
       });
 
+      const { fetchCsrfToken } = await import("../../stores/auth.store");
       const result = await fetchCsrfToken();
       expect(result).toBe(true);
     });
@@ -193,6 +194,7 @@ describe("Auth Store helpers", () => {
         status: 500,
       });
 
+      const { fetchCsrfToken } = await import("../../stores/auth.store");
       const result = await fetchCsrfToken();
       expect(result).toBe(false);
     });
@@ -200,6 +202,7 @@ describe("Auth Store helpers", () => {
     it("should return false on network error", async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
+      const { fetchCsrfToken } = await import("../../stores/auth.store");
       const result = await fetchCsrfToken();
       expect(result).toBe(false);
     });

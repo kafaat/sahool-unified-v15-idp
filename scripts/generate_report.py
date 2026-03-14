@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """Generate Playwright CI Analysis Report as DOCX"""
 
+import argparse
+from pathlib import Path
+
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_OUTPUT = _REPO_ROOT / "docs" / "reports" / "playwright-ci-analysis-pr1214.docx"
 
 doc = Document()
 
@@ -305,6 +311,16 @@ run.font.size = Pt(9)
 run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
 
 # ── Save ──
-output_path = '/home/user/sahool-unified-v15-idp/docs/reports/playwright-ci-analysis-pr1214.docx'
-doc.save(output_path)
+parser = argparse.ArgumentParser(description="Generate Playwright CI Analysis Report")
+parser.add_argument(
+    "-o", "--output",
+    type=Path,
+    default=_DEFAULT_OUTPUT,
+    help=f"Output file path (default: {_DEFAULT_OUTPUT.relative_to(_REPO_ROOT)})",
+)
+args = parser.parse_args()
+
+output_path = Path(args.output)
+output_path.parent.mkdir(parents=True, exist_ok=True)
+doc.save(str(output_path))
 print(f'Report saved to: {output_path}')

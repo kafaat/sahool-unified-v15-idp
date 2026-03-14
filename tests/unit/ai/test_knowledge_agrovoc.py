@@ -10,9 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-structlog = pytest.importorskip("structlog", reason="structlog required for knowledge module")
-
-from shared.ai.knowledge.agrovoc import (  # noqa: E402
+from shared.ai.knowledge.agrovoc import (
     AgrovocConcept,
     AgrovocDomain,
     AgrovocLookup,

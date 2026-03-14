@@ -126,7 +126,10 @@ class TrendRequest(BaseModel):
 
 @router.post("/tests", status_code=201)
 async def create_soil_test(
-    request: SoilTestCreateRequest, req: Request, _user=Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)
+    request: SoilTestCreateRequest,
+    req: Request,
+    _user=Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """Create a new soil test record - إنشاء سجل تحليل تربة جديد"""
     test_id = f"ST-{uuid.uuid4().hex[:8].upper()}"
@@ -359,9 +362,7 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
 @router.post("/trends")
 async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {
@@ -521,9 +522,7 @@ async def calculate_rate(request: FertilizerRateRequest):
 @router.post("/trends/nutrient")
 async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id)):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {
@@ -559,9 +558,7 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: st
 @router.post("/trends/compare-periods")
 async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id)):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {"field_id": request.field_id, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}

@@ -588,10 +588,14 @@ jobs:
       - name: Build workspace packages
         run: |
           # Build shared workspace packages that services depend on
+          # nestjs-auth MUST succeed — lai-estimation & crop-growth-model import from it
           for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
             if [ -f "$pkg/package.json" ] && grep -q '"build"' "$pkg/package.json"; then
               echo "Building $pkg..."
-              npm run build --workspace=$pkg 2>/dev/null || true
+              cd "$pkg"
+              npm install --legacy-peer-deps --quiet 2>/dev/null || true
+              cd "$GITHUB_WORKSPACE"
+              npm run build --workspace=$pkg || echo "::warning::Failed to build $pkg — dependent service tests may fail"
             fi
           done
 

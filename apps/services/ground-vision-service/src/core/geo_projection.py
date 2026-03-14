@@ -276,8 +276,10 @@ class DEMService:
 
             try:
                 window = rasterio.windows.Window(
-                    min_col, min_row,
-                    max_col - min_col + 1, max_row - min_row + 1,
+                    min_col,
+                    min_row,
+                    max_col - min_col + 1,
+                    max_row - min_row + 1,
                 )
                 data = ds.read(1, window=window)
             except Exception:

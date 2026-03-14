@@ -383,7 +383,7 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        pip install --quiet psycopg2-binary && \
+        pip install --quiet --no-cache-dir --root-user-action=ignore psycopg2-binary && \
         mlflow server --host 0.0.0.0 --port 5000 \
           --backend-store-uri postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/mlflow?sslmode=disable \
           --default-artifact-root /mlflow/artifacts \

@@ -168,5 +168,5 @@ STOPSIGNAL SIGTERM
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run database migrations and start the application
-# Skip migrations when SKIP_DB_INIT=true (for container tests without database)
-CMD ["sh", "-c", "if [ \"$SKIP_DB_INIT\" = \"true\" ]; then echo 'Skipping database migrations (SKIP_DB_INIT=true)'; else npx prisma migrate deploy; fi && exec node dist/main.js"]
+COPY --chmod=755 docker/docker-entrypoint-nestjs.sh /usr/local/bin/docker-entrypoint.sh
+CMD ["/usr/local/bin/docker-entrypoint.sh"]

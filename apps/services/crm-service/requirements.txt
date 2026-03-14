@@ -23,7 +23,7 @@ asyncpg>=0.30.0,<1.0.0
 structlog>=24.0.0,<25.0.0
 
 # Security
-pyjwt>=2.9.0,<3.0.0
+pyjwt>=2.10.1,<3.0.0  # CVE-2024-53861 fixed in 2.10.1
 cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Rate Limiting

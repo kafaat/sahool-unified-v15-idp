@@ -6,13 +6,19 @@ Port: 8104
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
+from __future__ import annotations
+
 import json
 import os
+
 from contextlib import asynccontextmanager
 import sys
 from datetime import UTC, datetime
 from enum import Enum, StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from nats.aio.client import Client as NATSClient
 
 import httpx
 import nats
@@ -733,7 +739,7 @@ logger = structlog.get_logger()
 database: Database | None = None
 cache_manager: CacheManager | None = None
 config_service: ProviderConfigService | None = None
-nc: Any = None  # NATS client (nats.aio.client.Client at runtime)
+nc: NATSClient | None = None  # NATS client
 
 
 def get_db_session():

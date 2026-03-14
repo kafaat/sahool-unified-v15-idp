@@ -5,7 +5,7 @@
  * Tests for auth store helper functions (non-component logic)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import Cookies from "js-cookie";
+import _Cookies from "js-cookie";
 
 // Mock modules
 vi.mock("js-cookie", () => ({

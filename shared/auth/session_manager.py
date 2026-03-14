@@ -708,10 +708,7 @@ class SessionSecurityChecker:
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
 
-        a = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
-        )
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         return earth_radius_km * c
@@ -820,8 +817,10 @@ class SessionSecurityChecker:
 
                 if loc_current is not None and loc_previous is not None:
                     distance_km = self._calculate_distance_km(
-                        loc_previous[0], loc_previous[1],
-                        loc_current[0], loc_current[1],
+                        loc_previous[0],
+                        loc_previous[1],
+                        loc_current[0],
+                        loc_current[1],
                     )
 
                     # Estimate time between requests.

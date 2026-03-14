@@ -622,7 +622,7 @@ async def logout(request: Request, data: RefreshTokenRequest | None = None):
     access_token_data = None
 
     if auth_header.startswith("Bearer "):
-        access_token = auth_header[len("Bearer "):]
+        access_token = auth_header[len("Bearer ") :]
         try:
             access_token_data = decode_token(access_token)
         except Exception:

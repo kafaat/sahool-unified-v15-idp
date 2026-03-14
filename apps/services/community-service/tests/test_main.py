@@ -39,21 +39,17 @@ def _make_user(
 def _make_rc_mock():
     """Create a fresh Rocket.Chat mock client. | إنشاء عميل روكيت شات وهمي"""
     rc = AsyncMock()
-    rc.create_channel = AsyncMock(
-        return_value={"_id": "ch001", "name": "test-channel"}
-    )
+    rc.create_channel = AsyncMock(return_value={"_id": "ch001", "name": "test-channel"})
     rc.get_channels = AsyncMock(return_value=[])
-    rc.post_message = AsyncMock(
-        return_value={"_id": "msg001", "ts": "2026-01-01T00:00:00Z"}
-    )
+    rc.post_message = AsyncMock(return_value={"_id": "msg001", "ts": "2026-01-01T00:00:00Z"})
+
     rc.add_user_to_channel = AsyncMock(return_value={})
     rc.remove_user_from_channel = AsyncMock(return_value={})
     rc.get_channel_history = AsyncMock(return_value=[])
     rc.get_channel_members = AsyncMock(return_value=[])
     rc.search_messages = AsyncMock(return_value=[])
-    rc.create_user = AsyncMock(
-        return_value={"_id": "rc_user_001", "username": "test"}
-    )
+    rc.create_user = AsyncMock(return_value={"_id": "rc_user_001", "username": "test"})
+
     rc.set_user_avatar = AsyncMock(return_value={})
     rc.pin_message = AsyncMock(return_value={})
     return rc
@@ -239,9 +235,8 @@ class TestTenantSetup:
             json={"tenant_id": TENANT_ID_1, "tenant_name": "Farm"},
         )
         data = resp.json()
-        irrigation_ch = next(
-            ch for ch in data["channels"] if "irrigation" in ch["name"]
-        )
+        irrigation_ch = next(ch for ch in data["channels"] if "irrigation" in ch["name"])
+
         assert irrigation_ch["name_ar"] == "الري"
         assert irrigation_ch["description_ar"] == "جدولة الري وإدارة المياه"
 
@@ -258,9 +253,7 @@ class TestTenantSetup:
         assert subject == "sahool.community.tenant_setup"
 
     @pytest.mark.unit
-    def test_setup_tenant_tolerates_channel_creation_failure(
-        self, rc_client, mock_rc_client
-    ):
+    def test_setup_tenant_tolerates_channel_creation_failure(self, rc_client, mock_rc_client):
         """Setup continues if some channels fail to create | يستمر عند فشل بعض القنوات"""
         call_count = 0
 
@@ -282,13 +275,10 @@ class TestTenantSetup:
         assert data["channels_created"] == 7
 
     @pytest.mark.unit
-    def test_setup_tenant_tolerates_admin_sync_failure(
-        self, rc_client, mock_rc_client
-    ):
+    def test_setup_tenant_tolerates_admin_sync_failure(self, rc_client, mock_rc_client):
         """Setup continues if admin sync fails | يستمر عند فشل مزامنة المدير"""
-        mock_rc_client.create_user = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.create_user = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/setup-tenant",
             json={
@@ -590,21 +580,15 @@ class TestChannelHistory:
         """History supports count parameter | دعم معامل العدد"""
         resp = rc_client.get("/api/v1/community/channels/ch001/history?count=10")
         assert resp.status_code == 200
-        mock_rc_client.get_channel_history.assert_called_once_with(
-            "ch001", count=10, oldest=None
-        )
+        mock_rc_client.get_channel_history.assert_called_once_with("ch001", count=10, oldest=None)
 
     @pytest.mark.unit
     def test_get_channel_history_with_oldest(self, rc_client, mock_rc_client):
         """History supports oldest timestamp filter | دعم فلتر الأقدم"""
         ts = "2026-01-01T00:00:00Z"
-        resp = rc_client.get(
-            f"/api/v1/community/channels/ch001/history?oldest={ts}"
-        )
+        resp = rc_client.get(f"/api/v1/community/channels/ch001/history?oldest={ts}")
         assert resp.status_code == 200
-        mock_rc_client.get_channel_history.assert_called_once_with(
-            "ch001", count=50, oldest=ts
-        )
+        mock_rc_client.get_channel_history.assert_called_once_with("ch001", count=50, oldest=ts)
 
     @pytest.mark.unit
     def test_get_channel_history_count_validation(self, rc_client):
@@ -832,9 +816,7 @@ class TestUserSync:
             },
         )
         assert resp.status_code == 200
-        mock_rc_client.set_user_avatar.assert_called_once_with(
-            "rc_user_001", "https://example.com/avatar.png"
-        )
+        mock_rc_client.set_user_avatar.assert_called_once_with("rc_user_001", "https://example.com/avatar.png")
 
     @pytest.mark.unit
     def test_sync_user_without_avatar(self, rc_client, mock_rc_client):
@@ -881,9 +863,8 @@ class TestUserSync:
     @pytest.mark.unit
     def test_sync_user_avatar_failure_does_not_break(self, rc_client, mock_rc_client):
         """Avatar set failure does not break sync | فشل الصورة لا يكسر المزامنة"""
-        mock_rc_client.set_user_avatar = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="Avatar error")
-        )
+        mock_rc_client.set_user_avatar = AsyncMock(side_effect=HTTPException(status_code=502, detail="Avatar error"))
+
         resp = rc_client.post(
             "/api/v1/community/users/sync",
             json={
@@ -939,9 +920,7 @@ class TestAdvisoryBot:
         assert data["channel"] == "crop-diseases"
 
     @pytest.mark.unit
-    def test_post_advisory_unknown_type_defaults_to_best_practices(
-        self, rc_client, mock_rc_client
-    ):
+    def test_post_advisory_unknown_type_defaults_to_best_practices(self, rc_client, mock_rc_client):
         """Unknown advisory type routes to best-practices | النوع غير المعروف"""
         resp = rc_client.post(
             "/api/v1/community/bots/advisory",
@@ -1090,9 +1069,7 @@ class TestAlertBot:
         assert data["channel"] == "weather-alerts"
 
     @pytest.mark.unit
-    def test_post_unknown_alert_type_defaults_to_announcements(
-        self, rc_client, mock_rc_client
-    ):
+    def test_post_unknown_alert_type_defaults_to_announcements(self, rc_client, mock_rc_client):
         """Unknown alert type defaults to announcements | النوع غير المعروف"""
         resp = rc_client.post(
             "/api/v1/community/bots/alert",
@@ -1357,9 +1334,7 @@ class TestErrorHandling:
     def test_rc_api_error_returns_502(self, rc_client, mock_rc_client):
         """RC API failure returns 502 | خطأ API RC يعيد 502"""
         mock_rc_client.create_channel = AsyncMock(
-            side_effect=HTTPException(
-                status_code=502, detail="Rocket.Chat API error: 500"
-            )
+            side_effect=HTTPException(status_code=502, detail="Rocket.Chat API error: 500")
         )
         resp = rc_client.post(
             "/api/v1/community/channels",
@@ -1371,9 +1346,7 @@ class TestErrorHandling:
     def test_rc_connection_error_returns_502(self, rc_client, mock_rc_client):
         """RC connection failure returns 502 | خطأ اتصال RC يعيد 502"""
         mock_rc_client.get_channels = AsyncMock(
-            side_effect=HTTPException(
-                status_code=502, detail="Cannot reach Rocket.Chat"
-            )
+            side_effect=HTTPException(status_code=502, detail="Cannot reach Rocket.Chat")
         )
         resp = rc_client.get("/api/v1/community/channels")
         assert resp.status_code == 502
@@ -1381,9 +1354,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_post_message_rc_failure(self, rc_client, mock_rc_client):
         """Post message handles RC failure | فشل نشر الرسالة"""
-        mock_rc_client.post_message = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/messages",
             json={"channel_id": "ch001", "text": "Hello"},
@@ -1393,9 +1365,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_join_channel_rc_failure(self, rc_client, mock_rc_client):
         """Join channel handles RC failure | فشل الانضمام"""
-        mock_rc_client.add_user_to_channel = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.add_user_to_channel = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post("/api/v1/community/channels/ch001/join")
         assert resp.status_code == 502
 
@@ -1411,9 +1382,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_search_messages_rc_failure(self, rc_client, mock_rc_client):
         """Search handles RC failure | فشل البحث"""
-        mock_rc_client.search_messages = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.search_messages = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/messages/search",
             json={"channel_id": "ch001", "query": "test"},
@@ -1423,9 +1393,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_sync_user_rc_failure(self, rc_client, mock_rc_client):
         """Sync user handles RC failure | فشل المزامنة"""
-        mock_rc_client.create_user = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.create_user = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/users/sync",
             json={
@@ -1439,9 +1408,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_advisory_bot_rc_failure(self, rc_client, mock_rc_client):
         """Advisory bot handles RC failure | فشل بوت الاستشارات"""
-        mock_rc_client.post_message = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/bots/advisory",
             json={
@@ -1454,9 +1422,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_alert_bot_rc_failure(self, rc_client, mock_rc_client):
         """Alert bot handles RC failure | فشل بوت التنبيهات"""
-        mock_rc_client.post_message = AsyncMock(
-            side_effect=HTTPException(status_code=502, detail="RC error")
-        )
+        mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/bots/alert",
             json={
@@ -1524,9 +1491,7 @@ class TestEdgeCases:
     def test_history_default_count_is_50(self, rc_client, mock_rc_client):
         """Default history count is 50 | العدد الافتراضي للسجل 50"""
         rc_client.get("/api/v1/community/channels/ch001/history")
-        mock_rc_client.get_channel_history.assert_called_once_with(
-            "ch001", count=50, oldest=None
-        )
+        mock_rc_client.get_channel_history.assert_called_once_with("ch001", count=50, oldest=None)
 
     @pytest.mark.unit
     def test_list_channels_default_pagination(self, rc_client, mock_rc_client):
@@ -1555,8 +1520,7 @@ class TestEdgeCases:
             assert resp.status_code == 200
             data = resp.json()
             assert data["channel"] == expected_channel, (
-                f"Advisory type '{advisory_type}' should route to '{expected_channel}', "
-                f"got '{data['channel']}'"
+                f"Advisory type '{advisory_type}' should route to '{expected_channel}', got '{data['channel']}'"
             )
 
     @pytest.mark.unit
@@ -1584,8 +1548,7 @@ class TestEdgeCases:
             assert resp.status_code == 200
             data = resp.json()
             assert data["channel"] == expected_channel, (
-                f"Alert type '{alert_type}' should route to '{expected_channel}', "
-                f"got '{data['channel']}'"
+                f"Alert type '{alert_type}' should route to '{expected_channel}', got '{data['channel']}'"
             )
 
     @pytest.mark.unit

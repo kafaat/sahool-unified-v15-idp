@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from .collections import (
     ALL_COLLECTIONS,
@@ -42,7 +42,7 @@ from .collections import (
 )
 from .ingestion.pipeline import BatchIngestionReport, KnowledgeIngestionPipeline
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

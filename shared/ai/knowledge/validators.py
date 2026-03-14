@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from .models import (
     BaseKnowledgeDocument,
@@ -24,7 +24,7 @@ from .models import (
     WeatherPatternDocument,
 )
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

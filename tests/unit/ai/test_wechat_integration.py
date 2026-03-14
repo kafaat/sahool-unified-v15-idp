@@ -1316,7 +1316,7 @@ class TestAutoReplierAgent:
         assert reply is not None
         assert "مساعدة" in reply.content or "English" in reply.content
 
-    def test_auto_replier_rule_management(self, connected_client: WeChatClient):
+    async def test_auto_replier_rule_management(self, connected_client: WeChatClient):
         """Test adding and removing rules."""
         replier = AutoReplierAgent(connected_client)
 
@@ -1334,7 +1334,7 @@ class TestAutoReplierAgent:
         assert removed is True
         assert replier.get_rule("test") is None
 
-    def test_auto_replier_stats(
+    async def test_auto_replier_stats(
         self,
         connected_client: WeChatClient,
         auto_reply_rules: list[AutoReplyRule],

@@ -41,82 +41,87 @@ Example with configuration:
 
 from __future__ import annotations
 
-# Browser management
-from .browser import (
-    BrowserError,
-    BrowserLaunchError,
-    BrowserManager,
-    BrowserNavigationError,
-    BrowserPool,
-    create_browser,
-)
+import importlib.util
 
-# Configuration
-from .config import (
-    USER_AGENTS,
-    USER_AGENTS_AR,
-    BrowserConfig,
-    CacheConfig,
-    ProxyConfig,
-    RateLimitConfig,
-    RetryConfig,
-    ScrapingConfig,
-    TimeoutConfig,
-    create_config,
-    get_config,
-)
-from .scrapers.agricultural_news import (
-    AgriculturalNewsScraper,
-    NewsArticle,
-    NewsCategory,
-    NewsReport,
-)
+_PLAYWRIGHT_AVAILABLE = importlib.util.find_spec("playwright") is not None
 
-# Base scraper and utilities
-from .scrapers.base import (
-    BaseScraper,
-    ExtractionError,
-    NavigationError,
-    RateLimiter,
-    RateLimitError,
-    ScrapingError,
-    ScrapingResult,
-    ScrapingStatus,
-    SimpleCache,
-)
-from .scrapers.market_prices import (
-    CropCategory,
-    CropPrice,
-    MarketPriceReport,
-    MarketPriceScraper,
-    PriceUnit,
-)
+if _PLAYWRIGHT_AVAILABLE:
+    # Browser management
+    from .browser import (
+        BrowserError,
+        BrowserLaunchError,
+        BrowserManager,
+        BrowserNavigationError,
+        BrowserPool,
+        create_browser,
+    )
 
-# Specialized scrapers
-from .scrapers.weather import (
-    DailyForecast,
-    WeatherData,
-    WeatherForecast,
-    WeatherScraper,
-)
+    # Configuration
+    from .config import (
+        USER_AGENTS,
+        USER_AGENTS_AR,
+        BrowserConfig,
+        CacheConfig,
+        ProxyConfig,
+        RateLimitConfig,
+        RetryConfig,
+        ScrapingConfig,
+        TimeoutConfig,
+        create_config,
+        get_config,
+    )
+    from .scrapers.agricultural_news import (
+        AgriculturalNewsScraper,
+        NewsArticle,
+        NewsCategory,
+        NewsReport,
+    )
 
-# Utility functions
-from .utils import (
-    clean_text,
-    convert_arabic_digits,
-    detect_language,
-    extract_first_number,
-    extract_numbers,
-    extract_table_data,
-    is_arabic_text,
-    merge_dict_lists,
-    normalize_location,
-    parse_date,
-    parse_percentage,
-    parse_price,
-    parse_temperature,
-    sanitize_filename,
-)
+    # Base scraper and utilities
+    from .scrapers.base import (
+        BaseScraper,
+        ExtractionError,
+        NavigationError,
+        RateLimiter,
+        RateLimitError,
+        ScrapingError,
+        ScrapingResult,
+        ScrapingStatus,
+        SimpleCache,
+    )
+    from .scrapers.market_prices import (
+        CropCategory,
+        CropPrice,
+        MarketPriceReport,
+        MarketPriceScraper,
+        PriceUnit,
+    )
+
+    # Specialized scrapers
+    from .scrapers.weather import (
+        DailyForecast,
+        WeatherData,
+        WeatherForecast,
+        WeatherScraper,
+    )
+
+    # Utility functions
+    from .utils import (
+        clean_text,
+        convert_arabic_digits,
+        detect_language,
+        extract_first_number,
+        extract_numbers,
+        extract_table_data,
+        is_arabic_text,
+        merge_dict_lists,
+        normalize_location,
+        parse_date,
+        parse_percentage,
+        parse_price,
+        parse_temperature,
+        sanitize_filename,
+    )
 
 __all__ = [
     # Browser

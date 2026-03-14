@@ -385,7 +385,7 @@ class EventPublisher:
         # Serialize event
         try:
             data = self._serialize_event(event)
-        except Exception as e:
+        except (json.JSONDecodeError, TypeError, ValueError, AttributeError) as e:
             logger.error(f"Failed to serialize event: {e}")
             self._error_count += 1
             return False

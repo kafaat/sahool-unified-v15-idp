@@ -7,17 +7,17 @@
 
 import React, { useMemo } from "react";
 import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+  DynamicLineChart as LineChart,
+  DynamicLine as Line,
+  DynamicAreaChart as AreaChart,
+  DynamicArea as Area,
+  DynamicXAxis as XAxis,
+  DynamicYAxis as YAxis,
+  DynamicCartesianGrid as CartesianGrid,
+  DynamicTooltip as Tooltip,
+  DynamicResponsiveContainer as ResponsiveContainer,
+  DynamicLegend as Legend,
+} from "@/components/charts/LazyRecharts.dynamic";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import type { SensorReading } from "../types";
 

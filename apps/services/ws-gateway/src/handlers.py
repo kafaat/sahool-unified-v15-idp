@@ -513,10 +513,7 @@ class WebSocketMessageHandler:
             )
             return True
 
-        logger.warning(
-            f"Field/farm access denied (no tenant_id, service unavailable). "
-            f"Topic: {topic}, User: {user_id}"
-        )
+        logger.warning(f"Field/farm access denied (no tenant_id, service unavailable). Topic: {topic}, User: {user_id}")
         return False
 
     async def _validate_broadcast_permission(self, connection_id: str, room_id: str) -> bool:

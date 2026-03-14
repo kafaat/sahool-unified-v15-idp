@@ -21,9 +21,9 @@ import json
 from datetime import datetime, UTC
 from typing import Any, Protocol
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 # Subject constants (mirrors shared/events/subjects.py)
 SUBJECT_DOCUMENT_INGESTED = "sahool.knowledge.document_ingested"

@@ -2126,10 +2126,7 @@ services:
       nats:
         condition: service_healthy
       iot-gateway:
-        # NOTE: Using service_started (not service_healthy) because iot-gateway
-        # healthcheck is unreliable - see PR #1213. irrigation-smart handles
-        # iot-gateway unavailability gracefully with retries.
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')" ]
       interval: 30s
@@ -2617,6 +2614,10 @@ services:
     ports:
       - "127.0.0.1:8120:8120"
     depends_on:
+      pgbouncer:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
       task-service:
         condition: service_healthy
       astronomical-calendar:

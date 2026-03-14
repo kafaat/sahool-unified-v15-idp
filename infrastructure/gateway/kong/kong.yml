@@ -704,14 +704,14 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # WeChat Service - WeChat integration
-  - name: wechat-service
-    host: wechat-service
+  # Community Service - Rocket.Chat farmer community (replaces wechat-service)
+  - name: community-service
+    host: community-service
     port: 8133
     protocol: http
     routes:
-      - name: wechat-service-route
-        paths: ["/api/v1/wechat", "/wechat"]
+      - name: community-service-route
+        paths: ["/api/v1/community", "/community"]
         strip_path: true
         protocols: ["http", "https"]
 

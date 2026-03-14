@@ -13,6 +13,8 @@ Updated: January 2025
 import asyncio
 import pytest
 from dataclasses import dataclass
+
+pytest.importorskip("pytest_asyncio")
 from unittest.mock import AsyncMock, Mock, patch
 
 # Configure pytest-asyncio

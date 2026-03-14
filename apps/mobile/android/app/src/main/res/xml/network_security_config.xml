@@ -35,96 +35,28 @@
     </domain-config>
 
     <!-- ============================================ -->
-    <!-- CERTIFICATE PINNING - PRODUCTION DOMAINS     -->
+    <!-- PRODUCTION DOMAINS - TLS ENFORCED            -->
     <!-- ============================================ -->
+    <!--
+    SECURITY NOTE: Certificate pinning via pin-set has been removed because
+    placeholder pins (AAAA...) cause Android to REJECT all connections to
+    production domains. TLS is still enforced (cleartextTrafficPermitted=false).
 
-    <!-- Production API: api.sahool.app -->
-    <!-- TODO: REPLACE PLACEHOLDER PINS BEFORE PRODUCTION DEPLOYMENT -->
-    <!-- Generate pins using: ./scripts/generate_cert_pins.sh api.sahool.app -->
+    To enable certificate pinning, add real pin-set blocks with actual SHA256
+    fingerprints generated from production certificates:
+      openssl s_client -connect api.sahool.app:443 < /dev/null 2>/dev/null \
+        | openssl x509 -pubkey -noout \
+        | openssl pkey -pubin -outform der \
+        | openssl dgst -sha256 -binary \
+        | openssl enc -base64
+
+    See: apps/mobile/QUICK_START_CERTIFICATE_PINNING.md
+    -->
+
+    <!-- Production API domains - HTTPS only -->
     <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">api.sahool.app</domain>
-        <pin-set expiration="2026-12-31">
-            <!-- Primary certificate pin - PLACEHOLDER -->
-            <!-- TODO: Replace AAAA... with actual SHA256 fingerprint -->
-            <!-- Get using: openssl s_client -connect api.sahool.app:443 < /dev/null 2>/dev/null | openssl x509 -fingerprint -sha256 -noout -->
-            <pin digest="sha256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-
-            <!-- Backup certificate pin for rotation - PLACEHOLDER -->
-            <!-- TODO: Replace BBBB... with actual backup SHA256 fingerprint -->
-            <pin digest="sha256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
-        </pin-set>
-        <trust-anchors>
-            <certificates src="system"/>
-        </trust-anchors>
-    </domain-config>
-
-    <!-- Production API: api.sahool.io -->
-    <!-- TODO: REPLACE PLACEHOLDER PINS BEFORE PRODUCTION DEPLOYMENT -->
-    <!-- Generate pins using: ./scripts/generate_cert_pins.sh api.sahool.io -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">api.sahool.io</domain>
-        <pin-set expiration="2026-12-31">
-            <!-- Primary certificate pin - PLACEHOLDER -->
-            <!-- TODO: Replace AAAA... with actual SHA256 fingerprint -->
-            <pin digest="sha256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
-
-            <!-- Backup certificate pin for rotation - PLACEHOLDER -->
-            <!-- TODO: Replace BBBB... with actual backup SHA256 fingerprint -->
-            <pin digest="sha256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
-        </pin-set>
-        <trust-anchors>
-            <certificates src="system"/>
-        </trust-anchors>
-    </domain-config>
-
-    <!-- WebSocket Production: ws.sahool.app -->
-    <!-- TODO: REPLACE PLACEHOLDER PINS BEFORE PRODUCTION DEPLOYMENT -->
-    <!-- Generate pins using: ./scripts/generate_cert_pins.sh ws.sahool.app -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">ws.sahool.app</domain>
-        <pin-set expiration="2026-12-31">
-            <!-- WebSocket certificate pin - PLACEHOLDER -->
-            <!-- TODO: Replace CCCC... with actual SHA256 fingerprint -->
-            <pin digest="sha256">CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</pin>
-
-            <!-- Backup pin for WebSocket - PLACEHOLDER -->
-            <!-- TODO: Replace DDDD... with actual backup SHA256 fingerprint -->
-            <pin digest="sha256">DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD=</pin>
-        </pin-set>
-        <trust-anchors>
-            <certificates src="system"/>
-        </trust-anchors>
-    </domain-config>
-
-    <!-- Staging API: api-staging.sahool.app -->
-    <!-- TODO: REPLACE PLACEHOLDER PINS BEFORE STAGING DEPLOYMENT -->
-    <!-- Generate pins using: ./scripts/generate_cert_pins.sh api-staging.sahool.app -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">api-staging.sahool.app</domain>
-        <pin-set expiration="2026-12-31">
-            <!-- Staging certificate pin - PLACEHOLDER -->
-            <!-- TODO: Replace EEEE... with actual SHA256 fingerprint -->
-            <pin digest="sha256">EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE=</pin>
-
-            <!-- Backup pin for staging - PLACEHOLDER -->
-            <!-- TODO: Replace FFFF... with actual backup SHA256 fingerprint -->
-            <pin digest="sha256">FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF=</pin>
-        </pin-set>
-        <trust-anchors>
-            <certificates src="system"/>
-        </trust-anchors>
-    </domain-config>
-
-    <!-- WebSocket Staging: ws-staging.sahool.app -->
-    <!-- TODO: REPLACE PLACEHOLDER PINS BEFORE STAGING DEPLOYMENT -->
-    <!-- Generate pins using: ./scripts/generate_cert_pins.sh ws-staging.sahool.app -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">ws-staging.sahool.app</domain>
-        <pin-set expiration="2026-12-31">
-            <!-- Staging WebSocket certificate pin - PLACEHOLDER -->
-            <!-- TODO: Replace GGGG... with actual SHA256 fingerprint -->
-            <pin digest="sha256">GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG=</pin>
-        </pin-set>
+        <domain includeSubdomains="true">sahool.app</domain>
+        <domain includeSubdomains="true">sahool.io</domain>
         <trust-anchors>
             <certificates src="system"/>
         </trust-anchors>

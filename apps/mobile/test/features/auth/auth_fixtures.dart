@@ -28,10 +28,10 @@ class AuthFixtures {
     'avatar_url': null,
   };
 
-  /// Valid test credentials
-  static const validEmail = 'test@sahool.com';
+  /// Valid test credentials (test-only domain, never matches production)
+  static const validEmail = 'test@test.sahool.local';
   static const validPassword = 'SecurePass123!';
-  static const invalidEmail = 'invalid@test.com';
+  static const invalidEmail = 'invalid@test.sahool.local';
   static const invalidPassword = 'wrong';
 
   /// Token fixtures

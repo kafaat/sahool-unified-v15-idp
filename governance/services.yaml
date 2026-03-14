@@ -358,6 +358,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Use chat-service instead
+    replaced_by: chat-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02-28"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated
@@ -769,6 +772,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Archived - use yield-prediction-service instead
+    replaced_by: yield-prediction-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02-28"
     owner: "data-team@sahool.io"
     team: data
     lifecycle: deprecated
@@ -1670,6 +1676,9 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     status: deprecated  # Archived - use chat-service instead
+    replaced_by: chat-service
+    deprecation_date: "2026-01-15"
+    sunset_date: "2026-02-28"
     owner: "frontend-team@sahool.io"
     team: frontend
     lifecycle: deprecated
@@ -1928,6 +1937,117 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # WECHAT SERVICE - خدمة ويتشات
+  # Community Service - Rocket.Chat integration for farmer community
+  # ═══════════════════════════════════════════════════════════════════════════
+  community-service:
+    name: "Community Service"
+    name_ar: "خدمة المجتمع الزراعي"
+    description: "Rocket.Chat integration for farmer community messaging, topic channels, cooperative groups, and advisory bots"
+    description_ar: "تكامل Rocket.Chat لمجتمع المزارعين والقنوات الموضوعية ومجموعات التعاونيات وبوتات الإرشاد الزراعي"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/community-service"
+    port: 8133
+    protocol: http
+    health_endpoint: "/healthz"
+    readiness_endpoint: "/readyz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
+    version: "1.0.0"
+    events:
+      produces:
+        - CommunityChannelCreated.v1
+        - CommunityUserJoined.v1
+        - CommunityMessagePosted.v1
+        - CommunityAdvisoryPosted.v1
+        - CommunityAlertPosted.v1
+        - CommunityTenantSetup.v1
+      consumes:
+        - NotificationQueued.v1
+        - AlertTriggered.v1
+        - AdvisoryGenerated.v1
+        - WeatherAlertIssued.v1
+        - PestDetected.v1
+    database:
+      type: postgresql
+      name: sahool_community
+      schema: "community"
+    cache:
+      type: redis
+      purpose: "session cache, channel cache, user mapping"
+      ttl: 3600
+    dependencies:
+      - redis
+      - nats
+    infrastructure:
+      rocketchat:
+        type: "Rocket.Chat 7.5"
+        image: "registry.rocket.chat/rocketchat/rocket.chat:7.5"
+        port: 3100
+        requires: mongodb
+      mongodb:
+        type: "MongoDB 6.0"
+        image: "mongo:6.0"
+        purpose: "Rocket.Chat data store"
+    modules:
+      - id: channels
+        name: "Topic Channels"
+        name_ar: "القنوات الموضوعية"
+        endpoint: "/channels"
+        description: "Agricultural topic channels (irrigation, diseases, market, weather)"
+
+      - id: groups
+        name: "Cooperative Groups"
+        name_ar: "مجموعات التعاونيات"
+        endpoint: "/channels"
+        description: "Private groups for farming cooperatives"
+
+      - id: bots
+        name: "Advisory Bots"
+        name_ar: "بوتات الإرشاد"
+        endpoint: "/bots"
+        description: "AI-powered advisory and alert bots posting to channels"
+
+      - id: user-sync
+        name: "User Synchronization"
+        name_ar: "مزامنة المستخدمين"
+        endpoint: "/users/sync"
+        description: "Sync SAHOOL users to Rocket.Chat"
+
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - NATS_URL
+      - ROCKETCHAT_URL
+      - ROCKETCHAT_ADMIN_USER
+      - ROCKETCHAT_ADMIN_PASSWORD
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+      autoscaling:
+        enabled: true
+        min_replicas: 1
+        max_replicas: 3
+        target_cpu: 75
+    monitoring:
+      metrics:
+        - community_channels_total
+        - community_messages_posted_total
+        - community_users_synced_total
+        - community_advisory_posts_total
+        - community_alert_posts_total
+      alerts:
+        - "RocketChatConnectionError"
+        - "CommunitySetupFailed"
+        - "BotPostingFailed"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WECHAT SERVICE (DEPRECATED) - خدمة ويتشات (مُهملة)
   # WeChat integration for farmer communication and engagement
   # ═══════════════════════════════════════════════════════════════════════════
   wechat-service:
@@ -1939,15 +2059,18 @@ services:
     category: community
     layer: business
     path: "apps/services/wechat-service"
-    port: 8133
+    port: 8135
     protocol: http
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
-    status: active
+    status: deprecated
     owner: "frontend-team@sahool.io"
     team: frontend
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
+    replaced_by: community-service
+    deprecation_date: "2026-03-13"
+    sunset_date: "2026-06-01"
     version: "1.0.0"
     events:
       produces:
@@ -2862,7 +2985,7 @@ services:
     description: "GPU-accelerated LLM inference server serving DeepSeek Coder 6.7B via vLLM with OpenAI-compatible API"
     description_ar: "خادم استدلال النماذج اللغوية الكبيرة مسرّع بالمعالج الرسومي يقدم نموذج ديب سيك كودر عبر vLLM مع واجهة متوافقة مع OpenAI"
     type: python
-    category: intelligence
+    category: infrastructure
     layer: intelligence
     path: "apps/services/vllm-deepseek"
     port: 8270

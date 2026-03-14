@@ -9,6 +9,8 @@ import time
 import pytest
 from unittest.mock import MagicMock, patch, PropertyMock
 
+pytest.importorskip("redis")
+
 # Import the modules under test
 from shared.cache.redis_sentinel import (
     RedisSentinelConfig,

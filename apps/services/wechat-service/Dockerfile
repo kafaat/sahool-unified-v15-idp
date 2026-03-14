@@ -1,6 +1,6 @@
 # ===============================================================================
 # SAHOOL WeChat Integration Service Dockerfile
-# Port: 8133
+# Port: 8135
 # ===============================================================================
 
 ARG PYTHON_VERSION=3.11
@@ -60,11 +60,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
-EXPOSE 8133
+EXPOSE 8135
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8133/healthz || exit 1
+    CMD curl -f http://localhost:8135/healthz || exit 1
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8133"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8135"]

@@ -87,13 +87,13 @@ final weatherProviderServiceProvider = Provider<WeatherProviderService>((ref) {
 });
 
 /// Current weather for location
-final currentWeatherProvider = FutureProvider.family<WeatherResult<WeatherData>, LatLng>((ref, location) async {
+final currentWeatherProvider = FutureProvider.autoDispose.family<WeatherResult<WeatherData>, LatLng>((ref, location) async {
   final service = ref.watch(weatherProviderServiceProvider);
   return service.getCurrentWeather(location.lat, location.lng);
 });
 
 /// Weather forecast for location
-final weatherForecastProvider = FutureProvider.family<WeatherResult<List<ForecastDay>>, WeatherForecastParams>((ref, params) async {
+final weatherForecastProvider = FutureProvider.autoDispose.family<WeatherResult<List<ForecastDay>>, WeatherForecastParams>((ref, params) async {
   final service = ref.watch(weatherProviderServiceProvider);
   return service.getForecast(params.lat, params.lng, days: params.days);
 });

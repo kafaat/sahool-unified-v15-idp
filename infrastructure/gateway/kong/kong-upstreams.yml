@@ -1199,8 +1199,8 @@ upstreams:
           - messaging
           - tier-1
 
-  # WeChat Service - خدمة WeChat
-  - name: wechat-service-upstream
+  # Community Service - خدمة المجتمع الزراعي (Rocket.Chat integration)
+  - name: community-service-upstream
     algorithm: round-robin
     slots: 10000
     healthchecks:
@@ -1221,12 +1221,12 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: wechat-service:8133
+      - target: community-service:8133
         weight: 100
         tags:
-          - integration
+          - community
           - messaging
-          - tier-2
+          - tier-1
 
 # ==============================================================================
 # End of Upstreams Configuration

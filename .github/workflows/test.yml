@@ -279,6 +279,10 @@ jobs:
           echo "Running Flutter widget tests..."
           flutter test test/widget/ --reporter=expanded
 
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Run integration tests
         run: |
           echo "Running Flutter integration tests..."

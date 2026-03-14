@@ -283,10 +283,14 @@ class TestDockerComposePortUniqueness:
             "minio",
             "mlflow",
         }
+        # Deprecated services may not have host port mappings to avoid conflicts
+        deprecated_services = {
+            "wechat-service",
+        }
         services = docker_compose_config.get("services", {})
         missing = []
         for svc_name, svc_config in services.items():
-            if svc_name in infra_services:
+            if svc_name in infra_services or svc_name in deprecated_services:
                 continue
             if not svc_config.get("ports"):
                 missing.append(svc_name)

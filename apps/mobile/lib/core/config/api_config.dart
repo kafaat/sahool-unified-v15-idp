@@ -28,6 +28,7 @@ class ServicePorts {
   static int get inventory => EnvConfig.inventoryPort;
   static int get notifications => EnvConfig.notificationsPort;
   static int get spray => EnvConfig.sprayPort;
+  static int get community => EnvConfig.communityPort;
   static int get gateway => EnvConfig.gatewayPort;
 
   /// Verify that EnvConfig defaults match unified contracts.
@@ -121,6 +122,7 @@ class ApiConfig {
   static String get notificationsServiceUrl => EnvConfig.notificationsUrl;
   static String get sprayServiceUrl => EnvConfig.sprayUrl;
   static String get marketplaceServiceUrl => EnvConfig.marketplaceUrl;
+  static String get communityServiceUrl => EnvConfig.communityUrl;
 
   /// Production base URL (Kong Gateway)
   /// @deprecated Use EnvConfig.gatewayUrl instead
@@ -399,6 +401,7 @@ class ApiConfig {
     'notifications': healthCheck(notificationsServiceUrl),
     'spray': healthCheck(sprayServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
+    'community': healthCheck(communityServiceUrl),
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -484,6 +487,33 @@ class ApiConfig {
 
   /// Chat Socket.io URL
   static String get chatSocketUrl => chatServiceUrl;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Community Service Endpoints (port 8133, Rocket.Chat)
+  // خدمة المجتمع الزراعي
+  // Kong route: /api/v1/community
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _communityBase => useDirectServices ? communityServiceUrl : '$effectiveBaseUrl/api/v1/community';
+
+  /// Community channel endpoints
+  static String get communityChannels => '$_communityBase/channels';
+  static String communityChannelById(String id) => '$_communityBase/channels/$id';
+  static String communityChannelJoin(String id) => '$_communityBase/channels/$id/join';
+  static String communityChannelLeave(String id) => '$_communityBase/channels/$id/leave';
+  static String communityChannelMembers(String id) => '$_communityBase/channels/$id/members';
+  static String communityChannelHistory(String id) => '$_communityBase/channels/$id/history';
+
+  /// Community message endpoints
+  static String get communityMessages => '$_communityBase/messages';
+  static String get communityMessageSearch => '$_communityBase/messages/search';
+
+  /// Community user & tenant endpoints
+  static String get communityUserSync => '$_communityBase/users/sync';
+  static String get communitySetupTenant => '$_communityBase/setup-tenant';
+
+  /// Community health check
+  static String get communityHealthz => '$_communityBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // AI Advisor Service Endpoints (port 8112)

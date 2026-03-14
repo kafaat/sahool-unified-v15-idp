@@ -22,7 +22,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
   ground-vision-service:
     build:
@@ -46,7 +46,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1000'
+          cpus: '1.0'
           memory: 2Gi
     depends_on:
     - vegetation-analysis-service
@@ -74,7 +74,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '600'
+          cpus: '0.6'
           memory: 768Mi
   weather-advanced:
     build:
@@ -98,7 +98,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
   virtual-sensors:
     build:
@@ -122,7 +122,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - weather-service
@@ -149,7 +149,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -177,7 +177,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - postgres
@@ -204,7 +204,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - postgres
@@ -233,7 +233,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '200'
+          cpus: '0.2'
           memory: 256Mi
     depends_on:
     - redis
@@ -259,7 +259,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - yolo26-vision-service
@@ -285,7 +285,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - iot-service

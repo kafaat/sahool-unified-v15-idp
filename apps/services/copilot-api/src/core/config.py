@@ -43,7 +43,10 @@ class Settings(BaseSettings):
     # SECURITY
     # ═══════════════════════════════════════════════════════════════════════════
 
-    jwt_secret_key: str = Field(default="changeme-in-production-minimum-32-chars", description="JWT secret key")
+    jwt_secret_key: str = Field(
+        default="",
+        description="JWT secret key (must be set via env, min 32 chars in production)",
+    )
     jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")
     jwt_expiration_minutes: int = Field(default=60, description="JWT expiration")
 

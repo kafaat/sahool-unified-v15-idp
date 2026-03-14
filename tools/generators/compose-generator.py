@@ -59,7 +59,7 @@ def generate_service_compose(name: str, config: dict) -> dict:
         service["deploy"] = {
             "resources": {
                 "limits": {
-                    "cpus": resources.get("cpu", "500m").replace("m", "").zfill(1),
+                    "cpus": str(int(resources.get("cpu", "500m").replace("m", "")) / 1000),
                     "memory": resources.get("memory", "512Mi"),
                 }
             }

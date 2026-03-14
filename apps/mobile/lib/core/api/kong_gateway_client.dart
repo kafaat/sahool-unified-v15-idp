@@ -200,8 +200,8 @@ class KongServices {
   );
 
   static const community = KongService(
-    name: 'chat-service',
-    nameAr: 'المجتمع',
+    name: 'community-service',
+    nameAr: 'المجتمع الزراعي',
     basePath: '/api/v1/community',
   );
 

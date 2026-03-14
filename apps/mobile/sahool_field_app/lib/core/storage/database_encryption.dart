@@ -22,8 +22,8 @@ class DatabaseEncryption {
             const FlutterSecureStorage(
               aOptions: AndroidOptions(
                 encryptedSharedPreferences: true,
-                // Use AES encryption for the key
-                keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_PKCS1Padding,
+                // Use RSA-OAEP for key wrapping (PKCS1 is vulnerable to padding oracle)
+                keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
                 storageCipherAlgorithm:
                     StorageCipherAlgorithm.AES_GCM_NoPadding,
               ),

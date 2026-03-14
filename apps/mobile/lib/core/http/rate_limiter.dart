@@ -73,7 +73,7 @@ class RateLimiter {
   }
 
   /// Determine endpoint type from path
-  String _getEndpointType(String path) {
+  String getEndpointType(String path) {
     if (path.contains('/auth') ||
         path.contains('/login') ||
         path.contains('/register') ||
@@ -93,14 +93,14 @@ class RateLimiter {
 
   /// Check if request can proceed
   Future<bool> tryAcquire(String path) async {
-    final endpointType = _getEndpointType(path);
+    final endpointType = getEndpointType(path);
     final bucket = _getBucket(endpointType);
     return bucket.tryConsume();
   }
 
   /// Wait until a token is available (with timeout)
   Future<void> waitForToken(String path, {Duration? timeout}) async {
-    final endpointType = _getEndpointType(path);
+    final endpointType = getEndpointType(path);
     final bucket = _getBucket(endpointType);
 
     final maxWaitTime = timeout ?? const Duration(seconds: 30);
@@ -159,7 +159,7 @@ class RateLimiter {
         // We just signal that the request can proceed
       } else {
         // Wait a bit before checking again
-        final endpointType = _getEndpointType(path);
+        final endpointType = getEndpointType(path);
         final bucket = _getBucket(endpointType);
         await Future.delayed(bucket.getWaitTime());
       }
@@ -179,7 +179,7 @@ class RateLimiter {
       maxTokens: config.maxRequests,
       refillRate: config.maxRequests / config.windowDuration.inSeconds,
       queuedRequests: _requestQueue.where(
-        (r) => _getEndpointType(r.options.path) == endpointType
+        (r) => getEndpointType(r.options.path) == endpointType
       ).length,
     );
   }
@@ -248,11 +248,11 @@ class TokenBucket {
       return Duration.zero;
     }
 
-    // Calculate time needed to refill one token
-    final tokensNeeded = 1 - _tokens;
+    // Calculate time needed to refill one token (clamp to avoid negative from float errors)
+    final tokensNeeded = (1 - _tokens).clamp(0.0, capacity.toDouble());
     final secondsNeeded = tokensNeeded / refillRate;
 
-    return Duration(milliseconds: (secondsNeeded * 1000).ceil());
+    return Duration(milliseconds: (secondsNeeded * 1000).ceil().clamp(0, 60000));
   }
 }
 
@@ -371,7 +371,7 @@ class RateLimitInterceptor extends Interceptor {
 
       if (canProceed) {
         if (kDebugMode) {
-          final endpointType = rateLimiter._getEndpointType(options.path);
+          final endpointType = rateLimiter.getEndpointType(options.path);
           final status = rateLimiter.getStatus(endpointType);
           AppLogger.d('Rate Limit status', tag: 'RateLimiter', data: {
             'endpointType': endpointType,
@@ -396,7 +396,7 @@ class RateLimitInterceptor extends Interceptor {
           handler.next(options);
         } else {
           // Reject immediately
-          final endpointType = rateLimiter._getEndpointType(options.path);
+          final endpointType = rateLimiter.getEndpointType(options.path);
           handler.reject(
             DioException(
               requestOptions: options,
@@ -429,7 +429,7 @@ class RateLimitInterceptor extends Interceptor {
     // Check if we should retry based on rate limiting
     if (_shouldRetryWithBackoff(err)) {
       final retryCount = err.requestOptions.extra['retryCount'] as int? ?? 0;
-      final endpointType = rateLimiter._getEndpointType(err.requestOptions.path);
+      final endpointType = rateLimiter.getEndpointType(err.requestOptions.path);
       final config = rateLimiter.getConfig(endpointType);
 
       if (retryCount < config.maxRetries) {

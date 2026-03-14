@@ -12,9 +12,21 @@ Handles:
 """
 
 import structlog
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, Response
 
 from ...core.config import settings
+
+# Authentication guard - requires valid JWT for send/template/mark-read endpoints
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+
+    async def get_current_user():  # type: ignore[misc]
+        """Fail-closed when shared auth is not available."""
+        raise HTTPException(
+            status_code=503,
+            detail="Auth module unavailable | وحدة المصادقة غير متوفرة",
+        )
 from ..schemas import (
     SendMessageRequest,
     SendMessageResponse,
@@ -52,8 +64,8 @@ async def verify_webhook(
         has_challenge=hub_challenge is not None,
     )
 
-    # Verify the webhook subscription
-    if hub_mode == "subscribe" and hub_verify_token == settings.whatsapp_verify_token:
+    # Verify the webhook subscription (reject if verify token is unconfigured)
+    if hub_mode == "subscribe" and settings.whatsapp_verify_token and hub_verify_token == settings.whatsapp_verify_token:
         logger.info("webhook_verification_success")
         # Must return the challenge as plain text
         return Response(content=hub_challenge, media_type="text/plain")
@@ -163,6 +175,7 @@ async def receive_webhook(
 async def send_message(
     request: Request,
     message_request: SendMessageRequest,
+    _current_user=Depends(get_current_user),
 ):
     """
     Send a message to a WhatsApp user.
@@ -265,6 +278,7 @@ async def send_message(
 async def send_template_message(
     request: Request,
     template_request: SendTemplateRequest,
+    _current_user=Depends(get_current_user),
 ):
     """
     Send a template message to a WhatsApp user.
@@ -336,6 +350,7 @@ async def send_template_message(
 async def mark_message_as_read(
     request: Request,
     message_id: str = Query(..., description="Message ID to mark as read"),
+    _current_user=Depends(get_current_user),
 ):
     """
     Mark a message as read.

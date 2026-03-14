@@ -89,12 +89,13 @@ class AuthState {
 class AuthStateNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
   StreamSubscription<bool>? _authStreamSubscription;
+  bool _disposed = false;
 
   AuthStateNotifier(this._authService) : super(const AuthState()) {
     _init();
     // Subscribe to auth state changes from TokenManager (via AuthService)
     _authStreamSubscription = _authService.authStateStream.listen((isAuthenticated) {
-      if (!isAuthenticated && mounted) {
+      if (!isAuthenticated && !_disposed) {
         AppLogger.i('Forcing logout due to token refresh failure', tag: 'AUTH');
         state = const AuthState(status: AuthStatus.unauthenticated);
       }
@@ -166,6 +167,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   @override
   void dispose() {
+    _disposed = true;
     _authStreamSubscription?.cancel();
     super.dispose();
   }

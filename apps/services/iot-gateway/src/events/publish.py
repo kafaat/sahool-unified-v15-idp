@@ -110,8 +110,8 @@ class IoTPublisher:
                 if parsed.password:
                     host = parsed.hostname or "localhost"
                     port_str = f":{parsed.port}" if parsed.port else ""
-                    user_str = f"{parsed.username}@" if parsed.username else ""
-                    masked = f"{parsed.scheme}://{user_str}***@{host}{port_str}"
+                    user_part = f"{parsed.username}:***@" if parsed.username else "***@"
+                    masked = f"{parsed.scheme}://{user_part}{host}{port_str}"
                 else:
                     masked = self.nats_url
             except Exception:

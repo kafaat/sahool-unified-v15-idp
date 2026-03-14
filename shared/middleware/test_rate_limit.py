@@ -148,20 +148,22 @@ class TestRateLimiter:
         assert limiter is not None
         assert limiter.tier_config is not None
 
-    def test_rate_limiter_check_allowed(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_check_allowed(self):
         """Test that requests within limits are allowed"""
         limiter = RateLimiter()
         request = self.create_mock_request()
 
         # First request should be allowed
-        allowed, headers = limiter.check_rate_limit(request)
+        allowed, headers = await limiter.check_rate_limit(request)
 
         assert allowed is True
         assert "X-RateLimit-Limit" in headers
         assert "X-RateLimit-Remaining" in headers
         assert "X-RateLimit-Reset" in headers
 
-    def test_rate_limiter_check_denied_burst(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_check_denied_burst(self):
         """Test that burst limit is enforced"""
         # Create limiter with very low burst limit
         config = RateLimitConfig(
@@ -175,15 +177,16 @@ class TestRateLimiter:
         request = self.create_mock_request()
 
         # First two requests should succeed
-        assert limiter.check_rate_limit(request)[0] is True
-        assert limiter.check_rate_limit(request)[0] is True
+        assert (await limiter.check_rate_limit(request))[0] is True
+        assert (await limiter.check_rate_limit(request))[0] is True
 
         # Third request should fail (burst limit exceeded)
-        allowed, headers = limiter.check_rate_limit(request)
+        allowed, headers = await limiter.check_rate_limit(request)
         assert allowed is False
         assert "Retry-After" in headers
 
-    def test_rate_limiter_check_denied_minute_limit(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_check_denied_minute_limit(self):
         """Test that minute limit is enforced"""
         # Create limiter with very low minute limit
         config = RateLimitConfig(
@@ -197,14 +200,15 @@ class TestRateLimiter:
         request = self.create_mock_request()
 
         # First two requests should succeed
-        assert limiter.check_rate_limit(request)[0] is True
-        assert limiter.check_rate_limit(request)[0] is True
+        assert (await limiter.check_rate_limit(request))[0] is True
+        assert (await limiter.check_rate_limit(request))[0] is True
 
         # Third request should fail (minute limit exceeded)
-        allowed, headers = limiter.check_rate_limit(request)
+        allowed, headers = await limiter.check_rate_limit(request)
         assert allowed is False
 
-    def test_rate_limiter_different_clients(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_different_clients(self):
         """Test that different clients have separate limits"""
         limiter = RateLimiter()
 
@@ -212,39 +216,42 @@ class TestRateLimiter:
         request2 = self.create_mock_request(ip="192.168.1.2")
 
         # Both requests should be allowed
-        assert limiter.check_rate_limit(request1)[0] is True
-        assert limiter.check_rate_limit(request2)[0] is True
+        assert (await limiter.check_rate_limit(request1))[0] is True
+        assert (await limiter.check_rate_limit(request2))[0] is True
 
-    def test_rate_limiter_tier_selection(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_tier_selection(self):
         """Test that different tiers have different limits"""
         limiter = RateLimiter()
 
         # Internal service request (verified via ServiceAuthMiddleware)
         request_internal = self.create_mock_request(is_service_request=True)
 
-        allowed, headers = limiter.check_rate_limit(request_internal)
+        allowed, headers = await limiter.check_rate_limit(request_internal)
         assert allowed is True
         # Internal tier has higher limit
         limit = int(headers.get("X-RateLimit-Limit", "0"))
         assert limit >= 1000  # Internal tier minimum
 
-    def test_rate_limiter_user_tier_from_jwt(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_user_tier_from_jwt(self):
         """Test that tier is derived from verified JWT claims, not headers"""
         limiter = RateLimiter()
 
         # User with premium tier from JWT
         request_premium = self.create_mock_request(user_id="user-1", tier="premium")
-        allowed, headers = limiter.check_rate_limit(request_premium)
+        allowed, headers = await limiter.check_rate_limit(request_premium)
         assert allowed is True
         limit = int(headers.get("X-RateLimit-Limit", "0"))
         assert limit >= 120  # Premium tier minimum
 
-    def test_rate_limiter_unauthenticated_gets_free_tier(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_unauthenticated_gets_free_tier(self):
         """Test unauthenticated requests default to free (most restrictive) tier"""
         limiter = RateLimiter()
 
         request_anon = self.create_mock_request()
-        allowed, headers = limiter.check_rate_limit(request_anon)
+        allowed, headers = await limiter.check_rate_limit(request_anon)
         assert allowed is True
         limit = int(headers.get("X-RateLimit-Limit", "0"))
         assert limit <= 30  # Free tier maximum
@@ -417,7 +424,8 @@ class TestAuthMiddlewareRateLimiting:
 class TestPerformance:
     """Test rate limiter performance"""
 
-    def test_rate_limiter_performance(self):
+    @pytest.mark.asyncio
+    async def test_rate_limiter_performance(self):
         """Test that rate limiter can handle many requests quickly"""
         limiter = RateLimiter()
         request = Mock(spec=Request)
@@ -432,7 +440,7 @@ class TestPerformance:
 
         # Make 1000 requests
         for _ in range(1000):
-            limiter.check_rate_limit(request)
+            await limiter.check_rate_limit(request)
 
         elapsed = time.time() - start_time
 

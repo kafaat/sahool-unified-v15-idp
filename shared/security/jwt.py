@@ -198,7 +198,7 @@ def verify_token(token: str, check_revocation: bool = True, leeway: int | None =
             except Exception as e:
                 # Code error in revocation service - fail closed (reject token)
                 logger.error(f"Token revocation check failed: {e}")
-                raise AuthError(f"Token revocation check failed: {e}", "revocation_check_failed")
+                raise AuthError("Token revocation check failed", "revocation_check_failed")
 
         return payload
 

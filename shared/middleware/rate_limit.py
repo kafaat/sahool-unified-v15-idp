@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
@@ -85,7 +84,7 @@ class RateLimiter:
         self.tier_config = tier_config or TierConfig()
         self._buckets: dict[str, TokenBucket] = {}
         self._request_counts: dict[str, list[float]] = defaultdict(list)
-        self._lock = threading.Lock()
+        self._lock = asyncio.Lock()
 
     def _get_bucket(self, key: str, config: RateLimitConfig) -> TokenBucket:
         """Get or create token bucket for a key"""
@@ -131,7 +130,7 @@ class RateLimiter:
         """Get rate limit config for tier"""
         return getattr(self.tier_config, tier, self.tier_config.free)
 
-    def check_rate_limit(self, request: Request) -> tuple[bool, dict]:
+    async def check_rate_limit(self, request: Request) -> tuple[bool, dict]:
         """
         Check if request is within rate limits
         Returns (allowed, headers_dict)
@@ -149,7 +148,7 @@ class RateLimiter:
         if not bucket.consume():
             return False, self._build_headers(key, config, tier, exceeded=True)
 
-        with self._lock:
+        async with self._lock:
             # Check sliding window (per-minute)
             self._clean_old_requests(key, 60)
             if len(self._request_counts.get(key, [])) >= config.requests_per_minute:
@@ -246,7 +245,7 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
     if request.url.path in ["/healthz", "/readyz", "/metrics"]:
         return await call_next(request)
 
-    allowed, headers = _rate_limiter.check_rate_limit(request)
+    allowed, headers = await _rate_limiter.check_rate_limit(request)
 
     if not allowed:
         # Log rate limit exceeded for security monitoring
@@ -334,7 +333,7 @@ def rate_limit(
                 custom_key = key_func(request)
                 request.state._rate_limit_key = custom_key
 
-            allowed, headers = limiter.check_rate_limit(request)
+            allowed, headers = await limiter.check_rate_limit(request)
 
             if not allowed:
                 raise HTTPException(

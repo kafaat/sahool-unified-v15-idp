@@ -255,7 +255,7 @@ jobs:
           bandit -r apps/services/ shared/ \
             -ll \
             -ii \
-            --format txt || true
+            --format txt
 
       - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v4
@@ -290,7 +290,7 @@ jobs:
             --config p/secrets \
             --sarif --output semgrep.sarif \
             --exclude "archive" --exclude "node_modules" --exclude ".git" \
-            . || true
+            .
 
           # Ensure SARIF file exists
           if [ ! -f "semgrep.sarif" ]; then
@@ -425,10 +425,10 @@ jobs:
             --format sarif \
             --output trivy-${{ matrix.service }}.sarif \
             --severity CRITICAL,HIGH \
-            --exit-code 0 \
+            --exit-code 1 \
             --ignore-unfixed \
             --scanners vuln \
-            ${{ matrix.service }}:scan || true
+            ${{ matrix.service }}:scan
 
           # Ensure SARIF file exists
           if [ ! -f "trivy-${{ matrix.service }}.sarif" ]; then
@@ -513,7 +513,7 @@ jobs:
         with:
           directory: .
           framework: kubernetes,dockerfile,secrets
-          soft_fail: true
+          soft_fail: false
           output_format: sarif
           output_file_path: checkov-results.sarif
           skip_path: archive/deprecated-services

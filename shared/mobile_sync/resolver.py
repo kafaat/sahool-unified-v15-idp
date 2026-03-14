@@ -79,7 +79,7 @@ def detect_conflict(
                 local_data=local_item.local_data,
                 server_data=server_data,
                 base_data=base_data,
-                conflicting_fields=list(local_keys.symmetric_difference(server_keys)),
+                conflicting_fields=sorted(local_keys.symmetric_difference(server_keys)),
                 local_modified_at=local_item.local_modified_at,
                 server_modified_at=server_modified_at,
                 local_modified_by=local_item.user_id,

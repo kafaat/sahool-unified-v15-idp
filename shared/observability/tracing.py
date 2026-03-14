@@ -239,7 +239,7 @@ class DistributedTracer:
         # Note: nats-py doesn't have native OTel instrumentation
         # Context must be propagated manually via message headers
         logger.info(
-            "NATS instrumentation: use TracingConfig.inject_context()/extract_context() "
+            "NATS instrumentation: use DistributedTracer.inject_context()/extract_context() "
             "for manual context propagation in NATS messages"
         )
 

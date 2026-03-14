@@ -141,7 +141,7 @@ class DLQConfig(BaseModel):
             DLQ subject (e.g., "sahool.dlq.sahool.field.created")
         """
         # Prevent double-DLQ prefixing
-        if original_subject.startswith(self.dlq_subject_prefix):
+        if original_subject == self.dlq_subject_prefix or original_subject.startswith(self.dlq_subject_prefix + "."):
             return original_subject
         return f"{self.dlq_subject_prefix}.{original_subject}"
 

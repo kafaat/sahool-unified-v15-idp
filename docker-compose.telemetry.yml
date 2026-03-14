@@ -113,9 +113,10 @@ services:
       jaeger:
         condition: service_healthy
     healthcheck:
-      # OTel Collector exposes health_check extension on port 13133
-      # The -contrib image includes curl; wget may not be available in all variants
-      test: ["CMD-SHELL", "curl -sf http://localhost:13133/ || wget --no-verbose --tries=1 --spider http://localhost:13133/ || exit 1"]
+      # OTel Collector contrib image is distroless (no shell/curl/wget).
+      # Disable healthcheck and rely on depends_on + restart policy.
+      # For custom healthchecks, build a wrapper image with curl installed.
+      test: ["NONE"]
       interval: 30s
       timeout: 10s
       retries: 3

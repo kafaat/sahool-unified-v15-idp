@@ -126,11 +126,10 @@ plugins:
   # إضافة قوائم التحكم في الوصول
   # --------------------------------------------------------------------------
   - name: acl
-    enabled: true  # Enable per-route - تفعيل لكل مسار
+    enabled: true  # Global ACL enforcement - تفعيل عالمي لقوائم التحكم في الوصول
     config:
       hide_groups_header: true
       allow:
-        - authenticated-users
         - starter-users
         - professional-users
         - enterprise-users

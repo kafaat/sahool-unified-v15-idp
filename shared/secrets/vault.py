@@ -345,12 +345,16 @@ class VaultClient:
 
             return value
 
-        except Exception as e:
-            # On fetch failure, attempt cache fallback (even if TTL expired)
+        except (ConnectionError, TimeoutError, OSError) as e:
+            # On connectivity failure, attempt cache fallback (even if TTL expired)
             if cache_key in self._cache:
                 logger.warning(f"Vault fetch failed for '{path}', using stale cached value: {e}")
                 value, _cached_at = self._cache[cache_key]
                 return value
+            logger.error(f"Failed to get secret '{path}': {e}")
+            raise
+        except Exception as e:
+            # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
             logger.error(f"Failed to get secret '{path}': {e}")
             raise
 

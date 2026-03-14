@@ -213,6 +213,7 @@ jobs:
           done
           if [ -n "$FAILED" ]; then
             echo "::error::Service tests failed:$FAILED"
+            exit 1
           fi
           # Generate combined coverage report
           coverage report --show-missing || true

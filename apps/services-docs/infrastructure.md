@@ -534,7 +534,7 @@ sahool-kong
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `KONG_NGINX_WORKER_PROCESSES` | `auto` | Worker processes count |
+| `KONG_NGINX_WORKER_PROCESSES` | `4` | Worker processes count (fixed from 'auto') |
 | `KONG_NGINX_WORKER_CONNECTIONS` | `4096` | Connections per worker |
 | `KONG_UPSTREAM_KEEPALIVE_POOL_SIZE` | `60` | Upstream connection pool |
 | `KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS` | `100` | Max requests per connection |

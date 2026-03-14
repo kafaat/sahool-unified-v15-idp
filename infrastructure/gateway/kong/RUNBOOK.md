@@ -135,7 +135,7 @@ docker compose logs kong-dbless | grep -E "latency|upstream"
 2. **Increase worker processes**:
    ```yaml
    # In docker-compose.yml
-   KONG_NGINX_WORKER_PROCESSES: auto  # Already set
+   KONG_NGINX_WORKER_PROCESSES: 4  # Fixed from 'auto' (see C12 fix, 2026-03-13)
    KONG_NGINX_WORKER_CONNECTIONS: 16384  # Increase from 8192
    ```
 3. **Enable upstream keepalive** (already configured)
@@ -245,7 +245,7 @@ View alerts: http://localhost:9090/alerts
 
 ```yaml
 # Worker Processes
-KONG_NGINX_WORKER_PROCESSES: auto  # Matches CPU cores
+KONG_NGINX_WORKER_PROCESSES: 4  # Fixed from 'auto' to avoid startup delays on high-core hosts
 KONG_NGINX_WORKER_CONNECTIONS: 8192
 
 # Buffering

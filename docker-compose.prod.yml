@@ -40,7 +40,10 @@ services:
       - KONG_JWT_INTERNAL_SECRET=${KONG_JWT_INTERNAL_SECRET:?KONG_JWT_INTERNAL_SECRET is required}
 
       # Performance Optimization - Worker Processes (Production)
-      - KONG_NGINX_WORKER_PROCESSES=${KONG_NGINX_WORKER_PROCESSES:-auto}
+      # FIX: Default changed from 'auto' to '4' to match docker-compose.yml fix (2026-03-13).
+      # 'auto' spawns 24 workers on high-core hosts, causing 15-25s startup delays
+      # and worker.lua timeout errors. 4 workers provide ~1,300 req/s (26× typical peak).
+      - KONG_NGINX_WORKER_PROCESSES=${KONG_NGINX_WORKER_PROCESSES:-4}
       - KONG_NGINX_WORKER_CONNECTIONS=${KONG_NGINX_WORKER_CONNECTIONS:-8192}
 
       # Nginx Keepalive Settings (Production)

@@ -42,12 +42,14 @@ def _make_rc_mock():
     rc.create_channel = AsyncMock(return_value={"_id": "ch001", "name": "test-channel"})
     rc.get_channels = AsyncMock(return_value=[])
     rc.post_message = AsyncMock(return_value={"_id": "msg001", "ts": "2026-01-01T00:00:00Z"})
+
     rc.add_user_to_channel = AsyncMock(return_value={})
     rc.remove_user_from_channel = AsyncMock(return_value={})
     rc.get_channel_history = AsyncMock(return_value=[])
     rc.get_channel_members = AsyncMock(return_value=[])
     rc.search_messages = AsyncMock(return_value=[])
     rc.create_user = AsyncMock(return_value={"_id": "rc_user_001", "username": "test"})
+
     rc.set_user_avatar = AsyncMock(return_value={})
     rc.pin_message = AsyncMock(return_value={})
     return rc
@@ -234,6 +236,7 @@ class TestTenantSetup:
         )
         data = resp.json()
         irrigation_ch = next(ch for ch in data["channels"] if "irrigation" in ch["name"])
+
         assert irrigation_ch["name_ar"] == "الري"
         assert irrigation_ch["description_ar"] == "جدولة الري وإدارة المياه"
 
@@ -275,6 +278,7 @@ class TestTenantSetup:
     def test_setup_tenant_tolerates_admin_sync_failure(self, rc_client, mock_rc_client):
         """Setup continues if admin sync fails | يستمر عند فشل مزامنة المدير"""
         mock_rc_client.create_user = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/setup-tenant",
             json={
@@ -860,6 +864,7 @@ class TestUserSync:
     def test_sync_user_avatar_failure_does_not_break(self, rc_client, mock_rc_client):
         """Avatar set failure does not break sync | فشل الصورة لا يكسر المزامنة"""
         mock_rc_client.set_user_avatar = AsyncMock(side_effect=HTTPException(status_code=502, detail="Avatar error"))
+
         resp = rc_client.post(
             "/api/v1/community/users/sync",
             json={
@@ -1350,6 +1355,7 @@ class TestErrorHandling:
     def test_post_message_rc_failure(self, rc_client, mock_rc_client):
         """Post message handles RC failure | فشل نشر الرسالة"""
         mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/messages",
             json={"channel_id": "ch001", "text": "Hello"},
@@ -1360,6 +1366,7 @@ class TestErrorHandling:
     def test_join_channel_rc_failure(self, rc_client, mock_rc_client):
         """Join channel handles RC failure | فشل الانضمام"""
         mock_rc_client.add_user_to_channel = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post("/api/v1/community/channels/ch001/join")
         assert resp.status_code == 502
 
@@ -1376,6 +1383,7 @@ class TestErrorHandling:
     def test_search_messages_rc_failure(self, rc_client, mock_rc_client):
         """Search handles RC failure | فشل البحث"""
         mock_rc_client.search_messages = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/messages/search",
             json={"channel_id": "ch001", "query": "test"},
@@ -1386,6 +1394,7 @@ class TestErrorHandling:
     def test_sync_user_rc_failure(self, rc_client, mock_rc_client):
         """Sync user handles RC failure | فشل المزامنة"""
         mock_rc_client.create_user = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/users/sync",
             json={
@@ -1400,6 +1409,7 @@ class TestErrorHandling:
     def test_advisory_bot_rc_failure(self, rc_client, mock_rc_client):
         """Advisory bot handles RC failure | فشل بوت الاستشارات"""
         mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/bots/advisory",
             json={
@@ -1413,6 +1423,7 @@ class TestErrorHandling:
     def test_alert_bot_rc_failure(self, rc_client, mock_rc_client):
         """Alert bot handles RC failure | فشل بوت التنبيهات"""
         mock_rc_client.post_message = AsyncMock(side_effect=HTTPException(status_code=502, detail="RC error"))
+
         resp = rc_client.post(
             "/api/v1/community/bots/alert",
             json={

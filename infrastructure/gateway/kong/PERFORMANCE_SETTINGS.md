@@ -5,7 +5,7 @@
 ### Worker Configuration
 
 ```yaml
-KONG_NGINX_WORKER_PROCESSES: auto
+KONG_NGINX_WORKER_PROCESSES: 4    # Fixed: 'auto' caused 24 workers + startup delays
 KONG_NGINX_WORKER_CONNECTIONS: 4096
 ```
 

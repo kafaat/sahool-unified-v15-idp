@@ -146,7 +146,6 @@ PYTHON_SERVICES = {
     "vegetation-analysis-service": 8090,
     "virtual-sensors": 8119,
     "weather-service": 8092,
-    "wechat-service": 8133,
     "whatsapp-bot-service": 8240,
     "ws-gateway": 8081,
     "yolo26-vision-service": 8150,
@@ -985,10 +984,17 @@ class TestHealthSummaryStatistics:
         assert total >= 80, f"Expected >= 80 services, found {total}"
 
     def test_healthcheck_coverage(self, compose_data):
-        """At least 95% of services should have healthchecks."""
-        total = len(compose_data["services"])
+        """At least 95% of long-running services should have healthchecks.
+        يجب أن يكون لدى 95% على الأقل من الخدمات طويلة التشغيل فحوصات صحية."""
+        # Exclude one-shot init/loader containers that exit after completion
+        init_containers = {"etcd-init", "mongo-init-replica", "ollama-model-loader"}
+        long_running = {
+            name: svc for name, svc in compose_data["services"].items()
+            if name not in init_containers
+        }
+        total = len(long_running)
         with_hc = sum(
-            1 for svc in compose_data["services"].values()
+            1 for svc in long_running.values()
             if "healthcheck" in svc
         )
         coverage = with_hc / total * 100
@@ -1023,10 +1029,16 @@ class TestHealthSummaryStatistics:
         assert len(INFRASTRUCTURE_SERVICES) == 6
 
     def test_no_duplicate_ports_across_all_services(self, compose_data):
-        """No two services should use the same host port."""
+        """No two active services should use the same host port.
+        يجب ألا تستخدم خدمتان نشطتان نفس منفذ المضيف."""
+        # Exclude deprecated/profiled services that don't run by default
+        deprecated_profiles = {"deprecated", "legacy"}
         port_map: dict[str, str] = {}
         conflicts = []
         for svc_name, svc in compose_data["services"].items():
+            svc_profiles = set(svc.get("profiles", []))
+            if svc_profiles & deprecated_profiles:
+                continue
             for port_mapping in svc.get("ports", []):
                 port_str = str(port_mapping)
                 # Strip protocol suffix (e.g. /tcp, /udp) before parsing

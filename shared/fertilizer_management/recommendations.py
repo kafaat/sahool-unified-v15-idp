@@ -786,7 +786,9 @@ class FertilizerRecommendationEngine:
                     continue
 
                 # Cost per kg of this nutrient = (unit_price / unit_size_kg) / (percent / 100)
-                price_per_kg_product = float(fert.unit_price) / fert.unit_size_kg if fert.unit_size_kg > 0 else float("inf")
+                price_per_kg_product = (
+                    float(fert.unit_price) / fert.unit_size_kg if fert.unit_size_kg > 0 else float("inf")
+                )
                 cost_per_kg_nutrient = price_per_kg_product / (nutrient_percent / 100.0)
 
                 if cost_per_kg_nutrient < best_cost_per_kg_nutrient:
@@ -819,7 +821,11 @@ class FertilizerRecommendationEngine:
             remaining["K2O"] = max(0, remaining["K2O"] - k_supplied)
 
             # Calculate cost
-            price_per_kg = float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg if best_fertilizer.unit_size_kg > 0 else 0.0
+            price_per_kg = (
+                float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg
+                if best_fertilizer.unit_size_kg > 0
+                else 0.0
+            )
             total_cost = round(application_rate * price_per_kg, 2)
 
             # Build application notes based on fertilizer type
@@ -847,7 +853,9 @@ class FertilizerRecommendationEngine:
                         "P2O5": p_supplied,
                         "K2O": k_supplied,
                     },
-                    "unit_price_sar": float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg if best_fertilizer.unit_size_kg > 0 else 0.0,
+                    "unit_price_sar": float(best_fertilizer.unit_price) / best_fertilizer.unit_size_kg
+                    if best_fertilizer.unit_size_kg > 0
+                    else 0.0,
                     "total_cost": total_cost,
                     "application_notes_en": notes_en,
                     "application_notes_ar": notes_ar,

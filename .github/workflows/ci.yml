@@ -550,7 +550,7 @@ jobs:
           - apps/services/field-management-service
           - apps/services/marketplace-service
           - apps/services/lai-estimation
-          - apps/services/yield-prediction
+          - apps/services/yield-prediction-service
           - apps/services/crop-growth-model
     steps:
       - name: Checkout code
@@ -588,10 +588,11 @@ jobs:
       - name: Build workspace packages
         run: |
           # Build shared workspace packages that services depend on
+          # nestjs-auth MUST succeed — lai-estimation & crop-growth-model import from it
           for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
-            if [ -f "$pkg/package.json" ] && grep -q '"build"' "$pkg/package.json"; then
+            if [ -f "$GITHUB_WORKSPACE/$pkg/package.json" ] && grep -q '"build"' "$GITHUB_WORKSPACE/$pkg/package.json"; then
               echo "Building $pkg..."
-              npm run build --workspace=$pkg 2>/dev/null || true
+              npm run build --workspace=$pkg || echo "::warning::Failed to build $pkg — dependent service tests may fail"
             fi
           done
 
@@ -687,7 +688,22 @@ jobs:
 
       # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
       # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
+      # Skip login entirely when secrets are not configured to avoid "Username and password required" error
+      - name: Check Docker Hub credentials
+        id: docker_creds
+        run: |
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Docker Hub credentials not configured - builds will use anonymous pulls"
+          fi
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Login to Docker Hub
+        if: steps.docker_creds.outputs.available == 'true'
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}

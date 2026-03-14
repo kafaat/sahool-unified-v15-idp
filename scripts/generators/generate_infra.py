@@ -245,11 +245,7 @@ def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
                 "memory": resources.get("memory", "128Mi"),
             },
             "limits": {
-                "cpu": (
-                    resources.get("cpu", "500m").replace("m", "000m")
-                    if "m" in str(resources.get("cpu", "500m"))
-                    else "1000m"
-                ),
+                "cpu": resources.get("cpu", "500m"),
                 "memory": resources.get("memory", "512Mi"),
             },
         },

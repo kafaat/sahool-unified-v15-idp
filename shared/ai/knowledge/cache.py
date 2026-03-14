@@ -11,9 +11,9 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

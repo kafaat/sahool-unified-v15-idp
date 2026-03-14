@@ -29,7 +29,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -61,7 +61,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -93,7 +93,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -125,7 +125,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -157,7 +157,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -189,7 +189,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -221,7 +221,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -253,7 +253,7 @@ services:
         cpu: 1000m
         memory: 2Gi
       limits:
-        cpu: 1000000m
+        cpu: 1000m
         memory: 2Gi
     env:
     - name: NODE_ENV
@@ -285,7 +285,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -317,7 +317,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -349,7 +349,7 @@ services:
         cpu: 600m
         memory: 768Mi
       limits:
-        cpu: 600000m
+        cpu: 600m
         memory: 768Mi
     env:
     - name: NODE_ENV
@@ -381,7 +381,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -413,7 +413,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -445,7 +445,7 @@ services:
         cpu: 800m
         memory: 1Gi
       limits:
-        cpu: 800000m
+        cpu: 800m
         memory: 1Gi
     env:
     - name: NODE_ENV
@@ -477,7 +477,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -509,7 +509,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -541,7 +541,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -573,7 +573,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -605,7 +605,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -637,7 +637,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -669,7 +669,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -701,7 +701,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -733,7 +733,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -765,7 +765,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -797,7 +797,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -829,7 +829,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -861,7 +861,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -893,7 +893,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -925,7 +925,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -957,7 +957,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -989,7 +989,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1021,7 +1021,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1053,7 +1053,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1085,7 +1085,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1117,7 +1117,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1149,7 +1149,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1181,7 +1181,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1213,7 +1213,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1245,7 +1245,7 @@ services:
         cpu: 300m
         memory: 256Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1277,7 +1277,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1309,7 +1309,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1341,7 +1341,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1373,7 +1373,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1387,11 +1387,11 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8132'
       prometheus.io/path: /metrics
-  wechat-service:
+  community-service:
     enabled: true
-    name: wechat-service
+    name: community-service
     image:
-      repository: ghcr.io/kafaat/sahool-wechat-service
+      repository: ghcr.io/kafaat/sahool-community-service
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
@@ -1402,11 +1402,11 @@ services:
       periodSeconds: 10
     resources:
       requests:
-        cpu: 300m
-        memory: 384Mi
+        cpu: 500m
+        memory: 512Mi
       limits:
-        cpu: 300000m
-        memory: 384Mi
+        cpu: 500m
+        memory: 512Mi
     env:
     - name: NODE_ENV
       value: production
@@ -1414,10 +1414,42 @@ services:
       value: '8133'
     serviceAccount:
       create: true
-      name: sahool-wechat-service
+      name: sahool-community-service
     podAnnotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8133'
+      prometheus.io/path: /metrics
+  wechat-service:
+    enabled: false
+    name: wechat-service
+    image:
+      repository: ghcr.io/kafaat/sahool-wechat-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8135
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8135'
+    serviceAccount:
+      create: true
+      name: sahool-wechat-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8135'
       prometheus.io/path: /metrics
   agent-registry:
     enabled: true
@@ -1437,7 +1469,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1469,7 +1501,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1501,7 +1533,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1533,7 +1565,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1565,7 +1597,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1597,7 +1629,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1629,7 +1661,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1661,7 +1693,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1693,7 +1725,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1725,7 +1757,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1757,7 +1789,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -1789,7 +1821,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1821,7 +1853,7 @@ services:
         cpu: 200m
         memory: 256Mi
       limits:
-        cpu: 200000m
+        cpu: 200m
         memory: 256Mi
     env:
     - name: NODE_ENV
@@ -1853,7 +1885,7 @@ services:
         cpu: 400m
         memory: 384Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1885,7 +1917,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1917,7 +1949,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -1949,7 +1981,7 @@ services:
         cpu: 1000m
         memory: 2Gi
       limits:
-        cpu: 1000000m
+        cpu: 1000m
         memory: 2Gi
     env:
     - name: NODE_ENV
@@ -1981,7 +2013,7 @@ services:
         cpu: 500m
         memory: 1Gi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 1Gi
     env:
     - name: NODE_ENV
@@ -2013,7 +2045,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2045,7 +2077,7 @@ services:
         cpu: 400m
         memory: 512Mi
       limits:
-        cpu: 400000m
+        cpu: 400m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2077,7 +2109,7 @@ services:
         cpu: 300m
         memory: 384Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 384Mi
     env:
     - name: NODE_ENV
@@ -2109,7 +2141,7 @@ services:
         cpu: 500m
         memory: 1Gi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 1Gi
     env:
     - name: NODE_ENV
@@ -2141,7 +2173,7 @@ services:
         cpu: '8'
         memory: 32Gi
       limits:
-        cpu: 1000m
+        cpu: '8'
         memory: 32Gi
     env:
     - name: NODE_ENV
@@ -2173,7 +2205,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2205,7 +2237,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2237,7 +2269,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2269,7 +2301,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2301,7 +2333,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2333,7 +2365,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2365,7 +2397,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2397,7 +2429,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2429,7 +2461,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2461,7 +2493,7 @@ services:
         cpu: 500m
         memory: 512Mi
       limits:
-        cpu: 500000m
+        cpu: 500m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2493,7 +2525,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2525,7 +2557,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2557,7 +2589,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2589,7 +2621,7 @@ services:
         cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 300000m
+        cpu: 300m
         memory: 512Mi
     env:
     - name: NODE_ENV
@@ -2833,10 +2865,14 @@ ingress:
       pathType: Prefix
       service: lowcode-engine
       port: 8132
+    - path: /api/v1/community/service
+      pathType: Prefix
+      service: community-service
+      port: 8133
     - path: /api/v1/wechat/service
       pathType: Prefix
       service: wechat-service
-      port: 8133
+      port: 8135
     - path: /api/v1/agent/registry
       pathType: Prefix
       service: agent-registry

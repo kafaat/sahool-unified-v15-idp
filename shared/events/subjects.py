@@ -635,6 +635,21 @@ SAHOOL_KNOWLEDGE_ALL = "sahool.knowledge.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Community Events - أحداث المجتمع الزراعي
+# Rocket.Chat community platform integration events
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_COMMUNITY_CHANNEL_CREATED = "sahool.community.channel_created"
+SAHOOL_COMMUNITY_USER_JOINED = "sahool.community.user_joined"
+SAHOOL_COMMUNITY_MESSAGE_POSTED = "sahool.community.message_posted"
+SAHOOL_COMMUNITY_ADVISORY_POSTED = "sahool.community.advisory_posted"
+SAHOOL_COMMUNITY_ALERT_POSTED = "sahool.community.alert_posted"
+SAHOOL_COMMUNITY_TENANT_SETUP = "sahool.community.tenant_setup"
+
+SAHOOL_COMMUNITY_ALL = "sahool.community.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Utility Functions
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -867,6 +882,13 @@ SUBJECT_REGISTRY = {
     "spray.scheduled": SAHOOL_SPRAY_SCHEDULED,
     "spray.window": SAHOOL_SPRAY_WINDOW,
     "spray.warning": SAHOOL_SPRAY_WARNING,
+    # Community
+    "community.channel_created": SAHOOL_COMMUNITY_CHANNEL_CREATED,
+    "community.user_joined": SAHOOL_COMMUNITY_USER_JOINED,
+    "community.message_posted": SAHOOL_COMMUNITY_MESSAGE_POSTED,
+    "community.advisory_posted": SAHOOL_COMMUNITY_ADVISORY_POSTED,
+    "community.alert_posted": SAHOOL_COMMUNITY_ALERT_POSTED,
+    "community.tenant_setup": SAHOOL_COMMUNITY_TENANT_SETUP,
 }
 
 

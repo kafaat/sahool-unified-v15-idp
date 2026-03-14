@@ -3,10 +3,9 @@
  * اختبارات شاملة لمكونات واجهة المستخدم - التطبيق الويب
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import React from "react";
 
 // ─── Button ─────────────────────────────────────────────────────────────────
 import { Button } from "../button";

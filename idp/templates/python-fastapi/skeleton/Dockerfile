@@ -14,22 +14,18 @@ RUN chmod +x /usr/local/bin/apt-update.sh && \
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\ntrusted-host = mirrors.aliyun.com\n               pypi.tuna.tsinghua.edu.cn\n               mirrors.cloud.tencent.com\n               pypi.org\n               files.pythonhosted.org\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
+    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://pypi.org/simple/\nextra-index-url = https://mirrors.aliyun.com/pypi/simple/\n                  https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Copy and install dependencies with multi-mirror fallback
 COPY requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
     -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -r requirements.txt
 
 # Copy application code

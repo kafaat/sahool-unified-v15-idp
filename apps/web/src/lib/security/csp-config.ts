@@ -87,28 +87,39 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     "default-src": ["'self'"],
 
     // Script sources - Use nonce in production, allow unsafe-eval only in dev
+    //
+    // NOTE: 'strict-dynamic' is intentionally NOT used here because the
+    // middleware sets the nonce in the X-Nonce header but Next.js does not
+    // inject it into its inline <script> tags. With 'strict-dynamic',
+    // browsers ignore 'self' and 'unsafe-inline', causing Next.js hydration
+    // scripts to be blocked by CSP.
+    //
+    // 'unsafe-inline' is required because Next.js injects inline scripts for
+    // data serialization and hydration. In CSP Level 3 browsers, when a nonce
+    // is present, 'unsafe-inline' is ignored — so the nonce provides the
+    // actual security guarantee for browsers that support it.
     "script-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
+      "'unsafe-inline'",
       // Next.js requires 'unsafe-eval' for hot reloading in development
       ...(isDevelopment ? ["'unsafe-eval'"] : []),
-      // Strict dynamic for better security with nonces
-      ...(nonce && isProduction ? ["'strict-dynamic'"] : []),
     ],
 
-    // Style sources - Use nonce in production
+    // Style sources
+    // 'unsafe-inline' is needed because Tailwind and UI libraries may inject
+    // inline styles at runtime. The nonce provides CSP3 protection.
     "style-src": [
       "'self'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
+      "'unsafe-inline'",
       // Google Fonts
       "https://fonts.googleapis.com",
-      // Allow inline styles only in development
-      ...(isDevelopment ? ["'unsafe-inline'"] : []),
     ],
 
-    // Style attributes (inline style="...") - Allow in development
+    // Style attributes (inline style="...") - needed by UI component libraries
     "style-src-attr": [
-      ...(isDevelopment ? ["'unsafe-inline'"] : []),
+      "'unsafe-inline'",
       ...(nonce ? [`'nonce-${nonce}'`] : []),
     ],
 

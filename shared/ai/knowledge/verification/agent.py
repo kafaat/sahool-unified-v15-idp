@@ -22,13 +22,13 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from ..models import BaseKnowledgeDocument, VerificationStatus
 from ..sources.registry import KnowledgeSourceRegistry
 from ..validators import KnowledgeValidator, ValidationIssue
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class VerificationLevel(StrEnum):

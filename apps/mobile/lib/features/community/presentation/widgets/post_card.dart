@@ -5,6 +5,7 @@
 /// optional image grid, and like/comment/share action bar.
 library;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
@@ -65,7 +66,7 @@ class PostCard extends StatelessWidget {
           radius: 22,
           backgroundColor: SahoolColors.paleOlive,
           backgroundImage: post.authorAvatarUrl != null
-              ? NetworkImage(post.authorAvatarUrl!)
+              ? CachedNetworkImageProvider(post.authorAvatarUrl!)
               : null,
           child: post.authorAvatarUrl == null
               ? const Icon(Icons.person, color: SahoolColors.forestGreen)

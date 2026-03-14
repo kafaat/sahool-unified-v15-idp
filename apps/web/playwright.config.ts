@@ -12,11 +12,17 @@ const skipE2E =
   process.env.SKIP_E2E_TESTS === "true" ||
   (process.env.CI && !process.env.API_AVAILABLE);
 
+// In CI without backend: run smoke tests that don't require API
+// With backend or locally: run all tests
+const testMatchPattern = skipE2E
+  ? ["ci-smoke.spec.ts"]
+  : "**/*.spec.ts";
+
 export default defineConfig({
   testDir: "./e2e",
 
-  /* Skip all tests if backend is not available */
-  testMatch: skipE2E ? ["no-tests-to-run.spec.ts"] : "**/*.spec.ts",
+  /* In CI without backend, run smoke tests only; otherwise run all */
+  testMatch: testMatchPattern,
 
   /* Run tests in files in parallel */
   fullyParallel: true,

@@ -36,11 +36,14 @@ Future<CertificateInfo?> getCertificateInfo(String url) async {
       debugPrint('Connecting to $host:$port...');
     }
 
+    // SECURITY: This bypasses certificate validation intentionally to inspect
+    // the server certificate for pin extraction. Only allowed in debug builds.
+    assert(kDebugMode, 'Certificate inspection tool must only run in debug mode');
     final socket = await SecureSocket.connect(
       host,
       port,
       timeout: const Duration(seconds: 10),
-      onBadCertificate: (_) => true, // Allow any certificate for inspection
+      onBadCertificate: (_) => kDebugMode, // Only accept in debug builds
     );
 
     final cert = socket.peerCertificate;

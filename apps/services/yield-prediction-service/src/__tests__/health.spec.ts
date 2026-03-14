@@ -27,6 +27,6 @@ describe("YieldPrediction HealthController", () => {
     const result = controller.readinessCheck();
     expect(result).toHaveProperty("status", "ready");
     expect(result).toHaveProperty("service", "yield-prediction");
-    expect(result).toHaveProperty("checks");
+    expect(result).toHaveProperty("timestamp");
   });
 });

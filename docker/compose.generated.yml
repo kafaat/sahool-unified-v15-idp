@@ -1784,11 +1784,11 @@ services:
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.lowcode-engine.rule=PathPrefix(`/api/v1/lowcode/engine`)
-  wechat-service:
+  community-service:
     build:
-      context: ./apps/services/wechat-service
+      context: ./apps/services/community-service
       dockerfile: Dockerfile
-    container_name: sahool-wechat-service
+    container_name: sahool-community-service
     ports:
     - 8133:8133
     environment:
@@ -1797,7 +1797,7 @@ services:
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    - DB_NAME=sahool_wechat
+    - DB_NAME=sahool_community
     healthcheck:
       test:
       - CMD
@@ -1819,8 +1819,48 @@ services:
     - sahool-network
     restart: unless-stopped
     labels:
-    - sahool.service=wechat-service
+    - sahool.service=community-service
     - sahool.port=8133
+    - sahool.category=community
+    - traefik.enable=true
+    - traefik.http.routers.community-service.rule=PathPrefix(`/api/v1/community/service`)
+  wechat-service:
+    build:
+      context: ./apps/services/wechat-service
+      dockerfile: Dockerfile
+    container_name: sahool-wechat-service
+    ports:
+    - 8135:8135
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8135
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - DB_NAME=sahool_wechat
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8135/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=wechat-service
+    - sahool.port=8135
     - sahool.category=community
     - traefik.enable=true
     - traefik.http.routers.wechat-service.rule=PathPrefix(`/api/v1/wechat/service`)
@@ -2721,7 +2761,7 @@ services:
     labels:
     - sahool.service=vllm-deepseek
     - sahool.port=8270
-    - sahool.category=intelligence
+    - sahool.category=infrastructure
     - traefik.enable=true
     - traefik.http.routers.vllm-deepseek.rule=PathPrefix(`/api/v1/vllm/deepseek`)
   supply-chain-service:

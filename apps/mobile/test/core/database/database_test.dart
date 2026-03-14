@@ -12,16 +12,19 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 // Note: We create a test-specific in-memory database since the actual
 // AppDatabase uses SQLCipher encryption which requires native libraries
 part 'database_test.g.dart';
 
-/// Test Tasks Table - mirrors production structure
+/// Test Tasks Table - mirrors production structure with all indexes
+/// جدول المهام التجريبي - يعكس بنية الإنتاج مع جميع الفهارس
 @TableIndex(name: 'test_tasks_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_tasks_field_idx', columns: {#fieldId})
 @TableIndex(name: 'test_tasks_status_idx', columns: {#status})
+@TableIndex(name: 'test_tasks_synced_idx', columns: {#synced})
+@TableIndex(name: 'test_tasks_tenant_status_idx', columns: {#tenantId, #status})
+@TableIndex(name: 'test_tasks_created_idx', columns: {#createdAt})
 class TestTasks extends Table {
   TextColumn get id => text()();
   TextColumn get tenantId => text()();
@@ -33,6 +36,8 @@ class TestTasks extends Table {
   TextColumn get priority => text().withDefault(const Constant('medium'))();
   DateTimeColumn get dueDate => dateTime().nullable()();
   TextColumn get assignedTo => text().nullable()();
+  TextColumn get evidenceNotes => text().nullable()();
+  TextColumn get evidencePhotos => text().nullable()(); // JSON array of file paths
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
@@ -41,9 +46,13 @@ class TestTasks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Test Outbox Table - for offline sync queue
+/// Test Outbox Table - for offline sync queue with ETag support
+/// جدول صندوق الصادر التجريبي - لقائمة المزامنة غير المتصلة مع دعم ETag
 @TableIndex(name: 'test_outbox_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_outbox_synced_idx', columns: {#isSynced})
+@TableIndex(name: 'test_outbox_entity_idx', columns: {#entityType, #entityId})
+@TableIndex(name: 'test_outbox_created_idx', columns: {#createdAt})
+@TableIndex(name: 'test_outbox_tenant_synced_idx', columns: {#tenantId, #isSynced})
 class TestOutbox extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -58,10 +67,15 @@ class TestOutbox extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Test Fields Table with GIS support
+/// Test Fields Table with GIS support and all production indexes
+/// جدول الحقول التجريبي مع دعم نظم المعلومات الجغرافية وجميع فهارس الإنتاج
 @TableIndex(name: 'test_fields_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_fields_farm_idx', columns: {#farmId})
 @TableIndex(name: 'test_fields_synced_idx', columns: {#synced})
+@TableIndex(name: 'test_fields_deleted_idx', columns: {#isDeleted})
+@TableIndex(name: 'test_fields_tenant_deleted_idx', columns: {#tenantId, #isDeleted})
+@TableIndex(name: 'test_fields_updated_idx', columns: {#updatedAt})
+@TableIndex(name: 'test_fields_remote_idx', columns: {#remoteId})
 class TestFields extends Table {
   TextColumn get id => text()();
   TextColumn get remoteId => text().nullable()();
@@ -86,7 +100,11 @@ class TestFields extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Test SyncLogs Table
+/// Test SyncLogs Table with performance indexes
+/// جدول سجلات المزامنة التجريبي مع فهارس الأداء
+@TableIndex(name: 'test_sync_logs_status_idx', columns: {#status})
+@TableIndex(name: 'test_sync_logs_timestamp_idx', columns: {#timestamp})
+@TableIndex(name: 'test_sync_logs_type_status_idx', columns: {#type, #status})
 class TestSyncLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get type => text()();
@@ -95,9 +113,11 @@ class TestSyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-/// Test SyncEvents Table
+/// Test SyncEvents Table - أحداث المزامنة والتعارضات
 @TableIndex(name: 'test_sync_events_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'test_sync_events_read_idx', columns: {#isRead})
+@TableIndex(name: 'test_sync_events_tenant_read_idx', columns: {#tenantId, #isRead})
+@TableIndex(name: 'test_sync_events_created_idx', columns: {#createdAt})
 class TestSyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -205,11 +225,40 @@ void main() {
 
       final indexNames = indexes.map((r) => r.read<String>('name')).toSet();
 
-      // Verify key indexes exist
+      // Verify all TestTasks indexes
       expect(indexNames, contains('test_tasks_tenant_idx'));
       expect(indexNames, contains('test_tasks_field_idx'));
+      expect(indexNames, contains('test_tasks_status_idx'));
+      expect(indexNames, contains('test_tasks_synced_idx'));
+      expect(indexNames, contains('test_tasks_tenant_status_idx'));
+      expect(indexNames, contains('test_tasks_created_idx'));
+
+      // Verify all TestOutbox indexes
       expect(indexNames, contains('test_outbox_tenant_idx'));
+      expect(indexNames, contains('test_outbox_synced_idx'));
+      expect(indexNames, contains('test_outbox_entity_idx'));
+      expect(indexNames, contains('test_outbox_created_idx'));
+      expect(indexNames, contains('test_outbox_tenant_synced_idx'));
+
+      // Verify all TestFields indexes
       expect(indexNames, contains('test_fields_tenant_idx'));
+      expect(indexNames, contains('test_fields_farm_idx'));
+      expect(indexNames, contains('test_fields_synced_idx'));
+      expect(indexNames, contains('test_fields_deleted_idx'));
+      expect(indexNames, contains('test_fields_tenant_deleted_idx'));
+      expect(indexNames, contains('test_fields_updated_idx'));
+      expect(indexNames, contains('test_fields_remote_idx'));
+
+      // Verify all TestSyncLogs indexes
+      expect(indexNames, contains('test_sync_logs_status_idx'));
+      expect(indexNames, contains('test_sync_logs_timestamp_idx'));
+      expect(indexNames, contains('test_sync_logs_type_status_idx'));
+
+      // Verify all TestSyncEvents indexes
+      expect(indexNames, contains('test_sync_events_tenant_idx'));
+      expect(indexNames, contains('test_sync_events_read_idx'));
+      expect(indexNames, contains('test_sync_events_tenant_read_idx'));
+      expect(indexNames, contains('test_sync_events_created_idx'));
     });
 
     test('should handle close and reopen', () async {
@@ -715,6 +764,278 @@ void main() {
       expect(task.description, isNull);
       expect(task.assignedTo, isNull);
       expect(task.dueDate, isNull);
+    });
+  });
+
+  group('Pending Tasks Query - getPendingTasks', () {
+    late TestDatabase db;
+
+    setUp(() async {
+      db = createTestDatabase();
+      final now = DateTime.now();
+
+      // Insert tasks with various statuses
+      await db.batch((batch) {
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-1', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Open Task 1', status: const Value('open'),
+          priority: const Value('high'),
+          dueDate: Value(now.add(const Duration(days: 1))),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-2', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'In Progress Task', status: const Value('in_progress'),
+          priority: const Value('medium'),
+          dueDate: Value(now.add(const Duration(days: 3))),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-3', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Done Task', status: const Value('done'),
+          priority: const Value('low'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-4', tenantId: 'tenant-1', fieldId: 'field-2',
+          title: 'Cancelled Task', status: const Value('cancelled'),
+          priority: const Value('medium'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-5', tenantId: 'tenant-2', fieldId: 'field-3',
+          title: 'Other Tenant Open', status: const Value('open'),
+          priority: const Value('high'),
+          createdAt: now, updatedAt: now,
+        ));
+        batch.insert(db.testTasks, TestTasksCompanion.insert(
+          id: 'pending-6', tenantId: 'tenant-1', fieldId: 'field-1',
+          title: 'Open Task 2', status: const Value('open'),
+          priority: const Value('low'),
+          dueDate: Value(now.add(const Duration(days: 5))),
+          createdAt: now, updatedAt: now,
+        ));
+      });
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    test('should return only open and in_progress tasks for tenant', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress']))
+            ..orderBy([
+              (t) => OrderingTerm.asc(t.dueDate),
+              (t) => OrderingTerm.desc(t.priority),
+            ]))
+          .get();
+
+      expect(pendingTasks.length, equals(3));
+      expect(
+        pendingTasks.every((t) =>
+            t.status == 'open' || t.status == 'in_progress'),
+        isTrue,
+      );
+      expect(pendingTasks.every((t) => t.tenantId == 'tenant-1'), isTrue);
+    });
+
+    test('should not include done or cancelled tasks', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      final ids = pendingTasks.map((t) => t.id).toSet();
+      expect(ids, isNot(contains('pending-3'))); // done
+      expect(ids, isNot(contains('pending-4'))); // cancelled
+    });
+
+    test('should not include tasks from other tenants', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      expect(pendingTasks.every((t) => t.tenantId == 'tenant-1'), isTrue);
+      expect(
+        pendingTasks.map((t) => t.id).toSet(),
+        isNot(contains('pending-5')),
+      );
+    });
+
+    test('should order by due date ascending then priority descending', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-1'))
+            ..where((t) => t.status.isIn(['open', 'in_progress']))
+            ..orderBy([
+              (t) => OrderingTerm.asc(t.dueDate),
+              (t) => OrderingTerm.desc(t.priority),
+            ]))
+          .get();
+
+      expect(pendingTasks.length, equals(3));
+      final withDueDates = pendingTasks.where((t) => t.dueDate != null).toList();
+      for (int i = 0; i < withDueDates.length - 1; i++) {
+        expect(
+          withDueDates[i].dueDate!.isBefore(withDueDates[i + 1].dueDate!) ||
+              withDueDates[i].dueDate!.isAtSameMomentAs(withDueDates[i + 1].dueDate!),
+          isTrue,
+        );
+      }
+    });
+
+    test('should return empty list when no pending tasks exist', () async {
+      final pendingTasks = await (db.select(db.testTasks)
+            ..where((t) => t.tenantId.equals('tenant-nonexistent'))
+            ..where((t) => t.status.isIn(['open', 'in_progress'])))
+          .get();
+
+      expect(pendingTasks, isEmpty);
+    });
+  });
+
+  group('Mark Task Done - markTaskDone', () {
+    late TestDatabase db;
+
+    setUp(() async {
+      db = createTestDatabase();
+      final now = DateTime.now();
+
+      await db.into(db.testTasks).insert(TestTasksCompanion.insert(
+            id: 'mark-done-1',
+            tenantId: 'tenant-1',
+            fieldId: 'field-1',
+            title: 'Task to Complete',
+            status: const Value('open'),
+            createdAt: now,
+            updatedAt: now,
+          ));
+
+      await db.into(db.testTasks).insert(TestTasksCompanion.insert(
+            id: 'mark-done-2',
+            tenantId: 'tenant-1',
+            fieldId: 'field-1',
+            title: 'Task with Evidence',
+            status: const Value('in_progress'),
+            createdAt: now,
+            updatedAt: now,
+          ));
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    test('should mark task as done with status change', () async {
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.synced, isFalse);
+    });
+
+    test('should mark task done with evidence notes', () async {
+      const notes = 'تم الانتهاء من رش المبيدات - Applied pesticide successfully';
+
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-2')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        evidenceNotes: const Value(notes),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-2')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, equals(notes));
+      expect(task.synced, isFalse);
+    });
+
+    test('should mark task done with evidence photos as JSON array', () async {
+      final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
+      final photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
+
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        evidenceNotes: const Value('Field inspection complete'),
+        evidencePhotos: Value(photosJson),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, equals('Field inspection complete'));
+      expect(task.evidencePhotos, equals(photosJson));
+
+      // Verify photos can be decoded from JSON
+      final decoded = (task.evidencePhotos!.substring(1, task.evidencePhotos!.length - 1))
+          .split(',')
+          .map((s) => s.replaceAll('"', '').trim())
+          .toList();
+      expect(decoded.length, equals(3));
+      expect(decoded.first, equals('photo_001.jpg'));
+    });
+
+    test('should mark task done with null evidence', () async {
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(const TestTasksCompanion(
+        status: Value('done'),
+        evidenceNotes: Value(null),
+        evidencePhotos: Value(null),
+        synced: Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.status, equals('done'));
+      expect(task.evidenceNotes, isNull);
+      expect(task.evidencePhotos, isNull);
+    });
+
+    test('should set synced to false when marking task done', () async {
+      // First set as synced
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(const TestTasksCompanion(synced: Value(true)));
+
+      // Then mark as done (mirrors production markTaskDone)
+      await (db.update(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .write(TestTasksCompanion(
+        status: const Value('done'),
+        updatedAt: Value(DateTime.now()),
+        synced: const Value(false),
+      ));
+
+      final task = await (db.select(db.testTasks)
+            ..where((t) => t.id.equals('mark-done-1')))
+          .getSingle();
+
+      expect(task.synced, isFalse);
     });
   });
 

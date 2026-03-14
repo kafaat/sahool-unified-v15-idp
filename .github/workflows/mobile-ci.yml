@@ -200,6 +200,10 @@ jobs:
           ENVEOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Run unit tests with coverage
         run: |
           echo "Running Flutter tests with coverage..."

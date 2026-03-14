@@ -5,8 +5,7 @@ Integrates with shared.soil_testing module for business logic.
 
 import json
 import uuid
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -126,7 +125,10 @@ class TrendRequest(BaseModel):
 
 @router.post("/tests", status_code=201)
 async def create_soil_test(
-    request: SoilTestCreateRequest, req: Request, _user=Depends(get_current_user), tenant_id: str = Depends(get_tenant_id)
+    request: SoilTestCreateRequest,
+    req: Request,
+    _user=Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """Create a new soil test record - إنشاء سجل تحليل تربة جديد"""
     test_id = f"ST-{uuid.uuid4().hex[:8].upper()}"
@@ -140,7 +142,7 @@ async def create_soil_test(
             tenant_id=tenant_id,
             field_id=request.field_id,
             sample_id=sample_id,
-            sample_date=request.sample_date or datetime.utcnow(),
+            sample_date=request.sample_date or datetime.now(UTC),
             macronutrients=MacronutrientResults(
                 nitrogen_nitrate_ppm=request.macronutrients.nitrogen_nitrate_ppm,
                 phosphorus_ppm=request.macronutrients.phosphorus_ppm,
@@ -158,11 +160,11 @@ async def create_soil_test(
             "sample_id": sample_id,
             "field_id": request.field_id,
             "tenant_id": tenant_id,
-            "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
+            "sample_date": (request.sample_date or datetime.now(UTC)).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
             "notes": request.notes,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "_soil_test_obj": soil_test,
         }
 
@@ -184,11 +186,11 @@ async def create_soil_test(
             "sample_id": sample_id,
             "field_id": request.field_id,
             "tenant_id": tenant_id,
-            "sample_date": (request.sample_date or datetime.utcnow()).isoformat(),
+            "sample_date": (request.sample_date or datetime.now(UTC)).isoformat(),
             "macronutrients": request.macronutrients.model_dump(),
             "soil_properties": request.soil_properties.model_dump(),
             "notes": request.notes,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         return _soil_tests[test_id]
 
@@ -359,9 +361,7 @@ async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
 @router.post("/trends")
 async def analyze_soil_trends(request: TrendRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {
@@ -521,9 +521,7 @@ async def calculate_rate(request: FertilizerRateRequest):
 @router.post("/trends/nutrient")
 async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: str = Depends(get_tenant_id)):
     """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {
@@ -559,9 +557,7 @@ async def get_single_nutrient_trend(request: NutrientTrendRequest, tenant_id: st
 @router.post("/trends/compare-periods")
 async def compare_periods(request: PeriodCompareRequest, tenant_id: str = Depends(get_tenant_id)):
     """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
-    field_tests = [
-        t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id
-    ]
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == tenant_id]
 
     if not field_tests:
         return {"field_id": request.field_id, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}

@@ -22,7 +22,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 256Mi
     depends_on:
     - weather-service
@@ -49,7 +49,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
@@ -76,7 +76,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - vegetation-analysis-service
@@ -102,7 +102,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '800'
+          cpus: '0.8'
           memory: 1Gi
     depends_on:
     - vegetation-analysis-service
@@ -128,7 +128,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - vegetation-analysis-service
@@ -154,7 +154,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - vegetation-analysis-service
@@ -180,7 +180,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - indicators-service
@@ -206,7 +206,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - postgres
@@ -234,7 +234,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - postgres
@@ -262,7 +262,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - redis
@@ -289,7 +289,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 384Mi
     depends_on:
     - redis
@@ -315,7 +315,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - redis
@@ -341,7 +341,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 384Mi
     depends_on:
     - postgres
@@ -368,7 +368,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - postgres
@@ -395,7 +395,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - redis
@@ -421,7 +421,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1000'
+          cpus: '1.0'
           memory: 2Gi
     depends_on:
     - imagery-service
@@ -449,7 +449,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 1Gi
     depends_on:
     - geo-service
@@ -476,7 +476,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '400'
+          cpus: '0.4'
           memory: 512Mi
     depends_on:
     - terrain-core-service
@@ -503,7 +503,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8'
+          cpus: '0.008'
           memory: 32Gi
   soil-analysis-service:
     build:
@@ -527,7 +527,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - advisory-service
@@ -554,7 +554,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '500'
+          cpus: '0.5'
           memory: 512Mi
     depends_on:
     - yolo26-vision-service
@@ -581,7 +581,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '300'
+          cpus: '0.3'
           memory: 512Mi
     depends_on:
     - crop-growth-model

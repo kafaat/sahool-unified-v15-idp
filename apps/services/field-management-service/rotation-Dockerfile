@@ -19,11 +19,13 @@ COPY apps/services/field-management-service/rotation-requirements.txt .
 
 # Install Python dependencies with mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
+    --index-url https://pypi.org/simple \
     -r rotation-requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    -r rotation-requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
     -r rotation-requirements.txt
 
 # Create non-root user for security

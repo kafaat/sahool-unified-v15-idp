@@ -101,3 +101,45 @@ qdrant:
     requests:
       cpu: 250m
       memory: 512Mi
+
+# Rocket.Chat Community Platform
+rocketchat:
+  enabled: false
+  image:
+    repository: registry.rocket.chat/rocketchat/rocket.chat
+    tag: "7.5"
+  admin:
+    username: rc_admin
+    email: admin@sahool.io
+    existingSecret: sahool-rocketchat-secret
+    secretKeys:
+      passwordKey: admin-password
+  settings:
+    language: ar
+    siteName: "SAHOOL Community | مجتمع سهول"
+    registrationForm: Disabled
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  mongodb:
+    image:
+      repository: mongo
+      tag: "6.0"
+    auth:
+      existingSecret: sahool-mongodb-secret
+      secretKeys:
+        rootPasswordKey: root-password
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 1500m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi

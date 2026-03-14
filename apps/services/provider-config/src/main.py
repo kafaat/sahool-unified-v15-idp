@@ -10,7 +10,7 @@ import json
 import os
 from contextlib import asynccontextmanager
 import sys
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum, StrEnum
 from typing import Any
 
@@ -35,6 +35,7 @@ from .database_service import CacheManager, ProviderConfigService
 
 # Import database models and services
 from .models import Database
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -732,7 +733,7 @@ logger = structlog.get_logger()
 database: Database | None = None
 cache_manager: CacheManager | None = None
 config_service: ProviderConfigService | None = None
-nc: nats.NATS | None = None  # NATS client
+nc: Any = None  # NATS client (nats.aio.client.Client at runtime)
 
 
 def get_db_session():
@@ -744,8 +745,6 @@ def get_db_session():
         yield session
     finally:
         session.close()
-
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

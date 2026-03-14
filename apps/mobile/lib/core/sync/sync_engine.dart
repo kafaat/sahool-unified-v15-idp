@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
@@ -17,6 +18,7 @@ class SyncEngine {
   late final ApiClient _apiClient;
 
   Timer? _syncTimer;
+  StreamSubscription<bool>? _networkSubscription;
   bool _isSyncing = false;
   int _consecutiveFailures = 0;
   DateTime? _lastSuccessfulSync;
@@ -55,7 +57,8 @@ class SyncEngine {
     );
 
     // Also sync when network comes back online
-    _networkStatus.onlineStream.listen((online) {
+    _networkSubscription?.cancel();
+    _networkSubscription = _networkStatus.onlineStream.listen((online) {
       if (online) {
         AppLogger.i('Network restored - triggering sync', tag: 'SyncEngine');
         runOnce();
@@ -134,14 +137,18 @@ class SyncEngine {
       // Apply exponential backoff if too many failures
       if (_consecutiveFailures >= 3) {
         final backoffDuration = _calculateBackoff(_consecutiveFailures);
+        // Add jitter to prevent thundering herd when multiple devices reconnect
+        final jitterMs = Random().nextInt(backoffDuration.inMilliseconds ~/ 2 + 1);
+        final jitteredDuration = backoffDuration + Duration(milliseconds: jitterMs);
         AppLogger.w('Too many sync failures, backing off',
             tag: 'SyncEngine',
-            data: {'backoff_seconds': backoffDuration.inSeconds});
+            data: {'backoff_seconds': jitteredDuration.inSeconds});
 
-        // Reschedule next sync with backoff
+        // Reschedule next sync with jittered backoff
         _syncTimer?.cancel();
-        _syncTimer = Timer(backoffDuration, () {
+        _syncTimer = Timer(jitteredDuration, () {
           _syncTimer?.cancel();
+          _consecutiveFailures = 0; // Reset after backoff period
           startPeriodic();
         });
       }
@@ -465,6 +472,8 @@ class SyncEngine {
 
   void dispose() {
     stop();
+    _networkSubscription?.cancel();
+    _networkSubscription = null;
     _networkStatus.dispose();
     _syncStatusController.close();
     _backoffStatusController.close();

@@ -3,8 +3,6 @@ FastAPI Authentication Dependencies for SAHOOL Platform
 Dependency injection for authentication and authorization
 """
 
-from __future__ import annotations
-
 import logging
 import time
 from collections import defaultdict
@@ -299,7 +297,10 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
             )
         return requested_tenant_id
 
-    return user_tenant  # type: ignore[return-value]
+    # At this point: no requested_tenant_id, and user_tenant is set
+    # (the case where both are empty raises HTTPException above)
+    assert user_tenant is not None  # guaranteed by the guard above
+    return user_tenant
 
 
 def require_roles(*required_roles: str) -> Callable:

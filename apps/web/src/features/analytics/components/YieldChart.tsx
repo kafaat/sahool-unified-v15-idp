@@ -7,19 +7,19 @@
 
 import React from "react";
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+  DynamicLineChart as LineChart,
+  DynamicLine as Line,
+  DynamicBarChart as BarChart,
+  DynamicBar as Bar,
+  DynamicAreaChart as AreaChart,
+  DynamicArea as Area,
+  DynamicXAxis as XAxis,
+  DynamicYAxis as YAxis,
+  DynamicCartesianGrid as CartesianGrid,
+  DynamicTooltip as Tooltip,
+  DynamicLegend as Legend,
+  DynamicResponsiveContainer as ResponsiveContainer,
+} from "@/components/charts/LazyRecharts.dynamic";
 import type { DataPoint, ChartType } from "../types";
 
 interface YieldChartProps {

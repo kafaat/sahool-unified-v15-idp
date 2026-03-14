@@ -172,14 +172,6 @@ jobs:
         run: |
           echo "Running ESLint on Web App..."
           cd apps/web && npm run lint
-        continue-on-error: true
-
-      - name: Report Lint Failure
-        if: matrix.check == 'lint' && steps.lint.outcome == 'failure'
-        run: |
-          echo "::error::ESLint found issues in Web App. Please fix lint errors."
-          echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
-          echo "ESLint found issues in apps/web. Run \`cd apps/web && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
       - name: Run Type Check
         id: typecheck
@@ -187,14 +179,6 @@ jobs:
         run: |
           echo "Running TypeScript type check on Web App..."
           cd apps/web && npm run typecheck
-        continue-on-error: true
-
-      - name: Report Type Check Failure
-        if: matrix.check == 'typecheck' && steps.typecheck.outcome == 'failure'
-        run: |
-          echo "::error::TypeScript found type errors in Web App. Please fix type errors."
-          echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
-          echo "TypeScript found errors in apps/web. Run \`cd apps/web && npm run typecheck\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
   # Job 1b: Web App - Unit Tests
@@ -253,14 +237,6 @@ jobs:
         run: |
           echo "Running Vitest unit tests on Web App..."
           cd apps/web && npm run test:coverage
-        continue-on-error: true
-
-      - name: Report Test Failure
-        if: steps.tests.outcome == 'failure'
-        run: |
-          echo "::error::Web App unit tests failed. Please fix failing tests."
-          echo "## ❌ Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
-          echo "Unit tests failed in apps/web. Run \`cd apps/web && npm run test\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Coverage Report
         if: always()
@@ -416,14 +392,6 @@ jobs:
         run: |
           echo "Running ESLint on Admin Dashboard..."
           cd apps/admin && npm run lint
-        continue-on-error: true
-
-      - name: Report Lint Failure
-        if: matrix.check == 'lint' && steps.lint.outcome == 'failure'
-        run: |
-          echo "::error::ESLint found issues in Admin Dashboard. Please fix lint errors."
-          echo "## ❌ Lint Failed" >> $GITHUB_STEP_SUMMARY
-          echo "ESLint found issues in apps/admin. Run \`cd apps/admin && npm run lint\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
       - name: Run Type Check
         id: typecheck
@@ -431,14 +399,6 @@ jobs:
         run: |
           echo "Running TypeScript type check on Admin Dashboard..."
           cd apps/admin && npm run typecheck
-        continue-on-error: true
-
-      - name: Report Type Check Failure
-        if: matrix.check == 'typecheck' && steps.typecheck.outcome == 'failure'
-        run: |
-          echo "::error::TypeScript found type errors in Admin Dashboard. Please fix type errors."
-          echo "## ❌ Type Check Failed" >> $GITHUB_STEP_SUMMARY
-          echo "TypeScript found errors in apps/admin. Run \`cd apps/admin && npm run typecheck\` locally to see details." >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
   # Job 2b: Admin Dashboard - Unit Tests
@@ -504,7 +464,6 @@ jobs:
           else
             echo "⚠️ No test script found - skipping"
           fi
-        continue-on-error: true
 
       - name: Upload Admin Coverage Report
         if: always()
@@ -613,6 +572,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -678,6 +641,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -719,15 +686,6 @@ jobs:
         run: |
           echo "Running Flutter unit and widget tests..."
           flutter test --coverage --reporter=expanded
-        continue-on-error: true
-
-      - name: Report Test Failure
-        if: steps.tests.outcome == 'failure'
-        run: |
-          echo "::error::Flutter unit tests failed. Please fix failing tests."
-          echo "## ❌ Flutter Unit Tests Failed" >> $GITHUB_STEP_SUMMARY
-          echo "Unit tests failed in apps/mobile. Run \`cd apps/mobile && flutter test\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          # Reported above - workflow continues
 
       - name: Upload Test Coverage
         if: always()
@@ -775,6 +733,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -786,7 +748,7 @@ jobs:
 
       - name: Install required Android SDK components
         run: |
-          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
         working-directory: .
 
       - name: Setup Flutter
@@ -1054,7 +1016,6 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-        continue-on-error: true
 
       - name: Stop Web App
         if: always()
@@ -1084,9 +1045,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Report E2E Status
-        if: steps.e2e.outcome == 'failure'
+        if: failure()
         run: |
-          echo "::warning::E2E tests failed. Check playwright-results artifact for details."
+          echo "::error::E2E tests failed. Check playwright-results artifact for details."
+          echo "## ❌ E2E Tests Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Playwright E2E tests failed. Check the playwright-results artifact for details." >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
   # Job 6: Integration Tests for Mobile
@@ -1115,6 +1078,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Install native SQLite3 library
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -1126,7 +1093,7 @@ jobs:
 
       - name: Install required Android SDK components
         run: |
-          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358" || true
+          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
         working-directory: .
 
       - name: Setup Flutter
@@ -1215,8 +1182,7 @@ jobs:
       - name: Pre-compile integration test
         run: |
           echo "=== Pre-compiling integration test to catch errors early ==="
-          flutter analyze integration_test/app_test.dart 2>&1 || true
-        continue-on-error: true
+          flutter analyze integration_test/app_test.dart
 
       - name: Enable KVM (for Android Emulator)
         id: kvm
@@ -1251,7 +1217,6 @@ jobs:
             echo "=== Running integration tests ==="
             flutter test integration_test/app_test.dart --verbose --timeout 180s 2>&1 | tee integration_test_output.txt
             echo "✅ Integration tests completed"
-        continue-on-error: true
 
       - name: Report Skipped Integration Tests
         if: steps.kvm.outputs.kvm_available != 'true'

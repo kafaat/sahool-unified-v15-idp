@@ -447,6 +447,8 @@ class LLMProviderManager:
         """Call a specific LLM provider."""
         if provider == LLMProvider.OLLAMA:
             return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
+        elif provider == LLMProvider.VLLM:
+            return await self._call_vllm(prompt, system_prompt, temperature, max_tokens)
         elif provider == LLMProvider.ANTHROPIC:
             return await self._call_anthropic(prompt, system_prompt, temperature, max_tokens)
         elif provider == LLMProvider.OPENAI:
@@ -457,6 +459,53 @@ class LLMProviderManager:
             return await self._call_deepseek(prompt, system_prompt, temperature, max_tokens)
         else:
             raise LLMProviderError(f"Unknown provider: {provider}", provider)
+
+    async def _call_vllm(
+        self,
+        prompt: str,
+        system_prompt: str | None,
+        temperature: float,
+        max_tokens: int,
+    ) -> LLMResponse:
+        """Call vLLM API (OpenAI-compatible)."""
+        try:
+            import httpx
+        except ImportError:
+            raise LLMProviderError("httpx required for vLLM", LLMProvider.VLLM) from None
+
+        config = self.configs[LLMProvider.VLLM]
+        base_url = (config.base_url or "http://localhost:8270/v1").rstrip("/")
+
+        async with httpx.AsyncClient(timeout=config.timeout) as client:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            response = await client.post(
+                f"{base_url}/chat/completions",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "model": config.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            text = data["choices"][0]["message"]["content"]
+
+            return LLMResponse(
+                text=text,
+                provider=LLMProvider.VLLM,
+                model=config.model,
+                tokens_input=data.get("usage", {}).get("prompt_tokens", 0),
+                tokens_output=data.get("usage", {}).get("completion_tokens", 0),
+                finish_reason=data["choices"][0].get("finish_reason"),
+                raw_response=data,
+            )
 
     async def _call_ollama(
         self,
@@ -1258,20 +1307,23 @@ class LLMProviderManager:
 
         config = self.configs[LLMProvider.OLLAMA]
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
-            "POST",
-            f"{config.base_url}/api/generate",
-            json={
-                "model": config.model,
-                "prompt": prompt,
-                "system": system_prompt or "",
-                "stream": True,
-                "options": {
-                    "temperature": temperature,
-                    "num_predict": max_tokens,
+        async with (
+            httpx.AsyncClient(timeout=config.timeout) as client,
+            client.stream(
+                "POST",
+                f"{config.base_url}/api/generate",
+                json={
+                    "model": config.model,
+                    "prompt": prompt,
+                    "system": system_prompt or "",
+                    "stream": True,
+                    "options": {
+                        "temperature": temperature,
+                        "num_predict": max_tokens,
+                    },
                 },
-            },
-        ) as response:
+            ) as response,
+        ):
             response.raise_for_status()
             async for line in response.aiter_lines():
                 if line.strip():
@@ -1298,23 +1350,26 @@ class LLMProviderManager:
         if not config.api_key:
             raise LLMProviderError("Anthropic API key not set", LLMProvider.ANTHROPIC)
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
-            "POST",
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": config.api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": config.model,
-                "max_tokens": max_tokens,
-                "temperature": temperature,
-                "system": system_prompt or "You are a helpful assistant.",
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": True,
-            },
-        ) as response:
+        async with (
+            httpx.AsyncClient(timeout=config.timeout) as client,
+            client.stream(
+                "POST",
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": config.api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": config.model,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "system": system_prompt or "You are a helpful assistant.",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": True,
+                },
+            ) as response,
+        ):
             response.raise_for_status()
             async for line in response.aiter_lines():
                 if not line.startswith("data: "):
@@ -1350,21 +1405,24 @@ class LLMProviderManager:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
-            "POST",
-            "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {config.api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": config.model,
-                "messages": messages,
-                "temperature": temperature,
-                "max_tokens": max_tokens,
-                "stream": True,
-            },
-        ) as response:
+        async with (
+            httpx.AsyncClient(timeout=config.timeout) as client,
+            client.stream(
+                "POST",
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {config.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": config.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    "stream": True,
+                },
+            ) as response,
+        ):
             response.raise_for_status()
             async for line in response.aiter_lines():
                 if not line.startswith("data: "):
@@ -1400,19 +1458,22 @@ class LLMProviderManager:
         if system_prompt:
             full_prompt = f"{system_prompt}\n\n{prompt}"
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
-            "POST",
-            f"https://generativelanguage.googleapis.com/v1/models/{config.model}:streamGenerateContent",
-            headers={"Content-Type": "application/json"},
-            params={"key": config.api_key, "alt": "sse"},
-            json={
-                "contents": [{"parts": [{"text": full_prompt}]}],
-                "generationConfig": {
-                    "temperature": temperature,
-                    "maxOutputTokens": max_tokens,
+        async with (
+            httpx.AsyncClient(timeout=config.timeout) as client,
+            client.stream(
+                "POST",
+                f"https://generativelanguage.googleapis.com/v1/models/{config.model}:streamGenerateContent",
+                headers={"Content-Type": "application/json"},
+                params={"key": config.api_key, "alt": "sse"},
+                json={
+                    "contents": [{"parts": [{"text": full_prompt}]}],
+                    "generationConfig": {
+                        "temperature": temperature,
+                        "maxOutputTokens": max_tokens,
+                    },
                 },
-            },
-        ) as response:
+            ) as response,
+        ):
             response.raise_for_status()
             async for line in response.aiter_lines():
                 if not line.startswith("data: "):
@@ -1448,21 +1509,24 @@ class LLMProviderManager:
 
         base_url = config.base_url or "https://api.deepseek.com"
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client, client.stream(
-            "POST",
-            f"{base_url}/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {config.api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": config.model,
-                "messages": messages,
-                "temperature": temperature,
-                "max_tokens": max_tokens,
-                "stream": True,
-            },
-        ) as response:
+        async with (
+            httpx.AsyncClient(timeout=config.timeout) as client,
+            client.stream(
+                "POST",
+                f"{base_url}/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {config.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": config.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    "stream": True,
+                },
+            ) as response,
+        ):
             response.raise_for_status()
             async for line in response.aiter_lines():
                 if not line.startswith("data: "):

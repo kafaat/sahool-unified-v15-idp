@@ -37,10 +37,14 @@ SERVICE_PORT = int(os.getenv("PORT", "8103"))
 SERVICE_VERSION = "16.0.0"
 
 # Configure logging
+# FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True,
 )
+# Suppress duplicate uvicorn access/error logs
+logging.getLogger("uvicorn.access").propagate = False
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -90,6 +94,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════
 # Application Setup - إعداد التطبيق
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -322,8 +327,6 @@ async def combined_health():
 # ═══════════════════════════════════════════════════════════════════════════
 # Lifecycle Events - أحداث دورة الحياة
 # ═══════════════════════════════════════════════════════════════════════════
-
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════

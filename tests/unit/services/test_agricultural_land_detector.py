@@ -7,8 +7,9 @@ Tests for Agricultural Land Detector (GeoLabel-inspired)
 
 import math
 
-import numpy as np
 import pytest
+
+np = pytest.importorskip("numpy")
 
 
 # =============================================================================

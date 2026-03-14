@@ -207,9 +207,17 @@ class ApiClient {
 
           // Configure certificate validation
           if (!_networkConfig.validateCertificates && kDebugMode) {
-            // Only in debug mode, allow self-signed certificates
-            client.badCertificateCallback = (cert, host, port) => true;
-            AppLogger.w('Certificate validation disabled (debug only)',
+            // Only in debug mode, allow self-signed certificates for localhost only
+            client.badCertificateCallback = (cert, host, port) {
+              // Only bypass for local development hosts
+              if (host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2') {
+                return true;
+              }
+              AppLogger.e('Certificate rejected for non-local host: $host',
+                  tag: 'ApiClient');
+              return false;
+            };
+            AppLogger.w('Certificate validation relaxed for localhost (debug only)',
                 tag: 'ApiClient');
           }
 

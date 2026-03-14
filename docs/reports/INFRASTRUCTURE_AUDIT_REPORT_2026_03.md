@@ -42,11 +42,11 @@
 
 | # | المشكلة | الملف:السطر | الكود الفعلي | الخطورة |
 |---|---------|-------------|-------------|---------|
-| 1 | MQTT تعمل بصلاحيات root | `docker-compose.yml:429` | `user: root` | حرج |
-| 2 | Qdrant مفتاح افتراضي ضعيف | `docker-compose.yml:488` | `QDRANT_API_KEY:-changeme_in_production` | عالي |
-| 3 | Vault في وضع التطوير | `docker-compose.yml:239` | `VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"` | حرج |
+| 1 | MQTT تعمل بصلاحيات root (تم الإصلاح) | `docker-compose.yml:429` | `user: "1883:1883"` (كان: `root`) | تم الإصلاح ✓ |
+| 2 | Qdrant مفتاح افتراضي ضعيف (تم الإصلاح) | `docker-compose.yml:488` | `${QDRANT_API_KEY:?...}` (كان: `changeme_in_production`) | تم الإصلاح ✓ |
+| 3 | Vault في وضع التطوير (تم الإصلاح) | `docker-compose.yml:239` | `${VAULT_DEV_TOKEN:?...}` (كان: `dev-root-token`) | تم الإصلاح ✓ |
 | 4 | PgBouncer TLS (تم الإصلاح) | `pgbouncer.ini:221-222` | `server_tls_sslmode = prefer` / `client_tls_sslmode = prefer` (كان: `disable`) | تم الإصلاح ✓ |
-| 5 | Kong ACL معطل | `kong-security.yml:128` | `enabled: false` | عالي |
+| 5 | Kong ACL (تم الإصلاح) | `kong-security.yml:128` | `enabled: true` (كان: `false`) | تم الإصلاح ✓ |
 | 6 | otel-collector healthcheck معطل (distroless) | `docker-compose.telemetry.yml:115` | `disable: true` (صورة distroless بدون shell/curl) | متوسط |
 
 ### 1.2 تصحيحات - مشاكل غير موجودة

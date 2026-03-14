@@ -192,6 +192,9 @@ def verify_token(token: str, check_revocation: bool = True, leeway: int | None =
                     logger.warning(f"Revoked token used: user={user_id}, jti={jti}, reason={reason}")
                     raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
 
+            except AuthError:
+                # Re-raise auth errors (e.g., token_revoked) without catching them
+                raise
             except ImportError:
                 # Module genuinely not installed - log warning
                 logger.warning("token_revocation module not installed, skipping revocation check")

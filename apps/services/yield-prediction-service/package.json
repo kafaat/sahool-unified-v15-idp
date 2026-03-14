@@ -34,12 +34,12 @@
     "ioredis": "^5.0.0",
     "redis": "^4.6.0",
     "rxjs": "^7.8.1",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "prisma": "^5.22.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
     "@nestjs/testing": "^10.4.15",
-    "prisma": "^5.22.0",
     "typescript": "5.9.3",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",

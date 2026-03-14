@@ -203,7 +203,7 @@ jobs:
             COV_ARGS="--cov=apps/services"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=0 || {
+              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {
               rc=$?
               echo "⚠ pytest exited with code $rc for $svc, continuing"
             }

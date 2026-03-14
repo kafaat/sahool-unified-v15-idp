@@ -182,8 +182,12 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                     raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
 
             except ImportError:
-                # Revocation service not available, skip check
-                pass
+                # Module genuinely not installed - log warning
+                logger.warning("token_revocation module not installed, skipping revocation check")
+            except Exception as e:
+                # Code error in revocation service - fail closed (reject token)
+                logger.error(f"Token revocation check failed: {e}")
+                raise AuthError(f"Token revocation check failed: {e}", "revocation_check_failed")
 
         return payload
 

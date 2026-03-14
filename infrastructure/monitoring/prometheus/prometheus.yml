@@ -51,19 +51,19 @@ scrape_configs:
   # PostgreSQL Database - قاعدة البيانات المكانية
   # NOTE: PostgreSQL does not natively expose /metrics on port 5432.
   # Use postgres_exporter (e.g., wrouesnel/postgres_exporter) to expose metrics.
-  # - job_name: 'postgres'
-  #   static_configs:
-  #     - targets: ['postgres-exporter:9187']
-  #   metrics_path: /metrics
-  #   scrape_interval: 30s
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: /metrics
+    scrape_interval: 30s
 
   # Redis Cache - ذاكرة التخزين المؤقت
   # NOTE: Redis does not natively expose Prometheus metrics on port 6379.
   # Use redis_exporter (e.g., oliver006/redis_exporter) to expose metrics.
-  # - job_name: 'redis'
-  #   static_configs:
-  #     - targets: ['redis-exporter:9121']
-  #   scrape_interval: 30s
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
 
   # NATS Message Queue - نظام الرسائل
   - job_name: 'nats'

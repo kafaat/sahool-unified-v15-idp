@@ -45,9 +45,9 @@
 | 1 | MQTT تعمل بصلاحيات root | `docker-compose.yml:429` | `user: root` | حرج |
 | 2 | Qdrant مفتاح افتراضي ضعيف | `docker-compose.yml:488` | `QDRANT_API_KEY:-changeme_in_production` | عالي |
 | 3 | Vault في وضع التطوير | `docker-compose.yml:239` | `VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"` | حرج |
-| 4 | PgBouncer TLS معطل | `pgbouncer.ini:221-222` | `server_tls_sslmode = disable` / `client_tls_sslmode = disable` | حرج |
+| 4 | PgBouncer TLS (تم الإصلاح) | `pgbouncer.ini:221-222` | `server_tls_sslmode = prefer` / `client_tls_sslmode = prefer` (كان: `disable`) | تم الإصلاح ✓ |
 | 5 | Kong ACL معطل | `kong-security.yml:128` | `enabled: false` | عالي |
-| 6 | otel-collector healthcheck معطل | `docker-compose.telemetry.yml:115` | `disable: true` | متوسط |
+| 6 | otel-collector healthcheck معطل (distroless) | `docker-compose.telemetry.yml:115` | `disable: true` (صورة distroless بدون shell/curl) | متوسط |
 
 ### 1.2 تصحيحات - مشاكل غير موجودة
 
@@ -160,7 +160,7 @@
 
 | # | المشكلة | الملف:السطر | الكود الفعلي | الخطورة |
 |---|---------|-------------|-------------|---------|
-| 1 | PgBouncer TLS معطل | `pgbouncer.ini:221-222` | `server_tls_sslmode = disable` / `client_tls_sslmode = disable` | حرج |
+| 1 | PgBouncer TLS (تم الإصلاح) | `pgbouncer.ini:221-222` | `server_tls_sslmode = prefer` / `client_tls_sslmode = prefer` (كان: `disable`) | تم الإصلاح ✓ |
 | 2 | WAL archiving مهيأ لكن بدون cron | `postgresql.conf:102,110` | `archive_mode = on`, `archive_timeout = 1h` لكن لا وظيفة مجدولة | عالي |
 | 3 | NATS TLS مفعّل (نقطة قوة) | `nats-secure.conf:29-51` | `verify: true`, `verify_and_map: true`, TLS 1.2+ | - |
 | 4 | NATS credentials بنص صريح في K8s | `nats-statefulset.yaml:245-260` | `stringData` مع `CHANGE_ME_*` passwords | حرج |
@@ -177,7 +177,7 @@
 | 3 | **JetStream encryption key placeholder** | `nats-statefulset.yaml` | 260 | رسائل JetStream غير مشفرة فعلياً |
 | 4 | **Vault في وضع التطوير** | `docker-compose.yml` | 239 | لا تشفير فعلي، token ثابت `dev-root-token` |
 | 5 | **JWT ImportError يتجاوز الإلغاء** | `jwt.py` | 184-186 | tokens ملغية تُقبل إذا فشل import |
-| 6 | **PgBouncer TLS معطل** | `pgbouncer.ini` | 221-222 | اتصالات DB غير مشفرة |
+| 6 | **PgBouncer TLS (تم الإصلاح)** | `pgbouncer.ini` | 221-222 | تم تغيير `disable` → `prefer` ✓ |
 | 7 | **180 continue-on-error في CI** | `.github/workflows/` | متعدد | فشل الأمان يمر بصمت |
 | 8 | **خطأ منطقي في بوابة الموافقة** | `cd-production.yml` | 150 | OR بدل AND - منطق معكوس |
 | 9 | **Kong ACL معطل** | `kong-security.yml` | 128 | لا تحكم في وصول API |

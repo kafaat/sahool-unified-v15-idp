@@ -46,7 +46,7 @@ class ScheduledNotification:
 
     # Notification data (all non-compare fields must have defaults after priority)
     notification_id: str = field(compare=False, default="")
-    payload: NotificationPayload = field(compare=False, default=None)
+    payload: NotificationPayload | None = field(compare=False, default=None)
     recipient_token: str = field(compare=False, default="")
     frequency: ScheduleFrequency = field(compare=False, default=ScheduleFrequency.ONCE)
 

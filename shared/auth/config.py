@@ -41,7 +41,7 @@ class JWTConfig:
 
     # JWT Secret Key (required) - JWT_SECRET_KEY is the canonical name.
     # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
-    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "")
+    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or ""
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
     JWT_ALGORITHM: str = "HS256"
@@ -276,7 +276,7 @@ class JWTConfig:
         Raises:
             JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
-        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "") or cls.JWT_SECRET
+        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or cls.JWT_SECRET
         if not secret or len(secret) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(
                 f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "
@@ -293,7 +293,7 @@ class JWTConfig:
         Raises:
             JWTConfigError: If JWT_SECRET_KEY env var is not set or too short
         """
-        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET", "") or cls.JWT_SECRET
+        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or cls.JWT_SECRET
         if not secret or len(secret) < MIN_SECRET_KEY_LENGTH:
             raise JWTConfigError(
                 f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters. "

@@ -98,6 +98,8 @@ class RateLimiter:
 
     def _clean_old_requests(self, key: str, window_seconds: int):
         """Remove requests older than the window"""
+        if key not in self._request_counts:
+            return
         cutoff = time.time() - window_seconds
         self._request_counts[key] = [t for t in self._request_counts[key] if t > cutoff]
         if not self._request_counts[key]:
@@ -143,12 +145,12 @@ class RateLimiter:
         tier = self._get_tier(request)
         config = self._get_config(tier)
 
-        # Check token bucket (burst protection)
-        bucket = self._get_bucket(key, config)
-        if not bucket.consume():
-            return False, self._build_headers(key, config, tier, exceeded=True)
-
         async with self._lock:
+            # Check token bucket (burst protection) - inside lock to prevent race conditions
+            bucket = self._get_bucket(key, config)
+            if not bucket.consume():
+                return False, self._build_headers(key, config, tier, exceeded=True)
+
             # Check sliding window (per-minute)
             self._clean_old_requests(key, 60)
             if len(self._request_counts.get(key, [])) >= config.requests_per_minute:

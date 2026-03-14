@@ -212,6 +212,7 @@ resource "aws_vpc_peering_connection" "riyadh_jeddah" {
   vpc_id        = module.riyadh_region.vpc_id
   peer_vpc_id   = module.jeddah_region.vpc_id
   peer_region   = var.secondary_region
+  # Cross-region peering cannot use auto_accept; the accepter resource handles it
   auto_accept   = false
 
   tags = {
@@ -226,10 +227,10 @@ resource "aws_vpc_peering_connection" "riyadh_jeddah" {
 resource "aws_vpc_peering_connection_accepter" "jeddah" {
   provider                  = aws.secondary
   vpc_peering_connection_id = aws_vpc_peering_connection.riyadh_jeddah.id
-  # Manual acceptance required for security - cross-region peering should be
-  # explicitly verified before activation to prevent unauthorized network access
-  # القبول اليدوي مطلوب للأمان - يجب التحقق صراحة من التناظر عبر المناطق قبل التفعيل
-  auto_accept               = false
+  # Accept the peering automatically from the secondary region side.
+  # The peering connection resource above initiates; this accepter completes it.
+  # قبول التناظر تلقائياً من جانب المنطقة الثانوية
+  auto_accept               = true
 
   tags = {
     Name        = "sahool-jeddah-accepts-riyadh"

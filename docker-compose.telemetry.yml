@@ -116,11 +116,7 @@ services:
       # OTel Collector contrib image is distroless (no shell/curl/wget).
       # Disable healthcheck and rely on depends_on + restart policy.
       # For custom healthchecks, build a wrapper image with curl installed.
-      test: ["NONE"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+      disable: true
     deploy:
       resources:
         limits:

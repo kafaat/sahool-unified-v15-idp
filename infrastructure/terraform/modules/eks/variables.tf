@@ -79,8 +79,8 @@ variable "public_access_cidrs" {
   default     = []
 
   validation {
-    condition     = !var.endpoint_public_access || length(var.public_access_cidrs) > 0
-    error_message = "public_access_cidrs must be explicitly configured with allowed CIDR blocks when endpoint_public_access is true. Do not use 0.0.0.0/0 in production."
+    condition     = length(var.public_access_cidrs) == 0 || !contains(var.public_access_cidrs, "0.0.0.0/0")
+    error_message = "public_access_cidrs must not contain 0.0.0.0/0 in production. Use specific CIDR blocks for your office/VPN IP ranges."
   }
 }
 

@@ -165,7 +165,7 @@ class TestVerifyToken:
         token = create_access_token(
             user_id="user123",
             roles=["farmer"],
-            expires_delta=timedelta(seconds=-10),  # Already expired
+            expires_delta=timedelta(seconds=-60),  # Expired beyond 30s leeway
         )
 
         with pytest.raises(AuthException) as exc_info:

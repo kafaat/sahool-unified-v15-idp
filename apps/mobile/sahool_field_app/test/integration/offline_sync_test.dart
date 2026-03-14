@@ -103,20 +103,18 @@ void main() {
       for (int i = 0; i < 5; i++) {
         db.seedTask(Task(
           id: 'task-$i',
-          remoteId: 'remote-task-$i',
           tenantId: 'tenant-001',
           fieldId: 'field-001',
+          farmId: null,
           title: 'مهمة $i',
           description: 'وصف المهمة $i',
-          status: i < 3 ? 'pending' : 'completed',
+          status: i < 3 ? 'open' : 'done',
           priority: i == 0 ? 'high' : 'medium',
           dueDate: now.add(Duration(days: i)),
           assignedTo: 'user-001',
-          createdBy: 'admin-001',
           createdAt: now,
           updatedAt: now,
           synced: true,
-          isDeleted: false,
         ));
       }
 

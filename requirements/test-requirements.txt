@@ -18,6 +18,13 @@ pytest-xdist>=3.8.0
 # HTTP client for API testing
 httpx>=0.28.0
 
+# Shared module dependencies (required for smoke tests importing shared.*)
+fastapi>=0.135.0
+structlog>=24.1.0
+cffi>=1.15.0
+jsonschema>=4.20.0
+tenacity>=8.2.0
+
 # Async support
 aiofiles>=24.1.0
 

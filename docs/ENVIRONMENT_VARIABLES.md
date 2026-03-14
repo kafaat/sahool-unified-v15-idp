@@ -265,7 +265,7 @@ NATS 2.x with JetStream for event-driven architecture.
 
 | Variable | Description | الوصف | Default |
 |----------|-------------|-------|---------|
-| `KONG_NGINX_WORKER_PROCESSES` | Nginx worker processes | عمليات عامل Nginx | `auto` |
+| `KONG_NGINX_WORKER_PROCESSES` | Nginx worker processes | عمليات عامل Nginx | `4` |
 | `KONG_NGINX_WORKER_CONNECTIONS` | Worker connections | اتصالات العامل | `4096` |
 | `KONG_NGINX_KEEPALIVE_TIMEOUT` | Keepalive timeout | مهلة الحفاظ على الاتصال | `60s` |
 | `KONG_UPSTREAM_KEEPALIVE_POOL_SIZE` | Upstream keepalive pool | تجمع الحفاظ على الاتصال | `60` |

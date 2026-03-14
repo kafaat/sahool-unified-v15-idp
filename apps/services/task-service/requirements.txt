@@ -28,5 +28,11 @@ greenlet>=3.0.0
 
 structlog>=24.1.0
 
+# Password hashing (shared.auth fallback)
+bcrypt>=4.0.0,<6.0.0
+
+# 2FA/MFA support (shared.auth.twofa_service)
+pyotp>=2.8.0,<3.0.0
+
 # NATS messaging
 nats-py==2.14.0

@@ -167,7 +167,7 @@ void main() {
     });
   });
 
-  group('NetworkException', () => {
+  group('NetworkException', () {
     test('default values', () {
       const exc = NetworkException();
       expect(exc.message, 'Network error occurred');

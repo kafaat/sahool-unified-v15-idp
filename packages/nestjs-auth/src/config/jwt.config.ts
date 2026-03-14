@@ -25,6 +25,9 @@ export class JWTConfig {
     if (!secret && process.env.NODE_ENV !== 'test') {
       throw new Error('JWT_SECRET_KEY or JWT_SECRET environment variable must be set');
     }
+    if (secret && secret.length < 32 && process.env.NODE_ENV !== 'test') {
+      throw new Error('JWT_SECRET must be at least 32 characters for HS256 security');
+    }
     return secret || 'test-secret-key-for-unit-tests-only-32chars';
   })();
 

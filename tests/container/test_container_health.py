@@ -146,7 +146,6 @@ PYTHON_SERVICES = {
     "vegetation-analysis-service": 8090,
     "virtual-sensors": 8119,
     "weather-service": 8092,
-    "wechat-service": 8133,
     "whatsapp-bot-service": 8240,
     "ws-gateway": 8081,
     "yolo26-vision-service": 8150,

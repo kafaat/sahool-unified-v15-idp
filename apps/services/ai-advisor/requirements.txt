@@ -59,7 +59,8 @@ structlog==24.4.0
 
 # Data Processing
 # معالجة البيانات
-numpy>=1.26.0,<2.5.0
+# Pin numpy <2.0 to avoid compiled module mismatch with dependencies built against 1.x
+numpy>=1.26.0,<2.0.0
 pandas==2.2.2
 
 # Testing (optional)

@@ -2297,8 +2297,8 @@ services:
     environment:
       - PORT=8101
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -2339,8 +2339,8 @@ services:
     environment:
       - PORT=8103
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -2382,8 +2382,8 @@ services:
       - PORT=8104
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
@@ -2604,6 +2604,9 @@ services:
       - PORT=8120
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Add DATABASE_URL for persistence (was running in memory-only mode)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - TASK_SERVICE_URL=http://task-service:8103
       - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
@@ -2719,8 +2722,8 @@ services:
       - PORT=8113
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:

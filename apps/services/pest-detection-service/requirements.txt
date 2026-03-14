@@ -11,6 +11,9 @@ python-dotenv>=1.0.0,<2.0.0
 # HTTP client for vision service
 httpx>=0.27.0,<1.0.0
 
+# Required for FastAPI File/UploadFile endpoints
+python-multipart==0.0.22
+
 # Database
 asyncpg>=0.30.0,<1.0.0
 

@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from .models import (
     BaseKnowledgeDocument,
@@ -23,7 +23,7 @@ from .models import (
     VerificationStatus,
 )
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

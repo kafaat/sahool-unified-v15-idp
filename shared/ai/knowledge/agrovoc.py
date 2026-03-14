@@ -22,9 +22,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class AgrovocDomain(StrEnum):

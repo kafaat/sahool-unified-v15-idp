@@ -252,6 +252,10 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+        working-directory: .
+
       - name: Create .env file
         run: |
           cat > .env <<'EOF'

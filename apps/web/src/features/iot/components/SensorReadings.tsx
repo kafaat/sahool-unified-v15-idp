@@ -9,15 +9,15 @@ import { useState } from "react";
 import { useSensorReadings } from "../hooks/useSensors";
 import type { SensorReadingsQuery } from "../types";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+  DynamicLineChart as LineChart,
+  DynamicLine as Line,
+  DynamicXAxis as XAxis,
+  DynamicYAxis as YAxis,
+  DynamicCartesianGrid as CartesianGrid,
+  DynamicTooltip as Tooltip,
+  DynamicLegend as Legend,
+  DynamicResponsiveContainer as ResponsiveContainer,
+} from "@/components/charts/LazyRecharts.dynamic";
 import { Calendar, Loader2 } from "lucide-react";
 
 interface SensorReadingsProps {

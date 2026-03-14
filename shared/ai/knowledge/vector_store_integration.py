@@ -17,12 +17,12 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from .ingestion.chunker import TextChunk
 from .models import BaseKnowledgeDocument, KnowledgeDomain
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -24,9 +24,9 @@ import sys
 import time
 from pathlib import Path
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class KnowledgeCLI:

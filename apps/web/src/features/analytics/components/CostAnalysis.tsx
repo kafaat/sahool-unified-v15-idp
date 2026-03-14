@@ -8,13 +8,13 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from "recharts";
+  DynamicPieChart as PieChart,
+  DynamicPie as Pie,
+  DynamicCell as Cell,
+  DynamicResponsiveContainer as ResponsiveContainer,
+  DynamicLegend as Legend,
+  DynamicTooltip as Tooltip,
+} from "@/components/charts/LazyRecharts.dynamic";
 import { useCostAnalysis } from "../hooks/useAnalytics";
 import type { AnalyticsFilters } from "../types";
 

@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 # Default maximum file size for extraction: 50 MB
 DEFAULT_MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024

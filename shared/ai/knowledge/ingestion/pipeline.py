@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from ..agrovoc import AgrovocLookup
 from ..collections import GENERAL_AGRICULTURE
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 from .extractors import ExtractedContent, HTMLExtractor, MarkdownExtractor, PDFExtractor, URLExtractor
 from .preprocessors import AgriculturalTermNormalizer, ArabicTextPreprocessor, MetadataEnricher
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 # Default allowed base directories for ingestion (Security: path traversal protection)
 _DEFAULT_ALLOWED_DIRS = [

@@ -11,17 +11,17 @@ import * as jose from "jose";
 import { logger } from "@/lib/logger";
 
 // Types
-type Permission = string;
-type Role = string;
+export type Permission = string;
+export type Role = string;
 
-interface User {
+export interface User {
   id: string;
   roles: Role[];
   permissions: Permission[];
   tenantId: string;
 }
 
-interface RouteGuardOptions {
+export interface RouteGuardOptions {
   /**
    * Required permission(s)
    */
@@ -124,7 +124,7 @@ export async function getCurrentUser(): Promise<User | null> {
 /**
  * Check if user has required access
  */
-function checkAccess(user: User | null, options: RouteGuardOptions): boolean {
+export function checkAccess(user: User | null, options: RouteGuardOptions): boolean {
   if (!user) return false;
 
   const { permission, role, requireAll = false } = options;

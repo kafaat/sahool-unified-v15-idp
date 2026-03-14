@@ -11,7 +11,7 @@ import { logger } from "@/lib/logger";
  * SECURITY: CSRF tokens are required for all state-changing requests.
  * If token fetch fails, subsequent requests may fail with 403.
  */
-async function fetchCsrfToken(): Promise<boolean> {
+export async function fetchCsrfToken(): Promise<boolean> {
   try {
     const response = await fetch("/api/csrf-token");
     if (response.ok) {
@@ -37,7 +37,7 @@ async function fetchCsrfToken(): Promise<boolean> {
  *
  * The localhost check has been REMOVED as it could be bypassed.
  */
-function isE2ETestModeEnabled(): boolean {
+export function isE2ETestModeEnabled(): boolean {
   // CRITICAL: Production builds MUST have NODE_ENV=production
   if (process.env.NODE_ENV !== "development") {
     return false;
@@ -53,7 +53,7 @@ function isE2ETestModeEnabled(): boolean {
  *
  * SECURITY: This function should ONLY be called after isE2ETestModeEnabled() returns true
  */
-function tryLoadMockSession(): User | null {
+export function tryLoadMockSession(): User | null {
   if (!isE2ETestModeEnabled()) {
     return null;
   }

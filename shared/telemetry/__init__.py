@@ -36,26 +36,31 @@ Date: 2025-12-26
    See: docs/adr/ for related Architecture Decision Records.
 """
 
-from .logging import (
-    get_logger,
-    log_exception,
-    setup_logging,
-)
-from .metrics import (
-    SahoolMetrics,
-    get_meter,
-    init_metrics,
-    track_business_metric,
-    track_request,
-)
-from .tracing import (
-    get_current_span_id,
-    get_current_trace_id,
-    get_tracer,
-    init_tracer,
-    instrument_all,
-    trace_method,
-)
+try:
+    from .logging import (
+        get_logger,
+        log_exception,
+        setup_logging,
+    )
+    from .metrics import (
+        SahoolMetrics,
+        get_meter,
+        init_metrics,
+        track_business_metric,
+        track_request,
+    )
+    from .tracing import (
+        get_current_span_id,
+        get_current_trace_id,
+        get_tracer,
+        init_tracer,
+        instrument_all,
+        trace_method,
+    )
+except ImportError:
+    # opentelemetry packages not installed — degrade gracefully.
+    # Services that need telemetry should use shared.observability instead.
+    pass
 
 __version__ = "1.0.0"
 

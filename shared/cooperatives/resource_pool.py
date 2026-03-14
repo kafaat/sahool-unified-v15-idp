@@ -897,8 +897,7 @@ class ResourcePoolService:
                 "total_hours_this_month": sum(
                     b.actual_hours or 0
                     for b in self._bookings.values()
-                    if b.status == "completed"
-                    and b.start_time >= datetime(now.year, now.month, 1, tzinfo=UTC)
+                    if b.status == "completed" and b.start_time >= datetime(now.year, now.month, 1, tzinfo=UTC)
                 ),
             },
         }

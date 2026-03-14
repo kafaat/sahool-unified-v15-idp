@@ -36,6 +36,7 @@ from .database_service import CacheManager, ProviderConfigService
 # Import database models and services
 from .models import Database
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager | مدير دورة حياة التطبيق"""
@@ -744,8 +745,6 @@ def get_db_session():
         yield session
     finally:
         session.close()
-
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

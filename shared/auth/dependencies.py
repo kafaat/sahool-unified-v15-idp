@@ -3,8 +3,6 @@ FastAPI Authentication Dependencies for SAHOOL Platform
 Dependency injection for authentication and authorization
 """
 
-from __future__ import annotations
-
 import logging
 import time
 from collections import defaultdict
@@ -28,7 +26,7 @@ oauth2_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
-    request: Request | None = None,
+    request: Request = None,
 ) -> User:
     """
     Get the current authenticated user from the JWT token.

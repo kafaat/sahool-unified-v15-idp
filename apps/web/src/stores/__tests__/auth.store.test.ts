@@ -35,8 +35,6 @@ vi.mock("@/lib/api/auth-client", () => ({
   },
 }));
 
-import Cookies from "js-cookie";
-
 describe("Auth Store helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -10,6 +10,26 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _mock_sendgrid_classes():
+    """Mock SendGrid helper classes when SDK not installed."""
+    with (
+        patch("src.email_client._SENDGRID_AVAILABLE", True),
+        patch("src.email_client.Mail", MagicMock(), create=True),
+        patch("src.email_client.Email", MagicMock(), create=True),
+        patch("src.email_client.Content", MagicMock(), create=True),
+        patch("src.email_client.Subject", MagicMock(), create=True),
+        patch("src.email_client.To", MagicMock(), create=True),
+        patch("src.email_client.Personalization", MagicMock(), create=True),
+        patch("src.email_client.Attachment", MagicMock(), create=True),
+        patch("src.email_client.FileContent", MagicMock(), create=True),
+        patch("src.email_client.FileName", MagicMock(), create=True),
+        patch("src.email_client.FileType", MagicMock(), create=True),
+        patch("src.email_client.Disposition", MagicMock(), create=True),
+    ):
+        yield
+
+
 class TestSMSClient:
     """Test SMS client (Twilio) functionality"""
 
@@ -26,7 +46,10 @@ class TestSMSClient:
         """Test SMS client initialization with credentials"""
         from src.sms_client import SMSClient
 
-        with patch("src.sms_client.TwilioClient") as mock_twilio:
+        with (
+            patch("src.sms_client._TWILIO_AVAILABLE", True),
+            patch("src.sms_client.TwilioClient") as mock_twilio,
+        ):
             client = SMSClient()
             result = client.initialize(account_sid="test_sid", auth_token="test_token", from_number="+1234567890")
 
@@ -47,6 +70,7 @@ class TestSMSClient:
                     "TWILIO_FROM_NUMBER": "+1234567890",
                 },
             ),
+            patch("src.sms_client._TWILIO_AVAILABLE", True),
             patch("src.sms_client.TwilioClient"),
         ):
             client = SMSClient()
@@ -171,7 +195,6 @@ class TestSMSClient:
     async def test_send_sms_with_error(self):
         """Test SMS sending handles errors"""
         from src.sms_client import SMSClient
-        from twilio.base.exceptions import TwilioRestException
 
         client = SMSClient()
         client._initialized = True
@@ -179,7 +202,7 @@ class TestSMSClient:
 
         mock_twilio_client = MagicMock()
         mock_twilio_client.messages.create = MagicMock(
-            side_effect=TwilioRestException(400, "http://test", msg="Invalid phone number")
+            side_effect=Exception("Invalid phone number")
         )
         client._client = mock_twilio_client
 
@@ -443,7 +466,6 @@ class TestEmailClient:
     @pytest.mark.asyncio
     async def test_send_email_with_error(self):
         """Test email sending handles errors"""
-        from python_http_client.exceptions import HTTPError
         from src.email_client import EmailClient
 
         client = EmailClient()
@@ -452,9 +474,7 @@ class TestEmailClient:
         client._from_name = "SAHOOL"
 
         mock_sendgrid_client = MagicMock()
-        mock_error = HTTPError(None, None, None)
-        mock_error.to_dict = {"errors": [{"message": "Invalid API key"}]}
-        mock_sendgrid_client.send = MagicMock(side_effect=mock_error)
+        mock_sendgrid_client.send = MagicMock(side_effect=Exception("Invalid API key"))
         client._client = mock_sendgrid_client
 
         result = await client.send_email(to="test@example.com", subject="Test", body="Test")

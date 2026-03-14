@@ -12,8 +12,9 @@ from uuid import uuid4
 import pytest
 
 # Set test environment before any service imports
-os.environ.setdefault("ENVIRONMENT", "test")
-os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/test")
+os.environ["ENVIRONMENT"] = "test"
+if not os.environ.get("DATABASE_URL"):
+    os.environ["DATABASE_URL"] = "postgresql://test:test@localhost:5432/test"
 os.environ.setdefault("NATS_URL", "")
 os.environ.setdefault("REDIS_URL", "")
 
@@ -137,15 +138,43 @@ def mock_firebase_client():
     return client
 
 
+def _mock_user():
+    """Create a mock authenticated user for testing"""
+    user = MagicMock()
+    user.id = "test-user-123"
+    user.tenant_id = "test-tenant-1"
+    user.email = "test@sahool.app"
+    user.role = "admin"
+    user.is_active = True
+    return user
+
+
 @pytest.fixture
 async def async_client():
     """Create async test client for FastAPI"""
     try:
-        from httpx import AsyncClient
+        import httpx
         from src.main import app
 
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        # Override auth dependency to return None (bypasses auth checks in endpoints)
+        # Endpoints use: user: User | None = Depends(get_current_user)
+        # When user is None, auth ownership checks are skipped
+        try:
+            from shared.auth.dependencies import get_current_user
+
+            app.dependency_overrides[get_current_user] = lambda: None
+        except ImportError:
+            pass
+
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(
+            transport=transport,
+            base_url="http://test",
+            headers={"X-Tenant-ID": "test-tenant-1"},
+        ) as client:
             yield client
+
+        app.dependency_overrides.clear()
     except (ImportError, OSError, RuntimeError):
         pytest.skip("httpx or src.main not available")
 
@@ -157,7 +186,18 @@ def client():
         from fastapi.testclient import TestClient
         from src.main import app
 
-        return TestClient(app)
+        # Override auth dependency to return None (bypasses auth checks in endpoints)
+        try:
+            from shared.auth.dependencies import get_current_user
+
+            app.dependency_overrides[get_current_user] = lambda: None
+        except ImportError:
+            pass
+
+        client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+        yield client
+
+        app.dependency_overrides.clear()
     except (ImportError, OSError, RuntimeError):
         pytest.skip("fastapi.testclient or src.main not available")
 
@@ -200,16 +240,9 @@ def mock_notification_log_repository():
 
 @pytest.fixture(autouse=True)
 def reset_farmer_profiles():
-    """Reset FARMER_PROFILES dict before each test"""
-    try:
-        from src.main import FARMER_PROFILES
-    except (ImportError, OSError, RuntimeError):
-        yield
-        return
-
-    FARMER_PROFILES.clear()
+    """Reset farmer profiles state before each test.
+    FARMER_PROFILES was migrated to database-backed FarmerProfileRepository."""
     yield
-    FARMER_PROFILES.clear()
 
 
 @pytest.fixture

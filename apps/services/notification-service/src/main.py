@@ -349,6 +349,9 @@ class IrrigationReminderRequest(BaseModel):
 #
 # Migration completed: 2026-01-08
 
+# Legacy compatibility: in-memory cache used by send_*_notification functions
+# when database is unavailable (e.g., during testing)
+FARMER_PROFILES: dict[str, Any] = {}
 
 # =============================================================================
 # Notification Logic

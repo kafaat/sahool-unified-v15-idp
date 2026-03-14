@@ -40,14 +40,14 @@ class ScheduleFrequency(StrEnum):
 class ScheduledNotification:
     """إشعار مجدول"""
 
-    # Priority queue ordering
+    # Priority queue ordering (compare=True for heap ordering)
     scheduled_time: datetime = field(compare=True)
     priority: int = field(compare=True, default=2)  # 0=critical, 1=high, 2=medium, 3=low
 
-    # Notification data
-    notification_id: str = field(compare=False)
-    payload: NotificationPayload = field(compare=False)
-    recipient_token: str = field(compare=False)
+    # Notification data (all non-compare fields must have defaults after priority)
+    notification_id: str = field(compare=False, default="")
+    payload: NotificationPayload = field(compare=False, default=None)
+    recipient_token: str = field(compare=False, default="")
     frequency: ScheduleFrequency = field(compare=False, default=ScheduleFrequency.ONCE)
 
     # Retry configuration

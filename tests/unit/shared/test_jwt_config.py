@@ -55,6 +55,9 @@ class TestJWTConfig:
             JWTConfig.JWT_ISSUER = os.environ.get("JWT_ISSUER", "sahool-platform")
             JWTConfig.JWT_AUDIENCE = os.environ.get("JWT_AUDIENCE", "sahool-api")
         except ImportError:
+            # JWTConfig may not be importable in minimal test environments
+            # where shared.auth dependencies are not installed. Safe to skip
+            # since teardown only needs to restore env vars (done above).
             pass
 
     def test_jwt_config_import(self):

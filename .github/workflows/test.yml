@@ -148,21 +148,21 @@ jobs:
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode || \
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode || \
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 
       - name: Run NDVI Processor Tests
         run: |
@@ -201,7 +201,9 @@ jobs:
           FAILED=""
           for svc in $SERVICES; do
             echo "--- Testing $svc ---"
-            COV_ARGS="--cov=apps/services"
+            # Scope coverage to the service under test so the per-service
+            # fail-under threshold is meaningful (not diluted by all 72 services).
+            COV_ARGS="--cov=apps/services/$svc"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
               -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {

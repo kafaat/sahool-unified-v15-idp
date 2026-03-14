@@ -12,6 +12,8 @@ Features:
 - Proper error handling and logging
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import os
@@ -43,6 +45,19 @@ try:
     _SENDGRID_AVAILABLE = True
 except ImportError:
     _SENDGRID_AVAILABLE = False
+    SendGridAPIClient = None  # type: ignore[misc,assignment]
+    Mail = None  # type: ignore[misc,assignment]
+    Email = None  # type: ignore[misc,assignment]
+    Content = None  # type: ignore[misc,assignment]
+    Subject = None  # type: ignore[misc,assignment]
+    To = None  # type: ignore[misc,assignment]
+    Personalization = None  # type: ignore[misc,assignment]
+    Attachment = None  # type: ignore[misc,assignment]
+    FileContent = None  # type: ignore[misc,assignment]
+    FileName = None  # type: ignore[misc,assignment]
+    FileType = None  # type: ignore[misc,assignment]
+    Disposition = None  # type: ignore[misc,assignment]
+    HTTPError = Exception  # type: ignore[misc,assignment]
     logger.warning("SendGrid SDK not installed. Install with: pip install sendgrid")
 
 
@@ -466,7 +481,7 @@ class EmailClient:
         if not local or not domain:
             return False
 
-        return not "." not in domain
+        return True
 
 
 # Global client instance

@@ -24,7 +24,11 @@ logger = logging.getLogger("sahool-notifications.database")
 # - Production: sslmode=require is MANDATORY for external connections
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
+    if os.getenv("ENVIRONMENT") == "test":
+        DATABASE_URL = "postgresql://test:test@localhost:5432/test_notifications"
+        logger.warning("DATABASE_URL not set in test environment, using default test URL")
+    else:
+        raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
 
 # Tortoise ORM requires 'postgres://' scheme, not 'postgresql://'
 # Normalize the URL scheme for Tortoise ORM compatibility

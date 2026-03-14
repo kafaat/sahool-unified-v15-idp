@@ -476,36 +476,52 @@ class LLMProviderManager:
         config = self.configs[LLMProvider.VLLM]
         base_url = (config.base_url or "http://localhost:8270/v1").rstrip("/")
 
-        async with httpx.AsyncClient(timeout=config.timeout) as client:
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+        try:
+            async with httpx.AsyncClient(timeout=config.timeout) as client:
+                messages = []
+                if system_prompt:
+                    messages.append({"role": "system", "content": system_prompt})
+                messages.append({"role": "user", "content": prompt})
 
-            response = await client.post(
-                f"{base_url}/chat/completions",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "model": config.model,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                },
-            )
-            response.raise_for_status()
-            data = response.json()
+                response = await client.post(
+                    f"{base_url}/chat/completions",
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "model": config.model,
+                        "messages": messages,
+                        "temperature": temperature,
+                        "max_tokens": max_tokens,
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
 
-            text = data["choices"][0]["message"]["content"]
+                text = data["choices"][0]["message"]["content"]
 
-            return LLMResponse(
-                text=text,
-                provider=LLMProvider.VLLM,
-                model=config.model,
-                tokens_input=data.get("usage", {}).get("prompt_tokens", 0),
-                tokens_output=data.get("usage", {}).get("completion_tokens", 0),
-                finish_reason=data["choices"][0].get("finish_reason"),
-                raw_response=data,
-            )
+                return LLMResponse(
+                    text=text,
+                    provider=LLMProvider.VLLM,
+                    model=config.model,
+                    tokens_input=data.get("usage", {}).get("prompt_tokens", 0),
+                    tokens_output=data.get("usage", {}).get("completion_tokens", 0),
+                    finish_reason=data["choices"][0].get("finish_reason"),
+                    raw_response=data,
+                )
+        except httpx.TimeoutException as e:
+            raise LLMProviderError(
+                f"vLLM request timed out (model={config.model}, base_url={base_url}): {e}",
+                LLMProvider.VLLM,
+            ) from e
+        except httpx.HTTPStatusError as e:
+            raise LLMProviderError(
+                f"vLLM HTTP {e.response.status_code} (model={config.model}, base_url={base_url}): {e}",
+                LLMProvider.VLLM,
+            ) from e
+        except httpx.HTTPError as e:
+            raise LLMProviderError(
+                f"vLLM connection error (model={config.model}, base_url={base_url}): {e}",
+                LLMProvider.VLLM,
+            ) from e
 
     async def _call_ollama(
         self,

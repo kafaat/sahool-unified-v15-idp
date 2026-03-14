@@ -103,12 +103,15 @@ class IoTPublisher:
             await self.nc.connect(self.nats_url)
             self._connected = True
             # Mask credentials in NATS URL before logging
-            from urllib.parse import urlparse, urlunparse
+            from urllib.parse import urlparse
 
             try:
                 parsed = urlparse(self.nats_url)
                 if parsed.password:
-                    masked = urlunparse(parsed._replace(netloc=f"{parsed.username}:***@{parsed.hostname}:{parsed.port}"))
+                    host = parsed.hostname or "localhost"
+                    port_str = f":{parsed.port}" if parsed.port else ""
+                    user_str = f"{parsed.username}@" if parsed.username else ""
+                    masked = f"{parsed.scheme}://{user_str}***@{host}{port_str}"
                 else:
                     masked = self.nats_url
             except Exception:

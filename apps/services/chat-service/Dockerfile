@@ -133,13 +133,13 @@ CMD ["sh", "-c", "\
     if ! npx prisma migrate deploy 2>/tmp/prisma_err.log; then \
       if grep -q 'P3005' /tmp/prisma_err.log; then \
         echo 'Database not empty (P3005). Baselining existing migrations...'; \
-        for dir in prisma/migrations/*/; do \
+        for dir in prisma/migrations/*/; do [ -d "$dir" ] || continue; \
           migration_name=$(basename \"$dir\"); \
           echo \"Resolving migration: $migration_name\"; \
           npx prisma migrate resolve --applied \"$migration_name\" 2>/dev/null || true; \
         done; \
         echo 'Baseline complete. Re-running migrate deploy...'; \
-        npx prisma migrate deploy || echo 'Warning: migrate deploy returned non-zero but continuing...'; \
+        npx prisma migrate deploy; \
       else \
         echo 'Migration error (non-P3005):'; \
         cat /tmp/prisma_err.log; \

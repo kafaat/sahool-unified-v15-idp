@@ -20,12 +20,12 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import structlog
 import yaml
+from shared.ai.knowledge._logging import get_logger
 
 from ..models import KnowledgeDomain, SourceCredibilityLevel
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 _SOURCES_FILE = Path(__file__).parent / "trusted_sources.yaml"
 

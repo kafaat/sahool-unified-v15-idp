@@ -174,6 +174,7 @@ filterwarnings = [
     "ignore:cannot collect test class '.*' because it has a __init__ constructor:pytest.PytestCollectionWarning",
 ]
 markers = [
+    "asyncio: Async tests (requires pytest-asyncio)",
     "unit: Unit tests (fast, no I/O)",
     "integration: Integration tests (API, database)",
     "smoke: Smoke tests (import verification)",

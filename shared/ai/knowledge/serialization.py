@@ -17,11 +17,11 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-import structlog
+from shared.ai.knowledge._logging import get_logger
 
 from .models import BaseKnowledgeDocument
 
-logger = structlog.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class DateTimeEncoder(json.JSONEncoder):

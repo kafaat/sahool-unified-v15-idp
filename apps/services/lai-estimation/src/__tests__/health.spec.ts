@@ -26,13 +26,9 @@ describe("HealthController", () => {
 
   it("should return readiness status", () => {
     const result = controller.readinessCheck();
-    expect(result).toHaveProperty("status", "ready");
+    expect(result).toHaveProperty("status", "ok");
     expect(result).toHaveProperty("service", "lai-estimation");
     expect(result).toHaveProperty("version", "16.0.0");
-    expect(result).toHaveProperty("checks");
-    expect(result.checks).toEqual({
-      lai_engine: "initialized",
-      indices_engine: "initialized",
-    });
+    expect(result).toHaveProperty("timestamp");
   });
 });

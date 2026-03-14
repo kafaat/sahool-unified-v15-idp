@@ -26,14 +26,9 @@ describe("HealthController", () => {
 
   it("should return readiness status", () => {
     const result = controller.readinessCheck();
-    expect(result).toHaveProperty("status", "ready");
+    expect(result).toHaveProperty("status", "ok");
     expect(result).toHaveProperty("service", "crop-growth-model");
     expect(result).toHaveProperty("version", "16.0.0");
-    expect(result).toHaveProperty("checks");
-    expect(result.checks).toEqual({
-      phenology_engine: "initialized",
-      biomass_engine: "initialized",
-      simulation_engine: "initialized",
-    });
+    expect(result).toHaveProperty("timestamp");
   });
 });

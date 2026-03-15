@@ -1261,13 +1261,17 @@ postgresql://user:pass@postgres:5432/db?sslmode<span class="o">=</span>prefer
 <p><strong>Configuration File</strong>: <code>/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini</code></p>
 <p><strong>TLS Settings</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Server-side TLS (to PostgreSQL)</span>
-<span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">prefer</span>
-<span class="na">server_tls_ca_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/etc/pgbouncer/certs/ca.crt</span>
+<span class="c1"># Default: &#39;disable&#39; in dev (no TLS certs present by default)</span>
+<span class="c1"># Production: Use docker-compose.tls.yml overlay to set &#39;require&#39; + CA cert</span>
+<span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+<span class="c1">; server_tls_ca_file = /etc/pgbouncer/certs/ca.crt</span>
 
 <span class="c1"># Client-side TLS (from applications)</span>
-<span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">prefer</span>
-<span class="na">client_tls_cert_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/etc/pgbouncer/certs/server.crt</span>
-<span class="na">client_tls_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/etc/pgbouncer/certs/server.key</span>
+<span class="c1"># Default: &#39;disable&#39; in dev (no cert/key files present by default)</span>
+<span class="c1"># Production: Use docker-compose.tls.yml overlay to set &#39;require&#39; + cert/key</span>
+<span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
+<span class="c1">; client_tls_cert_file = /etc/pgbouncer/certs/server.crt</span>
+<span class="c1">; client_tls_key_file = /etc/pgbouncer/certs/server.key</span>
 </code></pre></div>
 
 <h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>

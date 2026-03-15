@@ -403,10 +403,6 @@ SAHOOL_EDGE_DATA_COLLECTED = "sahool.edge.data_collected"
 
 # Wildcards
 SAHOOL_EDGE_ALL = "sahool.edge.*"
-SAHOOL_EDGE_DEVICE_ALL = "sahool.edge.device_*"
-SAHOOL_EDGE_JOB_ALL = "sahool.edge.job_*"
-SAHOOL_EDGE_SYNC_ALL = "sahool.edge.sync_*"
-SAHOOL_EDGE_MODEL_ALL = "sahool.edge.model_*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

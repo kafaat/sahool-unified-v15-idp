@@ -86,12 +86,10 @@ class EdgeSubjects:
     DATA_QUEUE_FULL = "sahool.edge.data_queue_full"
 
     # Wildcards
+    # Note: NATS '*' matches a full token, not a prefix.
+    # Edge subjects use underscores (e.g., device_online) so prefix-based
+    # filtering is not possible. Use ALL to subscribe to all edge events.
     ALL = "sahool.edge.*"
-    DEVICE_ALL = "sahool.edge.device_*"
-    JOB_ALL = "sahool.edge.job_*"
-    SYNC_ALL = "sahool.edge.sync_*"
-    MODEL_ALL = "sahool.edge.model_*"
-    FIRMWARE_ALL = "sahool.edge.firmware_*"
 
     @staticmethod
     def tenant_scoped(tenant_id: str, event_type: str) -> str:

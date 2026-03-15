@@ -24,7 +24,7 @@ services:
   # Enhanced metrics collection for JetStream, streams, and consumers
   # ─────────────────────────────────────────────────────────────────────────────
   nats-prometheus-exporter:
-    image: natsio/prometheus-nats-exporter:0.14.0
+    image: natsio/prometheus-nats-exporter:0.15.0
     container_name: sahool-nats-prometheus-exporter
     restart: unless-stopped
     command:

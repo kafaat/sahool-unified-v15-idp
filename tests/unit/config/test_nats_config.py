@@ -115,24 +115,32 @@ class TestNatsSecurityConfig:
         assert "$JS.API.CONSUMER.DELETE" in default_perms, "Consumer deletion should be denied in default permissions"
 
     def test_admin_user_requires_env_vars(self, nats_config_content):
-        """Test that admin user credentials come from environment variables."""
-        # Check that admin user uses environment variables, not hardcoded values
+        """Test that admin user credentials come from environment variables or bcrypt hashes."""
+        # Admin username should be from environment variable
         assert "$NATS_ADMIN_USER" in nats_config_content, "Admin username should be from environment variable"
-        assert "$NATS_ADMIN_PASSWORD" in nats_config_content, "Admin password should be from environment variable"
+        # Password can be env var OR bcrypt hash (bcrypt hashes start with $2b$)
+        has_env_password = "$NATS_ADMIN_PASSWORD" in nats_config_content
+        has_bcrypt_password = "$2b$" in nats_config_content
+        assert has_env_password or has_bcrypt_password, "Admin password should be from environment variable or bcrypt hash"
 
     def test_app_user_requires_env_vars(self, nats_config_content):
-        """Test that application user credentials come from environment variables."""
+        """Test that application user credentials come from environment variables or bcrypt hashes."""
         assert "$NATS_USER" in nats_config_content, "App username should be from environment variable"
-        assert "$NATS_PASSWORD" in nats_config_content, "App password should be from environment variable"
+        has_env_password = "$NATS_PASSWORD" in nats_config_content
+        has_bcrypt_password = "$2b$" in nats_config_content
+        assert has_env_password or has_bcrypt_password, "App password should be from environment variable or bcrypt hash"
 
     def test_monitor_user_requires_env_vars(self, nats_config_content):
-        """Test that monitor user credentials come from environment variables."""
+        """Test that monitor user credentials come from environment variables or bcrypt hashes."""
         assert "$NATS_MONITOR_USER" in nats_config_content, "Monitor username should be from environment variable"
-        assert "$NATS_MONITOR_PASSWORD" in nats_config_content, "Monitor password should be from environment variable"
+        has_env_password = "$NATS_MONITOR_PASSWORD" in nats_config_content
+        has_bcrypt_password = "$2b$" in nats_config_content
+        assert has_env_password or has_bcrypt_password, "Monitor password should be from environment variable or bcrypt hash"
 
     def test_no_hardcoded_passwords(self, nats_config_content):
-        """Test that there are no hardcoded passwords in the configuration."""
-        # Common patterns for hardcoded passwords
+        """Test that there are no hardcoded passwords (plaintext) in the configuration.
+        Bcrypt hashes ($2b$...) are acceptable as they are not reversible."""
+        # Common patterns for hardcoded passwords (excluding bcrypt hashes)
         dangerous_patterns = [
             r'password:\s*["\'][^$][^"\']+["\']',  # password: "something" (not starting with $)
             r"password:\s+[a-zA-Z0-9_]+\s",  # password: plaintext

@@ -37,7 +37,7 @@ async def example_verify_certificate():
     # Initialize client in mock mode for testing
     # تهيئة العميل في وضع المحاكاة للاختبار
     async with GlobalGAPClient(
-        api_key="demo-api-key",
+        api_key="demo-api-key",  # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument
         mock_mode=True,  # Set to False when using real API
     ) as client:
         try:

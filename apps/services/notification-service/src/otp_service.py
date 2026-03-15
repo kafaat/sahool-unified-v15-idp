@@ -429,7 +429,10 @@ class OTPService:
             OTP مشفر
         """
         # Use SHA-256 with user_id as salt for secure hashing
-        salt = f"{user_id}:{os.getenv('JWT_SECRET_KEY', 'default-secret')}"
+        jwt_secret = os.getenv('JWT_SECRET_KEY')
+        if not jwt_secret:
+            raise ValueError("JWT_SECRET_KEY environment variable is required")
+        salt = f"{user_id}:{jwt_secret}"
         combined = f"{otp_code}:{salt}"
         return hashlib.sha256(combined.encode()).hexdigest()
 

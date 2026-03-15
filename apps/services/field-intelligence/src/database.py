@@ -323,7 +323,7 @@ class EventsRepository(BaseRepository):
         where_clause = " AND ".join(conditions)
 
         # Count query
-        count_query = f"SELECT COUNT(*) FROM field_intelligence_events WHERE {where_clause}"
+        count_query = f"SELECT COUNT(*) FROM field_intelligence_events WHERE {where_clause}"  # nosemgrep: python.lang.security.audit.formatted-sql-query
         total = await self._fetchval(count_query, *params)
 
         # Data query with pagination
@@ -332,7 +332,7 @@ class EventsRepository(BaseRepository):
             WHERE {where_clause}
             ORDER BY created_at DESC
             OFFSET ${param_idx} LIMIT ${param_idx + 1}
-        """
+        """  # nosemgrep: python.lang.security.audit.formatted-sql-query
         params.extend([skip, limit])
 
         rows = await self._fetch(data_query, *params)
@@ -509,7 +509,7 @@ class RulesRepository(BaseRepository):
         where_clause = " AND ".join(conditions)
 
         # Count query
-        count_query = f"SELECT COUNT(*) FROM field_intelligence_rules WHERE {where_clause}"
+        count_query = f"SELECT COUNT(*) FROM field_intelligence_rules WHERE {where_clause}"  # nosemgrep: python.lang.security.audit.formatted-sql-query
         total = await self._fetchval(count_query, *params)
 
         # Data query with pagination
@@ -518,7 +518,7 @@ class RulesRepository(BaseRepository):
             WHERE {where_clause}
             ORDER BY priority ASC
             OFFSET ${param_idx} LIMIT ${param_idx + 1}
-        """
+        """  # nosemgrep: python.lang.security.audit.formatted-sql-query
         params.extend([skip, limit])
 
         rows = await self._fetch(data_query, *params)

@@ -15,8 +15,6 @@
 import type { ComponentType } from "react";
 import dynamic from "next/dynamic";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // Helper: next/dynamic expects the loader to resolve to a component with a
 // `default` export OR a bare component.  Recharts uses named exports, so we
 // wrap each in `{ default: ... }`.  Using `ComponentType<any>` preserves the

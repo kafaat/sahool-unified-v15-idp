@@ -1300,7 +1300,7 @@ services:
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3000
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # Direct URL for Prisma migrations (bypasses PgBouncer) - required by postgresqlExtensions preview feature + postgis
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1354,7 +1354,7 @@ services:
       - PORT=3010
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1402,7 +1402,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1454,7 +1454,7 @@ services:
     environment:
       - PORT=3020
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # Direct URL for Prisma migrations (bypasses PgBouncer)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1509,7 +1509,7 @@ services:
     environment:
       - PORT=3021
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1561,7 +1561,7 @@ services:
     environment:
       - PORT=3022
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1614,7 +1614,7 @@ services:
       - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1664,7 +1664,7 @@ services:
       - PORT=8115
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1713,7 +1713,7 @@ services:
       - PORT=8117
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1835,7 +1835,7 @@ services:
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3025
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -2327,7 +2327,7 @@ services:
       - PORT=8152
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       # FIX: Missing JWT_SECRET_KEY caused auth module initialization failure
@@ -3127,7 +3127,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
@@ -3175,7 +3175,7 @@ services:
       - PORT=8131
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -3225,7 +3225,7 @@ services:
       - PORT=8132
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer client_tls_sslmode=allow but dev services skip TLS negotiation
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222

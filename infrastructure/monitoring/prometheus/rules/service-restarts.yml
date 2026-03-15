@@ -176,23 +176,51 @@ groups:
           action_ar: "تحقق من نقطة الجاهزية (/readyz) واتصال التبعيات"
 
       # Detect truly missing scrape targets using absent().
-      # NOTE: absent() requires a specific job label — one rule per critical service.
-      # ServiceDownExtended (above) already covers known-down targets (up==0).
-      # This catches targets that disappear entirely from Prometheus discovery.
-      - alert: ServiceTargetMissing
-        expr: |
-          absent(up{job="sahool-services"})
+      # One rule per critical infrastructure service, since absent() requires
+      # a specific job label and there is no umbrella "sahool-services" job.
+      # ServiceDownExtended (above) covers known-down targets (up==0);
+      # these catch targets that vanish entirely from Prometheus discovery.
+      - alert: UserServiceTargetMissing
+        expr: absent(up{job="user-service"})
         for: 5m
         labels:
           severity: critical
           category: availability
           platform: sahool
         annotations:
-          summary: "No sahool-services scrape targets found"
-          summary_ar: "لم يتم العثور على أهداف جمع بيانات خدمات سهول"
-          description: "Prometheus cannot find any scrape targets for job sahool-services. All services may be down or service discovery is misconfigured."
-          description_ar: "لا يمكن لـ Prometheus العثور على أي أهداف جمع بيانات. قد تكون جميع الخدمات متوقفة أو اكتشاف الخدمات معطل."
-          impact: "All services may be down and no metrics are being collected"
-          impact_ar: "جميع الخدمات قد تكون متوقفة ولا يتم جمع أي مقاييس"
+          summary: "user-service scrape target missing from Prometheus"
+          summary_ar: "هدف جمع بيانات user-service مفقود من Prometheus"
+          description: "Prometheus cannot find any scrape targets for user-service. The service may be down or service discovery is misconfigured."
+          description_ar: "لا يمكن لـ Prometheus العثور على أهداف جمع بيانات user-service."
+          action: "Check Prometheus targets page and Docker container status"
+          action_ar: "تحقق من صفحة أهداف Prometheus وحالة حاويات Docker"
+
+      - alert: FieldManagementTargetMissing
+        expr: absent(up{job="field-management-service"})
+        for: 5m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "field-management-service scrape target missing from Prometheus"
+          summary_ar: "هدف جمع بيانات field-management-service مفقود من Prometheus"
+          description: "Prometheus cannot find any scrape targets for field-management-service."
+          description_ar: "لا يمكن لـ Prometheus العثور على أهداف جمع بيانات field-management-service."
+          action: "Check Prometheus targets page and Docker container status"
+          action_ar: "تحقق من صفحة أهداف Prometheus وحالة حاويات Docker"
+
+      - alert: NotificationServiceTargetMissing
+        expr: absent(up{job="notification-service"})
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "notification-service scrape target missing from Prometheus"
+          summary_ar: "هدف جمع بيانات notification-service مفقود من Prometheus"
+          description: "Prometheus cannot find any scrape targets for notification-service."
+          description_ar: "لا يمكن لـ Prometheus العثور على أهداف جمع بيانات notification-service."
           action: "Check Prometheus targets page and Docker container status"
           action_ar: "تحقق من صفحة أهداف Prometheus وحالة حاويات Docker"

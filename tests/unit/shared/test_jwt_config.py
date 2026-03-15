@@ -287,7 +287,7 @@ class TestJWTConfig:
         """Test validation passes with valid secret in production"""
         os.environ["ENVIRONMENT"] = "production"
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "a" * 32  # 32 character secret
+        os.environ["JWT_SECRET_KEY"] = "a" * 32  # 32 character secret  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -301,7 +301,7 @@ class TestJWTConfig:
     def test_get_signing_key_hs256(self):
         """Test get_signing_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -315,7 +315,7 @@ class TestJWTConfig:
     def test_get_verification_key_hs256(self):
         """Test get_verification_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(

@@ -38,16 +38,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Install hadolint
+        run: |
+          wget -qO /usr/local/bin/hadolint \
+            "https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64"
+          chmod +x /usr/local/bin/hadolint
+
       - name: Run hadolint on all Dockerfiles
-        uses: hadolint/hadolint-action@v3.3.0
         continue-on-error: true
-        with:
-          dockerfile: "Dockerfile*"
-          recursive: true
-          failure-threshold: warning
-          format: sarif
-          output-file: hadolint-results.sarif
-          config: .hadolint.yaml
+        run: |
+          # Exclude archive/ and idp/templates/ which contain heredocs and
+          # template placeholders ({{port}}) that cause DL1000 parse errors
+          find . -name "Dockerfile*" -type f \
+            -not -path "./archive/*" \
+            -not -path "./idp/templates/*" \
+            -not -path "./.git/*" \
+            -not -path "*/node_modules/*" \
+            | xargs hadolint --config .hadolint.yaml \
+              --format sarif > hadolint-results.sarif 2>&1 || true
 
       - name: Generate hadolint SARIF fallback
         if: always()
@@ -71,7 +79,7 @@ jobs:
           echo "## 🐳 Dockerfile Linting Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          DOCKERFILE_COUNT=$(find . -name "Dockerfile*" -type f | wc -l)
+          DOCKERFILE_COUNT=$(find . -name "Dockerfile*" -type f -not -path "./archive/*" -not -path "./idp/templates/*" -not -path "./.git/*" -not -path "*/node_modules/*" | wc -l)
           echo "**Total Dockerfiles scanned:** $DOCKERFILE_COUNT" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 

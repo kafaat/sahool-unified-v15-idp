@@ -538,7 +538,7 @@ async def lifespan(app: FastAPI):
 
     # WeChat API configuration
     app.state.wechat_app_id = os.getenv("WECHAT_APP_ID")
-    app.state.wechat_app_secret = os.getenv("WECHAT_APP_SECRET")
+    app.state.wechat_app_secret = os.getenv("WECHAT_APP_SECRET")  # gitleaks:allow
     app.state.wechat_configured = bool(app.state.wechat_app_id and app.state.wechat_app_secret)
 
     if not app.state.wechat_configured:

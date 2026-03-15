@@ -380,7 +380,7 @@ class VaultClient:
                 return await self._get_stale_cache_fallback(cache_key)
             except KeyError:
                 logger.error("Failed to get secret from Vault: %s", type(e).__name__)
-                raise
+                raise e
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
             logger.error("Failed to get secret from Vault: %s", type(e).__name__)

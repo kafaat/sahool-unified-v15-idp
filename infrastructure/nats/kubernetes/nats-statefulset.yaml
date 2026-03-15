@@ -356,6 +356,8 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 
       # Termination Grace Period
       terminationGracePeriodSeconds: 60
@@ -376,7 +378,7 @@ spec:
 
       containers:
         - name: nats
-          image: nats:2.10-alpine
+          image: nats:2.10-alpine@sha256:d26258d9071b01bdbec74a083b409e0719ba9b8beda1474bd267a4f3b086a0df
           imagePullPolicy: IfNotPresent
 
           ports:
@@ -486,8 +488,8 @@ spec:
 
         # Metrics Exporter Sidecar (optional)
         - name: metrics
-          image: natsio/prometheus-nats-exporter:latest
-          imagePullPolicy: IfNotPresent
+          image: natsio/prometheus-nats-exporter:0.15.0@sha256:c0293d9cde2391a5d3f29719ac85f7cef3949dea27ef648e3d9079b52c8808f1
+          imagePullPolicy: Always
 
           ports:
             - name: metrics
@@ -501,6 +503,15 @@ spec:
             - -varz
             - -jsz=all
             - http://localhost:8222
+
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 7777
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
 
           resources:
             requests:

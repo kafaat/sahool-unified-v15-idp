@@ -109,7 +109,7 @@ class TestFieldSubjects:
 
     def test_field_wildcard(self):
         """Test field wildcard subject"""
-        assert SAHOOL_FIELD_ALL == "sahool.field.*"
+        assert SAHOOL_FIELD_ALL == "sahool.field.>"
 
 
 @pytest.mark.unit
@@ -147,7 +147,7 @@ class TestWeatherSubjects:
 
     def test_weather_wildcards(self):
         """Test weather wildcard subjects"""
-        assert SAHOOL_WEATHER_ALL == "sahool.weather.*"
+        assert SAHOOL_WEATHER_ALL == "sahool.weather.>"
         assert SAHOOL_WEATHER_ALERTS_ALL == "sahool.weather.alert.*"
 
 
@@ -173,7 +173,7 @@ class TestSatelliteSubjects:
 
     def test_satellite_wildcards(self):
         """Test satellite wildcard subjects"""
-        assert SAHOOL_SATELLITE_ALL == "sahool.satellite.*"
+        assert SAHOOL_SATELLITE_ALL == "sahool.satellite.>"
         assert SAHOOL_SATELLITE_ANOMALIES_ALL == "sahool.satellite.anomaly.*"
 
 

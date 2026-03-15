@@ -45,22 +45,36 @@ class StreamDef:
 
 
 # Domain streams — each covers one bounded context
+# Follows the 4-layer event architecture:
+#   Acquisition → Intelligence → Decision → Business
 STREAMS: list[StreamDef] = [
+    # ── Acquisition Layer ─────────────────────────────────────────────
     StreamDef(
         name="SAHOOL_FIELD",
         subjects=[
             "sahool.field.>",
+            "sahool.farm.>",
             "sahool.satellite.>",
         ],
-        description="Field operations, observations, satellite/NDVI events",
+        description="Field/farm operations, observations, satellite/NDVI events",
         max_age_seconds=30 * 86400,  # 30 days
     ),
     StreamDef(
         name="SAHOOL_WEATHER",
-        subjects=["sahool.weather.>"],
-        description="Weather forecasts and alerts",
+        subjects=[
+            "sahool.weather.>",
+            "sahool.spray.>",
+        ],
+        description="Weather forecasts, alerts, and spray window events",
         max_age_seconds=7 * 86400,  # 7 days
     ),
+    StreamDef(
+        name="SAHOOL_IOT",
+        subjects=["sahool.iot.>"],
+        description="IoT sensor readings, device status, and alerts",
+        max_age_seconds=14 * 86400,
+    ),
+    # ── Intelligence Layer ────────────────────────────────────────────
     StreamDef(
         name="SAHOOL_INTELLIGENCE",
         subjects=[
@@ -71,8 +85,12 @@ STREAMS: list[StreamDef] = [
             "sahool.irrigation.>",
             "sahool.health.>",
             "sahool.recommendation.>",
+            "sahool.indicators.>",
+            "sahool.soil.>",
+            "sahool.crop.>",
+            "sahool.skills.>",
         ],
-        description="Intelligence layer: analysis, actions, advisory, calibration, irrigation, health, recommendations",
+        description="Intelligence layer: analysis, advisory, calibration, irrigation, health, indicators, soil, crop",
         max_age_seconds=30 * 86400,
     ),
     StreamDef(
@@ -93,6 +111,7 @@ STREAMS: list[StreamDef] = [
         description="Edge device management events",
         max_age_seconds=14 * 86400,
     ),
+    # ── Business Layer ────────────────────────────────────────────────
     StreamDef(
         name="SAHOOL_BUSINESS",
         subjects=[
@@ -104,15 +123,45 @@ STREAMS: list[StreamDef] = [
             "sahool.notification.>",
             "sahool.task.>",
             "sahool.alert.>",
+            "sahool.cooperative.>",
+            "sahool.traceability.>",
+            "sahool.compliance.>",
+            "sahool.drone.>",
+            "sahool.community.>",
+            "sahool.chat.>",
+            "sahool.config.>",
+            "sahool.lowcode.>",
         ],
-        description="Business layer: billing, inventory, CRM, notifications",
+        description="Business layer: billing, inventory, CRM, notifications, cooperative, traceability, compliance",
         max_age_seconds=90 * 86400,  # 90 days for audit
     ),
+    # ── AI & System ───────────────────────────────────────────────────
     StreamDef(
         name="SAHOOL_AGENT",
-        subjects=["sahool.agent.>"],
-        description="AI agent execution events",
+        subjects=[
+            "sahool.agent.>",
+            "sahool.copilot.>",
+            "sahool.llm.>",
+            "sahool.knowledge.>",
+        ],
+        description="AI agent execution, copilot, LLM inference, and knowledge base events",
         max_age_seconds=14 * 86400,
+    ),
+    StreamDef(
+        name="SAHOOL_SYSTEM",
+        subjects=[
+            "sahool.system.>",
+            "sahool.user.>",
+        ],
+        description="System health, metrics, audit, and user auth events",
+        max_age_seconds=30 * 86400,
+    ),
+    # ── Tenant-Scoped Events ──────────────────────────────────────────
+    StreamDef(
+        name="SAHOOL_TENANT",
+        subjects=["sahool.tenant.>"],
+        description="Tenant-scoped events (multi-tenant isolation)",
+        max_age_seconds=30 * 86400,
     ),
 ]
 

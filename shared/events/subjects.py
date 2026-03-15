@@ -29,7 +29,7 @@ SAHOOL_FIELD_UPDATED = "sahool.field.updated"
 SAHOOL_FIELD_DELETED = "sahool.field.deleted"
 
 # Wildcards for subscribing to all field events
-SAHOOL_FIELD_ALL = "sahool.field.*"
+SAHOOL_FIELD_ALL = "sahool.field.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ SAHOOL_WEATHER_ALERT_DROUGHT = "sahool.weather.alert.drought"
 SAHOOL_WEATHER_ALERT_WIND = "sahool.weather.alert.wind"
 
 # Wildcards
-SAHOOL_WEATHER_ALL = "sahool.weather.*"
+SAHOOL_WEATHER_ALL = "sahool.weather.>"
 SAHOOL_WEATHER_ALERTS_ALL = "sahool.weather.alert.*"
 
 
@@ -80,7 +80,7 @@ SAHOOL_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
 SAHOOL_NDVI_ANOMALY = "sahool.satellite.ndvi.anomaly"
 
 # Wildcards
-SAHOOL_SATELLITE_ALL = "sahool.satellite.*"
+SAHOOL_SATELLITE_ALL = "sahool.satellite.>"
 SAHOOL_SATELLITE_ANOMALIES_ALL = "sahool.satellite.anomaly.*"
 
 
@@ -99,7 +99,7 @@ SAHOOL_HEALTH_STRESS_HEAT = "sahool.health.stress.heat"
 SAHOOL_HEALTH_STRESS_COLD = "sahool.health.stress.cold"
 
 # Wildcards
-SAHOOL_HEALTH_ALL = "sahool.health.*"
+SAHOOL_HEALTH_ALL = "sahool.health.>"
 SAHOOL_HEALTH_STRESS_ALL = "sahool.health.stress.*"
 
 
@@ -165,7 +165,7 @@ SAHOOL_INVENTORY_PRODUCT_UPDATED = "sahool.inventory.product.updated"
 SAHOOL_INVENTORY_PRODUCT_DELETED = "sahool.inventory.product.deleted"
 
 # Wildcards
-SAHOOL_INVENTORY_ALL = "sahool.inventory.*"
+SAHOOL_INVENTORY_ALL = "sahool.inventory.>"
 SAHOOL_INVENTORY_BATCH_ALL = "sahool.inventory.batch.*"
 SAHOOL_INVENTORY_PRODUCT_ALL = "sahool.inventory.product.*"
 
@@ -197,7 +197,7 @@ SAHOOL_BILLING_QUOTA_EXCEEDED = "sahool.billing.quota.exceeded"
 SAHOOL_BILLING_QUOTA_WARNING = "sahool.billing.quota.warning"
 
 # Wildcards
-SAHOOL_BILLING_ALL = "sahool.billing.*"
+SAHOOL_BILLING_ALL = "sahool.billing.>"
 SAHOOL_BILLING_SUBSCRIPTION_ALL = "sahool.billing.subscription.*"
 SAHOOL_BILLING_PAYMENT_ALL = "sahool.billing.payment.*"
 SAHOOL_BILLING_INVOICE_ALL = "sahool.billing.invoice.*"
@@ -218,7 +218,7 @@ SAHOOL_AGENT_RESEARCH = "sahool.agent.research"
 SAHOOL_AGENT_PLANNER = "sahool.agent.planner"
 
 # Wildcards
-SAHOOL_AGENT_ALL = "sahool.agent.*"
+SAHOOL_AGENT_ALL = "sahool.agent.>"
 SAHOOL_AGENT_EXECUTION_ALL = "sahool.agent.execution.*"
 
 
@@ -238,8 +238,8 @@ SAHOOL_HARVEST_DEAL_STAGE_CHANGED = "sahool.harvest.deal.stage.changed"
 SAHOOL_INTERACTION_LOGGED = "sahool.interaction.logged"
 
 # Wildcards
-SAHOOL_FARMER_ALL = "sahool.farmer.*"
-SAHOOL_HARVEST_ALL = "sahool.harvest.*"
+SAHOOL_FARMER_ALL = "sahool.farmer.>"
+SAHOOL_HARVEST_ALL = "sahool.harvest.>"
 SAHOOL_INTERACTION_ALL = "sahool.interaction.*"
 
 
@@ -292,7 +292,7 @@ SAHOOL_IOT_SENSOR_ALERT = "sahool.iot.sensor.alert"
 SAHOOL_IOT_DEVICE_REGISTERED = "sahool.iot.device.registered"
 SAHOOL_IOT_DEVICE_STATUS = "sahool.iot.device.status"
 
-SAHOOL_IOT_ALL = "sahool.iot.*"
+SAHOOL_IOT_ALL = "sahool.iot.>"
 SAHOOL_IOT_SENSOR_ALL = "sahool.iot.sensor.*"
 SAHOOL_IOT_DEVICE_ALL = "sahool.iot.device.*"
 
@@ -341,7 +341,7 @@ SAHOOL_VISION_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
 SAHOOL_VISION_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
 
 # Wildcards
-SAHOOL_VISION_ALL = "sahool.vision.*"
+SAHOOL_VISION_ALL = "sahool.vision.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -513,7 +513,7 @@ SAHOOL_COMPLIANCE_CERTIFICATE_CREATED = "sahool.compliance.certificate.created"
 SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED = "sahool.compliance.certificate.renewed"
 SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED = "sahool.compliance.certificate.expired"
 
-SAHOOL_COMPLIANCE_ALL = "sahool.compliance.*"
+SAHOOL_COMPLIANCE_ALL = "sahool.compliance.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -606,7 +606,7 @@ SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
 SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
 SAHOOL_IRRIGATION_HMC = "sahool.irrigation.hmc"
 
-SAHOOL_IRRIGATION_ALL = "sahool.irrigation.*"
+SAHOOL_IRRIGATION_ALL = "sahool.irrigation.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

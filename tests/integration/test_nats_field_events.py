@@ -44,7 +44,7 @@ except ImportError:
     SAHOOL_FIELD_CREATED = "sahool.field.created"
     SAHOOL_FIELD_UPDATED = "sahool.field.updated"
     SAHOOL_FIELD_DELETED = "sahool.field.deleted"
-    SAHOOL_FIELD_ALL = "sahool.field.*"
+    SAHOOL_FIELD_ALL = "sahool.field.>"
 
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
@@ -367,7 +367,7 @@ def test_field_subject_constants_format():
     assert SAHOOL_FIELD_CREATED == "sahool.field.created"
     assert SAHOOL_FIELD_UPDATED == "sahool.field.updated"
     assert SAHOOL_FIELD_DELETED == "sahool.field.deleted"
-    assert SAHOOL_FIELD_ALL == "sahool.field.*"
+    assert SAHOOL_FIELD_ALL == "sahool.field.>"
 
     assert is_valid_subject(SAHOOL_FIELD_CREATED)
     assert is_valid_subject(SAHOOL_FIELD_UPDATED)

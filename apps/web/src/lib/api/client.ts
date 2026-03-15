@@ -548,12 +548,12 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Weather API (weather-core service - POST-based with lat/lon)
-  // Kong route: /api/v1/weather-core → strips to / → service has /weather/* endpoints
+  // Weather API (weather-service on port 8092)
+  // Kong route: /api/v1/weather → strips to / → service has /weather/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<WeatherData>("/api/v1/weather-core/weather/current", {
+    return this.request<WeatherData>("/api/v1/weather/weather/current", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -565,7 +565,7 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
-    return this.request<WeatherForecast>("/api/v1/weather-core/weather/forecast", {
+    return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -578,7 +578,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<AgriculturalRisk[]>("/api/v1/weather-core/weather/agricultural-report", {
+    return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -782,7 +782,8 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Advisory Service API (خدمة الاستشارات - formerly agro-advisor)
+  // Advisory Service API (خدمة الاستشارات - port 8093)
+  // Kong route: /api/v1/advisory → advisory-service:8093
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getAgroAdvice(data: {
@@ -794,14 +795,14 @@ class SahoolApiClient {
       soilMoisture?: number;
     };
   }) {
-    return this.request<any>("/api/v1/agro-advisor/advice", {
+    return this.request<any>("/api/v1/advisory/advice", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async getDiseaseDetection(cropType: string, symptoms: string[]) {
-    return this.request<any>("/api/v1/agro-advisor/disease", {
+    return this.request<any>("/api/v1/advisory/disease", {
       method: "POST",
       body: JSON.stringify({ cropType, symptoms }),
     });
@@ -812,7 +813,7 @@ class SahoolApiClient {
     growthStage: string;
     soilAnalysis: any;
   }) {
-    return this.request<any>("/api/v1/agro-advisor/nutrients", {
+    return this.request<any>("/api/v1/advisory/nutrients", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -845,7 +846,8 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Chat Service API (خدمة المحادثات - formerly field-chat)
+  // Chat Service API (خدمة المحادثات - port 8115)
+  // Kong route: /api/v1/chat → chat-service:8115
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldMessages(
@@ -853,7 +855,7 @@ class SahoolApiClient {
     options?: { limit?: number; offset?: number },
   ) {
     return this.request<any[]>(
-      `/api/v1/field-chat/fields/${fieldId}/messages`,
+      `/api/v1/chat/fields/${fieldId}/messages`,
       {
         params: {
           limit: String(options?.limit || 50),
@@ -890,7 +892,7 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<any>(`/api/v1/field-chat/fields/${fieldId}/messages`, {
+    return this.request<any>(`/api/v1/chat/fields/${fieldId}/messages`, {
       method: "POST",
       body: JSON.stringify({ message: sanitizedMessage }),
     });
@@ -898,23 +900,24 @@ class SahoolApiClient {
 
   async getFieldChatParticipants(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/field-chat/fields/${fieldId}/participants`,
+      `/api/v1/chat/fields/${fieldId}/participants`,
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Field Core API (خدمة مسترجعة من kernel - TypeScript/Prisma)
+  // Field Management Service API (خدمة إدارة الحقول - port 3000)
+  // Kong route: /api/v1/fields → field-management-service:3000
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldBoundary(fieldId: string) {
-    return this.request<any>(`/api/v1/field-core/fields/${fieldId}/boundary`);
+    return this.request<any>(`/api/v1/fields/${fieldId}/boundary`);
   }
 
   async updateFieldBoundary(fieldId: string, boundary: any, etag?: string) {
     const headers: HeadersInit = {};
     if (etag) headers["If-Match"] = etag;
 
-    return this.request<any>(`/api/v1/field-core/fields/${fieldId}/boundary`, {
+    return this.request<any>(`/api/v1/fields/${fieldId}/boundary`, {
       method: "PUT",
       body: JSON.stringify({ boundary }),
       headers,
@@ -923,7 +926,7 @@ class SahoolApiClient {
 
   async getFieldBoundaryHistory(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/field-core/fields/${fieldId}/boundary-history`,
+      `/api/v1/fields/${fieldId}/boundary-history`,
     );
   }
 
@@ -933,7 +936,7 @@ class SahoolApiClient {
     reason?: string,
   ) {
     return this.request<any>(
-      `/api/v1/field-core/fields/${fieldId}/boundary-history/rollback`,
+      `/api/v1/fields/${fieldId}/boundary-history/rollback`,
       {
         method: "POST",
         body: JSON.stringify({ historyId, reason }),

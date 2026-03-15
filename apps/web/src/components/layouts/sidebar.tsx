@@ -37,47 +37,47 @@ const navItems: NavItem[] = [
   },
   {
     labelKey: "users",
-    href: "/dashboard/users",
+    href: "/users",
     icon: Users,
   },
   {
     labelKey: "farms",
-    href: "/dashboard/farms",
+    href: "/farms",
     icon: Building2,
   },
   {
     labelKey: "crops",
-    href: "/dashboard/crops",
+    href: "/crops",
     icon: Sprout,
   },
   {
     labelKey: "inventory",
-    href: "/dashboard/inventory",
+    href: "/inventory",
     icon: Package,
   },
   {
     labelKey: "seasons",
-    href: "/dashboard/seasons",
+    href: "/seasons",
     icon: Calendar,
   },
   {
     labelKey: "pivotIrrigation",
-    href: "/dashboard/pivot-irrigation",
+    href: "/pivot-irrigation",
     icon: Droplets,
   },
   {
     labelKey: "reports",
-    href: "/dashboard/reports",
+    href: "/reports",
     icon: FileBarChart,
   },
   {
     labelKey: "documents",
-    href: "/dashboard/documents",
+    href: "/documents",
     icon: FileText,
   },
   {
     labelKey: "analytics",
-    href: "/dashboard/analytics",
+    href: "/analytics",
     icon: TrendingUp,
   },
   {
@@ -107,7 +107,7 @@ const navItems: NavItem[] = [
   },
   {
     labelKey: "settings",
-    href: "/dashboard/settings",
+    href: "/settings",
     icon: Settings,
   },
 ];
@@ -184,7 +184,7 @@ export const Sidebar = React.memo(function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 text-center">
-          <div className="font-medium">{t("version")} 17.0.0</div>
+          <div className="font-medium">{t("version")} 16.0.0</div>
         </div>
       </div>
     </aside>

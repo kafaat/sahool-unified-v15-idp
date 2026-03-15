@@ -177,7 +177,7 @@ class HealthChecker:
                 message_ar=f"لا يمكن الاتصال بـ PostgreSQL على {host}:{port}",
             )
 
-    async def check_redis(self, host: str = "localhost", port: int = 6379) -> HealthCheckResult:
+    async def check_redis(self, host: str = "redis", port: int = 6379) -> HealthCheckResult:
         """Check Redis health | فحص صحة Redis"""
         is_open, latency = await self._check_port(host, port)
 

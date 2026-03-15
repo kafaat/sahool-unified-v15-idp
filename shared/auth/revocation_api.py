@@ -111,7 +111,7 @@ class RevocationStatsResponse(BaseModel):
                 "revoked_tokens": 42,
                 "revoked_users": 10,
                 "revoked_tenants": 2,
-                "redis_url": "localhost:6379/0",
+                "redis_url": "redis:6379/0",
             }
         }
     )

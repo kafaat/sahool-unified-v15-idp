@@ -1,0 +1,26 @@
+# Milvus Configuration for SAHOOL Platform
+# تكوين Milvus لمنصة سهول
+#
+# FIX: Increase TSO max lag duration to tolerate WSL2 clock drift (up to 15.5s observed).
+# Default is 10s which causes "timestamp too stale" errors under WSL2 clock skew.
+# Also increase etcd heartbeat/election timeouts for stability.
+
+tso:
+  # Maximum allowed lag between TSO timestamps and system clock.
+  # Increase from default 10s to 30s to handle WSL2 clock drift.
+  maxLagDuration: 30s
+
+etcd:
+  use:
+    embed: false
+  # Increase etcd election timeout for WSL2 environments where clock drift
+  # can cause spurious leader elections and lease expiry.
+  # Default is 2000ms; increase to 10000ms for WSL2 stability.
+  rootPath: milvus
+  log:
+    level: warn
+
+# Increase session TTL to survive transient clock drift
+session:
+  ttl: 60
+  retryTimes: 30

@@ -193,7 +193,7 @@ class TestJWTConfig:
         assert module.JWTConfig.TOKEN_REVOCATION_ENABLED is True
 
     def test_redis_host_default(self):
-        """Test default Redis host is localhost"""
+        """Test default Redis host is 'redis' (Docker container networking)."""
         os.environ.pop("REDIS_HOST", None)
         import importlib.util
 
@@ -202,7 +202,7 @@ class TestJWTConfig:
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert module.JWTConfig.REDIS_HOST == "localhost"
+        assert module.JWTConfig.REDIS_HOST == "redis"
 
     def test_redis_port_default(self):
         """Test default Redis port is 6379"""

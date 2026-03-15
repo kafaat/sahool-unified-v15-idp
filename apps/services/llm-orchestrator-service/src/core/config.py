@@ -59,7 +59,7 @@ class Settings(BaseSettings):
 
     # Redis configuration
     redis_url: str = Field(
-        default="redis://localhost:6379",
+        default="redis://redis:6379",
         description="Redis connection URL for caching | رابط اتصال Redis للتخزين المؤقت",
     )
     redis_cache_ttl: int = Field(

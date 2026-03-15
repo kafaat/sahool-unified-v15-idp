@@ -10,7 +10,7 @@
  * - injectTenantWhere() tenant ID injection
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   createTenantExtension,
   initializeRlsContext,
@@ -461,6 +461,31 @@ describe("initializeRlsContext", () => {
     await initializeRlsContext(mockPrisma, "tenant-123", true);
 
     expect(mockTransaction).toHaveBeenCalledOnce();
+  });
+
+  it("should call $executeRaw directly when given a transaction client", async () => {
+    const executeRawCalls: any[] = [];
+    const mockTxClient = {
+      $executeRaw: vi.fn().mockImplementation((...args: any[]) => {
+        executeRawCalls.push(args);
+        return Promise.resolve(undefined);
+      }),
+    };
+
+    await initializeRlsContext(mockTxClient, "tenant-tx-123");
+
+    // Should call $executeRaw directly (no $transaction wrapper)
+    expect(executeRawCalls).toHaveLength(2);
+  });
+
+  it("should not throw when $executeRaw fails on transaction client", async () => {
+    const mockTxClient = {
+      $executeRaw: vi.fn().mockRejectedValue(new Error("connection lost")),
+    };
+
+    await expect(
+      initializeRlsContext(mockTxClient, "tenant-123"),
+    ).resolves.toBeUndefined();
   });
 });
 

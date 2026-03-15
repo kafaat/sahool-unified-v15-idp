@@ -3,9 +3,12 @@
  * ميدل وير عزل المستأجرين لـ Prisma
  *
  * Provides defense-in-depth tenant isolation:
- * 1. Application-layer: Auto-injects tenantId into all Prisma queries
- * 2. Database-layer: Sets PostgreSQL RLS session variables (app.current_tenant)
- *    via $transaction to ensure SET + queries share a connection
+ * 1. Application-layer (primary): Auto-injects tenantId into all Prisma queries
+ * 2. Database-layer (secondary): Sets PostgreSQL RLS session variables
+ *    (app.current_tenant) via initializeRlsContext(). Uses set_config with
+ *    is_local=false so RLS vars persist for the database session (connection).
+ *    Note: With PgBouncer in transaction mode, session vars reset when the
+ *    connection returns to the pool, preventing tenant context leakage.
  *
  * Usage in a NestJS service module:
  *
@@ -22,10 +25,15 @@
  *     }
  *   }
  *
- *   // In controller/service:
+ *   // In controller/service - run queries inside $transaction for RLS:
+ *   await this.prisma.$transaction(async (tx) => {
+ *     await initializeRlsContext(tx, tenantId);
+ *     const fields = await tx.field.findMany({ where: { tenantId } });
+ *   });
+ *
+ *   // Or use app-layer filtering only (RLS not needed):
  *   const db = this.prisma.withTenant(tenantId);
- *   await initializeRlsContext(this.prisma, tenantId); // Set RLS session vars
- *   const fields = await db.field.findMany(); // auto-filtered by tenant + RLS
+ *   const fields = await db.field.findMany(); // auto-filtered by tenantId
  */
 
 /**
@@ -73,6 +81,11 @@ const TENANT_MODELS = new Set([
  * Set PostgreSQL RLS session variables using parameterized set_config().
  * Uses $executeRaw tagged template (SQL-injection safe).
  *
+ * is_local=false means the setting persists for the database session (connection),
+ * not just the current transaction. With PgBouncer in transaction mode, the
+ * connection returns to the pool after each transaction, so there is no risk
+ * of tenant context leaking to other requests.
+ *
  * @param client - Prisma client or transaction instance
  * @param tenantId - Tenant ID to set for RLS
  * @param isAdmin - Whether to grant super_admin bypass
@@ -83,18 +96,17 @@ async function setRlsContext(
   isAdmin: boolean,
 ): Promise<void> {
   const adminFlag = isAdmin ? "true" : "false";
-  await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
-  await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, true)`;
+  await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, false)`;
+  await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, false)`;
 }
 
 /**
- * Create a Prisma Client Extension that:
- * 1. Auto-injects tenantId into all Prisma queries for tenant-aware models
- * 2. Sets PostgreSQL RLS session variables (app.current_tenant) via $transaction
- *    on the first query, ensuring SET and query share a database connection
+ * Create a Prisma Client Extension that auto-injects tenantId into all
+ * Prisma queries for tenant-aware models.
  *
  * Application-layer filtering is the primary isolation mechanism.
- * RLS is defense-in-depth and non-blocking (errors are silently caught).
+ * For RLS (defense-in-depth), use initializeRlsContext() separately
+ * within a $transaction block.
  *
  * @param tenantId - The tenant ID to scope queries to
  * @param isAdmin - If true, sets app.is_super_admin = 'true' to bypass RLS
@@ -104,28 +116,6 @@ export function createTenantExtension(
   tenantId: string,
   isAdmin: boolean = false,
 ) {
-  // Track whether RLS context has been set for this extension instance
-  let rlsContextSet = false;
-
-  /**
-   * Set RLS context once per extension instance via $transaction.
-   * This ensures SET and subsequent queries share a database connection.
-   *
-   * @param prismaClient - The root Prisma client (not the extended one)
-   */
-  async function ensureRlsContext(prismaClient: any): Promise<void> {
-    if (rlsContextSet) return;
-    try {
-      await prismaClient.$transaction(async (tx: any) => {
-        await setRlsContext(tx, tenantId, isAdmin);
-      });
-      rlsContextSet = true;
-    } catch {
-      // RLS is defense-in-depth; don't block on failure.
-      // Application-layer tenantId injection remains the primary mechanism.
-    }
-  }
-
   /** Inject tenantId into where clause for tenant-aware models. */
   function injectTenantWhere(args: any, model: string): void {
     if (TENANT_MODELS.has(lowerFirst(model))) {
@@ -195,23 +185,36 @@ export function createTenantExtension(
 }
 
 /**
- * Initialize RLS context for a tenant extension.
- * Call this after creating the extended client to set RLS session variables.
+ * Initialize RLS context by setting PostgreSQL session variables.
+ * Can accept either a Prisma client (wraps in $transaction) or a
+ * transaction client (sets directly). For RLS to apply to queries,
+ * run both this and your queries inside the same $transaction.
  *
  * @example
- *   const db = this.prisma.withTenant(tenantId);
+ *   // Option 1: Inside $transaction (recommended - RLS applies to queries)
+ *   await this.prisma.$transaction(async (tx) => {
+ *     await initializeRlsContext(tx, tenantId);
+ *     const fields = await tx.field.findMany({ where: { tenantId } });
+ *   });
+ *
+ *   // Option 2: Standalone (sets session vars, relies on PgBouncer pooling)
  *   await initializeRlsContext(this.prisma, tenantId);
- *   const fields = await db.field.findMany();
  */
 export async function initializeRlsContext(
-  prismaClient: any,
+  client: any,
   tenantId: string,
   isAdmin: boolean = false,
 ): Promise<void> {
   try {
-    await prismaClient.$transaction(async (tx: any) => {
-      await setRlsContext(tx, tenantId, isAdmin);
-    });
+    if (typeof client.$transaction === "function") {
+      // Root Prisma client - wrap in transaction
+      await client.$transaction(async (tx: any) => {
+        await setRlsContext(tx, tenantId, isAdmin);
+      });
+    } else {
+      // Transaction client - set directly on same connection
+      await setRlsContext(client, tenantId, isAdmin);
+    }
   } catch {
     // RLS is defense-in-depth; don't block on failure
   }

@@ -6,7 +6,7 @@
  * and error handling for various JWT scenarios.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { validateJwtToken, getJwtConfig } from "../jwt-middleware";
 
 // JWT test config

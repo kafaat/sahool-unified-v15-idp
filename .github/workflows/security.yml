@@ -247,12 +247,14 @@ jobs:
           echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
 
           bandit -r apps/services/ shared/ \
+            -c pyproject.toml \
             -ll \
             -ii \
             --format sarif \
             -o bandit-results.sarif 2>/dev/null || true
 
           bandit -r apps/services/ shared/ \
+            -c pyproject.toml \
             -ll \
             -ii \
             --format txt
@@ -461,11 +463,28 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Hadolint
-        uses: hadolint/hadolint-action@v3.3.0
-        with:
-          dockerfile: "**/Dockerfile"
-          recursive: true
-          failure-threshold: error
+        run: |
+          # Install hadolint
+          curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
+
+          echo "🔍 Running Hadolint on Dockerfiles..."
+          FAILED=0
+          # Exclude template Dockerfiles (contain {{variable}} syntax that Hadolint can't parse)
+          for dockerfile in $(find . -name "Dockerfile" -type f \
+            -not -path "./archive/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./idp/templates/*"); do
+            if ! hadolint --failure-threshold error "$dockerfile"; then
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "❌ Hadolint found errors"
+            exit 1
+          fi
+          echo "✅ Hadolint passed"
 
       - name: Check Dockerfile best practices
         run: |

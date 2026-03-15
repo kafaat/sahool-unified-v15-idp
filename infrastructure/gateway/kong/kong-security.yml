@@ -137,7 +137,7 @@ plugins:
         - enterprise-users
         - research-users
         - trial-users
-        - internal-users
+        - service-accounts
 
 # ==============================================================================
 # Admin Routes Security

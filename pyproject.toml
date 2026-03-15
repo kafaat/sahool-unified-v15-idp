@@ -244,3 +244,10 @@ exclude = [
     "tests/",
     ".venv/",
 ]
+
+[tool.bandit]
+exclude_dirs = ["archive", "tests", ".venv", "node_modules"]
+skips = [
+    "B104",  # hardcoded_bind_all_interfaces - expected for containerized services (0.0.0.0)
+    "B108",  # hardcoded_tmp_directory - expected for cache/temp dirs in containers
+]

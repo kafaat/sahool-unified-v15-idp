@@ -285,6 +285,30 @@ class VaultClient:
         if self.config.enable_cache:
             self._cache[path] = (value, datetime.now(UTC))
 
+    def _get_stale_cache_fallback(self, cache_key: str) -> Any:
+        """Try to return a cached secret within the max staleness window.
+
+        Used for graceful degradation when Vault is unreachable.
+        Raises KeyError if no usable cached value exists.
+        """
+        if cache_key not in self._cache:
+            raise KeyError(cache_key)
+
+        value, cached_at = self._cache[cache_key]
+        age = (datetime.now(UTC) - cached_at).total_seconds()
+
+        if age <= self.config.cache_max_staleness_seconds:
+            logger.warning("Vault unreachable, using cached secret (age=%ds)", int(age))
+            return value
+
+        logger.error(
+            "Vault unreachable and cached secret too stale (age=%ds > %ds)",
+            int(age),
+            self.config.cache_max_staleness_seconds,
+        )
+        del self._cache[cache_key]
+        raise KeyError(cache_key)
+
     async def get_secret(self, path: str, key: str | None = None) -> Any:
         """
         Get a secret from Vault.
@@ -314,19 +338,10 @@ class VaultClient:
 
         if not self.is_connected():
             # Graceful degradation: try cache fallback when Vault is unreachable
-            # Use staleness-based lookup (same as mid-request failure path)
-            # so disconnected state doesn't reject secrets that would be accepted on transient errors
-            max_staleness_seconds = self.config.cache_max_staleness_seconds
-            if cache_key in self._cache:
-                value, cached_at = self._cache[cache_key]
-                age = (datetime.now(UTC) - cached_at).total_seconds()
-                if age <= max_staleness_seconds:
-                    logger.warning("Vault unreachable, using cached secret (age=%ds)", int(age))
-                    return value
-                else:
-                    logger.error("Vault unreachable and cached secret too stale (age=%ds > %ds)", int(age), max_staleness_seconds)
-                    del self._cache[cache_key]
-            raise ConnectionError("Not connected to Vault and no cached value available")
+            try:
+                return self._get_stale_cache_fallback(cache_key)
+            except KeyError:
+                raise ConnectionError("Not connected to Vault and no cached value available")
 
         # Check cache (respects TTL)
         cached = self._get_from_cache(cache_key)
@@ -357,18 +372,11 @@ class VaultClient:
         except (ConnectionError, TimeoutError, OSError) as e:
             # On connectivity failure, attempt cache fallback (even if TTL expired)
             # but reject entries older than max_staleness to limit exposure from rotated secrets
-            max_staleness_seconds = self.config.cache_max_staleness_seconds
-            if cache_key in self._cache:
-                value, cached_at = self._cache[cache_key]
-                age = (datetime.now(UTC) - cached_at).total_seconds()
-                if age <= max_staleness_seconds:
-                    logger.warning("Vault unreachable, using stale cached secret (age=%ds)", int(age))
-                    return value
-                else:
-                    logger.error("Vault unreachable and cached secret too stale (age=%ds > %ds)", int(age), max_staleness_seconds)
-                    del self._cache[cache_key]
-            logger.error("Failed to get secret from Vault: %s", type(e).__name__)
-            raise
+            try:
+                return self._get_stale_cache_fallback(cache_key)
+            except KeyError:
+                logger.error("Failed to get secret from Vault: %s", type(e).__name__)
+                raise e
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
             logger.error("Failed to get secret from Vault: %s", type(e).__name__)

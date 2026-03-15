@@ -68,7 +68,7 @@ def detect_conflict(
         # Exclude common metadata keys to reduce false positives from generic field overlap
         _metadata_keys = {
             "id", "updated_at", "created_at", "_deleted",
-            "name", "type", "status", "tenant_id", "version", "schema_version",
+            "tenant_id", "version", "schema_version",
         }
         local_keys = set(local_item.local_data.keys()) - _metadata_keys
         server_keys = set(server_data.keys()) - _metadata_keys

@@ -29,25 +29,8 @@ sys.path.insert(0, "../../../../shared")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-# Import CORS config from shared module
-try:
-    from shared.cors_config import setup_cors_middleware
-except ImportError:
-    def setup_cors_middleware(app, **kwargs):
-        """Fallback CORS setup when shared module unavailable."""
-        try:
-            from fastapi.middleware.cors import CORSMiddleware
-        except ImportError:
-            return
-        import os
-        origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=[o.strip() for o in origins],
-            allow_credentials=True,
-            allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
-            allow_headers=["*"],
-        )
+# Import CORS config from shared module (has its own internal fallback)
+from shared.cors_config import setup_cors_middleware
 from services import EntityService, KnowledgeGraphService, RelationshipService
 
 # Import models and services

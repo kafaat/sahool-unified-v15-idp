@@ -77,7 +77,7 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
             user_id = principal.get("sub")
             roles = principal.get("roles", [])
 
-        # The tenant being accessed (from header or path)
+        # The tenant being accessed (from X-Tenant-ID header)
         accessed_tenant_id = request.headers.get("X-Tenant-ID")
 
         # If no cross-tenant access, proceed normally

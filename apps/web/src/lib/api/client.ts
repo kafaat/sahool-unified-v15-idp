@@ -220,9 +220,11 @@ class SahoolApiClient {
     try {
       const parts = token.split(".");
       if (parts.length !== 3 || !parts[1]) return null;
-      const payload = JSON.parse(
-        atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
-      );
+      // Convert base64url to base64 and add padding
+      let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const pad = b64.length % 4;
+      if (pad) b64 += "=".repeat(4 - pad);
+      const payload = JSON.parse(atob(b64));
       return payload.tid || null;
     } catch {
       return null;

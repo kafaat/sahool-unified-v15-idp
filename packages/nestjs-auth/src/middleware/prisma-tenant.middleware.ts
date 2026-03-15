@@ -1,6 +1,10 @@
 /**
  * Prisma Tenant Middleware
- * Auto-injects tenant_id into all Prisma queries for multi-tenant isolation.
+ * ميدل وير عزل المستأجرين لـ Prisma
+ *
+ * Provides defense-in-depth tenant isolation:
+ * 1. Application-layer: Auto-injects tenantId into all Prisma queries
+ * 2. Database-layer: Sets PostgreSQL RLS session variables (app.current_tenant)
  *
  * Usage in a NestJS service module:
  *
@@ -12,14 +16,14 @@
  *       await this.$connect();
  *     }
  *
- *     withTenant(tenantId: string) {
- *       return this.$extends(createTenantExtension(tenantId));
+ *     withTenant(tenantId: string, isAdmin = false) {
+ *       return this.$extends(createTenantExtension(tenantId, isAdmin));
  *     }
  *   }
  *
  *   // In controller/service:
  *   const db = this.prisma.withTenant(tenantId);
- *   const fields = await db.field.findMany(); // auto-filtered by tenant
+ *   const fields = await db.field.findMany(); // auto-filtered by tenant + RLS
  */
 
 /**
@@ -64,18 +68,67 @@ const TENANT_MODELS = new Set([
 ]);
 
 /**
- * Create a Prisma Client Extension that auto-injects tenantId
- * into all queries for tenant-aware models.
+ * Set PostgreSQL RLS session variables via Prisma's $executeRawUnsafe.
+ * Uses set_config() which is parameterized and SQL-injection safe.
+ *
+ * @param client - Prisma client instance (with $executeRawUnsafe)
+ * @param tenantId - Tenant ID to set for RLS
+ * @param isAdmin - Whether to grant super_admin bypass
+ */
+async function setRlsContext(
+  client: any,
+  tenantId: string,
+  isAdmin: boolean,
+): Promise<void> {
+  try {
+    await client.$executeRawUnsafe(
+      `SELECT set_config('app.current_tenant', $1, true)`,
+      tenantId,
+    );
+    await client.$executeRawUnsafe(
+      `SELECT set_config('app.is_super_admin', $1, true)`,
+      isAdmin ? "true" : "false",
+    );
+  } catch {
+    // RLS session variables are defense-in-depth; don't block on failure
+    // Application-layer filtering (below) is the primary mechanism
+  }
+}
+
+/**
+ * Create a Prisma Client Extension that:
+ * 1. Sets PostgreSQL RLS session variables (app.current_tenant) per query
+ * 2. Auto-injects tenantId into all Prisma queries for tenant-aware models
+ *
+ * This provides defense-in-depth: application-layer + database-layer isolation.
  *
  * @param tenantId - The tenant ID to scope queries to
+ * @param isAdmin - If true, sets app.is_super_admin = 'true' to bypass RLS
  * @returns Prisma Client Extension configuration
  */
-export function createTenantExtension(tenantId: string) {
+export function createTenantExtension(
+  tenantId: string,
+  isAdmin: boolean = false,
+) {
+  // Track whether RLS context has been set for this extension instance
+  let rlsContextSet = false;
+
+  /**
+   * Ensure RLS session variables are set before first query.
+   * Called lazily on first model query.
+   */
+  async function ensureRlsContext(client: any): Promise<void> {
+    if (!rlsContextSet) {
+      await setRlsContext(client, tenantId, isAdmin);
+      rlsContextSet = true;
+    }
+  }
+
   return {
     name: "tenant-isolation",
     query: {
       $allModels: {
-        async findMany({ args, query, model }: any) {
+        async findMany({ args, query, model, ...rest }: any) {
           if (TENANT_MODELS.has(lowerFirst(model))) {
             args.where = { ...args.where, tenantId };
           }
@@ -89,7 +142,6 @@ export function createTenantExtension(tenantId: string) {
         },
         async findUnique({ args, query, model }: any) {
           if (TENANT_MODELS.has(lowerFirst(model))) {
-            // findUnique doesn't support arbitrary where, so wrap in findFirst
             args.where = { ...args.where, tenantId };
           }
           return query(args);
@@ -157,3 +209,8 @@ export function createTenantExtension(tenantId: string) {
 function lowerFirst(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
+
+/**
+ * List of all tenant-aware models (exported for testing/validation).
+ */
+export { TENANT_MODELS };

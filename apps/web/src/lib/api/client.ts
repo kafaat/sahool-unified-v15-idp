@@ -212,6 +212,23 @@ class SahoolApiClient {
     return true;
   }
 
+  /**
+   * Extract tenant_id (tid) from JWT token payload.
+   * Used to automatically set X-Tenant-ID header for server-side RLS.
+   */
+  private extractTenantFromToken(token: string): string | null {
+    try {
+      const parts = token.split(".");
+      if (parts.length !== 3 || !parts[1]) return null;
+      const payload = JSON.parse(
+        atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      return payload.tid || null;
+    } catch {
+      return null;
+    }
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {},
@@ -255,6 +272,13 @@ class SahoolApiClient {
     if (this.token) {
       (headers as Record<string, string>)["Authorization"] =
         `Bearer ${this.token}`;
+
+      // Extract tenant_id (tid) from JWT and set X-Tenant-ID header
+      // This enables server-side tenant isolation (RLS + middleware filtering)
+      const tenantId = this.extractTenantFromToken(this.token);
+      if (tenantId) {
+        (headers as Record<string, string>)["X-Tenant-ID"] = tenantId;
+      }
     }
 
     // Add CSRF headers for state-changing requests

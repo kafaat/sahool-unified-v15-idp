@@ -16,9 +16,6 @@ import type {
   PestDetection,
   DiseaseDetection,
   WeedDetection,
-  PlantCount,
-  RipenessResult,
-  LeafSegmentation,
   ModelInfo,
 } from "../types";
 

@@ -17,7 +17,6 @@ import type {
   ChatHistory,
   CopilotTool,
   RagDocument,
-  RagSearchResult,
 } from "../types";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -46,7 +45,7 @@ export const copilotKeys = {
  * @returns Query result with chat history
  */
 export function useChatHistory(limit?: number) {
-  return useQuery<ChatHistory>({
+  return useQuery<ChatHistory[]>({
     queryKey: copilotKeys.chatHistory(limit),
     queryFn: () => copilotApi.getChatHistory(limit),
     staleTime: 1000 * 60 * 2, // 2 minutes - chat history updates frequently
@@ -141,7 +140,7 @@ export function useUploadDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, metadata }: { file: File; metadata?: Record<string, unknown> }) =>
+    mutationFn: ({ file, metadata }: { file: File; metadata?: Record<string, string> }) =>
       copilotApi.uploadDocument(file, metadata),
     onSuccess: (_result: RagDocument) => {
       queryClient.invalidateQueries({ queryKey: copilotKeys.knowledge() });

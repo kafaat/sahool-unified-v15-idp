@@ -23,7 +23,6 @@ import {
   useMarkAllRead,
 } from "@/features/notifications";
 import type {
-  Notification,
   NotificationType,
   NotificationPriority,
   NotificationFilters,

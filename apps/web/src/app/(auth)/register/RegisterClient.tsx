@@ -47,7 +47,7 @@ function detectYemenOperator(phone: string): string | null {
   else if (cleaned.startsWith("7")) prefix = cleaned.slice(0, 2);
 
   for (const op of YEMEN_OPERATORS) {
-    if (op.prefixes.includes(prefix)) return `${op.nameAr} (${op.name})`;
+    if ((op.prefixes as readonly string[]).includes(prefix)) return `${op.nameAr} (${op.name})`;
   }
   return null;
 }

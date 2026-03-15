@@ -57,7 +57,7 @@ export function useAnalyzeDEM() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ fieldId, data }: { fieldId: string; data?: Record<string, unknown> }) =>
+    mutationFn: ({ fieldId, data }: { fieldId: string; data?: FormData }) =>
       terrainApi.analyzeDEM(fieldId, data),
     onSuccess: (_result: DEMAnalysis, { fieldId }) => {
       queryClient.invalidateQueries({ queryKey: terrainKeys.dem(fieldId) });

@@ -19,7 +19,6 @@ import type {
   SoilInfo,
   SoilMoistureEstimate,
   IrrigationRecommendation,
-  IrrigationQuickCheck,
 } from "../types";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -124,7 +123,7 @@ export function useCalculateET0() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
+    mutationFn: (data: { temperature: number; humidity: number; windSpeed: number; solarRadiation: number; latitude: number; date?: string }) =>
       virtualSensorsApi.calculateET0(data),
     onSuccess: (_result: ET0Result) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.et0() });
@@ -144,7 +143,7 @@ export function useCalculateETC() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
+    mutationFn: (data: { cropType: string; growthStage?: string; et0?: number; latitude?: number; date?: string }) =>
       virtualSensorsApi.calculateETC(data),
     onSuccess: (_result: ETCResult) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.etc() });
@@ -164,7 +163,7 @@ export function useEstimateSoilMoisture() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
+    mutationFn: (data: { soilType: string; lastIrrigation?: string; et0?: number; rainfall?: number }) =>
       virtualSensorsApi.estimateSoilMoisture(data),
     onSuccess: (_result: SoilMoistureEstimate) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.soilMoisture() });
@@ -185,7 +184,7 @@ export function useIrrigationRecommendation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
+    mutationFn: (data: { fieldId: string; cropType: string; soilType?: string }) =>
       virtualSensorsApi.getIrrigationRecommendation(data),
     onSuccess: (_result: IrrigationRecommendation) => {
       queryClient.invalidateQueries({ queryKey: virtualSensorKeys.irrigation() });
@@ -203,7 +202,7 @@ export function useIrrigationRecommendation() {
  */
 export function useQuickIrrigationCheck() {
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
+    mutationFn: (data: { cropType: string; soilMoisture: number; temperature: number }) =>
       virtualSensorsApi.quickIrrigationCheck(data),
   });
 }

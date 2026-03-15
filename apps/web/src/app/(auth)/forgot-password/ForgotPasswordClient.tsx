@@ -240,7 +240,7 @@ export default function ForgotPasswordClient() {
                     type="tel"
                     label="Phone Number"
                     labelAr="رقم الهاتف"
-                    placeholder="+966 5X XXX XXXX"
+                    placeholder="+967 7X XXX XXXX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     leftIcon={<Phone className="w-4 h-4" />}

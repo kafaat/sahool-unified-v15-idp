@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Phone, Smartphone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/stores/auth.store";
 import { useToast } from "@/components/ui/toast";
+
+type LoginMethod = "email" | "phone";
 
 /**
  * Extracts error message from various error types
@@ -36,16 +38,20 @@ export default function LoginClient() {
   const router = useRouter();
   const { login } = useAuth();
   const { showToast } = useToast();
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>("phone");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const identifier = loginMethod === "email" ? email : phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(identifier, password);
       showToast({
         type: "success",
         messageAr: "تم تسجيل الدخول بنجاح",
@@ -85,17 +91,59 @@ export default function LoginClient() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="email"
-              label="Email"
-              labelAr="البريد الإلكتروني"
-              placeholder="example@sahool.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              leftIcon={<Mail className="w-4 h-4" />}
-              required
-              autoComplete="email"
-            />
+            {/* Login method toggle */}
+            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+              <button
+                type="button"
+                onClick={() => setLoginMethod("phone")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
+                  loginMethod === "phone"
+                    ? "bg-sahool-green-600 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>رقم الهاتف</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginMethod("email")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
+                  loginMethod === "email"
+                    ? "bg-sahool-green-600 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Mail className="w-4 h-4" />
+                <span>البريد الإلكتروني</span>
+              </button>
+            </div>
+
+            {loginMethod === "phone" ? (
+              <Input
+                type="tel"
+                label="Phone Number"
+                labelAr="رقم الهاتف"
+                placeholder="+967 7X XXX XXXX"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                leftIcon={<Phone className="w-4 h-4" />}
+                required
+                autoComplete="tel"
+              />
+            ) : (
+              <Input
+                type="email"
+                label="Email"
+                labelAr="البريد الإلكتروني"
+                placeholder="example@sahool.ye"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                leftIcon={<Mail className="w-4 h-4" />}
+                required
+                autoComplete="email"
+              />
+            )}
             <Input
               type="password"
               label="Password"

@@ -32,13 +32,19 @@ export const validators = {
   },
 
   /**
-   * Phone validation (international format)
+   * Phone validation (Yemen format with international fallback)
+   * يدعم أرقام اليمن: يمن موبايل (77)، سبأفون (71)، يو (73)، MTN (78)، واي (70)
    * @param phone - The phone number to validate
    * @returns true if valid, false otherwise
    */
   phone: (phone: string): boolean => {
     if (!phone || typeof phone !== "string") return false;
-    return /^\+?[\d\s-]{10,}$/.test(phone.trim());
+    const cleaned = phone.trim().replace(/[\s\-]/g, "");
+    // Yemen phone numbers (primary)
+    const yemenRegex = /^(?:\+?967|00967|0)?(?:7[01378]\d{7})$/;
+    if (yemenRegex.test(cleaned)) return true;
+    // International fallback
+    return /^\+?[\d]{10,15}$/.test(cleaned);
   },
 
   /**
@@ -227,7 +233,7 @@ export const validationErrors: Record<
 > = {
   twoFactorCode: "الرجاء إدخال رمز صحيح مكون من 6 أرقام",
   email: "الرجاء إدخال بريد إلكتروني صحيح",
-  phone: "الرجاء إدخال رقم هاتف صحيح",
+  phone: "الرجاء إدخال رقم هاتف يمني صحيح (مثال: +967 77X XXX XXX)",
   safeText: "النص يحتوي على محتوى غير آمن",
   url: "الرجاء إدخال رابط صحيح",
   password:

@@ -588,7 +588,7 @@ class TestConflictResolution:
 
         conflict = detect_conflict(
             local_item=sample_sync_item,
-            server_data={"name": "Field", "area": 5.5},
+            server_data={"name": "Field", "area_hectares": 5.5},
             server_modified_at=server_modified_at,
         )
 
@@ -600,7 +600,7 @@ class TestConflictResolution:
 
         conflict = detect_conflict(
             local_item=sample_sync_item,
-            server_data={"name": "Different Name", "area": 5.5},
+            server_data={"name": "Different Name", "area_hectares": 5.5},
             server_modified_at=server_modified_at,
         )
 
@@ -614,7 +614,7 @@ class TestConflictResolution:
 
         conflict = detect_conflict(
             local_item=sample_sync_item,
-            server_data={"name": "Field", "area": 5.5},
+            server_data={"name": "Field", "area_hectares": 5.5},
             server_modified_at=server_modified_at,
         )
 

@@ -49,7 +49,7 @@ testing = [
 ]
 ml = [
     "Pillow==12.1.1",  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
-    "numpy>=1.26.0,<2.5.0",  # Pinned <2.5.0 for TensorFlow 2.20 compatibility (NumPy 2.5+ breaks TF)
+    "numpy>=1.26.0,<2.0.0",  # Pinned <2.0.0: torch/transformers compiled against 1.x ABI crash with 2.x
     "tensorflow-cpu==2.21.0",
 ]
 dev = [
@@ -245,9 +245,9 @@ exclude = [
     ".venv/",
 ]
 
-[dependency-groups]
-dev = [
-    "black>=24.10.0",
-    "pytest>=8.4.2",
-    "ruff>=0.15.0",
+[tool.bandit]
+exclude_dirs = ["archive", "tests", ".venv", "node_modules"]
+skips = [
+    "B104",  # hardcoded_bind_all_interfaces - expected for containerized services (0.0.0.0)
+    "B108",  # hardcoded_tmp_directory - expected for cache/temp dirs in containers
 ]

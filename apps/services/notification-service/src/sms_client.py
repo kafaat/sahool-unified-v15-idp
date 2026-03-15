@@ -28,6 +28,8 @@ try:
     _TWILIO_AVAILABLE = True
 except ImportError:
     _TWILIO_AVAILABLE = False
+    TwilioClient = None  # type: ignore[misc,assignment]
+    TwilioRestException = Exception  # type: ignore[misc,assignment]
     logger.warning("Twilio SDK not installed. Install with: pip install twilio")
 
 

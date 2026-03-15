@@ -120,8 +120,10 @@ class DistributedTracer:
             }
         )
 
-        # Create tracer provider
-        provider = TracerProvider(resource=resource)
+        # Create tracer provider with sampling based on config
+        from opentelemetry.sdk.trace.sampling import ALWAYS_ON, TraceIdRatioBased
+        sampler = ALWAYS_ON if self.config.sample_rate >= 1.0 else TraceIdRatioBased(self.config.sample_rate)
+        provider = TracerProvider(resource=resource, sampler=sampler)
 
         # Add exporters
         self._add_exporters(provider)
@@ -232,6 +234,33 @@ class DistributedTracer:
             logger.info("AsyncPG instrumentation enabled")
         except Exception as e:
             logger.warning(f"Failed to instrument AsyncPG: {e}")
+
+        # Instrument NATS (for message-based distributed tracing)
+        # Note: nats-py doesn't have native OTel instrumentation
+        # Context must be propagated manually via message headers
+        logger.info(
+            "NATS instrumentation: use DistributedTracer.inject_context()/extract_context() "
+            "for manual context propagation in NATS messages"
+        )
+
+    @staticmethod
+    def inject_context(headers: dict | None = None) -> dict:
+        """Inject trace context into NATS message headers."""
+        headers = headers or {}
+        if OTEL_AVAILABLE:
+            from opentelemetry.propagate import inject
+
+            inject(headers)
+        return headers
+
+    @staticmethod
+    def extract_context(headers: dict | None = None):
+        """Extract trace context from NATS message headers."""
+        if OTEL_AVAILABLE and headers:
+            from opentelemetry.propagate import extract
+
+            return extract(headers)
+        return None
 
     @contextmanager
     def span(

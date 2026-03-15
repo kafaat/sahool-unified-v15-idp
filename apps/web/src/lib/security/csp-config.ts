@@ -115,13 +115,15 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       "'unsafe-inline'",
       // Google Fonts
       "https://fonts.googleapis.com",
+      // Leaflet map CSS (loaded from unpkg CDN)
+      "https://unpkg.com",
     ],
 
     // Style attributes (inline style="...") - needed by UI component libraries
-    "style-src-attr": [
-      "'unsafe-inline'",
-      ...(nonce ? [`'nonce-${nonce}'`] : []),
-    ],
+    // NOTE: Do NOT include nonce here. In CSP Level 3, a nonce causes browsers
+    // to ignore 'unsafe-inline', but nonces cannot be applied to style=""
+    // attributes — creating a catch-22 that blocks all inline styles.
+    "style-src-attr": ["'unsafe-inline'"],
 
     // Image sources
     "img-src": [

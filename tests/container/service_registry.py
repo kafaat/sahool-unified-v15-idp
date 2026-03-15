@@ -127,6 +127,7 @@ INFRA_SERVICES: set[str] = {
     "ollama",
     "mlflow",
     "etcd",
+    "etcd-perms-init",
     "nats-prometheus-exporter",
 }
 

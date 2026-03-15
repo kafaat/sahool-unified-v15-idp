@@ -376,14 +376,15 @@ class TestNodeBuildSpecifics:
 
     @pytest.mark.parametrize("svc_name", sorted(NODE_SERVICES))
     def test_node_cmd_uses_node_or_npm(self, svc_name: str) -> None:
-        """Node.js service CMD ultimately runs node (directly or via sh wrapper)."""
+        """Node.js service CMD ultimately runs node (directly or via sh wrapper or entrypoint script)."""
         content = _read_dockerfile(svc_name)
         # Accept: CMD ["node", ...], CMD ["npm", ...], CMD ["sh", "-c", "... node ..."]
+        # Also accept: CMD ["/usr/local/bin/docker-entrypoint.sh"] (NestJS entrypoint pattern)
         assert re.search(
-            r'CMD\s+\["?(?:node|npm|sh)',
+            r'CMD\s+\["?(?:node|npm|sh|/usr/local/bin/docker-entrypoint)',
             content,
             re.IGNORECASE,
-        ), f"{svc_name} Dockerfile CMD does not start with node, npm, or sh"
+        ), f"{svc_name} Dockerfile CMD does not start with node, npm, sh, or entrypoint script"
 
 
 # ===========================================================================

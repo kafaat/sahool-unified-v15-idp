@@ -500,7 +500,12 @@ class TestNotificationDelivery:
     @pytest.mark.asyncio
     async def test_send_sms_notification(self, mock_notification, mock_farmer_profile):
         """Test sending SMS notification"""
-        with patch("src.main.FARMER_PROFILES", {"farmer-123": mock_farmer_profile}):
+        mock_profile = MagicMock()
+        mock_profile.phone = "+967771234567"
+        mock_profile.language = "ar"
+
+        with patch("src.main.FarmerProfileRepository") as mock_repo:
+            mock_repo.get_by_farmer_id = AsyncMock(return_value=mock_profile)
             with patch("src.main.get_sms_client") as mock_sms_client:
                 mock_client = MagicMock()
                 mock_client._initialized = True
@@ -517,7 +522,12 @@ class TestNotificationDelivery:
     @pytest.mark.asyncio
     async def test_send_email_notification(self, mock_notification, mock_farmer_profile):
         """Test sending email notification"""
-        with patch("src.main.FARMER_PROFILES", {"farmer-123": mock_farmer_profile}):
+        mock_profile = MagicMock()
+        mock_profile.email = "ahmed@example.com"
+        mock_profile.language = "ar"
+
+        with patch("src.main.FarmerProfileRepository") as mock_repo:
+            mock_repo.get_by_farmer_id = AsyncMock(return_value=mock_profile)
             with patch("src.main.get_email_client") as mock_email_client:
                 mock_client = MagicMock()
                 mock_client._initialized = True
@@ -534,8 +544,13 @@ class TestNotificationDelivery:
     @pytest.mark.asyncio
     async def test_send_push_notification(self, mock_notification, mock_farmer_profile):
         """Test sending push notification"""
-        with patch("src.main.FARMER_PROFILES", {"farmer-123": mock_farmer_profile}):
-            with patch("src.main.get_firebase_client") as mock_firebase_client:
+        mock_profile = MagicMock()
+        mock_profile.fcm_token = "mock-fcm-token"
+        mock_profile.language = "ar"
+
+        with patch("src.main.FarmerProfileRepository") as mock_repo:
+            mock_repo.get_by_farmer_id = AsyncMock(return_value=mock_profile)
+            with patch("src.firebase_client.get_firebase_client") as mock_firebase_client:
                 mock_client = MagicMock()
                 mock_client._initialized = True
                 mock_client.send_notification = MagicMock(return_value="push-123")
@@ -552,23 +567,15 @@ class TestNotificationDelivery:
 class TestNotificationHelpers:
     """Test helper functions"""
 
-    def test_determine_recipients_by_criteria(self):
-        """Test recipient determination"""
-        from src.main import FARMER_PROFILES, determine_recipients_by_criteria
+    @pytest.mark.asyncio
+    async def test_determine_recipients_by_criteria(self):
+        """Test recipient determination with specific target farmers"""
+        from src.main import determine_recipients_by_criteria
 
-        # Mock farmer profiles
-        mock_profiles = {
-            "farmer-1": MagicMock(governorate="sanaa", crops=["tomato", "wheat"]),
-            "farmer-2": MagicMock(governorate="taiz", crops=["coffee"]),
-            "farmer-3": MagicMock(governorate="sanaa", crops=["tomato"]),
-        }
-
-        with patch.dict("src.main.FARMER_PROFILES", mock_profiles):
-            # Test by governorate
-            recipients = determine_recipients_by_criteria(target_governorates=["sanaa"])
-            assert "farmer-1" in recipients
-            assert "farmer-3" in recipients
-            assert "farmer-2" not in recipients
+        # Test with specific farmers - should return them directly
+        recipients = await determine_recipients_by_criteria(target_farmers=["farmer-1", "farmer-2"])
+        assert "farmer-1" in recipients
+        assert "farmer-2" in recipients
 
     def test_get_weather_alert_message(self):
         """Test weather alert message generation"""

@@ -62,7 +62,7 @@ chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 # Do NOT use exact pins here — they conflict with per-service needs.
 torch>=2.2.0,<3.0.0
 torchvision>=0.17.0,<1.0.0
-numpy>=1.26.0,<2.5.0  # Aligned with constraints.txt for TensorFlow 2.20.0 compatibility
+numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch (torch, transformers built against 1.x)
 pandas>=2.2.0,<4.0.0
 scikit-learn>=1.5.0,<2.0.0
 

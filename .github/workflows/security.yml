@@ -194,6 +194,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Run npm audit
+        # Optional: npm audit may report issues in transitive deps we can't control
         continue-on-error: true
         run: |
           echo "🔍 Scanning Node.js dependencies..."
@@ -202,6 +203,7 @@ jobs:
 
       - name: Run Snyk scan
         uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04  # v1.0.0 - pinned for supply chain security
+        # Optional: Snyk requires a paid SNYK_TOKEN; skip gracefully if unavailable
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -224,7 +226,7 @@ jobs:
   sast-python:
     name: SAST - Python (Bandit)
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY: Bandit SAST must block the pipeline on findings
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -245,19 +247,22 @@ jobs:
           echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
 
           bandit -r apps/services/ shared/ \
+            -c pyproject.toml \
             -ll \
             -ii \
             --format sarif \
             -o bandit-results.sarif 2>/dev/null || true
 
           bandit -r apps/services/ shared/ \
+            -c pyproject.toml \
             -ll \
             -ii \
-            --format txt || true
+            --format txt
 
       - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        # Optional: SARIF upload may fail if GitHub Advanced Security is not enabled
         continue-on-error: true
         with:
           sarif_file: bandit-results.sarif
@@ -266,7 +271,7 @@ jobs:
   sast-semgrep:
     name: SAST - Multi-language (Semgrep)
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY: Semgrep SAST must block the pipeline on findings
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -277,9 +282,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install and run Semgrep
-        continue-on-error: true
         run: |
           pip install semgrep
+
+          # Generate SARIF report (allow all findings for upload)
           semgrep scan \
             --config p/security-audit \
             --config p/python \
@@ -295,9 +301,21 @@ jobs:
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep.sarif
           fi
 
+      - name: Gate check - fail on ERROR severity findings only
+        run: |
+          semgrep scan \
+            --config p/security-audit \
+            --config p/python \
+            --config p/javascript \
+            --config p/typescript \
+            --error --severity ERROR \
+            --exclude "archive" --exclude "node_modules" --exclude ".git" \
+            .
+
       - name: Upload Semgrep SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        # Optional: SARIF upload may fail if GitHub Advanced Security is not enabled
         continue-on-error: true
         with:
           sarif_file: semgrep.sarif
@@ -306,7 +324,7 @@ jobs:
   sast-codeql:
     name: SAST - CodeQL
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY: CodeQL SAST must block the pipeline on findings
     permissions:
       security-events: write
       actions: read
@@ -321,18 +339,15 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
-        continue-on-error: true
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4
-        continue-on-error: true
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
-        continue-on-error: true
         with:
           category: "/language:${{ matrix.language }}"
 
@@ -421,15 +436,19 @@ jobs:
         run: |
           echo "🔍 Running Trivy vulnerability scanner..."
           mkdir -p trivy-results
+
+          # Step 1/2: Generate SARIF report for GitHub Security tab.
+          # Uses --exit-code 0 so Trivy always exits successfully and the
+          # SARIF file is guaranteed to be written regardless of findings.
+          # The actual gate check (fail on findings) is a separate step below.
           trivy image \
-            --skip-check-update \
             --format sarif \
             --output trivy-${{ matrix.service }}.sarif \
             --severity CRITICAL,HIGH \
             --exit-code 0 \
             --ignore-unfixed \
             --scanners vuln \
-            ${{ matrix.service }}:scan || true
+            ${{ matrix.service }}:scan
 
           # Ensure SARIF file exists
           if [ ! -f "trivy-${{ matrix.service }}.sarif" ]; then
@@ -437,9 +456,23 @@ jobs:
             echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.62.1"}},"results":[]}]}' > trivy-${{ matrix.service }}.sarif
           fi
 
+      - name: Gate check - fail on CRITICAL/HIGH vulnerabilities
+        # Step 2/2: Separate gate check that fails the pipeline on findings.
+        # This is intentionally separate from SARIF generation above so that
+        # the SARIF report is always uploaded even when vulnerabilities exist.
+        if: steps.install_trivy.outputs.installed == 'true'
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --scanners vuln \
+            ${{ matrix.service }}:scan
+
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        # Optional: SARIF upload may fail if GitHub Advanced Security is not enabled
         continue-on-error: true
         with:
           sarif_file: trivy-${{ matrix.service }}.sarif
@@ -455,21 +488,36 @@ jobs:
   dockerfile-scan:
     name: Dockerfile Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY: Dockerfile scanning must block the pipeline on errors
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Run Hadolint
-        uses: hadolint/hadolint-action@v3.3.0
-        continue-on-error: true
-        with:
-          dockerfile: "**/Dockerfile"
-          recursive: true
-          failure-threshold: error
+        run: |
+          # Install hadolint
+          curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
+
+          echo "🔍 Running Hadolint on Dockerfiles..."
+          FAILED=0
+          # Exclude template Dockerfiles (contain {{variable}} syntax that Hadolint can't parse)
+          for dockerfile in $(find . -name "Dockerfile" -type f \
+            -not -path "./archive/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./idp/templates/*"); do
+            if ! hadolint --failure-threshold error "$dockerfile"; then
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "❌ Hadolint found errors"
+            exit 1
+          fi
+          echo "✅ Hadolint passed"
 
       - name: Check Dockerfile best practices
-        continue-on-error: true
         run: |
           echo "🔍 Checking Dockerfile security best practices..."
 
@@ -505,7 +553,7 @@ jobs:
   iac-scan:
     name: IaC Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY: IaC scanning must block the pipeline on findings
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -515,7 +563,7 @@ jobs:
         with:
           directory: .
           framework: kubernetes,dockerfile,secrets
-          soft_fail: true
+          soft_fail: false
           output_format: sarif
           output_file_path: checkov-results.sarif
           skip_path: archive/deprecated-services
@@ -672,4 +720,5 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # Optional: Slack notification is non-critical; should not fail the pipeline
         continue-on-error: true

@@ -669,12 +669,12 @@ class TestDLQLogic:
         assert config.get_retry_delay(10) == 60.0  # Capped at max
 
     def test_dlq_subject_generation(self):
-        """DLQ subject must strip sahool. prefix and prepend dlq prefix."""
+        """DLQ subject preserves full original subject to avoid collisions."""
         from shared.events.dlq_config import DLQConfig
 
         config = DLQConfig()
-        assert config.get_dlq_subject("sahool.field.created") == "sahool.dlq.field.created"
-        assert config.get_dlq_subject("sahool.weather.alert") == "sahool.dlq.weather.alert"
+        assert config.get_dlq_subject("sahool.field.created") == "sahool.dlq.sahool.field.created"
+        assert config.get_dlq_subject("sahool.weather.alert") == "sahool.dlq.sahool.weather.alert"
 
     def test_dlq_metadata_model(self):
         """DLQMessageMetadata must validate correctly."""

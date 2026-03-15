@@ -71,9 +71,17 @@ variable "endpoint_public_access" {
 }
 
 variable "public_access_cidrs" {
-  description = "قائمة نطاقات CIDR المسموح بها للوصول العام / List of CIDR blocks allowed for public access"
+  description = "قائمة نطاقات CIDR المسموح بها للوصول العام / List of CIDR blocks allowed for public access. Must be explicitly configured - no default provided for security."
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  # SECURITY: No default CIDR provided. You MUST explicitly set allowed CIDRs.
+  # Example: ["10.0.0.0/8", "192.168.1.0/24"] or your office/VPN IP ranges.
+  # NEVER use ["0.0.0.0/0"] in production.
+  default     = []
+
+  validation {
+    condition     = length(var.public_access_cidrs) == 0 || !contains(var.public_access_cidrs, "0.0.0.0/0")
+    error_message = "public_access_cidrs must not contain 0.0.0.0/0. Use specific CIDR blocks for your office/VPN IP ranges."
+  }
 }
 
 # ======================================================================

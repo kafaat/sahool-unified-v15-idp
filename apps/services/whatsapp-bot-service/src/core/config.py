@@ -96,7 +96,7 @@ class Settings(BaseSettings):
 
     # Redis configuration (for session management)
     redis_url: str = Field(
-        default="redis://localhost:6379",
+        default="redis://redis:6379",
         description="Redis connection URL for session management | رابط اتصال Redis لإدارة الجلسات",
     )
     session_ttl: int = Field(

@@ -13,6 +13,9 @@ python-dotenv==1.2.2
 # Authentication
 PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
 cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+bcrypt>=4.2.0,<5.0.0
+pyotp>=2.9.0,<3.0.0
+qrcode[pil]>=7.4,<8.0
 
 # Redis (required by shared.auth token revocation)
 redis>=7.1.0,<8.0.0

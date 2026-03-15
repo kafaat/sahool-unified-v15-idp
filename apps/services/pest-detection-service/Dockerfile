@@ -50,8 +50,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
-# Copy shared libraries
+# Copy root shared modules first, then overlay with services shared
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 COPY apps/services/pest-detection-service/src/ ./src/

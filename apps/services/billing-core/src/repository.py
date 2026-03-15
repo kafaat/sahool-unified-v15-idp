@@ -15,6 +15,7 @@ from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import and_, asc, desc, func, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -146,37 +147,51 @@ class PlanRepository:
         trial_days: int = 14,
         is_active: bool = True,
     ) -> Plan:
-        """Create or update plan - إنشاء أو تحديث خطة"""
-        existing = await self.get_by_plan_id(plan_id)
+        """
+        Atomically create or update plan using INSERT ... ON CONFLICT DO UPDATE.
+        إنشاء أو تحديث خطة بشكل ذري باستخدام ON CONFLICT
 
-        if existing:
-            return await self.update(
-                plan_id=plan_id,
-                name=name,
-                name_ar=name_ar,
-                description=description,
-                description_ar=description_ar,
-                tier=tier,
-                pricing=pricing,
-                features=features,
-                limits=limits,
-                trial_days=trial_days,
-                is_active=is_active,
-            )
-        else:
-            return await self.create(
-                plan_id=plan_id,
-                name=name,
-                name_ar=name_ar,
-                description=description,
-                description_ar=description_ar,
-                tier=tier,
-                pricing=pricing,
-                features=features,
-                limits=limits,
-                trial_days=trial_days,
-                is_active=is_active,
-            )
+        FIX: Replaced SELECT-then-INSERT pattern (TOCTOU race condition) with
+        PostgreSQL's native ON CONFLICT DO UPDATE for idempotent plan initialization.
+        This prevents duplicate plan creation when multiple service instances start
+        concurrently.
+        """
+        values = {
+            "plan_id": plan_id,
+            "name": name,
+            "name_ar": name_ar,
+            "description": description,
+            "description_ar": description_ar,
+            "tier": tier,
+            "pricing": pricing,
+            "features": features,
+            "limits": limits,
+            "trial_days": trial_days,
+            "is_active": is_active,
+        }
+
+        stmt = pg_insert(Plan).values(**values)
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["plan_id"],
+            set_={
+                "name": stmt.excluded.name,
+                "name_ar": stmt.excluded.name_ar,
+                "description": stmt.excluded.description,
+                "description_ar": stmt.excluded.description_ar,
+                "tier": stmt.excluded.tier,
+                "pricing": stmt.excluded.pricing,
+                "features": stmt.excluded.features,
+                "limits": stmt.excluded.limits,
+                "trial_days": stmt.excluded.trial_days,
+                "is_active": stmt.excluded.is_active,
+                "updated_at": datetime.now(UTC),
+            },
+        )
+
+        await self.db.execute(stmt)
+        await self.db.commit()
+
+        return await self.get_by_plan_id(plan_id)
 
 
 # =============================================================================

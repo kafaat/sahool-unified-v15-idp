@@ -63,7 +63,7 @@
 | Service | Version | Image | Purpose |
 |---------|---------|-------|---------|
 | **NATS** | 2.10.24 | `nats:2.10.24-alpine` | Event streaming |
-| **NATS Exporter** | 0.14.0 | `natsio/prometheus-nats-exporter:0.14.0` | Metrics export |
+| **NATS Exporter** | 0.15.0 | `natsio/prometheus-nats-exporter:0.15.0` | Metrics export |
 
 ### API Gateway | بوابة API
 

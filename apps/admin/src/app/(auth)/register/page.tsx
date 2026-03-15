@@ -9,7 +9,6 @@ import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf, User, Phone } from "lucide-react";
-import { API_BASE_URL } from "@/config/api-base";
 
 interface RegisterFormData {
   email: string;
@@ -44,12 +43,13 @@ function RegisterForm() {
     setIsLoading(true);
 
     try {
-      // Call POST /api/v1/auth/register via Kong Gateway
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+      // Call register via Next.js API route (proxied to backend)
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "same-origin",
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -62,11 +62,11 @@ function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.detail || "فشل التسجيل");
+        throw new Error(data.error || data.message || data.detail || "فشل التسجيل");
       }
 
-      // Registration successful - redirect to dashboard
-      router.push("/dashboard");
+      // Registration successful - redirect to login
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "فشل التسجيل");
     } finally {

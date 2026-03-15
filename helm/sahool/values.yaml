@@ -1196,3 +1196,16 @@ backup:
   retention: 30  # days
   storageClass: "standard"
   size: 50Gi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Resource Quotas
+# ─────────────────────────────────────────────────────────────────────────────
+
+resourceQuota:
+  enabled: false
+  requestsCpu: "20"
+  requestsMemory: "40Gi"
+  limitsCpu: "40"
+  limitsMemory: "80Gi"
+  maxPods: "100"
+  maxPVCs: "20"

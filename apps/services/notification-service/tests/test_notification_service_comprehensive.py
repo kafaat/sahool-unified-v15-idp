@@ -111,7 +111,6 @@ class TestNotificationCreation:
     async def test_create_notification_with_targeting(self, mock_notification):
         """Test notification creation with governorate and crop targeting"""
         from src.main import (
-            FARMER_PROFILES,
             CropType,
             Governorate,
             NotificationPriority,
@@ -119,12 +118,14 @@ class TestNotificationCreation:
             create_notification,
         )
 
-        # Add mock farmer to profiles
-        FARMER_PROFILES["farmer-123"] = MagicMock(
-            farmer_id="farmer-123", governorate=Governorate.SANAA, crops=[CropType.TOMATO]
-        )
+        mock_profile = MagicMock()
+        mock_profile.farmer_id = "farmer-123"
 
         with (
+            patch(
+                "src.main.FarmerProfileRepository.find_by_criteria",
+                new=AsyncMock(return_value=[mock_profile]),
+            ),
             patch(
                 "src.repository.NotificationRepository.create",
                 new=AsyncMock(return_value=mock_notification),
@@ -147,9 +148,6 @@ class TestNotificationCreation:
             )
 
             assert result is not None
-
-        # Cleanup
-        FARMER_PROFILES.clear()
 
     @pytest.mark.asyncio
     async def test_create_notification_multi_channel(self, mock_notification):
@@ -193,101 +191,103 @@ class TestNotificationDelivery:
     @pytest.mark.asyncio
     async def test_send_sms_notification_success(self, mock_notification):
         """Test successful SMS notification delivery"""
-        from src.main import FARMER_PROFILES, send_sms_notification
+        from src.main import send_sms_notification
 
-        # Setup mock farmer
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone="+967771234567", language="ar")
+        mock_profile = MagicMock()
+        mock_profile.phone = "+967771234567"
+        mock_profile.language = "ar"
 
         mock_sms_client = MagicMock()
         mock_sms_client._initialized = True
         mock_sms_client.send_sms = AsyncMock(return_value="SM123456")
 
-        with patch("src.main.get_sms_client", return_value=mock_sms_client):
-            with patch("src.repository.NotificationRepository.update_status", new=AsyncMock()):
-                with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()):
-                    await send_sms_notification(mock_notification, "farmer-123")
-
-                    # Verify SMS was sent
-                    mock_sms_client.send_sms.assert_called_once()
-
-        FARMER_PROFILES.clear()
+        with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
+            patch("src.main.get_sms_client", return_value=mock_sms_client),
+            patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
+        ):
+            await send_sms_notification(mock_notification, "farmer-123")
+            mock_sms_client.send_sms.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_send_sms_notification_no_phone(self, mock_notification):
         """Test SMS notification when farmer has no phone number"""
-        from src.main import FARMER_PROFILES, send_sms_notification
+        from src.main import send_sms_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone=None)
+        mock_profile = MagicMock()
+        mock_profile.phone = None
 
-        with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log:
+        with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
+        ):
             await send_sms_notification(mock_notification, "farmer-123")
-
-            # Verify failure was logged
             mock_log.assert_called_once()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
             assert "phone" in call_args[1]["error_message"].lower()
 
-        FARMER_PROFILES.clear()
-
     @pytest.mark.asyncio
     async def test_send_email_notification_success(self, mock_notification):
         """Test successful email notification delivery"""
-        from src.main import FARMER_PROFILES, send_email_notification
+        from src.main import send_email_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", email="ahmed@example.com", language="ar")
+        mock_profile = MagicMock()
+        mock_profile.email = "ahmed@example.com"
+        mock_profile.language = "ar"
 
         mock_email_client = MagicMock()
         mock_email_client._initialized = True
         mock_email_client.send_email = AsyncMock(return_value="msg-123456")
 
-        with patch("src.main.get_email_client", return_value=mock_email_client):
-            with patch("src.repository.NotificationRepository.update_status", new=AsyncMock()):
-                with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()):
-                    await send_email_notification(mock_notification, "farmer-123")
-
-                    # Verify email was sent
-                    mock_email_client.send_email.assert_called_once()
-
-        FARMER_PROFILES.clear()
+        with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
+            patch("src.main.get_email_client", return_value=mock_email_client),
+            patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
+        ):
+            await send_email_notification(mock_notification, "farmer-123")
+            mock_email_client.send_email.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_send_push_notification_success(self, mock_notification):
         """Test successful push notification delivery"""
-        from src.main import FARMER_PROFILES, send_push_notification
+        from src.main import send_push_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", fcm_token="valid-fcm-token")
+        mock_profile = MagicMock()
+        mock_profile.fcm_token = "valid-fcm-token"
+        mock_profile.language = "ar"
 
         mock_firebase_client = MagicMock()
         mock_firebase_client._initialized = True
         mock_firebase_client.send_notification = MagicMock(return_value="fcm-msg-123")
 
-        with patch("src.firebase_client.get_firebase_client", return_value=mock_firebase_client):
-            with patch("src.repository.NotificationRepository.update_status", new=AsyncMock()):
-                with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()):
-                    await send_push_notification(mock_notification, "farmer-123")
-
-                    # Verify push was sent
-                    mock_firebase_client.send_notification.assert_called_once()
-
-        FARMER_PROFILES.clear()
+        with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
+            patch("src.firebase_client.get_firebase_client", return_value=mock_firebase_client),
+            patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
+        ):
+            await send_push_notification(mock_notification, "farmer-123")
+            mock_firebase_client.send_notification.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_send_push_notification_no_token(self, mock_notification):
         """Test push notification when farmer has no FCM token"""
-        from src.main import FARMER_PROFILES, send_push_notification
+        from src.main import send_push_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", fcm_token=None)
+        mock_profile = MagicMock()
+        mock_profile.fcm_token = None
 
-        with patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log:
+        with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
+        ):
             await send_push_notification(mock_notification, "farmer-123")
-
-            # Verify failure was logged
             mock_log.assert_called_once()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
-
-        FARMER_PROFILES.clear()
 
     @pytest.mark.asyncio
     async def test_send_notification_via_channel_dispatcher(self, mock_notification):
@@ -313,78 +313,70 @@ class TestNotificationDelivery:
 class TestRecipientTargeting:
     """Test recipient determination and targeting logic"""
 
-    def test_determine_recipients_specific_farmers(self):
+    @pytest.mark.asyncio
+    async def test_determine_recipients_specific_farmers(self):
         """Test targeting specific farmers"""
         from src.main import determine_recipients_by_criteria
 
-        result = determine_recipients_by_criteria(target_farmers=["farmer-1", "farmer-2"])
-
+        result = await determine_recipients_by_criteria(target_farmers=["farmer-1", "farmer-2"])
         assert result == ["farmer-1", "farmer-2"]
 
-    def test_determine_recipients_by_governorate(self):
+    @pytest.mark.asyncio
+    async def test_determine_recipients_by_governorate(self):
         """Test targeting by governorate"""
-        from src.main import (
-            FARMER_PROFILES,
-            CropType,
-            Governorate,
-            determine_recipients_by_criteria,
-        )
+        from src.main import Governorate, determine_recipients_by_criteria
 
-        FARMER_PROFILES["farmer-1"] = MagicMock(
-            farmer_id="farmer-1", governorate=Governorate.SANAA, crops=[CropType.TOMATO]
-        )
-        FARMER_PROFILES["farmer-2"] = MagicMock(
-            farmer_id="farmer-2", governorate=Governorate.IBB, crops=[CropType.WHEAT]
-        )
+        mock_profile1 = MagicMock()
+        mock_profile1.farmer_id = "farmer-1"
 
-        result = determine_recipients_by_criteria(target_governorates=[Governorate.SANAA])
+        with patch(
+            "src.main.FarmerProfileRepository.find_by_criteria",
+            new=AsyncMock(return_value=[mock_profile1]),
+        ):
+            result = await determine_recipients_by_criteria(target_governorates=[Governorate.SANAA])
+            assert "farmer-1" in result
 
-        assert "farmer-1" in result
-        assert "farmer-2" not in result
-
-        FARMER_PROFILES.clear()
-
-    def test_determine_recipients_by_crop(self):
+    @pytest.mark.asyncio
+    async def test_determine_recipients_by_crop(self):
         """Test targeting by crop type"""
-        from src.main import (
-            FARMER_PROFILES,
-            CropType,
-            Governorate,
-            determine_recipients_by_criteria,
-        )
+        from src.main import CropType, determine_recipients_by_criteria
 
-        FARMER_PROFILES["farmer-1"] = MagicMock(
-            farmer_id="farmer-1",
-            governorate=Governorate.SANAA,
-            crops=[CropType.TOMATO, CropType.COFFEE],
-        )
-        FARMER_PROFILES["farmer-2"] = MagicMock(
-            farmer_id="farmer-2", governorate=Governorate.IBB, crops=[CropType.WHEAT]
-        )
+        mock_profile1 = MagicMock()
+        mock_profile1.farmer_id = "farmer-1"
 
-        result = determine_recipients_by_criteria(target_crops=[CropType.TOMATO])
+        with patch(
+            "src.main.FarmerProfileRepository.find_by_criteria",
+            new=AsyncMock(return_value=[mock_profile1]),
+        ):
+            result = await determine_recipients_by_criteria(target_crops=[CropType.TOMATO])
+            assert "farmer-1" in result
 
-        assert "farmer-1" in result
-        assert "farmer-2" not in result
-
-        FARMER_PROFILES.clear()
-
-    def test_determine_recipients_broadcast(self):
+    @pytest.mark.asyncio
+    async def test_determine_recipients_broadcast(self):
         """Test broadcast to all farmers"""
-        from src.main import FARMER_PROFILES, determine_recipients_by_criteria
+        from src.main import determine_recipients_by_criteria
 
-        FARMER_PROFILES["farmer-1"] = MagicMock(farmer_id="farmer-1")
-        FARMER_PROFILES["farmer-2"] = MagicMock(farmer_id="farmer-2")
-        FARMER_PROFILES["farmer-3"] = MagicMock(farmer_id="farmer-3")
+        mock_profiles = [
+            MagicMock(farmer_id="farmer-1"),
+            MagicMock(farmer_id="farmer-2"),
+            MagicMock(farmer_id="farmer-3"),
+        ]
 
-        result = determine_recipients_by_criteria()
-
-        assert len(result) == 3
-        assert "farmer-1" in result
-        assert "farmer-2" in result
-        assert "farmer-3" in result
-
-        FARMER_PROFILES.clear()
+        with (
+            patch(
+                "src.main.FarmerProfileRepository.find_by_criteria",
+                new=AsyncMock(return_value=[]),
+            ),
+            patch(
+                "src.main.FarmerProfileRepository.get_all",
+                new=AsyncMock(return_value=mock_profiles),
+            ),
+        ):
+            result = await determine_recipients_by_criteria()
+            assert len(result) == 3
+            assert "farmer-1" in result
+            assert "farmer-2" in result
+            assert "farmer-3" in result
 
 
 class TestWeatherAlerts:
@@ -453,16 +445,12 @@ class TestNATSIntegration:
 
         with patch("src.main.create_notification", new=AsyncMock()):
             create_notification_from_nats(nats_event)
-            # Note: This is sync, so we can't await, but we can verify it was called
-            # In reality, this would be tested with proper async handling
 
     def test_create_notification_from_nats_invalid_data(self):
         """Test NATS event with invalid data"""
         from src.main import create_notification_from_nats
 
-        invalid_event = {
-            # Missing required fields
-        }
+        invalid_event = {}
 
         # Should not raise exception, just log error
         try:
@@ -510,45 +498,43 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_send_sms_client_error(self, mock_notification):
         """Test SMS sending with client error"""
-        from src.main import FARMER_PROFILES, send_sms_notification
+        from src.main import send_sms_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", phone="+967771234567", language="ar")
+        mock_profile = MagicMock()
+        mock_profile.phone = "+967771234567"
+        mock_profile.language = "ar"
 
         mock_sms_client = MagicMock()
         mock_sms_client._initialized = True
         mock_sms_client.send_sms = AsyncMock(side_effect=Exception("Network error"))
 
         with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
             patch("src.main.get_sms_client", return_value=mock_sms_client),
-            patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
             await send_sms_notification(mock_notification, "farmer-123")
-
-            # Verify error was logged
             mock_log.assert_called()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
 
-        FARMER_PROFILES.clear()
-
     @pytest.mark.asyncio
     async def test_send_email_client_error(self, mock_notification):
         """Test email sending with client error"""
-        from src.main import FARMER_PROFILES, send_email_notification
+        from src.main import send_email_notification
 
-        FARMER_PROFILES["farmer-123"] = MagicMock(farmer_id="farmer-123", email="ahmed@example.com", language="ar")
+        mock_profile = MagicMock()
+        mock_profile.email = "ahmed@example.com"
+        mock_profile.language = "ar"
 
         mock_email_client = MagicMock()
         mock_email_client._initialized = True
         mock_email_client.send_email = AsyncMock(side_effect=Exception("SMTP error"))
 
         with (
+            patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
             patch("src.main.get_email_client", return_value=mock_email_client),
-            patch("src.repository.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
+            patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
             await send_email_notification(mock_notification, "farmer-123")
-
-            # Verify error was logged
             mock_log.assert_called()
-
-        FARMER_PROFILES.clear()

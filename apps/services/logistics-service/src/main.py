@@ -632,7 +632,9 @@ async def lifespan(app: FastAPI):
     if _nats_available and NATS_URL:
         try:
             _nats_client = await nats.connect(NATS_URL)
-            logger.info(f"NATS connected: {NATS_URL}")
+            from shared.logging_config import sanitize_url
+
+            logger.info(f"NATS connected: {sanitize_url(NATS_URL)}")
         except Exception as e:
             logger.warning(f"Failed to connect to NATS: {e}")
 

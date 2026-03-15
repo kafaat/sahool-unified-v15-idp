@@ -283,7 +283,10 @@ class EventPublisher:
             return True
 
         try:
-            logger.info(f"Connecting to NATS: {self.config.servers}")
+            from shared.logging_config import sanitize_urls
+
+            _safe_servers = sanitize_urls(self.config.servers)
+            logger.info(f"Connecting to NATS: {_safe_servers}")
 
             self._nc = await nats.connect(
                 servers=self.config.servers,
@@ -302,7 +305,7 @@ class EventPublisher:
                 logger.info("✅ JetStream enabled")
 
             self._connected = True
-            logger.info(f"✅ Connected to NATS: {self.config.servers}")
+            logger.info(f"✅ Connected to NATS: {_safe_servers}")
             return True
 
         except Exception as e:

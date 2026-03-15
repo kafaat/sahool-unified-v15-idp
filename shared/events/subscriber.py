@@ -301,7 +301,13 @@ class EventSubscriber:
             return True
 
         try:
-            logger.info(f"Connecting to NATS: {self.config.servers}")
+            try:
+                from shared.logging_config import sanitize_urls
+
+                _safe_servers = sanitize_urls(self.config.servers)
+            except ImportError:
+                _safe_servers = self.config.servers
+            logger.info(f"Connecting to NATS: {_safe_servers}")
 
             self._nc = await nats.connect(
                 servers=self.config.servers,
@@ -330,7 +336,7 @@ class EventSubscriber:
                         logger.warning(f"⚠️  Failed to initialize DLQ: {e}")
 
             self._connected = True
-            logger.info(f"✅ Connected to NATS: {self.config.servers}")
+            logger.info(f"✅ Connected to NATS: {_safe_servers}")
             return True
 
         except Exception as e:

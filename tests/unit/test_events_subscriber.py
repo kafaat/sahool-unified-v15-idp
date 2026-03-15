@@ -113,18 +113,22 @@ class TestDLQConfig:
         assert config.get_retry_delay(4) == 30.0
 
     def test_get_dlq_subject(self):
-        """Test DLQ subject generation"""
+        """Test DLQ subject generation preserves full original subject to avoid collisions"""
         config = DLQConfig()
 
+        # Full subject is preserved (no prefix stripping)
         result = config.get_dlq_subject("sahool.field.created")
-        assert result == "sahool.dlq.field.created"
+        assert result == "sahool.dlq.sahool.field.created"
 
         result = config.get_dlq_subject("sahool.weather.alert")
-        assert result == "sahool.dlq.weather.alert"
+        assert result == "sahool.dlq.sahool.weather.alert"
 
-        # Without sahool prefix
+        # Without sahool prefix - distinct from sahool-prefixed version
         result = config.get_dlq_subject("field.created")
         assert result == "sahool.dlq.field.created"
+
+        # Verify no collision between prefixed and non-prefixed subjects
+        assert config.get_dlq_subject("sahool.field.created") != config.get_dlq_subject("field.created")
 
     @patch.dict(
         os.environ,

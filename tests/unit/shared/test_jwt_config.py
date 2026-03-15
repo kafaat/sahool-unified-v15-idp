@@ -25,6 +25,7 @@ class TestJWTConfig:
             "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
             "JWT_ISSUER",
             "JWT_AUDIENCE",
+            "JWT_ALGORITHM",
             "RATE_LIMIT_ENABLED",
             "RATE_LIMIT_REQUESTS",
             "RATE_LIMIT_WINDOW_SECONDS",
@@ -45,6 +46,19 @@ class TestJWTConfig:
                 os.environ.pop(var, None)
             else:
                 os.environ[var] = value
+        # Re-sync JWTConfig class-level attributes with restored env vars
+        # This prevents test pollution when other test modules use JWTConfig
+        try:
+            from shared.auth.config import JWTConfig
+            JWTConfig.JWT_SECRET = os.environ.get("JWT_SECRET_KEY") or os.environ.get("JWT_SECRET", "")
+            JWTConfig.JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
+            JWTConfig.JWT_ISSUER = os.environ.get("JWT_ISSUER", "sahool-platform")
+            JWTConfig.JWT_AUDIENCE = os.environ.get("JWT_AUDIENCE", "sahool-api")
+        except ImportError:
+            # JWTConfig may not be importable in minimal test environments
+            # where shared.auth dependencies are not installed. Safe to skip
+            # since teardown only needs to restore env vars (done above).
+            pass
 
     def test_jwt_config_import(self):
         """Test JWTConfig can be imported"""
@@ -273,7 +287,7 @@ class TestJWTConfig:
         """Test validation passes with valid secret in production"""
         os.environ["ENVIRONMENT"] = "production"
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "a" * 32  # 32 character secret
+        os.environ["JWT_SECRET_KEY"] = "a" * 32  # 32 character secret  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -287,7 +301,7 @@ class TestJWTConfig:
     def test_get_signing_key_hs256(self):
         """Test get_signing_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -301,7 +315,7 @@ class TestJWTConfig:
     def test_get_verification_key_hs256(self):
         """Test get_verification_key for HS256"""
         os.environ["JWT_ALGORITHM"] = "HS256"
-        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
+        os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"  # gitleaks:allow
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(

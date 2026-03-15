@@ -605,22 +605,24 @@ class SQLiteBackend(VectorStoreBackendBase):
 
         # Using parameterized query with ? placeholders - safe from SQL injection
         placeholders = ",".join("?" * len(ids))
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
-            f"""
+        delete_docs_sql = f"""
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
-        """,
+        """  # nosec B608 - parameterized query with ? placeholders
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            delete_docs_sql,
             (*ids, collection),
-        )  # nosec B608 - parameterized query
+        )
 
         # Delete from FTS
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
-            f"""
+        delete_fts_sql = f"""
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
-        """,
+        """  # nosec B608 - parameterized query with ? placeholders
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            delete_fts_sql,
             ids,
-        )  # nosec B608 - parameterized query
+        )
 
         self._conn.commit()
         return cursor.rowcount

@@ -148,21 +148,21 @@ jobs:
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode || \
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode || \
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
             fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
-            pillow aiofiles pyotp qrcode
+            pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 
       - name: Run NDVI Processor Tests
         run: |
@@ -198,17 +198,25 @@ jobs:
           # and can prevent pytest-cov plugin detection (exit code 4).
           SERVICES="ndvi-processor alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
           FIRST=true
+          FAILED=""
           for svc in $SERVICES; do
             echo "--- Testing $svc ---"
-            COV_ARGS="--cov=apps/services"
+            # Scope coverage to the service under test so the per-service
+            # fail-under threshold is meaningful (not diluted by all 72 services).
+            COV_ARGS="--cov=apps/services/$svc"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=0 || {
+              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {
               rc=$?
-              echo "⚠ pytest exited with code $rc for $svc, continuing"
+              echo "⚠ pytest exited with code $rc for $svc"
+              FAILED="$FAILED $svc(rc=$rc)"
             }
             FIRST=false
           done
+          if [ -n "$FAILED" ]; then
+            echo "::error::Service tests failed:$FAILED"
+            exit 1
+          fi
           # Generate combined coverage report
           coverage report --show-missing || true
           coverage xml || true
@@ -282,10 +290,6 @@ jobs:
         run: |
           echo "Running Flutter widget tests..."
           flutter test test/widget/ --reporter=expanded
-
-      - name: Install native dependencies
-        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
-        working-directory: .
 
       - name: Run integration tests
         run: |

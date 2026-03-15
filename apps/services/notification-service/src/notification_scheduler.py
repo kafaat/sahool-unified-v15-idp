@@ -40,14 +40,14 @@ class ScheduleFrequency(StrEnum):
 class ScheduledNotification:
     """إشعار مجدول"""
 
-    # Priority queue ordering
+    # Priority queue ordering (compare=True for heap ordering)
     scheduled_time: datetime = field(compare=True)
     priority: int = field(compare=True, default=2)  # 0=critical, 1=high, 2=medium, 3=low
 
-    # Notification data
-    notification_id: str = field(compare=False)
-    payload: NotificationPayload = field(compare=False)
-    recipient_token: str = field(compare=False)
+    # Notification data (all non-compare fields must have defaults after priority)
+    notification_id: str = field(compare=False, default="")
+    payload: NotificationPayload | None = field(compare=False, default=None)
+    recipient_token: str = field(compare=False, default="")
     frequency: ScheduleFrequency = field(compare=False, default=ScheduleFrequency.ONCE)
 
     # Retry configuration
@@ -57,6 +57,16 @@ class ScheduledNotification:
 
     # Status
     status: str = field(compare=False, default="pending")  # pending, sent, failed, cancelled
+
+    def __post_init__(self):
+        """Validate required fields for any active (non-terminal) status."""
+        if self.status not in ("cancelled", "sent"):
+            if not self.notification_id:
+                raise ValueError("notification_id is required for active notifications")
+            if self.payload is None:
+                raise ValueError("payload is required for active notifications")
+            if not self.recipient_token:
+                raise ValueError("recipient_token is required for active notifications")
 
     def should_retry(self) -> bool:
         """هل يجب إعادة المحاولة؟"""

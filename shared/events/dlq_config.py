@@ -138,15 +138,12 @@ class DLQConfig(BaseModel):
             original_subject: Original NATS subject (e.g., "sahool.field.created")
 
         Returns:
-            DLQ subject (e.g., "sahool.dlq.field.created")
+            DLQ subject (e.g., "sahool.dlq.sahool.field.created")
         """
-        # Remove "sahool." prefix if present
-        if original_subject.startswith("sahool."):
-            subject_suffix = original_subject[7:]  # Remove "sahool."
-        else:
-            subject_suffix = original_subject
-
-        return f"{self.dlq_subject_prefix}.{subject_suffix}"
+        # Prevent double-DLQ prefixing
+        if original_subject == self.dlq_subject_prefix or original_subject.startswith(self.dlq_subject_prefix + "."):
+            return original_subject
+        return f"{self.dlq_subject_prefix}.{original_subject}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

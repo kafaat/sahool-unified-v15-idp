@@ -140,13 +140,17 @@ PGSSLROOTCERT=/path/to/ca.crt
 
 ```ini
 # Server-side TLS (to PostgreSQL)
-server_tls_sslmode = prefer
-server_tls_ca_file = /etc/pgbouncer/certs/ca.crt
+# Default: 'disable' in dev (no TLS certs present by default)
+# Production: Use docker-compose.tls.yml overlay to set 'require' + CA cert
+server_tls_sslmode = disable
+; server_tls_ca_file = /etc/pgbouncer/certs/ca.crt
 
 # Client-side TLS (from applications)
-client_tls_sslmode = prefer
-client_tls_cert_file = /etc/pgbouncer/certs/server.crt
-client_tls_key_file = /etc/pgbouncer/certs/server.key
+# Default: 'disable' in dev (no cert/key files present by default)
+# Production: Use docker-compose.tls.yml overlay to set 'require' + cert/key
+client_tls_sslmode = disable
+; client_tls_cert_file = /etc/pgbouncer/certs/server.crt
+; client_tls_key_file = /etc/pgbouncer/certs/server.key
 ```
 
 ### Redis

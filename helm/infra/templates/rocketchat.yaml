@@ -238,9 +238,9 @@ spec:
                   name: {{ .Values.rocketchat.mongodb.auth.existingSecret }}
                   key: {{ .Values.rocketchat.mongodb.auth.secretKeys.rootPasswordKey }}
             - name: MONGO_URL
-              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/rocketchat?authSource=admin&replicaSet=rs0"
+              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/rocketchat?authSource=admin&replicaSet=rs0" # gitleaks:allow
             - name: MONGO_OPLOG_URL
-              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/local?authSource=admin&replicaSet=rs0"
+              value: "mongodb://root:$(MONGO_ROOT_PASSWORD)@sahool-rocketchat-mongodb:27017/local?authSource=admin&replicaSet=rs0" # gitleaks:allow
             - name: ROOT_URL
               value: "http://sahool-rocketchat:3000"
             - name: PORT

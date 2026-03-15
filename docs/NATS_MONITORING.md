@@ -94,7 +94,7 @@ NATS هو العمود الفقري لنظام الرسائل في منصة سه
    - Provides `/metrics`, `/varz`, `/connz`, `/jsz` endpoints
    - JetStream enabled with encryption at rest
 
-2. **NATS Prometheus Exporter (natsio/prometheus-nats-exporter:0.14.0)**
+2. **NATS Prometheus Exporter (natsio/prometheus-nats-exporter:0.15.0)**
    - Scrapes NATS monitoring endpoints
    - Transforms to Prometheus format
    - Exposes enhanced metrics on port 7777

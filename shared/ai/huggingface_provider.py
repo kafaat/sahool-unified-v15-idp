@@ -478,14 +478,18 @@ class HuggingfaceProvider:
 
             logger.info(f"Loading model {model_id} on {device}")
 
+            revision = os.getenv("HUGGINGFACE_MODEL_REVISION", "main")
+
             tokenizer = AutoTokenizer.from_pretrained(
                 model_id,
                 cache_dir=cache_dir,
+                revision=revision,
             )
 
             model = AutoModel.from_pretrained(
                 model_id,
                 cache_dir=cache_dir,
+                revision=revision,
             )
 
             if device != "cpu":

@@ -127,6 +127,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             "/health",
             "/healthz",
             "/readyz",
+            "/health",
             "/metrics",
             "/docs",
             "/openapi.json",

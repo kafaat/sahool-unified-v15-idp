@@ -243,7 +243,7 @@ start_period: 30s
 | Property | Value |
 |----------|-------|
 | **Container Name** | `sahool-nats-prometheus-exporter` |
-| **Image** | `natsio/prometheus-nats-exporter:0.14.0` |
+| **Image** | `natsio/prometheus-nats-exporter:0.15.0` |
 | **Port** | `127.0.0.1:7777:7777` |
 | **Network** | `sahool-network` |
 

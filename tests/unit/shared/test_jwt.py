@@ -156,13 +156,13 @@ class TestTokenVerification:
 
     def test_verify_expired_token_raises(self, test_user_id, test_tenant_id):
         """Expired token should raise AuthError"""
-        # Create token that expires in -1 seconds (already expired)
+        # Create token that expired well beyond the leeway window (default 30s)
         token = create_token(
             user_id=test_user_id,
             tenant_id=test_tenant_id,
             roles=[],
             scopes=[],
-            expires_delta=timedelta(seconds=-1),
+            expires_delta=timedelta(seconds=-60),
         )
 
         with pytest.raises(AuthError) as exc:

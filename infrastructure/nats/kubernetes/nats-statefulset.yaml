@@ -241,23 +241,50 @@ metadata:
   namespace: nats-system
   labels:
     app: nats
+  annotations:
+    sahool.io/placeholder-secret: "true"
+    sahool.io/security-warning: >-
+      THIS SECRET CONTAINS PLACEHOLDER VALUES ONLY. You MUST replace all
+      credentials before deploying to any environment. Use one of:
+      1. External Secrets Operator (preferred): ExternalSecret CR pointing to Vault/AWS SM
+      2. Sealed Secrets: kubeseal encrypt and commit SealedSecret CR
+      3. Manual: kubectl create secret generic nats-credentials --from-literal=...
+      See docs/guides/nats-credentials-setup.md for instructions.
 type: Opaque
 stringData:
-  # These should be replaced with actual values or loaded from external secrets
-  # For production, use Sealed Secrets, External Secrets Operator, or Vault
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  WARNING: PLACEHOLDER VALUES - DO NOT DEPLOY WITHOUT REPLACING     ║
+  # ║                                                                    ║
+  # ║  All passwords below are non-functional placeholders. You MUST     ║
+  # ║  provision real credentials before deployment via one of:          ║
+  # ║                                                                    ║
+  # ║  Option 1 (recommended): External Secrets Operator                 ║
+  # ║    - Create an ExternalSecret CR that populates this Secret        ║
+  # ║    - Source: HashiCorp Vault path secret/data/nats/credentials     ║
+  # ║                                                                    ║
+  # ║  Option 2: kubectl create secret                                   ║
+  # ║    kubectl create secret generic nats-credentials \                ║
+  # ║      --from-literal=NATS_ADMIN_USER=admin \                       ║
+  # ║      --from-literal=NATS_ADMIN_PASSWORD=$(openssl rand -base64 32) \  ║
+  # ║      ... (repeat for all keys below)                               ║
+  # ║      -n nats-system                                                ║
+  # ║                                                                    ║
+  # ║  Option 3: Sealed Secrets                                          ║
+  # ║    kubeseal --format=yaml < secret.yaml > sealed-secret.yaml       ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
   NATS_ADMIN_USER: "admin"
-  NATS_ADMIN_PASSWORD: "CHANGE_ME_ADMIN_PASSWORD"
+  NATS_ADMIN_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_USER: "sahool"
-  NATS_PASSWORD: "CHANGE_ME_USER_PASSWORD"
+  NATS_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_MONITOR_USER: "monitor"
-  NATS_MONITOR_PASSWORD: "CHANGE_ME_MONITOR_PASSWORD"
+  NATS_MONITOR_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_SYSTEM_USER: "system"
-  NATS_SYSTEM_PASSWORD: "CHANGE_ME_SYSTEM_PASSWORD"
+  NATS_SYSTEM_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_CLUSTER_USER: "cluster_user"
-  NATS_CLUSTER_PASSWORD: "CHANGE_ME_CLUSTER_PASSWORD"
+  NATS_CLUSTER_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
   NATS_GATEWAY_USER: "gateway_user"
-  NATS_GATEWAY_PASSWORD: "CHANGE_ME_GATEWAY_PASSWORD"
-  NATS_JETSTREAM_KEY: "CHANGE_ME_BASE64_ENCODED_32_BYTE_KEY"
+  NATS_GATEWAY_PASSWORD: "PLACEHOLDER_MUST_BE_REPLACED"
+  NATS_JETSTREAM_KEY: "PLACEHOLDER_MUST_BE_REPLACED"
 
 ---
 apiVersion: apps/v1
@@ -299,6 +326,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "7777"
         prometheus.io/path: "/metrics"
+        checkov.io/skip: "CKV_K8S_35=NATS requires env var substitution in nats.conf for credentials"
     spec:
       # Affinity rules for high availability
       affinity:
@@ -329,6 +357,8 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 
       # Termination Grace Period
       terminationGracePeriodSeconds: 60
@@ -336,7 +366,8 @@ spec:
       # Init Container - Wait for DNS
       initContainers:
         - name: wait-for-dns
-          image: busybox:1.35
+          image: busybox:1.36@sha256:0ea395ca4a1a173e04e7a6c6753e600d3e8de2cf4fbb43bc09f029e30a5b5cf4
+          imagePullPolicy: Always
           command:
             - sh
             - -c
@@ -346,11 +377,26 @@ spec:
                 sleep 2
               done
               echo "DNS is ready"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
 
       containers:
         - name: nats
-          image: nats:2.10-alpine
-          imagePullPolicy: IfNotPresent
+          image: nats:2.10-alpine@sha256:d26258d9071b01bdbec74a083b409e0719ba9b8beda1474bd267a4f3b086a0df
+          imagePullPolicy: Always
 
           ports:
             - name: client
@@ -459,8 +505,8 @@ spec:
 
         # Metrics Exporter Sidecar (optional)
         - name: metrics
-          image: natsio/prometheus-nats-exporter:latest
-          imagePullPolicy: IfNotPresent
+          image: natsio/prometheus-nats-exporter:0.15.0@sha256:c0293d9cde2391a5d3f29719ac85f7cef3949dea27ef648e3d9079b52c8808f1
+          imagePullPolicy: Always
 
           ports:
             - name: metrics
@@ -474,6 +520,15 @@ spec:
             - -varz
             - -jsz=all
             - http://localhost:8222
+
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 7777
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
 
           resources:
             requests:

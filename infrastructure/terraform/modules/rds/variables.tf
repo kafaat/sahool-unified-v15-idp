@@ -309,6 +309,15 @@ variable "max_connections_alarm_threshold" {
 }
 
 # ======================================================================
+# متغيرات مصادقة IAM (IAM Authentication Variables)
+# ======================================================================
+variable "enable_iam_auth" {
+  description = "تمكين مصادقة IAM لقاعدة البيانات / Enable IAM database authentication"
+  type        = bool
+  default     = true
+}
+
+# ======================================================================
 # العلامات (Tags)
 # ======================================================================
 variable "tags" {

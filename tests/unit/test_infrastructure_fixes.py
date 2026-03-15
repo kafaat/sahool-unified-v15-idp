@@ -283,6 +283,8 @@ class TestDockerComposePortUniqueness:
             "etcd-perms-init",
             "minio",
             "mlflow",
+            "mongo",
+            "mongo-init-replica",
         }
         # Deprecated services may not have host port mappings to avoid conflicts
         deprecated_services = {

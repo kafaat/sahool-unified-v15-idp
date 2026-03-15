@@ -812,7 +812,7 @@ jobs:
           echo "Building Android APK..."
           # Override Gradle JVM args for CI (runners have ~7GB RAM)
           export GRADLE_OPTS="-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError"
-          flutter build apk --debug --no-shrink
+          flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v7

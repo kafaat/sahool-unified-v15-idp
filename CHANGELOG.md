@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **NATS StatefulSet Hardening** (March 2026)
+  - Pinned `nats:2.10-alpine` with SHA256 digest for supply-chain integrity
+  - Upgraded and pinned `natsio/prometheus-nats-exporter` from `latest` to `0.15.0` with SHA256 digest
+  - Added `seccompProfile: RuntimeDefault` to pod security context
+  - Added readiness probe to metrics exporter sidecar (`/metrics:7777`)
+
+- **Rate Limiter Token Consumption Fix** (March 2026)
+  - Reordered checks in `shared/middleware/rate_limit.py` to validate sliding window limits
+    before consuming burst tokens, preventing unfair throttling of legitimate requests
+
 ### Fixed
+
+- **Flutter Android Build Restored** (March 2026)
+  - Restored Android NDK from 27.0.12077973 to 28.2.13676358 in `flutter-apk.yml` and `mobile-ci.yml`
+  - Restored Android SDK from 35 to 36 (`sqlcipher_flutter_libs` requires NDK 28+ for native compilation)
+
+- **PgBouncer Merge Conflict Resolution** (March 2026)
+  - Resolved TLS config conflict: kept `disable` as dev default (production TLS via `docker-compose.tls.yml` overlay)
+
+- **Documentation Corrections** (March 2026)
+  - Fixed VPC peering `auto_accept` description in infrastructure audit report (clarification, not value change)
+  - Updated NATS Prometheus Exporter version references from 0.14.0 to 0.15.0 across docs and governance
+  - Corrected PgBouncer TLS documentation to match actual config (`disable` for dev, overlay for production)
 
 - **Frontend Tests CI Failures** (February 2026)
   - Removed premature coverage thresholds from `apps/web/vitest.config.ts` (2.77% < 3% threshold

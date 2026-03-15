@@ -113,8 +113,9 @@ services:
       jaeger:
         condition: service_healthy
     healthcheck:
-      # OTel Collector contrib image is scratch-based with no shell
-      # Disable custom healthcheck; container startup indicates readiness
+      # OTel Collector contrib image is distroless (no shell/curl/wget).
+      # Disable healthcheck and rely on depends_on + restart policy.
+      # For custom healthchecks, build a wrapper image with curl installed.
       disable: true
     deploy:
       resources:

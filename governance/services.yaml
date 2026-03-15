@@ -3670,7 +3670,7 @@ infrastructure_services:
     name: "NATS Prometheus Exporter"
     name_ar: "مصدر مقاييس NATS لـ Prometheus"
     description: "Metrics exporter for NATS JetStream monitoring"
-    image: "natsio/prometheus-nats-exporter:0.14.0"
+    image: "natsio/prometheus-nats-exporter:0.15.0"
     port: 7777
     category: monitoring
     profile: default

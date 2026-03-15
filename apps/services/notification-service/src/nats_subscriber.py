@@ -324,9 +324,7 @@ class NATSSubscriber:
             if not event_type:
                 if "irrigation.recommendation" in subject:
                     event_type = "irrigation.recommendation.ready"
-                elif "advisory" in subject:
-                    event_type = "recommendation.created"
-                elif "recommendation" in subject:
+                elif "advisory" in subject or "recommendation" in subject:
                     event_type = "recommendation.created"
 
             # Parse event

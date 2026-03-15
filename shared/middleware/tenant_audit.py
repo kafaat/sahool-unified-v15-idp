@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -95,7 +95,7 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
         duration_ms = (time.monotonic() - start_time) * 1000
 
         entry = CrossTenantAuditEntry(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             user_id=user_id or "unknown",
             user_tenant_id=user_tenant_id,
             accessed_tenant_id=accessed_tenant_id,

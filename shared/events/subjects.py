@@ -117,7 +117,7 @@ SAHOOL_FIELD_STATE_UPDATED = "sahool.field.state.updated.v1"
 SAHOOL_IRRIGATION_RECOMMENDATION_READY = "sahool.irrigation.recommendation.ready.v1"
 
 # Wildcards
-SAHOOL_DIGITAL_TWIN_ALL = "sahool.field.state.*"
+SAHOOL_DIGITAL_TWIN_ALL = "sahool.field.state.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ SAHOOL_CALIBRATION_PARAMS_DEPRECATED = "sahool.calibration.parameters.deprecated
 
 # Wildcards
 SAHOOL_CALIBRATION_ALL = "sahool.calibration.>"
-SAHOOL_CALIBRATION_RUN_ALL = "sahool.calibration.run.*"
+SAHOOL_CALIBRATION_RUN_ALL = "sahool.calibration.run.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -952,13 +952,13 @@ def get_tenant_wildcard(tenant_id: str, domain: str = "*") -> str:
         >>> get_tenant_wildcard("org_123")
         'sahool.tenant.org_123.>'
         >>> get_tenant_wildcard("org_123", "field")
-        'sahool.tenant.org_123.field.*'
+        'sahool.tenant.org_123.field.>'
     """
     if not tenant_id:
         raise ValueError("tenant_id is required for tenant-scoped subjects")
     if domain == "*":
         return f"sahool.tenant.{tenant_id}.>"
-    return f"sahool.tenant.{tenant_id}.{domain}.*"
+    return f"sahool.tenant.{tenant_id}.{domain}.>"
 
 
 def get_all_tenants_subject(domain: str, action: str) -> str:
@@ -1003,7 +1003,7 @@ class TenantSubjectBuilder:
 
     def wildcard(self, domain: str) -> str:
         """Build a wildcard subject for the given domain."""
-        return f"{self._prefix}.{domain}.*"
+        return f"{self._prefix}.{domain}.>"
 
     @property
     def field(self) -> "DomainSubjectBuilder":
@@ -1056,4 +1056,4 @@ class DomainSubjectBuilder:
 
     def all(self) -> str:
         """Wildcard subject for all events in this domain."""
-        return f"{self._prefix}.{self._domain}.*"
+        return f"{self._prefix}.{self._domain}.>"

@@ -242,7 +242,7 @@
 | 20 | JWT revocation synchronous | إضافة clock skew leeway وتوثيق القيود | `ed98e52` |
 | 21 | continue-on-error في security.yml | إزالة من SAST/scan الحرجة، إبقاء في optional فقط | `ed98e52` |
 | 22 | Trivy --skip-check-update | إزالة العلم المُهمل | `ed98e52` |
-| 23 | otel-collector healthcheck معطل | تفعيل wget healthcheck على port 13133 | `ed98e52` |
+| 23 | otel-collector healthcheck معطل | لا يمكن الإصلاح — صورة distroless بدون shell/curl/wget، يُعتمد على `restart: unless-stopped` | لم يُصلح |
 | 24 | dlq-monitor بدون healthcheck | إضافة healthcheck | `ed98e52` |
 | 25 | لا ResourceQuota في Helm | إنشاء `resourcequota.yaml` template مع values | `ed98e52` |
 | 26 | Kong IP ranges واسعة | تقييد من /8 و /12 إلى /16 | `ed98e52` |

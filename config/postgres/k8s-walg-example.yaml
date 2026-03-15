@@ -164,12 +164,14 @@ spec:
         app: postgres
         component: database
         backup: walg
+      annotations:
+        checkov.io/skip: "CKV_K8S_22=PostgreSQL requires writable data directory,CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,CKV_K8S_40=UID 999 is the standard PostgreSQL user,CKV_K8S_43=Custom internal image without published digest"
     spec:
       automountServiceAccountToken: false
       containers:
       - name: postgres
         image: sahool/postgres-walg:16-3.4  # Custom image with WAL-G
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 5432
           name: postgres
@@ -362,6 +364,7 @@ spec:
           containers:
           - name: backup
             image: sahool/postgres-walg:16-3.4
+            imagePullPolicy: Always
             command:
             - /bin/bash
             - -c
@@ -456,6 +459,7 @@ spec:
           containers:
           - name: verify
             image: sahool/postgres-walg:16-3.4
+            imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
               runAsNonRoot: true

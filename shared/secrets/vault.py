@@ -314,10 +314,18 @@ class VaultClient:
 
         if not self.is_connected():
             # Graceful degradation: try cache fallback when Vault is unreachable
-            cached = self._get_from_cache(cache_key)
-            if cached is not None:
-                logger.warning("Vault unreachable, using cached secret (path hash=%s)", hash(path) % 10000)
-                return cached
+            # Use staleness-based lookup (same as mid-request failure path)
+            # so disconnected state doesn't reject secrets that would be accepted on transient errors
+            max_staleness_seconds = self.config.cache_max_staleness_seconds
+            if cache_key in self._cache:
+                value, cached_at = self._cache[cache_key]
+                age = (datetime.now(UTC) - cached_at).total_seconds()
+                if age <= max_staleness_seconds:
+                    logger.warning("Vault unreachable, using cached secret (age=%ds)", int(age))
+                    return value
+                else:
+                    logger.error("Vault unreachable and cached secret too stale (age=%ds > %ds)", int(age), max_staleness_seconds)
+                    del self._cache[cache_key]
             raise ConnectionError("Not connected to Vault and no cached value available")
 
         # Check cache (respects TTL)

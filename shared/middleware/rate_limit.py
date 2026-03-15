@@ -172,17 +172,9 @@ class RateLimiter:
         return True, self._build_headers(key, config, tier, exceeded=False, remaining=remaining)
 
     def _build_headers(
-        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int | None = None
+        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool, remaining: int
     ) -> dict:
-        """Build rate limit response headers.
-
-        Args:
-            remaining: Pre-computed remaining count. Must be provided when calling
-                outside self._lock to avoid TOCTOU races on _request_counts.
-                Falls back to reading _request_counts only when called inside the lock.
-        """
-        if remaining is None:
-            remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
+        """Build rate limit response headers."""
 
         headers = {
             "X-RateLimit-Limit": str(config.requests_per_minute),

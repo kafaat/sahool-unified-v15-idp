@@ -121,6 +121,7 @@ class VaultClient:
         self._client: Any = None
         self._connected = False
         self._cache: dict[str, tuple[Any, datetime]] = {}
+        self._cache_lock: asyncio.Lock = asyncio.Lock()
         self._token_expiry: datetime | None = None
         self._renewal_task: asyncio.Task | None = None
         self._renewal_lock: asyncio.Lock = asyncio.Lock()
@@ -263,51 +264,54 @@ class VaultClient:
             return f"{self.config.path_prefix}/{path}"
         return path
 
-    def _get_from_cache(self, path: str) -> Any | None:
+    async def _get_from_cache(self, path: str) -> Any | None:
         """Get secret from cache if valid"""
         if not self.config.enable_cache:
             return None
 
-        if path not in self._cache:
-            return None
+        async with self._cache_lock:
+            if path not in self._cache:
+                return None
 
-        value, cached_at = self._cache[path]
-        age = (datetime.now(UTC) - cached_at).total_seconds()
+            value, cached_at = self._cache[path]
+            age = (datetime.now(UTC) - cached_at).total_seconds()
 
-        if age > self.config.cache_ttl_seconds:
-            del self._cache[path]
-            return None
+            if age > self.config.cache_ttl_seconds:
+                del self._cache[path]
+                return None
 
-        return value
+            return value
 
-    def _set_cache(self, path: str, value: Any) -> None:
+    async def _set_cache(self, path: str, value: Any) -> None:
         """Store secret in cache"""
         if self.config.enable_cache:
-            self._cache[path] = (value, datetime.now(UTC))
+            async with self._cache_lock:
+                self._cache[path] = (value, datetime.now(UTC))
 
-    def _get_stale_cache_fallback(self, cache_key: str) -> Any:
+    async def _get_stale_cache_fallback(self, cache_key: str) -> Any:
         """Try to return a cached secret within the max staleness window.
 
         Used for graceful degradation when Vault is unreachable.
         Raises KeyError if no usable cached value exists.
         """
-        if cache_key not in self._cache:
+        async with self._cache_lock:
+            if cache_key not in self._cache:
+                raise KeyError(cache_key)
+
+            value, cached_at = self._cache[cache_key]
+            age = (datetime.now(UTC) - cached_at).total_seconds()
+
+            if age <= self.config.cache_max_staleness_seconds:
+                logger.warning("Vault unreachable, using cached secret (age=%ds)", int(age))
+                return value
+
+            logger.error(
+                "Vault unreachable and cached secret too stale (age=%ds > %ds)",
+                int(age),
+                self.config.cache_max_staleness_seconds,
+            )
+            del self._cache[cache_key]
             raise KeyError(cache_key)
-
-        value, cached_at = self._cache[cache_key]
-        age = (datetime.now(UTC) - cached_at).total_seconds()
-
-        if age <= self.config.cache_max_staleness_seconds:
-            logger.warning("Vault unreachable, using cached secret (age=%ds)", int(age))
-            return value
-
-        logger.error(
-            "Vault unreachable and cached secret too stale (age=%ds > %ds)",
-            int(age),
-            self.config.cache_max_staleness_seconds,
-        )
-        del self._cache[cache_key]
-        raise KeyError(cache_key)
 
     async def get_secret(self, path: str, key: str | None = None) -> Any:
         """
@@ -339,12 +343,12 @@ class VaultClient:
         if not self.is_connected():
             # Graceful degradation: try cache fallback when Vault is unreachable
             try:
-                return self._get_stale_cache_fallback(cache_key)
+                return await self._get_stale_cache_fallback(cache_key)
             except KeyError:
                 raise ConnectionError("Not connected to Vault and no cached value available")
 
         # Check cache (respects TTL)
-        cached = self._get_from_cache(cache_key)
+        cached = await self._get_from_cache(cache_key)
         if cached is not None:
             return cached
 
@@ -365,7 +369,7 @@ class VaultClient:
                 value = data
 
             # Cache the result
-            self._set_cache(cache_key, value)
+            await self._set_cache(cache_key, value)
 
             return value
 
@@ -373,10 +377,10 @@ class VaultClient:
             # On connectivity failure, attempt cache fallback (even if TTL expired)
             # but reject entries older than max_staleness to limit exposure from rotated secrets
             try:
-                return self._get_stale_cache_fallback(cache_key)
+                return await self._get_stale_cache_fallback(cache_key)
             except KeyError:
                 logger.error("Failed to get secret from Vault: %s", type(e).__name__)
-                raise e
+                raise
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
             logger.error("Failed to get secret from Vault: %s", type(e).__name__)
@@ -409,9 +413,10 @@ class VaultClient:
             )
 
             # Invalidate cache
-            keys_to_remove = [k for k in self._cache if k.startswith(full_path)]
-            for k in keys_to_remove:
-                del self._cache[k]
+            async with self._cache_lock:
+                keys_to_remove = [k for k in self._cache if k.startswith(full_path)]
+                for k in keys_to_remove:
+                    del self._cache[k]
 
             logger.info(f"Secret '{path}' updated successfully")
 
@@ -438,9 +443,10 @@ class VaultClient:
             )
 
             # Invalidate cache
-            keys_to_remove = [k for k in self._cache if k.startswith(full_path)]
-            for k in keys_to_remove:
-                del self._cache[k]
+            async with self._cache_lock:
+                keys_to_remove = [k for k in self._cache if k.startswith(full_path)]
+                for k in keys_to_remove:
+                    del self._cache[k]
 
             logger.info(f"Secret '{path}' deleted successfully")
 

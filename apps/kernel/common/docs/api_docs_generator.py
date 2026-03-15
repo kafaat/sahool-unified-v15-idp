@@ -1035,7 +1035,7 @@ const response = await fetch('http://localhost:8090/v1/fields', {
 ```python
 import requests
 
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument
 
 response = requests.get(
     "http://localhost:8090/v1/fields",

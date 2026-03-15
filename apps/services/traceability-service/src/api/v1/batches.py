@@ -276,7 +276,7 @@ async def update_batch(batch_id: str, request: BatchUpdateRequest, req: Request)
     values.append(uuid.UUID(batch_id))
 
     row = await pool.fetchrow(
-        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist
+        f"UPDATE produce_batches SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))

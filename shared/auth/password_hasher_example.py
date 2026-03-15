@@ -23,7 +23,7 @@ def basic_usage_example():
     """Basic password hashing and verification"""
 
     # Hash a password
-    password = "MySecurePassword123!"
+    password = "MySecurePassword123!"  # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument
     hashed = hash_password(password)
     print(f"Hashed password: {hashed[:50]}...")
 
@@ -442,7 +442,7 @@ def test_all_algorithms():
     )
 
     hasher = PasswordHasher()
-    test_password = "TestPassword123!"
+    test_password = "TestPassword123!"  # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument
 
     print("\n" + "=" * 70)
     print("Password Algorithm Tests")

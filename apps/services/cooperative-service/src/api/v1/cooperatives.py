@@ -242,7 +242,7 @@ async def update_cooperative(
     values.append(uuid.UUID(coop_id))
 
     row = await pool.fetchrow(
-        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist
+        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("cooperative_updated", coop_id=coop_id, fields=list(updates.keys()))

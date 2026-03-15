@@ -21,7 +21,7 @@ T = TypeVar("T")
 # Configuration - التكوين
 # ═══════════════════════════════════════════════════════════════════════════
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 CACHE_PREFIX = "task-service:"
 DEFAULT_TTL_SECONDS = 3600  # 1 hour
 ASTRONOMICAL_CACHE_TTL = 3600  # 1 hour for astronomical data

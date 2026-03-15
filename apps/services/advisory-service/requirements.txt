@@ -27,3 +27,8 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 
 # Redis for token revocation
 redis[hiredis]>=7.1.0,<8.0.0
+
+# Password hashing & 2FA
+bcrypt>=4.2.0,<5.0.0
+pyotp>=2.9.0,<3.0.0
+qrcode[pil]>=7.4,<8.0

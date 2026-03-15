@@ -85,8 +85,9 @@ RUN apt-update.sh && \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy shared modules
-COPY apps/services/shared ./shared/
+# Copy root shared modules first, then overlay with services shared
+COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
 
 # Copy application code
 COPY apps/services/knowledge-graph/src/ ./src/

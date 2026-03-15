@@ -21,7 +21,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/throttler": "^6.2.1",
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "~5.22.0",
     "helmet": "^8.0.0",
     "mqtt": "^5.15.0",
     "ioredis": "^5.4.2",
@@ -32,7 +32,7 @@
     "reflect-metadata": "^0.2.2",
     "@sahool/shared-events": "^16.0.0",
     "uuid": "^11.0.3",
-    "prisma": "^5.22.0"
+    "prisma": "~5.22.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",

@@ -37,6 +37,10 @@ services:
       # Configuration files - ملفات الإعدادات
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts.yml:/etc/prometheus/alerts/alerts.yml:ro
+      # Alert rules directory - دليل قواعد التنبيهات
+      # FIX: rules/ directory was not mounted, so agricultural-alerts, slo-alerts,
+      # nats-alerts, disaster-recovery, and service-restart rules were silently ignored.
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       # Data persistence - استمرارية البيانات
       - prometheus_data:/prometheus
     environment:

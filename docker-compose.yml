@@ -446,12 +446,13 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      # FIX: sahool_iot user does NOT have $SYS ACL access (only 'monitor' user does)
-      # Use mosquitto_pub on sahool/system/# which sahool_iot has readwrite access to
-      # This proves: broker running + auth working + ACL correct
+      # FIX: Previous mosquitto_pub healthcheck created real MQTT connections every 30s,
+      # flooding broker logs with connect/disconnect spam. Replaced with mosquitto_sub
+      # using -C 1 (receive 1 message then exit) on $SYS/broker/uptime which is
+      # available without authentication. This is a lightweight read-only check.
       # NOTE: nc/netcat and /dev/tcp are NOT available in Alpine mosquitto image
-      test: [ "CMD-SHELL", "mosquitto_pub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t 'sahool/system/healthcheck' -m 'ok' -q 0" ]
-      interval: 30s
+      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/uptime' -C 1 -W 3 2>/dev/null || mosquitto_sub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t '$$SYS/broker/uptime' -C 1 -W 3" ]
+      interval: 60s
       timeout: 10s
       retries: 5
       start_period: 20s
@@ -869,6 +870,9 @@ services:
     # SECURITY FIX: Upgraded from v3.5.5 → v3.5.16 → v3.5.18 (official for Milvus 2.5.x)
     image: quay.io/coreos/etcd:v3.5.18
     container_name: sahool-etcd
+    # SECURITY: SYS_TIME capability removed from default config (allows host clock
+    # modification). For WSL2 clock drift issues, use the wsl2-time-fix override:
+    #   docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up
     environment:
       # Performance and compaction settings
       - ETCD_AUTO_COMPACTION_MODE=revision
@@ -877,9 +881,23 @@ services:
       # See: https://github.com/milvus-io/milvus/blob/master/deployments/docker/standalone/docker-compose.yml
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
-      # etcdctl configuration for healthcheck
+      # ─── TLS SECURITY ─────────────────────────────────────────────────────
+      # SECURITY FIX: Enable auto-generated TLS for both client and peer traffic.
+      # This eliminates "serving client traffic insecurely" audit finding.
+      # Auto-TLS generates self-signed certs on startup - suitable for internal
+      # Docker network communication. For production with external access, use
+      # manual certs via docker-compose.tls.yml overlay instead.
+      - ETCD_AUTO_TLS=true
+      - ETCD_PEER_AUTO_TLS=true
+      # ─── Authentication ────────────────────────────────────────────────────
+      # Development uses simple tokens (default). Auto-TLS encrypts the wire,
+      # mitigating replay risk. For production JWT auth, use docker-compose.tls.yml
+      # overlay which generates RSA keypair and sets ETCD_AUTH_TOKEN=jwt,...
+      - ETCD_AUTH_TOKEN=simple
+      # etcdctl configuration for healthcheck (must use HTTPS with auto-TLS)
       - ETCDCTL_API=3
-      - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
+      - ETCDCTL_ENDPOINTS=https://127.0.0.1:2379
+      - ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
       # Authentication credentials (custom vars, NOT used by etcd server itself).
       # Kept here to validate .env has these vars set (used by etcd-init container).
       # Override in .env file for production (copy from .env.example): cp .env.example .env
@@ -895,23 +913,33 @@ services:
     # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
     # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
+    # SECURITY FIX: Use https:// URLs now that auto-TLS is enabled
+    # SECURITY FIX: Set --data-dir permissions to 0700 (rwx------) to prevent
+    # unauthorized access to etcd data. The default drwxr-xr-x is too permissive.
     command: >-
       etcd
-      -advertise-client-urls=http://etcd:2379
-      -listen-client-urls=http://0.0.0.0:2379
+      -advertise-client-urls=https://etcd:2379
+      -listen-client-urls=https://0.0.0.0:2379
       --data-dir=/etcd-data
+      --heartbeat-interval=2000
+      --election-timeout=10000
     healthcheck:
       # Uses etcdctl (exec form CMD, not CMD-SHELL) because etcd v3.5.7+ images are
       # distroless with no /bin/sh, curl, or wget. etcdctl is the only available binary.
       # Note: When auth is enabled (via etcd-auth profile), this check may log a warning
       # "authentication is not enabled" on fresh start, but still exits 0 if healthy.
       # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars above configure the connection.
+      # SECURITY: --insecure-skip-tls-verify used because auto-TLS generates self-signed certs.
+      # The ETCDCTL_INSECURE_SKIP_TLS_VERIFY env var handles this for the healthcheck.
       test: [ "CMD", "etcdctl", "endpoint", "health" ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 45s
     restart: unless-stopped
+    depends_on:
+      etcd-perms-init:
+        condition: service_completed_successfully
     security_opt:
       - no-new-privileges:true
     logging: *default-logging
@@ -925,6 +953,28 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+    networks:
+      - sahool-network
+
+  # Etcd Data Directory Permission Fixer - runs before etcd starts
+  # SECURITY FIX: Fixes drwxr-xr-x → drwx------ (0700) on /etcd-data
+  # The etcd distroless image has no shell, so we use an Alpine init container
+  # to set restrictive permissions on the data volume before etcd reads it.
+  etcd-perms-init:
+    image: alpine:3.20
+    container_name: sahool-etcd-perms-init
+    volumes:
+      - etcd_data:/etcd-data
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: [ "chmod 700 /etcd-data && chown -R 0:0 /etcd-data && echo 'etcd-data permissions fixed to 0700'" ]
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 32M
     networks:
       - sahool-network
 
@@ -944,7 +994,10 @@ services:
     container_name: sahool-etcd-init
     environment:
       - ETCDCTL_API=3
-      - ETCDCTL_ENDPOINTS=http://etcd:2379
+      # SECURITY FIX: Use HTTPS now that etcd has auto-TLS enabled
+      - ETCDCTL_ENDPOINTS=https://etcd:2379
+      # Skip TLS verification for auto-generated self-signed certs
+      - ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     depends_on:
@@ -971,9 +1024,14 @@ services:
   # MinIO - Object storage for Milvus
   # تخزين الكائنات لـ Milvus
   # SECURITY: MINIO_ROOT_USER and MINIO_ROOT_PASSWORD MUST be set in .env file
+  # WARNING (parity=0): Single-node MinIO has NO erasure coding and NO data protection.
+  # A single disk failure WILL cause complete data loss. For production, deploy MinIO
+  # in distributed mode with at least 4 drives to enable erasure coding parity.
+  # PRODUCTION: Set MINIO_ERASURE_SET_DRIVE_COUNT (min 4) in distributed mode to control
+  # erasure set size and parity. Single-node mode ignores this variable entirely.
+  # See: https://min.io/docs/minio/linux/operations/concepts/erasure-coding.html
   minio:
-    # Updated to Milvus 2.5.x official version (RELEASE.2024-05-28)
-    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    image: minio/minio:RELEASE.2025-03-12T18-48-03Z
     container_name: sahool-minio
     environment:
       # Root credentials (minimum 16 characters)
@@ -1063,11 +1121,16 @@ services:
   milvus:
     image: milvusdb/milvus:v2.5.27
     container_name: sahool-milvus
+    # SECURITY: SYS_TIME capability removed from default config. For WSL2 clock
+    # drift issues, use: docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up
     environment:
       # Etcd connection (Milvus v2.5+ supports etcd auth; enable via --profile etcd-auth)
       ETCD_ENDPOINTS: etcd:2379
       ETCD_ROOT_PATH: /milvus
-      ETCD_USE_SSL: "false"
+      # SECURITY FIX: Enable TLS for etcd connection (etcd now uses auto-TLS)
+      ETCD_USE_SSL: "true"
+      # Skip TLS verification for auto-generated self-signed certs
+      ETCD_TLS_SKIP_VERIFY: "true"
       # Etcd auth credentials - required when etcd-auth profile is enabled
       # Without these, Milvus will fail to connect once etcd auth is turned on
       ETCD_USERNAME: ${ETCD_ROOT_USERNAME:-}
@@ -1083,6 +1146,8 @@ services:
       - "127.0.0.1:9091:9091"
     volumes:
       - milvus_data:/var/lib/milvus
+      # FIX: Mount Milvus config to increase TSO max lag tolerance for WSL2 clock drift
+      - ./config/milvus/milvus.yaml:/milvus/configs/milvus.yaml:ro
     command: [ "milvus", "run", "standalone" ]
     depends_on:
       etcd:
@@ -1233,8 +1298,9 @@ services:
     container_name: sahool-field-management-service
     environment:
       - NODE_ENV=production
+      - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3000
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # Direct URL for Prisma migrations (bypasses PgBouncer) - required by postgresqlExtensions preview feature + postgis
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1287,7 +1353,8 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1335,7 +1402,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1387,7 +1454,7 @@ services:
     environment:
       - PORT=3020
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # Direct URL for Prisma migrations (bypasses PgBouncer)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1442,7 +1509,7 @@ services:
     environment:
       - PORT=3021
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1494,7 +1561,7 @@ services:
     environment:
       - PORT=3022
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1547,7 +1614,7 @@ services:
       - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -1596,7 +1663,8 @@ services:
     environment:
       - PORT=8115
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1644,7 +1712,8 @@ services:
     environment:
       - PORT=8117
       - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1764,8 +1833,9 @@ services:
     container_name: sahool-user-service
     environment:
       - NODE_ENV=production
+      - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3025
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -2072,6 +2142,11 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      # FIX: Added REDIS_URL — token revocation store needs Redis; without this, shared/auth/config.py
+      # defaults REDIS_HOST to localhost which fails inside Docker containers
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8093:8093"
     depends_on:
@@ -2079,6 +2154,8 @@ services:
       pgbouncer:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')" ]
@@ -2250,7 +2327,7 @@ services:
       - PORT=8152
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       # FIX: Missing JWT_SECRET_KEY caused auth module initialization failure
@@ -2512,25 +2589,34 @@ services:
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
-      # Twilio SMS Configuration
+      # ── Twilio SMS Configuration ──
+      # Configure for production - get credentials from https://console.twilio.com
       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
       - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-}
-      # Twilio WhatsApp Configuration
+      # ── Twilio WhatsApp Configuration ──
+      # Configure for production - enable WhatsApp in Twilio console, use "whatsapp:+14155238886" format
       - TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER:-}
-      # SendGrid Email Configuration
+      # ── SendGrid Email Configuration ──
+      # Configure for production - get API key from https://app.sendgrid.com/settings/api_keys
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-notifications@sahool.app}
       - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-SAHOOL Agriculture Platform}
-      # Firebase Push Notifications Configuration
+      # ── Firebase Push Notifications Configuration ──
+      # Configure for production - download service account JSON from Firebase console
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
       - FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS_PATH:-}
       - FIREBASE_CREDENTIALS_JSON=${FIREBASE_CREDENTIALS_JSON:-}
-      # Meta WhatsApp Cloud API Configuration
+      # ── Meta WhatsApp Cloud API Configuration (alternative to Twilio WhatsApp) ──
+      # Configure for production - get credentials from https://developers.facebook.com/apps
       - META_WHATSAPP_ACCESS_TOKEN=${META_WHATSAPP_ACCESS_TOKEN:-}
       - META_WHATSAPP_PHONE_NUMBER_ID=${META_WHATSAPP_PHONE_NUMBER_ID:-}
-      # Telegram Bot Configuration
+      - META_WHATSAPP_BUSINESS_ACCOUNT_ID=${META_WHATSAPP_BUSINESS_ACCOUNT_ID:-}
+      - META_WHATSAPP_VERIFY_TOKEN=${META_WHATSAPP_VERIFY_TOKEN:-}
+      # ── Telegram Bot Configuration ──
+      # Configure for production - create bot via @BotFather on Telegram
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
     ports:
       - "127.0.0.1:8110:8110"
     depends_on:
@@ -2989,6 +3075,7 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-demo-data
     environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - KONG_URL=http://kong:8000
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - DEMO_MODE=${DEMO_MODE:-continuous}
@@ -3040,7 +3127,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
@@ -3088,7 +3175,7 @@ services:
       - PORT=8131
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -3138,7 +3225,7 @@ services:
       - PORT=8132
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Use proper DATABASE_URL with sslmode=disable (PgBouncer has TLS disabled)
+      # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
@@ -3489,6 +3576,10 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OLLAMA_BASE_URL=${OLLAMA_URL:-http://ollama:11434}
+      # Sentinel Hub Configuration (satellite imagery / NDVI)
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      - SENTINEL_HUB_INSTANCE_ID=${SENTINEL_HUB_INSTANCE_ID:-}
     ports:
       - "127.0.0.1:8164:8164"
     depends_on:
@@ -4437,6 +4528,7 @@ services:
     container_name: sahool-code-review-agent
     environment:
       - NODE_ENV=production
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-info}
     restart: "no"
     security_opt:

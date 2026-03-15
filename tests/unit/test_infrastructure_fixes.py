@@ -280,6 +280,7 @@ class TestDockerComposePortUniqueness:
             "milvus",
             "etcd",
             "etcd-init",
+            "etcd-perms-init",
             "minio",
             "mlflow",
         }

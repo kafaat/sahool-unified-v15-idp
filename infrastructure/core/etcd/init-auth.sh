@@ -47,6 +47,13 @@ echo "Starting etcd authentication initialization..."
 echo "Waiting for etcd to be ready..."
 sleep 5
 
+# SECURITY FIX: If ETCDCTL_INSECURE_SKIP_TLS_VERIFY is not already set,
+# enable it for auto-TLS self-signed certs
+if [ -z "${ETCDCTL_INSECURE_SKIP_TLS_VERIFY}" ]; then
+  export ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
+  echo "NOTE: Enabled ETCDCTL_INSECURE_SKIP_TLS_VERIFY for auto-TLS self-signed certs"
+fi
+
 # Check if etcd is responsive with retry logic
 # Try without credentials first (auth disabled), then with credentials (auth enabled)
 # SECURITY: Use ETCDCTL_USER env var (not --user flag) to avoid exposing credentials in ps output

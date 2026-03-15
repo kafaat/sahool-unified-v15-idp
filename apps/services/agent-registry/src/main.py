@@ -85,23 +85,22 @@ async def lifespan(app: FastAPI):
 
     try:
         # Initialize storage
-        if settings.redis_host and settings.environment == "production":
-            # Use Redis in production
-            redis_url = f"redis://{settings.redis_host}:{settings.redis_port}/{settings.redis_db}"
-            if settings.redis_password:
-                redis_url = f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}/{settings.redis_db}"
-
+        # FIX: Use Redis in all environments when configured (not just production).
+        # Previously, development environments always fell back to in-memory storage,
+        # causing agents to be lost on every restart.
+        redis_url = settings.get_redis_url()
+        if settings.should_use_redis() and redis_url:
             storage = RedisStorage(
                 redis_url=redis_url,
                 key_prefix=settings.redis_prefix,
                 ttl_seconds=settings.agent_ttl_seconds,
             )
             await storage.connect()
-            logger.info("using_redis_storage")
+            logger.info("using_redis_storage", environment=settings.environment)
         else:
-            # Use in-memory storage for development
+            # Use in-memory storage only when Redis is not configured or explicitly disabled
             storage = InMemoryStorage()
-            logger.info("using_in_memory_storage")
+            logger.info("using_in_memory_storage", environment=settings.environment)
 
         app_state["storage"] = storage
 

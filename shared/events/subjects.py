@@ -99,6 +99,8 @@ SAHOOL_HEALTH_STRESS_HEAT = "sahool.health.stress.heat"
 SAHOOL_HEALTH_STRESS_COLD = "sahool.health.stress.cold"
 
 # Wildcards
+SAHOOL_HEALTH_CROP_ALERT = "sahool.health.crop.alert"
+
 SAHOOL_HEALTH_ALL = "sahool.health.>"
 SAHOOL_HEALTH_STRESS_ALL = "sahool.health.stress.*"
 
@@ -291,6 +293,7 @@ SAHOOL_IOT_SENSOR_ALERT = "sahool.iot.sensor.alert"
 
 SAHOOL_IOT_DEVICE_REGISTERED = "sahool.iot.device.registered"
 SAHOOL_IOT_DEVICE_STATUS = "sahool.iot.device.status"
+SAHOOL_IOT_THRESHOLD = "sahool.iot.threshold"
 
 SAHOOL_IOT_ALL = "sahool.iot.>"
 SAHOOL_IOT_SENSOR_ALL = "sahool.iot.sensor.*"
@@ -647,6 +650,22 @@ SAHOOL_COMMUNITY_ALERT_POSTED = "sahool.community.alert_posted"
 SAHOOL_COMMUNITY_TENANT_SETUP = "sahool.community.tenant_setup"
 
 SAHOOL_COMMUNITY_ALL = "sahool.community.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Delivery Subjects - موضوعات التوصيل
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_DELIVERY_COMPLETED = "sahool.delivery.completed"
+SAHOOL_DELIVERY_ALL = "sahool.delivery.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Payment Subjects - موضوعات الدفع
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_PAYMENT_CONFIRMED = "sahool.payment.confirmed"
+SAHOOL_PAYMENT_ALL = "sahool.payment.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

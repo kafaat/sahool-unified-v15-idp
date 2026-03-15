@@ -131,8 +131,10 @@ STREAMS: list[StreamDef] = [
             "sahool.chat.>",
             "sahool.config.>",
             "sahool.lowcode.>",
+            "sahool.delivery.>",
+            "sahool.payment.>",
         ],
-        description="Business layer: billing, inventory, CRM, notifications, cooperative, traceability, compliance",
+        description="Business layer: billing, inventory, CRM, notifications, cooperative, traceability, compliance, delivery, payments",
         max_age_seconds=90 * 86400,  # 90 days for audit
     ),
     # ── AI & System ───────────────────────────────────────────────────

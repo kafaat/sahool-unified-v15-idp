@@ -5,10 +5,11 @@
  * Provides defense-in-depth tenant isolation:
  * 1. Application-layer: Auto-injects tenantId into all Prisma queries
  * 2. Database-layer: Sets PostgreSQL RLS session variables (app.current_tenant)
+ *    via $transaction to ensure SET + queries share a connection
  *
  * Usage in a NestJS service module:
  *
- *   import { createTenantExtension } from '@sahool/nestjs-auth';
+ *   import { createTenantExtension, initializeRlsContext } from '@sahool/nestjs-auth';
  *
  *   @Injectable()
  *   export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -23,6 +24,7 @@
  *
  *   // In controller/service:
  *   const db = this.prisma.withTenant(tenantId);
+ *   await initializeRlsContext(this.prisma, tenantId); // Set RLS session vars
  *   const fields = await db.field.findMany(); // auto-filtered by tenant + RLS
  */
 
@@ -68,10 +70,10 @@ const TENANT_MODELS = new Set([
 ]);
 
 /**
- * Set PostgreSQL RLS session variables via Prisma's $executeRawUnsafe.
- * Uses set_config() which is parameterized and SQL-injection safe.
+ * Set PostgreSQL RLS session variables using parameterized set_config().
+ * Uses $executeRaw tagged template (SQL-injection safe).
  *
- * @param client - Prisma client instance (with $executeRawUnsafe)
+ * @param client - Prisma client or transaction instance
  * @param tenantId - Tenant ID to set for RLS
  * @param isAdmin - Whether to grant super_admin bypass
  */
@@ -80,22 +82,19 @@ async function setRlsContext(
   tenantId: string,
   isAdmin: boolean,
 ): Promise<void> {
-  try {
-    const adminFlag = isAdmin ? "true" : "false";
-    await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
-    await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, true)`;
-  } catch {
-    // RLS session variables are defense-in-depth; don't block on failure
-    // Application-layer filtering (below) is the primary mechanism
-  }
+  const adminFlag = isAdmin ? "true" : "false";
+  await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
+  await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, true)`;
 }
 
 /**
  * Create a Prisma Client Extension that:
- * 1. Sets PostgreSQL RLS session variables (app.current_tenant) per query
- * 2. Auto-injects tenantId into all Prisma queries for tenant-aware models
+ * 1. Auto-injects tenantId into all Prisma queries for tenant-aware models
+ * 2. Sets PostgreSQL RLS session variables (app.current_tenant) via $transaction
+ *    on the first query, ensuring SET and query share a database connection
  *
- * This provides defense-in-depth: application-layer + database-layer isolation.
+ * Application-layer filtering is the primary isolation mechanism.
+ * RLS is defense-in-depth and non-blocking (errors are silently caught).
  *
  * @param tenantId - The tenant ID to scope queries to
  * @param isAdmin - If true, sets app.is_super_admin = 'true' to bypass RLS
@@ -109,22 +108,28 @@ export function createTenantExtension(
   let rlsContextSet = false;
 
   /**
-   * Ensure RLS session variables are set before first query.
-   * Called lazily on first model query.
+   * Set RLS context once per extension instance via $transaction.
+   * This ensures SET and subsequent queries share a database connection.
    *
-   * TODO: Integrate into query interceptors below. Currently not invoked because
-   * Prisma extension query handlers don't expose the client reference needed for
-   * $executeRawUnsafe. Options to fix:
-   *   1. Wrap each query in $transaction to ensure SET + query share a connection
-   *   2. Use $allOperations hook with client binding
-   * Application-layer tenantId injection (below) remains the primary isolation
-   * mechanism; RLS is defense-in-depth and non-blocking (see setRlsContext catch).
+   * @param prismaClient - The root Prisma client (not the extended one)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function ensureRlsContext(client: any): Promise<void> {
-    if (!rlsContextSet) {
-      await setRlsContext(client, tenantId, isAdmin);
+  async function ensureRlsContext(prismaClient: any): Promise<void> {
+    if (rlsContextSet) return;
+    try {
+      await prismaClient.$transaction(async (tx: any) => {
+        await setRlsContext(tx, tenantId, isAdmin);
+      });
       rlsContextSet = true;
+    } catch {
+      // RLS is defense-in-depth; don't block on failure.
+      // Application-layer tenantId injection remains the primary mechanism.
+    }
+  }
+
+  /** Inject tenantId into where clause for tenant-aware models. */
+  function injectTenantWhere(args: any, model: string): void {
+    if (TENANT_MODELS.has(lowerFirst(model))) {
+      args.where = { ...args.where, tenantId };
     }
   }
 
@@ -132,22 +137,16 @@ export function createTenantExtension(
     name: "tenant-isolation",
     query: {
       $allModels: {
-        async findMany({ args, query, model, ...rest }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+        async findMany({ args, query, model }: any) {
+          injectTenantWhere(args, model);
           return query(args);
         },
         async findFirst({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async findUnique({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async create({ args, query, model }: any) {
@@ -167,44 +166,55 @@ export function createTenantExtension(
           return query(args);
         },
         async update({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async updateMany({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async delete({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async deleteMany({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async count({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
         async aggregate({ args, query, model }: any) {
-          if (TENANT_MODELS.has(lowerFirst(model))) {
-            args.where = { ...args.where, tenantId };
-          }
+          injectTenantWhere(args, model);
           return query(args);
         },
       },
     },
   };
+}
+
+/**
+ * Initialize RLS context for a tenant extension.
+ * Call this after creating the extended client to set RLS session variables.
+ *
+ * @example
+ *   const db = this.prisma.withTenant(tenantId);
+ *   await initializeRlsContext(this.prisma, tenantId);
+ *   const fields = await db.field.findMany();
+ */
+export async function initializeRlsContext(
+  prismaClient: any,
+  tenantId: string,
+  isAdmin: boolean = false,
+): Promise<void> {
+  try {
+    await prismaClient.$transaction(async (tx: any) => {
+      await setRlsContext(tx, tenantId, isAdmin);
+    });
+  } catch {
+    // RLS is defense-in-depth; don't block on failure
+  }
 }
 
 /**

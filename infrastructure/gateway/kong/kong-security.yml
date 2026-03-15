@@ -132,6 +132,7 @@ plugins:
       allow:
         - admin-users
         - service-accounts
+        - internal-services
         - starter-users
         - professional-users
         - enterprise-users

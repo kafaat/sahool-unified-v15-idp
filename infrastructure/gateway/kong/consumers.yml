@@ -622,6 +622,10 @@ acls:
   - consumer: service-integration-bot
     group: service-accounts
 
+  # Internal Services ACLs
+  - consumer: internal-service
+    group: internal-services
+
   # Trial ACLs
   - consumer: trial-user-001
     group: trial-users

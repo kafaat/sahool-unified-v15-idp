@@ -125,7 +125,6 @@ export function createTenantExtension(
    * Application-layer tenantId injection (below) remains the primary isolation
    * mechanism; RLS is defense-in-depth and non-blocking (see setRlsContext catch).
    */
-  // @ts-expect-error Intentionally unused pending integration (see TODO above)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function ensureRlsContext(client: any): Promise<void> {
     if (!rlsContextSet) {

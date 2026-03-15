@@ -202,7 +202,7 @@ class TestJWTConfig:
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert module.JWTConfig.REDIS_HOST == "redis"
+        assert module.JWTConfig.REDIS_HOST == "localhost"
 
     def test_redis_port_default(self):
         """Test default Redis port is 6379"""

@@ -64,12 +64,15 @@ STREAMS: list[StreamDef] = [
     StreamDef(
         name="SAHOOL_INTELLIGENCE",
         subjects=[
+            "sahool.analysis.>",
+            "sahool.action.>",
+            "sahool.advisory.>",
             "sahool.calibration.>",
             "sahool.irrigation.>",
             "sahool.health.>",
             "sahool.recommendation.>",
         ],
-        description="Intelligence layer: calibration, irrigation, health, recommendations",
+        description="Intelligence layer: analysis, actions, advisory, calibration, irrigation, health, recommendations",
         max_age_seconds=30 * 86400,
     ),
     StreamDef(

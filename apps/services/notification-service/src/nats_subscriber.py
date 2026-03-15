@@ -54,6 +54,7 @@ class SubscriberConfig(BaseModel):
         default_factory=lambda: [
             "sahool.analysis.*",  # Analysis events (NDVI, soil, yield)
             "sahool.action.*",  # Action events
+            "sahool.advisory.*",  # Advisory events (recommendation_issued, fertilizer_plan)
             "sahool.recommendation.>",  # All Decision-layer recommendations (Spec §7)
             "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1)
             "sahool.alert.*",  # Alert events (created, acknowledged, resolved)
@@ -323,6 +324,8 @@ class NATSSubscriber:
             if not event_type:
                 if "irrigation.recommendation" in subject:
                     event_type = "irrigation.recommendation.ready"
+                elif "advisory" in subject:
+                    event_type = "recommendation.created"
                 elif "recommendation" in subject:
                     event_type = "recommendation.created"
 

@@ -52,10 +52,14 @@ class SubscriberConfig(BaseModel):
     # notification-service decides push/tasks/ws updates.
     analysis_subjects: list[str] = Field(
         default_factory=lambda: [
-            "sahool.analysis.*",  # Analysis events
+            "sahool.analysis.*",  # Analysis events (NDVI, soil, yield)
             "sahool.action.*",  # Action events
-            "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1)
             "sahool.recommendation.>",  # All Decision-layer recommendations (Spec §7)
+            "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1)
+            "sahool.alert.*",  # Alert events (created, acknowledged, resolved)
+            "sahool.vision.>",  # Vision events (pest/disease/weed detection, critical alerts)
+            "sahool.task.*",  # Task events (created, assigned, completed)
+            "sahool.notification.*",  # Notification lifecycle (send, delivered, failed)
         ]
     )
 

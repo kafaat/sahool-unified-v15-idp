@@ -60,8 +60,13 @@ class ScheduledNotification:
 
     def __post_init__(self):
         """Validate required fields when status indicates active use."""
-        if self.status == "pending" and not self.notification_id:
-            raise ValueError("notification_id is required for pending notifications")
+        if self.status == "pending":
+            if not self.notification_id:
+                raise ValueError("notification_id is required for pending notifications")
+            if self.payload is None:
+                raise ValueError("payload is required for pending notifications")
+            if not self.recipient_token:
+                raise ValueError("recipient_token is required for pending notifications")
 
     def should_retry(self) -> bool:
         """هل يجب إعادة المحاولة؟"""

@@ -80,7 +80,7 @@ variable "public_access_cidrs" {
 
   validation {
     condition     = length(var.public_access_cidrs) == 0 || !contains(var.public_access_cidrs, "0.0.0.0/0")
-    error_message = "public_access_cidrs must not contain 0.0.0.0/0 in production. Use specific CIDR blocks for your office/VPN IP ranges."
+    error_message = "public_access_cidrs must not contain 0.0.0.0/0. Use specific CIDR blocks for your office/VPN IP ranges."
   }
 }
 

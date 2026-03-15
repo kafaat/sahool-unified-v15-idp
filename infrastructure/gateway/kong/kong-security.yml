@@ -130,10 +130,13 @@ plugins:
     config:
       hide_groups_header: true
       allow:
+        - admin-users
+        - service-accounts
         - starter-users
         - professional-users
         - enterprise-users
         - research-users
+        - trial-users
         - internal-users
 
 # ==============================================================================

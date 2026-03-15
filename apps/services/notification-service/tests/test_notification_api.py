@@ -421,15 +421,11 @@ class TestErrorHandling:
     """Test error handling and edge cases"""
 
     def test_database_error_handling(self, app_client):
-        """Test handling database errors gracefully"""
+        """Test handling database errors gracefully - service should return 500, not crash"""
         with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
-            try:
-                response = app_client.get("/farmer/farmer-123")
-                # Should handle error gracefully, not crash
-                assert response.status_code in [200, 500]
-            except Exception:
-                # If exception propagates through TestClient, that's acceptable
-                pass
+            response = app_client.get("/farmer/farmer-123")
+            # Service should handle DB errors gracefully and return a server error
+            assert response.status_code in [200, 500], f"Unexpected status {response.status_code}"
 
     def test_invalid_enum_values(self, app_client):
         """Test validation of enum values"""

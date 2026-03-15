@@ -149,18 +149,18 @@ class RateLimiter:
             # Check token bucket (burst protection) - inside lock to prevent race conditions
             bucket = self._get_bucket(key, config)
             if not bucket.consume():
-                return False, self._build_headers(key, config, tier, exceeded=True)
+                return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
 
             # Check sliding window (per-minute)
             self._clean_old_requests(key, 60)
             if len(self._request_counts.get(key, [])) >= config.requests_per_minute:
-                return False, self._build_headers(key, config, tier, exceeded=True)
+                return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
 
             # Check hourly limit
             hourly_key = f"{key}:hourly"
             self._clean_old_requests(hourly_key, 3600)
             if len(self._request_counts.get(hourly_key, [])) >= config.requests_per_hour:
-                return False, self._build_headers(key, config, tier, exceeded=True)
+                return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
 
             # Record this request
             now = time.time()

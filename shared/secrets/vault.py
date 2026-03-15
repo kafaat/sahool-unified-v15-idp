@@ -74,6 +74,7 @@ class VaultConfig:
 
     # Caching
     cache_ttl_seconds: int = 300  # 5 minutes
+    cache_max_staleness_seconds: int = 3600  # Max age for stale cache fallback on Vault outage
     enable_cache: bool = True
 
     # Token renewal
@@ -315,7 +316,7 @@ class VaultClient:
             # Graceful degradation: try cache fallback when Vault is unreachable
             cached = self._get_from_cache(cache_key)
             if cached is not None:
-                logger.warning(f"Vault unreachable, using cached secret for {path}")
+                logger.warning("Vault unreachable, using cached secret (path hash=%s)", hash(path) % 10000)
                 return cached
             raise ConnectionError("Not connected to Vault and no cached value available")
 
@@ -348,21 +349,21 @@ class VaultClient:
         except (ConnectionError, TimeoutError, OSError) as e:
             # On connectivity failure, attempt cache fallback (even if TTL expired)
             # but reject entries older than max_staleness to limit exposure from rotated secrets
-            max_staleness_seconds = self.config.cache_ttl_seconds * 12  # ~1 hour for 5min TTL
+            max_staleness_seconds = self.config.cache_max_staleness_seconds
             if cache_key in self._cache:
                 value, cached_at = self._cache[cache_key]
                 age = (datetime.now(UTC) - cached_at).total_seconds()
                 if age <= max_staleness_seconds:
-                    logger.warning(f"Vault unreachable, using cached secret (age={int(age)}s): {e}")
+                    logger.warning("Vault unreachable, using stale cached secret (age=%ds)", int(age))
                     return value
                 else:
-                    logger.error(f"Vault unreachable and cached secret too stale (age={int(age)}s > {max_staleness_seconds}s)")
+                    logger.error("Vault unreachable and cached secret too stale (age=%ds > %ds)", int(age), max_staleness_seconds)
                     del self._cache[cache_key]
-            logger.error(f"Failed to get secret: {e}")
+            logger.error("Failed to get secret from Vault: %s", type(e).__name__)
             raise
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
-            logger.error(f"Failed to get secret: {e}")
+            logger.error("Failed to get secret from Vault: %s", type(e).__name__)
             raise
 
     async def set_secret(self, path: str, data: dict[str, Any]) -> None:

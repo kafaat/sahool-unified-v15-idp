@@ -47,8 +47,8 @@ echo "Starting etcd authentication initialization..."
 echo "Waiting for etcd to be ready..."
 sleep 5
 
-# SECURITY FIX: If ETCDCTL_INSECURE_SKIP_TLS_VERIFY is not already set,
-# enable it for auto-TLS self-signed certs
+# NOTE: Skip TLS verification for auto-TLS self-signed certs in dev/init.
+# In production, use proper CA-signed certificates and set this to false.
 if [ -z "${ETCDCTL_INSECURE_SKIP_TLS_VERIFY}" ]; then
   export ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
   echo "NOTE: Enabled ETCDCTL_INSECURE_SKIP_TLS_VERIFY for auto-TLS self-signed certs"

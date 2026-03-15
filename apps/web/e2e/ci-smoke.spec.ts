@@ -25,9 +25,13 @@ test.describe("CI Smoke Tests (no backend required)", () => {
     // Verify English content is present
     await expect(page.getByText("Login").first()).toBeVisible();
 
-    // Verify form inputs exist
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    // Default login method is phone — verify phone input is visible
+    await expect(page.locator('input[type="tel"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
+
+    // Switch to email login and verify email input renders
+    await page.getByText("البريد الإلكتروني").click();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
 
     // Verify submit button
     await expect(page.locator('button[type="submit"]')).toBeVisible();
@@ -94,26 +98,35 @@ test.describe("CI Smoke Tests (no backend required)", () => {
       timeout: 15000,
     });
 
-    // Verify inputs are required (HTML5 validation)
-    const emailInput = page.locator('input[type="email"]');
+    // Default is phone — verify phone input is required
+    const phoneInput = page.locator('input[type="tel"]');
     const passwordInput = page.locator('input[type="password"]');
 
-    await expect(emailInput).toHaveAttribute("required", "");
+    await expect(phoneInput).toHaveAttribute("required", "");
     await expect(passwordInput).toHaveAttribute("required", "");
+
+    // Switch to email and verify email input is also required
+    await page.getByText("البريد الإلكتروني").click();
+    const emailInput = page.locator('input[type="email"]');
+    await expect(emailInput).toHaveAttribute("required", "");
   });
 
   test("page has correct accessibility structure", async ({ page }) => {
     await page.goto("/login", { waitUntil: "networkidle" });
 
-    // Wait for form to render
-    const emailInput = page.locator('input[type="email"]');
-    await expect(emailInput).toBeVisible({ timeout: 15000 });
-
-    // Verify autocomplete attributes for security
-    await expect(emailInput).toHaveAttribute("autocomplete", "email");
+    // Default is phone — verify phone autocomplete
+    const phoneInput = page.locator('input[type="tel"]');
+    await expect(phoneInput).toBeVisible({ timeout: 15000 });
+    await expect(phoneInput).toHaveAttribute("autocomplete", "tel");
     await expect(page.locator('input[type="password"]')).toHaveAttribute(
       "autocomplete",
       "current-password",
     );
+
+    // Switch to email and verify email autocomplete
+    await page.getByText("البريد الإلكتروني").click();
+    const emailInput = page.locator('input[type="email"]');
+    await expect(emailInput).toBeVisible();
+    await expect(emailInput).toHaveAttribute("autocomplete", "email");
   });
 });

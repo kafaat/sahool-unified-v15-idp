@@ -29,7 +29,7 @@ sys.path.insert(0, "../../../../shared")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-# Import CORS config from shared module
+# Import CORS config from shared module (has its own internal fallback)
 from shared.cors_config import setup_cors_middleware
 from services import EntityService, KnowledgeGraphService, RelationshipService
 

@@ -117,7 +117,6 @@ class TestNatsSecurityConfig:
     @staticmethod
     def _get_user_block(content, username_var):
         """Extract the user block for a specific user variable from NATS config."""
-        import re
         # Match from the user declaration to the next closing brace at the same level
         escaped = re.escape(username_var)
         pattern = rf'(\{{\s*\n\s*user:\s*{escaped}.*?\}})'

@@ -149,15 +149,15 @@ export const SERVICE_REGISTRY: Record<ServiceType, ServiceConfig> = {
     },
   },
   community: {
-    name: "Community Chat",
-    nameAr: "الدردشة المجتمعية",
+    name: "Chat Service",
+    nameAr: "خدمة المحادثات",
     legacy: {
       port: 8099,
       endpoint: "/ws",
       status: "deprecated",
     },
     modern: {
-      port: 8097,
+      port: 8115,
       endpoint: "/ws",
       status: "active",
     },
@@ -169,11 +169,6 @@ export const SERVICE_REGISTRY: Record<ServiceType, ServiceConfig> = {
   notifications: {
     name: "Notification Service",
     nameAr: "خدمة الإشعارات",
-    legacy: {
-      port: 8089,
-      endpoint: "/notify",
-      status: "deprecated",
-    },
     modern: {
       port: 8110,
       endpoint: "/v1/notify",

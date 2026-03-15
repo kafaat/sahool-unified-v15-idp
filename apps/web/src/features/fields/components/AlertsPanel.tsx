@@ -374,7 +374,7 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
       // Fetch fresh alerts here
       // This would typically call an API endpoint to get updated alerts
       // For now, we'll just use the initial alerts
-      console.log("Polling for alerts...");
+      // Polling interval - fetch fresh alerts from API
     }, pollingInterval);
 
     return () => clearInterval(interval);

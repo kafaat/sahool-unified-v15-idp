@@ -52,7 +52,9 @@ async def lifespan(app: FastAPI):
     database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
     if database_url and os.getenv("ENVIRONMENT", "development") != "development":
         if "sslmode" not in database_url:
-            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
+            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
+            ssl_mode = "disable" if ":6432" in database_url else "require"
+            database_url += f"?sslmode={ssl_mode}" if "?" not in database_url else f"&sslmode={ssl_mode}"
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
     nats_url = os.getenv("NATS_URL")
 

@@ -271,7 +271,7 @@ def example_7_middleware_configuration():
             "/openapi.json",
             "/metrics",
         ],
-        redis_url="redis://localhost:6379/0",  # Optional
+        redis_url="redis://redis:6379/0",  # Optional
     )
 
     @app.get("/")

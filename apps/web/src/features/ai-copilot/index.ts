@@ -8,3 +8,16 @@ export type {
   RagSearchResult,
   CopilotFilters,
 } from "./types";
+
+// Hooks - خطافات
+export { copilotKeys } from "./hooks/useCopilot";
+export {
+  useChatHistory,
+  useCopilotTools,
+  useAdvisorHistory,
+  useSendMessage,
+  useExecuteTool,
+  useUploadDocument,
+  useSearchKnowledge,
+  useQueryAdvisor,
+} from "./hooks/useCopilot";

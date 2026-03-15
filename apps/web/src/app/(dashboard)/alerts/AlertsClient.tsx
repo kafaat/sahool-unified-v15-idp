@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Bell,
   AlertTriangle,
@@ -8,172 +8,203 @@ import {
   XCircle,
   Clock,
   Search,
+  Wifi,
+  WifiOff,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+import {
+  useAlerts,
+  useAlertStats,
+  useAcknowledgeAlert,
+  useResolveAlert,
+  useDismissAlert,
+  useAlertStream,
+} from "@/features/alerts";
+import type {
+  Alert,
+  AlertSeverity,
+  AlertStatus,
+  AlertFilters,
+} from "@/features/alerts";
 
-type AlertType = "warning" | "critical" | "info" | "success";
-type AlertStatus = "active" | "acknowledged" | "resolved";
-
-interface Alert {
-  id: string;
-  title: string;
-  titleAr: string;
-  message: string;
-  messageAr: string;
-  type: AlertType;
-  status: AlertStatus;
-  fieldId?: string;
-  fieldName?: string;
-  createdAt: string;
-  acknowledgedAt?: string;
-  resolvedAt?: string;
-}
-
-// Mock data
-const mockAlerts: Alert[] = [
-  {
-    id: "1",
-    title: "Low Soil Moisture",
-    titleAr: "انخفاض رطوبة التربة",
-    message: "Field A3 soil moisture dropped below 25%",
-    messageAr: "انخفضت رطوبة التربة في الحقل A3 إلى أقل من 25%",
-    type: "warning",
-    status: "active",
-    fieldId: "field-a3",
-    fieldName: "الحقل A3",
-    createdAt: "2025-01-25T08:30:00Z",
-  },
-  {
-    id: "2",
-    title: "Pest Detection",
-    titleAr: "اكتشاف آفات",
-    message: "Possible pest infestation detected in wheat field",
-    messageAr: "تم اكتشاف إصابة محتملة بالآفات في حقل القمح",
-    type: "critical",
-    status: "active",
-    fieldId: "field-b1",
-    fieldName: "حقل القمح",
-    createdAt: "2025-01-25T07:15:00Z",
-  },
-  {
-    id: "3",
-    title: "Irrigation Complete",
-    titleAr: "اكتمال الري",
-    message: "Scheduled irrigation for Field C2 completed successfully",
-    messageAr: "اكتمل الري المجدول للحقل C2 بنجاح",
-    type: "success",
-    status: "resolved",
-    fieldId: "field-c2",
-    fieldName: "الحقل C2",
-    createdAt: "2025-01-25T06:00:00Z",
-    resolvedAt: "2025-01-25T06:45:00Z",
-  },
-  {
-    id: "4",
-    title: "Weather Warning",
-    titleAr: "تحذير طقس",
-    message: "High temperatures expected over the next 3 days",
-    messageAr: "متوقع ارتفاع درجات الحرارة خلال الأيام الثلاثة القادمة",
-    type: "warning",
-    status: "acknowledged",
-    createdAt: "2025-01-24T18:00:00Z",
-    acknowledgedAt: "2025-01-24T19:30:00Z",
-  },
-  {
-    id: "5",
-    title: "Sensor Offline",
-    titleAr: "الحساس غير متصل",
-    message: "IoT sensor in Field D1 is not responding",
-    messageAr: "حساس إنترنت الأشياء في الحقل D1 لا يستجيب",
-    type: "critical",
-    status: "active",
-    fieldId: "field-d1",
-    fieldName: "الحقل D1",
-    createdAt: "2025-01-25T09:00:00Z",
-  },
-];
-
-const typeFilters: Array<{ value: AlertType | "all"; label: string; labelAr: string }> = [
-  { value: "all", label: "All Types", labelAr: "جميع الأنواع" },
+const severityFilters: Array<{
+  value: AlertSeverity | "all";
+  label: string;
+  labelAr: string;
+}> = [
+  { value: "all", label: "All Severity", labelAr: "جميع المستويات" },
+  { value: "emergency", label: "Emergency", labelAr: "طوارئ" },
   { value: "critical", label: "Critical", labelAr: "حرج" },
   { value: "warning", label: "Warning", labelAr: "تحذير" },
   { value: "info", label: "Info", labelAr: "معلومات" },
-  { value: "success", label: "Success", labelAr: "نجاح" },
 ];
 
-const statusFilters: Array<{ value: AlertStatus | "all"; label: string; labelAr: string }> = [
+const statusFilters: Array<{
+  value: AlertStatus | "all";
+  label: string;
+  labelAr: string;
+}> = [
   { value: "all", label: "All Status", labelAr: "جميع الحالات" },
   { value: "active", label: "Active", labelAr: "نشط" },
   { value: "acknowledged", label: "Acknowledged", labelAr: "تم الإقرار" },
   { value: "resolved", label: "Resolved", labelAr: "تم الحل" },
+  { value: "dismissed", label: "Dismissed", labelAr: "تم التجاهل" },
 ];
 
 export default function AlertsClient() {
+  const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<AlertType | "all">("all");
-  const [statusFilter, setStatusFilter] = useState<AlertStatus | "all">("all");
+  const [severityFilter, setSeverityFilter] = useState<
+    AlertSeverity | "all"
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<AlertStatus | "all">(
+    "all",
+  );
 
-  const filteredAlerts = useMemo(() => {
-    return mockAlerts.filter((alert) => {
-      const matchesSearch =
-        !searchTerm ||
-        alert.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        alert.titleAr.includes(searchTerm) ||
-        alert.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        alert.messageAr.includes(searchTerm);
+  // Build API filters
+  const apiFilters: AlertFilters = useMemo(() => {
+    const filters: AlertFilters = {};
+    if (severityFilter !== "all") filters.severity = severityFilter;
+    if (statusFilter !== "all") filters.status = statusFilter;
+    if (searchTerm.trim()) filters.search = searchTerm.trim();
+    return filters;
+  }, [severityFilter, statusFilter, searchTerm]);
 
-      const matchesType = typeFilter === "all" || alert.type === typeFilter;
-      const matchesStatus = statusFilter === "all" || alert.status === statusFilter;
+  // Query hooks
+  const {
+    data: alerts = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useAlerts(apiFilters);
+  const { data: stats } = useAlertStats();
 
-      return matchesSearch && matchesType && matchesStatus;
-    });
-  }, [searchTerm, typeFilter, statusFilter]);
+  // Mutation hooks
+  const acknowledgeAlert = useAcknowledgeAlert();
+  const resolveAlert = useResolveAlert();
+  const dismissAlert = useDismissAlert();
 
-  const getTypeIcon = (type: AlertType) => {
-    switch (type) {
+  // Real-time stream
+  const handleStreamAlert = useCallback(
+    (alert: Alert) => {
+      showToast({
+        type: alert.severity === "critical" || alert.severity === "emergency"
+          ? "error"
+          : "info",
+        messageAr: `تنبيه جديد: ${alert.titleAr}`,
+        message: `New alert: ${alert.title}`,
+      });
+    },
+    [showToast],
+  );
+
+  const { isConnected } = useAlertStream(handleStreamAlert);
+
+  // Action handlers
+  const handleAcknowledge = async (id: string) => {
+    try {
+      await acknowledgeAlert.mutateAsync(id);
+      showToast({
+        type: "success",
+        messageAr: "تم الإقرار بالتنبيه",
+        message: "Alert acknowledged",
+      });
+    } catch {
+      showToast({
+        type: "error",
+        messageAr: "فشل في الإقرار بالتنبيه",
+        message: "Failed to acknowledge alert",
+      });
+    }
+  };
+
+  const handleResolve = async (id: string) => {
+    try {
+      await resolveAlert.mutateAsync({ id });
+      showToast({
+        type: "success",
+        messageAr: "تم حل التنبيه",
+        message: "Alert resolved",
+      });
+    } catch {
+      showToast({
+        type: "error",
+        messageAr: "فشل في حل التنبيه",
+        message: "Failed to resolve alert",
+      });
+    }
+  };
+
+  const handleDismiss = async (id: string) => {
+    try {
+      await dismissAlert.mutateAsync({ id });
+      showToast({
+        type: "success",
+        messageAr: "تم تجاهل التنبيه",
+        message: "Alert dismissed",
+      });
+    } catch {
+      showToast({
+        type: "error",
+        messageAr: "فشل في تجاهل التنبيه",
+        message: "Failed to dismiss alert",
+      });
+    }
+  };
+
+  const getSeverityIcon = (severity: AlertSeverity) => {
+    switch (severity) {
+      case "emergency":
       case "critical":
         return <XCircle className="w-5 h-5 text-red-500" />;
       case "warning":
         return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "success":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
       default:
         return <Bell className="w-5 h-5 text-blue-500" />;
     }
   };
 
-  const getTypeBadge = (type: AlertType) => {
-    const styles = {
+  const getSeverityBadge = (severity: AlertSeverity) => {
+    const styles: Record<AlertSeverity, string> = {
+      emergency: "bg-red-200 text-red-900",
       critical: "bg-red-100 text-red-800",
       warning: "bg-yellow-100 text-yellow-800",
       info: "bg-blue-100 text-blue-800",
-      success: "bg-green-100 text-green-800",
     };
-    const labels = {
+    const labels: Record<AlertSeverity, string> = {
+      emergency: "طوارئ",
       critical: "حرج",
       warning: "تحذير",
       info: "معلومات",
-      success: "نجاح",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[type]}`}>
-        {labels[type]}
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${styles[severity]}`}
+      >
+        {labels[severity]}
       </span>
     );
   };
 
   const getStatusBadge = (status: AlertStatus) => {
-    const styles = {
+    const styles: Record<AlertStatus, string> = {
       active: "bg-red-100 text-red-800",
       acknowledged: "bg-yellow-100 text-yellow-800",
       resolved: "bg-green-100 text-green-800",
+      dismissed: "bg-gray-100 text-gray-800",
     };
-    const labels = {
+    const labels: Record<AlertStatus, string> = {
       active: "نشط",
       acknowledged: "تم الإقرار",
       resolved: "تم الحل",
+      dismissed: "تم التجاهل",
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}
+      >
         {labels[status]}
       </span>
     );
@@ -190,8 +221,17 @@ export default function AlertsClient() {
     });
   };
 
-  const activeCount = mockAlerts.filter((a) => a.status === "active").length;
-  const criticalCount = mockAlerts.filter((a) => a.type === "critical" && a.status === "active").length;
+  const activeCount = stats?.byStatus?.active ?? 0;
+  const criticalCount =
+    (stats?.bySeverity?.critical ?? 0) + (stats?.bySeverity?.emergency ?? 0);
+  const warningCount = stats?.bySeverity?.warning ?? 0;
+  const resolvedCount = stats?.byStatus?.resolved ?? 0;
+  const totalCount = stats?.total ?? alerts.length;
+
+  const isMutating =
+    acknowledgeAlert.isPending ||
+    resolveAlert.isPending ||
+    dismissAlert.isPending;
 
   return (
     <div className="space-y-6">
@@ -202,9 +242,33 @@ export default function AlertsClient() {
           <p className="text-gray-500 mt-1">Alerts & Notifications</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-            {activeCount} نشط
+          {/* Stream connection status */}
+          <span
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+              isConnected
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-500"
+            }`}
+          >
+            {isConnected ? (
+              <Wifi className="w-3 h-3" />
+            ) : (
+              <WifiOff className="w-3 h-3" />
+            )}
+            {isConnected ? "مباشر" : "غير متصل"}
           </span>
+          <button
+            onClick={() => refetch()}
+            className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+            title="تحديث"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+          </button>
+          {activeCount > 0 && (
+            <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+              {activeCount} نشط
+            </span>
+          )}
           {criticalCount > 0 && (
             <span className="px-3 py-1 bg-red-600 text-white rounded-full text-sm font-medium">
               {criticalCount} حرج
@@ -222,7 +286,9 @@ export default function AlertsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي التنبيهات</div>
-              <div className="text-xl font-bold text-gray-900">{mockAlerts.length}</div>
+              <div className="text-xl font-bold text-gray-900">
+                {totalCount}
+              </div>
             </div>
           </div>
         </div>
@@ -233,7 +299,9 @@ export default function AlertsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">حرجة</div>
-              <div className="text-xl font-bold text-red-600">{criticalCount}</div>
+              <div className="text-xl font-bold text-red-600">
+                {criticalCount}
+              </div>
             </div>
           </div>
         </div>
@@ -245,7 +313,7 @@ export default function AlertsClient() {
             <div>
               <div className="text-sm text-gray-500">تحذيرات</div>
               <div className="text-xl font-bold text-yellow-600">
-                {mockAlerts.filter((a) => a.type === "warning").length}
+                {warningCount}
               </div>
             </div>
           </div>
@@ -258,7 +326,7 @@ export default function AlertsClient() {
             <div>
               <div className="text-sm text-gray-500">تم الحل</div>
               <div className="text-xl font-bold text-green-600">
-                {mockAlerts.filter((a) => a.status === "resolved").length}
+                {resolvedCount}
               </div>
             </div>
           </div>
@@ -278,11 +346,13 @@ export default function AlertsClient() {
           />
         </div>
         <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as AlertType | "all")}
+          value={severityFilter}
+          onChange={(e) =>
+            setSeverityFilter(e.target.value as AlertSeverity | "all")
+          }
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
-          {typeFilters.map((filter) => (
+          {severityFilters.map((filter) => (
             <option key={filter.value} value={filter.value}>
               {filter.labelAr}
             </option>
@@ -290,7 +360,9 @@ export default function AlertsClient() {
         </select>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as AlertStatus | "all")}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as AlertStatus | "all")
+          }
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {statusFilters.map((filter) => (
@@ -301,58 +373,114 @@ export default function AlertsClient() {
         </select>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-sahool-green-600 animate-spin" />
+          <span className="mr-3 text-gray-500">جاري تحميل التنبيهات...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {isError && !isLoading && (
+        <div className="bg-red-50 rounded-lg border border-red-200 p-6 text-center">
+          <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل التنبيهات</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load alerts</p>
+          <button
+            onClick={() => refetch()}
+            className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      )}
+
       {/* Alerts List */}
-      <div className="space-y-4">
-        {filteredAlerts.length === 0 ? (
-          <div className="bg-white rounded-lg border p-8 text-center text-gray-500">
-            لا توجد تنبيهات مطابقة للبحث
-          </div>
-        ) : (
-          filteredAlerts.map((alert) => (
-            <div
-              key={alert.id}
-              className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
-                alert.status === "active" && alert.type === "critical"
-                  ? "border-red-300 bg-red-50"
-                  : ""
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 mt-1">{getTypeIcon(alert.type)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h3 className="font-semibold text-gray-900">{alert.titleAr}</h3>
-                    {getTypeBadge(alert.type)}
-                    {getStatusBadge(alert.status)}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">{alert.messageAr}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {formatDate(alert.createdAt)}
-                    </span>
-                    {alert.fieldName && (
-                      <span className="text-sahool-green-600 font-medium">
-                        {alert.fieldName}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {alert.status === "active" && (
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1 text-sm bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700">
-                      إقرار
-                    </button>
-                    <button className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
-                      حل
-                    </button>
-                  </div>
-                )}
-              </div>
+      {!isLoading && !isError && (
+        <div className="space-y-4">
+          {alerts.length === 0 ? (
+            <div className="bg-white rounded-lg border p-8 text-center text-gray-500">
+              <Bell className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+              <p>لا توجد تنبيهات مطابقة للبحث</p>
+              <p className="text-xs mt-1">No matching alerts found</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            alerts.map((alert) => (
+              <div
+                key={alert.id}
+                className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
+                  alert.status === "active" &&
+                  (alert.severity === "critical" ||
+                    alert.severity === "emergency")
+                    ? "border-red-300 bg-red-50"
+                    : ""
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    {getSeverityIcon(alert.severity)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h3 className="font-semibold text-gray-900">
+                        {alert.titleAr}
+                      </h3>
+                      {getSeverityBadge(alert.severity)}
+                      {getStatusBadge(alert.status)}
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {alert.messageAr}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatDate(alert.createdAt)}
+                      </span>
+                      {alert.fieldNameAr && (
+                        <span className="text-sahool-green-600 font-medium">
+                          {alert.fieldNameAr}
+                        </span>
+                      )}
+                      {alert.fieldName && !alert.fieldNameAr && (
+                        <span className="text-sahool-green-600 font-medium">
+                          {alert.fieldName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {alert.status === "active" && (
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => handleAcknowledge(alert.id)}
+                        disabled={isMutating}
+                        className="px-3 py-1 text-sm bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 disabled:opacity-50"
+                      >
+                        إقرار
+                      </button>
+                      <button
+                        onClick={() => handleResolve(alert.id)}
+                        disabled={isMutating}
+                        className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        حل
+                      </button>
+                      <button
+                        onClick={() => handleDismiss(alert.id)}
+                        disabled={isMutating}
+                        className="px-3 py-1 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50"
+                        title="تجاهل"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

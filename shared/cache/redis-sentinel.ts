@@ -705,9 +705,9 @@ export function getRedisSentinelClient(
   if (!redisClientInstance) {
     const defaultConfig: RedisSentinelConfig = {
       sentinels: [
-        { host: process.env.REDIS_SENTINEL_HOST_1 || "localhost", port: 26379 },
-        { host: process.env.REDIS_SENTINEL_HOST_2 || "localhost", port: 26380 },
-        { host: process.env.REDIS_SENTINEL_HOST_3 || "localhost", port: 26381 },
+        { host: process.env.REDIS_SENTINEL_HOST_1 || "redis", port: 26379 },
+        { host: process.env.REDIS_SENTINEL_HOST_2 || "redis", port: 26380 },
+        { host: process.env.REDIS_SENTINEL_HOST_3 || "redis", port: 26381 },
       ],
       masterName: process.env.REDIS_MASTER_NAME || "sahool-master",
       password: process.env.REDIS_PASSWORD,

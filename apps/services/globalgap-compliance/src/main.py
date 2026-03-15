@@ -121,13 +121,15 @@ async def lifespan(app: FastAPI):
 
         publisher = NatsPublisher()
         connected = await publisher.connect(nats_url)
+        from shared.logging_config import sanitize_url
+
         if connected:
             set_publisher(publisher)
             app.state.nats_publisher = publisher
-            logger.info("nats_connected", nats_url=nats_url)
+            logger.info("nats_connected", nats_url=sanitize_url(nats_url))
         else:
             app.state.nats_publisher = None
-            logger.warning("nats_connection_failed", nats_url=nats_url)
+            logger.warning("nats_connection_failed", nats_url=sanitize_url(nats_url))
     except Exception as e:
         logger.warning("nats_connection_error", error=str(e))
         app.state.nats_publisher = None

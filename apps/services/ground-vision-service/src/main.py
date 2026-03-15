@@ -83,7 +83,9 @@ async def lifespan(app: FastAPI):
     # Enforce sslmode for non-development database connections
     if database_url and os.getenv("ENVIRONMENT", "development") != "development":
         if "sslmode" not in database_url:
-            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
+            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
+            ssl_mode = "disable" if ":6432" in database_url else "require"
+            database_url += f"?sslmode={ssl_mode}" if "?" not in database_url else f"&sslmode={ssl_mode}"
     if database_url:
         try:
             import asyncpg

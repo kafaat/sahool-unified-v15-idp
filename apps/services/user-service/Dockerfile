@@ -43,10 +43,10 @@ RUN --mount=type=cache,target=/root/.npm \
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
 ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-RUN npx prisma generate --schema=./prisma/schema.prisma && \
+RUN npx prisma@5 generate --schema=./prisma/schema.prisma && \
     test -f prisma/generated/client/index.js || \
     (echo "Retrying prisma generate..." && sleep 5 && \
-     npx prisma generate --schema=./prisma/schema.prisma && \
+     npx prisma@5 generate --schema=./prisma/schema.prisma && \
      test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 

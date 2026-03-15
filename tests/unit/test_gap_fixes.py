@@ -90,7 +90,7 @@ class TestCalibrationEventSubjects:
     def test_wildcards(self):
         m = _import_subjects()
         assert m.SAHOOL_CALIBRATION_ALL == "sahool.calibration.>"
-        assert m.SAHOOL_CALIBRATION_RUN_ALL == "sahool.calibration.run.*"
+        assert m.SAHOOL_CALIBRATION_RUN_ALL == "sahool.calibration.run.>"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

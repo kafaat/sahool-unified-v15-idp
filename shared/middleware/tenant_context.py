@@ -216,3 +216,16 @@ def tenant_filter_dict() -> dict:
         fields = await Field.filter(**tenant_filter_dict())
     """
     return {"tenant_id": get_current_tenant_id()}
+
+
+def is_current_user_admin() -> bool:
+    """
+    Check if the current user has admin or super_admin role.
+
+    Returns:
+        bool: True if user is admin/super_admin
+    """
+    ctx = get_optional_tenant()
+    if ctx is None or ctx.roles is None:
+        return False
+    return "admin" in ctx.roles or "super_admin" in ctx.roles

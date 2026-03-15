@@ -44,7 +44,7 @@ except ImportError:
     SAHOOL_FIELD_CREATED = "sahool.field.created"
     SAHOOL_FIELD_UPDATED = "sahool.field.updated"
     SAHOOL_FIELD_DELETED = "sahool.field.deleted"
-    SAHOOL_FIELD_ALL = "sahool.field.*"
+    SAHOOL_FIELD_ALL = "sahool.field.>"
 
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
@@ -52,7 +52,7 @@ except ImportError:
     def get_tenant_wildcard(tenant_id: str, domain: str = "*") -> str:
         if domain == "*":
             return f"sahool.tenant.{tenant_id}.>"
-        return f"sahool.tenant.{tenant_id}.{domain}.*"
+        return f"sahool.tenant.{tenant_id}.{domain}.>"
 
     def is_valid_subject(subject: str) -> bool:
         return subject.startswith("sahool.") and len(subject.split(".")) >= 3
@@ -298,7 +298,7 @@ async def test_tenant_scoped_field_created_event(mock_nats, sample_tenant_id):
 async def test_tenant_wildcard_subscription(mock_nats, sample_tenant_id):
     """Test subscribing to all field events for a specific tenant using wildcards."""
     wildcard = get_tenant_wildcard(sample_tenant_id, "field")
-    assert wildcard == f"sahool.tenant.{sample_tenant_id}.field.*"
+    assert wildcard == f"sahool.tenant.{sample_tenant_id}.field.>"
 
     received_events: list[dict] = []
 
@@ -367,7 +367,7 @@ def test_field_subject_constants_format():
     assert SAHOOL_FIELD_CREATED == "sahool.field.created"
     assert SAHOOL_FIELD_UPDATED == "sahool.field.updated"
     assert SAHOOL_FIELD_DELETED == "sahool.field.deleted"
-    assert SAHOOL_FIELD_ALL == "sahool.field.*"
+    assert SAHOOL_FIELD_ALL == "sahool.field.>"
 
     assert is_valid_subject(SAHOOL_FIELD_CREATED)
     assert is_valid_subject(SAHOOL_FIELD_UPDATED)

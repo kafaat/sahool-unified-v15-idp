@@ -115,10 +115,11 @@ class PasswordHasher:
         if ARGON2_AVAILABLE and self.argon2_hasher:
             return self.argon2_hasher.hash(password)
 
-        # Fallback 1: bcrypt
+        # Fallback 1: bcrypt (truncate to 72 bytes per bcrypt spec)
         if BCRYPT_AVAILABLE:
             salt = bcrypt.gensalt(rounds=12)
-            hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+            pwd_bytes = password.encode("utf-8")[:72]
+            hashed = bcrypt.hashpw(pwd_bytes, salt)
             return hashed.decode("utf-8")
 
         # Fallback 2: PBKDF2-SHA256
@@ -202,7 +203,7 @@ class PasswordHasher:
             return False, False
 
         try:
-            is_valid = bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+            is_valid = bcrypt.checkpw(password.encode("utf-8")[:72], hashed_password.encode("utf-8"))
             # Always migrate bcrypt to Argon2id
             return is_valid, is_valid
         except Exception as e:

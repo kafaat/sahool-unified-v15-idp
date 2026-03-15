@@ -437,7 +437,10 @@ jobs:
           echo "🔍 Running Trivy vulnerability scanner..."
           mkdir -p trivy-results
 
-          # Generate SARIF report (exit-code 0 ensures file is always written)
+          # Step 1/2: Generate SARIF report for GitHub Security tab.
+          # Uses --exit-code 0 so Trivy always exits successfully and the
+          # SARIF file is guaranteed to be written regardless of findings.
+          # The actual gate check (fail on findings) is a separate step below.
           trivy image \
             --format sarif \
             --output trivy-${{ matrix.service }}.sarif \
@@ -454,6 +457,9 @@ jobs:
           fi
 
       - name: Gate check - fail on CRITICAL/HIGH vulnerabilities
+        # Step 2/2: Separate gate check that fails the pipeline on findings.
+        # This is intentionally separate from SARIF generation above so that
+        # the SARIF report is always uploaded even when vulnerabilities exist.
         if: steps.install_trivy.outputs.installed == 'true'
         run: |
           trivy image \

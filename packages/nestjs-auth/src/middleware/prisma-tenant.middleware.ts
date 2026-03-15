@@ -81,14 +81,9 @@ async function setRlsContext(
   isAdmin: boolean,
 ): Promise<void> {
   try {
-    await client.$executeRawUnsafe(
-      `SELECT set_config('app.current_tenant', $1, true)`,
-      tenantId,
-    );
-    await client.$executeRawUnsafe(
-      `SELECT set_config('app.is_super_admin', $1, true)`,
-      isAdmin ? "true" : "false",
-    );
+    const adminFlag = isAdmin ? "true" : "false";
+    await client.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
+    await client.$executeRaw`SELECT set_config('app.is_super_admin', ${adminFlag}, true)`;
   } catch {
     // RLS session variables are defense-in-depth; don't block on failure
     // Application-layer filtering (below) is the primary mechanism

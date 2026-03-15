@@ -7,8 +7,8 @@ plugins {
 
 android {
     namespace = "io.sahool.atmosphere"
-    compileSdk = 35  // Android 15 (stable) - avoid Android 16 beta APIs
-    ndkVersion = "27.0.12077973"
+    compileSdk = 36  // Android 16 - aligned with CI and field app
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         // Required for libraries using Java 8+ APIs
@@ -26,7 +26,7 @@ android {
         // Sensors and other plugins require API 23+
         // speech_to_text requires API 24+ for full compatibility
         minSdk = 24
-        targetSdk = 35  // Target Android 15 for latest features
+        targetSdk = 36  // Target Android 16
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 

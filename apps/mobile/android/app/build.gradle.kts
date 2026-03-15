@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 36  // Android 16 - required by flutter_tts and mobile_scanner plugins
-    ndkVersion = "27.0.12077973"  // Stable NDK version compatible with AGP 8.9.1 and CI
+    ndkVersion = "28.2.13676358"  // Required by sqlcipher_flutter_libs for native compilation
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true

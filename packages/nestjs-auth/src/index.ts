@@ -29,7 +29,11 @@ export {
 export { TenantGuard, SkipTenantCheck } from "./guards/tenant.guard";
 
 // Export tenant middleware
-export { createTenantExtension } from "./middleware/prisma-tenant.middleware";
+export {
+  createTenantExtension,
+  initializeRlsContext,
+  TENANT_MODELS,
+} from "./middleware/prisma-tenant.middleware";
 
 // Export strategy
 export { JwtStrategy } from "./strategies/jwt.strategy";

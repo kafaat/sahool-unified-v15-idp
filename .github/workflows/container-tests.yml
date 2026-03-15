@@ -660,7 +660,10 @@ jobs:
           echo "MINIO_ROOT_PASSWORD=ci_minio_password_secure_123" >> .env
           echo "MQTT_PASSWORD=ci_mqtt_password_secure_123" >> .env
           echo "GRAFANA_ADMIN_PASSWORD=ci_grafana_password" >> .env
-          echo "QDRANT_API_KEY=" >> .env
+          echo "QDRANT_API_KEY=ci_qdrant_api_key_for_testing" >> .env
+          echo "VAULT_DEV_TOKEN=ci_vault_dev_token_for_testing" >> .env
+          echo "MONGO_PASSWORD=ci_mongo_password_secure_123" >> .env
+          echo "ROCKETCHAT_ADMIN_PASSWORD=ci_rocketchat_password_secure_123" >> .env
           echo "✅ Created .env file for CI"
 
       - name: Check if compose file exists

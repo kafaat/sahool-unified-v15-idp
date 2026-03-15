@@ -31,15 +31,12 @@ services:
   # client and server connections. All 728+ connections will require TLS.
   # ─────────────────────────────────────────────────────────────────────────────
   pgbouncer:
-    environment:
-      # Override pgbouncer.ini TLS settings for production enforcement
-      # These env vars are used by the entrypoint to patch pgbouncer.ini at runtime
-      SERVER_TLS_SSLMODE: require
-      CLIENT_TLS_SSLMODE: require
-      CLIENT_TLS_CERT_FILE: /etc/pgbouncer/certs/server.crt
-      CLIENT_TLS_KEY_FILE: /etc/pgbouncer/certs/server.key
-      CLIENT_TLS_CA_FILE: /etc/pgbouncer/certs/ca.crt
+    # Override pgbouncer.ini with TLS-enforced version.
+    # The base pgbouncer.ini uses allow/prefer; this overlay mounts a
+    # production config that sets server_tls_sslmode=require and
+    # client_tls_sslmode=require with cert/key paths.
     volumes:
+      - ./infrastructure/core/pgbouncer/pgbouncer-tls.ini:/etc/pgbouncer/pgbouncer.ini:ro
       - ./config/certs/pgbouncer:/etc/pgbouncer/certs:ro
 
   # ─────────────────────────────────────────────────────────────────────────────

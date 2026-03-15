@@ -15,9 +15,12 @@ groups:
     interval: 30s
     rules:
       # Detect services that keep restarting (crash loop)
+      # Uses changes() instead of increase() because process_start_time_seconds
+      # is a timestamp gauge — increase() treats clock jumps as large values,
+      # causing false positives.
       - alert: ServiceCrashLooping
         expr: |
-          increase(
+          changes(
             process_start_time_seconds[15m]
           ) > 2
         for: 5m
@@ -147,11 +150,15 @@ groups:
     interval: 30s
     rules:
       # Service is up but health endpoint returning errors
+      # Uses http_requests_total on /healthz instead of probe_success,
+      # since blackbox exporter is not configured in this stack.
       - alert: ServiceHealthcheckFailing
         expr: |
-          probe_success == 0
-          and
-          up == 1
+          (
+            rate(http_requests_total{path="/healthz", status=~"5.."}[5m]) > 0
+            and
+            up == 1
+          )
         for: 3m
         labels:
           severity: warning
@@ -165,21 +172,24 @@ groups:
           action: "Check readiness endpoint (/readyz) and dependency connectivity"
           action_ar: "تحقق من نقطة الجاهزية (/readyz) واتصال التبعيات"
 
-      # No scrape target found for expected service
+      # Detect truly missing scrape targets using absent().
+      # NOTE: absent() requires a specific job label — one rule per critical service.
+      # ServiceDownExtended (above) already covers known-down targets (up==0).
+      # This catches targets that disappear entirely from Prometheus discovery.
       - alert: ServiceTargetMissing
         expr: |
-          up{tier=~"application|core|ai-ml|smart-agriculture|iot"} == 0
+          absent(up{job="sahool-services"})
         for: 5m
         labels:
           severity: critical
           category: availability
           platform: sahool
         annotations:
-          summary: "Service {{ $labels.service }} scrape target is unreachable"
-          summary_ar: "هدف جمع بيانات الخدمة {{ $labels.service }} غير قابل للوصول"
-          description: "Prometheus cannot reach {{ $labels.service }} at {{ $labels.instance }}. The service may have crashed silently or failed to start."
-          description_ar: "لا يمكن لـ Prometheus الوصول إلى {{ $labels.service }} في {{ $labels.instance }}. قد تكون الخدمة انهارت بصمت أو فشلت في البدء."
-          impact: "Service is completely down and no metrics are being collected"
-          impact_ar: "الخدمة متوقفة تماماً ولا يتم جمع أي مقاييس"
-          action: "Check container status: docker ps | grep {{ $labels.service }}"
-          action_ar: "تحقق من حالة الحاوية: docker ps | grep {{ $labels.service }}"
+          summary: "No sahool-services scrape targets found"
+          summary_ar: "لم يتم العثور على أهداف جمع بيانات خدمات سهول"
+          description: "Prometheus cannot find any scrape targets for job sahool-services. All services may be down or service discovery is misconfigured."
+          description_ar: "لا يمكن لـ Prometheus العثور على أي أهداف جمع بيانات. قد تكون جميع الخدمات متوقفة أو اكتشاف الخدمات معطل."
+          impact: "All services may be down and no metrics are being collected"
+          impact_ar: "جميع الخدمات قد تكون متوقفة ولا يتم جمع أي مقاييس"
+          action: "Check Prometheus targets page and Docker container status"
+          action_ar: "تحقق من صفحة أهداف Prometheus وحالة حاويات Docker"

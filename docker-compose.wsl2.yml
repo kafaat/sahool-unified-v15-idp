@@ -1,0 +1,19 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Compose WSL2 Override
+# Adds SYS_TIME capability to fix clock drift on Windows Subsystem for Linux 2
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up
+#
+# WARNING: SYS_TIME allows containers to modify the host clock.
+# Only use this on WSL2 development environments, never in production.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  etcd:
+    cap_add:
+      - SYS_TIME
+
+  milvus:
+    cap_add:
+      - SYS_TIME

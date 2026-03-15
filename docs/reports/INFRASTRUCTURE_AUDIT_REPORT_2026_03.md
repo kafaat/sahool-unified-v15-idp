@@ -83,7 +83,7 @@
 | # | المشكلة | الملف:السطر | الكود الفعلي | الحالة |
 |---|---------|-------------|-------------|--------|
 | 1 | ACL (تم التفعيل) | `kong-security.yml:128-129` | `enabled: true` (كان: `false`) | تم الإصلاح ✓ |
-| 2 | IP ranges (تم التضييق) | `kong-security.yml:160-165` | تم تضييق إلى `10.42.0.0/16`, `10.43.0.0/16` ✓ | تم الإصلاح ✓ |
+| 2 | IP ranges (تم التضييق) | `kong-security.yml:163-176` | تم تضييق إلى `10.42.0.0/16`, `172.20.0.0/16` ✓ | تم الإصلاح ✓ |
 
 ---
 
@@ -94,8 +94,8 @@
 | 1 | ResourceQuota (تم الإصلاح) | تم إضافة `helm/sahool/templates/resourcequota.yaml` ✓ | تم الإصلاح ✓ |
 | 2 | NetworkPolicy | **موجود**: 3 سياسات في `helm/sahool/templates/networkpolicy.yaml` (وليس 0 كما ذُكر) | - |
 | 3 | ServiceMonitor | **1 فقط** في `helm/charts/sahool-agent/templates/canary.yaml:263` | عالي |
-| 4 | NATS credentials بنص صريح | `nats-statefulset.yaml:245-260` - `stringData` مع `CHANGE_ME_*` | **حرج** |
-| 5 | JetStream encryption key placeholder | `nats-statefulset.yaml:260` - `"CHANGE_ME_BASE64_ENCODED_32_BYTE_KEY"` | **حرج** |
+| 4 | NATS credentials بنص صريح (تم الإصلاح) | `nats-statefulset.yaml:275-287` - `stringData` مع `PLACEHOLDER_MUST_BE_REPLACED` ✓ | تم الإصلاح ✓ |
+| 5 | JetStream encryption key placeholder (تم الإصلاح) | `nats-statefulset.yaml:287` - `"PLACEHOLDER_MUST_BE_REPLACED"` ✓ | تم الإصلاح ✓ |
 
 ---
 
@@ -163,7 +163,7 @@
 | 1 | PgBouncer TLS (تم الإصلاح) | `pgbouncer.ini:221-222` | `server_tls_sslmode = prefer` / `client_tls_sslmode = prefer` (كان: `disable`) | تم الإصلاح ✓ |
 | 2 | WAL archiving مهيأ لكن بدون cron | `postgresql.conf:102,110` | `archive_mode = on`, `archive_timeout = 1h` لكن لا وظيفة مجدولة | عالي |
 | 3 | NATS TLS مفعّل (نقطة قوة) | `nats-secure.conf:29-51` | `verify: true`, `verify_and_map: true`, TLS 1.2+ | - |
-| 4 | NATS credentials (تم الإصلاح) | `nats-statefulset.yaml:245-260` | تم تغيير `CHANGE_ME_*` → `PLACEHOLDER_MUST_BE_REPLACED` ✓ | تم الإصلاح ✓ |
+| 4 | NATS credentials (تم الإصلاح) | `nats-statefulset.yaml:275-287` | تم تغيير `CHANGE_ME_*` → `PLACEHOLDER_MUST_BE_REPLACED` ✓ | تم الإصلاح ✓ |
 | 5 | Vault سياسة فقط بدون تنفيذ | `security-policies.yaml:257-283` | `rotation.enabled: true` لكن لا كود أتمتة | عالي |
 
 ---
@@ -173,8 +173,8 @@
 | # | المشكلة | الملف | السطر | التأثير |
 |---|---------|-------|-------|---------|
 | 1 | **EKS API (تم الإصلاح)** | `modules/eks/variables.tf` | default | تم تغيير default إلى `[]` مع validation ✓ |
-| 2 | **NATS credentials (تم الإصلاح)** | `nats-statefulset.yaml` | 245-260 | تم تغيير CHANGE_ME → PLACEHOLDER_MUST_BE_REPLACED ✓ |
-| 3 | **JetStream encryption key placeholder** | `nats-statefulset.yaml` | 260 | رسائل JetStream غير مشفرة فعلياً |
+| 2 | **NATS credentials (تم الإصلاح)** | `nats-statefulset.yaml` | 275-287 | تم تغيير CHANGE_ME → PLACEHOLDER_MUST_BE_REPLACED ✓ |
+| 3 | **JetStream encryption key placeholder (تم الإصلاح)** | `nats-statefulset.yaml` | 287 | تم تغيير إلى `PLACEHOLDER_MUST_BE_REPLACED` ✓ |
 | 4 | **Vault (تم الإصلاح)** | `docker-compose.yml` | 239 | تم إضافة required env var enforcement ✓ |
 | 5 | **JWT ImportError (تم الإصلاح)** | `jwt.py` | 184-186 | تم إضافة `except AuthError: raise` قبل catch-all ✓ |
 | 6 | **PgBouncer TLS (تم الإصلاح)** | `pgbouncer.ini` | 221-222 | تم تغيير `disable` → `prefer` ✓ |

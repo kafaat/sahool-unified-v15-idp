@@ -1,4 +1,16 @@
 "use client";
+/**
+ * Client (Farmer) Sidebar Navigation
+ * شريط التنقل الجانبي للعميل (المزارع)
+ *
+ * This sidebar is for the farmer-facing web app only.
+ * Admin-only features (Users, Audit, Copilot, Vision, Drone, Terrain,
+ * Edge Devices, Virtual Sensors, Research, Compliance, Scouting)
+ * are in the admin portal (apps/admin/).
+ *
+ * Modeled after John Deere Operations Center, Trimble Ag, and similar
+ * agricultural platforms where farmers see only their operational tools.
+ */
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,7 +18,6 @@ import { useTranslations } from "next-intl";
 import { clsx } from "clsx";
 import {
   LayoutDashboard,
-  Users,
   Sprout,
   FileText,
   TrendingUp,
@@ -17,9 +28,7 @@ import {
   FileBarChart,
   Droplets,
   Satellite,
-  FlaskConical,
   Truck,
-  Shield,
   AlertTriangle,
   Bell,
 } from "lucide-react";
@@ -30,16 +39,20 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+/**
+ * Client/Farmer navigation items.
+ * Only includes features relevant to farm operations.
+ *
+ * Removed (admin-only, available in apps/admin/):
+ * - Users (إدارة المستخدمين) → admin portal
+ * - Research (الأبحاث) → admin portal
+ * - Compliance (الامتثال) → admin portal
+ */
 const navItems: NavItem[] = [
   {
     labelKey: "dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    labelKey: "users",
-    href: "/users",
-    icon: Users,
   },
   {
     labelKey: "farms",
@@ -87,19 +100,9 @@ const navItems: NavItem[] = [
     icon: Satellite,
   },
   {
-    labelKey: "research",
-    href: "/research",
-    icon: FlaskConical,
-  },
-  {
     labelKey: "logistics",
     href: "/logistics",
     icon: Truck,
-  },
-  {
-    labelKey: "compliance",
-    href: "/compliance",
-    icon: Shield,
   },
   {
     labelKey: "disasterAssessment",

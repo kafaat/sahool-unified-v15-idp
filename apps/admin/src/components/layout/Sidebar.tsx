@@ -42,6 +42,15 @@ import {
   Wrench,
   ShoppingCart,
   FlaskConical,
+  // Admin-only feature icons
+  Shield,
+  ClipboardList,
+  Eye,
+  Plane,
+  Mountain,
+  Radio,
+  Search,
+  Bot,
 } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import dynamic from "next/dynamic";
@@ -89,6 +98,23 @@ const managementNav = [
   { name: "المخزون", href: "/inventory", icon: Package },
   { name: "السوق", href: "/marketplace", icon: ShoppingCart },
   { name: "البحوث", href: "/research", icon: FlaskConical },
+  { name: "الامتثال", href: "/compliance", icon: Shield },
+];
+
+// AI & Technology section (admin-only features)
+const aiTechNav = [
+  { name: "المساعد الذكي", href: "/copilot", icon: Bot },
+  { name: "الرؤية الحاسوبية", href: "/vision", icon: Eye },
+  { name: "الطائرات المسيّرة", href: "/drone", icon: Plane },
+  { name: "أجهزة الحافة", href: "/edge-devices", icon: Radio },
+  { name: "تحليل التضاريس", href: "/terrain", icon: Mountain },
+  { name: "المستشعرات الافتراضية", href: "/virtual-sensors", icon: Cpu },
+  { name: "الاستكشاف الميداني", href: "/scouting", icon: Search },
+];
+
+// Audit & Compliance section
+const auditNav = [
+  { name: "سجل التدقيق", href: "/audit", icon: ClipboardList },
 ];
 
 // System section
@@ -304,6 +330,76 @@ export default React.memo(function Sidebar() {
               </h3>
             </div>
             {managementNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* AI & Technology Section (Admin-Only) */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                الذكاء الاصطناعي والتقنية
+              </h3>
+            </div>
+            {aiTechNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Audit Section */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                التدقيق
+              </h3>
+            </div>
+            {auditNav.map((item) => {
               const isActive =
                 pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (

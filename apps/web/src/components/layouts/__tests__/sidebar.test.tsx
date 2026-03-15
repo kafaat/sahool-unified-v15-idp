@@ -1,9 +1,10 @@
 /**
- * Sidebar Navigation Tests
- * اختبارات شريط التنقل الجانبي
+ * Sidebar Navigation Tests (Client/Farmer App)
+ * اختبارات شريط التنقل الجانبي (تطبيق المزارع)
  *
  * Verifies navigation links use correct routes (no /dashboard/ prefix),
- * version display, and accessibility attributes.
+ * version display, accessibility attributes, and that admin-only
+ * features are NOT present in the client sidebar.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -40,7 +41,6 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, Record<string, string>> = {
       nav: {
         dashboard: "Dashboard",
-        users: "Users",
         farms: "Farms",
         crops: "Crops",
         inventory: "Inventory",
@@ -50,9 +50,7 @@ vi.mock("next-intl", () => ({
         documents: "Documents",
         analytics: "Analytics",
         satellite: "Satellite",
-        research: "Research",
         logistics: "Logistics",
-        compliance: "Compliance",
         disasterAssessment: "Disaster Assessment",
         alerts: "Alerts",
         notifications: "Notifications",
@@ -76,7 +74,6 @@ vi.mock("lucide-react", () => {
   );
   return {
     LayoutDashboard: IconMock,
-    Users: IconMock,
     Sprout: IconMock,
     FileText: IconMock,
     TrendingUp: IconMock,
@@ -87,9 +84,7 @@ vi.mock("lucide-react", () => {
     FileBarChart: IconMock,
     Droplets: IconMock,
     Satellite: IconMock,
-    FlaskConical: IconMock,
     Truck: IconMock,
-    Shield: IconMock,
     AlertTriangle: IconMock,
     Bell: IconMock,
   };
@@ -97,15 +92,15 @@ vi.mock("lucide-react", () => {
 
 import { Sidebar } from "../sidebar";
 
-describe("Sidebar Navigation", () => {
+describe("Sidebar Navigation (Client/Farmer)", () => {
   describe("Route Correctness", () => {
-    it("should render all navigation items", () => {
+    it("should render all farmer navigation items", () => {
       render(<Sidebar />);
 
-      // Check key navigation items are present
+      // Check key farmer navigation items are present
       expect(screen.getByText("Dashboard")).toBeInTheDocument();
-      expect(screen.getByText("Users")).toBeInTheDocument();
       expect(screen.getByText("Farms")).toBeInTheDocument();
+      expect(screen.getByText("Crops")).toBeInTheDocument();
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
@@ -121,13 +116,6 @@ describe("Sidebar Navigation", () => {
       });
 
       expect(brokenLinks).toHaveLength(0);
-    });
-
-    it("should use correct href for Users (/users not /dashboard/users)", () => {
-      render(<Sidebar />);
-
-      const usersLink = screen.getByText("Users").closest("a");
-      expect(usersLink).toHaveAttribute("href", "/users");
     });
 
     it("should use correct href for Farms (/farms not /dashboard/farms)", () => {
@@ -161,7 +149,6 @@ describe("Sidebar Navigation", () => {
     it("should use correct href for Dashboard (/dashboard)", () => {
       render(<Sidebar />);
 
-      // Dashboard link in nav items
       const navLinks = screen.getAllByText("Dashboard");
       const dashboardLink = navLinks[0]?.closest("a");
       expect(dashboardLink).toHaveAttribute("href", "/dashboard");
@@ -186,6 +173,23 @@ describe("Sidebar Navigation", () => {
 
       const link = screen.getByText("Disaster Assessment").closest("a");
       expect(link).toHaveAttribute("href", "/disaster-assessment");
+    });
+  });
+
+  describe("Admin-Only Features NOT Present", () => {
+    it("should NOT show Users link (admin-only)", () => {
+      render(<Sidebar />);
+      expect(screen.queryByText("Users")).not.toBeInTheDocument();
+    });
+
+    it("should NOT show Research link (admin-only)", () => {
+      render(<Sidebar />);
+      expect(screen.queryByText("Research")).not.toBeInTheDocument();
+    });
+
+    it("should NOT show Compliance link (admin-only)", () => {
+      render(<Sidebar />);
+      expect(screen.queryByText("Compliance")).not.toBeInTheDocument();
     });
   });
 

@@ -116,7 +116,17 @@ export function createTenantExtension(
   /**
    * Ensure RLS session variables are set before first query.
    * Called lazily on first model query.
+   *
+   * TODO: Integrate into query interceptors below. Currently not invoked because
+   * Prisma extension query handlers don't expose the client reference needed for
+   * $executeRawUnsafe. Options to fix:
+   *   1. Wrap each query in $transaction to ensure SET + query share a connection
+   *   2. Use $allOperations hook with client binding
+   * Application-layer tenantId injection (below) remains the primary isolation
+   * mechanism; RLS is defense-in-depth and non-blocking (see setRlsContext catch).
    */
+  // @ts-expect-error Intentionally unused pending integration (see TODO above)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function ensureRlsContext(client: any): Promise<void> {
     if (!rlsContextSet) {
       await setRlsContext(client, tenantId, isAdmin);

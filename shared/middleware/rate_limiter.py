@@ -86,19 +86,17 @@ def setup_rate_limiting(
         if request.url.path in excluded:
             return await call_next(request)
 
-        # Determine tier
+        # Determine tier and store on request.state for the limiter
         if tier_func:
             try:
                 tier = tier_func(request)
                 config = _TIER_CONFIGS.get(tier, _TIER_CONFIGS[RateLimitTier.FREE])
-                # Override limiter tier config dynamically
-                limiter.tier_config = TierConfig(
-                    free=config, standard=config, premium=config, internal=config,
-                )
+                # Store resolved config on request state to avoid mutating shared limiter
+                request.state.rate_limit_config_override = config
             except Exception:
                 pass  # Fall back to default tier detection
 
-        allowed, headers = limiter.check_rate_limit(request)
+        allowed, headers = await limiter.check_rate_limit(request)
 
         if not allowed:
             return JSONResponse(

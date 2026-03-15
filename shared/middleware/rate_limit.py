@@ -142,8 +142,14 @@ class RateLimiter:
         tenant_id = request.headers.get("X-Tenant-ID", "default")
         key = f"{tenant_id}:{client_ip}"
 
-        tier = self._get_tier(request)
-        config = self._get_config(tier)
+        # Use per-request config override if set (avoids shared state mutation)
+        config_override = getattr(getattr(request, "state", None), "rate_limit_config_override", None)
+        if config_override:
+            tier = "override"
+            config = config_override
+        else:
+            tier = self._get_tier(request)
+            config = self._get_config(tier)
 
         async with self._lock:
             # Check sliding window limits BEFORE consuming burst tokens to avoid

@@ -33,7 +33,7 @@ export const validators = {
 
   /**
    * Phone validation (Yemen format with international fallback)
-   * يدعم أرقام اليمن: يمن موبايل (77, 78)، سبأفون (71)، يو (73)، واي (70)
+   * يدعم أرقام اليمن: يمن موبايل (77، 78)، سبأفون (71)، يو (73)، واي (70)
    * @param phone - The phone number to validate
    * @returns true if valid, false otherwise
    */

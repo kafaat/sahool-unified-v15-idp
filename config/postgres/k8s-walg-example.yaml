@@ -165,6 +165,7 @@ spec:
         component: database
         backup: walg
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: postgres
         image: sahool/postgres-walg:16-3.4  # Custom image with WAL-G
@@ -173,6 +174,14 @@ spec:
         - containerPort: 5432
           name: postgres
           protocol: TCP
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 999
+          capabilities:
+            drop:
+              - ALL
 
         env:
         # PostgreSQL credentials
@@ -295,6 +304,9 @@ spec:
       securityContext:
         fsGroup: 999  # postgres group
         runAsUser: 999  # postgres user
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 
 ---
 # ─────────────────────────────────────────────────────────────────────────────
@@ -340,6 +352,13 @@ spec:
             app: postgres-backup
         spec:
           restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
           containers:
           - name: backup
             image: sahool/postgres-walg:16-3.4
@@ -368,6 +387,14 @@ spec:
               wal-g delete retain 7 --confirm
 
               echo "Backup completed at $(date)"
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 999
+              capabilities:
+                drop:
+                  - ALL
 
             env:
             - name: PGHOST
@@ -419,9 +446,23 @@ spec:
             app: postgres-backup-verify
         spec:
           restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
           containers:
           - name: verify
             image: sahool/postgres-walg:16-3.4
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 999
+              capabilities:
+                drop:
+                  - ALL
             command:
             - /bin/bash
             - -c

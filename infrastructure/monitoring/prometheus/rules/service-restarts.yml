@@ -39,6 +39,8 @@ groups:
           action_ar: "تحقق من سجلات الخدمة باستخدام: docker logs sahool-{{ $labels.service }} --tail 200"
 
       # Detect service that recently restarted (single restart event)
+      # The expr returns uptime in seconds so $value feeds humanizeDuration correctly.
+      # PromQL comparison operators act as filters: < 300 keeps the value, not a boolean.
       - alert: ServiceRestarted
         expr: |
           (time() - process_start_time_seconds) < 300
@@ -101,12 +103,13 @@ groups:
     interval: 30s
     rules:
       # High memory usage that may lead to OOM kills
+      # Uses process_virtual_memory_max_bytes (RLIMIT) instead of
+      # machine_memory_bytes which requires node exporter (not deployed).
       - alert: ServiceHighMemoryUsage
         expr: |
           (
             process_resident_memory_bytes
-            / on(instance) group_left()
-            machine_memory_bytes
+            / process_virtual_memory_max_bytes
           ) > 0.85
         for: 5m
         labels:

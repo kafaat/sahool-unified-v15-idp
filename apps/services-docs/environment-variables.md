@@ -137,6 +137,13 @@ GEMINI_MODEL=gemini-1.5-pro
 # Ollama (Local LLM - ai-advisor, code-review-service)
 OLLAMA_URL=http://ollama:11434
 OLLAMA_MODEL=llama3.2
+
+# HuggingFace (huggingface_provider - embeddings, Arabic NLP)
+HF_TOKEN=<your-hf-token>
+HUGGINGFACE_API_TOKEN=<your-hf-token>
+HUGGINGFACE_CACHE_DIR=/tmp/huggingface
+HUGGINGFACE_MODEL_DIR=/tmp/huggingface/models
+HUGGINGFACE_MODEL_REVISION=main  # Pin model revision for reproducibility (default: main)
 ```
 
 ### Notification Services

@@ -69,11 +69,11 @@ RUN --mount=type=cache,target=/root/.npm \
 # Generate Prisma client and verify output
 # Schema uses custom output (prisma/generated/client/) so verify that path
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate && \
+RUN npx prisma@5 generate && \
     test -f prisma/generated/client/index.js || \
     (echo "ERROR: Prisma client not generated at expected path" && \
      echo "Retrying prisma generate..." && \
-     sleep 5 && npx prisma generate && \
+     sleep 5 && npx prisma@5 generate && \
      test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 

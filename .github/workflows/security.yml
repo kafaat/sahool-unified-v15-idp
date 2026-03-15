@@ -328,9 +328,6 @@ jobs:
   sast-codeql:
     name: SAST - CodeQL
     runs-on: ubuntu-latest
-    # Cache reservation failures are transient GitHub infrastructure issues;
-    # SARIF results are still uploaded, so treat cache errors as warnings.
-    continue-on-error: true
     # SECURITY: CodeQL SAST must block the pipeline on findings
     permissions:
       security-events: write
@@ -346,6 +343,9 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
+        # Cache reservation failures are transient GitHub infrastructure issues;
+        # allow this step to fail without blocking the entire job.
+        continue-on-error: true
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
@@ -454,6 +454,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 0 \
             --ignore-unfixed \
+            --ignorefile .trivyignore \
             --scanners vuln \
             ${{ matrix.service }}:scan
 
@@ -467,12 +468,11 @@ jobs:
         # Step 2/2: Separate gate check that fails the pipeline on findings.
         # This is intentionally separate from SARIF generation above so that
         # the SARIF report is always uploaded even when vulnerabilities exist.
-        # continue-on-error: Findings are reported in logs and SARIF but do not
-        # block the pipeline. Many CRITICAL/HIGH CVEs originate in base OS
-        # packages (e.g. Debian bookworm, Ubuntu 22.04) that have no upstream
-        # fix yet. Blocking on these prevents unrelated PRs from merging.
-        # Remove continue-on-error once base images ship patches for the
-        # outstanding CVEs in field-management-service, vegetation-analysis-service,
+        # TODO: Replace continue-on-error with specific CVE entries in .trivyignore
+        # once the blocking CVEs are identified. Run `trivy image <image>:scan`
+        # locally to collect CVE IDs, then add them to .trivyignore so this step
+        # can hard-fail on truly new vulnerabilities. Tracked services:
+        # field-management-service, vegetation-analysis-service,
         # crop-intelligence-service, billing-core, and weather-service.
         continue-on-error: true
         if: steps.install_trivy.outputs.installed == 'true'
@@ -481,6 +481,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 1 \
             --ignore-unfixed \
+            --ignorefile .trivyignore \
             --scanners vuln \
             ${{ matrix.service }}:scan
 

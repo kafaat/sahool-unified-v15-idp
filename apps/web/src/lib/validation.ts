@@ -39,7 +39,7 @@ export const validators = {
    */
   phone: (phone: string): boolean => {
     if (!phone || typeof phone !== "string") return false;
-    const cleaned = phone.trim().replace(/[\s\-]/g, "");
+    const cleaned = phone.trim().replace(/[\s-]/g, "");
     // Yemen phone numbers (primary)
     const yemenRegex = /^(?:\+?967|00967|0)?(?:7[01378]\d{7})$/;
     if (yemenRegex.test(cleaned)) return true;

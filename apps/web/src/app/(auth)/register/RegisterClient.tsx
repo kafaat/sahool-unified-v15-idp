@@ -57,7 +57,7 @@ function detectYemenOperator(phone: string): string | null {
  */
 function validateYemenPhone(phone: string): { valid: boolean; error?: string } {
   if (!phone) return { valid: false, error: "رقم الهاتف مطلوب | Phone number is required" };
-  const cleaned = phone.replace(/[\s\-]/g, "");
+  const cleaned = phone.replace(/[\s-]/g, "");
   if (!YEMEN_PHONE_REGEX.test(cleaned)) {
     return {
       valid: false,

@@ -18,8 +18,7 @@ import { useToast } from "@/components/ui/toast";
 /**
  * Yemen mobile phone number validation
  * شركات الاتصالات اليمنية:
- * - Yemen Mobile (يمن موبايل): 77x
- * - MTN Yemen: 78x
+ * - Yemen Mobile (يمن موبايل): 77x, 78x
  * - SabaFone (سبأفون): 71x
  * - YOU (يو): 73x
  * - Y (واي): 70x
@@ -29,8 +28,7 @@ const YEMEN_COUNTRY_CODE = "+967";
 
 /** Recognized Yemen mobile operators with prefix info */
 const YEMEN_OPERATORS = [
-  { name: "Yemen Mobile", nameAr: "يمن موبايل", prefixes: ["77"] },
-  { name: "MTN Yemen", nameAr: "MTN اليمن", prefixes: ["78"] },
+  { name: "Yemen Mobile", nameAr: "يمن موبايل", prefixes: ["77", "78"] },
   { name: "SabaFone", nameAr: "سبأفون", prefixes: ["71"] },
   { name: "YOU", nameAr: "يو", prefixes: ["73"] },
   { name: "Y Telecom", nameAr: "واي", prefixes: ["70"] },
@@ -431,7 +429,7 @@ export default function RegisterClient() {
               )}
               {registerMethod === "phone" && !formData.phone && (
                 <p className="mt-1 text-xs text-gray-500">
-                  يمن موبايل (77) • سبأفون (71) • يو (73) • MTN (78) • واي (70)
+                  يمن موبايل (77, 78) • سبأفون (71) • يو (73) • واي (70)
                 </p>
               )}
             </div>

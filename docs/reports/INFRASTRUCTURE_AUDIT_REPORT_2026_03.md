@@ -246,7 +246,7 @@
 | 24 | dlq-monitor بدون healthcheck | إضافة healthcheck | `ed98e52` |
 | 25 | لا ResourceQuota في Helm | إنشاء `resourcequota.yaml` template مع values | `ed98e52` |
 | 26 | Kong IP ranges واسعة | تقييد من /8 و /12 إلى /16 | `ed98e52` |
-| 27 | VPC Peering auto_accept | تغيير `auto_accept: true` → `false` | `ed98e52` |
+| 27 | VPC Peering auto_accept | إضافة تعليقات توضيحية: requester يستخدم `false` (cross-region)، accepter يستخدم `true` (مطلوب) | `ed98e52` |
 
 #### الدفعة 3: إصلاح الاختبارات (97 فشل → 0)
 

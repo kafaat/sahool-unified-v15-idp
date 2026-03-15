@@ -146,10 +146,8 @@ class RateLimiter:
         config = self._get_config(tier)
 
         async with self._lock:
-            # Check token bucket (burst protection) - inside lock to prevent race conditions
-            bucket = self._get_bucket(key, config)
-            if not bucket.consume():
-                return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
+            # Check sliding window limits BEFORE consuming burst tokens to avoid
+            # unfairly draining tokens when requests would be rejected anyway.
 
             # Check sliding window (per-minute)
             self._clean_old_requests(key, 60)
@@ -160,6 +158,11 @@ class RateLimiter:
             hourly_key = f"{key}:hourly"
             self._clean_old_requests(hourly_key, 3600)
             if len(self._request_counts.get(hourly_key, [])) >= config.requests_per_hour:
+                return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
+
+            # Check token bucket (burst protection) - only consume after window checks pass
+            bucket = self._get_bucket(key, config)
+            if not bucket.consume():
                 return False, self._build_headers(key, config, tier, exceeded=True, remaining=0)
 
             # Record this request

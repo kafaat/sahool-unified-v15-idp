@@ -39,7 +39,7 @@ This runbook defines:
 | `SAHOOL_EDGE` | `sahool.edge.>` | 14 days |
 | `SAHOOL_BUSINESS` | `sahool.billing.>`, `sahool.notification.>`, `sahool.task.>`, etc. | 90 days |
 | `SAHOOL_AGENT` | `sahool.agent.>` | 14 days |
-| `SAHOOL_IOT` | `sahool.iot.>` | 7 days |
+| `SAHOOL_IOT` | `sahool.iot.>` | 14 days |
 | `SAHOOL_SYSTEM` | `sahool.system.>`, `sahool.user.>` | 30 days |
 | `SAHOOL_TENANT` | `sahool.tenant.>` | 30 days |
 | `SAHOOL_DLQ` | `sahool.dlq.>` | 30 days |

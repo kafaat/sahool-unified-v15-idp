@@ -277,7 +277,10 @@ class VaultClient:
             age = (datetime.now(UTC) - cached_at).total_seconds()
 
             if age > self.config.cache_ttl_seconds:
-                del self._cache[path]
+                # Don't delete — stale cache fallback needs the entry
+                # for graceful degradation when Vault is unreachable.
+                # Eviction is handled by _get_stale_cache_fallback
+                # based on cache_max_staleness_seconds.
                 return None
 
             return value

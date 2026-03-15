@@ -59,14 +59,14 @@ class ScheduledNotification:
     status: str = field(compare=False, default="pending")  # pending, sent, failed, cancelled
 
     def __post_init__(self):
-        """Validate required fields when status indicates active use."""
-        if self.status == "pending":
+        """Validate required fields for any active (non-terminal) status."""
+        if self.status not in ("cancelled", "sent"):
             if not self.notification_id:
-                raise ValueError("notification_id is required for pending notifications")
+                raise ValueError("notification_id is required for active notifications")
             if self.payload is None:
-                raise ValueError("payload is required for pending notifications")
+                raise ValueError("payload is required for active notifications")
             if not self.recipient_token:
-                raise ValueError("recipient_token is required for pending notifications")
+                raise ValueError("recipient_token is required for active notifications")
 
     def should_retry(self) -> bool:
         """هل يجب إعادة المحاولة؟"""

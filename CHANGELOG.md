@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **Hadolint SHA256 Checksum Verification** (March 2026)
-  - Added SHA256 checksum verification for Hadolint binary downloads in `security.yml` and `container-tests.yml`
+  - Added SHA256 checksum verification for Hadolint binary downloads across all CI workflows
+    (`security.yml`, `container-tests.yml`, `dockerfile-lint.yml`, `ci-ai-rag-security.yml`)
+  - Added `--fail --show-error --retry 3` flags to all Hadolint download steps
   - Prevents supply-chain attacks via tampered binaries
 
 - **NATS StatefulSet Hardening** (March 2026)
@@ -22,21 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Rate Limiter Token Consumption Fix** (March 2026)
   - Reordered checks in `shared/middleware/rate_limit.py` to validate sliding window limits
     before consuming burst tokens, preventing unfair throttling of legitimate requests
-
-### Changed
-
-- **DLQ Subject Format** (March 2026) — **BREAKING CHANGE**
-  - `get_dlq_subject()` now preserves the full original subject:
-    `sahool.field.created` → `sahool.dlq.sahool.field.created` (was `sahool.dlq.field.created`)
-  - Prevents subject collisions between `sahool.field.created` and `field.created`
-  - **Migration**: Update any DLQ consumers subscribed to `sahool.dlq.<domain>.<action>` to
-    use `sahool.dlq.sahool.<domain>.<action>`. Existing DLQ messages on old subjects will
-    need to be drained before the migration
-
-- **Rate Limiter API** (March 2026) — **BREAKING CHANGE**
-  - `check_rate_limit()` is now `async` — external callers using it synchronously must update
-    to `await check_rate_limit()`. Internal callers (`rate_limit_middleware`, `rate_limit` decorator)
-    are already updated
 
 ### Fixed
 

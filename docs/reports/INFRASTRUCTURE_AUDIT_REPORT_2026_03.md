@@ -65,25 +65,25 @@
 | # | المشكلة | الملف:السطر | الكود الفعلي | الخطورة |
 |---|---------|-------------|-------------|---------|
 | 1 | VPC Peering auto_accept | `main.tf:229` | `auto_accept = true` (في accepter resource) | متوسط |
-| 2 | لا IAM DB Auth | `modules/rds/main.tf` | لا وجود لـ `iam_database_authentication_enabled` | عالي |
-| 3 | EKS عام للإنترنت | `modules/eks/variables.tf` | `default = ["0.0.0.0/0"]` في `public_access_cidrs` | **حرج** |
+| 2 | IAM DB Auth (تم الإصلاح) | `modules/rds/main.tf` | تمت إضافة `iam_database_authentication_enabled = true` | تم الإصلاح ✓ |
+| 3 | EKS CIDRs (تم الإصلاح) | `modules/eks/variables.tf` | `default = []` (كان: `["0.0.0.0/0"]`). **ملاحظة ترقية**: يجب تعيين CIDRs صراحة قبل التطبيق | تم الإصلاح ✓ |
 | 4 | S3 replication | `main.tf:238-264` | مُفعّل مع تشفير (نقطة قوة) | - |
 | 5 | KMS rotation | `modules/eks/main.tf:50` | `enable_key_rotation = true` (نقطة قوة) | - |
 | 6 | Backup retention | `main.tf:113,180` | `backup_retention_period = 30` لكلا المنطقتين | مقبول |
 
-### 2.2 Prometheus - مؤكد من الكود
+### 2.2 Prometheus - (تم الإصلاح)
 
-| # | المشكلة | الملف:السطر | الكود الفعلي |
-|---|---------|-------------|-------------|
-| 1 | PostgreSQL exporter معلّق | `prometheus.yml:51-58` | محاط بتعليقات `#` مع ملاحظة عدم دعم `/metrics` أصلاً |
-| 2 | Redis exporter معلّق | `prometheus.yml:60-66` | محاط بتعليقات `#` مع ملاحظة مشابهة |
+| # | المشكلة | الملف:السطر | الكود الفعلي | الحالة |
+|---|---------|-------------|-------------|--------|
+| 1 | PostgreSQL exporter (تم التفعيل) | `prometheus.yml:51-58` | تم إزالة التعليقات وتفعيل الـ exporter | تم الإصلاح ✓ |
+| 2 | Redis exporter (تم التفعيل) | `prometheus.yml:60-66` | تم إزالة التعليقات وتفعيل الـ exporter | تم الإصلاح ✓ |
 
-### 2.3 Kong - مؤكد من الكود
+### 2.3 Kong - (تم الإصلاح)
 
-| # | المشكلة | الملف:السطر | الكود الفعلي |
-|---|---------|-------------|-------------|
-| 1 | ACL معطل عالمياً | `kong-security.yml:128-129` | `name: acl` / `enabled: false` |
-| 2 | IP ranges واسعة | `kong-security.yml:160-165` | `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` |
+| # | المشكلة | الملف:السطر | الكود الفعلي | الحالة |
+|---|---------|-------------|-------------|--------|
+| 1 | ACL (تم التفعيل) | `kong-security.yml:128-129` | `enabled: true` (كان: `false`) | تم الإصلاح ✓ |
+| 2 | IP ranges واسعة | `kong-security.yml:160-165` | `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` | متبقي |
 
 ---
 

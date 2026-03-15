@@ -347,15 +347,22 @@ class VaultClient:
 
         except (ConnectionError, TimeoutError, OSError) as e:
             # On connectivity failure, attempt cache fallback (even if TTL expired)
+            # but reject entries older than max_staleness to limit exposure from rotated secrets
+            max_staleness_seconds = self.config.cache_ttl_seconds * 12  # ~1 hour for 5min TTL
             if cache_key in self._cache:
-                logger.warning(f"Vault fetch failed for '{path}', using stale cached value: {e}")
-                value, _cached_at = self._cache[cache_key]
-                return value
-            logger.error(f"Failed to get secret '{path}': {e}")
+                value, cached_at = self._cache[cache_key]
+                age = (datetime.now(UTC) - cached_at).total_seconds()
+                if age <= max_staleness_seconds:
+                    logger.warning(f"Vault unreachable, using cached secret (age={int(age)}s): {e}")
+                    return value
+                else:
+                    logger.error(f"Vault unreachable and cached secret too stale (age={int(age)}s > {max_staleness_seconds}s)")
+                    del self._cache[cache_key]
+            logger.error(f"Failed to get secret: {e}")
             raise
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
-            logger.error(f"Failed to get secret '{path}': {e}")
+            logger.error(f"Failed to get secret: {e}")
             raise
 
     async def set_secret(self, path: str, data: dict[str, Any]) -> None:

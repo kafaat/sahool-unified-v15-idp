@@ -117,6 +117,7 @@ class CircuitBreaker:
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "CLOSED"
+        self._half_open_pending = False
         self._lock = threading.Lock()
 
     def call(self, func, *args, **kwargs):
@@ -131,7 +132,7 @@ class CircuitBreaker:
                     logger.info("Circuit breaker entering HALF_OPEN state")
                 else:
                     raise Exception("Circuit breaker is OPEN")
-            elif self.state == "HALF_OPEN" and getattr(self, "_half_open_pending", False):
+            elif self.state == "HALF_OPEN" and self._half_open_pending:
                 # Only one trial request allowed in HALF_OPEN state
                 raise Exception("Circuit breaker is HALF_OPEN - trial request in progress")
 

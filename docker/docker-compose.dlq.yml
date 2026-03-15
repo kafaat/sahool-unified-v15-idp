@@ -113,6 +113,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
+      # Verifies dlq_monitoring module is importable; does not check if monitoring loop is active.
+      # TODO: Add HTTP health endpoint to dlq_monitoring for a more meaningful check.
       test: ["CMD-SHELL", "python -c 'import shared.events.dlq_monitoring as m; print(\"ok\")' || exit 1"]
       interval: 60s
       timeout: 10s

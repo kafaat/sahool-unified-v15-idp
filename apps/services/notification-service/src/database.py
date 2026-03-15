@@ -25,8 +25,9 @@ logger = logging.getLogger("sahool-notifications.database")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     if os.getenv("ENVIRONMENT") == "test":
-        DATABASE_URL = "postgresql://test:test@localhost:5432/test_notifications"
-        logger.warning("DATABASE_URL not set in test environment, using default test URL")
+        # Use a clearly non-routable URL that will fail fast if tests actually try to connect
+        DATABASE_URL = "postgresql://test:test@invalid-test-host.local:5432/test_notifications"
+        logger.warning("DATABASE_URL not set in test environment, using placeholder URL")
     else:
         raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
 

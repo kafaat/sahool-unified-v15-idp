@@ -83,6 +83,7 @@ const protectedRoutes = [
   "/inventory",
   "/irrigation",
   "/logistics",
+  "/notifications",
   "/pivot-irrigation",
   "/precision-agriculture",
   "/reports",

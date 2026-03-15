@@ -21,6 +21,7 @@ import {
   Truck,
   Shield,
   AlertTriangle,
+  Bell,
 } from "lucide-react";
 
 interface NavItem {
@@ -104,6 +105,16 @@ const navItems: NavItem[] = [
     labelKey: "disasterAssessment",
     href: "/disaster-assessment",
     icon: AlertTriangle,
+  },
+  {
+    labelKey: "alerts",
+    href: "/alerts",
+    icon: AlertTriangle,
+  },
+  {
+    labelKey: "notifications",
+    href: "/notifications",
+    icon: Bell,
   },
   {
     labelKey: "settings",

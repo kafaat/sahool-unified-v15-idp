@@ -54,6 +54,8 @@ vi.mock("next-intl", () => ({
         logistics: "Logistics",
         compliance: "Compliance",
         disasterAssessment: "Disaster Assessment",
+        alerts: "Alerts",
+        notifications: "Notifications",
         settings: "Settings",
         mainNav: "Main Navigation",
         version: "Version",
@@ -89,6 +91,7 @@ vi.mock("lucide-react", () => {
     Truck: IconMock,
     Shield: IconMock,
     AlertTriangle: IconMock,
+    Bell: IconMock,
   };
 });
 

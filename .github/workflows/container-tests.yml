@@ -529,6 +529,7 @@ jobs:
             -e REDIS_URL=redis://localhost:6379 \
             -e ALLOW_DEV_DEFAULTS=true \
             -e SKIP_DB_INIT=true \
+            -e USE_REDIS=false \
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
 
           echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT

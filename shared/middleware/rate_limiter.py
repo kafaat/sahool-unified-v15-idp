@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from enum import Enum
+from enum import StrEnum
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
@@ -25,7 +25,7 @@ from .rate_limit import RateLimitConfig, RateLimiter, TierConfig
 logger = logging.getLogger(__name__)
 
 
-class RateLimitTier(str, Enum):
+class RateLimitTier(StrEnum):
     """Rate limit tier levels matching platform subscription packages"""
 
     FREE = "free"

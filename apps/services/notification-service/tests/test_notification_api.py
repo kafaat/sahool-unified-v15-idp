@@ -420,12 +420,26 @@ class TestNotificationStats:
 class TestErrorHandling:
     """Test error handling and edge cases"""
 
-    def test_database_error_handling(self, app_client):
+    def test_database_error_handling(self):
         """Test handling database errors gracefully - service should return 500, not crash"""
-        with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
-            response = app_client.get("/farmer/farmer-123")
-            # Service should handle DB errors gracefully and return a server error
-            assert response.status_code in [200, 500], f"Unexpected status {response.status_code}"
+        from src.main import app
+
+        # Use raise_server_exceptions=False so exceptions go through FastAPI's
+        # exception handlers instead of propagating to the test client
+        try:
+            from shared.auth.dependencies import get_current_user
+            app.dependency_overrides[get_current_user] = lambda: None
+        except ImportError:
+            pass
+
+        try:
+            with TestClient(app, raise_server_exceptions=False, headers={"X-Tenant-ID": "test-tenant-1"}) as client:
+                with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
+                    response = client.get("/farmer/farmer-123")
+                    # Service should handle DB errors gracefully and return a server error
+                    assert response.status_code == 500, f"Unexpected status {response.status_code}"
+        finally:
+            app.dependency_overrides.clear()
 
     def test_invalid_enum_values(self, app_client):
         """Test validation of enum values"""

@@ -77,11 +77,7 @@ export default function InventoryPage() {
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadInventory();
-  }, []);
-
-  async function loadInventory() {
+  const loadInventory = useCallback(async () => {
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -92,7 +88,11 @@ export default function InventoryPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [toast]);
+
+  useEffect(() => {
+    loadInventory();
+  }, [loadInventory]);
 
   const filteredInventory = useMemo(() => {
     return inventory.filter((item) => {

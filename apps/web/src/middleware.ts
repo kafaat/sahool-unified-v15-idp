@@ -250,8 +250,17 @@ export async function middleware(request: NextRequest) {
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
+    // Double-submit cookie pattern: httpOnly cookie for server-side validation
     response.cookies.set("csrf_token", csrfToken, {
-      httpOnly: false, // Must be readable by client JavaScript for AJAX requests
+      httpOnly: true, // Server-side only - used for validation
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+    // Client-readable cookie - JavaScript reads this to set X-CSRF-Token header
+    response.cookies.set("_csrf", csrfToken, {
+      httpOnly: false, // Must be readable by client-side JavaScript
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",

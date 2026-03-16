@@ -30,18 +30,19 @@ export async function GET(_request: NextRequest) {
       token: csrfToken,
     });
 
-    // Set CSRF token in HTTP-only cookie
+    // Double-submit cookie pattern: one httpOnly cookie for server-side
+    // validation, one readable cookie for client to include in headers.
     response.cookies.set("csrf_token", csrfToken, {
-      httpOnly: false, // Must be readable by client-side JavaScript
-      secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      sameSite: "strict", // CSRF protection
+      httpOnly: true, // Server-side only - used for validation
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24, // 24 hours
     });
 
-    // Also set in a readable cookie for the client to include in headers
+    // Client-readable cookie - JavaScript reads this to set X-CSRF-Token header
     response.cookies.set("_csrf", csrfToken, {
-      httpOnly: false,
+      httpOnly: false, // Must be readable by client-side JavaScript
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",

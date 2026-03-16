@@ -46,8 +46,8 @@ export function createApiClient(options?: {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      // CSRF token
-      const csrf = Cookies.get("csrf_token");
+      // CSRF token (read from client-readable _csrf cookie)
+      const csrf = Cookies.get("_csrf");
       if (csrf && config.method !== "get") {
         config.headers["X-CSRF-Token"] = csrf;
       }

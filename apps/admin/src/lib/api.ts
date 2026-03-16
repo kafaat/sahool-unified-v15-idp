@@ -210,7 +210,8 @@ export async function fetchDiagnosisStats(): Promise<{
       byDisease: response.data.by_disease,
       byGovernorate: response.data.by_governorate,
     };
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch diagnosis stats:", error);
     return {
       total: 0,
       pending: 0,
@@ -365,7 +366,8 @@ export async function fetchSensorReadings(
       `${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`,
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch sensor readings:", error);
     return [];
   }
 }
@@ -392,7 +394,8 @@ export async function fetchNotifications(params?: {
       { params },
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch notifications:", error);
     return [];
   }
 }
@@ -403,7 +406,8 @@ export async function markNotificationRead(id: string): Promise<boolean> {
       `${API_URLS.notifications}/api/v1/notifications/${id}/read`,
     );
     return true;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to mark notification as read:", error);
     return false;
   }
 }
@@ -432,7 +436,8 @@ export async function fetchTasks(params?: {
       params,
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch tasks:", error);
     return [];
   }
 }
@@ -444,7 +449,8 @@ export async function updateTaskStatus(
   try {
     await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
     return true;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to update task status:", error);
     return false;
   }
 }
@@ -471,7 +477,8 @@ export async function fetchCommunityPosts(params?: {
       params,
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch community posts:", error);
     return [];
   }
 }
@@ -498,7 +505,8 @@ export async function fetchEquipment(params?: {
       { params },
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch equipment:", error);
     return [];
   }
 }

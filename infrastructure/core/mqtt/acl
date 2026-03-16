@@ -27,6 +27,9 @@ topic readwrite #
 # ─────────────────────────────────────────────────────────────────────────────
 user sahool_iot
 
+# System topics - Required for Docker healthcheck (mosquitto_sub on $SYS/broker/uptime)
+topic read $SYS/broker/uptime
+
 # Sensor data ingestion - Read from all sensor topics
 topic read sahool/+/farm/+/field/+/sensor/#
 topic read sahool/sensors/#

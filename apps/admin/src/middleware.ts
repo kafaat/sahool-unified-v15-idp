@@ -249,6 +249,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("reason", "session_expired");
       const expiredResponse = NextResponse.redirect(loginUrl);
       expiredResponse.cookies.delete("sahool_admin_token");
+      expiredResponse.cookies.delete("sahool_admin_refresh_token");
       expiredResponse.cookies.delete("sahool_admin_last_activity");
       return expiredResponse;
     }

@@ -21,7 +21,7 @@ Usage in values.yaml:
 */ -}}
 
 {{- range $serviceName, $service := .Values.services }}
-{{- if and $service.enabled (default false $service.rollout.enabled) }}
+{{- if and $service.enabled $service.rollout (default false $service.rollout.enabled) }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout

@@ -1,4 +1,11 @@
-const { withSentryConfig } = require("@sentry/nextjs");
+let withSentryConfig;
+try {
+  withSentryConfig = require("@sentry/nextjs").withSentryConfig;
+} catch {
+  // @sentry/nextjs not installed – skip Sentry wrapper
+  withSentryConfig = null;
+}
+
 const createNextIntlPlugin = require("next-intl/plugin");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -261,7 +268,7 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(withBundleAnalyzer(withNextIntl(nextConfig)), {
+const sentryOptions = {
   // Sentry Build-Time Optimizations
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -293,4 +300,9 @@ module.exports = withSentryConfig(withBundleAnalyzer(withNextIntl(nextConfig)), 
 
   // Widen file upload scope so Sentry can match source maps across chunks
   widenClientFileUpload: true,
-});
+};
+
+const baseConfig = withBundleAnalyzer(withNextIntl(nextConfig));
+module.exports = withSentryConfig
+  ? withSentryConfig(baseConfig, sentryOptions)
+  : baseConfig;

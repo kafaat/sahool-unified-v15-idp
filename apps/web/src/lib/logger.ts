@@ -15,14 +15,17 @@ const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const isSentryEnabled = Boolean(SENTRY_DSN && SENTRY_DSN.length > 0);
 
 // Lazy-loaded Sentry module to avoid OpenTelemetry issues when not configured
-let SentryModule: typeof import("@sentry/nextjs") | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let SentryModule: any = null;
 
 async function getSentry() {
   if (!isSentryEnabled) return null;
   if (SentryModule) return SentryModule;
 
   try {
-    SentryModule = await import("@sentry/nextjs");
+    SentryModule = await import(
+      /* webpackIgnore: true */ "@sentry/nextjs"
+    );
     return SentryModule;
   } catch (error) {
     // Sentry import failed - continue without it

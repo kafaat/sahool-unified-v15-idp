@@ -297,6 +297,10 @@ metadata:
     app.kubernetes.io/name: nats
     app.kubernetes.io/component: messaging
     app.kubernetes.io/part-of: sahool-platform
+  annotations:
+    checkov.io/skip1: CKV_K8S_35=NATS requires env var substitution in nats.conf for credentials
+    checkov.io/skip2: CKV_K8S_38=NATS needs service account for pod discovery in cluster
+    checkov.io/skip3: CKV_K8S_40=UID 1000 is standard non-root user for NATS
 spec:
   serviceName: nats
   replicas: 3
@@ -326,7 +330,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "7777"
         prometheus.io/path: "/metrics"
-        checkov.io/skip: "CKV_K8S_35=NATS requires env var substitution in nats.conf for credentials;CKV_K8S_38=NATS needs service account for pod discovery in cluster;CKV_K8S_40=UID 1000 is standard non-root user for NATS"
     spec:
       # Affinity rules for high availability
       affinity:

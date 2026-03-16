@@ -119,7 +119,7 @@ export default function InventoryPage() {
     outOfStock: inventory.filter((item) => item.status === "out_of_stock").length,
   }), [inventory]);
 
-  const getStatusLabel = (status: InventoryItem["status"]) => {
+  const getStatusLabel = useCallback((status: InventoryItem["status"]) => {
     const labels: Record<InventoryItem["status"], string> = {
       in_stock: "متوفر",
       low_stock: "مخزون منخفض",
@@ -127,7 +127,7 @@ export default function InventoryPage() {
       expired: "منتهي الصلاحية",
     };
     return labels[status];
-  };
+  }, []);
 
   const getStatusColor = (status: InventoryItem["status"]) => {
     const colors: Record<InventoryItem["status"], string> = {
@@ -245,7 +245,7 @@ export default function InventoryPage() {
     a.click();
     URL.revokeObjectURL(url);
     toast.info("Export complete", "تم تصدير البيانات");
-  }, [filteredInventory, toast]);
+  }, [filteredInventory, toast, getStatusLabel]);
 
   const updateField = useCallback(<K extends keyof typeof EMPTY_FORM>(key: K, value: (typeof EMPTY_FORM)[K]) => {
     setFormData((prev) => {
@@ -510,7 +510,7 @@ export default function InventoryPage() {
                 {modalMode === "view" && "تفاصيل الصنف"}
               </h2>
               <button
-                ref={(el) => el?.focus()}
+                autoFocus
                 onClick={closeModal}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label="إغلاق"

@@ -23,7 +23,7 @@ infrastructure:
     auth:
       username: sahool_prod
       database: sahool_prod
-      existingSecret: "sahool-postgresql-secret-prod"
+      existingSecret: "sahool-postgresql-secret-prod"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     primary:
       persistence:
         enabled: true
@@ -52,7 +52,7 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      existingSecret: "sahool-redis-secret-prod"
+      existingSecret: "sahool-redis-secret-prod"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     master:
       persistence:
         enabled: true
@@ -503,7 +503,7 @@ monitoring:
   grafana:
     enabled: true
     # CKV_SECRET_6: adminPassword must be provided via existing secret, not inline
-    existingSecret: "sahool-grafana-admin-secret"
+    existingSecret: "sahool-grafana-admin-secret"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     persistence:
       enabled: true
       size: 10Gi

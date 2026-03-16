@@ -165,7 +165,11 @@ spec:
         component: database
         backup: walg
       annotations:
-        checkov.io/skip: "CKV_K8S_22=PostgreSQL requires writable data directory,CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,CKV_K8S_40=UID 999 is the standard PostgreSQL user,CKV_K8S_43=Custom internal image without published digest"
+        checkov.io/skip: >-
+          CKV_K8S_22=PostgreSQL requires writable data directory,
+          CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
+          CKV_K8S_40=UID 999 is the standard PostgreSQL user,
+          CKV_K8S_43=Custom internal image without published digest
     spec:
       automountServiceAccountToken: false
       containers:
@@ -353,7 +357,11 @@ spec:
           labels:
             app: postgres-backup
           annotations:
-            checkov.io/skip: "CKV_K8S_22=Backup job needs writable tmp space,CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,CKV_K8S_40=UID 999 is the standard PostgreSQL user,CKV_K8S_43=Custom internal image without published digest"
+            checkov.io/skip: >-
+              CKV_K8S_22=Backup job needs writable tmp space,
+              CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
+              CKV_K8S_40=UID 999 is the standard PostgreSQL user,
+              CKV_K8S_43=Custom internal image without published digest
         spec:
           restartPolicy: OnFailure
           automountServiceAccountToken: false
@@ -458,7 +466,11 @@ spec:
           labels:
             app: postgres-backup-verify
           annotations:
-            checkov.io/skip: "CKV_K8S_22=Verify job needs writable tmp space,CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,CKV_K8S_40=UID 999 is the standard PostgreSQL user,CKV_K8S_43=Custom internal image without published digest"
+            checkov.io/skip: >-
+              CKV_K8S_22=Verify job needs writable tmp space,
+              CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
+              CKV_K8S_40=UID 999 is the standard PostgreSQL user,
+              CKV_K8S_43=Custom internal image without published digest
         spec:
           restartPolicy: OnFailure
           automountServiceAccountToken: false

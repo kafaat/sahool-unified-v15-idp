@@ -89,11 +89,9 @@ export function useWebSocket({
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        // Clear any existing pong timeout before setting a new one
-        if (pongTimeoutRef.current) {
-          clearTimeout(pongTimeoutRef.current);
-          pongTimeoutRef.current = null;
-        }
+        // Skip ping if a pong timeout is already pending — avoids resetting
+        // the stale-connection detector when heartbeatInterval < 10 s.
+        if (pongTimeoutRef.current) return;
 
         wsRef.current.send(JSON.stringify({ type: "ping", ts: Date.now() }));
 

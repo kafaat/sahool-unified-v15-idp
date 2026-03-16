@@ -39,9 +39,14 @@ from .agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
 from .cache import CacheBackend, create_cache_backend, generate_cache_key
 from .github_integration import GitHubIntegration, PRReviewResult
 
-# Ensure logs directory exists
-Path("/app/logs").mkdir(parents=True, exist_ok=True)
-Path("/app/cache").mkdir(parents=True, exist_ok=True)
+# Ensure logs and cache directories exist (may fail outside Docker)
+try:
+    Path("/app/logs").mkdir(parents=True, exist_ok=True)
+    Path("/app/cache").mkdir(parents=True, exist_ok=True)
+except OSError:
+    # Running outside Docker - use local fallback paths
+    Path("logs").mkdir(parents=True, exist_ok=True)
+    Path("cache").mkdir(parents=True, exist_ok=True)
 
 # Configure logging
 # Setup logging - use StreamHandler only to avoid permission issues
@@ -215,8 +220,8 @@ class CodeReviewHandler(FileSystemEventHandler):
         try:
             loop = asyncio.get_event_loop()
             self._debounce_tasks[file_str] = loop.create_task(debounced_review())
-        except RuntimeError:
-            pass
+        except RuntimeError as e:
+            logger.warning("Failed to schedule review for %s: %s", file_path, e)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

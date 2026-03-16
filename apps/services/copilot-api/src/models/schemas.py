@@ -7,11 +7,13 @@ Pydantic models for request/response validation.
 
 from __future__ import annotations
 
-from datetime import datetime
-from enum import Enum, StrEnum
-from typing import Any, Optional
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
+
+from ..core.config import SERVICE_VERSION
 
 
 class MessageRole(StrEnum):
@@ -82,7 +84,7 @@ class ChatResponse(BaseModel):
     rag_context: list[dict[str, Any]] | None = None
     tool_calls: list[dict[str, Any]] | None = None
     usage: dict[str, int] | None = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {
         "json_schema_extra": {
@@ -198,10 +200,10 @@ class HealthResponse(BaseModel):
 
     status: str = "ok"
     service: str = "copilot-api"
-    version: str = "1.0.0"
+    version: str = SERVICE_VERSION
     mode: CopilotMode = CopilotMode.OFFLINE
     components: dict[str, bool] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {
         "json_schema_extra": {

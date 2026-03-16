@@ -20,8 +20,9 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
+import httpx
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -130,16 +131,51 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("Chat history database initialization failed", error=str(e))
 
+    # Initialize NATS connection
+    # تهيئة اتصال NATS
+    app.state.nc = None
+    if settings.nats_url:
+        try:
+            import nats
+
+            app.state.nc = await nats.connect(
+                settings.nats_url,
+                connect_timeout=5,
+                max_reconnect_attempts=3,
+            )
+            logger.info("NATS connected", url=settings.nats_url)
+        except Exception as e:
+            logger.warning("NATS connection failed, events disabled", error=str(e))
+
+    # Initialize shared HTTP client for service-to-service calls
+    # تهيئة عميل HTTP مشترك للاتصالات بين الخدمات
+    app.state.http_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(30.0, connect=5.0),
+        limits=httpx.Limits(max_connections=50, max_keepalive_connections=10),
+    )
+
     # Store settings in app state
     app.state.settings = settings
 
     yield
 
+    # Cleanup: close shared HTTP client
+    # تنظيف: إغلاق عميل HTTP المشترك
+    if app.state.http_client:
+        await app.state.http_client.aclose()
+
+    # Cleanup: close NATS connection
+    # تنظيف: إغلاق اتصال NATS
+    if app.state.nc:
+        try:
+            await app.state.nc.close()
+        except Exception as e:
+            logger.warning("Error closing NATS connection", error=str(e))
+
     # Cleanup: close chat history database pool
     # تنظيف: إغلاق تجمع اتصالات قاعدة بيانات سجل المحادثات
     await close_db()
 
-    # Cleanup
     logger.info("Shutting down Copilot API")
 
 
@@ -172,12 +208,14 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Setup unified error handling
+    # Setup unified error handling (includes request ID middleware)
+    _has_shared_errors = False
     try:
         from shared.errors_py import add_request_id_middleware as _add_req_id, setup_exception_handlers as _setup_exc
 
         _setup_exc(app)
         _add_req_id(app)
+        _has_shared_errors = True
     except ImportError:
         pass
 
@@ -192,16 +230,18 @@ def create_app() -> FastAPI:
 
     app.add_middleware(TenantContextMiddleware)
 
-    # Request ID middleware
-    @app.middleware("http")
-    async def add_request_id(request: Request, call_next):
-        import uuid
+    # Fallback request ID middleware (only if shared.errors_py not available)
+    if not _has_shared_errors:
 
-        request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
-        request.state.request_id = request_id
-        response = await call_next(request)
-        response.headers["X-Request-ID"] = request_id
-        return response
+        @app.middleware("http")
+        async def add_request_id(request: Request, call_next):
+            import uuid
+
+            request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+            request.state.request_id = request_id
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = request_id
+            return response
 
     # Exception handlers
     @app.exception_handler(Exception)

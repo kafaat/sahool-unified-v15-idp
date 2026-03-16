@@ -3,16 +3,16 @@ Health Check Endpoints
 نقاط نهاية فحص الصحة
 
 Author: SAHOOL Platform Team
-Updated: January 2026
+Updated: March 2026
 """
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Request, Response
 
-from ...core.config import get_settings
+from ...core.config import SERVICE_VERSION, get_settings
 from ...models.schemas import CopilotMode, HealthResponse
 from ...rag import get_rag_service
 
@@ -30,7 +30,7 @@ async def liveness():
     return HealthResponse(
         status="ok",
         service="copilot-api",
-        version="1.0.0",
+        version=SERVICE_VERSION,
         mode=CopilotMode(settings.copilot_mode),
         timestamp=datetime.now(UTC),
     )
@@ -38,10 +38,10 @@ async def liveness():
 
 @router.get("/readyz", response_model=HealthResponse)
 @router.get("/health/ready", response_model=HealthResponse)
-async def readiness():
+async def readiness(request: Request):
     """
-    Readiness probe - checks all dependencies.
-    فحص الجاهزية - يفحص جميع التبعيات
+    Readiness probe - checks all dependencies using app-level connections.
+    فحص الجاهزية - يفحص جميع التبعيات باستخدام اتصالات مستوى التطبيق
     """
     settings = get_settings()
     components = {}
@@ -56,27 +56,16 @@ async def readiness():
         components["rag"] = False
         components["qdrant"] = False
 
-    # Check Redis (if configured)
-    if settings.redis_url:
-        try:
-            import redis.asyncio as redis
-
-            client = redis.from_url(settings.redis_url)
-            await client.ping()
-            components["redis"] = True
-            await client.close()
-        except Exception:
-            components["redis"] = False
-
-    # Check NATS
-    try:
-        import nats
-
-        nc = await nats.connect(settings.nats_url, connect_timeout=2)
-        await nc.close()
-        components["nats"] = True
-    except Exception:
+    # Check NATS using app-level connection (no new connection per probe)
+    # فحص NATS باستخدام اتصال مستوى التطبيق (بدون اتصال جديد لكل فحص)
+    nc = getattr(request.app.state, "nc", None)
+    if nc is not None:
+        components["nats"] = nc.is_connected
+    else:
         components["nats"] = False
+
+    # Check chat DB readiness from app state
+    components["chat_db"] = getattr(request.app.state, "chat_db_ready", False)
 
     # Determine overall status
     all_healthy = all(components.values()) if components else True
@@ -85,7 +74,7 @@ async def readiness():
     return HealthResponse(
         status=status,
         service="copilot-api",
-        version="1.0.0",
+        version=SERVICE_VERSION,
         mode=CopilotMode(settings.copilot_mode),
         components=components,
         timestamp=datetime.now(UTC),
@@ -93,12 +82,12 @@ async def readiness():
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health():
+async def health(request: Request):
     """
     Combined health check.
     فحص صحة مجمع
     """
-    return await readiness()
+    return await readiness(request)
 
 
 @router.get("/metrics")

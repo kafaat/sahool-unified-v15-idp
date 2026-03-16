@@ -14,6 +14,7 @@ from .allowlists import (
 )
 from .guardrails import (
     ToolGuard,
+    get_guard,
     guard_tool_call,
     is_domain_allowed,
     is_tool_allowed,
@@ -21,6 +22,7 @@ from .guardrails import (
 
 __all__ = [
     "ToolGuard",
+    "get_guard",
     "guard_tool_call",
     "is_tool_allowed",
     "is_domain_allowed",

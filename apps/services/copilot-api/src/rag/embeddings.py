@@ -15,9 +15,10 @@ import hashlib
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timezone
-from enum import Enum, StrEnum
-from typing import Any, Optional
+from collections import OrderedDict
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 import structlog
 
@@ -43,6 +44,7 @@ class EmbeddingConfig:
     batch_size: int = 32
     cache_enabled: bool = True
     cache_ttl_seconds: int = 3600
+    cache_max_size: int = 10000
 
     def __post_init__(self):
         """Load from environment variables"""
@@ -89,7 +91,7 @@ class EmbeddingService:
     def __init__(self, config: EmbeddingConfig | None = None):
         """Initialize embedding service"""
         self.config = config or EmbeddingConfig()
-        self._cache: dict[str, tuple[list[float], float]] = {}
+        self._cache: OrderedDict[str, tuple[list[float], float]] = OrderedDict()
         self._model = None
         self._initialized = False
         self._dimension: int | None = None
@@ -190,6 +192,8 @@ class EmbeddingService:
         if self.config.cache_enabled and cache_key in self._cache:
             embedding, cached_time = self._cache[cache_key]
             if time.time() - cached_time < self.config.cache_ttl_seconds:
+                # Move to end for LRU ordering
+                self._cache.move_to_end(cache_key)
                 return EmbeddingResult(
                     embedding=embedding,
                     text=text,
@@ -199,6 +203,9 @@ class EmbeddingService:
                     provider=self.config.provider.value,
                     model=self.config.model,
                 )
+            else:
+                # Expired entry, remove it
+                del self._cache[cache_key]
 
         # Generate embedding
         if self.config.provider == EmbeddingProvider.SENTENCE_TRANSFORMERS:
@@ -210,9 +217,13 @@ class EmbeddingService:
         else:
             embedding = self._embed_fallback(text)
 
-        # Cache result
+        # Cache result with LRU eviction
         if self.config.cache_enabled:
             self._cache[cache_key] = (embedding, time.time())
+            self._cache.move_to_end(cache_key)
+            # Evict oldest entries if cache exceeds max size
+            while len(self._cache) > self.config.cache_max_size:
+                self._cache.popitem(last=False)
 
         latency_ms = (time.time() - start_time) * 1000
 

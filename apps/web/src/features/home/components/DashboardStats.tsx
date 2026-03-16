@@ -112,8 +112,11 @@ export const DashboardStats: React.FC = () => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await Promise.all([refetchStats(), refetchWeather()]);
-    setIsRefreshing(false);
+    try {
+      await Promise.all([refetchStats(), refetchWeather()]);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   if (isLoading) {

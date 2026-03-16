@@ -6,8 +6,6 @@ Tests for quality level classification, issue severity,
 audit actions, and quality report generation.
 """
 
-import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
 
 from shared.ai.quality_orchestrator import (
     AuditAction,

@@ -6,7 +6,6 @@ Tests for hardware detection, inference configuration,
 dynamic batching, and model optimization.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
 from shared.ai.hardware_optimizer import (

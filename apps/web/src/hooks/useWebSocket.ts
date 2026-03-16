@@ -43,6 +43,10 @@ export function useWebSocket({
     typeof document !== "undefined" ? !document.hidden : true,
   );
   const sendBufferRef = useRef<unknown[]>([]);
+  // Use a ref for reconnect count in backoff calculation to keep connect() stable
+  const reconnectCountRef = useRef(0);
+  // Store connect in a ref so visibility handler always has fresh closure
+  const connectRef = useRef<() => void>(() => {});
 
   // Update callback ref when it changes
   useEffect(() => {
@@ -55,12 +59,12 @@ export function useWebSocket({
       isTabVisibleRef.current = !document.hidden;
       if (!document.hidden && !isConnected && enabled) {
         // Tab became visible and we're disconnected - reconnect immediately
-        connect();
+        connectRef.current();
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [isConnected, enabled]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isConnected, enabled]);
 
   // Flush buffered outbound messages over the now-open WebSocket
   const flushSendBuffer = useCallback(() => {
@@ -83,6 +87,12 @@ export function useWebSocket({
 
     heartbeatTimeoutRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
+        // Clear any existing pong timeout before setting a new one
+        if (pongTimeoutRef.current) {
+          clearTimeout(pongTimeoutRef.current);
+          pongTimeoutRef.current = null;
+        }
+
         wsRef.current.send(JSON.stringify({ type: "ping", ts: Date.now() }));
 
         // Expect pong within 10 seconds
@@ -127,6 +137,7 @@ export function useWebSocket({
         setIsConnected(true);
         setError(null);
         setReconnectCount(0);
+        reconnectCountRef.current = 0;
         logger.log("WebSocket connected");
 
         // Flush any buffered outbound messages
@@ -166,19 +177,23 @@ export function useWebSocket({
           return;
         }
 
-        // Exponential backoff: 5s, 10s, 20s, 40s, max 60s
+        // Exponential backoff using ref to avoid dependency on state
+        const currentCount = reconnectCountRef.current;
         const backoff = Math.min(
-          reconnectInterval * Math.pow(2, reconnectCount),
+          reconnectInterval * Math.pow(2, currentCount),
           60000
         );
         logger.log(`WebSocket disconnected, reconnecting in ${backoff}ms...`);
-        setReconnectCount((c) => c + 1);
+        reconnectCountRef.current = currentCount + 1;
+        setReconnectCount(reconnectCountRef.current);
 
         // Clear any existing timeout before setting new one
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
         }
-        reconnectTimeoutRef.current = setTimeout(connect, backoff);
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connectRef.current();
+        }, backoff);
       };
 
       wsRef.current.onerror = (event) => {
@@ -190,7 +205,12 @@ export function useWebSocket({
       logger.error("Failed to connect WebSocket:", err);
       setError(err instanceof Error ? err.message : "Failed to connect");
     }
-  }, [url, reconnectInterval, enabled, reconnectCount, flushSendBuffer, startHeartbeat, stopHeartbeat]);
+  }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
+
+  // Keep connectRef in sync with latest connect
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     isMountedRef.current = true;

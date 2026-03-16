@@ -426,7 +426,8 @@ services:
   mqtt:
     image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
-    user: "1883:1883"
+    # NOTE: Do NOT set user: "1883:1883" here. The init-mqtt.sh script requires
+    # root to chown/chmod files, and mosquitto drops privileges after starting.
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
@@ -882,22 +883,19 @@ services:
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
       # ─── TLS SECURITY ─────────────────────────────────────────────────────
-      # SECURITY FIX: Enable auto-generated TLS for both client and peer traffic.
-      # This eliminates "serving client traffic insecurely" audit finding.
-      # Auto-TLS generates self-signed certs on startup - suitable for internal
-      # Docker network communication. For production with external access, use
-      # manual certs via docker-compose.tls.yml overlay instead.
-      - ETCD_AUTO_TLS=true
-      - ETCD_PEER_AUTO_TLS=true
+      # Auto-TLS is DISABLED by default for development. etcdctl healthchecks
+      # fail with auto-TLS due to a known etcd bug where --insecure-skip-tls-verify
+      # requires --cacert (https://github.com/etcd-io/etcd/issues/11693).
+      # For production TLS, use docker-compose.tls.yml overlay with proper certs.
+      # - ETCD_AUTO_TLS=true
+      # - ETCD_PEER_AUTO_TLS=true
       # ─── Authentication ────────────────────────────────────────────────────
-      # Development uses simple tokens (default). Auto-TLS encrypts the wire,
-      # mitigating replay risk. For production JWT auth, use docker-compose.tls.yml
-      # overlay which generates RSA keypair and sets ETCD_AUTH_TOKEN=jwt,...
+      # Development uses simple tokens (default). For production JWT auth, use
+      # docker-compose.tls.yml overlay which sets ETCD_AUTH_TOKEN=jwt,...
       - ETCD_AUTH_TOKEN=simple
-      # etcdctl configuration for healthcheck (must use HTTPS with auto-TLS)
+      # etcdctl configuration for healthcheck
       - ETCDCTL_API=3
-      - ETCDCTL_ENDPOINTS=https://127.0.0.1:2379
-      - ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
+      - ETCDCTL_ENDPOINTS=http://127.0.0.1:2379
       # Authentication credentials (custom vars, NOT used by etcd server itself).
       # Kept here to validate .env has these vars set (used by etcd-init container).
       # Override in .env file for production (copy from .env.example): cp .env.example .env
@@ -913,29 +911,23 @@ services:
     # FIX: Changed advertise-client-urls from 127.0.0.1 to etcd (container hostname)
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
     # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
-    # SECURITY FIX: Use https:// URLs now that auto-TLS is enabled
-    # SECURITY FIX: Set --data-dir permissions to 0700 (rwx------) to prevent
-    # unauthorized access to etcd data. The default drwxr-xr-x is too permissive.
+    # NOTE: Uses HTTP for development. For TLS, use docker-compose.tls.yml overlay.
     command: >-
       etcd
-      -advertise-client-urls=https://etcd:2379
-      -listen-client-urls=https://0.0.0.0:2379
+      -advertise-client-urls=http://etcd:2379
+      -listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
-      --heartbeat-interval=2000
-      --election-timeout=10000
     healthcheck:
       # Uses etcdctl (exec form CMD, not CMD-SHELL) because etcd v3.5.7+ images are
       # distroless with no /bin/sh, curl, or wget. etcdctl is the only available binary.
       # Note: When auth is enabled (via etcd-auth profile), this check may log a warning
       # "authentication is not enabled" on fresh start, but still exits 0 if healthy.
       # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars above configure the connection.
-      # SECURITY: --insecure-skip-tls-verify used because auto-TLS generates self-signed certs.
-      # The ETCDCTL_INSECURE_SKIP_TLS_VERIFY env var handles this for the healthcheck.
       test: [ "CMD", "etcdctl", "endpoint", "health" ]
       interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 45s
+      timeout: 20s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     depends_on:
       etcd-perms-init:
@@ -994,10 +986,8 @@ services:
     container_name: sahool-etcd-init
     environment:
       - ETCDCTL_API=3
-      # SECURITY FIX: Use HTTPS now that etcd has auto-TLS enabled
-      - ETCDCTL_ENDPOINTS=https://etcd:2379
-      # Skip TLS verification for auto-generated self-signed certs
-      - ETCDCTL_INSECURE_SKIP_TLS_VERIFY=true
+      # NOTE: Uses HTTP for development. For TLS, use docker-compose.tls.yml overlay.
+      - ETCDCTL_ENDPOINTS=http://etcd:2379
       - ETCD_ROOT_USERNAME=${ETCD_ROOT_USERNAME:?ETCD_ROOT_USERNAME required. Run 'make dev' or copy .env.example to .env}
       - ETCD_ROOT_PASSWORD=${ETCD_ROOT_PASSWORD:?ETCD_ROOT_PASSWORD required. Run 'make dev' or copy .env.example to .env}
     depends_on:
@@ -1127,10 +1117,9 @@ services:
       # Etcd connection (Milvus v2.5+ supports etcd auth; enable via --profile etcd-auth)
       ETCD_ENDPOINTS: etcd:2379
       ETCD_ROOT_PATH: /milvus
-      # SECURITY FIX: Enable TLS for etcd connection (etcd now uses auto-TLS)
-      ETCD_USE_SSL: "true"
-      # Skip TLS verification for auto-generated self-signed certs
-      ETCD_TLS_SKIP_VERIFY: "true"
+      # NOTE: TLS disabled in development. For production, enable via docker-compose.tls.yml
+      # ETCD_USE_SSL: "true"
+      # ETCD_TLS_SKIP_VERIFY: "true"
       # Etcd auth credentials - required when etcd-auth profile is enabled
       # Without these, Milvus will fail to connect once etcd auth is turned on
       ETCD_USERNAME: ${ETCD_ROOT_USERNAME:-}

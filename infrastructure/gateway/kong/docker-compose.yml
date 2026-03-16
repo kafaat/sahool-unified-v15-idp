@@ -349,7 +349,9 @@ services:
     container_name: kong-redis
     restart: unless-stopped
     networks:
-      - kong-net
+      kong-net:
+        aliases:
+          - redis
     command: >
       redis-server
       --appendonly yes

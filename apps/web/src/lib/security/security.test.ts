@@ -267,7 +267,7 @@ describe("Security", () => {
     it("should get CSRF token from cookie", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=test_csrf_token_123",
+        value: "_csrf=test_csrf_token_123",
       });
 
       expect(getCsrfToken()).toBe("test_csrf_token_123");
@@ -285,7 +285,7 @@ describe("Security", () => {
     it("should get CSRF headers", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=token123",
+        value: "_csrf=token123",
       });
 
       const headers = getCsrfHeaders();

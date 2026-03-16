@@ -130,7 +130,7 @@ services:
   # Field Management - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: field-core-v1
-    host: field-management-upstream
+    host: field-management-service-upstream
     tags:
       - v1
       - deprecated
@@ -177,7 +177,7 @@ services:
               - "Link: </api/v2/fields>; rel=\"successor-version\""
 
   - name: field-core-v2
-    host: field-management-upstream
+    host: field-management-service-upstream
     tags:
       - v2
       - current
@@ -306,7 +306,7 @@ services:
   # Satellite Service - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: satellite-service-v1
-    host: vegetation-analysis-upstream
+    host: vegetation-analysis-service-upstream
     tags:
       - v1
       - deprecated
@@ -343,7 +343,7 @@ services:
               - "Link: </api/v2/satellite>; rel=\"successor-version\""
 
   - name: satellite-service-v2
-    host: vegetation-analysis-upstream
+    host: vegetation-analysis-service-upstream
     tags:
       - v2
       - current
@@ -381,7 +381,7 @@ services:
   # AI Advisor - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: ai-advisor-v1
-    host: ai-advisor-upstream
+    host: ai-advisor-service-upstream
     tags:
       - v1
       - deprecated
@@ -418,7 +418,7 @@ services:
               - "Link: </api/v2/ai-advisor>; rel=\"successor-version\""
 
   - name: ai-advisor-v2
-    host: ai-advisor-upstream
+    host: ai-advisor-service-upstream
     tags:
       - v2
       - current

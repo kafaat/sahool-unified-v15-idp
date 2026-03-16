@@ -47,6 +47,8 @@ export function useWebSocket({
   const reconnectCountRef = useRef(0);
   // Store connect in a ref so visibility handler always has fresh closure
   const connectRef = useRef<() => void>(() => {});
+  // Flag to suppress reconnect after manual disconnect or unmount
+  const shouldReconnectRef = useRef(true);
 
   // Update callback ref when it changes
   useEffect(() => {
@@ -116,8 +118,8 @@ export function useWebSocket({
   }, []);
 
   const connect = useCallback(() => {
-    // Don't connect if unmounted, disabled, or tab hidden
-    if (!isMountedRef.current || !enabled || !isTabVisibleRef.current) return;
+    // Don't connect if unmounted, disabled, tab hidden, or manually disconnected
+    if (!isMountedRef.current || !enabled || !isTabVisibleRef.current || !shouldReconnectRef.current) return;
 
     try {
       // Clean up existing connection
@@ -171,6 +173,12 @@ export function useWebSocket({
         setIsConnected(false);
         stopHeartbeat();
 
+        // Don't reconnect if manually disconnected or unmounting
+        if (!shouldReconnectRef.current) {
+          logger.log("WebSocket disconnected, reconnect suppressed");
+          return;
+        }
+
         // Don't reconnect if tab is hidden
         if (!isTabVisibleRef.current) {
           logger.log("WebSocket disconnected, tab hidden - waiting for visibility");
@@ -214,6 +222,7 @@ export function useWebSocket({
 
   useEffect(() => {
     isMountedRef.current = true;
+    shouldReconnectRef.current = true;
 
     if (enabled) {
       connect();
@@ -221,6 +230,7 @@ export function useWebSocket({
 
     return () => {
       isMountedRef.current = false;
+      shouldReconnectRef.current = false;
       stopHeartbeat();
 
       if (reconnectTimeoutRef.current) {
@@ -247,9 +257,11 @@ export function useWebSocket({
   }, [maxBufferSize]);
 
   const disconnect = useCallback(() => {
+    shouldReconnectRef.current = false;
     stopHeartbeat();
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
     wsRef.current?.close();
   }, [stopHeartbeat]);

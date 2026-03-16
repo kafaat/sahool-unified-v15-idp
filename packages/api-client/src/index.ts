@@ -65,6 +65,7 @@ export class SahoolApiClient {
   private enforceHttps: boolean;
   private isRefreshing: boolean = false;
   private refreshSubscribers: Array<(token: string | null) => void> = [];
+  private tenantId: string | null = null;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Default retry configuration
@@ -129,17 +130,26 @@ export class SahoolApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add auth token and enforce HTTPS
+    // Request interceptor - add auth token, request ID, tenant ID, and enforce HTTPS
     this.client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       // Enforce HTTPS on outgoing request URLs in production
       if (this.enforceHttps && config.url) {
         config.url = this.upgradeToHttps(config.url);
       }
 
+      // Add unique request ID for traceability
+      config.headers["X-Request-ID"] = crypto.randomUUID();
+
       const token = this.config.getToken?.();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      // Add tenant ID header for multi-tenant isolation
+      if (this.tenantId) {
+        config.headers["X-Tenant-Id"] = this.tenantId;
+      }
+
       return config;
     });
 
@@ -557,6 +567,10 @@ export class SahoolApiClient {
 
   setToken(token: string): void {
     this.config.setToken?.(token);
+  }
+
+  setTenantId(tenantId: string): void {
+    this.tenantId = tenantId;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

@@ -141,18 +141,6 @@ interface RequestOptions extends RequestInit {
   timeout?: number;
 }
 
-// Enforce HTTPS in production
-if (
-  typeof window !== "undefined" &&
-  IS_PRODUCTION &&
-  !API_BASE_URL.startsWith("https://") &&
-  !API_BASE_URL.includes("localhost")
-) {
-  logger.warn(
-    "Warning: API_BASE_URL should use HTTPS in production environment",
-  );
-}
-
 // Helper function to delay for retry logic
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -201,8 +189,22 @@ class AdminApiClient {
   private rbacContext: RBACContext | null = null;
   private auditQueue: AuditLogEntry[] = [];
   private auditFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  private currentUserId: string = "";
+  private currentUserEmail: string = "";
+  private onUnauthorized: (() => void) | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
+    // Block HTTP in production instead of just warning
+    if (
+      IS_PRODUCTION &&
+      !baseUrl.startsWith("https://") &&
+      !baseUrl.includes("localhost")
+    ) {
+      throw new Error(
+        "API_BASE_URL must use HTTPS in production. " +
+        "يجب استخدام HTTPS في بيئة الإنتاج"
+      );
+    }
     this.baseUrl = baseUrl;
   }
 
@@ -210,9 +212,20 @@ class AdminApiClient {
     this.token = token;
   }
 
+  setUserContext(userId: string, email: string) {
+    this.currentUserId = userId;
+    this.currentUserEmail = email;
+  }
+
+  setOnUnauthorized(callback: () => void) {
+    this.onUnauthorized = callback;
+  }
+
   clearToken() {
     this.token = null;
     this.rbacContext = null;
+    this.currentUserId = "";
+    this.currentUserEmail = "";
   }
 
   // ===========================================================================
@@ -296,8 +309,8 @@ class AdminApiClient {
       actionAr,
       resource,
       resourceId,
-      userId: "",
-      userEmail: "",
+      userId: this.currentUserId,
+      userEmail: this.currentUserEmail,
       details,
       success,
     };
@@ -387,12 +400,18 @@ class AdminApiClient {
       "Content-Type": "application/json",
       Accept: "application/json",
       "Accept-Language": "ar,en",
+      "X-Request-ID": crypto.randomUUID(),
       ...options.headers,
     };
 
     if (this.token) {
       (headers as Record<string, string>)["Authorization"] =
         `Bearer ${this.token}`;
+    }
+
+    if (this.rbacContext?.tenantId) {
+      (headers as Record<string, string>)["X-Tenant-Id"] =
+        this.rbacContext.tenantId;
     }
 
     // Retry logic
@@ -435,7 +454,9 @@ class AdminApiClient {
           // Handle 401 Unauthorized - token expired or invalid
           if (response.status === 401) {
             this.clearToken();
-            if (typeof window !== "undefined") {
+            if (this.onUnauthorized) {
+              this.onUnauthorized();
+            } else if (typeof window !== "undefined") {
               window.location.href = "/login";
             }
           }

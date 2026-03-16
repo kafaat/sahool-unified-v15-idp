@@ -137,9 +137,10 @@ export class SahoolApiClient {
         config.url = this.upgradeToHttps(config.url);
       }
 
-      // Add unique request ID for traceability (preserve caller-provided ID)
-      if (!config.headers[CUSTOM_HEADERS.REQUEST_ID]) {
-        config.headers[CUSTOM_HEADERS.REQUEST_ID] = crypto.randomUUID();
+      // Add unique request ID for traceability (preserve caller-provided ID).
+      // Use AxiosHeaders .has()/.set() for case-insensitive lookup (Axios v1+).
+      if (!config.headers.has(CUSTOM_HEADERS.REQUEST_ID)) {
+        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, crypto.randomUUID());
       }
 
       const token = this.config.getToken?.();
@@ -149,7 +150,7 @@ export class SahoolApiClient {
 
       // Add tenant ID header for multi-tenant isolation
       if (this.tenantId) {
-        config.headers[CUSTOM_HEADERS.TENANT_ID] = this.tenantId;
+        config.headers.set(CUSTOM_HEADERS.TENANT_ID, this.tenantId);
       }
 
       return config;

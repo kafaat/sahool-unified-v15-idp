@@ -36,6 +36,28 @@ const CATEGORY_OPTIONS = [
   { value: "equipment", label: "معدات" },
 ];
 
+const STATUS_LABELS: Record<InventoryItem["status"], string> = {
+  in_stock: "متوفر",
+  low_stock: "مخزون منخفض",
+  out_of_stock: "نفذ",
+  expired: "منتهي الصلاحية",
+};
+
+const STATUS_COLORS: Record<InventoryItem["status"], string> = {
+  in_stock: "bg-green-100 text-green-800",
+  low_stock: "bg-yellow-100 text-yellow-800",
+  out_of_stock: "bg-red-100 text-red-800",
+  expired: "bg-gray-100 text-gray-800",
+};
+
+function getStatusLabel(status: InventoryItem["status"]) {
+  return STATUS_LABELS[status];
+}
+
+function getStatusColor(status: InventoryItem["status"]) {
+  return STATUS_COLORS[status];
+}
+
 const STATUS_OPTIONS = [
   { value: "in_stock", label: "متوفر" },
   { value: "low_stock", label: "مخزون منخفض" },
@@ -118,26 +140,6 @@ export default function InventoryPage() {
     lowStock: inventory.filter((item) => item.status === "low_stock").length,
     outOfStock: inventory.filter((item) => item.status === "out_of_stock").length,
   }), [inventory]);
-
-  const getStatusLabel = (status: InventoryItem["status"]) => {
-    const labels: Record<InventoryItem["status"], string> = {
-      in_stock: "متوفر",
-      low_stock: "مخزون منخفض",
-      out_of_stock: "نفذ",
-      expired: "منتهي الصلاحية",
-    };
-    return labels[status];
-  };
-
-  const getStatusColor = (status: InventoryItem["status"]) => {
-    const colors: Record<InventoryItem["status"], string> = {
-      in_stock: "bg-green-100 text-green-800",
-      low_stock: "bg-yellow-100 text-yellow-800",
-      out_of_stock: "bg-red-100 text-red-800",
-      expired: "bg-gray-100 text-gray-800",
-    };
-    return colors[status];
-  };
 
   // Modal handlers
   const openCreate = useCallback(() => {
@@ -510,7 +512,7 @@ export default function InventoryPage() {
                 {modalMode === "view" && "تفاصيل الصنف"}
               </h2>
               <button
-                ref={(el) => el?.focus()}
+                autoFocus
                 onClick={closeModal}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label="إغلاق"

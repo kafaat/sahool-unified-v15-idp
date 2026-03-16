@@ -62,14 +62,14 @@ class ServicePorts {
     if (EnvConfig.notificationsPort != contracts.ServicePorts.notifications) {
       mismatches['notifications'] = 'env=${EnvConfig.notificationsPort} contract=${contracts.ServicePorts.notifications}';
     }
-    if (EnvConfig.chatPort != contracts.ServicePorts.fieldChat) {
-      mismatches['chat'] = 'env=${EnvConfig.chatPort} contract=${contracts.ServicePorts.fieldChat}';
+    if (EnvConfig.chatPort != contracts.ServicePorts.chatService) {
+      mismatches['chat'] = 'env=${EnvConfig.chatPort} contract=${contracts.ServicePorts.chatService}';
     }
-    if (EnvConfig.communityChatPort != contracts.ServicePorts.communityChat) {
-      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.communityChat}';
+    if (EnvConfig.communityChatPort != contracts.ServicePorts.chatService) {
+      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.chatService}';
     }
-    if (EnvConfig.sprayPort != contracts.ServicePorts.yieldEngine) {
-      mismatches['yieldEngine'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldEngine}';
+    if (EnvConfig.sprayPort != contracts.ServicePorts.yieldPrediction) {
+      mismatches['yieldPrediction'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldPrediction}';
     }
     if (EnvConfig.billingPort != contracts.ServicePorts.billingCore) {
       mismatches['billing'] = 'env=${EnvConfig.billingPort} contract=${contracts.ServicePorts.billingCore}';

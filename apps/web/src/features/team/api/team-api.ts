@@ -175,8 +175,28 @@ function filterMockMembers(filters?: TeamFilters): TeamMember[] {
 }
 
 /**
+ * Return an unbiased random integer in [0, max) using rejection sampling.
+ * Avoids modulo bias that occurs with `value % max` on uniform 32-bit values.
+ */
+function getRandomIntBelow(max: number): number {
+  const limit = Math.floor(0x100000000 / max) * max;
+  const buf = new Uint32Array(1);
+  let value: number;
+  do {
+    globalThis.crypto.getRandomValues(buf);
+    value = buf[0]!;
+  } while (value >= limit);
+  return value % max;
+}
+
+/** Pick a random character from a string using unbiased sampling. */
+function randomCharFrom(charset: string): string {
+  return charset[getRandomIntBelow(charset.length)]!;
+}
+
+/**
  * Generate a cryptographically secure temporary password meeting complexity requirements.
- * Includes uppercase, lowercase, digits, and special characters.
+ * Uses rejection sampling to eliminate modulo bias.
  */
 function generateTempPassword(length = 16): string {
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -185,24 +205,19 @@ function generateTempPassword(length = 16): string {
   const special = "!@#$%&*";
   const all = upper + lower + digits + special;
 
-  const values = Array.from(
-    globalThis.crypto.getRandomValues(new Uint32Array(length)),
-  );
   // Guarantee at least one char from each required set
-  const mandatory = [
-    upper[values[0]! % upper.length],
-    lower[values[1]! % lower.length],
-    digits[values[2]! % digits.length],
-    special[values[3]! % special.length],
+  const combined: string[] = [
+    randomCharFrom(upper),
+    randomCharFrom(lower),
+    randomCharFrom(digits),
+    randomCharFrom(special),
   ];
-  const rest = values.slice(4).map((v) => all[v % all.length]);
-  // Shuffle with Fisher-Yates using remaining random values
-  const combined = [...mandatory, ...rest];
-  const shuffleValues = Array.from(
-    globalThis.crypto.getRandomValues(new Uint32Array(combined.length)),
-  );
+  for (let i = 4; i < length; i++) {
+    combined.push(randomCharFrom(all));
+  }
+  // Fisher-Yates shuffle with unbiased random
   for (let i = combined.length - 1; i > 0; i--) {
-    const j = shuffleValues[i]! % (i + 1);
+    const j = getRandomIntBelow(i + 1);
     [combined[i], combined[j]] = [combined[j]!, combined[i]!];
   }
   return combined.join("");

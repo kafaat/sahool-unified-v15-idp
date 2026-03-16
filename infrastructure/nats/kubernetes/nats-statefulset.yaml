@@ -326,7 +326,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "7777"
         prometheus.io/path: "/metrics"
-        checkov.io/skip: "CKV_K8S_35=NATS requires env var substitution in nats.conf for credentials,CKV_K8S_38=NATS needs service account for pod discovery in cluster,CKV_K8S_40=UID 1000 is standard non-root user for NATS"
+        checkov.io/skip: "CKV_K8S_35=NATS requires env var substitution in nats.conf for credentials;CKV_K8S_38=NATS needs service account for pod discovery in cluster;CKV_K8S_40=UID 1000 is standard non-root user for NATS"
     spec:
       # Affinity rules for high availability
       affinity:

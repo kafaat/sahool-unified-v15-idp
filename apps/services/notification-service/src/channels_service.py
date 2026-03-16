@@ -6,7 +6,7 @@ Handles business logic for managing user notification channels
 """
 
 import logging
-import random
+import secrets
 import string
 from typing import Any
 from uuid import UUID
@@ -26,7 +26,7 @@ class ChannelsService:
     @staticmethod
     def generate_verification_code(length: int = 6) -> str:
         """Generate a random verification code"""
-        return "".join(random.choices(string.digits, k=length))
+        return "".join(secrets.choice(string.digits) for _ in range(length))
 
     @staticmethod
     async def add_channel(

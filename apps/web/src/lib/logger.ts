@@ -29,8 +29,20 @@ async function getSentry(): Promise<SentryLike | null> {
 
   try {
     const mod = await import("@sentry/nextjs");
-    SentryModule = mod as SentryLike;
-    return SentryModule;
+    // Validate the module actually exposes the methods we need.
+    // When @sentry/nextjs is aliased to `false` (webpack) the import
+    // resolves to an empty module instead of throwing.
+    if (
+      typeof (mod as Record<string, unknown>).captureException === "function" &&
+      typeof (mod as Record<string, unknown>).captureMessage === "function"
+    ) {
+      SentryModule = mod as SentryLike;
+      return SentryModule;
+    }
+    if (isDev) {
+      console.warn("[Logger] @sentry/nextjs loaded but missing expected methods, continuing without error tracking");
+    }
+    return null;
   } catch (error) {
     // Sentry import failed - continue without it
     if (isDev) {

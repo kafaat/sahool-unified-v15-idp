@@ -485,7 +485,7 @@ export function useRecommendationEvaluation() {
  * Generate unique ID for evaluation
  */
 function generateEvaluationId(): string {
-  return `eval_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `eval_${Date.now()}_${globalThis.crypto.randomUUID().substring(0, 9)}`;
 }
 
 /**

@@ -175,6 +175,62 @@ function filterMockMembers(filters?: TeamFilters): TeamMember[] {
 }
 
 /**
+ * Return an unbiased random integer in [0, max) using rejection sampling.
+ * Avoids modulo bias that occurs with `value % max` on uniform 32-bit values.
+ */
+function getRandomIntBelow(max: number): number {
+  const limit = Math.floor(0x100000000 / max) * max;
+  const buf = new Uint32Array(1);
+  let value: number;
+  do {
+    globalThis.crypto.getRandomValues(buf);
+    value = buf[0]!;
+  } while (value >= limit);
+  return value % max;
+}
+
+/** Pick a random character from a string using unbiased sampling. */
+function randomCharFrom(charset: string): string {
+  return charset[getRandomIntBelow(charset.length)]!;
+}
+
+/**
+ * Generate a cryptographically secure temporary password meeting complexity requirements.
+ * Uses rejection sampling to eliminate modulo bias.
+ */
+function generateTempPassword(length = 16): string {
+  const minLength = 4;
+  if (length < minLength) {
+    throw new Error(
+      `Password length must be at least ${minLength} to satisfy complexity requirements`,
+    );
+  }
+
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = "!@#$%&*";
+  const all = upper + lower + digits + special;
+
+  // Guarantee at least one char from each required set
+  const combined: string[] = [
+    randomCharFrom(upper),
+    randomCharFrom(lower),
+    randomCharFrom(digits),
+    randomCharFrom(special),
+  ];
+  for (let i = 4; i < length; i++) {
+    combined.push(randomCharFrom(all));
+  }
+  // Fisher-Yates shuffle with unbiased random
+  for (let i = combined.length - 1; i > 0; i--) {
+    const j = getRandomIntBelow(i + 1);
+    [combined[i], combined[j]] = [combined[j]!, combined[i]!];
+  }
+  return combined.join("");
+}
+
+/**
  * Team Management API Functions
  */
 export const teamApi = {
@@ -246,7 +302,7 @@ export const teamApi = {
         lastName: data.lastName,
         phone: data.phone,
         role: data.role,
-        password: Math.random().toString(36).slice(-8) + "A1!", // Temporary password
+        password: generateTempPassword(), // Temporary password (crypto-safe)
         tenantId: "default-tenant", // Should come from context
         status: "PENDING",
         emailVerified: false,

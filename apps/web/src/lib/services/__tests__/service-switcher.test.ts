@@ -20,11 +20,16 @@ import {
 } from "../service-switcher";
 
 describe("Service Switcher", () => {
+  let getItemSpy: ReturnType<typeof vi.spyOn>;
+  let setItemSpy: ReturnType<typeof vi.spyOn>;
+  let removeItemSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(null);
-    (window.localStorage.setItem as ReturnType<typeof vi.fn>).mockClear();
-    (window.localStorage.removeItem as ReturnType<typeof vi.fn>).mockClear();
+    localStorage.clear();
+    getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
+    setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
+    removeItemSpy = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {});
   });
 
   describe("Service Registry", () => {
@@ -97,7 +102,7 @@ describe("Service Switcher", () => {
     });
 
     it("should load saved versions from localStorage", () => {
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      getItemSpy.mockReturnValue(
         JSON.stringify({ weather: "legacy", satellite: "mock" }),
       );
 
@@ -109,7 +114,7 @@ describe("Service Switcher", () => {
     });
 
     it("should handle corrupted localStorage gracefully", () => {
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue("not-json");
+      getItemSpy.mockReturnValue("not-json");
 
       const versions = getServiceVersions();
       // Should fall back to defaults
@@ -119,7 +124,7 @@ describe("Service Switcher", () => {
     it("should save version changes to localStorage", () => {
       setServiceVersions({ weather: "legacy" });
 
-      expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      expect(setItemSpy).toHaveBeenCalledWith(
         "sahool_service_versions",
         expect.stringContaining('"weather":"legacy"'),
       );
@@ -144,7 +149,7 @@ describe("Service Switcher", () => {
 
       setServiceVersion("weather", "legacy");
 
-      expect(window.localStorage.setItem).toHaveBeenCalled();
+      expect(setItemSpy).toHaveBeenCalled();
     });
   });
 
@@ -156,7 +161,7 @@ describe("Service Switcher", () => {
     });
 
     it("should generate correct URL for legacy service", () => {
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      getItemSpy.mockReturnValue(
         JSON.stringify({ weather: "legacy" }),
       );
 
@@ -166,7 +171,7 @@ describe("Service Switcher", () => {
     });
 
     it("should generate correct URL for mock service", () => {
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      getItemSpy.mockReturnValue(
         JSON.stringify({ weather: "mock" }),
       );
 
@@ -176,7 +181,7 @@ describe("Service Switcher", () => {
     });
 
     it("should fallback to modern when legacy is not available", () => {
-      (window.localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
+      getItemSpy.mockReturnValue(
         JSON.stringify({ irrigation: "legacy" }),
       );
 
@@ -197,13 +202,13 @@ describe("Service Switcher", () => {
     it("should reset all services to defaults", () => {
       resetToDefaults();
 
-      expect(window.localStorage.removeItem).toHaveBeenCalledWith("sahool_service_versions");
+      expect(removeItemSpy).toHaveBeenCalledWith("sahool_service_versions");
     });
 
     it("should switch all services to modern", () => {
       switchAllServices("modern");
 
-      expect(window.localStorage.setItem).toHaveBeenCalled();
+      expect(setItemSpy).toHaveBeenCalled();
     });
 
     it("should only switch services that support legacy", () => {

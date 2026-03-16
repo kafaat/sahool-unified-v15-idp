@@ -10,6 +10,12 @@ interface Toast {
   message: string;
   messageAr?: string;
   duration?: number;
+  action?: {
+    label: string;
+    labelAr?: string;
+    onClick: () => void;
+  };
+  isExiting?: boolean;
 }
 
 interface ToastContextType {
@@ -30,7 +36,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(timeout);
       timeoutsRef.current.delete(id);
     }
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    // Trigger exit animation before removal
+    setToasts((prev) =>
+      prev.map((toast) => (toast.id === id ? { ...toast, isExiting: true } : toast))
+    );
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 200);
   }, []);
 
   const showToast = React.useCallback(
@@ -125,7 +137,8 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   return (
     <div
       className={clsx(
-        "flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg animate-in slide-in-from-right",
+        "flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg",
+        toast.isExiting ? "animate-slide-out-right" : "animate-slide-in-right",
         variants[toast.type],
       )}
     >
@@ -144,6 +157,18 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
         >
           {toast.message}
         </p>
+        {toast.action && (
+          <button
+            type="button"
+            onClick={() => {
+              toast.action!.onClick();
+              onClose(toast.id);
+            }}
+            className="mt-2 text-xs font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
+          >
+            {toast.action.labelAr || toast.action.label}
+          </button>
+        )}
       </div>
       <React.Suspense fallback={<div className="w-4 h-4" />}>
         <button

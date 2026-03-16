@@ -25,12 +25,12 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
 
       {/* Cart Sidebar */}
-      <div className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform transition-transform duration-300">
+      <div className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform animate-slide-in-right">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
@@ -189,19 +189,31 @@ const CartItem: React.FC<CartItemProps> = ({
 
         <div className="flex items-center justify-between mt-2">
           {/* Quantity Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden">
             <button
               onClick={() => onUpdateQuantity(quantity - 1)}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-e border-gray-300"
+              aria-label="تقليل الكمية"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-3.5 h-3.5" />
             </button>
-            <span className="w-8 text-center font-semibold">{quantity}</span>
+            <input
+              type="number"
+              min={1}
+              value={quantity}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (val > 0) onUpdateQuantity(val);
+              }}
+              className="w-10 text-center text-sm font-semibold bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="الكمية"
+            />
             <button
               onClick={() => onUpdateQuantity(quantity + 1)}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-s border-gray-300"
+              aria-label="زيادة الكمية"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 

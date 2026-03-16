@@ -72,6 +72,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
   onFieldClick,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -158,35 +159,55 @@ export const FieldMap: React.FC<FieldMapProps> = ({
 
           if (fieldItem.polygon) {
             const positions = geoPolygonToLatLng(fieldItem.polygon);
+            const isSelected = selectedFieldId === fieldItem.id;
             return (
               <Polygon
                 key={fieldItem.id}
                 positions={positions}
                 pathOptions={{
-                  color: color,
+                  color: isSelected ? "#1565C0" : color,
                   fillColor: color,
-                  fillOpacity: 0.35,
-                  weight: 2,
+                  fillOpacity: isSelected ? 0.55 : 0.35,
+                  weight: isSelected ? 4 : 2,
+                  dashArray: isSelected ? "" : "",
                 }}
                 eventHandlers={{
-                  click: () => onFieldClick?.(fieldItem.id),
+                  click: () => {
+                    setSelectedFieldId((prev) => (prev === fieldItem.id ? null : fieldItem.id));
+                    onFieldClick?.(fieldItem.id);
+                  },
+                  mouseover: (e) => {
+                    const layer = e.target;
+                    if (!isSelected) {
+                      layer.setStyle({ fillOpacity: 0.5, weight: 3 });
+                    }
+                  },
+                  mouseout: (e) => {
+                    const layer = e.target;
+                    if (!isSelected) {
+                      layer.setStyle({ fillOpacity: 0.35, weight: 2 });
+                    }
+                  },
                 }}
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]">
-                    <h3 className="font-bold text-gray-900 mb-2">
+                  <div className="p-3 min-w-[220px]">
+                    <h3 className="font-bold text-gray-900 mb-1 text-base">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
+                    {fieldItem.name && fieldItem.nameAr && (
+                      <p className="text-xs text-gray-500 mb-3">{fieldItem.name}</p>
+                    )}
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between items-center">
                         <span className="text-gray-600">المساحة:</span>
                         <span className="font-semibold">
                           {fieldItem.area} هكتار
                         </span>
                       </div>
                       {fieldItem.crop && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center">
                           <span className="text-gray-600">المحصول:</span>
                           <span className="font-semibold">
                             {fieldItem.cropAr || fieldItem.crop}
@@ -194,14 +215,26 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                         </div>
                       )}
                       {fieldItem.ndviValue !== undefined && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">NDVI:</span>
-                          <span className="font-semibold">
-                            {fieldItem.ndviValue.toFixed(2)}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">NDVI:</span>
+                            <span className="font-semibold">
+                              {fieldItem.ndviValue.toFixed(2)}
+                            </span>
+                          </div>
+                          {/* NDVI visual bar */}
+                          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${Math.max(0, Math.min(100, fieldItem.ndviValue * 100))}%`,
+                                backgroundColor: color,
+                              }}
+                            />
+                          </div>
+                        </>
                       )}
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center pt-1">
                         <span className="text-gray-600">الحالة:</span>
                         <span
                           className="font-semibold px-2 py-0.5 rounded-full text-xs"

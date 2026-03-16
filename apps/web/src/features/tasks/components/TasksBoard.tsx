@@ -261,20 +261,22 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             </div>
 
             {/* Drop zone indicator */}
-            {isDropTarget && (
-              <div
-                className="mb-3 p-3 bg-blue-100 border-2 border-dashed border-blue-400 rounded-lg text-center"
-                role="status"
-                aria-live="polite"
-              >
-                <p className="text-sm font-medium text-blue-700">
-                  أفلت المهمة هنا
-                </p>
-                <p className="text-xs text-blue-600" dir="ltr">
-                  Drop task here
-                </p>
-              </div>
-            )}
+            <div
+              className={`mb-3 p-3 border-2 border-dashed rounded-lg text-center transition-all duration-300 overflow-hidden ${
+                isDropTarget
+                  ? "max-h-24 opacity-100 border-blue-400 bg-blue-100 scale-100"
+                  : "max-h-0 opacity-0 border-transparent scale-95 p-0 mb-0"
+              }`}
+              role="status"
+              aria-live="polite"
+            >
+              <p className="text-sm font-medium text-blue-700">
+                أفلت المهمة هنا
+              </p>
+              <p className="text-xs text-blue-600" dir="ltr">
+                Drop task here
+              </p>
+            </div>
 
             {/* Tasks */}
             <div className="space-y-3">
@@ -316,9 +318,9 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onDragEnd={handleDragEnd}
                       className={`
-                        transition-all duration-200
-                        ${isBeingDragged ? "opacity-40 scale-95 rotate-2" : "opacity-100 scale-100"}
-                        ${!isBeingDragged && hasTasksBeingDragged ? "hover:scale-105" : ""}
+                        transition-all duration-300 ease-out cursor-grab active:cursor-grabbing
+                        ${isBeingDragged ? "opacity-30 scale-90 rotate-2 shadow-none" : "opacity-100 scale-100 rotate-0 hover:shadow-md"}
+                        ${!isBeingDragged && hasTasksBeingDragged ? "hover:scale-[1.02] hover:-translate-y-0.5" : "hover:-translate-y-0.5"}
                       `}
                       role="button"
                       aria-grabbed={isBeingDragged}

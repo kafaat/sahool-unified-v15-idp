@@ -279,53 +279,53 @@ export default function AlertsClient() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border p-4">
+        <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-default">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Bell className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي التنبيهات</div>
-              <div className="text-xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 animate-count-up">
                 {totalCount}
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
+        <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-default">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+            <div className={`w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center ${criticalCount > 0 ? "animate-pulse-dot" : ""}`}>
               <XCircle className="w-5 h-5 text-red-600" />
             </div>
             <div>
               <div className="text-sm text-gray-500">حرجة</div>
-              <div className="text-xl font-bold text-red-600">
+              <div className="text-xl font-bold text-red-600 animate-count-up">
                 {criticalCount}
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
+        <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-default">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
               <div className="text-sm text-gray-500">تحذيرات</div>
-              <div className="text-xl font-bold text-yellow-600">
+              <div className="text-xl font-bold text-yellow-600 animate-count-up">
                 {warningCount}
               </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg border p-4">
+        <div className="bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-default">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <div className="text-sm text-gray-500">تم الحل</div>
-              <div className="text-xl font-bold text-green-600">
+              <div className="text-xl font-bold text-green-600 animate-count-up">
                 {resolvedCount}
               </div>
             </div>
@@ -406,16 +406,17 @@ export default function AlertsClient() {
               <p className="text-xs mt-1">No matching alerts found</p>
             </div>
           ) : (
-            alerts.map((alert) => (
+            alerts.map((alert, index) => (
               <div
                 key={alert.id}
-                className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
+                className={`bg-white rounded-lg border p-4 hover:shadow-md transition-all duration-300 animate-slide-in-up ${
                   alert.status === "active" &&
                   (alert.severity === "critical" ||
                     alert.severity === "emergency")
                     ? "border-red-300 bg-red-50"
                     : ""
                 }`}
+                style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 mt-1">

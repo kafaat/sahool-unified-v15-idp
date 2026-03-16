@@ -260,23 +260,21 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
               </div>
             </div>
 
-            {/* Drop zone indicator */}
-            <div
-              className={`mb-3 p-3 border-2 border-dashed rounded-lg text-center transition-all duration-300 overflow-hidden ${
-                isDropTarget
-                  ? "max-h-24 opacity-100 border-blue-400 bg-blue-100 scale-100"
-                  : "max-h-0 opacity-0 border-transparent scale-95 p-0 mb-0"
-              }`}
-              role="status"
-              aria-live="polite"
-            >
-              <p className="text-sm font-medium text-blue-700">
-                أفلت المهمة هنا
-              </p>
-              <p className="text-xs text-blue-600" dir="ltr">
-                Drop task here
-              </p>
-            </div>
+            {/* Drop zone indicator - only rendered when active to avoid screen reader announcements */}
+            {isDropTarget && (
+              <div
+                className="mb-3 p-3 border-2 border-dashed rounded-lg text-center transition-all duration-300 overflow-hidden max-h-24 opacity-100 border-blue-400 bg-blue-100 scale-100"
+                role="status"
+                aria-live="polite"
+              >
+                <p className="text-sm font-medium text-blue-700">
+                  أفلت المهمة هنا
+                </p>
+                <p className="text-xs text-blue-600" dir="ltr">
+                  Drop task here
+                </p>
+              </div>
+            )}
 
             {/* Tasks */}
             <div className="space-y-3">

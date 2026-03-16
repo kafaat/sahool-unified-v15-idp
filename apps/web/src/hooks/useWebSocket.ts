@@ -129,6 +129,12 @@ export function useWebSocket({
       }
       stopHeartbeat();
 
+      // Cancel any pending reconnect to avoid overlapping connection attempts
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+
       wsRef.current = new WebSocket(url);
 
       wsRef.current.onopen = () => {

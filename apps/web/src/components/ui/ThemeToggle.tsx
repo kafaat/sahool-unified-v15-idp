@@ -82,7 +82,7 @@ export default function ThemeToggle({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50 animate-scale-in">
+        <div className="absolute start-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50 animate-scale-in">
           {themes.map((t) => {
             const Icon = t.icon;
             const isActive = theme === t.value;

@@ -328,13 +328,11 @@ function EnhancedDataTableInner<T>({
               {columns.map((col) => {
                 const colKey = col.sortKey || col.key;
                 const isActiveSortCol = sortColumn === colKey;
-                const ariaSortValue = col.sortable
-                  ? isActiveSortCol && sortDirection === "asc"
-                    ? "ascending" as const
-                    : isActiveSortCol && sortDirection === "desc"
-                      ? "descending" as const
-                      : "none" as const
-                  : undefined;
+                const ariaSortValue = isActiveSortCol && sortDirection === "asc"
+                  ? "ascending" as const
+                  : isActiveSortCol && sortDirection === "desc"
+                    ? "descending" as const
+                    : undefined;
 
                 return (
                 <th

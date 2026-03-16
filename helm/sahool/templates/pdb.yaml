@@ -10,10 +10,10 @@ Ensures high availability during node maintenance and cluster upgrades.
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ $serviceName }}
+  name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}-pdb
   namespace: {{ $.Release.Namespace }}
   labels:
-    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/name: {{ $service.name }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
     app.kubernetes.io/component: pdb
     app.kubernetes.io/part-of: sahool
@@ -27,7 +27,6 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ $serviceName }}
-      app.kubernetes.io/instance: {{ $.Release.Name }}
+      {{- include "sahool.service.selectorLabels" (dict "root" $ "service" $service) | nindent 6 }}
 {{- end }}
 {{- end }}

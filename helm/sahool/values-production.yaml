@@ -502,8 +502,8 @@ monitoring:
         memory: 4Gi
   grafana:
     enabled: true
-    # CKV_SECRET_6: adminPassword must be provided via existing secret, not inline
-    existingSecret: "sahool-grafana-admin-secret"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
+    # Admin password must be provided via --set or external secret at deploy time
+    adminPassword: ""  # checkov:skip=CKV_SECRET_6:Empty placeholder, real value injected at deploy time
     persistence:
       enabled: true
       size: 10Gi

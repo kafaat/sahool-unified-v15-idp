@@ -199,21 +199,18 @@ endif
 
 db-migrate: ## تشغيل ترحيل قاعدة البيانات - Run database migrations (Prisma)
 	@echo "$(YELLOW)📦 تشغيل الترحيل - Running migrations...$(RESET)"
-	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npx prisma migrate deploy; \
-	fi
-	@if [ -d "apps/services/crop-growth-model" ]; then \
-		cd apps/services/crop-growth-model && npx prisma migrate deploy; \
-	fi
-	@if [ -d "apps/services/disaster-assessment" ]; then \
-		cd apps/services/disaster-assessment && npx prisma migrate deploy; \
-	fi
+	@for dir in apps/services/field-management-service apps/services/user-service apps/services/marketplace-service apps/services/chat-service apps/services/disaster-assessment apps/services/iot-service apps/services/research-core apps/services/inventory-service apps/services/weather-service; do \
+		if [ -d "$$dir" ] && [ -f "$$dir/prisma/schema.prisma" ]; then \
+			echo "$(BLUE)Migrating $$(basename $$dir)...$(RESET)"; \
+			cd "$$dir" && npx prisma migrate deploy && cd - > /dev/null; \
+		fi; \
+	done
 	@echo "$(GREEN)✅ اكتمل الترحيل - Migrations complete!$(RESET)"
 
 db-seed: ## ملء قاعدة البيانات بالبيانات التجريبية - Seed database with sample data
 	@echo "$(YELLOW)🌱 ملء قاعدة البيانات - Seeding database...$(RESET)"
-	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npx prisma db seed; \
+	@if [ -d "apps/services/field-management-service" ]; then \
+		cd apps/services/field-management-service && npx prisma db seed; \
 	fi
 	@echo "$(GREEN)✅ تم ملء البيانات - Database seeded!$(RESET)"
 
@@ -259,8 +256,8 @@ test-python: ## تشغيل اختبارات Python - Run Python tests
 
 test-node: ## تشغيل اختبارات Node.js - Run Node.js tests
 	@echo "$(BLUE)📦 تشغيل اختبارات Node.js - Running Node.js tests...$(RESET)"
-	@if [ -d "apps/services/field-core" ]; then \
-		cd apps/services/field-core && npm test; \
+	@if [ -d "apps/services/field-management-service" ]; then \
+		cd apps/services/field-management-service && npm test; \
 	fi
 	@if [ -d "apps/services/crop-growth-model" ]; then \
 		cd apps/services/crop-growth-model && npm test; \
@@ -315,13 +312,16 @@ status: ## عرض حالة الخدمات - Show service status
 	@echo "$(BOLD)  روابط الخدمات - Service URLs$(RESET)"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
 	@echo "  $(BLUE)API Gateway (Kong):$(RESET)       http://localhost:8000"
-	@echo "  $(BLUE)Field Ops Service:$(RESET)        http://localhost:8080"
-	@echo "  $(BLUE)Weather Core:$(RESET)             http://localhost:8108"
-	@echo "  $(BLUE)NDVI Engine:$(RESET)              http://localhost:8107"
+	@echo "  $(BLUE)Field Management:$(RESET)         http://localhost:3000"
+	@echo "  $(BLUE)Weather Service:$(RESET)          http://localhost:8092"
+	@echo "  $(BLUE)Advisory Service:$(RESET)         http://localhost:8093"
+	@echo "  $(BLUE)Vegetation Analysis:$(RESET)      http://localhost:8090"
 	@echo "  $(BLUE)Crop Growth Model:$(RESET)        http://localhost:3023"
+	@echo "  $(BLUE)Copilot API:$(RESET)              http://localhost:8088"
 	@echo "  $(BLUE)Admin Dashboard:$(RESET)          http://localhost:3001"
 	@echo "  $(BLUE)Web Application:$(RESET)          http://localhost:3000"
 	@echo "  $(BLUE)PostgreSQL:$(RESET)               localhost:5432"
+	@echo "  $(BLUE)PgBouncer:$(RESET)                localhost:6432"
 	@echo "  $(BLUE)Redis:$(RESET)                    localhost:6379"
 	@echo "  $(BLUE)NATS:$(RESET)                     localhost:4222"
 	@echo "  $(BLUE)NATS Monitor:$(RESET)             http://localhost:8222"
@@ -331,8 +331,8 @@ status: ## عرض حالة الخدمات - Show service status
 health: ## فحص صحة جميع الخدمات - Check health of all services
 	@echo "$(BLUE)🏥 فحص صحة الخدمات - Health Check...$(RESET)"
 	@echo ""
-	@for service in postgres redis nats kong field_ops weather_core; do \
-		if docker compose -f $(COMPOSE_BASE) ps $$service | grep -q "Up"; then \
+	@for service in postgres pgbouncer redis nats kong field-management-service weather-service advisory-service copilot-api; do \
+		if docker compose -f $(COMPOSE_BASE) ps $$service 2>/dev/null | grep -q "Up"; then \
 			echo "$(GREEN)✅ $$service - Healthy$(RESET)"; \
 		else \
 			echo "$(RED)❌ $$service - Unhealthy$(RESET)"; \
@@ -341,7 +341,8 @@ health: ## فحص صحة جميع الخدمات - Check health of all services
 	@echo ""
 	@echo "$(BLUE)Testing API endpoints...$(RESET)"
 	@curl -s -o /dev/null -w "Kong Gateway: %{http_code}\n" http://localhost:8000 || echo "Kong: Not responding"
-	@curl -s -o /dev/null -w "Field Ops: %{http_code}\n" http://localhost:8080/health || echo "Field Ops: Not responding"
+	@curl -s -o /dev/null -w "Field Management: %{http_code}\n" http://localhost:3000/healthz || echo "Field Management: Not responding"
+	@curl -s -o /dev/null -w "Copilot API: %{http_code}\n" http://localhost:8088/healthz || echo "Copilot API: Not responding"
 	@echo ""
 
 shell: ## فتح طرفية في حاوية - Open shell in container (usage: make shell SERVICE=postgres)
@@ -364,15 +365,15 @@ ps: ## قائمة الحاويات قيد التشغيل - List running containe
 
 fixops: ## معاينة مشاكل الكود - Preview code issues (dry-run)
 	@echo "$(BLUE)🔧 FixOps - معاينة المشاكل - Preview Mode...$(RESET)"
-	python -m tools.fixops.cli --dry-run
+	python -m tools.fixops --dry-run
 
 fixops-run: ## إصلاح المشاكل تلقائياً (safe) - Fix issues automatically (safe strategy)
 	@echo "$(GREEN)🔧 FixOps - تطبيق الإصلاحات - Applying Fixes...$(RESET)"
-	python -m tools.fixops.cli --no-dry-run --strategy safe
+	python -m tools.fixops --no-dry-run --strategy safe
 
 fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Comprehensive fix (all issues)
 	@echo "$(YELLOW)🔧 FixOps - إصلاح شامل - Comprehensive Fix...$(RESET)"
-	python -m tools.fixops.cli --no-dry-run --strategy comprehensive
+	python -m tools.fixops --no-dry-run --strategy comprehensive
 
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
 	@python3 -m tools.fixops.cli --dry-run --json
@@ -586,11 +587,12 @@ pre-commit-run: ## تشغيل pre-commit على جميع الملفات - Run pr
 # Infrastructure Management - إدارة البنية التحتية
 # ═══════════════════════════════════════════════════════════════════════════════
 
-infra-up: network-create ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, redis, nats, kong)
+infra-up: network-create ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, pgbouncer, redis, nats, kong)
 	@echo "$(GREEN)🏗️  تشغيل البنية التحتية - Starting infrastructure...$(RESET)"
-	docker compose -f $(COMPOSE_BASE) up -d postgres redis nats kong
+	docker compose -f $(COMPOSE_BASE) up -d postgres pgbouncer redis nats kong
 	@echo "$(GREEN)✅ البنية التحتية جاهزة - Infrastructure ready!$(RESET)"
 	@echo "$(BLUE)PostgreSQL:$(RESET) localhost:5432"
+	@echo "$(BLUE)PgBouncer:$(RESET)  localhost:6432"
 	@echo "$(BLUE)Redis:$(RESET)      localhost:6379"
 	@echo "$(BLUE)NATS:$(RESET)       localhost:4222"
 	@echo "$(BLUE)Kong:$(RESET)       localhost:8000"
@@ -641,7 +643,7 @@ network-inspect: ## فحص شبكة SAHOOL - Inspect SAHOOL network
 dev-install: ## تثبيت أدوات التطوير - Install development dependencies
 	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
 	python -m pip install -U pip
-	pip install -r requirements/dev.txt
+	pip install -r requirements/base.txt -r requirements/testing.txt
 	pre-commit install
 	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
 	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi
@@ -989,7 +991,7 @@ check-services: ## عرض حالة الخدمات المتاحة - Show availabl
 	@echo "$(BLUE)📦 حالة الخدمات - Service Status:$(RESET)"
 	@echo ""
 	@echo "$(BOLD)Infrastructure:$(RESET)"
-	@for service in postgres redis nats kong; do \
+	@for service in postgres pgbouncer redis nats kong; do \
 		if docker compose -f $(COMPOSE_BASE) ps $$service 2>/dev/null | grep -q "Up"; then \
 			echo "  $(GREEN)✓$(RESET) $$service"; \
 		else \
@@ -1075,7 +1077,7 @@ db-migrate-all: ## تشغيل جميع الترحيلات - Run all migrations (
 
 db-generate: ## توليد عملاء قاعدة البيانات - Generate database clients (Prisma)
 	@echo "$(YELLOW)⚙️  توليد عملاء DB - Generating DB clients...$(RESET)"
-	@for dir in apps/services/field-core apps/services/crop-growth-model apps/services/marketplace-service apps/services/user-service; do \
+	@for dir in apps/services/field-management-service apps/services/user-service apps/services/marketplace-service apps/services/chat-service apps/services/disaster-assessment apps/services/iot-service apps/services/research-core apps/services/inventory-service apps/services/weather-service; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/prisma/schema.prisma" ]; then \
 			echo "Generating for $$(basename $$dir)..."; \
 			cd "$$dir" && npx prisma generate && cd - > /dev/null; \

@@ -169,7 +169,6 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                   fillColor: color,
                   fillOpacity: isSelected ? 0.55 : 0.35,
                   weight: isSelected ? 4 : 2,
-                  dashArray: isSelected ? "" : "",
                 }}
                 eventHandlers={{
                   click: () => {

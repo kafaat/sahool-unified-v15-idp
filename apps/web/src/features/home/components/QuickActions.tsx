@@ -33,7 +33,7 @@ const ActionButton: React.FC<ActionButtonProps & { index: number }> = ({
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 ${color} bg-white dark:bg-gray-800 hover:shadow-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 animate-slide-in-up`}
+      className={`group flex flex-col items-center justify-center p-6 rounded-xl border-2 ${color} bg-white dark:bg-gray-800 hover:shadow-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 animate-slide-in-up`}
       style={{
         animationDelay: `${index * 60}ms`,
         animationFillMode: "both",

@@ -28,21 +28,37 @@ const ToastContext = React.createContext<ToastContextType | null>(null);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const timeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const exitTimeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // Clean up all timeouts on unmount
+  React.useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((t) => clearTimeout(t));
+      exitTimeoutsRef.current.forEach((t) => clearTimeout(t));
+    };
+  }, []);
 
   const hideToast = React.useCallback((id: string) => {
-    // Clear the timeout if it exists
+    // Clear the duration timeout if it exists
     const timeout = timeoutsRef.current.get(id);
     if (timeout) {
       clearTimeout(timeout);
       timeoutsRef.current.delete(id);
     }
+    // Clear any existing exit timeout for this toast
+    const existingExit = exitTimeoutsRef.current.get(id);
+    if (existingExit) {
+      clearTimeout(existingExit);
+    }
     // Trigger exit animation before removal
     setToasts((prev) =>
       prev.map((toast) => (toast.id === id ? { ...toast, isExiting: true } : toast))
     );
-    setTimeout(() => {
+    const exitTimeout = setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      exitTimeoutsRef.current.delete(id);
     }, 200);
+    exitTimeoutsRef.current.set(id, exitTimeout);
   }, []);
 
   const showToast = React.useCallback(

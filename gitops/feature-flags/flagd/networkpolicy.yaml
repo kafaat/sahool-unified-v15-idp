@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: flagd-netpol
+  namespace: feature-flags
+spec:
+  podSelector:
+    matchLabels:
+      app: flagd
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8013
+  egress:
+    - to:
+        - podSelector: {}

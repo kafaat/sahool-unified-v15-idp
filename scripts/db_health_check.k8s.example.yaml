@@ -374,3 +374,56 @@ spec:
             name: db-health-check-script
             defaultMode: 0755
       restartPolicy: OnFailure
+
+---
+# NetworkPolicy for db-health-check-manual pod
+# سياسة الشبكة لبود فحص صحة قاعدة البيانات اليدوي
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-health-check-manual-netpol
+  namespace: sahool
+spec:
+  podSelector:
+    matchLabels:
+      app: sahool
+      component: testing
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: sahool
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 6432
+
+---
+# NetworkPolicy for migration-job pods
+# سياسة الشبكة لبودات وظيفة الترحيل
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: migration-job-netpol
+  namespace: sahool
+spec:
+  podSelector:
+    matchLabels:
+      app: migration
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: sahool
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 6432

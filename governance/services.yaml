@@ -3737,7 +3737,7 @@ infrastructure_services:
     name: "MinIO Object Storage"
     name_ar: "تخزين كائنات MinIO"
     description: "S3-compatible object storage with TLS and SSE encryption"
-    image: "minio/minio:RELEASE.2024-05-28T17-19-04Z"
+    image: "minio/minio:RELEASE.2025-03-12T18-04-18Z"
     ports: [9000, 9090]
     category: storage
     profile: default

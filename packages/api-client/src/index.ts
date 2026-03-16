@@ -33,7 +33,7 @@ import type {
 import { ApiError, parseAxiosError } from "./errors";
 
 // Import unified contracts - استيراد العقود الموحدة
-import { SERVICE_PORT_ALIASES } from "@sahool/shared-types/contracts";
+import { SERVICE_PORT_ALIASES, CUSTOM_HEADERS } from "@sahool/shared-types/contracts";
 
 // Re-export all types
 export * from "./types";
@@ -138,8 +138,8 @@ export class SahoolApiClient {
       }
 
       // Add unique request ID for traceability (preserve caller-provided ID)
-      if (!config.headers["X-Request-Id"]) {
-        config.headers["X-Request-Id"] = crypto.randomUUID();
+      if (!config.headers[CUSTOM_HEADERS.REQUEST_ID]) {
+        config.headers[CUSTOM_HEADERS.REQUEST_ID] = crypto.randomUUID();
       }
 
       const token = this.config.getToken?.();
@@ -149,7 +149,7 @@ export class SahoolApiClient {
 
       // Add tenant ID header for multi-tenant isolation
       if (this.tenantId) {
-        config.headers["X-Tenant-Id"] = this.tenantId;
+        config.headers[CUSTOM_HEADERS.TENANT_ID] = this.tenantId;
       }
 
       return config;

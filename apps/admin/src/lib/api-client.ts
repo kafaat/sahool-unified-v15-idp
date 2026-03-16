@@ -24,6 +24,7 @@ import {
   RETRY_DELAY,
   IS_PRODUCTION,
 } from "@/config/api";
+import { CUSTOM_HEADERS } from "@sahool/shared-types/contracts";
 
 // =============================================================================
 // Types & Interfaces | الأنواع والواجهات
@@ -400,7 +401,7 @@ class AdminApiClient {
       "Content-Type": "application/json",
       Accept: "application/json",
       "Accept-Language": "ar,en",
-      "X-Request-Id": crypto.randomUUID(),
+      [CUSTOM_HEADERS.REQUEST_ID]: crypto.randomUUID(),
       ...options.headers,
     };
 
@@ -410,7 +411,7 @@ class AdminApiClient {
     }
 
     if (this.rbacContext?.tenantId) {
-      (headers as Record<string, string>)["X-Tenant-Id"] =
+      (headers as Record<string, string>)[CUSTOM_HEADERS.TENANT_ID] =
         this.rbacContext.tenantId;
     }
 

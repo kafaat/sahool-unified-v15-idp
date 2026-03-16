@@ -1,7 +1,10 @@
 let withSentryConfig;
+let sentryInstalled = false;
 try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
-} catch {
+  sentryInstalled = true;
+} catch (err) {
+  if (err.code !== "MODULE_NOT_FOUND") throw err;
   // @sentry/nextjs not installed – skip Sentry wrapper
   withSentryConfig = null;
 }
@@ -204,6 +207,15 @@ const nextConfig = {
       net: false,
       tls: false,
     };
+
+    // When @sentry/nextjs is not installed, alias it to false so dynamic
+    // imports resolve to an empty module instead of breaking the build
+    if (!sentryInstalled) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "@sentry/nextjs": false,
+      };
+    }
 
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces

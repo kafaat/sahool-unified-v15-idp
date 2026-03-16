@@ -23,9 +23,7 @@ async function getSentry() {
   if (SentryModule) return SentryModule;
 
   try {
-    SentryModule = await import(
-      /* webpackIgnore: true */ "@sentry/nextjs"
-    );
+    SentryModule = await import("@sentry/nextjs");
     return SentryModule;
   } catch (error) {
     // Sentry import failed - continue without it

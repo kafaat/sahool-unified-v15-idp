@@ -25,6 +25,7 @@
 ENV ?= development
 COMPOSE_PROJECT_NAME ?= sahool
 SERVICE ?=
+PYTHON ?= python3
 
 # Compose file paths - مسارات ملفات Docker Compose
 COMPOSE_BASE = docker-compose.yml
@@ -251,7 +252,7 @@ test: ## تشغيل جميع الاختبارات - Run all tests
 
 test-python: ## تشغيل اختبارات Python - Run Python tests
 	@echo "$(BLUE)🐍 تشغيل اختبارات Python - Running Python tests...$(RESET)"
-	python -m pytest tests/ -v --tb=short || true
+	$(PYTHON) -m pytest tests/ -v --tb=short || true
 	@echo "$(GREEN)✅ اكتملت اختبارات Python - Python tests complete!$(RESET)"
 
 test-node: ## تشغيل اختبارات Node.js - Run Node.js tests
@@ -365,18 +366,18 @@ ps: ## قائمة الحاويات قيد التشغيل - List running containe
 
 fixops: ## معاينة مشاكل الكود - Preview code issues (dry-run)
 	@echo "$(BLUE)🔧 FixOps - معاينة المشاكل - Preview Mode...$(RESET)"
-	python -m tools.fixops --dry-run
+	$(PYTHON) -m tools.fixops --dry-run
 
 fixops-run: ## إصلاح المشاكل تلقائياً (safe) - Fix issues automatically (safe strategy)
 	@echo "$(GREEN)🔧 FixOps - تطبيق الإصلاحات - Applying Fixes...$(RESET)"
-	python -m tools.fixops --no-dry-run --strategy safe
+	$(PYTHON) -m tools.fixops --no-dry-run --strategy safe
 
 fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Comprehensive fix (all issues)
 	@echo "$(YELLOW)🔧 FixOps - إصلاح شامل - Comprehensive Fix...$(RESET)"
-	python -m tools.fixops --no-dry-run --strategy comprehensive
+	$(PYTHON) -m tools.fixops --no-dry-run --strategy comprehensive
 
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
-	@python -m tools.fixops --dry-run --json
+	@$(PYTHON) -m tools.fixops --dry-run --json
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Monitoring - المراقبة
@@ -432,7 +433,7 @@ deps-security: ## فحص أمني شامل - Full security scan (Bandit + pip-au
 	@echo "$(BLUE)🛡️ فحص أمني شامل - Full security scan...$(RESET)"
 	@echo ""
 	@echo "$(YELLOW)=== Bandit (Python Security) ===$(RESET)"
-	@bandit -r apps/services/ shared/ -f json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); h=len([r for r in d.get('results',[]) if r['issue_severity']=='HIGH']); m=len([r for r in d.get('results',[]) if r['issue_severity']=='MEDIUM']); print(f'HIGH: {h}, MEDIUM: {m}')" || echo "Bandit not available"
+	@bandit -r apps/services/ shared/ -f json 2>/dev/null | $(PYTHON) -c "import sys,json; d=json.load(sys.stdin); h=len([r for r in d.get('results',[]) if r['issue_severity']=='HIGH']); m=len([r for r in d.get('results',[]) if r['issue_severity']=='MEDIUM']); print(f'HIGH: {h}, MEDIUM: {m}')" || echo "Bandit not available"
 	@echo ""
 	@echo "$(YELLOW)=== pip-audit (CVE Check) ===$(RESET)"
 	@pip-audit 2>&1 | grep -E "^Found|^Name|^No vulnerable" | head -10
@@ -473,7 +474,7 @@ docstring-coverage: ## تغطية التوثيق - Check docstring coverage
 
 secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
 	@echo "$(BLUE)🔐 فحص الأسرار - Scanning for secrets...$(RESET)"
-	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"
+	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | $(PYTHON) -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"
 
 licenses: ## فحص التراخيص - Check dependency licenses
 	@echo "$(BLUE)📜 فحص التراخيص - License check...$(RESET)"
@@ -503,16 +504,16 @@ quality-full: ## فحص جودة شامل - Full quality scan (all tools)
 lint: ## فحص جودة الكود - Check code style and linting
 	@echo "$(BLUE)🔍 فحص الكود - Running linters...$(RESET)"
 	@echo "$(YELLOW)Python:$(RESET)"
-	python -m ruff format . --check
-	python -m ruff check .
+	$(PYTHON) -m ruff format . --check
+	$(PYTHON) -m ruff check .
 	@echo "$(YELLOW)TypeScript/JavaScript:$(RESET)"
 	@cd apps/web && npm run lint || true
 	@echo "$(GREEN)✅ فحص الكود مكتمل - Linting complete!$(RESET)"
 
 fmt: ## تنسيق الكود - Format code
 	@echo "$(BLUE)✨ تنسيق الكود - Formatting code...$(RESET)"
-	python -m ruff format .
-	python -m ruff check . --fix
+	$(PYTHON) -m ruff format .
+	$(PYTHON) -m ruff check . --fix
 	@cd apps/web && npm run format || true
 	@echo "$(GREEN)✅ تم تنسيق الكود - Code formatted!$(RESET)"
 
@@ -642,9 +643,9 @@ network-inspect: ## فحص شبكة SAHOOL - Inspect SAHOOL network
 
 dev-install: ## تثبيت أدوات التطوير - Install development dependencies
 	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
-	python -m pip install -U pip
-	pip install -r requirements/base.txt -r requirements/testing.txt
-	pip install pre-commit
+	$(PYTHON) -m pip install -U pip
+	$(PYTHON) -m pip install -r requirements/base.txt -r requirements/testing.txt
+	$(PYTHON) -m pip install pre-commit
 	pre-commit install
 	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
 	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi
@@ -652,7 +653,7 @@ dev-install: ## تثبيت أدوات التطوير - Install development depen
 
 generate-tokens: ## توليد رموز التصميم - Generate design tokens
 	@echo "$(BLUE)🎨 توليد رموز التصميم - Generating design tokens...$(RESET)"
-	python3 scripts/generators/generate_design_tokens.py
+	$(PYTHON) scripts/generators/generate_design_tokens.py
 	@echo "$(GREEN)✅ تم توليد الرموز - Tokens generated!$(RESET)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1247,7 +1248,7 @@ doctor: ## فحص صحة البيئة - Diagnose environment issues
 	@npm --version 2>/dev/null && echo "✅ npm installed" || echo "❌ npm not found (need >= 10.0)"
 	@echo ""
 	@echo "=== Python ==="
-	@python3 --version 2>/dev/null && echo "✅ Python installed" || echo "❌ Python not found (need >= 3.11)"
+	@$(PYTHON) --version 2>/dev/null && echo "✅ Python installed" || echo "❌ Python not found (need >= 3.11)"
 	@pip3 --version 2>/dev/null && echo "✅ pip installed" || echo "❌ pip not found"
 	@echo ""
 	@echo "=== Flutter ==="
@@ -1332,10 +1333,10 @@ version-bump-dry: ## معاينة ترقية الإصدار - Preview version bu
 	@./scripts/bump-version.sh $(V) --dry-run
 
 deps-drift: ## كشف انحراف الاعتماديات - Detect dependency version drift
-	@python3 scripts/check-dependency-drift.py
+	@$(PYTHON) scripts/check-dependency-drift.py
 
 deps-drift-json: ## كشف الانحراف (JSON) - Dependency drift report as JSON
-	@python3 scripts/check-dependency-drift.py --json
+	@$(PYTHON) scripts/check-dependency-drift.py --json
 
 deps-sync: ## مزامنة الاعتماديات - Full dependency sync check (drift + compatibility)
 	@echo "$(BLUE)$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
@@ -1344,7 +1345,7 @@ deps-sync: ## مزامنة الاعتماديات - Full dependency sync check (
 	@echo "$(BLUE)$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
 	@echo ""
 	@echo "$(YELLOW)Step 1: Drift detection...$(RESET)"
-	@python3 scripts/check-dependency-drift.py || true
+	@$(PYTHON) scripts/check-dependency-drift.py || true
 	@echo ""
 	@echo "$(YELLOW)Step 2: Compatibility check...$(RESET)"
 	@./scripts/check-dependency-compatibility.sh || true

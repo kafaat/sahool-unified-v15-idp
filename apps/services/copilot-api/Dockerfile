@@ -53,13 +53,20 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c constraints.txt -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Shared modules merge stage — avoids duplicate layers from two COPY commands
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS shared-merge
+WORKDIR /shared
+COPY shared/ ./
+COPY apps/services/shared/ ./
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Production Stage
 # ─────────────────────────────────────────────────────────────────────────────
 FROM dependencies AS production
 
-# Copy root shared modules first, then overlay with services shared
-COPY shared/ ./shared/
-COPY apps/services/shared/ ./shared/
+# Copy merged shared modules (single layer)
+COPY --from=shared-merge /shared/ ./shared/
 
 # Copy application code
 COPY apps/services/copilot-api/src/ ./src/
@@ -96,9 +103,8 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     pytest pytest-asyncio pytest-cov mypy
 
-# Copy root shared modules first, then overlay with services shared
-COPY shared/ ./shared/
-COPY apps/services/shared/ ./shared/
+# Copy merged shared modules (single layer)
+COPY --from=shared-merge /shared/ ./shared/
 
 # Copy application code
 COPY apps/services/copilot-api/ .

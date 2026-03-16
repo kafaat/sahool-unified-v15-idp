@@ -38,11 +38,24 @@ RATE_LIMIT_MAX_REQUESTS = 3
 
 # Validate JWT_SECRET_KEY at module load time rather than per-request
 _JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+_ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 if not _JWT_SECRET_KEY:
-    logger.warning(
-        "JWT_SECRET_KEY is not set - OTP hashing will use empty salt. "
-        "Set JWT_SECRET_KEY for production use."
-    )
+    if _ENVIRONMENT in ("production", "staging"):
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be set in production/staging environments. "
+            "OTP hashing requires a secret key for secure operation."
+        )
+    elif os.getenv("ALLOW_INSECURE_OTP", "").lower() != "true":
+        raise RuntimeError(
+            "JWT_SECRET_KEY is not set. OTP hashing would use empty salt, "
+            "making stored hashes vulnerable to brute-force attacks. "
+            "Set JWT_SECRET_KEY or ALLOW_INSECURE_OTP=true for development."
+        )
+    else:
+        logger.warning(
+            "JWT_SECRET_KEY is not set - OTP hashing uses empty salt. "
+            "ALLOW_INSECURE_OTP=true is set (development only)."
+        )
 
 
 class OTPChannel(StrEnum):

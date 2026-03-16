@@ -41,6 +41,23 @@ logger = logging.getLogger(__name__)
 
 # Pattern for valid SQL identifiers (table names, column names)
 _VALID_IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+# Pattern for qualified identifiers: table.column, column, *
+_VALID_QUALIFIED_IDENTIFIER = re.compile(
+    r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*$|^\*$"
+)
+# Pattern for ORDER BY expressions: column [ASC|DESC] [NULLS FIRST|LAST]
+_VALID_ORDER_EXPR = re.compile(
+    r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*"
+    r"(?:\s+(?:ASC|DESC))?(?:\s+NULLS\s+(?:FIRST|LAST))?$",
+    re.IGNORECASE,
+)
+# Pattern for JOIN clauses: JOIN table ON table.col = table.col
+_VALID_JOIN = re.compile(
+    r"^(?:LEFT\s+|RIGHT\s+|INNER\s+|FULL\s+(?:OUTER\s+)?|CROSS\s+)?JOIN\s+"
+    r"[a-zA-Z_][a-zA-Z0-9_]*(?:\s+[a-zA-Z_][a-zA-Z0-9_]*)?\s+ON\s+"
+    r"[a-zA-Z_][a-zA-Z0-9_.]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_.]*$",
+    re.IGNORECASE,
+)
 
 
 def _validate_identifier(name: str, kind: str = "identifier") -> str:
@@ -48,6 +65,29 @@ def _validate_identifier(name: str, kind: str = "identifier") -> str:
     if not _VALID_IDENTIFIER.match(name):
         raise ValueError(f"Invalid SQL {kind}: {name!r}")
     return name
+
+
+def _validate_column(name: str) -> str:
+    """Validate a column name (optionally qualified with table) to prevent SQL injection."""
+    if not _VALID_QUALIFIED_IDENTIFIER.match(name):
+        raise ValueError(f"Invalid SQL column: {name!r}")
+    return name
+
+
+def _validate_order_expr(expr: str) -> str:
+    """Validate an ORDER BY expression to prevent SQL injection."""
+    for part in expr.split(","):
+        part = part.strip()
+        if not _VALID_ORDER_EXPR.match(part):
+            raise ValueError(f"Invalid SQL ORDER BY expression: {part!r}")
+    return expr
+
+
+def _validate_join_clause(clause: str) -> str:
+    """Validate a JOIN clause to prevent SQL injection."""
+    if not _VALID_JOIN.match(clause.strip()):
+        raise ValueError(f"Invalid SQL JOIN clause: {clause!r}")
+    return clause
 
 
 T = TypeVar("T")
@@ -160,7 +200,8 @@ class QueryBuilder:
 
     def select(self, *columns: str) -> QueryBuilder:
         """Set columns to select."""
-        self._columns = list(columns) if columns else ["*"]
+        validated = [_validate_column(c) for c in columns] if columns else ["*"]
+        self._columns = validated
         return self
 
     def where(self, condition: str, *params: Any) -> QueryBuilder:
@@ -178,12 +219,12 @@ class QueryBuilder:
 
     def join(self, join_clause: str) -> QueryBuilder:
         """Add JOIN clause."""
-        self._joins.append(join_clause)
+        self._joins.append(_validate_join_clause(join_clause))
         return self
 
     def order_by(self, order: str) -> QueryBuilder:
         """Set ORDER BY clause."""
-        self._order_by = order
+        self._order_by = _validate_order_expr(order)
         return self
 
     def limit(self, limit: int) -> QueryBuilder:

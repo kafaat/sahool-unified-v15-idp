@@ -352,9 +352,6 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
-        # Cache reservation failures during init may cause analysis to return
-        # zero results; allow this step to soft-fail so SARIF upload still runs.
-        continue-on-error: true
         with:
           category: "/language:${{ matrix.language }}"
 

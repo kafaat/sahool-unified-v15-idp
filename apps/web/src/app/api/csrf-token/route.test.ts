@@ -259,15 +259,21 @@ describe("CSRF Token API", () => {
       // Cookie should have sameSite: 'strict'
     });
 
-    it("should not set httpOnly flag (token needs to be readable by JS)", async () => {
+    it("should use double-submit cookie pattern with httpOnly server cookie and readable client cookie", async () => {
       const request = new NextRequest("http://localhost:3000/api/csrf-token");
       const response = await GET(request);
 
       const cookies = response.cookies;
-      const csrfCookie = cookies.get("csrf_token");
+      // csrf_token is httpOnly (server-side validation only)
+      const serverCookie = cookies.get("csrf_token");
+      expect(serverCookie).toBeDefined();
 
-      expect(csrfCookie).toBeDefined();
-      // httpOnly should be false to allow JavaScript to read the token
+      // _csrf is client-readable (JavaScript reads this for X-CSRF-Token header)
+      const clientCookie = cookies.get("_csrf");
+      expect(clientCookie).toBeDefined();
+
+      // Both cookies must have the same value
+      expect(serverCookie?.value).toBe(clientCookie?.value);
     });
   });
 

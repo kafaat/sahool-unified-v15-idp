@@ -25,6 +25,34 @@ module.exports = {
           900: "#14532d",
           950: "#052e16",
         },
+        // Alias: Components use sahool-green-* classes (e.g. bg-sahool-green-600)
+        "sahool-green": {
+          50: "#f0fdf4",
+          100: "#dcfce7",
+          200: "#bbf7d0",
+          300: "#86efac",
+          400: "#4ade80",
+          500: "#22c55e",
+          600: "#16a34a",
+          700: "#15803d",
+          800: "#166534",
+          900: "#14532d",
+          950: "#052e16",
+        },
+        // SAHOOL Earth/Brown tones (agriculture soil theme)
+        "sahool-brown": {
+          50: "#fdf8f0",
+          100: "#f5e6d3",
+          200: "#e8cba4",
+          300: "#d4a76e",
+          400: "#c08a45",
+          500: "#a67c3e",
+          600: "#8b6831",
+          700: "#6f5327",
+          800: "#573f1e",
+          900: "#3d2c15",
+          950: "#2a1e0e",
+        },
         // Semantic Colors
         primary: {
           DEFAULT: "#16a34a",

@@ -21,7 +21,7 @@ from pathlib import Path
 import aiohttp
 import uvicorn
 from config.settings import Settings
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request, status
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, status
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -30,6 +30,8 @@ from pydantic import BaseModel, Field
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -39,9 +41,14 @@ from .agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
 from .cache import CacheBackend, create_cache_backend, generate_cache_key
 from .github_integration import GitHubIntegration, PRReviewResult
 
-# Ensure logs directory exists
-Path("/app/logs").mkdir(parents=True, exist_ok=True)
-Path("/app/cache").mkdir(parents=True, exist_ok=True)
+# Ensure logs and cache directories exist (may fail outside Docker)
+try:
+    Path("/app/logs").mkdir(parents=True, exist_ok=True)
+    Path("/app/cache").mkdir(parents=True, exist_ok=True)
+except OSError:
+    # Running outside Docker - use local fallback paths
+    Path("logs").mkdir(parents=True, exist_ok=True)
+    Path("cache").mkdir(parents=True, exist_ok=True)
 
 # Configure logging
 # Setup logging - use StreamHandler only to avoid permission issues
@@ -215,8 +222,8 @@ class CodeReviewHandler(FileSystemEventHandler):
         try:
             loop = asyncio.get_event_loop()
             self._debounce_tasks[file_str] = loop.create_task(debounced_review())
-        except RuntimeError:
-            pass
+        except RuntimeError as e:
+            logger.warning("Failed to schedule review for %s: %s", file_path, e)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -776,7 +783,7 @@ async def list_models():
 
 
 @app.post("/review", response_model=ReviewResponse)
-async def review_code_endpoint(request: CodeReviewRequest):
+async def review_code_endpoint(request: CodeReviewRequest, user: User = Depends(get_current_user)):
     """Review code content"""
     service = get_service()
     review = await service.review_code(
@@ -790,7 +797,7 @@ async def review_code_endpoint(request: CodeReviewRequest):
 
 
 @app.post("/review/file", response_model=ReviewResponse)
-async def review_file_endpoint(request: FileReviewRequest):
+async def review_file_endpoint(request: FileReviewRequest, user: User = Depends(get_current_user)):
     """Review a file from the codebase"""
     service = get_service()
     base_path = Path("/app/codebase")
@@ -818,7 +825,7 @@ async def review_file_endpoint(request: FileReviewRequest):
 
 
 @app.post("/review/pr")
-async def review_pr_endpoint(request: PRReviewRequest, background_tasks: BackgroundTasks):
+async def review_pr_endpoint(request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     """Review a GitHub Pull Request"""
     service = get_service()
 
@@ -888,7 +895,7 @@ async def cache_stats():
 
 
 @app.post("/cache/clear")
-async def clear_cache():
+async def clear_cache(user: User = Depends(get_current_user)):
     """Clear the review cache"""
     service = get_service()
     if not service.cache:

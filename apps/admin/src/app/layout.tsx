@@ -41,21 +41,13 @@ export default async function RootLayout({
     // that modify DOM attributes during hydration
     <html lang={locale} dir={direction} className={tajawal.variable} suppressHydrationWarning>
       <head suppressHydrationWarning>
-        {/*
-          Always render nonce attribute to prevent hydration mismatch.
-          The nonce value may be empty string on client, but the attribute must be present.
-        */}
-        { }
-        {/* Leaflet CSS loaded asynchronously - not render-blocking for non-map pages */}
+        {/* Leaflet CSS - loaded normally to avoid onLoad handler issues in React */}
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
           nonce={nonce}
-          media="print"
-          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
-          onLoad="this.media='all'"
           suppressHydrationWarning
         />
         <noscript>

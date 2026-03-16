@@ -1031,7 +1031,7 @@ services:
   # erasure set size and parity. Single-node mode ignores this variable entirely.
   # See: https://min.io/docs/minio/linux/operations/concepts/erasure-coding.html
   minio:
-    image: minio/minio:RELEASE.2025-03-12T18-48-03Z
+    image: minio/minio:RELEASE.2025-03-12T18-04-18Z
     container_name: sahool-minio
     environment:
       # Root credentials (minimum 16 characters)

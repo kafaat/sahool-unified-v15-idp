@@ -20,13 +20,15 @@ from agents import (
     MasterCoordinatorAgent,
     MobileAgent,
 )
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware import setup_cors
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -141,7 +143,7 @@ def readiness():
 
 # Full analysis endpoint
 @app.post("/api/v1/analyze")
-async def analyze_field(request: AnalysisRequest):
+async def analyze_field(request: AnalysisRequest, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام جميع الوكلاء"""
     try:
         # Create context
@@ -169,7 +171,7 @@ async def analyze_field(request: AnalysisRequest):
 
 # Edge agent endpoints
 @app.post("/api/v1/edge/sensor")
-async def process_sensor_data(request: SensorDataRequest):
+async def process_sensor_data(request: SensorDataRequest, user: User = Depends(get_current_user)):
     """معالجة بيانات المستشعر عبر IoT Agent"""
     try:
         percept = AgentPercept(
@@ -192,7 +194,7 @@ async def process_sensor_data(request: SensorDataRequest):
 
 
 @app.post("/api/v1/edge/mobile")
-async def mobile_quick_action(data: dict[str, Any]):
+async def mobile_quick_action(data: dict[str, Any], user: User = Depends(get_current_user)):
     """إجراء سريع من الموبايل"""
     try:
         percept = AgentPercept(
@@ -216,7 +218,7 @@ async def mobile_quick_action(data: dict[str, Any]):
 
 # Learning endpoints
 @app.post("/api/v1/feedback")
-async def submit_feedback(request: FeedbackRequest):
+async def submit_feedback(request: FeedbackRequest, user: User = Depends(get_current_user)):
     """تقديم تغذية راجعة للتعلم"""
     try:
         percept = AgentPercept(

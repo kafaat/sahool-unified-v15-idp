@@ -148,8 +148,22 @@ export default function InventoryPage() {
   }, []);
 
   const openEdit = useCallback((item: InventoryItem) => {
-    const { id: _id, lastUpdated: _lu, ...rest } = item;
-    setFormData(rest);
+    setFormData({
+      name: item.name,
+      nameAr: item.nameAr,
+      category: item.category,
+      categoryAr: item.categoryAr,
+      farmId: item.farmId,
+      farmName: item.farmName,
+      farmNameAr: item.farmNameAr,
+      quantity: item.quantity,
+      unit: item.unit,
+      minQuantity: item.minQuantity,
+      value: item.value,
+      currency: item.currency,
+      status: item.status,
+      expiryDate: item.expiryDate,
+    });
     setSelectedItem(item);
     setModalMode("edit");
     setModalOpen(true);

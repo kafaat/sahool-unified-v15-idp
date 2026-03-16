@@ -113,7 +113,9 @@ export type WSMessageType =
   | "field_update"
   | "ndvi_update"
   | "weather_update"
-  | "sensor_reading";
+  | "sensor_reading"
+  | "ping"
+  | "pong";
 
 export interface WSMessage<T = unknown> {
   type: WSMessageType;

@@ -12,24 +12,53 @@ module.exports = {
       // ─────────────────────────────────────────────────────────────────────────
       colors: {
         // SAHOOL Brand Colors (Green Agriculture Theme)
+        // Source of truth: governance/design/design-tokens.yaml
         sahool: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          300: "#86efac",
-          400: "#4ade80",
-          500: "#22c55e",
-          600: "#16a34a", // Primary
-          700: "#15803d",
-          800: "#166534",
-          900: "#14532d",
-          950: "#052e16",
+          50: "#E8F5E9",
+          100: "#C8E6C9",
+          200: "#A5D6A7",
+          300: "#81C784",
+          400: "#66BB6A",
+          500: "#4CAF50",   // Main primary
+          600: "#43A047",
+          700: "#388E3C",
+          800: "#2E7D32",
+          900: "#1B5E20",
+          950: "#0D3B10",
         },
-        // Semantic Colors
+        // Alias: Components use sahool-green-* classes (e.g. bg-sahool-green-600)
+        "sahool-green": {
+          50: "#E8F5E9",
+          100: "#C8E6C9",
+          200: "#A5D6A7",
+          300: "#81C784",
+          400: "#66BB6A",
+          500: "#4CAF50",
+          600: "#43A047",
+          700: "#388E3C",
+          800: "#2E7D32",
+          900: "#1B5E20",
+          950: "#0D3B10",
+        },
+        // SAHOOL Earth/Brown tones (agriculture soil theme)
+        "sahool-brown": {
+          50: "#fdf8f0",
+          100: "#f5e6d3",
+          200: "#e8cba4",
+          300: "#d4a76e",
+          400: "#c08a45",
+          500: "#a67c3e",
+          600: "#8b6831",
+          700: "#6f5327",
+          800: "#573f1e",
+          900: "#3d2c15",
+          950: "#2a1e0e",
+        },
+        // Semantic Colors (aligned with design tokens)
         primary: {
-          DEFAULT: "#16a34a",
-          light: "#22c55e",
-          dark: "#15803d",
+          DEFAULT: "#4CAF50",
+          light: "#66BB6A",
+          dark: "#388E3C",
         },
         secondary: {
           DEFAULT: "#0891b2",
@@ -42,9 +71,9 @@ module.exports = {
           dark: "#b45309",
         },
         success: {
-          DEFAULT: "#10b981",
-          light: "#34d399",
-          dark: "#059669",
+          DEFAULT: "#4CAF50",
+          light: "#81C784",
+          dark: "#388E3C",
         },
         warning: {
           DEFAULT: "#f59e0b",

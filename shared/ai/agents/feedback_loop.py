@@ -25,6 +25,8 @@ from typing import Any
 
 import structlog
 
+from shared.ai.feedback import OutcomeStatus  # noqa: E402
+
 logger = structlog.get_logger()
 
 
@@ -55,9 +57,6 @@ class QualityDimension(StrEnum):
     CLARITY = "clarity"  # Clear communication
     COMPLETENESS = "completeness"  # Nothing important missing
 
-
-# Import canonical OutcomeStatus from shared.ai.feedback
-from shared.ai.feedback import OutcomeStatus  # noqa: E402, F811
 
 
 class EscalationLevel(StrEnum):

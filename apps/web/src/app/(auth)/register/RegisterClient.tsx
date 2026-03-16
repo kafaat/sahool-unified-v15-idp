@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Phone } from "lucide-react";
+import { Mail, Lock, User, Phone, Smartphone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,60 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/stores/auth.store";
 import { useToast } from "@/components/ui/toast";
+
+/**
+ * Yemen mobile phone number validation
+ * شركات الاتصالات اليمنية:
+ * - Yemen Mobile (يمن موبايل): 77x, 78x
+ * - SabaFone (سبأفون): 71x
+ * - YOU (يو): 73x
+ * - Y (واي): 70x
+ */
+const YEMEN_PHONE_REGEX = /^(?:\+?967|00967|0)?(?:7[01378]\d{7})$/;
+const YEMEN_COUNTRY_CODE = "+967";
+
+/** Recognized Yemen mobile operators with prefix info */
+const YEMEN_OPERATORS = [
+  { name: "Yemen Mobile", nameAr: "يمن موبايل", prefixes: ["77", "78"] },
+  { name: "SabaFone", nameAr: "سبأفون", prefixes: ["71"] },
+  { name: "YOU", nameAr: "يو", prefixes: ["73"] },
+  { name: "Y Telecom", nameAr: "واي", prefixes: ["70"] },
+] as const;
+
+/**
+ * Detect Yemen mobile operator from phone number
+ */
+function detectYemenOperator(phone: string): string | null {
+  const cleaned = phone.replace(/[\s\-+]/g, "");
+  // Extract the 2-digit prefix after country code
+  let prefix = "";
+  if (cleaned.startsWith("00967")) prefix = cleaned.slice(5, 7);
+  else if (cleaned.startsWith("967")) prefix = cleaned.slice(3, 5);
+  else if (cleaned.startsWith("0")) prefix = cleaned.slice(1, 3);
+  else if (cleaned.startsWith("7")) prefix = cleaned.slice(0, 2);
+
+  for (const op of YEMEN_OPERATORS) {
+    if ((op.prefixes as readonly string[]).includes(prefix)) return `${op.nameAr} (${op.name})`;
+  }
+  return null;
+}
+
+/**
+ * Validate Yemen phone number
+ */
+function validateYemenPhone(phone: string): { valid: boolean; error?: string } {
+  if (!phone) return { valid: false, error: "رقم الهاتف مطلوب | Phone number is required" };
+  const cleaned = phone.replace(/[\s-]/g, "");
+  if (!YEMEN_PHONE_REGEX.test(cleaned)) {
+    return {
+      valid: false,
+      error: "رقم هاتف يمني غير صالح | Invalid Yemen phone number (e.g. +967 77X XXX XXX)",
+    };
+  }
+  return { valid: true };
+}
+
+type RegisterMethod = "email" | "phone";
 
 interface RegisterFormData {
   email: string;
@@ -97,9 +151,12 @@ function validateForm(data: RegisterFormData): RegisterError[] {
     errors.push({ field: "confirmPassword", message: "Passwords do not match" });
   }
 
-  // Phone validation (optional but must be valid if provided)
-  if (data.phone && !/^\+?[\d\s-]{7,15}$/.test(data.phone)) {
-    errors.push({ field: "phone", message: "Invalid phone number format" });
+  // Phone validation (required for phone method, must be valid Yemen number if provided)
+  if (data.phone) {
+    const phoneResult = validateYemenPhone(data.phone);
+    if (!phoneResult.valid) {
+      errors.push({ field: "phone", message: phoneResult.error || "Invalid phone number" });
+    }
   }
 
   return errors;
@@ -111,6 +168,7 @@ export default function RegisterClient() {
   useAuth();
   const { showToast } = useToast();
 
+  const [registerMethod, setRegisterMethod] = useState<RegisterMethod>("phone");
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     password: "",
@@ -121,11 +179,13 @@ export default function RegisterClient() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [detectedOperator, setDetectedOperator] = useState<string | null>(null);
 
   const handleChange = (field: keyof RegisterFormData) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear field error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
@@ -134,10 +194,34 @@ export default function RegisterClient() {
         return newErrors;
       });
     }
+    // Detect Yemen operator when typing phone
+    if (field === "phone") {
+      setDetectedOperator(detectYemenOperator(value));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Add method-specific required field validation
+    if (registerMethod === "phone" && !formData.phone) {
+      setErrors({ phone: "رقم الهاتف مطلوب | Phone number is required" });
+      showToast({
+        type: "error",
+        messageAr: "يرجى إدخال رقم الهاتف",
+        message: "Please enter your phone number",
+      });
+      return;
+    }
+    if (registerMethod === "email" && !formData.email) {
+      setErrors({ email: "البريد الإلكتروني مطلوب | Email is required" });
+      showToast({
+        type: "error",
+        messageAr: "يرجى إدخال البريد الإلكتروني",
+        message: "Please enter your email",
+      });
+      return;
+    }
 
     // Validate form
     const validationErrors = validateForm(formData);
@@ -164,6 +248,13 @@ export default function RegisterClient() {
     setErrors({});
 
     try {
+      // Normalize phone to international format
+      let normalizedPhone = formData.phone.trim();
+      if (normalizedPhone && !normalizedPhone.startsWith("+")) {
+        normalizedPhone = normalizedPhone.replace(/^(00967|967|0)/, "");
+        normalizedPhone = `${YEMEN_COUNTRY_CODE}${normalizedPhone}`;
+      }
+
       // Call registration API
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
@@ -173,11 +264,12 @@ export default function RegisterClient() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: formData.email.toLowerCase().trim(),
+            email: formData.email ? formData.email.toLowerCase().trim() : undefined,
             password: formData.password,
             firstName: formData.firstName.trim(),
             lastName: formData.lastName.trim(),
-            phone: formData.phone.trim() || undefined,
+            phone: normalizedPhone || undefined,
+            registerMethod,
           }),
           credentials: "include",
         }
@@ -260,6 +352,36 @@ export default function RegisterClient() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Registration method toggle */}
+            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+              <button
+                type="button"
+                onClick={() => setRegisterMethod("phone")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
+                  registerMethod === "phone"
+                    ? "bg-sahool-green-600 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>رقم الهاتف</span>
+                <span className="text-xs opacity-75">Phone</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRegisterMethod("email")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
+                  registerMethod === "email"
+                    ? "bg-sahool-green-600 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Mail className="w-4 h-4" />
+                <span>البريد الإلكتروني</span>
+                <span className="text-xs opacity-75">Email</span>
+              </button>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <Input
                 type="text"
@@ -285,28 +407,45 @@ export default function RegisterClient() {
                 autoComplete="family-name"
               />
             </div>
+
+            {/* Phone field - primary for phone method */}
+            <div>
+              <Input
+                type="tel"
+                label={registerMethod === "phone" ? "Phone Number" : "Phone (Optional)"}
+                labelAr={registerMethod === "phone" ? "رقم الهاتف" : "رقم الهاتف (اختياري)"}
+                placeholder="+967 7X XXX XXXX"
+                value={formData.phone}
+                onChange={handleChange("phone")}
+                leftIcon={<Phone className="w-4 h-4" />}
+                error={errors.phone}
+                required={registerMethod === "phone"}
+                autoComplete="tel"
+              />
+              {detectedOperator && (
+                <p className="mt-1 text-xs text-sahool-green-600 font-medium">
+                  {detectedOperator}
+                </p>
+              )}
+              {registerMethod === "phone" && !formData.phone && (
+                <p className="mt-1 text-xs text-gray-500">
+                  يمن موبايل (77, 78) • سبأفون (71) • يو (73) • واي (70)
+                </p>
+              )}
+            </div>
+
+            {/* Email field - primary for email method */}
             <Input
               type="email"
-              label="Email"
-              labelAr="البريد الإلكتروني"
-              placeholder="example@sahool.com"
+              label={registerMethod === "email" ? "Email" : "Email (Optional)"}
+              labelAr={registerMethod === "email" ? "البريد الإلكتروني" : "البريد الإلكتروني (اختياري)"}
+              placeholder="example@sahool.ye"
               value={formData.email}
               onChange={handleChange("email")}
               leftIcon={<Mail className="w-4 h-4" />}
               error={errors.email}
-              required
+              required={registerMethod === "email"}
               autoComplete="email"
-            />
-            <Input
-              type="tel"
-              label="Phone (Optional)"
-              labelAr="رقم الهاتف (اختياري)"
-              placeholder="+966 5X XXX XXXX"
-              value={formData.phone}
-              onChange={handleChange("phone")}
-              leftIcon={<Phone className="w-4 h-4" />}
-              error={errors.phone}
-              autoComplete="tel"
             />
             <Input
               type="password"

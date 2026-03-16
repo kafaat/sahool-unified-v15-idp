@@ -105,7 +105,9 @@ elif DATABASE_URL.startswith("postgresql://"):
 # Enforce sslmode for non-development database connections
 if DATABASE_URL and os.getenv("ENVIRONMENT", "development") != "development":
     if "sslmode" not in DATABASE_URL:
-        DATABASE_URL += "?sslmode=require" if "?" not in DATABASE_URL else "&sslmode=require"
+        # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
+        ssl_mode = "disable" if ":6432" in DATABASE_URL else "require"
+        DATABASE_URL += f"?sslmode={ssl_mode}" if "?" not in DATABASE_URL else f"&sslmode={ssl_mode}"
 
 engine = create_async_engine(
     DATABASE_URL,

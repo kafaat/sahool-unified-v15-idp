@@ -604,13 +604,13 @@ class TestNATSSubjectUtilities:
         assert result == "sahool.tenant.org_123.>"
 
     def test_tenant_wildcard_specific_domain(self):
-        """Tenant wildcard with specific domain should use '.*' suffix."""
+        """Tenant wildcard with specific domain should use '.>' suffix."""
         try:
             from shared.events.subjects import get_tenant_wildcard
         except ImportError:
             pytest.skip("Module not available")
         result = get_tenant_wildcard("org_123", "field")
-        assert result == "sahool.tenant.org_123.field.*"
+        assert result == "sahool.tenant.org_123.field.>"
 
     def test_lookup_subject_known(self):
         """lookup_subject should resolve known event types from registry."""
@@ -661,7 +661,7 @@ class TestTenantSubjectBuilder:
 
     def test_builder_weather_all(self):
         builder = self._get_builder("farm_001")
-        assert builder.weather.all() == "sahool.tenant.farm_001.weather.*"
+        assert builder.weather.all() == "sahool.tenant.farm_001.weather.>"
 
     def test_builder_billing_action(self):
         builder = self._get_builder("org_abc")
@@ -673,7 +673,7 @@ class TestTenantSubjectBuilder:
 
     def test_builder_generic_wildcard(self):
         builder = self._get_builder("t1")
-        assert builder.wildcard("iot") == "sahool.tenant.t1.iot.*"
+        assert builder.wildcard("iot") == "sahool.tenant.t1.iot.>"
 
     def test_builder_requires_tenant_id(self):
         try:

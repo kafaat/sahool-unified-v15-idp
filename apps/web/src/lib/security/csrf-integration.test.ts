@@ -26,7 +26,7 @@ describe("CSRF Integration", () => {
     it("should extract CSRF token from cookie", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=test-token-123; other=value",
+        value: "_csrf=test-token-123; other=value",
       });
 
       const token = getCsrfToken();
@@ -36,7 +36,7 @@ describe("CSRF Integration", () => {
     it("should handle cookies with spaces", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "session=abc; csrf_token=my-csrf-token; expires=...",
+        value: "session=abc; _csrf=my-csrf-token; expires=...",
       });
 
       const token = getCsrfToken();
@@ -46,7 +46,7 @@ describe("CSRF Integration", () => {
     it("should handle cookie with just the CSRF token", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=only-token",
+        value: "_csrf=only-token",
       });
 
       const token = getCsrfToken();
@@ -63,7 +63,7 @@ describe("CSRF Integration", () => {
     it("should return headers with CSRF token", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=my-token-abc123",
+        value: "_csrf=my-token-abc123",
       });
 
       const headers = getCsrfHeaders();
@@ -75,7 +75,7 @@ describe("CSRF Integration", () => {
     it("should use correct header name", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=test",
+        value: "_csrf=test",
       });
 
       const headers = getCsrfHeaders();
@@ -91,7 +91,7 @@ describe("CSRF Integration", () => {
       // Set cookie
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=test-token",
+        value: "_csrf=test-token",
       });
 
       // Disable CSRF
@@ -110,7 +110,7 @@ describe("CSRF Integration", () => {
     it("should handle base64url encoded tokens", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=abc123DEF456-_",
+        value: "_csrf=abc123DEF456-_",
       });
 
       const token = getCsrfToken();
@@ -122,7 +122,7 @@ describe("CSRF Integration", () => {
       const longToken = "a".repeat(300);
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: `csrf_token=${longToken}`,
+        value: `_csrf=${longToken}`,
       });
 
       const token = getCsrfToken();
@@ -135,7 +135,7 @@ describe("CSRF Integration", () => {
     it("should handle malformed cookies", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=",
+        value: "_csrf=",
       });
 
       const token = getCsrfToken();
@@ -145,7 +145,7 @@ describe("CSRF Integration", () => {
     it("should handle cookies without value", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token",
+        value: "_csrf",
       });
 
       const token = getCsrfToken();
@@ -156,7 +156,7 @@ describe("CSRF Integration", () => {
     it("should handle multiple cookies with similar names", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "not_csrf_token=fake; csrf_token=real; csrf_token_old=old",
+        value: "not_csrf=fake; _csrf=real; _csrf_old=old",
       });
 
       const token = getCsrfToken();
@@ -169,7 +169,7 @@ describe("CSRF Integration", () => {
       // Token should only be in cookie, not in localStorage or sessionStorage
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=secret-token",
+        value: "_csrf=secret-token",
       });
 
       const token = getCsrfToken();
@@ -179,13 +179,13 @@ describe("CSRF Integration", () => {
 
       // Should NOT be in localStorage (if available)
       if (typeof localStorage !== "undefined") {
-        const lsToken = localStorage.getItem("csrf_token");
+        const lsToken = localStorage.getItem("_csrf");
         expect(lsToken === null || lsToken === undefined).toBe(true);
       }
 
       // Should NOT be in sessionStorage (if available)
       if (typeof sessionStorage !== "undefined") {
-        const ssToken = sessionStorage.getItem("csrf_token");
+        const ssToken = sessionStorage.getItem("_csrf");
         expect(ssToken === null || ssToken === undefined).toBe(true);
       }
     });
@@ -193,7 +193,7 @@ describe("CSRF Integration", () => {
     it("should return headers suitable for fetch API", () => {
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=valid-token",
+        value: "_csrf=valid-token",
       });
 
       const headers = getCsrfHeaders();
@@ -212,7 +212,7 @@ describe("CSRF Integration", () => {
       // SameSite cookies should still be readable by JavaScript
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=samesite-token",
+        value: "_csrf=samesite-token",
       });
 
       const token = getCsrfToken();
@@ -237,7 +237,7 @@ describe("CSRF Integration", () => {
       expect(token).toBe("custom-token");
 
       // Reset to default
-      configureSecurity({ csrfCookieName: "csrf_token" });
+      configureSecurity({ csrfCookieName: "_csrf" });
     });
 
     it("should use custom header name when configured", async () => {
@@ -246,7 +246,7 @@ describe("CSRF Integration", () => {
 
       Object.defineProperty(document, "cookie", {
         writable: true,
-        value: "csrf_token=test-token",
+        value: "_csrf=test-token",
       });
 
       // Configure custom header name

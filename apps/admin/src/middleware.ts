@@ -242,6 +242,17 @@ export async function middleware(request: NextRequest) {
   if (lastActivityStr) {
     const lastActivity = parseInt(lastActivityStr, 10);
     const now = Date.now();
+    // Guard against NaN from corrupted/tampered cookies - treat as expired
+    if (Number.isNaN(lastActivity)) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("returnTo", pathname);
+      loginUrl.searchParams.set("reason", "session_expired");
+      const expiredResponse = NextResponse.redirect(loginUrl);
+      expiredResponse.cookies.delete("sahool_admin_token");
+      expiredResponse.cookies.delete("sahool_admin_refresh_token");
+      expiredResponse.cookies.delete("sahool_admin_last_activity");
+      return expiredResponse;
+    }
     const timeSinceLastActivity = now - lastActivity;
 
     if (timeSinceLastActivity >= IDLE_TIMEOUT) {

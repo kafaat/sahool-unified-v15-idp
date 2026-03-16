@@ -27,7 +27,7 @@ This runbook defines:
 | **Decision** | `advisory-service`, `irrigation-smart`, `crop-growth-model`, `yield-prediction-service`, `hydrology-service`, `leveling-optimizer-service` |
 | **Business** | `notification-service`, `marketplace-service`, `billing-core`, `chat-service`, `task-service`, `equipment-service`, `ws-gateway` |
 
-### JetStream Streams (9 Pre-Defined)
+### JetStream Streams (12 Pre-Defined)
 
 | Stream | Subjects | Retention |
 |--------|----------|-----------|
@@ -39,6 +39,9 @@ This runbook defines:
 | `SAHOOL_EDGE` | `sahool.edge.>` | 14 days |
 | `SAHOOL_BUSINESS` | `sahool.billing.>`, `sahool.notification.>`, `sahool.task.>`, etc. | 90 days |
 | `SAHOOL_AGENT` | `sahool.agent.>` | 14 days |
+| `SAHOOL_IOT` | `sahool.iot.>` | 14 days |
+| `SAHOOL_SYSTEM` | `sahool.system.>`, `sahool.user.>` | 30 days |
+| `SAHOOL_TENANT` | `sahool.tenant.>` | 30 days |
 | `SAHOOL_DLQ` | `sahool.dlq.>` | 30 days |
 
 > Streams defined in `shared/events/streams.py`. Each stream: `max_messages=1,000,000`, `max_bytes=5GB`, `storage=file`, `dedup_window=120s`.

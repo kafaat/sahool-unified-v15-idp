@@ -400,12 +400,13 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 
 @app.middleware("http")
-async def add_request_id_middleware(request: Request, call_next):
-    """Add request ID to all requests for tracing"""
-    request_id = request.headers.get("X-Request-ID") or str(uuid4())
-    request.state.request_id = request_id
+async def ensure_request_id(request: Request, call_next):
+    """Ensure request ID header is present for tracing (fallback if shared middleware not loaded)"""
+    if not hasattr(request.state, "request_id"):
+        request_id = request.headers.get("X-Request-ID") or str(uuid4())
+        request.state.request_id = request_id
     response = await call_next(request)
-    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Request-ID"] = getattr(request.state, "request_id", str(uuid4()))
     return response
 
 
@@ -597,7 +598,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # Get allowed origins from environment
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
 
 app.add_middleware(
     CORSMiddleware,

@@ -94,7 +94,9 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 # Enforce sslmode for non-development database connections
 if DATABASE_URL and os.getenv("ENVIRONMENT", "development") != "development":
     if "sslmode" not in DATABASE_URL:
-        DATABASE_URL += "?sslmode=require" if "?" not in DATABASE_URL else "&sslmode=require"
+        # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
+        ssl_mode = "disable" if ":6432" in DATABASE_URL else "require"
+        DATABASE_URL += f"?sslmode={ssl_mode}" if "?" not in DATABASE_URL else f"&sslmode={ssl_mode}"
 
 
 # ==============================================================================
@@ -630,7 +632,9 @@ async def lifespan(app: FastAPI):
     if _nats_available and NATS_URL:
         try:
             _nats_client = await nats.connect(NATS_URL)
-            logger.info(f"NATS connected: {NATS_URL}")
+            from shared.logging_config import sanitize_url
+
+            logger.info(f"NATS connected: {sanitize_url(NATS_URL)}")
         except Exception as e:
             logger.warning(f"Failed to connect to NATS: {e}")
 

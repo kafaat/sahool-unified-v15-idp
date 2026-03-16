@@ -6,3 +6,14 @@ archive/
 # Trivy cannot render templates without these dependencies
 # Container images are scanned separately in the container-tests workflow
 helm/
+
+# Base OS image CVEs - no upstream fix available
+# Review periodically and remove when patches are released
+# Last reviewed: 2026-03-15
+#
+# To populate this section, run Trivy locally against affected images:
+#   trivy image --severity CRITICAL,HIGH --ignore-unfixed <service>:scan
+# Then add specific CVE IDs below (one per line) for OS-level CVEs that
+# have no fix in Debian bookworm / Ubuntu 22.04 base images.
+# Example:
+#   CVE-2024-XXXXX

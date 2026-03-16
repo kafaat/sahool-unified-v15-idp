@@ -16,6 +16,8 @@ from typing import Any
 
 import pytest
 
+np = pytest.importorskip("numpy", reason="numpy required for evaluation tests")
+
 from tests.evaluation.evaluator import (
     AgentEvaluator,
     SimilarityCalculator,

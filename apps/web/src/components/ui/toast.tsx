@@ -10,6 +10,12 @@ interface Toast {
   message: string;
   messageAr?: string;
   duration?: number;
+  action?: {
+    label: string;
+    labelAr?: string;
+    onClick: () => void;
+  };
+  isExiting?: boolean;
 }
 
 interface ToastContextType {
@@ -22,15 +28,39 @@ const ToastContext = React.createContext<ToastContextType | null>(null);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const timeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const exitTimeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // Clean up all timeouts on unmount
+  React.useEffect(() => {
+    const timeouts = timeoutsRef.current;
+    const exitTimeouts = exitTimeoutsRef.current;
+    return () => {
+      timeouts.forEach((t) => clearTimeout(t));
+      exitTimeouts.forEach((t) => clearTimeout(t));
+    };
+  }, []);
 
   const hideToast = React.useCallback((id: string) => {
-    // Clear the timeout if it exists
+    // Clear the duration timeout if it exists
     const timeout = timeoutsRef.current.get(id);
     if (timeout) {
       clearTimeout(timeout);
       timeoutsRef.current.delete(id);
     }
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    // Clear any existing exit timeout for this toast
+    const existingExit = exitTimeoutsRef.current.get(id);
+    if (existingExit) {
+      clearTimeout(existingExit);
+    }
+    // Trigger exit animation before removal
+    setToasts((prev) =>
+      prev.map((toast) => (toast.id === id ? { ...toast, isExiting: true } : toast))
+    );
+    const exitTimeout = setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      exitTimeoutsRef.current.delete(id);
+    }, 200);
+    exitTimeoutsRef.current.set(id, exitTimeout);
   }, []);
 
   const showToast = React.useCallback(
@@ -125,7 +155,8 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   return (
     <div
       className={clsx(
-        "flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg animate-in slide-in-from-right",
+        "flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg",
+        toast.isExiting ? "animate-slide-out-right" : "animate-slide-in-right",
         variants[toast.type],
       )}
     >
@@ -144,6 +175,18 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
         >
           {toast.message}
         </p>
+        {toast.action && (
+          <button
+            type="button"
+            onClick={() => {
+              toast.action!.onClick();
+              onClose(toast.id);
+            }}
+            className="mt-2 text-xs font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
+          >
+            {toast.action.labelAr || toast.action.label}
+          </button>
+        )}
       </div>
       <React.Suspense fallback={<div className="w-4 h-4" />}>
         <button

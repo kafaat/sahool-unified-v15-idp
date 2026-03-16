@@ -21,7 +21,7 @@ Usage in values.yaml:
 */ -}}
 
 {{- range $serviceName, $service := .Values.services }}
-{{- if and $service.enabled (default false $service.rollout.enabled) }}
+{{- if and $service.enabled $service.rollout (default false $service.rollout.enabled) }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: {{ $serviceName }}
-          image: "{{ $service.image.repository }}:{{ $service.image.tag }}"
+          image: {{ include "sahool.image" (dict "root" $ "service" $service) }}
           imagePullPolicy: {{ default "IfNotPresent" $service.image.pullPolicy }}
           ports:
             - containerPort: {{ default 8080 $service.port }}

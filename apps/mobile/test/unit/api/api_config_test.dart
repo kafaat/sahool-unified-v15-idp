@@ -43,8 +43,16 @@ void main() {
       expect(ServicePorts.virtualSensors, 8119);
     });
 
+    test('should have correct chat service port', () {
+      expect(ServicePorts.chat, 8115);
+    });
+
     test('should have correct community chat service port', () {
-      expect(ServicePorts.communityChat, 8097);
+      expect(ServicePorts.communityChat, 8115);
+    });
+
+    test('should have correct spray (yield-prediction) service port', () {
+      expect(ServicePorts.spray, 8152);
     });
 
     test('should have correct equipment service port', () {
@@ -91,6 +99,10 @@ void main() {
 
     test('should generate correct virtual sensors service URL', () {
       expect(ApiConfig.virtualSensorsServiceUrl, contains(':${ServicePorts.virtualSensors}'));
+    });
+
+    test('should generate correct chat service URL', () {
+      expect(ApiConfig.chatServiceUrl, contains(':${ServicePorts.chat}'));
     });
 
     test('should have production base URL', () {

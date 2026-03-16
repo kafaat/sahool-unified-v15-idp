@@ -34,7 +34,7 @@ export interface RateLimitEntry {
 const DEFAULT_CONFIG: SecurityConfig = {
   csrfEnabled: true,
   csrfTokenHeader: "X-CSRF-Token",
-  csrfCookieName: "csrf_token",
+  csrfCookieName: "_csrf",
   rateLimitWindow: 60000, // 1 minute
   rateLimitMaxRequests: 100,
 };
@@ -69,7 +69,7 @@ export function configureSecurity(options: Partial<SecurityConfig>): void {
 export function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
 
-  const cookieName = config.csrfCookieName || "csrf_token";
+  const cookieName = config.csrfCookieName || "_csrf";
   const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
   return match ? (match[2] ?? null) : null;
 }

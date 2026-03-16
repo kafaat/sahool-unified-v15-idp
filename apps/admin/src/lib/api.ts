@@ -147,7 +147,7 @@ export async function fetchDiagnoses(params?: {
     );
 
     // Map backend response to our frontend model
-    return response.data.map((d: Record<string, unknown>, _index: number) => ({
+    return (response.data || []).map((d: Record<string, unknown>, _index: number) => ({
       id: d.id as string,
       farmId:
         (d.field_id as string) || `farm-${crypto.randomUUID().slice(0, 8)}`,
@@ -161,7 +161,7 @@ export async function fetchDiagnoses(params?: {
       diseaseId: d.disease_id as string,
       diseaseName: d.disease_name as string,
       diseaseNameAr: d.disease_name_ar as string,
-      confidence: (d.confidence as number) * 100, // Convert to percentage
+      confidence: Number.isFinite(d.confidence as number) ? (d.confidence as number) * 100 : 0,
       severity: d.severity as "low" | "medium" | "high" | "critical",
       status: d.status as "pending" | "confirmed" | "rejected" | "treated",
       location: (d.location as { lat: number; lng: number }) || {
@@ -200,17 +200,19 @@ export async function fetchDiagnosisStats(): Promise<{
     const response = await apiClient.get(
       `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
     );
+    const data = response.data || {};
     return {
-      total: response.data.total,
-      pending: response.data.pending,
-      confirmed: response.data.confirmed,
-      treated: response.data.treated,
-      criticalCount: response.data.critical_count,
-      highCount: response.data.high_count,
-      byDisease: response.data.by_disease,
-      byGovernorate: response.data.by_governorate,
+      total: data.total || 0,
+      pending: data.pending || 0,
+      confirmed: data.confirmed || 0,
+      treated: data.treated || 0,
+      criticalCount: data.critical_count || 0,
+      highCount: data.high_count || 0,
+      byDisease: data.by_disease || {},
+      byGovernorate: data.by_governorate || {},
     };
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch diagnosis stats:", error);
     return {
       total: 0,
       pending: 0,
@@ -365,7 +367,8 @@ export async function fetchSensorReadings(
       `${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`,
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch sensor readings:", error);
     return [];
   }
 }
@@ -392,7 +395,8 @@ export async function fetchNotifications(params?: {
       { params },
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch notifications:", error);
     return [];
   }
 }
@@ -403,7 +407,8 @@ export async function markNotificationRead(id: string): Promise<boolean> {
       `${API_URLS.notifications}/api/v1/notifications/${id}/read`,
     );
     return true;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to mark notification as read:", error);
     return false;
   }
 }
@@ -432,7 +437,8 @@ export async function fetchTasks(params?: {
       params,
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch tasks:", error);
     return [];
   }
 }
@@ -444,7 +450,8 @@ export async function updateTaskStatus(
   try {
     await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
     return true;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to update task status:", error);
     return false;
   }
 }
@@ -471,7 +478,8 @@ export async function fetchCommunityPosts(params?: {
       params,
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch community posts:", error);
     return [];
   }
 }
@@ -498,7 +506,8 @@ export async function fetchEquipment(params?: {
       { params },
     );
     return response.data;
-  } catch {
+  } catch (error) {
+    logger.error("Failed to fetch equipment:", error);
     return [];
   }
 }

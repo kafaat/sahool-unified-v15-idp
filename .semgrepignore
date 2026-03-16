@@ -17,10 +17,13 @@
 **/*.spec.ts
 **/*.spec.js
 **/conftest.py
+**/__tests__/**
 
 # Archives and legacy code
 archive/**
 **/archive/**
+legacy/**
+**/legacy/**
 
 # Generated code
 **/node_modules/**
@@ -51,6 +54,7 @@ archive/**
 # Examples and templates
 **/examples/**
 **/templates/**
+idp/templates/**
 **/*.example
 **/*.example.*
 
@@ -59,6 +63,7 @@ archive/**
 **/mocks/**
 **/*mock*
 **/*fixture*
+packages/mock-data/**
 
 # Golden datasets (test data, not real secrets)
 tests/golden-datasets/**

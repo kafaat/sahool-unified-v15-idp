@@ -1092,6 +1092,8 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Include routers for multi-channel support
+# Note: Kong gateway uses strip_path: true, so upstream receives paths
+# without the /api/v1/notifications prefix. Do not add prefixes here.
 app.include_router(channels_router)
 app.include_router(preferences_router)
 app.include_router(otp_router)

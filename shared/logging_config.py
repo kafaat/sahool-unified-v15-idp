@@ -30,6 +30,7 @@ Usage:
 
 import logging
 import os
+import re
 import sys
 from contextvars import ContextVar
 from uuid import uuid4
@@ -44,6 +45,49 @@ except ImportError:
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+
+# ─────────────────────────────────────────────────────────────────────────────
+# URL Credential Sanitization
+# تنظيف بيانات الاعتماد من عناوين URL قبل التسجيل
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Matches userinfo portion of a URL:  scheme://user:password@host  ->  scheme://***@host
+_URL_CREDENTIAL_RE = re.compile(
+    r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@"
+)
+
+
+def sanitize_url(url: str) -> str:
+    """
+    Mask credentials embedded in a connection URL before logging.
+
+    Handles common patterns:
+      nats://user:password@host:4222  ->  nats://***@host:4222
+      redis://:password@host:6379/0   ->  redis://***@host:6379/0
+      postgresql://user:pass@host/db  ->  postgresql://***@host/db
+
+    Args:
+        url: A connection URL that may contain embedded credentials.
+
+    Returns:
+        The URL with the userinfo portion replaced by '***'.
+    """
+    if not isinstance(url, str):
+        return str(url)
+    return _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
+
+
+def sanitize_urls(urls: list[str] | str) -> list[str] | str:
+    """
+    Sanitize a single URL string or a list of URL strings.
+
+    Convenience wrapper around :func:`sanitize_url` that preserves the input
+    type (str or list).
+    """
+    if isinstance(urls, str):
+        return sanitize_url(urls)
+    return [sanitize_url(u) for u in urls]
+
 
 # Context variables for correlation tracking
 correlation_id_var: ContextVar[str | None] = ContextVar("correlation_id", default=None)
@@ -66,6 +110,27 @@ def add_correlation_id(logger: logging.Logger, method_name: str, event_dict: dic
     if user_id:
         event_dict["userId"] = user_id
 
+    return event_dict
+
+
+def sanitize_credentials(logger: logging.Logger, method_name: str, event_dict: dict) -> dict:
+    """
+    Structlog processor that masks credentials in URL-like values before they
+    are rendered.  Applies :func:`sanitize_url` to every string value and to
+    the main ``event`` field.
+
+    Patterns handled:
+      nats://user:pass@host  ->  nats://***@host
+      redis://:pass@host     ->  redis://***@host
+    """
+    for key, value in event_dict.items():
+        if isinstance(value, str) and "://" in value and "@" in value:
+            event_dict[key] = sanitize_url(value)
+        elif isinstance(value, list):
+            event_dict[key] = [
+                sanitize_url(v) if isinstance(v, str) and "://" in v and "@" in v else v
+                for v in value
+            ]
     return event_dict
 
 
@@ -109,6 +174,7 @@ def setup_logging(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         add_correlation_id,
+        sanitize_credentials,
         structlog.processors.UnicodeDecoder(),
     ]
 

@@ -69,9 +69,44 @@
   background: #a1a1a1;
 }
 
-@layer components {
-  /* Sahool brand gradient */
-  .sahool-gradient {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
+
+@layer components {
+  /* Sahool brand gradient (aligned with design tokens) */
+  .sahool-gradient {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  }
+}
+
+/* ─── Interactive Animations ────────────────────────────────────────────── */
+
+/* Toast slide-in animation */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+
+/* Scale-in animation for dialogs/modals */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn 0.2s ease-out; }
+
+/* Page content entrance animation */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter { animation: pageEnter 0.25s ease-out; }

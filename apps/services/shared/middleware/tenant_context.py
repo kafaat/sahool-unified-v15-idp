@@ -125,6 +125,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         self.exempt_paths = exempt_paths or [
             "/healthz",
             "/readyz",
+            "/health",
             "/metrics",
             "/docs",
             "/openapi.json",

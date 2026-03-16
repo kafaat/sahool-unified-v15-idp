@@ -73,6 +73,27 @@ const protectedRoutes = [
   "/marketplace",
   "/crop-health",
   "/copilot",
+  "/alerts",
+  "/compliance",
+  "/crops",
+  "/diseases",
+  "/documents",
+  "/disaster-assessment",
+  "/farms",
+  "/inventory",
+  "/irrigation",
+  "/logistics",
+  "/notifications",
+  "/pivot-irrigation",
+  "/precision-agriculture",
+  "/reports",
+  "/research",
+  "/satellite",
+  "/seasons",
+  "/sensors",
+  "/support",
+  "/users",
+  "/yield",
 ];
 
 /**
@@ -221,6 +242,7 @@ export async function middleware(request: NextRequest) {
 
   // Generate CSRF token if not present
   let csrfToken = request.cookies.get("csrf_token")?.value;
+  const clientCsrf = request.cookies.get("_csrf")?.value;
   if (!csrfToken) {
     // Use Web Crypto API for Edge Runtime compatibility
     const randomValues = new Uint8Array(32);
@@ -229,8 +251,27 @@ export async function middleware(request: NextRequest) {
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
+    // Double-submit cookie pattern: httpOnly cookie for server-side validation
     response.cookies.set("csrf_token", csrfToken, {
-      httpOnly: false, // Must be readable by client JavaScript for AJAX requests
+      httpOnly: true, // Server-side only - used for validation
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+    // Client-readable cookie - JavaScript reads this to set X-CSRF-Token header
+    response.cookies.set("_csrf", csrfToken, {
+      httpOnly: false, // Must be readable by client-side JavaScript
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+  } else if (!clientCsrf || clientCsrf !== csrfToken) {
+    // Ensure _csrf cookie stays in sync with csrf_token (handles rolling deploys
+    // where csrf_token exists from a prior version but _csrf is missing or stale)
+    response.cookies.set("_csrf", csrfToken, {
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",

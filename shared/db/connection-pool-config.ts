@@ -243,7 +243,7 @@ export interface ConnectionMetrics {
  * }
  *
  * DATABASE_URL should point to PgBouncer (port 6432):
- *   postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=10
+ *   postgresql://user:pass@pgbouncer:6432/db?sslmode=disable&connection_limit=10
  *
  * DATABASE_URL_DIRECT should point directly to PostgreSQL (port 5432):
  *   postgresql://user:pass@postgres:5432/db?sslmode=require

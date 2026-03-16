@@ -48,7 +48,7 @@ import { JWTConfig } from "../utils/jwt.config";
         // Create instance with Redis URL from environment
         const redisUrl =
           process.env.REDIS_URL ||
-          `redis://${process.env.REDIS_HOST || "localhost"}:${process.env.REDIS_PORT || 6379}`;
+          `redis://${process.env.REDIS_HOST || "redis"}:${process.env.REDIS_PORT || 6379}`;
 
         return new RedisTokenRevocationStore(redisUrl);
       },

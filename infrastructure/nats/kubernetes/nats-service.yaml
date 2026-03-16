@@ -210,7 +210,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: nats-monitoring-auth
+    nginx.ingress.kubernetes.io/auth-secret: nats-monitoring-auth  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     nginx.ingress.kubernetes.io/auth-realm: "NATS Monitoring - Authentication Required"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:

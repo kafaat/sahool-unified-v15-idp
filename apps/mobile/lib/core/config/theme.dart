@@ -6,9 +6,10 @@ class SahoolTheme {
   // Font Family Name (Local - faster loading)
   static const String fontFamily = 'IBMPlexSansArabic';
   // Brand Colors - ألوان العلامة التجارية
-  static const Color primary = Color(0xFF367C2B);       // SAHOOL Green
-  static const Color primaryLight = Color(0xFF4A9A3D);  // Light Green
-  static const Color primaryDark = Color(0xFF2D6623);   // Dark Green
+  // Aligned with governance/design/design-tokens.yaml
+  static const Color primary = Color(0xFF4CAF50);       // SAHOOL Green (primary-500)
+  static const Color primaryLight = Color(0xFF66BB6A);   // Light Green (primary-400)
+  static const Color primaryDark = Color(0xFF388E3C);    // Dark Green (primary-700)
 
   static const Color secondary = Color(0xFF1E88E5);     // Blue
   static const Color accent = Color(0xFFFF9800);        // Orange

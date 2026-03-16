@@ -36,6 +36,27 @@ OTP_EXPIRY_SECONDS = 600  # 10 minutes
 RATE_LIMIT_WINDOW_SECONDS = 60  # 1 minute
 RATE_LIMIT_MAX_REQUESTS = 3
 
+# Validate JWT_SECRET_KEY at module load time rather than per-request
+_JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+_ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+if not _JWT_SECRET_KEY:
+    if _ENVIRONMENT in ("production", "staging"):
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be set in production/staging environments. "
+            "OTP hashing requires a secret key for secure operation."
+        )
+    elif os.getenv("ALLOW_INSECURE_OTP", "").lower() != "true":
+        raise RuntimeError(
+            "JWT_SECRET_KEY is not set. OTP hashing would use empty salt, "
+            "making stored hashes vulnerable to brute-force attacks. "
+            "Set JWT_SECRET_KEY or ALLOW_INSECURE_OTP=true for development."
+        )
+    else:
+        logger.warning(
+            "JWT_SECRET_KEY is not set - OTP hashing uses empty salt. "
+            "ALLOW_INSECURE_OTP=true is set (development only)."
+        )
+
 
 class OTPChannel(StrEnum):
     """قنوات إرسال OTP - OTP delivery channels"""
@@ -429,7 +450,7 @@ class OTPService:
             OTP مشفر
         """
         # Use SHA-256 with user_id as salt for secure hashing
-        salt = f"{user_id}:{os.getenv('JWT_SECRET_KEY', 'default-secret')}"
+        salt = f"{user_id}:{_JWT_SECRET_KEY}"
         combined = f"{otp_code}:{salt}"
         return hashlib.sha256(combined.encode()).hexdigest()
 

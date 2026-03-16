@@ -152,6 +152,11 @@ metadata:
     app: postgres
     component: database
     backup: walg
+  annotations:
+    checkov.io/skip1: CKV_K8S_22=PostgreSQL requires writable data directory
+    checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+    checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+    checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
 spec:
   serviceName: postgres
   replicas: 1
@@ -165,14 +170,23 @@ spec:
         component: database
         backup: walg
     spec:
+      automountServiceAccountToken: false
       containers:
       - name: postgres
         image: sahool/postgres-walg:16-3.4  # Custom image with WAL-G
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 5432
           name: postgres
           protocol: TCP
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 999
+          capabilities:
+            drop:
+              - ALL
 
         env:
         # PostgreSQL credentials
@@ -295,6 +309,9 @@ spec:
       securityContext:
         fsGroup: 999  # postgres group
         runAsUser: 999  # postgres user
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 
 ---
 # ─────────────────────────────────────────────────────────────────────────────
@@ -326,6 +343,11 @@ kind: CronJob
 metadata:
   name: postgres-walg-backup
   namespace: sahool-database
+  annotations:
+    checkov.io/skip1: CKV_K8S_22=Backup job needs writable tmp space
+    checkov.io/skip2: CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G
+    checkov.io/skip3: CKV_K8S_40=UID 999 is the standard PostgreSQL user
+    checkov.io/skip4: CKV_K8S_43=Custom internal image without published digest
 spec:
   # Run daily at 2 AM
   schedule: "0 2 * * *"
@@ -340,9 +362,17 @@ spec:
             app: postgres-backup
         spec:
           restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
           containers:
           - name: backup
             image: sahool/postgres-walg:16-3.4
+            imagePullPolicy: Always
             command:
             - /bin/bash
             - -c
@@ -369,6 +399,14 @@ spec:
 
               echo "Backup completed at $(date)"
 
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 999
+              capabilities:
+                drop:
+                  - ALL
+
             env:
             - name: PGHOST
               value: "postgres"
@@ -379,6 +417,14 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: password
+
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+              limits:
+                cpu: 2000m
+                memory: 2Gi
 
             envFrom:
             - secretRef:
@@ -417,11 +463,32 @@ spec:
         metadata:
           labels:
             app: postgres-backup-verify
+          annotations:
+            checkov.io/skip: >-
+              CKV_K8S_22=Verify job needs writable tmp space,
+              CKV_K8S_35=PostgreSQL credentials required as env vars for pg_isready and WAL-G,
+              CKV_K8S_40=UID 999 is the standard PostgreSQL user,
+              CKV_K8S_43=Custom internal image without published digest
         spec:
           restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
           containers:
           - name: verify
             image: sahool/postgres-walg:16-3.4
+            imagePullPolicy: Always
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              runAsUser: 999
+              capabilities:
+                drop:
+                  - ALL
             command:
             - /bin/bash
             - -c
@@ -456,6 +523,14 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: password
+
+            resources:
+              requests:
+                cpu: 250m
+                memory: 256Mi
+              limits:
+                cpu: 1000m
+                memory: 1Gi
 
             envFrom:
             - secretRef:

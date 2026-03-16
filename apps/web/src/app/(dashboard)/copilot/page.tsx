@@ -36,7 +36,7 @@ interface ChatMessage {
 // ---------------------------------------------------------------------------
 
 const COPILOT_API_BASE =
-  process.env.NEXT_PUBLIC_COPILOT_API_URL || "http://localhost:8088";
+  process.env.NEXT_PUBLIC_COPILOT_API_URL || "";
 
 const QUICK_QUESTIONS = [
   { label: "متى أسقي القمح؟", icon: "droplet" },
@@ -312,7 +312,7 @@ export default function CopilotPage() {
           return;
         }
 
-        console.error("Streaming failed, trying non-streaming fallback:", err);
+        // Streaming failed - try non-streaming fallback
 
         // Try non-streaming fallback
         try {

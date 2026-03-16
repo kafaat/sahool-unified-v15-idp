@@ -40,7 +40,8 @@ services:
       ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd:2380
       ETCD_INITIAL_CLUSTER: etcd=http://etcd:2380
       ETCD_INITIAL_CLUSTER_STATE: new
-      ETCD_INITIAL_CLUSTER_TOKEN: sahool-postgres-cluster
+      # Inject at deploy time via .env file
+      ETCD_INITIAL_CLUSTER_TOKEN: ${ETCD_CLUSTER_TOKEN:-CHANGE_ME_BEFORE_DEPLOY}
     volumes:
       - etcd-data:/etcd-data
     healthcheck:

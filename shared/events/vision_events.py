@@ -63,7 +63,7 @@ class VisionSubjects:
     MODEL_UPDATED = "sahool.vision.model_updated"
 
     # Wildcards
-    ALL = "sahool.vision.*"
+    ALL = "sahool.vision.>"
     DETECTIONS_ALL = "sahool.vision.*.detected"
 
     @staticmethod

@@ -210,7 +210,7 @@ services:
           minute: 60
           hour: 1000
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true
@@ -334,7 +334,7 @@ services:
           minute: 20
           hour: 200
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true
@@ -370,8 +370,6 @@ services:
             - application/json
           cache_ttl: 1800  # 30 minutes
           strategy: memory
-          memory:
-            dictionary_name: kong_db_cache
 
   - name: indicators-service
     host: indicators-service
@@ -405,8 +403,6 @@ services:
             - application/json
           cache_ttl: 900  # 15 minutes
           strategy: memory
-          memory:
-            dictionary_name: kong_db_cache
 
   - name: advisory-service
     host: advisory-service
@@ -533,7 +529,7 @@ services:
           minute: 100
           hour: 5000
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true
@@ -912,7 +908,7 @@ services:
   # vLLM Inference Server - OpenAI-compatible LLM inference
   # خادم استدلال vLLM - واجهة متوافقة مع OpenAI
   - name: vllm-deepseek
-    host: vllm
+    host: vllm-deepseek
     port: 8270
     protocol: http
     connect_timeout: 30000
@@ -928,6 +924,94 @@ services:
         config:
           minute: 30
           hour: 1000
+          policy: local
+          fault_tolerant: true
+
+  # Digital Twin Engine - field simulation
+  # محرك التوأم الرقمي - محاكاة الحقل
+  - name: digital-twin-engine
+    host: digital-twin-engine
+    port: 8253
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: digital-twin-route
+        paths: ["/api/v1/digital-twin", "/digital-twin"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
+
+  # Fertigation Engine - fertigation planning
+  # محرك التسميد بالري - تخطيط التسميد
+  - name: fertigation-engine
+    host: fertigation-engine
+    port: 8252
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: fertigation-route
+        paths: ["/api/v1/fertigation", "/fertigation"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+
+  # IoT Sensor Hub - sensor data aggregation
+  # مركز مستشعرات إنترنت الأشياء - تجميع بيانات المستشعرات
+  - name: iot-sensor-hub
+    host: iot-sensor-hub
+    port: 8251
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: iot-sensor-hub-route
+        paths: ["/api/v1/iot-sensor-hub", "/iot-sensor-hub"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+
+  # Irrigation Cycle Engine - irrigation cycle optimization
+  # محرك دورات الري - تحسين دورات الري
+  - name: irrigation-cycle-engine
+    host: irrigation-cycle-engine
+    port: 8250
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: irrigation-cycle-route
+        paths: ["/api/v1/irrigation-cycle", "/irrigation-cycle"]
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
           policy: local
           fault_tolerant: true
 

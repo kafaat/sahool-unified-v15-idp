@@ -12,10 +12,12 @@ from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .agent import CodeFixAgent
@@ -132,9 +134,13 @@ async def lifespan(app: FastAPI):
 
             app.state.nc = await nats.connect(nats_url)
             app.state.nats_connected = True
-            logger.info("nats_connected", url=nats_url)
+            from shared.logging_config import sanitize_url
+
+            logger.info("nats_connected", url=sanitize_url(nats_url))
         except Exception as e:
-            logger.warning("nats_connection_failed", error=str(e), url=nats_url)
+            from shared.logging_config import sanitize_url
+
+            logger.warning("nats_connection_failed", error=str(e), url=sanitize_url(nats_url))
             app.state.nc = None
             app.state.nats_connected = False
     else:
@@ -302,7 +308,7 @@ code_fix_agent_patterns_learned {metrics["patterns_learned"]}
 
 
 @app.post("/api/v1/analyze", response_model=AgentResponse, tags=["Agent"])
-async def analyze_code(request: Request, body: AnalyzeCodeRequest):
+async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = Depends(get_current_user)):
     """
     تحليل الكود واكتشاف المشاكل
     Analyze code and detect issues
@@ -343,7 +349,7 @@ async def analyze_code(request: Request, body: AnalyzeCodeRequest):
 
 
 @app.post("/api/v1/fix", response_model=AgentResponse, tags=["Agent"])
-async def fix_code(request: Request, body: FixCodeRequest):
+async def fix_code(request: Request, body: FixCodeRequest, user: User = Depends(get_current_user)):
     """
     إصلاح الكود تلقائياً
     Automatically fix code issues
@@ -388,7 +394,7 @@ async def fix_code(request: Request, body: FixCodeRequest):
 
 
 @app.post("/api/v1/review", response_model=AgentResponse, tags=["Agent"])
-async def review_pr(request: Request, body: ReviewPRRequest):
+async def review_pr(request: Request, body: ReviewPRRequest, user: User = Depends(get_current_user)):
     """
     مراجعة طلب السحب
     Review pull request
@@ -420,7 +426,7 @@ async def review_pr(request: Request, body: ReviewPRRequest):
 
 
 @app.post("/api/v1/generate-tests", response_model=AgentResponse, tags=["Agent"])
-async def generate_tests(request: Request, body: GenerateTestsRequest):
+async def generate_tests(request: Request, body: GenerateTestsRequest, user: User = Depends(get_current_user)):
     """
     توليد اختبارات تلقائية
     Generate automated tests
@@ -458,7 +464,7 @@ async def generate_tests(request: Request, body: GenerateTestsRequest):
 
 
 @app.post("/api/v1/implement", response_model=AgentResponse, tags=["Agent"])
-async def implement_feature(request: Request, body: ImplementFeatureRequest):
+async def implement_feature(request: Request, body: ImplementFeatureRequest, user: User = Depends(get_current_user)):
     """
     تنفيذ ميزة جديدة
     Implement new feature

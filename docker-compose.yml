@@ -451,7 +451,8 @@ services:
       # Requires: sahool_iot user has "topic read $SYS/broker/uptime" in ACL.
       # allow_anonymous is false, so we must authenticate with MQTT_USER/MQTT_PASSWORD.
       # NOTE: nc/netcat and /dev/tcp are NOT available in Alpine mosquitto image
-      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t '$$SYS/broker/uptime' -C 1 -W 3" ]
+      # -W 5 must be shorter than timeout (10s) and longer than sys_interval (3s)
+      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t '$$SYS/broker/uptime' -C 1 -W 5" ]
       interval: 60s
       timeout: 10s
       retries: 5

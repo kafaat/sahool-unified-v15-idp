@@ -69,9 +69,21 @@
   background: #a1a1a1;
 }
 
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer components {
-  /* Sahool brand gradient */
+  /* Sahool brand gradient (aligned with design tokens) */
   .sahool-gradient {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   }
 }

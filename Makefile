@@ -644,8 +644,7 @@ network-inspect: ## فحص شبكة SAHOOL - Inspect SAHOOL network
 dev-install: ## تثبيت أدوات التطوير - Install development dependencies
 	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
 	$(PYTHON) -m pip install -U pip
-	$(PYTHON) -m pip install -r requirements/base.txt -r requirements/testing.txt
-	$(PYTHON) -m pip install pre-commit
+	$(PYTHON) -m pip install -r requirements/base.txt -r requirements/testing.txt -r requirements-dev.txt
 	pre-commit install
 	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
 	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi

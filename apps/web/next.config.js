@@ -3,9 +3,12 @@ let sentryInstalled = false;
 try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
   sentryInstalled = true;
-} catch (err) {
-  if (err.code !== "MODULE_NOT_FOUND") throw err;
-  // @sentry/nextjs not installed – skip Sentry wrapper
+} catch (/** @type {any} */ err) {
+  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
+  const isSentryMissing =
+    err?.code === "MODULE_NOT_FOUND" &&
+    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
+  if (!isSentryMissing) throw err;
   withSentryConfig = null;
 }
 

@@ -14,16 +14,22 @@ const isDev = process.env.NODE_ENV === "development";
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const isSentryEnabled = Boolean(SENTRY_DSN && SENTRY_DSN.length > 0);
 
-// Lazy-loaded Sentry module to avoid OpenTelemetry issues when not configured
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let SentryModule: any = null;
+/** Minimal Sentry interface for the methods we actually use */
+interface SentryLike {
+  captureException(error: unknown, hint?: { extra?: Record<string, unknown> }): string;
+  captureMessage(message: string, captureContext?: { level?: string; extra?: Record<string, unknown> }): string;
+}
 
-async function getSentry() {
+// Lazy-loaded Sentry module to avoid OpenTelemetry issues when not configured
+let SentryModule: SentryLike | null = null;
+
+async function getSentry(): Promise<SentryLike | null> {
   if (!isSentryEnabled) return null;
   if (SentryModule) return SentryModule;
 
   try {
-    SentryModule = await import("@sentry/nextjs");
+    const mod = await import("@sentry/nextjs");
+    SentryModule = mod as SentryLike;
     return SentryModule;
   } catch (error) {
     // Sentry import failed - continue without it

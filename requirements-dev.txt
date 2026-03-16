@@ -6,6 +6,7 @@
 # Linting & Formatting
 ruff>=0.8.0                    # Fast Python linter and formatter
 pyright>=1.1.390               # Static type checker (better than mypy)
+pre-commit>=4.0.0              # Git hook management
 
 # Security Analysis
 bandit>=1.7.10                 # Security vulnerability scanner

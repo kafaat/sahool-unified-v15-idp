@@ -295,7 +295,7 @@ function EnhancedDataTableInner<T>({
         className={cn("overflow-x-auto", maxHeight && "overflow-y-auto")}
         style={{ maxHeight }}
       >
-        <table className="w-full" role="grid">
+        <table className="w-full">
           {(captionAr || caption) && (
             <caption className="sr-only">{captionAr || caption}</caption>
           )}

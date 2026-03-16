@@ -5,7 +5,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from "lucide-react";
 import { useCart } from "../hooks/useCart";
@@ -157,6 +157,7 @@ const CartItem: React.FC<CartItemProps> = ({
 }) => {
   const { product, quantity } = item;
   const total = product.price * quantity;
+  const [inputValue, setInputValue] = useState(String(quantity));
 
   return (
     <div className="flex gap-3 p-3 bg-gray-50 rounded-lg">
@@ -191,7 +192,7 @@ const CartItem: React.FC<CartItemProps> = ({
           {/* Quantity Controls */}
           <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden">
             <button
-              onClick={() => onUpdateQuantity(quantity - 1)}
+              onClick={() => { onUpdateQuantity(quantity - 1); setInputValue(String(quantity - 1)); }}
               className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-e border-gray-300"
               aria-label="تقليل الكمية"
             >
@@ -200,16 +201,20 @@ const CartItem: React.FC<CartItemProps> = ({
             <input
               type="number"
               min={1}
-              value={quantity}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                if (val > 0) onUpdateQuantity(val);
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onBlur={() => {
+                const val = parseInt(inputValue, 10);
+                if (!isNaN(val) && val > 0) {
+                  onUpdateQuantity(val);
+                }
+                setInputValue(String(quantity));
               }}
               className="w-10 text-center text-sm font-semibold bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               aria-label="الكمية"
             />
             <button
-              onClick={() => onUpdateQuantity(quantity + 1)}
+              onClick={() => { onUpdateQuantity(quantity + 1); setInputValue(String(quantity + 1)); }}
               className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-s border-gray-300"
               aria-label="زيادة الكمية"
             >

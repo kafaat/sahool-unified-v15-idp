@@ -35,7 +35,7 @@ export function useWebSocket({
   const [reconnectCount, setReconnectCount] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pongTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onMessageRef = useRef(onMessage);
   const isMountedRef = useRef(true);
@@ -85,9 +85,9 @@ export function useWebSocket({
 
   // Start heartbeat ping
   const startHeartbeat = useCallback(() => {
-    if (heartbeatTimeoutRef.current) clearInterval(heartbeatTimeoutRef.current);
+    if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
 
-    heartbeatTimeoutRef.current = setInterval(() => {
+    heartbeatIntervalRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         // Clear any existing pong timeout before setting a new one
         if (pongTimeoutRef.current) {
@@ -107,9 +107,9 @@ export function useWebSocket({
   }, [heartbeatInterval]);
 
   const stopHeartbeat = useCallback(() => {
-    if (heartbeatTimeoutRef.current) {
-      clearInterval(heartbeatTimeoutRef.current);
-      heartbeatTimeoutRef.current = null;
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
     }
     if (pongTimeoutRef.current) {
       clearTimeout(pongTimeoutRef.current);

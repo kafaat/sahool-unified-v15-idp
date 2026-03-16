@@ -93,19 +93,24 @@ function ToastItemView({
   const Icon = config.icon;
   const [isExiting, setIsExiting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const duration = item.duration ?? 4000;
     timerRef.current = setTimeout(() => {
       setIsExiting(true);
-      setTimeout(() => onDismiss(item.id), 300);
+      exitTimerRef.current = setTimeout(() => onDismiss(item.id), 300);
     }, duration);
-    return () => clearTimeout(timerRef.current);
+    return () => {
+      clearTimeout(timerRef.current);
+      clearTimeout(exitTimerRef.current);
+    };
   }, [item.id, item.duration, onDismiss]);
 
   const handleDismiss = () => {
+    clearTimeout(timerRef.current);
     setIsExiting(true);
-    setTimeout(() => onDismiss(item.id), 300);
+    exitTimerRef.current = setTimeout(() => onDismiss(item.id), 300);
   };
 
   return (

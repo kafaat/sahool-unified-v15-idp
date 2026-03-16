@@ -560,7 +560,7 @@ export default function InventoryPage() {
                     <FormField label="الفئة">
                       <select
                         value={formData.category}
-                        onChange={(e) => updateField("category", e.target.value)}
+                        onChange={(e) => updateField("category", e.target.value as InventoryItem["category"])}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                       >
                         {CATEGORY_OPTIONS.map((o) => (

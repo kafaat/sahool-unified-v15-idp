@@ -175,6 +175,36 @@ function filterMockMembers(filters?: TeamFilters): TeamMember[] {
 }
 
 /**
+ * Generate a cryptographically secure temporary password meeting complexity requirements.
+ * Includes uppercase, lowercase, digits, and special characters.
+ */
+function generateTempPassword(length = 16): string {
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = "!@#$%&*";
+  const all = upper + lower + digits + special;
+
+  const values = globalThis.crypto.getRandomValues(new Uint32Array(length));
+  // Guarantee at least one char from each required set
+  const mandatory = [
+    upper[values[0] % upper.length],
+    lower[values[1] % lower.length],
+    digits[values[2] % digits.length],
+    special[values[3] % special.length],
+  ];
+  const rest = Array.from(values.slice(4), (v) => all[v % all.length]);
+  // Shuffle with Fisher-Yates using remaining random values
+  const combined = [...mandatory, ...rest];
+  const shuffle = globalThis.crypto.getRandomValues(new Uint32Array(combined.length));
+  for (let i = combined.length - 1; i > 0; i--) {
+    const j = shuffle[i] % (i + 1);
+    [combined[i], combined[j]] = [combined[j], combined[i]];
+  }
+  return combined.join("");
+}
+
+/**
  * Team Management API Functions
  */
 export const teamApi = {
@@ -246,7 +276,7 @@ export const teamApi = {
         lastName: data.lastName,
         phone: data.phone,
         role: data.role,
-        password: globalThis.crypto.randomUUID().slice(0, 12) + "A1!", // Temporary password (crypto-safe)
+        password: generateTempPassword(), // Temporary password (crypto-safe)
         tenantId: "default-tenant", // Should come from context
         status: "PENDING",
         emailVerified: false,

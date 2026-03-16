@@ -135,11 +135,12 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      wsRef.current = new WebSocket(url);
+      const ws = new WebSocket(url);
+      wsRef.current = ws;
 
-      wsRef.current.onopen = () => {
-        if (!isMountedRef.current) {
-          wsRef.current?.close();
+      ws.onopen = () => {
+        if (!isMountedRef.current || ws !== wsRef.current) {
+          ws.close();
           return;
         }
         setIsConnected(true);
@@ -154,8 +155,8 @@ export function useWebSocket({
         startHeartbeat();
       };
 
-      wsRef.current.onmessage = (event) => {
-        if (!isMountedRef.current) return;
+      ws.onmessage = (event) => {
+        if (!isMountedRef.current || ws !== wsRef.current) return;
         try {
           const message: WSMessage = JSON.parse(event.data);
 
@@ -174,7 +175,9 @@ export function useWebSocket({
         }
       };
 
-      wsRef.current.onclose = () => {
+      ws.onclose = () => {
+        // Ignore close events from stale sockets
+        if (ws !== wsRef.current) return;
         if (!isMountedRef.current) return;
         setIsConnected(false);
         stopHeartbeat();
@@ -210,8 +213,8 @@ export function useWebSocket({
         }, backoff);
       };
 
-      wsRef.current.onerror = (event) => {
-        if (!isMountedRef.current) return;
+      ws.onerror = (event) => {
+        if (!isMountedRef.current || ws !== wsRef.current) return;
         logger.error("WebSocket error:", event);
         setError("Connection error");
       };

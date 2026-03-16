@@ -15,6 +15,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   useEffect,
   useRef,
@@ -172,19 +173,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const toast = {
-    success: (message: string, messageAr?: string) =>
-      addToast("success", message, messageAr),
-    error: (message: string, messageAr?: string) =>
-      addToast("error", message, messageAr),
-    warning: (message: string, messageAr?: string) =>
-      addToast("warning", message, messageAr),
-    info: (message: string, messageAr?: string) =>
-      addToast("info", message, messageAr),
-  };
+  const toast = useMemo(
+    () => ({
+      success: (message: string, messageAr?: string) =>
+        addToast("success", message, messageAr),
+      error: (message: string, messageAr?: string) =>
+        addToast("error", message, messageAr),
+      warning: (message: string, messageAr?: string) =>
+        addToast("warning", message, messageAr),
+      info: (message: string, messageAr?: string) =>
+        addToast("info", message, messageAr),
+    }),
+    [addToast],
+  );
+
+  const value = useMemo(() => ({ toast }), [toast]);
 
   return (
-    <ToastContext.Provider value={{ toast }}>
+    <ToastContext.Provider value={value}>
       {children}
       {/* Toast Container - fixed at top-left for RTL layout */}
       <div

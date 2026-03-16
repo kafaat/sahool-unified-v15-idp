@@ -493,17 +493,24 @@ export default function InventoryPage() {
 
       {/* Create/Edit/View Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center">
+        <div
+          className="fixed inset-0 z-[9998] flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="inventory-modal-title"
+          onKeyDown={(e) => { if (e.key === "Escape") closeModal(); }}
+        >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
           <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 animate-scale-in max-h-[85vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2 id="inventory-modal-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {modalMode === "create" && "إضافة صنف جديد"}
                 {modalMode === "edit" && "تعديل الصنف"}
                 {modalMode === "view" && "تفاصيل الصنف"}
               </h2>
               <button
+                ref={(el) => el?.focus()}
                 onClick={closeModal}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label="إغلاق"

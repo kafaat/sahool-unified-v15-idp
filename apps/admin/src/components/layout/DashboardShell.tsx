@@ -26,12 +26,11 @@ export default function DashboardShell({
       >
         تخطي إلى المحتوى الرئيسي
       </a>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Sidebar />
         <main
           id="main-content"
           className="mr-64 min-h-screen"
-          role="main"
           aria-label="المحتوى الرئيسي"
         >
           <div className="px-6 pt-4">

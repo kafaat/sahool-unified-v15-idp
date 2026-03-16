@@ -20,21 +20,21 @@ const columns: TaskBoardColumn[] = [
     title: "Open",
     title_ar: "جديدة",
     tasks: [],
-    color: "bg-gray-50 border-gray-200",
+    color: "bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700",
   },
   {
     id: "in_progress",
     title: "In Progress",
     title_ar: "قيد التنفيذ",
     tasks: [],
-    color: "bg-blue-50 border-blue-200",
+    color: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800",
   },
   {
     id: "completed",
     title: "Completed",
     title_ar: "مكتملة",
     tasks: [],
-    color: "bg-green-50 border-green-200",
+    color: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
   },
 ];
 
@@ -119,20 +119,20 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 min-h-[500px]"
+            className="rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 min-h-[500px]"
           >
             {/* Column header skeleton */}
             <div className="mb-4 space-y-2">
-              <div className="h-6 w-24 bg-gray-300 rounded animate-pulse" />
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+              <div className="h-6 w-24 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             </div>
             {/* Task cards skeleton */}
             <div className="space-y-3">
               {[...Array(3)].map((_, j) => (
                 <div
                   key={j}
-                  className="h-32 bg-gray-200 rounded-lg animate-pulse"
+                  className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
                   style={{ animationDelay: `${j * 100}ms` }}
                 />
               ))}
@@ -148,7 +148,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
   if (error) {
     return (
       <div
-        className="flex flex-col items-center justify-center min-h-[500px] bg-red-50 rounded-xl border-2 border-red-200 p-8"
+        className="flex flex-col items-center justify-center min-h-[500px] bg-red-50 dark:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-8"
         role="alert"
         aria-live="assertive"
       >
@@ -166,11 +166,11 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <h3 className="text-lg font-semibold text-red-900 mb-2">
+        <h3 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-2">
           خطأ في تحميل المهام
         </h3>
-        <p className="text-red-700 text-center">Error loading tasks</p>
-        <p className="text-sm text-red-600 mt-2">
+        <p className="text-red-700 dark:text-red-300 text-center">Error loading tasks</p>
+        <p className="text-sm text-red-600 dark:text-red-400 mt-2">
           {error.message || "An unknown error occurred"}
         </p>
       </div>
@@ -185,7 +185,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
   if (totalTasks === 0) {
     return (
       <div
-        className="flex flex-col items-center justify-center min-h-[500px] bg-gray-50 rounded-xl border-2 border-gray-200 p-8"
+        className="flex flex-col items-center justify-center min-h-[500px] bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-8"
         role="status"
         aria-label="No tasks available"
       >
@@ -203,10 +203,10 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
           />
         </svg>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+        <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
           لا توجد مهام حتى الآن
         </h3>
-        <p className="text-gray-500 text-center max-w-md">
+        <p className="text-gray-500 dark:text-gray-400 text-center max-w-md">
           No tasks yet. Create your first task to get started!
         </p>
       </div>
@@ -244,15 +244,15 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             {/* Column Header */}
             <div className="mb-4">
               <h3
-                className="text-lg font-bold text-gray-900"
+                className="text-lg font-bold text-gray-900 dark:text-white"
                                lang="ar"
               >
                 {column.title_ar}
               </h3>
-              <p className="text-sm text-gray-500" dir="ltr" lang="en">
+              <p className="text-sm text-gray-500 dark:text-gray-400" dir="ltr" lang="en">
                 {column.title}
               </p>
-              <div className="mt-2 text-sm font-medium text-gray-600">
+              <div className="mt-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                 <span lang="ar">
                   {column.tasks.length}{" "}
                   {column.tasks.length === 1 ? "مهمة" : "مهام"}
@@ -280,7 +280,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
             <div className="space-y-3">
               {column.tasks.length === 0 ? (
                 <div
-                  className="text-center py-12 text-gray-400 border-2 border-dashed border-gray-300 rounded-lg"
+                  className="text-center py-12 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg"
                   role="status"
                   aria-label={`No tasks in ${column.title}`}
                 >

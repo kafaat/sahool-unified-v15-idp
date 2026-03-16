@@ -118,9 +118,9 @@ export default function CommandPalette() {
 
   // Focus input on open
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    if (!isOpen) return;
+    const timerId = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(timerId);
   }, [isOpen]);
 
   // Navigate selection

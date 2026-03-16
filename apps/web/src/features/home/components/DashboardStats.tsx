@@ -72,7 +72,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`p-6 rounded-xl border-2 ${color} bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-in-up cursor-default group`}
+      className={`p-6 rounded-xl border-2 ${color} bg-white dark:bg-gray-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-in-up cursor-default group`}
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
     >
       <div className="flex items-start justify-between">
@@ -83,8 +83,8 @@ const StatCard: React.FC<StatCardProps> = ({
           <div
             className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${
               trend >= 0
-                ? "text-green-700 bg-green-50"
-                : "text-red-700 bg-red-50"
+                ? "text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-900/30"
+                : "text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30"
             }`}
           >
             <span className={trend >= 0 ? "rotate-0" : "rotate-180"}>&#9650;</span>
@@ -93,9 +93,9 @@ const StatCard: React.FC<StatCardProps> = ({
         )}
       </div>
       <div className="mt-4">
-        <p className="text-sm text-gray-600">{labelAr}</p>
-        <p className="text-xs text-gray-400">{label}</p>
-        <p className="text-3xl font-bold text-gray-900 mt-2 tabular-nums">
+        <p className="text-sm text-gray-600 dark:text-gray-400">{labelAr}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{label}</p>
+        <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2 tabular-nums">
           {displayValue}
         </p>
       </div>
@@ -123,7 +123,7 @@ export const DashboardStats: React.FC = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+          <div key={i} className="h-40 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse" />
         ))}
       </div>
     );
@@ -168,7 +168,7 @@ export const DashboardStats: React.FC = () => {
         <button
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           aria-label="تحديث الإحصائيات"
         >
           <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />

@@ -474,7 +474,7 @@ class AdminApiClient {
 
           // For server errors, retry if we have attempts left
           if (attempt < maxAttempts - 1) {
-            await delay(RETRY_DELAY * (attempt + 1)); // Exponential backoff
+            await delay(RETRY_DELAY * Math.pow(2, attempt)); // Exponential backoff
             continue;
           }
 
@@ -502,7 +502,7 @@ class AdminApiClient {
 
         // Retry on network errors if we have attempts left
         if (attempt < maxAttempts - 1) {
-          await delay(RETRY_DELAY * (attempt + 1));
+          await delay(RETRY_DELAY * Math.pow(2, attempt));
           continue;
         }
       }

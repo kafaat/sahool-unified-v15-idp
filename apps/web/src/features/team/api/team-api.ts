@@ -199,6 +199,13 @@ function randomCharFrom(charset: string): string {
  * Uses rejection sampling to eliminate modulo bias.
  */
 function generateTempPassword(length = 16): string {
+  const minLength = 4;
+  if (length < minLength) {
+    throw new Error(
+      `Password length must be at least ${minLength} to satisfy complexity requirements`,
+    );
+  }
+
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lower = "abcdefghijklmnopqrstuvwxyz";
   const digits = "0123456789";

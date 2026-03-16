@@ -248,7 +248,7 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
     action = tool.split(".")[-1]
 
     if action not in _CODE_AGENT_ACTIONS:
-        return {"error": f"Unknown code agent action: {action}"}
+        return {"error": "Unknown code agent action"}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:

@@ -447,12 +447,12 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     healthcheck:
-      # FIX: Previous mosquitto_pub healthcheck created real MQTT connections every 30s,
-      # flooding broker logs with connect/disconnect spam. Replaced with mosquitto_sub
-      # using -C 1 (receive 1 message then exit) on $SYS/broker/uptime which is
-      # available without authentication. This is a lightweight read-only check.
+      # Subscribes to $SYS/broker/uptime (lightweight read-only check).
+      # Requires: sahool_iot user has "topic read $SYS/broker/uptime" in ACL.
+      # allow_anonymous is false, so we must authenticate with MQTT_USER/MQTT_PASSWORD.
       # NOTE: nc/netcat and /dev/tcp are NOT available in Alpine mosquitto image
-      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/uptime' -C 1 -W 3 2>/dev/null || mosquitto_sub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t '$$SYS/broker/uptime' -C 1 -W 3" ]
+      # -W 5 must be shorter than timeout (10s) and longer than sys_interval (3s)
+      test: [ "CMD-SHELL", "mosquitto_sub -h localhost -u $$MQTT_USER -P $$MQTT_PASSWORD -t '$$SYS/broker/uptime' -C 1 -W 5" ]
       interval: 60s
       timeout: 10s
       retries: 5
@@ -912,18 +912,18 @@ services:
     # Using 127.0.0.1 causes client redirect failures when Milvus connects via 'etcd:2379'
     # FIX: Use /etcd-data (not /etcd) to avoid confusion with the binary path on some images
     # NOTE: Uses HTTP for development. For TLS, use docker-compose.tls.yml overlay.
+    # FIX: Use absolute paths because quay.io/coreos/etcd:v3.5.18 is distroless
+    # (no /bin/sh, no PATH). Binaries are at /usr/local/bin/.
     command: >-
-      etcd
-      -advertise-client-urls=http://etcd:2379
-      -listen-client-urls=http://0.0.0.0:2379
+      /usr/local/bin/etcd
+      --advertise-client-urls=http://etcd:2379
+      --listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
-      # Uses etcdctl (exec form CMD, not CMD-SHELL) because etcd v3.5.7+ images are
-      # distroless with no /bin/sh, curl, or wget. etcdctl is the only available binary.
-      # Note: When auth is enabled (via etcd-auth profile), this check may log a warning
-      # "authentication is not enabled" on fresh start, but still exits 0 if healthy.
+      # Uses absolute path to etcdctl because the distroless image has no PATH set.
+      # CMD form (not CMD-SHELL) executes the binary directly without a shell.
       # ETCDCTL_ENDPOINTS and ETCDCTL_API env vars above configure the connection.
-      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      test: [ "CMD", "/usr/local/bin/etcdctl", "endpoint", "health" ]
       interval: 30s
       timeout: 20s
       retries: 3

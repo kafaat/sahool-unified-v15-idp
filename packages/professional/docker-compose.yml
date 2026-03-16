@@ -344,7 +344,7 @@ services:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-vegetation-analysis-service
+    container_name: sahool-pro-ndvi-processor
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222

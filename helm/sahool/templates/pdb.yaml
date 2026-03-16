@@ -5,7 +5,7 @@ Ensures high availability during node maintenance and cluster upgrades.
 */ -}}
 
 {{- range $serviceName, $service := .Values.services }}
-{{- if and $service.enabled (default false $service.pdb.enabled) }}
+{{- if and $service.enabled $service.pdb (default false $service.pdb.enabled) }}
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget

@@ -373,7 +373,7 @@ export function useFarmMemory(maxEntries: number = 1000) {
  * Generate unique ID for memory entry
  */
 function generateId(): string {
-  return `mem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `mem_${Date.now()}_${globalThis.crypto.randomUUID().substring(0, 9)}`;
 }
 
 export default useFarmMemory;

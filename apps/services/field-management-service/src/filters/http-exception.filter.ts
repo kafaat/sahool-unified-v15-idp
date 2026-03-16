@@ -209,6 +209,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
    * Generate a unique request ID
    */
   private generateRequestId(): string {
-    return `req_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
+    return `req_${Date.now().toString(36)}_${globalThis.crypto.randomUUID().substring(0, 7)}`;
   }
 }

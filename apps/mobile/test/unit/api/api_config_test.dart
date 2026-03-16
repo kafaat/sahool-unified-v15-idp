@@ -44,7 +44,7 @@ void main() {
     });
 
     test('should have correct community chat service port', () {
-      expect(ServicePorts.communityChat, 8097);
+      expect(ServicePorts.communityChat, 8115);
     });
 
     test('should have correct equipment service port', () {

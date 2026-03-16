@@ -1091,14 +1091,14 @@ add_request_id_middleware(app)
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
-# Include routers for multi-channel support
-app.include_router(channels_router)
-app.include_router(preferences_router)
-app.include_router(otp_router)
+# Include routers for multi-channel support (all under /api/v1/notifications)
+app.include_router(channels_router, prefix="/api/v1/notifications")
+app.include_router(preferences_router, prefix="/api/v1/notifications")
+app.include_router(otp_router, prefix="/api/v1/notifications")
 
 # Include enhanced routers (v16.0)
-app.include_router(analytics_router)
-app.include_router(history_router)
+app.include_router(analytics_router, prefix="/api/v1/notifications")
+app.include_router(history_router, prefix="/api/v1/notifications")
 
 # Setup rate limiting middleware
 try:

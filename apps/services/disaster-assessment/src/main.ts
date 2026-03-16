@@ -34,6 +34,12 @@ async function bootstrap() {
     }),
   );
 
+  // Global API prefix for consistent versioning
+  app.setGlobalPrefix("api/v1");
+
+  // Global request logging interceptor with correlation IDs
+  app.useGlobalInterceptors(new RequestLoggingInterceptor("disaster-assessment"));
+
   // CORS configuration
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
     "https://sahool.com",

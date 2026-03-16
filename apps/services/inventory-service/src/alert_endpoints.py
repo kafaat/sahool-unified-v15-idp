@@ -17,7 +17,7 @@ from .alert_manager import (
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/v1/alerts", tags=["Alerts"])
+router = APIRouter(prefix="/api/v1/alerts", tags=["Alerts"])
 
 
 # ═══════════════════════════════════════════════════════════════════════════

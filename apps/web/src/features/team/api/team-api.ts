@@ -185,21 +185,25 @@ function generateTempPassword(length = 16): string {
   const special = "!@#$%&*";
   const all = upper + lower + digits + special;
 
-  const values = globalThis.crypto.getRandomValues(new Uint32Array(length));
+  const values = Array.from(
+    globalThis.crypto.getRandomValues(new Uint32Array(length)),
+  );
   // Guarantee at least one char from each required set
   const mandatory = [
-    upper[values[0] % upper.length],
-    lower[values[1] % lower.length],
-    digits[values[2] % digits.length],
-    special[values[3] % special.length],
+    upper[values[0]! % upper.length],
+    lower[values[1]! % lower.length],
+    digits[values[2]! % digits.length],
+    special[values[3]! % special.length],
   ];
-  const rest = Array.from(values.slice(4), (v) => all[v % all.length]);
+  const rest = values.slice(4).map((v) => all[v % all.length]);
   // Shuffle with Fisher-Yates using remaining random values
   const combined = [...mandatory, ...rest];
-  const shuffle = globalThis.crypto.getRandomValues(new Uint32Array(combined.length));
+  const shuffleValues = Array.from(
+    globalThis.crypto.getRandomValues(new Uint32Array(combined.length)),
+  );
   for (let i = combined.length - 1; i > 0; i--) {
-    const j = shuffle[i] % (i + 1);
-    [combined[i], combined[j]] = [combined[j], combined[i]];
+    const j = shuffleValues[i]! % (i + 1);
+    [combined[i], combined[j]] = [combined[j]!, combined[i]!];
   }
   return combined.join("");
 }

@@ -202,7 +202,7 @@ db-migrate: ## تشغيل ترحيل قاعدة البيانات - Run database 
 	@for dir in apps/services/field-management-service apps/services/user-service apps/services/marketplace-service apps/services/chat-service apps/services/disaster-assessment apps/services/iot-service apps/services/research-core apps/services/inventory-service apps/services/weather-service; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/prisma/schema.prisma" ]; then \
 			echo "$(BLUE)Migrating $$(basename $$dir)...$(RESET)"; \
-			cd "$$dir" && npx prisma migrate deploy && cd - > /dev/null; \
+			(cd "$$dir" && npx prisma migrate deploy); \
 		fi; \
 	done
 	@echo "$(GREEN)✅ اكتمل الترحيل - Migrations complete!$(RESET)"
@@ -210,7 +210,7 @@ db-migrate: ## تشغيل ترحيل قاعدة البيانات - Run database 
 db-seed: ## ملء قاعدة البيانات بالبيانات التجريبية - Seed database with sample data
 	@echo "$(YELLOW)🌱 ملء قاعدة البيانات - Seeding database...$(RESET)"
 	@if [ -d "apps/services/field-management-service" ]; then \
-		cd apps/services/field-management-service && npx prisma db seed; \
+		(cd apps/services/field-management-service && npx prisma db seed); \
 	fi
 	@echo "$(GREEN)✅ تم ملء البيانات - Database seeded!$(RESET)"
 
@@ -376,7 +376,7 @@ fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Compreh
 	python -m tools.fixops --no-dry-run --strategy comprehensive
 
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
-	@python3 -m tools.fixops.cli --dry-run --json
+	@python -m tools.fixops --dry-run --json
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Monitoring - المراقبة
@@ -644,6 +644,7 @@ dev-install: ## تثبيت أدوات التطوير - Install development depen
 	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
 	python -m pip install -U pip
 	pip install -r requirements/base.txt -r requirements/testing.txt
+	pip install pre-commit
 	pre-commit install
 	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
 	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi
@@ -1080,7 +1081,7 @@ db-generate: ## توليد عملاء قاعدة البيانات - Generate dat
 	@for dir in apps/services/field-management-service apps/services/user-service apps/services/marketplace-service apps/services/chat-service apps/services/disaster-assessment apps/services/iot-service apps/services/research-core apps/services/inventory-service apps/services/weather-service; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/prisma/schema.prisma" ]; then \
 			echo "Generating for $$(basename $$dir)..."; \
-			cd "$$dir" && npx prisma generate && cd - > /dev/null; \
+			(cd "$$dir" && npx prisma generate); \
 		fi; \
 	done
 	@echo "$(GREEN)✅ توليد العملاء مكتمل - Client generation complete!$(RESET)"

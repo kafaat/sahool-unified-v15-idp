@@ -64,8 +64,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-    const initialTheme = stored || "system";
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    const VALID_THEMES: ReadonlySet<string> = new Set(["light", "dark", "system"]);
+    const initialTheme: Theme = stored && VALID_THEMES.has(stored) ? (stored as Theme) : "system";
     setThemeState(initialTheme);
     const resolved = resolveTheme(initialTheme);
     setResolvedTheme(resolved);

@@ -107,10 +107,10 @@ describe("Root Layout SEO", () => {
     expect(layoutContent).toContain("nonce");
   });
 
-  it("loads Leaflet CSS asynchronously", () => {
+  it("loads Leaflet CSS with integrity", () => {
     expect(layoutContent).toContain("leaflet");
-    expect(layoutContent).toContain('media="print"');
-    expect(layoutContent).toContain("onLoad");
+    expect(layoutContent).toContain("integrity");
+    expect(layoutContent).toContain("crossOrigin");
   });
 
   it("has noscript fallback for Leaflet CSS", () => {

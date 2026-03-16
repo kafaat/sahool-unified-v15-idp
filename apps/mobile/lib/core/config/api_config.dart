@@ -65,8 +65,12 @@ class ServicePorts {
     if (EnvConfig.chatPort != contracts.ServicePorts.chatService) {
       mismatches['chat'] = 'env=${EnvConfig.chatPort} contract=${contracts.ServicePorts.chatService}';
     }
-    if (EnvConfig.communityChatPort != contracts.ServicePorts.chatService) {
-      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.chatService}';
+    if (EnvConfig.communityChatPort != contracts.ServicePorts.communityChat) {
+      mismatches['communityChat'] = 'env=${EnvConfig.communityChatPort} contract=${contracts.ServicePorts.communityChat}';
+    }
+    if (contracts.ServicePorts.communityChat != contracts.ServicePorts.chatService) {
+      mismatches['communityChatAliasToChatService'] =
+          'communityChat=${contracts.ServicePorts.communityChat} chatService=${contracts.ServicePorts.chatService}';
     }
     if (EnvConfig.sprayPort != contracts.ServicePorts.yieldPrediction) {
       mismatches['yieldPrediction'] = 'env=${EnvConfig.sprayPort} contract=${contracts.ServicePorts.yieldPrediction}';

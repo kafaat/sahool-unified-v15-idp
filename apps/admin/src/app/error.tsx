@@ -20,7 +20,7 @@ export default function Error({
   useEffect(() => {
     // Log error to monitoring (Sentry is configured via sentry.client.config.ts)
     if (typeof window !== "undefined" && (window as any).__SENTRY__) {
-      import("@sentry/nextjs").then((Sentry) => {
+      import(/* webpackIgnore: true */ "@sentry/nextjs").then((Sentry) => {
         Sentry.captureException(error);
       });
     }

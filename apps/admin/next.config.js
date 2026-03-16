@@ -1,4 +1,11 @@
-const { withSentryConfig } = require("@sentry/nextjs");
+let withSentryConfig;
+try {
+  withSentryConfig = require("@sentry/nextjs").withSentryConfig;
+} catch {
+  // @sentry/nextjs not installed – skip Sentry wrapper
+  withSentryConfig = null;
+}
+
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -262,7 +269,7 @@ const nextConfig = {
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };
 
-module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
+const sentryOptions = {
   // Sentry Build-Time Optimizations
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -294,4 +301,8 @@ module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
 
   // Widen file upload scope so Sentry can match source maps across chunks
   widenClientFileUpload: true,
-});
+};
+
+module.exports = withSentryConfig
+  ? withSentryConfig(withBundleAnalyzer(nextConfig), sentryOptions)
+  : withBundleAnalyzer(nextConfig);

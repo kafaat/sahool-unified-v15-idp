@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
    * Uses dynamic import to avoid bundling @sentry/nextjs into this chunk.
    */
   private reportToSentry = (error: Error, errorInfo: ErrorInfo): void => {
-    import("@sentry/nextjs")
+    import(/* webpackIgnore: true */ "@sentry/nextjs")
       .then((Sentry) => {
         const eventId = Sentry.captureException(error, {
           contexts: {

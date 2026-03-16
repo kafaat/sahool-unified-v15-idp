@@ -210,7 +210,7 @@ services:
           minute: 60
           hour: 1000
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true
@@ -334,7 +334,7 @@ services:
           minute: 20
           hour: 200
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true
@@ -529,7 +529,7 @@ services:
           minute: 100
           hour: 5000
           policy: redis
-          redis_host: kong-redis
+          redis_host: redis
           redis_port: 6379
           redis_timeout: 2000
           fault_tolerant: true

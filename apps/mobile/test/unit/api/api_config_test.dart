@@ -101,6 +101,10 @@ void main() {
       expect(ApiConfig.virtualSensorsServiceUrl, contains(':${ServicePorts.virtualSensors}'));
     });
 
+    test('should generate correct chat service URL', () {
+      expect(ApiConfig.chatServiceUrl, contains(':${ServicePorts.chat}'));
+    });
+
     test('should have production base URL', () {
       expect(ApiConfig.productionBaseUrl, 'https://api.sahool.io');
     });

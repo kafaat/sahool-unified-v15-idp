@@ -9,6 +9,10 @@ import json
 from datetime import timezone, datetime, UTC
 from uuid import uuid4
 
+import pytest
+
+pytest.importorskip("sqlalchemy", reason="sqlalchemy required for audit tests")
+
 from shared.libs.audit.hashchain import (
     build_canonical_string,
     compute_entry_hash,

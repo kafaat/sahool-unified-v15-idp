@@ -15,7 +15,10 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None  # type: ignore[assignment]
 
 # ============================================================================
 # EVALUATION METRICS

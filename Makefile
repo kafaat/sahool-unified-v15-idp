@@ -83,7 +83,7 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "$(BOLD)Usage Examples - أمثلة الاستخدام:$(RESET)"
 	@echo "  $(GREEN)make dev$(RESET)                      - بدء بيئة التطوير"
 	@echo "  $(GREEN)make build$(RESET)                    - بناء جميع صور Docker"
-	@echo "  $(GREEN)make logs-service SERVICE=field_ops$(RESET) - عرض سجلات خدمة محددة"
+	@echo "  $(GREEN)make logs-service SERVICE=field-management-service$(RESET) - عرض سجلات خدمة محددة"
 	@echo "  $(GREEN)make shell SERVICE=postgres$(RESET)   - فتح طرفية في حاوية"
 	@echo "  $(GREEN)make test-python$(RESET)              - تشغيل اختبارات Python"
 	@echo "  $(GREEN)make service-health$(RESET)           - فحص صحة جميع الخدمات"
@@ -315,9 +315,9 @@ status: ## عرض حالة الخدمات - Show service status
 	@echo "$(BOLD)  روابط الخدمات - Service URLs$(RESET)"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
 	@echo "  $(BLUE)API Gateway (Kong):$(RESET)       http://localhost:8000"
-	@echo "  $(BLUE)Field Ops Service:$(RESET)        http://localhost:8080"
-	@echo "  $(BLUE)Weather Core:$(RESET)             http://localhost:8108"
-	@echo "  $(BLUE)NDVI Engine:$(RESET)              http://localhost:8107"
+	@echo "  $(BLUE)Field Management:$(RESET)         http://localhost:3000"
+	@echo "  $(BLUE)Weather Service:$(RESET)          http://localhost:8092"
+	@echo "  $(BLUE)Vegetation Analysis:$(RESET)      http://localhost:8090"
 	@echo "  $(BLUE)Crop Growth Model:$(RESET)        http://localhost:3023"
 	@echo "  $(BLUE)Admin Dashboard:$(RESET)          http://localhost:3001"
 	@echo "  $(BLUE)Web Application:$(RESET)          http://localhost:3000"
@@ -331,7 +331,7 @@ status: ## عرض حالة الخدمات - Show service status
 health: ## فحص صحة جميع الخدمات - Check health of all services
 	@echo "$(BLUE)🏥 فحص صحة الخدمات - Health Check...$(RESET)"
 	@echo ""
-	@for service in postgres redis nats kong field_ops weather_core; do \
+	@for service in postgres redis nats kong field-management-service weather-service; do \
 		if docker compose -f $(COMPOSE_BASE) ps $$service | grep -q "Up"; then \
 			echo "$(GREEN)✅ $$service - Healthy$(RESET)"; \
 		else \
@@ -341,7 +341,7 @@ health: ## فحص صحة جميع الخدمات - Check health of all services
 	@echo ""
 	@echo "$(BLUE)Testing API endpoints...$(RESET)"
 	@curl -s -o /dev/null -w "Kong Gateway: %{http_code}\n" http://localhost:8000 || echo "Kong: Not responding"
-	@curl -s -o /dev/null -w "Field Ops: %{http_code}\n" http://localhost:8080/health || echo "Field Ops: Not responding"
+	@curl -s -o /dev/null -w "Field Management: %{http_code}\n" http://localhost:3000/healthz || echo "Field Management: Not responding"
 	@echo ""
 
 shell: ## فتح طرفية في حاوية - Open shell in container (usage: make shell SERVICE=postgres)

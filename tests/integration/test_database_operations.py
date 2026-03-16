@@ -21,8 +21,9 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
-import psycopg2
 import pytest
+
+psycopg2 = pytest.importorskip("psycopg2", reason="psycopg2 required for database tests")
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 

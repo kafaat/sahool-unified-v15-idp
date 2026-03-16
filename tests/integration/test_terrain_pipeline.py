@@ -20,8 +20,9 @@ from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import numpy as np
 import pytest
+
+np = pytest.importorskip("numpy", reason="numpy required for terrain tests")
 
 # Mark all tests in this file as integration tests
 pytestmark = pytest.mark.integration

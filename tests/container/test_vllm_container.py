@@ -515,7 +515,7 @@ class TestVLLMKongGateway:
         """Kong vLLM service points to correct host."""
         services = self.kong.get("services", [])
         vllm_svc = next(s for s in services if "vllm" in s.get("name", ""))
-        assert vllm_svc.get("host") == "vllm"
+        assert vllm_svc.get("host") == "vllm-deepseek"
 
     def test_vllm_service_port_8270(self):
         """Kong vLLM service uses port 8270."""

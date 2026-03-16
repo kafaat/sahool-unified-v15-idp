@@ -33,7 +33,7 @@ import type {
 import { ApiError, parseAxiosError } from "./errors";
 
 // Import unified contracts - استيراد العقود الموحدة
-import { SERVICE_PORT_ALIASES } from "@sahool/shared-types/contracts";
+import { SERVICE_PORT_ALIASES, CUSTOM_HEADERS } from "@sahool/shared-types/contracts";
 
 // Re-export all types
 export * from "./types";
@@ -65,6 +65,7 @@ export class SahoolApiClient {
   private enforceHttps: boolean;
   private isRefreshing: boolean = false;
   private refreshSubscribers: Array<(token: string | null) => void> = [];
+  private tenantId: string | null = null;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Default retry configuration
@@ -129,17 +130,28 @@ export class SahoolApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add auth token and enforce HTTPS
+    // Request interceptor - add auth token, request ID, tenant ID, and enforce HTTPS
     this.client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       // Enforce HTTPS on outgoing request URLs in production
       if (this.enforceHttps && config.url) {
         config.url = this.upgradeToHttps(config.url);
       }
 
+      // Add unique request ID for traceability (preserve caller-provided ID)
+      if (!config.headers.has(CUSTOM_HEADERS.REQUEST_ID)) {
+        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, crypto.randomUUID());
+      }
+
       const token = this.config.getToken?.();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      // Add tenant ID header for multi-tenant isolation
+      if (this.tenantId) {
+        config.headers[CUSTOM_HEADERS.TENANT_ID] = this.tenantId;
+      }
+
       return config;
     });
 
@@ -557,6 +569,10 @@ export class SahoolApiClient {
 
   setToken(token: string): void {
     this.config.setToken?.(token);
+  }
+
+  setTenantId(tenantId: string): void {
+    this.tenantId = tenantId;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

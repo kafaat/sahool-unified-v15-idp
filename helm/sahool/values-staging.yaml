@@ -29,7 +29,7 @@ infrastructure:
     auth:
       username: sahool_staging
       database: sahool_staging
-      existingSecret: "sahool-postgresql-secret-staging"
+      existingSecret: "sahool-postgresql-secret-staging"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     primary:
       persistence:
         enabled: true
@@ -45,7 +45,7 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      existingSecret: "sahool-redis-secret-staging"
+      existingSecret: "sahool-redis-secret-staging"  # checkov:skip=CKV_SECRET_6:Reference to K8s Secret name, not a hardcoded secret
     master:
       persistence:
         enabled: true

@@ -45,7 +45,7 @@ export default async function RootLayout({
   const direction = getDirection(locale);
 
   return (
-    <html lang={locale} dir={direction} className={tajawal.variable}>
+    <html lang={locale} dir={direction} className={tajawal.variable} suppressHydrationWarning>
       <head>
         {/*
           Tajawal Arabic font loaded asynchronously — not render-blocking.
@@ -82,7 +82,7 @@ export default async function RootLayout({
           />
         </noscript>
       </head>
-      <body className="font-tajawal bg-gray-50 min-h-screen">
+      <body className="font-tajawal bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"

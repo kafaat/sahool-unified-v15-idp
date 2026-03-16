@@ -41,6 +41,8 @@ export interface EnhancedDataTableProps<T> {
   onRowDoubleClick?: (item: T) => void;
   emptyMessage?: string;
   emptyMessageAr?: string;
+  caption?: string;
+  captionAr?: string;
   className?: string;
   isLoading?: boolean;
   // Pagination
@@ -72,6 +74,8 @@ function EnhancedDataTableInner<T>({
   onRowDoubleClick,
   emptyMessage = "No data available",
   emptyMessageAr = "لا توجد بيانات",
+  caption,
+  captionAr,
   className = "",
   isLoading = false,
   pagination = true,
@@ -292,6 +296,9 @@ function EnhancedDataTableInner<T>({
         style={{ maxHeight }}
       >
         <table className="w-full">
+          {(captionAr || caption) && (
+            <caption className="sr-only">{captionAr || caption}</caption>
+          )}
           <thead
             className={cn(
               "bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700",
@@ -300,7 +307,7 @@ function EnhancedDataTableInner<T>({
           >
             <tr>
               {selectable && (
-                <th className="w-12 px-4 py-3">
+                <th className="w-12 px-4 py-3" scope="col">
                   <button
                     onClick={handleSelectAll}
                     className={cn(
@@ -318,9 +325,19 @@ function EnhancedDataTableInner<T>({
                   </button>
                 </th>
               )}
-              {columns.map((col) => (
+              {columns.map((col) => {
+                const colKey = col.sortKey || col.key;
+                const isActiveSortCol = sortColumn === colKey;
+                const ariaSortValue = isActiveSortCol && sortDirection === "asc"
+                  ? "ascending" as const
+                  : isActiveSortCol && sortDirection === "desc"
+                    ? "descending" as const
+                    : undefined;
+
+                return (
                 <th
                   key={col.key}
+                  scope="col"
                   className={cn(
                     "text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider",
                     compact ? "px-4 py-2" : "px-6 py-3",
@@ -332,15 +349,17 @@ function EnhancedDataTableInner<T>({
                   )}
                   style={{ width: col.width }}
                   onClick={() =>
-                    col.sortable && handleSort(col.sortKey || col.key)
+                    col.sortable && handleSort(colKey)
                   }
+                  aria-sort={ariaSortValue}
                 >
                   <span className="inline-flex items-center gap-1">
                     {col.header}
                     {renderSortIcon(col)}
                   </span>
                 </th>
-              ))}
+                );
+              })}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -440,6 +459,7 @@ function EnhancedDataTableInner<T>({
                 setCurrentPage(1);
               }}
               className="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              aria-label="عدد الصفوف في كل صفحة"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>

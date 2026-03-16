@@ -42,12 +42,12 @@ class TestSanitizeString:
         assert "&lt;script&gt;" in result
 
     def test_javascript_protocol_escaped(self):
-        """javascript: protocol is detected and escaped."""
+        """javascript: protocol is detected and logged; HTML-escaped output returned."""
         malicious = 'javascript:alert(1)'
         result = sanitize_string(malicious)
-        # The function escapes HTML entities, javascript: itself doesn't contain < >
-        # But the pattern is detected and logged
-        assert result is not None
+        # html.escape leaves this unchanged (no < > & " chars), but the
+        # dangerous-pattern detector logs a warning for the javascript: protocol.
+        assert result == "javascript:alert(1)"
 
     def test_event_handler_escaped(self):
         """Event handler attributes are detected."""
@@ -93,10 +93,12 @@ class TestSanitizeString:
         assert "<script>" not in result
 
     def test_css_expression_detected(self):
-        """CSS expression() is a dangerous pattern."""
+        """CSS expression() is detected and logged; HTML-escaped output returned."""
         malicious = 'expression(alert(1))'
         result = sanitize_string(malicious)
-        assert result is not None
+        # No HTML special chars to escape, so output is unchanged.
+        # The dangerous-pattern detector logs a warning for expression().
+        assert result == "expression(alert(1))"
 
     def test_data_url_in_css(self):
         """data: URLs in CSS context are detected."""

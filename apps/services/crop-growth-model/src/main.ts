@@ -32,9 +32,6 @@ async function bootstrap() {
   // Global request logging interceptor with correlation IDs
   app.useGlobalInterceptors(new RequestLoggingInterceptor("crop-growth-model"));
 
-  // Global API prefix for consistent versioning
-  app.setGlobalPrefix("api/v1");
-
   // CORS
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [
     "https://sahool.com",

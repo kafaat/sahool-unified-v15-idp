@@ -67,9 +67,11 @@ class TestSanitizeUrl:
 
     def test_complex_password_masked(self):
         """Complex passwords with special chars are masked."""
-        url = "postgresql://admin:p@ss!w0rd%40host@db.example.com:5432/db"
+        url = "postgresql://admin:p%40ss!w0rd%23%26@db.example.com:5432/db"
         result = sanitize_url(url)
-        assert "p@ss" not in result or "***@" in result
+        assert result == "postgresql://***@db.example.com:5432/db"
+        assert "admin" not in result
+        assert "p%40ss" not in result
 
     def test_amqp_url_masked(self):
         """AMQP/RabbitMQ credentials are masked."""

@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from "lucide-react";
 import { useCart } from "../hooks/useCart";
@@ -159,6 +159,11 @@ const CartItem: React.FC<CartItemProps> = ({
   const total = product.price * quantity;
   const [inputValue, setInputValue] = useState(String(quantity));
 
+  // Sync local input state when parent quantity prop changes
+  useEffect(() => {
+    setInputValue(String(quantity));
+  }, [quantity]);
+
   return (
     <div className="flex gap-3 p-3 bg-gray-50 rounded-lg">
       {/* Image */}
@@ -207,8 +212,10 @@ const CartItem: React.FC<CartItemProps> = ({
                 const val = parseInt(inputValue, 10);
                 if (!isNaN(val) && val > 0) {
                   onUpdateQuantity(val);
+                  setInputValue(String(val));
+                } else {
+                  setInputValue(String(quantity));
                 }
-                setInputValue(String(quantity));
               }}
               className="w-10 text-center text-sm font-semibold bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               aria-label="الكمية"

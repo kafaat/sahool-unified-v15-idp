@@ -400,7 +400,7 @@ class AdminApiClient {
       "Content-Type": "application/json",
       Accept: "application/json",
       "Accept-Language": "ar,en",
-      "X-Request-ID": crypto.randomUUID(),
+      "X-Request-Id": crypto.randomUUID(),
       ...options.headers,
     };
 

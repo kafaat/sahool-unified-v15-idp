@@ -48,7 +48,8 @@ metadata:
   namespace: sahool
 type: Opaque
 stringData:
-  POSTGRES_PASSWORD: "your-secure-password-here"  # Replace with actual password
+  # Inject at deploy time via sealed-secrets, external-secrets, or vault
+  POSTGRES_PASSWORD: "CHANGE_ME_BEFORE_DEPLOY"
 
 ---
 # CronJob for Periodic Health Checks

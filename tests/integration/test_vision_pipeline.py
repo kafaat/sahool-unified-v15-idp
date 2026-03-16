@@ -26,7 +26,8 @@ from typing import Any, Generator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from PIL import Image
+
+Image = pytest.importorskip("PIL.Image", reason="Pillow required for vision tests")
 
 # Mark all tests in this file as integration tests
 pytestmark = pytest.mark.integration

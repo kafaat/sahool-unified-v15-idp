@@ -7,7 +7,8 @@ actual hardware or models.
 """
 
 import pytest
-import numpy as np
+
+np = pytest.importorskip("numpy", reason="numpy required for vision tests")
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 import json

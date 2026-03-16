@@ -61,7 +61,7 @@ export default function DashboardLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors">
         <ErrorBoundary
           fallback={
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg m-4">

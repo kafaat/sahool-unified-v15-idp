@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
 import { clsx } from "clsx";
 import dynamic from "next/dynamic";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Lazy-load the user menu dropdown -- only shown on click interaction
 const UserMenuDropdown = dynamic(
@@ -54,10 +55,10 @@ export const Header = React.memo(function Header() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between">
+    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between transition-colors">
       {/* Left section */}
       <div className="flex items-center gap-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
           {t("welcomeMessage")}, {user?.name_ar || user?.name}
         </h2>
         <Badge variant="success" size="sm">
@@ -70,10 +71,13 @@ export const Header = React.memo(function Header() {
         {/* Locale Switcher */}
         <LocaleSwitcher />
 
+        {/* Theme Toggle */}
+        <ThemeToggle variant="dropdown" />
+
         {/* Notifications */}
         <button
           type="button"
-          className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={t("notifications") || "Notifications"}
         >
           <Bell className="w-5 h-5" />

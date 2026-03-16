@@ -11,11 +11,14 @@
 
 import { AuthProvider } from "@/stores/auth.store";
 import { ToastProvider } from "@/components/ui/toast";
+import { ThemeProvider } from "@/stores/theme.store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <ToastProvider>{children}</ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -142,7 +142,7 @@ services:
     volumes:
       - ./tests:/app/tests
       - ./apps:/app/apps
-      - ./pytest.ini:/app/pytest.ini
+      - ./pyproject.toml:/app/pyproject.toml
       - ./test-results:/app/test-results
     environment:
       - ENVIRONMENT=test

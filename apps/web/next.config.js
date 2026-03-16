@@ -9,6 +9,14 @@ try {
     err?.code === "MODULE_NOT_FOUND" &&
     /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
   if (!isSentryMissing) throw err;
+  // Fail fast when Sentry is expected (DSN configured) but the package is missing.
+  // This prevents silently disabling source-map upload / instrumentation in CI/prod.
+  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+    throw new Error(
+      "@sentry/nextjs is not installed but NEXT_PUBLIC_SENTRY_DSN is set. " +
+      "Install the package or remove the DSN to build without Sentry."
+    );
+  }
   withSentryConfig = null;
 }
 

@@ -246,7 +246,7 @@ export const teamApi = {
         lastName: data.lastName,
         phone: data.phone,
         role: data.role,
-        password: Math.random().toString(36).slice(-8) + "A1!", // Temporary password
+        password: globalThis.crypto.randomUUID().slice(0, 12) + "A1!", // Temporary password (crypto-safe)
         tenantId: "default-tenant", // Should come from context
         status: "PENDING",
         emailVerified: false,

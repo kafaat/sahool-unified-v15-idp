@@ -241,6 +241,9 @@ async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.Asyn
         raise ValueError(f"Unknown tool: {tool}")
 
 
+_CODE_AGENT_ACTIONS = {"analyze", "fix", "review", "diagnose", "test"}
+
+
 async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
     """Proxy request to code-fix-agent"""
     from ...core.config import get_settings
@@ -249,6 +252,9 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: htt
     action = tool.split(".")[-1]
     client = http_client or httpx.AsyncClient(timeout=30.0)
     _should_close = http_client is None
+
+    if action not in _CODE_AGENT_ACTIONS:
+        return {"error": f"Unknown code agent action: {action}"}
 
     try:
         response = await client.post(
@@ -266,6 +272,9 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any], http_client: htt
             await client.aclose()
 
 
+_FIELD_SERVICE_ACTIONS = {"list", "get", "create", "update", "delete", "boundaries", "statistics"}
+
+
 async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
     """Proxy request to field management service"""
     from ...core.config import get_settings
@@ -274,6 +283,9 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: 
     action = tool.split(".")[-1]
     client = http_client or httpx.AsyncClient(timeout=30.0)
     _should_close = http_client is None
+
+    if action not in _FIELD_SERVICE_ACTIONS:
+        return {"error": f"Unknown field service action: {action}"}
 
     try:
         if action == "list":
@@ -303,6 +315,9 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any], http_client: 
             await client.aclose()
 
 
+_WEATHER_SERVICE_ACTIONS = {"forecast", "current", "historical", "alerts", "stations"}
+
+
 async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
     """Proxy request to weather service"""
     from ...core.config import get_settings
@@ -311,6 +326,9 @@ async def _proxy_to_weather_service(tool: str, args: dict[str, Any], http_client
     action = tool.split(".")[-1]
     client = http_client or httpx.AsyncClient(timeout=30.0)
     _should_close = http_client is None
+
+    if action not in _WEATHER_SERVICE_ACTIONS:
+        return {"error": f"Unknown weather service action: {action}"}
 
     try:
         if action == "forecast":

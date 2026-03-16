@@ -203,6 +203,14 @@ export default function InventoryPage() {
 
   const handleExportCSV = useCallback(() => {
     const headers = ["الصنف", "الفئة", "المزرعة", "الكمية", "الوحدة", "القيمة", "الحالة", "آخر تحديث"];
+    // RFC 4180: wrap fields containing commas, quotes, or newlines
+    const escapeCSV = (val: string | number): string => {
+      const s = String(val);
+      if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
     const rows = filteredInventory.map((item) => [
       item.nameAr,
       item.categoryAr,
@@ -214,7 +222,7 @@ export default function InventoryPage() {
       item.lastUpdated,
     ]);
     const bom = "\uFEFF";
-    const csv = bom + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csv = bom + [headers.map(escapeCSV).join(","), ...rows.map((r) => r.map(escapeCSV).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

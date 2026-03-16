@@ -37,7 +37,9 @@ export default function DashboardShell({
           <div className="px-6 pt-4">
             <Breadcrumbs className="mb-2" />
           </div>
-          {children}
+          <div className="animate-page-enter">
+            {children}
+          </div>
         </main>
       </div>
     </AuthGuard>

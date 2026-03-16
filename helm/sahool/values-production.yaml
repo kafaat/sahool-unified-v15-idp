@@ -502,7 +502,8 @@ monitoring:
         memory: 4Gi
   grafana:
     enabled: true
-    adminPassword: ""  # Must be set via secret
+    # CKV_SECRET_6: adminPassword must be provided via existing secret, not inline
+    existingSecret: "sahool-grafana-admin-secret"
     persistence:
       enabled: true
       size: 10Gi

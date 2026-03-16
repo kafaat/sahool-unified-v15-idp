@@ -1,4 +1,17 @@
-const { withSentryConfig } = require("@sentry/nextjs");
+let withSentryConfig;
+let sentryInstalled = false;
+try {
+  withSentryConfig = require("@sentry/nextjs").withSentryConfig;
+  sentryInstalled = true;
+} catch (/** @type {any} */ err) {
+  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
+  const isSentryMissing =
+    err?.code === "MODULE_NOT_FOUND" &&
+    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
+  if (!isSentryMissing) throw err;
+  withSentryConfig = null;
+}
+
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -178,6 +191,15 @@ const nextConfig = {
       tls: false,
     };
 
+    // When @sentry/nextjs is not installed, alias it to false so dynamic
+    // imports resolve to an empty module instead of breaking the build
+    if (!sentryInstalled) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "@sentry/nextjs": false,
+      };
+    }
+
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces
     const path = require("path");
@@ -262,7 +284,7 @@ const nextConfig = {
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };
 
-module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
+const sentryOptions = {
   // Sentry Build-Time Optimizations
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -294,4 +316,8 @@ module.exports = withSentryConfig(withBundleAnalyzer(nextConfig), {
 
   // Widen file upload scope so Sentry can match source maps across chunks
   widenClientFileUpload: true,
-});
+};
+
+module.exports = withSentryConfig
+  ? withSentryConfig(withBundleAnalyzer(nextConfig), sentryOptions)
+  : withBundleAnalyzer(nextConfig);

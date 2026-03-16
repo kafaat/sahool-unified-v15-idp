@@ -370,8 +370,6 @@ services:
             - application/json
           cache_ttl: 1800  # 30 minutes
           strategy: memory
-          memory:
-            dictionary_name: kong_db_cache
 
   - name: indicators-service
     host: indicators-service
@@ -405,8 +403,6 @@ services:
             - application/json
           cache_ttl: 900  # 15 minutes
           strategy: memory
-          memory:
-            dictionary_name: kong_db_cache
 
   - name: advisory-service
     host: advisory-service

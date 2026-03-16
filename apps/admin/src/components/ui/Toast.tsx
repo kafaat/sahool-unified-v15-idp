@@ -92,7 +92,7 @@ function ToastItemView({
   const config = toastConfig[item.type];
   const Icon = config.icon;
   const [isExiting, setIsExiting] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const duration = item.duration ?? 4000;

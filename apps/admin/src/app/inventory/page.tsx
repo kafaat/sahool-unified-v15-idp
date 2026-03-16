@@ -172,20 +172,21 @@ export default function InventoryPage() {
       return;
     }
 
+    const now = new Date().toISOString().split("T")[0] as string;
+
     if (modalMode === "create") {
       const newItem: InventoryItem = {
         ...formData,
         id: crypto.randomUUID(),
-        lastUpdated: new Date().toISOString().split("T")[0],
+        lastUpdated: now,
       };
       setInventory((prev) => [...prev, newItem]);
       toast.success("Item added", "تمت إضافة الصنف بنجاح");
     } else if (modalMode === "edit" && selectedItem) {
+      const updated: InventoryItem = { ...selectedItem, ...formData, lastUpdated: now };
       setInventory((prev) =>
         prev.map((item) =>
-          item.id === selectedItem.id
-            ? { ...item, ...formData, lastUpdated: new Date().toISOString().split("T")[0] }
-            : item
+          item.id === selectedItem.id ? updated : item
         )
       );
       toast.success("Item updated", "تم تحديث الصنف بنجاح");

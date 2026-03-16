@@ -28,7 +28,6 @@ import {
   FlaskConical,
   Shield,
   MessageCircle,
-  FileText,
   Plane,
   Mountain,
   Eye,
@@ -98,7 +97,7 @@ export default function CommandPalette() {
     const groups: Record<string, CommandItem[]> = {};
     filteredCommands.forEach((cmd) => {
       if (!groups[cmd.section]) groups[cmd.section] = [];
-      groups[cmd.section].push(cmd);
+      groups[cmd.section]!.push(cmd);
     });
     return groups;
   }, [filteredCommands]);

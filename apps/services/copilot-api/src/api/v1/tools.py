@@ -235,6 +235,9 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
         raise ValueError(f"Unknown tool: {tool}")
 
 
+_CODE_AGENT_ACTIONS = {"analyze", "fix", "review", "diagnose", "test"}
+
+
 async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to code-fix-agent"""
     import httpx
@@ -243,6 +246,9 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
 
     settings = get_settings()
     action = tool.split(".")[-1]
+
+    if action not in _CODE_AGENT_ACTIONS:
+        return {"error": f"Unknown code agent action: {action}"}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -258,6 +264,9 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
         return {"error": f"Code agent unavailable: {e}"}
 
 
+_FIELD_SERVICE_ACTIONS = {"list", "get", "create", "update", "delete", "boundaries", "statistics"}
+
+
 async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to field management service"""
     import httpx
@@ -266,6 +275,9 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
 
     settings = get_settings()
     action = tool.split(".")[-1]
+
+    if action not in _FIELD_SERVICE_ACTIONS:
+        return {"error": f"Unknown field service action: {action}"}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -293,6 +305,9 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
         return {"error": f"Field service unavailable: {e}"}
 
 
+_WEATHER_SERVICE_ACTIONS = {"forecast", "current", "historical", "alerts", "stations"}
+
+
 async def _proxy_to_weather_service(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to weather service"""
     import httpx
@@ -301,6 +316,9 @@ async def _proxy_to_weather_service(tool: str, args: dict[str, Any]) -> Any:
 
     settings = get_settings()
     action = tool.split(".")[-1]
+
+    if action not in _WEATHER_SERVICE_ACTIONS:
+        return {"error": f"Unknown weather service action: {action}"}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:

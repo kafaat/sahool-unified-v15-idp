@@ -6,7 +6,7 @@
  * and port correctness after deprecated service removal.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   SERVICE_REGISTRY,
   getServiceVersions,
@@ -37,7 +37,6 @@ function createLocalStorageMock() {
       return Object.keys(store).length;
     },
     key: vi.fn((index: number) => Object.keys(store)[index] ?? null),
-    _store: store,
   };
 }
 
@@ -47,6 +46,10 @@ describe("Service Switcher", () => {
   beforeEach(() => {
     mockStorage = createLocalStorageMock();
     vi.stubGlobal("localStorage", mockStorage);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   describe("Service Registry", () => {
@@ -119,10 +122,11 @@ describe("Service Switcher", () => {
     });
 
     it("should load saved versions from localStorage", () => {
-      mockStorage._store["sahool_service_versions"] = JSON.stringify({
-        weather: "legacy",
-        satellite: "mock",
-      });
+      mockStorage.setItem(
+        "sahool_service_versions",
+        JSON.stringify({ weather: "legacy", satellite: "mock" }),
+      );
+      mockStorage.setItem.mockClear();
 
       const versions = getServiceVersions();
 
@@ -132,7 +136,8 @@ describe("Service Switcher", () => {
     });
 
     it("should handle corrupted localStorage gracefully", () => {
-      mockStorage._store["sahool_service_versions"] = "not-json";
+      mockStorage.setItem("sahool_service_versions", "not-json");
+      mockStorage.setItem.mockClear();
 
       const versions = getServiceVersions();
       // Should fall back to defaults
@@ -179,9 +184,11 @@ describe("Service Switcher", () => {
     });
 
     it("should generate correct URL for legacy service", () => {
-      mockStorage._store["sahool_service_versions"] = JSON.stringify({
-        weather: "legacy",
-      });
+      mockStorage.setItem(
+        "sahool_service_versions",
+        JSON.stringify({ weather: "legacy" }),
+      );
+      mockStorage.setItem.mockClear();
 
       const url = getServiceUrl("weather", "localhost");
 
@@ -189,9 +196,11 @@ describe("Service Switcher", () => {
     });
 
     it("should generate correct URL for mock service", () => {
-      mockStorage._store["sahool_service_versions"] = JSON.stringify({
-        weather: "mock",
-      });
+      mockStorage.setItem(
+        "sahool_service_versions",
+        JSON.stringify({ weather: "mock" }),
+      );
+      mockStorage.setItem.mockClear();
 
       const url = getServiceUrl("weather", "localhost");
 
@@ -199,9 +208,11 @@ describe("Service Switcher", () => {
     });
 
     it("should fallback to modern when legacy is not available", () => {
-      mockStorage._store["sahool_service_versions"] = JSON.stringify({
-        irrigation: "legacy",
-      });
+      mockStorage.setItem(
+        "sahool_service_versions",
+        JSON.stringify({ irrigation: "legacy" }),
+      );
+      mockStorage.setItem.mockClear();
 
       const url = getServiceUrl("irrigation", "localhost");
 

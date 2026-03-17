@@ -102,6 +102,18 @@ export default function CommandPalette() {
     return groups;
   }, [filteredCommands]);
 
+  // Pre-compute flat index for each command to avoid mutable variable during render
+  const commandIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let idx = 0;
+    for (const items of Object.values(groupedCommands)) {
+      for (const cmd of items) {
+        map.set(cmd.id, idx++);
+      }
+    }
+    return map;
+  }, [groupedCommands]);
+
   // Open/close handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -150,8 +162,6 @@ export default function CommandPalette() {
   }, [selectedIndex]);
 
   if (!isOpen) return null;
-
-  let flatIndex = 0;
 
   return (
     <div className="fixed inset-0 z-[9999]">
@@ -204,7 +214,7 @@ export default function CommandPalette() {
                     {section}
                   </div>
                   {items.map((cmd) => {
-                    const currentIndex = flatIndex++;
+                    const currentIndex = commandIndexMap.get(cmd.id) ?? 0;
                     const isSelected = currentIndex === selectedIndex;
                     const Icon = cmd.icon;
 

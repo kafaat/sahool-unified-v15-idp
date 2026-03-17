@@ -91,9 +91,8 @@ module.exports = {
       // Typography - الخطوط العربية
       // ─────────────────────────────────────────────────────────────────────────
       fontFamily: {
-        arabic: ["var(--font-tajawal)", "Cairo", "sans-serif"],
-        tajawal: ["var(--font-tajawal)", "Cairo", "sans-serif"],
-        cairo: ["Cairo", "var(--font-tajawal)", "sans-serif"],
+        arabic: ["var(--font-tajawal)", "sans-serif"],
+        tajawal: ["var(--font-tajawal)", "sans-serif"],
       },
 
       // ─────────────────────────────────────────────────────────────────────────

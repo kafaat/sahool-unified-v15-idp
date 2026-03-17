@@ -252,7 +252,7 @@ export default function ProfitabilityPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    ${(crop.profit / crop.area).toFixed(2)}
+                    ${crop.area > 0 ? (crop.profit / crop.area).toFixed(2) : "0.00"}
                   </td>
                 </tr>
               ))}

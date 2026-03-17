@@ -109,14 +109,14 @@ export function useNearbyFields(
   return useQuery<Field[], Error>({
     queryKey: apiQueryKeys.nearbyFields(lat, lng, radius),
     queryFn: async () => {
-      if (!lat || !lng) return [];
+      if (lat == null || lng == null) return [];
       const response = await apiClient.getNearbyFields(lat, lng, radius);
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch nearby fields");
       }
       return response.data || [];
     },
-    enabled: !!(lat && lng),
+    enabled: lat != null && lng != null,
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -201,14 +201,14 @@ export function useWeather(
   return useQuery<WeatherData, Error>({
     queryKey: apiQueryKeys.weather(lat, lng),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error("Coordinates are required");
+      if (lat == null || lng == null) throw new Error("Coordinates are required");
       const response = await apiClient.getWeather(lat, lng);
       if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch weather data");
       }
       return response.data;
     },
-    enabled: !!(lat && lng),
+    enabled: lat != null && lng != null,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 300000, // Refresh every 5 minutes
     retry: 3,
@@ -236,14 +236,14 @@ export function useWeatherForecast(
   return useQuery<WeatherForecast, Error>({
     queryKey: apiQueryKeys.weatherForecast(lat, lng, days),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error("Coordinates are required");
+      if (lat == null || lng == null) throw new Error("Coordinates are required");
       const response = await apiClient.getWeatherForecast(lat, lng, days);
       if (!response.success || !response.data) {
         throw new Error(response.error || "Failed to fetch weather forecast");
       }
       return response.data;
     },
-    enabled: !!(lat && lng),
+    enabled: lat != null && lng != null,
     staleTime: 60 * 60 * 1000, // 1 hour
     refetchInterval: 3600000, // Refresh every hour
     retry: 3,
@@ -269,14 +269,14 @@ export function useAgriculturalRisks(
   return useQuery<AgriculturalRisk[], Error>({
     queryKey: apiQueryKeys.agriculturalRisks(lat, lng),
     queryFn: async () => {
-      if (!lat || !lng) throw new Error("Coordinates are required");
+      if (lat == null || lng == null) throw new Error("Coordinates are required");
       const response = await apiClient.getAgriculturalRisks(lat, lng);
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch agricultural risks");
       }
       return response.data || [];
     },
-    enabled: !!(lat && lng),
+    enabled: lat != null && lng != null,
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),

@@ -190,7 +190,7 @@ export function getCsrfCookieOptions(): {
   maxAge: number;
 } {
   return {
-    httpOnly: true,
+    httpOnly: false, // Must be readable by client JS for double-submit cookie pattern
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",

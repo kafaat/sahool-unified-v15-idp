@@ -101,7 +101,7 @@ export interface AdminSensorReading extends BaseSensorReading {
 }
 
 /** Admin-specific user roles */
-export type AdminUserRole = "admin" | "expert" | "viewer";
+export type AdminUserRole = "admin" | "supervisor" | "viewer";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Yemen governorates for the map

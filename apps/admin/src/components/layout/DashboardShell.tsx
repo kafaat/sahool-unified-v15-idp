@@ -30,7 +30,7 @@ export default function DashboardShell({
         <Sidebar />
         <main
           id="main-content"
-          className="mr-64 min-h-screen"
+          className="mr-0 lg:mr-64 min-h-screen"
           aria-label="المحتوى الرئيسي"
         >
           <div className="px-6 pt-4">

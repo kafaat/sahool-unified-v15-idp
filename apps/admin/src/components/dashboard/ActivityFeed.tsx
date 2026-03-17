@@ -235,7 +235,7 @@ function ActivityFeed({
 
       {/* Footer */}
       {filteredActivities.length > 0 &&
-        filteredActivities.length < activities.length && (
+        filteredActivities.length < (filter === "all" ? activities : activities.filter((a) => a.type === filter)).length && (
           <div className="p-3 border-t border-gray-100 text-center">
             <button
               onClick={() => setVisibleItems((prev) => prev + 10)}

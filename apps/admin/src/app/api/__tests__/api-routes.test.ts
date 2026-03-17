@@ -72,7 +72,7 @@ vi.mock("@/lib/csrf", () => ({
   })),
   serializeCsrfTokenPayload: vi.fn(() => "serialized-csrf-payload"),
   getCsrfCookieOptions: vi.fn(() => ({
-    httpOnly: true,
+    httpOnly: false,
     secure: false,
     sameSite: "strict" as const,
     path: "/",

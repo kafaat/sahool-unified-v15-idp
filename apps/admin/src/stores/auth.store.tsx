@@ -216,10 +216,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         setUser(null);
-        if (response.status === 401) {
-          // Session expired or invalid token
-          await logout();
-        }
+        // Note: Do NOT call logout() here - it causes an infinite redirect loop.
+        // The AuthGuard component will handle the redirect to /login when
+        // isAuthenticated becomes false. Calling logout() would trigger
+        // window.location.href = "/login" which re-triggers checkAuth.
       }
     } catch {
       setUser(null);

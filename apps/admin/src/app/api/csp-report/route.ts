@@ -228,9 +228,10 @@ export async function OPTIONS(request: NextRequest) {
   ).split(",").map(s => s.trim()).filter(Boolean);
 
   // Reflect the request origin if it's in the allowed list, otherwise use first allowed origin
+  const defaultOrigin = allowedOrigins[0] ?? "https://admin.sahool.app";
   const matchedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin)
     ? requestOrigin
-    : allowedOrigins[0] || "https://admin.sahool.app";
+    : defaultOrigin;
 
   return new NextResponse(null, {
     status: 204,

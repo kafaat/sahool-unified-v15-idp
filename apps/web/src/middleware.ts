@@ -54,6 +54,7 @@ const publicRoutes = [
   "/register",
   "/forgot-password",
   "/reset-password",
+  "/verify-otp",
   "/api/auth",
   "/",
 ];

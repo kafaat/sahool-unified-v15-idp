@@ -57,7 +57,28 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    const data = await response.json();
+    // Validate response content-type before parsing JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      logger.error(
+        `Login upstream returned non-JSON response: ${response.status} ${contentType}`,
+      );
+      return NextResponse.json(
+        { error: "An invalid response was received from the upstream server" },
+        { status: 502 },
+      );
+    }
+
+    let data: any;
+    try {
+      data = await response.json();
+    } catch {
+      logger.error("Login upstream returned invalid JSON");
+      return NextResponse.json(
+        { error: "Invalid response from authentication server" },
+        { status: 502 },
+      );
+    }
 
     if (!response.ok) {
       return NextResponse.json(
